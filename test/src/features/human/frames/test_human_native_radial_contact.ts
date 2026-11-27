@@ -1,4 +1,4 @@
-import { AutoMovieLoftViewFullSource as Full } from "@automovie/engine";
+import { AutoMovieEngineLoftViewFullSource as Full } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft as H,
   AutoMovieHumanF1,

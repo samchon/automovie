@@ -1,5 +1,7 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { pullCoverWay } from "@automovie/motions/internal";
+import {
+  pullCoverWay
+} from "../../../../../packages/motions/src/floor/internal/pullCoverWay";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../../internal/vclose";

@@ -1,7 +1,7 @@
 import {
-  Quaternion,
-  Vector3,
-  solvePhysicalFloorChainTarget,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
+  AutoMovieEnginePhysicalFloorChainTarget,
 } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalProfile,
@@ -59,9 +59,9 @@ export function test_engine_physics_solve_physical_floor_chain_target(): void {
   const body: IAutoMoviePhysicalSegment = profile.segments.find(
     (segment: IAutoMoviePhysicalSegment): boolean => segment.bone === "body",
   )!;
-  const hip: IAutoMovieVector3 = Vector3.add(
+  const hip: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     body.neutral.position,
-    Quaternion.rotateVector(
+    AutoMovieEngineQuaternion.rotateVector(
       body.neutral.rotation,
       profile.joints.find((joint): boolean => joint.child === "upper-0")!
         .parentFrame.position,
@@ -133,8 +133,8 @@ export function test_engine_physics_solve_physical_floor_chain_target(): void {
       | "iterations"
     >,
   ): number {
-    const result: ReturnType<typeof solvePhysicalFloorChainTarget> =
-      solvePhysicalFloorChainTarget({
+    const result: ReturnType<typeof AutoMovieEnginePhysicalFloorChainTarget.solve> =
+      AutoMovieEnginePhysicalFloorChainTarget.solve({
         profile,
         targets,
         chain,
@@ -147,7 +147,7 @@ export function test_engine_physics_solve_physical_floor_chain_target(): void {
     const world: (point: IAutoMovieVector3) => IAutoMovieVector3 = (
       point: IAutoMovieVector3,
     ): IAutoMovieVector3 =>
-      Vector3.add(pose.position, Quaternion.rotateVector(pose.rotation, point));
+      AutoMovieEngineVector3.add(pose.position, AutoMovieEngineQuaternion.rotateVector(pose.rotation, point));
     const gap: number =
       Math.min(
         ...corners(false).map(
@@ -202,9 +202,9 @@ export function test_engine_physics_solve_physical_floor_chain_target(): void {
       for (const y of undersideOnly ? [-1] : [-1, 1])
         for (const z of [-1, 1])
           points.push(
-            Vector3.add(
+            AutoMovieEngineVector3.add(
               shape.transform.position,
-              Quaternion.rotateVector(shape.transform.rotation, {
+              AutoMovieEngineQuaternion.rotateVector(shape.transform.rotation, {
                 x: x * shape.halfExtents.x,
                 y: y * shape.halfExtents.y,
                 z: z * shape.halfExtents.z,

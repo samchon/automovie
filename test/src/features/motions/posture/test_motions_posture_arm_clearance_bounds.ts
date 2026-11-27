@@ -1,12 +1,20 @@
-import type { AutoMovieMotionBound } from "@automovie/engine";
+import type { AutoMovieEngineMotionBound } from "@automovie/engine";
 import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import {
-  HumanArmShapeBox,
-  HumanArmSweepGradient,
-  HumanArmTrajectoryClusters,
-  HumanArmTrajectoryLinks,
-  HumanArmTrajectorySweepBound,
-} from "@automovie/motions/internal";
+  HumanArmShapeBox
+} from "../../../../../packages/motions/src/posture/internal/HumanArmShapeBox";
+import {
+  HumanArmSweepGradient
+} from "../../../../../packages/motions/src/posture/internal/HumanArmSweepGradient";
+import {
+  HumanArmTrajectoryClusters
+} from "../../../../../packages/motions/src/posture/internal/HumanArmTrajectoryClusters";
+import {
+  HumanArmTrajectoryLinks
+} from "../../../../../packages/motions/src/posture/internal/HumanArmTrajectoryLinks";
+import {
+  HumanArmTrajectorySweepBound
+} from "../../../../../packages/motions/src/posture/internal/HumanArmTrajectorySweepBound";
 import { TestValidator } from "@nestia/e2e";
 
 import { armTrajectoryReading } from "../../internal/armTrajectoryReading";
@@ -66,7 +74,7 @@ export function test_motions_posture_arm_clearance_bounds(): void {
     { x: 0, y: 3, z: 0 },
     { x: 0, y: 0, z: 0 },
   ];
-  const bound: AutoMovieMotionBound.IPrepared =
+  const bound: AutoMovieEngineMotionBound.IPrepared =
     HumanArmTrajectorySweepBound.chords(clock, 2, [2, 1, 0], course)!;
   TestValidator.equals("the elapsed times", bound.times, [0, 2, 3]);
   TestValidator.equals("travel through both chords", bound.travel(0.5, 2.5), 4.5);

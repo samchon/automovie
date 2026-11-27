@@ -1,6 +1,8 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { HumanPhysics } from "@automovie/motions/internal";
+import {
+  HumanPhysics
+} from "../../../../../packages/motions/src/law/internal/HumanPhysics";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -85,7 +87,7 @@ export function test_motions_law_human_physics(): void {
     to: 3,
     ramp: { in: 0.5, out: 0.5 },
   };
-  const edge: number = 0.8 * minimumJerk.share(0.5);
+  const edge: number = 0.8 * AutoMovieEngineMotionSampling.minimumJerkShare(0.5);
   TestValidator.predicate(
     "eased over the ramps, none outside or off the phase",
     nclose(HumanPhysics.weightAt(window, 1.25), edge, ROUNDING) &&

@@ -7,7 +7,7 @@ import type { IAutoMovieSubjectReviewTarget } from "./IAutoMovieSubjectReviewTar
  * fingerprint. Production owns its schema validation and hands the fold only a
  * receipt whose artifact, pose and runtime have already been reopened.
  *
- * `foldAutoMovieSubjectReviewCoverage` throws when the context does not name
+ * `foldSubjectReviewCoverage` throws when the context does not name
  * the resolved unit: a blank production id, shot or runtime identity, a target
  * or revision differing from the unit, or a digest not in `sha256:` hex form.
  * An observation is current only when its revision, compile fingerprint, plan

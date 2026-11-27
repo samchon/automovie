@@ -1,9 +1,5 @@
-import {
-  type AutoMovieArchetype,
-  AutoMovieArchetypeRefusal,
-  createHolster,
-} from "@automovie/archetypes";
-import { validateModel } from "@automovie/engine";
+import { type AutoMovieArchetype, AutoMovieArchetypeRefusal, AutoMovieArchetypeHolster } from "@automovie/archetypes";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieVector3,
@@ -35,10 +31,10 @@ export function test_archetype_weapon_cartridge_box(): void {
   const close = (a: number, b: number, tolerance: number = 1e-9): boolean =>
     Math.abs(a - b) <= tolerance;
   const box: AutoMovieArchetype<
-    createHolster.Affordance,
-    createHolster.Dimension
-  > = createHolster({ kind: "pouch" }, 1);
-  const d: Readonly<Partial<Record<createHolster.Dimension, number>>> =
+    AutoMovieArchetypeHolster.Affordance,
+    AutoMovieArchetypeHolster.Dimension
+  > = AutoMovieArchetypeHolster.create({ kind: "pouch" }, 1);
+  const d: Readonly<Partial<Record<AutoMovieArchetypeHolster.Dimension, number>>> =
     box.dimensions;
   for (const [name, inches] of [
     ["length", 7.7],
@@ -81,7 +77,7 @@ export function test_archetype_weapon_cartridge_box(): void {
       if (Math.hypot(p.x - q.x, p.z - q.z) < cell - 1e-9)
         findings.push(`${slots[a]!.id} and ${slots[b]!.id} overlap`);
     }
-  const six: number = createHolster(
+  const six: number = AutoMovieArchetypeHolster.create(
     { kind: "pouch", slots: 6 },
     1,
   ).affordances.filter((a: IAutoMovieAffordance): boolean =>
@@ -91,7 +87,7 @@ export function test_archetype_weapon_cartridge_box(): void {
   for (const count of [0, 21, 2.5]) {
     let refused: unknown = null;
     try {
-      createHolster({ kind: "pouch", slots: count }, 1);
+      AutoMovieArchetypeHolster.create({ kind: "pouch", slots: count }, 1);
     } catch (error) {
       refused = error;
     }
@@ -107,11 +103,11 @@ export function test_archetype_weapon_cartridge_box(): void {
   if (lid.kind !== "hinge" || !(lid.travel! > 0))
     findings.push(`the lid is a ${lid.kind} of travel ${lid.travel}`);
   const open: AutoMovieArchetype<
-    createHolster.Affordance,
-    createHolster.Dimension
+    AutoMovieArchetypeHolster.Affordance,
+    AutoMovieArchetypeHolster.Dimension
   > = box.articulate({ lid: lid.travel! });
   for (const posed of [box, open])
-    if (!validateModel({ model: posed }).success)
+    if (!AutoMovieEngineValidation.validateModel({ model: posed }).success)
       findings.push("a lid pose is refused");
   if (
     !(

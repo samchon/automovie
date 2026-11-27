@@ -1,9 +1,9 @@
-import { AutoMovieLoftRelief } from "@automovie/engine";
+import { AutoMovieEngineLoftRelief } from "@automovie/engine";
 import type { IAutoMovieLoftRelief } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `AutoMovieLoftRelief` evaluates a relief's height over its window, a uniform
+ * `AutoMovieEngineLoftRelief` evaluates a relief's height over its window, a uniform
  * cubic B-spline net in station and phase whose three outer rings are zero:
  * `height` gives [d, d_s, d_t], `jet` adds second derivatives and the lips'
  * station shift, `direction` the world direction it moves along, `width` the
@@ -37,14 +37,14 @@ export function test_engine_geometry_loft_relief(): void {
     );
   const relief: IAutoMovieLoftRelief = {
     name: "bump",
-    stations: [10, 30],
-    phases: [0, 1],
+    stations: { start: 10, end: 30 },
+    phases: { start: 0, end: 1 },
     axis: [1, 0, 0],
     rows: 7,
     columns: 7,
     heights: net(9),
   };
-  const h = (s: number, t: number) => AutoMovieLoftRelief.height(relief, s, t);
+  const h = (s: number, t: number) => AutoMovieEngineLoftRelief.height(relief, s, t);
   const near = (a: number, b: number, e: number = 1e-12): boolean =>
     Math.abs(a - b) <= e;
 
@@ -74,7 +74,7 @@ export function test_engine_geometry_loft_relief(): void {
     near((h(14 + e, 0.3)[0] - h(14 - e, 0.3)[0]) / (2 * e), ds, 1e-6) &&
       near((h(14, 0.3 + e)[0] - h(14, 0.3 - e)[0]) / (2 * e), dt, 1e-6),
   );
-  const jet: number[] = AutoMovieLoftRelief.jet(relief, 14, 0.3);
+  const jet: number[] = AutoMovieEngineLoftRelief.jet(relief, 14, 0.3);
   TestValidator.predicate(
     "jet agrees",
     near(jet[0]!, h(14, 0.3)[0]) && near(jet[1]!, ds) && near(jet[2]!, dt),
@@ -82,7 +82,7 @@ export function test_engine_geometry_loft_relief(): void {
 
   // 3.
   const j = (s: number, t: number): number[] =>
-    AutoMovieLoftRelief.jet(relief, s, t);
+    AutoMovieEngineLoftRelief.jet(relief, s, t);
   TestValidator.predicate(
     "second",
     near((j(14 + e, 0.3)[1]! - j(14 - e, 0.3)[1]!) / (2 * e), jet[3]!, 1e-5) &&
@@ -97,7 +97,7 @@ export function test_engine_geometry_loft_relief(): void {
   // 4.
   TestValidator.equals(
     "zero shift",
-    AutoMovieLoftRelief.jet({ ...relief, shift: net(0) }, 14, 0.3),
+    AutoMovieEngineLoftRelief.jet({ ...relief, shift: net(0) }, 14, 0.3),
     jet,
   );
   const flat: number[] = Array.from(
@@ -108,7 +108,7 @@ export function test_engine_geometry_loft_relief(): void {
       return r >= 2 && r <= 4 && c >= 2 && c <= 4 ? 2 : 0;
     },
   );
-  const shifted: number[] = AutoMovieLoftRelief.jet(
+  const shifted: number[] = AutoMovieEngineLoftRelief.jet(
     { ...relief, shift: flat },
     20,
     0.5,
@@ -116,7 +116,7 @@ export function test_engine_geometry_loft_relief(): void {
   TestValidator.predicate("shift", near(shifted[0]!, h(22, 0.5)[0]));
 
   // 5.
-  const [ex, et, ett] = AutoMovieLoftRelief.direction(
+  const [ex, et, ett] = AutoMovieEngineLoftRelief.direction(
     { ...relief, turn: [0, 0, 1] },
     0.5,
   );
@@ -130,7 +130,7 @@ export function test_engine_geometry_loft_relief(): void {
     ],
   );
   const turn = (p: number) =>
-    AutoMovieLoftRelief.direction({ ...relief, turn: [0, 0, 1] }, p);
+    AutoMovieEngineLoftRelief.direction({ ...relief, turn: [0, 0, 1] }, p);
   const [e1, e1t, e1tt] = turn(1);
   TestValidator.predicate(
     "turned away from the middle",
@@ -145,7 +145,7 @@ export function test_engine_geometry_loft_relief(): void {
           ) && near(e1tt[k]!, -e1[k]!),
       ),
   );
-  TestValidator.equals("fixed", AutoMovieLoftRelief.direction(relief, 0.2), [
+  TestValidator.equals("fixed", AutoMovieEngineLoftRelief.direction(relief, 0.2), [
     [1, 0, 0],
     [0, 0, 0],
     [0, 0, 0],
@@ -154,12 +154,12 @@ export function test_engine_geometry_loft_relief(): void {
   // 6.
   TestValidator.predicate(
     "whole turn",
-    near(AutoMovieLoftRelief.width({ ...relief, phases: [1, 1] }), 2 * Math.PI),
+    near(AutoMovieEngineLoftRelief.width({ ...relief, phases: { start: 1, end: 1 } }), 2 * Math.PI),
   );
   TestValidator.predicate(
     "wrap",
     near(
-      AutoMovieLoftRelief.width({ ...relief, phases: [6, 0.5] }),
+      AutoMovieEngineLoftRelief.width({ ...relief, phases: { start: 6, end: 0.5 } }),
       0.5 - 6 + 2 * Math.PI,
     ),
   );

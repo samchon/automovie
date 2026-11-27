@@ -9,11 +9,12 @@ import type { IAutoMovieConstructionPortLoop } from "./IAutoMovieConstructionPor
  * armscye, a branch on a stem's side). The parent owns the port loop and the
  * region inside it; the part keeps its stations beyond the rail.
  *
- * The port curve at clock `c` in `[0, 2 pi)` is the chart point `(centre[0] +
- * semi[0] cos c, centre[1] + sense semi[1] sin c)`: station in metres, phase in
- * radians. The band is the engine's join strip between two ribbons: the host
+ * The port curve at clock `c` in `[0, 2 pi)` is the chart point
+ * `(centre.station + semi.stationMetres cos c, centre.phase + sense
+ * semi.phaseRadians sin c)`: station in metres, phase in radians. The band is
+ * the engine's join strip between two ribbons: the host
  * surface's own 2-jet across the port curve, toward the curve's centre (the
- * chart direction `(-semi[0] cos c, -sense semi[1] sin c)`), and the part's own
+ * chart direction `(-semi.stationMetres cos c, -sense semi.phaseRadians sin c)`), and the part's own
  * 2-jet at its rail toward its kept side, both scaled by one factor at which no
  * column turns back along its chord. The band is G2 to the host along the port
  * curve and G2 to the part along its rail. A failed premise leaves the part,

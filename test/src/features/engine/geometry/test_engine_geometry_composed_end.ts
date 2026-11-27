@@ -1,11 +1,11 @@
-import { AutoMovieConstructionComposedEnd } from "@automovie/engine";
+import { AutoMovieEngineConstructionComposedEnd } from "@automovie/engine";
 import type { IAutoMovieConstructionComposedEnd } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 type V3 = [number, number, number];
 
 /**
- * `AutoMovieConstructionComposedEnd.create` composes an end from its children's
+ * `AutoMovieEngineConstructionComposedEnd.create` composes an end from its children's
  * sections: the forks lie at the sections' crossings, each child keeps the
  * lobes of its own curve, each seam plane through the forks holds the bisector
  * of the two children's axes, and all of them move with a child's size and
@@ -67,7 +67,7 @@ export function test_engine_geometry_composed_end(): void {
   const compose = (
     sections: IAutoMovieConstructionComposedEnd.ISection[],
   ): IAutoMovieConstructionComposedEnd.IComposition | string =>
-    AutoMovieConstructionComposedEnd.create({
+    AutoMovieEngineConstructionComposedEnd.create({
       point: [0, 0, 0],
       normal: [0, 0, 1],
       sections,

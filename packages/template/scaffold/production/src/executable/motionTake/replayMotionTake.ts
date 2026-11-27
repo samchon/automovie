@@ -4,8 +4,8 @@ import type {
   IAutoMovieShot,
 } from "@automovie/interface";
 import {
-  HumanPerformance,
-  compileHumanPerformanceContinuation,
+  AutoMovieMotionHumanContinuation,
+  AutoMovieMotionHumanPerformance,
 } from "@automovie/motions";
 
 import type { IMotionTakeSource } from "./IMotionTakeSource";
@@ -23,10 +23,10 @@ export function replayMotionTake(
   anchor: IAutoMovieMotionTakeAnchor,
   parent?: IMotionTakeSource,
 ): {
-  source: HumanPerformance;
-  branch?: HumanPerformance;
+  source: AutoMovieMotionHumanPerformance;
+  branch?: AutoMovieMotionHumanPerformance;
   branchStart?: number;
-  performanceAt: (seconds: number, entry?: number) => HumanPerformance;
+  performanceAt: (seconds: number, entry?: number) => AutoMovieMotionHumanPerformance;
 } {
   const owner: IMotionTakeSource = parent ?? source;
   const input: IAutoMovieMotionHumanPerformance.IInput | undefined =
@@ -39,21 +39,21 @@ export function replayMotionTake(
     (shot: IAutoMovieShot): boolean => shot.id === anchor.shot,
   )?.duration;
   if (source.branch === undefined) {
-    const performance: HumanPerformance = new HumanPerformance(input);
+    const performance: AutoMovieMotionHumanPerformance = new AutoMovieMotionHumanPerformance(input);
     if (performance.duration !== authoredDuration)
       throw new Error(
         `take-anchor: Human and editorial durations differ for ${anchor.shot}`,
       );
     return {
       source: performance,
-      performanceAt: (): HumanPerformance => performance,
+      performanceAt: (): AutoMovieMotionHumanPerformance => performance,
     };
   }
   if (!parent)
     throw new Error("take-provenance: branch requires its original source");
 
-  const continuation: ReturnType<typeof compileHumanPerformanceContinuation> =
-    compileHumanPerformanceContinuation(
+  const continuation: AutoMovieMotionHumanContinuation.IResult =
+    AutoMovieMotionHumanContinuation.compile(
       input,
       anchor.sourceSeconds,
       source.branch.retainedParts,
@@ -74,7 +74,7 @@ export function replayMotionTake(
     performanceAt: (
       seconds: number,
       entry: number = anchor.entry,
-    ): HumanPerformance =>
+    ): AutoMovieMotionHumanPerformance =>
       entry < anchor.entry || seconds < continuation.branchStart
         ? continuation.source
         : continuation.branch,

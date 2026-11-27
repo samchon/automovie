@@ -1,4 +1,4 @@
-import { routeLength } from "@automovie/engine";
+import { AutoMovieEngineService } from "@automovie/engine";
 import type { IAutoMovieServiceSegment } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -27,7 +27,7 @@ export function test_engine_service_route_length(): void {
   });
   TestValidator.equals(
     "two pieces",
-    routeLength(
+    AutoMovieEngineService.routeLength(
       segment([
         { x: 0, y: 0, z: 0 },
         { x: 3, y: 4, z: 0 },
@@ -38,7 +38,7 @@ export function test_engine_service_route_length(): void {
   );
   TestValidator.equals(
     "one point",
-    routeLength(segment([{ x: 1, y: 1, z: 1 }])),
+    AutoMovieEngineService.routeLength(segment([{ x: 1, y: 1, z: 1 }])),
     0,
   );
 }

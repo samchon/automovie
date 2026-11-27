@@ -1,9 +1,11 @@
-import { crossesAutoMovieFrustumPlane } from "@automovie/render/internal";
+import {
+  crossesFrustumPlane
+} from "../../../../../packages/render/src/scene/inspection/internal/crossesFrustumPlane";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 /**
- * `crossesAutoMovieFrustumPlane` is true when a box reaches behind a plane.
+ * `crossesFrustumPlane` is true when a box reaches behind a plane.
  *
  * Scenarios:
  *
@@ -18,8 +20,8 @@ export function test_render_scene_crosses_frustum_plane(): void {
   );
   const plane = (x: number, constant: number): THREE.Plane =>
     new THREE.Plane(new THREE.Vector3(x, 0, 0), constant);
-  TestValidator.equals("behind", crossesAutoMovieFrustumPlane(box, plane(1, -0.5)), true);
-  TestValidator.equals("touching", crossesAutoMovieFrustumPlane(box, plane(1, 0)), false);
-  TestValidator.equals("in front", crossesAutoMovieFrustumPlane(box, plane(1, 0.5)), false);
-  TestValidator.equals("facing away", crossesAutoMovieFrustumPlane(box, plane(-1, 0.5)), true);
+  TestValidator.equals("behind", crossesFrustumPlane(box, plane(1, -0.5)), true);
+  TestValidator.equals("touching", crossesFrustumPlane(box, plane(1, 0)), false);
+  TestValidator.equals("in front", crossesFrustumPlane(box, plane(1, 0.5)), false);
+  TestValidator.equals("facing away", crossesFrustumPlane(box, plane(-1, 0.5)), true);
 }

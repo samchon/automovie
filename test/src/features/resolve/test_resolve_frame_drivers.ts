@@ -1,4 +1,4 @@
-import { resolveFrame } from "@automovie/engine";
+import { AutoMovieEngineResolve } from "@automovie/engine";
 import {
   IAutoMovieCopyDriver,
   IAutoMovieIKDriver,
@@ -63,7 +63,7 @@ export function test_resolve_frame_drivers(): void {
     influence: 1,
   };
 
-  const out: IAutoMovieResolveOutput = resolveFrame({
+  const out: IAutoMovieResolveOutput = AutoMovieEngineResolve.resolveFrame({
     nodes,
     clip: null,
     limits: [],

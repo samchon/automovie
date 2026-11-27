@@ -1,13 +1,4 @@
-import {
-  DEFAULT_SUBJECT_HEIGHT,
-  formationMemberExtent,
-  formationSubjectBox,
-  framedBoxOf,
-  intersectsPerspectiveFrustumBox,
-  intersectsPerspectiveFrustumSegment,
-  pointSubjectBox,
-  unionSubjectBoxes,
-} from "@automovie/engine";
+import { AutoMovieEngineDefaultSubjectHeight, AutoMovieEngineFilm } from "@automovie/engine";
 import {
   IAutoMovieCompiledFormation,
   IAutoMovieFormationMotion,
@@ -81,11 +72,11 @@ const MARCH: IAutoMovieFormationMotion[] = [
 const boxAt: (
   seconds: number,
   motions?: IAutoMovieFormationMotion[],
-) => ReturnType<typeof formationSubjectBox> = (
+) => ReturnType<typeof AutoMovieEngineFilm.formationSubjectBox> = (
   seconds: number,
   motions: IAutoMovieFormationMotion[] = [],
-): ReturnType<typeof formationSubjectBox> =>
-  formationSubjectBox({
+): ReturnType<typeof AutoMovieEngineFilm.formationSubjectBox> =>
+  AutoMovieEngineFilm.formationSubjectBox({
     formation: UNIT,
     motions,
     member: MEMBER,
@@ -105,14 +96,14 @@ const lens: (position: IAutoMovieVector3) => IAutoMovieResolvedCamera = (
 
 const sees: (
   camera: IAutoMovieResolvedCamera,
-  box: ReturnType<typeof formationSubjectBox>,
+  box: ReturnType<typeof AutoMovieEngineFilm.formationSubjectBox>,
   far?: number,
 ) => boolean = (
   camera: IAutoMovieResolvedCamera,
   box: { min: IAutoMovieVector3; max: IAutoMovieVector3 },
   far: number = 200,
 ): boolean =>
-  intersectsPerspectiveFrustumBox({
+  AutoMovieEngineFilm.intersectsPerspectiveFrustumBox({
     camera,
     min: box.min,
     max: box.max,
@@ -127,12 +118,12 @@ const seesCentroid: (
   camera: IAutoMovieResolvedCamera,
   far?: number,
 ) => boolean = (camera: IAutoMovieResolvedCamera, far: number = 200): boolean =>
-  intersectsPerspectiveFrustumSegment({
+  AutoMovieEngineFilm.intersectsPerspectiveFrustumSegment({
     camera,
     from: UNIT.centroid,
     to: {
       x: UNIT.centroid.x,
-      y: UNIT.centroid.y + DEFAULT_SUBJECT_HEIGHT,
+      y: UNIT.centroid.y + AutoMovieEngineDefaultSubjectHeight,
       z: UNIT.centroid.z,
     },
     near: 0.1,
@@ -180,7 +171,7 @@ const seesCentroid: (
  *    behind the line widens the same subject.
  */
 export function test_engine_film_camera_formation_subject_extent(): void {
-  const rest: ReturnType<typeof formationSubjectBox> = boxAt(0);
+  const rest: ReturnType<typeof AutoMovieEngineFilm.formationSubjectBox> = boxAt(0);
   TestValidator.equals(
     "the box is the unit's transformed bounds, padded and raised",
     namedFacts([
@@ -197,30 +188,30 @@ export function test_engine_film_camera_formation_subject_extent(): void {
       [
         "base",
         (): boolean =>
-          vclose(framedBoxOf(rest).base, { x: 0, y: MEMBER.min, z: 10 }),
+          vclose(AutoMovieEngineFilm.framedBoxOf(rest).base, { x: 0, y: MEMBER.min, z: 10 }),
       ],
       [
         "height",
         (): boolean =>
-          nclose(framedBoxOf(rest).height, MEMBER.max - MEMBER.min),
+          nclose(AutoMovieEngineFilm.framedBoxOf(rest).height, MEMBER.max - MEMBER.min),
       ],
       [
         "radius",
         (): boolean =>
-          nclose(framedBoxOf(rest).radius, Math.hypot(101, 21) / 2),
+          nclose(AutoMovieEngineFilm.framedBoxOf(rest).radius, Math.hypot(101, 21) / 2),
       ],
     ]),
     { min: true, max: true, base: true, height: true, radius: true },
   );
 
-  const fallback: ReturnType<typeof formationMemberExtent> =
-    formationMemberExtent(UNIT, []);
+  const fallback: ReturnType<typeof AutoMovieEngineFilm.formationMemberExtent> =
+    AutoMovieEngineFilm.formationMemberExtent(UNIT, []);
   // The whole extent is compared, so any field beside the two bounds is a
   // difference: the stand-in stands from the ground to its documented height.
   TestValidator.equals(
     "an unsupplied member model takes the documented stand-in height",
     fallback,
-    { min: 0, max: DEFAULT_SUBJECT_HEIGHT },
+    { min: 0, max: AutoMovieEngineDefaultSubjectHeight },
   );
 
   TestValidator.equals(
@@ -255,7 +246,7 @@ export function test_engine_film_camera_formation_subject_extent(): void {
     sees(lens({ x: 0, y: 1, z: -100 }), rest) === false,
   );
 
-  const marched: ReturnType<typeof formationSubjectBox> = boxAt(1, MARCH);
+  const marched: ReturnType<typeof AutoMovieEngineFilm.formationSubjectBox> = boxAt(1, MARCH);
   TestValidator.equals(
     "a cue moves the box the camera is graded against",
     namedFacts([
@@ -275,9 +266,9 @@ export function test_engine_film_camera_formation_subject_extent(): void {
     },
   );
 
-  const withScout: ReturnType<typeof unionSubjectBoxes> = unionSubjectBoxes([
+  const withScout: ReturnType<typeof AutoMovieEngineFilm.unionSubjectBoxes> = AutoMovieEngineFilm.unionSubjectBoxes([
     rest,
-    pointSubjectBox({ x: 0, y: 0, z: -30 }, MEMBER),
+    AutoMovieEngineFilm.pointSubjectBox({ x: 0, y: 0, z: -30 }, MEMBER),
   ]);
   TestValidator.equals(
     "a group's box is the union of what its members occupy",
@@ -288,7 +279,7 @@ export function test_engine_film_camera_formation_subject_extent(): void {
       [
         "widerThanTheLineAlone",
         (): boolean =>
-          framedBoxOf(withScout!).radius > framedBoxOf(rest).radius,
+          AutoMovieEngineFilm.framedBoxOf(withScout!).radius > AutoMovieEngineFilm.framedBoxOf(rest).radius,
       ],
     ]),
     {

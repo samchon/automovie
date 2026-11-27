@@ -1,14 +1,18 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanFrame,
-  hipJoints,
-  pelvisReachHeight,
-} from "@automovie/motions/internal";
+  HumanFrame
+} from "../../../../../packages/motions/src/posture/internal/HumanFrame";
+import {
+  hipJoints
+} from "../../../../../packages/motions/src/posture/internal/hipJoints";
+import {
+  pelvisReachHeight
+} from "../../../../../packages/motions/src/posture/internal/pelvisReachHeight";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -42,9 +46,9 @@ export async function test_motions_posture_pelvis_reach_height(): Promise<void> 
   const hip = (height: number): Record<AutoMovieHumanSide, IAutoMovieVector3> =>
     hipJoints(
       body,
-      Vector3.subtract(
+      AutoMovieEngineVector3.subtract(
         { ...hips, y: height },
-        Quaternion.rotateVector(HumanFrame.turn(0), body.rest.get("hips")!),
+        AutoMovieEngineQuaternion.rotateVector(HumanFrame.turn(0), body.rest.get("hips")!),
       ),
       HumanFrame.turn(0),
     );

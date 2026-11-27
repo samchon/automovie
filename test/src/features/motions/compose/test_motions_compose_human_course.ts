@@ -4,9 +4,11 @@ import type {
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanCourse,
-  HumanBalance,
-} from "@automovie/motions/internal";
+  AutoMovieMotionHumanCourse
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanCourse";
+import {
+  HumanBalance
+} from "../../../../../packages/motions/src/everyday/internal/HumanBalance";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";

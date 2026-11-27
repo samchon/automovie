@@ -1,9 +1,11 @@
 import type { IAutoMovieInspectionDiagnostics } from "@automovie/interface";
-import { readsAutoMovieInspectorPlacedScene } from "@automovie/viewer/internal";
+import {
+  readsInspectorPlacedScene
+} from "../../../../../packages/viewer/src/inspector/internal/readsInspectorPlacedScene";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `readsAutoMovieInspectorPlacedScene` is true for a subject that observes its
+ * `readsInspectorPlacedScene` is true for a subject that observes its
  * placed scene or draws render-target work before each picture.
  *
  * Scenarios:
@@ -13,15 +15,15 @@ import { TestValidator } from "@nestia/e2e";
  * 3. A subject with `inspectPlaced` is true.
  */
 export function test_viewer_inspector_reads_placed_scene(): void {
-  TestValidator.equals("neither", readsAutoMovieInspectorPlacedScene({}), false);
+  TestValidator.equals("neither", readsInspectorPlacedScene({}), false);
   TestValidator.equals(
     "before draw",
-    readsAutoMovieInspectorPlacedScene({ beforeDraw: (): void => {} }),
+    readsInspectorPlacedScene({ beforeDraw: (): void => {} }),
     true,
   );
   TestValidator.equals(
     "inspect placed",
-    readsAutoMovieInspectorPlacedScene({
+    readsInspectorPlacedScene({
       inspectPlaced: (): IAutoMovieInspectionDiagnostics => ({
         scope: "s",
         time: { filmSeconds: 0 },

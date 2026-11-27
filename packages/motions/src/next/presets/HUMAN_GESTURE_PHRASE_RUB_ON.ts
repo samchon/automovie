@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanGesture } from "@automovie/interface";
 
-/**
+/*
  * The values the `rubOn` row of `HumanUpperRows` fixes on `armPhrase`, spread
  * into its parameters. A rub: the palm oscillates across the target.
  */

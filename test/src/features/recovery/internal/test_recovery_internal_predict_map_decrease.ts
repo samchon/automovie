@@ -1,4 +1,4 @@
-import { predictRecoveryMapDecrease } from "@automovie/recovery";
+import { AutoMovieRecoveryCameraMap } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -15,7 +15,7 @@ import { TestValidator } from "@nestia/e2e";
 export function test_recovery_internal_predict_map_decrease(): void {
   TestValidator.equals(
     "one row",
-    predictRecoveryMapDecrease(
+    AutoMovieRecoveryCameraMap.predictMapDecrease(
       [{ cameraRows: [[1]], pointRows: [[0, 0, 1]], right: [0] }],
       [1, 0, 0, 2],
       [1, 0, 0, 1],
@@ -24,7 +24,7 @@ export function test_recovery_internal_predict_map_decrease(): void {
   );
   TestValidator.equals(
     "a silent row",
-    predictRecoveryMapDecrease(
+    AutoMovieRecoveryCameraMap.predictMapDecrease(
       [
         {
           cameraRows: [[1], [0]],
@@ -41,7 +41,7 @@ export function test_recovery_internal_predict_map_decrease(): void {
     -5,
   );
   TestValidator.error("a short increment", (): unknown =>
-    predictRecoveryMapDecrease(
+    AutoMovieRecoveryCameraMap.predictMapDecrease(
       [{ cameraRows: [[1]], pointRows: [[0, 0, 1]], right: [0] }],
       [1, 0, 0, 2],
       [1, 0, 0],

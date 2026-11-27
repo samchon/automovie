@@ -2,11 +2,7 @@ import {
   AutoMovieArchetypeFrame,
   type AutoMovieArchetypeRide,
 } from "@automovie/archetypes";
-import {
-  Quaternion,
-  Vector3,
-  closestPointsBetweenSegments,
-} from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieTransform,
@@ -89,14 +85,14 @@ export namespace equineExpressionObservation {
     )
       throw new Error(`${id} is not a bar`);
     const world: IAutoMovieTransform = frame(sample, id);
-    const half: IAutoMovieVector3 = Quaternion.rotateVector(world.rotation, {
+    const half: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(world.rotation, {
       x: 0,
       y: geometry.shape.height / 2,
       z: 0,
     });
     return {
-      from: Vector3.subtract(world.translation, half),
-      to: Vector3.add(world.translation, half),
+      from: AutoMovieEngineVector3.subtract(world.translation, half),
+      to: AutoMovieEngineVector3.add(world.translation, half),
       radius: geometry.shape.radius,
     };
   }
@@ -114,7 +110,7 @@ export namespace equineExpressionObservation {
    */
   export function surface(bar: IBar, point: IAutoMovieVector3): number {
     return (
-      closestPointsBetweenSegments(point, point, bar.from, bar.to).distance -
+      AutoMovieEngineMath.closestPointsBetweenSegments(point, point, bar.from, bar.to).distance -
       bar.radius
     );
   }
@@ -134,7 +130,7 @@ export namespace equineExpressionObservation {
     sample: AutoMovieArchetypeRide.IPose<string, string>,
     id: string,
   ): IAutoMovieVector3 {
-    return Quaternion.rotateVector(frame(sample, id).rotation, {
+    return AutoMovieEngineQuaternion.rotateVector(frame(sample, id).rotation, {
       x: 0,
       y: 1,
       z: 0,
@@ -154,7 +150,7 @@ export namespace equineExpressionObservation {
    */
   export function degrees(a: IAutoMovieVector3, b: IAutoMovieVector3): number {
     return (
-      (Math.atan2(Vector3.length(Vector3.cross(a, b)), Vector3.dot(a, b)) *
+      (Math.atan2(AutoMovieEngineVector3.length(AutoMovieEngineVector3.cross(a, b)), AutoMovieEngineVector3.dot(a, b)) *
         180) /
       Math.PI
     );

@@ -1,4 +1,4 @@
-import { projectileContinue } from "@automovie/engine";
+import { AutoMovieEnginePhysicalProjectile } from "@automovie/engine";
 import type {
   IAutoMovieHit,
   IAutoMovieProjectile,
@@ -23,7 +23,7 @@ function refusedOn(run: () => unknown, field: string): boolean {
 }
 
 /**
- * `projectileContinue` continues a flight after a hit: a bounce reflects the
+ * `AutoMovieEnginePhysicalProjectile.continueFlight` continues a flight after a hit: a bounce reflects the
  * normal velocity by the restitution and rolls instead when the rebound would
  * rise no higher than the roll radius under gravity pressing it into the
  * surface; a surface pushes, never pulls, so a rebound off a ceiling falls away
@@ -63,28 +63,28 @@ export function test_engine_physics_projectile_continue(): void {
     friction: 0,
     roll: { radius: 0.1, resistance: 0.1 },
   };
-  const away = projectileContinue(ceiling, hit, bounce);
-  const floor = projectileContinue(
+  const away = AutoMovieEnginePhysicalProjectile.continueFlight(ceiling, hit, bounce);
+  const floor = AutoMovieEnginePhysicalProjectile.continueFlight(
     { origin: zero, velocity: { x: 0, y: -0.1, z: 0 }, gravity },
     { ...hit, point: zero, normal: { x: 0, y: 1, z: 0 }, collider: "floor" },
     bounce,
   );
-  const neutral = projectileContinue(
+  const neutral = AutoMovieEnginePhysicalProjectile.continueFlight(
     { ...ceiling, gravity: zero },
     hit,
     bounce,
   );
-  const rolling = projectileContinue(
+  const rolling = AutoMovieEnginePhysicalProjectile.continueFlight(
     { ...ceiling, gravity: zero, velocity: { x: 2, y: 0, z: 0 } },
     hit,
     { kind: "roll", resistance: 0.1 },
   );
-  const rolled = projectileContinue.at(rolling, 1);
+  const rolled = AutoMovieEnginePhysicalProjectile.continuedAt(rolling, 1);
   TestValidator.predicate(
     "a surface pushes",
     away.kind === "flight" &&
       nclose(away.projectile.velocity.y, -0.1, 0) &&
-      projectileContinue.at(away, 1).position.y < 10 &&
+      AutoMovieEnginePhysicalProjectile.continuedAt(away, 1).position.y < 10 &&
       floor.kind === "roll" &&
       nclose(floor.deceleration, 0.1 * G, 0) &&
       neutral.kind === "flight" &&
@@ -96,7 +96,7 @@ export function test_engine_physics_projectile_continue(): void {
   );
   let refused: boolean = false;
   try {
-    projectileContinue(ceiling, hit, { kind: "roll", resistance: 0.1 });
+    AutoMovieEnginePhysicalProjectile.continueFlight(ceiling, hit, { kind: "roll", resistance: 0.1 });
   } catch (error: unknown) {
     refused = error instanceof RangeError;
   }
@@ -131,7 +131,7 @@ export function test_engine_physics_projectile_continue(): void {
     for (const field of ["radius", "resistance"] as const)
       admitted &&= refusedOn(
         () =>
-          projectileContinue(
+          AutoMovieEnginePhysicalProjectile.continueFlight(
             under(y),
             ground,
             outcome({
@@ -143,7 +143,7 @@ export function test_engine_physics_projectile_continue(): void {
         field,
       );
     for (const radius of [undefined, 0, 0.25]) {
-      const continued = projectileContinue(
+      const continued = AutoMovieEnginePhysicalProjectile.continueFlight(
         under(y),
         ground,
         outcome(radius === undefined ? undefined : { radius, resistance: 2 }),
@@ -154,7 +154,7 @@ export function test_engine_physics_projectile_continue(): void {
     }
   }
   for (const resistance of [0, 2]) {
-    const continued = projectileContinue(
+    const continued = AutoMovieEnginePhysicalProjectile.continueFlight(
       flight,
       ground,
       outcome({ radius: 0.5, resistance }),

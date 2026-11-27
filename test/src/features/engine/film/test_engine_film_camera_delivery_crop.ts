@@ -1,10 +1,4 @@
-import {
-  intersectsPerspectiveFrustumBox,
-  intersectsPerspectiveFrustumSegment,
-  intersectsPerspectiveFrustumSphere,
-  projectToNdc,
-  resolveAutoMovieDeliveryCrop,
-} from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import {
   IAutoMovieDeliveryCrop,
   type IAutoMovieResolvedCamera,
@@ -30,7 +24,7 @@ const segment: (
   x: number,
   crop: IAutoMovieDeliveryCrop | undefined,
 ) => boolean = (x: number, crop: IAutoMovieDeliveryCrop | undefined): boolean =>
-  intersectsPerspectiveFrustumSegment({
+  AutoMovieEngineFilm.intersectsPerspectiveFrustumSegment({
     camera: CAMERA,
     from: { x, y: 0, z: -2 },
     to: { x, y: 0.5, z: -2 },
@@ -45,7 +39,7 @@ const verticalSegment: (
   y: number,
   crop: IAutoMovieDeliveryCrop | undefined,
 ) => boolean = (y: number, crop: IAutoMovieDeliveryCrop | undefined): boolean =>
-  intersectsPerspectiveFrustumSegment({
+  AutoMovieEngineFilm.intersectsPerspectiveFrustumSegment({
     camera: CAMERA,
     from: { x: 0, y, z: -2 },
     to: { x: 0.5, y, z: -2 },
@@ -70,21 +64,21 @@ const verticalSegment: (
  * 6. Five nonfinite, out-of-range, empty, or reversed crops throw.
  */
 export function test_engine_film_camera_delivery_crop(): void {
-  const whole: ReturnType<typeof resolveAutoMovieDeliveryCrop> =
-    resolveAutoMovieDeliveryCrop(undefined);
+  const whole: ReturnType<typeof AutoMovieEngineFilm.resolveAutoMovieDeliveryCrop> =
+    AutoMovieEngineFilm.resolveAutoMovieDeliveryCrop(undefined);
   const explicitWhole: IAutoMovieDeliveryCrop = {
     left: 0,
     top: 0,
     right: 1,
     bottom: 1,
   };
-  const uncropped: ReturnType<typeof projectToNdc> = projectToNdc(
+  const uncropped: ReturnType<typeof AutoMovieEngineFilm.projectToNdc> = AutoMovieEngineFilm.projectToNdc(
     CAMERA,
     { x: 0.5, y: 0.25, z: -1 },
     1,
     1,
   );
-  const explicit: ReturnType<typeof projectToNdc> = projectToNdc(
+  const explicit: ReturnType<typeof AutoMovieEngineFilm.projectToNdc> = AutoMovieEngineFilm.projectToNdc(
     CAMERA,
     { x: 0.5, y: 0.25, z: -1 },
     1,
@@ -105,15 +99,15 @@ export function test_engine_film_camera_delivery_crop(): void {
     right: 0.75,
     bottom: 0.75,
   };
-  const resolved: ReturnType<typeof resolveAutoMovieDeliveryCrop> =
-    resolveAutoMovieDeliveryCrop(source);
+  const resolved: ReturnType<typeof AutoMovieEngineFilm.resolveAutoMovieDeliveryCrop> =
+    AutoMovieEngineFilm.resolveAutoMovieDeliveryCrop(source);
   source.left = 0;
   TestValidator.predicate(
     "a crop resolves by value and maps its window onto the complete output",
     test12ValuesClose(
       {
         resolved,
-        projected: projectToNdc(
+        projected: AutoMovieEngineFilm.projectToNdc(
           CAMERA,
           { x: 0.5, y: 0.25, z: -1 },
           1,
@@ -178,7 +172,7 @@ export function test_engine_film_camera_delivery_crop(): void {
       [
         "boxAtCropEdge",
         (): boolean =>
-          intersectsPerspectiveFrustumBox({
+          AutoMovieEngineFilm.intersectsPerspectiveFrustumBox({
             camera: CAMERA,
             min: { x: 0, y: -0.1, z: -2.1 },
             max: { x: 0.1, y: 0.1, z: -1.9 },
@@ -192,7 +186,7 @@ export function test_engine_film_camera_delivery_crop(): void {
       [
         "boxOutsideCrop",
         (): boolean =>
-          intersectsPerspectiveFrustumBox({
+          AutoMovieEngineFilm.intersectsPerspectiveFrustumBox({
             camera: CAMERA,
             min: { x: -0.2, y: -0.1, z: -2.1 },
             max: { x: -0.1, y: 0.1, z: -1.9 },
@@ -206,7 +200,7 @@ export function test_engine_film_camera_delivery_crop(): void {
       [
         "sphereAtCropEdge",
         (): boolean =>
-          intersectsPerspectiveFrustumSphere({
+          AutoMovieEngineFilm.intersectsPerspectiveFrustumSphere({
             camera: CAMERA,
             center: { x: 0, y: 0, z: -2 },
             radius: 0,
@@ -220,7 +214,7 @@ export function test_engine_film_camera_delivery_crop(): void {
       [
         "sphereOutsideCrop",
         (): boolean =>
-          intersectsPerspectiveFrustumSphere({
+          AutoMovieEngineFilm.intersectsPerspectiveFrustumSphere({
             camera: CAMERA,
             center: { x: -0.001, y: 0, z: -2 },
             radius: 0,
@@ -251,8 +245,8 @@ export function test_engine_film_camera_delivery_crop(): void {
     "invalid and out-of-raster crop regions fail closed",
     invalid.every((crop: IAutoMovieDeliveryCrop): boolean =>
       throwsError(
-        (): ReturnType<typeof resolveAutoMovieDeliveryCrop> =>
-          resolveAutoMovieDeliveryCrop(crop),
+        (): ReturnType<typeof AutoMovieEngineFilm.resolveAutoMovieDeliveryCrop> =>
+          AutoMovieEngineFilm.resolveAutoMovieDeliveryCrop(crop),
       ),
     ),
   );

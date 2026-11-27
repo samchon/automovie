@@ -15,10 +15,10 @@ export namespace IAutoMovieExtrudeProfile {
    * The result carries area-weighted vertex normals from `meshOf` and no
    * texture coordinates. Its side ring is one strip of shared vertices closed
    * with a modular index, so the vertex that starts the ring also ends it and
-   * no single U could be both zero and the perimeter. `extrudeAutoMovieRegion`
-   * takes the same kind of profile, keeps concave outlines and holes, and lays
-   * a metric atlas over the result; use it whenever the prism carries a
-   * finish.
+   * no single U could be both zero and the perimeter.
+   * `AutoMovieEnginePlanarRegion.extrude` takes the same kind of profile, keeps
+   * concave outlines and holes, and lays a metric atlas over the result; use it
+   * whenever the prism carries a finish.
    */
   export type IProps = {
     /** Strictly convex outline in local XY metres. */

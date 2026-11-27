@@ -1,4 +1,4 @@
-import { AutoMovieLoftRelief, AutoMovieSplineCurve } from "@automovie/engine";
+import { AutoMovieEngineLoftRelief, AutoMovieEngineSplineCurve } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanTrunkColumn,
@@ -105,7 +105,7 @@ export namespace AutoMovieHumanTrunkCourses {
     let lo: number = side === "front" ? 0 : L;
     let hi: number = side === "front" ? L : S;
     const zAt = (t: number): number =>
-      AutoMovieSplineCurve.evaluate(
+      AutoMovieEngineSplineCurve.evaluate(
         controls,
         AutoMovieHumanTrunkQuadrant.ORDER,
         t,
@@ -117,7 +117,7 @@ export namespace AutoMovieHumanTrunkCourses {
       else hi = mid;
     }
     const t: number = (lo + hi) / 2;
-    const p: [number, number, number, number] = AutoMovieSplineCurve.evaluate(
+    const p: [number, number, number, number] = AutoMovieEngineSplineCurve.evaluate(
       controls,
       AutoMovieHumanTrunkQuadrant.ORDER,
       t,
@@ -126,7 +126,7 @@ export namespace AutoMovieHumanTrunkCourses {
     let y: number = s.y;
     let zz: number = p[1];
     for (const r of reliefs) {
-      const d: number = AutoMovieLoftRelief.height(r, s.y, t)[0];
+      const d: number = AutoMovieEngineLoftRelief.height(r, s.y, t)[0];
       x += d * r.axis[0];
       y += d * r.axis[1];
       zz += d * r.axis[2];
@@ -189,7 +189,7 @@ export namespace AutoMovieHumanTrunkCourses {
       AutoMovieHumanTrunkGuides.KNOT.anteriorAxillary,
     );
     const at = (t: number): AutoMovieVector3Tuple => {
-      const p: [number, number, number, number] = AutoMovieSplineCurve.evaluate(
+      const p: [number, number, number, number] = AutoMovieEngineSplineCurve.evaluate(
         controls,
         AutoMovieHumanTrunkQuadrant.ORDER,
         t,
@@ -197,7 +197,7 @@ export namespace AutoMovieHumanTrunkCourses {
       let x: number = p[0];
       let z: number = p[1];
       for (const r of reliefs) {
-        const d: number = AutoMovieLoftRelief.height(r, s.y, t)[0];
+        const d: number = AutoMovieEngineLoftRelief.height(r, s.y, t)[0];
         x += d * r.axis[0];
         z += d * r.axis[2];
       }

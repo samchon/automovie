@@ -4,9 +4,11 @@ import type {
   IAutoMovieMotionHumanPrimitive,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionClock,
-  AutoMovieMotionHumanHead,
-} from "@automovie/motions/internal";
+  motionClock
+} from "../../../../../packages/motions/src/compose/internal/motionClock";
+import {
+  AutoMovieMotionHumanHead
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanHead";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -21,7 +23,7 @@ import { linearMotionClock } from "../../internal/synthetic/linearMotionClock";
  * 2. Check the other two axes and the supporting root at each sample.
  */
 function scenario_test_motions_compose_head_nod(): void {
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock(1, [
+  const clock: IAutoMovieMotionClock = motionClock(1, [
     { name: "apex", seconds: 0.25 },
     { name: "release", seconds: 0.75 },
   ]);
@@ -66,7 +68,7 @@ function scenario_test_motions_compose_head_nod(): void {
  * 2. Check the other two axes and the supporting root at each sample.
  */
 function scenario_test_motions_compose_head_oscillate(): void {
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock(1, [
+  const clock: IAutoMovieMotionClock = motionClock(1, [
     { name: "apex", seconds: 0.25 },
     { name: "release", seconds: 0.75 },
   ]);
@@ -111,7 +113,7 @@ function scenario_test_motions_compose_head_oscillate(): void {
  * 2. Check the other two axes and the supporting root at each sample.
  */
 function scenario_test_motions_compose_head_shake(): void {
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock(1, [
+  const clock: IAutoMovieMotionClock = motionClock(1, [
     { name: "apex", seconds: 0.25 },
     { name: "release", seconds: 0.75 },
   ]);
@@ -227,7 +229,7 @@ function scenario_test_motions_compose_head_tilt(): void {
  * 2. Check the other two axes and the supporting root at each sample.
  */
 function scenario_test_motions_compose_head_tilt_pulse(): void {
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock(1, [
+  const clock: IAutoMovieMotionClock = motionClock(1, [
     { name: "apex", seconds: 0.25 },
     { name: "release", seconds: 0.75 },
   ]);

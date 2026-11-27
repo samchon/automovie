@@ -8,9 +8,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  compareHumanLimbPair,
-  createHumanPostureRotation,
-} from "@automovie/motions/internal";
+  compareHumanLimbPair
+} from "../../../../../packages/motions/src/posture/internal/compareHumanLimbPair";
+import {
+  createHumanPostureRotation
+} from "../../../../../packages/motions/src/posture/internal/createHumanPostureRotation";
 import { TestValidator } from "@nestia/e2e";
 
 import { IDENTITY_TRANSFORM } from "../../internal/IDENTITY_TRANSFORM";

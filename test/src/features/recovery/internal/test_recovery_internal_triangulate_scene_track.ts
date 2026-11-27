@@ -3,7 +3,7 @@ import type {
   IAutoMovieRecoveryMapObservation,
   IAutoMovieRecoveryMapPose,
 } from "@automovie/interface";
-import { triangulateRecoverySceneTrack } from "@automovie/recovery";
+import { AutoMovieRecoveryTrackLineage } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -30,7 +30,7 @@ export function test_recovery_internal_triangulate_scene_track(): void {
     chart.identity,
     { ...chart.pose, translation: [2, 0, 0] },
   ];
-  const charts: Parameters<typeof triangulateRecoverySceneTrack>[2] = [
+  const charts: Parameters<typeof AutoMovieRecoveryTrackLineage.triangulateSceneTrack>[2] = [
     chart.first,
     chart.first,
     chart.second,
@@ -47,8 +47,8 @@ export function test_recovery_internal_triangulate_scene_track(): void {
     maximumRotationProjectionError: 1 / 16,
     lossScalePx: 1,
   };
-  const good: ReturnType<typeof triangulateRecoverySceneTrack> =
-    triangulateRecoverySceneTrack(
+  const good: ReturnType<typeof AutoMovieRecoveryTrackLineage.triangulateSceneTrack> =
+    AutoMovieRecoveryTrackLineage.triangulateSceneTrack(
       observations,
       poses,
       charts,
@@ -65,7 +65,7 @@ export function test_recovery_internal_triangulate_scene_track(): void {
   );
   TestValidator.equals(
     "two readings of the same view",
-    triangulateRecoverySceneTrack(
+    AutoMovieRecoveryTrackLineage.triangulateSceneTrack(
       [observations[0]!, observations[0]!],
       poses,
       charts,
@@ -76,7 +76,7 @@ export function test_recovery_internal_triangulate_scene_track(): void {
   );
   TestValidator.equals(
     "unregistered view",
-    triangulateRecoverySceneTrack(
+    AutoMovieRecoveryTrackLineage.triangulateSceneTrack(
       observations,
       [null, chart.identity, null],
       charts,
@@ -87,7 +87,7 @@ export function test_recovery_internal_triangulate_scene_track(): void {
   );
   TestValidator.equals(
     "parallax floor rejects the measured angle",
-    triangulateRecoverySceneTrack(
+    AutoMovieRecoveryTrackLineage.triangulateSceneTrack(
       observations,
       poses,
       charts,

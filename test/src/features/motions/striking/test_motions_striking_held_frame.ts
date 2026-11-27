@@ -4,7 +4,9 @@ import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { StrikingHeldFrame } from "@automovie/motions/internal";
+import {
+  StrikingHeldFrame
+} from "../../../../../packages/motions/src/striking/internal/StrikingHeldFrame";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

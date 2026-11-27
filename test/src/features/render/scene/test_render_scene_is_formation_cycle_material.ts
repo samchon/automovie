@@ -1,16 +1,11 @@
-import {
-  type IAutoMovieFormationCycle,
-  applyDualQuaternionSkinning,
-  applyFormationCycleMaterial,
-  isAutoMovieFormationCycleMaterial,
-} from "@automovie/render";
+import { type IAutoMovieRenderFormationCycle, AutoMovieRenderFormationCycle, AutoMovieRenderDualQuaternionSkinning } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 import { createFormationCycleLiteral } from "../../internal/createFormationCycleLiteral";
 
 /**
- * `isAutoMovieFormationCycleMaterial` finds the formation cycle's shader patch
+ * `isFormationCycleMaterial` finds the formation cycle's shader patch
  * among a material's patches.
  *
  * Scenarios:
@@ -21,21 +16,21 @@ import { createFormationCycleLiteral } from "../../internal/createFormationCycle
  *    alone.
  */
 export function test_render_scene_is_formation_cycle_material(): void {
-  const cycle: IAutoMovieFormationCycle = createFormationCycleLiteral();
+  const cycle: IAutoMovieRenderFormationCycle = createFormationCycleLiteral();
   const plain: THREE.MeshStandardMaterial = new THREE.MeshStandardMaterial();
   const skinned: THREE.MeshStandardMaterial = new THREE.MeshStandardMaterial();
-  applyDualQuaternionSkinning(skinned);
+  AutoMovieRenderDualQuaternionSkinning.apply(skinned);
   const both: THREE.MeshStandardMaterial = new THREE.MeshStandardMaterial();
-  applyFormationCycleMaterial(both, cycle);
-  const cycled: boolean = isAutoMovieFormationCycleMaterial(both);
-  applyDualQuaternionSkinning(both);
+  AutoMovieRenderFormationCycle.applyFormationCycleMaterial(both, cycle);
+  const cycled: boolean = AutoMovieRenderFormationCycle.isAutoMovieFormationCycleMaterial(both);
+  AutoMovieRenderDualQuaternionSkinning.apply(both);
   TestValidator.equals(
     "detections",
     [
-      isAutoMovieFormationCycleMaterial(plain),
-      isAutoMovieFormationCycleMaterial(skinned),
+      AutoMovieRenderFormationCycle.isAutoMovieFormationCycleMaterial(plain),
+      AutoMovieRenderFormationCycle.isAutoMovieFormationCycleMaterial(skinned),
       cycled,
-      isAutoMovieFormationCycleMaterial(both),
+      AutoMovieRenderFormationCycle.isAutoMovieFormationCycleMaterial(both),
       both.customProgramCacheKey() !== "automovie-formation-cycle",
     ],
     [false, false, true, true, true],

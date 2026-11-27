@@ -1,7 +1,5 @@
 import {
-  fluidStateDigest,
-  sampleFluidDomain,
-  simulateFluidDomain,
+  AutoMovieEngineFluid,
 } from "@automovie/engine";
 import type { IAutoMovieFluidDomain } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -73,7 +71,7 @@ export function test_fluid_seek_determinism(): void {
   const ascending: string[] = Array.from(
     { length: 17 },
     (_: unknown, step: number): string =>
-      fluidStateDigest(simulateFluidDomain(domain, step)),
+      AutoMovieEngineFluid.fluidStateDigest(AutoMovieEngineFluid.simulateFluidDomain(domain, step)),
   );
   const scrambled: number[] = [
     13, 0, 7, 16, 2, 11, 4, 9, 15, 1, 6, 12, 3, 10, 5, 8, 14,
@@ -86,7 +84,7 @@ export function test_fluid_seek_determinism(): void {
         (): boolean =>
           scrambled.every(
             (step: number): boolean =>
-              fluidStateDigest(simulateFluidDomain(domain, step)) ===
+              AutoMovieEngineFluid.fluidStateDigest(AutoMovieEngineFluid.simulateFluidDomain(domain, step)) ===
               ascending[step],
           ),
       ],
@@ -98,11 +96,11 @@ export function test_fluid_seek_determinism(): void {
     { digestsMatch: true, digestsMove: true },
   );
 
-  const once: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(
+  const once: ReturnType<typeof AutoMovieEngineFluid.simulateFluidDomain> = AutoMovieEngineFluid.simulateFluidDomain(
     domain,
     40,
   );
-  const twice: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(
+  const twice: ReturnType<typeof AutoMovieEngineFluid.simulateFluidDomain> = AutoMovieEngineFluid.simulateFluidDomain(
     domain,
     40,
   );
@@ -149,8 +147,8 @@ export function test_fluid_seek_determinism(): void {
   );
   TestValidator.equals(
     "repeat seek preserves digest",
-    fluidStateDigest(once),
-    fluidStateDigest(twice),
+    AutoMovieEngineFluid.fluidStateDigest(once),
+    AutoMovieEngineFluid.fluidStateDigest(twice),
   );
 
   const dt: number = domain.solver.fixedStepSeconds;
@@ -159,18 +157,18 @@ export function test_fluid_seek_determinism(): void {
     namedFacts([
       [
         "inside",
-        (): boolean => sampleFluidDomain(domain, dt * 9.75).step === 9,
+        (): boolean => AutoMovieEngineFluid.sampleFluidDomain(domain, dt * 9.75).step === 9,
       ],
       [
         "boundary",
-        (): boolean => sampleFluidDomain(domain, dt * 10).step === 10,
+        (): boolean => AutoMovieEngineFluid.sampleFluidDomain(domain, dt * 10).step === 10,
       ],
-      ["negative", (): boolean => sampleFluidDomain(domain, -5).step === 0],
-      ["zero", (): boolean => sampleFluidDomain(domain, 0).step === 0],
+      ["negative", (): boolean => AutoMovieEngineFluid.sampleFluidDomain(domain, -5).step === 0],
+      ["zero", (): boolean => AutoMovieEngineFluid.sampleFluidDomain(domain, 0).step === 0],
       [
         "sameAsSeek",
         (): boolean =>
-          fluidStateDigest(sampleFluidDomain(domain, dt * 9.75)) ===
+          AutoMovieEngineFluid.fluidStateDigest(AutoMovieEngineFluid.sampleFluidDomain(domain, dt * 9.75)) ===
           ascending[9],
       ],
     ]),
@@ -190,8 +188,8 @@ export function test_fluid_seek_determinism(): void {
         "fractional",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof simulateFluidDomain> =>
-              simulateFluidDomain(domain, 1.5),
+            (): ReturnType<typeof AutoMovieEngineFluid.simulateFluidDomain> =>
+              AutoMovieEngineFluid.simulateFluidDomain(domain, 1.5),
             ["seekable", "non-negative integer"],
           ),
       ],
@@ -199,8 +197,8 @@ export function test_fluid_seek_determinism(): void {
         "negativeStep",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof simulateFluidDomain> =>
-              simulateFluidDomain(domain, -1),
+            (): ReturnType<typeof AutoMovieEngineFluid.simulateFluidDomain> =>
+              AutoMovieEngineFluid.simulateFluidDomain(domain, -1),
             ["seekable", "non-negative integer"],
           ),
       ],
@@ -208,18 +206,18 @@ export function test_fluid_seek_determinism(): void {
         "pastBudget",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof simulateFluidDomain> =>
-              simulateFluidDomain(domain, 65),
+            (): ReturnType<typeof AutoMovieEngineFluid.simulateFluidDomain> =>
+              AutoMovieEngineFluid.simulateFluidDomain(domain, 65),
             ["seekable", "budget stops at 64"],
           ),
       ],
-      ["atBudget", (): boolean => simulateFluidDomain(domain, 64).step === 64],
+      ["atBudget", (): boolean => AutoMovieEngineFluid.simulateFluidDomain(domain, 64).step === 64],
       [
         "nonFiniteTime",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof sampleFluidDomain> =>
-              sampleFluidDomain(domain, Number.NaN),
+            (): ReturnType<typeof AutoMovieEngineFluid.sampleFluidDomain> =>
+              AutoMovieEngineFluid.sampleFluidDomain(domain, Number.NaN),
             ["seekable", "non-finite time"],
           ),
       ],

@@ -1,4 +1,4 @@
-import { createPhone } from "@automovie/archetypes";
+import { AutoMovieArchetypePhone } from "@automovie/archetypes";
 import type {
   IAutoMovieAffordance,
   IAutoMoviePhysicalShape,
@@ -14,6 +14,7 @@ import { vclose } from "../../internal/vclose";
  * The phone's glass is centered on the case's real front face.
  *
  * Scenarios:
+ *
  * 1. Build the minimum and maximum allowed phone cases.
  * 2. Compare the screen placement and size to each collider and 94% of its face.
  */
@@ -22,11 +23,12 @@ export function test_archetypes_catalogue_phone_glass(): void {
     [0.0642, 0.1315, 0.00564],
     [0.078, 0.1634, 0.00875],
   ] as const) {
-    const phone: ReturnType<typeof createPhone> = createPhone({
-      width,
-      height,
-      thickness,
-    });
+    const phone: ReturnType<typeof AutoMovieArchetypePhone.create> =
+      AutoMovieArchetypePhone.create({
+        width,
+        height,
+        thickness,
+      });
     const body: IAutoMoviePhysicalShape | undefined = phone
       .shapes()
       .find((shape): boolean => shape.id === "body");

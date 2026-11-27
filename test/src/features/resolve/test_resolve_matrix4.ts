@@ -1,4 +1,4 @@
-import { Matrix4 } from "@automovie/engine";
+import { AutoMovieEngineMatrix4 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";
@@ -37,11 +37,11 @@ export function test_resolve_matrix4(): void {
   // 1. identity
   TestValidator.predicate(
     "identity matrix",
-    close(Matrix4.identity(), [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]),
+    close(AutoMovieEngineMatrix4.identity(), [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]),
   );
 
   // 2. compose translation + scale, identity rotation
-  const ts: number[] = Matrix4.compose(
+  const ts: number[] = AutoMovieEngineMatrix4.compose(
     { x: 1, y: 2, z: 3 },
     { x: 0, y: 0, z: 0, w: 1 },
     { x: 2, y: 2, z: 2 },
@@ -53,7 +53,7 @@ export function test_resolve_matrix4(): void {
 
   // 3. compose a 90° rotation about +Y
   const s: number = Math.SQRT1_2;
-  const rotY: number[] = Matrix4.compose(
+  const rotY: number[] = AutoMovieEngineMatrix4.compose(
     { x: 0, y: 0, z: 0 },
     { x: 0, y: s, z: 0, w: s },
     { x: 1, y: 1, z: 1 },
@@ -66,16 +66,16 @@ export function test_resolve_matrix4(): void {
   // 4. identity is the multiplicative unit
   TestValidator.predicate(
     "identity · M = M",
-    close(Matrix4.multiply(Matrix4.identity(), ts), ts),
+    close(AutoMovieEngineMatrix4.multiply(AutoMovieEngineMatrix4.identity(), ts), ts),
   );
 
   // 5. T · S product: translate after scale
-  const t: number[] = Matrix4.compose(
+  const t: number[] = AutoMovieEngineMatrix4.compose(
     { x: 5, y: 0, z: 0 },
     { x: 0, y: 0, z: 0, w: 1 },
     { x: 1, y: 1, z: 1 },
   );
-  const scale: number[] = Matrix4.compose(
+  const scale: number[] = AutoMovieEngineMatrix4.compose(
     { x: 0, y: 0, z: 0 },
     { x: 0, y: 0, z: 0, w: 1 },
     { x: 3, y: 3, z: 3 },
@@ -83,7 +83,7 @@ export function test_resolve_matrix4(): void {
   TestValidator.predicate(
     "T · S scales the basis and keeps the translation",
     close(
-      Matrix4.multiply(t, scale),
+      AutoMovieEngineMatrix4.multiply(t, scale),
       [3, 0, 0, 0, 0, 3, 0, 0, 0, 0, 3, 0, 5, 0, 0, 1],
     ),
   );

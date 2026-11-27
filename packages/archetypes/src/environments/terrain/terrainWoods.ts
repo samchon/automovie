@@ -1,10 +1,5 @@
-import {
-  autoMoviePlanarRegionFailure,
-  createAutoMovieRandom,
-  deriveAutoMovieSeed,
-  pointInPolygon,
-  surfaceHeightAt,
-} from "@automovie/engine";
+import { AutoMovieEngineRandom, AutoMovieEnginePlanarRegion, AutoMovieEnginePlanarGeometry, AutoMovieEngineSpace } from "@automovie/engine";
+
 import type {
   IAutoMovieEnvironmentContribution,
   IAutoMovieEnvironmentModule,
@@ -19,32 +14,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { deriveArchetypeSeed } from "../../core/deriveArchetypeSeed";
-import { createTree } from "../../nature/createTree";
+import { deriveArchetypeSeed } from "../../core/internal/deriveArchetypeSeed";
+import { AutoMovieArchetypeTree } from "../../nature/AutoMovieArchetypeTree";
 
-/** One accepted site with its seeded order. */
-interface ISite {
-  /** The cell's fourth stream word, which orders the sites. */
-  key: number;
-
-  /** The cell's index, which breaks ties in that order. */
-  index: number;
-
-  /** The tree's placement relative to the terrain origin. */
-  transform: IAutoMovieExplicitInstanceTransform;
-}
-
-/** Most trees one wood plants: the slot bound of an instance set. */
-const MAX_TREES: number = 100_000;
-
-/**
- * Most grid cells one wood scans. The scan visits every cell of the outline's
- * bounding box, so this bounds its work, as the terrain lattice's
- * million-sample budget bounds the bake.
- */
-const MAX_CELLS: number = 1_000_000;
-
-/**
+/*
  * Plant each named wood of a terrain recipe as one explicit instance set.
  *
  * Sites come from jittered grid sampling (Cook 1986, "Stochastic Sampling in
@@ -58,24 +31,23 @@ const MAX_CELLS: number = 1_000_000;
  * a trail through the wood removes only the trees it touches. The trunk radius
  * is the largest among the weighted species, at the wood's scale.
  *
- * Every draw reads the counter stream of `deriveAutoMovieSeed(seed, "woods",
+ * Every draw reads the counter stream of `AutoMovieEngineRandom.deriveSeed(seed, "woods",
  * name)` at the cell's index, so a site depends only on the seed, the recipe
  * and its cell: the block's first two words jitter it, the third chooses its
  * species by weight and the fourth orders it. With `count`, the first `count`
  * accepted sites in that seeded order are planted. Each tree's Y is the terrain
  * rule's height at its site, and its prototype names its species.
- *
- * @param context The placed scope, frame and seed.
- * @param recipe The parcel extent and its named woods in local plan metres.
- * @param ground The accepted world height rule of the finished ground.
- * @param protectedArea The first protected feature within a radius of a world
- *   plan point, or null.
- * @returns One prototype model per planted species and one instance set per
- *   wood.
- * @throws {Error} Naming the wood for a malformed outline, spacing, count,
- *   scale or species weight, a grid beyond `MAX_CELLS`, no accepted site, more
- *   than 100,000 accepted sites without a count, or a count above the accepted
- *   sites, giving how many fit.
+ * Parameter context: The placed scope, frame and seed.
+ * Parameter recipe: The parcel extent and its named woods in local plan metres.
+ * Parameter ground: The accepted world height rule of the finished ground.
+ * Parameter protectedArea: The first protected feature within a radius of a world
+ * plan point, or null.
+ * Returns: One prototype model per planted species and one instance set per
+ * wood.
+ * Naming the wood for a malformed outline, spacing, count,
+ * scale or species weight, a grid beyond `MAX_CELLS`, no accepted site, more
+ * than 100,000 accepted sites without a count, or a count above the accepted
+ * sites, giving how many fit.
  */
 export function terrainWoods(
   context: IAutoMovieEnvironmentModule.IContext,
@@ -91,7 +63,7 @@ export function terrainWoods(
   const instanceSets: IAutoMovieInstanceSetDesign[] = [];
   const models: IAutoMovieModel[] = [];
   const origin: IAutoMovieVector3 = context.frame.translation;
-  const [width, depth]: IAutoMovieTerrainRecipe.Point = recipe.size;
+  const { width, depth }: IAutoMovieTerrainRecipe.ISize = recipe.size;
   for (const [name, woods] of Object.entries(recipe.woods ?? {})) {
     const id: string = `${context.id}/woods/${name}`;
     const scale: number = woods.scale ?? 1;
@@ -108,15 +80,17 @@ export function terrainWoods(
         `Terrain woods "${id}" need a count from one to 100,000: ${woods.count}.`,
       );
     const outline: IAutoMoviePlanarPoint[] = woods.outline.map(
-      ([x, z]: IAutoMovieTerrainRecipe.Point): IAutoMoviePlanarPoint => ({
+      ({ x, z }: IAutoMovieTerrainRecipe.IXzPoint): IAutoMoviePlanarPoint => ({
         x,
         y: z,
       }),
     );
-    const failure: string | null = autoMoviePlanarRegionFailure({
-      outer: outline,
-      label: id,
-    });
+    const failure: string | null = AutoMovieEnginePlanarRegion.failure(
+      {
+        outer: outline,
+      },
+      id,
+    );
     if (failure !== null) throw new Error(failure);
     if (
       outline.some(
@@ -129,13 +103,13 @@ export function terrainWoods(
       );
 
     // The weighted species in a fixed order, each with its own prototype.
-    const seed: string = deriveAutoMovieSeed(
+    const seed: string = AutoMovieEngineRandom.deriveSeed(
       String(context.seed ?? 0),
       "woods",
       name,
     );
-    const weights: [createTree.Kind, number][] = createTree.KINDS.flatMap(
-      (kind: createTree.Kind): [createTree.Kind, number][] => {
+    const weights: [AutoMovieArchetypeTree.Kind, number][] = AutoMovieArchetypeTree.KINDS.flatMap(
+      (kind: AutoMovieArchetypeTree.Kind): [AutoMovieArchetypeTree.Kind, number][] => {
         const weight: number | undefined = (woods.species ?? { whiteOak: 1 })[
           kind
         ];
@@ -146,32 +120,32 @@ export function terrainWoods(
       weights.length === 0 ||
       Object.keys(woods.species ?? {}).some(
         (kind: string): boolean =>
-          !createTree.KINDS.some(
-            (known: createTree.Kind): boolean => known === kind,
+          !AutoMovieArchetypeTree.KINDS.some(
+            (known: AutoMovieArchetypeTree.Kind): boolean => known === kind,
           ),
       ) ||
       weights.some(
-        ([, weight]: [createTree.Kind, number]): boolean => !(weight > 0),
+        ([, weight]: [AutoMovieArchetypeTree.Kind, number]): boolean => !(weight > 0),
       )
     )
       throw new Error(
         `Terrain woods "${id}" need positive finite weights for whiteOak or douglasFir.`,
       );
     const total: number = weights.reduce(
-      (sum: number, [, weight]: [createTree.Kind, number]): number =>
+      (sum: number, [, weight]: [AutoMovieArchetypeTree.Kind, number]): number =>
         sum + weight,
       0,
     );
-    const prototypes: ReturnType<typeof createTree>[] = weights.map(
-      ([kind]: [createTree.Kind, number]): ReturnType<typeof createTree> =>
-        createTree(
+    const prototypes: ReturnType<typeof AutoMovieArchetypeTree.create>[] = weights.map(
+      ([kind]: [AutoMovieArchetypeTree.Kind, number]): ReturnType<typeof AutoMovieArchetypeTree.create> =>
+        AutoMovieArchetypeTree.create(
           { id: `${id}/${kind}`, kind },
           deriveArchetypeSeed(context.seed ?? 0, "woods", name, kind),
         ),
     );
     const trunk: number = Math.max(
       ...prototypes.map(
-        (tree: ReturnType<typeof createTree>): number =>
+        (tree: ReturnType<typeof AutoMovieArchetypeTree.create>): number =>
           (tree.dimensions.dbh! * scale) / 2,
       ),
     );
@@ -196,7 +170,7 @@ export function terrainWoods(
       throw new Error(
         `Terrain woods "${id}" need ${columns * rows} grid cells, more than ${MAX_CELLS}; widen the spacing or shrink the outline.`,
       );
-    const random: IAutoMovieRandom = createAutoMovieRandom(seed);
+    const random: IAutoMovieRandom = AutoMovieEngineRandom.createRandom(seed);
     const sites: ISite[] = [];
     for (let row: number = 0; row < rows; ++row)
       for (let column: number = 0; column < columns; ++column) {
@@ -210,7 +184,7 @@ export function terrainWoods(
         const z: number =
           minZ + (row + 0.5) * cell + (jz / 4294967296 - 0.5) * 0.5 * spacing;
         if (
-          !pointInPolygon({ x, y: z }, outline) ||
+          !AutoMovieEnginePlanarGeometry.pointInPolygon({ x, y: z }, outline) ||
           x - trunk < 0 ||
           z - trunk < 0 ||
           x + trunk > width ||
@@ -224,7 +198,7 @@ export function terrainWoods(
         // Spend the species draw across the weights in table order; the last
         // species takes what remains.
         let remaining: number = (pick / 4294967296) * total;
-        let species: createTree.Kind = weights[weights.length - 1]![0];
+        let species: AutoMovieArchetypeTree.Kind = weights[weights.length - 1]![0];
         for (const [kind, weight] of weights.slice(0, -1)) {
           if (remaining < weight) {
             species = kind;
@@ -239,7 +213,7 @@ export function terrainWoods(
             id: `cell-${column}-${row}`,
             translation: {
               x,
-              y: surfaceHeightAt({ height: ground }, wx, wz),
+              y: AutoMovieEngineSpace.surfaceHeightAt({ height: ground }, wx, wz),
               z,
             },
             rotation: { x: 0, y: 0, z: 0, w: 1 },
@@ -268,7 +242,7 @@ export function terrainWoods(
       model: prototypes[0]!.id,
       prototypes: weights.map(
         ([kind, weight]: [
-          createTree.Kind,
+          AutoMovieArchetypeTree.Kind,
           number,
         ]): IAutoMovieInstancePrototypeDesign => ({
           id: kind,
@@ -288,7 +262,7 @@ export function terrainWoods(
       },
       anchor: { x: origin.x, y: 0, z: origin.z },
       facingDeg: 0,
-      seed: createAutoMovieRandom(deriveAutoMovieSeed(seed, "slots")).uint32(0),
+      seed: AutoMovieEngineRandom.createRandom(AutoMovieEngineRandom.deriveSeed(seed, "slots")).uint32(0),
       variation: {
         scale: { min: scale, max: scale },
         palette: ["#ffffff"],
@@ -298,3 +272,35 @@ export function terrainWoods(
   }
   return { instanceSets, models };
 }
+
+/*
+ * One accepted site with its seeded order.
+ */
+interface ISite {
+  /*
+   * The cell's fourth stream word, which orders the sites.
+   */
+  key: number;
+
+  /*
+   * The cell's index, which breaks ties in that order.
+   */
+  index: number;
+
+  /*
+   * The tree's placement relative to the terrain origin.
+   */
+  transform: IAutoMovieExplicitInstanceTransform;
+}
+
+/*
+ * Most trees one wood plants: the slot bound of an instance set.
+ */
+const MAX_TREES: number = 100_000;
+
+/*
+ * Most grid cells one wood scans. The scan visits every cell of the outline's
+ * bounding box, so this bounds its work, as the terrain lattice's
+ * million-sample budget bounds the bake.
+ */
+const MAX_CELLS: number = 1_000_000;

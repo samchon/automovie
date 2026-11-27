@@ -1,8 +1,4 @@
-import {
-  computeModelRestExtent,
-  framedBoxOf,
-  nodeSubjectExtent,
-} from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieClip,
   IAutoMovieModel,
@@ -93,8 +89,8 @@ const {
 export function test_engine_film_camera_node_subject_width(): void {
   const model: IAutoMovieModel = facade("facade-model", WIDTH / 2);
   const origin: IAutoMovieTransform = transform(0, 0, 0);
-  const extent: ReturnType<typeof computeModelRestExtent> =
-    computeModelRestExtent(model);
+  const extent: ReturnType<typeof AutoMovieEngineFilm.computeModelRestExtent> =
+    AutoMovieEngineFilm.computeModelRestExtent(model);
 
   // 1. the fixture draws what it claims.
   TestValidator.equals(
@@ -104,7 +100,7 @@ export function test_engine_film_camera_node_subject_width(): void {
   );
 
   // 2. restated for the framing grammar.
-  const measured: ReturnType<typeof framedBoxOf> = framedBoxOf(
+  const measured: ReturnType<typeof AutoMovieEngineFilm.framedBoxOf> = AutoMovieEngineFilm.framedBoxOf(
     worldBox(model, origin),
   );
   const RADIUS: number = Math.hypot(WIDTH, DEPTH) / 2;
@@ -238,7 +234,7 @@ export function test_engine_film_camera_node_subject_width(): void {
 
   // 7. the grade follows the geometry rather than growing around the origin.
   const remote: IAutoMovieModel = facade("remote-facade-model", 100);
-  const remoteMeasured: ReturnType<typeof framedBoxOf> = framedBoxOf(
+  const remoteMeasured: ReturnType<typeof AutoMovieEngineFilm.framedBoxOf> = AutoMovieEngineFilm.framedBoxOf(
     worldBox(remote, origin),
   );
   const remotePole: IFilmFacadeGrade = grade(
@@ -281,8 +277,8 @@ export function test_engine_film_camera_node_subject_width(): void {
   );
 
   // 8. an ingested mesh is measured on the same terms as a generated primitive.
-  const meshExtent: ReturnType<typeof computeModelRestExtent> =
-    computeModelRestExtent(meshFacade("mesh-facade-model", WIDTH / 2));
+  const meshExtent: ReturnType<typeof AutoMovieEngineFilm.computeModelRestExtent> =
+    AutoMovieEngineFilm.computeModelRestExtent(meshFacade("mesh-facade-model", WIDTH / 2));
   TestValidator.equals(
     "a mesh wall draws the same box its primitive twin does",
     meshExtent === null ? null : micrometres(meshExtent),
@@ -290,7 +286,7 @@ export function test_engine_film_camera_node_subject_width(): void {
   );
 
   // 9. boundaries: nothing to measure, and nothing vertical to measure.
-  const standIn: ReturnType<typeof nodeSubjectExtent> = nodeSubjectExtent(
+  const standIn: ReturnType<typeof AutoMovieEngineFilm.nodeSubjectExtent> = AutoMovieEngineFilm.nodeSubjectExtent(
     null,
     null,
   );
@@ -299,7 +295,7 @@ export function test_engine_film_camera_node_subject_width(): void {
     micrometres(standIn),
     { min: { x: 0, y: 0, z: 0 }, max: { x: 0, y: 1.7, z: 0 } },
   );
-  const rigOnly: ReturnType<typeof nodeSubjectExtent> = nodeSubjectExtent(
+  const rigOnly: ReturnType<typeof AutoMovieEngineFilm.nodeSubjectExtent> = AutoMovieEngineFilm.nodeSubjectExtent(
     null,
     1.9,
   );
@@ -308,7 +304,7 @@ export function test_engine_film_camera_node_subject_width(): void {
     micrometres(rigOnly),
     { min: { x: 0, y: 0, z: 0 }, max: { x: 0, y: 1.9, z: 0 } },
   );
-  const thin: ReturnType<typeof nodeSubjectExtent> = nodeSubjectExtent(
+  const thin: ReturnType<typeof AutoMovieEngineFilm.nodeSubjectExtent> = AutoMovieEngineFilm.nodeSubjectExtent(
     {
       min: { x: 0, y: 4, z: -WIDTH / 2 },
       max: { x: WIDTH, y: 4.02, z: WIDTH / 2 },

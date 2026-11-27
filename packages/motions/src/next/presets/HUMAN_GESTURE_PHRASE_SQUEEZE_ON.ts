@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanGesture } from "@automovie/interface";
 
-/**
+/*
  * The values the `squeezeOn` row of `HumanUpperRows` fixes on `armPhrase`,
  * spread into its parameters. A squeeze: the hand closes on the target and
  * holds.

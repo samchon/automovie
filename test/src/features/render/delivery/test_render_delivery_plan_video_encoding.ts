@@ -1,5 +1,5 @@
 import type { IAutoMovieRenderSpec } from "@automovie/interface";
-import { planAutoMovieVideoEncoding } from "@automovie/render";
+import { AutoMovieRenderVideo } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/predicates";
@@ -89,7 +89,7 @@ export function test_render_delivery_plan_video_encoding(): void {
   // 1. Silent.
   TestValidator.equals(
     "the silent vector",
-    planAutoMovieVideoEncoding({
+    AutoMovieRenderVideo.planVideoEncoding({
       spec: SPEC,
       durationSeconds: 2,
       frameDir: "frames",
@@ -106,7 +106,7 @@ export function test_render_delivery_plan_video_encoding(): void {
   // 2. A soundtrack.
   TestValidator.equals(
     "the soundtrack vector",
-    planAutoMovieVideoEncoding({
+    AutoMovieRenderVideo.planVideoEncoding({
       spec: SPEC,
       durationSeconds: 2,
       frameDir: "frames",
@@ -142,7 +142,7 @@ export function test_render_delivery_plan_video_encoding(): void {
       `a clock of ${seconds} s is refused`,
       throwsError(
         (): unknown =>
-          planAutoMovieVideoEncoding({
+          AutoMovieRenderVideo.planVideoEncoding({
             spec: SPEC,
             durationSeconds: seconds,
             frameDir: "f",
@@ -158,7 +158,7 @@ export function test_render_delivery_plan_video_encoding(): void {
     "an odd raster",
     throwsError(
       (): unknown =>
-        planAutoMovieVideoEncoding({
+        AutoMovieRenderVideo.planVideoEncoding({
           spec: { ...SPEC, frameFormat: { ...SPEC.frameFormat, width: 1281 } },
           durationSeconds: 2,
           frameDir: "f",
@@ -172,7 +172,7 @@ export function test_render_delivery_plan_video_encoding(): void {
     "a blank soundtrack",
     throwsError(
       (): unknown =>
-        planAutoMovieVideoEncoding({
+        AutoMovieRenderVideo.planVideoEncoding({
           spec: SPEC,
           durationSeconds: 2,
           frameDir: "f",
@@ -188,7 +188,7 @@ export function test_render_delivery_plan_video_encoding(): void {
     { fps: 30000 / 1001, rate: [30000, 1001], argument: "30000/1001" },
     { fps: 29.97, rate: [2997, 100], argument: "2997/100" },
   ] as const) {
-    const plan = planAutoMovieVideoEncoding({
+    const plan = AutoMovieRenderVideo.planVideoEncoding({
       spec: { ...SPEC, frameFormat: { ...SPEC.frameFormat, fps } },
       durationSeconds: 1 / fps,
       frameDir: "f",

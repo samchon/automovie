@@ -1,7 +1,4 @@
-import {
-  admitSubdivisionCage,
-  subdivisionBendingRows,
-} from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type { IAutoMovieSubdivisionLevel } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -33,11 +30,11 @@ export function test_engine_geometry_subdivision_bending_rows(): void {
     [3, 4, 7, 6],
     [4, 5, 8, 7],
   ];
-  const level: IAutoMovieSubdivisionLevel = admitSubdivisionCage({
+  const level: IAutoMovieSubdivisionLevel = AutoMovieEngineGeometry.admitSubdivisionCage({
     positions,
     faces,
   });
-  const rows: Map<number, number>[] = subdivisionBendingRows(level);
+  const rows: Map<number, number>[] = AutoMovieEngineGeometry.subdivisionBendingRows(level);
   const apply = (row: Map<number, number>, axis: number): number => {
     let sum: number = 0;
     for (const [j, w] of row) sum += w * positions[3 * j + axis]!;
@@ -73,7 +70,7 @@ export function test_engine_geometry_subdivision_bending_rows(): void {
   TestValidator.predicate(
     "degenerate",
     throwsError(
-      (): unknown => subdivisionBendingRows({ ...level, positions: collapsed }),
+      (): unknown => AutoMovieEngineGeometry.subdivisionBendingRows({ ...level, positions: collapsed }),
       "fitting metric contains a degenerate triangle",
     ),
   );

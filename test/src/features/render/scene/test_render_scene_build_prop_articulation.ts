@@ -4,12 +4,7 @@ import type {
   IAutoMoviePropSpec,
   IAutoMovieTransform,
 } from "@automovie/interface";
-import {
-  type IAutoMovieBuiltPropArticulation,
-  type IAutoMovieModelObject,
-  type IBuildPropArticulationProps,
-  buildPropArticulation,
-} from "@automovie/render";
+import { type IAutoMovieRenderBuiltPropArticulation, type IAutoMovieRenderModelObject, type IAutoMovieRenderBuildPropArticulationProps, AutoMovieRenderSceneLayout } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import { Group, Object3D, Vector3 } from "three";
 
@@ -81,12 +76,12 @@ export function test_render_scene_build_prop_articulation(): void {
   part.position.set(2, 3, 4);
   modelRoot.add(part);
   staged.add(modelRoot);
-  const built: IAutoMovieModelObject = {
+  const built: IAutoMovieRenderModelObject = {
     object: modelRoot,
     bones: new Map(),
     parts: new Map([[partId, part]]),
   };
-  const input: IBuildPropArticulationProps = {
+  const input: IAutoMovieRenderBuildPropArticulationProps = {
     scene: {
       id: "set",
       name: null,
@@ -109,8 +104,8 @@ export function test_render_scene_build_prop_articulation(): void {
     nodeObjects: new Map([["door", staged]]),
     modelObjects: new Map([["door", built]]),
   };
-  const articulation: IAutoMovieBuiltPropArticulation =
-    buildPropArticulation(input);
+  const articulation: IAutoMovieRenderBuiltPropArticulation =
+    AutoMovieRenderSceneLayout.buildPropArticulation(input);
   const attached: Object3D = articulation.joints.get("door/hinge")!;
   const parent: Object3D = articulation.joints.get("door/mount")!;
   TestValidator.predicate(
@@ -156,8 +151,8 @@ export function test_render_scene_build_prop_articulation(): void {
   TestValidator.predicate(
     "missing addressed part refuses",
     throwsError(
-      (): IAutoMovieBuiltPropArticulation =>
-        buildPropArticulation({
+      (): IAutoMovieRenderBuiltPropArticulation =>
+        AutoMovieRenderSceneLayout.buildPropArticulation({
           ...input,
           nodeObjects: new Map([["door", new Group()]]),
           modelObjects: new Map([["door", { ...built, parts: new Map() }]]),

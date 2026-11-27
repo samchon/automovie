@@ -1,8 +1,8 @@
 import {
   AutoMovieArchetypeFrame,
-  createTransitBus,
+  AutoMovieArchetypeTransitBus,
 } from "@automovie/archetypes";
-import { validateModel } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieModelPart,
@@ -34,7 +34,8 @@ import { vclose } from "../../internal/vclose";
  * @evidence contracts/development/testing.md#execution-ownership Runs deterministically on local factory results without a host.
  */
 export function test_archetype_transit_bus(): void {
-  const bus: ReturnType<typeof createTransitBus> = createTransitBus("city-bus");
+  const bus: ReturnType<typeof AutoMovieArchetypeTransitBus.create> =
+    AutoMovieArchetypeTransitBus.create("city-bus");
   const length: number = 482 * 0.0254;
   const width: number = 102 * 0.0254;
   const floor: number = 14 * 0.0254;
@@ -157,7 +158,7 @@ export function test_archetype_transit_bus(): void {
       TestValidator.predicate(
         name + " opens symmetrically at " + travel,
         () =>
-          validateModel({ model: pose }).success &&
+          AutoMovieEngineValidation.validateModel({ model: pose }).success &&
           nclose(leader.z - leader.depth / 2, z + travel) &&
           nclose(follower.z + follower.depth / 2, z - travel) &&
           nclose(parkedLeader.z - parkedLeader.depth / 2, otherZ) &&
@@ -190,11 +191,11 @@ export function test_archetype_transit_bus(): void {
 }
 
 /** Measures the seat-bank clearance and the boarding contacts at different fits. */
-function checkSeatingFits(neutral: ReturnType<typeof createTransitBus>): void {
-  const seeded: typeof neutral = createTransitBus("city-bus", 0);
-  const replay: typeof neutral = createTransitBus("city-bus", 0);
-  const textSeed: typeof neutral = createTransitBus("city-bus", 0);
-  const other: typeof neutral = createTransitBus("city-bus", 1014);
+function checkSeatingFits(neutral: ReturnType<typeof AutoMovieArchetypeTransitBus.create>): void {
+  const seeded: typeof neutral = AutoMovieArchetypeTransitBus.create("city-bus", 0);
+  const replay: typeof neutral = AutoMovieArchetypeTransitBus.create("city-bus", 0);
+  const textSeed: typeof neutral = AutoMovieArchetypeTransitBus.create("city-bus", 0);
+  const other: typeof neutral = AutoMovieArchetypeTransitBus.create("city-bus", 1014);
   const neutralClearance: number = aisleClearance(neutral);
   const seededClearance: number = aisleClearance(seeded);
   const otherClearance: number = aisleClearance(other);
@@ -235,7 +236,7 @@ function checkSeatingFits(neutral: ReturnType<typeof createTransitBus>): void {
     );
     TestValidator.predicate(
       "the configured bus admits both open doors",
-      () => validateModel({ model: opened }).success,
+      () => AutoMovieEngineValidation.validateModel({ model: opened }).success,
     );
     for (const name of ["front", "rear"] as const) {
       const z: number = neutral.affordance(`${name}Doorway`).frame.translation
@@ -263,7 +264,7 @@ function checkSeatingFits(neutral: ReturnType<typeof createTransitBus>): void {
 }
 
 /** Reads opposing cushion edges at a station with seats on both sides. */
-function aisleClearance(bus: ReturnType<typeof createTransitBus>): number {
+function aisleClearance(bus: ReturnType<typeof AutoMovieArchetypeTransitBus.create>): number {
   const street: ReturnType<typeof box> = box(bus, "street-0.98-cushion--1");
   const curb: ReturnType<typeof box> = box(bus, "curb-0.98-cushion-1");
   return street.x - street.width / 2 - (curb.x + curb.width / 2);
@@ -271,7 +272,7 @@ function aisleClearance(bus: ReturnType<typeof createTransitBus>): number {
 
 /** Finds actual geometry so an omitted part fails the specification. */
 function part(
-  bus: ReturnType<typeof createTransitBus>,
+  bus: ReturnType<typeof AutoMovieArchetypeTransitBus.create>,
   id: string,
 ): IAutoMovieModelPart {
   const found: IAutoMovieModelPart | undefined = bus.parts.find(
@@ -288,7 +289,7 @@ function part(
 
 /** Reads physical box dimensions and the tested center coordinates. */
 function box(
-  bus: ReturnType<typeof createTransitBus>,
+  bus: ReturnType<typeof AutoMovieArchetypeTransitBus.create>,
   id: string,
 ): {
   width: number;

@@ -4,7 +4,7 @@ import type { AutoMovieArchetype, AutoMovieArchetypeCourse } from "../core";
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import type { AutoMovieArchetypeQuadrupedFooting } from "./AutoMovieArchetypeQuadrupedFooting";
 import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
-import type { rideQuadruped } from "./rideQuadruped";
+import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
 /**
  * The authored inputs, the displayed samples and the stroke coordination of an
@@ -43,7 +43,7 @@ export namespace AutoMovieArchetypeEquineFordPlan {
   /** A grounded course on the footing whose swim-side speed the crossing owns. */
   export interface IGrounded {
     /** The legs in order, at least one; a leg's rise follows a graded bed. */
-    legs: readonly rideQuadruped.ILeg[];
+    legs: readonly AutoMovieArchetypeQuadruped.IRideLeg[];
     /** The cruising speed, metres per second. */
     cruise: number;
     /** The acceleration, metres per second squared, where the course speeds up. */

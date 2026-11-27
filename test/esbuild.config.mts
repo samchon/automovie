@@ -17,8 +17,8 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { getHeapStatistics } from "node:v8";
 
-import { parseScenarioSelection } from "./src/parseScenarioSelection.ts";
-import { selectScenarioNames } from "./src/selectScenarioNames.ts";
+import { parseScenarioSelection } from "#scenario-selection/parseScenarioSelection";
+import { selectScenarioNames } from "#scenario-selection/selectScenarioNames";
 
 /**
  * Builds the test program and runs it: `src/index.ts` and the test files the

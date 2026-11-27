@@ -1,11 +1,4 @@
-import {
-  builtEnvironmentSpaceContentBounds,
-  builtEnvironmentSpaceFidelity,
-  builtEnvironmentSpaceNodes,
-  builtEnvironmentSpacePopulations,
-  lowerBuiltEnvironment,
-  validateBuiltEnvironment,
-} from "@automovie/engine";
+import { AutoMovieEngineBuiltEnvironment, AutoMovieEngineBuiltEnvironmentWorkflow, AutoMovieEngineArchitecture } from "@automovie/engine";
 import type {
   IAutoMovieBuiltElement,
   IAutoMovieBuiltEnvironment,
@@ -296,12 +289,12 @@ export function test_architecture_built_environment_populations(): void {
   const work: IAutoMovieBuiltEnvironment = residence();
   TestValidator.equals(
     "the populated record validates",
-    validateBuiltEnvironment({ environment: work }).success,
+    AutoMovieEngineArchitecture.validateBuiltEnvironment({ environment: work }).success,
     true,
   );
 
   const undercroft: IAutoMovieSubjectBox | null =
-    builtEnvironmentSpaceContentBounds(work, "undercroft");
+    AutoMovieEngineBuiltEnvironment.environmentSpaceContentBounds(work, "undercroft");
   TestValidator.equals(
     "a room furnished only by a population is measured, not reported empty",
     namedFacts([
@@ -322,12 +315,12 @@ export function test_architecture_built_environment_populations(): void {
     { measured: true, min: true, max: true },
   );
 
-  const solar: IAutoMovieSubjectBox | null = builtEnvironmentSpaceContentBounds(
+  const solar: IAutoMovieSubjectBox | null = AutoMovieEngineBuiltEnvironment.environmentSpaceContentBounds(
     work,
     "solar",
   );
   const solarBefore: IAutoMovieSubjectBox | null =
-    builtEnvironmentSpaceContentBounds(unpopulated(), "solar");
+    AutoMovieEngineBuiltEnvironment.environmentSpaceContentBounds(unpopulated(), "solar");
   TestValidator.equals(
     "a room holding only elements answers what it always answered",
     namedFacts([
@@ -359,7 +352,7 @@ export function test_architecture_built_environment_populations(): void {
     },
   );
 
-  const hall: IAutoMovieSubjectBox | null = builtEnvironmentSpaceContentBounds(
+  const hall: IAutoMovieSubjectBox | null = AutoMovieEngineBuiltEnvironment.environmentSpaceContentBounds(
     work,
     "great-hall",
   );
@@ -400,7 +393,7 @@ export function test_architecture_built_environment_populations(): void {
     },
   );
 
-  const whole: IAutoMovieSubjectBox | null = builtEnvironmentSpaceContentBounds(
+  const whole: IAutoMovieSubjectBox | null = AutoMovieEngineBuiltEnvironment.environmentSpaceContentBounds(
     work,
     "residence",
   );
@@ -425,22 +418,22 @@ export function test_architecture_built_environment_populations(): void {
   TestValidator.equals(
     "each space owns exactly the populations declared on it",
     {
-      hall: builtEnvironmentSpacePopulations(work, "great-hall").map(
+      hall: AutoMovieEngineBuiltEnvironment.environmentSpacePopulations(work, "great-hall").map(
         (population: IAutoMovieBuiltPopulation): string => population.set.id,
       ),
-      undercroft: builtEnvironmentSpacePopulations(work, "undercroft").map(
+      undercroft: AutoMovieEngineBuiltEnvironment.environmentSpacePopulations(work, "undercroft").map(
         (population: IAutoMovieBuiltPopulation): string => population.set.id,
       ),
-      solar: builtEnvironmentSpacePopulations(work, "solar").map(
+      solar: AutoMovieEngineBuiltEnvironment.environmentSpacePopulations(work, "solar").map(
         (population: IAutoMovieBuiltPopulation): string => population.set.id,
       ),
-      omitted: builtEnvironmentSpacePopulations(unpopulated(), "solar").map(
+      omitted: AutoMovieEngineBuiltEnvironment.environmentSpacePopulations(unpopulated(), "solar").map(
         (population: IAutoMovieBuiltPopulation): string => population.set.id,
       ),
-      porch: builtEnvironmentSpacePopulations(work, "porch").map(
+      porch: AutoMovieEngineBuiltEnvironment.environmentSpacePopulations(work, "porch").map(
         (population: IAutoMovieBuiltPopulation): string => population.set.id,
       ),
-      whole: builtEnvironmentSpacePopulations(work, "residence").map(
+      whole: AutoMovieEngineBuiltEnvironment.environmentSpacePopulations(work, "residence").map(
         (population: IAutoMovieBuiltPopulation): string => population.set.id,
       ),
     },
@@ -463,10 +456,10 @@ export function test_architecture_built_environment_populations(): void {
   TestValidator.equals(
     "a population is named once, by the owner id the render side uses",
     {
-      hall: builtEnvironmentSpaceNodes(work, "great-hall"),
-      undercroft: builtEnvironmentSpaceNodes(work, "undercroft"),
-      solar: builtEnvironmentSpaceNodes(work, "solar"),
-      whole: builtEnvironmentSpaceNodes(work, "residence"),
+      hall: AutoMovieEngineBuiltEnvironment.environmentSpaceNodes(work, "great-hall"),
+      undercroft: AutoMovieEngineBuiltEnvironment.environmentSpaceNodes(work, "undercroft"),
+      solar: AutoMovieEngineBuiltEnvironment.environmentSpaceNodes(work, "solar"),
+      whole: AutoMovieEngineBuiltEnvironment.environmentSpaceNodes(work, "residence"),
     },
     {
       hall: [
@@ -496,16 +489,16 @@ export function test_architecture_built_environment_populations(): void {
   TestValidator.equals(
     "empty content remains null and population content does not alter fidelity",
     {
-      empty: builtEnvironmentSpaceContentBounds(empty, "solar"),
-      populatedFidelity: builtEnvironmentSpaceFidelity(work, "great-hall"),
-      bareFidelity: builtEnvironmentSpaceFidelity(unpopulated(), "great-hall"),
+      empty: AutoMovieEngineBuiltEnvironment.environmentSpaceContentBounds(empty, "solar"),
+      populatedFidelity: AutoMovieEngineBuiltEnvironment.environmentSpaceFidelity(work, "great-hall"),
+      bareFidelity: AutoMovieEngineBuiltEnvironment.environmentSpaceFidelity(unpopulated(), "great-hall"),
     },
     { empty: null, populatedFidelity: "exact", bareFidelity: "exact" },
   );
 
-  const lowered: IAutoMovieSubjectContribution = lowerBuiltEnvironment(work);
+  const lowered: IAutoMovieSubjectContribution = AutoMovieEngineBuiltEnvironmentWorkflow.lowerBuiltEnvironment(work);
   const loweredBare: IAutoMovieSubjectContribution =
-    lowerBuiltEnvironment(unpopulated());
+    AutoMovieEngineBuiltEnvironmentWorkflow.lowerBuiltEnvironment(unpopulated());
   TestValidator.predicate(
     "lowering contributes the compact sets and never expands them",
     ((): boolean => {

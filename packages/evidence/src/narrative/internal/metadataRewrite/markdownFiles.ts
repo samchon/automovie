@@ -1,7 +1,9 @@
 import fs from "node:fs";
 import path from "node:path";
 
-/** Inventories Markdown paths without following directory symlinks. */
+/*
+ * Inventories Markdown paths without following directory symlinks.
+ */
 export function markdownFiles(
   root: string,
   directoryPath: string = root,

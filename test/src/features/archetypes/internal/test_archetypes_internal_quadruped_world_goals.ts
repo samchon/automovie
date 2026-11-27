@@ -1,5 +1,7 @@
-import { QuadrupedPoseAngles } from "@automovie/archetypes/internal";
-import { Quaternion, prepareArticulatedRig } from "@automovie/engine";
+import {
+  QuadrupedPoseAngles
+} from "../../../../../packages/archetypes/src/animals/quadruped/QuadrupedPoseAngles";
+import { AutoMovieEngineQuaternion, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   IAutoMovieJointAxes,
   IAutoMovieTransform,
@@ -41,7 +43,7 @@ export function test_archetypes_internal_quadruped_world_goals(): void {
     ...neutral,
     rotation: { x: 0, y: Math.SQRT1_2, z: 0, w: Math.SQRT1_2 },
   };
-  const lower = QuadrupedPoseAngles(rig, prepareArticulatedRig(rig));
+  const lower = QuadrupedPoseAngles(rig, AutoMovieEngineKinematics.prepareArticulatedRig(rig));
   for (const scale of [1, Number.MAX_VALUE]) {
     const aimed = lower(
       root,
@@ -53,7 +55,7 @@ export function test_archetypes_internal_quadruped_world_goals(): void {
         ],
       ]),
     );
-    const facing = Quaternion.rotateVector(aimed.frames.get("neck")!.rotation, {
+    const facing = AutoMovieEngineQuaternion.rotateVector(aimed.frames.get("neck")!.rotation, {
       x: 0,
       y: 1,
       z: 0,

@@ -1,100 +1,234 @@
-export * from "./AutoMovieMeshCrossingGeometry";
-export * from "./AutoMovieMotionBound";
-export * from "./admitAutoMovieBicubicAtlas";
-export * from "./admitSubdivisionCage";
-export * from "./assertAutoMovieDeformedTriangles";
-export * from "./autoMovieFeatureEdgeDistance";
-export * from "./autoMoviePlanarRegionFailure";
-export * from "./boundAutoMovieConvexSeparation";
-export * from "./boundAutoMovieMeshQueryPoint";
-export * from "./boundAutoMovieProjectionSeparation";
-export * from "./boundAutoMovieTriangleAttachmentContact";
-export * from "./buildAutoMovieConvexHull";
-export * from "./buildAutoMovieMeshQueryHierarchy";
-export * from "./buildAutoMoviePolyhedron";
-export * from "./buildAutoMovieRegionFace";
-export * from "./buildAutoMovieWall";
-export * from "./buildSubdivisionTopology";
-export * from "./canonicalRegion";
-export * from "./checkAutoMovieFormExpectation";
-export * from "./collectAutoMovieSpatialQueryCandidates";
-export * from "./constants";
-export * from "./construction";
-export * from "./countAtLeast";
-export * from "./countAutoMovieMeshComponents";
-export * from "./createAutoMovieEllipticLoftAtlas";
-export * from "./createAutoMovieMeshCrossingQuery";
-export * from "./createAutoMovieMeshDeformer";
-export * from "./createAutoMovieMeshDepthSampler";
-export * from "./createAutoMovieMeshRayCaster";
-export * from "./createAutoMovieMeshSeparationQuery";
-export * from "./createAutoMovieMeshWindingQuery";
-export * from "./createAutoMovieSignedMeshQuery";
-export * from "./createAutoMovieSupportSectionQuery";
-export * from "./curve";
-export * from "./decaySubdivisionSharpness";
-export * from "./displaceAutoMovieSurface";
-export * from "./emitAutoMovieSupportLoft64";
-export * from "./emptyMeshTarget";
-export * from "./evaluateAutoMovieSupportSection";
-export * from "./evaluateSubdivisionLevel";
-export * from "./extract";
-export * from "./extrudeAutoMovieProfile";
-export * from "./extrudeAutoMovieRegion";
-export * from "./fitAutoMovieSubdivisionDomain";
-export * from "./fitAutoMovieSubdivisionRegions";
-export * from "./inspectAutoMovieMeshTopology";
-export * from "./integrateAutoMovieRadialField";
-export * from "./intersectAutoMovieConvexPolygons";
-export * from "./limitSubdivisionLevel";
-export * from "./limitSubdivisionRing";
-export * from "./markAutoMovieMeshClearance";
-export * from "./measureAutoMovieFeatureEdges";
-export * from "./measureAutoMovieMeshClearance";
-export * from "./measureAutoMovieMeshCrossings";
-export * from "./measureAutoMovieMeshDefects";
-export * from "./measureAutoMovieMeshPieces";
-export * from "./measureAutoMovieModelContacts";
-export * from "./measureAutoMovieModelCrossings";
-export * from "./measureAutoMovieProjectionIntervals";
-export * from "./mergeAutoMovieMeshParts";
-export * from "./mergeAutoMovieMeshes";
-export * from "./meshOf";
-export * from "./minimizeAutoMovieMeshClearance";
-export * from "./normalizeAutoMovieSurfaceFrame";
-export * from "./placeAutoMovieSurfaceFrame";
-export * from "./planAutoMovieSupportLoft64";
-export * from "./planarCross";
-export * from "./planarSegmentsMeet";
-export * from "./pointInPlanarRing";
-export * from "./positive";
-export * from "./prepareAutoMovieSurfaceFrame";
-export * from "./pushFlatTriangle";
-export * from "./realizeAutoMovieBicubicAtlas64";
-export * from "./realizeAutoMovieConvexSupportLoft";
-export * from "./realizeAutoMovieGeometry";
-export * from "./refineSubdivisionLevel";
-export * from "./refineSubdivisionPoints";
-export * from "./refineSubdivisionStencils";
-export * from "./refineSubdivisionUvs";
-export * from "./refitAutoMovieMeshQueryHierarchy";
-export * from "./revolveAutoMovieProfile";
-export * from "./selectAutoMovieTriangleRegion";
-export * from "./separateAutoMovieMeshSequence";
-export * from "./signedArea";
-export * from "./stepSubdivisionRing";
-export * from "./subdivideAutoMovieSurface";
-export * from "./subdivisionBendingRows";
-export * from "./subdivisionEdgeSmoothness";
-export * from "./subdivisionRingEigenbasis";
-export * from "./subdivisionVertexMask";
-export * from "./sweep";
-export * from "./tessellate";
-export * from "./tessellateSurface";
-export * from "./tessellateToMesh";
-export * from "./transformAutoMovieMesh";
-export * from "./triangleIndicesOf";
-export * from "./trianglesOf";
-export * from "./triangulateAutoMovieRegion";
-export * from "./triangulateRegion";
-export * from "./weldedDegenerateTriangles";
+export * from "./AutoMovieEngineGeometryObservation";
+export * from "./AutoMovieEnginePlanarArea";
+export * from "./AutoMovieEngineMotionBound";
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export * from "./AutoMovieEngineMeshCrossingQuery";
+
+
+
+
+export * from "./AutoMovieEnginePlanarRegion";
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export * from "./AutoMovieEngineConvexSupportLoft";
+
+
+
+
+
+
+
+export * from "./AutoMovieEngineGeometry";
+export * from "./AutoMovieEnginePlanarEpsilon";
+export * from "./AutoMovieEnginePrimitiveRadialSegments";
+export * from "./AutoMovieEnginePrimitiveSphereRings";
+export * from "./AutoMovieEngineConstructionRelativeTolerance";
+export * from "./AutoMovieEngineAxisDirection";
+export * from "./AutoMovieEngineConicArc";
+export * from "./AutoMovieEngineConicArcField";
+export * from "./AutoMovieEngineConicFieldJet";
+export * from "./AutoMovieEngineConicHermite";
+export * from "./AutoMovieEngineConicHermiteField";
+export * from "./AutoMovieEngineConicPreparation";
+export * from "./AutoMovieEngineConstructionAdmission";
+export * from "./AutoMovieEngineConstructionContinuation";
+export * from "./AutoMovieEngineConstructionProfile";
+export * from "./AutoMovieEngineConstructionProfileBody";
+export * from "./AutoMovieEngineConstructionProfileGrid";
+export * from "./AutoMovieEngineConstructionProfilePhase";
+export * from "./AutoMovieEngineConstructionProfileTopology";
+export * from "./AutoMovieEngineConstructionRing";
+export * from "./AutoMovieEngineConstructionSeeds";
+export * from "./AutoMovieEngineConstructionSeedTrace";
+export * from "./AutoMovieEngineConstructionSharedLoop";
+export * from "./AutoMovieEngineConstructionSkin";
+export * from "./AutoMovieEngineConstructionSkinCut";
+export * from "./AutoMovieEngineConstructionComposedEnd";
+export * from "./AutoMovieEngineConstructionSplitEdge";
+export * from "./AutoMovieEngineConstructionSplitCompose";
+export * from "./AutoMovieEngineConstructionSplitBand";
+export * from "./AutoMovieEngineConstructionSplitBandTrace";
+export * from "./AutoMovieEngineConstructionSplitSeam";
+export * from "./AutoMovieEngineConstructionState";
+export * from "./AutoMovieEngineConstructionViews";
+export * from "./AutoMovieEngineConstructionWidths";
+export * from "./AutoMovieEngineHarmonicCurve";
+export * from "./AutoMovieEngineIllinois";
+export * from "./AutoMovieEngineLoftAdmissionError";
+export * from "./AutoMovieEngineLoftCapRead";
+export * from "./AutoMovieEngineLoftCapSource";
+export * from "./AutoMovieEngineLoftChain";
+export * from "./AutoMovieEngineLoftCoefficientSource";
+export * from "./AutoMovieEngineLoftContract";
+export * from "./AutoMovieEngineLoftFrame";
+export * from "./AutoMovieEngineLoftFrameSource";
+export * from "./AutoMovieEngineLoftJet";
+export * from "./AutoMovieEngineLoftParameter";
+export * from "./AutoMovieEngineLoftPhaseSource";
+export * from "./AutoMovieEngineLoftPoint";
+export * from "./AutoMovieEngineLoftRelief";
+export * from "./AutoMovieEngineLoftSection";
+export * from "./AutoMovieEngineLoftSectionBoundary";
+export * from "./AutoMovieEngineLoftSectionConnect";
+export * from "./AutoMovieEngineLoftSectionLegacy";
+export * from "./AutoMovieEngineLoftSectionNative";
+export * from "./AutoMovieEngineLoftSectionSource";
+export * from "./AutoMovieEngineLoftStations";
+export * from "./AutoMovieEngineLoftViewRead";
+export * from "./AutoMovieEngineLoftViewSource";
+export * from "./AutoMovieEngineNativeCoordinate";
+export * from "./AutoMovieEngineNaturalSpline";
+export * from "./AutoMovieEnginePolarSector";
+export * from "./AutoMovieEngineSeamStation";
+export * from "./AutoMovieEngineSolidBlend";
+export * from "./AutoMovieEngineSolidBlendChain";
+export * from "./AutoMovieEngineSolidBody";
+export * from "./AutoMovieEngineSolidBodyMerge";
+export * from "./AutoMovieEngineSolidChain";
+export * from "./AutoMovieEngineSolidClip";
+export * from "./AutoMovieEngineSolidCycle";
+export * from "./AutoMovieEngineSolidDiff";
+export * from "./AutoMovieEngineSolidDomain";
+export * from "./AutoMovieEngineSolidFoot";
+export * from "./AutoMovieEngineSolidIntersection";
+export * from "./AutoMovieEngineSolidIntersectionTrace";
+export * from "./AutoMovieEngineSolidIntersectionWalk";
+export * from "./AutoMovieEngineSolidJoin";
+export * from "./AutoMovieEngineSolidMerge";
+export * from "./AutoMovieEngineSolidMesh";
+export * from "./AutoMovieEngineSolidMeshAuthorities";
+export * from "./AutoMovieEngineSolidMeshConstraints";
+export * from "./AutoMovieEngineSolidMeshIncidence";
+export * from "./AutoMovieEngineSolidMeshLoop";
+export * from "./AutoMovieEngineSolidMeshPlan";
+export * from "./AutoMovieEngineSolidMeshTessellate";
+export * from "./AutoMovieEngineSolidMeshWrite";
+export * from "./AutoMovieEngineSolidRail";
+export * from "./AutoMovieEngineSolidRailSolve";
+export * from "./AutoMovieEngineSolidRibbon";
+export * from "./AutoMovieEngineSolidSharedCurve";
+export * from "./AutoMovieEngineSolidTraceLaw";
+export * from "./AutoMovieEngineSolidTraceSolve";
+export * from "./AutoMovieEngineSolidTrim";
+export * from "./AutoMovieEngineSolidVector";
+export * from "./AutoMovieEngineSolidZip";
+export * from "./AutoMovieEngineSplineCurve";
+export * from "./AutoMovieEngineStationHermite";
+export * from "./AutoMovieEngineViewAxis";
+export * from "./AutoMovieEngineViewAxisJet";
+export * from "./AutoMovieEngineViewChain";
+export * from "./AutoMovieEngineViewConic";
+export * from "./AutoMovieEngineViewCurves";
+export * from "./AutoMovieEngineViewHermite";
+export * from "./AutoMovieEngineViewJointedCourse";
+export * from "./AutoMovieEngineViewLoft";
+export * from "./AutoMovieEngineViewOutline";
+export * from "./AutoMovieEngineViewOutlineRead";
+export * from "./AutoMovieEngineViewParallelAxis";
+export * from "./AutoMovieEngineViewParameter";
+export * from "./AutoMovieEngineViewSection";
+export * from "./AutoMovieEngineViewSectionConic";
+export * from "./AutoMovieEngineViewSectionField";
+export * from "./AutoMovieEngineViewSectionRange";
+export * from "./AutoMovieEngineViewSectionReading";
+export * from "./AutoMovieEngineConstructionLocalScaleMinorant";
+export * from "./AutoMovieEngineLoftReliefCompose";
+export * from "./AutoMovieEngineLoftViewFullSource";
+export * from "./AutoMovieEngineConstructionPortCurve";
+export * from "./AutoMovieEngineConstructionPortBand";
+export * from "./AutoMovieEngineConstructionPortField";
+export * from "./AutoMovieEnginePeriodicCubic";
+export * from "./AutoMovieEngineConstruction";
+export * from "./AutoMovieEngineBernstein64";
+export * from "./AutoMovieEngineBernsteinAlgebra64";
+export * from "./AutoMovieEngineBernsteinGrid64";
+export * from "./AutoMovieEngineBernsteinRational64";
+export * from "./AutoMovieEngineBernsteinSubdivision64";
+export * from "./AutoMovieEngineCurveBicubicAtlasEmit64";
+export * from "./AutoMovieEngineCanonicalBoundary64";
+export * from "./AutoMovieEngineContourLoftCurves64";
+export * from "./AutoMovieEngineContourSlit64";
+export * from "./AutoMovieEngineCubicOval64";
+export * from "./AutoMovieEngineCurveLengthQuadrature64";
+export * from "./AutoMovieEngineCurveMath64";
+export * from "./AutoMovieEngineCurveParentContext";
+export * from "./AutoMovieEngineLocalHermiteField64";
+export * from "./AutoMovieEnginePchip64";
+export * from "./AutoMovieEnginePchipField64";
+export * from "./AutoMovieEngineCurveAssembly64";
+export * from "./AutoMovieEngineCurveGrid64";
+export * from "./AutoMovieEngineCurve";
+export * from "./AutoMovieEngineMeshCourse";
+export * from "./AutoMovieEngineMeshExtract";
+export * from "./AutoMovieEngineMonotone";
+export * from "./AutoMovieEngineSpline";
+export * from "./AutoMovieEngineSweepRotation";
+export * from "./AutoMovieEngineSweep";

@@ -1,5 +1,5 @@
 import type { IAutoMovieFilmTimeline } from "@automovie/interface";
-import { canonicalProductionWebVtt } from "@automovie/render";
+import { AutoMovieRenderCaption } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/predicates";
@@ -54,7 +54,7 @@ export function test_render_caption_canonical_production_web_vtt(): void {
 
   TestValidator.equals(
     "serialize each authored cue edge",
-    canonicalProductionWebVtt(timeline),
+    AutoMovieRenderCaption.canonicalProductionWebVtt(timeline),
     [
       "WEBVTT placement-example",
       "",
@@ -84,7 +84,7 @@ export function test_render_caption_canonical_production_web_vtt(): void {
   TestValidator.predicate(
     "refuse the malformed edge on the authored cue",
     throwsError(
-      (): string => canonicalProductionWebVtt(invalid),
+      (): string => AutoMovieRenderCaption.canonicalProductionWebVtt(invalid),
       ['"top"', "unsupported placement"],
     ),
   );

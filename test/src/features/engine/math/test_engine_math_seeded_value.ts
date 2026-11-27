@@ -1,4 +1,4 @@
-import { seededValue } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -12,18 +12,18 @@ import { TestValidator } from "@nestia/e2e";
  *    0.05).
  */
 export function test_engine_math_seeded_value(): void {
-  const value: number = seededValue(1, 2, 3);
-  TestValidator.equals("pure", seededValue(1, 2, 3), value);
+  const value: number = AutoMovieEngineMath.seededValue(1, 2, 3);
+  TestValidator.equals("pure", AutoMovieEngineMath.seededValue(1, 2, 3), value);
   TestValidator.predicate("range", value >= 0 && value < 1);
-  TestValidator.predicate("order", seededValue(1, 2) !== seededValue(2, 1));
+  TestValidator.predicate("order", AutoMovieEngineMath.seededValue(1, 2) !== AutoMovieEngineMath.seededValue(2, 1));
   TestValidator.predicate(
     "extra part",
-    seededValue(1, 2) !== seededValue(1, 2, 0),
+    AutoMovieEngineMath.seededValue(1, 2) !== AutoMovieEngineMath.seededValue(1, 2, 0),
   );
   let sum: number = 0;
   let inside: boolean = true;
   for (let seed: number = 0; seed < 1000; seed++) {
-    const sample: number = seededValue(seed);
+    const sample: number = AutoMovieEngineMath.seededValue(seed);
     inside &&= sample >= 0 && sample < 1;
     sum += sample;
   }

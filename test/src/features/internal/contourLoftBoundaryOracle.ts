@@ -3,8 +3,8 @@ import type {
   IAutoMovieCubicBezierCurve64,
 } from "@automovie/interface";
 
-import { contourStripOracle as O } from "../internal/contourStripOracle.ts";
-import { nclose } from "../internal/nclose.ts";
+import { contourStripOracle as O } from "./contourStripOracle";
+import { nclose } from "./nclose";
 
 /** Independent dimensioned rectangles, signed identity-edge incidence and original-source phase measurements. */
 export namespace contourLoftBoundaryOracle {

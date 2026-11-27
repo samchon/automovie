@@ -366,7 +366,7 @@ const CASES: readonly ICase[] = [
   },
   {
     name: "the API reference opens an action's entry",
-    path: "api/classes/_automovie_motions.HumanChain.html#punch",
+    path: "api/classes/_automovie_motions.AutoMovieMotionHumanChain.html#punch",
     shows: ["#punch"],
     lacks: [],
   },

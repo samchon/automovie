@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBaseball,
@@ -7,18 +7,18 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanChain } from "../../HumanChain";
-import { createHumanBody } from "../../body/createHumanBody";
-import { AutoMovieMotionHumanTouchEffector } from "../../compose/AutoMovieMotionHumanTouchEffector";
-import { HumanPerformance } from "../../perform/HumanPerformance";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
-import { MotionBodies } from "../MotionBodies";
-import type { humanPolygonMan } from "../humanPolygonMan";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
+import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
+import { AutoMovieMotionHumanTouchEffector } from "../../compose/internal/AutoMovieMotionHumanTouchEffector";
+import { AutoMovieMotionHumanPerformance } from "../../perform/AutoMovieMotionHumanPerformance";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
+import { MotionBodies } from "../internal/MotionBodies";
+import type { humanPolygonMan } from "../internal/humanPolygonMan";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { TouchVerdicts } from "./TouchVerdicts";
-import { everydayVerdicts } from "./everydayVerdicts";
+import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/**
+/*
  * Capture cases of the baseball positions from quiet standing.
  *
  * Every case reports foot slip at most 5 mm (the issue's planted-foot bound)
@@ -31,9 +31,8 @@ import { everydayVerdicts } from "./everydayVerdicts";
  * - `baseball-battingStance`: the two fists within a hand's length of each other
  *   at the right shoulder's height, within 10 cm, and the feet at least three
  *   half shoulder widths apart.
- *
- * @param bodies The bodies; `m-average` when absent.
- * @returns The cases.
+ * Parameter bodies: The bodies; `m-average` when absent.
+ * Returns: The cases.
  */
 export function baseballCases(
   bodies: readonly string[] = ["m-average"],
@@ -41,7 +40,7 @@ export function baseballCases(
   const out: IMotionCaptureCase[] = [];
   for (const id of bodies) {
     const man: humanPolygonMan.IPolygonMan = MotionBodies.population(id);
-    const body: IAutoMovieMotionHumanBody = createHumanBody(
+    const body: IAutoMovieMotionHumanBody = AutoMovieMotionHumanBody.create(
       man.body.skeleton,
       man.body.profile,
     );
@@ -57,7 +56,7 @@ export function baseballCases(
 
       // Process boundary: a case that throws is reported as that case's refusal, and the remaining cases still run.
       try {
-        performance = new HumanPerformance({
+        performance = new AutoMovieMotionHumanPerformance({
           seed: "baseball",
           performers: [
             {
@@ -68,7 +67,7 @@ export function baseballCases(
               proficiency: { level: "trained" as const },
             },
           ],
-          composition: HumanChain.subject("a").act("baseball", { kind }).node,
+          composition: AutoMovieMotionHumanChain.subject("a").act("baseball", { kind }).node,
         });
       } catch (error) {
         out.push(FamilyCaseKit.refused(name, error));
@@ -122,7 +121,7 @@ export function baseballCases(
           verdicts.push(
             everydayVerdicts.within(
               "fists apart on the handle",
-              Vector3.length(Vector3.subtract(at("leftHand"), at("rightHand"))),
+              AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(at("leftHand"), at("rightHand"))),
               m.hand,
               "mm",
             ),

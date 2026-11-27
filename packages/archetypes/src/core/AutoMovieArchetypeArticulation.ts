@@ -1,9 +1,4 @@
-import {
-  AffordanceArticulation,
-  Vector3,
-  affordanceFollowedTravel,
-  affordanceTravelRange,
-} from "@automovie/engine";
+import { AutoMovieEngineAffordanceArticulation, AutoMovieEngineVector3, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieModelPart,
@@ -11,7 +6,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { ArchetypeArticulationState } from "./ArchetypeArticulationState";
+import { ArchetypeArticulationState } from "./internal/ArchetypeArticulationState";
 import { AutoMovieArchetypeFrame } from "./AutoMovieArchetypeFrame";
 import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
 
@@ -42,7 +37,7 @@ import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
 export namespace AutoMovieArchetypeArticulation {
   /** The kinds whose travel moves parts and carried affordances. */
   export const KINDS: ReadonlySet<IAutoMovieAffordance["kind"]> =
-    AffordanceArticulation.KINDS;
+    AutoMovieEngineAffordanceArticulation.KINDS;
 
   /**
    * A model's moving data: its parts and its affordances, both in the model's
@@ -83,7 +78,7 @@ export namespace AutoMovieArchetypeArticulation {
     minimum: number | null;
     maximum: number | null;
   } {
-    return affordanceTravelRange(affordance);
+    return AutoMovieEngineValidation.affordanceTravelRange(affordance);
   }
 
   /**
@@ -105,7 +100,7 @@ export namespace AutoMovieArchetypeArticulation {
       sign: number,
     ): AutoMovieArchetypeFrame.IMotion => ({
       rotation: AutoMovieArchetypeFrame.STILL.rotation,
-      translation: Vector3.scale(
+      translation: AutoMovieEngineVector3.scale(
         AutoMovieArchetypeFrame.axis(affordance.frame, axis),
         sign * travel,
       ),
@@ -293,7 +288,7 @@ export namespace AutoMovieArchetypeArticulation {
         visiting.add(a.id);
         const lead: number = travelOf(leader);
         visiting.delete(a.id);
-        const followed: number = affordanceFollowedTravel(a.follows, lead);
+        const followed: number = AutoMovieEngineValidation.affordanceFollowedTravel(a.follows, lead);
         if (!within(a, followed))
           throw outside(
             a,
@@ -348,7 +343,7 @@ export namespace AutoMovieArchetypeArticulation {
         ).translation;
         return AutoMovieArchetypeFrame.chain(carried(carrier), {
           rotation: AutoMovieArchetypeFrame.STILL.rotation,
-          translation: Vector3.subtract(turned, at),
+          translation: AutoMovieEngineVector3.subtract(turned, at),
         });
       };
       return {
@@ -365,7 +360,9 @@ export namespace AutoMovieArchetypeArticulation {
   }
 }
 
-/** The kinds whose travel is an angle in degrees. */
+/*
+ * The kinds whose travel is an angle in degrees.
+ */
 const TURNING: ReadonlySet<IAutoMovieAffordance["kind"]> = new Set<
   IAutoMovieAffordance["kind"]
 >(["hinge", "knob", "crank", "wheel"]);

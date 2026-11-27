@@ -1,4 +1,4 @@
-import { physicalIcpPlanner, physicalIcpPlannerCmps } from "@automovie/engine";
+import { AutoMovieEnginePhysicalIcpPlanner, AutoMovieEnginePhysicalIcpPlannerCmps } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
@@ -31,7 +31,7 @@ const RECTANGLE = [
 ];
 
 /** A sole frame at a floor point facing world +x. */
-function frame(x: number, z: number): physicalIcpPlanner.ISoles["left"] {
+function frame(x: number, z: number): AutoMovieEnginePhysicalIcpPlanner.ISoles["left"] {
   return { origin: { x, z }, forward: { x: 1, z: 0 } };
 }
 
@@ -40,7 +40,7 @@ function foot(
   side: "left" | "right",
   x: number,
   z: number,
-): physicalIcpPlannerCmps.IFoot {
+): AutoMovieEnginePhysicalIcpPlannerCmps.IFoot {
   return { side, frame: frame(x, z), polygon: RECTANGLE };
 }
 
@@ -71,7 +71,7 @@ function shift(a: IFloor, b: IFloor): IFloor {
 }
 
 /**
- * `physicalIcpPlanner` reads the 201903 capture-point plans of a recovery step
+ * `AutoMovieEnginePhysicalIcpPlanner` reads the 201903 capture-point plans of a recovery step
  * (`ContinuousCMPBasedICPPlanner`, `TransferToStandingState`, `StandingState`,
  * `ICPPlannerSegmentedTrajectoryGenerator`).
  *
@@ -104,8 +104,8 @@ export function test_engine_physics_physical_icp_planner(): void {
   const support = foot("left", 0, 0);
   const footstep = foot("right", 0.3, 0.2);
   const input = { support, footstep, omega: OMEGA };
-  const plan = physicalIcpPlanner.singleSupport(input);
-  const planted: physicalIcpPlanner.ISoles = {
+  const plan = AutoMovieEnginePhysicalIcpPlanner.singleSupport(input);
+  const planted: AutoMovieEnginePhysicalIcpPlanner.ISoles = {
     left: support.frame,
     right: footstep.frame,
   };
@@ -113,7 +113,7 @@ export function test_engine_physics_physical_icp_planner(): void {
   const exit: IFloor = { x: 0.08, z: 0.025 };
   const final: IFloor = { x: 0.15, z: 0.1 };
   const pivotOf = (t: number): IFloor => {
-    const o = physicalIcpPlanner(plan, t, planted);
+    const o = AutoMovieEnginePhysicalIcpPlanner.compute(plan, t, planted);
     return {
       x: o.position.x - o.velocity.x / OMEGA,
       z: o.position.z - o.velocity.z / OMEGA,
@@ -125,10 +125,10 @@ export function test_engine_physics_physical_icp_planner(): void {
   // under the bound below.
   const h: number = 1e-6;
   for (const t of [0.05 - h / 2, 0.55 - h / 2]) {
-    const a = physicalIcpPlanner(plan, t, planted);
+    const a = AutoMovieEnginePhysicalIcpPlanner.compute(plan, t, planted);
     near(
       `continuous at ${t}`,
-      physicalIcpPlanner(plan, t + h, planted).position,
+      AutoMovieEnginePhysicalIcpPlanner.compute(plan, t + h, planted).position,
       {
         x: a.position.x + a.velocity.x * h,
         z: a.position.z + a.velocity.z * h,
@@ -136,26 +136,26 @@ export function test_engine_physics_physical_icp_planner(): void {
       CONTINUITY,
     );
   }
-  const start: IFloor = physicalIcpPlanner(plan, 0, planted).position;
+  const start: IFloor = AutoMovieEnginePhysicalIcpPlanner.compute(plan, 0, planted).position;
   near("chained", diverge(0.425, diverge(0.3, start, entry), exit), final);
   near(
     "end of swing",
-    diverge(0.125, physicalIcpPlanner(plan, 0.6, planted).position, exit),
+    diverge(0.125, AutoMovieEnginePhysicalIcpPlanner.compute(plan, 0.6, planted).position, exit),
     final,
   );
   TestValidator.equals(
     "done from the swing's end",
     [
-      physicalIcpPlanner(plan, 0.599, planted).done,
-      physicalIcpPlanner(plan, 0.6, planted).done,
+      AutoMovieEnginePhysicalIcpPlanner.compute(plan, 0.599, planted).done,
+      AutoMovieEnginePhysicalIcpPlanner.compute(plan, 0.6, planted).done,
     ],
     [false, true],
   );
-  const late = physicalIcpPlanner(plan, 0.85, planted);
+  const late = AutoMovieEnginePhysicalIcpPlanner.compute(plan, 0.85, planted);
   near(
     "decay halves",
-    physicalIcpPlanner(
-      physicalIcpPlanner.singleSupport({
+    AutoMovieEnginePhysicalIcpPlanner.compute(
+      AutoMovieEnginePhysicalIcpPlanner.singleSupport({
         ...input,
         parameters: { velocityDecay: 0.5 },
       }),
@@ -166,13 +166,13 @@ export function test_engine_physics_physical_icp_planner(): void {
   );
 
   // 2. A slipping support sole.
-  const slipped: physicalIcpPlanner.ISoles = {
+  const slipped: AutoMovieEnginePhysicalIcpPlanner.ISoles = {
     left: frame(0.01, 0),
     right: footstep.frame,
   };
   for (const t of [0, 0.02, 0.05, 0.55, 0.58, 0.6]) {
-    const a = physicalIcpPlanner(plan, t, planted);
-    const b = physicalIcpPlanner(plan, t, slipped);
+    const a = AutoMovieEnginePhysicalIcpPlanner.compute(plan, t, planted);
+    const b = AutoMovieEnginePhysicalIcpPlanner.compute(plan, t, slipped);
     near(`slip at ${t}`, shift(a.position, b.position), {
       x: 0.01 * (1 - t / 0.6),
       z: 0,
@@ -181,22 +181,22 @@ export function test_engine_physics_physical_icp_planner(): void {
   }
   near(
     "swing slip",
-    physicalIcpPlanner(plan, 0.3, {
+    AutoMovieEnginePhysicalIcpPlanner.compute(plan, 0.3, {
       left: support.frame,
       right: frame(0.31, 0.2),
     }).position,
-    physicalIcpPlanner(plan, 0.3, planted).position,
+    AutoMovieEnginePhysicalIcpPlanner.compute(plan, 0.3, planted).position,
   );
 
   // 3. The hold.
   const left = foot("left", 0, 0);
   const right = foot("right", 0, 0.2);
-  const soles: physicalIcpPlanner.ISoles = {
+  const soles: AutoMovieEnginePhysicalIcpPlanner.ISoles = {
     left: left.frame,
     right: right.frame,
   };
   const hold = (desired: IFloor, center: IFloor) =>
-    physicalIcpPlanner.toStanding({
+    AutoMovieEnginePhysicalIcpPlanner.toStanding({
       feet: { left, right },
       support: "left",
       desired,
@@ -204,33 +204,33 @@ export function test_engine_physics_physical_icp_planner(): void {
     });
   const held = hold({ x: 0, z: 0 }, { x: 0.1, z: 0 });
   for (const t of [0, 0.1, 0.25, 0.4]) {
-    const o = physicalIcpPlanner(held, t, soles);
+    const o = AutoMovieEnginePhysicalIcpPlanner.compute(held, t, soles);
     near(`held at ${t}`, o.position, { x: 0.03, z: 0.03 });
     near(`at rest at ${t}`, o.velocity, { x: 0, z: 0 });
   }
   near(
     "inside held in place",
-    physicalIcpPlanner(hold({ x: 0, z: 0 }, { x: 0.01, z: 0.1 }), 0, soles)
+    AutoMovieEnginePhysicalIcpPlanner.compute(hold({ x: 0, z: 0 }, { x: 0.01, z: 0.1 }), 0, soles)
       .position,
     { x: 0.01, z: 0.1 },
   );
   const exitTest = (t: number, error: number): boolean =>
-    physicalIcpPlanner.toStandingDone({
-      output: physicalIcpPlanner(held, t, soles),
+    AutoMovieEnginePhysicalIcpPlanner.toStandingDone({
+      output: AutoMovieEnginePhysicalIcpPlanner.compute(held, t, soles),
       capture: { x: 0.03 + error, z: 0.03 },
     });
   TestValidator.equals(
     "done and the exit test",
     [
-      physicalIcpPlanner(held, 0.24, soles).done,
-      physicalIcpPlanner(held, 0.25, soles).done,
+      AutoMovieEnginePhysicalIcpPlanner.compute(held, 0.24, soles).done,
+      AutoMovieEnginePhysicalIcpPlanner.compute(held, 0.25, soles).done,
       exitTest(0.25, 0.02),
       exitTest(0.25, 0.03),
       exitTest(0.2, 0),
     ],
     [false, true, true, false, false],
   );
-  const both: physicalIcpPlanner.ISoles = {
+  const both: AutoMovieEnginePhysicalIcpPlanner.ISoles = {
     left: frame(0.01, 0),
     right: frame(0.01, 0.2),
   };
@@ -239,12 +239,12 @@ export function test_engine_physics_physical_icp_planner(): void {
     near(
       `both slip at ${t}`,
       shift(
-        physicalIcpPlanner(middle, t, soles).position,
-        physicalIcpPlanner(middle, t, both).position,
+        AutoMovieEnginePhysicalIcpPlanner.compute(middle, t, soles).position,
+        AutoMovieEnginePhysicalIcpPlanner.compute(middle, t, both).position,
       ),
       { x: 0.01, z: 0 },
     );
-  const outward: physicalIcpPlanner.ISoles = {
+  const outward: AutoMovieEnginePhysicalIcpPlanner.ISoles = {
     left: frame(0, -0.01),
     right: right.frame,
   };
@@ -252,46 +252,46 @@ export function test_engine_physics_physical_icp_planner(): void {
   near(
     "sole start moves 1 cm",
     shift(
-      physicalIcpPlanner(onSole, 0, soles).position,
-      physicalIcpPlanner(onSole, 0, outward).position,
+      AutoMovieEnginePhysicalIcpPlanner.compute(onSole, 0, soles).position,
+      AutoMovieEnginePhysicalIcpPlanner.compute(onSole, 0, outward).position,
     ),
     { x: 0, z: -0.01 },
   );
   near(
     "mid-feet end moves 0.5 cm",
     shift(
-      physicalIcpPlanner(onSole, 0.25, soles).position,
-      physicalIcpPlanner(onSole, 0.25, outward).position,
+      AutoMovieEnginePhysicalIcpPlanner.compute(onSole, 0.25, soles).position,
+      AutoMovieEnginePhysicalIcpPlanner.compute(onSole, 0.25, outward).position,
     ),
     { x: 0, z: -0.005 },
   );
 
   // 4. Standing.
-  const from = physicalIcpPlanner(held, 0.3, soles);
+  const from = AutoMovieEnginePhysicalIcpPlanner.compute(held, 0.3, soles);
   const rest = { position: { x: 0, z: 0.1 }, velocity: { x: 0, z: 0 } };
-  const standing = physicalIcpPlanner.standing({ soles, from, to: rest });
-  near("standing start", physicalIcpPlanner(standing, 0, soles).position, {
+  const standing = AutoMovieEnginePhysicalIcpPlanner.standing({ soles, from, to: rest });
+  near("standing start", AutoMovieEnginePhysicalIcpPlanner.compute(standing, 0, soles).position, {
     x: 0.03,
     z: 0.03,
   });
   near(
     "standing midpoint",
-    physicalIcpPlanner(standing, 0.125, soles).position,
+    AutoMovieEnginePhysicalIcpPlanner.compute(standing, 0.125, soles).position,
     {
       x: 0.015,
       z: 0.065,
     },
   );
   for (const t of [0.25, 0.5]) {
-    const o = physicalIcpPlanner(standing, t, soles);
+    const o = AutoMovieEnginePhysicalIcpPlanner.compute(standing, t, soles);
     near(`standing end at ${t}`, o.position, rest.position);
     near(`standing at rest at ${t}`, o.velocity, rest.velocity);
   }
   TestValidator.equals(
     "standing done",
     [
-      physicalIcpPlanner(standing, 0.24, soles).done,
-      physicalIcpPlanner(standing, 0.25, soles).done,
+      AutoMovieEnginePhysicalIcpPlanner.compute(standing, 0.24, soles).done,
+      AutoMovieEnginePhysicalIcpPlanner.compute(standing, 0.25, soles).done,
     ],
     [false, true],
   );
@@ -300,26 +300,26 @@ export function test_engine_physics_physical_icp_planner(): void {
     position: { x: 0.02, z: 0.12 },
     velocity: { x: 0.05, z: -0.1 },
   };
-  const move = physicalIcpPlanner.standing({ soles, from: moving, to: target });
-  near("leaves with its rate", physicalIcpPlanner(move, 0, soles).velocity, {
+  const move = AutoMovieEnginePhysicalIcpPlanner.standing({ soles, from: moving, to: target });
+  near("leaves with its rate", AutoMovieEnginePhysicalIcpPlanner.compute(move, 0, soles).velocity, {
     x: 0.2,
     z: 0,
   });
   near(
     "arrives",
-    physicalIcpPlanner(move, 0.25, soles).position,
+    AutoMovieEnginePhysicalIcpPlanner.compute(move, 0.25, soles).position,
     target.position,
   );
   near(
     "with its rate",
-    physicalIcpPlanner(move, 0.25, soles).velocity,
+    AutoMovieEnginePhysicalIcpPlanner.compute(move, 0.25, soles).velocity,
     target.velocity,
   );
-  near("moving midpoint", physicalIcpPlanner(move, 0.125, soles).position, {
+  near("moving midpoint", AutoMovieEnginePhysicalIcpPlanner.compute(move, 0.125, soles).position, {
     x: (0.03 + 0.02) / 2 + (0.25 * (0.2 - 0.05)) / 8,
     z: (0.03 + 0.12) / 2 + (0.25 * (0 + 0.1)) / 8,
   });
-  near("rests after", physicalIcpPlanner(move, 0.3, soles).velocity, {
+  near("rests after", AutoMovieEnginePhysicalIcpPlanner.compute(move, 0.3, soles).velocity, {
     x: 0,
     z: 0,
   });

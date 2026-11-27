@@ -1,9 +1,0 @@
-export type { IAutoMovieFilmEffectCurrentIdentity } from "./IAutoMovieFilmEffectCurrentIdentity";
-export type { IAutoMovieMaterializeCompiledEffects } from "./IAutoMovieMaterializeCompiledEffects";
-export type { IAutoMovieMaterializeProductionFilmEffects } from "./IAutoMovieMaterializeProductionFilmEffects";
-export type { IAutoMovieProductionFilmEffectSample } from "./IAutoMovieProductionFilmEffectSample";
-export type { IAutoMovieProductionFilmFrameForShotTime } from "./IAutoMovieProductionFilmFrameForShotTime";
-export type { IAutoMovieProjectProductionShotEffectFilmIntervals } from "./IAutoMovieProjectProductionShotEffectFilmIntervals";
-export type { IAutoMovieSampleProductionFilmEffects } from "./IAutoMovieSampleProductionFilmEffects";
-export type { IAutoMovieShotEffectFilmInterval } from "./IAutoMovieShotEffectFilmInterval";
-export type { IAutoMovieVerifyProductionFilmEffectPopulation } from "./IAutoMovieVerifyProductionFilmEffectPopulation";

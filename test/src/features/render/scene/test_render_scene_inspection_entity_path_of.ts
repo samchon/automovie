@@ -1,9 +1,9 @@
-import { autoMovieInspectionEntityPathOf } from "@automovie/render";
+import { AutoMovieRenderInspectionPath } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 /**
- * `autoMovieInspectionEntityPathOf` names an object by its named ancestors,
+ * `AutoMovieRenderInspectionPath.entityPathOf` names an object by its named ancestors,
  * telling same-named siblings apart and unnamed nodes by child index.
  *
  * Scenarios:
@@ -28,12 +28,12 @@ export function test_render_scene_inspection_entity_path_of(): void {
   const bare: THREE.Object3D = new THREE.Object3D();
   root.add(hero);
   hero.add(arm, legA, legB, bare);
-  TestValidator.equals("nested", autoMovieInspectionEntityPathOf(root, arm), "hero/arm");
-  TestValidator.equals("root", autoMovieInspectionEntityPathOf(root, root), "scene");
-  TestValidator.equals("first twin", autoMovieInspectionEntityPathOf(root, legA), "hero/leg#0");
-  TestValidator.equals("second twin", autoMovieInspectionEntityPathOf(root, legB), "hero/leg#1");
-  TestValidator.equals("unnamed", autoMovieInspectionEntityPathOf(root, bare), "hero.children[3]");
+  TestValidator.equals("nested", AutoMovieRenderInspectionPath.entityPathOf({ root, object: arm }), "hero/arm");
+  TestValidator.equals("root", AutoMovieRenderInspectionPath.entityPathOf({ root, object: root }), "scene");
+  TestValidator.equals("first twin", AutoMovieRenderInspectionPath.entityPathOf({ root, object: legA }), "hero/leg#0");
+  TestValidator.equals("second twin", AutoMovieRenderInspectionPath.entityPathOf({ root, object: legB }), "hero/leg#1");
+  TestValidator.equals("unnamed", AutoMovieRenderInspectionPath.entityPathOf({ root, object: bare }), "hero.children[3]");
   TestValidator.error("outside", (): void => {
-    autoMovieInspectionEntityPathOf(root, named("stray"));
+    AutoMovieRenderInspectionPath.entityPathOf({ root, object: named("stray") });
   });
 }

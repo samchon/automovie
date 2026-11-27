@@ -1,9 +1,9 @@
-import { HumanFloatBeside as HumanFloatBesideSource } from "../lexicon/HumanFloatBeside";
-import { AquaticDistress as AquaticDistressSource } from "../sport/AquaticDistress";
-import { SwimStroke as SwimStrokeSource } from "../sport/SwimStroke";
-import { aquatic as aquaticLaw } from "../sport/aquatic";
-import { swim as swimLaw } from "../sport/swim";
-import { swimImmersed as swimImmersedLaw } from "../sport/swimImmersed";
+import { HumanFloatBeside as HumanFloatBesideSource } from "../lexicon/internal/HumanFloatBeside";
+import { AquaticDistress as AquaticDistressSource } from "../sport/internal/AquaticDistress";
+import { SwimStroke as SwimStrokeSource } from "../sport/internal/SwimStroke";
+import { aquatic as aquaticLaw } from "../sport/internal/aquatic";
+import { swim as swimLaw } from "../sport/internal/swim";
+import { swimImmersed as swimImmersedLaw } from "../sport/internal/swimImmersed";
 
 /**
  * Moving and floating in water: the strokes, the immersed float and glide, and
@@ -16,8 +16,8 @@ import { swimImmersed as swimImmersedLaw } from "../sport/swimImmersed";
  * - `swim`: Swimming on a declared water plane: treading water and the front
  *   crawl.
  * - `aquatic`: Sequences in a pool or on a small craft.
- * - `swimImmersed`: Register this immersed action with `HumanChain.extend` and
- *   `HumanPerformance`'s `laws`.
+ * - `swimImmersed`: Register this immersed action with `AutoMovieMotionHumanChain.extend` and
+ *   `AutoMovieMotionHumanPerformance`'s `laws`.
  *
  * Lexicon rows and tables, the shipped data the laws and the chain read:
  *
@@ -89,8 +89,8 @@ export namespace AutoMovieMotionHumanSwim {
   export import aquatic = aquaticLaw;
 
   /**
-   * Register this immersed action with `HumanChain.extend` and
-   * `HumanPerformance`'s `laws`. The passive case holds the existing supine
+   * Register this immersed action with `AutoMovieMotionHumanChain.extend` and
+   * `AutoMovieMotionHumanPerformance`'s `laws`. The passive case holds the existing supine
    * key. The opt-in breaststroke uses the existing prone keys and starts at
    * rest. Both start in the water at their first shape's buoyant trim.
    *

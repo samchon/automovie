@@ -1,0 +1,308 @@
+import { AutoMovieEngineVector3 } from "@automovie/engine";
+import type { IAutoMovieTransform } from "@automovie/interface";
+
+import {
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
+  type IAutoMovieArchetypeBand,
+} from "../core/index";
+import { rideSwing } from "./internal/rideSwing";
+import { AutoMovieArchetypeSwingData } from "./internal/AutoMovieArchetypeSwingData";
+
+/** Constructs the swing archetype from its recipe. */
+export namespace AutoMovieArchetypeSwing {
+/**
+ * A playground swing: a crossbeam on two posts and a seat hung on two chains
+ * from the beam's pivot axis.
+ *
+ * The pivot axis runs along `x` at `y = pivot`, `z = 0`, above the ground at `y
+ * = 0`; the seat hangs below it and swings in the `y`-`z` plane. This model
+ * draws the fixed frame. The seat with its chains is a separate rigid model,
+ * `createSwing.seat`, whose origin is the pivot, so a rotation of its frame
+ * about the pivot axis swings it (`AutoMovieArchetypeSwing.ride`).
+ *
+ * @param params Fixed dimensions.
+ * @param seed The seed for any unfixed dimension.
+ * @returns The swing frame.
+ * @throws {AutoMovieArchetypeRefusal} For a dimension outside its band, or a
+ *   seat that would hang at or above the beam.
+ */
+export function create(
+  params: AutoMovieArchetypeSwing.IParams = {},
+  seed?: number,
+): AutoMovieArchetype<AutoMovieArchetypeSwing.Affordance, AutoMovieArchetypeSwing.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<AutoMovieArchetypeSwing.Dimension> =
+    new AutoMovieArchetypeDrawSession("swing", AutoMovieArchetypeSwing.UNITS, seed, params);
+  const {
+    pivot,
+    clearance,
+    seatWidth,
+    grip,
+    mass,
+  }: Record<AutoMovieArchetypeSwing.Dimension, number> = draw.dimensions(AutoMovieArchetypeSwing.BANDS);
+  if (!(pivot - clearance > grip))
+    throw new AutoMovieArchetypeRefusal({
+      kind: "parameter",
+      archetype: "swing",
+      axis: "pivot",
+      value: pivot,
+      feasible: {
+        kind: "range",
+        minimum: clearance + grip,
+        maximum: null,
+        unit: "m",
+      },
+      reason: "the seat must hang below the chain grips under the beam",
+      fix: "raise the beam or lower the seat clearance",
+    });
+  const builder: AutoMovieArchetypeBuilder<
+    AutoMovieArchetypeSwing.Affordance,
+    AutoMovieArchetypeSwing.Dimension
+  > = new AutoMovieArchetypeBuilder({
+    id: params.id,
+    name: "swing",
+    material: "steel",
+    draw,
+  });
+  const span: number = seatWidth + 0.6;
+  for (const side of [-1, 1] as const)
+    builder.rod(
+      side < 0 ? "rightPost" : "leftPost",
+      0.04,
+      AutoMovieEngineVector3.create((side * span) / 2, 0, 0),
+      AutoMovieEngineVector3.create((side * span) / 2, pivot, 0),
+      { color: "#2d6a4f" },
+    );
+  builder.rod(
+    "beam",
+    0.05,
+    AutoMovieEngineVector3.create(-span / 2, pivot, 0),
+    AutoMovieEngineVector3.create(span / 2, pivot, 0),
+    { color: "#2d6a4f" },
+  );
+  builder.affordance({
+    id: "ground",
+    kind: "surface",
+    frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, 0, 0)),
+    extent: null,
+    width: span,
+    depth: 2 * pivot,
+  });
+  return builder.build(mass);
+}
+
+  /* The swing's dimensions and its hanging seat. */
+  /** The ground under the swing, where a rider stands and lands. */
+  export type Affordance = "ground";
+
+  /**
+   * Beam height, seat clearance, seat width and depth and the chain grips'
+   * height above the seat in metres, and frame mass in kilograms.
+   */
+  export type Dimension =
+    | "pivot"
+    | "clearance"
+    | "seatWidth"
+    | "seatDepth"
+    | "grip"
+    | "mass";
+
+  /** The hanging seat's sitting surface and the two chain grips. */
+  export type SeatAffordance = "seat" | "leftChain" | "rightChain";
+
+  /**
+   * The hanging seat's hanging length, width and depth in metres, and mass in
+   * kilograms.
+   */
+  export type SeatDimension = "length" | "width" | "depth" | "mass";
+
+  /** The dimensions the author fixes inside their bands. */
+  export interface IParams extends Partial<Record<Dimension, number>> {
+    /** The scene's model identifier, `swing` when omitted. */
+    id?: string;
+  }
+
+  /** Units recorded in the model's draw provenance. */
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
+    pivot: "m",
+    clearance: "m",
+    seatWidth: "m",
+    seatDepth: "m",
+    grip: "m",
+    mass: "kg",
+  };
+
+  /** The dimensions' bands. */
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    pivot: AutoMovieArchetypeBand.metres(2, 2.6, AutoMovieArchetypeSwingData.ESTIMATE, true),
+    clearance: AutoMovieArchetypeBand.metres(0.35, 0.45, AutoMovieArchetypeSwingData.EN1176, true),
+    seatWidth: AutoMovieArchetypeBand.metres(0.28, 0.5, AutoMovieArchetypeSwingData.ESTIMATE, true),
+    seatDepth: AutoMovieArchetypeBand.metres(0.15, 0.22, AutoMovieArchetypeSwingData.ESTIMATE, true),
+    // Where a seated rider holds the chains: from just over the thighs to
+    // an adult's seated overhead reach.
+    grip: AutoMovieArchetypeBand.metres(0.3, 1.2, AutoMovieArchetypeSwingData.ESTIMATE, true),
+    mass: AutoMovieArchetypeBand.of("kg", 60, 150, AutoMovieArchetypeSwingData.ESTIMATE, true),
+  };
+
+  /**
+   * The seat with its chains as one rigid model whose origin is the pivot: the
+   * sitting surface hangs `length` below it, and each chain grip is the swing's
+   * `grip` above the seat on its chain.
+   *
+   * @param swing The swing whose seat this is.
+   * @returns The hanging seat model.
+   */
+  export function seat(
+    swing: Pick<AutoMovieArchetype<Affordance, Dimension>, "dimensions">,
+  ): AutoMovieArchetype<SeatAffordance, SeatDimension> {
+    const pivot: number = swing.dimensions.pivot!;
+    const clearance: number = swing.dimensions.clearance!;
+    const seatWidth: number = swing.dimensions.seatWidth!;
+    const seatDepth: number = swing.dimensions.seatDepth!;
+    const grip: number = swing.dimensions.grip!;
+    const draw: AutoMovieArchetypeDrawSession<SeatDimension> =
+      new AutoMovieArchetypeDrawSession(
+        "swingSeat",
+        { length: "m", width: "m", depth: "m", mass: "kg" },
+        undefined,
+        {},
+      );
+    const length: number = draw.derive("length", pivot - clearance);
+    draw.derive("width", seatWidth);
+    draw.derive("depth", seatDepth);
+    // A rubber seat of about 2 kg with its chains: a provisional estimate.
+    const mass: number = draw.derive("mass", 4);
+    const builder: AutoMovieArchetypeBuilder<SeatAffordance, SeatDimension> =
+      new AutoMovieArchetypeBuilder({
+        name: "swing seat",
+        material: "rubber",
+        draw,
+      });
+    builder.box(
+      "seat",
+      AutoMovieEngineVector3.create(seatWidth, 0.03, seatDepth),
+      AutoMovieEngineVector3.create(0, -length - 0.015, 0),
+      { color: "#222222" },
+    );
+    for (const side of [-1, 1] as const) {
+      builder.rod(
+        side < 0 ? "rightChainLink" : "leftChainLink",
+        0.008,
+        AutoMovieEngineVector3.create((side * seatWidth) / 2, 0, 0),
+        AutoMovieEngineVector3.create((side * seatWidth) / 2, -length, 0),
+        { color: "#9a9a9a" },
+      );
+      builder.affordance({
+        id: side < 0 ? "rightChain" : "leftChain",
+        kind: "handle",
+        symmetry: "round",
+        grip: "power",
+        frame: AutoMovieArchetypeFrame.facing(
+          AutoMovieEngineVector3.create((side * seatWidth) / 2, grip - length, 0),
+          AutoMovieEngineVector3.create(0, 0, -1),
+          AutoMovieEngineVector3.create(0, 1, 0),
+        ),
+        extent: null,
+        length: 0.2,
+        aperture: 0.02,
+      });
+    }
+    builder.affordance({
+      id: "seat",
+      kind: "seat",
+      frame: AutoMovieArchetypeFrame.upright(
+        AutoMovieEngineVector3.create(0, -length, seatDepth / 2),
+      ),
+      extent: null,
+      width: seatWidth,
+      depth: seatDepth,
+    });
+    return builder.build(mass);
+  }
+
+  /* The swing's ride and its contract. */
+  /**
+   * A pumped playground swing on the ride's clock: the hanging seat model
+   * (`createSwing.seat`) turns about the beam's pivot axis by the swing angle,
+   * positive toward `+Z`.
+   *
+   * The seat is a simple pendulum of the hanging length to the seated centre of
+   * mass, with angular frequency `sqrt(g / length)`. Seated pumping, by the rider
+   * turning the body at each turning point, adds a fixed angle to the amplitude
+   * every half swing (Wirkus, Rand and Ruina, "How to pump a swing", College Math
+   * J 29:266, 1998, https://www.maa.org/pubs/CMJ_September98.html). Each half
+   * swing runs from one turning point to the next on a cosine whose two ends are
+   * those turning points, so the seat is still at each turning point and its path
+   * stays smooth while the amplitude grows. Half swings without pumping keep
+   * their amplitude.
+   *
+   * @param swing The installed swing frame.
+   * @param placement Its world placement.
+   * @param ride The start, the pumped half swings and the angle each adds.
+   * @returns The seat's frame and the turning points on the ride's clock.
+   * @throws {AutoMovieArchetypeRefusal} For a hanging length, start angle or
+   *   increment out of range.
+   */
+  export function ride(
+    swing: AutoMovieArchetype<"ground", AutoMovieArchetypeSwing.Dimension>,
+    placement: IAutoMovieTransform,
+    ride: AutoMovieArchetypeSwing.IRideParams,
+  ): AutoMovieArchetypeSwing.IRideResult {
+    return rideSwing(swing, placement, ride);
+  }
+
+  /** How the swing is set going and pumped. */
+  export interface IRideParams {
+    /** Pivot to the seated centre of mass, metres. */
+    length: number;
+
+    /** The swing angle at second 0, a turning point, degrees toward `+Z`. */
+    start: number;
+
+    /**
+     * Whole number of half swings the ride lasts; each takes pi / sqrt(g /
+     * length) seconds, with standard gravity g.
+     */
+    halves: number;
+
+    /**
+     * Whole number of leading half swings that gain `increment`, at most
+     * `halves`; later half swings keep their amplitude.
+     */
+    pumps: number;
+
+    /** The angle each pumped half swing adds to the amplitude, degrees. */
+    increment: number;
+  }
+
+  /** One running swing's readers. */
+  export interface IRideResult {
+    /** Seconds from one turning point to the next. */
+    half: number;
+
+    /** The swing angle at each turning point, degrees, starting at second 0. */
+    turns: readonly number[];
+
+    /**
+     * The swing angle at a ride second, degrees toward `+Z`.
+     *
+     * @param seconds Ride seconds.
+     * @returns The angle.
+     */
+    angle(seconds: number): number;
+
+    /**
+     * The hanging seat model's world frame at a ride second.
+     *
+     * @param seconds Ride seconds.
+     * @returns The frame.
+     */
+    seat(seconds: number): IAutoMovieTransform;
+  }
+}

@@ -76,7 +76,7 @@ export namespace AutoMovieHumanFacePlan {
     return (lo + hi) / 2;
   }
 
-  /**
+  /*
    * A super-ellipse quarter's arc length, by its polyline at 512 parameter
    * steps of `x = a cos(t)^(2/n), z = b sin(t)^(2/n)`.
    */

@@ -1,4 +1,4 @@
-import { AutoMovieSolidMeshPlan } from "@automovie/engine";
+import { AutoMovieEngineSolidMeshPlan } from "@automovie/engine";
 import type {
   IAutoMovieSolidMeshConstraints,
   IAutoMovieSolidMeshPlan,
@@ -8,7 +8,7 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../../internal/predicates";
 
 /**
- * `AutoMovieSolidMeshPlan.triangulate` bridges a periodic band's two winding
+ * `AutoMovieEngineSolidMeshPlan.triangulate` bridges a periodic band's two winding
  * cycles where they stand closest, whatever their vertex numbering.
  *
  * Fixture: the band 0 < u < 1 of a chart with phase period 2 pi, bounded by two
@@ -45,7 +45,7 @@ export function test_engine_geometry_solid_mesh_bridge(): void {
           });
         }
       const plan: IAutoMovieSolidMeshPlan.IPlan | string =
-        AutoMovieSolidMeshPlan.triangulate(
+        AutoMovieEngineSolidMeshPlan.triangulate(
           points,
           constraints,
           (u: number): boolean => u > 0 && u < 1,

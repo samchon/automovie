@@ -1,7 +1,7 @@
 import {
-  AutoMovieSubject,
-  AutoMovieSubjectGroup,
-  mergeAutoMovieSubjectContributions,
+  AutoMovieEngineSubject,
+  AutoMovieEngineSubjectGroup,
+  AutoMovieEngineSubjects,
 } from "@automovie/engine";
 import type {
   IAutoMovieShotBuildContext,
@@ -14,7 +14,7 @@ import { namedFacts } from "../../../internal/predicates";
 import { test12ValuesClose } from "../../../internal/test12ValuesClose";
 
 /** A leaf subject that contributes exactly what it was built with. */
-class Leaf extends AutoMovieSubject<{ id: string }> {
+class Leaf extends AutoMovieEngineSubject<{ id: string }> {
   public constructor(
     public readonly id: string,
     private readonly contribution: IAutoMovieSubjectContribution,
@@ -34,7 +34,7 @@ class Leaf extends AutoMovieSubject<{ id: string }> {
 }
 
 /** A group that composes its members and adds nothing of its own. */
-class Plain extends AutoMovieSubjectGroup<{ id: string }, Leaf> {
+class Plain extends AutoMovieEngineSubjectGroup<{ id: string }, Leaf> {
   public constructor(
     public readonly id: string,
     private readonly held: readonly Leaf[],
@@ -56,7 +56,7 @@ class Bannered extends Plain {
   public override render(
     context: IAutoMovieShotBuildContext,
   ): IAutoMovieSubjectContribution {
-    return mergeAutoMovieSubjectContributions([
+    return AutoMovieEngineSubjects.mergeContributions([
       super.render(context),
       { landmarks: [landmark("banner")] },
     ]);
@@ -102,8 +102,9 @@ const context: IAutoMovieShotBuildContext = {} as IAutoMovieShotBuildContext;
  *
  * Scenarios:
  *
- * 1. Merging carries the exercised contribution keys, concatenating in the order given, so
- *    a group listing its members in a stable order retains that record order.
+ * 1. Merging carries the exercised contribution keys, concatenating in the order
+ *    given, so a group listing its members in a stable order retains that
+ *    record order.
  * 2. An absent key stays absent and an empty array contributes nothing, so a
  *    subject that fills one field does not litter the merge with empties.
  * 3. Two subjects claiming one identity both survive the merge, because silently
@@ -128,7 +129,7 @@ export function test_engine_composition_subject_contribution(): void {
   TestValidator.predicate(
     "merging concatenates the exercised keys in the order given",
     test12ValuesClose(
-      mergeAutoMovieSubjectContributions([
+      AutoMovieEngineSubjects.mergeContributions([
         {
           models: [{ id: "model" }] as never,
           set: [{ node: "set" }] as never,
@@ -158,14 +159,14 @@ export function test_engine_composition_subject_contribution(): void {
 
   TestValidator.equals(
     "an empty merge is an empty contribution",
-    mergeAutoMovieSubjectContributions([]),
+    AutoMovieEngineSubjects.mergeContributions([]),
     {},
   );
 
   TestValidator.predicate(
     "two subjects claiming one identity both survive",
     test12ValuesClose(
-      mergeAutoMovieSubjectContributions([
+      AutoMovieEngineSubjects.mergeContributions([
         { landmarks: [landmark("same")] },
         { landmarks: [landmark("same")] },
       ]),
@@ -193,7 +194,7 @@ export function test_engine_composition_subject_contribution(): void {
   );
 
   const regiment: IAutoMovieSubjectGroup<{ id: string }, Plain> =
-    new (class extends AutoMovieSubjectGroup<{ id: string }, Plain> {
+    new (class extends AutoMovieEngineSubjectGroup<{ id: string }, Plain> {
       public readonly id: string = "regiment";
       public members(): readonly Plain[] {
         return [squadron, new Plain("second", [new Leaf("far", {})])];

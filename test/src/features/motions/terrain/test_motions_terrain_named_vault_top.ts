@@ -1,4 +1,6 @@
-import { planNamedVault } from "@automovie/motions/internal";
+import {
+  planNamedVault
+} from "../../../../../packages/motions/src/terrain/internal/planNamedVault";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";

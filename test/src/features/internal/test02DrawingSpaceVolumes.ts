@@ -1,4 +1,4 @@
-import { deriveAutoMovieDrawingSchedule } from "@automovie/engine";
+import { AutoMovieEngineDrawing } from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieBuiltSpace,
@@ -46,7 +46,7 @@ export function test02DrawingSpaceVolumes(
             omittedMembers: number;
             basis: "profile" | "fill" | "unmeasured";
           } = row(
-            deriveAutoMovieDrawingSchedule({
+            AutoMovieEngineDrawing.deriveAutoMovieDrawingSchedule({
               environment: withSpace(environment, tetrahedronSpace()),
               subject: "space",
             }),
@@ -75,7 +75,7 @@ export function test02DrawingSpaceVolumes(
             omittedMembers: number;
             basis: "profile" | "fill" | "unmeasured";
           } = row(
-            deriveAutoMovieDrawingSchedule({
+            AutoMovieEngineDrawing.deriveAutoMovieDrawingSchedule({
               environment: withSpace(environment, crowdedVaultSpace()),
               subject: "space",
             }),
@@ -107,7 +107,7 @@ export function test02DrawingSpaceVolumes(
             omittedMembers: number;
             basis: "profile" | "fill" | "unmeasured";
           } = row(
-            deriveAutoMovieDrawingSchedule({
+            AutoMovieEngineDrawing.deriveAutoMovieDrawingSchedule({
               environment: withSpace(environment, {
                 id: "wing",
                 kind: "room",
@@ -140,7 +140,7 @@ export function test02DrawingSpaceVolumes(
         "a chamfered cell is refused rather than boxed off from a guess",
         (): boolean =>
           row(
-            deriveAutoMovieDrawingSchedule({
+            AutoMovieEngineDrawing.deriveAutoMovieDrawingSchedule({
               environment: withSpace(environment, {
                 id: "bevel",
                 kind: "room",
@@ -168,7 +168,7 @@ export function test02DrawingSpaceVolumes(
         "a cell left open on one side is refused for the same reason",
         (): boolean =>
           row(
-            deriveAutoMovieDrawingSchedule({
+            AutoMovieEngineDrawing.deriveAutoMovieDrawingSchedule({
               environment: withSpace(environment, {
                 id: "open",
                 kind: "room",
@@ -193,7 +193,7 @@ export function test02DrawingSpaceVolumes(
         "a zone with nothing in it at any depth measures no content at all",
         (): boolean =>
           row(
-            deriveAutoMovieDrawingSchedule({
+            AutoMovieEngineDrawing.deriveAutoMovieDrawingSchedule({
               environment: withSpace(environment, {
                 id: "cellar",
                 kind: "room",
@@ -215,7 +215,7 @@ export function test02DrawingSpaceVolumes(
         "a zone declaring a faceted approximation says so on its row",
         (): boolean =>
           row(
-            deriveAutoMovieDrawingSchedule({
+            AutoMovieEngineDrawing.deriveAutoMovieDrawingSchedule({
               environment: withSpace(environment, {
                 id: "apse",
                 kind: "room",

@@ -1,16 +1,16 @@
 import type { IAutoMovieHumanMonotoneCubic } from "@automovie/interface";
 
 /**
- * Monotone piecewise cubic Hermite interpolation through knots (Fritsch
- * and Carlson 1980, "Monotone piecewise cubic interpolation").
+ * Monotone piecewise cubic Hermite interpolation through knots (Fritsch and
+ * Carlson 1980, "Monotone piecewise cubic interpolation").
  *
- * Interior slopes are the harmonic mean of the neighbouring secants when
- * those agree in sign and zero otherwise, which keeps each piece between
- * its knot values, so the curve never overshoots a knot. End slopes are
- * zero and the value is held constant beyond the end knots: the curve is
- * C1 everywhere, including where it meets the held ends. Knots closer
- * than `merge` in abscissa are one knot (the first is kept), so two
- * landmarks found at one place cannot make a zero-width piece.
+ * Interior slopes are the harmonic mean of the neighbouring secants when those
+ * agree in sign and zero otherwise, which keeps each piece between its knot
+ * values, so the curve never overshoots a knot. End slopes are zero and the
+ * value is held constant beyond the end knots: the curve is C1 everywhere,
+ * including where it meets the held ends. Knots closer than `merge` in abscissa
+ * are one knot (the first is kept), so two landmarks found at one place cannot
+ * make a zero-width piece.
  */
 export namespace AutoMovieHumanMonotoneCubic {
   /**
@@ -44,14 +44,15 @@ export namespace AutoMovieHumanMonotoneCubic {
 
     let i: number = 0;
     while (k[i + 1]![0] < x) ++i;
-    const secant: (j: number) => number = (j: number): number =>
-      (k[j + 1]![1] - k[j]![1]) / (k[j + 1]![0] - k[j]![0]);
-    const slope: (j: number) => number = (j: number): number => {
+    function secant(j: number): number {
+      return (k[j + 1]![1] - k[j]![1]) / (k[j + 1]![0] - k[j]![0]);
+    }
+    function slope(j: number): number {
       if (j === 0 || j === n - 1) return 0;
       const a: number = secant(j - 1);
       const b: number = secant(j);
       return a * b <= 0 ? 0 : (2 * a * b) / (a + b);
-    };
+    }
 
     const [x0, y0] = k[i]!;
     const [x1, y1] = k[i + 1]!;

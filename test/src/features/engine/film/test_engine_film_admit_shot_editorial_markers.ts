@@ -1,4 +1,6 @@
-import { admitShotEditorialMarkers } from "@automovie/engine/internal";
+import {
+  admitShotEditorialMarkers
+} from "../../../../../packages/engine/src/validation/internal/admitShotEditorialMarkers";
 import type {
   IAutoMovieConstraintViolation,
   IAutoMovieEditorialMarker,

@@ -1,9 +1,11 @@
-import { markAutoMovieSlip } from "@automovie/engine";
+import {
+  markSlip
+} from "../../../../../packages/engine/src/validation/internal/markSlip";
 import type { IAutoMovieMark, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `markAutoMovieSlip` draws each planted contact as a segment from its plant to
+ * `markSlip` draws each planted contact as a segment from its plant to
  * where it is, flagged when its horizontal travel exceeds its limit.
  *
  * Scenarios:
@@ -25,7 +27,7 @@ export function test_engine_validation_mark_slip(): void {
   // 1.
   TestValidator.equals(
     "flagged slip",
-    markAutoMovieSlip([foot({ x: 0.03, y: 0, z: 0 }, 0.02)]).map(
+    markSlip([foot({ x: 0.03, y: 0, z: 0 }, 0.02)]).map(
       (mark: IAutoMovieMark) => [
         mark.path,
         mark.kind,
@@ -47,14 +49,14 @@ export function test_engine_validation_mark_slip(): void {
   TestValidator.equals(
     "unflagged and risen",
     [
-      markAutoMovieSlip([foot({ x: 0.03, y: 0, z: 0 }, 0.05)])[0]!.flagged,
-      markAutoMovieSlip([foot({ x: 0, y: 0.1, z: 0 }, 0.02)]).length,
+      markSlip([foot({ x: 0.03, y: 0, z: 0 }, 0.05)])[0]!.flagged,
+      markSlip([foot({ x: 0, y: 0.1, z: 0 }, 0.02)]).length,
     ],
     [false, 0],
   );
 
   // 3.
   TestValidator.error("negative limit", (): void => {
-    markAutoMovieSlip([foot({ x: 0.03, y: 0, z: 0 }, -1)]);
+    markSlip([foot({ x: 0.03, y: 0, z: 0 }, -1)]);
   });
 }

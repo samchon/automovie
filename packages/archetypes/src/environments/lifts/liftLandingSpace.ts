@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieBuiltSpace,
   IAutoMovieBuiltSurface,
@@ -8,7 +8,7 @@ import type {
 
 import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
 
-/**
+/*
  * Describe one docked landing's room and fixed support polygon. The room starts
  * at the sill centre plane, which lets connector admission observe the docked
  * car origin. The feet's support excludes the gap.
@@ -26,7 +26,7 @@ export function liftLandingSpace(
   const half: number = width / 2;
   const end: number = gap + depth;
   const world = (x: number, y: number, z: number): IAutoMovieVector3 =>
-    AutoMovieArchetypeFrame.point(sill, Vector3.create(x, y, z));
+    AutoMovieArchetypeFrame.point(sill, AutoMovieEngineVector3.create(x, y, z));
   const center: IAutoMovieVector3 = world(0, height / 2, end / 2);
   const limits: Array<[IAutoMovieVector3, number]> = [
     [AutoMovieArchetypeFrame.axis(sill, "x"), half],
@@ -43,10 +43,10 @@ export function liftLandingSpace(
           id: `${id}/cell`,
           planes: limits.flatMap(
             ([axis, extent]: [IAutoMovieVector3, number]) =>
-              [axis, Vector3.scale(axis, -1)].map(
+              [axis, AutoMovieEngineVector3.scale(axis, -1)].map(
                 (normal: IAutoMovieVector3) => ({
                   normal,
-                  offset: Vector3.dot(normal, center) + extent,
+                  offset: AutoMovieEngineVector3.dot(normal, center) + extent,
                 }),
               ),
           ),

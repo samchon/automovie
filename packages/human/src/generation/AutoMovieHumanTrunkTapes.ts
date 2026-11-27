@@ -1,4 +1,8 @@
-import { AutoMovieLoftRelief, AutoMovieSplineCurve } from "@automovie/engine";
+import {
+  AutoMovieEnginePlanarHull,
+  AutoMovieEngineLoftRelief,
+  AutoMovieEngineSplineCurve,
+} from "@automovie/engine";
 import type {
   IAutoMovieHumanTrunkSection,
   IAutoMovieHumanTrunkTapes,
@@ -37,7 +41,7 @@ export namespace AutoMovieHumanTrunkTapes {
       (_: unknown, i: number): [number, number] => {
         const t: number = (2 * Math.PI * i) / count;
         const p: [number, number, number, number] =
-          AutoMovieSplineCurve.evaluate(
+          AutoMovieEngineSplineCurve.evaluate(
             c,
             AutoMovieHumanTrunkQuadrant.ORDER,
             t,
@@ -45,7 +49,7 @@ export namespace AutoMovieHumanTrunkTapes {
         let x: number = p[0];
         let z: number = p[1];
         for (const r of reliefs) {
-          const d: number = AutoMovieLoftRelief.height(r, s.y, t)[0];
+          const d: number = AutoMovieEngineLoftRelief.height(r, s.y, t)[0];
           x += d * r.axis[0];
           z += d * r.axis[2];
         }
@@ -56,38 +60,7 @@ export namespace AutoMovieHumanTrunkTapes {
 
   /** Hull perimeter of planar points. */
   export function hull(points: IAutoMovieHumanTrunkTapes.HullPoints): number {
-    const sorted: [number, number][] = [...points].sort(
-      (a, b): number => a[0] - b[0] || a[1] - b[1],
-    );
-    const cross = (
-      o: [number, number],
-      a: [number, number],
-      b: [number, number],
-    ): number => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
-    const half = (list: [number, number][]): [number, number][] => {
-      const out: [number, number][] = [];
-      for (const p of list) {
-        while (
-          out.length >= 2 &&
-          cross(out[out.length - 2]!, out[out.length - 1]!, p) <= 0
-        )
-          out.pop();
-        out.push(p);
-      }
-      out.pop();
-      return out;
-    };
-    const ring: [number, number][] = [
-      ...half(sorted),
-      ...half([...sorted].reverse()),
-    ];
-    let sum: number = 0;
-    for (let i: number = 0; i < ring.length; i++) {
-      const a: [number, number] = ring[i]!;
-      const b: [number, number] = ring[(i + 1) % ring.length]!;
-      sum += Math.hypot(b[0] - a[0], b[1] - a[1]);
-    }
-    return sum;
+    return AutoMovieEnginePlanarHull.perimeter(points, 0, 1);
   }
 
   /**

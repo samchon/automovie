@@ -1,4 +1,4 @@
-import { worldRamp } from "@automovie/engine";
+import { AutoMovieEngineWorld } from "@automovie/engine";
 import { IAutoMovieWorldDesign } from "@automovie/interface";
 
 /** Authored world surfaces and routes shared by the existing query scenarios. */
@@ -16,7 +16,7 @@ export const GEOMETRY_SELECTOR_TEST_WORLD: Pick<
   ],
   surfaces: [
     // One metre high at z = 0, five metres at z = 10.
-    worldRamp({
+    AutoMovieEngineWorld.ramp({
       id: "slope",
       from: { x: 0, z: 0 },
       to: { x: 0, z: 10 },
@@ -25,7 +25,7 @@ export const GEOMETRY_SELECTOR_TEST_WORLD: Pick<
       rise: 4,
       walkable: true,
     }),
-    worldRamp({
+    AutoMovieEngineWorld.ramp({
       id: "ledge",
       from: { x: 20, z: 0 },
       to: { x: 20, z: 10 },

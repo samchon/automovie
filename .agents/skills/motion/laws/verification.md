@@ -6,7 +6,8 @@ Test each isolated action's goal with bounded assertions under the testing contr
 - penetration;
 - slip of every planted or held contact;
 - range-of-motion overshoot;
-- balance for a staged physical outcome or on request, using extrapolated center of mass against the support (Hof 2005);
+- balance for a staged physical outcome or on request
+  - Use extrapolated center of mass against the support (Hof 2005).
 - pose and rate continuity at cuts and at both joins of each prepared response.
 
 Check all displayed channels. Where an impact or release intentionally changes a rate or contact, test the declared change.

@@ -1,4 +1,4 @@
-import { deriveProductionSoundPlan } from "@automovie/engine";
+import { AutoMovieEngineSound } from "@automovie/engine";
 import type { IAutoMovieAcousticResponseProfile } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -6,11 +6,15 @@ import { createSoundPropagationTestInputs } from "../internal/audio/createSoundP
 import { test12ValuesClose } from "../internal/test12ValuesClose";
 
 /**
- * Planning snapshots selected profiles and samples both emitter and listener at the event's actual story time.
+ * Planning snapshots selected profiles and samples both emitter and listener at
+ * the event's actual story time.
  *
  * Scenarios:
- * 1. Planning captures independent propagation assumptions and adopted room mappings before callers mutate their inputs.
- * 2. Within the same plan at event time 0.2 s, emitter x6 and listener x1 derive distance5 and arrival frame 3.
+ *
+ * 1. Planning captures independent propagation assumptions and adopted room
+ *    mappings before callers mutate their inputs.
+ * 2. Within the same plan at event time 0.2 s, emitter x6 and listener x1 derive
+ *    distance5 and arrival frame 3.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs the actual planner, mutates the borrowed selected-profile inputs after planning, then samples authored emitter and camera translation tracks at the compiled event time to observe receipt/profile snapshots and moving source/listener geometry.
  * @evidence contracts/development/testing.md#independent-expectations Original assumption/room-response strings are literal snapshot oracles. Linear endpoints at .2 seconds independently imply emitter x6, listener x1 and distance5; speed100 and fps10 round the .5-frame delay to arrival3. Numeric record comparison retains former exactness with zero tolerance.
@@ -74,14 +78,15 @@ export function test_motion_engine_sound_event_spatial_sample(): void {
     ],
   };
 
-  const planned: ReturnType<typeof deriveProductionSoundPlan> =
-    deriveProductionSoundPlan({
-      timeline: minimalTimeline(),
-      contracts: new Map([["shot", minimalContract()]]),
-      compiled: new Map([["shot", moving]]),
-      propagationProfile: selectedProfile,
-      acousticProfile,
-    });
+  const planned: ReturnType<
+    typeof AutoMovieEngineSound.deriveProductionSoundPlan
+  > = AutoMovieEngineSound.deriveProductionSoundPlan({
+    timeline: minimalTimeline(),
+    contracts: new Map([["shot", minimalContract()]]),
+    compiled: new Map([["shot", moving]]),
+    propagationProfile: selectedProfile,
+    acousticProfile,
+  });
 
   selectedProfile.assumptions[0] = "mutated";
 

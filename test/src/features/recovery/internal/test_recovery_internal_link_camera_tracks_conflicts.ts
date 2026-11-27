@@ -1,4 +1,5 @@
-import { linkRecoveryCameraTracks } from "@automovie/recovery";
+import { AutoMovieRecoveryObservation } from "@automovie/recovery";
+import type { IAutoMovieRecoveryCameraTracksLinkageOperation } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { createRecoveryConflictingSceneFixture } from "../../internal/createRecoveryConflictingSceneFixture";
@@ -16,8 +17,8 @@ import { createRecoveryConflictingSceneFixture } from "../../internal/createReco
 export function test_recovery_internal_link_camera_tracks_conflicts(): void {
   const fixture: ReturnType<typeof createRecoveryConflictingSceneFixture> =
     createRecoveryConflictingSceneFixture();
-  const linked: ReturnType<typeof linkRecoveryCameraTracks> =
-    linkRecoveryCameraTracks(
+  const linked: ReturnType<IAutoMovieRecoveryCameraTracksLinkageOperation.Operation> =
+    AutoMovieRecoveryObservation.linkCameraTracks(
       fixture.features,
       fixture.pairs,
       fixture.input.budget,

@@ -1,6 +1,6 @@
 import {
-  AutoMoviePhysicalPlayback as Playback,
-  AutoMoviePhysicalSimulation as Simulation,
+  AutoMovieEnginePhysicalPlayback as Playback,
+  AutoMovieEnginePhysicalSimulation as Simulation,
 } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalPlayback,

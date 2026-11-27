@@ -1,6 +1,6 @@
 import type { IAutoMovieBuiltEnvironment } from "../architecture/IAutoMovieBuiltEnvironment";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
-import type { IAutoMovieViolationCollector } from "../validation/IAutoMovieViolationCollector";
+import type { IAutoMovieViolationAppendSink } from "../validation/IAutoMovieViolationAppendSink";
 import type { IAutoMovieServiceNetwork } from "./IAutoMovieServiceNetwork";
 import type { IAutoMovieServicePort } from "./IAutoMovieServicePort";
 import type { IAutoMovieServiceSystem } from "./IAutoMovieServiceSystem";
@@ -52,7 +52,7 @@ export namespace IAutoMovieAppendServiceNetworkSegments {
      * Caller-owned synchronous diagnostic sink; it may retain authored route
      * points and sleeve values.
      */
-    out: IAutoMovieViolationCollector;
+    out: IAutoMovieViolationAppendSink;
 
     /**
      * Synchronous finite-positive gate for radius in metres and section in
@@ -63,7 +63,7 @@ export namespace IAutoMovieAppendServiceNetworkSegments {
       value: number,
       path: string,
       label: string,
-      out: IAutoMovieViolationCollector,
+      out: IAutoMovieViolationAppendSink,
     ) => void;
 
     /**
@@ -84,7 +84,7 @@ export namespace IAutoMovieAppendServiceNetworkSegments {
       target: IAutoMovieVector3,
       path: string,
       portId: string,
-      out: IAutoMovieViolationCollector,
+      out: IAutoMovieViolationAppendSink,
     ) => void;
   };
 }

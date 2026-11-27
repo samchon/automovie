@@ -6,9 +6,9 @@ A Human unit test checks one law, solver or operator on small made inputs. Finis
 
 Check anatomical order relations on the law or operator that guarantees them.
 
-- Limb girth order, from wrist to forearm and ankle through calf, knee and thigh.
+- Girth order from wrist to forearm and ankle through calf, knee and thigh.
 - Neck below neck base, waist below hip and bust.
-- Ordered heights, one maximum per muscle belly and monotone taper between landmarks.
+- Ordered heights, one muscle belly maximum and monotone landmark taper.
 - Axis inside its section and mirror symmetry.
 
 Test each surface detector on a made defect and valid geometry. Cover open or non-manifold edges, flipped triangles, intersections, folds, crease radius, non-simple sections, seam or port continuity, slivers and curvature ripples. The build report runs the detectors.
@@ -20,9 +20,9 @@ Test the shared operator once at its owner under [construction](../3d-modeling/c
 | Level | Check |
 | --- | --- |
 | Operator | Made inputs against a closed form or independent contract |
-| Audit | One data-driven detector per section, seam, surface or input property |
+| Audit | One data-driven detector per section, seam, surface or input |
 | Anatomy | Anatomical relations against published definitions and ranges |
-| Pose and subsystems | Posed skin and subsystem bounds, including strain and joint ranges |
+| Pose and subsystems | Posed skin and bounds, strain and joint range included |
 
 Audits check declared section topology, orientation, continuity and surface health. Verify placement, parameter identity at ISO 20685-1 tolerances, and atlas and bind identity. An anatomy row covers a relation the construction might get wrong.
 
@@ -32,10 +32,11 @@ Use coverage from the task. An f1-only check leaves population acceptance open. 
 
 ## Writing one
 
-- Read original functions for curves, chains for lofts and finished skin for anatomical measures.
+- Use source functions for curves and chains for lofts.
+  - Use finished skin for anatomical measures.
 - Measure across a feature in a plane normal to its tangent.
-- Verify that each detector fails on a visible defect and passes on valid geometry.
-- Account for finite-difference truncation error without widening the original bound.
+- Check that each detector fails on a visible defect and passes valid geometry.
+- Allow for finite-difference truncation error within the original bound.
 - Report all findings by person, part, region and direction.
 - Build fixtures in the test that owns them and place each test at its level.
 - Add a detector for each observed defect class the checks miss.

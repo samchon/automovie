@@ -1,5 +1,7 @@
 import type { IAutoMovieMotionHumanQuadraticProgram } from "@automovie/interface";
-import { HumanArmTrajectorySiteError } from "@automovie/motions/internal";
+import {
+  HumanArmTrajectorySiteError
+} from "../../../../../packages/motions/src/posture/internal/HumanArmTrajectorySiteError";
 import { TestValidator } from "@nestia/e2e";
 
 /**

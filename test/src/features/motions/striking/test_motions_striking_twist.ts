@@ -1,4 +1,6 @@
-import { StrikingTwist } from "@automovie/motions/internal";
+import {
+  StrikingTwist
+} from "../../../../../packages/motions/src/striking/internal/StrikingTwist";
 import { TestValidator } from "@nestia/e2e";
 
 /**

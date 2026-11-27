@@ -1,9 +1,5 @@
-import { createPourVessel } from "@automovie/archetypes";
-import {
-  Quaternion,
-  createAutoMovieMeshRayCaster,
-  physicalShapeSegmentDistance,
-} from "@automovie/engine";
+import { AutoMovieArchetypePourVessel } from "@automovie/archetypes";
+import { AutoMovieEngineQuaternion, AutoMovieEnginePhysics, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieModelPart,
@@ -39,14 +35,14 @@ import { nclose, vclose } from "../../internal/predicates";
  * @evidence contracts/development/testing.md#execution-ownership The discovered entry uses public model records and engine queries in memory.
  */
 export function test_archetype_props_pour_vessel(): void {
-  const cup: ReturnType<typeof createPourVessel> = createPourVessel({
+  const cup: ReturnType<typeof AutoMovieArchetypePourVessel.create> = AutoMovieArchetypePourVessel.create({
     kind: "cup",
     id: "recipient",
     height: 0.055,
     diameter: 0.082,
     mass: 0.165,
   });
-  const pitcher: ReturnType<typeof createPourVessel> = createPourVessel({
+  const pitcher: ReturnType<typeof AutoMovieArchetypePourVessel.create> = AutoMovieArchetypePourVessel.create({
     kind: "pitcher",
     id: "source",
     height: 0.17,
@@ -81,8 +77,8 @@ export function test_archetype_props_pour_vessel(): void {
       mouth.kind === "socket" &&
         lip.kind === "ledge" &&
         vclose(mouth.frame.translation, { x: 0, y: height, z: 0 }, 1e-10) &&
-        vclose(Quaternion.rotateVector(mouth.frame.rotation, up), up, 1e-10) &&
-        vclose(Quaternion.rotateVector(lip.frame.rotation, up), up, 1e-10) &&
+        vclose(AutoMovieEngineQuaternion.rotateVector(mouth.frame.rotation, up), up, 1e-10) &&
+        vclose(AutoMovieEngineQuaternion.rotateVector(lip.frame.rotation, up), up, 1e-10) &&
         nclose(lip.frame.translation.y, height, 1e-10) &&
         nclose(lip.frame.translation.x, 0, 1e-10) &&
         nclose(archetypeExtent(shapes, "y").low, 0, 1e-10) &&
@@ -136,7 +132,7 @@ export function test_archetype_props_pour_vessel(): void {
         separation(bar, handle.frame.translation, handle.frame.translation) <
           -0.003 &&
         vclose(
-          Quaternion.rotateVector(handle.frame.rotation, { x: 1, y: 0, z: 0 }),
+          AutoMovieEngineQuaternion.rotateVector(handle.frame.rotation, { x: 1, y: 0, z: 0 }),
           up,
           1e-10,
         ),
@@ -186,18 +182,18 @@ export function test_archetype_props_pour_vessel(): void {
       ),
   );
 
-  const seeded: ReturnType<typeof createPourVessel> = createPourVessel(
+  const seeded: ReturnType<typeof AutoMovieArchetypePourVessel.create> = AutoMovieArchetypePourVessel.create(
     { kind: "cup" },
     1004,
   );
-  const other: ReturnType<typeof createPourVessel> = createPourVessel(
+  const other: ReturnType<typeof AutoMovieArchetypePourVessel.create> = AutoMovieArchetypePourVessel.create(
     { kind: "cup" },
     1005,
   );
   TestValidator.equals(
     "same kind and seed reproduce the generated vessel",
     JSON.stringify(seeded),
-    JSON.stringify(createPourVessel({ kind: "cup" }, 1004)),
+    JSON.stringify(AutoMovieArchetypePourVessel.create({ kind: "cup" }, 1004)),
   );
   const diameter: number = archetypeExtent(seeded, "x").size;
   const otherDiameter: number = archetypeExtent(other, "x").size;
@@ -226,7 +222,7 @@ function separation(
     position: { x: 0, y: 0, z: 0 },
     rotation: { x: 0, y: 0, z: 0, w: 1 },
   };
-  return physicalShapeSegmentDistance(pose, shape, from, to);
+  return AutoMovieEnginePhysics.physicalShapeSegmentDistance(pose, shape, from, to);
 }
 
 /**
@@ -253,7 +249,7 @@ function downwardMeshTravel(
       );
       positions.push(world.x, world.y, world.z);
     }
-    const hit: number | null = createAutoMovieMeshRayCaster({
+    const hit: number | null = AutoMovieEngineGeometry.createMeshRayCaster({
       ...mesh,
       positions,
     }).nearest([from.x, from.y, from.z], [0, -1, 0], from.y + 0.001);

@@ -1,5 +1,7 @@
 import type { AutoMovieArchetypeCourse } from "@automovie/archetypes";
-import { ArchetypeCoursePath } from "@automovie/archetypes/internal";
+import {
+  ArchetypeCoursePath
+} from "../../../../../packages/archetypes/src/core/internal/ArchetypeCoursePath";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

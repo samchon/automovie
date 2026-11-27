@@ -1,4 +1,4 @@
-import { applyLightOverride } from "@automovie/engine";
+import { AutoMovieEngineResolve } from "@automovie/engine";
 import type { IAutoMovieLight } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -30,7 +30,7 @@ const POINT: IAutoMovieLight = {
  *    - Has no range to override.
  */
 export function test_engine_resolve_apply_light_override(): void {
-  const dimmed: IAutoMovieLight = applyLightOverride(POINT, {
+  const dimmed: IAutoMovieLight = AutoMovieEngineResolve.applyLightOverride(POINT, {
     intensity: 0.25,
     range: 9,
   });
@@ -43,7 +43,7 @@ export function test_engine_resolve_apply_light_override(): void {
       dimmed.color === POINT.color &&
       dimmed.transform === POINT.transform,
   );
-  const moved: IAutoMovieLight = applyLightOverride(POINT, {
+  const moved: IAutoMovieLight = AutoMovieEngineResolve.applyLightOverride(POINT, {
     position: { x: 4, y: 5, z: 6 },
   });
   TestValidator.predicate(
@@ -52,7 +52,7 @@ export function test_engine_resolve_apply_light_override(): void {
       moved.transform.rotation === POINT.transform.rotation &&
       moved.transform.scale === POINT.transform.scale,
   );
-  const sun: IAutoMovieLight = applyLightOverride(
+  const sun: IAutoMovieLight = AutoMovieEngineResolve.applyLightOverride(
     {
       id: "sun",
       type: "directional",

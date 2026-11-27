@@ -1,4 +1,4 @@
-import { builtInstanceSetPlacementBounds } from "@automovie/engine";
+import { AutoMovieEngineBuiltEnvironment } from "@automovie/engine";
 import type {
   IAutoMovieInstanceSetDesign,
   IAutoMovieSubjectBox,
@@ -44,7 +44,7 @@ const bounded: (
     max: { x: 0, y: 0, z: 0 },
   },
 ): boolean => {
-  const measured: IAutoMovieSubjectBox = builtInstanceSetPlacementBounds(
+  const measured: IAutoMovieSubjectBox = AutoMovieEngineBuiltEnvironment.instanceSetPlacementBounds(
     design,
     prototypeBounds,
   );
@@ -362,14 +362,14 @@ export function test_architecture_built_population_placement_bounds(): void {
         },
       ),
       repeat: ((): boolean => {
-        const first: IAutoMovieSubjectBox = builtInstanceSetPlacementBounds(
+        const first: IAutoMovieSubjectBox = AutoMovieEngineBuiltEnvironment.instanceSetPlacementBounds(
           varyingRotation,
           {
             min: { x: -1, y: -2, z: -3 },
             max: { x: 1, y: 2, z: 3 },
           },
         );
-        const second: IAutoMovieSubjectBox = builtInstanceSetPlacementBounds(
+        const second: IAutoMovieSubjectBox = AutoMovieEngineBuiltEnvironment.instanceSetPlacementBounds(
           varyingRotation,
           {
             min: { x: -1, y: -2, z: -3 },
@@ -386,7 +386,7 @@ export function test_architecture_built_population_placement_bounds(): void {
     "a route-following set is refused, because a building cannot resolve a route",
     throwsError(
       (): IAutoMovieSubjectBox =>
-        builtInstanceSetPlacementBounds(
+        AutoMovieEngineBuiltEnvironment.instanceSetPlacementBounds(
           set({
             count: 5,
             layout: {
@@ -406,7 +406,7 @@ export function test_architecture_built_population_placement_bounds(): void {
     "an empty population has no placement bound",
     throwsError(
       (): IAutoMovieSubjectBox =>
-        builtInstanceSetPlacementBounds(
+        AutoMovieEngineBuiltEnvironment.instanceSetPlacementBounds(
           set({
             count: 0,
             layout: {
@@ -427,7 +427,7 @@ export function test_architecture_built_population_placement_bounds(): void {
     "an incomplete explicit population has no placement bound",
     throwsError(
       (): IAutoMovieSubjectBox =>
-        builtInstanceSetPlacementBounds(
+        AutoMovieEngineBuiltEnvironment.instanceSetPlacementBounds(
           set({
             count: 2,
             layout: {

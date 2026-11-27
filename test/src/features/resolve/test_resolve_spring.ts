@@ -1,4 +1,4 @@
-import { Matrix4, createSpringState, stepSpring } from "@automovie/engine";
+import { AutoMovieEngineMatrix4, AutoMovieEngineResolve } from "@automovie/engine";
 import {
   IAutoMovieSpringDriver,
   type IAutoMovieSpringState,
@@ -14,7 +14,7 @@ import { vclose } from "../internal/vclose";
 const W: (p: IAutoMovieVector3) => number[] = (
   p: IAutoMovieVector3,
 ): number[] =>
-  Matrix4.compose(p, { x: 0, y: 0, z: 0, w: 1 }, { x: 1, y: 1, z: 1 });
+  AutoMovieEngineMatrix4.compose(p, { x: 0, y: 0, z: 0, w: 1 }, { x: 1, y: 1, z: 1 });
 
 const trs: (x: number, y: number, z: number) => IAutoMovieTransform = (
   x: number,
@@ -48,7 +48,7 @@ const local: Map<string, IAutoMovieTransform> = new Map<
 const at: (world: Map<string, number[]>, id: string) => IAutoMovieVector3 = (
   world: Map<string, number[]>,
   id: string,
-): IAutoMovieVector3 => Matrix4.position(world.get(id)!);
+): IAutoMovieVector3 => AutoMovieEngineMatrix4.position(world.get(id)!);
 
 const dist: (a: IAutoMovieVector3, b: IAutoMovieVector3) => number = (
   a: IAutoMovieVector3,
@@ -64,9 +64,9 @@ const run: (steps: number) => Map<string, number[]> = (
     ["j1", W({ x: 1, y: 0, z: 0 })],
     ["j2", W({ x: 2, y: 0, z: 0 })],
   ]);
-  const state: IAutoMovieSpringState = createSpringState();
+  const state: IAutoMovieSpringState = AutoMovieEngineResolve.createSpringState();
   for (let s: number = 0; s < steps; ++s)
-    stepSpring(spring, world, state, 1 / 60, local);
+    AutoMovieEngineResolve.stepSpring(spring, world, state, 1 / 60, local);
   return world;
 };
 
@@ -143,10 +143,10 @@ export function test_resolve_spring(): void {
       title,
       throwsError(
         (): void =>
-          stepSpring(
+          AutoMovieEngineResolve.stepSpring(
             { ...spring, ...over },
             new Map(),
-            createSpringState(),
+            AutoMovieEngineResolve.createSpringState(),
             dt,
             local,
           ),
@@ -209,12 +209,12 @@ export function test_resolve_spring(): void {
     ["root", W({ x: 0, y: 0, z: 0 })],
     ["j1", W({ x: 1, y: 0, z: 0 })],
   ]);
-  const centeredState: IAutoMovieSpringState = createSpringState();
-  stepSpring(centeredSpring, centeredWorld, centeredState, 1 / 60, local);
+  const centeredState: IAutoMovieSpringState = AutoMovieEngineResolve.createSpringState();
+  AutoMovieEngineResolve.stepSpring(centeredSpring, centeredWorld, centeredState, 1 / 60, local);
   centeredWorld.set("center", W({ x: 0, y: 10, z: 0 }));
   centeredWorld.set("root", W({ x: 0, y: 10, z: 0 }));
   centeredWorld.set("j1", W({ x: 1, y: 10, z: 0 }));
-  stepSpring(centeredSpring, centeredWorld, centeredState, 1 / 60, local);
+  AutoMovieEngineResolve.stepSpring(centeredSpring, centeredWorld, centeredState, 1 / 60, local);
   TestValidator.predicate(
     "center motion does not become spring inertia",
     vclose(at(centeredWorld, "j1"), { x: 1, y: 10, z: 0 }, 1e-9),
@@ -229,7 +229,7 @@ export function test_resolve_spring(): void {
       ["otherRoot", W({ x: 0, y: 0, z: 2 })],
       ["otherJoint", W({ x: 1, y: 0, z: 2 })],
     ]);
-    const state: ReturnType<typeof createSpringState> = createSpringState();
+    const state: ReturnType<typeof AutoMovieEngineResolve.createSpringState> = AutoMovieEngineResolve.createSpringState();
     const sharedLocal: Map<string, IAutoMovieTransform> = new Map([
       ...local,
       ["otherJoint", trs(1, 0, 0)],
@@ -240,13 +240,13 @@ export function test_resolve_spring(): void {
     ];
     if (reverse) drivers.reverse();
     for (const driver of drivers)
-      stepSpring(driver, world, state, 1 / 60, sharedLocal);
+      AutoMovieEngineResolve.stepSpring(driver, world, state, 1 / 60, sharedLocal);
     for (const [id, matrix] of world) {
-      const position: IAutoMovieVector3 = Matrix4.position(matrix);
+      const position: IAutoMovieVector3 = AutoMovieEngineMatrix4.position(matrix);
       world.set(id, W({ ...position, y: position.y + 10 }));
     }
     for (const driver of drivers)
-      stepSpring(driver, world, state, 1 / 60, sharedLocal);
+      AutoMovieEngineResolve.stepSpring(driver, world, state, 1 / 60, sharedLocal);
     return world;
   };
   for (const reverse of [false, true]) {
@@ -261,10 +261,10 @@ export function test_resolve_spring(): void {
     "missing spring center rejects incomplete world map",
     throwsError(
       (): void =>
-        stepSpring(
+        AutoMovieEngineResolve.stepSpring(
           { ...spring, center: "missing" },
           new Map(),
-          createSpringState(),
+          AutoMovieEngineResolve.createSpringState(),
           1 / 60,
           local,
         ),
@@ -276,10 +276,10 @@ export function test_resolve_spring(): void {
     "missing spring parent rejects incomplete world map",
     throwsError(
       (): void =>
-        stepSpring(
+        AutoMovieEngineResolve.stepSpring(
           spring,
           new Map([["j1", W({ x: 1, y: 0, z: 0 })]]),
-          createSpringState(),
+          AutoMovieEngineResolve.createSpringState(),
           1 / 60,
           local,
         ),
@@ -290,10 +290,10 @@ export function test_resolve_spring(): void {
     "missing spring joint rejects incomplete world map",
     throwsError(
       (): void =>
-        stepSpring(
+        AutoMovieEngineResolve.stepSpring(
           spring,
           new Map([["root", W({ x: 0, y: 0, z: 0 })]]),
-          createSpringState(),
+          AutoMovieEngineResolve.createSpringState(),
           1 / 60,
           local,
         ),
@@ -304,13 +304,13 @@ export function test_resolve_spring(): void {
     "missing spring local transform rejects incomplete local map",
     throwsError(
       (): void =>
-        stepSpring(
+        AutoMovieEngineResolve.stepSpring(
           spring,
           new Map([
             ["root", W({ x: 0, y: 0, z: 0 })],
             ["j1", W({ x: 1, y: 0, z: 0 })],
           ]),
-          createSpringState(),
+          AutoMovieEngineResolve.createSpringState(),
           1 / 60,
           new Map(),
         ),

@@ -1,5 +1,5 @@
-import { AutoMovieMotionHumanOperateHelpers } from "./AutoMovieMotionHumanOperateHelpers";
-import { AutoMovieMotionHumanOperateLaws } from "./AutoMovieMotionHumanOperateLaws";
+import { AutoMovieMotionHumanOperateHelpers } from "./internal/AutoMovieMotionHumanOperateHelpers";
+import { AutoMovieMotionHumanOperateLaws } from "./internal/AutoMovieMotionHumanOperateLaws";
 
 /**
  * Working an object or a device by hand: a control, a pour, a tool, writing or
@@ -26,7 +26,7 @@ import { AutoMovieMotionHumanOperateLaws } from "./AutoMovieMotionHumanOperateLa
  * - `longTool`: Work with a long tool in two hands, standing, in cycles at a work
  *   point (`IAutoMovieMotionHumanLongTool`): the trailing hand holds the tool
  *   rigid near the shaft's end, so the face is a fixed offset in that hand's
- *   frame (`AutoMovieMotionHumanHeld`), and each instant of the stroke
+ *   frame (`motionHumanHeld`), and each instant of the stroke
  *   (`LongToolStroke`) gives the tool's line, its face's facing and the
  *   trailing grip in the world, the hand turned the least that lays the held
  *   tool on them; the lead hand closes on the tool's line at the stroke's slide

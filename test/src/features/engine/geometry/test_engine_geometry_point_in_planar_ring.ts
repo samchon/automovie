@@ -1,4 +1,4 @@
-import { pointInPlanarRing } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type { IAutoMoviePlanarPoint } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -29,9 +29,9 @@ export function test_engine_geometry_point_in_planar_ring(): void {
     TestValidator.equals(
       label,
       [
-        pointInPlanarRing({ x: 0.5, y: 0.5 }, r),
-        pointInPlanarRing({ x: 1.5, y: 0.5 }, r),
-        pointInPlanarRing({ x: 0.5, y: -0.5 }, r),
+        AutoMovieEngineGeometry.pointInPlanarRing({ x: 0.5, y: 0.5 }, r),
+        AutoMovieEngineGeometry.pointInPlanarRing({ x: 1.5, y: 0.5 }, r),
+        AutoMovieEngineGeometry.pointInPlanarRing({ x: 0.5, y: -0.5 }, r),
       ],
       [true, false, false],
     );
@@ -41,9 +41,9 @@ export function test_engine_geometry_point_in_planar_ring(): void {
   TestValidator.equals(
     "L",
     [
-      pointInPlanarRing({ x: 0.5, y: 1.5 }, l),
-      pointInPlanarRing({ x: 1.5, y: 0.5 }, l),
-      pointInPlanarRing({ x: 1.5, y: 1.5 }, l),
+      AutoMovieEngineGeometry.pointInPlanarRing({ x: 0.5, y: 1.5 }, l),
+      AutoMovieEngineGeometry.pointInPlanarRing({ x: 1.5, y: 0.5 }, l),
+      AutoMovieEngineGeometry.pointInPlanarRing({ x: 1.5, y: 1.5 }, l),
     ],
     [true, true, false],
   );

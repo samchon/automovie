@@ -1,4 +1,4 @@
-import { validateBuiltEnvironment } from "@automovie/engine";
+import { AutoMovieEngineArchitecture } from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieConstraintViolation,
@@ -21,7 +21,7 @@ export const builtConnectorTestRefusalPaths: (
 ): string[] => {
   const value: IAutoMovieBuiltEnvironment = levels();
   mutate(value);
-  const validation: IAutoMovieValidation = validateBuiltEnvironment({
+  const validation: IAutoMovieValidation = AutoMovieEngineArchitecture.validateBuiltEnvironment({
     environment: value,
   });
   return validation.success === true

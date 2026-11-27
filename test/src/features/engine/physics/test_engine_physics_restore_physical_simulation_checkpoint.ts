@@ -1,8 +1,4 @@
-import {
-  AutoMoviePhysicsCache,
-  AutoMovieXpbdWorld,
-  restorePhysicalSimulationCheckpoint,
-} from "@automovie/engine";
+import { AutoMovieEnginePhysicsCache, AutoMovieEngineXpbdWorld, AutoMovieEnginePhysicalSimulation } from "@automovie/engine";
 import type {
   IAutoMovieContactReceipt,
   IAutoMoviePhysicalSimulation,
@@ -37,7 +33,7 @@ const START: number = 20;
 export function test_engine_physics_restore_physical_simulation_checkpoint(): void {
   const input: IAutoMoviePhysicalSimulationInput.IInput =
     PhysicalFixtures.input([], 0.25);
-  const previous: AutoMoviePhysicsCache = new AutoMoviePhysicsCache(
+  const previous: AutoMovieEnginePhysicsCache = new AutoMovieEnginePhysicsCache(
     "previous",
     input.rate,
     input.duration,
@@ -48,7 +44,7 @@ export function test_engine_physics_restore_physical_simulation_checkpoint(): vo
     previous.checkpoints.set(
       step,
       step === START
-        ? new AutoMovieXpbdWorld(input.gravity).takeSnapshot()
+        ? new AutoMovieEngineXpbdWorld(input.gravity).takeSnapshot()
         : new Uint8Array([step]),
     );
     if (step === 0) continue;
@@ -123,7 +119,7 @@ export function test_engine_physics_restore_physical_simulation_checkpoint(): vo
   );
   const wrench = (
     seconds: number,
-  ): AutoMoviePhysicsCache["supportWrenches"][number] => ({
+  ): AutoMovieEnginePhysicsCache["supportWrenches"][number] => ({
     body: "ball",
     seconds,
     origin: { x: 0, y: 1, z: 0 },
@@ -156,13 +152,13 @@ export function test_engine_physics_restore_physical_simulation_checkpoint(): vo
     trackingAt: (): IAutoMoviePhysicalSimulationInput.IDiagnostic[] => [],
   };
 
-  const cache: AutoMoviePhysicsCache = new AutoMoviePhysicsCache(
+  const cache: AutoMovieEnginePhysicsCache = new AutoMovieEnginePhysicsCache(
     "previous",
     input.rate,
     input.duration,
   );
   const diagnostics: IAutoMoviePhysicalSimulationInput.IDiagnostic[] = [];
-  restorePhysicalSimulationCheckpoint(input, run, cache, START, diagnostics);
+  AutoMovieEnginePhysicalSimulation.restoreCheckpoint(input, run, cache, START, diagnostics);
   const sorted = (map: Map<number, unknown>): number[] =>
     [...map.keys()].sort((a: number, b: number): number => a - b);
   TestValidator.equals(

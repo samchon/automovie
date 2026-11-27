@@ -1,16 +1,28 @@
 import {
+  AutoMovieEvidenceConfig,
   type IAutoMovieEvidenceConfigProps,
-  createEvidenceConfig,
 } from "@automovie/evidence";
+import type {
+  IProductionConfigProps
+} from "../../../../packages/evidence/src/narrative/IProductionConfigProps";
 import {
-  type IProductionConfigProps,
-  createDevelopmentContractClaims,
-  createEngineeringClaims,
-  createPackageChecklistClaim,
-  createPackagePopulationContract,
-  createProductionConfig,
-  createResearchClaims,
-} from "@automovie/evidence/internal";
+  createDevelopmentContractClaims
+} from "../../../../packages/evidence/src/development/claims/createDevelopmentContractClaims";
+import {
+  createEngineeringClaims
+} from "../../../../packages/evidence/src/config/claims/createEngineeringClaims";
+import {
+  createPackageChecklistClaim
+} from "../../../../packages/evidence/src/narrative/internal/createPackageChecklistClaim";
+import {
+  createPackagePopulationContract
+} from "../../../../packages/evidence/src/narrative/internal/createPackagePopulationContract";
+import {
+  createProductionConfig
+} from "../../../../packages/evidence/src/narrative/internal/createProductionConfig";
+import {
+  createResearchClaims
+} from "../../../../packages/evidence/src/config/claims/createResearchClaims";
 import { TestValidator } from "@nestia/e2e";
 import type {
   IEvidenceClaim,
@@ -24,30 +36,31 @@ import path from "node:path";
 /**
  * A workspace's shared skills tree roots the bundled contracts, the production
  * keeps its own work and language contracts in `docs/contracts`, omitting
- * `skills` keeps the standalone configuration unchanged, and a production
- * still holding its own contracts in the retired skills location is refused.
+ * `skills` keeps the standalone configuration unchanged, and a production still
+ * holding its own contracts in the retired skills location is refused.
  *
  * Scenarios:
  *
- * 1. With `skills` at the workspace root, each bundled story checklist
- *    roots at `../../../.agents/skills/contracts/story`, every `language/...`
- *    reference and the discovery claim over `work/**` root at the production's
+ * 1. With `skills` at the workspace root, each bundled story checklist roots at
+ *    `../../../.agents/skills/contracts/story`, every `language/...` reference
+ *    and the discovery claim over `work/**` root at the production's
  *    `docs/contracts`, and the engineering, development and research claims
  *    root at `../../../.agents/skills`.
  * 2. Optional contracts are probed in their owner's tree: a shared document
- *    present only in the workspace tree is selected and one present only in
- *    the production's skills tree is not; a language document present only in
- *    the production's `docs/contracts` is selected and one present only in the
+ *    present only in the workspace tree is selected and one present only in the
+ *    production's skills tree is not; a language document present only in the
+ *    production's `docs/contracts` is selected and one present only in the
  *    workspace tree is not.
- * 3. Omitting `skills` equals passing the production's own `.agents/skills`,
- *    roots shared contracts at `.agents/skills/contracts/story` and every
- *    checklist at `.agents/skills`, keeps language at `docs/contracts`, and
- *    then selects the shared document installed in the production's tree.
- * 4. A relative `skills` resolves against `location` in both configuration factories.
- * 5. The public claim helpers default to `.agents/skills` and accept a
- *    workspace root, and work-local package claims root at `docs/contracts`.
+ * 3. Omitting `skills` equals passing the production's own `.agents/skills`, roots
+ *    shared contracts at `.agents/skills/contracts/story` and every checklist
+ *    at `.agents/skills`, keeps language at `docs/contracts`, and then selects
+ *    the shared document installed in the production's tree.
+ * 4. A relative `skills` resolves against `location` in both configuration
+ *    factories.
+ * 5. The public claim helpers default to `.agents/skills` and accept a workspace
+ *    root, and work-local package claims root at `docs/contracts`.
  * 6. A legacy `.agents/skills/contracts/story/work` directory is refused by
- *    createEvidenceConfig with or without narrative and by
+ *    AutoMovieEvidenceConfig.create with or without narrative and by
  *    createProductionConfig, naming only that directory and its new home; a
  *    legacy `language` directory beside it is named too.
  *
@@ -91,7 +104,10 @@ export function test_evidence_shared_skills_root(): void {
     };
 
     // 1. Workspace roots by owner.
-    const config: IEvidenceConfig = createEvidenceConfig({ ...base, skills });
+    const config: IEvidenceConfig = AutoMovieEvidenceConfig.create({
+      ...base,
+      skills,
+    });
     const roots: Map<string, string[]> = collectStoryRoots(config);
     TestValidator.equals(
       "shared story contracts root at the workspace tree",
@@ -144,11 +160,11 @@ export function test_evidence_shared_skills_root(): void {
     );
 
     // 3. The standalone default.
-    const standalone: IEvidenceConfig = createEvidenceConfig(base);
+    const standalone: IEvidenceConfig = AutoMovieEvidenceConfig.create(base);
     TestValidator.equals(
       "omitting skills equals the production's own tree",
       standalone,
-      createEvidenceConfig({ ...base, skills: local }),
+      AutoMovieEvidenceConfig.create({ ...base, skills: local }),
     );
     const standaloneRoots: Map<string, string[]> =
       collectStoryRoots(standalone);
@@ -185,8 +201,11 @@ export function test_evidence_shared_skills_root(): void {
       },
     };
     TestValidator.equals(
-      "createEvidenceConfig resolves a relative skills against location",
-      createEvidenceConfig({ ...base, skills: "../../../.agents/skills" }),
+      "AutoMovieEvidenceConfig.create resolves a relative skills against location",
+      AutoMovieEvidenceConfig.create({
+        ...base,
+        skills: "../../../.agents/skills",
+      }),
       config,
     );
     TestValidator.equals(
@@ -260,7 +279,8 @@ export function test_evidence_shared_skills_root(): void {
     // 6. A production still holding its own contracts in the retired tree.
     write(story(local, "work/discovery/results.md"));
     const workOnly: string = refusal(
-      (): IEvidenceConfig => createEvidenceConfig({ ...base, skills }),
+      (): IEvidenceConfig =>
+        AutoMovieEvidenceConfig.create({ ...base, skills }),
     );
     TestValidator.predicate(
       "the legacy work directory is named with its new home",
@@ -270,7 +290,9 @@ export function test_evidence_shared_skills_root(): void {
     );
     TestValidator.equals(
       "an engineering-only configuration refuses the same layout",
-      refusal((): IEvidenceConfig => createEvidenceConfig({ location })),
+      refusal(
+        (): IEvidenceConfig => AutoMovieEvidenceConfig.create({ location }),
+      ),
       workOnly,
     );
     TestValidator.equals(
@@ -280,7 +302,8 @@ export function test_evidence_shared_skills_root(): void {
     );
     write(story(local, "language/principles/screenplay.md"));
     const both: string = refusal(
-      (): IEvidenceConfig => createEvidenceConfig({ ...base, skills }),
+      (): IEvidenceConfig =>
+        AutoMovieEvidenceConfig.create({ ...base, skills }),
     );
     TestValidator.predicate(
       "both legacy directories are named with their new homes",
@@ -296,7 +319,10 @@ export function test_evidence_shared_skills_root(): void {
   }
 }
 
-/** Returns the message a refused configuration throws, failing if none is thrown. */
+/**
+ * Returns the message a refused configuration throws, failing if none is
+ * thrown.
+ */
 function refusal(task: () => unknown): string {
   try {
     task();

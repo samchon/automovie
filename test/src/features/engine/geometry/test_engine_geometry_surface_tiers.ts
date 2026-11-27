@@ -1,8 +1,4 @@
-import {
-  locateAutoMovieSurfaceCoordinate,
-  mapAutoMovieSurfaceTier,
-  sampleAutoMovieSurfaceNetwork,
-} from "@automovie/engine";
+import { AutoMovieEngineSweep } from "@automovie/engine";
 import type {
   AutoMovieSurfaceTier,
   IAutoMovieSubdivisionParameter,
@@ -16,9 +12,9 @@ import { sweepBranchedBody } from "../../internal/sweepBranchedBody";
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * `mapAutoMovieSurfaceTier` carries a point bound to one tier's cage to another
+ * `mapSurfaceTier` carries a point bound to one tier's cage to another
  * tier through its surface coordinate (patch, s, t), and
- * `locateAutoMovieSurfaceCoordinate` admits such a coordinate.
+ * `locateSurfaceCoordinate` admits such a coordinate.
  *
  * Fixture: the branched body's four tiers; 60 points spread over faces strictly
  * inside them (local coordinates in [0.02, 0.98]).
@@ -35,7 +31,7 @@ import { throwsError } from "../../internal/throwsError";
 export function test_engine_geometry_surface_tiers(): void {
   const tiers: AutoMovieSurfaceTier[] = ["lowest", "low", "medium", "high"];
   const cages: IAutoMovieSurfaceCage[] = tiers.map((tier: AutoMovieSurfaceTier) =>
-    sampleAutoMovieSurfaceNetwork({ network: sweepBranchedBody(), tier }),
+    AutoMovieEngineSweep.sampleSurfaceNetwork({ network: sweepBranchedBody(), tier }),
   );
   const points = (cage: IAutoMovieSurfaceCage): IAutoMovieSubdivisionParameter[] =>
     Array.from({ length: 60 }, (_: unknown, k: number) => ({
@@ -55,8 +51,8 @@ export function test_engine_geometry_surface_tiers(): void {
       TestValidator.predicate(
         `${tiers[a]} to ${tiers[b]}`,
         points(from).every((at: IAutoMovieSubdivisionParameter): boolean => {
-          const there = mapAutoMovieSurfaceTier({ from, to, at });
-          const back = mapAutoMovieSurfaceTier({ from: to, to: from, at: there.at });
+          const there = AutoMovieEngineSweep.mapSurfaceTier({ from, to, at });
+          const back = AutoMovieEngineSweep.mapSurfaceTier({ from: to, to: from, at: there.at });
           return home(back.at, at) && same(there.coordinate, back.coordinate);
         }),
       ),
@@ -68,38 +64,38 @@ export function test_engine_geometry_surface_tiers(): void {
   TestValidator.predicate(
     "identity and corners",
     points(medium).every((at: IAutoMovieSubdivisionParameter): boolean => {
-      const corner = mapAutoMovieSurfaceTier({ from: medium, to: medium, at: { face: at.face, corner: null, u: 1, v: 1 } });
-      return home(mapAutoMovieSurfaceTier({ from: medium, to: medium, at }).at, at) && same(corner.coordinate, medium.corners[at.face]![2]!);
+      const corner = AutoMovieEngineSweep.mapSurfaceTier({ from: medium, to: medium, at: { face: at.face, corner: null, u: 1, v: 1 } });
+      return home(AutoMovieEngineSweep.mapSurfaceTier({ from: medium, to: medium, at }).at, at) && same(corner.coordinate, medium.corners[at.face]![2]!);
     }),
   );
 
   // 3.
-  const bottle: IAutoMovieSurfaceCage = sampleAutoMovieSurfaceNetwork({ network: sweepBottle(), tier: "medium" });
+  const bottle: IAutoMovieSurfaceCage = AutoMovieEngineSweep.sampleSurfaceNetwork({ network: sweepBottle(), tier: "medium" });
   for (const [label, run, message] of [
     [
       "different networks",
-      (): unknown => mapAutoMovieSurfaceTier({ from: medium, to: bottle, at: { face: 0, corner: null, u: 0.5, v: 0.5 } }),
+      (): unknown => AutoMovieEngineSweep.mapSurfaceTier({ from: medium, to: bottle, at: { face: 0, corner: null, u: 0.5, v: 0.5 } }),
       "tiers must come from the same network",
     ],
     [
       "face out of range",
       (): unknown =>
-        mapAutoMovieSurfaceTier({ from: medium, to: cages[0]!, at: { face: medium.cage.faces.length, corner: null, u: 0.5, v: 0.5 } }),
+        AutoMovieEngineSweep.mapSurfaceTier({ from: medium, to: cages[0]!, at: { face: medium.cage.faces.length, corner: null, u: 0.5, v: 0.5 } }),
       "is out of range",
     ],
     [
       "outside the face",
-      (): unknown => mapAutoMovieSurfaceTier({ from: medium, to: cages[0]!, at: { face: 0, corner: null, u: 1.5, v: 0.5 } }),
+      (): unknown => AutoMovieEngineSweep.mapSurfaceTier({ from: medium, to: cages[0]!, at: { face: 0, corner: null, u: 1.5, v: 0.5 } }),
       "face coordinates must lie in 0 to 1",
     ],
     [
       "outside the patch",
-      (): unknown => locateAutoMovieSurfaceCoordinate({ cage: medium, coordinate: { patch: 0, s: 0.5, t: -0.1 } }),
+      (): unknown => AutoMovieEngineSweep.locateSurfaceCoordinate({ cage: medium, coordinate: { patch: 0, s: 0.5, t: -0.1 } }),
       "surface coordinate s and t must lie in 0 to 1",
     ],
     [
       "missing patch",
-      (): unknown => locateAutoMovieSurfaceCoordinate({ cage: medium, coordinate: { patch: medium.patches.length, s: 0.5, t: 0.5 } }),
+      (): unknown => AutoMovieEngineSweep.locateSurfaceCoordinate({ cage: medium, coordinate: { patch: medium.patches.length, s: 0.5, t: 0.5 } }),
       "which the cage lacks",
     ],
   ] satisfies [string, () => unknown, string][])

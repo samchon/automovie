@@ -1,4 +1,4 @@
-import { inspectAutoMovieExternalModelBytes } from "@automovie/ingest";
+import { AutoMovieIngestExternalModel } from "@automovie/ingest";
 import type { IAutoMovieExternalModelInspection } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -85,7 +85,7 @@ const inspect: (bytes: Uint8Array, path?: string) => void = (
   bytes: Uint8Array,
   path: string = "public/models/actor.glb",
 ): void => {
-  inspectAutoMovieExternalModelBytes({
+  AutoMovieIngestExternalModel.inspectBytes({
     path,
     bytes,
     profile: "gltf-static-v1",
@@ -111,8 +111,8 @@ const inspect: (bytes: Uint8Array, path?: string) => void = (
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Header: bytes shorter than the mandatory header, a wrong magic, a version other than 2, and a declared length that disagrees with the...).
  */
 export function test_inspect_external_model_container(): void {
-  const accepted: ReturnType<typeof inspectAutoMovieExternalModelBytes> =
-    inspectAutoMovieExternalModelBytes({
+  const accepted: ReturnType<typeof AutoMovieIngestExternalModel.inspectBytes> =
+    AutoMovieIngestExternalModel.inspectBytes({
       path: "public/models/actor.glb",
       bytes: container({}),
       profile: "gltf-static-v1",
@@ -252,7 +252,7 @@ export function test_inspect_external_model_container(): void {
           (): boolean =>
             throwsError(
               (): IAutoMovieExternalModelInspection =>
-                inspectAutoMovieExternalModelBytes({
+                AutoMovieIngestExternalModel.inspectBytes({
                   path: "public/models/actor.glb",
                   bytes: container({}),
                   profile: "sculpt-v9",

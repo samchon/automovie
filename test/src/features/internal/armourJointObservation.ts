@@ -1,12 +1,5 @@
-import type { createArmour } from "@automovie/archetypes";
-import {
-  Quaternion,
-  Vector3,
-  convexHull2D,
-  intersectAutoMovieConvexPolygons,
-  physicalHullFaces,
-  signedArea,
-} from "@automovie/engine";
+import type { AutoMovieArchetypeArmour } from "@automovie/archetypes";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysicalHullFaces, AutoMovieEngineMath, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalHullFaces,
   IAutoMovieVector3,
@@ -33,7 +26,7 @@ export namespace armourJointObservation {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns independent scalar vectors and retains no model, collider list, completed observation or external resource.
    */
   export function cells(
-    piece: ReturnType<typeof createArmour>,
+    piece: ReturnType<typeof AutoMovieArchetypeArmour.create>,
   ): ReadonlyMap<string, readonly IAutoMovieVector3[]> {
     const output: Map<string, readonly IAutoMovieVector3[]> = new Map();
     for (const shape of piece.shapes()) {
@@ -43,9 +36,9 @@ export namespace armourJointObservation {
         shape.id,
         shape.points.map(
           (point: IAutoMovieVector3): IAutoMovieVector3 =>
-            Vector3.add(
+            AutoMovieEngineVector3.add(
               shape.transform.position,
-              Quaternion.rotateVector(shape.transform.rotation, point),
+              AutoMovieEngineQuaternion.rotateVector(shape.transform.rotation, point),
             ),
         ),
       );
@@ -69,7 +62,7 @@ export namespace armourJointObservation {
     epsilon: number,
   ): number {
     const faces: IAutoMoviePhysicalHullFaces.IFace[] =
-      physicalHullFaces(points).faces;
+      AutoMovieEnginePhysicalHullFaces.build(points).faces;
     let minimum: number = Infinity;
     for (let i: number = 0; i < faces.length; i++)
       for (let j: number = i + 1; j < faces.length; j++) {
@@ -77,7 +70,7 @@ export namespace armourJointObservation {
         const second: IAutoMoviePhysicalHullFaces.IFace = faces[j]!;
         const separation: number = first.offset + second.offset;
         if (
-          Vector3.length(Vector3.add(first.normal, second.normal)) <= epsilon &&
+          AutoMovieEngineVector3.length(AutoMovieEngineVector3.add(first.normal, second.normal)) <= epsilon &&
           separation > 0
         )
           minimum = Math.min(minimum, separation);
@@ -118,9 +111,9 @@ export namespace armourJointObservation {
     for (let i: number = 0; i < common.length; i++)
       for (let j: number = i + 1; j < common.length; j++)
         for (let k: number = j + 1; k < common.length; k++) {
-          const cross: IAutoMovieVector3 = Vector3.cross(
-            Vector3.subtract(common[j]!, common[i]!),
-            Vector3.subtract(common[k]!, common[i]!),
+          const cross: IAutoMovieVector3 = AutoMovieEngineVector3.cross(
+            AutoMovieEngineVector3.subtract(common[j]!, common[i]!),
+            AutoMovieEngineVector3.subtract(common[k]!, common[i]!),
           );
           area = Math.max(area, Math.hypot(cross.x, cross.y, cross.z) / 2);
         }
@@ -146,12 +139,12 @@ export namespace armourJointObservation {
   ): number {
     const one: [number, number][] = section(first);
     const two: [number, number][] = section(second);
-    const intersection: [number, number][] = intersectAutoMovieConvexPolygons(
+    const intersection: [number, number][] = AutoMovieEngineGeometry.intersectConvexPolygons(
       one,
       two,
     );
     return Math.abs(
-      signedArea(
+      AutoMovieEngineGeometry.signedArea(
         intersection.map(
           (point: [number, number]): { x: number; y: number } => ({
             x: point[0],
@@ -163,7 +156,7 @@ export namespace armourJointObservation {
 
     /** Observed coplanar corners supply the section; no expected course is sampled. */
     function section(points: readonly IAutoMovieVector3[]): [number, number][] {
-      return convexHull2D(
+      return AutoMovieEngineMath.convexHull2D(
         points.filter(
           (point: IAutoMovieVector3): boolean =>
             Math.abs(point.y - level) <= epsilon,

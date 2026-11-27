@@ -1,4 +1,4 @@
-import { bodyRegionBones } from "@automovie/engine";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
 import { AutoMovieHumanoidBone } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -18,7 +18,7 @@ const disjoint: (
 /**
  * Observe literal region sizes, selected semantic membership, disjointness and fullBody concatenation. The runtime unit does not enumerate the complete AutoMovieHumanoidBone union independently, so extending that vocabulary without updating the partition is outside these assertions.
  *
- * Current bodyRegionBones declares its three lists with satisfies readonly AutoMovieHumanoidBone[], which admits each named element but does not prove vocabulary exhaustiveness. No AUTOMOVIE_RIG_IS_PARTITIONED declaration exists in that source owner, so this comment does not claim a compiler completeness guard that the current implementation lacks.
+ * Current bodyRegionBones declares its three lists with satisfies readonly AutoMovieHumanoidBone[], which admits each named element but does not prove vocabulary exhaustiveness. No AutoMovieEngineRigIsPartitioned declaration exists in that source owner, so this comment does not claim a compiler completeness guard that the current implementation lacks.
  *
  * Scenarios:
  *
@@ -35,11 +35,11 @@ const disjoint: (
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Each region owns the expected bones (lower = hips+legs, upper = torso+arms+).
  */
 export function test_perform_body_region_bones(): void {
-  const lower: readonly AutoMovieHumanoidBone[] = bodyRegionBones("lowerBody");
-  const upper: readonly AutoMovieHumanoidBone[] = bodyRegionBones("upperBody");
-  const head: readonly AutoMovieHumanoidBone[] = bodyRegionBones("head");
-  const face: readonly AutoMovieHumanoidBone[] = bodyRegionBones("face");
-  const full: readonly AutoMovieHumanoidBone[] = bodyRegionBones("fullBody");
+  const lower: readonly AutoMovieHumanoidBone[] = AutoMovieEngineKinematics.bodyRegionBones("lowerBody");
+  const upper: readonly AutoMovieHumanoidBone[] = AutoMovieEngineKinematics.bodyRegionBones("upperBody");
+  const head: readonly AutoMovieHumanoidBone[] = AutoMovieEngineKinematics.bodyRegionBones("head");
+  const face: readonly AutoMovieHumanoidBone[] = AutoMovieEngineKinematics.bodyRegionBones("face");
+  const full: readonly AutoMovieHumanoidBone[] = AutoMovieEngineKinematics.bodyRegionBones("fullBody");
 
   // 1. membership
   TestValidator.equals("lowerBody owns 9 bones", lower.length, 9);

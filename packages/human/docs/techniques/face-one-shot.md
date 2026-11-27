@@ -247,7 +247,7 @@ The joints batch makes the neck a family whose top is "the head's skin cut by th
 
 The eye, the mouth and the nostril are the same construction: a family on the line its skin is star-shaped about, whose course runs along the lines the eye reads, and an opening cut out of it by a `diff` on a declared loop, whose rim is a fold of stated radius. Only the cutter's wall inside the host is kept, and that wall is the lid margin, the lip's inner face or the nostril's wall.
 
-**The loop is declared, never traced.** Each opening's loop is a curve the part's own law generates on the part's chart: the two margin phases about the canthal line, the lips' line about the muzzle line, the nostril's rim in the nose's chart. The cutter is that curve carried inward along the opening's axis, so one owner supplies the loop to both surfaces. Read in the engine: `AutoMovieConstructionSharedLoop.create` serves a `diff` as it serves a `merge` (it keeps the part `inside`, and the width laws take `diff`), and the loop is `IAutoMovieConstructionPort.ILoop`, an ellipse on the host face's chart with one share a column joined by a periodic cubic, one C2 curve. The made case `test_construction_operator_pointed_cut` (test, `test/src/features/geometry/construction/operator`), run red first:
+**The loop is declared, never traced.** Each opening's loop is a curve the part's own law generates on the part's chart: the two margin phases about the canthal line, the lips' line about the muzzle line, the nostril's rim in the nose's chart. The cutter is that curve carried inward along the opening's axis, so one owner supplies the loop to both surfaces. Read in the engine: `AutoMovieEngineConstructionSharedLoop.create` serves a `diff` as it serves a `merge` (it keeps the part `inside`, and the width laws take `diff`), and the loop is `IAutoMovieConstructionPort.ILoop`, an ellipse on the host face's chart with one share a column joined by a periodic cubic, one C2 curve. The made case `test_construction_operator_pointed_cut` (test, `test/src/features/geometry/construction/operator`), run red first:
 
 | Made loop on a plane, 64 columns, rim radius 0.5 mm | Result |
 | --- | --- |
@@ -547,7 +547,7 @@ Published sizes for the auricle as a whole: length 59.4 (3.9), breadth 33.2 (2.8
 | --- | --- | --- |
 | A loop as a face's skin cut by a declared surface | Human: `AutoMovieHumanSkinCutLoop.shares`, written with its made case `test_human_skin_cut_loop` | A plane cut by a cylinder of radius 20 about a line tilted 0.6 rad: the shares against a circle are `1 / sqrt(cos^2 c cos^2 t + sin^2 c)`; a cylinder one hundredth wider must be missed; a ray out of reach and a centre outside are refused. It gives a loop's shares at the columns; the curve between columns is the engine's cubic |
 | A `diff` on a declared loop for an opening with two ends | Engine: exists | Written and run: `test_construction_operator_pointed_cut`, red on its first run (the pointed lens refused, where this note first expected it admitted), green with the pointed lens expected refused and the rounded lens admitted on closed-form rails. No engine change is needed |
-| The same `diff` realized through `AutoMovieSolidBody.merge` and drawn | Engine | The rounded lens cut from a plane face: a two-manifold whose only free edges lie on reported boundaries, as the mixed join's sixth scenario reads a merge. Not written yet |
+| The same `diff` realized through `AutoMovieEngineSolidBody.merge` and drawn | Engine | The rounded lens cut from a plane face: a two-manifold whose only free edges lie on reported boundaries, as the mixed join's sixth scenario reads a merge. Not written yet |
 | A family that crosses its own plane of symmetry along the course, fitted on half its stations | Fit tool | A made spindle fitted on stations 0 to L and reflected: its fields' odd derivatives at station 0 are zero |
 | A relief moved along a direction that is a field of the window, not one constant | Human | A net on a made cylinder moved along the local normal: a height of 1 mm stands 1 mm off the wall at every phase |
 | The instrument's paired landmarks by rule (canthi, cheilion, alar base) | Tool, this note's `FamilyConicFace.ts` | - |
@@ -577,8 +577,8 @@ What exists in new files, and the edits to shared files this note asks for in th
 
 | New file | Holds | Read by |
 | --- | --- | --- |
-| `src/generation/f1/AutoMovieHumanF1FacePriors.ts` | Nine published measures, each with its source and read status | `AutoMovieHumanF1FaceCentres` |
-| `src/generation/f1/AutoMovieHumanF1FaceCentres.ts` | The eye's frame, the mouth's line, the ring's plane, the orbit's cylinder, the lips' wedge and the nose's two planes as functions of landmarks | `test_human_f1_face_centres`; `FamilyConicFace.ts --divides` |
+| `src/generation/AutoMovieHumanF1FacePriors.ts` | Nine published measures, each with its source and read status | `AutoMovieHumanF1FaceCentres` |
+| `src/generation/AutoMovieHumanF1FaceCentres.ts` | The eye's frame, the mouth's line, the ring's plane, the orbit's cylinder, the lips' wedge and the nose's two planes as functions of landmarks | `test_human_f1_face_centres`; `FamilyConicFace.ts --divides` |
 | `test/src/features/human/frames/test_human_f1_face_centres.ts` | The six definitions on made points | - |
 | `test/src/features/geometry/construction/operator/test_construction_operator_pointed_cut.ts` | The opening on a declared loop | - |
 
@@ -622,7 +622,7 @@ What exists:
 | Instrument | `test/src/reference-conics/FamilyConicFace.ts`: `--components`, `--profile`, `--cast`, `--radial`, `--wedge`, `--stills`, `--landmarks`, `--divides`, `--margins`, `--contours`, with `--outer` and `--mesh=trunk` | Compiles; every mode was run except the last patch's two additions (the level-frame margins and the corrected groove rule), which were run once |
 | Part declarations | `test/src/reference-conics/FamilyConicHeadParts.ts` | Head, nose, eye, lips: course centres, domains, layout kinds, clips and an exact membership rule |
 | Readings | `packages/human/.shots/face-one-shot-20261117/`: `o-*.txt` on the reference's outer skin, `g-*.txt` on the stored trunk family's loft, the stills | `o-contours.txt`, `o-divides-ruled.txt`, `o-margins.txt` are the latest |
-| Human modules | `src/generation/f1/AutoMovieHumanF1FacePriors.ts`, `...FaceCentres.ts`, `...EyeLaw.ts`, `...LipsLaw.ts`, `...NoseLaw.ts`; `src/generation/conic/AutoMovieHumanSkinCutLoop.ts` | Compile; nothing in the figure reads them |
+| Human modules | `src/generation/AutoMovieHumanF1FacePriors.ts`, `...FaceCentres.ts`, `...EyeLaw.ts`, `...LipsLaw.ts`, `...NoseLaw.ts`; `src/generation/AutoMovieHumanSkinCutLoop.ts` | Compile; nothing in the figure reads them |
 | Tests | `test_construction_operator_pointed_cut`, `test_human_f1_face_centres`, `test_human_skin_cut_loop`, `test_human_head_parts_complement`: run green. `test_human_f1_eye_law` as rewritten and `test_human_f1_lips_nose_law`: compile, never run | - |
 
 Unfinished:

@@ -1,7 +1,7 @@
-import { swingTwist } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
-  IAutoMovieSwingTwist,
+  IAutoMovieSwingTwistResult,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -20,7 +20,7 @@ import { nclose } from "../../internal/predicates";
 export function test_engine_math_swing_twist(): void {
   const h: number = Math.SQRT1_2;
   const quarterY: IAutoMovieQuaternion = { x: 0, y: h, z: 0, w: h };
-  const split: IAutoMovieSwingTwist.IResult = swingTwist(quarterY, {
+  const split: IAutoMovieSwingTwistResult = AutoMovieEngineMath.decomposeSwingTwist(quarterY, {
     x: 0,
     y: 1,
     z: 0,
@@ -36,10 +36,10 @@ export function test_engine_math_swing_twist(): void {
   const halfX: IAutoMovieQuaternion = { x: 1, y: 0, z: 0, w: 0 };
   TestValidator.equals(
     "undefined twist",
-    swingTwist.twist(halfX, { x: 0, y: 1, z: 0 }),
+    AutoMovieEngineMath.swingTwistComponent(halfX, { x: 0, y: 1, z: 0 }),
     null,
   );
-  const whole: IAutoMovieSwingTwist.IResult = swingTwist(halfX, {
+  const whole: IAutoMovieSwingTwistResult = AutoMovieEngineMath.decomposeSwingTwist(halfX, {
     x: 0,
     y: 1,
     z: 0,

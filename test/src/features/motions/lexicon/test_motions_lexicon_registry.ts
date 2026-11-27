@@ -3,10 +3,14 @@ import type {
   IAutoMovieMotionHumanLexiconFamilies,
 } from "@automovie/interface";
 import {
-  HUMAN_LEXICON,
-  HUMAN_LEXICON_FAMILIES,
-  HumanGait,
-} from "@automovie/motions/internal";
+  HUMAN_LEXICON
+} from "../../../../../packages/motions/src/lexicon/internal/HUMAN_LEXICON";
+import {
+  HUMAN_LEXICON_FAMILIES
+} from "../../../../../packages/motions/src/lexicon/internal/HUMAN_LEXICON_FAMILIES";
+import {
+  HumanGait
+} from "../../../../../packages/motions/src/lexicon/internal/HumanGait";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -20,11 +24,12 @@ import { TestValidator } from "@nestia/e2e";
  * 2. The gait family holds the stroll and none of the gait namespace's other
  *    members: a gait's march parameters (`HumanGait.MARCH`) are no law.
  * 3. A row is its law with the row's preset fixed over the composition's
- *    parameters (`HumanActionRow`): `tuckHair` resolves the left hand's request
- *    to the stroke of the relaxed index fingertip from 0.065 up and 0.135
- *    forward of the right ear to 0.018 up, 0.055 behind and 0.035 out of it,
- *    mirrored; `eatWith` keeps the held utensil and its point and fixes the
- *    visit to the mouth for a beat in a fist. Both are rows of `armPhrase`.
+ *    parameters (`AutoMovieMotionHumanActionRow`): `tuckHair` resolves the left
+ *    hand's request to the stroke of the relaxed index fingertip from 0.065 up
+ *    and 0.135 forward of the right ear to 0.018 up, 0.055 behind and 0.035 out
+ *    of it, mirrored; `eatWith` keeps the held utensil and its point and fixes
+ *    the visit to the mouth for a beat in a fist. Both are rows of
+ *    `armPhrase`.
  */
 export function test_motions_lexicon_registry(): void {
   // 1. One for one.

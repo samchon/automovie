@@ -1,4 +1,4 @@
-import { probeAutoMovieSolidMesh } from "@automovie/engine";
+import { AutoMovieEngineConstruction } from "@automovie/engine";
 import type {
   IAutoMovieSolidMeshConstraints,
   IAutoMovieSolidMeshIncidence,
@@ -6,7 +6,7 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `probeAutoMovieSolidMesh` finds a point inside a boundary walk's face, beside
+ * `probeSolidMesh` finds a point inside a boundary walk's face, beside
  * any of its edges, not only its first.
  *
  * Walk: the counter-clockwise square (0,1), (1,1), (1,2), (0,2).
@@ -60,7 +60,7 @@ export function test_engine_geometry_solid_mesh_probe(): void {
       lifts: [0, 0, 0, 0],
       winding: 0,
     };
-    const probe: readonly [number, number] | string = probeAutoMovieSolidMesh(
+    const probe: readonly [number, number] | string = AutoMovieEngineConstruction.probeSolidMesh(
       vertices,
       edges,
       walk,

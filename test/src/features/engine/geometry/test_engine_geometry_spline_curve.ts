@@ -1,10 +1,10 @@
-import { AutoMovieSplineCurve } from "@automovie/engine";
+import { AutoMovieEngineSplineCurve } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * `AutoMovieSplineCurve` is a closed planar uniform periodic cubic B-spline of
+ * `AutoMovieEngineSplineCurve` is a closed planar uniform periodic cubic B-spline of
  * N control points, coefficients [x_0..x_{N-1}, z_0..z_{N-1}], phase t mapped
  * to u = N t / 2 pi: `evaluate` and `jet` read it with phase derivatives,
  * `interpolate` finds the controls through N points at phases 2 pi m / N, and
@@ -34,12 +34,12 @@ export function test_engine_geometry_spline_curve(): void {
       2 * Math.sin((2 * Math.PI * m) / N),
     ],
   );
-  const c: number[] = AutoMovieSplineCurve.interpolate(points);
+  const c: number[] = AutoMovieEngineSplineCurve.interpolate(points);
   const near = (a: number, b: number, e: number): boolean =>
     Math.abs(a - b) <= e;
 
   // 1.
-  const knot = AutoMovieSplineCurve.evaluate(c, N, (2 * Math.PI * 3) / N);
+  const knot = AutoMovieEngineSplineCurve.evaluate(c, N, (2 * Math.PI * 3) / N);
   TestValidator.predicate(
     "knot rule",
     near(knot[0], (c[2]! + 4 * c[3]! + c[4]!) / 6, 1e-12) &&
@@ -50,7 +50,7 @@ export function test_engine_geometry_spline_curve(): void {
   TestValidator.predicate(
     "interpolate",
     points.every((p: [number, number], m: number): boolean => {
-      const v = AutoMovieSplineCurve.evaluate(c, N, (2 * Math.PI * m) / N);
+      const v = AutoMovieEngineSplineCurve.evaluate(c, N, (2 * Math.PI * m) / N);
       return near(v[0], p[0], 1e-9) && near(v[1], p[1], 1e-9);
     }),
   );
@@ -66,9 +66,9 @@ export function test_engine_geometry_spline_curve(): void {
   // 3.
   const h: number = 1e-5;
   for (const t of [0.3, 2.2, 5.9]) {
-    const j = AutoMovieSplineCurve.jet(c, N, t);
-    const plus = AutoMovieSplineCurve.jet(c, N, t + h);
-    const minus = AutoMovieSplineCurve.jet(c, N, t - h);
+    const j = AutoMovieEngineSplineCurve.jet(c, N, t);
+    const plus = AutoMovieEngineSplineCurve.jet(c, N, t + h);
+    const minus = AutoMovieEngineSplineCurve.jet(c, N, t - h);
     TestValidator.predicate(
       `jet ${t}`,
       [0, 1].every(
@@ -77,14 +77,14 @@ export function test_engine_geometry_spline_curve(): void {
           near((plus[k + 2]! - minus[k + 2]!) / (2 * h), j[k + 4]!, 1e-5),
       ),
     );
-    const e = AutoMovieSplineCurve.evaluate(c, N, t);
+    const e = AutoMovieEngineSplineCurve.evaluate(c, N, t);
     TestValidator.predicate(
       `evaluate ${t}`,
       e.every((x: number, k: number): boolean => near(x, j[k]!, 1e-12)),
     );
     TestValidator.predicate(
       `turn ${t}`,
-      AutoMovieSplineCurve.evaluate(c, N, t + 2 * Math.PI).every(
+      AutoMovieEngineSplineCurve.evaluate(c, N, t + 2 * Math.PI).every(
         (x: number, k: number): boolean => near(x, e[k]!, 1e-9),
       ),
     );
@@ -94,16 +94,16 @@ export function test_engine_geometry_spline_curve(): void {
   const samples: [number, number][] = Array.from(
     { length: 32 },
     (_: unknown, m: number): [number, number] => {
-      const v = AutoMovieSplineCurve.evaluate(c, N, (2 * Math.PI * m) / 32);
+      const v = AutoMovieEngineSplineCurve.evaluate(c, N, (2 * Math.PI * m) / 32);
       return [v[0], v[1]];
     },
   );
-  const fitted: number[] = AutoMovieSplineCurve.project(samples, N);
+  const fitted: number[] = AutoMovieEngineSplineCurve.project(samples, N);
   TestValidator.predicate(
     "project",
     fitted.every((x: number, k: number): boolean => near(x, c[k]!, 1e-9)),
   );
-  const smooth: number[] = AutoMovieSplineCurve.project(samples, N, 2);
+  const smooth: number[] = AutoMovieEngineSplineCurve.project(samples, N, 2);
   TestValidator.predicate(
     "penalized mean",
     near(
@@ -119,8 +119,8 @@ export function test_engine_geometry_spline_curve(): void {
       0,
     ],
   );
-  const plain: number[] = AutoMovieSplineCurve.project(wave, N);
-  const halved: number[] = AutoMovieSplineCurve.project(wave, N, 3);
+  const plain: number[] = AutoMovieEngineSplineCurve.project(wave, N);
+  const halved: number[] = AutoMovieEngineSplineCurve.project(wave, N, 3);
   TestValidator.predicate(
     "half at the cutoff",
     plain.every((x: number, k: number): boolean =>
@@ -130,11 +130,11 @@ export function test_engine_geometry_spline_curve(): void {
   TestValidator.predicate(
     "multiple",
     throwsError(
-      (): unknown => AutoMovieSplineCurve.project(samples.slice(0, 30), N),
+      (): unknown => AutoMovieEngineSplineCurve.project(samples.slice(0, 30), N),
       "not a multiple of 8",
     ),
   );
 
   // 5.
-  TestValidator.equals("width", AutoMovieSplineCurve.width(N), N);
+  TestValidator.equals("width", AutoMovieEngineSplineCurve.width(N), N);
 }

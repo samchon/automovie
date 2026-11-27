@@ -1,11 +1,11 @@
-import { resolveAutoMovieFraming } from "@automovie/engine";
+import { AutoMovieEngineCompositionPose } from "@automovie/engine";
 import type { IAutoMovieFramingGoal } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../../internal/predicates";
 
 /**
- * `resolveAutoMovieFraming` places a camera so the subjects' enclosing sphere
+ * `AutoMovieEngineCompositionPose.resolveFraming` places a camera so the subjects' enclosing sphere
  * fills the declared share of the vertical field of view, at distance `d = r /
  * (fill tan(fov / 2))`.
  *
@@ -36,7 +36,7 @@ export function test_engine_composition_resolve_framing(): void {
     left: { center: { x: -2, y: 0, z: 0 }, radius: 1 },
     right: { center: { x: 2, y: 0, z: 0 }, radius: 1 },
   };
-  const one = resolveAutoMovieFraming(goal(["a"], 0), state);
+  const one = AutoMovieEngineCompositionPose.resolveFraming(goal(["a"], 0), state);
   TestValidator.predicate("one radius", nclose(one.radius, 1, 1e-12));
   TestValidator.predicate(
     "one camera",
@@ -44,7 +44,7 @@ export function test_engine_composition_resolve_framing(): void {
       nclose(one.position.y, 0, 1e-12) &&
       nclose(one.position.z, 2, 1e-12),
   );
-  const two = resolveAutoMovieFraming(
+  const two = AutoMovieEngineCompositionPose.resolveFraming(
     goal(["left", "right"], Math.PI / 2),
     state,
   );
@@ -58,14 +58,14 @@ export function test_engine_composition_resolve_framing(): void {
   );
   TestValidator.predicate(
     "unknown",
-    throwsError(() => resolveAutoMovieFraming(goal(["ghost"], 0), state)),
+    throwsError(() => AutoMovieEngineCompositionPose.resolveFraming(goal(["ghost"], 0), state)),
   );
   TestValidator.predicate(
     "fill",
-    throwsError(() => resolveAutoMovieFraming(goal(["a"], 0, 0), state)),
+    throwsError(() => AutoMovieEngineCompositionPose.resolveFraming(goal(["a"], 0, 0), state)),
   );
   TestValidator.predicate(
     "empty",
-    throwsError(() => resolveAutoMovieFraming(goal([], 0), state)),
+    throwsError(() => AutoMovieEngineCompositionPose.resolveFraming(goal([], 0), state)),
   );
 }

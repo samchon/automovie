@@ -1,4 +1,4 @@
-import { growPlanting, validatePlantingDomain } from "@automovie/engine";
+import { AutoMovieEnginePlanting } from "@automovie/engine";
 import type {
   AutoMovieViolationKind,
   IAutoMovieConstraintViolation,
@@ -211,7 +211,7 @@ export function assertPlantingValidationLimits(
         () =>
           throwsError(
             () =>
-              growPlanting(
+              AutoMovieEnginePlanting.growPlanting(
                 plantingRecipe({
                   foliage: {
                     density: 4,
@@ -229,7 +229,7 @@ export function assertPlantingValidationLimits(
       [
         "leafedInsideItsCapIsAccepted",
         () =>
-          validatePlantingDomain({
+          AutoMovieEnginePlanting.validatePlantingDomain({
             domain: plantingRecipe({
               foliage: {
                 density: 4,
@@ -245,7 +245,7 @@ export function assertPlantingValidationLimits(
       [
         "notWalkedWhenDepthIsAbsurd",
         () =>
-          validatePlantingDomain({
+          AutoMovieEnginePlanting.validatePlantingDomain({
             domain: plantingRecipe({
               structure: {
                 ...plantingRecipe().structure,
@@ -258,7 +258,7 @@ export function assertPlantingValidationLimits(
       [
         "fractionalBranchCapIsNotAlsoOutgrown",
         () => {
-          const validation: IAutoMovieValidation = validatePlantingDomain({
+          const validation: IAutoMovieValidation = AutoMovieEnginePlanting.validatePlantingDomain({
             domain: plantingRecipe({
               budget: { maxBranches: 3.5, maxLeaves: 8 },
             }),

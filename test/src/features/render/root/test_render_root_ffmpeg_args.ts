@@ -1,5 +1,5 @@
 import type { IAutoMovieRenderSpec } from "@automovie/interface";
-import { ffmpegArgs } from "@automovie/render";
+import { AutoMovieRenderVideo } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -22,7 +22,7 @@ export function test_render_root_ffmpeg_args(): void {
   };
   TestValidator.equals(
     "the command",
-    ffmpegArgs(spec, "in/frame_%05d.png", "out.mp4"),
+    AutoMovieRenderVideo.ffmpegArgs(spec, "in/frame_%05d.png", "out.mp4"),
     [
       "-y",
       "-framerate",

@@ -4,13 +4,23 @@ import type {
   IAutoMovieMotionHumanAuditMeasure,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanAudit,
-  AutoMovieMotionHumanAuditContact,
-  AutoMovieMotionHumanAuditPartner,
-  AutoMovieMotionHumanAuditRange,
-  AutoMovieMotionHumanAuditSpin,
-  AutoMovieMotionHumanAuditTiming,
-} from "@automovie/motions/internal";
+  AutoMovieMotionHumanAudit
+} from "../../../../packages/motions/src/audit/internal/AutoMovieMotionHumanAudit";
+import {
+  AutoMovieMotionHumanAuditContact
+} from "../../../../packages/motions/src/audit/internal/AutoMovieMotionHumanAuditContact";
+import {
+  AutoMovieMotionHumanAuditPartner
+} from "../../../../packages/motions/src/audit/internal/AutoMovieMotionHumanAuditPartner";
+import {
+  AutoMovieMotionHumanAuditRange
+} from "../../../../packages/motions/src/audit/internal/AutoMovieMotionHumanAuditRange";
+import {
+  AutoMovieMotionHumanAuditSpin
+} from "../../../../packages/motions/src/audit/internal/AutoMovieMotionHumanAuditSpin";
+import {
+  AutoMovieMotionHumanAuditTiming
+} from "../../../../packages/motions/src/audit/internal/AutoMovieMotionHumanAuditTiming";
 
 import type { motionHumanLaw } from "./motionHumanLaw";
 import type { motionHumanLawSweep } from "./motionHumanLawSweep";

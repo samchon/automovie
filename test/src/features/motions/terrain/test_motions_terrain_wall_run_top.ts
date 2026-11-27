@@ -4,11 +4,17 @@ import type {
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 import {
-  HumanRefusal,
-  planWallRun,
-  planWallRunFlight,
-  stand,
-} from "@automovie/motions/internal";
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  planWallRun
+} from "../../../../../packages/motions/src/terrain/internal/planWallRun";
+import {
+  planWallRunFlight
+} from "../../../../../packages/motions/src/terrain/internal/planWallRunFlight";
+import {
+  stand
+} from "../../../../../packages/motions/src/actions/internal/stand";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -122,11 +128,11 @@ export async function test_motions_terrain_wall_run_top(): Promise<void> {
   };
   planWallRun.admitTop(2.55, 0, measure, "lip");
   planWallRun.admitTop(4.55, 2, measure, "lip");
-  let refusal: HumanRefusal | undefined;
+  let refusal: AutoMovieMotionHumanRefusal | undefined;
   try {
     planWallRun.admitTop(4.6, 2, measure, "lip");
   } catch (error: unknown) {
-    if (!(error instanceof HumanRefusal)) throw error;
+    if (!(error instanceof AutoMovieMotionHumanRefusal)) throw error;
     refusal = error;
   }
   const range = refusal?.feasible;

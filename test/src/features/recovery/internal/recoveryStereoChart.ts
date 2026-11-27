@@ -2,7 +2,7 @@ import type {
   IAutoMovieRecoveryCameraMapBudget,
   IAutoMovieRecoveryMapPose,
 } from "@automovie/interface";
-import type { triangulateRecoveryCameraPoint } from "@automovie/recovery";
+import type { AutoMovieRecoveryCameraGeometry } from "@automovie/recovery";
 
 /**
  * A stereo chart with unequal focal scales, different centres and a
@@ -10,13 +10,13 @@ import type { triangulateRecoveryCameraPoint } from "@automovie/recovery";
  */
 export namespace recoveryStereoChart {
   /** K1 maps (x, y) to (4x + 2, 8y - 1). */
-  export const first: Parameters<typeof triangulateRecoveryCameraPoint>[2] = {
+  export const first: Parameters<typeof AutoMovieRecoveryCameraGeometry.triangulateCameraPoint>[2] = {
     matrix: [4, 0, 2, 0, 8, -1, 0, 0, 1],
     inverse: [1 / 4, 0, -1 / 2, 0, 1 / 8, 1 / 8, 0, 0, 1],
   };
 
   /** K2 maps (x, y) to (8x - 3, 16y + 1). */
-  export const second: Parameters<typeof triangulateRecoveryCameraPoint>[3] = {
+  export const second: Parameters<typeof AutoMovieRecoveryCameraGeometry.triangulateCameraPoint>[3] = {
     matrix: [8, 0, -3, 0, 16, 1, 0, 0, 1],
     inverse: [1 / 8, 0, 3 / 8, 0, 1 / 16, -1 / 16, 0, 0, 1],
   };

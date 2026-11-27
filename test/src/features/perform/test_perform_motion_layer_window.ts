@@ -1,4 +1,4 @@
-import { compilePerformance, sampleMotion } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling, AutoMovieEngineFilm } from "@automovie/engine";
 import type { IAutoMovieActionCall } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -44,26 +44,26 @@ export function test_perform_motion_layer_window(): void {
     preset: "happy",
     intensity: 1,
   };
-  const layered = compilePerformance(
+  const layered = AutoMovieEngineFilm.compilePerformance(
     [walk, look, face],
     synthesizeLayerTestAction,
   ).performances[actor]!;
-  const gap = sampleMotion(layered, 2);
+  const gap = AutoMovieEngineMotionSampling.sampleMotion(layered, 2);
   TestValidator.equals(
     "no body or face inside gap",
     [gap.pose.joints.map((j) => j.bone), gap.expression],
     [[], null],
   );
   TestValidator.predicate("destination root is held", gap.pose.root !== null);
-  const active = sampleMotion(layered, 3.5);
+  const active = AutoMovieEngineMotionSampling.sampleMotion(layered, 3.5);
   TestValidator.predicate(
     "late head and face own the active interval",
     active.pose.joints.some((j) => j.bone === "head") &&
       active.expression !== null,
   );
-  const padded = compilePerformance([look, face], synthesizeLayerTestAction)
+  const padded = AutoMovieEngineFilm.compilePerformance([look, face], synthesizeLayerTestAction)
     .performances[actor]!;
-  const prior = sampleMotion(padded, 1.5);
+  const prior = AutoMovieEngineMotionSampling.sampleMotion(padded, 1.5);
   TestValidator.equals(
     "unclaimed padding",
     [prior.pose.joints, prior.pose.root, prior.expression],

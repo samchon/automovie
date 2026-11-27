@@ -1,8 +1,8 @@
-import { readAutoMovieCaptureArguments } from "@automovie/render";
+import { AutoMovieRenderCapture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `readAutoMovieCaptureArguments` reads `--key=value`, `--key value` and a bare
+ * `readCaptureArguments` reads `--key=value`, `--key value` and a bare
  * `--key` into keys and values.
  *
  * Scenarios:
@@ -15,7 +15,7 @@ export function test_render_capture_read_arguments(): void {
   TestValidator.equals(
     "options",
     [
-      ...readAutoMovieCaptureArguments([
+      ...AutoMovieRenderCapture.readArguments([
         "--at=1",
         "--subject",
         "hero",
@@ -33,6 +33,6 @@ export function test_render_capture_read_arguments(): void {
   );
   for (const argv of [["--at=1", "--at", "2"], ["at=1"], ["--"]])
     TestValidator.error(argv.join(" "), (): unknown =>
-      readAutoMovieCaptureArguments(argv),
+      AutoMovieRenderCapture.readArguments(argv),
     );
 }

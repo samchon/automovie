@@ -1,14 +1,9 @@
-import { Quaternion, computeModelRestExtent, convexHull2D } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineMath, AutoMovieEngineFilm } from "@automovie/engine";
 import type { IAutoMovieComputeModelRestExtent, IAutoMovieCrowdAgent, IAutoMovieModel, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import type { AutoMovieArchetypeCourse } from "./AutoMovieArchetypeCourse";
 import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
 import type { AutoMovieArchetypeRide } from "./AutoMovieArchetypeRide";
-import { AutoMovieArchetypePassageSearch } from "./AutoMovieArchetypePassageSearch";
-
-const { admitWindow, admitBody, place, separation, scan, mitre } = AutoMovieArchetypePassageSearch;
-type IObstaclePlacement = AutoMovieArchetypePassageSearch.IObstaclePlacement;
-type IHull = AutoMovieArchetypePassageSearch.IHull;
-type IPair = AutoMovieArchetypePassageSearch.IPair;
+import { AutoMovieArchetypePassageSearch } from "./internal/AutoMovieArchetypePassageSearch";
 
 /**
  * Clearance between bodies that pass one another on planned courses: ridden or
@@ -129,7 +124,7 @@ export namespace AutoMovieArchetypePassage {
    */
   export function footprint(model: IAutoMovieModel): IFootprint {
     const extent: IAutoMovieComputeModelRestExtent.IResult =
-      computeModelRestExtent(model);
+      AutoMovieEngineFilm.computeModelRestExtent(model);
     if (extent === null)
       throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
@@ -192,18 +187,18 @@ export namespace AutoMovieArchetypePassage {
       const sample: AutoMovieArchetypeRide.ISample<string, string> =
         ride.at(seconds);
       const posed: IAutoMovieComputeModelRestExtent.IResult =
-        computeModelRestExtent(sample.archetype);
+        AutoMovieEngineFilm.computeModelRestExtent(sample.archetype);
       if (posed !== null) {
         grow(posed.min.x, posed.min.z);
         grow(posed.max.x, posed.max.z);
       }
 
       // A carried body's world points, such as a seated rider's bones, brought into the root's frame.
-      const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+      const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
         sample.placement.rotation,
       );
       for (const point of carried(seconds)) {
-        const local: IAutoMovieVector3 = Quaternion.rotateVector(inverse, {
+        const local: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(inverse, {
           x: point.x - sample.placement.translation.x,
           y: point.y - sample.placement.translation.y,
           z: point.z - sample.placement.translation.z,
@@ -353,7 +348,7 @@ export namespace AutoMovieArchetypePassage {
       });
     return {
       footprint: mitre(
-        convexHull2D(
+        AutoMovieEngineMath.convexHull2D(
           participant.footprint.outline.map(
             (p: IAutoMovieVector3): IAutoMovieVector3 => ({
               x: p.x,
@@ -367,7 +362,7 @@ export namespace AutoMovieArchetypePassage {
       motion: (seconds: number): IObstaclePlacement => {
         const state: AutoMovieArchetypeCourse.IState =
           participant.plan.at(seconds);
-        const ahead: IAutoMovieVector3 = Quaternion.rotateVector(
+        const ahead: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
           state.placement.rotation,
           { x: 0, y: 0, z: 1 },
         );
@@ -416,3 +411,9 @@ export namespace AutoMovieArchetypePassage {
     });
   }
 }
+
+const { admitWindow, admitBody, place, separation, scan, mitre } = AutoMovieArchetypePassageSearch;
+type IObstaclePlacement = AutoMovieArchetypePassageSearch.IObstaclePlacement;
+type IHull = AutoMovieArchetypePassageSearch.IHull;
+
+type IPair = AutoMovieArchetypePassageSearch.IPair;

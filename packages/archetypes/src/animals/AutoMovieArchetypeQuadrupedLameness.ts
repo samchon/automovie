@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieVector3,
@@ -7,9 +7,9 @@ import type {
 import { AutoMovieArchetypeRefusal } from "../core";
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
-import { EquinePitch } from "./EquinePitch";
-import type { QuadrupedStridePlan } from "./QuadrupedStridePlan";
-import type { rideQuadruped } from "./rideQuadruped";
+import { EquinePitch } from "./equine/EquinePitch";
+import type { QuadrupedStridePlan } from "./quadruped/QuadrupedStridePlan";
+import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
 /**
  * An authored forelimb or hindlimb lameness at the walk or trot: the head and
@@ -109,7 +109,7 @@ export namespace AutoMovieArchetypeQuadrupedLameness {
   export function prepare(
     archetype: string,
     lameness: ILameness | undefined,
-    legs: readonly rideQuadruped.ILeg[],
+    legs: readonly AutoMovieArchetypeQuadruped.IRideLeg[],
     fallback: AutoMovieArchetypeQuadrupedGait.Gait,
     parts: readonly IAutoMovieModelPart[],
     limbs: Readonly<
@@ -124,7 +124,7 @@ export namespace AutoMovieArchetypeQuadrupedLameness {
     )
       refuse("Name a limb and one of the grades subtle, mild or moderate");
     if (
-      legs.some((leg: rideQuadruped.ILeg): boolean => {
+      legs.some((leg: AutoMovieArchetypeQuadruped.IRideLeg): boolean => {
         const gait: AutoMovieArchetypeQuadrupedGait.Gait = leg.gait ?? fallback;
         return gait !== "walk" && gait !== "trot";
       })
@@ -173,7 +173,9 @@ export namespace AutoMovieArchetypeQuadrupedLameness {
       };
     };
 
-    /** Report an inadmissible lameness. */
+    /*
+     * Report an inadmissible lameness.
+     */
     function refuse(reason: string): never {
       throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
@@ -187,7 +189,9 @@ export namespace AutoMovieArchetypeQuadrupedLameness {
     }
   }
 
-  /** The sin² weight of a limb's current stance, zero in swing. */
+  /*
+   * The sin² weight of a limb's current stance, zero in swing.
+   */
   function share(
     strides: QuadrupedStridePlan.IPlan,
     phase: number,
@@ -199,10 +203,12 @@ export namespace AutoMovieArchetypeQuadrupedLameness {
     return u >= 0 && u <= 1 ? Math.sin(Math.PI * u) ** 2 : 0;
   }
 
-  /** The nod angle, radians, that lifts the head's centre by a height. */
+  /*
+   * The nod angle, radians, that lifts the head's centre by a height.
+   */
   function raise(parts: readonly IAutoMovieModelPart[], lift: number): number {
     const root: IAutoMovieVector3 = end(parts, "neck");
-    const head: IAutoMovieVector3 = Vector3.subtract(
+    const head: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       centre(parts, "head"),
       root,
     );
@@ -210,7 +216,9 @@ export namespace AutoMovieArchetypeQuadrupedLameness {
     return Math.asin((lift + head.y) / reach) - Math.atan2(head.y, head.z);
   }
 
-  /** A part's centre, model metres. */
+  /*
+   * A part's centre, model metres.
+   */
   function centre(
     parts: readonly IAutoMovieModelPart[],
     id: string,
@@ -223,7 +231,9 @@ export namespace AutoMovieArchetypeQuadrupedLameness {
     return part.transform.translation;
   }
 
-  /** A bar's lower end along its local -Y, model metres: the neck's root. */
+  /*
+   * A bar's lower end along its local -Y, model metres: the neck's root.
+   */
   function end(
     parts: readonly IAutoMovieModelPart[],
     id: string,
@@ -237,9 +247,9 @@ export namespace AutoMovieArchetypeQuadrupedLameness {
       part.geometry.shape.type !== "plane"
         ? part.geometry.shape.height / 2
         : 0;
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       part.transform!.translation,
-      Quaternion.rotateVector(part.transform!.rotation, {
+      AutoMovieEngineQuaternion.rotateVector(part.transform!.rotation, {
         x: 0,
         y: -half,
         z: 0,
@@ -247,7 +257,7 @@ export namespace AutoMovieArchetypeQuadrupedLameness {
     );
   }
 
-  /**
+  /*
    * The grade's multiple of the detection threshold: 1, 2 and 4, authored and
    * provisional above the subtle grade.
    */

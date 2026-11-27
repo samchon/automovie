@@ -1,4 +1,5 @@
-import { resolveAutoMovieCenterOfMass } from "@automovie/engine";
+
+import { AutoMovieEngineKinematics } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -9,7 +10,7 @@ import { throwsError } from "../../internal/throwsError";
 const ROUNDING: number = 1e-12;
 
 /**
- * `resolveAutoMovieCenterOfMass.margin` is Hof's margin of stability: the
+ * `AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassMargin` is Hof's margin of stability: the
  * horizontal distance from a point to the nearest edge of the support's convex
  * hull on the floor plane (x, z), positive inside and negative outside (Hof,
  * Gazendam and Sinke 2005).
@@ -35,8 +36,8 @@ export function test_engine_kinematics_resolve_center_of_mass_margin(): void {
     { x: 1, y: 0, z: 0 },
     { x: 0, y: 0.1, z: 1 },
   ];
-  const margin: typeof resolveAutoMovieCenterOfMass.margin =
-    resolveAutoMovieCenterOfMass.margin;
+  const margin: typeof AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassMargin =
+    AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassMargin;
 
   TestValidator.predicate(
     "the centre at any height",

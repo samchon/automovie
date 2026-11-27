@@ -1,5 +1,5 @@
-import { createHorse } from "@automovie/archetypes";
-import { Quaternion, Transform, Vector3 } from "@automovie/engine";
+import { AutoMovieArchetypeHorse } from "@automovie/archetypes";
+import { AutoMovieEngineQuaternion, AutoMovieEngineTransform, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanBody,
@@ -9,8 +9,13 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanObject } from "@automovie/motions";
-import { HumanPropFrame, prepareMountTread } from "@automovie/motions/internal";
+import { AutoMovieMotionHumanObject } from "@automovie/motions";
+import {
+  HumanPropFrame
+} from "../../../../../../packages/motions/src/perform/internal/HumanPropFrame";
+import {
+  prepareMountTread
+} from "../../../../../../packages/motions/src/lexicon/internal/prepareMountTread";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
@@ -30,13 +35,13 @@ export async function test_motions_mounted_tread(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
   const origin: IAutoMovieRigidTransform = {
     position: { x: 0, y: 0, z: 0 },
-    rotation: Quaternion.identity(),
+    rotation: AutoMovieEngineQuaternion.identity(),
   };
   const pose: IAutoMoviePose = {
     skeleton: body.skeleton.id,
-    root: Transform.of(
+    root: AutoMovieEngineTransform.of(
       { x: 1, y: 0.2, z: -2 },
-      Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90),
+      AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90),
     ),
     joints: [],
   };
@@ -80,9 +85,9 @@ export async function test_motions_mounted_tread(): Promise<void> {
   });
   const a: prepareMountTread.ICandidate = left[0]!;
   const b: prepareMountTread.ICandidate = right[0]!;
-  const pivot: IAutoMovieVector3 = Vector3.add(
+  const pivot: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     a.ankle.position,
-    Quaternion.rotateVector(a.ankle.rotation, a.contact),
+    AutoMovieEngineQuaternion.rotateVector(a.ankle.rotation, a.contact),
   );
   // The half-space edge is located by GJK's native 1 nm distance bound.
   const precision: number = 1e-9 + 64 * Number.EPSILON;
@@ -98,8 +103,8 @@ export async function test_motions_mounted_tread(): Promise<void> {
       nclose(b.ball.x, -a.ball.x, precision) &&
       nclose(b.range[0], -a.range[1], precision) &&
       nclose(b.range[1], -a.range[0], precision) &&
-      nclose(Vector3.distance(pivot, a.ball), 0, precision) &&
-      Quaternion.angle(a.ankle.rotation, input.rotation) === 0,
+      nclose(AutoMovieEngineVector3.distance(pivot, a.ball), 0, precision) &&
+      AutoMovieEngineQuaternion.angle(a.ankle.rotation, input.rotation) === 0,
   );
   TestValidator.predicate(
     "a narrow real opening and a point past the finite plate both refuse",
@@ -131,12 +136,12 @@ export async function test_motions_mounted_tread(): Promise<void> {
         transform: { ...origin, position: { x: 0, y: -0.005, z: 0.025 } },
       },
     },
-    rotation: Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -4),
+    rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -4),
   });
   const tilted: prepareMountTread.ICandidate = raised[0]!;
-  const heel: IAutoMovieVector3 = Vector3.add(
+  const heel: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     tilted.ankle.position,
-    Quaternion.rotateVector(
+    AutoMovieEngineQuaternion.rotateVector(
       tilted.ankle.rotation,
       body.surfaces.sockets.heelLeft.point,
     ),
@@ -149,11 +154,11 @@ export async function test_motions_mounted_tread(): Promise<void> {
       prepareMountTread({ ...input, x: selected, y: -0.006 }).length === 0,
   );
 
-  const horse: ReturnType<typeof createHorse> = createHorse(
+  const horse: ReturnType<typeof AutoMovieArchetypeHorse.create> = AutoMovieArchetypeHorse.create(
     { withersHeight: 1.65, stirrupDrop: 0.66, tempo: 0 },
     1028,
   );
-  const tack: IAutoMovieMotionHumanProp = HumanObject.prop("horse", horse, origin);
+  const tack: IAutoMovieMotionHumanProp = AutoMovieMotionHumanObject.prop("horse", horse, origin);
   const site: IAutoMovieAffordance = horse.affordance("leftStirrup");
   const local: IAutoMovieRigidTransform = HumanPropFrame.relative(
     { position: site.frame.translation, rotation: site.frame.rotation },
@@ -172,7 +177,7 @@ export async function test_motions_mounted_tread(): Promise<void> {
         part.id.startsWith("stirrup-left-"),
       )
       .map((shape: IAutoMoviePhysicalShape) => ({ pose: local, shape })),
-    rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 7),
+    rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 7),
   });
   // The original native evidence measured the same prefix and suffix at
   // 10 nm bracket resolution. Both independently rounded ends may differ.

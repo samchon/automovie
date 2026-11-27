@@ -1,0 +1,209 @@
+import { AutoMovieEngineVector3 } from "@automovie/engine";
+
+import {
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
+} from "../core/index";
+import {
+  ArchetypeDraw,
+} from "../core/internal/ArchetypeDraw";
+import { AutoMovieArchetypeParallelBarsData } from "./internal/AutoMovieArchetypeParallelBarsData";
+
+/** Constructs the parallel bars archetype from its recipe. */
+export namespace AutoMovieArchetypeParallelBars {
+/** The kinds of bars. */
+  export type Kind = "dipStation" | "parallelBars";
+
+  /**
+   * The affordance ids:
+   *
+   * - `barLeft`: the bar on `+X`, its middle on its axis, `+Y` up.
+   * - `barRight`: the bar on `-X`.
+   */
+  export type Affordance = "barLeft" | "barRight";
+
+  /**
+   * The free dimensions, metres unless stated:
+   *
+   * - `height`: the bars' axes above the floor.
+   * - `length`: each bar's.
+   * - `spacing`: between the two bars' axes.
+   * - `diameter`: a bar's thickness.
+   * - `mass`: kilograms.
+   */
+  export type Dimension = "height" | "length" | "spacing" | "diameter" | "mass";
+
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
+  export interface IParams extends Partial<Record<Dimension, number>> {
+    /** Which bars. */
+    kind: Kind;
+
+    /** The model's id, unique in a scene; `parallelBars` when absent. */
+    id?: string;
+  }
+
+  /**
+ * Two level bars side by side to bear on with the hands: gymnastics' parallel
+ * bars or a gym's dip station.
+ *
+ * They stand on the floor with the middle of their footprint at the origin, the
+ * bars along `Z`, one on each side of `X`. `barLeft` (on `+X`) and `barRight`
+ * are the bars' middles, on their axes, with `+Y` up.
+ *
+ * @param params The kind and any dimension the author fixes.
+ * @param seed The seed that draws every dimension left free inside its band;
+ *   absent, each takes the middle of its band.
+ * @returns The bars.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
+ */
+export function create(
+  params: AutoMovieArchetypeParallelBars.IParams,
+  seed?: number,
+): AutoMovieArchetype<
+  AutoMovieArchetypeParallelBars.Affordance,
+  AutoMovieArchetypeParallelBars.Dimension
+> {
+  const draw: AutoMovieArchetypeDrawSession<AutoMovieArchetypeParallelBars.Dimension> =
+    new AutoMovieArchetypeDrawSession<AutoMovieArchetypeParallelBars.Dimension>(
+      "parallelBars",
+      AutoMovieArchetypeParallelBars.UNITS,
+      seed,
+      params,
+    );
+  const kind: AutoMovieArchetypeParallelBars.Kind = ArchetypeDraw.choice(
+    "parallelBars",
+    "kind",
+    params.kind,
+    AutoMovieArchetypeParallelBars.KINDS,
+  );
+  const d: Partial<Record<AutoMovieArchetypeParallelBars.Dimension, number>> =
+    draw.dimensions(AutoMovieArchetypeParallelBars.BANDS[kind], AutoMovieArchetypeParallelBars.BANDS);
+  const half: number = d.length! / 2;
+  const height: number = d.height!;
+  const slim: number = d.diameter! / 2;
+  const builder: AutoMovieArchetypeBuilder<
+    AutoMovieArchetypeParallelBars.Affordance,
+    AutoMovieArchetypeParallelBars.Dimension
+  > = new AutoMovieArchetypeBuilder({
+    material: "composite",
+    id: params.id,
+    name: kind === "dipStation" ? "dip station" : "parallel bars",
+    draw,
+  });
+  for (const side of [1, -1] as const) {
+    const name: string = side === 1 ? "left" : "right";
+    const x: number = (side * d.spacing!) / 2;
+    builder.rod(
+      `bar-${name}`,
+      slim,
+      AutoMovieEngineVector3.create(x, height, -half),
+      AutoMovieEngineVector3.create(x, height, half),
+      { color: "#c9a36b" },
+    );
+    for (const end of [1, -1] as const)
+      builder.rod(
+        `upright-${name}-${end === 1 ? "front" : "back"}`,
+        AutoMovieArchetypeParallelBars.UPRIGHT,
+        AutoMovieEngineVector3.create(x, 0, end * half * AutoMovieArchetypeParallelBars.SET),
+        AutoMovieEngineVector3.create(x, height - slim, end * half * AutoMovieArchetypeParallelBars.SET),
+        { color: "#5a5f66" },
+      );
+    builder.affordance({
+      id: side === 1 ? "barLeft" : "barRight",
+      kind: "bar",
+      symmetry: "round",
+      frame: AutoMovieArchetypeFrame.facing(
+        AutoMovieEngineVector3.create(x, height, 0),
+        AutoMovieEngineVector3.create(0, 1, 0),
+        AutoMovieEngineVector3.create(0, 0, 1),
+      ),
+      extent: null,
+      length: d.length!,
+      aperture: d.diameter!,
+    });
+  }
+  return builder.build(d.mass!);
+}
+
+  /** Every kind, for a caller that reads one at run time. */
+  export const KINDS: readonly Kind[] = ["dipStation", "parallelBars"];
+
+  /** An upright's radius, metres. An estimate, not read at a source. */
+  export const UPRIGHT: number = 0.025;
+
+  /**
+   * Where the uprights stand along each bar, as a share of its half length from
+   * the middle. An estimate, not read at a source.
+   */
+  export const SET: number = 0.65;
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
+    height: "m",
+    length: "m",
+    spacing: "m",
+    diameter: "m",
+    mass: "kg",
+  };
+
+  /** The band of each free dimension, by kind. */
+  export const BANDS: Readonly<
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
+  > = {
+    dipStation: {
+      height: AutoMovieArchetypeBand.metres(
+        1.2,
+        1.4,
+        "an estimate: above the hips of a standing adult, so bent knees clear the floor; no maker's sheet was read",
+        true,
+      ),
+      length: AutoMovieArchetypeBand.metres(
+        0.5,
+        0.7,
+        "an estimate; no maker's sheet was read",
+        true,
+      ),
+      spacing: AutoMovieArchetypeBand.metres(
+        0.5,
+        0.6,
+        "an estimate: a little wider than the shoulders; no maker's sheet was read",
+        true,
+      ),
+      diameter: AutoMovieArchetypeBand.metres(
+        0.035,
+        0.045,
+        "an estimate; no maker's sheet was read",
+        true,
+      ),
+      mass: AutoMovieArchetypeBand.of(
+        "kg",
+        15,
+        40,
+        "an estimate; no maker's sheet was read",
+        true,
+      ),
+    },
+    parallelBars: {
+      height: AutoMovieArchetypeBand.metres(2.0, 2.0, AutoMovieArchetypeParallelBarsData.FIG),
+      length: AutoMovieArchetypeBand.metres(3.5, 3.5, AutoMovieArchetypeParallelBarsData.FIG),
+      spacing: AutoMovieArchetypeBand.metres(0.42, 0.52, AutoMovieArchetypeParallelBarsData.FIG),
+      diameter: AutoMovieArchetypeParallelBarsData.RAIL,
+      mass: AutoMovieArchetypeBand.of(
+        "kg",
+        100,
+        200,
+        "an estimate; the norm states no mass",
+        true,
+      ),
+    },
+  };
+}

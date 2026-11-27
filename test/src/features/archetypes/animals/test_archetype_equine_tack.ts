@@ -1,13 +1,8 @@
+import { AutoMovieArchetypeEquineSaddleProp, AutoMovieArchetypePony, AutoMovieArchetypeHorse } from "@automovie/archetypes";
 import {
-  AutoMovieArchetypeEquineSaddleProp,
-  createHorse,
-  createPony,
-} from "@automovie/archetypes";
-import {
-  Quaternion,
-  Vector3,
-  physicalShapeBounds,
-  physicalShapeSegmentDistance,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
+  AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
@@ -45,7 +40,7 @@ import { nclose } from "../../internal/nclose";
 export function test_archetype_equine_tack(): void {
   const findings: string[] = [];
   const dims = { withersHeight: 1.65, stirrupDrop: 0.66, tempo: 0 } as const;
-  const bare = createHorse({ ...dims, tack: "bare" }, 7);
+  const bare = AutoMovieArchetypeHorse.create({ ...dims, tack: "bare" }, 7);
   const bones: Map<string, IAutoMovieModelPart> = new Map(
     bare.parts.map((p: IAutoMovieModelPart): [string, IAutoMovieModelPart] => [
       p.id,
@@ -53,7 +48,7 @@ export function test_archetype_equine_tack(): void {
     ]),
   );
   const contact = (
-    horse: ReturnType<typeof createHorse>,
+    horse: ReturnType<typeof AutoMovieArchetypeHorse.create>,
     id: string,
   ): IAutoMovieAffordance | undefined =>
     horse.affordances.find((a: IAutoMovieAffordance): boolean => a.id === id);
@@ -61,7 +56,7 @@ export function test_archetype_equine_tack(): void {
     a.frame.translation;
 
   for (const tack of ["bareback", "sidesaddle", "surcingle"] as const) {
-    const horse = createHorse({ ...dims, tack }, 7);
+    const horse = AutoMovieArchetypeHorse.create({ ...dims, tack }, 7);
 
     // 1. The body is untouched.
     for (const [id, part] of bones) {
@@ -84,7 +79,7 @@ export function test_archetype_equine_tack(): void {
   }
 
   // 3. Bareback.
-  const bareback = createHorse({ ...dims, tack: "bareback" }, 7);
+  const bareback = AutoMovieArchetypeHorse.create({ ...dims, tack: "bareback" }, 7);
   const seat: IAutoMovieAffordance | undefined = contact(bareback, "seat");
   if (seat?.astride !== true || seat.mount !== "left")
     findings.push("bareback: the seat must be sat astride from the near side");
@@ -114,7 +109,7 @@ export function test_archetype_equine_tack(): void {
   }
 
   // 4. Side saddle.
-  const aside = createHorse({ ...dims, tack: "sidesaddle" }, 7);
+  const aside = AutoMovieArchetypeHorse.create({ ...dims, tack: "sidesaddle" }, 7);
   const stirrups: IAutoMovieAffordance[] = aside.affordances.filter(
     (a: IAutoMovieAffordance): boolean => a.kind === "stirrup",
   );
@@ -140,8 +135,8 @@ export function test_archetype_equine_tack(): void {
     );
   const sideways: IAutoMovieAffordance | undefined = contact(aside, "seat");
   if (sideways !== undefined) {
-    const facing: IAutoMovieVector3 = Vector3.normalize(
-      Quaternion.rotateVector(sideways.frame.rotation, { x: 0, y: 0, z: 1 }),
+    const facing: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineQuaternion.rotateVector(sideways.frame.rotation, { x: 0, y: 0, z: 1 }),
     );
     if (!(facing.x > 0.99) || sideways.astride === true)
       findings.push(
@@ -150,7 +145,7 @@ export function test_archetype_equine_tack(): void {
   } else findings.push("side saddle: lacks its seat");
 
   // 5. Surcingle.
-  const vaulting = createHorse({ ...dims, tack: "surcingle" }, 7);
+  const vaulting = AutoMovieArchetypeHorse.create({ ...dims, tack: "surcingle" }, 7);
   const handles: IAutoMovieAffordance[] = vaulting.affordances.filter(
     (a: IAutoMovieAffordance): boolean => a.kind === "handle",
   );
@@ -193,17 +188,17 @@ export function test_archetype_equine_tack(): void {
     findings.push("surcingle: wants a seat astride and a pad surface");
 
   // 6. A pony takes the new tacks.
-  const pony = createPony({ tack: "sidesaddle" }, 7);
+  const pony = AutoMovieArchetypePony.create({ tack: "sidesaddle" }, 7);
   if (contact(pony, "fixedHead") === undefined || pony.name !== "pony")
     findings.push(`pony: side saddle missing or misnamed (${pony.name})`);
 
   // 7. The astride deck and its connected material also travel off the horse.
-  const saddled: ReturnType<typeof createHorse> = createHorse(
+  const saddled: ReturnType<typeof AutoMovieArchetypeHorse.create> = AutoMovieArchetypeHorse.create(
     { ...dims, tack: "saddle" },
     7,
   );
   astrideMaterial(saddled, bare, findings);
-  const trick: ReturnType<typeof createHorse> = createHorse(
+  const trick: ReturnType<typeof AutoMovieArchetypeHorse.create> = AutoMovieArchetypeHorse.create(
     { ...dims, tack: "trick" },
     7,
   );
@@ -211,8 +206,8 @@ export function test_archetype_equine_tack(): void {
     (shape: IAutoMoviePhysicalShape): boolean => shape.id === "saddle-pommel",
   );
   const identity: IAutoMovieRigidTransform = {
-    position: Vector3.create(0, 0, 0),
-    rotation: Quaternion.identity(),
+    position: AutoMovieEngineVector3.create(0, 0, 0),
+    rotation: AutoMovieEngineQuaternion.identity(),
   };
   for (const id of ["leftHandhold", "rightHandhold"] as const) {
     const point: IAutoMovieVector3 = trick.affordance(id).frame.translation;
@@ -220,7 +215,7 @@ export function test_archetype_equine_tack(): void {
     if (
       !nclose(Math.abs(point.x), 0.15, roundoff) ||
       crest?.kind !== "hull" ||
-      physicalShapeSegmentDistance(identity, crest, point, point) > roundoff
+      AutoMovieEnginePhysics.physicalShapeSegmentDistance(identity, crest, point, point) > roundoff
     )
       findings.push(`trick saddle: ${id} is outside its connected pommel`);
   }
@@ -230,12 +225,12 @@ export function test_archetype_equine_tack(): void {
 
 /** The deck, twist, panel channel and grip connections are actual solids. */
 function astrideMaterial(
-  horse: ReturnType<typeof createHorse>,
-  bare: ReturnType<typeof createHorse>,
+  horse: ReturnType<typeof AutoMovieArchetypeHorse.create>,
+  bare: ReturnType<typeof AutoMovieArchetypeHorse.create>,
   findings: string[],
 ): void {
   const zero: IAutoMovieRigidTransform = {
-    position: Vector3.create(0, 0, 0),
+    position: AutoMovieEngineVector3.create(0, 0, 0),
     rotation: { x: 0, y: 0, z: 0, w: 1 },
   };
   const shapes: ReadonlyMap<string, IAutoMoviePhysicalShape> = new Map(
@@ -266,10 +261,10 @@ function astrideMaterial(
   const ordinate: number = seat.frame.translation.y;
   // Allow roundoff for the measured part bounds and composed material frames.
   const roundoff: number = 128 * Number.EPSILON * ordinate;
-  const top: ReturnType<typeof physicalShapeBounds> = physicalShapeBounds(zero, deck);
-  const throat: ReturnType<typeof physicalShapeBounds> = physicalShapeBounds(zero, waist);
-  const approach: ReturnType<typeof physicalShapeBounds> = physicalShapeBounds(zero, slope);
-  const rise: number = physicalShapeBounds(zero, pommel).max.y - ordinate;
+  const top: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeBounds> = AutoMovieEnginePhysics.physicalShapeBounds(zero, deck);
+  const throat: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeBounds> = AutoMovieEnginePhysics.physicalShapeBounds(zero, waist);
+  const approach: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeBounds> = AutoMovieEnginePhysics.physicalShapeBounds(zero, slope);
+  const rise: number = AutoMovieEnginePhysics.physicalShapeBounds(zero, pommel).max.y - ordinate;
   const taperZ: number = horse.affordance("leftStirrup").frame.translation.z;
   const slot: IAutoMovieVector3[] = twist.points.filter(
     (point: IAutoMovieVector3): boolean => nclose(point.z, taperZ, roundoff),
@@ -288,7 +283,7 @@ function astrideMaterial(
     !nclose(throat.max.z, approach.min.z, roundoff) ||
     !nclose(throat.max.y, ordinate, roundoff) ||
     !nclose(approach.max.z - approach.min.z, rise, roundoff) ||
-    !nclose(physicalShapeBounds(zero, panel).min.x, 0.025, roundoff)
+    !nclose(AutoMovieEnginePhysics.physicalShapeBounds(zero, panel).min.x, 0.025, roundoff)
   )
     findings.push("astride saddle: the declared deck, twist or panel gap differs from its solid");
 
@@ -304,7 +299,7 @@ function astrideMaterial(
       continue;
     }
     const point: IAutoMovieVector3 = metal.transform.position;
-    if (physicalShapeSegmentDistance(zero, tree, point, point) > roundoff)
+    if (AutoMovieEnginePhysics.physicalShapeSegmentDistance(zero, tree, point, point) > roundoff)
       findings.push(`astride saddle: ${id} floats away from its tree`);
   }
 
@@ -347,11 +342,11 @@ function stirrupMaterial(
     return;
   }
   const zero: IAutoMovieRigidTransform = {
-    position: Vector3.create(0, 0, 0),
+    position: AutoMovieEngineVector3.create(0, 0, 0),
     rotation: { x: 0, y: 0, z: 0, w: 1 },
   };
   const top: IAutoMovieVector3 = tread.frame.translation;
-  const normal: IAutoMovieVector3 = Quaternion.rotateVector(
+  const normal: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     tread.frame.rotation,
     { x: 0, y: 1, z: 0 },
   );
@@ -370,7 +365,7 @@ function stirrupMaterial(
       tree.transform.position.y + tree.halfExtents.y,
       roundoff,
     ) ||
-    !nclose(Vector3.distance(normal, { x: 0, y: 1, z: 0 }), 0, roundoff) ||
+    !nclose(AutoMovieEngineVector3.distance(normal, { x: 0, y: 1, z: 0 }), 0, roundoff) ||
     !nclose(plate.halfExtents.x * 2, tread.width, roundoff) ||
     !nclose(plate.halfExtents.z * 2, tread.depth, roundoff) ||
     !nclose(
@@ -378,7 +373,7 @@ function stirrupMaterial(
       fillisHeight,
       roundoff,
     ) ||
-    physicalShapeSegmentDistance(
+    AutoMovieEnginePhysics.physicalShapeSegmentDistance(
       zero,
       tree,
       bar.transform.position,
@@ -397,25 +392,25 @@ function stirrupMaterial(
   for (const shape of shapes) {
     const leather: boolean = shape.id.startsWith("leather-left");
     if (!(leather || shape.id.startsWith("stirrup-left"))) continue;
-    if (physicalShapeBounds(zero, shape).max.x > outer + roundoff)
+    if (AutoMovieEnginePhysics.physicalShapeBounds(zero, shape).max.x > outer + roundoff)
       findings.push(`side saddle: ${shape.id} exceeds the tread's side rim`);
-    if (physicalShapeSegmentDistance(zero, shape, front, back) <= 0)
+    if (AutoMovieEnginePhysics.physicalShapeSegmentDistance(zero, shape, front, back) <= 0)
       findings.push(`side saddle: ${shape.id} closes the centre of the opening`);
     if (!leather) continue;
     if (shape.kind !== "capsule") {
       findings.push(`side saddle: ${shape.id} is missing its leather solid`);
       continue;
     }
-    const half: IAutoMovieVector3 = Quaternion.rotateVector(
+    const half: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       shape.transform.rotation,
       { x: 0, y: shape.halfLength, z: 0 },
     );
     if (
-      physicalShapeSegmentDistance(
+      AutoMovieEnginePhysics.physicalShapeSegmentDistance(
         zero,
         trunk,
-        Vector3.subtract(shape.transform.position, half),
-        Vector3.add(shape.transform.position, half),
+        AutoMovieEngineVector3.subtract(shape.transform.position, half),
+        AutoMovieEngineVector3.add(shape.transform.position, half),
         [shape.radius, shape.radius],
       ) < -roundoff
     )

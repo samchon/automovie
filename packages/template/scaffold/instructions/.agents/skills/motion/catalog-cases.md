@@ -14,9 +14,9 @@ Select automated checks for the implementation the catalog plays.
 
 | Implementation | Check |
 | --- | --- |
-| Installed action used as documented | The package tests its internal mechanics |
-| Production-registered row or law, or a body it moves | Passing motion checks and a clean report |
-| Other production code, including an entity or retargeted clip | Passing tests |
+| Installed action used as documented | The package tests mechanics |
+| Production row or law, or a body it moves | Motion checks and clean report |
+| Other production code, such as entity or retargeted clip | Passing tests |
 
 Follow [testing](../development/testing.md#motion-checks) for production code and [refusals](compose/refusals.md#when-no-repair-holds) for an installed action defect.
 

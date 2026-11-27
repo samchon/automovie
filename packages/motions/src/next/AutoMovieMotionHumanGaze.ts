@@ -1,8 +1,8 @@
-import { GAZE_RECRUITS } from "../compose/GAZE_RECRUITS";
-import { glance as glanceLaw } from "../compose/glance";
-import { lookPrimitive as lookPrimitiveLaw } from "../compose/lookPrimitive";
-import { HumanGaze as HumanGazeSource } from "../everyday/HumanGaze";
-import { look as lookLaw } from "../everyday/look";
+import { GAZE_RECRUITS } from "../compose/internal/GAZE_RECRUITS";
+import { glance as glanceLaw } from "../compose/internal/glance";
+import { lookPrimitive as lookPrimitiveLaw } from "../compose/internal/lookPrimitive";
+import { HumanGaze as HumanGazeSource } from "../everyday/internal/HumanGaze";
+import { look as lookLaw } from "../everyday/internal/look";
 
 /**
  * An overlay: where the eyes and head look. It layers on any whole-body action.
@@ -81,14 +81,14 @@ export namespace AutoMovieMotionHumanGaze {
    * at most `EYES` (15 degrees) on each axis, gives the head and neck the
    * remainder up to `HEAD` (comfortable cervical share, the yaw after Bennett
    * et al. 2002 and the pitch provisional: 60 degrees of yaw, 40 down and 30
-   * up, inside `DEFAULT_HUMANOID_ROM`), and, when the trunk may join, gives the
+   * up, inside `AutoMovieEngineDefaultHumanoidRom`), and, when the trunk may join, gives the
    * chest and lumbar spine the yaw beyond that up to `TRUNK` (40 degrees,
    * provisional, inside their combined twist range), 60 % to the chest and 40 %
    * to the spine. What none of these can hold stays on the eyes, clamped to
    * their range, so a gaze too far behind the body is visibly short; turning
    * the feet is the `look` action's step-turn.
    *
-   * The head and neck angles come from the engine's `gazeChainJoints`, which
+   * The head and neck angles come from the engine's `AutoMovieEngineKinematics.gazeChainJoints`, which
    * splits one aim over the neck and the head inside their ranges; the eyes are
    * then solved exactly: each eye's direction to the target is read in its
    * head's frame by forward kinematics of the trunk and head, and turned into

@@ -1,4 +1,4 @@
-import { blendPoses } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import {
   AutoMovieHumanoidBone,
   IAutoMovieJointPose,
@@ -57,7 +57,7 @@ const axis: (
  */
 export function test_perform_blend_poses(): void {
   // 1. identity at weight 1
-  const identity: IAutoMoviePose = blendPoses([
+  const identity: IAutoMoviePose = AutoMovieEngineMotionSampling.blendPoses([
     {
       pose: makePose([joint("leftUpperArm", { flexion: 30, abduction: 45 })]),
       weight: 1,
@@ -78,7 +78,7 @@ export function test_perform_blend_poses(): void {
   );
 
   // 2. equal average, then a weighted (3:1) mean
-  const mean: IAutoMoviePose = blendPoses([
+  const mean: IAutoMoviePose = AutoMovieEngineMotionSampling.blendPoses([
     { pose: makePose([joint("leftUpperArm", { flexion: 20 })]), weight: 1 },
     { pose: makePose([joint("leftUpperArm", { flexion: 60 })]), weight: 1 },
   ]);
@@ -86,7 +86,7 @@ export function test_perform_blend_poses(): void {
     "50/50 averages to 40",
     nclose(axis(mean, "leftUpperArm", "flexion")!, 40),
   );
-  const biased: IAutoMoviePose = blendPoses([
+  const biased: IAutoMoviePose = AutoMovieEngineMotionSampling.blendPoses([
     { pose: makePose([joint("leftUpperArm", { flexion: 20 })]), weight: 3 },
     { pose: makePose([joint("leftUpperArm", { flexion: 60 })]), weight: 1 },
   ]);
@@ -96,7 +96,7 @@ export function test_perform_blend_poses(): void {
   );
 
   // 3. a null axis does not dilute the other
-  const noDilute: IAutoMoviePose = blendPoses([
+  const noDilute: IAutoMoviePose = AutoMovieEngineMotionSampling.blendPoses([
     { pose: makePose([joint("leftUpperArm", { flexion: 20 })]), weight: 1 },
     { pose: makePose([joint("leftUpperArm", { abduction: 40 })]), weight: 1 },
   ]);
@@ -115,7 +115,7 @@ export function test_perform_blend_poses(): void {
   );
 
   // 4. disjoint union + root from the rooted layer
-  const disjoint: IAutoMoviePose = blendPoses([
+  const disjoint: IAutoMoviePose = AutoMovieEngineMotionSampling.blendPoses([
     {
       pose: makePose([joint("leftUpperLeg", { flexion: 20 })], rootAt(5)),
       weight: 1,
@@ -155,7 +155,7 @@ export function test_perform_blend_poses(): void {
   );
 
   // 5. ownsRoot wins over a later rooted layer
-  const owned: IAutoMoviePose = blendPoses([
+  const owned: IAutoMoviePose = AutoMovieEngineMotionSampling.blendPoses([
     { pose: makePose([joint("hips")], rootAt(2)), weight: 1, ownsRoot: true },
     { pose: makePose([joint("chest")], rootAt(9)), weight: 1 },
   ]);
@@ -173,7 +173,7 @@ export function test_perform_blend_poses(): void {
   );
 
   // 6. no owning layer → last non-null root (null-first does not clear it)
-  const lastRoot: IAutoMoviePose = blendPoses([
+  const lastRoot: IAutoMoviePose = AutoMovieEngineMotionSampling.blendPoses([
     { pose: makePose([joint("hips")]), weight: 1 },
     { pose: makePose([joint("chest")], rootAt(7)), weight: 1 },
   ]);
@@ -194,7 +194,7 @@ export function test_perform_blend_poses(): void {
   TestValidator.predicate(
     "empty layer list rejected",
     throwsError(
-      (): IAutoMoviePose => blendPoses([]),
+      (): IAutoMoviePose => AutoMovieEngineMotionSampling.blendPoses([]),
       "blend poses must not be empty",
     ),
   );

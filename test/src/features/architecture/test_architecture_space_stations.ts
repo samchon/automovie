@@ -1,7 +1,4 @@
-import {
-  builtSpaceContainsPoint,
-  builtSpaceObservationStations,
-} from "@automovie/engine";
+import { AutoMovieEngineBuiltEnvironment } from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieBuiltSpace,
@@ -51,7 +48,7 @@ export function test_architecture_space_stations(): void {
   const record: IAutoMovieBuiltEnvironment = rectangularBuilding();
   const hall: IAutoMovieBuiltSpace = record.spaces[0]!;
   const stations: IAutoMovieSpaceObservationStation[] =
-    builtSpaceObservationStations(record, "hall");
+    AutoMovieEngineBuiltEnvironment.spaceObservationStations(record, "hall");
 
   TestValidator.equals(
     "the hall owes its nine interior stations in a fixed order",
@@ -106,7 +103,7 @@ export function test_architecture_space_stations(): void {
     stations.every(
       (station: IAutoMovieSpaceObservationStation): boolean =>
         station.pose !== null &&
-        builtSpaceContainsPoint(hall, station.pose.position),
+        AutoMovieEngineBuiltEnvironment.spaceContainsPoint(hall, station.pose.position),
     ),
     true,
   );
@@ -150,7 +147,7 @@ export function test_architecture_space_stations(): void {
   );
 
   const sideStations: IAutoMovieSpaceObservationStation[] =
-    builtSpaceObservationStations(withSideHatch(), "hall");
+    AutoMovieEngineBuiltEnvironment.spaceObservationStations(withSideHatch(), "hall");
   TestValidator.equals(
     "a second opening adds one station to the full population",
     sideStations.length,
@@ -178,7 +175,7 @@ export function test_architecture_space_stations(): void {
 
   TestValidator.equals(
     "the notch corner keeps its identity and reports no place to stand",
-    placedAt(builtSpaceObservationStations(wing, "hall"), [
+    placedAt(AutoMovieEngineBuiltEnvironment.spaceObservationStations(wing, "hall"), [
       { x: 2, y: 1.5, z: 2 },
       { x: 2, y: 1.5, z: 2 },
       { x: 2, y: 1.5, z: 2 },
@@ -206,7 +203,7 @@ export function test_architecture_space_stations(): void {
       [
         "a purely semantic container has no interior population",
         (): boolean =>
-          builtSpaceObservationStations(withNamedWing(), "west-wing").length ===
+          AutoMovieEngineBuiltEnvironment.spaceObservationStations(withNamedWing(), "west-wing").length ===
           0,
       ],
       [
@@ -214,7 +211,7 @@ export function test_architecture_space_stations(): void {
         (): boolean =>
           throwsError(
             (): IAutoMovieSpaceObservationStation[] =>
-              builtSpaceObservationStations(record, "cellar"),
+              AutoMovieEngineBuiltEnvironment.spaceObservationStations(record, "cellar"),
             ["hall-house", "cellar"],
           ),
       ],

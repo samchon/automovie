@@ -1,27 +1,18 @@
-import {
-  Vector3,
-  closestPointsBetweenSegments,
-  resolveAutoMovieCenterOfMass,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanPerformance,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics, AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
+import type { AutoMovieHumanSide, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanChain } from "../../HumanChain";
-import { createHumanBody } from "../../body/createHumanBody";
-import { AutoMovieMotionHumanTouchEffector } from "../../compose/AutoMovieMotionHumanTouchEffector";
-import { HumanPerformance } from "../../perform/HumanPerformance";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
-import { MotionBodies } from "../MotionBodies";
-import type { humanPolygonMan } from "../humanPolygonMan";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
+import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
+import { AutoMovieMotionHumanTouchEffector } from "../../compose/internal/AutoMovieMotionHumanTouchEffector";
+import { AutoMovieMotionHumanPerformance } from "../../perform/AutoMovieMotionHumanPerformance";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
+import { MotionBodies } from "../internal/MotionBodies";
+import type { humanPolygonMan } from "../internal/humanPolygonMan";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { TouchVerdicts } from "./TouchVerdicts";
-import { everydayVerdicts } from "./everydayVerdicts";
+import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/**
+/*
  * Capture case of the handstand: `gymnastics-handstand`, kicked up from quiet
  * standing, held 2 s and stepped down.
  *
@@ -31,9 +22,8 @@ import { everydayVerdicts } from "./everydayVerdicts";
  * horizontally of its shoulder (the stacked handstand), the hips above the
  * shoulders and the ankles above the hips, and the centre of mass within half a
  * hand of the line between the hands (balanced over the hands).
- *
- * @param bodies The bodies; `m-average` when absent.
- * @returns The cases.
+ * Parameter bodies: The bodies; `m-average` when absent.
+ * Returns: The cases.
  */
 export function gymnasticsCases(
   bodies: readonly string[] = ["m-average"],
@@ -41,7 +31,7 @@ export function gymnasticsCases(
   const out: IMotionCaptureCase[] = [];
   for (const id of bodies) {
     const man: humanPolygonMan.IPolygonMan = MotionBodies.population(id);
-    const body: IAutoMovieMotionHumanBody = createHumanBody(
+    const body: IAutoMovieMotionHumanBody = AutoMovieMotionHumanBody.create(
       man.body.skeleton,
       man.body.profile,
     );
@@ -50,7 +40,7 @@ export function gymnasticsCases(
 
     // Process boundary: a case that throws is reported as that case's refusal, and the remaining cases still run.
     try {
-      performance = new HumanPerformance({
+      performance = new AutoMovieMotionHumanPerformance({
         seed: "gymnastics",
         performers: [
           {
@@ -61,7 +51,7 @@ export function gymnasticsCases(
             proficiency: { level: "trained" as const },
           },
         ],
-        composition: HumanChain.subject("a").act("gymnastics", {}).node,
+        composition: AutoMovieMotionHumanChain.subject("a").act("gymnastics", {}).node,
       });
     } catch (error) {
       out.push(FamilyCaseKit.refused(name, error));
@@ -87,14 +77,14 @@ export function gymnasticsCases(
     const verdicts: IMotionCaptureCase.IVerdict[] = [
       ...everydayVerdicts.standard(performance, "a", body),
     ];
-    const model = resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
+    const model = AutoMovieEngineKinematics.resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
     for (const side of ["left", "right"] as const) {
       const first: IAutoMovieVector3 = palmAt(down, side);
       verdicts.push(
         TouchVerdicts.within(
           `${side} hand slip`,
           (t: number): number =>
-            Vector3.length(Vector3.subtract(palmAt(t, side), first)),
+            AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(palmAt(t, side), first)),
           contact,
           0.005,
         ),
@@ -150,14 +140,14 @@ export function gymnasticsCases(
       TouchVerdicts.within(
         "centre of mass over the hands",
         (t: number): number => {
-          const com: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
+          const com: IAutoMovieVector3 = AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(
             model,
             performance.bones("a", t),
           );
           const a: IAutoMovieVector3 = { ...palmAt(t, "left"), y: 0 };
           const b: IAutoMovieVector3 = { ...palmAt(t, "right"), y: 0 };
           const floor: IAutoMovieVector3 = { ...com, y: 0 };
-          return closestPointsBetweenSegments(a, b, floor, floor).distance;
+          return AutoMovieEngineMath.closestPointsBetweenSegments(a, b, floor, floor).distance;
         },
         hold,
         body.measure.hand / 2,

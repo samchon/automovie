@@ -1,7 +1,4 @@
-import {
-  AutoMoviePhysicsCache,
-  checkpointPhysicalSimulation,
-} from "@automovie/engine";
+import { AutoMovieEnginePhysicsCache, AutoMovieEnginePhysicalSimulation } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalSimulation,
   IAutoMoviePhysicalSimulationInput,
@@ -71,7 +68,7 @@ function previous(
   every: number,
   protocol?: string,
 ): IAutoMoviePhysicalSimulation {
-  const cache: AutoMoviePhysicsCache = new AutoMoviePhysicsCache(
+  const cache: AutoMovieEnginePhysicsCache = new AutoMovieEnginePhysicsCache(
     "previous",
     input.rate,
     input.duration,
@@ -128,18 +125,18 @@ export function test_engine_physics_checkpoint_physical_simulation(): void {
   TestValidator.equals(
     "the resume interval",
     [
-      checkpointPhysicalSimulation(edit(original, 25)),
-      checkpointPhysicalSimulation(edit(original, 25), stale),
-      checkpointPhysicalSimulation(
+      AutoMovieEnginePhysicalSimulation.checkpoint(edit(original, 25)),
+      AutoMovieEnginePhysicalSimulation.checkpoint(edit(original, 25), stale),
+      AutoMovieEnginePhysicalSimulation.checkpoint(
         { ...edit(original, 25), substeps: 8 },
         tens,
       ),
-      checkpointPhysicalSimulation(edit(original, 25), tens),
-      checkpointPhysicalSimulation(edit(original, 20), tens),
-      checkpointPhysicalSimulation(edit(original, 0), tens),
-      checkpointPhysicalSimulation(edit(original, 25), every),
-      checkpointPhysicalSimulation(pushed, every),
-      checkpointPhysicalSimulation(workload(2 * COUNT), tens),
+      AutoMovieEnginePhysicalSimulation.checkpoint(edit(original, 25), tens),
+      AutoMovieEnginePhysicalSimulation.checkpoint(edit(original, 20), tens),
+      AutoMovieEnginePhysicalSimulation.checkpoint(edit(original, 0), tens),
+      AutoMovieEnginePhysicalSimulation.checkpoint(edit(original, 25), every),
+      AutoMovieEnginePhysicalSimulation.checkpoint(pushed, every),
+      AutoMovieEnginePhysicalSimulation.checkpoint(workload(2 * COUNT), tens),
     ],
     [0, 0, 0, 20, 10, 0, 24, 24, COUNT],
   );

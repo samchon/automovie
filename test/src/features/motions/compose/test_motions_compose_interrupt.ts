@@ -1,5 +1,7 @@
 import type { IAutoMovieMotionHumanInterruptRow } from "@automovie/interface";
-import { AutoMovieMotionHumanInterrupt } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanInterrupt
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanInterrupt";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -22,14 +24,14 @@ export function test_motions_compose_interrupt(): void {
     AutoMovieMotionHumanInterrupt.WINDOWS.map(
       (
         w: (typeof AutoMovieMotionHumanInterrupt.WINDOWS)[number],
-      ): readonly (number | string)[] =>
+      ): IAutoMovieMotionHumanInterruptRow.IWindow =>
         AutoMovieMotionHumanInterrupt.row(w, "quick").window,
     ),
     [
-      [0, 1],
-      ["stroke", 1],
-      ["strokeEnd", 1],
-      ["relax", 1],
+      { start: 0, end: 1 },
+      { start: "stroke", end: 1 },
+      { start: "strokeEnd", end: 1 },
+      { start: "relax", end: 1 },
     ],
   );
 
@@ -62,9 +64,21 @@ export function test_motions_compose_interrupt(): void {
     }),
     {
       walk: [
-        { window: ["stroke", 1], kind: "inertialize", entry: 0, blend: 0.15 },
+        {
+          window: { start: "stroke", end: 1 },
+          kind: "inertialize",
+          entry: 0,
+          blend: 0.15,
+        },
       ],
-      any: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.3 }],
+      any: [
+        {
+          window: { start: 0, end: 1 },
+          kind: "inertialize",
+          entry: 0,
+          blend: 0.3,
+        },
+      ],
     },
   );
 }

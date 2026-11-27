@@ -1,8 +1,12 @@
+import type {
+  IProductionConfigProps
+} from "../../../../packages/evidence/src/narrative/IProductionConfigProps";
 import {
-  type IProductionConfigProps,
-  createProductionClaims,
-  createProductionConfig,
-} from "@automovie/evidence/internal";
+  createProductionClaims
+} from "../../../../packages/evidence/src/narrative/internal/createProductionClaims";
+import {
+  createProductionConfig
+} from "../../../../packages/evidence/src/narrative/internal/createProductionConfig";
 import type {
   IEvidenceCheckAnalysis,
   IEvidenceClaim,

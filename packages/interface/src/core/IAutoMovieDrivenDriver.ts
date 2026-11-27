@@ -6,9 +6,10 @@ import type { IAutoMovieDrivenCurve } from "./IAutoMovieDrivenCurve";
  * source to drive separate scalar outputs.
  *
  * A non-null curve selects piecewise-linear interpolation with held ends,
- * superseding inRange, outRange and clamp. Otherwise both finite two-element
- * ranges are required; clamp defaults to false, and equal input endpoints
- * select the first output endpoint.
+ * superseding inRange, outRange and clamp. Otherwise both finite directed
+ * endpoint ranges are required; clamp defaults to false, and equal input
+ * endpoints select the first output endpoint. Descending ranges retain their
+ * direction.
  *
  * Channel-space execution precedes limits and follows copy/driven dependency
  * order. Output is a scalar pointer or node weights carrying one value; TRS and
@@ -29,16 +30,16 @@ export interface IAutoMovieDrivenDriver {
   source: IAutoMovieChannel;
 
   /**
-   * Finite source range [in0, in1], required for linear remapping and ignored
-   * with a non-null curve.
+   * Finite source endpoints, required for linear remapping and ignored with a
+   * non-null curve.
    */
-  inRange?: [number, number];
+  inRange?: IAutoMovieDrivenDriver.IInputRange;
 
   /**
-   * Finite output range [out0, out1], required for linear remapping and ignored
-   * with a non-null curve.
+   * Finite output endpoints, required for linear remapping and ignored with a
+   * non-null curve.
    */
-  outRange?: [number, number];
+  outRange?: IAutoMovieDrivenDriver.IOutputRange;
 
   /**
    * Whether linear remapping clamps its normalized input parameter to [0, 1];
@@ -52,4 +53,24 @@ export interface IAutoMovieDrivenDriver {
    * or omission selects linear remapping.
    */
   curve?: IAutoMovieDrivenCurve | null;
+}
+
+export namespace IAutoMovieDrivenDriver {
+  /** Directed source endpoints used by linear remapping. */
+  export interface IInputRange {
+    /** Source value mapped to the first output endpoint. */
+    from: number;
+
+    /** Source value mapped to the second output endpoint. */
+    to: number;
+  }
+
+  /** Directed output endpoints used by linear remapping. */
+  export interface IOutputRange {
+    /** Output value at the first source endpoint. */
+    from: number;
+
+    /** Output value at the second source endpoint. */
+    to: number;
+  }
 }

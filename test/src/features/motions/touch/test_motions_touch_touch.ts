@@ -1,4 +1,5 @@
-import { createAutoMovieRandom, deriveAutoMovieSeed } from "@automovie/engine";
+import { AutoMovieEngineRandom } from "@automovie/engine";
+
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -9,13 +10,23 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanRefusal,
-  touchEffectors,
-  touchFaces,
-  touchLayouts,
-  touchSide,
-  touchSite,
-} from "@automovie/motions/internal";
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  touchEffectors
+} from "../../../../../packages/motions/src/touch/internal/touchEffectors";
+import {
+  touchFaces
+} from "../../../../../packages/motions/src/touch/internal/touchFaces";
+import {
+  touchLayouts
+} from "../../../../../packages/motions/src/touch/internal/touchLayouts";
+import {
+  touchSide
+} from "../../../../../packages/motions/src/touch/internal/touchSide";
+import {
+  touchSite
+} from "../../../../../packages/motions/src/touch/internal/touchSite";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -144,7 +155,7 @@ export async function test_motions_touch_touch(): Promise<void> {
   // 3. Sites.
   const context: Parameters<typeof touchSite>[0] = {
     series: () => ({
-      random: createAutoMovieRandom(deriveAutoMovieSeed("site")),
+      random: AutoMovieEngineRandom.createRandom(AutoMovieEngineRandom.deriveSeed("site")),
       index: 1,
     }),
   };
@@ -182,7 +193,7 @@ export async function test_motions_touch_touch(): Promise<void> {
   try {
     touchSite(context, { rule: "reach", within: -1 });
   } catch (error: unknown) {
-    refused = error instanceof HumanRefusal && error.axis === "site.within";
+    refused = error instanceof AutoMovieMotionHumanRefusal && error.axis === "site.within";
   }
   TestValidator.predicate("a negative within", refused);
 

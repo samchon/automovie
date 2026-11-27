@@ -1,11 +1,8 @@
-import {
-  formatAutoMovieInspectorCommand,
-  readAutoMovieInspectorAddress,
-} from "@automovie/viewer";
+import { AutoMovieViewerInspector } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `formatAutoMovieInspectorCommand` writes a request as `automovie capture`
+ * `AutoMovieViewerInspector.formatCommand` writes a request as `automovie capture`
  * options, single-quoting an argument a shell would split.
  *
  * Scenarios:
@@ -20,20 +17,20 @@ import { TestValidator } from "@nestia/e2e";
 export function test_viewer_inspector_format_command(): void {
   TestValidator.equals(
     "a plain option",
-    formatAutoMovieInspectorCommand(readAutoMovieInspectorAddress("at=1")),
+    AutoMovieViewerInspector.formatCommand(AutoMovieViewerInspector.readAddress("at=1")),
     { options: ["--at=1"], text: "automovie capture --at=1" },
   );
   TestValidator.equals(
     "a quoted option",
-    formatAutoMovieInspectorCommand(
-      readAutoMovieInspectorAddress(`subject=${encodeURIComponent("a b's")}`),
+    AutoMovieViewerInspector.formatCommand(
+      AutoMovieViewerInspector.readAddress(`subject=${encodeURIComponent("a b's")}`),
     ).text,
     "automovie capture '--subject=a b'\\''s'",
   );
   TestValidator.equals(
     "PowerShell executable and literal arguments",
-    formatAutoMovieInspectorCommand(
-      readAutoMovieInspectorAddress(
+    AutoMovieViewerInspector.formatCommand(
+      AutoMovieViewerInspector.readAddress(
         `subject=${encodeURIComponent("editor's ‘$cut’")}`,
       ),
       {
@@ -52,7 +49,7 @@ export function test_viewer_inspector_format_command(): void {
   );
   TestValidator.equals(
     "PowerShell script prefix",
-    formatAutoMovieInspectorCommand(readAutoMovieInspectorAddress("at=1"), {
+    AutoMovieViewerInspector.formatCommand(AutoMovieViewerInspector.readAddress("at=1"), {
       command: ["pnpm", "run", "capture"],
       shell: "powershell",
     }).text,

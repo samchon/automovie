@@ -1,4 +1,4 @@
-import { unionSubjectBoxes } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type { IAutoMovieSubjectBox } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -16,15 +16,15 @@ import { TestValidator } from "@nestia/e2e";
  *    argument limit of a spread `Math.min`.
  */
 export function test_engine_film_union_subject_boxes(): void {
-  TestValidator.equals("empty", unionSubjectBoxes([]), null);
+  TestValidator.equals("empty", AutoMovieEngineFilm.unionSubjectBoxes([]), null);
   const only: IAutoMovieSubjectBox = {
     min: { x: -1, y: 0, z: 2 },
     max: { x: 1, y: 3, z: 4 },
   };
-  const single: IAutoMovieSubjectBox | null = unionSubjectBoxes([only]);
+  const single: IAutoMovieSubjectBox | null = AutoMovieEngineFilm.unionSubjectBoxes([only]);
   TestValidator.equals("single corners", single, only);
   TestValidator.predicate("single is new", single !== only);
-  const mixed: IAutoMovieSubjectBox | null = unionSubjectBoxes([
+  const mixed: IAutoMovieSubjectBox | null = AutoMovieEngineFilm.unionSubjectBoxes([
     only,
     { min: { x: -5, y: 1, z: 3 }, max: { x: 0, y: 2, z: 3 } },
     { min: { x: 0, y: -2, z: 2 }, max: { x: 0, y: 9, z: 7 } },
@@ -41,7 +41,7 @@ export function test_engine_film_union_subject_boxes(): void {
       max: { x: index + 1, y: 1, z: 1 },
     }),
   );
-  TestValidator.equals("many", unionSubjectBoxes(many), {
+  TestValidator.equals("many", AutoMovieEngineFilm.unionSubjectBoxes(many), {
     min: { x: 0, y: 0, z: 0 },
     max: { x: 300_000, y: 1, z: 1 },
   });

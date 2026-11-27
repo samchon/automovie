@@ -1,10 +1,16 @@
+import type {
+  IProductionConfigProps
+} from "../../../../packages/evidence/src/narrative/IProductionConfigProps";
 import {
-  type IProductionConfigProps,
-  createPackageContract,
-  createPackagePopulationContract,
-  createProductionConfig,
-} from "@automovie/evidence/internal";
-import { createAutoMovieScaffold } from "@automovie/template";
+  createPackageContract
+} from "../../../../packages/evidence/src/narrative/internal/createPackageContract";
+import {
+  createPackagePopulationContract
+} from "../../../../packages/evidence/src/narrative/internal/createPackagePopulationContract";
+import {
+  createProductionConfig
+} from "../../../../packages/evidence/src/narrative/internal/createProductionConfig";
+import { AutoMovieTemplateScaffold } from "@automovie/template";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
@@ -15,12 +21,15 @@ import { ProductionWorkflowFixture } from "../internal/ProductionWorkflowFixture
  * Final expression belongs to screenplay construction on both routes.
  *
  * Scenarios:
+ *
  * 1. The installed contracts allow a long script to close without final wording.
  * 2. Ordinary coverage leaves the screenplay's expression incomplete. Restoring
- *    section answers alone still leaves the whole-film comparisons outstanding.
+ *    section answers alone still leaves the whole-film comparisons
+ *    outstanding.
  * 3. Local language and work questions bind the adopted screenplay respondents.
  * 4. Construction accepts only the supported stage values.
- * 5. A missing bundled screenplay obligation file is diagnosed even when none of its answers remain.
+ * 5. A missing bundled screenplay obligation file is diagnosed even when none of
+ *    its answers remain.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Installs the scaffold's actual screenplay questions in a native graph and checks the verdict before and after restoring the two sets of answers. The long script has no expression answers throughout.
  * @evidence contracts/development/testing.md#independent-expectations The four wording, fidelity, exchange and rhythm items need section evidence. The three comparisons each need one file respondent. The fixture answers the screenplay's other items independently.
@@ -29,7 +38,7 @@ import { ProductionWorkflowFixture } from "../internal/ProductionWorkflowFixture
  * @evidence contracts/development/common.md#meaningful-documentation The scenarios name the draft and final respondents, their checks, the local contracts and the supported stages.
  */
 export async function test_evidence_production_screenplay_expression(): Promise<void> {
-  const scaffold: Record<string, string> = createAutoMovieScaffold({
+  const scaffold: Record<string, string> = AutoMovieTemplateScaffold.create({
     kind: "production",
     name: "expression-test",
   });

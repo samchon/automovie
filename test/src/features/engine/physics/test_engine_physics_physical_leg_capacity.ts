@@ -1,7 +1,7 @@
 import {
-  AutoMovieXpbdBody,
-  physicalLegCapacity,
-  physicalStanceAllocation,
+  AutoMovieEngineXpbdBody,
+  AutoMovieEnginePhysicalLegCapacity,
+  AutoMovieEnginePhysicalStanceAllocation,
 } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalJoint,
@@ -34,7 +34,7 @@ export function test_engine_physics_physical_leg_capacity(): void {
   const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   const rigid = (
     position: IAutoMovieVector3,
-  ): Pick<AutoMovieXpbdBody, "translation" | "rotation"> => ({
+  ): Pick<AutoMovieEngineXpbdBody, "translation" | "rotation"> => ({
     translation: (): IAutoMovieVector3 => position,
     rotation: (): IAutoMovieQuaternion => identity,
   });
@@ -42,7 +42,7 @@ export function test_engine_physics_physical_leg_capacity(): void {
   // 1. The bent leg's capacity.
   const segments: ReadonlyMap<
     string,
-    Pick<AutoMovieXpbdBody, "translation" | "rotation">
+    Pick<AutoMovieEngineXpbdBody, "translation" | "rotation">
   > = new Map([
     ["pelvis", rigid({ x: 0, y: 1, z: 0 })],
     ["thigh", rigid({ x: 0, y: 0.55, z: 0.3 })],
@@ -74,7 +74,7 @@ export function test_engine_physics_physical_leg_capacity(): void {
   const profile: Pick<IAutoMoviePhysicalProfile, "joints"> = {
     joints: [joint("pelvis", "thigh", 80), joint("thigh", "shin", 60)],
   };
-  const force: number = physicalLegCapacity({
+  const force: number = AutoMovieEnginePhysicalLegCapacity.compute({
     profile,
     segments,
     chain: ["thigh", "shin"],
@@ -90,7 +90,7 @@ export function test_engine_physics_physical_leg_capacity(): void {
     { x: 0.5, y: 0, z: front },
     { x: -0.5, y: 0, z: front },
   ];
-  const region: IAutoMovieVector3[] | undefined = physicalLegCapacity.region([
+  const region: IAutoMovieVector3[] | undefined = AutoMovieEnginePhysicalLegCapacity.region([
     { points: strip(0.2, 0.4), share: 0.6 },
     { points: strip(-0.4, -0.2), share: 2 },
   ]);
@@ -105,7 +105,7 @@ export function test_engine_physics_physical_leg_capacity(): void {
       failures.push(
         `the region spans ${back} to ${front} against -0.4 to 0.16`,
       );
-    const allocated = physicalStanceAllocation.allocate({
+    const allocated = AutoMovieEnginePhysicalStanceAllocation.allocate({
       capture: { x: 0, y: 0, z: 0.1 },
       reference: zero,
       command: { x: 0, y: 0, z: 0.5 },
@@ -123,7 +123,7 @@ export function test_engine_physics_physical_leg_capacity(): void {
       );
   }
   if (
-    physicalLegCapacity.region([
+    AutoMovieEnginePhysicalLegCapacity.region([
       { points: strip(0.2, 0.4), share: 2 },
       { points: strip(-0.4, -0.2), share: 2 },
     ]) !== undefined

@@ -1,4 +1,4 @@
-import { differentiateRecoveryMapTangent } from "@automovie/recovery";
+import { AutoMovieRecoveryCameraMap } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -15,7 +15,7 @@ import { TestValidator } from "@nestia/e2e";
 export function test_recovery_internal_differentiate_map_tangent(): void {
   TestValidator.equals(
     "projected rows",
-    differentiateRecoveryMapTangent(
+    AutoMovieRecoveryCameraMap.differentiateMapTangent(
       [0, 0, 2],
       [
         [1, 0, 1],
@@ -29,7 +29,7 @@ export function test_recovery_internal_differentiate_map_tangent(): void {
   );
   TestValidator.equals(
     "a zero translation",
-    differentiateRecoveryMapTangent(
+    AutoMovieRecoveryCameraMap.differentiateMapTangent(
       [0, 0, 0],
       [
         [1, 0, 0],
@@ -39,6 +39,6 @@ export function test_recovery_internal_differentiate_map_tangent(): void {
     null,
   );
   TestValidator.error("a one-row tangent", (): unknown =>
-    differentiateRecoveryMapTangent([0, 0, 1], [[1, 0, 0]]),
+    AutoMovieRecoveryCameraMap.differentiateMapTangent([0, 0, 1], [[1, 0, 0]]),
   );
 }

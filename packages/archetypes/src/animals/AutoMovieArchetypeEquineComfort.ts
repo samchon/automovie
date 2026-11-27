@@ -1,4 +1,4 @@
-import { seededValue } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -11,63 +11,6 @@ import type { AutoMovieArchetypeEquineExpressionCue } from "./AutoMovieArchetype
 import { AutoMovieArchetypeEquineStance } from "./AutoMovieArchetypeEquineStance";
 import type { AutoMovieArchetypeEquineStanceCue } from "./AutoMovieArchetypeEquineStanceCue";
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
-
-/** An idle act's kind. */
-type IdleKind = Exclude<
-  AutoMovieArchetypeEquineComfortCue.Act["kind"],
-  AutoMovieArchetypeEquineComfortCue.Elimination
->;
-
-/** Seconds bounds of an idle act or gap. */
-type Bounds = readonly [number, number];
-
-/** Each idle act's length bounds, seconds: authored. */
-const IDLE: Readonly<Record<IdleKind, Bounds>> = {
-  rest: [8, 14],
-  doze: [6, 10],
-  swish: [1.5, 3],
-  twitch: [0.5, 1],
-  paw: [2, 3.5],
-  stamp: [0.6, 0.9],
-  shake: [1.5, 2.5],
-  cowKick: [0.8, 1.2],
-  yawn: [2.5, 4],
-  flehmen: [3, 5],
-};
-
-/** The idle kinds in a fixed order, so a seed picks the same one every time. */
-const KINDS: readonly IdleKind[] = [
-  "rest",
-  "doze",
-  "swish",
-  "twitch",
-  "paw",
-  "stamp",
-  "shake",
-  "cowKick",
-  "yawn",
-  "flehmen",
-];
-
-/** The neutral gap between idle acts, seconds: authored. */
-const GAP: Bounds = [1, 3];
-
-/** The twitch regions in a fixed order. */
-const REGIONS: readonly AutoMovieArchetypeEquineExpressionCue.Region[] = [
-  "neck",
-  "shoulder",
-  "barrel",
-  "flank",
-  "croup",
-];
-
-/** The limbs in a fixed order. */
-const LIMBS: readonly AutoMovieArchetypeQuadrupedBody.Limb[] = [
-  "leftFore",
-  "rightFore",
-  "leftHind",
-  "rightHind",
-];
 
 /**
  * The standing horse's rest, comfort and elimination behaviours over a halt,
@@ -167,7 +110,7 @@ export namespace AutoMovieArchetypeEquineComfort {
   ): AutoMovieArchetypeEquineComfortCue.Act[] {
     const acts: AutoMovieArchetypeEquineComfortCue.Act[] = [];
     const draw = (slot: number, domain: number): number =>
-      seededValue(seed, slot, domain);
+      AutoMovieEngineMath.seededValue(seed, slot, domain);
     const within = (bounds: Bounds, value: number): number =>
       bounds[0] + (bounds[1] - bounds[0]) * value;
     let side: AutoMovieArchetypeEquineExpressionCue.Side =
@@ -212,7 +155,9 @@ export namespace AutoMovieArchetypeEquineComfort {
     }
   }
 
-  /** Expand one act into stance rows and expression cues. */
+  /*
+   * Expand one act into stance rows and expression cues.
+   */
   function expand(
     act: AutoMovieArchetypeEquineComfortCue.Act,
     rows: AutoMovieArchetypeEquineStanceCue.Cue[],
@@ -285,3 +230,74 @@ export namespace AutoMovieArchetypeEquineComfort {
     } else cues.push({ kind: "tail", carriage: "raised", ...window(0.5) });
   }
 }
+
+/*
+ * Each idle act's length bounds, seconds: authored.
+ */
+const IDLE: Readonly<Record<IdleKind, Bounds>> = {
+  rest: [8, 14],
+  doze: [6, 10],
+  swish: [1.5, 3],
+  twitch: [0.5, 1],
+  paw: [2, 3.5],
+  stamp: [0.6, 0.9],
+  shake: [1.5, 2.5],
+  cowKick: [0.8, 1.2],
+  yawn: [2.5, 4],
+  flehmen: [3, 5],
+};
+
+/*
+ * The idle kinds in a fixed order, so a seed picks the same one every time.
+ */
+const KINDS: readonly IdleKind[] = [
+  "rest",
+  "doze",
+  "swish",
+  "twitch",
+  "paw",
+  "stamp",
+  "shake",
+  "cowKick",
+  "yawn",
+  "flehmen",
+];
+
+/*
+ * The neutral gap between idle acts, seconds: authored.
+ */
+const GAP: Bounds = [1, 3];
+
+/*
+ * The twitch regions in a fixed order.
+ */
+const REGIONS: readonly AutoMovieArchetypeEquineExpressionCue.Region[] = [
+  "neck",
+  "shoulder",
+  "barrel",
+  "flank",
+  "croup",
+];
+
+/*
+ * The limbs in a fixed order.
+ */
+const LIMBS: readonly AutoMovieArchetypeQuadrupedBody.Limb[] = [
+  "leftFore",
+  "rightFore",
+  "leftHind",
+  "rightHind",
+];
+
+/*
+ * An idle act's kind.
+ */
+type IdleKind = Exclude<
+  AutoMovieArchetypeEquineComfortCue.Act["kind"],
+  AutoMovieArchetypeEquineComfortCue.Elimination
+>;
+
+/*
+ * Seconds bounds of an idle act or gap.
+ */
+type Bounds = readonly [number, number];

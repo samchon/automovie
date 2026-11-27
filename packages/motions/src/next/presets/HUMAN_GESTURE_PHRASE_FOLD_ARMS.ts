@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanGesture } from "@automovie/interface";
 
-/**
+/*
  * The values the `foldArms` row of `HumanUpperRows` fixes on `armPhrase`,
  * spread into its parameters. Folding the arms: each hand visits the far arm
  * before the chest, the forearms folded, and stays (the phrase that reaches

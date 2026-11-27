@@ -1,8 +1,4 @@
-import {
-  resolveSequencePlayback,
-  sequenceEventTimeline,
-  sequenceTimeline,
-} from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import {
   type IAutoMoviePlaybackEntry,
   type IAutoMoviePlaybackEvent,
@@ -102,7 +98,7 @@ const SEQUENCE: IAutoMovieSequence = {
  * 9. Emit a replayed hit at each noncontiguous flashback play.
  */
 export function test_engine_film_playback_resolver(): void {
-  const timeline: IAutoMoviePlaybackTimeline = sequenceTimeline(
+  const timeline: IAutoMoviePlaybackTimeline = AutoMovieEngineFilm.sequenceTimeline(
     SEQUENCE,
     SHOTS,
   );
@@ -119,7 +115,7 @@ export function test_engine_film_playback_resolver(): void {
   const at: (t: number) => IAutoMoviePlaybackSample | null = (
     t: number,
   ): IAutoMoviePlaybackSample | null =>
-    resolveSequencePlayback(SEQUENCE, SHOTS, t);
+    AutoMovieEngineFilm.resolveSequencePlayback(SEQUENCE, SHOTS, t);
 
   const t1: IAutoMoviePlaybackSample = at(1)!;
   TestValidator.equals("T=1 shot", t1.shot, "shot:beat-1");
@@ -156,7 +152,7 @@ export function test_engine_film_playback_resolver(): void {
     "duplicate playback shots reject ambiguous lookup",
     throwsError(
       (): IAutoMoviePlaybackTimeline =>
-        sequenceTimeline(SEQUENCE, [
+        AutoMovieEngineFilm.sequenceTimeline(SEQUENCE, [
           SHOTS[0]!,
           { ...SHOTS[0]!, duration: 9 },
           SHOTS[1]!,
@@ -168,7 +164,7 @@ export function test_engine_film_playback_resolver(): void {
     "missing trimmed playback shot rejects bad sequence entry",
     throwsError(
       (): IAutoMoviePlaybackTimeline =>
-        sequenceTimeline(
+        AutoMovieEngineFilm.sequenceTimeline(
           {
             ...SEQUENCE,
             shots: [
@@ -188,7 +184,7 @@ export function test_engine_film_playback_resolver(): void {
     "empty playback sequence rejects before sampling",
     throwsError(
       (): IAutoMoviePlaybackTimeline =>
-        sequenceTimeline({ ...SEQUENCE, shots: [] }, SHOTS),
+        AutoMovieEngineFilm.sequenceTimeline({ ...SEQUENCE, shots: [] }, SHOTS),
       ['sequence "seq"', "at least one shot"],
     ),
   );
@@ -196,7 +192,7 @@ export function test_engine_film_playback_resolver(): void {
     "first playback transition rejects missing outgoing entry",
     throwsError(
       (): IAutoMoviePlaybackSample | null =>
-        resolveSequencePlayback(
+        AutoMovieEngineFilm.resolveSequencePlayback(
           {
             ...SEQUENCE,
             shots: [
@@ -248,7 +244,7 @@ export function test_engine_film_playback_resolver(): void {
       },
     ],
   };
-  const events: IAutoMoviePlaybackEvent[] = sequenceEventTimeline(
+  const events: IAutoMoviePlaybackEvent[] = AutoMovieEngineFilm.sequenceEventTimeline(
     eventSequence,
     eventShots,
   );
@@ -274,7 +270,7 @@ export function test_engine_film_playback_resolver(): void {
   );
   TestValidator.equals(
     "shots without interaction metadata produce no sequence events",
-    sequenceEventTimeline(SEQUENCE, SHOTS),
+    AutoMovieEngineFilm.sequenceEventTimeline(SEQUENCE, SHOTS),
     [],
   );
 
@@ -288,7 +284,7 @@ export function test_engine_film_playback_resolver(): void {
       ],
     },
   ];
-  const seamEvents: IAutoMoviePlaybackEvent[] = sequenceEventTimeline(
+  const seamEvents: IAutoMoviePlaybackEvent[] = AutoMovieEngineFilm.sequenceEventTimeline(
     {
       id: "seq-seam",
       name: null,
@@ -328,7 +324,7 @@ export function test_engine_film_playback_resolver(): void {
     },
     shot("shot:beat-2", 1),
   ];
-  const cutEvents: IAutoMoviePlaybackEvent[] = sequenceEventTimeline(
+  const cutEvents: IAutoMoviePlaybackEvent[] = AutoMovieEngineFilm.sequenceEventTimeline(
     {
       id: "seq-cut",
       name: null,
@@ -360,7 +356,7 @@ export function test_engine_film_playback_resolver(): void {
       events: [event("hit", "contact", "sampledProximity", 2)],
     },
   ];
-  const flashbackEvents: IAutoMoviePlaybackEvent[] = sequenceEventTimeline(
+  const flashbackEvents: IAutoMoviePlaybackEvent[] = AutoMovieEngineFilm.sequenceEventTimeline(
     {
       id: "seq-flashback",
       name: null,

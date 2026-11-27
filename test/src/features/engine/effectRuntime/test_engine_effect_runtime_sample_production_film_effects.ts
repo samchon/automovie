@@ -1,7 +1,4 @@
-import {
-  AutoMovieFilmEffectRuntimeError,
-  sampleProductionFilmEffects,
-} from "@automovie/engine";
+import { AutoMovieEngineFilmEffectRuntimeError, AutoMovieEngineEffect } from "@automovie/engine";
 import type {
   IAutoMovieCompiledFilmEffect,
   IAutoMovieFilmEffectCurrentIdentity,
@@ -25,10 +22,10 @@ const refusal: (
   timelineFrame: number,
 ): string | null => {
   try {
-    sampleProductionFilmEffects({ identity, effects, timelineFrame });
+    AutoMovieEngineEffect.sampleProductionFilmEffects({ identity, effects, timelineFrame });
     return null;
   } catch (error) {
-    return error instanceof AutoMovieFilmEffectRuntimeError ? error.code : null;
+    return error instanceof AutoMovieEngineFilmEffectRuntimeError ? error.code : null;
   }
 };
 
@@ -51,7 +48,7 @@ export function test_engine_effect_runtime_sample_production_film_effects(): voi
   const effects: IAutoMovieCompiledFilmEffect[] =
     materializedFilmEffects(timeline);
   const samples: IAutoMovieProductionFilmEffectSample[] =
-    sampleProductionFilmEffects({
+    AutoMovieEngineEffect.sampleProductionFilmEffects({
       identity,
       effects,
       timelineFrame: 18,

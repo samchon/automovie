@@ -1,7 +1,7 @@
 import {
+  AutoMovieArchetypeCar,
   AutoMovieArchetypeFrame,
   AutoMovieArchetypeUnits,
-  createCar,
 } from "@automovie/archetypes";
 import type {
   IAutoMovieAffordance,
@@ -11,16 +11,44 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * A car's accelerator, steering wheel, doors and seats stand where the packaging standards and a measured sedan place them for its seat height.
+ * A car's accelerator, steering wheel, doors and seats stand where the
+ * packaging standards and a measured sedan place them for its seat height.
  *
  * Scenarios, for every class at four seeds and both driving sides:
- * 1. The accelerator's plate faces the sole out of SAE J1516's pedal plane, at 78.96 - 0.15 z - 0.0173 z squared degrees from the floor with z the seat height H30 in centimetres, within 1e-9.
- * 2. The accelerator's plate lies at the ball of foot, 203 mm up that plane from the heel point on the cabin floor: its height above the floor is 203 mm times the sine of the angle (plus the frame's 5 mm lift off the plate along the sole), within 1e-9 m.
- * 3. The driver's centreline is 381 mm outboard of the car's on the driving side (SAE J826 5.3.4): the steering wheel is centred on it and the accelerator lies 127 mm to its right, under the right foot of feet 254 mm apart (ISO 6549 5.7.2.1).
- * 4. The steering wheel's centre lies 550 mm aft of the ball of foot (SAE J1100's L6) and 646 mm above the heel point (H17), the values of a mid-size sedan package, within 1e-9 m.
- * 5. The front door's hinge stands 578.6 mm behind the front axle and its opening is 1155 mm long (the 2023 Honda Accord's NCAP stations), except a van's, whose opening ends at its bulkhead, the load length ahead of the rear doors' 0.04 m inner panel on a 958 mm front overhang (Ford's Transit Custom figures); the ball of foot lies SAE J1516's tool reference distance, 793.7 + 0.903387 z - 0.00225518 z squared mm with z = H30 in mm, ahead of a seating reference point 262 mm ahead of the door's rear edge (the 2018 Accord's driver H-point to B-post striker).
- * 6. The cabin floor, a provisional height, lies above the rocker panel's measured lower edge, 176 mm, and below the belt line 745 mm above that edge (the 2018 Accord's side impact report); the door opening's threshold is the floor and its top the window's top, 176 + 745 + 413 mm above the ground, except on a pickup, whose belt is its bed's rail.
- * 7. Outside a van, the rear bench's seating reference point lies 203 mm ahead of the rear doors' trailing edge, which lies 2059 mm behind the front doors' leading edge, so the rear seat's front edge is 963 mm behind the driver's, at the driver's height (the 2018 Accord's report); a sedan's and a hatchback's rear opening runs from the middle pillar to that trailing edge, 904 mm.
+ *
+ * 1. The accelerator's plate faces the sole out of SAE J1516's pedal plane, at
+ *    78.96 - 0.15 z - 0.0173 z squared degrees from the floor with z the seat
+ *    height H30 in centimetres, within 1e-9.
+ * 2. The accelerator's plate lies at the ball of foot, 203 mm up that plane from
+ *    the heel point on the cabin floor: its height above the floor is 203 mm
+ *    times the sine of the angle (plus the frame's 5 mm lift off the plate
+ *    along the sole), within 1e-9 m.
+ * 3. The driver's centreline is 381 mm outboard of the car's on the driving side
+ *    (SAE J826 5.3.4): the steering wheel is centred on it and the accelerator
+ *    lies 127 mm to its right, under the right foot of feet 254 mm apart (ISO
+ *    6549 5.7.2.1).
+ * 4. The steering wheel's centre lies 550 mm aft of the ball of foot (SAE J1100's
+ *    L6) and 646 mm above the heel point (H17), the values of a mid-size sedan
+ *    package, within 1e-9 m.
+ * 5. The front door's hinge stands 578.6 mm behind the front axle and its opening
+ *    is 1155 mm long (the 2023 Honda Accord's NCAP stations), except a van's,
+ *    whose opening ends at its bulkhead, the load length ahead of the rear
+ *    doors' 0.04 m inner panel on a 958 mm front overhang (Ford's Transit
+ *    Custom figures); the ball of foot lies SAE J1516's tool reference
+ *    distance, 793.7 + 0.903387 z - 0.00225518 z squared mm with z = H30 in mm,
+ *    ahead of a seating reference point 262 mm ahead of the door's rear edge
+ *    (the 2018 Accord's driver H-point to B-post striker).
+ * 6. The cabin floor, a provisional height, lies above the rocker panel's measured
+ *    lower edge, 176 mm, and below the belt line 745 mm above that edge (the
+ *    2018 Accord's side impact report); the door opening's threshold is the
+ *    floor and its top the window's top, 176 + 745 + 413 mm above the ground,
+ *    except on a pickup, whose belt is its bed's rail.
+ * 7. Outside a van, the rear bench's seating reference point lies 203 mm ahead of
+ *    the rear doors' trailing edge, which lies 2059 mm behind the front doors'
+ *    leading edge, so the rear seat's front edge is 963 mm behind the driver's,
+ *    at the driver's height (the 2018 Accord's report); a sedan's and a
+ *    hatchback's rear opening runs from the middle pillar to that trailing
+ *    edge, 904 mm.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Produces cars and reads the pedal, wheel, door, opening and seat frames; a pedal on another plane, off the ball of foot, a wheel at another distance from the pedals, a door or a seat off its measured station, or a floor outside its read bounds is caught.
  * @evidence contracts/development/testing.md#independent-expectations The angle and the tool reference distance are SAE J1516's equations (reaffirmed 1990), the 203 mm its 3.3.4 and ISO 20176:2020's, L6 and H17 Park et al. 2018's sedan package, the door's stations NHTSA report NCAP-MGA-23-030's, the rocker edge, belt, window, strikers' distances and doors' edges NHTSA report M20185302's, each worked here from the car's drawn seat height, wheelbase and floor, not read from the producer's layout. The floor is the producer's provisional constant, which this test bounds rather than derives.
@@ -31,13 +59,11 @@ import { TestValidator } from "@nestia/e2e";
 export function test_archetype_car_controls(): void {
   const findings: string[] = [];
   const close = (a: number, b: number): boolean => Math.abs(a - b) <= 1e-9;
-  for (const kind of createCar.KINDS)
+  for (const kind of AutoMovieArchetypeCar.KINDS)
     for (const drive of ["left", "right"] as const)
       for (const seed of [0, 3, 7, 12]) {
-        const car: ReturnType<typeof createCar> = createCar(
-          { kind, drive },
-          seed,
-        );
+        const car: ReturnType<typeof AutoMovieArchetypeCar.create> =
+          AutoMovieArchetypeCar.create({ kind, drive }, seed);
         const label: string = `${kind} ${drive}@${seed}`;
         const h30: number = car.dimensions.seatHeight!;
         const z: number = h30 * 100;
@@ -53,7 +79,9 @@ export function test_archetype_car_controls(): void {
 
         // The floor: a van's drawn side step, otherwise the provisional constant, bounded by the measured rocker and belt line.
         const floor: number =
-          kind === "van" ? car.dimensions.sideStep! : createCar.FLOOR;
+          kind === "van"
+            ? car.dimensions.sideStep!
+            : AutoMovieArchetypeCar.FLOOR;
         if (kind !== "van" && !(floor > 0.176 && floor < 0.176 + 0.745))
           findings.push(
             `${label}: the floor ${floor} m is not between the rocker's lower edge and the belt line`,

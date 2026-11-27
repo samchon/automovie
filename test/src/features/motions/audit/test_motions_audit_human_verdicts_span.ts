@@ -3,7 +3,9 @@ import type {
   IAutoMovieMotionHumanAuditMotion,
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
-import { HumanVerdictsSpan } from "@automovie/motions/internal";
+import {
+  HumanVerdictsSpan
+} from "../../../../../packages/motions/src/audit/internal/HumanVerdictsSpan";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

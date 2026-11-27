@@ -1,7 +1,4 @@
-import {
-  compileAutoMovieSweep,
-  locateAutoMovieSweepPoint,
-} from "@automovie/engine";
+import { AutoMovieEngineSweep } from "@automovie/engine";
 import type {
   IAutoMovieSweep,
   IAutoMovieSweepSurface,
@@ -11,7 +8,7 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose, throwsError } from "../../internal/predicates";
 
 /**
- * `locateAutoMovieSweepPoint` inverts a swept surface point to its parameters
+ * `locateSweepPoint` inverts a swept surface point to its parameters
  * and offset, and admits only direction-corresponded sweeps.
  *
  * Sweep: a spine from (0,0,0) to (0,2,0) with the normal +Z and two stations of
@@ -49,12 +46,17 @@ export function test_engine_geometry_sweep_locate(): void {
           up: 1,
           left: 2,
           down: 1,
-          exponents: [2, 2, 2, 2],
+          exponents: {
+            upperRight: 2,
+            upperLeft: 2,
+            lowerLeft: 2,
+            lowerRight: 2,
+          },
         },
       }),
     ),
   };
-  const parameter: IAutoMovieSweepSurface = compileAutoMovieSweep({
+  const parameter: IAutoMovieSweepSurface = AutoMovieEngineSweep.compileSweep({
     ...sweep,
     correspondence: "parameter",
   });
@@ -62,7 +64,7 @@ export function test_engine_geometry_sweep_locate(): void {
     "parameter correspondence",
     throwsError(
       () =>
-        locateAutoMovieSweepPoint({
+        AutoMovieEngineSweep.locateSweepPoint({
           surface: parameter,
           point: parameter.point(0.37, 0.13),
         }),
@@ -71,10 +73,10 @@ export function test_engine_geometry_sweep_locate(): void {
   );
   const direction: IAutoMovieSweep = { ...sweep, correspondence: "direction" };
   for (const input of [sweep, direction]) {
-    const surface: IAutoMovieSweepSurface = compileAutoMovieSweep(input);
+    const surface: IAutoMovieSweepSurface = AutoMovieEngineSweep.compileSweep(input);
     for (const u of [0, 0.37, 1])
       for (const v of [0.13, 0.61]) {
-        const found = locateAutoMovieSweepPoint({
+        const found = AutoMovieEngineSweep.locateSweepPoint({
           surface,
           point: surface.point(u, v),
         });
@@ -94,9 +96,14 @@ export function test_engine_geometry_sweep_locate(): void {
     up,
     left,
     down: up,
-    exponents: [exponent, exponent, exponent, exponent],
+    exponents: {
+      upperRight: exponent,
+      upperLeft: exponent,
+      lowerLeft: exponent,
+      lowerRight: exponent,
+    },
   });
-  const straight: IAutoMovieSweepSurface = compileAutoMovieSweep({
+  const straight: IAutoMovieSweepSurface = AutoMovieEngineSweep.compileSweep({
     spine: {
       points: [
         { x: 0, y: 0, z: 0 },
@@ -106,7 +113,7 @@ export function test_engine_geometry_sweep_locate(): void {
     },
     stations: [0, 1].map((at: number): IAutoMovieSweep.IStation => ({ at, section: ellipse(0.1, 0.06, 0.1, 2) })),
   });
-  const snake: IAutoMovieSweepSurface = compileAutoMovieSweep({
+  const snake: IAutoMovieSweepSurface = AutoMovieEngineSweep.compileSweep({
     spine: {
       points: [
         { x: 0, y: 0, z: 0 },
@@ -142,7 +149,7 @@ export function test_engine_geometry_sweep_locate(): void {
         const angle: number = 2 * Math.PI * v;
         const c: number = Math.cos(angle);
         const s: number = Math.sin(angle);
-        const found = locateAutoMovieSweepPoint({
+        const found = AutoMovieEngineSweep.locateSweepPoint({
           surface,
           point: {
             x: p.x + along * (c * f.x.x + s * f.y.x),
@@ -160,11 +167,11 @@ export function test_engine_geometry_sweep_locate(): void {
   // 4.
   TestValidator.equals(
     "beyond the end",
-    locateAutoMovieSweepPoint({ surface: straight, point: { x: 0.02, y: 0.6, z: 0.03 } }).u,
+    AutoMovieEngineSweep.locateSweepPoint({ surface: straight, point: { x: 0.02, y: 0.6, z: 0.03 } }).u,
     1,
   );
   TestValidator.predicate(
     "at the end",
-    nclose(locateAutoMovieSweepPoint({ surface: straight, point: { x: 0.02, y: 0.5, z: 0.03 } }).u, 1, 1e-9),
+    nclose(AutoMovieEngineSweep.locateSweepPoint({ surface: straight, point: { x: 0.02, y: 0.5, z: 0.03 } }).u, 1, 1e-9),
   );
 }

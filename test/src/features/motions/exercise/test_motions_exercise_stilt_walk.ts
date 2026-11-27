@@ -1,4 +1,6 @@
-import { stiltWalk } from "@automovie/motions/internal";
+import {
+  stiltWalk
+} from "../../../../../packages/motions/src/exercise/internal/stiltWalk";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

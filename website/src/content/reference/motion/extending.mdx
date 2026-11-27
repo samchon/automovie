@@ -18,16 +18,16 @@ An installed action that fails under documented use is a package defect. The age
 
 ## The lexicon
 
-Before writing a row, check the lexicon. It holds named rows over the shipped actions, ready to register, in families such as `emblem`, `habit`, `stance`, `gait`, `social`, `stageFight`, `labour`, `ride`, `sport` and `sword`. `HUMAN_LEXICON` lists every family's rows as data:
+Before writing a row, check the lexicon. It holds named rows over the shipped actions, ready to register, in families such as `emblem`, `habit`, `stance`, `gait`, `social`, `stageFight`, `labour`, `ride`, `sport` and `sword`. The public action-family namespaces expose each family's rows as data:
 
 ```ts
-import { AutoMovieMotionHumanGesture, AutoMovieMotionHumanStageFight, HumanChain, HumanPerformance } from "@automovie/motions";
+import { AutoMovieMotionHumanGesture, AutoMovieMotionHumanStageFight, AutoMovieMotionHumanChain, AutoMovieMotionHumanPerformance } from "@automovie/motions";
 
 const { salute } = AutoMovieMotionHumanGesture.HumanEmblem;
 const { slap } = AutoMovieMotionHumanStageFight.HumanStageFight;
-const Chain = HumanChain.extend({ salute, slap });
+const Chain = AutoMovieMotionHumanChain.extend({ salute, slap });
 
-new HumanPerformance({
+new AutoMovieMotionHumanPerformance({
   seed,
   performers,
   laws: [salute, slap],
@@ -39,13 +39,13 @@ A lexicon row leaves open only what the scene decides: a target, a partner, a de
 
 ## A row
 
-A row writes no motion. The action it is a row of plans it, so it is fitted, refused and checked as that action is, cuts like it and is carried over a walk where that action can be. `HumanActionRow.of` names the row and fixes its parameters:
+A row writes no motion. The action it is a row of plans it, so it is fitted, refused and checked as that action is, cuts like it and is carried over a walk where that action can be. `AutoMovieMotionHumanActionRow.of` names the row and fixes its parameters:
 
 ```ts
-import { AutoMovieMotionHumanTouch, HumanActionRow, HumanChain, HumanPerformance } from "@automovie/motions";
+import { AutoMovieMotionHumanTouch, AutoMovieMotionHumanActionRow, AutoMovieMotionHumanChain, AutoMovieMotionHumanPerformance } from "@automovie/motions";
 
 // A touch with its target, effector, kind, hand and elbow fixed.
-const salute = HumanActionRow.of("salute", AutoMovieMotionHumanTouch.touch, {
+const salute = AutoMovieMotionHumanActionRow.of("salute", AutoMovieMotionHumanTouch.touch, {
   target: { kind: "self", region: "templeRight" },
   effector: "forefinger", // the hand continues the forearm, palm down
   kind: "hold",
@@ -53,8 +53,8 @@ const salute = HumanActionRow.of("salute", AutoMovieMotionHumanTouch.touch, {
   elbow: "level", // the upper arm horizontal
 });
 
-const Chain = HumanChain.extend({ salute });
-new HumanPerformance({
+const Chain = AutoMovieMotionHumanChain.extend({ salute });
+new AutoMovieMotionHumanPerformance({
   seed,
   performers,
   laws: [salute],
@@ -69,7 +69,7 @@ The chain method takes the parameters the row leaves open, here `hold`.
 Some actions plan from a table of entries, such as the tasks of `handToFace`. An entry the table lacks is a row too, given as the table's own row type:
 
 ```ts
-const shave = HumanActionRow.of("shave", AutoMovieMotionHumanHandToBody.handToFace, {
+const shave = AutoMovieMotionHumanActionRow.of("shave", AutoMovieMotionHumanHandToBody.handToFace, {
   kind: { region: "jawRight", effector, kind: "rub", count: 3, hold: 0.2, tangent: "up", head: 0, at: "atJaw" },
 });
 ```
@@ -84,7 +84,7 @@ A law is for an action that owns what no shipped action plans:
 - an outcome rule between performers;
 - a planner of its own, for a path, a pattern of steps or a sequence no shipped planner lays out.
 
-A law is a record satisfying `IAutoMovieMotionHumanActionLaw<Params>` from `@automovie/interface`: a `name`, `interrupts` for the cuts it allows, `accepts` for what may be cut into it, and a `plan`. The plan is composed from the kernel the vocabulary uses, a clock, a base and part primitives passed to `composeAutoMovieMotionHumanAction`. A law is registered the same way as a row, through `laws` and `HumanChain.extend`.
+A law is a record satisfying `IAutoMovieMotionHumanActionLaw<Params>` from `@automovie/interface`: a `name`, `interrupts` for the cuts it allows, `accepts` for what may be cut into it, and a `plan`. The `plan` receives an `IAutoMovieMotionHumanActionContext<Params>` and returns an `IAutoMovieMotionHumanActionPlan` whose posture is a pure function of time. A law is registered the same way as a row, through `laws` and `AutoMovieMotionHumanChain.extend`.
 
 ## What an extension owes
 
@@ -94,23 +94,25 @@ The extension then owes these in the production:
 
 - its source in `src/laws/<discipline>/`, answering the behaviors contract in its doc comments;
 - unit tests against its study, which evaluate the resolved plan at its event times and assert each bound on the result across bodies;
-- a clean `HumanVerdicts` report for its case;
+- a clean `AutoMovieMotionHumanVerdicts` report for its case;
 - an accepted catalog case, judged on stills, recorded in `docs/acceptance/catalog.md`.
 
 A row or law other productions would need goes into a shared workspace package. The production keeps its registered copy until `@automovie/motions` ships the action.
 
 ## Refusals and their fixes
 
-A `HumanRefusal` names the performer, the action and its occurrence, the axis at fault, the value given, what the axis accepts and one sentence saying what to change. Its fields carry the same values:
+An `AutoMovieMotionHumanRefusal` names the performer, the action and its occurrence, the axis at fault, the value given, what the axis accepts and one sentence saying what to change. Its fields carry the same values:
 
 ```ts
-import { HumanRefusal } from "@automovie/motions";
+import { AutoMovieMotionHumanPerformance, AutoMovieMotionHumanRefusal } from "@automovie/motions";
+
+declare const input: ConstructorParameters<typeof AutoMovieMotionHumanPerformance>[0];
 
 try {
-  new HumanPerformance(input);
+  new AutoMovieMotionHumanPerformance(input);
 } catch (error) {
-  if (error instanceof HumanRefusal) console.log(error.kind, error.axis, error.value, error.feasible, error.fix);
+  if (error instanceof AutoMovieMotionHumanRefusal) console.log(error.kind, error.axis, error.value, error.feasible, error.fix);
 }
 ```
 
-A refusal is repaired at the axis it names, adjusting the preceding actions where needed. `HumanRefusal.KINDS` lists the classes with the place each is repaired. Among the feasible repairs, the agent chooses the one that realizes the beat. A feasible beat outside the vocabulary goes through the routes above. A physically infeasible beat returns to the screenplay, to the layer that owns the decision.
+A refusal is repaired at the axis it names, adjusting the preceding actions where needed. `AutoMovieMotionHumanRefusal.KINDS` lists the classes with the place each is repaired. Among the feasible repairs, the agent chooses the one that realizes the beat. A feasible beat outside the vocabulary goes through the routes above. A physically infeasible beat returns to the screenplay, to the layer that owns the decision.

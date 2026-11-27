@@ -13,20 +13,23 @@ export namespace IAutoMoviePhysicalContactSupportRows {
     /** Endpoint carrier. */ bone: string;
     /** Carrier-local endpoint. */ localPoint?: IAutoMovieVector3;
     /** Original world goal; fitting must never replace it with an unmet output. */ point: IAutoMovieVector3;
-    /** An explicitly planted patch, independent of anatomical vocabulary. */ patch?: {
-      /** Every real carrier of this patch. */ contacts: readonly string[];
-      /** Declared local surface witnesses sharing the plane. */ floorPoints?: readonly {
-        /** Carrier present in patch.contacts; invalid references are refused. */
-        bone: string;
-        /**
-         * Finite carrier-local surface point in metres; its world Y is fitted
-         * to patch.floor.
-         */
-        localPoint: IAutoMovieVector3;
-      }[];
-      /** Original horizontal support plane, metres. */ floor: number;
-    };
+    /** An explicitly planted patch, independent of anatomical vocabulary. */ patch?: ISupportPatch;
   }
+
+  /** The patch object of {@link ISupport}. */
+  export type ISupportPatch = {
+    /** Every real carrier of this patch. */ contacts: readonly string[];
+    /** Declared local surface witnesses sharing the plane. */ floorPoints?: readonly {
+      /** Carrier present in patch.contacts; invalid references are refused. */
+      bone: string;
+      /**
+       * Finite carrier-local surface point in metres; its world Y is fitted
+       * to patch.floor.
+       */
+      localPoint: IAutoMovieVector3;
+    }[];
+    /** Original horizontal support plane, metres. */ floor: number;
+  };
 
   /**
    * Keep an endpoint's existing XYZ promise and its explicitly declared real

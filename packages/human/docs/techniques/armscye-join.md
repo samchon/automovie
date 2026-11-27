@@ -53,7 +53,7 @@ The joint alone (`--realize`: a trunk slab, the carried arm and one `merge` with
 
 ## Premises of the join
 
-Taken from `AutoMovieConstructionSharedLoop.create`, `AutoMovieSolidSharedCurve`, the fold branch of `AutoMovieConstructionWidths` and `IAutoMovieConstructionJoin`.
+Taken from `AutoMovieEngineConstructionSharedLoop.create`, `AutoMovieEngineSolidSharedCurve`, the fold branch of `AutoMovieEngineConstructionWidths` and `IAutoMovieConstructionJoin`.
 
 | Premise | Today | Needs |
 | --- | --- | --- |

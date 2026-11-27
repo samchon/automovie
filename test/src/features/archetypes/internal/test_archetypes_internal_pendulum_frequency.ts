@@ -1,6 +1,8 @@
 import { AutoMovieArchetypeRefusal } from "@automovie/archetypes";
-import { ArchetypePendulumFrequency } from "@automovie/archetypes/internal";
-import { AutoMovieGravity } from "@automovie/engine";
+import {
+  ArchetypePendulumFrequency
+} from "../../../../../packages/archetypes/src/core/internal/ArchetypePendulumFrequency";
+import { AutoMovieEngineGravity } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 import { strict as assert } from "node:assert";
 
@@ -8,7 +10,7 @@ import { nclose } from "../../internal/nclose";
 
 /** Division, two products and the square root contribute under four ulps at sqrt(10 g). */
 const FREQUENCY_TOLERANCE: number =
-  8 * Number.EPSILON * Math.sqrt(10 * AutoMovieGravity.STANDARD);
+  8 * Number.EPSILON * Math.sqrt(10 * AutoMovieEngineGravity.STANDARD);
 
 /**
  * `ArchetypePendulumFrequency` is the small-swing angular frequency of a
@@ -29,7 +31,7 @@ export function test_archetypes_internal_pendulum_frequency(): void {
         moment: 0.1,
         rest: 0,
       }),
-      Math.sqrt(10 * AutoMovieGravity.STANDARD),
+      Math.sqrt(10 * AutoMovieEngineGravity.STANDARD),
       FREQUENCY_TOLERANCE,
     ),
   );

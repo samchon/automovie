@@ -1,4 +1,4 @@
-import { nodeSubjectBox } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieSubjectBox,
   IAutoMovieTransform,
@@ -41,7 +41,7 @@ export function test_engine_film_node_subject_box(): void {
   TestValidator.predicate(
     "a heights-only extent is a segment at the node",
     close(
-      nodeSubjectBox(place(2, 0.5, -3, false), {
+      AutoMovieEngineFilm.nodeSubjectBox(place(2, 0.5, -3, false), {
         min: { x: 0, y: 0, z: 0 },
         max: { x: 0, y: 1.8, z: 0 },
       }),
@@ -51,7 +51,7 @@ export function test_engine_film_node_subject_box(): void {
   TestValidator.predicate(
     "a turned box is bounded by its placed corners",
     close(
-      nodeSubjectBox(place(10, 0, 0, true), {
+      AutoMovieEngineFilm.nodeSubjectBox(place(10, 0, 0, true), {
         min: { x: 0, y: 0, z: -1 },
         max: { x: 2, y: 1, z: 1 },
       }),

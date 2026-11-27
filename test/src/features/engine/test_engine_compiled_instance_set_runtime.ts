@@ -1,9 +1,4 @@
-import {
-  AUTOMOVIE_INSTANCE_CHUNK_SIZE,
-  canonicalizeAutoMovieJson,
-  materializeCompiledInstanceSet,
-  summarizeCompiledSlotChunks,
-} from "@automovie/engine";
+import { AutoMovieEngineInstanceChunkSize, AutoMovieEngineCanonicalJson, AutoMovieEnginePopulationRuntime } from "@automovie/engine";
 import {
   IAutoMovieCompiledFormationLod,
   IAutoMovieCompiledInstancePrototype,
@@ -34,11 +29,11 @@ const row: (
 ): IAutoMovieInstanceSetDesign => ({
   id: "hedge",
   model: "tree",
-  count: AUTOMOVIE_INSTANCE_CHUNK_SIZE + 1,
+  count: AutoMovieEngineInstanceChunkSize + 1,
   layout: {
     kind: "grid",
     rows: 1,
-    columns: AUTOMOVIE_INSTANCE_CHUNK_SIZE + 1,
+    columns: AutoMovieEngineInstanceChunkSize + 1,
     spacing: { x: 1, z: 1 },
   },
   anchor: { x: 0, y: 0, z: 0 },
@@ -75,7 +70,7 @@ const models: Map<string, IAutoMovieModel> = new Map<string, IAutoMovieModel>([
 ]);
 
 const nodeDigest: (value: unknown) => string = (value: unknown): string =>
-  `sha256:${createHash("sha256").update(canonicalizeAutoMovieJson(value), "utf8").digest("hex")}`;
+  `sha256:${createHash("sha256").update(AutoMovieEngineCanonicalJson.canonicalize(value), "utf8").digest("hex")}`;
 
 /**
  * An instance set compiles to a compact record that keeps its laws, its route
@@ -113,7 +108,7 @@ const nodeDigest: (value: unknown) => string = (value: unknown): string =>
 export function test_engine_compiled_instance_set_runtime(): void {
   // 1. Chunks.
   const compiled: IAutoMovieCompiledInstanceSet =
-    materializeCompiledInstanceSet({
+    AutoMovieEnginePopulationRuntime.materializeCompiledInstanceSet({
       instanceSet: row({ lod: TREE_TIERS }),
       world: { routes: [] },
       projectionRadii: new Map([["tree", 1.5]]),
@@ -189,7 +184,7 @@ export function test_engine_compiled_instance_set_runtime(): void {
   );
 
   // 3. Table.
-  const tabled: IAutoMovieCompiledInstanceSet = materializeCompiledInstanceSet({
+  const tabled: IAutoMovieCompiledInstanceSet = AutoMovieEnginePopulationRuntime.materializeCompiledInstanceSet({
     instanceSet: row({
       lod: TREE_TIERS,
       prototypes: [
@@ -291,7 +286,7 @@ export function test_engine_compiled_instance_set_runtime(): void {
     count: 4,
     layout: { kind: "along-route", route: "lane", lateralJitter: 0.5 },
   });
-  const along: IAutoMovieCompiledInstanceSet = materializeCompiledInstanceSet({
+  const along: IAutoMovieCompiledInstanceSet = AutoMovieEnginePopulationRuntime.materializeCompiledInstanceSet({
     instanceSet: alongDesign,
     world: { routes: [lane] },
   });
@@ -348,7 +343,7 @@ export function test_engine_compiled_instance_set_runtime(): void {
         (): boolean =>
           throwsError(
             (): IAutoMovieCompiledInstanceSet =>
-              materializeCompiledInstanceSet({
+              AutoMovieEnginePopulationRuntime.materializeCompiledInstanceSet({
                 instanceSet: alongDesign,
                 world: { routes: [] },
               }),
@@ -360,7 +355,7 @@ export function test_engine_compiled_instance_set_runtime(): void {
         (): boolean =>
           throwsError(
             (): IAutoMovieCompiledInstanceSet =>
-              materializeCompiledInstanceSet({
+              AutoMovieEnginePopulationRuntime.materializeCompiledInstanceSet({
                 instanceSet: alongDesign,
                 world: {
                   routes: [
@@ -383,7 +378,7 @@ export function test_engine_compiled_instance_set_runtime(): void {
 
   // 6. Digest and defaults.
   const { digest, ...core }: IAutoMovieCompiledInstanceSet = compiled;
-  const bare: IAutoMovieCompiledInstanceSet = materializeCompiledInstanceSet({
+  const bare: IAutoMovieCompiledInstanceSet = AutoMovieEnginePopulationRuntime.materializeCompiledInstanceSet({
     instanceSet: row(),
     world: { routes: [] },
   });
@@ -394,7 +389,7 @@ export function test_engine_compiled_instance_set_runtime(): void {
       [
         "repeatable",
         (): boolean =>
-          materializeCompiledInstanceSet({
+          AutoMovieEnginePopulationRuntime.materializeCompiledInstanceSet({
             instanceSet: row({ lod: TREE_TIERS }),
             world: { routes: [] },
             projectionRadii: new Map([["tree", 1.5]]),
@@ -403,7 +398,7 @@ export function test_engine_compiled_instance_set_runtime(): void {
       [
         "seed",
         (): boolean =>
-          materializeCompiledInstanceSet({
+          AutoMovieEnginePopulationRuntime.materializeCompiledInstanceSet({
             instanceSet: row({ seed: 4, lod: TREE_TIERS }),
             world: { routes: [] },
             projectionRadii: new Map([["tree", 1.5]]),
@@ -427,8 +422,8 @@ export function test_engine_compiled_instance_set_runtime(): void {
     },
   );
   const visits: number[] = [];
-  const folded: ReturnType<typeof summarizeCompiledSlotChunks> =
-    summarizeCompiledSlotChunks(
+  const folded: ReturnType<typeof AutoMovieEnginePopulationRuntime.summarizeCompiledSlotChunks> =
+    AutoMovieEnginePopulationRuntime.summarizeCompiledSlotChunks(
       5,
       2,
       (slot: number): { x: number; y: number; z: number } => {

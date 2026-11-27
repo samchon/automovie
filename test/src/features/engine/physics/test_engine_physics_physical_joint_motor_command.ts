@@ -1,4 +1,4 @@
-import { Quaternion, physicalJointMotorCommand } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalJoint,
   IAutoMoviePhysicalJointAxis,
@@ -36,10 +36,10 @@ export function test_engine_physics_physical_joint_motor_command(): void {
   const joint: IAutoMoviePhysicalJoint = hinge();
   const identity: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
   const zero: { x: number; y: number; z: number } = { x: 0, y: 0, z: 0 };
-  const base: Parameters<typeof physicalJointMotorCommand>[0] = {
+  const base: Parameters<typeof AutoMovieEnginePhysics.physicalJointMotorCommand>[0] = {
     joint,
     current: identity,
-    target: Quaternion.fromAxisAngle(
+    target: AutoMovieEngineQuaternion.fromAxisAngle(
       { x: 0, y: 0, z: 1 },
       0.3 * (180 / Math.PI),
     ),
@@ -51,7 +51,7 @@ export function test_engine_physics_physical_joint_motor_command(): void {
   const k: number = 20;
   const d: number = 1 + k * DT;
   const plain: IAutoMoviePhysicalJointMotorCommand.IOutput =
-    physicalJointMotorCommand(base);
+    AutoMovieEnginePhysics.physicalJointMotorCommand(base);
   TestValidator.predicate(
     "implicit PD speed and declared cap",
     nclose(axis(plain, "z").speed, (k * 0.3) / d, PhysicalTolerance.ROUNDING) &&
@@ -63,9 +63,9 @@ export function test_engine_physics_physical_joint_motor_command(): void {
 
   // 350 degrees about z is -10 degrees on the short arc.
   const around: IAutoMoviePhysicalJointMotorCommand.IOutput =
-    physicalJointMotorCommand({
+    AutoMovieEnginePhysics.physicalJointMotorCommand({
       ...base,
-      target: Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 350),
+      target: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 350),
     });
   TestValidator.predicate(
     "short-arc error",
@@ -75,9 +75,9 @@ export function test_engine_physics_physical_joint_motor_command(): void {
 
   // A compound rotation of 0.4 rad about (1, 1, 0) / sqrt 2.
   const compound: IAutoMoviePhysicalJointMotorCommand.IOutput =
-    physicalJointMotorCommand({
+    AutoMovieEnginePhysics.physicalJointMotorCommand({
       ...base,
-      target: Quaternion.fromAxisAngle(
+      target: AutoMovieEngineQuaternion.fromAxisAngle(
         { x: Math.SQRT1_2, y: Math.SQRT1_2, z: 0 },
         0.4 * (180 / Math.PI),
       ),
@@ -104,10 +104,10 @@ export function test_engine_physics_physical_joint_motor_command(): void {
 
   // Withdrawn strength keeps only passive damping.
   const withdrawn: IAutoMoviePhysicalJointMotorCommand.IOutput =
-    physicalJointMotorCommand({ ...base, strength: 0 });
+    AutoMovieEnginePhysics.physicalJointMotorCommand({ ...base, strength: 0 });
   const passive: IAutoMoviePhysicalJoint = hinge(0.5);
   const damped: IAutoMoviePhysicalJointMotorCommand.IOutput =
-    physicalJointMotorCommand({
+    AutoMovieEnginePhysics.physicalJointMotorCommand({
       ...base,
       joint: passive,
       strength: 0,
@@ -123,7 +123,7 @@ export function test_engine_physics_physical_joint_motor_command(): void {
 
   // Feed-forward, target speed and saturation forecasts.
   const fed: IAutoMoviePhysicalJointMotorCommand.IOutput =
-    physicalJointMotorCommand({
+    AutoMovieEnginePhysics.physicalJointMotorCommand({
       ...base,
       feedForward: { x: 0, y: 0, z: 2 },
       targetVelocity: { x: 0, y: 0, z: 1.5 },
@@ -138,7 +138,7 @@ export function test_engine_physics_physical_joint_motor_command(): void {
     ) &&
       fed.saturated.includes("z") &&
       plain.saturated.includes("z") &&
-      !physicalJointMotorCommand({
+      !AutoMovieEnginePhysics.physicalJointMotorCommand({
         ...base,
         velocity: { x: 0, y: 0, z: (k * 0.3) / d },
       }).saturated.includes("z"),
@@ -146,13 +146,13 @@ export function test_engine_physics_physical_joint_motor_command(): void {
 
   // At the +0.6 rad twist limit, a target beyond it commands no outward speed.
   const limited: IAutoMoviePhysicalJointMotorCommand.IOutput =
-    physicalJointMotorCommand({
+    AutoMovieEnginePhysics.physicalJointMotorCommand({
       ...base,
-      current: Quaternion.fromAxisAngle(
+      current: AutoMovieEngineQuaternion.fromAxisAngle(
         { x: 0, y: 0, z: 1 },
         0.6 * (180 / Math.PI),
       ),
-      target: Quaternion.fromAxisAngle(
+      target: AutoMovieEngineQuaternion.fromAxisAngle(
         { x: 0, y: 0, z: 1 },
         0.9 * (180 / Math.PI),
       ),

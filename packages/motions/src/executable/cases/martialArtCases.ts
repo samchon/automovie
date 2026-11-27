@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -8,26 +8,19 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanChain } from "../../HumanChain";
-import { createHumanBody } from "../../body/createHumanBody";
-import { AutoMovieMotionHumanTouchEffector } from "../../compose/AutoMovieMotionHumanTouchEffector";
-import { HumanPerformance } from "../../perform/HumanPerformance";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
-import { MotionBodies } from "../MotionBodies";
-import type { humanPolygonMan } from "../humanPolygonMan";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
+import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
+import { AutoMovieMotionHumanTouchEffector } from "../../compose/internal/AutoMovieMotionHumanTouchEffector";
+import { AutoMovieMotionHumanPerformance } from "../../perform/AutoMovieMotionHumanPerformance";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
+import { MotionBodies } from "../internal/MotionBodies";
+import type { humanPolygonMan } from "../internal/humanPolygonMan";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { StanceVerdicts } from "./StanceVerdicts";
 import { TouchVerdicts } from "./TouchVerdicts";
-import { everydayVerdicts } from "./everydayVerdicts";
+import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/** The record of `IMartialArtCasesPeaksItem`'s site. */
-type IMartialArtCasesPeaksItem = {
-  t: number;
-  side: AutoMovieHumanSide;
-  reach: number;
-};
-
-/**
+/*
  * Capture cases of the martial-art techniques from quiet standing.
  *
  * Every case reports foot slip at most 5 mm (the issue's stance contacts) and
@@ -41,9 +34,8 @@ type IMartialArtCasesPeaksItem = {
  * - `martial-taiChiPush`: the palms at least 0.6 of the arm ahead of their
  *   shoulders at the push's end, and no palm faster than 0.5 m/s (provisional
  *   bound for the slow, continuous form).
- *
- * @param bodies The bodies; `m-average` when absent.
- * @returns The cases.
+ * Parameter bodies: The bodies; `m-average` when absent.
+ * Returns: The cases.
  */
 export function martialArtCases(
   bodies: readonly string[] = ["m-average"],
@@ -51,7 +43,7 @@ export function martialArtCases(
   const out: IMotionCaptureCase[] = [];
   for (const id of bodies) {
     const man: humanPolygonMan.IPolygonMan = MotionBodies.population(id);
-    const body: IAutoMovieMotionHumanBody = createHumanBody(
+    const body: IAutoMovieMotionHumanBody = AutoMovieMotionHumanBody.create(
       man.body.skeleton,
       man.body.profile,
     );
@@ -67,7 +59,7 @@ export function martialArtCases(
 
       // Process boundary: a case that throws is reported as that case's refusal, and the remaining cases still run.
       try {
-        performance = new HumanPerformance({
+        performance = new AutoMovieMotionHumanPerformance({
           seed: "martial",
           performers: [
             {
@@ -78,7 +70,7 @@ export function martialArtCases(
               proficiency: { level: "trained" as const },
             },
           ],
-          composition: HumanChain.subject("a").act("martialArt", { kind }).node,
+          composition: AutoMovieMotionHumanChain.subject("a").act("martialArt", { kind }).node,
         });
       } catch (error) {
         out.push(FamilyCaseKit.refused(name, error));
@@ -126,8 +118,8 @@ export function martialArtCases(
         case "chokuZuki": {
           const fist = { surface: "fist", shape: "fist" } as const;
           const reach = (t: number, side: AutoMovieHumanSide): number =>
-            Vector3.length(
-              Vector3.subtract(
+            AutoMovieEngineVector3.length(
+              AutoMovieEngineVector3.subtract(
                 AutoMovieMotionHumanTouchEffector.point(
                   body,
                   performance.bones("a", t),
@@ -216,7 +208,7 @@ export function martialArtCases(
               );
               fastest = Math.max(
                 fastest,
-                Vector3.length(Vector3.subtract(b, a)) * 24,
+                AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(b, a)) * 24,
               );
             }
           verdicts.push({
@@ -240,3 +232,12 @@ export function martialArtCases(
   }
   return out;
 }
+
+/*
+ * The record of `IMartialArtCasesPeaksItem`'s site.
+ */
+type IMartialArtCasesPeaksItem = {
+  t: number;
+  side: AutoMovieHumanSide;
+  reach: number;
+};

@@ -1,9 +1,9 @@
-import { autoMovieDrawingPolygonArea } from "@automovie/engine";
+import { AutoMovieEngineDrawing } from "@automovie/engine";
 import type { IAutoMovieDrawingPoint } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `autoMovieDrawingPolygonArea` is the shoelace area of a closed ring,
+ * `drawingPolygonArea` is the shoelace area of a closed ring,
  * unsigned.
  *
  * Scenarios:
@@ -21,17 +21,19 @@ export function test_engine_drawing_polygon_area(): void {
   ];
   TestValidator.equals(
     "counter-clockwise",
-    autoMovieDrawingPolygonArea(rectangle),
+    AutoMovieEngineDrawing.autoMovieDrawingPolygonArea(rectangle),
     6,
   );
   TestValidator.equals(
     "clockwise",
-    autoMovieDrawingPolygonArea([...rectangle].reverse()),
+    AutoMovieEngineDrawing.autoMovieDrawingPolygonArea(
+      [...rectangle].reverse(),
+    ),
     6,
   );
   TestValidator.equals(
     "a triangle",
-    autoMovieDrawingPolygonArea([
+    AutoMovieEngineDrawing.autoMovieDrawingPolygonArea([
       { x: 0, y: 0 },
       { x: 4, y: 0 },
       { x: 0, y: 3 },
@@ -40,7 +42,7 @@ export function test_engine_drawing_polygon_area(): void {
   );
   TestValidator.equals(
     "two corners",
-    autoMovieDrawingPolygonArea([
+    AutoMovieEngineDrawing.autoMovieDrawingPolygonArea([
       { x: 0, y: 0 },
       { x: 1, y: 1 },
     ]),

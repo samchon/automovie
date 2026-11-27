@@ -5,16 +5,29 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { createHumanBody } from "@automovie/motions";
 import {
-  HumanColliders,
-  HumanRefusal,
-  lieDown,
-  logRoll,
-  logRollTurns,
-  poseBones,
-  resolveHumanPosture,
-} from "@automovie/motions/internal";
+  AutoMovieMotionHumanBody,
+  AutoMovieMotionHumanRefusal,
+} from "@automovie/motions";
+import {
+  HumanColliders
+} from "../../../../../packages/motions/src/posture/internal/HumanColliders";
+
+import {
+  lieDown
+} from "../../../../../packages/motions/src/floor/internal/lieDown";
+import {
+  logRoll
+} from "../../../../../packages/motions/src/floor/internal/logRoll";
+import {
+  logRollTurns
+} from "../../../../../packages/motions/src/floor/internal/logRollTurns";
+import {
+  poseBones
+} from "../../../../../packages/motions/src/posture/internal/poseBones";
+import {
+  resolveHumanPosture
+} from "../../../../../packages/motions/src/posture/internal/resolveHumanPosture";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixture } from "../../internal/fixtures/humanFixture";
@@ -58,7 +71,7 @@ export async function test_motions_floor_log_roll(): Promise<void> {
     try {
       run();
     } catch (error: unknown) {
-      return error instanceof HumanRefusal && error.axis === axis;
+      return error instanceof AutoMovieMotionHumanRefusal && error.axis === axis;
     }
     return false;
   };
@@ -99,7 +112,7 @@ export async function test_motions_floor_log_roll(): Promise<void> {
   );
   const fixture: Awaited<ReturnType<typeof humanFixture>> =
     await humanFixture("f-small");
-  const body: IAutoMovieMotionHumanBody = createHumanBody(
+  const body: IAutoMovieMotionHumanBody = AutoMovieMotionHumanBody.create(
     fixture.skeleton,
     fixture.profile,
   );

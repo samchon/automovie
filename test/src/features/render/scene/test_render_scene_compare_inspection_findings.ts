@@ -1,9 +1,9 @@
 import type { IAutoMovieInspectionDiagnostics } from "@automovie/interface";
-import { compareAutoMovieInspectionFindings } from "@automovie/render";
+import { AutoMovieRenderInspection } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `compareAutoMovieInspectionFindings` orders two findings of one identity:
+ * `compareInspectionFindings` orders two findings of one identity:
  * confirmed before candidate, then an error before a warning, then the larger
  * witness rank, with no rank lowest.
  *
@@ -43,7 +43,7 @@ export function test_render_scene_compare_inspection_findings(): void {
       [finding("confirmed", "error", 2), finding("confirmed", "error")],
       [finding("confirmed", "error", 2), finding("confirmed", "error", 2)],
     ].map(([current, previous]): number =>
-      compareAutoMovieInspectionFindings(current!, previous!),
+      AutoMovieRenderInspection.compareFindings(current!, previous!),
     ),
     [1, -1, 1, 1, 1, 0],
   );

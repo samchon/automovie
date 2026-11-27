@@ -1,4 +1,4 @@
-import { retargetHumanoidMotion } from "@automovie/engine";
+import { AutoMovieEngineMotionRetargeting } from "@automovie/engine";
 import type {
   IAutoMovieJointConstraint,
   IAutoMovieKeyframe,
@@ -94,8 +94,8 @@ export function test_engine_retarget_source_validation(): void {
   const source: IAutoMovieSkeleton = skeleton("source-rig", 30);
   const target: IAutoMovieSkeleton = skeleton("target-rig", 180);
 
-  const accepted: ReturnType<typeof retargetHumanoidMotion> =
-    retargetHumanoidMotion({
+  const accepted: ReturnType<typeof AutoMovieEngineMotionRetargeting.retargetHumanoidMotion> =
+    AutoMovieEngineMotionRetargeting.retargetHumanoidMotion({
       motion: motion(20),
       source,
       target,
@@ -110,8 +110,8 @@ export function test_engine_retarget_source_validation(): void {
     { validation: { success: true }, target: "target-rig" },
   );
 
-  const sourceRomFailure: ReturnType<typeof retargetHumanoidMotion> =
-    retargetHumanoidMotion({
+  const sourceRomFailure: ReturnType<typeof AutoMovieEngineMotionRetargeting.retargetHumanoidMotion> =
+    AutoMovieEngineMotionRetargeting.retargetHumanoidMotion({
       motion: motion(60),
       source,
       target,
@@ -130,8 +130,8 @@ export function test_engine_retarget_source_validation(): void {
     { refused: true, located: true },
   );
 
-  const sourceClockFailure: ReturnType<typeof retargetHumanoidMotion> =
-    retargetHumanoidMotion({
+  const sourceClockFailure: ReturnType<typeof AutoMovieEngineMotionRetargeting.retargetHumanoidMotion> =
+    AutoMovieEngineMotionRetargeting.retargetHumanoidMotion({
       motion: motion(20, [0.75, 0.5]),
       source,
       target,
@@ -194,8 +194,8 @@ export function test_engine_retarget_source_validation(): void {
     },
   ];
   for (const entry of cases) {
-    const result: ReturnType<typeof retargetHumanoidMotion> =
-      retargetHumanoidMotion({
+    const result: ReturnType<typeof AutoMovieEngineMotionRetargeting.retargetHumanoidMotion> =
+      AutoMovieEngineMotionRetargeting.retargetHumanoidMotion({
         motion: motion(20),
         source,
         target,
@@ -217,7 +217,7 @@ export function test_engine_retarget_source_validation(): void {
     TestValidator.predicate(
       "unused disabled policy and inclusive zero-tolerance boundary remain valid",
       (): boolean =>
-        retargetHumanoidMotion({ motion: motion(20), source, target, contacts })
+        AutoMovieEngineMotionRetargeting.retargetHumanoidMotion({ motion: motion(20), source, target, contacts })
           .motion !== null,
     );
 }

@@ -1,4 +1,4 @@
-import { encodeRecoveryDiagnosticNumber } from "@automovie/recovery";
+import { AutoMovieRecoveryObservation } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -17,23 +17,23 @@ export function test_recovery_internal_encode_diagnostic_number(): void {
   TestValidator.equals(
     "finite values",
     [
-      encodeRecoveryDiagnosticNumber(3.5),
-      encodeRecoveryDiagnosticNumber(-0.25),
+      AutoMovieRecoveryObservation.encodeDiagnosticNumber(3.5),
+      AutoMovieRecoveryObservation.encodeDiagnosticNumber(-0.25),
     ],
     [3.5, -0.25],
   );
   TestValidator.predicate(
     "finite extremes and signed zero are kept",
-    encodeRecoveryDiagnosticNumber(Number.MAX_VALUE) === Number.MAX_VALUE &&
-      encodeRecoveryDiagnosticNumber(-Number.MAX_VALUE) === -Number.MAX_VALUE &&
-      Object.is(encodeRecoveryDiagnosticNumber(-0), -0),
+    AutoMovieRecoveryObservation.encodeDiagnosticNumber(Number.MAX_VALUE) === Number.MAX_VALUE &&
+      AutoMovieRecoveryObservation.encodeDiagnosticNumber(-Number.MAX_VALUE) === -Number.MAX_VALUE &&
+      Object.is(AutoMovieRecoveryObservation.encodeDiagnosticNumber(-0), -0),
   );
   const overflow: number = 1e308 * 10;
   TestValidator.equals(
     "overflowed values",
     [
-      encodeRecoveryDiagnosticNumber(overflow),
-      encodeRecoveryDiagnosticNumber(-overflow),
+      AutoMovieRecoveryObservation.encodeDiagnosticNumber(overflow),
+      AutoMovieRecoveryObservation.encodeDiagnosticNumber(-overflow),
     ],
     ["+Infinity", "-Infinity"],
   );

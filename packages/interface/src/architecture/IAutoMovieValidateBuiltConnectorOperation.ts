@@ -1,4 +1,4 @@
-import type { IAutoMovieViolationCollector } from "../validation/IAutoMovieViolationCollector";
+import type { IAutoMovieViolationAppendSink } from "../validation/IAutoMovieViolationAppendSink";
 import type { IAutoMovieBuiltConnector } from "./IAutoMovieBuiltConnector";
 import type { IAutoMovieBuiltElement } from "./IAutoMovieBuiltElement";
 
@@ -57,6 +57,6 @@ export namespace IAutoMovieValidateBuiltConnectorOperation {
      * Synchronous diagnostic sink appended in declaration order; it can retain
      * authored values and its exceptions propagate.
      */
-    collector: IAutoMovieViolationCollector;
+    collector: IAutoMovieViolationAppendSink;
   };
 }

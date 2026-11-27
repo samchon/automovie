@@ -1,4 +1,4 @@
-import type { IAutoMoviePoseKeypointFrame } from "./IAutoMoviePoseKeypointFrame.js";
+import type { IAutoMoviePoseKeypointFrame } from "./IAutoMoviePoseKeypointFrame";
 
 /**
  * The per-frame pose-keypoint sidecar of one sequence render: the

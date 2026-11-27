@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanBody,
@@ -6,8 +6,11 @@ import type {
   IAutoMovieMotionHumanPopulation,
   IAutoMoviePose,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanEnsemble } from "@automovie/motions";
-import { HumanRefusal } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanEnsemble,
+  AutoMovieMotionHumanRefusal,
+} from "@automovie/motions";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -67,7 +70,7 @@ export async function test_motions_ensemble_human_population(): Promise<void> {
       right: { ...context.entry.feet.right, planted: false },
     },
   };
-  const east = Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90);
+  const east = AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90);
   const asked: number[] = [];
   const pose = (_subject: string, seconds: number): IAutoMoviePose => {
     asked.push(seconds);
@@ -157,7 +160,7 @@ export async function test_motions_ensemble_human_population(): Promise<void> {
     try {
       HumanPopulation[take](of, "t", from, samples);
     } catch (error: unknown) {
-      if (error instanceof HumanRefusal) return error.axis;
+      if (error instanceof AutoMovieMotionHumanRefusal) return error.axis;
     }
     return undefined;
   };

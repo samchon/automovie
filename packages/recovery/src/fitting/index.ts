@@ -1,2 +1,4 @@
-export * from "./fitAutoMovieRecoveryImageLoft";
-export * from "./fitAutoMovieRecoveryImageSupportLoft";
+export * from "./AutoMovieRecoveryFitting";
+export * from "./AutoMovieRecoveryProfileFitting";
+export * from "./AutoMovieRecoveryBezierFit";
+export * from "./AutoMovieRecoveryChartFit";

@@ -16,22 +16,26 @@ Clean traced footage or generated motion, then [retarget](../retargeting.md) to 
 
 Trace only footage the production may use. Ask the user before tracing anyone else's, and keep the answer in the footage's [record](../../production/media-records.md#records) with each of these rights:
 
-- the footage's own license, since video platforms' terms forbid downloading or extracting content without permission;
-- the choreography, which copyright can protect once filmed, though not single steps or social dances;
-- the performer's consent where the face, voice or recognizable likeness is kept;
+- the footage license and platform permission to download or extract it
+- choreography rights, which may cover filmed work
+  - Single steps and social dances are outside that protection.
+- the performer's consent for retained face, voice or recognizable likeness
 - the estimator's and the body model's licenses, as [clips](clips.md#licenses) sets.
 
 ### Footage
 
 Estimators and capture services agree on the footage they need:
 
-- a fixed camera at chest height, no zoom, no cuts, no wide or fisheye lens, square to the performer;
+- a fixed chest-height camera square to the performer
+  - Avoid zoom, cuts, wide lenses and fisheye.
 - the whole body in frame from head to feet for the whole take, unobstructed;
 - snug clothing in a color apart from the background;
 - bright, even light;
-- one performer, or performers who never cross or touch, as most estimators lose a hidden person and refuse contact;
-- at least 1080p at the camera's highest frame rate, since fast motion blurs and skips poses between frames;
-- floor work shot from a three-quarter angle, and hands large in frame where fingers matter.
+- one performer, or performers who never cross or touch
+  - Most estimators lose hidden people and refuse contact.
+- at least 1080p at the camera's highest frame rate
+  - Fast motion otherwise blurs and skips poses.
+- a three-quarter angle for floor work and large hands for finger detail
 
 Use jointly calibrated cameras when one view hides required motion.
 
@@ -47,8 +51,9 @@ Clean the estimate in this order:
 
 1. Remove outliers, then filter jitter with a speed-adaptive filter.
 2. Set the ground plane, and detect each plant and grip for [retargeting](../retargeting.md#contacts-and-time) to hold.
-3. Where the motion still floats, slides or penetrates, replay it through a physics-tracking model.
-4. Retarget through a stated joint table onto the cast member's prepared body, and solve the contacts again there.
+3. Replay floating, sliding or penetrating motion through a physics tracker.
+4. Retarget to the prepared cast body through a declared joint table.
+   - Solve contacts again on that body.
 
 The [One Euro filter](https://gery.casiez.net/1euro/) is one speed-adaptive filter: tune its cutoff on slow motion, then its speed coefficient on fast motion. [PHC](https://github.com/ZhengyiLuo/PHC) is one physics-tracking model.
 

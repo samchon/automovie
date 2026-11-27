@@ -1,8 +1,8 @@
-import { support as supportLaw } from "../actions/support";
-import { HumanSupportCarry as HumanSupportCarryLaw } from "../carrier/HumanSupportCarry";
-import { HumanSupportFrame as HumanSupportFrameLaw } from "../carrier/HumanSupportFrame";
-import { supportTransfer as supportTransferLaw } from "../carrier/supportTransfer";
-import { HumanSupportRows as HumanSupportRowsLaw } from "../lexicon/HumanSupportRows";
+import { support as supportLaw } from "../actions/internal/support";
+import { HumanSupportCarry as HumanSupportCarryLaw } from "../carrier/internal/HumanSupportCarry";
+import { HumanSupportFrame as HumanSupportFrameLaw } from "../carrier/internal/HumanSupportFrame";
+import { supportTransfer as supportTransferLaw } from "../carrier/internal/supportTransfer";
+import { HumanSupportRows as HumanSupportRowsLaw } from "../lexicon/internal/HumanSupportRows";
 import { HUMAN_SUPPORT_SCRAMBLE } from "./presets/HUMAN_SUPPORT_SCRAMBLE";
 import { HUMAN_SUPPORT_SLIDE_OFF } from "./presets/HUMAN_SUPPORT_SLIDE_OFF";
 
@@ -120,7 +120,7 @@ export namespace AutoMovieMotionHumanSupport {
    * @param context A standing entry and the declared prop readers on the film
    *   clock.
    * @returns One posture plan with four foot contact windows.
-   * @throws {HumanRefusal} When the entry, surfaces, docking or short-step
+   * @throws {AutoMovieMotionHumanRefusal} When the entry, surfaces, docking or short-step
    *   bounds do not admit a transfer.
    */
   export const supportTransfer: typeof supportTransferLaw = supportTransferLaw;
@@ -156,7 +156,7 @@ export namespace AutoMovieMotionHumanSupport {
    * the first one on a prop or a person, the ground when every one is on the
    * ground. The velocity and the acceleration are the central differences of
    * the support's origin at the engine's plan-time step
-   * (`integrateMotionTrajectory.STEP`). A performer's region is read only at
+   * (`AutoMovieEngineMotionTrajectory.integrateMotionTrajectoryStep()`). A performer's region is read only at
    * and before the second evaluated (contract), so its differences are backward
    * ones over the same step.
    */

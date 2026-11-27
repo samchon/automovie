@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidRegion,
   IAutoMovieAffordance,
@@ -9,7 +9,15 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanTrunk, HumanWorn, dress } from "@automovie/motions/internal";
+import {
+  HumanTrunk
+} from "../../../../../packages/motions/src/everyday/internal/HumanTrunk";
+import {
+  HumanWorn
+} from "../../../../../packages/motions/src/dressing/internal/HumanWorn";
+import {
+  dress
+} from "../../../../../packages/motions/src/dressing/internal/dress";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -49,7 +57,7 @@ export async function test_motions_dressing_worn_site(): Promise<void> {
     root: { x: 0.4, y: 0.2, z: -0.3 },
     yaw: 90,
   };
-  const quarter = Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90);
+  const quarter = AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90);
   const items: readonly {
     item: IAutoMovieMotionHumanDress.Item;
     region: AutoMovieHumanoidRegion;
@@ -64,7 +72,7 @@ export async function test_motions_dressing_worn_site(): Promise<void> {
         "wear",
         "socket",
         { x: 0, y: 0.11, z: 0 },
-        Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 180),
+        AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 180),
       ),
     },
     {
@@ -75,7 +83,7 @@ export async function test_motions_dressing_worn_site(): Promise<void> {
         "wear",
         "socket",
         { x: 0, y: 0.016, z: -0.002 },
-        Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -90),
+        AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -90),
       ),
     },
   ];
@@ -86,33 +94,33 @@ export async function test_motions_dressing_worn_site(): Promise<void> {
       const prop: IAutoMovieMotionHumanProp = {
         subject: item,
         points: {},
-        frame: { position: origin.root, rotation: Quaternion.identity() },
+        frame: { position: origin.root, rotation: AutoMovieEngineQuaternion.identity() },
         affordances: [socket],
       };
       const at = HumanTrunk.region(body, origin, region);
       const site = HumanWorn.prepareSite(body, origin, prop, region);
       const worn: IAutoMovieRigidTransform = site.frame(0);
-      const socketPoint: IAutoMovieVector3 = Vector3.add(
+      const socketPoint: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         worn.position,
-        Quaternion.rotateVector(worn.rotation, socket.frame.translation),
+        AutoMovieEngineQuaternion.rotateVector(worn.rotation, socket.frame.translation),
       );
-      const socketAxis: IAutoMovieVector3 = Quaternion.rotateVector(
-        Quaternion.multiply(worn.rotation, socket.frame.rotation),
+      const socketAxis: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.multiply(worn.rotation, socket.frame.rotation),
         { x: 0, y: 1, z: 0 },
       );
-      const tangent: IAutoMovieVector3 = Vector3.normalize(
-        Vector3.subtract(
+      const tangent: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+        AutoMovieEngineVector3.subtract(
           heading,
-          Vector3.scale(at.normal, Vector3.dot(at.normal, heading)),
+          AutoMovieEngineVector3.scale(at.normal, AutoMovieEngineVector3.dot(at.normal, heading)),
         ),
       );
       TestValidator.predicate(
         `${name} ${item} socket on its region`,
         dress.WORN[item] === region &&
           vclose(socketPoint, at.point, ROUNDING) &&
-          vclose(socketAxis, Vector3.scale(at.normal, -1), ROUNDING) &&
+          vclose(socketAxis, AutoMovieEngineVector3.scale(at.normal, -1), ROUNDING) &&
           vclose(
-            Quaternion.rotateVector(worn.rotation, heading),
+            AutoMovieEngineQuaternion.rotateVector(worn.rotation, heading),
             tangent,
             ROUNDING,
           ),
@@ -132,7 +140,7 @@ export async function test_motions_dressing_worn_site(): Promise<void> {
         vclose(after.position, expected, ROUNDING) &&
           qclose(
             after.rotation,
-            Quaternion.multiply(quarter, worn.rotation),
+            AutoMovieEngineQuaternion.multiply(quarter, worn.rotation),
             ROUNDING,
           ) &&
           vclose(before.position, worn.position, ROUNDING) &&

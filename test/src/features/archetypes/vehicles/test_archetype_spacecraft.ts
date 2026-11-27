@@ -1,8 +1,5 @@
-import {
-  AutoMovieArchetypeRefusal,
-  createSpacecraft,
-} from "@automovie/archetypes";
-import { Quaternion, validateModel } from "@automovie/engine";
+import { AutoMovieArchetypeRefusal, AutoMovieArchetypeSpacecraft } from "@automovie/archetypes";
+import { AutoMovieEngineQuaternion, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieVector3,
@@ -35,7 +32,7 @@ const MM: number = 0.001;
  * @evidence contracts/development/testing.md#execution-ownership A discovered in-memory test using the public archetype entry point and engine model validator.
  */
 export function test_archetype_spacecraft(): void {
-  const params: createSpacecraft.IParams = {
+  const params: AutoMovieArchetypeSpacecraft.IParams = {
     id: "civilian-transport",
     length: 8,
     width: 4,
@@ -44,7 +41,7 @@ export function test_archetype_spacecraft(): void {
     hatchHeight: 2.1,
     walkwayLength: 3,
   };
-  const set: ReturnType<typeof createSpacecraft> = createSpacecraft(params, 18);
+  const set: ReturnType<typeof AutoMovieArchetypeSpacecraft.create> = AutoMovieArchetypeSpacecraft.create(params, 18);
   const failures: string[] = [];
 
   /** Record a discrepancy in metres against the staging tolerance. */
@@ -58,12 +55,12 @@ export function test_archetype_spacecraft(): void {
     if (!condition) failures.push(label);
   };
 
-  const first: ReturnType<typeof createSpacecraft> = createSpacecraft({}, 1010);
-  const replay: ReturnType<typeof createSpacecraft> = createSpacecraft(
+  const first: ReturnType<typeof AutoMovieArchetypeSpacecraft.create> = AutoMovieArchetypeSpacecraft.create({}, 1010);
+  const replay: ReturnType<typeof AutoMovieArchetypeSpacecraft.create> = AutoMovieArchetypeSpacecraft.create(
     {},
     1010,
   );
-  const variant: ReturnType<typeof createSpacecraft> = createSpacecraft(
+  const variant: ReturnType<typeof AutoMovieArchetypeSpacecraft.create> = AutoMovieArchetypeSpacecraft.create(
     {},
     1011,
   );
@@ -84,10 +81,10 @@ export function test_archetype_spacecraft(): void {
       first.dimensions.width !== variant.dimensions.width,
   );
 
-  expect("fixed set is admitted", validateModel({ model: set }).success);
+  expect("fixed set is admitted", AutoMovieEngineValidation.validateModel({ model: set }).success);
   expect("set keeps its authored id", set.id === "civilian-transport");
   try {
-    createSpacecraft({ hatchWidth: 0.4 }, 19);
+    AutoMovieArchetypeSpacecraft.create({ hatchWidth: 0.4 }, 19);
     failures.push(
       "accepted a non-walkable hatch width below the authored band",
     );
@@ -193,7 +190,7 @@ export function test_archetype_spacecraft(): void {
 
   const closedHandle: IAutoMovieVector3 =
     set.affordance("boardingHandle").frame.translation;
-  const open: ReturnType<typeof createSpacecraft> = set.articulate({
+  const open: ReturnType<typeof AutoMovieArchetypeSpacecraft.create> = set.articulate({
     boardingHatch: 90,
   });
   const openHandle: IAutoMovieVector3 =
@@ -265,11 +262,11 @@ export function test_archetype_spacecraft(): void {
       rail.length!,
       archetypeExtent(set, "z", [id]).size,
     );
-    const normal: IAutoMovieVector3 = Quaternion.rotateVector(
+    const normal: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       rail.frame.rotation,
       { x: 0, y: 1, z: 0 },
     );
-    const along: IAutoMovieVector3 = Quaternion.rotateVector(
+    const along: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       rail.frame.rotation,
       { x: 1, y: 0, z: 0 },
     );
@@ -287,7 +284,7 @@ export function test_archetype_spacecraft(): void {
     );
   }
 
-  const tight: ReturnType<typeof createSpacecraft> = createSpacecraft(
+  const tight: ReturnType<typeof AutoMovieArchetypeSpacecraft.create> = AutoMovieArchetypeSpacecraft.create(
     {
       width: 3.4,
       length: 6,
@@ -299,7 +296,7 @@ export function test_archetype_spacecraft(): void {
   );
   const seat: IAutoMovieAffordance = tight.affordance("crewSeat");
   const consoleTop: IAutoMovieAffordance = tight.affordance("controlConsole");
-  expect("tight cabin is admitted", validateModel({ model: tight }).success);
+  expect("tight cabin is admitted", AutoMovieEngineValidation.validateModel({ model: tight }).success);
   expect(
     "crew station is a seat facing its console surface",
     seat.kind === "seat" &&

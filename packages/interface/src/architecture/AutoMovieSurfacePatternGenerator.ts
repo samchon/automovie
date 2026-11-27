@@ -14,9 +14,9 @@ import type { IAutoMoviePatternPoint } from "./IAutoMoviePatternPoint";
  * modules, or the determinism the rest of the pipeline is built on stops at
  * this boundary.
  *
- * `generateAutoMovieSurfacePattern` calls it rows outermost and columns
+ * `generateSurfacePattern` calls it rows outermost and columns
  * innermost over the zone's region bounds widened by the zone's `reach`, at
- * most `AUTOMOVIE_MAX_PATTERN_CELLS` cells per zone. Each returned candidate is
+ * most `AutoMovieEngineMaxPatternCells` cells per zone. Each returned candidate is
  * checked (non-blank id unique in its zone, finite centre, rotation and grain,
  * positive size, every corner within `reach` of the cell origin) and the run
  * throws on the first one that fails.

@@ -10,9 +10,11 @@ Use one file per continuous place and time. With long-route narrative passes, ma
 
 On the long route with narrative passes:
 
-1. Extract required identities, decisions, states, chronology, space and audience knowledge from treatments and scripts.
-2. Draft in a [separate context](../workflow/routes.md#separate-contexts) from those notes, requirements and fixed quotations.
-3. Write dialogue from each exchange's intent, information and outcome. Preserve event order and [compose afresh](../../contracts/story/principles/narratives.md#parent-differentiation).
+1. Extract the required identities, choices, states, chronology and space.
+   - Include audience knowledge. Use the treatments and scripts as sources.
+2. Draft from the notes, requirements and fixed quotes in a [separate context](../workflow/routes.md#separate-contexts).
+3. Write dialogue from each exchange's intent, information and outcome.
+   - Preserve event order and [compose afresh](../../contracts/story/principles/narratives.md#parent-differentiation).
 4. Check the draft against the actual parents.
 
 On the short route with narrative passes, take instructions as the basis for events, consequences, setups, payoffs and ending. Decide when the audience and characters learn dangers and secrets. Cite the [brief](brief.md) and complete assigned [research](../planning/research.md#when-to-study).

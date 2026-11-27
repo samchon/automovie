@@ -1,8 +1,10 @@
-import { assertAutoMovieInspectorRaster } from "@automovie/viewer/internal";
+import {
+  assertInspectorRaster
+} from "../../../../../packages/viewer/src/inspector/internal/assertInspectorRaster";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `assertAutoMovieInspectorRaster` refuses a subject whose clock or picture is
+ * `assertInspectorRaster` refuses a subject whose clock or picture is
  * not positive, naming the subject and the field.
  *
  * Scenarios:
@@ -26,7 +28,7 @@ export function test_viewer_inspector_assert_raster(): void {
     height: 32,
     ...patch,
   });
-  assertAutoMovieInspectorRaster("hero", scene({}));
+  assertInspectorRaster("hero", scene({}));
   for (const [field, patch] of [
     ["duration", { durationSeconds: 0 }],
     ["fps", { fps: 0 }],
@@ -35,7 +37,7 @@ export function test_viewer_inspector_assert_raster(): void {
   ] as const) {
     let message: string = "";
     try {
-      assertAutoMovieInspectorRaster("hero", scene(patch));
+      assertInspectorRaster("hero", scene(patch));
     } catch (error) {
       message = error instanceof Error ? error.message : "";
     }

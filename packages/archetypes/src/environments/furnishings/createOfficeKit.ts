@@ -1,20 +1,21 @@
+import type { AutoMovieArchetypeEnvironmentFurnishing } from "../AutoMovieArchetypeEnvironmentFurnishing";
 import type {
   IAutoMovieEnvironmentContribution,
   IAutoMovieEnvironmentModule,
-  IAutoMovieFurnishingLayout,
   IAutoMovieModel,
   IAutoMoviePropBox,
 } from "@automovie/interface";
-
-import { deriveArchetypeSeed } from "../../core/deriveArchetypeSeed";
-import { createBookcase } from "../../furniture/createBookcase";
-import { createDrawerUnit } from "../../furniture/createDrawerUnit";
-import { createSeat } from "../../furniture/createSeat";
-import { createTable } from "../../furniture/createTable";
+import {
+  AutoMovieArchetypeBookcase,
+  AutoMovieArchetypeDrawerUnit,
+  AutoMovieArchetypeSeat,
+  AutoMovieArchetypeTable,
+} from "../../furniture";
+import { deriveArchetypeSeed } from "../../core/internal/deriveArchetypeSeed";
 import { ROOM_CLEARANCES } from "./ROOM_CLEARANCES";
 import { furnishRoom } from "./furnishRoom";
 
-/**
+/*
  * Furnish an office: repeated desks, each with an office chair facing it, on
  * the room's grid, a filing cabinet on the `-x` wall and a bookcase on the `+x`
  * wall.
@@ -25,18 +26,17 @@ import { furnishRoom } from "./furnishRoom";
  * face the desk, with its front at the desk's edge. The filing cabinet stands
  * near the `-x` wall's run corner, as far from it as its clear floor overhangs
  * the cabinet, and keeps the forward-approach clear floor of
- * {@link ROOM_CLEARANCES}.clearFloor in front, named `forward approach`; the
+ * ROOM_CLEARANCES.clearFloor in front, named `forward approach`; the
  * bookcase starts at the `+x` wall's run corner. The desk groups take the first
  * grid slots clear of both and of that clearance. The figure is a coarse layout
  * rule, not an accessibility claim.
- *
- * @param params The room layout and the positive number of desks.
- * @returns The placed-room module.
- * @throws When a piece or clearance leaves the room or overlaps, or the desks
- *   do not fit, naming the role or the `desks` count.
+ * Parameter params: The room layout and the positive number of desks.
+ * Returns: The placed-room module.
+ * When a piece or clearance leaves the room or overlaps, or the desks
+ * do not fit, naming the role or the `desks` count.
  */
 export function createOfficeKit(
-  params: createOfficeKit.IParams,
+  params: AutoMovieArchetypeEnvironmentFurnishing.IOfficeKitParams,
 ): IAutoMovieEnvironmentModule {
   return (
     context: IAutoMovieEnvironmentModule.IContext,
@@ -46,16 +46,22 @@ export function createOfficeKit(
       role: string,
     ): number | undefined =>
       seed === undefined ? undefined : deriveArchetypeSeed(seed, role);
-    const desk: IAutoMovieModel = createTable({ kind: "desk" }, draw("desk"));
-    const chair: IAutoMovieModel = createSeat(
+    const desk: IAutoMovieModel = AutoMovieArchetypeTable.create(
+      { kind: "desk" },
+      draw("desk"),
+    );
+    const chair: IAutoMovieModel = AutoMovieArchetypeSeat.create(
       { kind: "office" },
       draw("chair"),
     );
-    const filing: IAutoMovieModel = createDrawerUnit(
+    const filing: IAutoMovieModel = AutoMovieArchetypeDrawerUnit.create(
       { kind: "filingCabinet" },
       draw("filing"),
     );
-    const bookcase: IAutoMovieModel = createBookcase({}, draw("bookcase"));
+    const bookcase: IAutoMovieModel = AutoMovieArchetypeBookcase.create(
+      {},
+      draw("bookcase"),
+    );
     const deskBox: IAutoMoviePropBox = furnishRoom.measure(desk);
     const chairBox: IAutoMoviePropBox = furnishRoom.measure(chair);
     const filingBox: IAutoMoviePropBox = furnishRoom.measure(filing);
@@ -106,13 +112,4 @@ export function createOfficeKit(
       },
     });
   };
-}
-
-/** The office kit's parameters. */
-export namespace createOfficeKit {
-  /** The room layout and the positive integer count of desks. */
-  export interface IParams extends IAutoMovieFurnishingLayout {
-    /** Positive integer count of desk groups. */
-    readonly desks: number;
-  }
 }

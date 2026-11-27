@@ -1,4 +1,9 @@
-import { StrikingStroke, punchGeometry } from "@automovie/motions/internal";
+import {
+  StrikingStroke
+} from "../../../../../packages/motions/src/striking/internal/StrikingStroke";
+import {
+  punchGeometry
+} from "../../../../../packages/motions/src/striking/internal/punchGeometry";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

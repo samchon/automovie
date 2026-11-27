@@ -1,4 +1,4 @@
-import { validateExpressionResult } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type { IAutoMovieValidation } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -18,11 +18,11 @@ import { hasViolation } from "../../internal/predicates";
  *    both weights are valid.
  */
 export function test_engine_validation_expression_result(): void {
-  const valid: IAutoMovieValidation = validateExpressionResult(
+  const valid: IAutoMovieValidation = AutoMovieEngineValidation.validateExpressionResult(
     makeExpression("happy", 0.8, [{ channel: "jawOpen", weight: 0.3 }]),
   );
   TestValidator.equals("valid", valid.success, true);
-  const intensity: IAutoMovieValidation = validateExpressionResult(
+  const intensity: IAutoMovieValidation = AutoMovieEngineValidation.validateExpressionResult(
     makeExpression("happy", 2),
   );
   TestValidator.equals("intensity fails", intensity.success, false);
@@ -30,7 +30,7 @@ export function test_engine_validation_expression_result(): void {
     "intensity range",
     hasViolation(intensity, "range", ".intensity"),
   );
-  const weight: IAutoMovieValidation = validateExpressionResult(
+  const weight: IAutoMovieValidation = AutoMovieEngineValidation.validateExpressionResult(
     makeExpression("neutral", 0.5, [{ channel: "jawOpen", weight: 1.5 }]),
   );
   TestValidator.equals("weight fails", weight.success, false);
@@ -38,7 +38,7 @@ export function test_engine_validation_expression_result(): void {
     "weight range",
     hasViolation(weight, "range", ".weight"),
   );
-  const duplicate: IAutoMovieValidation = validateExpressionResult(
+  const duplicate: IAutoMovieValidation = AutoMovieEngineValidation.validateExpressionResult(
     makeExpression("neutral", 0.5, [
       { channel: "jawOpen", weight: 0.3 },
       { channel: "jawOpen", weight: 0.6 },

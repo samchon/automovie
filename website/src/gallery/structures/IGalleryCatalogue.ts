@@ -1,6 +1,6 @@
 /**
  * The displayed producers of `@automovie/archetypes` and their variants,
- * grouped by the families the package's `ARCHETYPE_FAMILIES` names.
+ * grouped by the package's public topic entrypoints.
  */
 export interface IGalleryCatalogue {
   /** The groups, the archetype families in the package's order. */

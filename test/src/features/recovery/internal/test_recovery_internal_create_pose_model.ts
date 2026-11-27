@@ -1,4 +1,4 @@
-import { createRecoveryPoseModel } from "@automovie/recovery";
+import { AutoMovieRecoveryCameraMap } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -15,8 +15,8 @@ import { recoveryStereoChart as chart } from "./recoveryStereoChart";
  * 2. A translation away from unit gauge is refused.
  */
 export function test_recovery_internal_create_pose_model(): void {
-  const model: ReturnType<typeof createRecoveryPoseModel> =
-    createRecoveryPoseModel(chart.pose, chart.first, chart.second);
+  const model: ReturnType<typeof AutoMovieRecoveryCameraMap.createPoseModel> =
+    AutoMovieRecoveryCameraMap.createPoseModel(chart.pose, chart.first, chart.second);
   /**
    * Exact integer numerators over 128, from K2⁻ᵀ E K1⁻¹ for each basis
    * direction.
@@ -48,7 +48,7 @@ export function test_recovery_internal_create_pose_model(): void {
       ),
   );
   TestValidator.error("non-unit translation", (): unknown =>
-    createRecoveryPoseModel(
+    AutoMovieRecoveryCameraMap.createPoseModel(
       { ...chart.pose, translation: [2, 0, 0] },
       chart.first,
       chart.second,

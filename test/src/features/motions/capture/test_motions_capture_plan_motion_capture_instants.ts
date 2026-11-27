@@ -1,4 +1,6 @@
-import { planMotionCaptureInstants } from "@automovie/motions/internal";
+import {
+  planMotionCaptureInstants
+} from "../../../../../packages/motions/src/capture/internal/planMotionCaptureInstants";
 import { TestValidator } from "@nestia/e2e";
 
 /**

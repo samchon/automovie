@@ -1,4 +1,9 @@
-import { HumanProxemics, HumanRefusal } from "@automovie/motions/internal";
+import {
+  HumanProxemics
+} from "../../../../../packages/motions/src/everyday/internal/HumanProxemics";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -59,7 +64,7 @@ export function test_motions_everyday_human_proxemics(): void {
   try {
     HumanProxemics.gap(-1, measure);
   } catch (error: unknown) {
-    if (error instanceof HumanRefusal) axis = error.axis;
+    if (error instanceof AutoMovieMotionHumanRefusal) axis = error.axis;
   }
   TestValidator.equals("a negative gap", axis, "at");
   const ahead: ReturnType<typeof HumanProxemics.stop> = HumanProxemics.stop(
@@ -83,7 +88,7 @@ export function test_motions_everyday_human_proxemics(): void {
   try {
     HumanProxemics.stop({ x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, 1, 0.12);
   } catch (error: unknown) {
-    if (error instanceof HumanRefusal) target = error.axis;
+    if (error instanceof AutoMovieMotionHumanRefusal) target = error.axis;
   }
   TestValidator.equals("no way", target, "target");
 }

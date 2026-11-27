@@ -2,7 +2,7 @@ import type {
   IAutoMovieRasterImage,
   IAutoMovieRasterLabel,
 } from "@automovie/interface";
-import { stampAutoMovieDrawLegend } from "@automovie/render";
+import { AutoMovieRenderDraw } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -63,7 +63,7 @@ export function test_render_draw_stamp_draw_legend(): void {
 
   // 1. Empty picture: bottom-left.
   const empty: IAutoMovieRasterImage = blank();
-  const first: IAutoMovieRasterLabel[] = stampAutoMovieDrawLegend(
+  const first: IAutoMovieRasterLabel[] = AutoMovieRenderDraw.stampAutoMovieDrawLegend(
     empty,
     legend,
     1,
@@ -84,7 +84,7 @@ export function test_render_draw_stamp_draw_legend(): void {
   // 2. A figure in the bottom-left corner.
   const left: IAutoMovieRasterImage = blank();
   draw(left, 0, 45);
-  const second: IAutoMovieRasterLabel[] = stampAutoMovieDrawLegend(
+  const second: IAutoMovieRasterLabel[] = AutoMovieRenderDraw.stampAutoMovieDrawLegend(
     left,
     legend,
     1,
@@ -107,7 +107,7 @@ export function test_render_draw_stamp_draw_legend(): void {
   draw(bottoms, 85, 45);
   TestValidator.equals(
     "top-right anchors",
-    stampAutoMovieDrawLegend(bottoms, legend, 1)[0],
+    AutoMovieRenderDraw.stampAutoMovieDrawLegend(bottoms, legend, 1)[0],
     {
       text: "trail 1",
       x: 100 - width + 9,
@@ -125,7 +125,7 @@ export function test_render_draw_stamp_draw_legend(): void {
     draw(three, x, y);
   TestValidator.equals(
     "top-left anchors",
-    stampAutoMovieDrawLegend(three, legend, 1)[0],
+    AutoMovieRenderDraw.stampAutoMovieDrawLegend(three, legend, 1)[0],
     {
       text: "trail 1",
       x: 9,
@@ -144,7 +144,7 @@ export function test_render_draw_stamp_draw_legend(): void {
     draw(full, x, y);
   TestValidator.equals(
     "bottom-left among equals",
-    stampAutoMovieDrawLegend(full, legend, 1)[0],
+    AutoMovieRenderDraw.stampAutoMovieDrawLegend(full, legend, 1)[0],
     {
       text: "trail 1",
       x: 9,
@@ -156,7 +156,7 @@ export function test_render_draw_stamp_draw_legend(): void {
   const untouched: IAutoMovieRasterImage = blank();
   TestValidator.equals(
     "nothing returned",
-    stampAutoMovieDrawLegend(untouched, [], 1),
+    AutoMovieRenderDraw.stampAutoMovieDrawLegend(untouched, [], 1),
     [],
   );
   TestValidator.equals(

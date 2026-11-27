@@ -3,7 +3,9 @@ import type {
   IAutoMovieMotionHumanPropFlight,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanPropOutcome } from "@automovie/motions/internal";
+import {
+  HumanPropOutcome
+} from "../../../../../packages/motions/src/perform/internal/HumanPropOutcome";
 import { TestValidator } from "@nestia/e2e";
 
 /**

@@ -6,7 +6,9 @@ import { flatFingerprintStart } from "./flatFingerprintStart";
 import { isDeclaration } from "./isDeclaration";
 import { withoutEnding } from "./withoutEnding";
 
-/** Recognizes a pure evidence block, retaining each heading reason's boundary. */
+/*
+ * Recognizes a pure evidence block, retaining each heading reason's boundary.
+ */
 export function evidenceSections(
   lines: string[],
   start: number,
@@ -17,7 +19,7 @@ export function evidenceSections(
     | (IEvidenceSection & { level: number; reason: boolean })
     | undefined;
   let fence: { character: string; length: number } | undefined;
-  const flush: () => boolean = (): boolean => {
+  function flush(): boolean {
     if (pending === undefined) return true;
     if (!pending.reason || fence !== undefined) return false;
     sections.push({
@@ -30,7 +32,7 @@ export function evidenceSections(
     });
     pending = undefined;
     return true;
-  };
+  }
   for (let index: number = start; index < end; index += 1) {
     const content: string = withoutEnding(lines[index]);
     const line: string = content.trim();

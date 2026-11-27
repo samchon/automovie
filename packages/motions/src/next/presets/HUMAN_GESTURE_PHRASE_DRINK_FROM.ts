@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanGesture } from "@automovie/interface";
 
-/**
+/*
  * The values the `drinkFrom` row of `HumanUpperRows` fixes on `armPhrase`,
  * spread into its parameters. Drinking: the hand that holds a vessel brings its
  * lip to the mouth and holds it there; the vessel is named as `held`.

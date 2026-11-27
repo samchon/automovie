@@ -1,4 +1,4 @@
-/**
+/*
  * Names the package's docs folder.
  *
  * Authored claims select the body through `BODY_ROOT`. The instruction and

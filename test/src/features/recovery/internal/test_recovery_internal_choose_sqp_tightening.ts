@@ -1,5 +1,5 @@
 import type { IAutoMovieSimplexAtom } from "@automovie/interface";
-import { chooseRecoverySqpTightening } from "@automovie/recovery";
+import { AutoMovieRecoveryCameraMap } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -23,7 +23,7 @@ export function test_recovery_internal_choose_sqp_tightening(): void {
     { indices: [0], values: [3], offset: 1 },
   ];
   const ceiling: number = 0.5 ** 2.5;
-  const capped = chooseRecoverySqpTightening(rows, [1], [2], [0.5], 0.25, 0.5);
+  const capped = AutoMovieRecoveryCameraMap.chooseSqpTightening(rows, [1], [2], [0.5], 0.25, 0.5);
   TestValidator.equals("the reason", capped.reason, "objective-cap");
   TestValidator.predicate(
     "the capped value",
@@ -34,13 +34,13 @@ export function test_recovery_internal_choose_sqp_tightening(): void {
     "the ceiling",
     capped.ceiling !== null && nclose(capped.ceiling, ceiling, 1e-15),
   );
-  const free = chooseRecoverySqpTightening(rows, [1], [0], [0.5], 0.25, 0.5);
+  const free = AutoMovieRecoveryCameraMap.chooseSqpTightening(rows, [1], [0], [0.5], 0.25, 0.5);
   TestValidator.equals("a free margin", free.reason, "zero-multiplier-price");
   TestValidator.predicate(
     "the ceiling is the value",
     free.value !== null && nclose(free.value, ceiling, 1e-15),
   );
   TestValidator.error("an sqpNorm of one", (): unknown =>
-    chooseRecoverySqpTightening(rows, [1], [2], [0.5], 1, 0.5),
+    AutoMovieRecoveryCameraMap.chooseSqpTightening(rows, [1], [2], [0.5], 1, 0.5),
   );
 }

@@ -1,4 +1,6 @@
-import { VariationSeries } from "@automovie/motions/executable/internal";
+import {
+  VariationSeries
+} from "../../../../../packages/motions/src/executable/cases/VariationSeries";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

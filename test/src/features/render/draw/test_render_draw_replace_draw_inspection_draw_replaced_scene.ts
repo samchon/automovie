@@ -1,13 +1,13 @@
-import { markAutoMovieContacts } from "@automovie/engine";
+import { AutoMovieEngineCompositionContact } from "@automovie/engine";
 import type {
   IAutoMovieContactReceipt,
   IAutoMovieInspectionLegendEntry,
   IAutoMovieMark,
 } from "@automovie/interface";
 import {
-  type IAutoMovieDrawScene,
-  type IAutoMovieInspectionHandle,
-  replaceAutoMovieDrawInspection,
+  type IAutoMovieRenderDrawScene,
+  type IAutoMovieRenderInspectionHandle,
+  AutoMovieRenderDrawPlacement,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
@@ -41,9 +41,9 @@ export async function test_render_draw_replace_draw_inspection_draw_replaced_sce
   let right: THREE.Mesh | undefined;
   let leftX: number = -1;
   let rightX: number = 1;
-  let active: IAutoMovieInspectionHandle | null = null;
+  let active: IAutoMovieRenderInspectionHandle | null = null;
   try {
-    active = await replaceAutoMovieDrawInspection({
+    active = await AutoMovieRenderDrawPlacement.replaceInspection({
       previous: null,
       scene,
       request: InspectionScene.ask({ parts: ["actors/left"], marks: [] }),
@@ -54,7 +54,7 @@ export async function test_render_draw_replace_draw_inspection_draw_replaced_sce
     const removed: THREE.Mesh = right!;
     leftX = -4;
     rightX = 4;
-    active = await replaceAutoMovieDrawInspection({
+    active = await AutoMovieRenderDrawPlacement.replaceInspection({
       previous: active,
       scene,
       request: InspectionScene.ask({ parts: ["actors/left"], marks: [] }),
@@ -67,7 +67,7 @@ export async function test_render_draw_replace_draw_inspection_draw_replaced_sce
       right!.layers.mask !== 0
     )
       findings.push("replacement reused an old mask population");
-    const bounds: ReturnType<IAutoMovieInspectionHandle["bounds"]> =
+    const bounds: ReturnType<IAutoMovieRenderInspectionHandle["bounds"]> =
       active.bounds(null);
     if (
       bounds === null ||
@@ -83,13 +83,13 @@ export async function test_render_draw_replace_draw_inspection_draw_replaced_sce
         "the reported selection differs from current isolated geometry",
       );
     rightX = 5;
-    active = await replaceAutoMovieDrawInspection({
+    active = await AutoMovieRenderDrawPlacement.replaceInspection({
       previous: active,
       scene,
       request: InspectionScene.ask({ parts: ["actors/right"], marks: [] }),
       place,
     });
-    const switched: ReturnType<IAutoMovieInspectionHandle["bounds"]> =
+    const switched: ReturnType<IAutoMovieRenderInspectionHandle["bounds"]> =
       active.bounds(null);
     if (
       left!.layers.mask !== 0 ||
@@ -101,11 +101,11 @@ export async function test_render_draw_replace_draw_inspection_draw_replaced_sce
       findings.push(
         "a changed request did not select the actual current graph",
       );
-    const previous: IAutoMovieInspectionHandle = active;
+    const previous: IAutoMovieRenderInspectionHandle = active;
     active = null;
     let refused: boolean = false;
     try {
-      await replaceAutoMovieDrawInspection({
+      await AutoMovieRenderDrawPlacement.replaceInspection({
         previous,
         scene,
         request: InspectionScene.ask({ parts: ["actors/left"], marks: [] }),
@@ -158,7 +158,7 @@ export async function test_render_draw_replace_draw_inspection_draw_replaced_sce
       compression: sample.compression,
       samples: [sample],
     };
-    const subject: Pick<IAutoMovieDrawScene, "scene" | "markKinds"> = {
+    const subject: Pick<IAutoMovieRenderDrawScene, "scene" | "markKinds"> = {
       scene,
       markKinds: ["contact"],
     };
@@ -169,13 +169,13 @@ export async function test_render_draw_replace_draw_inspection_draw_replaced_sce
       [1.25, 0],
       [1, 2],
     ] as const) {
-      active = await replaceAutoMovieDrawInspection({
+      active = await AutoMovieRenderDrawPlacement.replaceInspection({
         ...subject,
         previous: active,
         request: InspectionScene.ask({ marks: ["contact"] }),
         place: async (): Promise<IAutoMovieMark[]> => {
           await place();
-          return markAutoMovieContacts({
+          return AutoMovieEngineCompositionContact.markContacts({
             receipts: [receipt],
             seconds,
             metresPerNewton: 0.125,

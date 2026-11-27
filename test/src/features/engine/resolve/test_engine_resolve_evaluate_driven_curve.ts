@@ -1,4 +1,4 @@
-import { evaluateDrivenCurve } from "@automovie/engine";
+import { AutoMovieEngineResolve } from "@automovie/engine";
 import type { IAutoMovieDrivenCurve } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -31,19 +31,19 @@ const CURVE: IAutoMovieDrivenCurve = {
 export function test_engine_resolve_evaluate_driven_curve(): void {
   TestValidator.predicate(
     "linear between points",
-    nclose(evaluateDrivenCurve(0.5, CURVE), 5, ROUNDING) &&
-      nclose(evaluateDrivenCurve(2, CURVE), 7, ROUNDING),
+    nclose(AutoMovieEngineResolve.evaluateDrivenCurve(0.5, CURVE), 5, ROUNDING) &&
+      nclose(AutoMovieEngineResolve.evaluateDrivenCurve(2, CURVE), 7, ROUNDING),
   );
   TestValidator.predicate(
     "at a point",
-    nclose(evaluateDrivenCurve(1, CURVE), 10, ROUNDING),
+    nclose(AutoMovieEngineResolve.evaluateDrivenCurve(1, CURVE), 10, ROUNDING),
   );
   TestValidator.predicate(
     "held outside",
-    evaluateDrivenCurve(-5, CURVE) === 0 && evaluateDrivenCurve(9, CURVE) === 4,
+    AutoMovieEngineResolve.evaluateDrivenCurve(-5, CURVE) === 0 && AutoMovieEngineResolve.evaluateDrivenCurve(9, CURVE) === 4,
   );
   TestValidator.predicate(
     "an absent source reads the first point",
-    evaluateDrivenCurve(undefined, CURVE) === 0,
+    AutoMovieEngineResolve.evaluateDrivenCurve(undefined, CURVE) === 0,
   );
 }

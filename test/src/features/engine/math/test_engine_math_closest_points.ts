@@ -1,4 +1,4 @@
-import { closestPointsBetweenSegments } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import type { IAutoMovieClosestSegmentPoints } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -14,7 +14,7 @@ import { TestValidator } from "@nestia/e2e";
  *    distance 0 and both witnesses coincide.
  */
 export function test_engine_math_closest_points(): void {
-  const gap: IAutoMovieClosestSegmentPoints = closestPointsBetweenSegments(
+  const gap: IAutoMovieClosestSegmentPoints = AutoMovieEngineMath.closestPointsBetweenSegments(
     { x: 0, y: 0, z: 0 },
     { x: 1, y: 0, z: 0 },
     { x: 2, y: 0, z: 0 },
@@ -23,7 +23,7 @@ export function test_engine_math_closest_points(): void {
   TestValidator.equals("gap", gap.distance, 1);
   TestValidator.equals("first witness", gap.pointA, { x: 1, y: 0, z: 0 });
   TestValidator.equals("second witness", gap.pointB, { x: 2, y: 0, z: 0 });
-  const touching: IAutoMovieClosestSegmentPoints = closestPointsBetweenSegments(
+  const touching: IAutoMovieClosestSegmentPoints = AutoMovieEngineMath.closestPointsBetweenSegments(
     { x: 0, y: 0, z: 0 },
     { x: 1, y: 0, z: 0 },
     { x: 0, y: 0, z: 0 },

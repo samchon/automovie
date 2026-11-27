@@ -17,7 +17,7 @@ export async function SurfaceQualityExperiment(): Promise<void> {
   const source: string = path.join(root, "test/.shots/compact-curve-study/2026-11-10T14-43-48-744Z");
   const out: string = path.join(root, "test/.shots/surface-quality-study", new Date().toISOString().replaceAll(":", "-").replaceAll(".", "-"));
   await fs.mkdir(out, { recursive: true });
-  const files: string[] = ["test/src/reference-conics/SurfaceQualityExperiment.ts", "test/src/reference-conics/SurfaceQualityData.ts", "test/src/reference-conics/ConicPaperInput.ts", "test/src/reference-conics/CompactCurveSource.ts", "test/src/reference-conics/CompactCurveLoft.ts", "packages/engine/src/geometry/curve/tessellateAutoMovieContourStrip64.ts", "packages/human/src/executable/NodeCanvasRaster.ts", "packages/human/src/inspection/NodeCanvasCamera.ts"];
+  const files: string[] = ["test/src/reference-conics/SurfaceQualityExperiment.ts", "test/src/reference-conics/SurfaceQualityData.ts", "test/src/reference-conics/ConicPaperInput.ts", "test/src/reference-conics/CompactCurveSource.ts", "test/src/reference-conics/CompactCurveLoft.ts", "packages/engine/src/geometry/curve/internal/tessellateContourStrip64.ts", "test/src/reference-conics/render/NodeCanvasRaster.ts", "test/src/reference-conics/render/NodeCanvasCamera.ts"];
   const identity = async (): Promise<{ file: string; sha256: string }[]> => Promise.all(files.map(async (file: string): Promise<{ file: string; sha256: string }> => ({ file, sha256: createHash("sha256").update(await fs.readFile(path.join(root, file))).digest("hex") })));
   const before: Awaited<ReturnType<typeof identity>> = await identity();
   const coefficientPath: string = path.join(source, "degree-3.coefficients.json.gz");

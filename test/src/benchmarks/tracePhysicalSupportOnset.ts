@@ -1,12 +1,4 @@
-import {
-  AutoMoviePhysicalBalance,
-  AutoMoviePhysicalSimulation,
-  Quaternion,
-  Vector3,
-  measurePhysicalJointLimits,
-  physicalShapeBounds,
-  physicalSupportPoint,
-} from "@automovie/engine";
+import { AutoMovieEnginePhysicalBalance, AutoMovieEnginePhysicalSimulation, AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieContactReceipt,
   IAutoMovieFootfallPattern,
@@ -68,7 +60,7 @@ export namespace tracePhysicalSupportOnset {
 
     const started: number = performance.now();
     const result: IAutoMoviePhysicalSimulation =
-      await AutoMoviePhysicalSimulation.compute(prefix);
+      await AutoMovieEnginePhysicalSimulation.compute(prefix);
     const integrationMs: number = performance.now() - started;
     const contacts: Contact[][] = indexContacts(result);
     const label: string =
@@ -156,7 +148,7 @@ function observeFrame(
       (contact: (typeof floorContacts)[number]): boolean =>
         bones.includes(contact.bone) && contact.touching,
     );
-    const endpoint: IAutoMovieVector3 = physicalSupportPoint(
+    const endpoint: IAutoMovieVector3 = AutoMovieEnginePhysics.physicalSupportPoint(
       poses[limb.bone]!,
       limb.localPoint,
     );
@@ -204,7 +196,7 @@ function observeFrame(
         ),
       )
     : floor;
-  const receiptAssessment = AutoMoviePhysicalBalance.assess({
+  const receiptAssessment = AutoMovieEnginePhysicalBalance.assess({
     ...center,
     floor: receiptPlane,
     gravity: Math.abs(gravity.y),
@@ -222,15 +214,15 @@ function observeFrame(
       const child: IAutoMovieRigidTransform = poses[joint.child]!;
       anchorError = Math.max(
         anchorError,
-        Vector3.length(
-          Vector3.subtract(
-            physicalSupportPoint(parent, joint.parentFrame.position),
-            physicalSupportPoint(child, joint.childFrame.position),
+        AutoMovieEngineVector3.length(
+          AutoMovieEngineVector3.subtract(
+            AutoMovieEnginePhysics.physicalSupportPoint(parent, joint.parentFrame.position),
+            AutoMovieEnginePhysics.physicalSupportPoint(child, joint.childFrame.position),
           ),
         ),
       );
-      return measurePhysicalJointLimits(joint, parent, child).flatMap(
-        (coordinate: ReturnType<typeof measurePhysicalJointLimits>[number]) => {
+      return AutoMovieEnginePhysics.measurePhysicalJointLimits(joint, parent, child).flatMap(
+        (coordinate: ReturnType<typeof AutoMovieEnginePhysics.measurePhysicalJointLimits>[number]) => {
           romViolation = Math.max(romViolation, coordinate.violation);
           return coordinate.violation > 0.0001
             ? [{ joint: joint.id, ...coordinate }]
@@ -309,19 +301,19 @@ function centerOfMass(
   for (const segment of profile.segments) {
     const pose: IAutoMoviePhysicalFrame["bodies"][string][string] =
       poses[segment.bone]!;
-    const offset: IAutoMovieVector3 = Quaternion.rotateVector(
+    const offset: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       pose.rotation,
       segment.centerOfMass,
     );
     const fraction: number = segment.mass / profile.mass;
-    center = Vector3.add(
+    center = AutoMovieEngineVector3.add(
       center,
-      Vector3.scale(Vector3.add(pose.position, offset), fraction),
+      AutoMovieEngineVector3.scale(AutoMovieEngineVector3.add(pose.position, offset), fraction),
     );
-    velocity = Vector3.add(
+    velocity = AutoMovieEngineVector3.add(
       velocity,
-      Vector3.scale(
-        Vector3.add(pose.velocity, Vector3.cross(pose.angularVelocity, offset)),
+      AutoMovieEngineVector3.scale(
+        AutoMovieEngineVector3.add(pose.velocity, AutoMovieEngineVector3.cross(pose.angularVelocity, offset)),
         fraction,
       ),
     );
@@ -349,7 +341,7 @@ function carrierHeight(
   return Math.min(
     ...segment.shapes.map(
       (shape: (typeof segment.shapes)[number]): number =>
-        physicalShapeBounds(pose, shape).min.y,
+        AutoMovieEnginePhysics.physicalShapeBounds(pose, shape).min.y,
     ),
   );
 }

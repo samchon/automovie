@@ -1,4 +1,4 @@
-import { smoothMinimum } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -21,15 +21,15 @@ const ROUNDING: number = 1e-12;
 export function test_engine_motion_smooth_minimum(): void {
   TestValidator.predicate(
     "equal inputs",
-    nclose(smoothMinimum(0, 0, 1), -0.25, ROUNDING),
+    nclose(AutoMovieEngineMotionSampling.smoothMinimum(0, 0, 1), -0.25, ROUNDING),
   );
   TestValidator.predicate(
     "a blend",
-    nclose(smoothMinimum(1, 0.5, 1), 0.4375, ROUNDING),
+    nclose(AutoMovieEngineMotionSampling.smoothMinimum(1, 0.5, 1), 0.4375, ROUNDING),
   );
-  TestValidator.equals("far apart", smoothMinimum(5, 1, 2), 1);
+  TestValidator.equals("far apart", AutoMovieEngineMotionSampling.smoothMinimum(5, 1, 2), 1);
   TestValidator.predicate(
     "a zero width",
-    throwsError(() => smoothMinimum(1, 2, 0), "positive finite width"),
+    throwsError(() => AutoMovieEngineMotionSampling.smoothMinimum(1, 2, 0), "positive finite width"),
   );
 }

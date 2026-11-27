@@ -1,5 +1,5 @@
 import path from "node:path";
-import { AutoMovieLoftChain } from "@automovie/engine";
+import { AutoMovieEngineLoftChain } from "@automovie/engine";
 import { AutoMovieHumanConicLoft, AutoMovieHumanF1 } from "@automovie/human";
 import { FamilyConicSource as R } from "./FamilyConicSource";
 
@@ -77,11 +77,11 @@ namespace FamilyConicEar {
     for (let s: number = from; s < tip - 0.05; s += s < family.tips![1]!.from ? 2 : 0.5) {
       const cells: string[] = [];
       for (let j: number = 0; j < 24; ++j) {
-        const p: V3 = AutoMovieLoftChain.point(chain, s, (j * Math.PI) / 12) as V3;
+        const p: V3 = AutoMovieEngineLoftChain.point(chain, s, (j * Math.PI) / 12) as V3;
         const d: number | null = depth(p);
         cells.push((d === null ? "." : d.toFixed(1)).padStart(5));
       }
-      const q: V3 = AutoMovieLoftChain.point(chain, s, 0) as V3;
+      const q: V3 = AutoMovieEngineLoftChain.point(chain, s, 0) as V3;
       process.stdout.write(s.toFixed(1).padStart(6) + "  " + cells.join("") + "   z " + q[2].toFixed(1) + "\n");
     }
   }

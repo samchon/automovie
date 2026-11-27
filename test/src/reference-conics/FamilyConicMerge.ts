@@ -1,8 +1,4 @@
-import {
-  AutoMovieLoftChain,
-  AutoMovieViewLoft,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
+import { AutoMovieEngineLoftChain, AutoMovieEngineViewLoft, AutoMovieEngineConstruction } from "@automovie/engine";
 import { AutoMovieHumanConicLoft, AutoMovieHumanF1 } from "@automovie/human";
 import type {
   IAutoMovieConstructionNode,
@@ -99,8 +95,8 @@ namespace FamilyConicMerge {
       capsule(digit, Number(depth));
       const host: IAutoMovieViewPart = sources.get(limb.family.name)!;
       const hostLoft: IAutoMovieViewLoft.IResult =
-        AutoMovieViewLoft.create(host);
-      const partLoft: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create(
+        AutoMovieEngineViewLoft.create(host);
+      const partLoft: IAutoMovieViewLoft.IResult = AutoMovieEngineViewLoft.create(
         sources.get(digit.family.name)!,
       );
       if (hostLoft.chain === null || partLoft.chain === null)
@@ -114,7 +110,7 @@ namespace FamilyConicMerge {
       ) {
         const cells: string[] = [];
         for (let k: number = 0; k < 8; ++k) {
-          const p: number[] = AutoMovieLoftChain.point(
+          const p: number[] = AutoMovieEngineLoftChain.point(
             partLoft.chain,
             s,
             (k * Math.PI) / 4,
@@ -146,7 +142,7 @@ namespace FamilyConicMerge {
             d[0]! * frame.u[0] + d[1]! * frame.u[1] + d[2]! * frame.u[2];
           const v: number =
             d[0]! * frame.v[0] + d[1]! * frame.v[1] + d[2]! * frame.v[2];
-          const q: number[] = AutoMovieLoftChain.point(
+          const q: number[] = AutoMovieEngineLoftChain.point(
             hostLoft.chain,
             at,
             Math.atan2(v, u),
@@ -210,7 +206,7 @@ namespace FamilyConicMerge {
         const trial: Pick<
           IAutoMovieConstructionRealization.IRealization,
           "diagnostics"
-        > = realizeAutoMovieConstruction(
+        > = AutoMovieEngineConstruction.realize(
           { name: "f1.merge", root: candidate },
           { chord: 0.002, sources, skin: false },
         );
@@ -244,7 +240,7 @@ namespace FamilyConicMerge {
     );
     const started: number = performance.now();
     const real: IAutoMovieConstructionRealization.IRealization =
-      realizeAutoMovieConstruction(
+      AutoMovieEngineConstruction.realize(
         { name: "f1.merge", root },
         { chord: 0.0005, sources },
       );

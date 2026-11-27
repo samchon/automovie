@@ -1,4 +1,4 @@
-import { measureAutoMovieFeatureEdges } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieMaterial,
   IAutoMovieMaterialWear,
@@ -7,11 +7,10 @@ import type {
   IAutoMovieModel,
 } from "@automovie/interface";
 import {
-  AutoMovieThreeKind,
-  type IAutoMovieModelObject,
-  type IMaterialShaderSource,
-  buildModel,
-  readAutoMovieBufferAttribute,
+  AutoMovieRenderThreeKind,
+  type IAutoMovieRenderModelObject,
+  type IAutoMovieRenderMaterialShaderSource,
+  AutoMovieRenderSceneLayout,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
@@ -31,7 +30,7 @@ import { singleMaterial } from "../../internal/singleMaterial";
  *    mesh drawn non-indexed, carrying its skin indices and weights for every
  *    corner and a `wearList` per vertex.
  * 2. The wear texture holds exactly the feature edges
- *    `measureAutoMovieFeatureEdges` finds on the authored bind-pose mesh.
+ *    `measureFeatureEdges` finds on the authored bind-pose mesh.
  * 3. Bending the spine bone 90° moves the skinned vertices (three's CPU skinning
  *    moves them by more than 0.1 m) while the `position` attribute the wear
  *    distances read stays at bind pose, so each fragment's distances, and its
@@ -56,10 +55,10 @@ export function test_render_scene_build_model_wear_skinned(): void {
       wear,
     }),
   );
-  const built: IAutoMovieModelObject = buildModel(model);
+  const built: IAutoMovieRenderModelObject = AutoMovieRenderSceneLayout.buildModel(model);
   let found: THREE.SkinnedMesh | null = null;
   built.object.traverse((object: THREE.Object3D): void => {
-    if (AutoMovieThreeKind.isSkinnedMesh(object)) found = object;
+    if (AutoMovieRenderThreeKind.isSkinnedMesh(object)) found = object;
   });
   const mesh: THREE.SkinnedMesh = found!;
   const geometry: THREE.BufferGeometry = mesh.geometry;
@@ -80,13 +79,13 @@ export function test_render_scene_build_model_wear_skinned(): void {
   if (source.type !== "mesh") throw new Error("Expected a mesh part");
   const record: IAutoMovieMesh = source.mesh;
   const expected: IAutoMovieMeasureFeatureEdges.IResult =
-    measureAutoMovieFeatureEdges({
+    AutoMovieEngineGeometry.measureFeatureEdges({
       positions: new Float32Array(record.positions),
       indices: record.indices!,
       reach: 0.02,
     });
   const material: THREE.Material = singleMaterial(mesh.material);
-  const shader: IMaterialShaderSource = compileMaterialShaderSource(material);
+  const shader: IAutoMovieRenderMaterialShaderSource = compileMaterialShaderSource(material);
   const texture: THREE.DataTexture = shader.uniforms.uWearEdges!.value;
   const data: THREE.TypedArray | null = texture.image.data;
   if (data === null) throw new Error("Expected wear edge data");
@@ -102,10 +101,9 @@ export function test_render_scene_build_model_wear_skinned(): void {
   );
 
   // 3. Bend and compare.
-  const position: THREE.BufferAttribute = readAutoMovieBufferAttribute(
-    geometry,
+  const position: THREE.BufferAttribute = geometry.getAttribute(
     "position",
-  );
+  ) as THREE.BufferAttribute;
   const before: number[] = Array.from(position.array);
   const spine: THREE.Bone = mesh.skeleton.bones.find(
     (bone: THREE.Bone): boolean => bone.name === "spine",

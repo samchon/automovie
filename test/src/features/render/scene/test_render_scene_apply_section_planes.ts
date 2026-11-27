@@ -1,9 +1,6 @@
-import { autoMovieSectionPlanesKeepPoint } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type { IAutoMovieSectionPlane } from "@automovie/interface";
-import {
-  AutoMovieThreeKind,
-  applyAutoMovieSectionPlanes,
-} from "@automovie/render";
+import { AutoMovieRenderThreeKind, AutoMovieRenderSceneLayout } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -49,9 +46,9 @@ const materialsOf: (root: THREE.Object3D) => THREE.Material[] = (
   const found: THREE.Material[] = [];
   root.traverse((object: THREE.Object3D<THREE.Object3DEventMap>): void => {
     if (
-      !AutoMovieThreeKind.isMesh(object) &&
-      !AutoMovieThreeKind.isLine(object) &&
-      !AutoMovieThreeKind.isPoints(object)
+      !AutoMovieRenderThreeKind.isMesh(object) &&
+      !AutoMovieRenderThreeKind.isLine(object) &&
+      !AutoMovieRenderThreeKind.isPoints(object)
     )
       return;
     for (const material of [object.material].flat()) found.push(material);
@@ -98,7 +95,7 @@ export function test_render_scene_apply_section_planes(): void {
   const renderer: { localClippingEnabled: boolean } = {
     localClippingEnabled: false,
   };
-  const built: THREE.Plane[] = applyAutoMovieSectionPlanes({
+  const built: THREE.Plane[] = AutoMovieRenderSceneLayout.applySectionPlanes({
     renderer,
     root: first.root,
     planes: [CEILING],
@@ -142,7 +139,7 @@ export function test_render_scene_apply_section_planes(): void {
     TestValidator.equals(
       `renderer and engine agree ${label} the cut`,
       plane.distanceToPoint(new THREE.Vector3(0, y, 0)) >= 0,
-      autoMovieSectionPlanesKeepPoint([CEILING], { x: 0, y, z: 0 }),
+      AutoMovieEngineFilm.autoMovieSectionPlanesKeepPoint([CEILING], { x: 0, y, z: 0 }),
     );
 
   // 3. a non-unit declared normal still lands unit, at the same place
@@ -159,7 +156,7 @@ export function test_render_scene_apply_section_planes(): void {
         material.version === 1,
     ),
   );
-  applyAutoMovieSectionPlanes({
+  AutoMovieRenderSceneLayout.applySectionPlanes({
     renderer,
     root: first.root,
     planes: [{ ...CEILING, point: { x: 0, y: 1, z: 0 } }],
@@ -173,7 +170,7 @@ export function test_render_scene_apply_section_planes(): void {
   );
 
   // 5. Two planes preserve order and advance material version.
-  const pair: THREE.Plane[] = applyAutoMovieSectionPlanes({
+  const pair: THREE.Plane[] = AutoMovieRenderSceneLayout.applySectionPlanes({
     renderer,
     root: first.root,
     planes: [CEILING, WEST_WALL],
@@ -192,7 +189,7 @@ export function test_render_scene_apply_section_planes(): void {
   );
 
   // 6. releasing the section restores the uncut scene
-  const released: THREE.Plane[] = applyAutoMovieSectionPlanes({
+  const released: THREE.Plane[] = AutoMovieRenderSceneLayout.applySectionPlanes({
     renderer,
     root: first.root,
     planes: [],

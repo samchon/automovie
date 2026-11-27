@@ -1,7 +1,4 @@
-import {
-  propBlockedPassages,
-  validateBuiltEnvironment,
-} from "@automovie/engine";
+import { AutoMovieEngineArchitecture, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieConstraintViolation,
@@ -124,7 +121,7 @@ const corridors: () => IAutoMovieBuiltEnvironment =
 const blocked: (bounds: IAutoMoviePropBox) => string[] = (
   bounds: IAutoMoviePropBox,
 ): string[] =>
-  propBlockedPassages({ environment: corridors(), bounds }).map(
+  AutoMovieEngineFilm.propBlockedPassages({ environment: corridors(), bounds }).map(
     (blockage: IAutoMoviePassageBlockage): string => blockage.id,
   );
 
@@ -196,7 +193,7 @@ export function test_engine_film_prop_passage_section(): void {
           const stated: IAutoMovieBuiltEnvironment = corridors();
           stated.connectors[2]!.width = 2;
           stated.connectors[2]!.clearHeight = 2;
-          return propBlockedPassages({
+          return AutoMovieEngineFilm.propBlockedPassages({
             environment: stated,
             bounds: box(0, 19.5, 10, 20.5),
           }).some(
@@ -224,7 +221,7 @@ export function test_engine_film_prop_passage_section(): void {
   TestValidator.equals(
     "the undeclared section is refused by validation, not guessed at here",
     ((): string[] => {
-      const validation: IAutoMovieValidation = validateBuiltEnvironment({
+      const validation: IAutoMovieValidation = AutoMovieEngineArchitecture.validateBuiltEnvironment({
         environment: corridors(),
       });
       return validation.success === true

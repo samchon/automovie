@@ -1,7 +1,4 @@
-import {
-  joinAutoMovieDialogueVisemes,
-  sampleAutoMovieDialogueExpression,
-} from "@automovie/engine";
+import { AutoMovieEngineSound } from "@automovie/engine";
 import type {
   IAutoMovieDialogueExpressionLayers,
   IAutoMovieDialogueVisemeCompilation,
@@ -65,7 +62,7 @@ const heaviest = (weights: IAutoMovieHumanVisemeWeights): string =>
  *    ranges, and empty, negative or overrunning viseme shares are each
  *    refused.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls joinAutoMovieDialogueVisemes with explicit speaker bindings and supplied timing, then sampleAutoMovieDialogueExpression at active/gap/backward-seek frames. Asserts the complete ordered timeline, separate authored/mouth layers, borrowed authored identity, closed not-run reasons, and malformed timing refusals.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls joinDialogueVisemes with explicit speaker bindings and supplied timing, then sampleDialogueExpression at active/gap/backward-seek frames. Asserts the complete ordered timeline, separate authored/mouth layers, borrowed authored identity, closed not-run reasons, and malformed timing refusals.
  * @evidence contracts/development/testing.md#independent-expectations Literal line [10,20), 2 000 samples per frame and the authored shares determine three ranges with the pause as `sil`. Frame 13 lies inside the aa range and frame 16 inside the pause, so they must lead with aa and sil, and the authored sad intensity remains 0.75; these expectations do not call the join or sampler to calculate their answers.
  * @evidence contracts/development/testing.md#distinguishing-cases Active-gap-active seeking distinguishes range selection from retained playback state; absent speaker, absent actor and duplicate bindings retain different reasons. Empty/overlapping/out-of-line/negative timing each require the stated Error cause; coarticulation bounds belong to `test_engine_dialogue_viseme_coarticulation`.
  * @evidence contracts/development/testing.md#execution-ownership Uses local timing/binding/expression records and synchronous pure APIs with existing throwsError and structural numeric comparator, without audio, scene/actor application, clocks, global replacement or a new host. Fixture timing does not authenticate final audio bytes, prove lip synchrony, or certify production pipeline wiring.
@@ -73,7 +70,7 @@ const heaviest = (weights: IAutoMovieHumanVisemeWeights): string =>
  */
 export function test_engine_dialogue_viseme_join(): void {
   const compiled: IAutoMovieDialogueVisemeCompilation =
-    joinAutoMovieDialogueVisemes({
+    AutoMovieEngineSound.joinDialogueVisemes({
       line: line(),
       bindings: [{ speaker: "narrator", actor: "actor" }],
       visemes,
@@ -108,21 +105,21 @@ export function test_engine_dialogue_viseme_join(): void {
     blendshapes: null,
   };
   const active: IAutoMovieDialogueExpressionLayers =
-    sampleAutoMovieDialogueExpression({
+    AutoMovieEngineSound.sampleDialogueExpression({
       timeline: compiled.timeline,
       frame: 13,
       fps: 24,
       authored,
     });
   const gapAfterSeek: IAutoMovieDialogueExpressionLayers =
-    sampleAutoMovieDialogueExpression({
+    AutoMovieEngineSound.sampleDialogueExpression({
       timeline: compiled.timeline,
       frame: 16,
       fps: 24,
       authored,
     });
   const activeAgain: IAutoMovieDialogueExpressionLayers =
-    sampleAutoMovieDialogueExpression({
+    AutoMovieEngineSound.sampleDialogueExpression({
       timeline: compiled.timeline,
       frame: 13,
       fps: 24,
@@ -149,19 +146,19 @@ export function test_engine_dialogue_viseme_join(): void {
   TestValidator.equals(
     "missing and ambiguous speaker facts remain closed not-run outcomes",
     {
-      missingSpeaker: joinAutoMovieDialogueVisemes({
+      missingSpeaker: AutoMovieEngineSound.joinDialogueVisemes({
         line: line(null),
         bindings: [],
         visemes,
         ...rates,
       }).join,
-      missingActor: joinAutoMovieDialogueVisemes({
+      missingActor: AutoMovieEngineSound.joinDialogueVisemes({
         line: line(),
         bindings: [],
         visemes,
         ...rates,
       }).join,
-      ambiguous: joinAutoMovieDialogueVisemes({
+      ambiguous: AutoMovieEngineSound.joinDialogueVisemes({
         line: line(),
         bindings: [
           { speaker: "narrator", actor: "one" },
@@ -183,7 +180,7 @@ export function test_engine_dialogue_viseme_join(): void {
     {
       absentTiming: throwsError(
         (): IAutoMovieDialogueVisemeCompilation =>
-          joinAutoMovieDialogueVisemes({
+          AutoMovieEngineSound.joinDialogueVisemes({
             line: line(),
             bindings: [{ speaker: "narrator", actor: "actor" }],
             visemes: [],
@@ -193,7 +190,7 @@ export function test_engine_dialogue_viseme_join(): void {
       ),
       overlap: throwsError(
         (): IAutoMovieDialogueVisemeCompilation =>
-          joinAutoMovieDialogueVisemes({
+          AutoMovieEngineSound.joinDialogueVisemes({
             line: line(),
             bindings: [{ speaker: "narrator", actor: "actor" }],
             visemes: [
@@ -227,7 +224,7 @@ export function test_engine_dialogue_viseme_join(): void {
     visemes?: IAutoMovieProductionViseme[];
     actor?: string;
   }): IAutoMovieDialogueVisemeCompilation =>
-    joinAutoMovieDialogueVisemes({
+    AutoMovieEngineSound.joinDialogueVisemes({
       line: props.line ?? line(),
       bindings: [
         {

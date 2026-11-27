@@ -2,7 +2,7 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanChain } from "@automovie/motions";
+import { AutoMovieMotionHumanChain } from "@automovie/motions";
 
 import { MOTION_HUMAN_LAW_STAGES } from "./MOTION_HUMAN_LAW_STAGES";
 import { motionHumanBody } from "./motionHumanBody";
@@ -211,7 +211,7 @@ export namespace motionHumanMetamorphic {
       motionHumanLaw.perform(
         "metamorphic",
         [{ subject: "a", body }],
-        HumanChain.subject("a").act(
+        AutoMovieMotionHumanChain.subject("a").act(
           law as "crouch",
           {
             ...params,

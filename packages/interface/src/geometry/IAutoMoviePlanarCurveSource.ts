@@ -1,4 +1,5 @@
 import type { AutoMovieVector2Tuple } from "../index";
+import type { IAutoMovieCurveDomain } from "./IAutoMovieCurveDomain";
 
 /**
  * Borrowed parametric planar source, with source-span and singularity breaks.
@@ -9,8 +10,8 @@ import type { AutoMovieVector2Tuple } from "../index";
  * their input unchanged; algorithms snapshot returned coordinate tuples.
  */
 export interface IAutoMoviePlanarCurveSource {
-  /** Inclusive source parameter interval, strictly increasing. */
-  domain: readonly [number, number];
+  /** Inclusive finite source parameter interval, strictly increasing. */
+  domain: IAutoMovieCurveDomain;
 
   /** Ordered or unordered interior parameter boundaries that may not be crossed. */
   breaks: readonly number[];

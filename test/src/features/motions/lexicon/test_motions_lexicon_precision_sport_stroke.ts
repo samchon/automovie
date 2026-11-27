@@ -1,5 +1,7 @@
 import type { IAutoMovieMotionClock } from "@automovie/interface";
-import { PrecisionStrokeForms } from "@automovie/motions/internal";
+import {
+  PrecisionStrokeForms
+} from "../../../../../packages/motions/src/lexicon/internal/PrecisionStrokeForms";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

@@ -1,13 +1,4 @@
-import {
-  AutoMoviePhysicalJointChart,
-  AutoMovieXpbdBody,
-  AutoMovieXpbdJoint,
-  AutoMovieXpbdWorld,
-  Quaternion,
-  Vector3,
-  configurePhysicalJointMotor,
-  physicalSupportPoint,
-} from "@automovie/engine";
+import { AutoMovieEnginePhysicalJointChart, AutoMovieEngineXpbdBody, AutoMovieEngineXpbdJoint, AutoMovieEngineXpbdWorld, AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalJoint,
   IAutoMoviePhysicalJointAxis,
@@ -158,14 +149,14 @@ function frame(substeps: number): IReading {
       turn: [0, 0, 0],
     },
   ];
-  const world: AutoMovieXpbdWorld = new AutoMovieXpbdWorld({
+  const world: AutoMovieEngineXpbdWorld = new AutoMovieEngineXpbdWorld({
     x: 0,
     y: -9.81,
     z: 0,
   });
   world.timestep = 1 / (120 * substeps);
   const identity: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
-  const bodies: AutoMovieXpbdBody[] = [
+  const bodies: AutoMovieEngineXpbdBody[] = [
     world.createBody(false, {
       position: { x: 0, y: 0, z: 0 },
       rotation: identity,
@@ -173,14 +164,14 @@ function frame(substeps: number): IReading {
   ];
   const joints: {
     joint: IAutoMoviePhysicalJoint;
-    native: AutoMovieXpbdJoint;
+    native: AutoMovieEngineXpbdJoint;
     target: IAutoMovieQuaternion;
   }[] = [];
   let parent: { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion } =
     { position: { x: 0, y: 0, z: 0 }, rotation: identity };
   let reach: number = 0;
   for (const link of links) {
-    const relative: IAutoMovieQuaternion = AutoMoviePhysicalJointChart.compose(
+    const relative: IAutoMovieQuaternion = AutoMovieEnginePhysicalJointChart.compose(
       link.order,
       link.turn,
     );
@@ -188,10 +179,10 @@ function frame(substeps: number): IReading {
       position: IAutoMovieVector3;
       rotation: IAutoMovieQuaternion;
     } = {
-      position: physicalSupportPoint(parent, { x: reach, y: 0, z: 0 }),
-      rotation: Quaternion.multiply(parent.rotation, relative),
+      position: AutoMovieEnginePhysics.physicalSupportPoint(parent, { x: reach, y: 0, z: 0 }),
+      rotation: AutoMovieEngineQuaternion.multiply(parent.rotation, relative),
     };
-    const body: AutoMovieXpbdBody = world.createBody(true, pose);
+    const body: AutoMovieEngineXpbdBody = world.createBody(true, pose);
     body.setMass(
       link.mass,
       { x: link.length / 2, y: 0, z: 0 },
@@ -219,20 +210,20 @@ function frame(substeps: number): IReading {
   const reading: IReading = { spin: [], gap: [] };
   for (let substep: number = 1; substep <= substeps; substep++) {
     joints.forEach(({ joint, native, target }, index: number): void => {
-      const above: AutoMovieXpbdBody = bodies[index]!;
-      const below: AutoMovieXpbdBody = bodies[index + 1]!;
-      const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+      const above: AutoMovieEngineXpbdBody = bodies[index]!;
+      const below: AutoMovieEngineXpbdBody = bodies[index + 1]!;
+      const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
         above.rotation(),
       );
-      configurePhysicalJointMotor({
+      AutoMovieEnginePhysics.configurePhysicalJointMotor({
         world,
         native,
         joint,
-        current: Quaternion.multiply(inverse, below.rotation()),
+        current: AutoMovieEngineQuaternion.multiply(inverse, below.rotation()),
         target,
-        velocity: Quaternion.rotateVector(
+        velocity: AutoMovieEngineQuaternion.rotateVector(
           inverse,
-          Vector3.subtract(below.angvel(), above.angvel()),
+          AutoMovieEngineVector3.subtract(below.angvel(), above.angvel()),
         ),
         targetVelocity: { x: 0, y: 0, z: 0 },
         strength: 1,
@@ -244,24 +235,24 @@ function frame(substeps: number): IReading {
       Math.max(
         ...bodies
           .slice(4)
-          .map((body: AutoMovieXpbdBody): number =>
-            Vector3.length(body.angvel()),
+          .map((body: AutoMovieEngineXpbdBody): number =>
+            AutoMovieEngineVector3.length(body.angvel()),
           ),
       ),
     );
     reading.gap.push(
       Math.max(
         ...joints.map(({ joint }, index: number): number =>
-          Vector3.length(
-            Vector3.subtract(
-              physicalSupportPoint(
+          AutoMovieEngineVector3.length(
+            AutoMovieEngineVector3.subtract(
+              AutoMovieEnginePhysics.physicalSupportPoint(
                 {
                   position: bodies[index]!.translation(),
                   rotation: bodies[index]!.rotation(),
                 },
                 joint.parentFrame.position,
               ),
-              physicalSupportPoint(
+              AutoMovieEnginePhysics.physicalSupportPoint(
                 {
                   position: bodies[index + 1]!.translation(),
                   rotation: bodies[index + 1]!.rotation(),

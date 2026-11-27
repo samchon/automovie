@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanStageFight } from "@automovie/interface";
 
-/**
+/*
  * The hair pull preset: one squeeze of the palm held for 1.5 s. The `hairPull`
  * row of `HumanStageFight` reads it, so the row and the preset share one
  * value.

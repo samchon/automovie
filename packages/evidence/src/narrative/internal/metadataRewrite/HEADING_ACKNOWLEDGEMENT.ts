@@ -1,4 +1,4 @@
-/**
+/*
  * Recognizes an acknowledgement heading and an optional inline reason.
  *
  * Principled implementation: Anchored grammar recognizes H2-H4 acknowledgements

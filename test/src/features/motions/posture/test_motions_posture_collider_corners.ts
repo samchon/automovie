@@ -1,9 +1,11 @@
-import { compareCodeUnits } from "@automovie/engine";
+import { AutoMovieEngineText } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalShape,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanColliderCorners } from "@automovie/motions/internal";
+import {
+  HumanColliderCorners
+} from "../../../../../packages/motions/src/posture/internal/HumanColliderCorners";
 import { TestValidator } from "@nestia/e2e";
 
 /** A shape's identity and placement, its kind aside. */
@@ -20,7 +22,7 @@ const BASE: Pick<IAutoMoviePhysicalShape, "id" | "material" | "transform"> = {
 function set(points: readonly IAutoMovieVector3[]): string[] {
   return points
     .map((p: IAutoMovieVector3): string => `${p.x},${p.y},${p.z}`)
-    .sort(compareCodeUnits);
+    .sort(AutoMovieEngineText.compareCodeUnits);
 }
 
 /**
@@ -54,21 +56,16 @@ export function test_motions_posture_collider_corners(): void {
         halfExtents: { x: 1, y: 2, z: 3 },
       }),
     ),
-    corners.sort(compareCodeUnits),
+    corners.sort(AutoMovieEngineText.compareCodeUnits),
   );
 
   // 2. A sphere.
   TestValidator.equals(
     "a sphere's poles and equator",
     set(HumanColliderCorners({ ...BASE, kind: "sphere", radius: 0.5 })),
-    [
-      "0,0.5,0",
-      "0,-0.5,0",
-      "0.5,0,0",
-      "-0.5,0,0",
-      "0,0,0.5",
-      "0,0,-0.5",
-    ].sort(compareCodeUnits),
+    ["0,0.5,0", "0,-0.5,0", "0.5,0,0", "-0.5,0,0", "0,0,0.5", "0,0,-0.5"].sort(
+      AutoMovieEngineText.compareCodeUnits,
+    ),
   );
 
   // 3. A capsule.
@@ -90,7 +87,7 @@ export function test_motions_posture_collider_corners(): void {
         `0,${height},-0.125`,
         `0,${height},0.125`,
       ]),
-    ].sort(compareCodeUnits),
+    ].sort(AutoMovieEngineText.compareCodeUnits),
   );
   TestValidator.equals(
     "a collapsed capsule has exactly six distinct sphere probes",
@@ -102,7 +99,7 @@ export function test_motions_posture_collider_corners(): void {
       "-0.125,0,0",
       "0,0,0.125",
       "0,0,-0.125",
-    ].sort(compareCodeUnits),
+    ].sort(AutoMovieEngineText.compareCodeUnits),
   );
 
   // 4. A hull.
@@ -117,5 +114,4 @@ export function test_motions_posture_collider_corners(): void {
     set(HumanColliderCorners({ ...BASE, kind: "hull", points: tetrahedron })),
     set(tetrahedron),
   );
-
 }

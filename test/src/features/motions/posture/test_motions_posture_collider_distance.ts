@@ -1,11 +1,13 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanColliders,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanColliderDistance } from "@automovie/motions/internal";
+import {
+  HumanColliderDistance
+} from "../../../../../packages/motions/src/posture/internal/HumanColliderDistance";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -29,7 +31,7 @@ function sphere(
     bone,
     pose: {
       position,
-      rotation: Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, turn),
+      rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, turn),
     },
     shapes: [
       {

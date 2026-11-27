@@ -1,5 +1,7 @@
 import type { IAutoMovieRecoveryCameraMapInput } from "@automovie/interface";
-import { estimateAutoMovieRecoveryCameraMap } from "@automovie/recovery";
+import {
+  AutoMovieRecoveryObservation,
+} from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { createRecoveryMapNumericalFixture } from "../../internal/createRecoveryMapNumericalFixture";
@@ -32,8 +34,8 @@ export function test_recovery_observation_estimate_camera_map(): void {
       return input;
     };
   const input: IAutoMovieRecoveryCameraMapInput = make();
-  const result: ReturnType<typeof estimateAutoMovieRecoveryCameraMap> =
-    estimateAutoMovieRecoveryCameraMap(input, {
+  const result: ReturnType<typeof AutoMovieRecoveryObservation.estimateCameraMap> =
+    AutoMovieRecoveryObservation.estimateCameraMap(input, {
       onProgress: (): void => {
         input.objectId = "changed";
         input.policy.maximumReprojectionErrorPx = 99;
@@ -60,17 +62,17 @@ export function test_recovery_observation_estimate_camera_map(): void {
   const before: AbortController = new AbortController();
   before.abort();
   const during: AbortController = new AbortController();
-  const cancelledBefore: ReturnType<typeof estimateAutoMovieRecoveryCameraMap> =
-    estimateAutoMovieRecoveryCameraMap(make(), {
+  const cancelledBefore: ReturnType<typeof AutoMovieRecoveryObservation.estimateCameraMap> =
+    AutoMovieRecoveryObservation.estimateCameraMap(make(), {
       cancelled: (): boolean => before.signal.aborted,
     });
-  const cancelledDuring: ReturnType<typeof estimateAutoMovieRecoveryCameraMap> =
-    estimateAutoMovieRecoveryCameraMap(make(), {
+  const cancelledDuring: ReturnType<typeof AutoMovieRecoveryObservation.estimateCameraMap> =
+    AutoMovieRecoveryObservation.estimateCameraMap(make(), {
       cancelled: (): boolean => during.signal.aborted,
       onProgress: (): void => during.abort(),
     });
-  const failed: ReturnType<typeof estimateAutoMovieRecoveryCameraMap> =
-    estimateAutoMovieRecoveryCameraMap(make(), {
+  const failed: ReturnType<typeof AutoMovieRecoveryObservation.estimateCameraMap> =
+    AutoMovieRecoveryObservation.estimateCameraMap(make(), {
       onProgress: (): void => {
         throw new Error("owned observer failure");
       },
@@ -90,8 +92,8 @@ export function test_recovery_observation_estimate_camera_map(): void {
     const value: IAutoMovieRecoveryCameraMapInput = make();
     mutate(value);
     let called: boolean = false;
-    const refused: ReturnType<typeof estimateAutoMovieRecoveryCameraMap> =
-      estimateAutoMovieRecoveryCameraMap(value, {
+    const refused: ReturnType<typeof AutoMovieRecoveryObservation.estimateCameraMap> =
+      AutoMovieRecoveryObservation.estimateCameraMap(value, {
         onProgress: (): void => {
           called = true;
         },

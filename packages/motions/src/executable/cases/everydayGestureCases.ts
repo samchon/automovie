@@ -1,26 +1,20 @@
-import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type {
-  IAutoMovieMotionHumanChain,
-  IAutoMovieMotionHumanGestureStroke,
-  IAutoMovieMotionHumanPerformance,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics, AutoMovieEngineVector3 } from "@automovie/engine";
+import type { IAutoMovieMotionHumanChain, IAutoMovieMotionHumanGestureStroke, IAutoMovieMotionHumanPerformance, IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanChain } from "../../HumanChain";
-import { gestureStrokeTables } from "../../everyday/gestureStrokeTables";
-import { HumanHand } from "../../posture/HumanHand";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
-import { everydayCaseKit } from "./everydayCaseKit";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
+import { gestureStrokeTables } from "../../everyday/internal/gestureStrokeTables";
+import { HumanHand } from "../../posture/internal/HumanHand";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
+import { everydayCaseKit } from "./internal/everydayCaseKit";
 import { everydayGestureVerdicts } from "./everydayGestureVerdicts";
-import { everydayVerdicts } from "./everydayVerdicts";
+import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/**
+/*
  * The gesture cases of `everydayCases` (`everyday-gesture-<kind>`): each
  * gesture at rest, mid-preparation, the stroke's start, middle and end,
  * mid-retraction and the end, with the verdicts `everydayCases` lists.
- *
- * @param c The body's case context.
- * @returns The cases.
+ * Parameter c: The body's case context.
+ * Returns: The cases.
  */
 export function everydayGestureCases(
   c: everydayCaseKit.IContext,
@@ -56,7 +50,7 @@ export function everydayGestureCases(
   ];
   for (const kind of kinds) {
     const performance: IAutoMovieMotionHumanPerformance = one(
-      HumanChain.subject("a").gesture({
+      AutoMovieMotionHumanChain.subject("a").gesture({
         kind,
         ...(kind === "point"
           ? { target: { kind: "point", at: goal, frame: "world" } }
@@ -99,11 +93,11 @@ export function everydayGestureCases(
         within(
           "fingertip on the eye-to-target line",
           angle(
-            Vector3.subtract(
+            AutoMovieEngineVector3.subtract(
               HumanHand.frame(body, mid, "right", "indexTip", "point").point,
               eye,
             ),
-            Vector3.subtract(goal, eye),
+            AutoMovieEngineVector3.subtract(goal, eye),
           ),
           2,
           "deg",
@@ -115,15 +109,15 @@ export function everydayGestureCases(
         kind === "touchFace"
           ? body.surfaces.regions.forehead
           : body.surfaces.regions.noseBridge;
-      const at: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
+      const at: IAutoMovieVector3 = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
         region,
         mid.get(region.bone)!,
       ).point;
       verdicts.push(
         within(
           "fingertip at the face region",
-          Vector3.length(
-            Vector3.subtract(
+          AutoMovieEngineVector3.length(
+            AutoMovieEngineVector3.subtract(
               HumanHand.frame(body, mid, "right", "indexTip", "flat").point,
               at,
             ),
@@ -162,8 +156,8 @@ export function everydayGestureCases(
         verdicts.push(
           within(
             `palms meet on beat ${k + 1}`,
-            Vector3.length(
-              Vector3.subtract(
+            AutoMovieEngineVector3.length(
+              AutoMovieEngineVector3.subtract(
                 HumanHand.frame(body, b, "left", "palm").point,
                 HumanHand.frame(body, b, "right", "palm").point,
               ),

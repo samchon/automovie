@@ -1,4 +1,4 @@
-import { validateRecoveryMapMetricRow } from "@automovie/recovery";
+import { AutoMovieRecoveryCameraMap } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -12,24 +12,24 @@ import { TestValidator } from "@nestia/e2e";
  * 3. Two indices with one value, and a zero width, refuse.
  */
 export function test_recovery_internal_validate_map_metric_row(): void {
-  validateRecoveryMapMetricRow(
+  AutoMovieRecoveryCameraMap.validateMapMetricRow(
     { indices: [0, 2], values: [1, -1], offset: 0 },
     3,
   );
   for (const indices of [[1, 1], [2, 0], [3]])
     TestValidator.error(`indices ${indices.join(", ")}`, (): void =>
-      validateRecoveryMapMetricRow(
+      AutoMovieRecoveryCameraMap.validateMapMetricRow(
         { indices, values: indices.map((): number => 1), offset: 0 },
         3,
       ),
     );
   TestValidator.error("unpaired values", (): void =>
-    validateRecoveryMapMetricRow(
+    AutoMovieRecoveryCameraMap.validateMapMetricRow(
       { indices: [0, 1], values: [1], offset: 0 },
       3,
     ),
   );
   TestValidator.error("a zero width", (): void =>
-    validateRecoveryMapMetricRow({ indices: [], values: [], offset: 0 }, 0),
+    AutoMovieRecoveryCameraMap.validateMapMetricRow({ indices: [], values: [], offset: 0 }, 0),
   );
 }

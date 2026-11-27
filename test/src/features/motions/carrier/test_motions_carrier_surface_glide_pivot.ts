@@ -1,12 +1,14 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieHumanLimbGoal,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  measureSurfaceGlide,
-  pivotSurfaceFoot,
-} from "@automovie/motions/internal";
+  measureSurfaceGlide
+} from "../../../../../packages/motions/src/carrier/internal/measureSurfaceGlide";
+import {
+  pivotSurfaceFoot
+} from "../../../../../packages/motions/src/carrier/internal/pivotSurfaceFoot";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -63,7 +65,7 @@ export function test_motions_carrier_surface_glide_pivot(): void {
   const goal: IAutoMovieHumanLimbGoal = {
     point: { x: 0, y: 0.08, z: 0 },
     bend: { x: 0, y: 0.5, z: 0.1 },
-    rotation: Quaternion.identity(),
+    rotation: AutoMovieEngineQuaternion.identity(),
   };
   const support: IAutoMovieVector3 = { x: 0, y: 0, z: 0.2 };
   const turned: IAutoMovieHumanLimbGoal = pivotSurfaceFoot(
@@ -76,7 +78,7 @@ export function test_motions_carrier_surface_glide_pivot(): void {
     "the pivot",
     vclose(turned.point, { x: -0.2, y: 0.08, z: 0.2 }, ROUNDING) &&
       vclose(turned.bend, { x: -0.2, y: 0.5, z: 0.3 }, ROUNDING) &&
-      qclose(turned.rotation!, Quaternion.fromAxisAngle(up, 90), ROUNDING) &&
+      qclose(turned.rotation!, AutoMovieEngineQuaternion.fromAxisAngle(up, 90), ROUNDING) &&
       turned.contact === support,
   );
 }

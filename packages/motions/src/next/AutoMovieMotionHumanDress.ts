@@ -1,11 +1,11 @@
-import { composeHumanStraightenTie as composeHumanStraightenTieLaw } from "../dressing/composeHumanStraightenTie";
-import { dress as dressLaw } from "../dressing/dress";
-import { tipHat as tipHatLaw } from "../dressing/tipHat";
-import { wardrobe as wardrobeLaw } from "../dressing/wardrobe";
-import { HumanSheath as HumanSheathSource } from "../handling/HumanSheath";
-import { drawFromCarrier as drawFromCarrierLaw } from "../handling/drawFromCarrier";
-import { HumanCarrierCustody as HumanCarrierCustodySource } from "../lexicon/HumanCarrierCustody";
-import { HumanDressRows as HumanDressRowsSource } from "../lexicon/HumanDressRows";
+import { composeHumanStraightenTie as composeHumanStraightenTieLaw } from "../dressing/internal/composeHumanStraightenTie";
+import { dress as dressLaw } from "../dressing/internal/dress";
+import { tipHat as tipHatLaw } from "../dressing/internal/tipHat";
+import { wardrobe as wardrobeLaw } from "../dressing/internal/wardrobe";
+import { HumanSheath as HumanSheathSource } from "../handling/internal/HumanSheath";
+import { drawFromCarrier as drawFromCarrierLaw } from "../handling/internal/drawFromCarrier";
+import { HumanCarrierCustody as HumanCarrierCustodySource } from "../lexicon/internal/HumanCarrierCustody";
+import { HumanDressRows as HumanDressRowsSource } from "../lexicon/internal/HumanDressRows";
 
 /**
  * Putting on, taking off and fastening clothing.
@@ -47,7 +47,7 @@ export namespace AutoMovieMotionHumanDress {
    *
    * The item is the wearable prop the hand holds since a pick-up (`prop`, by
    * its `hold`): that hand carries it, rigid in the hand
-   * (`AutoMovieMotionHumanHeld`), so that its own `wear` socket comes onto the
+   * (`motionHumanHeld`), so that its own `wear` socket comes onto the
    * head's region it is worn on (`HumanWorn`: a hat's on the crown, a pair of
    * glasses' on the nose's bridge), spectacles facing the way the body faces
    * and a hat, round about its crown, at whichever turn the arm, fitted within
@@ -61,10 +61,10 @@ export namespace AutoMovieMotionHumanDress {
    * it. Both hands rise to a place a quarter of the forearm before the item's
    * final place in front of the face (the item held up), then move it onto the
    * head in a stroke, hold it a moment and return. The reach takes the
-   * free-space movement time (`AutoMovieMotionHumanTiming.transport`) of the
+   * free-space movement time (`motionHumanTiming.transport`) of the
    * farther hand's way from where it starts to where it holds the item up, in
    * free space before the face, the stroke a beat
-   * (`AutoMovieMotionHumanTiming.PAUSES`). The shoulder's elevation stays
+   * (`motionHumanTiming.PAUSES`). The shoulder's elevation stays
    * within the functional ranges of daily tasks (flexion 121, abduction 128
    * degrees, Namdari et al. 2012, J Shoulder Elbow Surg 21:1177), which the
    * capture checks. Events: the phrase's `ready` (item held up), `strokeStart`,
@@ -122,7 +122,7 @@ export namespace AutoMovieMotionHumanDress {
   /**
    * Draw a gripped object out of its carrier along a straight line, the inverse
    * of aperture placement (`putDownAperture`): a sword drawn from its scabbard.
-   * Register it with `HumanChain.extend({ drawFromCarrier })` or by name, and
+   * Register it with `AutoMovieMotionHumanChain.extend({ drawFromCarrier })` or by name, and
    * with the performance.
    *
    * The hand has gripped the seated object (a pickup with no lift). The object

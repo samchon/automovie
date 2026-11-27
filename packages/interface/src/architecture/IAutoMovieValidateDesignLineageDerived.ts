@@ -1,4 +1,4 @@
-import type { IAutoMovieViolationCollector } from "../validation/IAutoMovieViolationCollector";
+import type { IAutoMovieViolationAppendTextSink } from "../validation/IAutoMovieViolationAppendTextSink";
 import type { IAutoMovieDesignLineage } from "./IAutoMovieDesignLineage";
 import type { IAutoMovieDesignVariant } from "./IAutoMovieDesignVariant";
 
@@ -61,6 +61,6 @@ export namespace IAutoMovieValidateDesignLineageDerived {
      * Caller-owned synchronous diagnostic sink; artifact and decision findings
      * append in order and callback exceptions propagate.
      */
-    out: IAutoMovieViolationCollector;
+    out: IAutoMovieViolationAppendTextSink;
   };
 }

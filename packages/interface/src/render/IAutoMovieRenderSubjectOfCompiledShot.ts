@@ -10,7 +10,7 @@ export namespace IAutoMovieRenderSubjectOfCompiledShot {
   /**
    * Read a compiled shot as the complete drawable world one frame commits to.
    *
-   * {@link autoMovieRenderSubjectOfShot} leaves the simulated drawables to its
+   * {@link renderSubjectOfShot} leaves the simulated drawables to its
    * caller, because it was written while the compiled shot carried none. It
    * carries them now: the artifact holds every fluid, cloth and planting domain
    * beside the bindings that place them, and this is the one conversion that

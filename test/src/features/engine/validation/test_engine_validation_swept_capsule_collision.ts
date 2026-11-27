@@ -1,4 +1,4 @@
-import { measureAutoMovieSweptCapsuleCollision } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieVector3,
   IAutoMovieSweptCapsuleCollision as Sweep,
@@ -47,7 +47,7 @@ export function test_engine_validation_swept_capsule_collision(): void {
     maxPenetration: 0,
     maxIntervals: 40,
   };
-  const result: Sweep.IResult = measureAutoMovieSweptCapsuleCollision(request);
+  const result: Sweep.IResult = AutoMovieEngineValidation.measureSweptCapsuleCollision(request);
   assert.equal(result.status, "confirmed");
   if (result.status !== "confirmed") return;
   const fraction: number =
@@ -78,12 +78,12 @@ export function test_engine_validation_swept_capsule_collision(): void {
   );
   TestValidator.equals(
     "repeat reads do not depend on predecessor state",
-    measureAutoMovieSweptCapsuleCollision(request),
+    AutoMovieEngineValidation.measureSweptCapsuleCollision(request),
     result,
   );
 
   const offset: IAutoMovieVector3 = point(0, 0, 0.03);
-  const miss: Sweep.IResult = measureAutoMovieSweptCapsuleCollision({
+  const miss: Sweep.IResult = AutoMovieEngineValidation.measureSweptCapsuleCollision({
     ...request,
     second: { ...sphere, a0: offset, b0: offset, a1: offset, b1: offset },
   });
@@ -94,7 +94,7 @@ export function test_engine_validation_swept_capsule_collision(): void {
   );
   TestValidator.equals(
     "a proxy crossing retains proxy evidence",
-    measureAutoMovieSweptCapsuleCollision({
+    AutoMovieEngineValidation.measureSweptCapsuleCollision({
       ...request,
       first: { ...cord, basis: "proxy" },
     }).status,
@@ -111,7 +111,7 @@ export function test_engine_validation_swept_capsule_collision(): void {
   const far: IAutoMovieVector3 = point(0.5, -0.5);
   TestValidator.equals(
     "inseparable axis bounds without a penetration witness defer",
-    measureAutoMovieSweptCapsuleCollision({
+    AutoMovieEngineValidation.measureSweptCapsuleCollision({
       ...request,
       first: diagonal,
       second: { ...sphere, a0: far, b0: far, a1: far, b1: far },
@@ -121,22 +121,22 @@ export function test_engine_validation_swept_capsule_collision(): void {
   );
   TestValidator.equals(
     "unknown temporal motion cannot count as checked",
-    measureAutoMovieSweptCapsuleCollision({ ...request, first: null }),
+    AutoMovieEngineValidation.measureSweptCapsuleCollision({ ...request, first: null }),
     { status: "deferred", reason: "unsupported-motion", compared: 0 },
   );
   TestValidator.equals(
     "zero work remains deferred",
-    measureAutoMovieSweptCapsuleCollision({ ...request, maxIntervals: 0 }),
+    AutoMovieEngineValidation.measureSweptCapsuleCollision({ ...request, maxIntervals: 0 }),
     { status: "deferred", reason: "budget", compared: 0 },
   );
   TestValidator.equals(
     "an allowance exceeding both radii proves no violation",
-    measureAutoMovieSweptCapsuleCollision({ ...request, maxPenetration: 0.03 }),
+    AutoMovieEngineValidation.measureSweptCapsuleCollision({ ...request, maxPenetration: 0.03 }),
     { status: "clear", basis: "displayed", compared: 0 },
   );
   assert.throws(
     (): Sweep.IResult =>
-      measureAutoMovieSweptCapsuleCollision({ ...request, endSeconds: 10 }),
+      AutoMovieEngineValidation.measureSweptCapsuleCollision({ ...request, endSeconds: 10 }),
     /clock/,
   );
 }

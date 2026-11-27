@@ -6,7 +6,9 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { floorArmRoom } from "@automovie/motions/internal";
+import {
+  floorArmRoom
+} from "../../../../../packages/motions/src/floor/internal/floorArmRoom";
 import { TestValidator } from "@nestia/e2e";
 
 /**

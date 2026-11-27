@@ -1,11 +1,8 @@
-import {
-  formatAutoMovieCapturePlanRequest,
-  parseAutoMovieCapturePlanRequest,
-} from "@automovie/render";
+import { AutoMovieRenderCapture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `formatAutoMovieCapturePlanRequest` writes the keys that differ from the
+ * `formatCapturePlanRequest` writes the keys that differ from the
  * absent request.
  *
  * Scenarios:
@@ -17,11 +14,11 @@ import { TestValidator } from "@nestia/e2e";
 export function test_render_capture_format_capture_plan_request(): void {
   const read = (
     values: [string, string][],
-  ): ReturnType<typeof parseAutoMovieCapturePlanRequest> =>
-    parseAutoMovieCapturePlanRequest(new Map<string, string>(values));
+  ): ReturnType<typeof AutoMovieRenderCapture.parsePlanRequest> =>
+    AutoMovieRenderCapture.parsePlanRequest(new Map<string, string>(values));
   TestValidator.equals(
     "absent",
-    formatAutoMovieCapturePlanRequest(read([])),
+    AutoMovieRenderCapture.formatPlanRequest(read([])),
     [],
   );
   const values: [string, string][] = [
@@ -32,7 +29,7 @@ export function test_render_capture_format_capture_plan_request(): void {
   ];
   TestValidator.equals(
     "round trip",
-    formatAutoMovieCapturePlanRequest(read(values)),
+    AutoMovieRenderCapture.formatPlanRequest(read(values)),
     values,
   );
 }

@@ -1,11 +1,5 @@
-import {
-  AutoMovieArchetypeBuilder,
-  AutoMovieArchetypeDrawSession,
-  AutoMovieArchetypeFrame,
-  createDoor,
-  createDrinkware,
-} from "@automovie/archetypes";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame, AutoMovieArchetypeDoor, AutoMovieArchetypeDrinkware } from "@automovie/archetypes";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieModelPart } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -33,7 +27,7 @@ export function test_archetype_fracture_sets(): void {
     [0, 40],
     [1, 30],
   ] as const) {
-    const bottle: ReturnType<typeof createDrinkware> = createDrinkware({
+    const bottle: ReturnType<typeof AutoMovieArchetypeDrinkware.create> = AutoMovieArchetypeDrinkware.create({
       kind: "beerBottle",
       fill,
     });
@@ -111,19 +105,19 @@ export function test_archetype_fracture_sets(): void {
       );
   }
   if (
-    createDrinkware({ kind: "beerBottle", fill: 0.5 }).broken({
+    AutoMovieArchetypeDrinkware.create({ kind: "beerBottle", fill: 0.5 }).broken({
       energy: 1000,
       momentum,
     }) !== null
   )
     findings.push("a part-filled bottle breaks");
   if (
-    createDrinkware({ kind: "mug" }).broken({ energy: 1000, momentum }) !== null
+    AutoMovieArchetypeDrinkware.create({ kind: "mug" }).broken({ energy: 1000, momentum }) !== null
   )
     findings.push("a mug breaks");
 
   // A hinged door's leaf leaves its frame whole at 80 J, and not below.
-  const door: ReturnType<typeof createDoor> = createDoor({ kind: "hinged" });
+  const door: ReturnType<typeof AutoMovieArchetypeDoor.create> = AutoMovieArchetypeDoor.create({ kind: "hinged" });
   if (door.broken({ energy: 79, momentum }) !== null)
     findings.push("a door breaks below 80 J");
   const kicked: ReturnType<typeof door.broken> = door.broken({
@@ -177,12 +171,12 @@ export function test_archetype_fracture_sets(): void {
       name: "fixture",
       draw: new AutoMovieArchetypeDrawSession<never>("fixture", {}, undefined),
     })
-      .box("a", Vector3.create(1, 1, 1), Vector3.create(0, 0.5, 0))
-      .box("b", Vector3.create(1, 1, 1), Vector3.create(0, 1.5, 0))
+      .box("a", AutoMovieEngineVector3.create(1, 1, 1), AutoMovieEngineVector3.create(0, 0.5, 0))
+      .box("b", AutoMovieEngineVector3.create(1, 1, 1), AutoMovieEngineVector3.create(0, 1.5, 0))
       .affordance({
         id: "top",
         kind: "surface",
-        frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, 2, 0)),
+        frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, 2, 0)),
         extent: null,
         width: 1,
         depth: 1,

@@ -1,4 +1,4 @@
-import { resolveFrame } from "@automovie/engine";
+import { AutoMovieEngineResolve } from "@automovie/engine";
 import {
   IAutoMovieClip,
   IAutoMovieNode,
@@ -126,7 +126,7 @@ const basisX: (m: number[]) => [number, number, number] = (
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An in-range 90° swing passes: no violations, the hinge's world X basis lands).
  */
 export function test_resolve_profile_door(): void {
-  const open: IAutoMovieResolveOutput = resolveFrame({
+  const open: IAutoMovieResolveOutput = AutoMovieEngineResolve.resolveFrame({
     nodes: DOOR_NODES,
     clip: doorClip(90),
     limits: [],
@@ -156,7 +156,7 @@ export function test_resolve_profile_door(): void {
     { ncloseMirrorX0: true, ncloseMirrorX2: true },
   );
 
-  const slammed: IAutoMovieResolveOutput = resolveFrame({
+  const slammed: IAutoMovieResolveOutput = AutoMovieEngineResolve.resolveFrame({
     nodes: DOOR_NODES,
     clip: doorClip(150),
     limits: [],

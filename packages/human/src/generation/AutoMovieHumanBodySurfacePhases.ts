@@ -1,4 +1,4 @@
-import { AutoMovieLoftChain } from "@automovie/engine";
+import { AutoMovieEngineLoftChain } from "@automovie/engine";
 import type {
   IAutoMovieHumanBodySurfacePhases,
   IAutoMovieHumanBranchEvent,
@@ -9,8 +9,6 @@ import type {
 
 import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
 import { AutoMovieHumanBodySurfaceRead } from "./AutoMovieHumanBodySurfaceRead";
-
-const { circular, forward } = AutoMovieHumanBodySurfaceRead;
 
 /** The phases a chain's rings are sampled at: its own rings' phases, refined beside a web, and the phases a child inherits from its parent's contact ring, with the arc vertices they share. */
 export namespace AutoMovieHumanBodySurfacePhases {
@@ -75,7 +73,7 @@ export namespace AutoMovieHumanBodySurfacePhases {
           ? target.layers[0]!.y
           : target.layers[target.layers.length - 1]!.y;
       const at: (t: number) => [number, number, number] =
-        AutoMovieLoftChain.sampler(target, s);
+        AutoMovieEngineLoftChain.sampler(target, s);
       const pairs: Map<string, [number, number]> = new Map();
       for (const split of event.splits)
         split.arcs.forEach((arc: [number, number], k: number): void => {
@@ -127,7 +125,7 @@ export namespace AutoMovieHumanBodySurfacePhases {
     station: number,
     ring: readonly number[],
   ): number[] {
-    const outline: [number, number][] = AutoMovieLoftChain.local(
+    const outline: [number, number][] = AutoMovieEngineLoftChain.local(
       target,
       station,
       ring.map((v: number): [number, number, number] =>
@@ -136,9 +134,9 @@ export namespace AutoMovieHumanBodySurfacePhases {
     );
     // Dense samples of the chain's own section at this station.
     const at: (phase: number) => [number, number, number] =
-      AutoMovieLoftChain.sampler(target, station);
+      AutoMovieEngineLoftChain.sampler(target, station);
     const n: number = Math.max(1024, 8 * target.order);
-    const curve: [number, number][] = AutoMovieLoftChain.local(
+    const curve: [number, number][] = AutoMovieEngineLoftChain.local(
       target,
       station,
       Array.from(
@@ -264,3 +262,5 @@ export namespace AutoMovieHumanBodySurfacePhases {
     return out;
   }
 }
+
+const { circular, forward } = AutoMovieHumanBodySurfaceRead;

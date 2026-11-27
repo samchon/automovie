@@ -8,14 +8,7 @@ import type {
   IAutoMovieCaptureSubject,
   IAutoMovieRasterImage,
 } from "@automovie/interface";
-import {
-  AutoMovieCaptureFolder,
-  encodeAutoMovieRasterPng,
-  parseAutoMovieCapturePlanRequest,
-  planAutoMovieCapture,
-  runAutoMovieCapture,
-  runAutoMovieVideoCapture,
-} from "@automovie/render";
+import { AutoMovieRenderCaptureFolder, AutoMovieRenderPicture, AutoMovieRenderCapture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { rejectsError } from "../internal/rejectsError";
@@ -116,15 +109,15 @@ export async function test_capture_video_pairing(): Promise<void> {
       for (const [k, n] of selected.entries())
         await memory.storage.writeFile(
           pattern.replace("%05d", String(k).padStart(5, "0")),
-          await encodeAutoMovieRasterPng(flat(n * 10)),
+          await AutoMovieRenderPicture.encodeRasterPng(flat(n * 10)),
         );
     };
   const request: (
     text: string,
-  ) => ReturnType<typeof parseAutoMovieCapturePlanRequest> = (
+  ) => ReturnType<typeof AutoMovieRenderCapture.parsePlanRequest> = (
     text: string,
-  ): ReturnType<typeof parseAutoMovieCapturePlanRequest> =>
-    parseAutoMovieCapturePlanRequest(new URLSearchParams(text));
+  ): ReturnType<typeof AutoMovieRenderCapture.parsePlanRequest> =>
+    AutoMovieRenderCapture.parsePlanRequest(new URLSearchParams(text));
   const video: (
     text: string,
     report: string,
@@ -134,7 +127,7 @@ export async function test_capture_video_pairing(): Promise<void> {
     report: string,
     held: number,
   ): Promise<Extract<IAutoMovieCaptureRecord, { state: "complete" }>> =>
-    runAutoMovieVideoCapture({
+    AutoMovieRenderCapture.runVideo({
       file: "clip.mp4",
       subject: SOURCE,
       request: request(text),
@@ -148,14 +141,14 @@ export async function test_capture_video_pairing(): Promise<void> {
   const source: (text: string) => Promise<void> = async (
     text: string,
   ): Promise<void> => {
-    const plan: IAutoMovieCapturePlan = planAutoMovieCapture({
+    const plan: IAutoMovieCapturePlan = AutoMovieRenderCapture.plan({
       request: request(text),
       subject: SOURCE,
       cuts: [],
     });
-    await runAutoMovieCapture({
+    await AutoMovieRenderCapture.run({
       plan,
-      folder: await AutoMovieCaptureFolder.open({
+      folder: await AutoMovieRenderCaptureFolder.open({
         storage: memory.storage,
         root: "out",
         round: plan.request.round,

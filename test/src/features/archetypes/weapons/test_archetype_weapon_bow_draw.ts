@@ -1,4 +1,4 @@
-import { AutoMovieArchetypeRefusal, createBow } from "@automovie/archetypes";
+import { AutoMovieArchetypeRefusal, AutoMovieArchetypeBow } from "@automovie/archetypes";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -25,17 +25,17 @@ export function test_archetype_weapon_bow_draw(): void {
     b: IAutoMovieVector3,
   ): number => Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
   // A crossbow's string follows its crank, which `test_archetype_weapon_crossbow_span` turns.
-  const bows: { kind: createBow.Kind; model: createBow.Model }[] =
-    createBow.KINDS.filter(
-      (k: createBow.Kind): boolean => k !== "crossbow",
+  const bows: { kind: AutoMovieArchetypeBow.Kind; model: AutoMovieArchetypeBow.Model }[] =
+    AutoMovieArchetypeBow.KINDS.filter(
+      (k: AutoMovieArchetypeBow.Kind): boolean => k !== "crossbow",
     ).flatMap(
       (
-        kind: createBow.Kind,
-      ): { kind: createBow.Kind; model: createBow.Model }[] =>
-        (Object.keys(createBow.MODELS[kind]) as createBow.Model[]).map(
+        kind: AutoMovieArchetypeBow.Kind,
+      ): { kind: AutoMovieArchetypeBow.Kind; model: AutoMovieArchetypeBow.Model }[] =>
+        (Object.keys(AutoMovieArchetypeBow.MODELS[kind]) as AutoMovieArchetypeBow.Model[]).map(
           (
-            model: createBow.Model,
-          ): { kind: createBow.Kind; model: createBow.Model } => ({
+            model: AutoMovieArchetypeBow.Model,
+          ): { kind: AutoMovieArchetypeBow.Kind; model: AutoMovieArchetypeBow.Model } => ({
             kind,
             model,
           }),
@@ -43,15 +43,15 @@ export function test_archetype_weapon_bow_draw(): void {
     );
   for (const { kind: k, model } of bows) {
     const kind: string = `${k} ${model}`;
-    const bow: ReturnType<typeof createBow> = createBow({ kind: k, model });
+    const bow: ReturnType<typeof AutoMovieArchetypeBow.create> = AutoMovieArchetypeBow.create({ kind: k, model });
     const stroke: number = bow.affordance("string").travel!;
     const grip: IAutoMovieVector3 = bow.affordance("grip").frame.translation;
     const braced: IAutoMovieVector3 = bow.affordance("nock").frame.translation;
     const tip: (
-      posed: ReturnType<typeof createBow>,
+      posed: ReturnType<typeof AutoMovieArchetypeBow.create>,
       limb: "upperLimb" | "lowerLimb",
     ) => IAutoMovieVector3 = (
-      posed: ReturnType<typeof createBow>,
+      posed: ReturnType<typeof AutoMovieArchetypeBow.create>,
       limb: "upperLimb" | "lowerLimb",
     ): IAutoMovieVector3 => {
       const half: string =
@@ -68,7 +68,7 @@ export function test_archetype_weapon_bow_draw(): void {
     };
     for (let k: number = 0; k <= 10; ++k) {
       const travel: number = (k / 10) * stroke;
-      const drawn: ReturnType<typeof createBow> = bow.articulate({
+      const drawn: ReturnType<typeof AutoMovieArchetypeBow.create> = bow.articulate({
         string: travel,
       });
       const nock: IAutoMovieVector3 =
@@ -87,7 +87,7 @@ export function test_archetype_weapon_bow_draw(): void {
         if (
           !(
             Math.abs(distance(line.from, line.to) - halves[half]!) <=
-            createBow.STRING
+            AutoMovieArchetypeBow.STRING
           )
         )
           findings.push(

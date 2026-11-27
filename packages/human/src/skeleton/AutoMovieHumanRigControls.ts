@@ -205,7 +205,9 @@ export namespace AutoMovieHumanRigControls {
   }
 }
 
-/** Read clinical neutral for an omitted control while refusing nonfinite input. */
+/*
+ * Read clinical neutral for an omitted control while refusing nonfinite input.
+ */
 function scalar(pose: IAutoMovieHumanPose, row: CompiledChannel): number {
   let value: unknown = pose;
   for (const part of row.parts) {
@@ -220,7 +222,9 @@ function scalar(pose: IAutoMovieHumanPose, row: CompiledChannel): number {
   return value;
 }
 
-/** Write an already canonical numeric leaf without exposing an untyped authoring API. */
+/*
+ * Write an already canonical numeric leaf without exposing an untyped authoring API.
+ */
 function assign(
   pose: IAutoMovieHumanPose,
   parts: readonly string[],
@@ -242,20 +246,34 @@ function assign(
   Reflect.set(node, parts[parts.length - 1]!, value);
 }
 
-/** Body-independent compiled paths derived once from the single canonical table. */
+/*
+ * Body-independent compiled paths derived once from the single canonical table.
+ */
 interface CompiledChannel {
-  /** Expanded own-side clinical path. */
+  /*
+   * Expanded own-side clinical path.
+   */
   path: string;
-  /** Registered FK joint identity. */
+  /*
+   * Registered FK joint identity.
+   */
   bone: string;
-  /** Cached object traversal; no input pose or result is retained. */
+  /*
+   * Cached object traversal; no input pose or result is retained.
+   */
   parts: readonly string[];
-  /** Canonical lower bound in the row's declared unit. */
+  /*
+   * Canonical lower bound in the row's declared unit.
+   */
   minimum: number;
-  /** Canonical upper bound in the row's declared unit. */
+  /*
+   * Canonical upper bound in the row's declared unit.
+   */
   maximum: number;
 }
-/** Immutable schema work shared by admission, bounds, chain selection and blending. */
+/*
+ * Immutable schema work shared by admission, bounds, chain selection and blending.
+ */
 const CATALOGUE: readonly CompiledChannel[] =
   AutoMovieHumanPoseChannels.flatMap(
     (row: (typeof AutoMovieHumanPoseChannels)[number]): CompiledChannel[] => {
@@ -274,19 +292,25 @@ const CATALOGUE: readonly CompiledChannel[] =
       });
     },
   );
-/** Exact expanded angular entries; jaw millimetres remain outside degree admission. */
+/*
+ * Exact expanded angular entries; jaw millimetres remain outside degree admission.
+ */
 const ANGLES: ReadonlyMap<string, CompiledChannel> = new Map(
   CATALOGUE.filter(
     (row: CompiledChannel): boolean => !row.path.startsWith("head.jaw."),
   ).map((row: CompiledChannel): [string, CompiledChannel] => [row.path, row]),
 );
-/** Exact jaw entries use their table's millimetre unit and remain disjoint from angles. */
+/*
+ * Exact jaw entries use their table's millimetre unit and remain disjoint from angles.
+ */
 const MILLIMETRES: ReadonlyMap<string, CompiledChannel> = new Map(
   CATALOGUE.filter((row: CompiledChannel): boolean =>
     row.path.startsWith("head.jaw."),
   ).map((row: CompiledChannel): [string, CompiledChannel] => [row.path, row]),
 );
-/** Exact expanded joint names from the same canonical source, with no body cache. */
+/*
+ * Exact expanded joint names from the same canonical source, with no body cache.
+ */
 const JOINTS: ReadonlySet<string> = new Set(
   CATALOGUE.map((row: CompiledChannel): string => row.bone),
 );

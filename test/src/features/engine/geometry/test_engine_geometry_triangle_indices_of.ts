@@ -1,4 +1,4 @@
-import { triangleIndicesOf } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -26,13 +26,13 @@ export function test_engine_geometry_triangle_indices_of(): void {
   };
 
   // 1.
-  TestValidator.equals("implicit", triangleIndicesOf(mesh, "probe"), [0, 1, 2]);
+  TestValidator.equals("implicit", AutoMovieEngineGeometry.triangleIndicesOf(mesh, "probe"), [0, 1, 2]);
 
   // 2.
   const indices: number[] = [2, 1, 0];
   TestValidator.predicate(
     "own array",
-    triangleIndicesOf({ ...mesh, indices }, "probe") === indices,
+    AutoMovieEngineGeometry.triangleIndicesOf({ ...mesh, indices }, "probe") === indices,
   );
 
   // 3.
@@ -65,6 +65,6 @@ export function test_engine_geometry_triangle_indices_of(): void {
   ] satisfies [string, IAutoMovieMesh, string][])
     TestValidator.predicate(
       label,
-      throwsError((): unknown => triangleIndicesOf(bad, "probe"), message),
+      throwsError((): unknown => AutoMovieEngineGeometry.triangleIndicesOf(bad, "probe"), message),
     );
 }

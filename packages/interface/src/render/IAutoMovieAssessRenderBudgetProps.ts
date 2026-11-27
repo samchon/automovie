@@ -1,20 +1,20 @@
 import type {
   IAutoMovieRenderTextureResidency,
   IAutoMovieRenderTextureSource,
-} from "../index.js";
-import type { IAutoMovieCompiledShotSource } from "../production/IAutoMovieCompiledShotSource.js";
-import type { IAutoMovieRenderBudget } from "./IAutoMovieRenderBudget.js";
-import type { IAutoMovieRenderFilm } from "./IAutoMovieRenderFilm.js";
-import type { IAutoMovieRenderTargetAsset } from "./IAutoMovieRenderTargetAsset.js";
-import type { IAutoMovieRenderTargetRenderer } from "./IAutoMovieRenderTargetRenderer.js";
-import type { IAutoMovieRenderTargetSettings } from "./IAutoMovieRenderTargetSettings.js";
+} from "../index";
+import type { IAutoMovieCompiledShotSource } from "../production/IAutoMovieCompiledShotSource";
+import type { IAutoMovieRenderBudget } from "./IAutoMovieRenderBudget";
+import type { IAutoMovieRenderFilm } from "./IAutoMovieRenderFilm";
+import type { IAutoMovieRenderTargetAsset } from "./IAutoMovieRenderTargetAsset";
+import type { IAutoMovieRenderTargetRenderer } from "./IAutoMovieRenderTargetRenderer";
+import type { IAutoMovieRenderTargetSettings } from "./IAutoMovieRenderTargetSettings";
 
 /**
  * Compiled-shot cost inputs and caller-observed graphics/texture facts.
- * assessAutoMovieRenderBudget returns not-run without renderer identity;
- * otherwise it measures and seals a target under the supplied settings and
- * budget. Absent textures/residency remain unmeasured rather than fabricated
- * zero costs.
+ * `AutoMovieRenderBudgetPreflight.assessBudget` returns not-run without
+ * renderer identity; otherwise it measures and seals a target under the
+ * supplied settings and budget. Absent textures/residency remain unmeasured
+ * rather than fabricated zero costs.
  */
 export interface IAutoMovieAssessRenderBudgetProps {
   /** Fully builder-owned shot artifact. */

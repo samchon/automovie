@@ -22,7 +22,7 @@ export namespace GalleryArchetype {
     producer: GalleryCatalogue.IProducer | undefined,
   ): GalleryCatalogue.ReferenceParams | undefined {
     const reference: GalleryCatalogue.Reference | undefined =
-      producer?.REFERENCE;
+      producer?.reference;
     return typeof reference === "function" ? reference() : reference;
   }
 
@@ -55,10 +55,10 @@ export namespace GalleryArchetype {
     // authored specimen mass therefore cannot override an equid's derived mass.
     const params: Record<string, unknown> = {
       ...referenceOf(producer),
-      ...referenceOf(producer.PRODUCERS?.[request.variant]),
+      ...referenceOf(producer.producers[request.variant]),
       ...(key === "" ? {} : { [key]: request.variant }),
     };
-    const rest: GalleryCatalogue.Model = producer(
+    const rest: GalleryCatalogue.Model = producer.call(
       params,
       request.seed ?? undefined,
     );

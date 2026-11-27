@@ -1,12 +1,9 @@
-import {
-  type IAutoMovieModelObject,
-  createAutoMoviePhysicalPoseAdapter,
-} from "@automovie/render";
+import { type IAutoMovieRenderModelObject, AutoMovieRenderSceneMotion } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 /**
- * `createAutoMoviePhysicalPoseAdapter` writes solved world frames onto a
+ * `createPhysicalPoseAdapter` writes solved world frames onto a
  * model's display bones as local poses.
  *
  * Scenarios:
@@ -27,7 +24,7 @@ export function test_render_scene_create_physical_pose_adapter(): void {
   object.add(root);
   root.add(head);
   head.add(detail);
-  const model: IAutoMovieModelObject = {
+  const model: IAutoMovieRenderModelObject = {
     object,
     bones: new Map([
       ["hips", root],
@@ -36,8 +33,8 @@ export function test_render_scene_create_physical_pose_adapter(): void {
     ]),
     parts: new Map(),
   };
-  const apply: ReturnType<typeof createAutoMoviePhysicalPoseAdapter> =
-    createAutoMoviePhysicalPoseAdapter(model);
+  const apply: ReturnType<typeof AutoMovieRenderSceneMotion.createPhysicalPoseAdapter> =
+    AutoMovieRenderSceneMotion.createPhysicalPoseAdapter(model);
   apply({
     hips: {
       position: { x: 1, y: 0, z: 0 },
@@ -79,14 +76,14 @@ export function test_render_scene_create_physical_pose_adapter(): void {
   scaled.scale.set(2, 1, 1);
   compensated.scale.set(0.5, 1, 1);
   scaled.add(compensated);
-  const scaledModel: IAutoMovieModelObject = {
+  const scaledModel: IAutoMovieRenderModelObject = {
     object: scaled,
     bones: new Map([["head", compensated]]),
     parts: new Map(),
   };
   let refused: boolean = false;
   try {
-    createAutoMoviePhysicalPoseAdapter(scaledModel)({
+    AutoMovieRenderSceneMotion.createPhysicalPoseAdapter(scaledModel)({
       head: {
         position: { x: 1, y: 0, z: 0 },
         rotation: {

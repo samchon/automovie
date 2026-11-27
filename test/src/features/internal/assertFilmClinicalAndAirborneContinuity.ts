@@ -1,4 +1,4 @@
-import { validateFootSkate } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBeatEndActorState,
@@ -137,14 +137,14 @@ export function assertFilmClinicalAndAirborneContinuity(
           clinicalPlants !== undefined &&
           validationHasNoWarnings(
             "defined-shot clinical foot plant",
-            validateFootSkate({
+            AutoMovieEngineValidation.validateFootSkate({
               motion: clinicalMotion,
               skeleton: clinicalRig,
               contacts: clinicalPlants.map(
                 (
                   plant: IAutoMovieBeatEndFootPlant,
                 ): NonNullable<
-                  Parameters<typeof validateFootSkate>[0]["contacts"]
+                  Parameters<typeof AutoMovieEngineValidation.validateFootSkate>[0]["contacts"]
                 >[number] => ({
                   bone: plant.foot,
                   start: plant.start,

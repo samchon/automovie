@@ -1,8 +1,4 @@
-import {
-  AutoMovieArchetypeFrame,
-  AutoMovieArchetypeRefusal,
-  createTorch,
-} from "@automovie/archetypes";
+import { AutoMovieArchetypeFrame, AutoMovieArchetypeRefusal, AutoMovieArchetypeTorch } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../../internal/archetypeBandSweep";
@@ -34,21 +30,21 @@ export function test_archetype_props_torch_models(): void {
       maximum: 0.313,
       source: MAGLITE,
       measure: (seed: number): number =>
-        archetypeExtent(createTorch({}, seed), "y").size,
+        archetypeExtent(AutoMovieArchetypeTorch.create({}, seed), "y").size,
     },
     {
       name: "torch mass",
       minimum: 0.674,
       maximum: 0.856,
       source: MAGLITE,
-      measure: (seed: number): number => createTorch({}, seed).body.mass,
+      measure: (seed: number): number => AutoMovieArchetypeTorch.create({}, seed).body.mass,
     },
   ]);
   for (const [model, length, mass] of [
     ["twoCellD", 0.254, 0.674],
     ["threeCellD", 0.313, 0.856],
   ] as const) {
-    const torch: ReturnType<typeof createTorch> = createTorch({ model });
+    const torch: ReturnType<typeof AutoMovieArchetypeTorch.create> = AutoMovieArchetypeTorch.create({ model });
     const grip: ReturnType<typeof torch.affordance> = torch.affordance("grip");
     const lens: ReturnType<typeof torch.affordance> = torch.affordance("lens");
     const head: ReturnType<typeof archetypeExtent> = archetypeExtent(
@@ -74,7 +70,7 @@ export function test_archetype_props_torch_models(): void {
   }
   let refused: unknown = null;
   try {
-    createTorch({ length: 0.254 });
+    AutoMovieArchetypeTorch.create({ length: 0.254 });
   } catch (error) {
     refused = error;
   }

@@ -1,5 +1,7 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { HumanHandDirection } from "@automovie/motions/internal";
+import {
+  HumanHandDirection
+} from "../../../../../packages/motions/src/posture/internal/HumanHandDirection";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";

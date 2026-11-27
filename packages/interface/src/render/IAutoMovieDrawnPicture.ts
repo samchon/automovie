@@ -1,0 +1,18 @@
+import type { IAutoMovieRasterImage } from "./IAutoMovieRasterImage";
+import type { IAutoMovieDrawResult } from "./IAutoMovieDrawResult";
+
+/**
+ * Decoded host raster beside the serialized draw receipt it came from.
+ * AutoMovieRenderDrawSession.draw validates the requested raster during decoding and
+ * rejects failed or timed-out drawing. The caller owns the returned pixels;
+ * result retains the original encoded pixels and camera/label observations.
+ */
+export interface IAutoMovieDrawnPicture {
+  /** Owned decoded opaque sRGB raster. */
+  picture: IAutoMovieRasterImage;
+  /**
+   * Original serialized pixels and inspection metadata returned by the draw
+   * operation.
+   */
+  result: IAutoMovieDrawResult;
+}

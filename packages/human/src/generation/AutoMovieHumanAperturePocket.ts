@@ -15,106 +15,6 @@ import { AutoMovieHumanApertureConstruction } from "./AutoMovieHumanApertureCons
  * meridians and their common posterior pole are a closure convention.
  */
 export namespace AutoMovieHumanAperturePocket {
-  /** Meridian tessellation; geometry is the cubic, not a stack of flat walls. */
-  const STEPS: number = 24;
-
-  /** Points a meridian is measured at before its steps are chosen. */
-  const DENSE: number = 128;
-
-  /**
-   * Longest first handle of a meridian, in the rim's distance from the
-   * opening's axis. A handle of a third of the chord to the pole, 3 mm, is
-   * longer than a nostril is half wide, 2.4 mm: the wall ran on across the
-   * opening in the skin's plane, under the wall opposite, before it turned
-   * into the pocket within a millimetre, and from below the nostril read as
-   * a slit with a white fringe.
-   */
-  const HANDLE: number = 0.5;
-
-  /** A meridian's cubic controls: rim, first handle, last handle, pole. */
-  type IControls = [number[], number[], number[], number[]];
-
-  /** A point of a meridian's cubic. */
-  function cubic(c: IControls, t: number): number[] {
-    return c[0].map(
-      (value: number, a: number): number =>
-        (1 - t) ** 3 * value +
-        3 * (1 - t) ** 2 * t * c[1][a]! +
-        3 * (1 - t) * t * t * c[2][a]! +
-        t ** 3 * c[3][a]!,
-    );
-  }
-
-  /**
-   * A meridian's share of its length plus its turning times a radius of a
-   * chord over pi, so a half turn counts as one chord, at each of DENSE
-   * steps of its parameter.
-   */
-  function measured(c: IControls): number[] {
-    const points: number[][] = Array.from(
-      { length: DENSE + 1 },
-      (_: unknown, i: number): number[] => cubic(c, i / DENSE),
-    );
-    const radius: number =
-      Math.hypot(...c[0].map((v: number, a: number): number => c[3][a]! - v)) /
-      Math.PI;
-    const out: number[] = [0];
-    for (let i: number = 1; i <= DENSE; i++) {
-      const d: number[] = points[i]!.map(
-        (v: number, a: number): number => v - points[i - 1]![a]!,
-      );
-      let turn: number = 0;
-      if (i > 1) {
-        const e: number[] = points[i - 1]!.map(
-          (v: number, a: number): number => v - points[i - 2]![a]!,
-        );
-        const l: number = Math.hypot(...d) * Math.hypot(...e);
-        if (l > 1e-12)
-          turn = Math.acos(
-            Math.min(
-              1,
-              Math.max(
-                -1,
-                d.reduce(
-                  (s: number, v: number, a: number): number => s + v * e[a]!,
-                  0,
-                ) / l,
-              ),
-            ),
-          );
-      }
-      out.push(out[i - 1]! + Math.hypot(...d) + radius * turn);
-    }
-    return out.map((v: number): number => v / (out[DENSE]! || 1));
-  }
-
-  /**
-   * Each meridian's points, rim and pole excluded, at equal steps of its own
-   * length plus turning. Uniform steps of the parameter put the turn under
-   * the rim within one or two of them, 40 to 60 degrees a step, which shaded
-   * the walls as streaks.
-   */
-  function meridians(controls: readonly IControls[]): number[][][] {
-    return controls.map((c: IControls): number[][] => {
-      const measure: number[] = measured(c);
-      const out: number[][] = [];
-      let j: number = 0;
-      for (let k: number = 1; k < STEPS; k++) {
-        const target: number = k / STEPS;
-        while (j + 1 < DENSE && measure[j + 1]! < target) j++;
-        const span: number = measure[j + 1]! - measure[j]! || 1;
-        out.push(
-          cubic(
-            c,
-            (j + Math.min(1, Math.max(0, (target - measure[j]!) / span))) /
-              DENSE,
-          ),
-        );
-      }
-      return out;
-    });
-  }
-
   /**
    * Close an opening's trim loop on its base with the same cubic meridians,
    * each starting along the base surface's own tangent into the opening
@@ -215,4 +115,112 @@ export namespace AutoMovieHumanAperturePocket {
       rings,
     );
   }
+
+  /*
+   * Meridian tessellation; geometry is the cubic, not a stack of flat walls.
+   */
+  const STEPS: number = 24;
+
+  /*
+   * Points a meridian is measured at before its steps are chosen.
+   */
+  const DENSE: number = 128;
+
+  /*
+   * Longest first handle of a meridian, in the rim's distance from the
+   * opening's axis. A handle of a third of the chord to the pole, 3 mm, is
+   * longer than a nostril is half wide, 2.4 mm: the wall ran on across the
+   * opening in the skin's plane, under the wall opposite, before it turned
+   * into the pocket within a millimetre, and from below the nostril read as
+   * a slit with a white fringe.
+   */
+  const HANDLE: number = 0.5;
+
+  /*
+   * A point of a meridian's cubic.
+   */
+  function cubic(c: IControls, t: number): number[] {
+    return c[0].map(
+      (value: number, a: number): number =>
+        (1 - t) ** 3 * value +
+        3 * (1 - t) ** 2 * t * c[1][a]! +
+        3 * (1 - t) * t * t * c[2][a]! +
+        t ** 3 * c[3][a]!,
+    );
+  }
+
+  /*
+   * A meridian's share of its length plus its turning times a radius of a
+   * chord over pi, so a half turn counts as one chord, at each of DENSE
+   * steps of its parameter.
+   */
+  function measured(c: IControls): number[] {
+    const points: number[][] = Array.from(
+      { length: DENSE + 1 },
+      (_: unknown, i: number): number[] => cubic(c, i / DENSE),
+    );
+    const radius: number =
+      Math.hypot(...c[0].map((v: number, a: number): number => c[3][a]! - v)) /
+      Math.PI;
+    const out: number[] = [0];
+    for (let i: number = 1; i <= DENSE; i++) {
+      const d: number[] = points[i]!.map(
+        (v: number, a: number): number => v - points[i - 1]![a]!,
+      );
+      let turn: number = 0;
+      if (i > 1) {
+        const e: number[] = points[i - 1]!.map(
+          (v: number, a: number): number => v - points[i - 2]![a]!,
+        );
+        const l: number = Math.hypot(...d) * Math.hypot(...e);
+        if (l > 1e-12)
+          turn = Math.acos(
+            Math.min(
+              1,
+              Math.max(
+                -1,
+                d.reduce(
+                  (s: number, v: number, a: number): number => s + v * e[a]!,
+                  0,
+                ) / l,
+              ),
+            ),
+          );
+      }
+      out.push(out[i - 1]! + Math.hypot(...d) + radius * turn);
+    }
+    return out.map((v: number): number => v / (out[DENSE]! || 1));
+  }
+
+  /*
+   * Each meridian's points, rim and pole excluded, at equal steps of its own
+   * length plus turning. Uniform steps of the parameter put the turn under
+   * the rim within one or two of them, 40 to 60 degrees a step, which shaded
+   * the walls as streaks.
+   */
+  function meridians(controls: readonly IControls[]): number[][][] {
+    return controls.map((c: IControls): number[][] => {
+      const measure: number[] = measured(c);
+      const out: number[][] = [];
+      let j: number = 0;
+      for (let k: number = 1; k < STEPS; k++) {
+        const target: number = k / STEPS;
+        while (j + 1 < DENSE && measure[j + 1]! < target) j++;
+        const span: number = measure[j + 1]! - measure[j]! || 1;
+        out.push(
+          cubic(
+            c,
+            (j + Math.min(1, Math.max(0, (target - measure[j]!) / span))) /
+              DENSE,
+          ),
+        );
+      }
+      return out;
+    });
+  }
+
+  /*
+   * A meridian's cubic controls: rim, first handle, last handle, pole.
+   */
+  type IControls = [number[], number[], number[], number[]];
 }

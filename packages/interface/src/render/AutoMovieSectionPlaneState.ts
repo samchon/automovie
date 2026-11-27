@@ -1,6 +1,6 @@
 /**
  * How a bounded body stands to a set of section planes, as
- * `classifyAutoMovieSectionPlaneBox` reports it for an axis-aligned box.
+ * `classifySectionPlaneBox` reports it for an axis-aligned box.
  *
  * - `kept`: no plane removes any part of the body; a body touching a plane is
  *   kept.

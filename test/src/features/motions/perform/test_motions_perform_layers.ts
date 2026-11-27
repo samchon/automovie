@@ -5,10 +5,14 @@ import type {
   IAutoMovieMotionHumanSegment,
 } from "@automovie/interface";
 import {
-  HumanPerformanceLayers,
-  HumanRefusal,
-  HumanSegment,
-} from "@automovie/motions/internal";
+  HumanPerformanceLayers
+} from "../../../../../packages/motions/src/perform/internal/HumanPerformanceLayers";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  HumanSegment
+} from "../../../../../packages/motions/src/perform/internal/HumanSegment";
 import { TestValidator } from "@nestia/e2e";
 
 import { standingPerformanceState } from "../../internal/fixtures/standingPerformanceState";
@@ -115,7 +119,7 @@ export async function test_motions_perform_layers(): Promise<void> {
     "refused instants",
     refused(
       () => at({ of: "bell" }),
-      (error: HumanRefusal): boolean =>
+      (error: AutoMovieMotionHumanRefusal): boolean =>
         error.axis === "of" &&
         error.kind === "participant" &&
         error.feasible?.kind === "alternatives" &&
@@ -123,19 +127,19 @@ export async function test_motions_perform_layers(): Promise<void> {
     ) &&
       refused(
         () => at({ of: "later" }),
-        (error: HumanRefusal): boolean =>
+        (error: AutoMovieMotionHumanRefusal): boolean =>
           error.axis === "of" && error.reason.includes("not placed yet"),
       ) &&
       refused(
         () => at({ of: "wave", event: "bow" }),
-        (error: HumanRefusal): boolean =>
+        (error: AutoMovieMotionHumanRefusal): boolean =>
           error.axis === "event" &&
           error.feasible?.kind === "alternatives" &&
           error.feasible.values.join() === "start,peak,end",
       ) &&
       refused(
         () => at({ of: "drums", event: "beat", index: 5 }),
-        (error: HumanRefusal): boolean =>
+        (error: AutoMovieMotionHumanRefusal): boolean =>
           error.axis === "event" && error.value === "beat (index 5)",
       ),
   );
@@ -223,7 +227,7 @@ export async function test_motions_perform_layers(): Promise<void> {
           from: 2,
           to: 2,
         }),
-      (error: HumanRefusal): boolean =>
+      (error: AutoMovieMotionHumanRefusal): boolean =>
         error.axis === "layers" && error.kind === "parameter",
     ) &&
       refused(
@@ -233,7 +237,7 @@ export async function test_motions_perform_layers(): Promise<void> {
             from: 0,
             to: 1.2,
           }),
-        (error: HumanRefusal): boolean =>
+        (error: AutoMovieMotionHumanRefusal): boolean =>
           error.kind === "channel" && error.performer === "actor",
       ) &&
       refused(
@@ -244,7 +248,7 @@ export async function test_motions_perform_layers(): Promise<void> {
             to: 1,
             anchor: "wave",
           }),
-        (error: HumanRefusal): boolean =>
+        (error: AutoMovieMotionHumanRefusal): boolean =>
           error.axis === "layers" && error.value === "wave",
       ) &&
       HumanPerformanceLayers.window(fresh, gripping, {
@@ -268,12 +272,12 @@ function near(actual: number, expected: number): boolean {
 /** Whether a task throws a refusal the check accepts. */
 function refused(
   task: () => unknown,
-  check: (error: HumanRefusal) => boolean,
+  check: (error: AutoMovieMotionHumanRefusal) => boolean,
 ): boolean {
   try {
     task();
     return false;
   } catch (error) {
-    return error instanceof HumanRefusal && check(error);
+    return error instanceof AutoMovieMotionHumanRefusal && check(error);
   }
 }

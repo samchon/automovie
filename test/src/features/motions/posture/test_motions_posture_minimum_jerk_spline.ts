@@ -1,4 +1,6 @@
-import { HumanMinimumJerkSpline } from "@automovie/motions/internal";
+import {
+  HumanMinimumJerkSpline
+} from "../../../../../packages/motions/src/posture/internal/HumanMinimumJerkSpline";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

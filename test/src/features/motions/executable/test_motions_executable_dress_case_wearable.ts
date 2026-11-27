@@ -1,9 +1,11 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanProp,
 } from "@automovie/interface";
-import { dressCaseWearable } from "@automovie/motions/executable/internal";
+import {
+  dressCaseWearable
+} from "../../../../../packages/motions/src/executable/cases/internal/dressCaseWearable";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../../internal/vclose";
@@ -39,7 +41,7 @@ export function test_motions_executable_dress_case_wearable(): void {
     "the hat",
     vclose(hat.frame.position, { x: 1, y: 0.8, z: 2 }, 0) &&
       vclose(
-        Quaternion.rotateVector(hat.frame.rotation, { x: 1, y: 0, z: 0 }),
+        AutoMovieEngineQuaternion.rotateVector(hat.frame.rotation, { x: 1, y: 0, z: 0 }),
         { x: 1, y: 0, z: 0 },
         1e-12,
       ) &&
@@ -51,12 +53,12 @@ export function test_motions_executable_dress_case_wearable(): void {
       contact(hat, "hold").grip === "precision" &&
       vclose(wear.frame.translation, { x: 0, y: 0.11, z: 0 }, 0) &&
       vclose(
-        Quaternion.rotateVector(wear.frame.rotation, { x: 1, y: 0, z: 0 }),
+        AutoMovieEngineQuaternion.rotateVector(wear.frame.rotation, { x: 1, y: 0, z: 0 }),
         { x: 0, y: 0, z: 1 },
         1e-12,
       ) &&
       vclose(
-        Quaternion.rotateVector(wear.frame.rotation, { x: 0, y: 1, z: 0 }),
+        AutoMovieEngineQuaternion.rotateVector(wear.frame.rotation, { x: 0, y: 1, z: 0 }),
         { x: 0, y: -1, z: 0 },
         1e-12,
       ),
@@ -69,7 +71,7 @@ export function test_motions_executable_dress_case_wearable(): void {
   TestValidator.predicate(
     "the spectacles",
     vclose(
-      Quaternion.rotateVector(glasses.frame.rotation, { x: 1, y: 0, z: 0 }),
+      AutoMovieEngineQuaternion.rotateVector(glasses.frame.rotation, { x: 1, y: 0, z: 0 }),
       { x: -1, y: 0, z: 0 },
       1e-12,
     ) &&

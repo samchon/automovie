@@ -1,5 +1,7 @@
 import type { IAutoMovieMotionHumanSegment } from "@automovie/interface";
-import { observableHumanSegment } from "@automovie/motions/internal";
+import {
+  observableHumanSegment
+} from "../../../../../packages/motions/src/perform/internal/observableHumanSegment";
 import { TestValidator } from "@nestia/e2e";
 
 import { standingPerformanceState } from "../../internal/fixtures/standingPerformanceState";

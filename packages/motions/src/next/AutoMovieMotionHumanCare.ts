@@ -1,4 +1,4 @@
-import { holdInfant as holdInfantLaw } from "../tasks/holdInfant";
+import { holdInfant as holdInfantLaw } from "../tasks/internal/holdInfant";
 import { COMPRESSION_CYCLE as COMPRESSION_CYCLESource } from "../touch/care/COMPRESSION_CYCLE";
 import { PULSE_HOLD as PULSE_HOLDSource } from "../touch/care/PULSE_HOLD";
 import { compressions as compressionsLaw } from "../touch/care/compressions";
@@ -52,7 +52,7 @@ import { pulse as pulseLaw } from "../touch/care/pulse";
 export namespace AutoMovieMotionHumanCare {
   /**
    * Hold a taken-up infant (`IAutoMovieMotionHumanHoldInfant`). The infant is
-   * rigid in the holding hand from its pick-up (`AutoMovieMotionHumanHeld`), so
+   * rigid in the holding hand from its pick-up (`motionHumanHeld`), so
    * each hold is a world pose of the infant in the body's frame, read from the
    * body where it entered, and the holding hand follows from it. In the cradle
    * and the feed the infant lies across the front, face up, along the holding

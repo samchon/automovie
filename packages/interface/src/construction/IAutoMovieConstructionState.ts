@@ -45,7 +45,7 @@ export namespace IAutoMovieConstructionState {
     profileEnds?: IAutoMovieConstructionProfileBody.IEnd[];
 
     /**
-     * The regions the drawn skin is faired over (`fairAutoMovieSolidMesh`),
+     * The regions the drawn skin is faired over (`fairSolidMesh`),
      * each about its sources, mesh vertices, or about every vertex a surface
      * owns once the skin is drawn (a merge's blend), each radius mm; absent,
      * none.
@@ -65,7 +65,7 @@ export namespace IAutoMovieConstructionState {
 
       /**
        * Positive finite reach along mesh edges in millimetres, checked by
-       * fairAutoMovieSolidMesh for retained nonempty regions.
+       * fairSolidMesh for retained nonempty regions.
        */
       radius: number;
     }[];

@@ -1,9 +1,9 @@
-import { colorAutoMovieInspectionObjects } from "@automovie/render";
+import { AutoMovieRenderInspectionMaterial } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 /**
- * `colorAutoMovieInspectionObjects` swaps the material of each mesh whose path
+ * `AutoMovieRenderInspectionMaterial.colorObjects` swaps the material of each mesh whose path
  * a colour pattern matches, and returns the call that puts the materials back.
  *
  * Scenarios:
@@ -29,7 +29,7 @@ export function test_render_scene_color_inspection_objects(): void {
     { path: "hero", mesh: hero },
     { path: "lamp", mesh: lamp },
   ];
-  const restore: () => void = colorAutoMovieInspectionObjects({
+  const restore: () => void = AutoMovieRenderInspectionMaterial.colorObjects({
     meshes,
     shade: "beauty",
     color: [
@@ -53,7 +53,7 @@ export function test_render_scene_color_inspection_objects(): void {
   TestValidator.predicate("restored", hero.material === original);
   TestValidator.equals("disposed", disposed, 1);
 
-  const clay: () => void = colorAutoMovieInspectionObjects({
+  const clay: () => void = AutoMovieRenderInspectionMaterial.colorObjects({
     meshes,
     shade: "clay",
     color: [{ pattern: "lamp", color: 0x00ff00 }],
@@ -65,7 +65,7 @@ export function test_render_scene_color_inspection_objects(): void {
   );
   clay();
   TestValidator.error("other shade", (): void => {
-    colorAutoMovieInspectionObjects({
+    AutoMovieRenderInspectionMaterial.colorObjects({
       meshes,
       shade: "depth",
       color: [{ pattern: "hero", color: 0xff0000 }],

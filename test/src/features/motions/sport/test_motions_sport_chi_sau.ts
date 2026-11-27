@@ -1,4 +1,6 @@
-import { chiSau } from "@automovie/motions/internal";
+import {
+  chiSau
+} from "../../../../../packages/motions/src/sport/internal/chiSau";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

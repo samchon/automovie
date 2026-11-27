@@ -1,4 +1,4 @@
-import { productionFilmFrameForShotTime } from "@automovie/engine";
+import { AutoMovieEngineEffect } from "@automovie/engine";
 import type { IAutoMovieFilmTimeline } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -20,20 +20,20 @@ export function test_engine_effect_runtime_production_film_frame_for_shot_time()
   const timeline: IAutoMovieFilmTimeline = filmEffectTimeline();
   TestValidator.equals(
     "half a second",
-    productionFilmFrameForShotTime({ timeline, shot: "shot", time: 0.5 }),
+    AutoMovieEngineEffect.productionFilmFrameForShotTime({ timeline, shot: "shot", time: 0.5 }),
     12,
   );
   TestValidator.equals(
     "the start",
-    productionFilmFrameForShotTime({ timeline, shot: "shot", time: 0 }),
+    AutoMovieEngineEffect.productionFilmFrameForShotTime({ timeline, shot: "shot", time: 0 }),
     0,
   );
   TestValidator.equals(
     "not shown",
     [
-      productionFilmFrameForShotTime({ timeline, shot: "shot", time: -1 }),
-      productionFilmFrameForShotTime({ timeline, shot: "shot", time: 3 }),
-      productionFilmFrameForShotTime({ timeline, shot: "other", time: 0.5 }),
+      AutoMovieEngineEffect.productionFilmFrameForShotTime({ timeline, shot: "shot", time: -1 }),
+      AutoMovieEngineEffect.productionFilmFrameForShotTime({ timeline, shot: "shot", time: 3 }),
+      AutoMovieEngineEffect.productionFilmFrameForShotTime({ timeline, shot: "other", time: 0.5 }),
     ],
     [null, null, null],
   );

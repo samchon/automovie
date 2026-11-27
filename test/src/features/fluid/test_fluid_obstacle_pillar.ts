@@ -1,4 +1,6 @@
-import { simulateFluidDomain } from "@automovie/engine";
+import {
+  AutoMovieEngineFluid,
+} from "@automovie/engine";
 import type {
   IAutoMovieFluidDomain,
   IAutoMovieFluidState,
@@ -71,8 +73,8 @@ export function test_fluid_obstacle_pillar(): void {
     0,
   );
   const states: IAutoMovieFluidState[] = [1, 60, 400].map(
-    (step: number): ReturnType<typeof simulateFluidDomain> =>
-      simulateFluidDomain(domain, step),
+    (step: number): ReturnType<typeof AutoMovieEngineFluid.simulateFluidDomain> =>
+      AutoMovieEngineFluid.simulateFluidDomain(domain, step),
   );
   const last: IAutoMovieFluidState = states[states.length - 1];
   const behind: number = PILLAR_ROW * COLUMNS + PILLAR_COLUMN + 1;

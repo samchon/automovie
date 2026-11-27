@@ -1,5 +1,10 @@
 import type { IAutoMovieMotionHumanHeldWork } from "@automovie/interface";
-import { HumanRefusal, admitHeldWork } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  admitHeldWork
+} from "../../../../../packages/motions/src/handling/internal/admitHeldWork";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -28,12 +33,12 @@ export function test_motions_handling_work_held(): void {
       IAutoMovieMotionHumanHeldWork.IParams,
       "drive" | "at" | "take" | "duration"
     >,
-  ): HumanRefusal["axis"] | undefined => {
+  ): AutoMovieMotionHumanRefusal["axis"] | undefined => {
     try {
       admitHeldWork(params);
       return undefined;
     } catch (error: unknown) {
-      return error instanceof HumanRefusal ? error.axis : undefined;
+      return error instanceof AutoMovieMotionHumanRefusal ? error.axis : undefined;
     }
   };
   TestValidator.equals(

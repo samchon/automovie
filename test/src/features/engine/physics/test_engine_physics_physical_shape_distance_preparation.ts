@@ -1,4 +1,4 @@
-import { physicalShapeSegmentDistance } from "@automovie/engine";
+import { AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalShape,
   IAutoMovieRigidTransform,
@@ -34,8 +34,8 @@ export function test_engine_physics_physical_shape_distance_preparation(): void 
     halfLength: 1,
     radius: 0.25,
   };
-  const read: ReturnType<typeof physicalShapeSegmentDistance.prepare> =
-    physicalShapeSegmentDistance.prepare(pose, capsule);
+  const read: ReturnType<typeof AutoMovieEnginePhysics.preparePhysicalShapeSegmentDistance> =
+    AutoMovieEnginePhysics.preparePhysicalShapeSegmentDistance(pose, capsule);
   pose.position.y = 20;
   const above: IAutoMovieVector3 = { x: 0, y: 4, z: 0 };
   const beside: IAutoMovieVector3 = { x: 1, y: 2.5, z: 0 };

@@ -1,14 +1,13 @@
 import type { IAutoMovieCapturePlanRequest } from "@automovie/interface";
 import {
-  type IAutoMovieInspectorAction,
-  type IAutoMovieInspectorState,
-  readAutoMovieInspectorAddress,
-  reduceAutoMovieInspectorState,
+  type IAutoMovieViewerInspectorAction,
+  type IAutoMovieViewerInspectorState,
+  AutoMovieViewerInspector,
 } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `reduceAutoMovieInspectorState` applies one inspector edit to the request's
+ * `AutoMovieViewerInspector.reduceState` applies one inspector edit to the request's
  * address keys and reads the result back; an edit the reader refuses keeps the
  * previous request and records the refusal.
  *
@@ -28,21 +27,21 @@ import { TestValidator } from "@nestia/e2e";
  *    sets both.
  */
 export function test_viewer_inspector_reduce_state(): void {
-  const start: IAutoMovieInspectorState = {
-    request: readAutoMovieInspectorAddress(
+  const start: IAutoMovieViewerInspectorState = {
+    request: AutoMovieViewerInspector.readAddress(
       "parts=a&from=1&to=2&rate=10&passes=depth",
     ),
     error: null,
   };
   const after: (
-    ...actions: IAutoMovieInspectorAction[]
-  ) => IAutoMovieInspectorState = (
-    ...actions: IAutoMovieInspectorAction[]
-  ): IAutoMovieInspectorState =>
-    actions.reduce(reduceAutoMovieInspectorState, start);
+    ...actions: IAutoMovieViewerInspectorAction[]
+  ) => IAutoMovieViewerInspectorState = (
+    ...actions: IAutoMovieViewerInspectorAction[]
+  ): IAutoMovieViewerInspectorState =>
+    actions.reduce(AutoMovieViewerInspector.reduceState, start);
   const read: (text: string) => IAutoMovieCapturePlanRequest = (
     text: string,
-  ): IAutoMovieCapturePlanRequest => readAutoMovieInspectorAddress(text);
+  ): IAutoMovieCapturePlanRequest => AutoMovieViewerInspector.readAddress(text);
   const sampling: string = "from=1&to=2&rate=10";
 
   TestValidator.equals(
@@ -114,7 +113,7 @@ export function test_viewer_inspector_reduce_state(): void {
     ],
     [read(`subject=rook&parts=a&${sampling}&passes=depth`), start.request],
   );
-  const refused: IAutoMovieInspectorState = after({
+  const refused: IAutoMovieViewerInspectorState = after({
     type: "text",
     text: "colour=1",
   });

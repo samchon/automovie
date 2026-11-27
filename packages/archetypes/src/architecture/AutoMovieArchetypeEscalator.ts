@@ -1,0 +1,609 @@
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
+  type IAutoMovieArchetypeBand,
+} from "../core";
+import { rideEscalator } from "./internal/rideEscalator";
+import "./internal/createEscalatorConstants";
+import { AutoMovieArchetypeEscalatorData } from "./internal/AutoMovieArchetypeEscalatorData";
+
+/** Creates a deterministic escalator fixture and exposes its construction parameters. */
+export namespace AutoMovieArchetypeEscalator {
+  /**
+   * An escalator between two floors: a lower landing at `y = 0` before the lower
+   * comb, horizontal steps, a lower transition curve, the inclined run, an upper
+   * transition curve, horizontal steps and the upper comb with its landing at `y
+   * = rise`.
+   *
+   * The lower comb line lies across `x` at `z = 0` and the step band rises toward
+   * `+Z`. The model draws the fixed structure: landing plates, the step band's
+   * coarse top surface and the two handrails. The steps that move are a separate
+   * rigid model, `AutoMovieArchetypeEscalator.tread`, placed along the step band by
+   * `AutoMovieArchetypeEscalator.station` on the ride's clock (`AutoMovieArchetypeEscalator.ride`).
+   *
+   * The rated speed and inclination are KONE's offered values. EN 115-1 allows 35
+   * degrees only up to a 6 m rise at 0.5 m/s, and a speed above 0.5 m/s only up
+   * to 30 degrees. The speed and rise set the number of horizontal steps and the
+   * transition radii by EN 115-1 as KONE states it.
+   *
+   * @param params Fixed dimensions, the inclination and the rated speed.
+   * @param seed The seed for any unfixed dimension.
+   * @returns The escalator with its landings and handrail contacts.
+   * @throws {AutoMovieArchetypeRefusal} For a dimension outside its band, an
+   *   inclination or speed EN 115-1 does not admit at the rise, or a rise too low
+   *   for both transition curves.
+   */
+  export function create(
+    params: AutoMovieArchetypeEscalator.IParams = {},
+    seed?: number,
+  ): AutoMovieArchetype<
+    AutoMovieArchetypeEscalator.Affordance,
+    AutoMovieArchetypeEscalator.Dimension
+  > {
+    const draw: AutoMovieArchetypeDrawSession<AutoMovieArchetypeEscalator.Dimension> =
+      new AutoMovieArchetypeDrawSession(
+        "escalator",
+        AutoMovieArchetypeEscalator.UNITS,
+        seed,
+        params,
+      );
+    const {
+      rise,
+      width,
+      handrail,
+      mass,
+    }: Record<AutoMovieArchetypeEscalator.Drawn, number> = draw.dimensions(
+      AutoMovieArchetypeEscalator.BANDS,
+    );
+    const incline: AutoMovieArchetypeEscalator.Incline = params.incline ?? 30;
+    const speed: AutoMovieArchetypeEscalator.Speed = params.speed ?? 0.5;
+    if (incline === 35 && (rise > 6 || speed > 0.5))
+      throw new AutoMovieArchetypeRefusal({
+        kind: "parameter",
+        archetype: "escalator",
+        axis: "incline",
+        value: incline,
+        feasible: { kind: "alternatives", values: ["27.3", "30"] },
+        reason: "EN 115-1 allows 35 degrees only up to a 6 m rise at 0.5 m/s",
+        fix: "choose 30 degrees, or a rise of at most 6 m at 0.5 m/s",
+      });
+
+    // EN 115-1 as KONE 5.7 and 5.9 state it: two horizontal steps and 1.0 m
+    // radii at 0.5 m/s up to a 6 m rise, three steps and a 1.5 m upper radius
+    // up to 0.65 m/s or above a 6 m rise, four steps and 2.6 m and 2.0 m radii
+    // above 0.65 m/s.
+    const dimensions: Record<AutoMovieArchetypeEscalator.Dimension, number> = {
+      rise,
+      width,
+      handrail,
+      mass,
+      incline: draw.derive("incline", incline),
+      speed: draw.derive("speed", speed),
+      level: draw.derive(
+        "level",
+        speed > 0.65 ? 4 : speed > 0.5 || rise > 6 ? 3 : 2,
+      ),
+      upperRadius: draw.derive(
+        "upperRadius",
+        speed > 0.65 ? 2.6 : speed > 0.5 ? 1.5 : 1,
+      ),
+      lowerRadius: draw.derive("lowerRadius", speed > 0.65 ? 2 : 1),
+    };
+    const builder: AutoMovieArchetypeBuilder<
+      AutoMovieArchetypeEscalator.Affordance,
+      AutoMovieArchetypeEscalator.Dimension
+    > = new AutoMovieArchetypeBuilder({
+      id: params.id,
+      name: "escalator",
+      material: "steel",
+      draw,
+    });
+    const profile: AutoMovieArchetypeEscalator.IProfile =
+      AutoMovieArchetypeEscalator.profile({
+        dimensions,
+      });
+    const top: IAutoMovieVector3 = AutoMovieArchetypeEscalator.station(
+      profile,
+      profile.length,
+    );
+    const lowerRun: IAutoMovieVector3 = AutoMovieArchetypeEscalator.station(
+      profile,
+      profile.flat,
+    );
+    const upperRun: IAutoMovieVector3 = AutoMovieArchetypeEscalator.station(
+      profile,
+      profile.length - profile.flat,
+    );
+
+    // Fixed landings before each comb and the step band's coarse top surface.
+    builder.box(
+      "lowerLanding",
+      AutoMovieEngineVector3.create(width + 2 * AutoMovieArchetypeEscalatorData.RAIL_OFFSET, AutoMovieArchetypeEscalatorData.PLATE, AutoMovieArchetypeEscalatorData.LANDING),
+      AutoMovieEngineVector3.create(0, -AutoMovieArchetypeEscalatorData.PLATE / 2, -AutoMovieArchetypeEscalatorData.LANDING / 2),
+      { color: "#8a8f96" },
+    );
+    builder.box(
+      "upperLanding",
+      AutoMovieEngineVector3.create(width + 2 * AutoMovieArchetypeEscalatorData.RAIL_OFFSET, AutoMovieArchetypeEscalatorData.PLATE, AutoMovieArchetypeEscalatorData.LANDING),
+      AutoMovieEngineVector3.create(0, rise - AutoMovieArchetypeEscalatorData.PLATE / 2, top.z + AutoMovieArchetypeEscalatorData.LANDING / 2),
+      { color: "#8a8f96" },
+    );
+    const ends: readonly IAutoMovieVector3[] = [
+      { x: 0, y: 0, z: 0 },
+      lowerRun,
+      upperRun,
+      top,
+    ];
+    const names: readonly string[] = ["lower", "incline", "upper"];
+    for (const [index, name] of names.entries()) {
+      const from: IAutoMovieVector3 = ends[index]!;
+      const to: IAutoMovieVector3 = ends[index + 1]!;
+      const id: string = `${name}Steps`;
+      const span: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(to, from);
+      const slope: number = Math.atan2(span.y, span.z) / AutoMovieEngineQuaternion.DEG2RAD;
+      builder.box(
+        id,
+        AutoMovieEngineVector3.create(width, AutoMovieArchetypeEscalatorData.PLATE, AutoMovieEngineVector3.length(span)),
+        AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(AutoMovieEngineVector3.add(from, to), 0.5), {
+          x: 0,
+          y: -AutoMovieArchetypeEscalatorData.PLATE / 2,
+          z: 0,
+        }),
+        {
+          color: "#4b5058",
+          rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -slope),
+        },
+      );
+      for (const side of [-1, 1] as const)
+        builder.rod(
+          `${side < 0 ? "right" : "left"}${name}Rail`,
+          0.04,
+          {
+            ...from,
+            x: side * (width / 2 + AutoMovieArchetypeEscalatorData.RAIL_OFFSET),
+            y: from.y + handrail,
+          },
+          { ...to, x: side * (width / 2 + AutoMovieArchetypeEscalatorData.RAIL_OFFSET), y: to.y + handrail },
+          { color: "#111111" },
+        );
+    }
+
+    builder.affordance({
+      id: "lowerLanding",
+      kind: "surface",
+      frame: AutoMovieArchetypeFrame.upright(
+        AutoMovieEngineVector3.create(0, 0, -AutoMovieArchetypeEscalatorData.LANDING / 2),
+      ),
+      extent: null,
+      width,
+      depth: AutoMovieArchetypeEscalatorData.LANDING,
+    });
+    builder.affordance({
+      id: "upperLanding",
+      kind: "surface",
+      frame: AutoMovieArchetypeFrame.upright(
+        AutoMovieEngineVector3.create(0, rise, top.z + AutoMovieArchetypeEscalatorData.LANDING / 2),
+      ),
+      extent: null,
+      width,
+      depth: AutoMovieArchetypeEscalatorData.LANDING,
+    });
+    for (const side of [-1, 1] as const)
+      builder.affordance({
+        id: side < 0 ? "rightHandrail" : "leftHandrail",
+        kind: "handle",
+        symmetry: "round",
+        grip: "power",
+        frame: AutoMovieArchetypeFrame.facing(
+          AutoMovieEngineVector3.create(
+            side * (width / 2 + AutoMovieArchetypeEscalatorData.RAIL_OFFSET),
+            handrail,
+            profile.flat / 2,
+          ),
+          AutoMovieEngineVector3.create(0, 1, 0),
+          AutoMovieEngineVector3.create(0, 0, 1),
+        ),
+        extent: null,
+        length: profile.flat,
+        aperture: 0.08,
+      });
+    return builder.build(mass);
+  }
+
+  /* The escalator's dimensions, rated speed, step-band profile and moving tread. */
+  /** The two fixed landings and the two handrails at their lower horizontal run. */
+  export type Affordance =
+    | "lowerLanding"
+    | "upperLanding"
+    | "leftHandrail"
+    | "rightHandrail";
+
+  /** The dimensions drawn from bands. */
+  export type Drawn = "rise" | "width" | "handrail" | "mass";
+
+  /**
+   * All recorded dimensions: the drawn ones and those derived from the rated
+   * speed and inclination.
+   */
+  export type Dimension =
+    | Drawn
+    | "incline"
+    | "speed"
+    | "level"
+    | "upperRadius"
+    | "lowerRadius";
+
+  /** A moving tread's surface and the handrail grip points that move with it. */
+  export type TreadAffordance = "tread" | "leftRail" | "rightRail";
+
+  /** A moving tread's width and depth in metres and mass in kilograms. */
+  export type TreadDimension = "width" | "depth" | "mass";
+
+  /** KONE's offered inclinations, degrees (KONE 5.5). */
+  export type Incline = 27.3 | 30 | 35;
+
+  /** KONE's offered rated speeds, m/s (KONE 5.4). */
+  export type Speed = 0.5 | 0.65 | 0.75;
+
+  /** The dimensions an author fixes, the inclination and the rated speed. */
+  export interface IParams extends Partial<Record<Drawn, number>> {
+    /** The scene's model identifier, `escalator` when omitted. */
+    id?: string;
+
+    /** Inclination in degrees; 30 when absent. */
+    incline?: Incline;
+
+    /** Rated step band speed in m/s; 0.5 when absent. */
+    speed?: Speed;
+  }
+
+  /** Units recorded in the model's draw provenance. */
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
+    rise: "m",
+    width: "m",
+    handrail: "m",
+    mass: "kg",
+    incline: "degrees",
+    speed: "m/s",
+    level: "",
+    upperRadius: "m",
+    lowerRadius: "m",
+  };
+
+  /** The drawn dimensions' bands. */
+  export const BANDS: Readonly<Record<Drawn, IAutoMovieArchetypeBand>> = {
+    rise: AutoMovieArchetypeBand.metres(
+      2,
+      12,
+      `${AutoMovieArchetypeEscalatorData.KONE}, Table 5.2 retail, office and airport rises`,
+    ),
+    width: AutoMovieArchetypeBand.metres(
+      0.58,
+      1.1,
+      `${AutoMovieArchetypeEscalatorData.KONE}, 5.3 EN 115-1 step widths`,
+    ),
+    handrail: AutoMovieArchetypeBand.metres(
+      0.9,
+      1.1,
+      `${AutoMovieArchetypeEscalatorData.KONE}, 5.12 balustrade heights`,
+    ),
+    mass: AutoMovieArchetypeBand.of("kg", 4000, 12000, AutoMovieArchetypeEscalatorData.ESTIMATE, true),
+  };
+
+  /**
+   * The step band in the escalator's frame: metres along the band from the
+   * lower comb to each transition and to the upper comb.
+   */
+  export interface IProfile {
+    /** Step pitch along the band, metres. */
+    pitch: number;
+
+    /** Inclination, radians. */
+    angle: number;
+
+    /** Horizontal run at each landing, metres. */
+    flat: number;
+
+    /** Lower transition radius, metres. */
+    lower: number;
+
+    /** Upper transition radius, metres. */
+    upper: number;
+
+    /** Straight inclined run, metres. */
+    straight: number;
+
+    /** Band length from comb to comb, metres. */
+    length: number;
+
+    /** Rise between the landings, metres. */
+    rise: number;
+
+    /** Rated step band speed, m/s. */
+    speed: number;
+
+    /** Handrail height above the step nose line, metres. */
+    handrail: number;
+
+    /**
+     * Lateral distance of each handrail centre from the band's centreline,
+     * metres.
+     */
+    rail: number;
+  }
+
+  /**
+   * Derive the step band from an escalator's recorded dimensions.
+   *
+   * @param escalator The escalator, or its recorded dimensions.
+   * @returns The band's lengths in metres.
+   * @throws {AutoMovieArchetypeRefusal} When the rise is too low for both
+   *   transitions.
+   */
+  export function profile(
+    escalator: Pick<AutoMovieArchetype<Affordance, Dimension>, "dimensions">,
+  ): IProfile {
+    const d: Readonly<Partial<Record<Dimension, number>>> =
+      escalator.dimensions;
+    const angle: number = d.incline! * AutoMovieEngineQuaternion.DEG2RAD;
+    const curves: number =
+      (d.lowerRadius! + d.upperRadius!) * (1 - Math.cos(angle));
+    const straight: number = (d.rise! - curves) / Math.sin(angle);
+    if (!(straight > 0))
+      throw new AutoMovieArchetypeRefusal({
+        kind: "parameter",
+        archetype: "escalator",
+        axis: "rise",
+        value: d.rise!,
+        feasible: { kind: "range", minimum: curves, maximum: null, unit: "m" },
+        reason:
+          "the rise does not leave a straight run between the transition curves",
+        fix: "give a rise above the two transitions' combined height",
+      });
+    const flat: number = d.level! * AutoMovieArchetypeEscalatorData.PITCH;
+    return {
+      pitch: AutoMovieArchetypeEscalatorData.PITCH,
+      angle,
+      flat,
+      lower: d.lowerRadius!,
+      upper: d.upperRadius!,
+      straight,
+      length: 2 * flat + (d.lowerRadius! + d.upperRadius!) * angle + straight,
+      rise: d.rise!,
+      speed: d.speed!,
+      handrail: d.handrail!,
+      rail: d.width! / 2 + AutoMovieArchetypeEscalatorData.RAIL_OFFSET,
+    };
+  }
+
+  /**
+   * The tread centre at a station along the band, in the escalator's frame. A
+   * tread stays level. A step that passes either comb turns down under the
+   * landing toward its return run: the model takes it straight down below the
+   * comb, so no tread surface lies on a landing.
+   *
+   * @param band The step band.
+   * @param s Metres along the band from the lower comb.
+   * @returns The tread's top centre, metres.
+   */
+  export function station(band: IProfile, s: number): IAutoMovieVector3 {
+    const { flat, lower, upper, straight, angle }: IProfile = band;
+    const s1: number = flat;
+    const s2: number = s1 + lower * angle;
+    const s3: number = s2 + straight;
+    const s4: number = s3 + upper * angle;
+    if (s < 0) return { x: 0, y: s, z: 0 };
+    if (s <= s1) return { x: 0, y: 0, z: s };
+    if (s <= s2) {
+      const phi: number = (s - s1) / lower;
+      return {
+        x: 0,
+        y: lower * (1 - Math.cos(phi)),
+        z: s1 + lower * Math.sin(phi),
+      };
+    }
+    const z2: number = s1 + lower * Math.sin(angle);
+    const y2: number = lower * (1 - Math.cos(angle));
+    if (s <= s3)
+      return {
+        x: 0,
+        y: y2 + (s - s2) * Math.sin(angle),
+        z: z2 + (s - s2) * Math.cos(angle),
+      };
+    const z3: number = z2 + straight * Math.cos(angle);
+    const y3: number = y2 + straight * Math.sin(angle);
+    if (s <= s4) {
+      const phi: number = (s - s3) / upper;
+      return {
+        x: 0,
+        y: y3 + upper * (Math.cos(angle - phi) - Math.cos(angle)),
+        z: z3 + upper * (Math.sin(angle) - Math.sin(angle - phi)),
+      };
+    }
+    const end: number = s4 + flat;
+    const top: number = z3 + upper * Math.sin(angle);
+    if (s <= end) return { x: 0, y: band.rise, z: top + (s - s4) };
+    return { x: 0, y: band.rise - (s - end), z: top + flat };
+  }
+
+  /**
+   * One moving step as its own rigid model: a tread one pitch deep whose
+   * `tread` surface lies at its local origin, the point `station` places, with
+   * the handrail grip point above it on each side. The handrail moves with the
+   * steps, so the grip keeps this offset; along the transition curves the real
+   * handrail runs at its own radius, which this coarse offset does not follow.
+   *
+   * @param escalator The escalator whose width and pitch the tread takes.
+   * @returns The tread model.
+   */
+  export function tread(
+    escalator: Pick<AutoMovieArchetype<Affordance, Dimension>, "dimensions">,
+  ): AutoMovieArchetype<TreadAffordance, TreadDimension> {
+    const width: number = escalator.dimensions.width!;
+    const handrail: number = escalator.dimensions.handrail!;
+    const draw: AutoMovieArchetypeDrawSession<TreadDimension> =
+      new AutoMovieArchetypeDrawSession(
+        "escalatorTread",
+        { width: "m", depth: "m", mass: "kg" },
+        undefined,
+        {},
+      );
+    draw.derive("width", width);
+    draw.derive("depth", AutoMovieArchetypeEscalatorData.PITCH);
+    draw.derive("mass", 15);
+    const builder: AutoMovieArchetypeBuilder<TreadAffordance, TreadDimension> =
+      new AutoMovieArchetypeBuilder({
+        name: "escalator tread",
+        material: "aluminium",
+        draw,
+      });
+    builder.box(
+      "tread",
+      AutoMovieEngineVector3.create(width, AutoMovieArchetypeEscalatorData.PLATE, AutoMovieArchetypeEscalatorData.PITCH),
+      AutoMovieEngineVector3.create(0, -AutoMovieArchetypeEscalatorData.PLATE / 2, 0),
+      { color: "#3a3f46" },
+    );
+    builder.affordance({
+      id: "tread",
+      kind: "surface",
+      frame: AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, 0, 0)),
+      extent: null,
+      width,
+      depth: AutoMovieArchetypeEscalatorData.PITCH,
+    });
+
+    // The handrails run at the step band's speed (EN 115-1), so the grip
+    // point above a tread keeps its offset from it.
+    for (const side of [-1, 1] as const)
+      builder.affordance({
+        id: side < 0 ? "rightRail" : "leftRail",
+        kind: "handle",
+        symmetry: "round",
+        grip: "power",
+        frame: AutoMovieArchetypeFrame.facing(
+          AutoMovieEngineVector3.create(side * (width / 2 + AutoMovieArchetypeEscalatorData.RAIL_OFFSET), handrail, 0),
+          AutoMovieEngineVector3.create(0, 1, 0),
+          AutoMovieEngineVector3.create(0, 0, 1),
+        ),
+        extent: null,
+        length: AutoMovieArchetypeEscalatorData.PITCH,
+        aperture: 0.08,
+      });
+    return builder.build(15);
+  }
+
+  /* The escalator's ride and its contract. */
+  /**
+   * An escalator running at its rated speed in one direction, read on the ride's
+   * clock: second 0 is when each named station holds its tread.
+   *
+   * Every tread moves along the step band (`AutoMovieArchetypeEscalator.station`) at the
+   * rated speed and stays level. On the straight incline all treads move
+   * together, so the inclined flight is one rigid frame translating along the
+   * incline, which a climb on the moving steps reads. Each handrail moves at the
+   * step band's speed, as EN 115-1 couples them, at the handrail height above the
+   * tread under it.
+   *
+   * @param escalator The installed escalator.
+   * @param placement Its world placement.
+   * @param direction The running direction: `up` moves treads from the lower comb
+   *   to the upper comb.
+   * @returns The tread, flight and handrail frames on the ride's clock.
+   */
+  export function ride(
+    escalator: AutoMovieArchetype<
+      AutoMovieArchetypeEscalator.Affordance,
+      AutoMovieArchetypeEscalator.Dimension
+    >,
+    placement: IAutoMovieTransform,
+    direction: AutoMovieArchetypeEscalator.RideDirection,
+  ): AutoMovieArchetypeEscalator.IRideResult {
+    return rideEscalator(
+      escalator,
+      placement,
+      direction,
+      AutoMovieArchetypeEscalator.profile,
+      AutoMovieArchetypeEscalator.station,
+    );
+  }
+
+  /** The running direction. */
+  export type RideDirection = "up" | "down";
+  /** One running escalator's readers. */
+  export interface IRideResult {
+    /** The step band of the escalator. */
+    profile: AutoMovieArchetypeEscalator.IProfile;
+    /** The running direction. */
+    direction: RideDirection;
+    /**
+     * The tread that holds `station` metres along the band at second 0, at a
+     * ride second.
+     *
+     * @param station Metres along the band from the lower comb at second 0.
+     * @param seconds Ride seconds.
+     * @returns The level tread's top centre in the world.
+     */
+    tread(station: number, seconds: number): IAutoMovieTransform;
+    /**
+     * The straight inclined flight as one rigid frame, identity placement at
+     * second 0.
+     *
+     * @param seconds Ride seconds.
+     * @returns The flight's world frame.
+     */
+    flight(seconds: number): IAutoMovieTransform;
+    /**
+     * The handrail point above the tread at `station` at second 0.
+     *
+     * @param side The handrail's side of the band, facing `+Z`.
+     * @param station Metres along the band at second 0.
+     * @param seconds Ride seconds.
+     * @returns The handrail point in the world.
+     */
+    handrail(
+      side: AutoMovieHumanSide,
+      station: number,
+      seconds: number,
+    ): IAutoMovieTransform;
+  }
+  /**
+   * The moving flight a climb in `heading` reads, refused against the running
+   * direction unless the author asks for it.
+   *
+   * @param ride The running escalator.
+   * @param heading The climb's direction on the steps.
+   * @param against Whether the author stages walking against the steps.
+   * @returns The flight's world frame on the ride's clock.
+   * @throws {AutoMovieArchetypeRefusal} When the climb runs against the steps
+   *   and `against` is not set.
+   */
+  export function climb(
+    ride: IRideResult,
+    heading: RideDirection,
+    against?: boolean,
+  ): (seconds: number) => IAutoMovieTransform {
+    if (heading !== ride.direction && against !== true)
+      throw new AutoMovieArchetypeRefusal({
+        kind: "parameter",
+        archetype: "escalator",
+        axis: "climb.heading",
+        value: heading,
+        feasible: { kind: "alternatives", values: [ride.direction] },
+        reason: `the escalator runs ${ride.direction}`,
+        fix: "climb with the steps, or state that the climb is against them",
+      });
+    return ride.flight;
+  }
+}

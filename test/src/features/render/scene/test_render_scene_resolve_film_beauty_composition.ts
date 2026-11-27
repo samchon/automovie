@@ -1,11 +1,11 @@
 import type { IAutoMovieFilmBeautyLayer } from "@automovie/interface";
-import { resolveAutoMovieFilmBeautyComposition } from "@automovie/render";
+import { AutoMovieRenderFilmResponseStage } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * `resolveAutoMovieFilmBeautyComposition` reads one layer as a cut (weight 1)
+ * `AutoMovieRenderFilmResponseStage.resolveBeautyComposition` reads one layer as a cut (weight 1)
  * or a fade (fractional weight), two layers whose weights sum to one as a
  * dissolve whose alpha is the incoming weight.
  *
@@ -23,17 +23,17 @@ export function test_render_scene_resolve_film_beauty_composition(): void {
   ): IAutoMovieFilmBeautyLayer => ({ weight });
   TestValidator.equals(
     "a cut",
-    resolveAutoMovieFilmBeautyComposition([layer(1)]).kind,
+    AutoMovieRenderFilmResponseStage.resolveBeautyComposition([layer(1)]).kind,
     "direct",
   );
   TestValidator.equals(
     "a fade",
-    resolveAutoMovieFilmBeautyComposition([layer(0.25)]),
+    AutoMovieRenderFilmResponseStage.resolveBeautyComposition([layer(0.25)]),
     { kind: "fade", layer: layer(0.25), weight: 0.25 },
   );
   TestValidator.equals(
     "a dissolve",
-    resolveAutoMovieFilmBeautyComposition([layer(0.75), layer(0.25)]),
+    AutoMovieRenderFilmResponseStage.resolveBeautyComposition([layer(0.75), layer(0.25)]),
     {
       kind: "dissolve",
       outgoing: layer(0.75),
@@ -43,18 +43,18 @@ export function test_render_scene_resolve_film_beauty_composition(): void {
   );
   for (const layers of [[layer(0.5), layer(0.25)], [], [layer(1.5)]])
     TestValidator.error(`${layers.length} layers refuse`, (): unknown =>
-      resolveAutoMovieFilmBeautyComposition(layers),
+      AutoMovieRenderFilmResponseStage.resolveBeautyComposition(layers),
     );
   TestValidator.equals(
     "zero selects an admitted fade endpoint",
-    resolveAutoMovieFilmBeautyComposition([layer(0)]).kind,
+    AutoMovieRenderFilmResponseStage.resolveBeautyComposition([layer(0)]).kind,
     "fade",
   );
   for (const weight of [NaN, -Number.MIN_VALUE, 1 + Number.EPSILON, Infinity])
     TestValidator.predicate(
       `weight ${weight} refuses before composition`,
       throwsError(
-        () => resolveAutoMovieFilmBeautyComposition([layer(weight)]),
+        () => AutoMovieRenderFilmResponseStage.resolveBeautyComposition([layer(weight)]),
         "must be finite and inside [0, 1]",
       ),
     );

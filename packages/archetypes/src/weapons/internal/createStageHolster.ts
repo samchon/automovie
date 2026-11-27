@@ -1,0 +1,51 @@
+import type { AutoMovieArchetypeStageHolster } from "../AutoMovieArchetypeStageHolster";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
+
+import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
+import { StageCarrierConstruction } from "./StageCarrierConstruction";
+
+
+/*
+ * Worn belt holster silhouette.
+ *
+ * A separate little carrier with a raised or lowered socket and a wearer-facing
+ * belt hook.
+ * Parameter params: The scene id, optional display dimensions and this carrier's
+ * own fit options.
+ * Parameter seed: Uses the original named draw session to resolve omitted settings.
+ * Returns: The digital model and its authored contact frames.
+ * For inputs the selected catalogue profile
+ * cannot use.
+ */
+export function createStageHolster(
+  params: AutoMovieArchetypeStageHolster.IParams = {},
+  seed?: number,
+): AutoMovieArchetype<
+  AutoMovieArchetypeStageHolster.Affordance,
+  AutoMovieArchetypeStageHolster.Dimension
+> {
+  return StageCarrierConstruction("holster", params, seed, (builder, d) => {
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
+    builder.box("loop", v(0.01, 0.06, 0.06), v(0, 0, 0), {
+      color: "#2c2f33",
+    });
+    builder.box(
+      "pouch",
+      v(0.04, d.depth!, 0.07),
+      v(0.025, d.ride! - d.depth! / 2, 0),
+      { color: "#2c2f33" },
+    );
+    builder.affordance({
+      id: "socket",
+      kind: "socket",
+      frame: AutoMovieArchetypeFrame.upright(v(0.025, d.ride!, 0)),
+      extent: null,
+    });
+    builder.affordance({
+      id: "belt",
+      kind: "hook",
+      frame: StageCarrierConstruction.facingWearer(v(0, 0, 0)),
+      extent: null,
+    });
+  });
+}

@@ -1,9 +1,14 @@
 import {
+  type AutoMovieEnginePhysicsFaceContactTypes,
+  AutoMovieEngineQuaternion,
+  AutoMovieEnginePhysics,
+} from "@automovie/engine";
+import {
   AutoMovieArchetypeFrame,
   AutoMovieArchetypeQuadrupedFooting,
   AutoMovieArchetypeRefusal,
 } from "@automovie/archetypes";
-import { Quaternion, physicalShapeFaceContact } from "@automovie/engine";
+
 import type {
   IAutoMovieModelPart,
   IAutoMoviePhysicalShape,
@@ -17,7 +22,7 @@ import { nclose } from "../../internal/nclose";
 /** The test fixtures are in one metre-scale world frame. */
 const IDENTITY: IAutoMovieRigidTransform = {
   position: { x: 0, y: 0, z: 0 },
-  rotation: Quaternion.identity(),
+  rotation: AutoMovieEngineQuaternion.identity(),
 };
 
 /**
@@ -40,8 +45,8 @@ export function test_archetypes_animals_quadruped_finite_contact(): void {
   };
   const patch: IAutoMovieVector3[] = rectangle(0.508, 0.51, 0.508, 0.51);
   const expected: number = 0.5 - Math.sqrt(1 - 2 * 0.008 ** 2);
-  const gap: ReturnType<typeof physicalShapeFaceContact> =
-    physicalShapeFaceContact(IDENTITY, sphere, IDENTITY, patch);
+  const gap: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeFaceContact> =
+    AutoMovieEnginePhysics.physicalShapeFaceContact(IDENTITY, sphere, IDENTITY, patch);
   TestValidator.predicate(
     "narrow sphere clearance matches the analytic value",
     gap !== undefined && nclose(gap.clearance, expected, 1e-12),
@@ -94,12 +99,12 @@ export function test_archetypes_animals_quadruped_finite_contact(): void {
     kind: "box",
     transform: {
       position: { x: 0, y: 0.3, z: 0 },
-      rotation: Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 45),
+      rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 45),
     },
     halfExtents: { x: 1, y: 0.05, z: 0.25 },
   };
-  const clipped: ReturnType<typeof physicalShapeFaceContact> =
-    physicalShapeFaceContact(
+  const clipped: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeFaceContact> =
+    AutoMovieEnginePhysics.physicalShapeFaceContact(
       IDENTITY,
       box,
       IDENTITY,
@@ -110,8 +115,8 @@ export function test_archetypes_animals_quadruped_finite_contact(): void {
     clipped !== undefined &&
       nclose(clipped.clearance, 0.3 + 0.65 - 0.05 * Math.SQRT2, 1e-12),
   );
-  const broad: ReturnType<typeof physicalShapeFaceContact> =
-    physicalShapeFaceContact(
+  const broad: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeFaceContact> =
+    AutoMovieEnginePhysics.physicalShapeFaceContact(
       IDENTITY,
       { ...box, transform: IDENTITY },
       IDENTITY,
@@ -122,7 +127,7 @@ export function test_archetypes_animals_quadruped_finite_contact(): void {
     broad?.patch?.length === 4 && nclose(broad.clearance, -0.05, 1e-12),
   );
 
-  const circle: physicalShapeFaceContact.Shape = {
+  const circle: AutoMovieEnginePhysicsFaceContactTypes.Shape = {
     kind: "cylinder",
     transform: { ...IDENTITY, position: { x: 0, y: 0.2, z: 0 } },
     height: 0.4,
@@ -131,7 +136,7 @@ export function test_archetypes_animals_quadruped_finite_contact(): void {
   TestValidator.predicate(
     "a finite flat cap touches a patch away from its centre",
     Math.abs(
-      physicalShapeFaceContact(
+      AutoMovieEnginePhysics.physicalShapeFaceContact(
         IDENTITY,
         circle,
         IDENTITY,
@@ -141,7 +146,7 @@ export function test_archetypes_animals_quadruped_finite_contact(): void {
   );
   TestValidator.equals(
     "the same circle clears a disjoint diagonally offset patch",
-    physicalShapeFaceContact(
+    AutoMovieEnginePhysics.physicalShapeFaceContact(
       IDENTITY,
       circle,
       IDENTITY,
@@ -160,7 +165,7 @@ export function test_archetypes_animals_quadruped_finite_contact(): void {
   ];
   TestValidator.equals(
     "a concave face leaves a cutout clear",
-    physicalShapeFaceContact(
+    AutoMovieEnginePhysics.physicalShapeFaceContact(
       IDENTITY,
       { ...sphere, radius: 0.1 },
       IDENTITY,
@@ -168,8 +173,8 @@ export function test_archetypes_animals_quadruped_finite_contact(): void {
     ),
     undefined,
   );
-  const lobe: ReturnType<typeof physicalShapeFaceContact> =
-    physicalShapeFaceContact(
+  const lobe: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeFaceContact> =
+    AutoMovieEnginePhysics.physicalShapeFaceContact(
       IDENTITY,
       {
         ...sphere,

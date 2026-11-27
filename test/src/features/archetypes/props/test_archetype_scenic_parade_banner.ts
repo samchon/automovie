@@ -1,10 +1,10 @@
-import { createScenicParadeBanner } from "@automovie/archetypes";
+import { AutoMovieArchetypeScenicParadeBanner } from "@automovie/archetypes";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanProp,
   IAutoMoviePhysicalShape,
 } from "@automovie/interface";
-import { HumanObject } from "@automovie/motions";
+import { AutoMovieMotionHumanObject } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeExtent } from "../../internal/archetypeExtent";
@@ -32,8 +32,8 @@ export function test_archetype_scenic_parade_banner(): void {
   /** Compare positioned contacts within the stage's millimetre tolerance. */
   const close = (actual: number, expected: number): boolean =>
     nclose(actual, expected, 0.001);
-  const model: ReturnType<typeof createScenicParadeBanner> =
-    createScenicParadeBanner({
+  const model: ReturnType<typeof AutoMovieArchetypeScenicParadeBanner.create> =
+    AutoMovieArchetypeScenicParadeBanner.create({
       width: 1.8,
       panelHeight: 0.5,
       depth: 0.012,
@@ -63,7 +63,7 @@ export function test_archetype_scenic_parade_banner(): void {
       close(panelZ.size, 0.012),
   );
 
-  const prop: IAutoMovieMotionHumanProp = HumanObject.prop(
+  const prop: IAutoMovieMotionHumanProp = AutoMovieMotionHumanObject.prop(
     "parade-banner",
     model,
     {
@@ -119,10 +119,10 @@ export function test_archetype_scenic_parade_banner(): void {
   );
   TestValidator.equals(
     "one seed repeats the banner geometry",
-    JSON.stringify(createScenicParadeBanner({}, 1008).shapes()),
-    JSON.stringify(createScenicParadeBanner({}, 1008).shapes()),
+    JSON.stringify(AutoMovieArchetypeScenicParadeBanner.create({}, 1008).shapes()),
+    JSON.stringify(AutoMovieArchetypeScenicParadeBanner.create({}, 1008).shapes()),
   );
   TestValidator.error("a pole shorter than the panel is refused", () =>
-    createScenicParadeBanner({ poleHeight: 0.4, panelHeight: 0.5 }),
+    AutoMovieArchetypeScenicParadeBanner.create({ poleHeight: 0.4, panelHeight: 0.5 }),
   );
 }

@@ -1,11 +1,11 @@
 import type { IAutoMovieHumanConicLoft } from "@automovie/interface";
 
-import { AutoMovieHumanConicRelief } from "../conic/AutoMovieHumanConicRelief";
-import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
-import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
-import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
+import { AutoMovieHumanConicRelief } from "../AutoMovieHumanConicRelief";
+import { AutoMovieHumanConicSection } from "../AutoMovieHumanConicSection";
+import { AutoMovieHumanF1Joints } from "../AutoMovieHumanF1Joints";
+import { AutoMovieHumanF1Placement } from "../AutoMovieHumanF1Placement";
 
-/**
+/*
  * f1's nose tape wall.
  *
  * Frame: the figure's absolute reference pose, millimetres, forward +X, up +Y, +Z the reference's left. The course runs
@@ -78,8 +78,8 @@ export const AutoMovieHumanF1Nose: IAutoMovieHumanConicLoft.IFamily = {
   reliefs: [
     {
       name: "nose.floor",
-      stations: [8.5, 25],
-      phases: [2.0416, 4.2416],
+      stations: { start: 8.5, end: 25 },
+      phases: { start: 2.0416, end: 4.2416 },
       axis: AutoMovieHumanF1Placement.direction("nose.floor.axis"),
       rows: 15,
       columns: 17,
@@ -101,8 +101,8 @@ export const AutoMovieHumanF1Nose: IAutoMovieHumanConicLoft.IFamily = {
     },
     {
       name: "nose.under",
-      stations: [22.5, 27],
-      phases: [2.0416, 4.2416],
+      stations: { start: 22.5, end: 27 },
+      phases: { start: 2.0416, end: 4.2416 },
       axis: AutoMovieHumanF1Placement.direction("nose.under.axis"),
       rows: 16,
       columns: 21,
@@ -127,8 +127,8 @@ export const AutoMovieHumanF1Nose: IAutoMovieHumanConicLoft.IFamily = {
     },
     {
       name: "nose.side",
-      stations: [3, 20],
-      phases: [-2, 2],
+      stations: { start: 3, end: 20 },
+      phases: { start: -2, end: 2 },
       axis: AutoMovieHumanF1Placement.direction("nose.side.axis"),
       turn: AutoMovieHumanF1Placement.direction("nose.side.turn"),
       rows: 19,

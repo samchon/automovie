@@ -13,7 +13,7 @@ export namespace RecoveryConicSources {
 
   /** The line y = 2t + 3 on [0, 2]. */
   export const line: IAutoMoviePlanarCurveSource = {
-    domain: [0, 2],
+    domain: { start: 0, end: 2 },
     breaks: [],
     closed: false,
     evaluate: (t: number): Readonly<AutoMovieVector2Tuple> => [t, 2 * t + 3],
@@ -25,7 +25,7 @@ export namespace RecoveryConicSources {
 
   /** The cubic y = t³ on [-1, 1], its inflection at 0 supplied as a break. */
   export const cubic: IAutoMoviePlanarCurveSource = {
-    domain: [-1, 1],
+    domain: { start: -1, end: 1 },
     breaks: [0],
     closed: false,
     evaluate: (t: number): Readonly<AutoMovieVector2Tuple> => [t, t ** 3],
@@ -44,7 +44,7 @@ export namespace RecoveryConicSources {
 
   /** The convex nonconic y = t² + 0.1·t³ on [0, 1]. */
   export const convex: IAutoMoviePlanarCurveSource = {
-    domain: [0, 1],
+    domain: { start: 0, end: 1 },
     breaks: [],
     closed: false,
     evaluate: (t: number): Readonly<AutoMovieVector2Tuple> => [

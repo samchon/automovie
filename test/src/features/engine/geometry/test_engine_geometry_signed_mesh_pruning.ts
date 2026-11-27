@@ -1,4 +1,4 @@
-import { createAutoMovieSignedMeshQuery } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieMesh,
   IAutoMovieSignedMeshQueryHit,
@@ -10,7 +10,7 @@ import { createSignedVoxelUnion } from "../../internal/createSignedMeshFixture";
 import { nclose } from "../../internal/predicates";
 
 /**
- * The bounding-box hierarchy of `createAutoMovieSignedMeshQuery`, including the
+ * The bounding-box hierarchy of `createSignedMeshQuery`, including the
  * per-triangle box test inside a leaf, returns the distance an exhaustive
  * search over every triangle finds, and reports a triangle that attains it.
  *
@@ -32,7 +32,7 @@ export function test_engine_geometry_signed_mesh_pruning(): void {
       for (let z: number = 0; z < 2; z++) cells.push([x, y, z]);
   const mesh: IAutoMovieMesh = createSignedVoxelUnion(cells);
   const sample: (point: readonly number[]) => IAutoMovieSignedMeshQueryHit =
-    createAutoMovieSignedMeshQuery(mesh);
+    AutoMovieEngineGeometry.createSignedMeshQuery(mesh);
   const corners: number[][][] = Array.from(
     { length: mesh.indices!.length / 3 },
     (_: unknown, triangle: number): number[][] =>

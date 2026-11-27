@@ -1,4 +1,4 @@
-import { simulateSoftBody } from "@automovie/engine";
+import { AutoMovieEngineSoftBody } from "@automovie/engine";
 import {
   IAutoMovieSoftBodyDomain,
   IAutoMovieSoftBodyState,
@@ -74,7 +74,7 @@ export function test_soft_body_wind_gust(): void {
     gustAcceleration: 2,
     gustHz: 4,
   });
-  const blown: IAutoMovieSoftBodyState = simulateSoftBody(gusting, 4);
+  const blown: IAutoMovieSoftBodyState = AutoMovieEngineSoftBody.simulateSoftBody(gusting, 4);
   TestValidator.equals(
     "a triangular gust integrates to its own closed form exactly",
     namedFacts([
@@ -99,7 +99,7 @@ export function test_soft_body_wind_gust(): void {
     { velocity: true, positions: true, strain: true },
   );
 
-  const scaled: IAutoMovieSoftBodyState = simulateSoftBody(
+  const scaled: IAutoMovieSoftBodyState = AutoMovieEngineSoftBody.simulateSoftBody(
     breeze({
       direction: { x: 2, y: 0, z: 0 },
       acceleration: 0,
@@ -122,8 +122,8 @@ export function test_soft_body_wind_gust(): void {
 
   TestValidator.equals(
     "the gust reverses rather than pushing forever",
-    simulateSoftBody(gusting, 12).velocities[0] <
-      simulateSoftBody(gusting, 4).velocities[0],
+    AutoMovieEngineSoftBody.simulateSoftBody(gusting, 12).velocities[0] <
+      AutoMovieEngineSoftBody.simulateSoftBody(gusting, 4).velocities[0],
     true,
   );
 
@@ -133,7 +133,7 @@ export function test_soft_body_wind_gust(): void {
     gustAcceleration: 2,
     gustHz: 0,
   });
-  const ramp: IAutoMovieSoftBodyState = simulateSoftBody(steady, 4);
+  const ramp: IAutoMovieSoftBodyState = AutoMovieEngineSoftBody.simulateSoftBody(steady, 4);
   TestValidator.equals(
     "a zero gust frequency holds the gust at its peak",
     namedFacts([
@@ -150,7 +150,7 @@ export function test_soft_body_wind_gust(): void {
     { velocity: true, position: true },
   );
 
-  const still: IAutoMovieSoftBodyState = simulateSoftBody(
+  const still: IAutoMovieSoftBodyState = AutoMovieEngineSoftBody.simulateSoftBody(
     softPanel({
       columns: 1,
       rows: 2,

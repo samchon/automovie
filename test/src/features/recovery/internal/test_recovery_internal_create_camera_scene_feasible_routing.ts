@@ -1,8 +1,5 @@
 import type { IAutoMovieRecoveryFeasibleJointOptions } from "@automovie/interface";
-import {
-  admitRecoveryCameraScene,
-  createRecoveryCameraScene,
-} from "@automovie/recovery";
+import { AutoMovieRecoveryCameraMap } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { createRecoverySceneNumericalFixture } from "../../internal/createRecoverySceneNumericalFixture";
@@ -29,8 +26,8 @@ import { nclose } from "../../internal/nclose";
 export function test_recovery_internal_create_camera_scene_feasible_routing(): void {
   const fixture: ReturnType<typeof createRecoverySceneNumericalFixture> =
     createRecoverySceneNumericalFixture();
-  const charts: ReturnType<typeof admitRecoveryCameraScene> =
-    admitRecoveryCameraScene(fixture.input);
+  const charts: ReturnType<typeof AutoMovieRecoveryCameraMap.admitCameraScene> =
+    AutoMovieRecoveryCameraMap.admitCameraScene(fixture.input);
   const request: () => IAutoMovieRecoveryFeasibleJointOptions =
     (): IAutoMovieRecoveryFeasibleJointOptions => ({
       directionBudget: {
@@ -48,8 +45,8 @@ export function test_recovery_internal_create_camera_scene_feasible_routing(): v
     pairs: fixture.pairs,
     poses: fixture.poses,
   });
-  const routed: ReturnType<typeof createRecoveryCameraScene> =
-    createRecoveryCameraScene(
+  const routed: ReturnType<typeof AutoMovieRecoveryCameraMap.createCameraScene> =
+    AutoMovieRecoveryCameraMap.createCameraScene(
       fixture.input,
       fixture.features,
       charts,
@@ -88,8 +85,8 @@ export function test_recovery_internal_create_camera_scene_feasible_routing(): v
     budget: { ...fixture.input.budget },
   };
   let mutated: boolean = false;
-  const bounded: ReturnType<typeof createRecoveryCameraScene> =
-    createRecoveryCameraScene(
+  const bounded: ReturnType<typeof AutoMovieRecoveryCameraMap.createCameraScene> =
+    AutoMovieRecoveryCameraMap.createCameraScene(
       boundedInput,
       fixture.features,
       charts,
@@ -158,8 +155,8 @@ export function test_recovery_internal_create_camera_scene_feasible_routing(): v
           poses: fixture.poses,
         }),
   );
-  const tiny: ReturnType<typeof createRecoveryCameraScene> =
-    createRecoveryCameraScene(
+  const tiny: ReturnType<typeof AutoMovieRecoveryCameraMap.createCameraScene> =
+    AutoMovieRecoveryCameraMap.createCameraScene(
       fixture.input,
       fixture.features,
       charts,
@@ -178,8 +175,8 @@ export function test_recovery_internal_create_camera_scene_feasible_routing(): v
       tiny.work.triangulations === 24 &&
       tiny.work.linearWork > 256,
   );
-  const exhausted: ReturnType<typeof createRecoveryCameraScene> =
-    createRecoveryCameraScene(
+  const exhausted: ReturnType<typeof AutoMovieRecoveryCameraMap.createCameraScene> =
+    AutoMovieRecoveryCameraMap.createCameraScene(
       {
         ...fixture.input,
         budget: { ...fixture.input.budget, maxLinearWork: 256 },
@@ -209,7 +206,7 @@ export function test_recovery_internal_create_camera_scene_feasible_routing(): v
   );
   let caught: unknown = null;
   try {
-    createRecoveryCameraScene(
+    AutoMovieRecoveryCameraMap.createCameraScene(
       fixture.input,
       fixture.features,
       charts,

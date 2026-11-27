@@ -1,5 +1,7 @@
-import { Quaternion } from "@automovie/engine";
-import { StrikingBody } from "@automovie/motions/internal";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
+import {
+  StrikingBody
+} from "../../../../../packages/motions/src/striking/internal/StrikingBody";
 import { TestValidator } from "@nestia/e2e";
 
 import { qclose } from "../../internal/qclose";
@@ -22,12 +24,12 @@ export function test_motions_striking_body(): void {
     ) &&
       qclose(
         StrikingBody.foot({ x: 1, y: 0, z: 0 }, { x: 0, y: 1, z: 0 }),
-        Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90),
+        AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90),
         1e-12,
       ) &&
       qclose(
         StrikingBody.foot({ x: 0, y: -1, z: 0 }, { x: 0, y: 0, z: 1 }),
-        Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
+        AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
         1e-12,
       ),
   );

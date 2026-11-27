@@ -1,5 +1,5 @@
 import type { IAutoMovieGuidePassOutput } from "@automovie/interface";
-import { planGuidePassOutputs } from "@automovie/render";
+import { AutoMovieRenderMedia } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -16,7 +16,7 @@ import { TestValidator } from "@nestia/e2e";
 export function test_render_root_plan_guide_pass_outputs(): void {
   TestValidator.equals(
     "depth then beauty",
-    planGuidePassOutputs({
+    AutoMovieRenderMedia.planGuidePassOutputs({
       frameDir: "f",
       frameCount: 10,
       passes: ["depth", "beauty", "depth"],
@@ -38,13 +38,13 @@ export function test_render_root_plan_guide_pass_outputs(): void {
   );
   TestValidator.equals(
     "no passes",
-    planGuidePassOutputs({ frameDir: "f", frameCount: 1, passes: [] }),
+    AutoMovieRenderMedia.planGuidePassOutputs({ frameDir: "f", frameCount: 1, passes: [] }),
     [],
   );
   TestValidator.error("zero frames", (): IAutoMovieGuidePassOutput[] =>
-    planGuidePassOutputs({ frameDir: "f", frameCount: 0, passes: [] }),
+    AutoMovieRenderMedia.planGuidePassOutputs({ frameDir: "f", frameCount: 0, passes: [] }),
   );
   TestValidator.error("an unknown pass", (): IAutoMovieGuidePassOutput[] =>
-    planGuidePassOutputs({ frameDir: "f", frameCount: 1, passes: ["sketch"] }),
+    AutoMovieRenderMedia.planGuidePassOutputs({ frameDir: "f", frameCount: 1, passes: ["sketch"] }),
   );
 }

@@ -1,4 +1,4 @@
-import { len } from "@automovie/recovery";
+import { AutoMovieRecoveryGeometry } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -9,5 +9,5 @@ import { TestValidator } from "@nestia/e2e";
  * 1. (3, 4, 12) has length 13; the zero vector 0.
  */
 export function test_recovery_internal_len(): void {
-  TestValidator.equals("lengths", [len([3, 4, 12]), len([0, 0, 0])], [13, 0]);
+  TestValidator.equals("lengths", [AutoMovieRecoveryGeometry.len([3, 4, 12]), AutoMovieRecoveryGeometry.len([0, 0, 0])], [13, 0]);
 }

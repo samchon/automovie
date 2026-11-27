@@ -1,12 +1,14 @@
-import { decodeAutoMoviePpmImage } from "@automovie/ingest";
-import type { IAutoMovieRecoveryCameraPairInput } from "@automovie/interface";
-import { estimateAutoMovieRecoveryCameraPair } from "@automovie/recovery";
+import { AutoMovieIngestPpmImage } from "@automovie/ingest";
+import type {
+  IAutoMovieRecoveryCameraFiles,
+  IAutoMovieRecoveryCameraPairInput,
+} from "@automovie/interface";
+import { AutoMovieRecoveryObservation } from "@automovie/recovery";
 import { createHash } from "node:crypto";
 import path from "node:path";
 
-import { writeAutoMovieRecoveryArtifact } from "../artifact/writeAutoMovieRecoveryArtifact";
-import { type IAutoMovieRecoveryCameraFiles } from "../index";
-import { readAutoMovieRecoveryBoundedFile } from "./readAutoMovieRecoveryBoundedFile";
+import { writeRecoveryArtifact } from "../artifact/writeRecoveryArtifact";
+import { readRecoveryBoundedFile } from "./readRecoveryBoundedFile";
 import { recoveryCameraMap } from "./recoveryCameraMap";
 import { recoveryCameraScene } from "./recoveryCameraScene";
 
@@ -41,7 +43,7 @@ export function recoveryCameras(args: string[], sourceEpoch: string): void {
     throw new Error(
       "Usage: cameras estimate input.json new-output.json maxInputBytes",
     );
-  const bytes: Buffer = readAutoMovieRecoveryBoundedFile(
+  const bytes: Buffer = readRecoveryBoundedFile(
     inputPath,
     maxInputBytes,
   );
@@ -109,14 +111,14 @@ export function recoveryCameras(args: string[], sourceEpoch: string): void {
       throw new Error(
         "Every camera image requires a closed path/hash/provenance/calibration record",
       );
-    const image: Buffer = readAutoMovieRecoveryBoundedFile(
+    const image: Buffer = readRecoveryBoundedFile(
       path.resolve(path.dirname(inputPath), view.path),
       maxInputBytes,
     );
     if (createHash("sha256").update(image).digest("hex") !== view.sha256)
       throw new Error(`Fixed camera image hash mismatch: ${view.id}`);
-    const decoded: ReturnType<typeof decodeAutoMoviePpmImage> =
-      decodeAutoMoviePpmImage(image, {
+    const decoded: ReturnType<typeof AutoMovieIngestPpmImage.decode> =
+      AutoMovieIngestPpmImage.decode(image, {
         maxPixels: spec.capture.budget.maxPixels - pixels,
         maxHeaderBytes: spec.maxHeaderBytes,
         transfer: "srgb",
@@ -132,10 +134,10 @@ export function recoveryCameras(args: string[], sourceEpoch: string): void {
       camera: view.camera,
     });
   }
-  const outcome: ReturnType<typeof estimateAutoMovieRecoveryCameraPair> =
-    estimateAutoMovieRecoveryCameraPair({ ...spec.capture, views });
+  const outcome: ReturnType<typeof AutoMovieRecoveryObservation.estimateCameraPair> =
+    AutoMovieRecoveryObservation.estimateCameraPair({ ...spec.capture, views });
   if (!("value" in outcome)) throw new Error(outcome.diagnostics.join("; "));
-  writeAutoMovieRecoveryArtifact(outputPath, {
+  writeRecoveryArtifact(outputPath, {
     schema: "automovie-recovery-camera-artifact-v1",
     command,
     sourceEpoch,

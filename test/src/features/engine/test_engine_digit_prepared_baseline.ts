@@ -1,9 +1,4 @@
-import {
-  ROM_TOLERANCE,
-  fitDigitToTarget,
-  prepareSkeletonPoseResolution,
-  resolvePose,
-} from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineRomTolerance, AutoMovieEngineSkeletonPose } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
@@ -47,7 +42,7 @@ import { vclose } from "../internal/vclose";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the isolated unit-link metre rig, degree/normal equations, fixed versus current solve inputs, absent/positive rate source-admission difference, existing0.5mm digit contact precision and four actual-consumer scenarios.
  * @evidence contracts/development/testing.md#behavioral-verification Calls actual fitDigitToTarget with and without an explicit static rig and with absent/rate5000 soft-target setup, substitutes returned clinical joints into full raw FK, and checks independently reachable displayed points/normals, reported-to-displayed consistency, original residuals, ROM, changed baselines, replay ownership and unrelated invalid authored admission. Normal findings retain the same strict criterion and accumulate all valid-case variants before one final assertion, so a full round reports the complete failed matrix instead of stopping at its first secondary miss. An overwritten invalid digit row distinguishes original source FK required only by positive rate from complete candidate replacement when rate is absent.
- * @evidence contracts/development/testing.md#independent-expectations The tip is the fixed proximal offset plus three unit vectors at cumulative finger angles, rotated by root30 plus current hand. The normal applies their cumulative final angle to plus Y. Trigonometric targets never call FK. A separate full raw FK of the explicitly authored interior angles is only a feasibility witness for that same independently calculated point/normal; it does not replace the expected target with an achieved solver answer. The returned world quaternion independently gives displayed normal(-sin(z),cos(z),0); the reported normal must match this actual articulation before its physical error is trusted. Position retains the existing5e-4m digit bound; the displayed normal's chord bound is three declared ROM_TOLERANCE angular steps in radians, the triangle bound for these three planar hinge contributions.
+ * @evidence contracts/development/testing.md#independent-expectations The tip is the fixed proximal offset plus three unit vectors at cumulative finger angles, rotated by root30 plus current hand. The normal applies their cumulative final angle to plus Y. Trigonometric targets never call FK. A separate full raw FK of the explicitly authored interior angles is only a feasibility witness for that same independently calculated point/normal; it does not replace the expected target with an achieved solver answer. The returned world quaternion independently gives displayed normal(-sin(z),cos(z),0); the reported normal must match this actual articulation before its physical error is trusted. Position retains the existing5e-4m digit bound; the displayed normal's chord bound is three declared AutoMovieEngineRomTolerance angular steps in radians, the triangle bound for these three planar hinge contributions.
  * @evidence contracts/development/testing.md#distinguishing-cases Covers A/B/A changing point+normal targets, raw versus prepared execution, absent versus positive rate, nonidentity root/hand, a changed non-digit baseline, current range/residual checks, mutated prior output, invalid overwritten stray source admission and invalid replaced digit admission only where original soft-target FK is required. Human anatomical digit coverage and opposition remain in the existing canonical-body feature test.
  * @evidence contracts/development/testing.md#execution-ownership One portable discoverable kernel unit owns every finite planar rig/input and calls real public fitting/FK APIs. It creates no Human imitation for motion validation, starts no host/compiler and introduces no internal export or foreign replacement.
  */
@@ -63,7 +58,12 @@ export function test_engine_digit_prepared_baseline(): void {
       bone(names[1]!, names[0]!, 1, axes, true),
       bone(names[2]!, names[1]!, 1, axes, true)],
   };
-  const rig: ReturnType<typeof prepareSkeletonPoseResolution> = prepareSkeletonPoseResolution(skeleton, {}, {});
+  const rig: AutoMovieEngineSkeletonPose.IRig =
+    AutoMovieEngineSkeletonPose.prepareSkeletonPoseResolution(
+      skeleton,
+      {},
+      {},
+    );
   const pose: IAutoMoviePose = {
     skeleton: skeleton.id,
     root: { translation: { x: 2, y: 3, z: 4 },
@@ -83,7 +83,7 @@ export function test_engine_digit_prepared_baseline(): void {
     const feasible: IAutoMoviePose = { ...pose, joints: [pose.joints[0]!, ...names.map(
       (name: AutoMovieHumanoidBone, index: number): IAutoMovieJointPose => joint(name, { flexion: angles[index]! }),
     )] };
-    const witness: IAutoMovieResolvedBone = resolvePose(feasible, skeleton).find(
+    const witness: IAutoMovieResolvedBone = AutoMovieEngineKinematics.resolvePose(feasible, skeleton).find(
       (value: IAutoMovieResolvedBone): boolean => value.bone === names[2],
     )!;
     const witnessAngle: number = 2 * Math.atan2(witness.worldRotation.z, witness.worldRotation.w);
@@ -93,7 +93,7 @@ export function test_engine_digit_prepared_baseline(): void {
         z: witness.worldPosition.z }, wanted.point, 1e-12) &&
       vclose({ x: -Math.sin(witnessAngle), y: Math.cos(witnessAngle), z: 0 }, wanted.normal, 1e-12));
     for (const [prepared, rate] of [[true, undefined], [true, 5000], [false, undefined], [false, 5000]] as const) {
-      const result: IAutoMovieFitDigitToTarget.IResult = fitDigitToTarget({
+      const result: IAutoMovieFitDigitToTarget.IResult = AutoMovieEngineKinematics.fitDigitToTarget({
         skeleton, pose, bones: names,
         effector: { bone: names[2]!, point: { x: 1, y: 0, z: 0 }, normal: { x: 0, y: 1, z: 0 } },
         target: wanted.point, normal: wanted.normal,
@@ -101,7 +101,7 @@ export function test_engine_digit_prepared_baseline(): void {
         ...(rate === undefined ? {} : { rate }),
       });
       const fitted: IAutoMoviePose = { ...pose, joints: [pose.joints[0]!, ...result.joints] };
-      const frame: IAutoMovieResolvedBone = resolvePose(fitted, skeleton).find(
+      const frame: IAutoMovieResolvedBone = AutoMovieEngineKinematics.resolvePose(fitted, skeleton).find(
         (value: IAutoMovieResolvedBone): boolean => value.bone === names[2],
       )!;
       const z: number = Math.atan2(frame.worldRotation.z, frame.worldRotation.w) * 2;
@@ -116,7 +116,7 @@ export function test_engine_digit_prepared_baseline(): void {
         distance <= 5e-4 && vclose(result.point, displayed, 1e-9) &&
         vclose(result.normal, displayedNormal, 1e-9) && nclose(result.residual, distance, 1e-9),
       );
-      if (!(normalMiss <= 3 * ROM_TOLERANCE * Math.PI / 180))
+      if (!(normalMiss <= 3 * AutoMovieEngineRomTolerance * Math.PI / 180))
         normalFindings.push(`secondary normal hand=${hand}, target=(${angles.join(",")}), prepared=${prepared}, rate=${rate}, pointMiss=${distance}, normalChord=${normalMiss}, joints=(${result.joints.map((value: IAutoMovieJointPose): number | null => value.flexion).join(",")}): exceeds declared joint resolution`);
       TestValidator.predicate("actual clamped digit joints retain each declared interval",
         result.joints.length === 3 && result.joints.every((value: IAutoMovieJointPose): boolean =>
@@ -141,7 +141,7 @@ export function test_engine_digit_prepared_baseline(): void {
   };
 
   TestValidator.predicate("positive-rate prepared source fits the valid digit",
-    fitDigitToTarget({ ...good, rate: 5000 }).residual <= 5e-4);
+    AutoMovieEngineKinematics.fitDigitToTarget({ ...good, rate: 5000 }).residual <= 5e-4);
 }
 
 /** Construct one plain kernel bone; only finger flexion is mobile. */

@@ -1,7 +1,7 @@
 import { nclose } from "../../internal/nclose";
 import {
-  AutoMovieLoftViewFullSource as Full,
-  AutoMovieViewAxis,
+  AutoMovieEngineLoftViewFullSource as Full,
+  AutoMovieEngineViewAxis,
 } from "@automovie/engine";
 import { AutoMovieHumanF1NativeRootLaw as Root } from "@automovie/human";
 import type {
@@ -69,18 +69,18 @@ export function test_human_native_root_membership(): void {
     10,
     10,
     [-2, 2],
-    AutoMovieViewAxis.horizontal(),
+    AutoMovieEngineViewAxis.horizontal(),
   );
   const child: IAutoMovieViewPart = ellipse(
     "made-child",
     1,
     3,
     [0, 4],
-    AutoMovieViewAxis.straight([10, 0, 0], [0, 1, 0], [0, 0, -1]),
+    AutoMovieEngineViewAxis.straight([10, 0, 0], [0, 1, 0], [0, 0, -1]),
   );
   const loop: IAutoMovieConstructionPortLoop = {
-    centre: [0, 0],
-    semi: [0.001, 0.3],
+    centre: { station: 0, phase: 0 },
+    semi: { stationMetres: 0.001, phaseRadians: 0.3 },
     sense: -1,
     shape: Array.from({ length: count }, (): number => 1),
   };

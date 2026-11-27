@@ -1,8 +1,4 @@
-import {
-  worldGroundHeight,
-  worldGroundSurface,
-  worldSurfaceHeight,
-} from "@automovie/engine";
+import { AutoMovieEngineWorld } from "@automovie/engine";
 import type { IAutoMovieWorldSurface } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -16,8 +12,8 @@ import { nclose } from "../../internal/predicates";
  * 1. An offset lattice interpolates on both axes and clamps at the edges.
  * 2. Constant, plane, and incomplete heightfield records return known heights.
  * 3. Ground selection retains declaration order, edges, corners and absence.
- * 4. A rounded sample position reads its own height, and the intervals
- *    on either side interpolate over their represented widths.
+ * 4. A rounded sample position reads its own height, and the intervals on either
+ *    side interpolate over their represented widths.
  * 5. Cancellation at a large offset must not select the cell beyond a knot.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the sampling, incomplete-corner and ground-selection contracts for resident surfaces.
@@ -190,7 +186,11 @@ export function test_engine_space_world_surface_height(): void {
     for (const [x, z, expected] of queries)
       TestValidator.predicate(
         `${surface.id} at (${x}, ${z})`,
-        nclose(worldSurfaceHeight(surface, { x, z }), expected, 0),
+        nclose(
+          AutoMovieEngineWorld.surfaceHeight(surface, { x, z }),
+          expected,
+          0,
+        ),
       );
 
   const step: IAutoMovieWorldSurface = {
@@ -206,16 +206,17 @@ export function test_engine_space_world_surface_height(): void {
   };
   TestValidator.predicate(
     "the first declared containing surface supplies the height",
-    worldGroundSurface([step, flat], { x: 0, z: 0 }) === step &&
-      worldGroundSurface([flat, step], { x: 0, z: 0 }) === flat &&
-      worldGroundHeight([step, flat], { x: 0, z: 0 }) === 1.5,
+    AutoMovieEngineWorld.groundSurface([step, flat], { x: 0, z: 0 }) === step &&
+      AutoMovieEngineWorld.groundSurface([flat, step], { x: 0, z: 0 }) ===
+        flat &&
+      AutoMovieEngineWorld.groundHeight([step, flat], { x: 0, z: 0 }) === 1.5,
   );
   TestValidator.predicate(
     "an edge and corner count as ground, while absence stays null",
-    worldGroundSurface([step], { x: 2, z: 0 }) === step &&
-      worldGroundSurface([step], { x: -2, z: 2 }) === step &&
-      worldGroundSurface([step], { x: 40, z: 0 }) === null &&
-      worldGroundHeight([step], { x: 40, z: 0 }) === null &&
-      worldGroundHeight([], { x: 0, z: 0 }) === null,
+    AutoMovieEngineWorld.groundSurface([step], { x: 2, z: 0 }) === step &&
+      AutoMovieEngineWorld.groundSurface([step], { x: -2, z: 2 }) === step &&
+      AutoMovieEngineWorld.groundSurface([step], { x: 40, z: 0 }) === null &&
+      AutoMovieEngineWorld.groundHeight([step], { x: 40, z: 0 }) === null &&
+      AutoMovieEngineWorld.groundHeight([], { x: 0, z: 0 }) === null,
   );
 }

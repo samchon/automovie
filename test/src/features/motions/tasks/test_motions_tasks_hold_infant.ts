@@ -1,14 +1,18 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieMotionEvent,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  holdInfantBasis,
-  holdInfantEvents,
-  holdInfantSway,
-} from "@automovie/motions/internal";
+  holdInfantBasis
+} from "../../../../../packages/motions/src/tasks/internal/holdInfantBasis";
+import {
+  holdInfantEvents
+} from "../../../../../packages/motions/src/tasks/internal/holdInfantEvents";
+import {
+  holdInfantSway
+} from "../../../../../packages/motions/src/tasks/internal/holdInfantSway";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -39,7 +43,7 @@ export function test_motions_tasks_hold_infant(): void {
   const turned = (
     q: IAutoMovieQuaternion,
     v: IAutoMovieVector3,
-  ): IAutoMovieVector3 => Quaternion.rotateVector(q, v);
+  ): IAutoMovieVector3 => AutoMovieEngineQuaternion.rotateVector(q, v);
   const upright: IAutoMovieQuaternion = holdInfantBasis(P(0, 1, 0), P(0, 0, 1));
   const aside: IAutoMovieQuaternion = holdInfantBasis(P(0, 1, 0), P(1, 0, 0));
   TestValidator.predicate(

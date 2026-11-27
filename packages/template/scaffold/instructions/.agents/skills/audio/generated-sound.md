@@ -11,7 +11,7 @@ Ask the user to listen across takes for a voice that drifts, and re-voice a drif
 When the chosen model or mode cannot supply commissioned sound, report it to the user with these choices, and record theirs in [project context](../production/project-context.md):
 
 - a sound-generating model or mode;
-- a video-to-audio pass over the accepted take, which adds effects and ambience but no speech;
+- video-to-audio on the accepted take for effects and ambience without speech
 - speech made apart from the take.
 
 Source separate speech under [acquisition](acquisition.md) and sync it under [partial repair](../video/finishing.md#partial-repair). Check each video-to-audio or lip-sync model's [terms](acquisition.md#source-choice).

@@ -1,5 +1,7 @@
 import type { IAutoMovieMotionHumanSequentialConvex } from "@automovie/interface";
-import { HumanSequentialConvex } from "@automovie/motions/internal";
+import {
+  HumanSequentialConvex
+} from "../../../../../packages/motions/src/posture/internal/HumanSequentialConvex";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

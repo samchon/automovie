@@ -1,4 +1,4 @@
-import { AutoMovieConstructionSplitBand as Band } from "@automovie/engine";
+import { AutoMovieEngineConstructionSplitBand as Band } from "@automovie/engine";
 import type {
   IAutoMovieBlendColumn,
   IAutoMovieConstructionSplitBand,
@@ -28,7 +28,7 @@ const ETA: number = 1 / 128;
 const TOLERANCE: number = 2e-11;
 
 /**
- * `AutoMovieConstructionSplitBand.strip` publishes a regular analytic ribbon
+ * `AutoMovieEngineConstructionSplitBand.strip` publishes a regular analytic ribbon
  * whose Gaussian-rounded local scale stays above one cap, by one certified
  * uniform attenuation, and keeps an original backward zero.
  *

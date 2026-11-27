@@ -1,4 +1,6 @@
-import { admitQuadrupedPhase } from "@automovie/archetypes/internal";
+import {
+  admitQuadrupedPhase
+} from "../../../../../packages/archetypes/src/animals/quadruped/admitQuadrupedPhase";
 import { TestValidator } from "@nestia/e2e";
 
 /**

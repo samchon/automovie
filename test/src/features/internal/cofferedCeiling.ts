@@ -1,4 +1,4 @@
-import { mergeAutoMovieMeshParts } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieMeshAssembly,
   IAutoMovieMeshPart,
@@ -64,5 +64,5 @@ export const cofferedCeiling: (props: {
         },
       },
     });
-  return mergeAutoMovieMeshParts(parts);
+  return AutoMovieEngineGeometry.mergeMeshParts(parts);
 };

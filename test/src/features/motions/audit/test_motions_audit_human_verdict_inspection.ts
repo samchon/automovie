@@ -2,7 +2,7 @@ import type {
   IAutoMovieInspectionDiagnostics,
   IAutoMovieMotionHumanVerdicts,
 } from "@automovie/interface";
-import { HumanVerdictInspection } from "@automovie/motions";
+import { AutoMovieMotionHumanVerdictInspection } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -78,8 +78,8 @@ export function test_motions_audit_human_verdict_inspection(): void {
       );
 
   // 1. A slip finding.
-  const slip: ReturnType<typeof HumanVerdictInspection> =
-    HumanVerdictInspection(
+  const slip: ReturnType<typeof AutoMovieMotionHumanVerdictInspection.fromReport> =
+    AutoMovieMotionHumanVerdictInspection.fromReport(
       report(finding({ check: "slip", subject: "a" })),
       performers,
     );
@@ -112,8 +112,8 @@ export function test_motions_audit_human_verdict_inspection(): void {
   );
 
   // 2. A partner finding.
-  const partner: ReturnType<typeof HumanVerdictInspection> =
-    HumanVerdictInspection(
+  const partner: ReturnType<typeof AutoMovieMotionHumanVerdictInspection.fromReport> =
+    AutoMovieMotionHumanVerdictInspection.fromReport(
       report(finding({ check: "partner", subject: "a+b", where: "chest" })),
       performers,
     );
@@ -132,8 +132,8 @@ export function test_motions_audit_human_verdict_inspection(): void {
   );
 
   // 3. Two skate readings in two spans.
-  const skate: ReturnType<typeof HumanVerdictInspection> =
-    HumanVerdictInspection(
+  const skate: ReturnType<typeof AutoMovieMotionHumanVerdictInspection.fromReport> =
+    AutoMovieMotionHumanVerdictInspection.fromReport(
       report(
         finding({ check: "skate", subject: "a", value: 0.2, limit: 0.05 }),
         finding({
@@ -159,8 +159,8 @@ export function test_motions_audit_human_verdict_inspection(): void {
   );
 
   // 4. Three timing faults.
-  const timing: ReturnType<typeof HumanVerdictInspection> =
-    HumanVerdictInspection(
+  const timing: ReturnType<typeof AutoMovieMotionHumanVerdictInspection.fromReport> =
+    AutoMovieMotionHumanVerdictInspection.fromReport(
       report(
         ...["early", "overlap", "open"].map(
           (where: string): IAutoMovieMotionHumanVerdicts.IFinding =>
@@ -193,8 +193,8 @@ export function test_motions_audit_human_verdict_inspection(): void {
   );
 
   // 5. A clean report.
-  const clean: ReturnType<typeof HumanVerdictInspection> =
-    HumanVerdictInspection(report(), performers);
+  const clean: ReturnType<typeof AutoMovieMotionHumanVerdictInspection.fromReport> =
+    AutoMovieMotionHumanVerdictInspection.fromReport(report(), performers);
   TestValidator.equals("a clean report has no finding", clean.findings, []);
   TestValidator.equals(
     "checked rows: sixteen a performer and one pair",
@@ -203,8 +203,8 @@ export function test_motions_audit_human_verdict_inspection(): void {
   );
 
   // 6. A performer the floor does not carry.
-  const swim: ReturnType<typeof HumanVerdictInspection> =
-    HumanVerdictInspection(report(), [{ ...performers[0]!, airborne: true }]);
+  const swim: ReturnType<typeof AutoMovieMotionHumanVerdictInspection.fromReport> =
+    AutoMovieMotionHumanVerdictInspection.fromReport(report(), [{ ...performers[0]!, airborne: true }]);
   TestValidator.equals(
     "nine bounds are excluded for a swimmer",
     rowsOf(swim, "excluded").map((row: string): string =>
@@ -230,7 +230,7 @@ export function test_motions_audit_human_verdict_inspection(): void {
   // 7. A finding naming a performer not given.
   let refused: boolean = false;
   try {
-    HumanVerdictInspection(
+    AutoMovieMotionHumanVerdictInspection.fromReport(
       report(finding({ check: "slip", subject: "c" })),
       performers,
     );

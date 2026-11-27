@@ -5,7 +5,9 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanLeg } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanLeg
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanLeg";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";

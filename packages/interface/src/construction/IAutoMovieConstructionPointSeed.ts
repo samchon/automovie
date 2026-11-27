@@ -1,3 +1,5 @@
+import type { IAutoMovieConstructionChartPoint } from "./IAutoMovieConstructionChartPoint";
+
 /**
  * A join's seed given as a chart point near the curve on the part's face and on
  * the host's face, from the landmarks that locate the contact.
@@ -24,15 +26,14 @@ export interface IAutoMovieConstructionPointSeed {
   hostFace: string;
 
   /**
-   * The part face's chart point `[station, phase]` near the curve, metres and
+   * The part face's chart point near the curve, station in metres and phase in
    * radians.
    */
-  part: [number, number];
+  part: IAutoMovieConstructionChartPoint;
 
   /**
-   * The host face's chart point `[station, phase]` near the curve, metres and
-   * radians; a blend face's station runs from its host rail (0) to its part
-   * rail.
+   * The host face's chart point, station in metres and phase in radians; a
+   * blend face's station runs from its host rail (0) to its part rail.
    */
-  host: [number, number];
+  host: IAutoMovieConstructionChartPoint;
 }

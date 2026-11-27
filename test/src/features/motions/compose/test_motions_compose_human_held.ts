@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanBody,
@@ -7,9 +7,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanHeld,
-  HumanHand,
-} from "@automovie/motions/internal";
+  motionHumanHeld
+} from "../../../../../packages/motions/src/compose/internal/motionHumanHeld";
+import {
+  HumanHand
+} from "../../../../../packages/motions/src/posture/internal/HumanHand";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -32,7 +34,7 @@ const LIP: IAutoMovieAffordance = {
 };
 
 /**
- * `AutoMovieMotionHumanHeld` keeps a held prop in its hand's grip frame, the
+ * `motionHumanHeld` keeps a held prop in its hand's grip frame, the
  * grip socket's point with the hand bone's rotation: a prop not yet taken is
  * read into the frame its grip would keep (`grasped`), a contact of a held prop
  * is its translation and its `+Y` carried by that frame (`point`), a name the
@@ -59,12 +61,12 @@ export async function test_motions_compose_human_held(): Promise<void> {
     side: "right",
     frame: {
       position: { x: 0.1, y: 0, z: 0 },
-      rotation: Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90),
+      rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90),
     },
     affordances: [LIP],
   };
-  const lip: ReturnType<typeof AutoMovieMotionHumanHeld.point> =
-    AutoMovieMotionHumanHeld.point(held, "lip");
+  const lip: ReturnType<typeof motionHumanHeld.point> =
+    motionHumanHeld.point(held, "lip");
   TestValidator.predicate(
     "the lip in the hand's grip frame",
     vclose(lip.point, { x: -0.1, y: 0, z: 0 }, ROUNDING) &&
@@ -75,13 +77,13 @@ export async function test_motions_compose_human_held(): Promise<void> {
   TestValidator.predicate(
     "an undeclared contact is refused",
     throwsError(
-      (): unknown => AutoMovieMotionHumanHeld.point(held, "spout"),
+      (): unknown => motionHumanHeld.point(held, "spout"),
       "glass declares no contact named spout",
     ),
   );
 
   // 3. The grip window.
-  TestValidator.equals("the grip window", AutoMovieMotionHumanHeld.grip(held), {
+  TestValidator.equals("the grip window", motionHumanHeld.grip(held), {
     part: "rightHand",
     kind: "grip",
     from: 0,
@@ -95,21 +97,21 @@ export async function test_motions_compose_human_held(): Promise<void> {
     point: { x: 1, y: 1, z: 1 },
     rotation: { x: 0, y: 0, z: 0, w: 1 },
   };
-  const socket: IAutoMovieVector3 = Vector3.add(
+  const socket: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     wrist.point,
     HumanHand.offset(body, "right", "grip").point,
   );
-  const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+  const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
     { x: 0, y: 1, z: 0 },
     30,
   );
   const taken: IAutoMovieMotionHumanHeld.IHeld =
-    AutoMovieMotionHumanHeld.grasped(
+    motionHumanHeld.grasped(
       body,
       "right",
       "glass",
       {
-        position: Vector3.add(socket, { x: 0, y: 0, z: 0.05 }),
+        position: AutoMovieEngineVector3.add(socket, { x: 0, y: 0, z: 0.05 }),
         rotation: turn,
       },
       [LIP],

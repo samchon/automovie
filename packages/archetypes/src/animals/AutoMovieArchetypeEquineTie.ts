@@ -1,4 +1,8 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import {
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
+  AutoMovieEngineMotionSampling,
+} from "@automovie/engine";
 import type {
   IAutoMovieTransform,
   IAutoMovieVector3,
@@ -9,7 +13,7 @@ import {
   AutoMovieArchetypeRefusal,
   type AutoMovieArchetypeRide,
 } from "../core";
-import { EquineLine } from "./EquineLine";
+import { EquineLine } from "./equine/EquineLine";
 
 /**
  * An equid tied by its lead to a ring or rail and untied again: the lead's held
@@ -109,8 +113,8 @@ export namespace AutoMovieArchetypeEquineTie {
       throw new RangeError(
         "A tie has a positive radius, a tether within the lead, phases with a positive carry, whole wraps and a positive wrap time, and an untie after the tie",
       );
-    const axis: IAutoMovieVector3 = Vector3.normalize(tie.axis);
-    const top: IAutoMovieVector3 = Vector3.addScaled(
+    const axis: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(tie.axis);
+    const top: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(
       tie.ring,
       { x: 0, y: 1, z: 0 },
       tie.radius,
@@ -125,11 +129,11 @@ export namespace AutoMovieArchetypeEquineTie {
         sample.archetype.affordance(lead).frame,
       ).translation;
     const round = (turns: number): IAutoMovieVector3 =>
-      Vector3.add(
+      AutoMovieEngineVector3.add(
         tie.ring,
-        Quaternion.rotateVector(
-          Quaternion.fromAxisAngle(axis, 360 * turns),
-          Vector3.subtract(top, tie.ring),
+        AutoMovieEngineQuaternion.rotateVector(
+          AutoMovieEngineQuaternion.fromAxisAngle(axis, 360 * turns),
+          AutoMovieEngineVector3.subtract(top, tie.ring),
         ),
       );
     const held = (
@@ -152,16 +156,16 @@ export namespace AutoMovieArchetypeEquineTie {
     ): IAutoMovieVector3 => {
       const winding: number = phase.wraps * phase.wrap;
       const carried = (share: number): IAutoMovieVector3 =>
-        Vector3.lerp(hanging(sample), top, minimumJerk.share(share));
+        AutoMovieEngineVector3.lerp(hanging(sample), top, AutoMovieEngineMotionSampling.minimumJerkShare(share));
       const local: number = seconds - phase.from;
       if (!untying)
         return local < phase.carry
           ? carried(local / phase.carry)
           : round(
-              phase.wraps * minimumJerk.share((local - phase.carry) / winding),
+              phase.wraps * AutoMovieEngineMotionSampling.minimumJerkShare((local - phase.carry) / winding),
             );
       return local < winding
-        ? round(phase.wraps * (1 - minimumJerk.share(local / winding)))
+        ? round(phase.wraps * (1 - AutoMovieEngineMotionSampling.minimumJerkShare(local / winding)))
         : carried(1 - (local - winding) / phase.carry);
     };
     const laid: AutoMovieArchetypeRide.IRide<Id, D> = EquineLine.layer(

@@ -1,8 +1,4 @@
-import {
-  AutoMovieXpbdBody,
-  AutoMovieXpbdWorld,
-  physicalGravityTorques,
-} from "@automovie/engine";
+import { AutoMovieEngineXpbdBody, AutoMovieEngineXpbdWorld, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalJoint,
   IAutoMoviePhysicalSegment,
@@ -71,15 +67,15 @@ export async function test_engine_physics_physical_gravity_torques(): Promise<vo
     axes: [],
   };
   profile.joints = [hinge, attachment];
-  const world: AutoMovieXpbdWorld = new AutoMovieXpbdWorld({
+  const world: AutoMovieEngineXpbdWorld = new AutoMovieEngineXpbdWorld({
     x: 0,
     y: 0,
     z: 0,
   });
-  const segments: Map<string, AutoMovieXpbdBody> = new Map(
+  const segments: Map<string, AutoMovieEngineXpbdBody> = new Map(
     profile.segments.map(
-      (segment: IAutoMoviePhysicalSegment): [string, AutoMovieXpbdBody] => {
-        const body: AutoMovieXpbdBody = world.createBody(true, segment.neutral);
+      (segment: IAutoMoviePhysicalSegment): [string, AutoMovieEngineXpbdBody] => {
+        const body: AutoMovieEngineXpbdBody = world.createBody(true, segment.neutral);
         body.setMass(
           segment.mass,
           segment.centerOfMass,
@@ -90,8 +86,8 @@ export async function test_engine_physics_physical_gravity_torques(): Promise<vo
       },
     ),
   );
-  const torques: ReturnType<typeof physicalGravityTorques> =
-    physicalGravityTorques(profile, [attachment, hinge], segments, {
+  const torques: ReturnType<typeof AutoMovieEnginePhysics.physicalGravityTorques> =
+    AutoMovieEnginePhysics.physicalGravityTorques(profile, [attachment, hinge], segments, {
       x: 0,
       y: -9.81,
       z: 0,

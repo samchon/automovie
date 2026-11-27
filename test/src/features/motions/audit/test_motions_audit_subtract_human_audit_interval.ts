@@ -1,4 +1,6 @@
-import { subtractHumanAuditInterval } from "@automovie/motions/internal";
+import {
+  subtractHumanAuditInterval
+} from "../../../../../packages/motions/src/audit/internal/subtractHumanAuditInterval";
 import { TestValidator } from "@nestia/e2e";
 
 /**

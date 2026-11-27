@@ -3,14 +3,22 @@ import type {
   IAutoMovieIntent,
   IAutoMovieMotionTarget,
 } from "@automovie/interface";
-import { HumanChain } from "@automovie/motions";
+import { AutoMovieMotionHumanChain } from "@automovie/motions";
 import {
-  PULSE_HOLD,
-  compressions,
-  kneelBeside,
-  pressWound,
-  pulse,
-} from "@automovie/motions/internal";
+  PULSE_HOLD
+} from "../../../../../packages/motions/src/touch/care/PULSE_HOLD";
+import {
+  compressions
+} from "../../../../../packages/motions/src/touch/care/compressions";
+import {
+  kneelBeside
+} from "../../../../../packages/motions/src/touch/care/kneelBeside";
+import {
+  pressWound
+} from "../../../../../packages/motions/src/touch/care/pressWound";
+import {
+  pulse
+} from "../../../../../packages/motions/src/touch/care/pulse";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -39,8 +47,8 @@ const CYCLE: number = 30;
  */
 export function test_motions_touch_care(): void {
   const last = (node: IAutoMovieComposition): IAutoMovieIntent => {
-    if (node.kind === "intent") return node.intent;
-    if (node.kind === "sequence" || node.kind === "parallel")
+    if (node.type === "intent") return node.intent;
+    if (node.type === "sequence" || node.type === "parallel")
       return last(node.parts[node.parts.length - 1]!);
     throw new Error("An anchored node carries no intent of its own");
   };
@@ -51,9 +59,9 @@ export function test_motions_touch_care(): void {
   TestValidator.equals(
     "the pulses",
     [
-      of(pulse(HumanChain.subject("a"), { partner: "b", site: "carotid" })),
+      of(pulse(AutoMovieMotionHumanChain.subject("a"), { partner: "b", site: "carotid" })),
       of(
-        pulse(HumanChain.subject("a"), {
+        pulse(AutoMovieMotionHumanChain.subject("a"), {
           partner: "b",
           site: "radial",
           side: "left",
@@ -85,7 +93,7 @@ export function test_motions_touch_care(): void {
   );
   TestValidator.equals(
     "the compressions",
-    of(compressions(HumanChain.subject("a"), { partner: "b" })),
+    of(compressions(AutoMovieMotionHumanChain.subject("a"), { partner: "b" })),
     [
       "touch",
       {
@@ -102,7 +110,7 @@ export function test_motions_touch_care(): void {
   TestValidator.equals(
     "the pressure",
     of(
-      pressWound(HumanChain.subject("a"), {
+      pressWound(AutoMovieMotionHumanChain.subject("a"), {
         partner: "b",
         region: "thighFrontLeft",
         hold: 5,
@@ -127,7 +135,7 @@ export function test_motions_touch_care(): void {
   };
   TestValidator.equals(
     "the kneel",
-    of(kneelBeside(HumanChain.subject("a"), { at })),
+    of(kneelBeside(AutoMovieMotionHumanChain.subject("a"), { at })),
     ["kneel", { kind: "both", hold: 0, rise: false, at }],
   );
 }

@@ -1,10 +1,4 @@
-import {
-  type AutoMovieArchetype,
-  AutoMovieArchetypePassage,
-  AutoMovieArchetypeRefusal,
-  createHorse,
-  createStartingGate,
-} from "@automovie/archetypes";
+import { type AutoMovieArchetype, AutoMovieArchetypePassage, AutoMovieArchetypeRefusal, AutoMovieArchetypeStartingGate, AutoMovieArchetypeHorse } from "@automovie/archetypes";
 import type {
   IAutoMovieAffordance,
   IAutoMovieModelPart,
@@ -42,7 +36,7 @@ const PITCH: number = (65 * 0.3048) / 20;
 export function test_archetype_starting_gate(): void {
   // 1. Stall layout.
   for (const stalls of [3, 14]) {
-    const gate: AutoMovieArchetype = createStartingGate(
+    const gate: AutoMovieArchetype = AutoMovieArchetypeStartingGate.create(
       stalls === 14 ? {} : { stalls },
       1012,
     );
@@ -66,10 +60,10 @@ export function test_archetype_starting_gate(): void {
   }
 
   // 2. The shared front release.
-  const gate: AutoMovieArchetype = createStartingGate({}, 1012);
+  const gate: AutoMovieArchetype = AutoMovieArchetypeStartingGate.create({}, 1012);
   const clear: number = gate.affordance("stall0").width!;
   const open: AutoMovieArchetype = gate.articulate({
-    door0: createStartingGate.SWING,
+    door0: AutoMovieArchetypeStartingGate.SWING,
   });
   for (const index of [0, 1, 27]) {
     const closed: IAutoMovieVector3 = centre(gate, `leaf${index}`);
@@ -93,7 +87,7 @@ export function test_archetype_starting_gate(): void {
 
   // 3. A loading door alone.
   const loading: AutoMovieArchetype = gate.articulate({
-    rear5: createStartingGate.SWING,
+    rear5: AutoMovieArchetypeStartingGate.SWING,
   });
   TestValidator.predicate(
     "a rear door swings back to load its stall and the front stays shut",
@@ -105,7 +99,7 @@ export function test_archetype_starting_gate(): void {
   // 4. A saddle horse fits a stall.
   const outline: readonly IAutoMovieVector3[] =
     AutoMovieArchetypePassage.footprint(
-      createHorse({ withersHeight: 1.8 }),
+      AutoMovieArchetypeHorse.create({ withersHeight: 1.8 }),
     ).outline;
   const breadth: number =
     Math.max(...outline.map((p: IAutoMovieVector3): number => p.x)) -
@@ -118,17 +112,17 @@ export function test_archetype_starting_gate(): void {
   // 5. Seeds and refusals.
   TestValidator.equals(
     "a seed rebuilds the same gate",
-    JSON.stringify(createStartingGate({}, 1012)),
+    JSON.stringify(AutoMovieArchetypeStartingGate.create({}, 1012)),
     JSON.stringify(gate),
   );
   TestValidator.predicate(
     "another seed varies the gate",
-    JSON.stringify(createStartingGate({}, 1013)) !== JSON.stringify(gate),
+    JSON.stringify(AutoMovieArchetypeStartingGate.create({}, 1013)) !== JSON.stringify(gate),
   );
   for (const stalls of [1, 20])
     TestValidator.equals(
       `a gate of ${stalls} stalls builds`,
-      createStartingGate({ stalls }).affordances.filter(
+      AutoMovieArchetypeStartingGate.create({ stalls }).affordances.filter(
         (a: IAutoMovieAffordance): boolean => a.id.startsWith("stall"),
       ).length,
       stalls,
@@ -136,7 +130,7 @@ export function test_archetype_starting_gate(): void {
   for (const stalls of [0, 21, 2.5]) {
     let refusal: unknown;
     try {
-      createStartingGate({ stalls });
+      AutoMovieArchetypeStartingGate.create({ stalls });
     } catch (error) {
       refusal = error;
     }

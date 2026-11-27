@@ -4,7 +4,7 @@ import {
   AutoMovieArchetypeEquine,
   AutoMovieArchetypeQuadrupedEars,
 } from "@automovie/archetypes";
-import { validateModel } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type { IAutoMovieModelPart } from "@automovie/interface";
 
 import { nclose } from "./nclose";
@@ -96,7 +96,7 @@ export namespace EquineEarAdmission {
     const builder: AutoMovieArchetypeBuilder<never, "mass"> = fixture();
     AutoMovieArchetypeQuadrupedEars.lay(builder, head, 1.6, good, "#8a5a3a");
     if (
-      !validateModel({ model: builder.build(1) }).success ||
+      !AutoMovieEngineValidation.validateModel({ model: builder.build(1) }).success ||
       builder.build(1).parts.length !== 3
     )
       findings.push(

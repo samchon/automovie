@@ -2,7 +2,7 @@ import type {
   IAutoMovieCubicBezierCurve64,
   IAutoMovieRecoveryOpenContinuation,
 } from "@automovie/interface";
-import { convertAutoMovieRecoveryCurves } from "@automovie/recovery";
+import { AutoMovieRecoveryCurveConversion } from "@automovie/recovery";
 import { createHash } from "node:crypto";
 import { once } from "node:events";
 import { createReadStream, createWriteStream } from "node:fs";
@@ -181,7 +181,7 @@ export namespace RuledCompactInput {
     );
     let original: Bundle | undefined = JSON.parse(bytes.toString("utf8"));
     bytes = Buffer.alloc(0);
-    const bundle: Bundle = convertAutoMovieRecoveryCurves(
+    const bundle: Bundle = AutoMovieRecoveryCurveConversion.convertBundle(
       original!,
       "bezier",
     ) as Bundle;

@@ -1,4 +1,4 @@
-import { Matrix4 } from "@automovie/engine";
+import { AutoMovieEngineMatrix4 } from "@automovie/engine";
 import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -21,7 +21,7 @@ const roundTrip: (
     position: IAutoMovieVector3;
     rotation: IAutoMovieQuaternion;
     scale: IAutoMovieVector3;
-  } = Matrix4.decompose(Matrix4.compose(t, r, s));
+  } = AutoMovieEngineMatrix4.decompose(AutoMovieEngineMatrix4.compose(t, r, s));
   TestValidator.predicate(`${title}: position`, vclose(d.position, t));
   TestValidator.predicate(`${title}: scale`, vclose(d.scale, s, 1e-5));
   TestValidator.predicate(`${title}: rotation`, qclose(d.rotation, r, 1e-5));
@@ -73,8 +73,8 @@ export function test_resolve_matrix4_decompose(): void {
     position: IAutoMovieVector3;
     rotation: IAutoMovieQuaternion;
     scale: IAutoMovieVector3;
-  } = Matrix4.decompose(
-    Matrix4.compose({ x: 0, y: 0, z: 0 }, { x: 0, y: s, z: 0, w: s }, one),
+  } = AutoMovieEngineMatrix4.decompose(
+    AutoMovieEngineMatrix4.compose({ x: 0, y: 0, z: 0 }, { x: 0, y: s, z: 0, w: s }, one),
   );
   TestValidator.predicate(
     "90° Y stays unit",

@@ -1,7 +1,4 @@
-import {
-  autoMovieSunDirection,
-  solveAutoMovieSunPosition,
-} from "@automovie/engine";
+import { AutoMovieEngineEnvironment } from "@automovie/engine";
 import type {
   IAutoMovieEnvironmentContext,
   IAutoMovieSunPosition,
@@ -49,7 +46,7 @@ export function test_analysis_sun_direction(): void {
     azimuth: number,
     elevation: number,
   ): IAutoMovieVector3 =>
-    autoMovieSunDirection({
+    AutoMovieEngineEnvironment.sunDirection({
       context,
       position: { zenith: 90 - elevation, azimuth, elevation },
     });
@@ -97,7 +94,7 @@ export function test_analysis_sun_direction(): void {
     north: { x: 1, y: 0.2, z: -1 },
     ground: { up: { x: 0.1, y: 1, z: 0.05 }, elevation: 0 },
   };
-  const position: IAutoMovieSunPosition = solveAutoMovieSunPosition({
+  const position: IAutoMovieSunPosition = AutoMovieEngineEnvironment.solveSunPosition({
     latitude: 39.742476,
     longitude: -105.1786,
     elevation: 1830.14,
@@ -105,7 +102,7 @@ export function test_analysis_sun_direction(): void {
     temperature: 11,
     utc: { year: 2003, month: 10, day: 17, hour: 19, minute: 30, second: 30 },
   });
-  const direction: IAutoMovieVector3 = autoMovieSunDirection({
+  const direction: IAutoMovieVector3 = AutoMovieEngineEnvironment.sunDirection({
     context: tilted,
     position,
   });

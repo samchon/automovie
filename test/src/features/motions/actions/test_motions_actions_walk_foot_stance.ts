@@ -5,10 +5,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanFoot,
-  humanFootOffset,
-  walkFootStance,
-} from "@automovie/motions/internal";
+  HumanFoot
+} from "../../../../../packages/motions/src/posture/internal/HumanFoot";
+import {
+  humanFootOffset
+} from "../../../../../packages/motions/src/posture/internal/humanFootOffset";
+import {
+  walkFootStance
+} from "../../../../../packages/motions/src/actions/internal/walkFootStance";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixture } from "../../internal/fixtures/humanFixture";

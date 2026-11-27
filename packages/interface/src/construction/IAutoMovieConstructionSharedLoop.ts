@@ -7,12 +7,12 @@ import type { IAutoMovieSolidSharedCurve } from "./IAutoMovieSolidSharedCurve";
  * laws and its sides, in millimetres.
  *
  * The loop is read through the port curve's one owner
- * (`AutoMovieConstructionPortCurve.curve`): the ellipse on the host face's
+ * (`AutoMovieEngineConstructionPortCurve.curve`): the ellipse on the host face's
  * chart with its per-column shares joined by the periodic cubic, with two exact
- * clock derivatives. `AutoMovieSolidSharedCurve` maps it through the host and
- * drops its foot on the part; `AutoMovieConstructionWidths` reads each width at
+ * clock derivatives. `AutoMovieEngineSolidSharedCurve` maps it through the host and
+ * drops its foot on the part; `AutoMovieEngineConstructionWidths` reads each width at
  * the curve's points, the fold's turn among them; the result is what
- * `AutoMovieSolidBody.merge` takes as a join whose curve is supplied, so the
+ * `AutoMovieEngineSolidBody.merge` takes as a join whose curve is supplied, so the
  * rails, the blend, the trims and the faces are the traced join's own.
  */
 export namespace IAutoMovieConstructionSharedLoop {
@@ -21,7 +21,7 @@ export namespace IAutoMovieConstructionSharedLoop {
    * from.
    */
   export interface IPrepared {
-    /** What `AutoMovieSolidBody.merge` takes as its `join`. */
+    /** What `AutoMovieEngineSolidBody.merge` takes as its `join`. */
     join: Omit<IAutoMovieSolidJoin.IInput, "part" | "host">;
 
     /** The contact, for a reader of its arcs. */

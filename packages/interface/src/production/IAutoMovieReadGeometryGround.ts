@@ -7,9 +7,8 @@ export namespace IAutoMovieReadGeometryGround {
    * The engine uses declared surface order, not the highest surface or the
    * nearest walkable one. A null world, empty surface list or point outside
    * every surface yields height 0, surface null and walkable false together.
-   * Surface containment and height interpolation belong to worldGroundSurface
-   * and worldSurfaceHeight; this record does not validate the world's geometry
-   * or infer physical support. No world data is retained or cached.
+   * World geometry admission and physical support are separate operations. No
+   * world data is retained or cached.
    */
   export type IResult = {
     /**

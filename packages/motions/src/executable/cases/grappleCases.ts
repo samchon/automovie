@@ -1,21 +1,13 @@
-import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidSocket,
-  IAutoMovieComposition,
-  IAutoMovieMotionHumanPerformance,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics, AutoMovieEngineVector3 } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidSocket, IAutoMovieComposition, IAutoMovieMotionHumanPerformance } from "@automovie/interface";
 
-import { HumanChain } from "../../HumanChain";
-import { clinch } from "../../grappling/clinch";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
+import { clinch } from "../../grappling/internal/clinch";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
-import { everydayVerdicts } from "./everydayVerdicts";
+import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/** The record of `IGrappleCasesWorst`'s site. */
-type IGrappleCasesWorst = { value: number; where: string };
-
-/**
+/*
  * Capture cases of the grappling family: performer `a` takes a clinch grip on
  * performer `b`, who stands 0.55 m away facing it, in the plum (`grapple-plum`)
  * and in the collar and sleeve grip (`grapple-collarSleeve`).
@@ -24,10 +16,9 @@ type IGrappleCasesWorst = { value: number; where: string };
  * range-of-motion overshoot, and that through every grip window each of `a`'s
  * gripping surfaces (the palm in the plum, the grip otherwise) stays within 10
  * mm of its place on `b`'s displayed region (the issue's M11 grip bound).
- *
- * @param bodies The sweep bodies, each gripping itself; `m-average` when
- *   absent.
- * @returns The cases.
+ * Parameter bodies: The sweep bodies, each gripping itself; `m-average` when
+ * absent.
+ * Returns: The cases.
  */
 export function grappleCases(
   bodies: readonly string[] = ["m-average"],
@@ -38,10 +29,10 @@ export function grappleCases(
     const suffix: string = bodies.length === 1 ? "" : `-${id}`;
     for (const grip of ["plum", "collarSleeve"] as const) {
       const composition: IAutoMovieComposition = {
-        kind: "parallel",
+        type: "parallel",
         parts: [
-          HumanChain.subject("a").act("clinch", { partner: "b", grip }).node,
-          HumanChain.subject("b").act("stand", { hold: 4 }).node,
+          AutoMovieMotionHumanChain.subject("a").act("clinch", { partner: "b", grip }).node,
+          AutoMovieMotionHumanChain.subject("b").act("stand", { hold: 4 }).node,
         ],
       };
       const performance: IAutoMovieMotionHumanPerformance =
@@ -77,7 +68,7 @@ export function grappleCases(
         const to: number = segment.start + c.to * segment.plan.duration;
         for (let t: number = from; t <= to + 1e-9; t += 1 / 24) {
           const frame = who.body.surfaces.sockets[name];
-          const hand = resolveAutoMovieHumanoidSurfaces.place(
+          const hand = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
             frame,
             performance.bones("a", t).get(frame.bone)!,
           ).point;
@@ -87,7 +78,7 @@ export function grappleCases(
             table[side].region,
             table[side].across,
           ).point;
-          const gap: number = Vector3.length(Vector3.subtract(hand, want));
+          const gap: number = AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(hand, want));
           if (gap > worst.value)
             worst = { value: gap, where: `${side} at ${t.toFixed(2)} s` };
         }
@@ -115,3 +106,8 @@ export function grappleCases(
   }
   return out;
 }
+
+/*
+ * The record of `IGrappleCasesWorst`'s site.
+ */
+type IGrappleCasesWorst = { value: number; where: string };

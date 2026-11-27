@@ -2,7 +2,7 @@ import type {
   IAutoMovieRecoveryFeasibleDiagnostics,
   IAutoMovieRecoveryFeasibleFit,
 } from "@automovie/interface";
-import { createRecoveryFeasibleDiagnostics } from "@automovie/recovery";
+import { AutoMovieRecoveryCameraMap } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -177,7 +177,7 @@ export function test_recovery_internal_create_feasible_diagnostics(): void {
     },
   };
   const actual: IAutoMovieRecoveryFeasibleDiagnostics =
-    createRecoveryFeasibleDiagnostics(fit);
+    AutoMovieRecoveryCameraMap.createFeasibleDiagnostics(fit);
   const serialized: string = JSON.stringify(actual);
   TestValidator.predicate(
     "all fixed values and JSON categories match the authored contract",
@@ -204,7 +204,7 @@ export function test_recovery_internal_create_feasible_diagnostics(): void {
       fit.state[0] === 137,
   );
   const unavailable: IAutoMovieRecoveryFeasibleDiagnostics =
-    createRecoveryFeasibleDiagnostics({
+    AutoMovieRecoveryCameraMap.createFeasibleDiagnostics({
       ...fit,
       objectiveMultiplier: null,
       stationarity: null,

@@ -1,10 +1,5 @@
 import { TestValidator } from "@nestia/e2e";
-import {
-  hashAutoMovieFile,
-  readAutoMovieReviewObservation,
-  readAutoMovieReviewOptions,
-  reviewAutoMovieFile,
-} from "automovie";
+import { AutoMovieCliFile, AutoMovieCliReview } from "automovie";
 import * as fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -87,14 +82,14 @@ export async function test_cli_review_delivery(): Promise<void> {
   };
   const request = async (
     pairs: [string, string][],
-  ): ReturnType<typeof reviewAutoMovieFile> => {
-    const options = readAutoMovieReviewOptions(new Map(pairs));
+  ): ReturnType<typeof AutoMovieCliReview.reviewFile> => {
+    const options = AutoMovieCliReview.readOptions(new Map(pairs));
     if ("url" in options) throw new Error("The fixture requires file mode");
-    return reviewAutoMovieFile({ options, root, env: {} });
+    return AutoMovieCliReview.reviewFile({ options, root, env: {} });
   };
   const publish = async (bytes: string): Promise<void> => {
     await fs.writeFile(file, bytes);
-    const digest: string = await hashAutoMovieFile(file);
+    const digest: string = await AutoMovieCliFile.hash(file);
     original.source.sha256 = digest;
     original.delivery.source.sha256 = digest;
     await fs.writeFile(report, JSON.stringify(original));
@@ -173,7 +168,7 @@ export async function test_cli_review_delivery(): Promise<void> {
     const legacyStill = { ...still, requested: { from: 0.18, to: 0.19 } };
     TestValidator.equals(
       "an earlier still interval is admissible when it proves exactly one frame",
-      readAutoMovieReviewObservation(legacyStill),
+      AutoMovieCliReview.readObservation(legacyStill),
       legacyStill,
     );
 
@@ -320,12 +315,12 @@ export async function test_cli_review_delivery(): Promise<void> {
     );
 
     await TestValidator.error("a bare approval flag is refused", async () => {
-      readAutoMovieReviewObservation({ accepted: true });
+      AutoMovieCliReview.readObservation({ accepted: true });
     });
     await TestValidator.error(
       "a saved observation cannot be attached to another selected time",
       async () => {
-        readAutoMovieReviewObservation({
+        AutoMovieCliReview.readObservation({
           ...first,
           requested: { from: 0.02, to: null },
         });
@@ -334,7 +329,7 @@ export async function test_cli_review_delivery(): Promise<void> {
     await TestValidator.error(
       "an interval's observed frames cannot extend beyond its requested boundary frames",
       async () => {
-        readAutoMovieReviewObservation({
+        AutoMovieCliReview.readObservation({
           ...first,
           requested: { from: 0.18, to: 0.19 },
           observed: {
@@ -348,7 +343,7 @@ export async function test_cli_review_delivery(): Promise<void> {
     await TestValidator.error(
       "a saved observation needs a valid exact clock",
       async () => {
-        readAutoMovieReviewObservation({
+        AutoMovieCliReview.readObservation({
           ...first,
           observed: {
             ...first.observed,

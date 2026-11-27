@@ -13,7 +13,7 @@ export namespace IAutoMovieSolidTrim {
 
     /**
      * The loop's control points `[u_0 .. u_{M-1}, v_0 .. v_{M-1}]`, the layout
-     * of `AutoMovieSplineCurve` and of a root loop.
+     * of `AutoMovieEngineSplineCurve` and of a root loop.
      */
     loop: number[];
 

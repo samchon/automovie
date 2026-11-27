@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanFloor } from "@automovie/interface";
 
-/**
+/*
  * The sitOnFloor preset of `lieDown`: Sitting down on the floor, the legs long,
  * and staying three seconds (provisional). Spread into `lieDown`'s parameters;
  * the `sitOnFloor` row reads it.

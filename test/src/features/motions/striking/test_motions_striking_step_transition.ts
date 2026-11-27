@@ -1,6 +1,8 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type { IAutoMovieMotionHumanContactWindow } from "@automovie/interface";
-import { StrikingStepTransition } from "@automovie/motions/internal";
+import {
+  StrikingStepTransition
+} from "../../../../../packages/motions/src/striking/internal/StrikingStepTransition";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -75,7 +77,7 @@ export function test_motions_striking_step_transition(): void {
     vclose(carried.ankle, o, 1e-12) &&
       qclose(
         carried.rotation,
-        Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90),
+        AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90),
         1e-12,
       ),
   );

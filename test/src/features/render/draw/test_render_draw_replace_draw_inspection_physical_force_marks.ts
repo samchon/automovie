@@ -1,11 +1,4 @@
-import {
-  AutoMoviePhysicalPlayback as Playback,
-  AutoMoviePhysicalSimulation as Simulation,
-  distributePhysicalSupportWrench,
-  markAutoMovieContacts,
-  markAutoMovieSupportWrenches,
-  physicalInputDigest,
-} from "@automovie/engine";
+import { AutoMovieEnginePhysicalPlayback as Playback, AutoMovieEnginePhysicalSimulation as Simulation, AutoMovieEnginePhysics, AutoMovieEngineCompositionContact } from "@automovie/engine";
 import type {
   IAutoMovieContactReceipt,
   IAutoMovieDistributePhysicalSupportWrench,
@@ -17,8 +10,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  type IAutoMovieInspectionHandle,
-  replaceAutoMovieDrawInspection,
+  type IAutoMovieRenderInspectionHandle,
+  AutoMovieRenderDrawPlacement,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
@@ -69,7 +62,7 @@ export async function test_render_draw_replace_draw_inspection_physical_force_ma
   const playback: IAutoMoviePhysicalPlayback = await replay(rigid);
   const step: Step = firstActingStep(playback.contacts);
   const contacts = (seconds: number): IAutoMovieMark[] =>
-    markAutoMovieContacts({
+    AutoMovieEngineCompositionContact.markContacts({
       receipts: playback.contacts,
       seconds,
       metresPerNewton,
@@ -106,7 +99,7 @@ export async function test_render_draw_replace_draw_inspection_physical_force_ma
 
   // The impact arrests about 4.2 m/s of a 1 kg ball within one 1/120 s step: hundreds of newtons against a 9.81 N weight.
   const clamped = (seconds: number): IAutoMovieMark[] =>
-    markAutoMovieContacts({
+    AutoMovieEngineCompositionContact.markContacts({
       receipts: playback.contacts,
       seconds,
       metresPerNewton,
@@ -196,7 +189,7 @@ export async function test_render_draw_replace_draw_inspection_physical_force_ma
     for (const receipt of performance.contacts)
       for (const sample of receipt.samples ?? [])
         if (sample.impulse > 0 && sample.separation <= 0)
-          for (const mark of markAutoMovieContacts({
+          for (const mark of AutoMovieEngineCompositionContact.markContacts({
             receipts: [receipt],
             seconds: sample.seconds,
             metresPerNewton,
@@ -228,7 +221,7 @@ export async function test_render_draw_replace_draw_inspection_physical_force_ma
   const supports = (
     wrench: IAutoMoviePhysicalSupportWrench,
   ): IAutoMovieMark[] =>
-    markAutoMovieSupportWrenches({
+    AutoMovieEngineCompositionContact.markSupportWrenches({
       wrenches: [wrench],
       seconds: wrench.seconds,
       interval: 1 / 120,
@@ -288,14 +281,14 @@ export async function test_render_draw_replace_draw_inspection_physical_force_ma
   );
   ball.name = "ball";
   scene.add(ball);
-  let active: IAutoMovieInspectionHandle | null = null;
+  let active: IAutoMovieRenderInspectionHandle | null = null;
   try {
     const counts: number[][] = [];
     // A falling frame supplies no marks; the contact frame supplies both producers' marks.
     const falling: IAutoMovieMark[] = [];
     const contact: IAutoMovieMark[] = [...impact, ...strained];
     for (const marks of [falling, contact, falling, contact]) {
-      active = await replaceAutoMovieDrawInspection({
+      active = await AutoMovieRenderDrawPlacement.replaceInspection({
         previous: active,
         scene,
         request: InspectionScene.ask({ marks: ["contact", "support/*"] }),
@@ -376,7 +369,7 @@ async function replay(
     await Simulation.compute(input);
   return Playback.decode(
     await Playback.encode(run.cache, 4_000_000),
-    physicalInputDigest(input),
+    Simulation.inputDigest(input),
     { maximumBytes: 4_000_000, maximumFrames: 121, maximumSegments: 1 },
   );
 }
@@ -423,8 +416,8 @@ function allocate(
           friction: 0.5,
         }));
   const torque: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-  const result: ReturnType<typeof distributePhysicalSupportWrench> =
-    distributePhysicalSupportWrench({
+  const result: ReturnType<typeof AutoMovieEnginePhysics.distributePhysicalSupportWrench> =
+    AutoMovieEnginePhysics.distributePhysicalSupportWrench({
       origin,
       force,
       torque,

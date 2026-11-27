@@ -20,21 +20,6 @@ export interface IAutoMovieProductionCheck {
 
 /** Check inputs and the results derived from current observations. */
 export namespace IAutoMovieProductionCheck {
-  /** Metadata shared by the supported kinds of observation. */
-  interface IBase {
-    /** Stable check ID within this subject. */
-    readonly id: string;
-
-    /** The expectation shown to the director. */
-    readonly title: string;
-
-    /** The inspection scope described to the director. */
-    readonly scope: string;
-
-    /** False keeps this definition visible while withholding execution. */
-    readonly enabled?: boolean;
-  }
-
   /** A deterministic measurement from the explicitly named input files. */
   export interface IMeasurement extends IBase {
     /** Evaluate through the supplied project code on an explicit run. */
@@ -103,15 +88,52 @@ export namespace IAutoMovieProductionCheck {
     readonly occurrence: string;
 
     /** Existing diagnostic name and its checker-owned subject identity. */
-    readonly diagnostic: { readonly check: string; readonly key: string };
+    readonly diagnostic: ICaptureDiagnostic;
 
     /**
      * One sample in subject seconds, or consecutive output frame indices with
      * the end exclusive. A still cannot satisfy a multi-frame range.
      */
-    readonly at:
-      | { readonly second: number }
-      | { readonly fromFrame: number; readonly endFrame: number };
+    readonly at: ICaptureTime;
+  }
+
+  /** The diagnostic object of {@link ICapture}. */
+  export type ICaptureDiagnostic = { readonly check: string; readonly key: string };
+
+  /**
+   * Exactly one instant or a consecutive output frame interval for a capture
+   * check.
+   */
+  export type ICaptureTime = ICaptureSecond | ICaptureFrames;
+
+  /** One diagnostic sample on the capture subject's continuous clock. */
+  export interface ICaptureSecond {
+    /** Compare a single moment in seconds. */
+    readonly type: "second";
+
+    /** Nonnegative finite time on the subject clock, including off-grid times. */
+    readonly second: number;
+
+    /** A second selector does not also specify an interval start. */
+    readonly fromFrame?: never;
+
+    /** A second selector does not also specify an interval end. */
+    readonly endFrame?: never;
+  }
+
+  /** A nonempty half-open interval of consecutive output frames. */
+  export interface ICaptureFrames {
+    /** Require every frame in the interval and its diagnostic coverage. */
+    readonly type: "frames";
+
+    /** Zero-based first output frame, inclusive. */
+    readonly fromFrame: number;
+
+    /** Zero-based interval end, exclusive. */
+    readonly endFrame: number;
+
+    /** A frame interval does not also specify a subject second. */
+    readonly second?: never;
   }
 
   /** The published movie and, when required, its control record. */
@@ -146,12 +168,24 @@ export namespace IAutoMovieProductionCheck {
     /** The activity the reviewer actually reported. */
     readonly viewed: "still" | "playback" | "listening";
 
-    /** Zero-based output frame interval with exclusive end. */
-    readonly frames: readonly [from: number, end: number];
+    /** Zero-based output frames that were reviewed, with exclusive end. */
+    readonly frames: IReviewFrames;
 
     /** A specific source occurrence, when the criterion is tied to one shot. */
-    readonly occurrence?: { readonly entry: number; readonly shot: string };
+    readonly occurrence?: IReviewOccurrence;
   }
+
+  /** A nonempty half-open interval of consecutive output frames. */
+  export interface IReviewFrames {
+    /** Zero-based first output frame, inclusive. */
+    readonly fromFrame: number;
+
+    /** Zero-based interval end, exclusive. */
+    readonly endFrame: number;
+  }
+
+  /** The occurrence object of {@link IReview}. */
+  export type IReviewOccurrence = { readonly entry: number; readonly shot: string };
 
   /** Facts used to evaluate one authored criterion. */
   export type Check = IMeasurement | ICapture | IDelivery | IReview;
@@ -203,5 +237,20 @@ export namespace IAutoMovieProductionCheck {
 
     /** True only when the requested stage is blocked. */
     readonly blocked: boolean;
+  }
+
+  /** Metadata shared by the supported kinds of observation. */
+  interface IBase {
+    /** Stable check ID within this subject. */
+    readonly id: string;
+
+    /** The expectation shown to the director. */
+    readonly title: string;
+
+    /** The inspection scope described to the director. */
+    readonly scope: string;
+
+    /** False keeps this definition visible while withholding execution. */
+    readonly enabled?: boolean;
   }
 }

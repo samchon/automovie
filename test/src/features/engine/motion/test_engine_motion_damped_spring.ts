@@ -1,4 +1,4 @@
-import { dampedSpring } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type { IAutoMovieSpringStep } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -45,36 +45,36 @@ export function test_engine_motion_damped_spring(): void {
 
   TestValidator.predicate(
     "one symplectic step toward the target",
-    is(dampedSpring(1, 0, 0, { stiffness: 4, damping: 4 }, 0.1), 0.96, -0.4),
+    is(AutoMovieEngineMotionSampling.dampedSpring(1, 0, 0, { stiffness: 4, damping: 4 }, 0.1), 0.96, -0.4),
   );
   TestValidator.predicate(
     "damping alone slows the velocity",
-    is(dampedSpring(0, 2, 0, { stiffness: 0, damping: 5 }, 0.1), 0.1, 1),
+    is(AutoMovieEngineMotionSampling.dampedSpring(0, 2, 0, { stiffness: 0, damping: 5 }, 0.1), 0.1, 1),
   );
   TestValidator.predicate(
     "rest at the target stays",
-    is(dampedSpring(3, 0, 3, { stiffness: 9, damping: 2 }, 0.05), 3, 0),
+    is(AutoMovieEngineMotionSampling.dampedSpring(3, 0, 3, { stiffness: 9, damping: 2 }, 0.05), 3, 0),
   );
   TestValidator.predicate(
     "no force keeps the velocity",
-    is(dampedSpring(1, 3, 0, { stiffness: 0, damping: 0 }, 0.5), 2.5, 3),
+    is(AutoMovieEngineMotionSampling.dampedSpring(1, 3, 0, { stiffness: 0, damping: 0 }, 0.5), 2.5, 3),
   );
   for (const [label, task] of [
     [
       "a negative stiffness",
-      () => dampedSpring(1, 0, 0, { stiffness: -1, damping: 0 }, 0.1),
+      () => AutoMovieEngineMotionSampling.dampedSpring(1, 0, 0, { stiffness: -1, damping: 0 }, 0.1),
     ],
     [
       "a negative damping",
-      () => dampedSpring(1, 0, 0, { stiffness: 1, damping: -1 }, 0.1),
+      () => AutoMovieEngineMotionSampling.dampedSpring(1, 0, 0, { stiffness: 1, damping: -1 }, 0.1),
     ],
     [
       "a step of 0",
-      () => dampedSpring(1, 0, 0, { stiffness: 1, damping: 1 }, 0),
+      () => AutoMovieEngineMotionSampling.dampedSpring(1, 0, 0, { stiffness: 1, damping: 1 }, 0),
     ],
     [
       "a negative step",
-      () => dampedSpring(1, 0, 0, { stiffness: 1, damping: 1 }, -0.1),
+      () => AutoMovieEngineMotionSampling.dampedSpring(1, 0, 0, { stiffness: 1, damping: 1 }, -0.1),
     ],
   ] as const)
     TestValidator.predicate(`${label} is refused`, throwsError(task));

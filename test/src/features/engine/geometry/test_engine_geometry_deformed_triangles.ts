@@ -1,7 +1,4 @@
-import {
-  assertAutoMovieDeformedTriangles,
-  createAutoMovieMeshDeformer,
-} from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieMesh,
   IAutoMovieMeshDeformationField,
@@ -12,7 +9,7 @@ import { nclose } from "../../internal/predicates";
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * A deformation is admitted per triangle (`assertAutoMovieDeformedTriangles`):
+ * A deformation is admitted per triangle (`assertDeformedTriangles`):
  * endpoint Jacobians cannot certify the face between them, and orientation is
  * the transported one, not the source normal's.
  *
@@ -64,7 +61,7 @@ export function test_engine_geometry_deformed_triangles(): void {
     ["reversed", { ...mesh, indices: [2, 1, 0], normals: flipped }],
     ["flipped normals", { ...mesh, normals: flipped }],
   ] satisfies [string, IAutoMovieMesh][]) {
-    const p: number[] = createAutoMovieMeshDeformer([field(0.2)])(
+    const p: number[] = AutoMovieEngineGeometry.createMeshDeformer([field(0.2)])(
       variant,
     ).positions;
     TestValidator.predicate(
@@ -77,14 +74,14 @@ export function test_engine_geometry_deformed_triangles(): void {
     TestValidator.predicate(
       `${label} collapse`,
       throwsError(
-        (): unknown => createAutoMovieMeshDeformer([field(0.5)])(variant),
+        (): unknown => AutoMovieEngineGeometry.createMeshDeformer([field(0.5)])(variant),
         "finite nonzero source and output area",
       ),
     );
     TestValidator.predicate(
       `${label} reversal`,
       throwsError(
-        (): unknown => createAutoMovieMeshDeformer([field(2)])(variant),
+        (): unknown => AutoMovieEngineGeometry.createMeshDeformer([field(2)])(variant),
         "opposes its transported surface orientation",
       ),
     );
@@ -92,7 +89,7 @@ export function test_engine_geometry_deformed_triangles(): void {
   TestValidator.equals("input kept", JSON.stringify(mesh), before);
 
   // 2.
-  const turned: IAutoMovieMesh = createAutoMovieMeshDeformer([
+  const turned: IAutoMovieMesh = AutoMovieEngineGeometry.createMeshDeformer([
     {
       ...field(0),
       radius: { x: 1000, y: 1000, z: 1000 },
@@ -107,7 +104,7 @@ export function test_engine_geometry_deformed_triangles(): void {
   );
 
   // 3.
-  const identity = createAutoMovieMeshDeformer([]);
+  const identity = AutoMovieEngineGeometry.createMeshDeformer([]);
   const tiny: IAutoMovieMesh = {
     ...mesh,
     positions: mesh.positions.map((v: number): number => v * 1e-80),
@@ -115,7 +112,7 @@ export function test_engine_geometry_deformed_triangles(): void {
   TestValidator.equals("tiny", identity(tiny).positions, tiny.positions);
   TestValidator.equals(
     "no faces",
-    createAutoMovieMeshDeformer([field(2)])({ ...mesh, indices: [] }).positions,
+    AutoMovieEngineGeometry.createMeshDeformer([field(2)])({ ...mesh, indices: [] }).positions,
     [2, 2, 0, 1, 0, 0, 0, 1, 0],
   );
   TestValidator.equals(
@@ -155,7 +152,7 @@ export function test_engine_geometry_deformed_triangles(): void {
   TestValidator.predicate(
     "area overflow",
     throwsError(
-      (): unknown => createAutoMovieMeshDeformer([field(1e308)])(mesh),
+      (): unknown => AutoMovieEngineGeometry.createMeshDeformer([field(1e308)])(mesh),
       "finite nonzero source and output area",
     ),
   );
@@ -164,7 +161,7 @@ export function test_engine_geometry_deformed_triangles(): void {
   const slanted: number[] = [0, 0, 0, 0, 0, 1, 1, -1, 0];
   const large: number[] = [1.5e308, 0.6e308, 0, 0.6e308, 1.5e308, 0, 0, 0, 1];
   const unit: number[] = [1, 0, 0, 0, 1, 0, 0, 0, 1];
-  assertAutoMovieDeformedTriangles(
+  AutoMovieEngineGeometry.assertDeformedTriangles(
     slanted,
     slanted,
     [0, 1, 2],
@@ -174,7 +171,7 @@ export function test_engine_geometry_deformed_triangles(): void {
     "infinite cofactor",
     throwsError(
       (): unknown =>
-        assertAutoMovieDeformedTriangles(
+        AutoMovieEngineGeometry.assertDeformedTriangles(
           slanted,
           slanted,
           [0, 1, 2],

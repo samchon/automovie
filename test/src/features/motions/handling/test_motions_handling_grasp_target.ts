@@ -6,7 +6,9 @@ import type {
   IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
-import { HumanGraspTarget } from "@automovie/motions/internal";
+import {
+  HumanGraspTarget
+} from "../../../../../packages/motions/src/handling/internal/HumanGraspTarget";
 import { TestValidator } from "@nestia/e2e";
 
 import { testAffordance } from "../../internal/fixtures/testAffordance";

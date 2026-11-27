@@ -1,4 +1,4 @@
-import { inspectAutoMovieExternalModelBytes } from "@automovie/ingest";
+import { AutoMovieIngestExternalModel } from "@automovie/ingest";
 import type { IAutoMovieExternalModelInspection } from "@automovie/interface";
 
 import { glb } from "./glb";
@@ -15,7 +15,7 @@ export const inspectGlb: (
   bin: Buffer | null,
   resolver?: (uri: string) => Uint8Array | null,
 ): IAutoMovieExternalModelInspection =>
-  inspectAutoMovieExternalModelBytes({
+  AutoMovieIngestExternalModel.inspectBytes({
     path: "public/models/matrix.glb",
     bytes: glb(document, bin),
     profile: "gltf-static-v1",

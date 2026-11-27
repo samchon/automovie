@@ -1,7 +1,4 @@
-import {
-  affordanceSupportContacts,
-  detectSupportToppling,
-} from "@automovie/engine";
+import { AutoMovieEngineSpace, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieSupportResult,
@@ -53,7 +50,7 @@ export function test_engine_validation_detect_support_toppling(): void {
   // 1.
   quiet(
     "centred",
-    detectSupportToppling({
+    AutoMovieEngineValidation.detectSupportToppling({
       node: "crate",
       centerOfMass: v(1, 1),
       support: square,
@@ -61,11 +58,11 @@ export function test_engine_validation_detect_support_toppling(): void {
   );
   quiet(
     "on the edge",
-    detectSupportToppling({ centerOfMass: v(2, 1), support: square }),
+    AutoMovieEngineValidation.detectSupportToppling({ centerOfMass: v(2, 1), support: square }),
   );
 
   // 2.
-  const topple: IAutoMovieSupportResult = detectSupportToppling({
+  const topple: IAutoMovieSupportResult = AutoMovieEngineValidation.detectSupportToppling({
     node: "crate",
     centerOfMass: v(3, 1),
     support: square,
@@ -86,7 +83,7 @@ export function test_engine_validation_detect_support_toppling(): void {
   );
 
   // 3.
-  const intended: IAutoMovieSupportResult = detectSupportToppling({
+  const intended: IAutoMovieSupportResult = AutoMovieEngineValidation.detectSupportToppling({
     centerOfMass: v(3, 1),
     support: square,
     physicsIntent: "levitates",
@@ -103,13 +100,13 @@ export function test_engine_validation_detect_support_toppling(): void {
   const crossed: IAutoMovieVector3[] = [v(0, 0), v(2, 2), v(2, 0), v(0, 2)];
   quiet(
     "crossed centred",
-    detectSupportToppling({ centerOfMass: v(1, 1), support: crossed }),
+    AutoMovieEngineValidation.detectSupportToppling({ centerOfMass: v(1, 1), support: crossed }),
   );
   TestValidator.predicate(
     "crossed overhang",
     validationHasWarningCount(
       "crossed overhang",
-      detectSupportToppling({ centerOfMass: v(5, 1), support: crossed })
+      AutoMovieEngineValidation.detectSupportToppling({ centerOfMass: v(5, 1), support: crossed })
         .validation,
       1,
     ),
@@ -119,7 +116,7 @@ export function test_engine_validation_detect_support_toppling(): void {
   TestValidator.predicate(
     "empty support",
     hasViolation(
-      detectSupportToppling({ centerOfMass: v(0, 0), support: [] }).validation,
+      AutoMovieEngineValidation.detectSupportToppling({ centerOfMass: v(0, 0), support: [] }).validation,
       "type",
       ".support",
     ),
@@ -127,7 +124,7 @@ export function test_engine_validation_detect_support_toppling(): void {
   TestValidator.predicate(
     "negative margin",
     hasViolation(
-      detectSupportToppling({
+      AutoMovieEngineValidation.detectSupportToppling({
         centerOfMass: v(0, 0),
         support: square,
         margin: -1,
@@ -155,7 +152,7 @@ export function test_engine_validation_detect_support_toppling(): void {
       { x: -0.5, y: 0, z: 0.5 },
     ],
   };
-  const support: IAutoMovieVector3[] = affordanceSupportContacts({
+  const support: IAutoMovieVector3[] = AutoMovieEngineSpace.affordanceSupportContacts({
     affordance: top,
     parentWorld: {
       translation: { x: 3, y: 0, z: 2 },
@@ -165,13 +162,13 @@ export function test_engine_validation_detect_support_toppling(): void {
   });
   quiet(
     "stacked",
-    detectSupportToppling({
+    AutoMovieEngineValidation.detectSupportToppling({
       node: "crateB",
       centerOfMass: { x: 3, y: 1, z: 2 },
       support,
     }),
   );
-  const overhung: IAutoMovieSupportResult = detectSupportToppling({
+  const overhung: IAutoMovieSupportResult = AutoMovieEngineValidation.detectSupportToppling({
     node: "crateB",
     centerOfMass: { x: 3.7, y: 1, z: 2 },
     support,

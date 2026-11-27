@@ -9,7 +9,7 @@ import type { IAutoMovieScene } from "../scene/IAutoMovieScene";
  */
 export namespace IAutoMovieValidateFormationGround {
   /**
-   * Borrowed admitted shot data for validateAutoMovieFormationGround.
+   * Borrowed admitted shot data for validateFormationGround.
    * Missing/null scene space returns no diagnostics. Otherwise the gate checks
    * selected actual member world points against heightAt, reporting the first
    * void or sink greater than 1 mm per formation; standing above support is

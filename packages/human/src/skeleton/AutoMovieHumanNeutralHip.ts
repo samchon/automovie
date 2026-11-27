@@ -20,9 +20,9 @@ import { AutoMovieHumanSkeletonMath as Math3D } from "./AutoMovieHumanSkeletonMa
  * least that keeps every point of its skin under the crotch on its own side of
  * the midline: the legs are mirror images, so a leg that stays on its own side
  * meets the other only at the midline. A point the bind already holds against
- * the midline (the thighs' contact) may stay there and go no further. The
- * angle is read in steps of {@link STEP} from the plumb line up to the bind's
- * own abduction, which clears by construction.
+ * the midline (the thighs' contact) may stay there and go no further. The angle
+ * is read in steps of {@link STEP} from the plumb line up to the bind's own
+ * abduction, which clears by construction.
  */
 export namespace AutoMovieHumanNeutralHip {
   /** Step of the abduction scan, degrees. */
@@ -49,12 +49,10 @@ export namespace AutoMovieHumanNeutralHip {
     const leg: IAutoMovieHumanChainRings | undefined = rings.find(
       (r: IAutoMovieHumanChainRings): boolean => r.chain === `leg.${side}`,
     );
-    const target: (degrees: number) => AutoMovieVector3Tuple = (
-      degrees: number,
-    ): AutoMovieVector3Tuple => {
+    function target(degrees: number): AutoMovieVector3Tuple {
       const a: number = (degrees * Math.PI) / 180;
       return [0, -Math.cos(a), s * Math.sin(a)];
-    };
+    }
     const plumb: IAutoMovieHumanNeutralHip.IOutput = {
       turn: Turn.arc(bind, Turn.DOWN),
       resting: 0,

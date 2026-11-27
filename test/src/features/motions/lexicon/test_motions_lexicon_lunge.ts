@@ -1,4 +1,9 @@
-import { HumanLungePivot, walkReach } from "@automovie/motions/internal";
+import {
+  HumanLungePivot
+} from "../../../../../packages/motions/src/lexicon/internal/HumanLungePivot";
+import {
+  walkReach
+} from "../../../../../packages/motions/src/actions/internal/walkReach";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

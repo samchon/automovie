@@ -1,7 +1,7 @@
 /**
  * Loft construction diagnostics and borrowed arrays marked by admission checks.
  *
- * AutoMovieLoftContract returns the original arrays using type assertions; it
+ * AutoMovieEngineLoftContract returns the original arrays using type assertions; it
  * adds no runtime contract property and does not freeze aliases. The diagnostic
  * is plain reporting data whose producer owns any rollback or fallback.
  */
@@ -44,7 +44,7 @@ export namespace IAutoMovieLoftContract {
    */
   export type Stations = readonly number[] & {
     /**
-     * Type-only marker from AutoMovieLoftContract.stations after at least two
+     * Type-only marker from AutoMovieEngineLoftContract.stations after at least two
      * finite entries pass its positive minimum-step comparisons; no property is
      * installed on the returned array.
      */
@@ -57,7 +57,7 @@ export namespace IAutoMovieLoftContract {
    */
   export type Jet = readonly number[] & {
     /**
-     * Type-only marker from AutoMovieLoftContract.jet's elementwise magnitude
+     * Type-only marker from AutoMovieEngineLoftContract.jet's elementwise magnitude
      * check; it records neither units nor bound and is absent at runtime.
      */
     readonly contract: "jet";
@@ -66,7 +66,7 @@ export namespace IAutoMovieLoftContract {
   /** Borrowed finite points whose X/Z shoelace sum is nonzero, in mm. */
   export type Ring = readonly (readonly [number, number, number])[] & {
     /**
-     * Type-only marker from AutoMovieLoftContract.ring after finite coordinates
+     * Type-only marker from AutoMovieEngineLoftContract.ring after finite coordinates
      * and a nonzero X/Z shoelace sum; the original array gains no runtime
      * property.
      */

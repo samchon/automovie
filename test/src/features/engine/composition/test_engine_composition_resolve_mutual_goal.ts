@@ -1,4 +1,4 @@
-import { resolveAutoMovieMutualGoal } from "@automovie/engine";
+import { AutoMovieEngineCompositionPose } from "@automovie/engine";
 import type {
   IAutoMovieResolveMutualGoal,
   IAutoMovieVector3,
@@ -13,7 +13,7 @@ import { vclose } from "../../internal/vclose";
 const SHOULDER: number = 1.5;
 
 /**
- * `resolveAutoMovieMutualGoal` finds where two hands meet. Without a preferred
+ * `resolveMutualGoal` finds where two hands meet. Without a preferred
  * height it is the lowest point of the circle where both comfortable-reach
  * spheres meet, both reaches scaled alike when they do not; with one it is the
  * point along the shoulder line where both arms are the same share of their
@@ -51,7 +51,7 @@ export function test_engine_composition_resolve_mutual_goal(): void {
     gap: number,
     height?: number,
   ): IAutoMovieResolveMutualGoal.IGoal =>
-    resolveAutoMovieMutualGoal({
+    AutoMovieEngineCompositionPose.mutualGoal({
       a: side(0),
       b: side(gap),
       ...(height === undefined ? {} : { height }),
@@ -95,16 +95,16 @@ export function test_engine_composition_resolve_mutual_goal(): void {
   TestValidator.predicate(
     "malformed sides are refused",
     throwsError(
-      (): unknown => resolveAutoMovieMutualGoal({ a: side(0, 0), b: side(1) }),
+      (): unknown => AutoMovieEngineCompositionPose.mutualGoal({ a: side(0, 0), b: side(1) }),
       "0 < reach <= limit",
     ) &&
       throwsError(
         (): unknown =>
-          resolveAutoMovieMutualGoal({ a: side(0, 0.9), b: side(1) }),
+          AutoMovieEngineCompositionPose.mutualGoal({ a: side(0, 0.9), b: side(1) }),
         "0 < reach <= limit",
       ) &&
       throwsError(
-        (): unknown => resolveAutoMovieMutualGoal({ a: side(0), b: side(0) }),
+        (): unknown => AutoMovieEngineCompositionPose.mutualGoal({ a: side(0), b: side(0) }),
         "different places",
       ),
   );

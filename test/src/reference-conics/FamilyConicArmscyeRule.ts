@@ -3,11 +3,7 @@ import { FamilyConicSource as R } from "./FamilyConicSource";
 import { NodeCanvasCamera } from "./render/NodeCanvasCamera";
 import { NodeCanvasRaster } from "./render/NodeCanvasRaster";
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
-import {
-  AutoMovieLoftChain,
-  AutoMovieMeshExtract as M,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
+import { AutoMovieEngineLoftChain, AutoMovieEngineMeshExtract as M, AutoMovieEngineConstruction } from "@automovie/engine";
 import {
   AutoMovieHumanBendArc,
   AutoMovieHumanConicLoft as H,
@@ -128,7 +124,7 @@ namespace FamilyConicArmscyeRule {
     const positions: number[] = [];
     const indices: number[] = [];
     for (const s of stations) {
-      const read = AutoMovieLoftChain.sampler(chain, s);
+      const read = AutoMovieEngineLoftChain.sampler(chain, s);
       for (let j: number = 0; j < K; ++j) positions.push(...read((2 * Math.PI * j) / K));
     }
     for (let i: number = 0; i + 1 < stations.length; ++i)
@@ -144,7 +140,7 @@ namespace FamilyConicArmscyeRule {
     const loop = AutoMovieHumanF1.mammary(1, AutoMovieHumanF1.assemble());
     const chart = trunkChart();
     const shape: number[] = loop.shape === undefined ? Array.from({ length: 64 }, (): number => 1) : [...loop.shape];
-    const targets: { station: number; phase: number }[] = shape.map((share: number, k: number) => ({ station: 1000 * (loop.centre[0] + share * loop.semi[0] * Math.cos((2 * Math.PI * k) / shape.length)), phase: loop.centre[1] + (share * loop.semi[1] * Math.sin((2 * Math.PI * k) / shape.length)) / loop.sense }));
+    const targets: { station: number; phase: number }[] = shape.map((share: number, k: number) => ({ station: 1000 * (loop.centre.station + share * loop.semi.stationMetres * Math.cos((2 * Math.PI * k) / shape.length)), phase: loop.centre.phase + (share * loop.semi.phaseRadians * Math.sin((2 * Math.PI * k) / shape.length)) / loop.sense }));
     const points: { p: V; station: number; phase: number }[] = [];
     for (let i: number = 0; i < trunk.positions.length; i += 3 * 7) {
       const p: V = [trunk.positions[i]!, trunk.positions[i + 1]!, trunk.positions[i + 2]!];
@@ -199,7 +195,7 @@ namespace FamilyConicArmscyeRule {
     const s0: number = arm.knots[0]!;
     const loft: IAutoMovieViewLoft.IResult = H.create({ ...arm, tips: undefined, reliefs: undefined }, [s0, s0 + ARM_RAIL_MM, s0 + 2 * ARM_RAIL_MM]);
     if (loft.chain === null) throw new Error("the arm's first stations do not loft");
-    const read = AutoMovieLoftChain.sampler(loft.chain, s0 + ARM_RAIL_MM);
+    const read = AutoMovieEngineLoftChain.sampler(loft.chain, s0 + ARM_RAIL_MM);
     const points: V[] = Array.from({ length: 128 }, (_: unknown, j: number): V => read((2 * Math.PI * j) / 128) as V);
     const axis = H.axis(arm);
     const [a, b] = [axis.at(s0 + ARM_RAIL_MM - 1).origin as V, axis.at(s0 + ARM_RAIL_MM + 1).origin as V];
@@ -401,7 +397,7 @@ namespace FamilyConicArmscyeRule {
         pts.push({ p, station: c.station, phase: Math.atan2(c.v, c.u) });
       }
       shape.forEach((share: number, k: number): void => {
-        const t = { station: 1000 * (loop.centre[0] + share * loop.semi[0] * Math.cos((2 * Math.PI * k) / shape.length)), phase: loop.centre[1] + (share * loop.semi[1] * Math.sin((2 * Math.PI * k) / shape.length)) / loop.sense };
+        const t = { station: 1000 * (loop.centre.station + share * loop.semi.stationMetres * Math.cos((2 * Math.PI * k) / shape.length)), phase: loop.centre.phase + (share * loop.semi.phaseRadians * Math.sin((2 * Math.PI * k) / shape.length)) / loop.sense };
         todayPort.push(pts.reduce((a, b) => (Math.hypot(b.station - t.station, CLIP_MM * (b.phase - t.phase)) < Math.hypot(a.station - t.station, CLIP_MM * (a.phase - t.phase)) ? b : a)).p);
       });
     }
@@ -412,11 +408,11 @@ namespace FamilyConicArmscyeRule {
     const fold = AutoMovieHumanF1.BODY.trunk.reliefs?.find((r): boolean => r.name === "trunk.fold");
     const foldEdge: V[] = [];
     if (fold !== undefined) {
-      const loft: IAutoMovieViewLoft.IResult = H.create(AutoMovieHumanF1.BODY.trunk, [fold.stations[0], (fold.stations[0] + fold.stations[1]) / 2, fold.stations[1]]);
+      const loft: IAutoMovieViewLoft.IResult = H.create(AutoMovieHumanF1.BODY.trunk, [fold.stations.start, (fold.stations.start + fold.stations.end) / 2, fold.stations.end]);
       if (loft.chain !== null)
-        for (let s: number = fold.stations[0]; s <= fold.stations[1]; s += 2) {
-          const read = AutoMovieLoftChain.sampler(loft.chain, s);
-          for (let t: number = fold.phases[0]; t <= fold.phases[1]; t += 0.05) foldEdge.push(read(t) as V);
+        for (let s: number = fold.stations.start; s <= fold.stations.end; s += 2) {
+          const read = AutoMovieEngineLoftChain.sampler(loft.chain, s);
+          for (let t: number = fold.phases.start; t <= fold.phases.end; t += 0.05) foldEdge.push(read(t) as V);
         }
     }
     const capPoints: V[] = drawn.flatMap((c: N.Curve): V[] => c.points.map((p: N.Point): V => [p[0], p[1], p[2]]));
@@ -907,7 +903,7 @@ namespace FamilyConicArmscyeRule {
       return { positions: Array.from(positions), indices: Array.from(indices), owners: Array.from(owners, (o: number): string => header.owners[o]!) };
     }
     const declared = AutoMovieHumanF1.construction(undefined, pose === "reference" ? undefined : P.NEUTRAL);
-    const real = realizeAutoMovieConstruction({ name: "f1.body", root: declared.root, fills: declared.fills }, { chord: 0.001, sources: declared.sources });
+    const real = AutoMovieEngineConstruction.realize({ name: "f1.body", root: declared.root, fills: declared.fills }, { chord: 0.001, sources: declared.sources });
     const mesh = real.mesh;
     progress(`realized the ${pose} figure`);
     const vertexOwner = (v: number): string => mesh.owners[mesh.coordinates[v * 3]!]!;
@@ -1270,7 +1266,7 @@ namespace FamilyConicArmscyeRule {
     const slit: V[] = [];
     if (cutterLoft.chain !== null)
       for (let i: number = 0; i <= 20; ++i) {
-        const read = AutoMovieLoftChain.sampler(cutterLoft.chain, at(i));
+        const read = AutoMovieEngineLoftChain.sampler(cutterLoft.chain, at(i));
         for (let j: number = 0; j < 36; ++j) slit.push(read((2 * Math.PI * j) / 36) as V);
       }
     return slit;
@@ -1726,7 +1722,7 @@ namespace FamilyConicArmscyeRule {
     const rings = stations.map((s: number) => {
       const frame: IAutoMovieLoftSectionFrame = axis.at(s);
       const origin: V = [...frame.origin] as V;
-      const read = AutoMovieLoftChain.sampler(chain, s);
+      const read = AutoMovieEngineLoftChain.sampler(chain, s);
       return { origin, normal: cross(frame.v as V, frame.u as V), u: frame.u as V, v: frame.v as V, loop: Array.from({ length: 72 }, (_: unknown, j: number): C.P => {
         const p: V = read((2 * Math.PI * j) / 72) as V;
         return [dot(sub(p, origin), frame.u as V), dot(sub(p, origin), frame.v as V)];
@@ -1755,7 +1751,7 @@ namespace FamilyConicArmscyeRule {
   /** One source of f1's construction realized alone at a chord of 1 mm, mm: the family's own wall, no port, band or cutter applied. */
   function alone(name: string): IAutoMovieMillimeterMesh {
     const declared = AutoMovieHumanF1.construction();
-    const real = realizeAutoMovieConstruction({ name: "f1." + name, root: { type: "source", name, source: name }, fills: [] }, { chord: 0.001, sources: declared.sources });
+    const real = AutoMovieEngineConstruction.realize({ name: "f1." + name, root: { type: "source", name, source: name }, fills: [] }, { chord: 0.001, sources: declared.sources });
     return { positions: Array.from(real.mesh.positions, (x: number): number => 1000 * x), indices: Array.from(real.mesh.indices) };
   }
 
@@ -2169,7 +2165,7 @@ namespace FamilyConicArmscyeRule {
       const clock: number = (2 * Math.PI * k) / RAYS;
       const x: number = (shape.length * k) / RAYS;
       const share: number = shape[Math.floor(x) % shape.length]! + (shape[(Math.floor(x) + 1) % shape.length]! - shape[Math.floor(x) % shape.length]!) * (x - Math.floor(x));
-      return [1000 * (today.centre[0] + share * today.semi[0] * Math.cos(clock)), armpitV * (today.centre[1] + (share * today.semi[1] * Math.sin(clock)) / today.sense)];
+      return [1000 * (today.centre.station + share * today.semi.stationMetres * Math.cos(clock)), armpitV * (today.centre.phase + (share * today.semi.phaseRadians * Math.sin(clock)) / today.sense)];
     });
     const todayP: (V | null)[] = todayQ.map((q: C.P): V | null => lift(q[0], q[1] / armpitV));
     progress(`read today's loop onto the trunk's wall: ${todayP.filter((p): boolean => p !== null).length} of ${RAYS} points`);
@@ -2195,7 +2191,7 @@ namespace FamilyConicArmscyeRule {
     // 3. The bands: each loop to today's arm family's ring at the ordinary margin, paired by the share of their lengths from their tops.
     const loft: IAutoMovieViewLoft.IResult = H.create({ ...arm, tips: undefined, reliefs: undefined }, [s0, s0 + ARM_RAIL_MM, s0 + 2 * ARM_RAIL_MM]);
     if (loft.chain === null) throw new Error("the arm's first stations do not loft");
-    const railRead = AutoMovieLoftChain.sampler(loft.chain, s0 + ARM_RAIL_MM);
+    const railRead = AutoMovieEngineLoftChain.sampler(loft.chain, s0 + ARM_RAIL_MM);
     const rail: V[] = resample(Array.from({ length: RAYS }, (_: unknown, j: number): V => railRead((2 * Math.PI * j) / RAYS) as V), RAYS, n);
     const trunkNormal = normalsOf(trunkWall);
     const armNormal = normalsOf(armWall);

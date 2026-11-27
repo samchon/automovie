@@ -24,7 +24,7 @@ export namespace IAutoMovieResolveBalanceOutcome {
 
     /**
      * The pendulum's length, metres (Hof's leg length,
-     * `resolveAutoMovieCenterOfMass.pendulum`).
+     * `AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPendulum`).
      */
     length: number;
 

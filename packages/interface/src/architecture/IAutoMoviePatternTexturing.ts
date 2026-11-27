@@ -3,7 +3,7 @@ import type { IAutoMoviePatternTextureTransform } from "./IAutoMoviePatternTextu
 /**
  * UV transforms and the occurrences that transform cannot express.
  *
- * Produced by `autoMoviePatternTextureTransforms` over every placement of the
+ * Produced by `patternTextureTransforms` over every placement of the
  * run, whole or cut, whatever its zone's material; each placement lands in
  * exactly one of the two lists. A caller texturing several materials calls once
  * per material and keeps the occurrences of that material's zones.

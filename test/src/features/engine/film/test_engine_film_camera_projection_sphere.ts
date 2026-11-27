@@ -1,10 +1,10 @@
-import { intersectsPerspectiveFrustumSphere } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts } from "../../internal/predicates";
 
 const camera: Parameters<
-  typeof intersectsPerspectiveFrustumSphere
+  typeof AutoMovieEngineFilm.intersectsPerspectiveFrustumSphere
 >[0]["camera"] = {
   position: { x: 0, y: 0, z: 0 },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
@@ -17,7 +17,7 @@ const visible: (
   center: { x: number; y: number; z: number },
   radius: number,
 ): boolean =>
-  intersectsPerspectiveFrustumSphere({
+  AutoMovieEngineFilm.intersectsPerspectiveFrustumSphere({
     camera,
     center,
     radius,
@@ -92,7 +92,7 @@ export function test_engine_film_camera_projection_sphere(): void {
   const half: number = Math.SQRT1_2;
   TestValidator.predicate(
     "camera world placement resolves before the shared frustum test",
-    intersectsPerspectiveFrustumSphere({
+    AutoMovieEngineFilm.intersectsPerspectiveFrustumSphere({
       camera: {
         position: { x: 1, y: 2, z: 3 },
         rotation: { x: 0, y: half, z: 0, w: half },

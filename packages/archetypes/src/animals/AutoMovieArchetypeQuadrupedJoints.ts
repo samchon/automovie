@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieTransform,
@@ -6,23 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
-import { QuadrupedAttachments } from "./QuadrupedAttachments";
-
-/** One admitted rigid bar, with independently owned geometric observations. */
-interface Bar {
-  /** Primitive discriminator, not a reconstructed species assumption. */
-  kind: "cylinder" | "capsule";
-  /** Source primitive radius, metres. */
-  radius: number;
-  /** Source cylindrical span, excluding capsule caps, metres. */
-  height: number;
-  /** Primitive-centre frame, admitted rigid and copied. */
-  frame: IAutoMovieTransform;
-  /** Directed upper axis endpoint, source model metres. */
-  from: IAutoMovieVector3;
-  /** Directed lower axis endpoint, source model metres. */
-  to: IAutoMovieVector3;
-}
+import { QuadrupedAttachments } from "./quadruped/QuadrupedAttachments";
 
 /**
  * Admit the neutral quadruped bars and read their fixed body connections.
@@ -115,7 +99,9 @@ export namespace AutoMovieArchetypeQuadrupedJoints {
       }),
     };
 
-    /** Require an already admitted named bar instead of asserting a map cast. */
+    /*
+     * Require an already admitted named bar instead of asserting a map cast.
+     */
     function bar(bone: AutoMovieArchetypeQuadrupedBody.Bone): Bar {
       const found: Bar | undefined = bars.get(bone);
       if (found === undefined)
@@ -123,7 +109,9 @@ export namespace AutoMovieArchetypeQuadrupedJoints {
       return found;
     }
 
-    /** The coarse body contract uses capsules for both torso parents. */
+    /*
+     * The coarse body contract uses capsules for both torso parents.
+     */
     function parent(
       id: QuadrupedAttachments.Parent,
     ): QuadrupedAttachments.IParent {
@@ -140,7 +128,7 @@ export namespace AutoMovieArchetypeQuadrupedJoints {
       };
     }
 
-    /**
+    /*
      * Every joint is simultaneously the preceding lower and following upper
      * endpoint.
      */
@@ -175,7 +163,9 @@ export namespace AutoMovieArchetypeQuadrupedJoints {
       return points;
     }
 
-    /** One arithmetic-noise closure contract for axial and limb junctions. */
+    /*
+     * One arithmetic-noise closure contract for axial and limb junctions.
+     */
     function closure(
       left: IAutoMovieVector3,
       right: IAutoMovieVector3,
@@ -194,7 +184,7 @@ export namespace AutoMovieArchetypeQuadrupedJoints {
     }
   }
 
-  /**
+  /*
    * Admit the positive primitive and root-local unit rigid frame before
    * decoding either endpoint.
    */
@@ -231,7 +221,7 @@ export namespace AutoMovieArchetypeQuadrupedJoints {
     );
     if (Math.abs(norm - 1) > 64 * Number.EPSILON)
       throw new RangeError(`Quadruped ${part.id} requires a unit quaternion`);
-    const offset: IAutoMovieVector3 = Quaternion.rotateVector(frame.rotation, {
+    const offset: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(frame.rotation, {
       x: 0,
       y: shape.height / 2,
       z: 0,
@@ -269,7 +259,7 @@ export namespace AutoMovieArchetypeQuadrupedJoints {
     };
   }
 
-  /**
+  /*
    * Bounded endpoint/rigid-transform arithmetic noise, independent of
    * visible-contact tolerances.
    */
@@ -293,4 +283,34 @@ export namespace AutoMovieArchetypeQuadrupedJoints {
       )
     );
   }
+}
+
+/*
+ * One admitted rigid bar, with independently owned geometric observations.
+ */
+interface Bar {
+  /*
+   * Primitive discriminator, not a reconstructed species assumption.
+   */
+  kind: "cylinder" | "capsule";
+  /*
+   * Source primitive radius, metres.
+   */
+  radius: number;
+  /*
+   * Source cylindrical span, excluding capsule caps, metres.
+   */
+  height: number;
+  /*
+   * Primitive-centre frame, admitted rigid and copied.
+   */
+  frame: IAutoMovieTransform;
+  /*
+   * Directed upper axis endpoint, source model metres.
+   */
+  from: IAutoMovieVector3;
+  /*
+   * Directed lower axis endpoint, source model metres.
+   */
+  to: IAutoMovieVector3;
 }

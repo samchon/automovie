@@ -1,9 +1,4 @@
-import {
-  cutSequence,
-  playbackCursor,
-  resolveFromTimeline,
-  sequenceTimeline,
-} from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import {
   type IAutoMoviePlaybackEntry,
   type IAutoMoviePlaybackSample,
@@ -92,11 +87,11 @@ export function test_engine_film_playback_cursor(): void {
       },
     ],
   };
-  const timeline: IAutoMoviePlaybackTimeline = sequenceTimeline(
+  const timeline: IAutoMoviePlaybackTimeline = AutoMovieEngineFilm.sequenceTimeline(
     sequence,
     shots,
   );
-  const cursor: (seconds: number) => IAutoMoviePlaybackSample = playbackCursor(
+  const cursor: (seconds: number) => IAutoMoviePlaybackSample = AutoMovieEngineFilm.playbackCursor(
     sequence,
     timeline,
   );
@@ -110,7 +105,7 @@ export function test_engine_film_playback_cursor(): void {
   const seen: Set<string> = new Set<string>();
   for (let i: number = 0; i < count; ++i) {
     const t: number = i / rate;
-    const scan: IAutoMoviePlaybackSample = resolveFromTimeline(
+    const scan: IAutoMoviePlaybackSample = AutoMovieEngineFilm.resolveFromTimeline(
       sequence,
       timeline,
       t,
@@ -136,12 +131,12 @@ export function test_engine_film_playback_cursor(): void {
     (e: IAutoMoviePlaybackEntry): number => e.start,
   )) {
     const freshCursor: (seconds: number) => IAutoMoviePlaybackSample =
-      playbackCursor(sequence, timeline);
+      AutoMovieEngineFilm.playbackCursor(sequence, timeline);
     TestValidator.predicate(
       `cursor==scan exactly at entry start ${start}`,
       sameSample(
         freshCursor(start),
-        resolveFromTimeline(sequence, timeline, start),
+        AutoMovieEngineFilm.resolveFromTimeline(sequence, timeline, start),
       ),
     );
   }
@@ -168,7 +163,7 @@ export function test_engine_film_playback_cursor(): void {
   };
   TestValidator.equals(
     "cutSequence accepts a full-overlap dissolve (equal adjacent starts)",
-    cutSequence(
+    AutoMovieEngineFilm.cutSequence(
       {
         sequence: { id: "overlap", name: "overlap" },
         fps: 24,
@@ -180,7 +175,7 @@ export function test_engine_film_playback_cursor(): void {
     ).success,
     true,
   );
-  const overlapTimeline: IAutoMoviePlaybackTimeline = sequenceTimeline(
+  const overlapTimeline: IAutoMoviePlaybackTimeline = AutoMovieEngineFilm.sequenceTimeline(
     overlapSequence,
     overlapShots,
   );
@@ -192,12 +187,12 @@ export function test_engine_film_playback_cursor(): void {
     ),
   );
   const overlapCursor: (seconds: number) => IAutoMoviePlaybackSample =
-    playbackCursor(overlapSequence, overlapTimeline);
+    AutoMovieEngineFilm.playbackCursor(overlapSequence, overlapTimeline);
   TestValidator.predicate(
     "at the shared start the cursor lands on the incoming entry, like the scan",
     sameSample(
       overlapCursor(overlapTimeline.entries[1]!.start),
-      resolveFromTimeline(
+      AutoMovieEngineFilm.resolveFromTimeline(
         overlapSequence,
         overlapTimeline,
         overlapTimeline.entries[1]!.start,
@@ -224,17 +219,17 @@ export function test_engine_film_playback_cursor(): void {
       }),
     ),
   };
-  const bigTimeline: IAutoMoviePlaybackTimeline = sequenceTimeline(
+  const bigTimeline: IAutoMoviePlaybackTimeline = AutoMovieEngineFilm.sequenceTimeline(
     bigSequence,
     bigShots,
   );
   TestValidator.predicate("large-N runtime", nclose(bigTimeline.runtime, 200));
   const bigCursor: (seconds: number) => IAutoMoviePlaybackSample =
-    playbackCursor(bigSequence, bigTimeline);
+    AutoMovieEngineFilm.playbackCursor(bigSequence, bigTimeline);
   const bigSeen: Set<string> = new Set<string>();
   for (let i: number = 0; i < 200 * 4; ++i) {
     const t: number = i / 4; // 4 Hz sweep, monotone
-    const scan: IAutoMoviePlaybackSample = resolveFromTimeline(
+    const scan: IAutoMoviePlaybackSample = AutoMovieEngineFilm.resolveFromTimeline(
       bigSequence,
       bigTimeline,
       t,

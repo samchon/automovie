@@ -1,5 +1,7 @@
 import type { IAutoMovieMotionHumanTrick } from "@automovie/interface";
-import { humanTrickSchedule } from "@automovie/motions/internal";
+import {
+  humanTrickSchedule
+} from "../../../../../packages/motions/src/lexicon/internal/humanTrickSchedule";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

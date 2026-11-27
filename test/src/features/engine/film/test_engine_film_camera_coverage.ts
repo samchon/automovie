@@ -1,4 +1,4 @@
-import { compileCameraCoverage, compileCameraMove } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import {
   IAutoMovieCamera,
   type IAutoMovieCameraCoverageEntry,
@@ -93,7 +93,7 @@ const entry: (
  */
 export function test_engine_film_camera_coverage(): void {
   // 1. the covering camera's own staged bearing frames its own angle.
-  const side: ReturnType<typeof compileCameraCoverage> = compileCameraCoverage({
+  const side: ReturnType<typeof AutoMovieEngineFilm.compileCameraCoverage> = AutoMovieEngineFilm.compileCameraCoverage({
     camera: ALT,
     clipId: "cam:beat-1:cam-alt",
     entries: [entry(0, "static", intent(0))],
@@ -147,13 +147,13 @@ export function test_engine_film_camera_coverage(): void {
     entry(0, "static", intents[0]!),
     entry(1, "push-in", intents[1]!),
   ];
-  const take: ReturnType<typeof compileCameraCoverage> = compileCameraCoverage({
+  const take: ReturnType<typeof AutoMovieEngineFilm.compileCameraCoverage> = AutoMovieEngineFilm.compileCameraCoverage({
     camera: ALT,
     clipId: "cam:beat-1:cam-alt",
     entries,
     shotDuration: 3,
   });
-  const hero: ReturnType<typeof compileCameraMove> = compileCameraMove({
+  const hero: ReturnType<typeof AutoMovieEngineFilm.compileCameraMove> = AutoMovieEngineFilm.compileCameraMove({
     clipId: "cam:beat-1:cam-alt",
     camera: ALT,
     entries,
@@ -175,8 +175,8 @@ export function test_engine_film_camera_coverage(): void {
   );
 
   // 3. no frame spans: a locked-off covering camera.
-  const locked: ReturnType<typeof compileCameraCoverage> =
-    compileCameraCoverage({
+  const locked: ReturnType<typeof AutoMovieEngineFilm.compileCameraCoverage> =
+    AutoMovieEngineFilm.compileCameraCoverage({
       camera: ALT,
       clipId: "cam:beat-1:cam-alt",
       entries: [],

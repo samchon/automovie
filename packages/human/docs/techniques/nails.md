@@ -77,7 +77,7 @@ What a later rig needs: the plate's vertices bound to the distal segment alone, 
 
 ## The law
 
-One function, `AutoMovieHumanNail.create` (`packages/human/src/generation/nail/AutoMovieHumanNail.ts`), for every nail; `AutoMovieHumanF1Nails` holds one row a ray with its segment and its proportions. A row holds what anatomy gives per ray and nothing fitted.
+One function, `AutoMovieHumanNail.create` (`packages/human/src/generation/AutoMovieHumanNail.ts`), for every nail; `AutoMovieHumanF1Nails` holds one row a ray with its segment and its proportions. A row holds what anatomy gives per ray and nothing fitted.
 
 **One side.** Ten nails are made, on the stored side's hand and foot. The other ten are their mirror images in the median plane: the twin's plate is the reflection of the placed plate and the twin's bed the reflection the digit's own mirror makes. No row, reading or pass condition belongs to the other side; its frames check the mirror only.
 
@@ -122,7 +122,7 @@ The law knows the outline, so the meeting curve could be declared (`IAutoMovieCo
 | --- | --- | --- |
 | The curve | Traced by the engine from a seed found on the crown line | Solved by `AutoMovieHumanNailLoop` on the two lofted surfaces: along each ray of the outline's chart ellipse, the share at which the bedded skin's point stands on the plate's upper face or its cap; 96 shares |
 | Probe | `13-36-27`: ten of ten with no diagnostic | `13-16-17`: none admitted. Nine `shared loop: the part has no jet at [station, phase] on the way to the loop point's foot`, at clock 0 or within 0.2 rad of it on six digits and at the free edge's corners (clock 5.2 to 5.6) on three; the tenth refused by the loop solve at a corner |
-| Cause | - | The engine walks the part's chart to each loop point's foot and reads the part's jet there (code: `AutoMovieConstructionSharedLoop`, by its refusal). At the free edge the curve lies on the plate's closed end: on the index finger the foot stands at plate station 14.29 mm, past the last knot at 13.73 and the cap's pole at 14.20, where the polar chart has no jet |
+| Cause | - | The engine walks the part's chart to each loop point's foot and reads the part's jet there (code: `AutoMovieEngineConstructionSharedLoop`, by its refusal). At the free edge the curve lies on the plate's closed end: on the index finger the foot stands at plate station 14.29 mm, past the last knot at 13.73 and the cap's pole at 14.20, where the polar chart has no jet |
 
 The mixed join is made for a part whose wall runs on through the loop all round, a mound on its host. A plate ends: its free edge is its closed end, and the curve must cross it. So the declared loop cannot serve a nail as the kernel stands, and the traced merge is used.
 
@@ -136,7 +136,7 @@ Taken from `IAutoMovieConstructionJoin`, `IAutoMovieLoftRelief`, `AutoMovieHuman
 
 | Premise | Where it comes from | Today, probe `13-36-27` |
 | --- | --- | --- |
-| The plate's family lofts: two centres, no turn, `bilateral(0)`, a roll along its stations, a covered tip at its root and a cap at its free edge | `AutoMovieViewAxis.jointed`, `part` | Ten of ten |
+| The plate's family lofts: two centres, no turn, `bilateral(0)`, a roll along its stations, a covered tip at its root and a cap at its free edge | `AutoMovieEngineViewAxis.jointed`, `part` | Ten of ten |
 | Every plate section star-shaped about its course | The course runs inside the shallowest section | By construction |
 | The relief's three outer rings zero | `IAutoMovieLoftRelief` | `clipped` 0 on ten of ten (0.47 and 0.58 mm on two toes before the line's raise) |
 | A relief may run into the digit's cap | Not stated by the interface; probed | The windows of all ten run to the tip's station (index 70.2 to 84.38 mm, the cap from 81), their last three rows zero, and loft |
@@ -299,7 +299,7 @@ This is a finding, not a tuning target. No second change is made. Not traced: wh
 
 Every refusal of the evening stands where the meeting curve reaches the plate's own end: `rails` and `unfolded blend` at the cap and its corners, `no jet` for the declared loop at the pole, more of both when the end was narrowed along a fillet. A part whose closed end lies on its own join loop is the representation's fault, not a setting's.
 
-**The reading, before any probe** (code: `AutoMovieSolidSharedCurve.ts` lines 186 to 272, `IAutoMovieConstructionJoin`, `IAutoMovieConstructionFoldWidth`):
+**The reading, before any probe** (code: `AutoMovieEngineSolidSharedCurve.ts` lines 186 to 272, `IAutoMovieConstructionJoin`, `IAutoMovieConstructionFoldWidth`):
 
 | Premise of the join on a declared loop | What the code does | The plate as it was | The plate running on |
 | --- | --- | --- | --- |
@@ -327,7 +327,7 @@ The run had already started when the order to check it on paper first arrived: t
 | This run (half length one thickness) | no digit realized: the loop solve refused all ten, `the plate does not end by four times its outline at clock 0` - toward the free edge the bedded skin never comes over the plate's face |
 | The bed's net | clipped on nine of ten, 0.015 to 2.2 mm |
 
-On paper, the turn rule recorded in [Centres and courses](centres-and-courses.md) (`h > (15 / 16) theta r`, the half length against the turn's angle and the section's reach; read there, not in `AutoMovieViewAxis.jointed`, whose set-back integral I have not read): a turn of 135 degrees, 2.36 rad, of a section whose reach is the plate's half width, 4 to 8 mm, needs a half length over 8.8 to 17.7 mm. One thickness, 0.47 mm, is a twentieth of that; the course's depth, 3 mm, a third. The sections fold through the turn at either. The set-back I wrote as "about 2.4 half lengths" was a number read off one refusal and is withdrawn with the turn.
+On paper, the turn rule recorded in [Centres and courses](centres-and-courses.md) (`h > (15 / 16) theta r`, the half length against the turn's angle and the section's reach; read there, not in `AutoMovieEngineViewAxis.jointed`, whose set-back integral I have not read): a turn of 135 degrees, 2.36 rad, of a section whose reach is the plate's half width, 4 to 8 mm, needs a half length over 8.8 to 17.7 mm. One thickness, 0.47 mm, is a twentieth of that; the course's depth, 3 mm, a third. The sections fold through the turn at either. The set-back I wrote as "about 2.4 half lengths" was a number read off one refusal and is withdrawn with the turn.
 
 **So a turning course cannot carry the plate past its free edge.** The reason is the digit, not the kernel: past the free edge there is a millimetre or so of fingertip along the nail's axis, so a wall that runs on must turn through most of a right angle within about a plate's thickness, and a section 10 mm wide cannot turn that tightly about any course.
 
@@ -342,7 +342,7 @@ The law in the tree is the turning-course state, which realizes no digit. The la
 
 The supervisor's way on: a straight course whose far sections go under the fingertip's skin and close inside it. Read against the evening's record, that is the plate of run `13-48-20` (published arc, frame fitted over the whole bed, a cap one thickness long whose pole the skin covers) and one thing that was never put together with it: the declared loop. The declared loop was probed once, in run `13-16-17`, on the plate as it stood then, whose course ran midway down the shallowest section and whose cap's pole could stand out of the skin; its refusal named a foot past the pole (index: plate station 14.29 against a pole at 14.20). The rule that the pole must end under the skin came ten runs later and was only ever run with the traced merge.
 
-Premises of the join on a declared loop (`AutoMovieSolidSharedCurve.ts` lines 186 to 272), for that plate:
+Premises of the join on a declared loop (`AutoMovieEngineSolidSharedCurve.ts` lines 186 to 272), for that plate:
 
 | Premise | On paper |
 | --- | --- |
@@ -469,7 +469,7 @@ Not changed further. What would answer it is a decision, not a value: either the
 
 | Question | Answer | Where |
 | --- | --- | --- |
-| May one family carry several reliefs, and do they add? | Yes. A family holds a list (`IFamily.reliefs`), and the composer adds each relief's height along its own axis to the base point, one after another | `AutoMovieHumanConicLoft.ts` line 81; `AutoMovieLoftReliefCompose.ts` lines 39 and 103 to 107 |
+| May one family carry several reliefs, and do they add? | Yes. A family holds a list (`IFamily.reliefs`), and the composer adds each relief's height along its own axis to the base point, one after another | `AutoMovieHumanConicLoft.ts` line 81; `AutoMovieEngineLoftReliefCompose.ts` lines 39 and 103 to 107 |
 | Must a net's spacing be uniform? | Yes: a tensor-product uniform cubic B-spline over its window, three outer rings zero | `IAutoMovieLoftRelief.ts` lines 5 to 11 |
 | How does the mesh follow a net along the digit? | The digit's layers are cut inside each relief's own station window to that relief's row spacing; outside it they keep their pitch | `AutoMovieHumanF1.ts` lines 2297 to 2330 (`leaf`) |
 | How does it follow a net round the digit? | Not locally. The phases round the whole family are one density, the finest column of any of its reliefs, on every layer | `AutoMovieHumanConicLoft.ts` lines 708 to 716 (`phaseCount`) and 652 |
@@ -544,7 +544,7 @@ So besides the three tip-end symptoms the sheets hold: square corners of the fol
 4. Law: the window is walked to the wall's end (the skin's side); a control past its own row's side, on the underside, holds zero.
 5. Law: the reading `clipped` gains its place (`clippedAt`, along and aside in the nail's frame), so the next table names where instead of inferring it.
 
-**The feature template, read in full** (`generation/frame/AutoMovieHumanFeatureTemplate.ts`, 245 lines, and `test_human_feature_template.ts`). Since my first reading of its header the record has gained two fields named for a nail's bed: `squareness`, a superellipse footprint `|x / a|^n + |y / b|^n = 1`, and `flat`, a plateau with a quintic ramp to the edge. What it holds and what a nail needs:
+**The feature template, read in full** (`generation/AutoMovieHumanFeatureTemplate.ts`, 245 lines, and `test_human_feature_template.ts`). Since my first reading of its header the record has gained two fields named for a nail's bed: `squareness`, a superellipse footprint `|x / a|^n + |y / b|^n = 1`, and `flat`, a plateau with a quintic ramp to the edge. What it holds and what a nail needs:
 
 | The nail needs | The template has | Fits? |
 | --- | --- | --- |
@@ -557,7 +557,7 @@ So besides the three tip-end symptoms the sheets hold: square corners of the fol
 
 So: two records. The nail keeps its own law and its own record (`AutoMovieHumanNail.INail`) and shares the template's contract of place only, a centre and two directions in the distal segment's frame. **Request to the body worker: none for this batch**; the template is not asked to grow a nail class. What would let one record serve both later is a height given as a target surface over the footprint instead of a number, and a border width by side; neither is asked for now, and the two fields added for a nail's bed are not used by the nail.
 
-Then one run of all ten, every sheet opened, the table. If `clipped` remains, the engine's rule is recorded and the work stops there: a relief's three outer rings of controls are zero by contract (`IAutoMovieLoftRelief.ts` lines 7 to 8 and 60; `AutoMovieLoftRelief.ts` line 9).
+Then one run of all ten, every sheet opened, the table. If `clipped` remains, the engine's rule is recorded and the work stops there: a relief's three outer rings of controls are zero by contract (`IAutoMovieLoftRelief.ts` lines 7 to 8 and 60; `AutoMovieEngineLoftRelief.ts` line 9).
 
 ### The one run on the domed digits
 
@@ -587,7 +587,7 @@ The free edge's distance is the tip's reading in the segment's frame less the fr
 | The strip's rings | The cap takes them now: the fingers hold 7,500 to 11,100 vertices against about 5,000. Fewer than the 15,000 I estimated, since the free edge stands nearer the pole than I put it |
 | The free edge | Reads as a line on every finger from above and from the near oblique, a chevron with its point on the middle line more than an arc; from the end it still does not cross the top as a ledge |
 
-**What remains on the toes, with its place.** On all five toes the greatest clipped height stands 0.3 to 0.4 mm before the free edge and inside the plate's width (aside 2.6 to 6.4 mm on half widths of 3.9 to 8.3): the plate's far corner over the tip's shoulder, at the window's edge. A toe's dome is 0.8 of a reach and its plate ends 0 to 2.4 mm before the tip, so the room past the free edge that the net's zero rings need is not there. By the order this run was made under, the work stops here on that: the contract is the engine's (`IAutoMovieLoftRelief.ts` lines 7 to 8, "three outer rings of control points are zero", and line 60; evaluated on that premise in `AutoMovieLoftRelief.ts`, line 9 and the note at line 28). No value is moved.
+**What remains on the toes, with its place.** On all five toes the greatest clipped height stands 0.3 to 0.4 mm before the free edge and inside the plate's width (aside 2.6 to 6.4 mm on half widths of 3.9 to 8.3): the plate's far corner over the tip's shoulder, at the window's edge. A toe's dome is 0.8 of a reach and its plate ends 0 to 2.4 mm before the tip, so the room past the free edge that the net's zero rings need is not there. By the order this run was made under, the work stops here on that: the contract is the engine's (`IAutoMovieLoftRelief.ts` lines 7 to 8, "three outer rings of control points are zero", and line 60; evaluated on that premise in `AutoMovieEngineLoftRelief.ts`, line 9 and the note at line 28). No value is moved.
 
 **Every sheet of the run, opened.**
 
@@ -1071,7 +1071,7 @@ The owner's rule is research before the change. Order, stated as it happened: th
 | --- | --- | --- | --- |
 | The frame as a closed-form least-squares problem | The law's own fit, line by line; the residuals of all ten digits. Not fetched, from what is standard: a straight line through fixed points has a closed form in both senses (ordinary least squares, and the orthogonal fit by the points' principal axis) | The middles are not fixed points: each is the middle of two extremes of a section's support along a direction that turns with the roll, on a section cut square to the axis being fitted. So the whole fit is not one linear problem. It does separate: at a fixed axis direction the cuts are fixed, the line through the middles is closed form at any roll, and the roll is one root of one function | The decision is that separation. A closed form for the roll itself does not exist for a general section; a bracketed root does, and it reads no skin |
 | How a hallux's plate is described against the others' | Web search, two queries. Jung DJ et al., Arch Plast Surg 2015;42(2):207 (the pincer nail study I had cited): it measures "the widths of the nail root and nail tip and the height of the nail tip" and forms a width index and a height index from them. A cadaver study of ten halluces (the hallucal distal phalanx and the nail's transverse convexity): the phalanx does not by itself set the plate's convexity. A UK radius-gauge study and Jung JW 2015: transverse radii for fingers only; one of them states that no normal transverse curvature data existed for nail plates before it | The 3.3 mm I used is the height of the nail's **tip**, by that study's own definition. No normal transverse radius of a hallux plate, and no hallux against lesser toe comparison with numbers, was found. The controls' width index (tip width over root width) is in the paper's tables, which I did not reach | Confirms the cause: a tip height was applied as a radius midway. The big toe's row has no radius; its plate is its bed's arc. What I could not find is stated: the hallux plate's own flatness midway, if it is flatter than the toe's back, has no number here, and the plate's root-to-tip width change (the width index) is not modelled: the plate keeps its share of the toe's breadth |
-| What the relief's evaluation does between net cells across a corner | `AutoMovieLoftRelief.ts` lines 1 to 118 (`height`, `jet`): a clamped-free uniform cubic B-spline in each direction, sixteen controls a point, value and two derivatives exact from the basis; `IAutoMovieLoftRelief.ts` read earlier | The field is C2 everywhere inside its window, across a corner of the fold as anywhere. The law's controls are samples of its function at their own abscissae, not a fit, so the net is the function smoothed over about a cell (the cubic's variation-diminishing blend): a wall four cells wide comes out a little wider and rounder, never toothed. The teeth are therefore not in the relief. They are the mesh's: the smooth field is read at rings and phases 0.46 mm apart and drawn as two flat triangles a cell, split along one diagonal, so a wall that crosses the cells obliquely is cut by diagonals that run with it on one flank and against it on the next. A tooth is as high as the wall falls across one cell: 0.46 mm of depth over 1.2 to 1.84 mm of wall, 0.11 to 0.18 mm | The comb is under a pixel at the figure's cameras (0.5 to 0.8 px at 4.7 px a millimetre, less on the foot): a close-up finding, open, not a blocker. A net aligned with the fold would not remove it, since the net is not its source; what would is the mesh's density there or its diagonals' choice, neither the nail's |
+| What the relief's evaluation does between net cells across a corner | `AutoMovieEngineLoftRelief.ts` lines 1 to 118 (`height`, `jet`): a clamped-free uniform cubic B-spline in each direction, sixteen controls a point, value and two derivatives exact from the basis; `IAutoMovieLoftRelief.ts` read earlier | The field is C2 everywhere inside its window, across a corner of the fold as anywhere. The law's controls are samples of its function at their own abscissae, not a fit, so the net is the function smoothed over about a cell (the cubic's variation-diminishing blend): a wall four cells wide comes out a little wider and rounder, never toothed. The teeth are therefore not in the relief. They are the mesh's: the smooth field is read at rings and phases 0.46 mm apart and drawn as two flat triangles a cell, split along one diagonal, so a wall that crosses the cells obliquely is cut by diagonals that run with it on one flank and against it on the next. A tooth is as high as the wall falls across one cell: 0.46 mm of depth over 1.2 to 1.84 mm of wall, 0.11 to 0.18 mm | The comb is under a pixel at the figure's cameras (0.5 to 0.8 px at 4.7 px a millimetre, less on the foot): a close-up finding, open, not a blocker. A net aligned with the fold would not remove it, since the net is not its source; what would is the mesh's density there or its diagonals' choice, neither the nail's |
 
 ### The kernel fact, pinned by a test that is red
 

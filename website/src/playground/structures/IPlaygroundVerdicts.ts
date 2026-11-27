@@ -1,5 +1,5 @@
 /**
- * The physical bounds a performance breaks, as the package's `HumanVerdicts`
+ * The physical bounds a performance breaks, as the package's `AutoMovieMotionHumanVerdicts`
  * reports them.
  */
 export interface IPlaygroundVerdicts {

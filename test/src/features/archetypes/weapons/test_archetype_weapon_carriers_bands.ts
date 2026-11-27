@@ -1,8 +1,4 @@
-import {
-  AutoMovieArchetypeUnits,
-  createHolster,
-  createSword,
-} from "@automovie/archetypes";
+import { AutoMovieArchetypeUnits, AutoMovieArchetypeHolster, AutoMovieArchetypeSword } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../../internal/archetypeBandSweep";
@@ -40,7 +36,7 @@ export function test_archetype_weapon_carriers_bands(): void {
       1.5 * AutoMovieArchetypeUnits.INCH,
       "Safariland ride heights",
       (seed: number): number =>
-        createHolster({}, seed).affordance("socket").frame.translation.y,
+        AutoMovieArchetypeHolster.create({}, seed).affordance("socket").frame.translation.y,
     ),
     row(
       "scabbard length",
@@ -48,7 +44,7 @@ export function test_archetype_weapon_carriers_bands(): void {
       1.04 + 0.015,
       FIT,
       (seed: number): number =>
-        archetypeExtent(createHolster({ kind: "scabbard" }, seed), "y").size,
+        archetypeExtent(AutoMovieArchetypeHolster.create({ kind: "scabbard" }, seed), "y").size,
     ),
     row(
       "sheath length",
@@ -56,7 +52,7 @@ export function test_archetype_weapon_carriers_bands(): void {
       0.36 + 0.015,
       FIT,
       (seed: number): number =>
-        archetypeExtent(createHolster({ kind: "sheath" }, seed), "y").size,
+        archetypeExtent(AutoMovieArchetypeHolster.create({ kind: "sheath" }, seed), "y").size,
     ),
     row(
       "quiver depth",
@@ -64,7 +60,7 @@ export function test_archetype_weapon_carriers_bands(): void {
       22.5 * AutoMovieArchetypeUnits.INCH,
       "back quivers, 18 to 22.5 in",
       (seed: number): number =>
-        createHolster({ kind: "quiver" }, seed).affordance("socket").frame
+        AutoMovieArchetypeHolster.create({ kind: "quiver" }, seed).affordance("socket").frame
           .translation.y,
     ),
     row(
@@ -73,7 +69,7 @@ export function test_archetype_weapon_carriers_bands(): void {
       1.5 * AutoMovieArchetypeUnits.POUND,
       "20 in back quivers",
       (seed: number): number =>
-        createHolster({ kind: "quiver" }, seed).body.mass,
+        AutoMovieArchetypeHolster.create({ kind: "quiver" }, seed).body.mass,
     ),
   ]);
 
@@ -90,15 +86,15 @@ export function test_archetype_weapon_carriers_bands(): void {
     ["knife", undefined, "sheath", "knife"],
   ] as const)
     for (let seed: number = 0; seed < 10; seed++) {
-      const blade: ReturnType<typeof createSword> = createSword(
+      const blade: ReturnType<typeof AutoMovieArchetypeSword.create> = AutoMovieArchetypeSword.create(
         model === undefined ? { kind: sword } : { kind: sword, model },
         seed,
       );
       const length: number = blade.dimensions.bladeLength!;
       const width: number = blade.dimensions.bladeWidth!;
-      let fitted: ReturnType<typeof createHolster>;
+      let fitted: ReturnType<typeof AutoMovieArchetypeHolster.create>;
       try {
-        fitted = createHolster(
+        fitted = AutoMovieArchetypeHolster.create(
           model === undefined
             ? {
                 kind: carrier,
@@ -124,7 +120,7 @@ export function test_archetype_weapon_carriers_bands(): void {
 
   for (const kind of ["scabbard", "sheath"] as const)
     for (const seed of [0, 1, 2]) {
-      const scabbard: ReturnType<typeof createHolster> = createHolster(
+      const scabbard: ReturnType<typeof AutoMovieArchetypeHolster.create> = AutoMovieArchetypeHolster.create(
         { kind },
         seed,
       );

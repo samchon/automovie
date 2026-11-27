@@ -5,9 +5,11 @@ import type {
   IAutoMoviePose,
 } from "@automovie/interface";
 import {
-  prepareHumanJointRom,
-  prepareHumanPostureProjection,
-} from "@automovie/motions/internal";
+  prepareHumanJointRom
+} from "../../../../../packages/motions/src/posture/internal/prepareHumanJointRom";
+import {
+  prepareHumanPostureProjection
+} from "../../../../../packages/motions/src/posture/internal/prepareHumanPostureProjection";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";

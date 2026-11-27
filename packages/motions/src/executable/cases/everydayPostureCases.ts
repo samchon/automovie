@@ -1,29 +1,22 @@
-import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type {
-  IAutoMovieMotionHumanChain,
-  IAutoMovieMotionHumanPerformance,
-  IAutoMovieMotionHumanProp,
-  IAutoMovieMotionHumanSeated,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics, AutoMovieEngineVector3 } from "@automovie/engine";
+import type { IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSeated, IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanChain } from "../../HumanChain";
-import { seated } from "../../everyday/seated";
-import { HumanFoot } from "../../posture/HumanFoot";
-import { HumanHand } from "../../posture/HumanHand";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
-import { everydayCaseKit } from "./everydayCaseKit";
-import { everydayPostureCaseObstacle } from "./everydayPostureCaseObstacle";
-import { everydayVerdicts } from "./everydayVerdicts";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
+import { seated } from "../../everyday/internal/seated";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
+import { HumanHand } from "../../posture/internal/HumanHand";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
+import { everydayCaseKit } from "./internal/everydayCaseKit";
+import { everydayPostureCaseObstacle } from "./internal/everydayPostureCaseObstacle";
+import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/**
+/*
  * The seat, bend and step cases of `everydayCases` (`everyday-seat`,
  * `everyday-bend` and `everyday-step`), with the verdicts `everydayCases`
  * lists.
- *
- * @param c The body's case context.
- * @param wants Whether a family is wanted.
- * @returns The cases.
+ * Parameter c: The body's case context.
+ * Parameter wants: Whether a family is wanted.
+ * Returns: The cases.
  */
 export function everydayPostureCases(
   c: everydayCaseKit.IContext,
@@ -48,7 +41,7 @@ export function everydayPostureCases(
       depth: 0.45,
     };
     const performance: IAutoMovieMotionHumanPerformance = one(
-      HumanChain.subject("a")
+      AutoMovieMotionHumanChain.subject("a")
         .sit({ seat, hold: 0.5 })
         .shift({ by: 0.12 })
         .rise(),
@@ -56,7 +49,7 @@ export function everydayPostureCases(
     const [sit, shift, rise] = performance.segments("a");
     const contact: number = event(performance, "a", 0, "seatContact");
     const socket = (t: number): IAutoMovieVector3 =>
-      resolveAutoMovieHumanoidSurfaces.place(
+      AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
         body.surfaces.sockets.seat,
         performance.bones("a", t).get(body.surfaces.sockets.seat.bone)!,
       ).point;
@@ -65,7 +58,7 @@ export function everydayPostureCases(
       let low: number = Infinity;
       for (const side of ["left", "right"] as const)
         for (let k: number = 0; k <= 20; k++) {
-          const p: IAutoMovieVector3 = Vector3.lerp(
+          const p: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
             b.get(`${side}UpperLeg`)!.worldPosition,
             b.get(`${side}LowerLeg`)!.worldPosition,
             k / 20,
@@ -156,7 +149,7 @@ export function everydayPostureCases(
       },
       squat: { x: -0.15, y: 0, z: 0.3 },
     };
-    let chain: IAutoMovieMotionHumanChain = HumanChain.subject("a");
+    let chain: IAutoMovieMotionHumanChain = AutoMovieMotionHumanChain.subject("a");
     for (const strategy of strategies)
       chain = chain.bend({
         target: { kind: "point", at: points[strategy], frame: "world" },
@@ -173,8 +166,8 @@ export function everydayPostureCases(
       verdicts.push(
         within(
           `${strategy} palm at the point`,
-          Vector3.length(
-            Vector3.subtract(
+          AutoMovieEngineVector3.length(
+            AutoMovieEngineVector3.subtract(
               HumanHand.frame(
                 body,
                 performance.bones("a", t),
@@ -220,7 +213,7 @@ export function everydayPostureCases(
   if (wants("step")) {
     const box = { at: { x: 0, y: 0, z: 0.35 }, height: 0.3, depth: 0.25 };
     const performance: IAutoMovieMotionHumanPerformance = one(
-      HumanChain.subject("a").stepOver({ obstacle: "box" }),
+      AutoMovieMotionHumanChain.subject("a").stepOver({ obstacle: "box" }),
       [everydayPostureCaseObstacle(box)],
     );
     const crossing = performance.segments("a")[0]!;

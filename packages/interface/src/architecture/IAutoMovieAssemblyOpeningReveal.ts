@@ -2,12 +2,12 @@ import type { IAutoMovieResolvedAssembly } from "./IAutoMovieResolvedAssembly";
 
 /**
  * Structural opening dimensions and resolved lining layers for
- * autoMovieAssemblyOpeningReveal.
+ * assemblyOpeningReveal.
  */
 export namespace IAutoMovieAssemblyOpeningReveal {
   /**
    * Structural opening dimensions and resolved lining layers for
-   * autoMovieAssemblyOpeningReveal.
+   * assemblyOpeningReveal.
    *
    * An opening is cut at a structural size and used at a finished one. Every
    * layer that continues around the jamb lines both sides of the opening, so

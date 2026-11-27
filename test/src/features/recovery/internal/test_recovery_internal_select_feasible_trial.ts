@@ -4,7 +4,7 @@ import type {
   IAutoMovieRecoveryFeasibleTrials,
   IAutoMovieRecoverySqpArc,
 } from "@automovie/interface";
-import { selectRecoveryFeasibleTrial } from "@automovie/recovery";
+import { AutoMovieRecoveryCameraMap } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import type { IRecoveryFeasibleTrialObservation } from "../../internal/IRecoveryFeasibleTrialObservation";
@@ -148,7 +148,7 @@ export function test_recovery_internal_select_feasible_trial(): void {
       mixed: arc?.step,
     });
     const selected: IAutoMovieRecoveryFeasibleTrialSelection<number> =
-      selectRecoveryFeasibleTrial(
+      AutoMovieRecoveryCameraMap.selectFeasibleTrial(
         problem,
         1,
         costAt(1),
@@ -436,7 +436,7 @@ export function test_recovery_internal_select_feasible_trial(): void {
   };
   const sideInitial: number[] = [0, e];
   const side: IAutoMovieRecoveryFeasibleTrialSelection<number[]> =
-    selectRecoveryFeasibleTrial(
+    AutoMovieRecoveryCameraMap.selectFeasibleTrial(
       {
         initial: sideInitial,
         evaluate: (x: number[]): number | null =>

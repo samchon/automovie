@@ -1,4 +1,4 @@
-import { realizeAutoMovieBicubicAtlas64 } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 
 import { nclose } from "../internal/nclose";
 
@@ -170,9 +170,9 @@ export namespace bicubicAtlasRealizationOracle {
    * particular square triangulation.
    */
   export const squareArea: (
-    result: ReturnType<typeof realizeAutoMovieBicubicAtlas64>,
+    result: ReturnType<typeof AutoMovieEngineGeometry.realizeBicubicAtlas64>,
   ) => number = (
-    result: ReturnType<typeof realizeAutoMovieBicubicAtlas64>,
+    result: ReturnType<typeof AutoMovieEngineGeometry.realizeBicubicAtlas64>,
   ): number => {
     let area: number = 0;
     for (let i: number = 0; i < result.mesh.indices!.length; i += 3) {

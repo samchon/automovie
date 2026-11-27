@@ -20,7 +20,7 @@ export namespace IAutoMovieBuiltEnvironmentSupportStatus {
    * resolving to a default, because it does not narrow or widen what "touching"
    * means, it withdraws the meaning: every distance would be outside a negative
    * band, so the answer would be a confident `floating` or `sunk` for a member
-   * that rests exactly. An omitted tolerance is `AUTOMOVIE_SUPPORT_TOLERANCE`,
+   * that rests exactly. An omitted tolerance is `AutoMovieEngineSupportTolerance`,
    * `1e-9` metres.
    *
    * Both bases travel with the verdict. A subject the record carries no

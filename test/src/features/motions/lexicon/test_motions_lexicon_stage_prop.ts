@@ -1,4 +1,6 @@
-import { humanStagePropBeat } from "@automovie/motions/internal";
+import {
+  humanStagePropBeat
+} from "../../../../../packages/motions/src/lexicon/internal/humanStagePropBeat";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

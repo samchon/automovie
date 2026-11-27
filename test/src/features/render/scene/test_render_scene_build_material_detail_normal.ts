@@ -1,10 +1,10 @@
-import { validateModel } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   AutoMovieTextureBinding,
   IAutoMovieMaterial,
   IAutoMovieTextureReference,
 } from "@automovie/interface";
-import { buildMaterial } from "@automovie/render";
+import { AutoMovieRenderMaterial } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -59,7 +59,7 @@ export function test_render_scene_build_material_detail_normal(): void {
     texture.name = typeof binding === "string" ? binding : binding.asset;
     return texture;
   };
-  const both: THREE.MeshPhysicalMaterial = buildMaterial(
+  const both: THREE.MeshPhysicalMaterial = AutoMovieRenderMaterial.build(
     {
       ...base,
       normalTexture: reference("coarse", 1),
@@ -76,7 +76,7 @@ export function test_render_scene_build_material_detail_normal(): void {
       nclose(both.userData.detailNormal.texture.repeat.x, 180, 0) &&
       both.customProgramCacheKey() === "automovie-detail-normal",
   );
-  const translucent: THREE.MeshPhysicalMaterial = buildMaterial(
+  const translucent: THREE.MeshPhysicalMaterial = AutoMovieRenderMaterial.build(
     {
       ...base,
       subsurfaceRadius: { r: 0.003, g: 0.001, b: 0.0005 },
@@ -91,7 +91,7 @@ export function test_render_scene_build_material_detail_normal(): void {
     "automovie-subsurface+automovie-detail-normal",
   );
 
-  const alone: THREE.MeshPhysicalMaterial = buildMaterial(
+  const alone: THREE.MeshPhysicalMaterial = AutoMovieRenderMaterial.build(
     {
       ...base,
       detailNormalTexture: reference("fine", 180),
@@ -109,10 +109,10 @@ export function test_render_scene_build_material_detail_normal(): void {
   const model: ReturnType<typeof createModel> = createModel();
   const validate: (
     patch: Partial<IAutoMovieMaterial>,
-  ) => ReturnType<typeof validateModel> = (
+  ) => ReturnType<typeof AutoMovieEngineValidation.validateModel> = (
     patch: Partial<IAutoMovieMaterial>,
-  ): ReturnType<typeof validateModel> =>
-    validateModel({
+  ): ReturnType<typeof AutoMovieEngineValidation.validateModel> =>
+    AutoMovieEngineValidation.validateModel({
       model: {
         ...model,
         materials: [{ ...model.materials[0]!, ...patch } as IAutoMovieMaterial],

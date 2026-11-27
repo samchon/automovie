@@ -1,4 +1,4 @@
-import { Quaternion, solveDistalTwist } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineMotionDistalTwist } from "@automovie/engine";
 import type {
   IAutoMovieJointAxes,
   IAutoMovieJointPose,
@@ -52,8 +52,8 @@ export function test_engine_kinematics_distal_twist_continuation(): void {
     abduction: 0,
     twist: 0,
   };
-  const fit = (a: number): solveDistalTwist.IResult =>
-    solveDistalTwist.withProjection({
+  const fit = (a: number): AutoMovieEngineMotionDistalTwist.IResult =>
+    AutoMovieEngineMotionDistalTwist.withProjection({
       joint: { ...hand, bone: "rightLowerArm" },
       effector: hand,
       above: identity,
@@ -62,9 +62,9 @@ export function test_engine_kinematics_distal_twist_continuation(): void {
       effectorRest: identity,
       effectorBasis: axes,
       effectorFrame: undefined,
-      rotation: Quaternion.multiply(
-        Quaternion.fromAxisAngle(axes.twist, a),
-        Quaternion.fromAxisAngle(axes.abduction, tilt * degrees),
+      rotation: AutoMovieEngineQuaternion.multiply(
+        AutoMovieEngineQuaternion.fromAxisAngle(axes.twist, a),
+        AutoMovieEngineQuaternion.fromAxisAngle(axes.abduction, tilt * degrees),
       ),
       skeleton: { id: "fixed-wrist", bones: [] },
       reference: 0,
@@ -87,12 +87,12 @@ export function test_engine_kinematics_distal_twist_continuation(): void {
   const residualSlope: number =
     Math.sin(outsideTurn / (2 * degrees)) / Math.sin(tilt / 2);
   const residualTolerance: number = residualSlope * error + angleRoundoff;
-  const inside: solveDistalTwist.IResult = fit(d - excess);
-  const outside: solveDistalTwist.IResult = fit(outsideTurn);
+  const inside: AutoMovieEngineMotionDistalTwist.IResult = fit(d - excess);
+  const outside: AutoMovieEngineMotionDistalTwist.IResult = fit(outsideTurn);
   const selected: number = outside.joint.twist ?? 0;
-  const demand: IAutoMovieQuaternion = Quaternion.multiply(
-    Quaternion.fromAxisAngle(axes.twist, outsideTurn - selected),
-    Quaternion.fromAxisAngle(axes.abduction, tilt * degrees),
+  const demand: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+    AutoMovieEngineQuaternion.fromAxisAngle(axes.twist, outsideTurn - selected),
+    AutoMovieEngineQuaternion.fromAxisAngle(axes.abduction, tilt * degrees),
   );
 
   TestValidator.predicate(
@@ -104,7 +104,7 @@ export function test_engine_kinematics_distal_twist_continuation(): void {
     selected >= excess - twistRoundoff &&
       selected <= excess + bracketDegrees + twistRoundoff &&
       nclose(
-        Quaternion.angleAfterNormalize(
+        AutoMovieEngineQuaternion.angleAfterNormalize(
           outside.projection.local,
           outside.projection.quaternion,
         ),
@@ -115,12 +115,12 @@ export function test_engine_kinematics_distal_twist_continuation(): void {
   TestValidator.predicate(
     "pair the selected lower twist with its actual wrist demand",
     nclose(
-      Quaternion.angleAfterNormalize(outside.projection.local, demand),
+      AutoMovieEngineQuaternion.angleAfterNormalize(outside.projection.local, demand),
       0,
       angleRoundoff,
     ) &&
       nclose(
-        Quaternion.angleAfterNormalize(outside.projection.quaternion, identity),
+        AutoMovieEngineQuaternion.angleAfterNormalize(outside.projection.quaternion, identity),
         0,
         angleRoundoff,
       ),

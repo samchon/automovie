@@ -1,7 +1,7 @@
 import { nclose } from "../../internal/nclose";
 import {
-  AutoMovieLoftViewFullSource as Full,
-  AutoMovieViewAxis,
+  AutoMovieEngineLoftViewFullSource as Full,
+  AutoMovieEngineViewAxis,
 } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft as H,
@@ -53,10 +53,10 @@ export function test_human_native_source_authority(): void {
     name: string,
     value: boolean,
   ): void => { if (!value) failures.push(name); };
-  const axis: IAutoMovieViewAxis.IAxis = AutoMovieViewAxis.straight(
+  const axis: IAutoMovieViewAxis.IAxis = AutoMovieEngineViewAxis.straight(
     [10, 0, 5], [1, 0, 0], [0, 0, 1],
   );
-  const mirrorAxis: IAutoMovieViewAxis.IAxis = AutoMovieViewAxis.straight(
+  const mirrorAxis: IAutoMovieViewAxis.IAxis = AutoMovieEngineViewAxis.straight(
     [10, 0, -5], [1, 0, 0], [0, 0, 1],
   );
   const original: IAutoMovieViewPart = circle("made", axis);
@@ -64,8 +64,8 @@ export function test_human_native_source_authority(): void {
   const originals: Map<string, IAutoMovieViewPart> = new Map([
     [original.name!, original], [mirrorOriginal.name!, mirrorOriginal],
   ]);
-  const source: IAutoMovieViewPart = AutoMovieHumanNativeSourceLaw(original, axis, [2, 3], []);
-  const mirror: IAutoMovieViewPart = AutoMovieHumanNativeSourceLaw(mirrorOriginal, mirrorAxis, [2, 3], []);
+  const source: IAutoMovieViewPart = AutoMovieHumanNativeSourceLaw.create(original, axis, [2, 3], []);
+  const mirror: IAutoMovieViewPart = AutoMovieHumanNativeSourceLaw.create(mirrorOriginal, mirrorAxis, [2, 3], []);
   const sources: Map<string, IAutoMovieViewPart> = new Map([
     ["made", source], ["made.mirror", mirror],
   ]);

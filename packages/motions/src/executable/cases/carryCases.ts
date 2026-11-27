@@ -1,20 +1,14 @@
-import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidSocket,
-  IAutoMovieMotionHumanCarry,
-  IAutoMovieMotionHumanPerformance,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics, AutoMovieEngineVector3 } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidSocket, IAutoMovieMotionHumanCarry, IAutoMovieMotionHumanPerformance, IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanChain } from "../../HumanChain";
-import { carry } from "../../carrying/carry";
-import { carryPlace } from "../../carrying/carryPlace";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
+import { carry } from "../../carrying/internal/carry";
+import { carryPlace } from "../../carrying/internal/carryPlace";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
-import { everydayVerdicts } from "./everydayVerdicts";
+import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/**
+/*
  * Capture cases of the load-carriage family: a 2.5 m walk ahead carrying a load
  * of 15 % of the body's mass in each way: `carry-oneHand` (right hand),
  * `carry-twoHands`, `carry-hip` (left hip) and `carry-push`.
@@ -31,9 +25,8 @@ import { everydayVerdicts } from "./everydayVerdicts";
  *   by at most 1 mm once the hold is taken (a rigid load, the issue's
  *   object-within-1-mm bound), and each surface stays within 10 mm of its hold
  *   place.
- *
- * @param bodies The sweep bodies; `m-average` when absent.
- * @returns The cases.
+ * Parameter bodies: The sweep bodies; `m-average` when absent.
+ * Returns: The cases.
  */
 export function carryCases(
   bodies: readonly string[] = ["m-average"],
@@ -54,7 +47,7 @@ export function carryCases(
         FamilyCaseKit.perform(
           "carry",
           [{ subject: "a", body: who.body }],
-          HumanChain.subject("a").act("carry", params).node,
+          AutoMovieMotionHumanChain.subject("a").act("carry", params).node,
         );
       const segment = performance.segments("a")[0]!;
       const verdicts: IMotionCaptureCase.IVerdict[] = [
@@ -96,7 +89,7 @@ export function carryCases(
       // The trunk's lean against the start.
       const chest = (t: number): IAutoMovieVector3 => {
         const bones = performance.bones("a", t);
-        return Vector3.subtract(
+        return AutoMovieEngineVector3.subtract(
           bones.get("upperChest")?.worldPosition ??
             bones.get("chest")!.worldPosition,
           bones.get("hips")!.worldPosition,
@@ -113,14 +106,14 @@ export function carryCases(
       const SAMPLES: number = 48;
       let mean: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
       for (let i: number = 0; i < SAMPLES; i++)
-        mean = Vector3.add(
+        mean = AutoMovieEngineVector3.add(
           mean,
-          Vector3.scale(
+          AutoMovieEngineVector3.scale(
             chest(stride[0] + ((i + 0.5) / SAMPLES) * (stride[1] - stride[0])),
             1 / SAMPLES,
           ),
         );
-      const shift: IAutoMovieVector3 = Vector3.subtract(mean, chest(0));
+      const shift: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(mean, chest(0));
       const lean: number =
         how === "oneHand" || how === "hip"
           ? (loaded === "left" ? -1 : 1) * shift.x
@@ -148,7 +141,7 @@ export function carryCases(
           t: number,
         ): IAutoMovieVector3 => {
           const frame = who.body.surfaces.sockets[name(side)];
-          return resolveAutoMovieHumanoidSurfaces.place(
+          return AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
             frame,
             performance.bones("a", t).get(frame.bone)!,
           ).point;
@@ -163,8 +156,8 @@ export function carryCases(
           t <= segment.end + 1e-9;
           t += 1 / 24
         ) {
-          const d: number = Vector3.length(
-            Vector3.subtract(surface("left", t), surface("right", t)),
+          const d: number = AutoMovieEngineVector3.length(
+            AutoMovieEngineVector3.subtract(surface("left", t), surface("right", t)),
           );
           low = Math.min(low, d);
           high = Math.max(high, d);
@@ -172,8 +165,8 @@ export function carryCases(
           for (const side of ["left", "right"] as const)
             off = Math.max(
               off,
-              Vector3.length(
-                Vector3.subtract(
+              AutoMovieEngineVector3.length(
+                AutoMovieEngineVector3.subtract(
                   surface(side, t),
                   carryPlace(who.body, posture, how, side, loaded)!.point,
                 ),

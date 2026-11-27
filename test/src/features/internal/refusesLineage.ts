@@ -1,4 +1,4 @@
-import { validateDesignLineage } from "@automovie/engine";
+import { AutoMovieEngineArchitecture } from "@automovie/engine";
 import type {
   AutoMovieViolationKind,
   IAutoMovieDesignLineage,
@@ -29,7 +29,7 @@ export const refusesLineage: (
   kind: AutoMovieViolationKind = "type",
 ): boolean =>
   hasViolation(
-    validateDesignLineage({ lineage: brokenLineage(edit) }),
+    AutoMovieEngineArchitecture.validateDesignLineage({ lineage: brokenLineage(edit) }),
     kind,
     path,
   );

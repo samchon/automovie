@@ -1,4 +1,4 @@
-import { Vector3, resolvePose } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieJointPose,
@@ -37,7 +37,7 @@ export const airborneHumanLayout: (
     joints: IAutoMovieJointPose[],
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
     new Map(
-      resolvePose(
+      AutoMovieEngineKinematics.resolvePose(
         { skeleton: person.skeleton.id, root: null, joints },
         person.skeleton,
       ).map(
@@ -66,8 +66,8 @@ export const airborneHumanLayout: (
       : -1;
   const reference: IAutoMovieVector3 = hand(posed(arms(lower * 40, 0)), "left");
   const miss: (sign: number) => number = (sign: number): number =>
-    Vector3.length(
-      Vector3.subtract(hand(posed(arms(0, sign * lower * 40)), "right"), {
+    AutoMovieEngineVector3.length(
+      AutoMovieEngineVector3.subtract(hand(posed(arms(0, sign * lower * 40)), "right"), {
         x: -reference.x,
         y: reference.y,
         z: reference.z,

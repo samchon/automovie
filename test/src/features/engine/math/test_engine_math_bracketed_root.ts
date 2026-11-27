@@ -1,4 +1,4 @@
-import { bracketedRoot } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/predicates";
@@ -25,16 +25,16 @@ export function test_engine_math_bracketed_root(): void {
   const square = (x: number): number => x * x - 2;
   TestValidator.predicate(
     "sqrt two upward",
-    close(bracketedRoot(square, 0, 2, 1e-12), Math.SQRT2, 1e-11),
+    close(AutoMovieEngineMath.bracketedRoot(square, 0, 2, 1e-12), Math.SQRT2, 1e-11),
   );
   TestValidator.predicate(
     "sqrt two downward",
-    close(bracketedRoot(square, 2, 0, 1e-12), Math.SQRT2, 1e-11),
+    close(AutoMovieEngineMath.bracketedRoot(square, 2, 0, 1e-12), Math.SQRT2, 1e-11),
   );
   TestValidator.predicate(
     "cosine fixed point",
     close(
-      bracketedRoot((x: number): number => Math.cos(x) - x, 0, 1, 1e-13),
+      AutoMovieEngineMath.bracketedRoot((x: number): number => Math.cos(x) - x, 0, 1, 1e-13),
       0.7390851332151607,
       1e-12,
     ),
@@ -46,17 +46,17 @@ export function test_engine_math_bracketed_root(): void {
   };
   TestValidator.equals(
     "end root, upper",
-    bracketedRoot(counted, 3, 5, 1e-9),
+    AutoMovieEngineMath.bracketedRoot(counted, 3, 5, 1e-9),
     3,
   );
   TestValidator.equals(
     "end root, lower",
-    bracketedRoot(counted, 1, 3, 1e-9),
+    AutoMovieEngineMath.bracketedRoot(counted, 1, 3, 1e-9),
     3,
   );
   TestValidator.equals("reads", calls, 4);
   calls = 0;
-  const cubic: number = bracketedRoot(
+  const cubic: number = AutoMovieEngineMath.bracketedRoot(
     (x: number): number => {
       calls++;
       return x * x * x - 2 * x - 5;
@@ -73,17 +73,17 @@ export function test_engine_math_bracketed_root(): void {
   TestValidator.predicate(
     "steep function",
     close(
-      bracketedRoot((x: number): number => Math.exp(8 * x) - 2, -1, 1, 1e-12),
+      AutoMovieEngineMath.bracketedRoot((x: number): number => Math.exp(8 * x) - 2, -1, 1, 1e-12),
       Math.LN2 / 8,
       1e-11,
     ),
   );
   TestValidator.predicate(
     "one sign",
-    throwsError(() => bracketedRoot(square, 2, 3, 1e-9)),
+    throwsError(() => AutoMovieEngineMath.bracketedRoot(square, 2, 3, 1e-9)),
   );
   TestValidator.predicate(
     "zero tolerance",
-    throwsError(() => bracketedRoot(square, 0, 2, 0)),
+    throwsError(() => AutoMovieEngineMath.bracketedRoot(square, 0, 2, 0)),
   );
 }

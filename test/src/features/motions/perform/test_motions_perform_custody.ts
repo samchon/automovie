@@ -1,5 +1,7 @@
 import type { IAutoMovieMotionHumanPerformanceState } from "@automovie/interface";
-import { HumanPerformanceCustody } from "@automovie/motions/internal";
+import {
+  HumanPerformanceCustody
+} from "../../../../../packages/motions/src/perform/internal/HumanPerformanceCustody";
 import { TestValidator } from "@nestia/e2e";
 
 /**

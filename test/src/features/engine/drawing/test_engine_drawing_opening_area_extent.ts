@@ -1,7 +1,4 @@
-import {
-  autoMovieOpeningArea,
-  autoMovieOpeningExtent,
-} from "@automovie/engine";
+import { AutoMovieEngineDrawing } from "@automovie/engine";
 import type { IAutoMovieOpeningProfile } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -16,7 +13,7 @@ const RECTANGLE: IAutoMovieOpeningProfile = {
 };
 
 /**
- * `autoMovieOpeningArea` and `autoMovieOpeningExtent` measure an opening's
+ * `openingArea` and `openingExtent` measure an opening's
  * outline.
  *
  * Scenarios:
@@ -25,14 +22,24 @@ const RECTANGLE: IAutoMovieOpeningProfile = {
  * 2. The area does not depend on the winding.
  */
 export function test_engine_drawing_opening_area_extent(): void {
-  TestValidator.equals("area", autoMovieOpeningArea(RECTANGLE), 2);
-  TestValidator.equals("extent", autoMovieOpeningExtent(RECTANGLE), {
-    width: 2,
-    height: 1,
-  });
+  TestValidator.equals(
+    "area",
+    AutoMovieEngineDrawing.autoMovieOpeningArea(RECTANGLE),
+    2,
+  );
+  TestValidator.equals(
+    "extent",
+    AutoMovieEngineDrawing.autoMovieOpeningExtent(RECTANGLE),
+    {
+      width: 2,
+      height: 1,
+    },
+  );
   TestValidator.equals(
     "clockwise area",
-    autoMovieOpeningArea({ outline: [...RECTANGLE.outline].reverse() }),
+    AutoMovieEngineDrawing.autoMovieOpeningArea({
+      outline: [...RECTANGLE.outline].reverse(),
+    }),
     2,
   );
 }

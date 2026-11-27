@@ -1,9 +1,5 @@
-import {
-  createBag,
-  createBowl,
-  createServingTray,
-} from "@automovie/archetypes";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieArchetypeBowl, AutoMovieArchetypeServingTray, AutoMovieArchetypeBag } from "@automovie/archetypes";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieAffordance,
@@ -14,8 +10,13 @@ import type {
   IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
-import { HumanChain, HumanPerformance } from "@automovie/motions";
-import { HUMAN_LEXICON, HumanPropFrame } from "@automovie/motions/internal";
+import { AutoMovieMotionHumanChain, AutoMovieMotionHumanPerformance } from "@automovie/motions";
+import {
+  HUMAN_LEXICON
+} from "../../../../packages/motions/src/lexicon/internal/HUMAN_LEXICON";
+import {
+  HumanPropFrame
+} from "../../../../packages/motions/src/perform/internal/HumanPropFrame";
 
 import { everydayTake } from "./everydayTake";
 
@@ -49,7 +50,7 @@ export namespace carriageScene {
     props: readonly IAutoMovieMotionHumanProp[],
     chain: IAutoMovieMotionHumanChain,
     others: readonly everydayTake.IOther[] = [],
-  ): HumanPerformance {
+  ): AutoMovieMotionHumanPerformance {
     return everydayTake.perform(
       `carriage-${label}`,
       body,
@@ -70,7 +71,7 @@ export namespace carriageScene {
    * @returns The frame.
    */
   export function relative(
-    take: HumanPerformance,
+    take: AutoMovieMotionHumanPerformance,
     bone: AutoMovieHumanoidBone,
     subject: string,
     t: number,
@@ -90,11 +91,11 @@ export namespace carriageScene {
     bone: AutoMovieHumanoidBone,
     world: (b: IAutoMovieResolvedBone) => IAutoMovieRigidTransform,
   ): IAutoMovieRigidTransform {
-    const still: HumanPerformance = everydayTake.perform(
+    const still: AutoMovieMotionHumanPerformance = everydayTake.perform(
       "carriage-rest",
       body,
       [],
-      HumanChain.subject("actor").stand({ hold: 0.2, sway: 0 }),
+      AutoMovieMotionHumanChain.subject("actor").stand({ hold: 0.2, sway: 0 }),
     );
     const b: IAutoMovieResolvedBone = still.bones("actor", 0.1).get(bone)!;
     return HumanPropFrame.relative(HumanPropFrame.bone(b), world(b));
@@ -125,11 +126,11 @@ export namespace carriageScene {
    * @returns The props and their places.
    */
   export function arrival(body: IAutoMovieMotionHumanBody): IArrival {
-    const pack: everydayTake.IPosable = createBag({
+    const pack: everydayTake.IPosable = AutoMovieArchetypeBag.create({
       id: "pack",
       kind: "backpack",
     });
-    const suitcase: everydayTake.IPosable = createBag({
+    const suitcase: everydayTake.IPosable = AutoMovieArchetypeBag.create({
       id: "case",
       kind: "suitcase",
     });
@@ -143,7 +144,7 @@ export namespace carriageScene {
         body,
         "chest",
         (b: IAutoMovieResolvedBone): IAutoMovieRigidTransform => ({
-          position: Vector3.add(b.worldPosition, { x: 0, y: -0.35, z: -0.2 }),
+          position: AutoMovieEngineVector3.add(b.worldPosition, { x: 0, y: -0.35, z: -0.2 }),
           rotation: BEHIND,
         }),
       ),
@@ -254,13 +255,13 @@ export namespace carriageScene {
    */
   export function trayProps(): IAutoMovieMotionHumanProp[] {
     return [
-      everydayTake.prop("tray", createServingTray({ id: "tray" }), {
+      everydayTake.prop("tray", AutoMovieArchetypeServingTray.create({ id: "tray" }), {
         x: -0.3,
         y: 1.0,
         z: 0.3,
       }),
       {
-        ...everydayTake.prop("bowl", createBowl({ id: "bowl" }), {
+        ...everydayTake.prop("bowl", AutoMovieArchetypeBowl.create({ id: "bowl" }), {
           x: -0.3,
           y: 1.01,
           z: 0.3,
@@ -317,14 +318,14 @@ export namespace carriageScene {
    */
   export function headLoad(body: IAutoMovieMotionHumanBody): IHeadLoad {
     // A porter's flat tray, the bundle's base, lifted by its end grip.
-    const basket: everydayTake.IPosable = createServingTray({ id: "basket" });
+    const basket: everydayTake.IPosable = AutoMovieArchetypeServingTray.create({ id: "basket" });
     return {
       basket,
       crown: offsetOn(
         body,
         "head",
         (b: IAutoMovieResolvedBone): IAutoMovieRigidTransform => ({
-          position: Vector3.add(b.worldPosition, { x: 0, y: 0.18, z: 0 }),
+          position: AutoMovieEngineVector3.add(b.worldPosition, { x: 0, y: 0.18, z: 0 }),
           rotation: { x: 0, y: 0, z: 0, w: 1 },
         }),
       ),

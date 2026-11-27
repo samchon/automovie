@@ -1,9 +1,9 @@
 import {
-  AutoMovieXpbdBody,
-  physicalStanceAllocation,
-  physicalStanceBalance,
-  physicalStanceHip,
-  trackPhysicalRoot,
+  AutoMovieEngineXpbdBody,
+  AutoMovieEnginePhysicalStanceAllocation,
+  AutoMovieEnginePhysicalStanceBalance,
+  AutoMovieEnginePhysicalStanceHip,
+  AutoMovieEnginePhysicalRootTracking,
 } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalJoint,
@@ -56,11 +56,11 @@ export function test_engine_physics_physical_stance_allocation(): void {
     )
       failures.push(`${name}: ${actual} against ${expected}`);
   };
-  const k: number = physicalStanceBalance.GAIN;
+  const k: number = AutoMovieEnginePhysicalStanceBalance.GAIN;
   const origin: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 
   // 1. The command with a bias.
-  const biased: IAutoMovieVector3 = physicalStanceAllocation.law(
+  const biased: IAutoMovieVector3 = AutoMovieEnginePhysicalStanceAllocation.law(
     { x: 0, y: 0, z: 0.03 },
     origin,
     { x: 0.01, z: -0.01 },
@@ -81,8 +81,8 @@ export function test_engine_physics_physical_stance_allocation(): void {
     xi: number,
     delta: number,
     hip?: number,
-  ): ReturnType<typeof physicalStanceAllocation.allocate> =>
-    physicalStanceAllocation.allocate({
+  ): ReturnType<typeof AutoMovieEnginePhysicalStanceAllocation.allocate> =>
+    AutoMovieEnginePhysicalStanceAllocation.allocate({
       capture: { x: 0, y: 0, z: xi },
       reference: origin,
       command: { x: 0, y: 0, z: xi * (1 + k) },
@@ -157,7 +157,7 @@ export function test_engine_physics_physical_stance_allocation(): void {
       failures.push(`a trunk asking ${delta} m pulls the pivot inside xi`);
   // With the reference at the shrunken edge, u_law = 0.385 + k 0.005 lies
   // inside the support and the trunk's 0.03 is trimmed to the 0.011 left.
-  const trimmed = physicalStanceAllocation.allocate({
+  const trimmed = AutoMovieEnginePhysicalStanceAllocation.allocate({
     capture: { x: 0, y: 0, z: 0.385 },
     reference: { x: 0, y: 0, z: 0.38 },
     command: { x: 0, y: 0, z: 0.385 + k * 0.005 },
@@ -184,7 +184,7 @@ export function test_engine_physics_physical_stance_allocation(): void {
   const identity: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
   const body = (
     position: IAutoMovieVector3,
-  ): Pick<AutoMovieXpbdBody, "translation" | "rotation"> => ({
+  ): Pick<AutoMovieEngineXpbdBody, "translation" | "rotation"> => ({
     translation: (): IAutoMovieVector3 => position,
     rotation: (): IAutoMovieQuaternion => identity,
   });
@@ -217,7 +217,7 @@ export function test_engine_physics_physical_stance_allocation(): void {
   };
   const trunk: ReadonlyMap<
     string,
-    Pick<AutoMovieXpbdBody, "translation" | "rotation">
+    Pick<AutoMovieEngineXpbdBody, "translation" | "rotation">
   > = new Map([["trunk", body({ x: 0, y: 0.5, z: 0 })]]);
   const diagonal = (force: number) =>
     (["frontLeft", "backRight"] as const).map((bone) => ({
@@ -237,13 +237,13 @@ export function test_engine_physics_physical_stance_allocation(): void {
       force,
     }));
   const pitch: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
-  const raw: number = physicalStanceHip.hipRoom({
+  const raw: number = AutoMovieEnginePhysicalStanceHip.hipRoom({
     profile: quad,
     segments: trunk,
     stance: diagonal(0),
     axis: pitch,
   });
-  const room: number = physicalStanceHip.hipRoom({
+  const room: number = AutoMovieEnginePhysicalStanceHip.hipRoom({
     profile: quad,
     segments: trunk,
     stance: diagonal(300),
@@ -251,7 +251,7 @@ export function test_engine_physics_physical_stance_allocation(): void {
   });
   near("unloaded hips' room", raw, 200);
   near("loaded hips' room", room, 140);
-  const weighed = physicalStanceAllocation.allocate({
+  const weighed = AutoMovieEnginePhysicalStanceAllocation.allocate({
     capture: { x: 0, y: 0, z: 0.1 },
     reference: origin,
     command: { x: 0, y: 0, z: 0.1 * (1 + k) },
@@ -283,13 +283,13 @@ export function test_engine_physics_physical_stance_allocation(): void {
   ];
   const lift: number = 700;
   const single = (trunk: IAutoMovieVector3) => {
-    const moment: IAutoMovieVector3 = trackPhysicalRoot.moment({
+    const moment: IAutoMovieVector3 = AutoMovieEnginePhysicalRootTracking.moment({
       trunk,
       swings: [hip],
     });
     return {
       moment,
-      allocated: physicalStanceAllocation.allocate({
+      allocated: AutoMovieEnginePhysicalStanceAllocation.allocate({
         capture: { x: 0, y: 0, z: 0.05 },
         reference: { x: 0, y: 0, z: 0.05 },
         command: { x: 0, y: 0, z: 0.05 },

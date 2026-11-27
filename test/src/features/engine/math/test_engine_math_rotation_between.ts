@@ -1,4 +1,4 @@
-import { rotationBetween } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -42,35 +42,35 @@ export function test_engine_math_rotation_between(): void {
   TestValidator.predicate(
     "a quarter turn from any lengths",
     qclose(
-      rotationBetween({ x: 2, y: 0, z: 0 }, { x: 0, y: 5, z: 0 }),
+      AutoMovieEngineMath.rotationBetween({ x: 2, y: 0, z: 0 }, { x: 0, y: 5, z: 0 }),
       quarter,
       TURN_ROUNDING,
     ),
   );
   TestValidator.predicate(
     "parallel and zero directions fall back to identity",
-    qclose(rotationBetween(x, x), identity, TURN_ROUNDING) &&
-      qclose(rotationBetween(zero, x), identity, TURN_ROUNDING) &&
-      qclose(rotationBetween(x, zero), identity, TURN_ROUNDING),
+    qclose(AutoMovieEngineMath.rotationBetween(x, x), identity, TURN_ROUNDING) &&
+      qclose(AutoMovieEngineMath.rotationBetween(zero, x), identity, TURN_ROUNDING) &&
+      qclose(AutoMovieEngineMath.rotationBetween(x, zero), identity, TURN_ROUNDING),
   );
   TestValidator.predicate(
     "opposite directions turn half about a perpendicular",
     qclose(
-      rotationBetween(x, { x: -1, y: 0, z: 0 }),
+      AutoMovieEngineMath.rotationBetween(x, { x: -1, y: 0, z: 0 }),
       { x: 0, y: 0, z: 1, w: 0 },
       TURN_ROUNDING,
     ) &&
       qclose(
-        rotationBetween(y, { x: 0, y: -1, z: 0 }),
+        AutoMovieEngineMath.rotationBetween(y, { x: 0, y: -1, z: 0 }),
         { x: 0, y: 0, z: -1, w: 0 },
         TURN_ROUNDING,
       ),
   );
   TestValidator.predicate(
     "a prepared source gives the same turn, from any length",
-    qclose(rotationBetween.prepare(x)(y), quarter, TURN_ROUNDING) &&
+    qclose(AutoMovieEngineMath.prepareRotationBetween(x)(y), quarter, TURN_ROUNDING) &&
       qclose(
-        rotationBetween.prepare({ x: 0.5, y: 0, z: 0 })({ x: -1, y: 0, z: 0 }),
+        AutoMovieEngineMath.prepareRotationBetween({ x: 0.5, y: 0, z: 0 })({ x: -1, y: 0, z: 0 }),
         { x: 0, y: 0, z: 1, w: 0 },
         TURN_ROUNDING,
       ),

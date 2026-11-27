@@ -1,6 +1,8 @@
-import { AutoMovieGravity } from "@automovie/engine";
+import { AutoMovieEngineGravity } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { ropeSwingCourse } from "@automovie/motions/internal";
+import {
+  ropeSwingCourse
+} from "../../../../../packages/motions/src/rope/internal/ropeSwingCourse";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -31,9 +33,9 @@ export function test_motions_rope_swing_course(): void {
     { x: 0, y: 0, z: 1 },
     entered,
   );
-  const half: number = Math.PI * Math.sqrt(2 / AutoMovieGravity.STANDARD);
+  const half: number = Math.PI * Math.sqrt(2 / AutoMovieEngineGravity.STANDARD);
   const tangent: number =
-    (Math.PI / 6) * Math.sqrt(2 * AutoMovieGravity.STANDARD);
+    (Math.PI / 6) * Math.sqrt(2 * AutoMovieEngineGravity.STANDARD);
   TestValidator.predicate(
     "both extremes have the declared period and zero tangent",
     nclose(course.half, half, ROUNDING) &&

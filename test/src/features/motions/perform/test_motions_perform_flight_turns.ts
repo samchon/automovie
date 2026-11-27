@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieHumanPostureRotation,
   IAutoMovieMotionHumanFlightTurns,
@@ -6,9 +6,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanPerformanceFlightRotation,
-  HumanPerformanceStagedFlightRotation,
-} from "@automovie/motions/internal";
+  HumanPerformanceFlightRotation
+} from "../../../../../packages/motions/src/perform/internal/HumanPerformanceFlightRotation";
+import {
+  HumanPerformanceStagedFlightRotation
+} from "../../../../../packages/motions/src/perform/internal/HumanPerformanceStagedFlightRotation";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../../internal/vclose";
@@ -116,7 +118,7 @@ export function test_motions_perform_flight_turns(): void {
   );
 
   // 2. A heading.
-  const heading: IAutoMovieQuaternion = Quaternion.fromAxisAngle(Y, 90);
+  const heading: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(Y, 90);
   TestValidator.predicate(
     "the somersault in the body's heading",
     same(
@@ -124,7 +126,7 @@ export function test_motions_perform_flight_turns(): void {
         { kind: "turns", somersault: 1, twist: 0 },
         table((): IAutoMovieQuaternion => heading),
       )(1.25).turn,
-      Quaternion.fromAxisAngle({ x: 0, y: 0, z: -1 }, 90),
+      AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 0, z: -1 }, 90),
     ),
   );
 
@@ -137,11 +139,11 @@ export function test_motions_perform_flight_turns(): void {
           kind: "turns",
           somersault: 1,
           twist: 0,
-          frame: Quaternion.fromAxisAngle(Z, 90),
+          frame: AutoMovieEngineQuaternion.fromAxisAngle(Z, 90),
         },
         still,
       )(1.25).turn,
-      Quaternion.fromAxisAngle(Y, 90),
+      AutoMovieEngineQuaternion.fromAxisAngle(Y, 90),
     ),
   );
 
@@ -152,7 +154,7 @@ export function test_motions_perform_flight_turns(): void {
   );
   TestValidator.predicate(
     "two twists",
-    same(twisted(1.25).turn, Quaternion.fromAxisAngle(Y, 180)) &&
+    same(twisted(1.25).turn, AutoMovieEngineQuaternion.fromAxisAngle(Y, 180)) &&
       same(twisted(2).turn, IDENTITY),
   );
 
@@ -161,14 +163,14 @@ export function test_motions_perform_flight_turns(): void {
     { kind: "turns", somersault: 1, twist: 0 },
     table(
       (t: number): IAutoMovieQuaternion =>
-        t === 1 ? IDENTITY : Quaternion.fromAxisAngle(Y, 90),
+        t === 1 ? IDENTITY : AutoMovieEngineQuaternion.fromAxisAngle(Y, 90),
     ),
   );
   TestValidator.predicate(
     "the turn about the slerped heading",
     same(
       turning(1.125).turn,
-      Quaternion.fromAxisAngle({ x: Math.SQRT1_2, y: 0, z: -Math.SQRT1_2 }, 45),
+      AutoMovieEngineQuaternion.fromAxisAngle({ x: Math.SQRT1_2, y: 0, z: -Math.SQRT1_2 }, 45),
     ),
   );
 }

@@ -1,4 +1,6 @@
-import { admitForgedCastEntries } from "@automovie/engine/internal";
+import {
+  admitForgedCastEntries
+} from "../../../../../packages/engine/src/film/internal/admitForgedCastEntries";
 import type {
   IAutoMovieCastMember,
   IAutoMovieForgeEntry,

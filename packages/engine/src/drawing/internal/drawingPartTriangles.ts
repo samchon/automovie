@@ -1,0 +1,86 @@
+import {
+  type IAutoMovieDrawingTriangle,
+  IAutoMovieMesh,
+  IAutoMovieModel,
+  IAutoMovieModelPart,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+import { realizeGeometry } from "../../geometry/internal/realizeGeometry";
+import { AutoMovieEngineMatrix4 } from "../../math/AutoMovieEngineMatrix4";
+import { transformDrawingPoint } from "./transformDrawingPoint";
+
+/*
+ * Triangles of one model part in the model's frame, with the part's own
+ * transform applied.
+ *
+ * A primitive is tessellated by the engine's own kernel, so the drawing and the
+ * renderer read one description of a box. An imported mesh is taken as written,
+ * indexed or not, and its winding is kept because the silhouette pass reads it.
+ * Bicubic recipes use the same canonical engine realization as display,
+ * including finite partial output; processing qualification is not a drawing
+ * gate.
+ *
+ * Throws an `Error` naming the model and part when the position array is not
+ * whole `x, y, z` triples, the index array is not whole triangles, or an index
+ * is not an integer naming one of the vertices: drawing whatever prefix happens
+ * to divide evenly would hide an authoring defect behind a plausible outline.
+ * Parameter model: Model owning the part; used for its id in failures.
+ * Parameter part: Part whose geometry and transform are read.
+ * Returns: The part's triangles in model-frame metres.
+ */
+export function drawingPartTriangles(
+  model: IAutoMovieModel,
+  part: IAutoMovieModelPart,
+): IAutoMovieDrawingTriangle[] {
+  const source: IAutoMovieMesh = realizeGeometry(part.geometry).mesh;
+  const positions: readonly number[] = source.positions;
+  if (positions.length % 3 !== 0)
+    throw new Error(
+      `model "${model.id}" part "${part.id}" has ${positions.length} position scalars, which is not a multiple of 3`,
+    );
+  const vertexCount: number = positions.length / 3;
+  const indices: readonly number[] =
+    source.indices ??
+    Array.from(
+      { length: vertexCount },
+      (_: unknown, index: number): number => index,
+    );
+  if (indices.length % 3 !== 0)
+    throw new Error(
+      `model "${model.id}" part "${part.id}" has ${indices.length} indices, which is not a multiple of 3`,
+    );
+  const corner: (index: number) => IAutoMovieVector3 = (
+    index: number,
+  ): IAutoMovieVector3 => {
+    if (index < 0 || index >= vertexCount)
+      throw new Error(
+        `model "${model.id}" part "${part.id}" index ${index} is outside its ${vertexCount} vertices`,
+      );
+    return {
+      x: positions[index * 3]!,
+      y: positions[index * 3 + 1]!,
+      z: positions[index * 3 + 2]!,
+    };
+  };
+  const matrix: number[] | null =
+    part.transform === null
+      ? null
+      : AutoMovieEngineMatrix4.compose(
+          part.transform.translation,
+          part.transform.rotation,
+          part.transform.scale,
+        );
+  const place: (point: IAutoMovieVector3) => IAutoMovieVector3 = (
+    point: IAutoMovieVector3,
+  ): IAutoMovieVector3 =>
+    matrix === null ? point : transformDrawingPoint(matrix, point);
+  const triangles: IAutoMovieDrawingTriangle[] = [];
+  for (let index: number = 0; index < indices.length; index += 3)
+    triangles.push({
+      a: place(corner(indices[index]!)),
+      b: place(corner(indices[index + 1]!)),
+      c: place(corner(indices[index + 2]!)),
+    });
+  return triangles;
+}

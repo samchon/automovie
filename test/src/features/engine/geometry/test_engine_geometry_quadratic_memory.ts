@@ -1,11 +1,11 @@
-import { createAutoMovieQuadraticMemory } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import type { IAutoMovieQuadraticHeap } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/predicates";
 
 /**
- * `createAutoMovieQuadraticMemory().withWorkspace(bytes, callback)` lends a
+ * `createQuadraticMemory().withWorkspace(bytes, callback)` lends a
  * fresh, aligned, zeroed workspace for the callback only.
  *
  * Scenarios:
@@ -22,8 +22,8 @@ import { throwsError } from "../../internal/predicates";
  *    even after writing through an old view.
  */
 export function test_engine_geometry_quadratic_memory(): void {
-  const owner = createAutoMovieQuadraticMemory();
-  const other = createAutoMovieQuadraticMemory();
+  const owner = AutoMovieEngineMath.createQuadraticMemory();
+  const other = AutoMovieEngineMath.createQuadraticMemory();
   let retained: IAutoMovieQuadraticHeap | undefined;
   let view: Float64Array | undefined;
 

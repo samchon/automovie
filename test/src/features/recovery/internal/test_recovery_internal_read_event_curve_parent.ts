@@ -3,11 +3,11 @@ import type {
   IAutoMovieCubicBezierCurve64,
   IAutoMovieRecoveryEventCurveSource,
 } from "@automovie/interface";
-import { readRecoveryEventCurveParent } from "@automovie/recovery";
+import { AutoMovieRecoveryEventCurve } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `readRecoveryEventCurveParent` admits the single complete Bernstein curve
+ * `AutoMovieRecoveryEventCurve.fullparentControls` admits the single complete Bernstein curve
  * that supplies an event occurrence, and gives its four controls.
  *
  * Scenarios:
@@ -43,15 +43,15 @@ export function test_recovery_internal_read_event_curve_parent(): void {
   });
   TestValidator.equals(
     "the span",
-    readRecoveryEventCurveParent(source(curve)),
+    AutoMovieRecoveryEventCurve.fullparentControls(source(curve)),
     net,
   );
   TestValidator.error("two spans", (): unknown =>
-    readRecoveryEventCurveParent(
+    AutoMovieRecoveryEventCurve.fullparentControls(
       source({ ...curve, phaseIntervals: [1, 2], spans: [net, net] }),
     ),
   );
   TestValidator.error("a zero phase width", (): unknown =>
-    readRecoveryEventCurveParent(source({ ...curve, phaseIntervals: [0] })),
+    AutoMovieRecoveryEventCurve.fullparentControls(source({ ...curve, phaseIntervals: [0] })),
   );
 }

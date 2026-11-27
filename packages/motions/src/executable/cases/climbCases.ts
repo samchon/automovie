@@ -1,28 +1,17 @@
-import { resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  IAutoMovieMotionHumanClimbLadder,
-  IAutoMovieMotionHumanLadder,
-  IAutoMovieMotionHumanPerformance,
-  IAutoMovieVector3,
-} from "@automovie/interface";
 
-import { HumanChain } from "../../HumanChain";
-import { climbLadder } from "../../climbing/climbLadder";
-import { HumanFoot } from "../../posture/HumanFoot";
-import { HumanFrame } from "../../posture/HumanFrame";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanSide, IAutoMovieMotionHumanClimbLadder, IAutoMovieMotionHumanLadder, IAutoMovieMotionHumanPerformance, IAutoMovieVector3 } from "@automovie/interface";
+
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
+import { climbLadder } from "../../climbing/internal/climbLadder";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
-import { climbCaseLadder } from "./climbCaseLadder";
-import { everydayVerdicts } from "./everydayVerdicts";
+import { climbCaseLadder } from "./internal/climbCaseLadder";
+import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/** The record of `IClimbCasesFewest`'s site. */
-type IClimbCasesFewest = { value: number; at: number };
-
-/** The record of `IClimbCasesHeld`'s site. */
-type IClimbCasesHeld = { value: number; where: string };
-
-/**
+/*
  * Capture cases of the climbing family: `climb-ladder`, three rungs of a fixed
  * ladder with 0.3 m spacing (OSHA 1910.23) in the four-beat pattern, from quiet
  * standing before it; the ladder is a fixture prop whose rungs stand 0.35 m
@@ -35,9 +24,8 @@ type IClimbCasesHeld = { value: number; where: string };
  * Holland 2020's three points of control), a hand counting within 15 mm of a
  * rung's axis and a foot with a sole socket within 15 mm of a rung's top or the
  * floor.
- *
- * @param bodies The sweep bodies; `m-average` when absent.
- * @returns The cases.
+ * Parameter bodies: The sweep bodies; `m-average` when absent.
+ * Returns: The cases.
  */
 export function climbCases(
   bodies: readonly string[] = ["m-average"],
@@ -53,7 +41,7 @@ export function climbCases(
     const performance: IAutoMovieMotionHumanPerformance = FamilyCaseKit.perform(
       "climb",
       [{ subject: "a", body: who.body }],
-      HumanChain.subject("a").act("climbLadder", params).node,
+      AutoMovieMotionHumanChain.subject("a").act("climbLadder", params).node,
       [climbCaseLadder()],
     );
     const segment = performance.segments("a")[0]!;
@@ -78,7 +66,7 @@ export function climbCases(
     const grip = (side: AutoMovieHumanSide, t: number): IAutoMovieVector3 => {
       const frame =
         who.body.surfaces.sockets[side === "left" ? "gripLeft" : "gripRight"];
-      return resolveAutoMovieHumanoidSurfaces.place(
+      return AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
         frame,
         performance.bones("a", t).get(frame.bone)!,
       ).point;
@@ -152,3 +140,13 @@ export function climbCases(
   }
   return out;
 }
+
+/*
+ * The record of `IClimbCasesFewest`'s site.
+ */
+type IClimbCasesFewest = { value: number; at: number };
+
+/*
+ * The record of `IClimbCasesHeld`'s site.
+ */
+type IClimbCasesHeld = { value: number; where: string };

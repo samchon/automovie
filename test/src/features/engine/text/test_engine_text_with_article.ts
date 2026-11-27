@@ -1,4 +1,4 @@
-import { withArticle } from "@automovie/engine";
+import { AutoMovieEngineText } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -21,11 +21,23 @@ export function test_engine_text_with_article(): void {
     ["point", "a point"],
     ["door", "a door"],
   ] as const)
-    TestValidator.equals(subject, withArticle(subject), expected);
+    TestValidator.equals(
+      subject,
+      AutoMovieEngineText.withArticle(subject),
+      expected,
+    );
 
   // 2. Case is ignored for the letter and kept in the subject.
-  TestValidator.equals("an upper-case vowel", withArticle("Ice"), "an Ice");
+  TestValidator.equals(
+    "an upper-case vowel",
+    AutoMovieEngineText.withArticle("Ice"),
+    "an Ice",
+  );
 
   // 3. The empty subject.
-  TestValidator.equals("the empty subject", withArticle(""), "a ");
+  TestValidator.equals(
+    "the empty subject",
+    AutoMovieEngineText.withArticle(""),
+    "a ",
+  );
 }

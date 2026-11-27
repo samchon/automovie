@@ -20,7 +20,8 @@ Keep subjects simple and motion detailed.
 
 - Use the polygon man from `@automovie/human`.
 - Use `@automovie/archetypes` for objects, or build a coarse form.
-- Compose actions from `@automovie/motions`, reading in its JSDoc what each value and default performs.
+- Compose actions from `@automovie/motions`.
+  - Read JSDoc for what each input and default performs.
 
 Realize the screenplay in code.
 
@@ -30,10 +31,13 @@ Realize the screenplay in code.
 
 Work from evidence and verify the result.
 
-- [Study skilled performance](.agents/skills/story/planning/research.md#performance-study) even with installed motions. Research other uncertainties and refer unresolved choices to the user.
+- [Study skilled performance](.agents/skills/story/planning/research.md#performance-study) even when using installed motions.
+  - Research other uncertainties and refer unresolved choices to the user.
 - Finish each inspection round before repairing its findings together by cause.
-- Inspect spatial detail on captured frames. Judge pace in continuous playback and [record the observers](.agents/skills/review/delivery-review.md#acceptance-record).
-- [Return story defects exposed by faithful staging](.agents/skills/review/delivery-review.md#repairs) to the story owner. Inspect the revised cut.
+- Inspect spatial detail on frames. Judge pace in continuous playback.
+  - [Record the observers](.agents/skills/review/delivery-review.md#acceptance-record).
+- [Return story defects from faithful staging](.agents/skills/review/delivery-review.md#repairs) to the story owner.
+  - Inspect the revised cut.
 
 Continue independent work while a required decision or viewing is pending. Keep delivery open until required checks finish. Get approval for destructive or outward-facing actions.
 
@@ -57,8 +61,8 @@ Directors, writers, reviewers and Evidence answerers pursue perfection. Each ins
 | [3d-modeling](.agents/skills/3d-modeling/SKILL.md) | Build, rig or detail a 3D subject |
 | [audio](.agents/skills/audio/SKILL.md) | Make sound or preview a voice |
 | [contracts](.agents/skills/contracts/SKILL.md) | Find the checklist and its respondent |
-| [development](.agents/skills/development/SKILL.md) | Change code, dependencies, commands or tests |
-| [documentation](.agents/skills/documentation/SKILL.md) | Write a document or comment |
+| [development](.agents/skills/development/SKILL.md) | Change code, doc comments, dependencies, commands or tests |
+| [documentation](.agents/skills/documentation/SKILL.md) | Write a project document |
 | [evidence](.agents/skills/evidence/SKILL.md) | Adopt requirements, configure checks or answer them |
 | [image](.agents/skills/image/SKILL.md) | Make appearance references, shot frames or set views |
 | [motion](.agents/skills/motion/SKILL.md) | Author or verify motion, staging, camera or channels |
@@ -68,4 +72,4 @@ Directors, writers, reviewers and Evidence answerers pursue perfection. Each ins
 | [review](.agents/skills/review/SKILL.md) | Review work, decide acceptance or estimate quality on request |
 | [story](.agents/skills/story/SKILL.md) | Research, plan, write or repair narrative |
 | [video](.agents/skills/video/SKILL.md) | Finish a direct 3D or generated film |
-| [visual-debugging](.agents/skills/visual-debugging/SKILL.md) | Capture or inspect pictures, or repair the viewer or capture |
+| [visual-debugging](.agents/skills/visual-debugging/SKILL.md) | Inspect or capture pictures, or repair the instrument |

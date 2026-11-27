@@ -1,8 +1,4 @@
-import {
-  preparePhysicalGeometry as Geometry,
-  AutoMoviePhysicalSimulation as Simulation,
-  planPhysicalContactTargets,
-} from "@automovie/engine";
+import { AutoMovieEnginePhysicalGeometry as Geometry, AutoMovieEnginePhysicalSimulation as Simulation, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalContactBinding as Binding,
   IAutoMoviePhysicalJoint,
@@ -41,7 +37,7 @@ import { PhysicalModelFixtures } from "../../internal/PhysicalModelFixtures";
 export async function test_engine_physics_physical_binding_budget(): Promise<void> {
   const profile: P = PhysicalModelFixtures.quadrupod();
   const receiver: P = PhysicalFixtures.sphere();
-  const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry();
+  const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry.prepare();
   /**
    * Independent separation rows exercise the real variable-row consumer without
    * introducing a body-name rule.
@@ -88,8 +84,8 @@ export async function test_engine_physics_physical_binding_budget(): Promise<voi
   assert.throws((): string => Simulation.identity(input), /budget/);
   source.maximumBindings = 17;
   Simulation.identity(input);
-  const fitted: ReturnType<typeof planPhysicalContactTargets> =
-    planPhysicalContactTargets({
+  const fitted: ReturnType<typeof AutoMovieEnginePhysics.planPhysicalContactTargets> =
+    AutoMovieEnginePhysics.planPhysicalContactTargets({
       body: source.id,
       profiles: { assembly: profile, receiver },
       targets: source.targets[0]!.segments,

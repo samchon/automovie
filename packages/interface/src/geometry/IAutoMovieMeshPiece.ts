@@ -1,9 +1,9 @@
 /**
- * The topology of one piece of a mesh, as `measureAutoMovieMeshPieces` reports
+ * The topology of one piece of a mesh, as `measureMeshPieces` reports
  * it.
  *
  * A piece is a set of non-degenerate triangles connected through shared edges
- * after the mesh's corners are welded the way `inspectAutoMovieMeshTopology`
+ * after the mesh's corners are welded the way `inspectMeshTopology`
  * welds them, so face-local corners at one point join and a seam split for UVs
  * counts once. Two pieces that touch only at a corner stay two pieces. The
  * counts are of welded vertices, undirected edges and triangles, and the genus

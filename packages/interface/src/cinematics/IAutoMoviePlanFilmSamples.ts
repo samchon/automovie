@@ -1,7 +1,7 @@
 import type { IAutoMovieFilmOptics } from "./IAutoMovieFilmOptics";
 
 /**
- * Data contracts of `planAutoMovieFilmSamples`, the sub-frame samples a
+ * Data contracts of `planFilmSamples`, the sub-frame samples a
  * directly rendered frame averages for its shutter and its lens.
  */
 export namespace IAutoMoviePlanFilmSamples {
@@ -38,6 +38,9 @@ export namespace IAutoMoviePlanFilmSamples {
      * The eye's offset on the aperture disk, in metres along the camera's local
      * right and up axes, or null without a lens.
      */
-    eye: { x: number; y: number } | null;
+    eye: ISampleEye | null;
   };
+
+  /** The eye object of {@link ISample}. */
+  export type ISampleEye = { x: number; y: number };
 }

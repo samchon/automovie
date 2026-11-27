@@ -7,12 +7,20 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanArm,
-  AutoMovieMotionHumanArmJointCourse,
-  AutoMovieMotionHumanBend,
-  poseBones,
-  resolveHumanPosture,
-} from "@automovie/motions/internal";
+  AutoMovieMotionHumanArm
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanArm";
+import {
+  motionHumanArmJointCourse
+} from "../../../../../packages/motions/src/compose/internal/motionHumanArmJointCourse";
+import {
+  AutoMovieMotionHumanBend
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanBend";
+import {
+  poseBones
+} from "../../../../../packages/motions/src/posture/internal/poseBones";
+import {
+  resolveHumanPosture
+} from "../../../../../packages/motions/src/posture/internal/resolveHumanPosture";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -25,7 +33,7 @@ const ROUNDING: number = 1e-9;
 const STRETCH: readonly [number, number] = [0, 1];
 
 /**
- * `AutoMovieMotionHumanArmJointCourse` solves a joint-space carry
+ * `motionHumanArmJointCourse` solves a joint-space carry
  * (`AutoMovieMotionHumanArm.carry`) once at knots AutoKnots places over the
  * stretch (`prepareHumanAdaptiveKnots`) and joins each arm's angles through
  * them by the minimum-jerk knot course; a plan's `carrier` carries by the
@@ -77,14 +85,14 @@ export async function test_motions_compose_arm_joint_course(): Promise<void> {
   };
   const input = (
     seconds: number,
-  ): AutoMovieMotionHumanArmJointCourse.IInput => ({
+  ): motionHumanArmJointCourse.IInput => ({
     posture: reaching,
     sides: ["left"],
     held,
     share: seconds,
   });
-  const course: AutoMovieMotionHumanArmJointCourse.Course =
-    AutoMovieMotionHumanArmJointCourse(body, [STRETCH], input);
+  const course: motionHumanArmJointCourse.Course =
+    motionHumanArmJointCourse(body, [STRETCH], input);
   const carried: IAutoMovieMotionHumanPosture = AutoMovieMotionHumanArm.carry(
     body,
     reaching,
@@ -120,8 +128,8 @@ export async function test_motions_compose_arm_joint_course(): Promise<void> {
   );
 
   // 3. A carrier.
-  const carrier: AutoMovieMotionHumanArmJointCourse.ICarrier =
-    AutoMovieMotionHumanArmJointCourse.carrier(body);
+  const carrier: motionHumanArmJointCourse.ICarrier =
+    motionHumanArmJointCourse.carrier(body);
   const posture = (seconds: number): IAutoMovieMotionHumanPosture =>
     carrier.carry(seconds, input(seconds));
   const before: IAutoMovieMotionHumanPosture = posture(0.5);

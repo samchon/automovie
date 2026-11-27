@@ -19,13 +19,13 @@ export interface IAutoMoviePoseRig {
 
   /**
    * Clinical axes for the bones that declare none, such as
-   * `HUMANOID_JOINT_AXES`; a bone in neither uses the default basis.
+   * `AutoMovieEngineHumanoidJointAxes`; a bone in neither uses the default basis.
    */
   jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
 
   /**
    * Rest frames that read the angles as clinical, such as
-   * `HUMANOID_REST_FRAME`; an absent bone's angles are rest-relative.
+   * `AutoMovieEngineHumanoidRestFrame`; an absent bone's angles are rest-relative.
    */
   restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
 }

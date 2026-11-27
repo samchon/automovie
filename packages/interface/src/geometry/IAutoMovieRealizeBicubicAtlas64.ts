@@ -1,5 +1,5 @@
 import type { IAutoMovieMesh } from "../model/IAutoMovieMesh";
-import type { IAutoMovieBicubicAtlasTessellation64 } from "./curve/IAutoMovieBicubicAtlasTessellation64";
+import type { IAutoMovieBicubicAtlasTessellation64 } from "./IAutoMovieBicubicAtlasTessellation64";
 
 /** Data and callback contracts shared by the RealizeBicubicAtlas64 operations. */
 export namespace IAutoMovieRealizeBicubicAtlas64 {
@@ -101,28 +101,7 @@ export namespace IAutoMovieRealizeBicubicAtlas64 {
      * Aggregated work and numerical qualifications from retained chunks, before
      * final removal of unreferenced render vertices.
      */
-    counts: {
-      /**
-       * Count of retained over-tolerance leaf cells explicitly admitted by the
-       * retain-coarse budget policy.
-       */
-      retainedCoarseCells: number;
-      /**
-       * Total proposed faces omitted for zero or nonfinite geometric area in
-       * retained chunks.
-       */
-      omittedZeroAreaTriangles: number;
-      /**
-       * Count of newly emitted vertices with unresolved analytic normals,
-       * including any later removed as unreferenced.
-       */
-      unresolvedVertexNormals: number;
-      /**
-       * Largest represented cell's binary64 Taylor error estimate, in
-       * millimetres despite metre output geometry.
-       */
-      maxErrorBoundMm: number;
-    };
+    counts: IResultCounts;
     /**
      * Patch and parameter-cell ownership of consecutive retained triangles;
      * triangle ordinals remain stable through render-vertex compaction.
@@ -166,5 +145,29 @@ export namespace IAutoMovieRealizeBicubicAtlas64 {
        */
       approximationBoundMm: number;
     }[];
+  };
+
+  /** The counts object of {@link IResult}. */
+  export type IResultCounts = {
+    /**
+     * Count of retained over-tolerance leaf cells explicitly admitted by the
+     * retain-coarse budget policy.
+     */
+    retainedCoarseCells: number;
+    /**
+     * Total proposed faces omitted for zero or nonfinite geometric area in
+     * retained chunks.
+     */
+    omittedZeroAreaTriangles: number;
+    /**
+     * Count of newly emitted vertices with unresolved analytic normals,
+     * including any later removed as unreferenced.
+     */
+    unresolvedVertexNormals: number;
+    /**
+     * Largest represented cell's binary64 Taylor error estimate, in
+     * millimetres despite metre output geometry.
+     */
+    maxErrorBoundMm: number;
   };
 }

@@ -1,26 +1,17 @@
-import {
-  DEFAULT_HUMANOID_ROM,
-  Vector3,
-  jointRomOvershoot,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanPerformance,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineDefaultHumanoidRom, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanChain } from "../../HumanChain";
-import { createHumanBody } from "../../body/createHumanBody";
-import { handshake } from "../../handling/handshake";
-import { HumanPerformance } from "../../perform/HumanPerformance";
-import { HumanHand } from "../../posture/HumanHand";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
-import { MotionBodies } from "../MotionBodies";
-import type { humanPolygonMan } from "../humanPolygonMan";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
+import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
+import { handshake } from "../../handling/internal/handshake";
+import { AutoMovieMotionHumanPerformance } from "../../perform/AutoMovieMotionHumanPerformance";
+import { HumanHand } from "../../posture/internal/HumanHand";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
+import { MotionBodies } from "../internal/MotionBodies";
+import type { humanPolygonMan } from "../internal/humanPolygonMan";
 import { HandOverlap } from "./HandOverlap";
 
-/**
+/*
  * Capture cases of the handshake on the polygon man, for what the numeric tests
  * cannot show: whether the reach reads as reaching for a hand, whether the
  * fingers wrap the partner's hand, and whether the pump reads.
@@ -44,18 +35,17 @@ import { HandOverlap } from "./HandOverlap";
  * of an arm offered forward with the elbow low; the law's own offering arm
  * stands 30 degrees forward (`handshakeOffer.SHOULDER`), and an elbow raised to
  * the side to turn the hand reads 57 to 70 degrees.
- *
- * @returns The cases.
+ * Returns: The cases.
  */
 export function handshakeCases(): IMotionCaptureCase[] {
   return PAIRS.map(([first, second]): IMotionCaptureCase => {
     const one: humanPolygonMan.IPolygonMan = MotionBodies.population(first);
     const two: humanPolygonMan.IPolygonMan = MotionBodies.population(second);
-    const a: IAutoMovieMotionHumanBody = createHumanBody(
+    const a: IAutoMovieMotionHumanBody = AutoMovieMotionHumanBody.create(
       one.body.skeleton,
       one.body.profile,
     );
-    const b: IAutoMovieMotionHumanBody = createHumanBody(
+    const b: IAutoMovieMotionHumanBody = AutoMovieMotionHumanBody.create(
       two.body.skeleton,
       two.body.profile,
     );
@@ -65,7 +55,7 @@ export function handshakeCases(): IMotionCaptureCase[] {
       handshake.gap(a, b) +
       handshake.stance(a).sternum +
       handshake.stance(b).sternum;
-    const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
+    const performance: IAutoMovieMotionHumanPerformance = new AutoMovieMotionHumanPerformance({
       seed: `handling-handshake-${first}-${second}`,
       performers: [
         {
@@ -83,9 +73,9 @@ export function handshakeCases(): IMotionCaptureCase[] {
           proficiency: { level: "trained" },
         },
       ],
-      composition: HumanChain.pair(
-        HumanChain.subject("a").stand({ hold: 0.4 }),
-        HumanChain.subject("b").stand({ hold: 0.4 }),
+      composition: AutoMovieMotionHumanChain.pair(
+        AutoMovieMotionHumanChain.subject("a").stand({ hold: 0.4 }),
+        AutoMovieMotionHumanChain.subject("b").stand({ hold: 0.4 }),
       ).handshake().node,
     });
     const segment = performance
@@ -129,14 +119,14 @@ export function handshakeCases(): IMotionCaptureCase[] {
           const shoulder: IAutoMovieVector3 = performance
             .bones(subject, t)
             .get("rightUpperArm")!.worldPosition;
-          const upper: IAutoMovieVector3 = Vector3.subtract(
+          const upper: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
             performance.bones(subject, t).get("rightLowerArm")!.worldPosition,
             shoulder,
           );
           raised = Math.max(
             raised,
             (Math.acos(
-              Math.max(-1, Math.min(1, -upper.y / Vector3.length(upper))),
+              Math.max(-1, Math.min(1, -upper.y / AutoMovieEngineVector3.length(upper))),
             ) *
               180) /
               Math.PI,
@@ -144,7 +134,7 @@ export function handshakeCases(): IMotionCaptureCase[] {
         }
         drift = Math.max(
           drift,
-          Vector3.distance(palm("a", a, t), palm("b", b, t)),
+          AutoMovieEngineVector3.distance(palm("a", a, t), palm("b", b, t)),
         );
         deepest = Math.min(
           deepest,
@@ -158,12 +148,12 @@ export function handshakeCases(): IMotionCaptureCase[] {
       }
       for (const subject of ["a", "b"])
         for (const j of performance.pose(subject, t).joints) {
-          const c = DEFAULT_HUMANOID_ROM[j.bone];
+          const c = AutoMovieEngineDefaultHumanoidRom[j.bone];
           if (c !== undefined)
-            overshoot = Math.max(overshoot, jointRomOvershoot(j, c));
+            overshoot = Math.max(overshoot, AutoMovieEngineKinematics.jointRomOvershoot(j, c));
         }
     }
-    const meet: number = Vector3.distance(
+    const meet: number = AutoMovieEngineVector3.distance(
       palm("a", a, clasp),
       palm("b", b, clasp),
     );
@@ -171,7 +161,7 @@ export function handshakeCases(): IMotionCaptureCase[] {
       subject: string,
       body: IAutoMovieMotionHumanBody,
     ): IAutoMovieVector3 =>
-      resolveAutoMovieHumanoidSurfaces.place(
+      AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
         body.surfaces.regions.sternum,
         performance
           .bones(subject, clasp)
@@ -190,7 +180,7 @@ export function handshakeCases(): IMotionCaptureCase[] {
         for (const t of samples)
           slip = Math.max(
             slip,
-            Vector3.distance(
+            AutoMovieEngineVector3.distance(
               performance.bones(subject, t).get(foot)!.worldPosition,
               from,
             ),
@@ -279,7 +269,9 @@ export function handshakeCases(): IMotionCaptureCase[] {
   });
 }
 
-/** The partner pairs, first and second, by `MotionBodies.SWEEP` name. */
+/*
+ * The partner pairs, first and second, by `MotionBodies.SWEEP` name.
+ */
 const PAIRS: readonly (readonly [string, string])[] = [
   ["m-tall", "f-small"],
   ["m-average", "m-average"],

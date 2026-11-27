@@ -1,5 +1,5 @@
 import type { IAutoMovieFilmTimelineSegment } from "@automovie/interface";
-import { productionVisualDeliveryOccurrence } from "@automovie/render";
+import { AutoMovieRenderFilm } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -24,7 +24,7 @@ export function test_render_film_production_visual_delivery_occurrence(): void {
   };
   TestValidator.equals(
     "the name",
-    productionVisualDeliveryOccurrence(segment, 2),
+    AutoMovieRenderFilm.productionVisualDeliveryOccurrence(segment, 2),
     "occurrence:2:10-20:s1",
   );
 }

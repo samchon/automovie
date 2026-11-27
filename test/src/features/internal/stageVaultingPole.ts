@@ -1,13 +1,13 @@
-import { createLandingMat, createVaultingPole } from "@automovie/archetypes";
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieArchetypeLandingMat, AutoMovieArchetypeVaultingPole } from "@automovie/archetypes";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieMotionHumanBody } from "@automovie/interface";
 import {
   AutoMovieMotionHumanAcrobatics,
   AutoMovieMotionHumanGait,
   AutoMovieMotionHumanJump,
-  HumanChain,
-  HumanObject,
-  HumanPerformance,
+  AutoMovieMotionHumanChain,
+  AutoMovieMotionHumanObject,
+  AutoMovieMotionHumanPerformance,
 } from "@automovie/motions";
 
 import type { IStagedVault } from "./IStagedVault";
@@ -44,10 +44,10 @@ export function stageVaultingPole(
   body: IAutoMovieMotionHumanBody,
   seed: string,
 ): IStagedVault {
-  const pole: ReturnType<typeof createVaultingPole> = createVaultingPole({
+  const pole: ReturnType<typeof AutoMovieArchetypeVaultingPole.create> = AutoMovieArchetypeVaultingPole.create({
     series: "305",
   });
-  const length: number = createVaultingPole.SERIES["305"].length!;
+  const length: number = AutoMovieArchetypeVaultingPole.SERIES["305"].length!;
   const rating: number = pole.dimensions.rating!;
   const top: number = AutoMovieMotionHumanJump.poleVault.grip(
     body,
@@ -58,19 +58,19 @@ export function stageVaultingPole(
   );
   const lower: number =
     top -
-    Vector3.distance(
+    AutoMovieEngineVector3.distance(
       body.rest.get("leftUpperArm")!,
       body.rest.get("rightUpperArm")!,
     );
   // A share along the shaft's band, measured along its wrapped axis.
   const shaft: ReturnType<typeof pole.affordance> = pole.affordance("shaft");
   const upward: boolean =
-    Quaternion.rotateVector(shaft.frame.rotation, { x: 1, y: 0, z: 0 }).y > 0;
+    AutoMovieEngineQuaternion.rotateVector(shaft.frame.rotation, { x: 1, y: 0, z: 0 }).y > 0;
   const along = (fromTip: number): number =>
     upward ? fromTip / length : 1 - fromTip / length;
   // Across the rack, its top to the right (the pole's +Y turned onto -X),
   // the top hand's place 0.2 m right of the middle.
-  const film: HumanPerformance = new HumanPerformance({
+  const film: AutoMovieMotionHumanPerformance = new AutoMovieMotionHumanPerformance({
     seed,
     laws: [AutoMovieMotionHumanAcrobatics.HumanGymnastics.vaultOnPole],
     performers: [
@@ -83,16 +83,16 @@ export function stageVaultingPole(
       },
     ],
     props: [
-      HumanObject.prop("pole", pole, {
+      AutoMovieMotionHumanObject.prop("pole", pole, {
         position: { x: top - 0.2, y: 1, z: 0.3 },
         rotation: { x: 0, y: 0, z: Math.SQRT1_2, w: Math.SQRT1_2 },
       }),
-      HumanObject.prop("mat", createLandingMat({ kind: "poleVault" }), {
+      AutoMovieMotionHumanObject.prop("mat", AutoMovieArchetypeLandingMat.create({ kind: "poleVault" }), {
         at: { x: 0, y: 0, z: 20 },
         yaw: 0,
       }),
     ],
-    composition: HumanChain.subject("a")
+    composition: AutoMovieMotionHumanChain.subject("a")
       .stand({ hold: 0.3 })
       .pickUp({
         prop: "pole",
@@ -109,7 +109,7 @@ export function stageVaultingPole(
       })
       .stand({ hold: 0.3 })
       .run({ to: { x: 0, y: 0, z: 10 }, pace: "sprint" })
-      .until({ event: "leftHeelStrike3" })
+      .until({ type: "event", event: "leftHeelStrike3" })
       .registered("vaultOnPole", { pole: "pole", rating }).node,
   });
   return { film, pole };

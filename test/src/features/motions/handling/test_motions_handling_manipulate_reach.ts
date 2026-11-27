@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -6,7 +6,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { AutoMovieMotionHumanOperate } from "@automovie/motions";
-import { HumanHand } from "@automovie/motions/internal";
+import {
+  HumanHand
+} from "../../../../../packages/motions/src/posture/internal/HumanHand";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -40,11 +42,11 @@ export async function test_motions_handling_manipulate_reach(): Promise<void> {
     "indexTip",
     "flat",
   ).point;
-  const localKnuckle: IAutoMovieVector3 = Vector3.subtract(
+  const localKnuckle: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     body.rest.get("leftIndexProximal")!,
     body.rest.get("leftHand")!,
   );
-  const span: IAutoMovieVector3 = Vector3.subtract(handToTip, localKnuckle);
+  const span: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(handToTip, localKnuckle);
   const radius: number = Math.hypot(span.x, span.y, span.z);
   const along: IAutoMovieVector3 = {
     x: span.z / radius,
@@ -56,7 +58,7 @@ export async function test_motions_handling_manipulate_reach(): Promise<void> {
     y: handToTip.y,
     z: -handToTip.x,
   };
-  const across: IAutoMovieVector3 = Vector3.normalize({
+  const across: IAutoMovieVector3 = AutoMovieEngineVector3.normalize({
     x: -along.y * along.x,
     y: along.x ** 2 + along.z ** 2,
     z: -along.y * along.z,
@@ -69,11 +71,11 @@ export async function test_motions_handling_manipulate_reach(): Promise<void> {
   };
   const site: IAutoMovieVector3 = { x: 3, y: 1, z: -2 };
   const depth: number = radius / 2 - HOVER;
-  const hover: IAutoMovieVector3 = Vector3.subtract(
-    Vector3.addScaled(site, across, HOVER),
+  const hover: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
+    AutoMovieEngineVector3.addScaled(site, across, HOVER),
     tip,
   );
-  const expected: IAutoMovieVector3 = Vector3.addScaled(
+  const expected: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(
     hover,
     along,
     radius * (1 - Math.sqrt(3) / 2),
@@ -92,13 +94,13 @@ export async function test_motions_handling_manipulate_reach(): Promise<void> {
     "preserve the rounded and saturated chord in the fixed hand frame",
     vclose(
       sample("index", site, across, 2 * radius - HOVER),
-      Vector3.addScaled(hover, along, radius),
+      AutoMovieEngineVector3.addScaled(hover, along, radius),
       ROUNDING,
     ) &&
       vclose(sample("index", site, across, depth), expected, ROUNDING) &&
       vclose(
         sample("index", site, along, depth),
-        Vector3.subtract(Vector3.addScaled(site, along, -depth), tip),
+        AutoMovieEngineVector3.subtract(AutoMovieEngineVector3.addScaled(site, along, -depth), tip),
         ROUNDING,
       ),
   );

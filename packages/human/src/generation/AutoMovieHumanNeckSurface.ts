@@ -1,4 +1,4 @@
-import { AutoMovieLoftChain } from "@automovie/engine";
+import { AutoMovieEngineLoftChain } from "@automovie/engine";
 import type {
   IAutoMovieHumanBodyCalibration,
   IAutoMovieHumanNeckSurface,
@@ -14,13 +14,13 @@ import { AutoMovieHumanNeckSurfaceSampling } from "./AutoMovieHumanNeckSurfaceSa
  * The display band starts at the shoulder envelope's top mean height and uses
  * the public neck-length input as its requested height. This is an explicit
  * display convention, not a recovered menton or clinical neck landmark.
- * Continuous source centre-height selects its intermediate and upper courses;
- * a tilted course is not a horizontal surface cut. The
- * skeleton's radii, joint centres and clinical pose channels remain separate.
- * Two further actual head courses retain the existing one-third/two-thirds
- * display heights toward the source crown pole. No circle or horizontal radial
- * direction replaces their source shape. Both sides are sampled from the
- * prepared full outline without an independent reflection or fit.
+ * Continuous source centre-height selects its intermediate and upper courses; a
+ * tilted course is not a horizontal surface cut. The skeleton's radii, joint
+ * centres and clinical pose channels remain separate. Two further actual head
+ * courses retain the existing one-third/two-thirds display heights toward the
+ * source crown pole. No circle or horizontal radial direction replaces their
+ * source shape. Both sides are sampled from the prepared full outline without
+ * an independent reflection or fit.
  *
  * @evidence contracts/common.md#principled-implementation Actual source courses preserve the prepared exterior inside a requested-length display band; centre-height crossings assume no hidden reversal within a principal interval.
  * @evidence contracts/common.md#clear-and-simple-design One producer owns source addresses, measurements and the small display copy; the polygon consumer receives points rather than fitting another neck.
@@ -36,14 +36,14 @@ export namespace AutoMovieHumanNeckSurface {
    *
    * Principal intervals only bracket the continuous centre-height root; their
    * spacing never selects the resulting station. Bisection resolves a bracket
-   * to 1e-6 calibration mm in height or station. The neck centre path must cross
-   * each neck target once within head/head.lower and each head target once in
-   * the head chains, without an interior reversal that
-   * hides further crossings inside one principal interval. Endpoint brackets
-   * do not prove that premise for arbitrary source curves. Missing or multiple
-   * detected crossings are refused rather than clamped or replaced by a
-   * skeletal radius. Tangential contacts without a crossing are outside this
-   * display convention.
+   * to 1e-6 calibration mm in height or station. The neck centre path must
+   * cross each neck target once within head/head.lower and each head target
+   * once in the head chains, without an interior reversal that hides further
+   * crossings inside one principal interval. Endpoint brackets do not prove
+   * that premise for arbitrary source curves. Missing or multiple detected
+   * crossings are refused rather than clamped or replaced by a skeletal radius.
+   * Tangential contacts without a crossing are outside this display
+   * convention.
    *
    * The actual lower ring supplies its mean world height. Public neck length
    * defines only the display band's requested height; it neither resizes the
@@ -62,9 +62,9 @@ export namespace AutoMovieHumanNeckSurface {
    *
    * @param body The same final body used to derive the skeleton.
    * @param scale Calibration millimetres to physical metres, including stature.
-   * @param publicTargetCircumferenceMm Public physical mm, separate from source C.
+   * @param publicTargetCircumferenceMm Public physical mm, separate from source
+   *   C.
    * @param publicLengthMm Public physical mm defining the display band height.
-   *
    * @evidence contracts/common.md#principled-implementation The actual shoulder-top mean height and public neck length define an explicit display band; continuous Loft.axis crossings select actual source courses, with the stated crossing limitations.
    * @evidence contracts/common.md#clear-and-simple-design The function coordinates existing loft evaluation and returns six small sections and a terminal point without another calibration, anatomical landmark detector or rig path.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts No fixture address, circumference adjustment, head-bevel clamp or skeletal-radius fallback supplies geometry; requested-length display sampling is explicitly distinguished from anatomical recovery.
@@ -101,7 +101,7 @@ export namespace AutoMovieHumanNeckSurface {
       (_: unknown, i: number): number => (2 * Math.PI * i) / 8,
     );
     const lowerStation: number = upper.layers[upper.layers.length - 1]!.y;
-    const lowerHeight: number = AutoMovieLoftChain.axis(upper, lowerStation)[1];
+    const lowerHeight: number = AutoMovieEngineLoftChain.axis(upper, lowerStation)[1];
     const lower: IAutoMovieHumanNeckSurface.ISection =
       AutoMovieHumanNeckSurfaceSampling.section(
         upper,
@@ -214,48 +214,33 @@ export namespace AutoMovieHumanNeckSurface {
   }
 }
 
-/**
+/*
  * One continuous source address found by centre-height crossing.
- *
- * @evidence contracts/common.md#principled-implementation A chain reference and material station identify the existing evaluated source course.
- * @evidence contracts/common.md#clear-and-simple-design The temporary pair is all the root finder needs to communicate with section sampling.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The address is evaluated from the source rather than replaced by a copied fixture coordinate.
- * @evidence contracts/common.md#meaningful-documentation The members state ownership and calibration-mm station units.
- * @evidenceExclude contracts/performance.md#efficient-algorithms This interface executes no address search.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work This interface coordinates no computation or effects.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Its transient use is owned by course and derive; the type acquires no resource.
  */
 interface ICourse {
-  /** Actual chain owning the address. */
+  /*
+   * Actual chain owning the address.
+   */
   chain: IAutoMovieLoftChain;
 
-  /** Source material station in calibration mm. */
+  /*
+   * Source material station in calibration mm.
+   */
   station: number;
 }
 
-/**
+/*
  * Resolve a bracketed crossing of an actual centre path and a world height.
  * Adjacent principal intervals may report the same endpoint; that one address
- * is retained once. Distinct chain addresses remain distinct and are refused
- * as ambiguous, even when their heights happen to agree.
- *
- * @evidence contracts/common.md#principled-implementation Sign-changing principal intervals bracket continuous Loft.axis height; bisection resolves their addresses without station/world-height identity.
- * @evidence contracts/common.md#clear-and-simple-design One local search returns one source address and refuses missing or multiple detected roots.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Interval endpoints only bracket roots; the function never chooses a nearest layer or clamps an absent target.
- * @evidence contracts/common.md#meaningful-documentation The comment and derive contract state shared-endpoint deduplication, ambiguity and the unproved hidden-reversal limitation.
- * @evidence contracts/performance.md#efficient-algorithms The search scans L intervals with at most 64 evaluations for each sign-changing interval; its endpoint list is bounded by detected crossings.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work This synchronous single-target search coordinates no requests, phases or external effects.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Root references remain in the local array until return or throw; no chain reference enters the returned display descriptor.
+ * is retained once. Distinct chain addresses remain distinct and are refused as
+ * ambiguous, even when their heights happen to agree.
  */
 function course(
   chains: readonly IAutoMovieLoftChain[],
   height: number,
 ): ICourse {
   const roots: ICourse[] = [];
-  const add: (chain: IAutoMovieLoftChain, station: number) => void = (
-    chain: IAutoMovieLoftChain,
-    station: number,
-  ): void => {
+  function add(chain: IAutoMovieLoftChain, station: number): void {
     if (
       !roots.some(
         (root: ICourse): boolean =>
@@ -263,14 +248,14 @@ function course(
       )
     )
       roots.push({ chain, station });
-  };
+  }
 
   for (const chain of chains)
     for (let i: number = 1; i < chain.layers.length; ++i) {
       let lo: number = chain.layers[i - 1]!.y;
       let hi: number = chain.layers[i]!.y;
-      let a: number = AutoMovieLoftChain.axis(chain, lo)[1] - height;
-      const b: number = AutoMovieLoftChain.axis(chain, hi)[1] - height;
+      let a: number = AutoMovieEngineLoftChain.axis(chain, lo)[1] - height;
+      const b: number = AutoMovieEngineLoftChain.axis(chain, hi)[1] - height;
       if (Math.abs(a) <= 1e-6) add(chain, lo);
       if (Math.abs(b) <= 1e-6) add(chain, hi);
       if (Math.abs(a) <= 1e-6 || Math.abs(b) <= 1e-6 || a * b >= 0) continue;
@@ -278,7 +263,7 @@ function course(
       // A source interval brackets the target; no world-Y/station identity is used.
       for (let iteration: number = 0; iteration < 64; ++iteration) {
         const mid: number = (lo + hi) / 2;
-        const value: number = AutoMovieLoftChain.axis(chain, mid)[1] - height;
+        const value: number = AutoMovieEngineLoftChain.axis(chain, mid)[1] - height;
         if (Math.abs(value) <= 1e-6 || hi - lo <= 1e-6) {
           hi = mid;
           lo = mid;

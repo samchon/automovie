@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieIntegrateAirborneRotation,
   IAutoMovieQuaternion,
@@ -23,15 +23,15 @@ export const airborneWinding: (
 ): number => {
   let winding: number = 0;
   let previous: number = 0;
-  const inverse: IAutoMovieQuaternion = Quaternion.inverse(q0);
+  const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(q0);
   // Two reads per 60 Hz display frame keep adjacent samples well within a half turn.
   const samples: number = 120;
   for (let k: number = 0; k <= samples; ++k) {
-    const relative: IAutoMovieQuaternion = Quaternion.multiply(
+    const relative: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       inverse,
       flight.orientation(k / samples),
     );
-    const long: IAutoMovieVector3 = Quaternion.rotateVector(relative, {
+    const long: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(relative, {
       x: 0,
       y: 1,
       z: 0,

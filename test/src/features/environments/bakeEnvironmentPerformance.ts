@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieKeyframe,
   IAutoMovieMotion,
@@ -6,7 +6,7 @@ import type {
   IAutoMovieQuaternion,
   IAutoMovieStageActor,
 } from "@automovie/interface";
-import type { HumanPerformance } from "@automovie/motions";
+import type { AutoMovieMotionHumanPerformance } from "@automovie/motions";
 
 /**
  * Sample a composed Human performance on the capture clock and express its
@@ -14,12 +14,12 @@ import type { HumanPerformance } from "@automovie/motions";
  * motion baked for the ordinary enact verb.
  */
 export function bakeEnvironmentPerformance(
-  film: HumanPerformance,
+  film: AutoMovieMotionHumanPerformance,
   actor: IAutoMovieStageActor,
   seconds: number,
 ): IAutoMovieMotion {
   const frameCount: number = Math.ceil(seconds * 24);
-  const inverse: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+  const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
     { x: 0, y: 1, z: 0 },
     -actor.facingDeg,
   );
@@ -35,11 +35,11 @@ export function bakeEnvironmentPerformance(
         pose.root === null
           ? null
           : {
-              translation: Quaternion.rotateVector(
+              translation: AutoMovieEngineQuaternion.rotateVector(
                 inverse,
-                Vector3.subtract(pose.root.translation, actor.position),
+                AutoMovieEngineVector3.subtract(pose.root.translation, actor.position),
               ),
-              rotation: Quaternion.multiply(inverse, pose.root.rotation),
+              rotation: AutoMovieEngineQuaternion.multiply(inverse, pose.root.rotation),
               scale: pose.root.scale,
             };
       return {

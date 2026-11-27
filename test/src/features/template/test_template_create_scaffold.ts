@@ -1,6 +1,6 @@
 import {
-  type IAutoMovieScaffoldProps,
-  createAutoMovieScaffold,
+  AutoMovieTemplateScaffold,
+  type IAutoMovieTemplateScaffoldProps,
 } from "@automovie/template";
 import { TestValidator } from "@nestia/e2e";
 import fs from "node:fs";
@@ -24,8 +24,8 @@ interface IManifest {
 const ROOT: string = repositoryRoot();
 
 /**
- * `createAutoMovieScaffold` selects layers and generated files by kind, names
- * the package, and resolves every `catalog:` dependency.
+ * `AutoMovieTemplateScaffold.create` selects layers and generated files by
+ * kind, names the package, and resolves every `catalog:` dependency.
  *
  * Scenarios:
  *
@@ -34,12 +34,13 @@ const ROOT: string = repositoryRoot();
  *    version, every other catalog at the repository's range.
  * 2. Only `production` and `workspace` carry the instructions and a
  *    `pnpm-workspace.yaml`, which lists packages only for `workspace`. Both
- *    omit the source note and leave one blank line between heading and body.
+ *    omit source notes, preserve heading spacing, and transclude shared
+ *    sections.
  * 3. Only `production` and `workspace-production` carry `evidence.config.ts`,
  *    which names a skills root only inside a workspace.
  * 4. A refused name throws.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls the public generator for every kind and checks the selected files, name, catalog ranges and installed guide. Leaking a citation or dropping part of the guide changes the expected output.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public generator for every kind and checks the selected files, name, catalog ranges, installed guide and shared section. Leaking a citation, marker or dropping part of the section changes the expected output.
  * @evidence contracts/development/testing.md#independent-expectations Ranges come from the repository catalogs and template manifest. The expected guide is the authored Markdown with its source paragraph omitted, so its rules, links and paragraph breaks must survive installation.
  * @evidence contracts/development/testing.md#distinguishing-cases The three kinds differ in instructions, workspace file, packages and evidence configuration, and the refused name pins admission.
  * @evidence contracts/development/testing.md#execution-ownership A unit test discovered by the `test_` prefix that reads the installed template in-process and writes nothing.
@@ -58,8 +59,9 @@ export function test_template_create_scaffold(): void {
     ) as IManifest
   ).version;
   const create = (
-    kind: IAutoMovieScaffoldProps["kind"],
-  ): Record<string, string> => createAutoMovieScaffold({ kind, name: kind });
+    kind: IAutoMovieTemplateScaffoldProps["kind"],
+  ): Record<string, string> =>
+    AutoMovieTemplateScaffold.create({ kind, name: kind });
   const production: Record<string, string> = create("production");
   const workspace: Record<string, string> = create("workspace");
   const member: Record<string, string> = create("workspace-production");
@@ -126,7 +128,8 @@ export function test_template_create_scaffold(): void {
       .replaceAll("\r\n", "\n")
       .split("\n\n")
       .filter(
-        (paragraph: string): boolean => !paragraph.startsWith("<!-- @source "),
+        (paragraph: string): boolean =>
+          !paragraph.startsWith("<!-- @reference "),
       )
       .join("\n\n");
     TestValidator.equals(
@@ -146,6 +149,33 @@ export function test_template_create_scaffold(): void {
     );
   }
 
+  const continuationPath: string = ".agents/skills/multi-agent/SKILL.md";
+  const rootSkill: string = fs
+    .readFileSync(path.join(ROOT, continuationPath), "utf8")
+    .replaceAll("\r\n", "\n");
+  const continuationStart: number = rootSkill.indexOf("\n## Continuing\n");
+  if (continuationStart < 0)
+    throw new Error("root multi-agent skill lacks its Continuing section");
+  const continuation: string = rootSkill.slice(continuationStart + 1);
+  for (const files of [production, workspace]) {
+    const installed: string = files[continuationPath]!;
+    const installedStart: number = installed.indexOf("\n## Continuing\n");
+    if (installedStart < 0)
+      throw new Error(
+        "installed multi-agent skill lacks its Continuing section",
+      );
+    TestValidator.equals(
+      "transcluded continuation section",
+      installed.slice(installedStart + 1),
+      continuation,
+    );
+    TestValidator.equals(
+      "continuation marker is expanded",
+      installed.includes("## $" + "{Continuing}"),
+      false,
+    );
+  }
+
   // 3. Evidence configuration.
   TestValidator.equals(
     "evidence skills root",
@@ -161,6 +191,6 @@ export function test_template_create_scaffold(): void {
 
   // 4. The name rule.
   TestValidator.error("refused name", () =>
-    createAutoMovieScaffold({ kind: "production", name: "a/b" }),
+    AutoMovieTemplateScaffold.create({ kind: "production", name: "a/b" }),
   );
 }

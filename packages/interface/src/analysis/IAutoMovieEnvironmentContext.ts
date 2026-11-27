@@ -34,8 +34,8 @@ export interface IAutoMovieEnvironmentContext {
 
   /**
    * World direction the site calls north; finite and non-zero, need not be
-   * normalized. `autoMovieSunDirection` projects it onto the ground plane to
-   * orient a sun position from `solveAutoMovieSunPosition`, and refuses a north
+   * normalized. `sunDirection` projects it onto the ground plane to
+   * orient a sun position from `solveSunPosition`, and refuses a north
    * parallel to the ground's up; the daylight study only digests it into its
    * settings.
    */

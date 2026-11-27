@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, computeModelRestExtent } from "@automovie/engine";
+import { AutoMovieEngineFilm, AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieClip,
@@ -10,12 +10,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { createDoor } from "../../architecture/createDoor";
+import { AutoMovieArchetypeDoor } from "../../architecture/AutoMovieArchetypeDoor";
 import type { AutoMovieArchetype } from "../../core/AutoMovieArchetype";
 import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
-import type { createBuilding } from "./createBuilding";
 
-/**
+import type { AutoMovieArchetypeEnvironment } from "../AutoMovieArchetypeEnvironment";
+
+/*
  * Divide the standard door into a fixed frame and a portable hinge-root leaf.
  *
  * The wall cut uses the fixed frame's measured extent. The moving leaf's
@@ -24,11 +25,19 @@ import type { createBuilding } from "./createBuilding";
  */
 export function buildingDoor(
   id: string,
-  opening: Extract<createBuilding.Opening, { kind: "door" }>,
+  opening: Extract<
+    AutoMovieArchetypeEnvironment.IBuildingOpening,
+    { kind: "door" }
+  >,
   seed: number | undefined,
 ): buildingDoor.IDoor {
-  const door: AutoMovieArchetype<createDoor.Affordance, createDoor.Dimension> =
-    createDoor({ ...opening.door, kind: "hinged", id }, seed);
+  const door: AutoMovieArchetype<
+    AutoMovieArchetypeDoor.Affordance,
+    AutoMovieArchetypeDoor.Dimension
+  > = AutoMovieArchetypeDoor.create(
+    { ...opening.door, kind: "hinged", id },
+    seed,
+  );
   const hinge: IAutoMovieAffordance = door.affordance("hinge");
   const pivot: IAutoMovieVector3 = hinge.frame.translation;
   const axis: IAutoMovieVector3 = AutoMovieArchetypeFrame.axis(
@@ -78,7 +87,7 @@ export function buildingDoor(
           ...part,
           transform: relativeToPivot(
             part.transform ??
-              AutoMovieArchetypeFrame.upright(Vector3.create(0, 0, 0)),
+              AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(0, 0, 0)),
             pivot,
           ),
         }),
@@ -97,7 +106,7 @@ export function buildingDoor(
     asset: null,
   };
   const bounds: IAutoMovieComputeModelRestExtent.IResult =
-    computeModelRestExtent(fixed);
+    AutoMovieEngineFilm.computeModelRestExtent(fixed);
   if (bounds === null) throw new Error(`door "${id}" has no fixed frame`);
   const aperture: IAutoMovieAffordance = door.affordance("aperture");
 
@@ -111,8 +120,10 @@ export function buildingDoor(
     clearHeight: aperture.height!,
     clearCenter: aperture.frame.translation.x,
     clip: (rotation: IAutoMovieQuaternion): IAutoMovieClip | null => {
-      const swing: Extract<createBuilding.Opening, { kind: "door" }>["swing"] =
-        opening.swing;
+      const swing: Extract<
+        AutoMovieArchetypeEnvironment.IBuildingOpening,
+        { kind: "door" }
+      >["swing"] = opening.swing;
       if (swing === undefined) return null;
       const { from, to, degrees } = swing;
       if (
@@ -125,9 +136,9 @@ export function buildingDoor(
         throw new Error(
           `door "${id}" needs increasing nonnegative shot seconds and a swing within hinge travel below 180 degrees`,
         );
-      const last: IAutoMovieQuaternion = Quaternion.multiply(
+      const last: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
         rotation,
-        Quaternion.fromAxisAngle(axis, degrees),
+        AutoMovieEngineQuaternion.fromAxisAngle(axis, degrees),
       );
       return {
         id: `${id}/swing`,
@@ -156,31 +167,47 @@ export function buildingDoor(
   };
 }
 
-/** Measured aperture and linked stage models of an existing door instance. */
+/*
+ * Measured aperture and linked stage models of an existing door instance.
+ */
 export namespace buildingDoor {
-  /** One source door expressed as an aperture plus fixed and moving geometry. */
+  /*
+   * One source door expressed as an aperture plus fixed and moving geometry.
+   */
   export interface IDoor {
-    /** Fixed frame in the aperture's original sill-centered coordinates. */
+    /*
+     * Fixed frame in the aperture's original sill-centered coordinates.
+     */
     readonly fixed: IAutoMovieModel;
 
-    /** Articulated leaf drawn as one model under the stage node at the hinge. */
+    /*
+     * Articulated leaf drawn as one model under the stage node at the hinge.
+     */
     readonly leaf: IAutoMovieModel;
 
-    /** Hinge pivot relative to the aperture's center, metres. */
+    /*
+     * Hinge pivot relative to the aperture's center, metres.
+     */
     readonly pivot: IAutoMovieVector3;
 
-    /** Wall cut width and height measured from the fixed frame, metres. */
+    /*
+     * Wall cut width and height measured from the fixed frame, metres.
+     */
     readonly width: number;
     readonly height: number;
 
-    /** Clear passage width and crosswise center after the leaf swings, metres. */
+    /*
+     * Clear passage width and crosswise center after the leaf swings, metres.
+     */
     readonly clearWidth: number;
 
-    /** Clear aperture height below the frame's head, metres. */
+    /*
+     * Clear aperture height below the frame's head, metres.
+     */
     readonly clearHeight: number;
     readonly clearCenter: number;
 
-    /**
+    /*
      * Make the optional authored swing using the closed world orientation and
      * shot seconds.
      */
@@ -188,10 +215,12 @@ export namespace buildingDoor {
   }
 }
 
-/** Offset a model-local transform to the independent hinge-root model frame. */
+/*
+ * Offset a model-local transform to the independent hinge-root model frame.
+ */
 function relativeToPivot(
   frame: IAutoMovieTransform,
   pivot: IAutoMovieVector3,
 ): IAutoMovieTransform {
-  return { ...frame, translation: Vector3.subtract(frame.translation, pivot) };
+  return { ...frame, translation: AutoMovieEngineVector3.subtract(frame.translation, pivot) };
 }

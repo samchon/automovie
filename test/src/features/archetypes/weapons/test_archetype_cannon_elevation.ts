@@ -1,10 +1,5 @@
-import {
-  type AutoMovieArchetype,
-  AutoMovieArchetypeFrame,
-  AutoMovieArchetypeRefusal,
-  createCannon,
-} from "@automovie/archetypes";
-import { validateModel } from "@automovie/engine";
+import { type AutoMovieArchetype, AutoMovieArchetypeFrame, AutoMovieArchetypeRefusal, AutoMovieArchetypeCannon } from "@automovie/archetypes";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -41,9 +36,9 @@ const PITCH: number = IN / 10;
 export function test_archetype_cannon_elevation(): void {
   const findings: string[] = [];
   const gun: AutoMovieArchetype<
-    createCannon.Affordance,
-    createCannon.Dimension
-  > = createCannon({ kind: "fieldGun" });
+    AutoMovieArchetypeCannon.Affordance,
+    AutoMovieArchetypeCannon.Dimension
+  > = AutoMovieArchetypeCannon.create({ kind: "fieldGun" });
   const sinking: (degrees: number) => number = (degrees: number): number => {
     const turn: number = (degrees * Math.PI) / 180;
     return BEHIND * Math.sin(turn) - RING * (1 - Math.cos(turn));
@@ -60,12 +55,12 @@ export function test_archetype_cannon_elevation(): void {
           ? gun.affordance("screw").travel!
           : (sinking(degrees) / PITCH) * 360;
     const posed: AutoMovieArchetype<
-      createCannon.Affordance,
-      createCannon.Dimension
+      AutoMovieArchetypeCannon.Affordance,
+      AutoMovieArchetypeCannon.Dimension
     > = gun.articulate({ screw });
     const byElevation: AutoMovieArchetype<
-      createCannon.Affordance,
-      createCannon.Dimension
+      AutoMovieArchetypeCannon.Affordance,
+      AutoMovieArchetypeCannon.Dimension
     > = gun.articulate({ elevation: degrees });
     if (
       !(
@@ -76,7 +71,7 @@ export function test_archetype_cannon_elevation(): void {
       findings.push(
         `at ${degrees} the two inputs do not describe one coupling`,
       );
-    const launch: createCannon.ILaunch = createCannon.launch(gun, { screw });
+    const launch: AutoMovieArchetypeCannon.ILaunch = AutoMovieArchetypeCannon.launch(gun, { screw });
     if (
       !(
         Math.abs(launch.direction.y - Math.sin((degrees * Math.PI) / 180)) <=
@@ -115,7 +110,7 @@ export function test_archetype_cannon_elevation(): void {
     if (!(rise.y > last))
       findings.push(`at ${degrees} the muzzle does not rise with the screw`);
     last = rise.y;
-    if (!validateModel({ model: posed }).success)
+    if (!AutoMovieEngineValidation.validateModel({ model: posed }).success)
       findings.push(`the pose at ${degrees} degrees is refused`);
   }
   const handle: ReturnType<typeof gun.affordance> = gun.affordance("screw");

@@ -1,12 +1,4 @@
-import {
-  preparePhysicalGeometry as Geometry,
-  Quaternion,
-  Vector3,
-  isPhysicalProfilePairExcluded,
-  measurePhysicalJointLimits,
-  planPhysicalContactTargets,
-  setPhysicalTargetJointRotation,
-} from "@automovie/engine";
+import { AutoMovieEnginePhysicalGeometry as Geometry, AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalJoint,
   IAutoMoviePhysicalSegment,
@@ -43,24 +35,24 @@ type Poses = Record<string, IAutoMovieRigidTransform>;
  *    stay as they were.
  */
 export async function test_engine_physics_plan_physical_contact_targets(): Promise<void> {
-  const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry();
+  const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry.prepare();
 
   /** The fold: upper-0 and its descendants turn -85 degrees about Z. */
   const fold = (model: P): Poses => {
     const targets: Poses = {};
     for (const segment of model.segments)
       targets[segment.bone] = structuredClone(segment.neutral);
-    setPhysicalTargetJointRotation(
+    AutoMovieEnginePhysics.setPhysicalTargetJointRotation(
       targets,
       model.joints.find((joint) => joint.child === "upper-0")!,
       ["upper-0", "lower-0", "support-0"],
-      Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, -85),
+      AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, -85),
     );
     return targets;
   };
   /** The self-avoidance fit with the root held at its actual pose. */
   const plan = (model: P, targets: Poses): Poses =>
-    planPhysicalContactTargets({
+    AutoMovieEnginePhysics.planPhysicalContactTargets({
       body: "mechanism",
       profiles: { mechanism: model },
       targets: structuredClone(targets),
@@ -75,7 +67,7 @@ export async function test_engine_physics_plan_physical_contact_targets(): Promi
     ...model,
     joints: model.joints.map((joint: IAutoMoviePhysicalJoint) => {
       if (!children.includes(joint.child)) return joint;
-      const angles = measurePhysicalJointLimits(
+      const angles = AutoMovieEnginePhysics.measurePhysicalJointLimits(
         joint,
         targets[joint.parent]!,
         targets[joint.child]!,
@@ -104,7 +96,7 @@ export async function test_engine_physics_plan_physical_contact_targets(): Promi
           : 1;
       result = Math.max(
         result,
-        Vector3.distance(pose.position, next.position),
+        AutoMovieEngineVector3.distance(pose.position, next.position),
         ...(["x", "y", "z", "w"] as const).map((axis) =>
           Math.abs(pose.rotation[axis] - sign * next.rotation[axis]),
         ),
@@ -123,19 +115,19 @@ export async function test_engine_physics_plan_physical_contact_targets(): Promi
     model.joints.every((joint: IAutoMoviePhysicalJoint): boolean => {
       const parent = poses[joint.parent]!;
       const child = poses[joint.child]!;
-      const gap: number = Vector3.distance(
-        Vector3.add(
+      const gap: number = AutoMovieEngineVector3.distance(
+        AutoMovieEngineVector3.add(
           parent.position,
-          Quaternion.rotateVector(parent.rotation, joint.parentFrame.position),
+          AutoMovieEngineQuaternion.rotateVector(parent.rotation, joint.parentFrame.position),
         ),
-        Vector3.add(
+        AutoMovieEngineVector3.add(
           child.position,
-          Quaternion.rotateVector(child.rotation, joint.childFrame.position),
+          AutoMovieEngineQuaternion.rotateVector(child.rotation, joint.childFrame.position),
         ),
       );
       return (
         gap < KEPT &&
-        measurePhysicalJointLimits(joint, parent, child).every(
+        AutoMovieEnginePhysics.measurePhysicalJointLimits(joint, parent, child).every(
           (entry): boolean => entry.violation < KEPT,
         )
       );
@@ -154,7 +146,7 @@ export async function test_engine_physics_plan_physical_contact_targets(): Promi
     let result: number = 0;
     for (const [index, segment] of model.segments.entries())
       for (const other of model.segments.slice(index + 1)) {
-        if (isPhysicalProfilePairExcluded(model, segment.bone, other.bone))
+        if (AutoMovieEnginePhysics.isPhysicalProfilePairExcluded(model, segment.bone, other.bone))
           continue;
         for (const a of segment.shapes)
           for (const b of other.shapes)

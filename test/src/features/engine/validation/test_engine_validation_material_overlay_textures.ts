@@ -1,8 +1,4 @@
-import {
-  validateModel,
-  validateTextureAssets,
-  validateTextureScale,
-} from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import {
   IAutoMovieAssetProvenance,
   IAutoMovieMaterial,
@@ -115,7 +111,7 @@ export function test_engine_validation_material_overlay_textures(): void {
   ) => IAutoMovieValidation = (
     assets: IAutoMovieAssetProvenance[],
   ): IAutoMovieValidation =>
-    validateTextureAssets({
+    AutoMovieEngineValidation.validateTextureAssets({
       production: PRODUCTION,
       models: [model(skin("source-uv"))],
       scenes: [{ shot: "opening" }],
@@ -136,7 +132,7 @@ export function test_engine_validation_material_overlay_textures(): void {
     ),
   );
 
-  const measured: IAutoMovieValidation = validateTextureScale({
+  const measured: IAutoMovieValidation = AutoMovieEngineValidation.validateTextureScale({
     models: [model(skin("normalized"))],
   });
   TestValidator.predicate(
@@ -153,7 +149,7 @@ export function test_engine_validation_material_overlay_textures(): void {
   );
   TestValidator.equals(
     "a source-uv overlay makes no claim to measure",
-    validateTextureScale({ models: [model(skin("source-uv"))] }).success,
+    AutoMovieEngineValidation.validateTextureScale({ models: [model(skin("source-uv"))] }).success,
     true,
   );
 
@@ -163,7 +159,7 @@ export function test_engine_validation_material_overlay_textures(): void {
     overlays: IAutoMovieMaterialOverlay[],
   ): IAutoMovieValidation => {
     const base: IAutoMovieModel = createModel();
-    return validateModel({
+    return AutoMovieEngineValidation.validateModel({
       model: {
         ...base,
         materials: [{ ...base.materials[0]!, overlays }],

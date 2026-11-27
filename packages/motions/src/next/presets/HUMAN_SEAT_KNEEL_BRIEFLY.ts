@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanSeat } from "@automovie/interface";
 
-/**
+/*
  * The kneelBriefly preset of `kneel`: Kneeling, staying one second and rising
  * again (provisional). Spread into `kneel`'s parameters; the `kneelBriefly` row
  * reads it.

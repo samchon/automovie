@@ -1,8 +1,4 @@
-import {
-  ViolationCollector,
-  clampJointRom,
-  validateJointRom,
-} from "@automovie/engine";
+import { AutoMovieEngineViolationCollector, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   IAutoMovieJointConstraint,
   IAutoMovieJointPose,
@@ -53,22 +49,22 @@ export function test_engine_rom_clamp_joint_rom(): void {
   TestValidator.equals(
     "flexion",
     [
-      clampJointRom(pose(0, 0), RANGE).flexion,
-      clampJointRom(pose(200, 0), RANGE).flexion,
+      AutoMovieEngineKinematics.clampJointRom(pose(0, 0), RANGE).flexion,
+      AutoMovieEngineKinematics.clampJointRom(pose(200, 0), RANGE).flexion,
     ],
     [10, 90],
   );
   TestValidator.equals(
     "twist",
     [
-      clampJointRom(pose(45, 50), RANGE).twist,
-      clampJointRom(pose(45, -50), RANGE).twist,
+      AutoMovieEngineKinematics.clampJointRom(pose(45, 50), RANGE).twist,
+      AutoMovieEngineKinematics.clampJointRom(pose(45, -50), RANGE).twist,
     ],
     [30, -30],
   );
   TestValidator.equals(
     "inside",
-    clampJointRom(pose(45, 20), RANGE),
+    AutoMovieEngineKinematics.clampJointRom(pose(45, 20), RANGE),
     pose(45, 20),
   );
   const cone: IAutoMovieJointConstraint = {
@@ -91,7 +87,7 @@ export function test_engine_rom_clamp_joint_rom(): void {
   });
   const equal: number =
     (2 * Math.acos(Math.sqrt(Math.cos((50 * Math.PI) / 180))) * 180) / Math.PI;
-  const corner: IAutoMovieJointPose = clampJointRom(swung(90, 90), cone);
+  const corner: IAutoMovieJointPose = AutoMovieEngineKinematics.clampJointRom(swung(90, 90), cone);
   TestValidator.predicate(
     "a corner scaled onto the cap",
     nclose(corner.flexion!, equal, CAP) &&
@@ -99,11 +95,11 @@ export function test_engine_rom_clamp_joint_rom(): void {
   );
   TestValidator.equals(
     "inside the cap",
-    clampJointRom(swung(30, 30), cone),
+    AutoMovieEngineKinematics.clampJointRom(swung(30, 30), cone),
     swung(30, 30),
   );
-  const resting: IAutoMovieJointPose = clampJointRom(swung(150, null), cone);
-  const zero: IAutoMovieJointPose = clampJointRom(swung(150, 0), cone);
+  const resting: IAutoMovieJointPose = AutoMovieEngineKinematics.clampJointRom(swung(150, null), cone);
+  const zero: IAutoMovieJointPose = AutoMovieEngineKinematics.clampJointRom(swung(150, 0), cone);
   TestValidator.predicate(
     "a lone axis past the cap",
     nclose(resting.flexion!, 100, CAP) &&
@@ -117,8 +113,8 @@ export function test_engine_rom_clamp_joint_rom(): void {
     joint: IAutoMovieJointPose,
     constraint: IAutoMovieJointConstraint,
   ): boolean => {
-    const collector: ViolationCollector = new ViolationCollector();
-    validateJointRom({ joint, constraint, path: "$input", collector });
+    const collector: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();
+    AutoMovieEngineKinematics.validateJointRom({ joint, constraint, path: "$input", collector });
     return collector.items.length === 0;
   };
   const above: IAutoMovieJointConstraint = {
@@ -133,8 +129,8 @@ export function test_engine_rom_clamp_joint_rom(): void {
     twist: null,
     swingDeg: 20,
   };
-  const pulledAbove: IAutoMovieJointPose = clampJointRom(swung(10, 90), above);
-  const pulledBelow: IAutoMovieJointPose = clampJointRom(swung(90, -10), below);
+  const pulledAbove: IAutoMovieJointPose = AutoMovieEngineKinematics.clampJointRom(swung(10, 90), above);
+  const pulledBelow: IAutoMovieJointPose = AutoMovieEngineKinematics.clampJointRom(swung(90, -10), below);
   TestValidator.predicate(
     "boxes that exclude neutral",
     pulledAbove.flexion! >= 10 - CAP &&
@@ -142,7 +138,7 @@ export function test_engine_rom_clamp_joint_rom(): void {
       pulledBelow.abduction! <= -10 + CAP &&
       valid(pulledBelow, below),
   );
-  const hinge: IAutoMovieJointPose = clampJointRom(swung(150, 30), {
+  const hinge: IAutoMovieJointPose = AutoMovieEngineKinematics.clampJointRom(swung(150, 30), {
     flexion: { min: -180, max: 180 },
     abduction: null,
     twist: null,

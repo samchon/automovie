@@ -1,4 +1,4 @@
-import { AutoMovieLoftChain as Loft } from "@automovie/engine";
+import { AutoMovieEngineLoftChain as Loft } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanFootCourse,
@@ -143,7 +143,9 @@ export namespace AutoMovieHumanFootCourse {
   }
 }
 
-/** Physical vector difference for the retained display samples. */
+/*
+ * Physical vector difference for the retained display samples.
+ */
 function sub(
   a: AutoMovieVector3Tuple,
   b: AutoMovieVector3Tuple,
@@ -151,7 +153,9 @@ function sub(
   return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
 }
 
-/** Euclidean projection onto the source frame's unit direction. */
+/*
+ * Euclidean projection onto the source frame's unit direction.
+ */
 function dot(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number {
   return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 }

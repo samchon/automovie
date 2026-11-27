@@ -1,4 +1,6 @@
-/** Locates literal non-overlapping occurrences of a required nonempty token. */
+/*
+ * Locates literal non-overlapping occurrences of a required nonempty token.
+ */
 export function occurrenceOffsets(text: string, token: string): number[] {
   const offsets: number[] = [];
   for (let offset: number = 0; ; ) {

@@ -1,7 +1,7 @@
-import { AutoMovieMotionHumanGestureBeats } from "./AutoMovieMotionHumanGestureBeats";
-import { AutoMovieMotionHumanGestureEmblems } from "./AutoMovieMotionHumanGestureEmblems";
-import { AutoMovieMotionHumanGestureLaws } from "./AutoMovieMotionHumanGestureLaws";
-import { AutoMovieMotionHumanGesturePhrases } from "./AutoMovieMotionHumanGesturePhrases";
+import { AutoMovieMotionHumanGestureBeats } from "./internal/AutoMovieMotionHumanGestureBeats";
+import { AutoMovieMotionHumanGestureEmblems } from "./internal/AutoMovieMotionHumanGestureEmblems";
+import { AutoMovieMotionHumanGestureLaws } from "./internal/AutoMovieMotionHumanGestureLaws";
+import { AutoMovieMotionHumanGesturePhrases } from "./internal/AutoMovieMotionHumanGesturePhrases";
 
 /**
  * Gestures of the hands and arms: emblems, beats and pointing, as arm phrases.

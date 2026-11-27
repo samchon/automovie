@@ -51,8 +51,8 @@ export function test_human_capture_originals(): void {
   let factories: number = 0;
   const relief: Relief = {
     name: "made-net",
-    stations: [0, 10],
-    phases: [0, 1],
+    stations: { start: 0, end: 10 },
+    phases: { start: 0, end: 1 },
     axis: [1, 0, 0],
     rows: 7,
     columns: 7,

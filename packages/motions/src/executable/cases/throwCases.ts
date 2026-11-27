@@ -1,4 +1,4 @@
-import { Transform, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineTransform, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieComposition,
   IAutoMovieMotionHumanActionPlan,
@@ -9,16 +9,16 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanChain } from "../../HumanChain";
-import { catchObject } from "../../throwing/catchObject";
-import { readThrowObjectLaunch } from "../../throwing/readThrowObjectLaunch";
-import { throwObject } from "../../throwing/throwObject";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
+import { catchObject } from "../../throwing/internal/catchObject";
+import { readThrowObjectLaunch } from "../../throwing/internal/readThrowObjectLaunch";
+import { throwObject } from "../../throwing/internal/throwObject";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
-import { everydayVerdicts } from "./everydayVerdicts";
-import { motionCaseSocket } from "./motionCaseSocket";
+import { everydayVerdicts } from "./internal/everydayVerdicts";
+import { motionCaseSocket } from "./internal/motionCaseSocket";
 
-/**
+/*
  * Capture cases of the throw and catch family: performer `a` throws to
  * performer `b` standing facing it, overarm over 6 m, underarm over 4 m and a
  * toss over 2.5 m, aimed at the place ahead of `b` where its catch meets the
@@ -35,10 +35,9 @@ import { motionCaseSocket } from "./motionCaseSocket";
  * - At `contact` each of `b`'s palm sockets is within 15 mm of the object's
  *   surface (the issue's hand-meets-object bound), and stays within it until
  *   `held`.
- *
- * @param bodies The sweep bodies, each throwing to and catching from itself;
- *   `m-average` when absent.
- * @returns The cases.
+ * Parameter bodies: The sweep bodies, each throwing to and catching from itself;
+ * `m-average` when absent.
+ * Returns: The cases.
  */
 export function throwCases(
   bodies: readonly string[] = ["m-average"],
@@ -57,7 +56,7 @@ export function throwCases(
       {
         id: "grip",
         kind: "handle",
-        frame: Transform.identity(),
+        frame: AutoMovieEngineTransform.identity(),
         extent: null,
         grip: "power",
         aperture: 0.22,
@@ -80,14 +79,14 @@ export function throwCases(
         z: distance - catchObject.REACH * (m.upperArm + m.forearm),
       };
       const composition: IAutoMovieComposition = {
-        kind: "parallel",
+        type: "parallel",
         parts: [
-          HumanChain.subject("a").act(
+          AutoMovieMotionHumanChain.subject("a").act(
             "throwObject",
             { target: { kind: "point", at: target, frame: "world" }, style },
             "t1",
           ).node,
-          HumanChain.subject("b").act("catchObject", {
+          AutoMovieMotionHumanChain.subject("b").act("catchObject", {
             partner: "t1",
             ball: "ball",
           }).node,
@@ -121,23 +120,23 @@ export function throwCases(
         motionCaseSocket(who.body, performance, "a", seconds, "gripRight");
       const h: number = 1 / 240;
       const from: IAutoMovieVector3 = grip(release);
-      const velocity: IAutoMovieVector3 = Vector3.scale(
-        Vector3.subtract(grip(release + h), grip(release - h)),
+      const velocity: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+        AutoMovieEngineVector3.subtract(grip(release + h), grip(release - h)),
         1 / (2 * h),
       );
       let miss: number = Infinity;
       for (let u: number = 0; u <= 3; u += 1 / 2400)
         miss = Math.min(
           miss,
-          Vector3.length(
-            Vector3.subtract(
+          AutoMovieEngineVector3.length(
+            AutoMovieEngineVector3.subtract(
               throwObject.path({ ...launch, point: from, velocity }, u),
               target,
             ),
           ),
         );
-      const planned: number = Vector3.length(launch.velocity);
-      const shown: number = Vector3.length(velocity);
+      const planned: number = AutoMovieEngineVector3.length(launch.velocity);
+      const shown: number = AutoMovieEngineVector3.length(velocity);
 
       // The catching palms against the object's surface.
       const offer: IAutoMovieMotionHumanActionPlan.IOffer | undefined =
@@ -150,8 +149,8 @@ export function throwCases(
         Math.max(
           ...(["palmLeft", "palmRight"] as const).map((name) =>
             Math.abs(
-              Vector3.length(
-                Vector3.subtract(
+              AutoMovieEngineVector3.length(
+                AutoMovieEngineVector3.subtract(
                   motionCaseSocket(who.body, performance, "b", seconds, name),
                   object(seconds),
                 ),

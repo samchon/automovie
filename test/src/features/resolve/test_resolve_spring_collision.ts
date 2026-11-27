@@ -1,4 +1,4 @@
-import { Matrix4, createSpringState, stepSpring } from "@automovie/engine";
+import { AutoMovieEngineMatrix4, AutoMovieEngineResolve } from "@automovie/engine";
 import {
   IAutoMovieSpringDriver,
   IAutoMovieTransform,
@@ -12,7 +12,7 @@ import { vclose } from "../internal/vclose";
 const W: (p: IAutoMovieVector3) => number[] = (
   p: IAutoMovieVector3,
 ): number[] =>
-  Matrix4.compose(p, { x: 0, y: 0, z: 0, w: 1 }, { x: 1, y: 1, z: 1 });
+  AutoMovieEngineMatrix4.compose(p, { x: 0, y: 0, z: 0, w: 1 }, { x: 1, y: 1, z: 1 });
 
 const trs: (x: number, y: number, z: number) => IAutoMovieTransform = (
   x: number,
@@ -50,7 +50,7 @@ const world: () => Map<string, number[]> = (): Map<string, number[]> =>
 const at: (w: Map<string, number[]>, id: string) => IAutoMovieVector3 = (
   w: Map<string, number[]>,
   id: string,
-): IAutoMovieVector3 => Matrix4.position(w.get(id)!);
+): IAutoMovieVector3 => AutoMovieEngineMatrix4.position(w.get(id)!);
 
 /**
  * After the length constraint, spring sphere collisions push each joint to sphere radius plus hitRadius in array order, using an upward fallback at a coincident center.
@@ -76,7 +76,7 @@ const at: (w: Map<string, number[]>, id: string) => IAutoMovieVector3 = (
 export function test_resolve_spring_collision(): void {
   // 1. push-out: sphere at the parent, min distance 1.2 + 0.05
   const w1: Map<string, number[]> = world();
-  stepSpring(still, w1, createSpringState(), 1 / 60, local, [
+  AutoMovieEngineResolve.stepSpring(still, w1, AutoMovieEngineResolve.createSpringState(), 1 / 60, local, [
     { center: { x: 0, y: 0, z: 0 }, radius: 1.2 },
   ]);
   TestValidator.predicate(
@@ -86,7 +86,7 @@ export function test_resolve_spring_collision(): void {
 
   // 2. negative twin: sphere too small to touch
   const w2: Map<string, number[]> = world();
-  stepSpring(still, w2, createSpringState(), 1 / 60, local, [
+  AutoMovieEngineResolve.stepSpring(still, w2, AutoMovieEngineResolve.createSpringState(), 1 / 60, local, [
     { center: { x: 0, y: 0, z: 0 }, radius: 0.5 },
   ]);
   TestValidator.predicate(
@@ -96,7 +96,7 @@ export function test_resolve_spring_collision(): void {
 
   // 3. joint exactly on the center → deterministic +Y fallback
   const w3: Map<string, number[]> = world();
-  stepSpring(still, w3, createSpringState(), 1 / 60, local, [
+  AutoMovieEngineResolve.stepSpring(still, w3, AutoMovieEngineResolve.createSpringState(), 1 / 60, local, [
     { center: { x: 1, y: 0, z: 0 }, radius: 0.3 },
   ]);
   TestValidator.predicate(
@@ -106,7 +106,7 @@ export function test_resolve_spring_collision(): void {
 
   // 4. array order: the second sphere sees the first push's result
   const w4: Map<string, number[]> = world();
-  stepSpring(still, w4, createSpringState(), 1 / 60, local, [
+  AutoMovieEngineResolve.stepSpring(still, w4, AutoMovieEngineResolve.createSpringState(), 1 / 60, local, [
     { center: { x: 1, y: 0, z: 0 }, radius: 0.3 },
     { center: { x: 1, y: 0.35, z: 0 }, radius: 0.2 },
   ]);
@@ -129,7 +129,7 @@ export function test_resolve_spring_collision(): void {
       title,
       throwsError(
         (): void =>
-          stepSpring(still, world(), createSpringState(), 1 / 60, local, [
+          AutoMovieEngineResolve.stepSpring(still, world(), AutoMovieEngineResolve.createSpringState(), 1 / 60, local, [
             collider,
           ]),
         expected,

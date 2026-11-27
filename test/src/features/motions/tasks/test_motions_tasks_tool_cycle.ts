@@ -1,9 +1,14 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanToolTurn, useToolCycle } from "@automovie/motions/internal";
+import {
+  HumanToolTurn
+} from "../../../../../packages/motions/src/tasks/internal/HumanToolTurn";
+import {
+  useToolCycle
+} from "../../../../../packages/motions/src/tasks/internal/useToolCycle";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../../internal/vclose";
@@ -42,7 +47,7 @@ export function test_motions_tasks_tool_cycle(): void {
     hand: Pick<typeof held, "grip" | "rotation">,
     local: IAutoMovieVector3,
   ): IAutoMovieVector3 =>
-    Vector3.add(hand.grip, Quaternion.rotateVector(hand.rotation, local));
+    AutoMovieEngineVector3.add(hand.grip, AutoMovieEngineQuaternion.rotateVector(hand.rotation, local));
 
   const hammer = prepare("hammer", HumanToolTurn(held, LEFT, ORIGIN));
   const angle: number = (70 * Math.PI) / 180;
@@ -71,7 +76,7 @@ export function test_motions_tasks_tool_cycle(): void {
     "the screwdriver turns 30 degrees about its fixed face",
     vclose(face(turned, FORWARD), FORWARD, ROUNDING) &&
       vclose(
-        Quaternion.rotateVector(turned.rotation, LEFT),
+        AutoMovieEngineQuaternion.rotateVector(turned.rotation, LEFT),
         { x: Math.sqrt(3) / 2, y: 0.5, z: 0 },
         ROUNDING,
       ) &&

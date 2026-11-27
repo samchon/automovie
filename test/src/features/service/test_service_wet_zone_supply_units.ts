@@ -1,4 +1,4 @@
-import { lowerWetZoneDrainage } from "@automovie/engine";
+import { AutoMovieEngineService } from "@automovie/engine";
 import type {
   AutoMovieServiceUnit,
   IAutoMovieFluidDomain,
@@ -79,7 +79,7 @@ export function test_service_wet_zone_supply_units(): void {
     inlet: IAutoMovieServicePort,
     placement: Partial<IAutoMovieServiceNode> = {},
   ): IAutoMovieFluidDomain =>
-    lowerWetZoneDrainage({
+    AutoMovieEngineService.lowerWetZoneDrainage({
       network: serviceNetwork({
         systems: [supply],
         nodes: [

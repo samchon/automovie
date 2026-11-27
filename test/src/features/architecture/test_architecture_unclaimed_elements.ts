@@ -1,7 +1,4 @@
-import {
-  builtEnvironmentUnclaimedElements,
-  validateBuiltEnvironment,
-} from "@automovie/engine";
+import { AutoMovieEngineBuiltEnvironment, AutoMovieEngineArchitecture } from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieModel,
@@ -40,13 +37,13 @@ export function test_architecture_unclaimed_elements(): void {
 
   TestValidator.equals(
     "the fixture is a legal building",
-    validateBuiltEnvironment({ environment: record }).success,
+    AutoMovieEngineArchitecture.validateBuiltEnvironment({ environment: record }).success,
     true,
   );
 
   TestValidator.equals(
     "only a root no space claims is left over",
-    builtEnvironmentUnclaimedElements(record),
+    AutoMovieEngineBuiltEnvironment.environmentUnclaimedElements(record),
     ["residence/garden-wall-root"],
   );
 
@@ -56,28 +53,28 @@ export function test_architecture_unclaimed_elements(): void {
       [
         "a root a space claims is not left over",
         (): boolean =>
-          builtEnvironmentUnclaimedElements(record).includes(
+          AutoMovieEngineBuiltEnvironment.environmentUnclaimedElements(record).includes(
             "residence/residence-root",
           ) === false,
       ],
       [
         "an unassigned element under a drawn parent is not left over",
         (): boolean =>
-          builtEnvironmentUnclaimedElements(record).includes(
+          AutoMovieEngineBuiltEnvironment.environmentUnclaimedElements(record).includes(
             "residence/wall-buttress",
           ) === false,
       ],
       [
         "an unassigned element under a group is not left over either",
         (): boolean =>
-          builtEnvironmentUnclaimedElements(record).includes(
+          AutoMovieEngineBuiltEnvironment.environmentUnclaimedElements(record).includes(
             "residence/great-hall-chair-seat",
           ) === false,
       ],
       [
         "and neither is an element a space claims outright",
         (): boolean =>
-          builtEnvironmentUnclaimedElements(record).includes(
+          AutoMovieEngineBuiltEnvironment.environmentUnclaimedElements(record).includes(
             "residence/great-hall-chair",
           ) === false,
       ],

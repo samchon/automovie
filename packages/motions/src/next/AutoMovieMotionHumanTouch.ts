@@ -1,5 +1,5 @@
-import { AutoMovieMotionHumanTouchLaws } from "./AutoMovieMotionHumanTouchLaws";
-import { AutoMovieMotionHumanTouchRows } from "./AutoMovieMotionHumanTouchRows";
+import { AutoMovieMotionHumanTouchLaws } from "./internal/AutoMovieMotionHumanTouchLaws";
+import { AutoMovieMotionHumanTouchRows } from "./internal/AutoMovieMotionHumanTouchRows";
 
 /**
  * Touching a partner: a touch, a high five, a kiss and a leg touch.
@@ -22,7 +22,7 @@ import { AutoMovieMotionHumanTouchRows } from "./AutoMovieMotionHumanTouchRows";
  * - `highFive`: A high five, a low five or a fist bump between two standing
  *   partners: both bring one hand to one shared point between them and meet
  *   there at one shared instant, the mutual goal the handshake uses
- *   (`AutoMovieMotionMeeting`).
+ *   (`motionMeeting`).
  * - `kiss`: A kiss while standing: the lips brought to a partner's region (a
  *   cheek, the forehead, the crown, the lips, the back of a hand) by leaning
  *   the body from the hips and flexing the neck, the head turned to one side
@@ -149,7 +149,7 @@ import { AutoMovieMotionHumanTouchRows } from "./AutoMovieMotionHumanTouchRows";
  *   by the contact.
  * - `HumanSocial`: Things two people do together or to each other in company, as
  *   rows of shipped actions and as mutual records over them
- *   (`HumanChain.mutual`).
+ *   (`AutoMovieMotionHumanChain.mutual`).
  * - `HumanPartner`: Things two people do as partners in sport and dance, each a
  *   row of a law whose roles share a stated instant or a meeting.
  * - `HumanTouchRows`: The contact strokes as rows: each kind of `touch` under a
@@ -328,7 +328,7 @@ export namespace AutoMovieMotionHumanTouch {
 
   /**
    * Things two people do together or to each other in company, as rows of
-   * shipped actions and as mutual records over them (`HumanChain.mutual`). See
+   * shipped actions and as mutual records over them (`AutoMovieMotionHumanChain.mutual`). See
    * `AutoMovieMotionHumanTouchRows.HumanSocial`.
    */
   export import HumanSocial = AutoMovieMotionHumanTouchRows.HumanSocial;

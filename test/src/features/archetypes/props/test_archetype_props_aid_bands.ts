@@ -1,8 +1,4 @@
-import {
-  AutoMovieArchetypeUnits,
-  createMobilityAid,
-  createUmbrella,
-} from "@automovie/archetypes";
+import { AutoMovieArchetypeUnits, AutoMovieArchetypeUmbrella, AutoMovieArchetypeMobilityAid } from "@automovie/archetypes";
 import type { IAutoMovieAffordance } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -48,7 +44,7 @@ export function test_archetype_props_aid_bands(): void {
       0.955,
       BLUNT,
       (seed: number): number =>
-        archetypeExtent(createUmbrella({}, seed), "y").size,
+        archetypeExtent(AutoMovieArchetypeUmbrella.create({}, seed), "y").size,
     ),
     row(
       "open canopy",
@@ -56,14 +52,14 @@ export function test_archetype_props_aid_bands(): void {
       1.38,
       BLUNT,
       (seed: number): number =>
-        archetypeExtent(createUmbrella({ open: true }, seed), "x").size,
+        archetypeExtent(AutoMovieArchetypeUmbrella.create({ open: true }, seed), "x").size,
     ),
     row(
       "umbrella mass",
       0.66,
       0.91,
       BLUNT,
-      (seed: number): number => createUmbrella({}, seed).body.mass,
+      (seed: number): number => AutoMovieArchetypeUmbrella.create({}, seed).body.mass,
     ),
     row(
       "cane handle height",
@@ -71,7 +67,7 @@ export function test_archetype_props_aid_bands(): void {
       39 * AutoMovieArchetypeUnits.INCH,
       DRIVE,
       (seed: number): number =>
-        archetypeExtent(createMobilityAid({ kind: "cane" }, seed), "y").high,
+        archetypeExtent(AutoMovieArchetypeMobilityAid.create({ kind: "cane" }, seed), "y").high,
     ),
     row(
       "cane shaft",
@@ -79,7 +75,7 @@ export function test_archetype_props_aid_bands(): void {
       0.75 * AutoMovieArchetypeUnits.INCH,
       DRIVE,
       (seed: number): number =>
-        archetypeExtent(createMobilityAid({ kind: "cane" }, seed), "x", [
+        archetypeExtent(AutoMovieArchetypeMobilityAid.create({ kind: "cane" }, seed), "x", [
           "shaft",
         ]).size,
     ),
@@ -90,7 +86,7 @@ export function test_archetype_props_aid_bands(): void {
       DRIVE,
       (seed: number): number =>
         archetypeExtent(
-          createMobilityAid({ kind: "walker", model: "adult" }, seed),
+          AutoMovieArchetypeMobilityAid.create({ kind: "walker", model: "adult" }, seed),
           "y",
         ).high,
     ),
@@ -101,7 +97,7 @@ export function test_archetype_props_aid_bands(): void {
       DRIVE,
       (seed: number): number =>
         archetypeExtent(
-          createMobilityAid({ kind: "walker", model: "junior" }, seed),
+          AutoMovieArchetypeMobilityAid.create({ kind: "walker", model: "junior" }, seed),
           "y",
         ).high,
     ),
@@ -111,7 +107,7 @@ export function test_archetype_props_aid_bands(): void {
       24 * AutoMovieArchetypeUnits.INCH,
       DRIVE,
       (seed: number): number =>
-        archetypeExtent(createMobilityAid({ kind: "walker" }, seed), "x").size,
+        archetypeExtent(AutoMovieArchetypeMobilityAid.create({ kind: "walker" }, seed), "x").size,
     ),
     row(
       "walker mass",
@@ -119,7 +115,7 @@ export function test_archetype_props_aid_bands(): void {
       7.5 * AutoMovieArchetypeUnits.POUND,
       DRIVE,
       (seed: number): number =>
-        createMobilityAid({ kind: "walker" }, seed).body.mass,
+        AutoMovieArchetypeMobilityAid.create({ kind: "walker" }, seed).body.mass,
     ),
     row(
       "stand height",
@@ -127,7 +123,7 @@ export function test_archetype_props_aid_bands(): void {
       2.26,
       PROVITA,
       (seed: number): number =>
-        archetypeExtent(createMobilityAid({ kind: "infusionStand" }, seed), "y")
+        archetypeExtent(AutoMovieArchetypeMobilityAid.create({ kind: "infusionStand" }, seed), "y")
           .high,
     ),
     row(
@@ -139,7 +135,7 @@ export function test_archetype_props_aid_bands(): void {
       (seed: number): number =>
         2 *
         archetypeExtent(
-          createMobilityAid({ kind: "infusionStand" }, seed),
+          AutoMovieArchetypeMobilityAid.create({ kind: "infusionStand" }, seed),
           "z",
           ["castor0"],
         ).high,
@@ -150,7 +146,7 @@ export function test_archetype_props_aid_bands(): void {
       0.0337,
       PROVITA,
       (seed: number): number =>
-        createMobilityAid({ kind: "infusionStand" }, seed).affordance("grip")
+        AutoMovieArchetypeMobilityAid.create({ kind: "infusionStand" }, seed).affordance("grip")
           .aperture!,
     ),
     row(
@@ -159,18 +155,18 @@ export function test_archetype_props_aid_bands(): void {
       12,
       PROVITA,
       (seed: number): number =>
-        createMobilityAid({ kind: "infusionStand" }, seed).body.mass,
+        AutoMovieArchetypeMobilityAid.create({ kind: "infusionStand" }, seed).body.mass,
     ),
   ]);
 
   // 2. The canopy only when open.
   for (const seed of [0, 1, 2]) {
-    const closed: ReturnType<typeof createUmbrella> = createUmbrella({}, seed);
-    const open: ReturnType<typeof createUmbrella> = createUmbrella(
+    const closed: ReturnType<typeof AutoMovieArchetypeUmbrella.create> = AutoMovieArchetypeUmbrella.create({}, seed);
+    const open: ReturnType<typeof AutoMovieArchetypeUmbrella.create> = AutoMovieArchetypeUmbrella.create(
       { open: true },
       seed,
     );
-    const has = (u: ReturnType<typeof createUmbrella>): boolean =>
+    const has = (u: ReturnType<typeof AutoMovieArchetypeUmbrella.create>): boolean =>
       u.affordances.some(
         (a: IAutoMovieAffordance): boolean => a.id === "canopy",
       );
@@ -188,7 +184,7 @@ export function test_archetype_props_aid_bands(): void {
 
   // 3. The walker's grips on its rails.
   for (const seed of [0, 1, 2]) {
-    const walker: ReturnType<typeof createMobilityAid> = createMobilityAid(
+    const walker: ReturnType<typeof AutoMovieArchetypeMobilityAid.create> = AutoMovieArchetypeMobilityAid.create(
       { kind: "walker" },
       seed,
     );
@@ -207,7 +203,7 @@ export function test_archetype_props_aid_bands(): void {
 
   // 4. The infusion stand on its castors, its hook on top, its balance low.
   for (const seed of [0, 1, 2]) {
-    const stand: ReturnType<typeof createMobilityAid> = createMobilityAid(
+    const stand: ReturnType<typeof AutoMovieArchetypeMobilityAid.create> = AutoMovieArchetypeMobilityAid.create(
       { kind: "infusionStand" },
       seed,
     );

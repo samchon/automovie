@@ -1,7 +1,7 @@
-import { resolveAutoMovieLensAt } from "@automovie/engine";
-import type {
-  IAutoMovieCameraIntent,
-  IAutoMovieFilmOptics,
+import { AutoMovieEngineFilm } from "@automovie/engine";
+import {
+  type IAutoMovieCameraIntent,
+  type IAutoMovieFilmOptics,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -49,7 +49,7 @@ export function test_engine_film_camera_lens_resolve(): void {
     seconds: number,
     z: number = 0,
   ): IAutoMovieFilmOptics.ILens | null =>
-    resolveAutoMovieLensAt({
+    AutoMovieEngineFilm.resolveAutoMovieLensAt({
       intents,
       seconds,
       position: { x: 0, y: 0, z },

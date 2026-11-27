@@ -1,4 +1,9 @@
-import { HumanRefusal, requireOtherPerformer } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  requireOtherPerformer
+} from "../../../../../packages/motions/src/touch/internal/requireOtherPerformer";
 import { strict as assert } from "node:assert";
 
 /** Each partner-only contact requires two distinct performers. */
@@ -8,7 +13,7 @@ export function test_motions_touch_partner_touch(): void {
   assert.throws(
     () => requireOtherPerformer("a", "a", reason),
     (error: unknown): boolean =>
-      error instanceof HumanRefusal &&
+      error instanceof AutoMovieMotionHumanRefusal &&
       error.kind === "parameter" &&
       error.axis === "partner" &&
       error.value === "a" &&

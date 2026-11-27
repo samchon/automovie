@@ -1,5 +1,5 @@
 import type { IAutoMovieInspectionDiagnostics } from "@automovie/interface";
-import { reduceAutoMovieInspectionEpisodes } from "@automovie/render";
+import { AutoMovieRenderInspectionMarks } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -35,7 +35,7 @@ export function test_render_scene_reduce_inspection_episodes(): void {
     observation(99, "candidate"),
   );
   const impact: IAutoMovieInspectionDiagnostics.IAudit =
-    reduceAutoMovieInspectionEpisodes(
+    AutoMovieRenderInspectionMarks.reduceEpisodes(
       [
         frame(0),
         repeated,
@@ -98,7 +98,7 @@ export function test_render_scene_reduce_inspection_episodes(): void {
     reason: "Required narrow-phase check did not run.",
   };
   const interrupted: IAutoMovieInspectionDiagnostics.IAudit =
-    reduceAutoMovieInspectionEpisodes([
+    AutoMovieRenderInspectionMarks.reduceEpisodes([
       frame(0, observation(1)),
       frame(0, observation(1), "other/shot"),
       frame(1, observation(2)),
@@ -158,7 +158,7 @@ export function test_render_scene_reduce_inspection_episodes(): void {
     },
   };
   const sparse: IAutoMovieInspectionDiagnostics.IAudit =
-    reduceAutoMovieInspectionEpisodes([
+    AutoMovieRenderInspectionMarks.reduceEpisodes([
       { ...frame(1, swept), time: { filmSeconds: 1 } },
       { ...frame(2, observation(3)), time: { filmSeconds: 1.125 } },
     ]);
@@ -186,7 +186,7 @@ export function test_render_scene_reduce_inspection_episodes(): void {
   );
 
   const complete: IAutoMovieInspectionDiagnostics.IAudit =
-    reduceAutoMovieInspectionEpisodes(
+    AutoMovieRenderInspectionMarks.reduceEpisodes(
       [
         frame(0, observation(1, "candidate"), "room/shot", [
           CHECKED,
@@ -215,7 +215,7 @@ export function test_render_scene_reduce_inspection_episodes(): void {
     [false, false],
   );
   const incomplete: IAutoMovieInspectionDiagnostics.IAudit =
-    reduceAutoMovieInspectionEpisodes([frame(0), frame(2)], 3);
+    AutoMovieRenderInspectionMarks.reduceEpisodes([frame(0), frame(2)], 3);
   TestValidator.equals(
     "a missing output index is unresolved even with checked samples",
     [incomplete.observedOutputFrames, incomplete.unresolvedRequiredCoverage],
@@ -223,12 +223,12 @@ export function test_render_scene_reduce_inspection_episodes(): void {
   );
 
   TestValidator.error("decreasing film seconds are refused", (): void => {
-    reduceAutoMovieInspectionEpisodes([frame(1), frame(0)]);
+    AutoMovieRenderInspectionMarks.reduceEpisodes([frame(1), frame(0)]);
   });
   TestValidator.error(
     "changed evidence at the same scoped sample is refused",
     (): void => {
-      reduceAutoMovieInspectionEpisodes([
+      AutoMovieRenderInspectionMarks.reduceEpisodes([
         frame(1, observation(1)),
         frame(1, observation(2)),
       ]);
@@ -237,7 +237,7 @@ export function test_render_scene_reduce_inspection_episodes(): void {
   TestValidator.error(
     "one output index cannot name two film times",
     (): void => {
-      reduceAutoMovieInspectionEpisodes([
+      AutoMovieRenderInspectionMarks.reduceEpisodes([
         frame(1),
         {
           ...frame(1, undefined, "other/shot"),
@@ -248,7 +248,7 @@ export function test_render_scene_reduce_inspection_episodes(): void {
   );
 
   const placed: IAutoMovieInspectionDiagnostics.IAudit =
-    reduceAutoMovieInspectionEpisodes(
+    AutoMovieRenderInspectionMarks.reduceEpisodes(
       [28, 29, 30].map(
         (outputFrame: number): IAutoMovieInspectionDiagnostics => {
           const filmSeconds: number = outputFrame / 24;

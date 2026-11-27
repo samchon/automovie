@@ -1,5 +1,7 @@
 import type { IAutoMovieMotionClock } from "@automovie/interface";
-import { extinguishSweep } from "@automovie/motions/internal";
+import {
+  extinguishSweep
+} from "../../../../../packages/motions/src/tasks/internal/extinguishSweep";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

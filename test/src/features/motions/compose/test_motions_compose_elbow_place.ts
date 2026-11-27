@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
@@ -8,11 +8,17 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanElbowPlace,
-  AutoMovieMotionHumanElbowPole,
-  poseBones,
-  resolveHumanPosture,
-} from "@automovie/motions/internal";
+  motionHumanElbowPlace
+} from "../../../../../packages/motions/src/compose/internal/motionHumanElbowPlace";
+import {
+  motionHumanElbowPole
+} from "../../../../../packages/motions/src/compose/internal/motionHumanElbowPole";
+import {
+  poseBones
+} from "../../../../../packages/motions/src/posture/internal/poseBones";
+import {
+  resolveHumanPosture
+} from "../../../../../packages/motions/src/posture/internal/resolveHumanPosture";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -22,10 +28,10 @@ import { nclose } from "../../internal/nclose";
 const ROUNDING: number = 1e-9;
 
 /**
- * An arm's elbow placed toward a pole: `AutoMovieMotionHumanElbowPlace` puts
+ * An arm's elbow placed toward a pole: `motionHumanElbowPlace` puts
  * the bend where the upper arm and the forearm meet over the shoulder-to-goal
  * line by the law of cosines, on the side the pole points across that line,
- * marked `placed`; `AutoMovieMotionHumanElbowPole` puts the pole out along the
+ * marked `placed`; `motionHumanElbowPole` puts the pole out along the
  * olecranon, `POLE` of the forearm from the elbow, opposite to where flexing
  * the elbow `FLEX` degrees carries the hand.
  *
@@ -56,52 +62,52 @@ export async function test_motions_compose_elbow_place(): Promise<void> {
   );
   const shoulder: IAutoMovieVector3 = bones.get("leftUpperArm")!.worldPosition;
   const goal: IAutoMovieHumanLimbGoal = {
-    point: Vector3.add(shoulder, { x: 0, y: -0.2, z: 0.45 }),
+    point: AutoMovieEngineVector3.add(shoulder, { x: 0, y: -0.2, z: 0.45 }),
     bend: shoulder,
   };
   const up = (): IAutoMovieVector3 => ({ x: 0, y: 1, z: 0 });
 
   // 1. The law of cosines.
-  const placed: IAutoMovieHumanLimbGoal = AutoMovieMotionHumanElbowPlace(
+  const placed: IAutoMovieHumanLimbGoal = motionHumanElbowPlace(
     body,
     standing,
     "left",
     goal,
     up,
   );
-  const line: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.subtract(goal.point, shoulder),
+  const line: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.subtract(goal.point, shoulder),
   );
-  const out: IAutoMovieVector3 = Vector3.subtract(placed.bend, shoulder);
+  const out: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(placed.bend, shoulder);
   TestValidator.predicate(
     "the elbow between the bones, toward the pole",
-    nclose(Vector3.length(out), body.measure.upperArm, ROUNDING) &&
+    nclose(AutoMovieEngineVector3.length(out), body.measure.upperArm, ROUNDING) &&
       nclose(
-        Vector3.distance(placed.bend, goal.point),
+        AutoMovieEngineVector3.distance(placed.bend, goal.point),
         body.measure.forearm,
         ROUNDING,
       ) &&
-      Vector3.dot(
-        Vector3.subtract(out, Vector3.scale(line, Vector3.dot(out, line))),
+      AutoMovieEngineVector3.dot(
+        AutoMovieEngineVector3.subtract(out, AutoMovieEngineVector3.scale(line, AutoMovieEngineVector3.dot(out, line))),
         { x: 0, y: 1, z: 0 },
       ) > 0 &&
       placed.elbow === "placed",
   );
 
   // 2. Out of reach.
-  const far: IAutoMovieHumanLimbGoal = AutoMovieMotionHumanElbowPlace(
+  const far: IAutoMovieHumanLimbGoal = motionHumanElbowPlace(
     body,
     standing,
     "left",
-    { ...goal, point: Vector3.add(shoulder, { x: 0, y: 0, z: 2 }) },
+    { ...goal, point: AutoMovieEngineVector3.add(shoulder, { x: 0, y: 0, z: 2 }) },
     up,
   );
   TestValidator.predicate(
     "past reach, the elbow on the line",
     nclose(
-      Vector3.distance(
+      AutoMovieEngineVector3.distance(
         far.bend,
-        Vector3.add(shoulder, { x: 0, y: 0, z: body.measure.upperArm }),
+        AutoMovieEngineVector3.add(shoulder, { x: 0, y: 0, z: body.measure.upperArm }),
       ),
       0,
       1e-3,
@@ -111,7 +117,7 @@ export async function test_motions_compose_elbow_place(): Promise<void> {
   // 3. The pole.
   const elbow: IAutoMovieVector3 = bones.get("leftLowerArm")!.worldPosition;
   const wrist: IAutoMovieVector3 = bones.get("leftHand")!.worldPosition;
-  const pole: IAutoMovieVector3 = AutoMovieMotionHumanElbowPole(
+  const pole: IAutoMovieVector3 = motionHumanElbowPole(
     body,
     standing,
     "leftLowerArm",
@@ -123,19 +129,19 @@ export async function test_motions_compose_elbow_place(): Promise<void> {
     body,
     resolveHumanPosture(body, {
       ...standing,
-      joints: { leftLowerArm: [AutoMovieMotionHumanElbowPole.FLEX, 0, 0] },
+      joints: { leftLowerArm: [motionHumanElbowPole.FLEX, 0, 0] },
     }),
   ).get("leftHand")!.worldPosition;
   TestValidator.predicate(
     "the pole out along the olecranon",
     nclose(
-      Vector3.distance(pole, elbow),
-      AutoMovieMotionHumanElbowPole.POLE * Vector3.distance(wrist, elbow),
+      AutoMovieEngineVector3.distance(pole, elbow),
+      motionHumanElbowPole.POLE * AutoMovieEngineVector3.distance(wrist, elbow),
       ROUNDING,
     ) &&
-      Vector3.dot(
-        Vector3.subtract(pole, elbow),
-        Vector3.subtract(flexed, wrist),
+      AutoMovieEngineVector3.dot(
+        AutoMovieEngineVector3.subtract(pole, elbow),
+        AutoMovieEngineVector3.subtract(flexed, wrist),
       ) < 0,
   );
 }

@@ -1,4 +1,4 @@
-import { deriveAutoMovieSemanticMask } from "@automovie/engine";
+import { AutoMovieEngineRenderSemanticMask } from "@automovie/engine";
 import type {
   IAutoMovieRenderSubject,
   IAutoMovieSemanticMask,
@@ -16,7 +16,7 @@ const subject: () => IAutoMovieRenderSubject = (): IAutoMovieRenderSubject => ({
 });
 
 /**
- * `deriveAutoMovieSemanticMask` gives every drawable of a render subject its
+ * `deriveSemanticMask` gives every drawable of a render subject its
  * own colour under its own id, so a pixel can be read back as the thing it
  * shows.
  *
@@ -30,7 +30,7 @@ const subject: () => IAutoMovieRenderSubject = (): IAutoMovieRenderSubject => ({
  * 4. Two nodes of one id are two claimants of one semantic id and are refused.
  */
 export function test_engine_render_derive_semantic_mask(): void {
-  const mask: IAutoMovieSemanticMask = deriveAutoMovieSemanticMask(subject());
+  const mask: IAutoMovieSemanticMask = AutoMovieEngineRenderSemanticMask.deriveAutoMovieSemanticMask(subject());
   TestValidator.equals(
     "protocol and background",
     [mask.protocol, mask.background],
@@ -52,13 +52,13 @@ export function test_engine_render_derive_semantic_mask(): void {
         ),
       ).size === 5,
   );
-  const grown: IAutoMovieSemanticMask = deriveAutoMovieSemanticMask({
+  const grown: IAutoMovieSemanticMask = AutoMovieEngineRenderSemanticMask.deriveAutoMovieSemanticMask({
     scene: sceneFixture({ extra: true }),
     models: modelsFixture(),
   });
   TestValidator.predicate(
     "a stable digest and a larger mask",
-    deriveAutoMovieSemanticMask(subject()).digest === mask.digest &&
+    AutoMovieEngineRenderSemanticMask.deriveAutoMovieSemanticMask(subject()).digest === mask.digest &&
       grown.entries.length === 6 &&
       grown.digest !== mask.digest,
   );
@@ -66,7 +66,7 @@ export function test_engine_render_derive_semantic_mask(): void {
     "two claimants of one id",
     throwsError(
       (): unknown =>
-        deriveAutoMovieSemanticMask({
+        AutoMovieEngineRenderSemanticMask.deriveAutoMovieSemanticMask({
           scene: {
             ...sceneFixture(),
             nodes: [sceneFixture().nodes[0]!, sceneFixture().nodes[0]!],

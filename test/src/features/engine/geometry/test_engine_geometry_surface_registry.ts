@@ -1,7 +1,4 @@
-import {
-  registerAutoMovieSurfaceVertices,
-  rigAutoMovieSweep,
-} from "@automovie/engine";
+import { AutoMovieEngineSweep } from "@automovie/engine";
 import type {
   IAutoMovieSurfaceRegistry,
   IAutoMovieSweep,
@@ -12,7 +9,7 @@ import { TestValidator } from "@nestia/e2e";
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * `registerAutoMovieSurfaceVertices` binds each sweep dependent once, at
+ * `registerSurfaceVertices` binds each sweep dependent once, at
  * finalization, to the final geometric cell of its key, and writes the same
  * point the emitted vertex writes.
  *
@@ -49,19 +46,24 @@ export function test_engine_geometry_surface_registry(): void {
           left: 1,
           up: 2,
           down: 2,
-          exponents: [2, 2, 2, 2],
+          exponents: {
+            upperRight: 2,
+            upperLeft: 2,
+            lowerLeft: 2,
+            lowerRight: 2,
+          },
         },
       },
     ],
   };
   const start = () => {
-    const rig: IAutoMovieSweepRig = rigAutoMovieSweep({
+    const rig: IAutoMovieSweepRig = AutoMovieEngineSweep.rigSweep({
       sweep,
       preserveVolume: false,
     });
     return {
       rig,
-      registry: registerAutoMovieSurfaceVertices((): IAutoMovieSweepRig => rig),
+      registry: AutoMovieEngineSweep.registerSurfaceVertices((): IAutoMovieSweepRig => rig),
     };
   };
   const admit = (
@@ -158,7 +160,7 @@ export function test_engine_geometry_surface_registry(): void {
   }
 
   // 3.
-  const empty: IAutoMovieSurfaceRegistry = registerAutoMovieSurfaceVertices(
+  const empty: IAutoMovieSurfaceRegistry = AutoMovieEngineSweep.registerSurfaceVertices(
     (): never => {
       throw new Error("no sweep should be requested");
     },

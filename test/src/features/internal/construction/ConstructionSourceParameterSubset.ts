@@ -1,14 +1,4 @@
-import {
-  AutoMovieLoftChain,
-  AutoMovieLoftJet,
-  AutoMovieLoftViewRead,
-  AutoMovieLoftViewSource,
-  AutoMovieLoftViewWorldJet,
-  AutoMovieViewAxis,
-  AutoMovieViewCurves,
-  AutoMovieViewLoft,
-  AutoMovieViewOutline,
-} from "@automovie/engine";
+import { AutoMovieEngineLoftChain, AutoMovieEngineLoftJet, AutoMovieEngineLoftViewRead, AutoMovieEngineLoftViewSource, AutoMovieEngineViewAxis, AutoMovieEngineViewCurves, AutoMovieEngineViewLoft, AutoMovieEngineViewOutline, AutoMovieEngineConstruction } from "@automovie/engine";
 import type {
   IAutoMovieConstructionOutlineParameter,
   IAutoMovieLoftChain,
@@ -96,7 +86,7 @@ function original(): IAutoMovieViewPart {
   });
   return {
     name: "parameter.subset",
-    axis: AutoMovieViewAxis.straight([7, 0, -3], [1, 0, 0], [0, 0, 1]),
+    axis: AutoMovieEngineViewAxis.straight([7, 0, -3], [1, 0, 0], [0, 0, 1]),
     stations: [0, 0.5, 1.5, 2.5, 3.5, 4],
     front: { positive: edge(0), negative: edge(2) },
     side: { positive: edge(1), negative: edge(3) },
@@ -133,10 +123,10 @@ function subset(
     ),
     pole,
   };
-  const curves: IAutoMovieViewCurves.IResult = AutoMovieViewCurves.create(part);
+  const curves: IAutoMovieViewCurves.IResult = AutoMovieEngineViewCurves.create(part);
   const source: IAutoMovieLoftViewSource.IResult | null =
-    AutoMovieLoftViewSource.create(part);
-  const loft: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create(part);
+    AutoMovieEngineLoftViewSource.create(part);
+  const loft: IAutoMovieViewLoft.IResult = AutoMovieEngineViewLoft.create(part);
   if (
     curves.diagnostics.length !== 0 ||
     source === null ||
@@ -195,7 +185,7 @@ function subset(
       (s: number): boolean => s >= first && s <= last,
     )) {
       const read: IAutoMovieViewCurves.IReading | string =
-        AutoMovieViewCurves.at(curve, part.axis, station);
+        AutoMovieEngineViewCurves.at(curve, part.axis, station);
       if (typeof read === "string" || read.scalar.stationJet === null)
         throw new Error(String(read));
       const q: number = quarters[index]!;
@@ -214,7 +204,7 @@ function subset(
     (s: number): boolean => s >= first && s <= last,
   )) {
     const inputs: IAutoMovieLoftViewRead.IJets | string =
-      AutoMovieLoftViewRead.jets(source.source, station);
+      AutoMovieEngineLoftViewRead.jets(source.source, station);
     if (typeof inputs === "string") throw new Error(inputs);
     for (let q: number = 0; q < 4; q++) {
       vector(
@@ -230,8 +220,8 @@ function subset(
         "original cap2",
       );
       const phase: number = (q * Math.PI) / 2;
-      const actual: ReturnType<typeof AutoMovieLoftViewWorldJet> =
-        AutoMovieLoftViewWorldJet(source.source, part.axis, station, phase);
+      const actual: ReturnType<typeof AutoMovieEngineConstruction.loftViewWorldJet> =
+        AutoMovieEngineConstruction.loftViewWorldJet(source.source, part.axis, station, phase);
       if (typeof actual === "string") throw new Error(actual);
       const expected: IAutoMovieLoftSurfaceJet = world(q, station);
       jets(
@@ -248,7 +238,7 @@ function subset(
         "original world2",
       );
       jets(
-        AutoMovieLoftJet.at(chain, station, phase),
+        AutoMovieEngineLoftJet.at(chain, station, phase),
         expected,
         failures,
         "actual loft world2",
@@ -272,7 +262,7 @@ function subset(
       failures.push("A parameter endpoint invented or erased an actual cap.");
     const outline: IAutoMovieViewOutline.IOutline = curves.curves[0]!.outline!;
     const read: IAutoMovieViewOutline.IReading | string =
-      AutoMovieViewOutline.at(outline, station);
+      AutoMovieEngineViewOutline.at(outline, station);
     if (
       typeof read === "string" ||
       read.stationJet !== null ||
@@ -284,19 +274,19 @@ function subset(
       );
     if (closed) {
       vector(
-        AutoMovieLoftChain.point(chain, station, 0.37),
+        AutoMovieEngineLoftChain.point(chain, station, 0.37),
         [7, station, -3],
         failures,
         "owned pole Point0",
       );
       if (
-        typeof AutoMovieLoftViewRead.jets(source.source, station) !== "string"
+        typeof AutoMovieEngineLoftViewRead.jets(source.source, station) !== "string"
       )
         failures.push("A pole acquired a fabricated physical2.");
     } else {
       let refused: boolean = false;
       try {
-        AutoMovieLoftChain.point(chain, station, 0.37);
+        AutoMovieEngineLoftChain.point(chain, station, 0.37);
       } catch {
         refused = true;
       }
@@ -446,7 +436,7 @@ function refusal(
   try {
     const actual:
       | IAutoMovieViewOutline.IOutline
-      | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
+      | IAutoMovieViewOutline.IFailure = AutoMovieEngineViewOutline.create(
       curve,
       ends,
     );

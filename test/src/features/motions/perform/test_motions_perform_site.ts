@@ -4,11 +4,14 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanObject } from "@automovie/motions";
 import {
-  HumanPerformanceSite,
-  HumanRefusal,
-} from "@automovie/motions/internal";
+  AutoMovieMotionHumanObject,
+  AutoMovieMotionHumanRefusal,
+} from "@automovie/motions";
+import {
+  HumanPerformanceSite
+} from "../../../../../packages/motions/src/perform/internal/HumanPerformanceSite";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { drivenDoorState } from "../../internal/fixtures/drivenDoorState";
@@ -51,12 +54,12 @@ const ROLL: IAutoMovieQuaternion = {
  *    the prop explicitly positions in world space keeps its own frame.
  */
 export async function test_motions_perform_site(): Promise<void> {
-  const crate: IAutoMovieMotionHumanProp = HumanObject.prop(
+  const crate: IAutoMovieMotionHumanProp = AutoMovieMotionHumanObject.prop(
     "crate",
     { affordances: [testAffordance("tag", "handle", P(1, 0, 0), ROLL)] },
     { at: P(0, 0, 0), yaw: 90 },
   );
-  const cart: IAutoMovieMotionHumanProp = HumanObject.prop(
+  const cart: IAutoMovieMotionHumanProp = AutoMovieMotionHumanObject.prop(
     "cart",
     { affordances: [testAffordance("pedal", "pedal", P(0, 0.3, 0))] },
     { at: P(5, 0, 0), yaw: 0 },
@@ -178,7 +181,7 @@ function refused(task: () => unknown, axis: string): boolean {
     return false;
   } catch (error) {
     return (
-      error instanceof HumanRefusal &&
+      error instanceof AutoMovieMotionHumanRefusal &&
       error.axis === axis &&
       error.kind === "affordance"
     );

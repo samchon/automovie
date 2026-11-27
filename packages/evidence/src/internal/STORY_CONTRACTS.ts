@@ -1,4 +1,4 @@
-/**
+/*
  * Names the story contract tree inside a skills tree.
  *
  * Its checklist families ship directly in this directory. The `work/` and

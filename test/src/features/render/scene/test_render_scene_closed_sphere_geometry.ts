@@ -1,8 +1,9 @@
-import { createAutoMovieClosedSphereGeometry } from "@automovie/render";
+import { AutoMovieRenderSceneLayout } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `createAutoMovieClosedSphereGeometry` is a sphere whose seam shares one exact
+ * `AutoMovieRenderSceneLayout.createClosedSphereGeometry` is a sphere whose seam
+ * shares one exact
  * position and normal.
  *
  * Scenarios:
@@ -13,7 +14,11 @@ import { TestValidator } from "@nestia/e2e";
  * 3. A radius of zero, a negative radius and one beyond Float32 are refused.
  */
 export function test_render_scene_closed_sphere_geometry(): void {
-  const geometry = createAutoMovieClosedSphereGeometry(2, 8, 4);
+  const geometry = AutoMovieRenderSceneLayout.createClosedSphereGeometry({
+    radius: 2,
+    widthSegments: 8,
+    heightSegments: 4,
+  });
   const position = geometry.getAttribute("position");
   const normal = geometry.getAttribute("normal");
   const uv = geometry.getAttribute("uv");
@@ -42,6 +47,6 @@ export function test_render_scene_closed_sphere_geometry(): void {
   );
   for (const radius of [0, -1, 1e39])
     TestValidator.error(`radius ${radius}`, (): void => {
-      createAutoMovieClosedSphereGeometry(radius);
+      AutoMovieRenderSceneLayout.createClosedSphereGeometry({ radius });
     });
 }

@@ -1,10 +1,10 @@
-import { determinantAutoMovieMatrix3 } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../../internal/predicates";
 
 /**
- * `determinantAutoMovieMatrix3` is the determinant of a row-major 3 by 3
+ * `determinantMatrix3` is the determinant of a row-major 3 by 3
  * matrix, exactly zero for a singular one.
  *
  * Scenarios:
@@ -22,37 +22,37 @@ import { nclose, throwsError } from "../../internal/predicates";
 export function test_engine_math_determinant_matrix3(): void {
   TestValidator.equals(
     "identity",
-    determinantAutoMovieMatrix3([1, 0, 0, 0, 1, 0, 0, 0, 1]),
+    AutoMovieEngineMath.determinantMatrix3([1, 0, 0, 0, 1, 0, 0, 0, 1]),
     1,
   );
   TestValidator.equals(
     "diagonal",
-    determinantAutoMovieMatrix3([2, 0, 0, 0, 3, 0, 0, 0, 4]),
+    AutoMovieEngineMath.determinantMatrix3([2, 0, 0, 0, 3, 0, 0, 0, 4]),
     24,
   );
   TestValidator.equals(
     "singular",
-    determinantAutoMovieMatrix3([1, 2, 3, 4, 5, 6, 7, 8, 9]),
+    AutoMovieEngineMath.determinantMatrix3([1, 2, 3, 4, 5, 6, 7, 8, 9]),
     0,
   );
   TestValidator.equals(
     "swapped rows",
-    determinantAutoMovieMatrix3([0, 1, 0, 1, 0, 0, 0, 0, 1]),
+    AutoMovieEngineMath.determinantMatrix3([0, 1, 0, 1, 0, 0, 0, 0, 1]),
     -1,
   );
   TestValidator.predicate(
     "short",
-    throwsError(() => determinantAutoMovieMatrix3([1, 2, 3, 4, 5, 6, 7, 8])),
+    throwsError(() => AutoMovieEngineMath.determinantMatrix3([1, 2, 3, 4, 5, 6, 7, 8])),
   );
   const delta: number = 2 ** -40;
   const near: number[] = [1, 1, 1, 1, 1 + delta, 1, 1, 1, 1 + delta];
   TestValidator.predicate(
     "cancellation keeps delta squared",
-    nclose(determinantAutoMovieMatrix3(near), delta ** 2, delta ** 2 * 1e-12),
+    nclose(AutoMovieEngineMath.determinantMatrix3(near), delta ** 2, delta ** 2 * 1e-12),
   );
   TestValidator.predicate(
     "row permutation reverses the sign",
-    determinantAutoMovieMatrix3([
+    AutoMovieEngineMath.determinantMatrix3([
       ...near.slice(3, 6),
       ...near.slice(0, 3),
       ...near.slice(6),
@@ -60,13 +60,13 @@ export function test_engine_math_determinant_matrix3(): void {
   );
   TestValidator.equals(
     "dependent rows",
-    determinantAutoMovieMatrix3([1, 2, 3, 1, 2, 3, 4, 5, 6]),
+    AutoMovieEngineMath.determinantMatrix3([1, 2, 3, 1, 2, 3, 4, 5, 6]),
     0,
   );
   TestValidator.predicate(
     "overflowing intermediates",
     nclose(
-      determinantAutoMovieMatrix3([
+      AutoMovieEngineMath.determinantMatrix3([
         2 ** 800,
         0,
         0,
@@ -94,12 +94,12 @@ export function test_engine_math_determinant_matrix3(): void {
   ];
   TestValidator.equals(
     "underflowed intermediate",
-    determinantAutoMovieMatrix3(underflowed),
+    AutoMovieEngineMath.determinantMatrix3(underflowed),
     2 ** -601,
   );
   TestValidator.equals(
     "underflowed opposite orientation",
-    determinantAutoMovieMatrix3([
+    AutoMovieEngineMath.determinantMatrix3([
       ...underflowed.slice(3, 6),
       ...underflowed.slice(0, 3),
       ...underflowed.slice(6),
@@ -109,7 +109,7 @@ export function test_engine_math_determinant_matrix3(): void {
   TestValidator.predicate(
     "unrepresentable",
     throwsError(() =>
-      determinantAutoMovieMatrix3([
+      AutoMovieEngineMath.determinantMatrix3([
         2 ** -400,
         0,
         0,

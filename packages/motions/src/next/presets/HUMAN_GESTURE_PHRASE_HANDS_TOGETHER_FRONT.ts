@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanGesture } from "@automovie/interface";
 
-/**
+/*
  * The values the `handsTogetherFront` row of `HumanUpperRows` fixes on
  * `armPhrase`, spread into its parameters. Hands clasped in front: both palms
  * meet before the abdomen and stay.

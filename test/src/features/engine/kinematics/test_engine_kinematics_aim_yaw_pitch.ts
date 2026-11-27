@@ -1,4 +1,4 @@
-import { aimYawPitch } from "@automovie/engine";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
 import type { IAutoMovieYawPitch } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -23,31 +23,31 @@ const ORIGIN: { x: number; y: number; z: number } = { x: 0, y: 0, z: 0 };
  * 4. A target at the origin gives (0, 0).
  */
 export function test_engine_kinematics_aim_yaw_pitch(): void {
-  const ahead: IAutoMovieYawPitch = aimYawPitch(
+  const ahead: IAutoMovieYawPitch = AutoMovieEngineKinematics.aimYawPitch(
     ORIGIN,
     { x: 0, y: 0, z: 1 },
     0,
   );
-  const side: IAutoMovieYawPitch = aimYawPitch(ORIGIN, { x: 1, y: 0, z: 0 }, 0);
+  const side: IAutoMovieYawPitch = AutoMovieEngineKinematics.aimYawPitch(ORIGIN, { x: 1, y: 0, z: 0 }, 0);
   TestValidator.predicate(
     "ahead and aside",
     nclose(ahead.yawDeg, 0, ROUNDING) &&
       nclose(ahead.pitchDeg, 0, ROUNDING) &&
       nclose(side.yawDeg, 90, ROUNDING),
   );
-  const rise: IAutoMovieYawPitch = aimYawPitch(ORIGIN, { x: 0, y: 1, z: 1 }, 0);
-  const up: IAutoMovieYawPitch = aimYawPitch(ORIGIN, { x: 0, y: 1, z: 0 }, 0);
+  const rise: IAutoMovieYawPitch = AutoMovieEngineKinematics.aimYawPitch(ORIGIN, { x: 0, y: 1, z: 1 }, 0);
+  const up: IAutoMovieYawPitch = AutoMovieEngineKinematics.aimYawPitch(ORIGIN, { x: 0, y: 1, z: 0 }, 0);
   TestValidator.predicate(
     "pitch",
     nclose(rise.pitchDeg, 45, ROUNDING) && nclose(up.pitchDeg, 90, ROUNDING),
   );
   TestValidator.predicate(
     "a turned actor",
-    nclose(aimYawPitch(ORIGIN, { x: 0, y: 0, z: 1 }, 90).yawDeg, -90, ROUNDING),
+    nclose(AutoMovieEngineKinematics.aimYawPitch(ORIGIN, { x: 0, y: 0, z: 1 }, 90).yawDeg, -90, ROUNDING),
   );
   TestValidator.equals(
     "no direction",
-    aimYawPitch({ x: 2, y: 2, z: 2 }, { x: 2, y: 2, z: 2 }, 30),
+    AutoMovieEngineKinematics.aimYawPitch({ x: 2, y: 2, z: 2 }, { x: 2, y: 2, z: 2 }, 30),
     { yawDeg: 0, pitchDeg: 0 },
   );
 }

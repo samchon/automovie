@@ -1,10 +1,4 @@
-import {
-  admitMotionTake,
-  cutSequence,
-  preparePlaybackTimeline,
-  resolveMotionTakeAnchor,
-  verifyMotionTake,
-} from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieCut,
   IAutoMovieMotionTake,
@@ -34,7 +28,7 @@ export async function openMotionTake(props: {
   source: string;
   artifact: string;
   create?:
-    | ({ mode: "save" } & Parameters<typeof resolveMotionTakeAnchor>[2])
+    | ({ mode: "save" } & Parameters<typeof AutoMovieEngineFilm.resolveMotionTakeAnchor>[2])
     | { mode: "branch" };
 }): Promise<{
   take: IAutoMovieMotionTake;
@@ -87,7 +81,7 @@ export async function openMotionTake(props: {
         "take-provenance: branch requires a distinct take in the original production",
       );
     parentCut = resolveAnchor(parent, original.take.anchor);
-    verifyMotionTake(original.take, {
+    AutoMovieEngineFilm.verifyMotionTake(original.take, {
       production: parent.production,
       take: parent.take,
       anchor: parentCut.anchor,
@@ -101,7 +95,7 @@ export async function openMotionTake(props: {
 
   const parentAnchor: IAutoMovieMotionTakeAnchor | undefined =
     parentCut?.anchor;
-  const selection: Parameters<typeof resolveMotionTakeAnchor>[2] | undefined =
+  const selection: Parameters<typeof AutoMovieEngineFilm.resolveMotionTakeAnchor>[2] | undefined =
     parentAnchor ??
     saved?.anchor ??
     (props.create?.mode === "save" ? props.create : undefined);
@@ -119,7 +113,7 @@ export async function openMotionTake(props: {
       anchor.sourceSeconds !== parentAnchor.sourceSeconds)
   )
     throw new Error("take-anchor: branch changes the original saved placement");
-  const current: IAutoMovieMotionTake = admitMotionTake({
+  const current: IAutoMovieMotionTake = AutoMovieEngineFilm.admitMotionTake({
     version: 1,
     production: recipe.production,
     take: recipe.take,
@@ -129,7 +123,7 @@ export async function openMotionTake(props: {
     provenance,
     ...(lineage === undefined ? {} : { parent: lineage }),
   });
-  if (saved) verifyMotionTake(saved, current);
+  if (saved) AutoMovieEngineFilm.verifyMotionTake(saved, current);
 
   const replay: ReturnType<typeof replayMotionTake> = replayMotionTake(
     recipe,
@@ -154,21 +148,21 @@ export async function openMotionTake(props: {
 /** Admit the registered edit and resolve one exact occurrence through the editorial owner. */
 function resolveAnchor(
   { edit, shots }: IMotionTakeSource,
-  selection: Parameters<typeof resolveMotionTakeAnchor>[2],
+  selection: Parameters<typeof AutoMovieEngineFilm.resolveMotionTakeAnchor>[2],
 ): Parameters<typeof verifyMotionTakeEditPrefix>[0] & {
   anchor: IAutoMovieMotionTakeAnchor;
 } {
-  const cut: IAutoMovieCut = cutSequence(edit, [...shots]);
+  const cut: IAutoMovieCut = AutoMovieEngineFilm.cutSequence(edit, [...shots]);
   if (!cut.success)
     throw new Error(
       `take-anchor: edit was refused ${JSON.stringify(cut.violations)}`,
     );
-  const prepared: ReturnType<typeof preparePlaybackTimeline> =
-    preparePlaybackTimeline(cut.sequence, shots);
+  const prepared: ReturnType<typeof AutoMovieEngineFilm.preparePlaybackTimeline> =
+    AutoMovieEngineFilm.preparePlaybackTimeline(cut.sequence, shots);
   return {
     sequence: cut.sequence,
     shots,
     prepared,
-    anchor: resolveMotionTakeAnchor(cut.sequence, prepared, selection),
+    anchor: AutoMovieEngineFilm.resolveMotionTakeAnchor(cut.sequence, prepared, selection),
   };
 }

@@ -2,7 +2,9 @@
   IAutoMovieMotionHumanAuditMeasure,
   IAutoMovieMotionHumanBody,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanAuditGround } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanAuditGround
+} from "../../../../../packages/motions/src/audit/internal/AutoMovieMotionHumanAuditGround";
 import { TestValidator } from "@nestia/e2e";
 
 import { auditStanceMotion } from "../../internal/auditStanceMotion";

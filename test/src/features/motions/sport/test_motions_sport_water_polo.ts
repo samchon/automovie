@@ -4,7 +4,9 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { scoreWaterPoloGoal } from "@automovie/motions/internal";
+import {
+  scoreWaterPoloGoal
+} from "../../../../../packages/motions/src/sport/internal/scoreWaterPoloGoal";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

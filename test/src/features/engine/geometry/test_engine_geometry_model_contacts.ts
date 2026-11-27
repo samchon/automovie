@@ -1,4 +1,4 @@
-import { measureAutoMovieModelContacts } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieMeasureModelContacts,
   IAutoMovieMesh,
@@ -13,7 +13,7 @@ import { outwardBoxMesh } from "../../internal/outwardBoxMesh";
 import { throwsError } from "../../internal/predicates";
 
 /**
- * `measureAutoMovieModelContacts` reports every part pair of a model as
+ * `measureModelContacts` reports every part pair of a model as
  * crossing, contained, touching or apart, with its least gap and the share of
  * each part inside the other.
  *
@@ -39,7 +39,7 @@ export function test_engine_geometry_model_contacts(): void {
   const moved = (x: number): IAutoMovieModelPart =>
     geometryModelPart("b", { type: "mesh", mesh: unit }, { x, y: 0, z: 0 });
   const pair = (b: IAutoMovieModelPart): IAutoMovieModelContact =>
-    measureAutoMovieModelContacts(geometryPartsModel([a, b]), options)[0]!;
+    AutoMovieEngineGeometry.measureModelContacts(geometryPartsModel([a, b]), options)[0]!;
   const close = (x: number, y: number): boolean => Math.abs(x - y) <= 1e-12;
 
   // 1.
@@ -94,7 +94,7 @@ export function test_engine_geometry_model_contacts(): void {
   const c: IAutoMovieModelPart = geometryModelPart("c", { type: "mesh", mesh: unit }, { x: 0, y: 3, z: 0 });
   TestValidator.equals(
     "pairs",
-    measureAutoMovieModelContacts(geometryPartsModel([a, moved(1.5), c]), options).map(
+    AutoMovieEngineGeometry.measureModelContacts(geometryPartsModel([a, moved(1.5), c]), options).map(
       (e: IAutoMovieModelContact): string[] => [e.part, e.other],
     ),
     [
@@ -107,6 +107,6 @@ export function test_engine_geometry_model_contacts(): void {
   // 7.
   TestValidator.predicate(
     "negative contact",
-    throwsError((): unknown => measureAutoMovieModelContacts(geometryPartsModel([a, moved(1.5)]), { contact: -1 })),
+    throwsError((): unknown => AutoMovieEngineGeometry.measureModelContacts(geometryPartsModel([a, moved(1.5)]), { contact: -1 })),
   );
 }

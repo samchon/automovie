@@ -1,0 +1,118 @@
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
+import type { IAutoMovieVector3 } from "@automovie/interface";
+
+import {
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+} from "../../core";
+import { AutoMovieArchetypeBoat } from "../AutoMovieArchetypeBoat";
+
+/*
+ * An open boat's hull boards: its flat side panels and its thwarts with their
+ * seats, and the paint and bare wood they are drawn in.
+ */
+export namespace BoatHull {
+  /*
+   * The hull's paint.
+   */
+  export const PAINT: string = "#2f5d50";
+
+  /*
+   * Bare wood.
+   */
+  export const WOOD: string = "#a07a4a";
+
+  /*
+   * Add one flat side panel from one end's foot to another's, the gunwale's
+   * height above the bottom.
+   * Parameter builder: The boat under construction.
+   * Parameter id: The panel's part id.
+   * Parameter from: One end of its foot, `Y` ignored.
+   * Parameter to: The other end.
+   * Parameter bottom: The bottom's height.
+   * Parameter gunwale: The gunwale's height.
+   */
+  export function panel(
+    builder: AutoMovieArchetypeBuilder<
+      AutoMovieArchetypeBoat.Affordance,
+      AutoMovieArchetypeBoat.Dimension
+    >,
+    id: string,
+    from: IAutoMovieVector3,
+    to: IAutoMovieVector3,
+    bottom: number,
+    gunwale: number,
+  ): void {
+    const run: number = Math.hypot(to.x - from.x, to.z - from.z);
+    const yaw: number =
+      Math.atan2(to.x - from.x, to.z - from.z) / AutoMovieArchetypeUnits.DEGREE;
+    builder.box(
+      id,
+      AutoMovieEngineVector3.create(
+        AutoMovieArchetypeBoat.ESTIMATES.plank,
+        gunwale - bottom,
+        run,
+      ),
+      AutoMovieEngineVector3.create(
+        (from.x + to.x) / 2,
+        (gunwale + bottom) / 2,
+        (from.z + to.z) / 2,
+      ),
+      {
+        color: PAINT,
+        rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
+      },
+    );
+  }
+
+  /*
+   * Add one thwart and its seat: a board across the boat, its `seat` on its
+   * front edge, the edge the sitter faces from.
+   * Parameter builder: The boat under construction.
+   * Parameter id: The seat's affordance id.
+   * Parameter height: The board's top.
+   * Parameter edge: The station of its front edge, the sitter's knees' side.
+   * Parameter width: Its width across.
+   * Parameter facing: 1 for a sitter facing the bow, -1 for one facing the stern.
+   * Parameter workingSeat: Whether the sitter works on the oars from this fixed
+   * bearing.
+   */
+  export function thwart(
+    builder: AutoMovieArchetypeBuilder<
+      AutoMovieArchetypeBoat.Affordance,
+      AutoMovieArchetypeBoat.Dimension
+    >,
+    id: AutoMovieArchetypeBoat.Affordance,
+    height: number,
+    edge: number,
+    width: number,
+    facing: number,
+    workingSeat: boolean = false,
+  ): void {
+    const depth: number = AutoMovieArchetypeBoat.THWART;
+    const board: number = AutoMovieArchetypeBoat.ESTIMATES.seat;
+    builder.box(
+      `seat-${id}`,
+      AutoMovieEngineVector3.create(width, board, depth),
+      AutoMovieEngineVector3.create(0, height - board / 2, edge - (facing * depth) / 2),
+      {
+        color: WOOD,
+        surface: "wood",
+      },
+    );
+    builder.affordance({
+      id,
+      kind: "seat",
+      frame: AutoMovieArchetypeFrame.facing(
+        AutoMovieEngineVector3.create(0, height, edge),
+        AutoMovieEngineVector3.create(0, 1, 0),
+        AutoMovieEngineVector3.create(facing, 0, 0),
+      ),
+      extent: null,
+      depth,
+      width,
+      ...(workingSeat ? { workingSeat } : {}),
+    });
+  }
+}

@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieModelPart,
@@ -7,8 +7,8 @@ import type {
 
 import { AutoMovieArchetypeFrame } from "./AutoMovieArchetypeFrame";
 import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
-import { poseArchetypeSpanGrips } from "./poseArchetypeSpanGrips";
-import { resolveArchetypeSpanParts } from "./resolveArchetypeSpanParts";
+import { poseArchetypeSpanGrips } from "./internal/poseArchetypeSpanGrips";
+import { resolveArchetypeSpanParts } from "./internal/resolveArchetypeSpanParts";
 
 /**
  * A taut line between two frames of a model that move apart: a bowstring from a
@@ -24,36 +24,46 @@ import { resolveArchetypeSpanParts } from "./resolveArchetypeSpanParts";
  */
 export namespace AutoMovieArchetypeSpan {
   /** Where one end of a span is attached. */
-  export type End =
-    | {
-        /** The part the end is fixed to. */
-        part: string;
+  export type IEnd = IPartEnd | IAffordanceEnd;
 
-        /** The point in the part's own coordinates, metres. */
-        at: IAutoMovieVector3;
+  /** An endpoint fixed to a point in a part's local frame. */
+  export interface IPartEnd {
+    /** Identifies the part-anchor variant. */
+    type: "part";
 
-        /** A part end names no affordance. */
-        affordance?: never;
+    /** The part the end is fixed to. */
+    part: string;
 
-        /** Held overhang belongs only to an affordance anchor. */
-        overhang?: never;
-      }
-    | {
-        /** The affordance whose origin the end follows. */
-        affordance: string;
+    /** The point in the part's own coordinates, metres. */
+    at: IAutoMovieVector3;
 
-        /** An affordance end names no part. */
-        part?: never;
+    /** A part end names no affordance. */
+    affordance?: never;
 
-        /** An affordance end takes the affordance's origin. */
-        at?: never;
+    /** Held overhang belongs only to an affordance anchor. */
+    overhang?: never;
+  }
 
-        /**
-         * Metres beyond the grip away from the opposite anchor; when present,
-         * the grip's +X follows the span's unoriented line.
-         */
-        overhang?: number;
-      };
+  /** An endpoint fixed to an affordance's origin. */
+  export interface IAffordanceEnd {
+    /** Identifies the affordance-anchor variant. */
+    type: "affordance";
+
+    /** The affordance whose origin the end follows. */
+    affordance: string;
+
+    /** An affordance end names no part. */
+    part?: never;
+
+    /** An affordance end takes the affordance's origin. */
+    at?: never;
+
+    /**
+     * Metres beyond the grip away from the opposite anchor. When present,
+     * the grip's +X follows the span's unoriented line.
+     */
+    overhang?: number;
+  }
 
   /** A span as an archetype records it. */
   export interface ISpan {
@@ -61,10 +71,10 @@ export namespace AutoMovieArchetypeSpan {
     id: string;
 
     /** One end. */
-    from: End;
+    from: IEnd;
 
     /** The other end. */
-    to: End;
+    to: IEnd;
 
     /** The line's radius, metres. */
     radius: number;
@@ -115,7 +125,7 @@ export namespace AutoMovieArchetypeSpan {
    */
   export function locate(
     archetype: string,
-    end: End,
+    end: IEnd,
     parts: readonly IAutoMovieModelPart[],
     affordances: readonly IAutoMovieAffordance[],
   ): IAutoMovieVector3 {
@@ -192,7 +202,7 @@ export namespace AutoMovieArchetypeSpan {
     );
     const fromOverhang: number = overhang(archetype, span.id, span.from);
     const toOverhang: number = overhang(archetype, span.id, span.to);
-    const offset: IAutoMovieVector3 = Vector3.subtract(end, start);
+    const offset: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(end, start);
     const distance: number = Math.hypot(offset.x, offset.y, offset.z);
     if (
       !(span.radius > 0) ||
@@ -215,9 +225,9 @@ export namespace AutoMovieArchetypeSpan {
         z: offset.z / distance,
       };
       if (fromOverhang > 0)
-        from = Vector3.subtract(start, Vector3.scale(direction, fromOverhang));
+        from = AutoMovieEngineVector3.subtract(start, AutoMovieEngineVector3.scale(direction, fromOverhang));
       if (toOverhang > 0)
-        to = Vector3.add(end, Vector3.scale(direction, toOverhang));
+        to = AutoMovieEngineVector3.add(end, AutoMovieEngineVector3.scale(direction, toOverhang));
       length = Math.hypot(to.x - from.x, to.y - from.y, to.z - from.z);
       if (!(length > 0 && length < Infinity))
         refuse(
@@ -293,7 +303,7 @@ export namespace AutoMovieArchetypeSpan {
     };
   }
 
-  /**
+  /*
    * Endpoint semantics stay with this namespace while graph/geometry work has
    * one shared owner.
    */
@@ -312,8 +322,10 @@ export namespace AutoMovieArchetypeSpan {
     );
   }
 
-  /** A held extension is a physical length, never a missing or negative anchor. */
-  function overhang(archetype: string, id: string, end: End): number {
+  /*
+   * A held extension is a physical length, never a missing or negative anchor.
+   */
+  function overhang(archetype: string, id: string, end: IEnd): number {
     const value: number = end.overhang === undefined ? 0 : end.overhang;
     if (
       !(value >= 0) ||
@@ -328,7 +340,9 @@ export namespace AutoMovieArchetypeSpan {
     return value;
   }
 
-  /** One existing refusal type carries the original physical request. */
+  /*
+   * One existing refusal type carries the original physical request.
+   */
   function refuse(
     archetype: string,
     id: string,

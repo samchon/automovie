@@ -1,0 +1,39 @@
+import type { AutoMovieHumanoidBone } from "@automovie/interface";
+import type * as THREE from "three";
+
+import type { IAutoMovieRenderExpressionTarget } from "./IAutoMovieRenderExpressionTarget";
+import type { IAutoMovieRenderViewerFrame } from "./IAutoMovieRenderViewerFrame";
+
+/**
+ * Runtime adapter for an already-loaded `three.js`/VRM/glTF object.
+ *
+ * The loader stays with the host application. The viewer only needs a root
+ * object, a normalized humanoid bone map, and optional expression/frame hooks
+ * so {@link AutoMovieRenderPlayer} can drive imported assets through the same
+ * path as generated automovie models.
+ */
+export interface IAutoMovieRenderImportedModelOptions {
+  /**
+   * Loaded scene or avatar root. Always wrapped in a viewer-owned group, so
+   * pose roots never overwrite caller state (a GLTFLoader `gltf.scene`, a VRM0
+   * root with three-vrm's baked π yaw).
+   */
+  object: THREE.Object3D;
+
+  /** Optional normalized humanoid bone map for pose playback. */
+  bones?: BoneMapInput;
+
+  /** Optional expression sinks such as a VRM expression manager. */
+  expressionTargets?: readonly IAutoMovieRenderExpressionTarget[];
+
+  /** Optional runtime flush after pose and expression are written. */
+  afterAutoMovieFrame?: (frame: IAutoMovieRenderViewerFrame) => void;
+}
+
+/**
+ * Host-owned partial slot record of humanoid bones; null and missing nodes are
+ * omitted during normalization.
+ */
+type BoneMapInput = Partial<
+  Record<AutoMovieHumanoidBone, THREE.Object3D | null | undefined>
+>;

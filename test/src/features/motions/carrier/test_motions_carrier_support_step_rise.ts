@@ -1,4 +1,9 @@
-import { HumanRefusal, HumanSupportStep } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  HumanSupportStep
+} from "../../../../../packages/motions/src/carrier/internal/HumanSupportStep";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -15,11 +20,11 @@ export function test_motions_carrier_support_step_rise(): void {
   const refused = (
     height: number,
     onto: string | undefined,
-  ): HumanRefusal | undefined => {
+  ): AutoMovieMotionHumanRefusal | undefined => {
     try {
       HumanSupportStep.admitRise(height, onto);
     } catch (error: unknown) {
-      if (!(error instanceof HumanRefusal)) throw error;
+      if (!(error instanceof AutoMovieMotionHumanRefusal)) throw error;
       return error;
     }
     return undefined;

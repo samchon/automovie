@@ -1,4 +1,4 @@
-import { AutoMovieLoftRelief } from "@automovie/engine";
+import { AutoMovieEngineLoftRelief } from "@automovie/engine";
 import type { IAutoMovieLoftRelief } from "@automovie/interface";
 
 import { FamilyConicProject as P } from "../../../reference-conics/FamilyConicProject";
@@ -52,8 +52,8 @@ export function test_human_conic_project(): void {
     height: (a: number, b: number) => number,
   ): IAutoMovieLoftRelief => ({
     name: "made",
-    stations: [100, 190],
-    phases: [-0.6, 0.6],
+    stations: { start: 100, end: 190 },
+    phases: { start: -0.6, end: 0.6 },
     axis: [-1, 0, 0],
     rows,
     columns,
@@ -151,7 +151,7 @@ export function test_human_conic_project(): void {
   ): number[][] =>
     stations.map((s: number): number[] =>
       phases.map(
-        (t: number): number => AutoMovieLoftRelief.height(net, s, t)[0],
+        (t: number): number => AutoMovieEngineLoftRelief.height(net, s, t)[0],
       ),
     );
   const uneven = (from: number, to: number, count: number): number[] =>
@@ -162,8 +162,8 @@ export function test_human_conic_project(): void {
     );
   const window = {
     name: "made",
-    stations: [100, 190] as [number, number],
-    phases: [-0.6, 0.6] as [number, number],
+    stations: { start: 100, end: 190 },
+    phases: { start: -0.6, end: 0.6 },
     axis: [-1, 0, 0] as [number, number, number],
   };
   const [stations, phases]: number[][] = [

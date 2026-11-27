@@ -30,7 +30,7 @@ A held object stays held across actions until an action takes that hand over to 
 
 At a handover, the object stays held throughout:
 
-- both hands hold through a shared window while the object's world pose blends from the giver to the receiver;
+- both hands hold while the object's world pose blends from giver to receiver
 - the giver opens only after the receiver's grip has closed;
 - keep a hand on the object through any outcome that retains it, until set-down.
 

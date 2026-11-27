@@ -2,7 +2,7 @@
  * One construction role that only one side of a junction declares, so it stops
  * there.
  *
- * Produced by `matchAutoMovieAssemblyJunction`. Role names are compared exactly
+ * Produced by `matchAssemblyJunction`. Role names are compared exactly
  * as authored, and `thickness` sums every layer of the role on the carrying
  * side.
  */

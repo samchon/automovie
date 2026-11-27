@@ -1,4 +1,4 @@
-import { analyzeAutoMovieDaylight } from "@automovie/engine";
+import { AutoMovieEngineAnalysis } from "@automovie/engine";
 import type {
   AutoMovieAnalysisDomain,
   IAutoMovieAnalysisMetric,
@@ -74,7 +74,7 @@ export function assertAnalysisDaylightWorkplanePart1(): {
   ) => IAutoMovieAnalysisRun = (
     overrides: Partial<IAutoMovieDaylightRequest> = {},
   ): IAutoMovieAnalysisRun =>
-    analyzeAutoMovieDaylight({ request: request(overrides) });
+    AutoMovieEngineAnalysis.daylight({ request: request(overrides) });
   const metrics: (run: IAutoMovieAnalysisRun) => IAutoMovieAnalysisMetric[] = (
     run: IAutoMovieAnalysisRun,
   ): IAutoMovieAnalysisMetric[] =>

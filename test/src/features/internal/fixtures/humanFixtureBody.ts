@@ -1,12 +1,13 @@
 import type { IAutoMovieMotionHumanBody } from "@automovie/interface";
-import { createHumanBody } from "@automovie/motions";
+import { AutoMovieMotionHumanBody } from "@automovie/motions";
 
 import type { IHumanFixture } from "./IHumanFixture";
 import { humanFixture } from "./humanFixture";
 
 /**
  * The motions package's body of a stored person, built from the stored rig and
- * profile by `createHumanBody`, without preparing a Human figure.
+ * profile by `AutoMovieMotionHumanBody.create`, without preparing a Human
+ * figure.
  *
  * Use it only for a function whose input is the whole body record, which holds
  * closures and maps and so cannot be stored. A function that reads the rig, the
@@ -21,5 +22,5 @@ export async function humanFixtureBody(
   name: humanFixture.Name,
 ): Promise<IAutoMovieMotionHumanBody> {
   const stored: IHumanFixture = await humanFixture(name);
-  return createHumanBody(stored.skeleton, stored.profile);
+  return AutoMovieMotionHumanBody.create(stored.skeleton, stored.profile);
 }

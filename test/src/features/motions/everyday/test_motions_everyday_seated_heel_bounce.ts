@@ -1,5 +1,10 @@
 import type { IAutoMovieMotionHumanEntryState } from "@automovie/interface";
-import { HumanRefusal, seatedHeelBounce } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  seatedHeelBounce
+} from "../../../../../packages/motions/src/everyday/internal/seatedHeelBounce";
 import { strict as assert } from "node:assert";
 
 /** Four beats at 2 Hz take two seconds and need a seat and two flat feet. */
@@ -30,5 +35,5 @@ export function test_motions_everyday_seated_heel_bounce(): void {
 /** Match the refused input at the primitive's boundary. */
 function refuses(axis: string): (error: unknown) => boolean {
   return (error: unknown): boolean =>
-    error instanceof HumanRefusal && error.axis === axis;
+    error instanceof AutoMovieMotionHumanRefusal && error.axis === axis;
 }

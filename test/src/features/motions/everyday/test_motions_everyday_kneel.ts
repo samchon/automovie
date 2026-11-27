@@ -1,11 +1,19 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import {
-  HumanRefusal,
-  kneelPhaseTable,
-  kneelPlace,
-  prepareKneelClock,
-  walkRoot,
-} from "@automovie/motions/internal";
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  kneelPhaseTable
+} from "../../../../../packages/motions/src/everyday/internal/kneelPhaseTable";
+import {
+  kneelPlace
+} from "../../../../../packages/motions/src/everyday/internal/kneelPlace";
+import {
+  prepareKneelClock
+} from "../../../../../packages/motions/src/everyday/internal/prepareKneelClock";
+import {
+  walkRoot
+} from "../../../../../packages/motions/src/actions/internal/walkRoot";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -123,7 +131,7 @@ namespace part_kneel_place {
     try {
       kneelPlace({ ...input, at: { x: 0.3, y: 0, z: -1.5 } });
     } catch (error: unknown) {
-      refused = error instanceof HumanRefusal && error.axis === "at";
+      refused = error instanceof AutoMovieMotionHumanRefusal && error.axis === "at";
     }
     TestValidator.predicate("beyond a leg", refused);
   }

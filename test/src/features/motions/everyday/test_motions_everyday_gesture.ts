@@ -3,12 +3,20 @@ import type {
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 import {
-  HumanRefusal,
-  gesture,
-  gestureAdmit,
-  gestureJoints,
-  gestureStrokeTables,
-} from "@automovie/motions/internal";
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  gesture
+} from "../../../../../packages/motions/src/everyday/internal/gesture";
+import {
+  gestureAdmit
+} from "../../../../../packages/motions/src/everyday/internal/gestureAdmit";
+import {
+  gestureJoints
+} from "../../../../../packages/motions/src/everyday/internal/gestureJoints";
+import {
+  gestureStrokeTables
+} from "../../../../../packages/motions/src/everyday/internal/gestureStrokeTables";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -71,7 +79,7 @@ namespace part_gesture_admit {
       try {
         admit(p);
       } catch (error: unknown) {
-        if (error instanceof HumanRefusal) return error.axis;
+        if (error instanceof AutoMovieMotionHumanRefusal) return error.axis;
       }
       return "admitted";
     };

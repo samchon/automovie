@@ -3,7 +3,9 @@ import type { IProtectedProjection } from "./IProtectedProjection";
 import { errorMessage } from "./errorMessage";
 import { normalizeFile } from "./normalizeFile";
 
-/** Requires and validates the auditable sample associated with a bulk batch. */
+/*
+ * Requires and validates the auditable sample associated with a bulk batch.
+ */
 export function validateRenderedSample(
   sample: IEvidenceMetadataRenderedSample | undefined,
   bulk: boolean,

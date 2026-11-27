@@ -1,10 +1,10 @@
-import { autoMovieDewPoint } from "@automovie/engine";
+import { AutoMovieEngineEnvironment } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
 
 /**
- * `autoMovieDewPoint` is the Magnus dew point with Sonntag's coefficients (a =
+ * `calculateDewPoint` is the Magnus dew point with Sonntag's coefficients (a =
  * 17.62, b = 243.12 °C).
  *
  * Scenarios:
@@ -16,14 +16,14 @@ import { nclose } from "../../internal/nclose";
 export function test_engine_analysis_dew_point(): void {
   TestValidator.predicate(
     "saturated air",
-    nclose(autoMovieDewPoint(20, 1), 20, 1e-12),
+    nclose(AutoMovieEngineEnvironment.dewPoint(20, 1), 20, 1e-12),
   );
   TestValidator.predicate(
     "half saturated air",
-    nclose(autoMovieDewPoint(20, 0.5), 9.3, 0.1),
+    nclose(AutoMovieEngineEnvironment.dewPoint(20, 0.5), 9.3, 0.1),
   );
-  TestValidator.error("dry air", (): number => autoMovieDewPoint(20, 0));
+  TestValidator.error("dry air", (): number => AutoMovieEngineEnvironment.dewPoint(20, 0));
   TestValidator.error("supersaturated air", (): number =>
-    autoMovieDewPoint(20, 1.01),
+    AutoMovieEngineEnvironment.dewPoint(20, 1.01),
   );
 }

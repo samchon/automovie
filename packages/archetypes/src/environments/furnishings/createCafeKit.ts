@@ -1,17 +1,15 @@
+import type { AutoMovieArchetypeEnvironmentFurnishing } from "../AutoMovieArchetypeEnvironmentFurnishing";
 import type {
   IAutoMovieEnvironmentContribution,
   IAutoMovieEnvironmentModule,
-  IAutoMovieFurnishingLayout,
   IAutoMovieModel,
   IAutoMoviePropBox,
 } from "@automovie/interface";
-
-import { deriveArchetypeSeed } from "../../core/deriveArchetypeSeed";
-import { createSeat } from "../../furniture/createSeat";
-import { createTable } from "../../furniture/createTable";
+import { AutoMovieArchetypeSeat, AutoMovieArchetypeTable } from "../../furniture";
+import { deriveArchetypeSeed } from "../../core/internal/deriveArchetypeSeed";
 import { furnishRoom } from "./furnishRoom";
 
-/**
+/*
  * Furnish a room with a service counter and dining groups of one table and two
  * chairs.
  *
@@ -22,27 +20,26 @@ import { furnishRoom } from "./furnishRoom";
  * `table-1/stack` is the support for a cup and `table-1/chair-near/seat` is a
  * sitting contact. The grid, aisle and approach reservations remain in the room
  * frame when the room is rotated.
- *
- * @param params The room layout and positive number of dining tables.
- * @returns The placed-room module, with both stage nodes and prop claims.
- * @throws When the room cannot accommodate the tables and clear approaches.
+ * Parameter params: The room layout and positive number of dining tables.
+ * Returns: The placed-room module, with both stage nodes and prop claims.
+ * When the room cannot accommodate the tables and clear approaches.
  */
 export function createCafeKit(
-  params: createCafeKit.IParams,
+  params: AutoMovieArchetypeEnvironmentFurnishing.ICafeKitParams,
 ): IAutoMovieEnvironmentModule {
   return (
     context: IAutoMovieEnvironmentModule.IContext,
   ): IAutoMovieEnvironmentContribution => {
     const seed: number | undefined = context.seed;
-    const counter: IAutoMovieModel = createTable(
+    const counter: IAutoMovieModel = AutoMovieArchetypeTable.create(
       { kind: "serviceCounter" },
       seed === undefined ? undefined : deriveArchetypeSeed(seed, "counter"),
     );
-    const table: IAutoMovieModel = createTable(
+    const table: IAutoMovieModel = AutoMovieArchetypeTable.create(
       { kind: "dining" },
       seed === undefined ? undefined : deriveArchetypeSeed(seed, "table"),
     );
-    const chair: IAutoMovieModel = createSeat(
+    const chair: IAutoMovieModel = AutoMovieArchetypeSeat.create(
       { kind: "dining" },
       seed === undefined ? undefined : deriveArchetypeSeed(seed, "chair"),
     );
@@ -61,7 +58,7 @@ export function createCafeKit(
             kind: "wall",
             wall: "-z",
             offset:
-              (params.room[0] - (counterBox.max.x - counterBox.min.x)) / 2,
+              (params.room.width - (counterBox.max.x - counterBox.min.x)) / 2,
           },
           clear: [{ depth: params.aisle ?? furnishRoom.DEFAULT_AISLE }],
         },
@@ -92,13 +89,4 @@ export function createCafeKit(
       },
     });
   };
-}
-
-/** Types of the cafe kit producer. */
-export namespace createCafeKit {
-  /** The room layout and the positive integer count of the kit's repeated group. */
-  export interface IParams extends IAutoMovieFurnishingLayout {
-    /** Positive integer count of dining groups. */
-    readonly tables: number;
-  }
 }

@@ -1,4 +1,4 @@
-import { isLightProperty } from "@automovie/engine";
+import { AutoMovieEngineResolve } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -13,11 +13,11 @@ export function test_engine_resolve_is_light_property(): void {
   TestValidator.predicate(
     "the six properties",
     ["intensity", "color", "range", "coneAngle", "position", "rotation"].every(
-      (name: string): boolean => isLightProperty(name),
+      (name: string): boolean => AutoMovieEngineResolve.isLightProperty(name),
     ),
   );
   TestValidator.predicate(
     "a stranger and an inherited key",
-    !isLightProperty("temperature") && !isLightProperty("toString"),
+    !AutoMovieEngineResolve.isLightProperty("temperature") && !AutoMovieEngineResolve.isLightProperty("toString"),
   );
 }

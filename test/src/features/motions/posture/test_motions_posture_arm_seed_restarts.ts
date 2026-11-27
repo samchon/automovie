@@ -1,4 +1,6 @@
-import { HumanArmSeedRestarts } from "@automovie/motions/internal";
+import {
+  HumanArmSeedRestarts
+} from "../../../../../packages/motions/src/posture/internal/HumanArmSeedRestarts";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

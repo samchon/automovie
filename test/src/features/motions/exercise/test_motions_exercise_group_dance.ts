@@ -1,4 +1,6 @@
-import { groupDance } from "@automovie/motions/internal";
+import {
+  groupDance
+} from "../../../../../packages/motions/src/exercise/internal/groupDance";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";

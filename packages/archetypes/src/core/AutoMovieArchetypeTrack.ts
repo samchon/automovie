@@ -1,15 +1,18 @@
-import { Vector3, integrateMotionTrajectory } from "@automovie/engine";
+import {
+  AutoMovieEngineVector3,
+  AutoMovieEngineMotionTrajectory,
+} from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieIntegrateMotionTrajectory,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { ArchetypeMassArithmetic } from "./ArchetypeMassArithmetic";
-import { ArchetypePendulumFrequency } from "./ArchetypePendulumFrequency";
-import { ArchetypeTrackEase } from "./ArchetypeTrackEase";
-import { ArchetypeTrackRange } from "./ArchetypeTrackRange";
-import { ArchetypeTrackTime } from "./ArchetypeTrackTime";
+import { ArchetypeMassArithmetic } from "./internal/ArchetypeMassArithmetic";
+import { ArchetypePendulumFrequency } from "./internal/ArchetypePendulumFrequency";
+import { ArchetypeTrackEase } from "./internal/ArchetypeTrackEase";
+import { ArchetypeTrackRange } from "./internal/ArchetypeTrackRange";
+import { ArchetypeTrackTime } from "./internal/ArchetypeTrackTime";
 import type { AutoMovieArchetype } from "./AutoMovieArchetype";
 import { AutoMovieArchetypeFrame } from "./AutoMovieArchetypeFrame";
 import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
@@ -201,16 +204,16 @@ export namespace AutoMovieArchetypeTrack {
       "y",
     );
     const through: IAutoMovieVector3 = affordance.frame.translation;
-    const offset: IAutoMovieVector3 = Vector3.subtract(
+    const offset: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       archetype.properties.centerOfMass,
       through,
     );
-    const square: IAutoMovieVector3 = Vector3.subtract(
+    const square: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       offset,
-      Vector3.scale(axis, Vector3.dot(offset, axis)),
+      AutoMovieEngineVector3.scale(axis, AutoMovieEngineVector3.dot(offset, axis)),
     );
     const a: number = square.y;
-    const b: number = Vector3.cross(axis, square).y;
+    const b: number = AutoMovieEngineVector3.cross(axis, square).y;
     const arm: number = Math.hypot(a, b);
     if (!(arm > 1e-9))
       throw new AutoMovieArchetypeRefusal({
@@ -338,7 +341,7 @@ export namespace AutoMovieArchetypeTrack {
         ArchetypeMassArithmetic.product(-amplitude, omega, Math.sin(phase));
     } else {
       const steps: number = Math.ceil(
-        phaseEnd / integrateMotionTrajectory.STEP,
+        phaseEnd / AutoMovieEngineMotionTrajectory.integrateMotionTrajectoryStep(),
       );
 
       // The integrator advances one exactly indexed step at a time.
@@ -354,7 +357,7 @@ export namespace AutoMovieArchetypeTrack {
           fix: "use a representable finite phase interval",
         });
       const trajectory: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
-        integrateMotionTrajectory({
+        AutoMovieEngineMotionTrajectory.integrateMotionTrajectory({
           f: (
             _t: number,
             x: readonly number[],
@@ -384,7 +387,7 @@ export namespace AutoMovieArchetypeTrack {
       if (Math.abs(theta0) <= SMALL)
         atPhase = Math.acos(amplitude === 0 ? 1 : target / amplitude);
       else if (Math.abs(theta0) > SMALL) {
-        const step: number = integrateMotionTrajectory.STEP;
+        const step: number = AutoMovieEngineMotionTrajectory.integrateMotionTrajectoryStep();
         const gap: (phase: number) => number = (phase: number): number =>
           angle(phase) - target;
         for (let phase: number = 0; phase < phaseEnd; phase += step) {

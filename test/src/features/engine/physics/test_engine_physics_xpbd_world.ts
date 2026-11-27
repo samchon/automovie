@@ -1,7 +1,7 @@
 import {
-  AutoMovieXpbdBody,
-  AutoMovieXpbdWorld,
-  Quaternion,
+  AutoMovieEngineXpbdBody,
+  AutoMovieEngineXpbdWorld,
+  AutoMovieEngineQuaternion,
 } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalJoint,
@@ -52,8 +52,8 @@ export async function test_engine_physics_xpbd_world(): Promise<void> {
 
   // 1. Resting cube.
   {
-    const world: AutoMovieXpbdWorld = scene();
-    const cube: AutoMovieXpbdBody = block(
+    const world: AutoMovieEngineXpbdWorld = scene();
+    const cube: AutoMovieEngineXpbdBody = block(
       world,
       0.1,
       { x: 0, y: 0.1, z: 0 },
@@ -73,7 +73,7 @@ export async function test_engine_physics_xpbd_world(): Promise<void> {
   // 2. Slope: static and sliding.
   for (const mu of [0.8, 0.3]) {
     const slope: number = Math.PI / 6;
-    const world: AutoMovieXpbdWorld = scene(slope, mu);
+    const world: AutoMovieEngineXpbdWorld = scene(slope, mu);
     const down: IAutoMovieVector3 = {
       x: Math.cos(slope),
       y: -Math.sin(slope),
@@ -84,11 +84,11 @@ export async function test_engine_physics_xpbd_world(): Promise<void> {
       y: Math.cos(slope),
       z: 0,
     };
-    const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
       { x: 0, y: 0, z: 1 },
       -30,
     );
-    const piece: AutoMovieXpbdBody = block(
+    const piece: AutoMovieEngineXpbdBody = block(
       world,
       0.1,
       { x: normal.x * 0.1, y: normal.y * 0.1, z: 0 },
@@ -117,8 +117,8 @@ export async function test_engine_physics_xpbd_world(): Promise<void> {
 
   // 3. Rebound.
   {
-    const world: AutoMovieXpbdWorld = scene();
-    const ball: AutoMovieXpbdBody = world.createBody(true, {
+    const world: AutoMovieEngineXpbdWorld = scene();
+    const ball: AutoMovieEngineXpbdBody = world.createBody(true, {
       position: { x: 0, y: 0.6, z: 0 },
       rotation: { x: 0, y: 0, z: 0, w: 1 },
     });
@@ -139,12 +139,12 @@ export async function test_engine_physics_xpbd_world(): Promise<void> {
 
   // 4. Joint limits.
   for (const limited of ["box", "cone"] as const) {
-    const world: AutoMovieXpbdWorld = scene();
-    const anchor: AutoMovieXpbdBody = world.createBody(false, {
+    const world: AutoMovieEngineXpbdWorld = scene();
+    const anchor: AutoMovieEngineXpbdBody = world.createBody(false, {
       position: { x: 0, y: 2, z: 0 },
       rotation: identity(),
     });
-    const rod: AutoMovieXpbdBody = world.createBody(true, {
+    const rod: AutoMovieEngineXpbdBody = world.createBody(true, {
       position: { x: 0, y: 1.75, z: 0 },
       rotation: identity(),
     });
@@ -188,9 +188,9 @@ export async function test_engine_physics_xpbd_world(): Promise<void> {
       } else {
         const s: number = q.w < 0 ? -1 : 1;
         const twist: number = 2 * Math.atan2(s * q.y, s * q.w);
-        const swing: IAutoMovieQuaternion = Quaternion.multiply(
+        const swing: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
           q,
-          Quaternion.inverse({
+          AutoMovieEngineQuaternion.inverse({
             x: 0,
             y: Math.sin(twist / 2),
             z: 0,
@@ -215,8 +215,8 @@ export async function test_engine_physics_xpbd_world(): Promise<void> {
   // 5. Determinism and snapshot continuation.
   {
     const play = (split?: number): Uint8Array => {
-      let world: AutoMovieXpbdWorld = scene();
-      const cube: AutoMovieXpbdBody = block(
+      let world: AutoMovieEngineXpbdWorld = scene();
+      const cube: AutoMovieEngineXpbdBody = block(
         world,
         0.1,
         { x: 0, y: 0.4, z: 0 },
@@ -225,7 +225,7 @@ export async function test_engine_physics_xpbd_world(): Promise<void> {
       cube.setAngvel({ x: 3, y: 1, z: -2 });
       for (let i: number = 0; i < 960; i++) {
         if (i === split)
-          world = AutoMovieXpbdWorld.restoreSnapshot(world.takeSnapshot());
+          world = AutoMovieEngineXpbdWorld.restoreSnapshot(world.takeSnapshot());
         world.step();
       }
       return world.takeSnapshot();
@@ -243,8 +243,8 @@ export async function test_engine_physics_xpbd_world(): Promise<void> {
    * A world with a kinematic floor box whose top face passes through the
    * origin, tilted about Z.
    */
-  function scene(tilt: number = 0, friction: number = 0.7): AutoMovieXpbdWorld {
-    const world: AutoMovieXpbdWorld = new AutoMovieXpbdWorld({
+  function scene(tilt: number = 0, friction: number = 0.7): AutoMovieEngineXpbdWorld {
+    const world: AutoMovieEngineXpbdWorld = new AutoMovieEngineXpbdWorld({
       x: 0,
       y: -g,
       z: 0,
@@ -252,12 +252,12 @@ export async function test_engine_physics_xpbd_world(): Promise<void> {
     world.timestep = h;
     world.allowedError = allowed;
     world.contactFrequency = frequency;
-    const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
       { x: 0, y: 0, z: 1 },
       (-tilt * 180) / Math.PI,
     );
-    const floor: AutoMovieXpbdBody = world.createBody(false, {
-      position: Quaternion.rotateVector(rotation, { x: 0, y: -0.5, z: 0 }),
+    const floor: AutoMovieEngineXpbdBody = world.createBody(false, {
+      position: AutoMovieEngineQuaternion.rotateVector(rotation, { x: 0, y: -0.5, z: 0 }),
       rotation,
     });
     world.createCollider(
@@ -272,13 +272,13 @@ export async function test_engine_physics_xpbd_world(): Promise<void> {
 
   /** A one-kilogram cube of half-extent `half`. */
   function block(
-    world: AutoMovieXpbdWorld,
+    world: AutoMovieEngineXpbdWorld,
     half: number,
     position: IAutoMovieVector3,
     friction: number,
     rotation: IAutoMovieQuaternion = identity(),
-  ): AutoMovieXpbdBody {
-    const body: AutoMovieXpbdBody = world.createBody(true, {
+  ): AutoMovieEngineXpbdBody {
+    const body: AutoMovieEngineXpbdBody = world.createBody(true, {
       position,
       rotation,
     });
@@ -295,7 +295,7 @@ export async function test_engine_physics_xpbd_world(): Promise<void> {
   }
 
   /** Step a world. */
-  function run(world: AutoMovieXpbdWorld, steps: number): void {
+  function run(world: AutoMovieEngineXpbdWorld, steps: number): void {
     for (let i: number = 0; i < steps; i++) world.step();
   }
 

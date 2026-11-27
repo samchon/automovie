@@ -1,4 +1,4 @@
-import { frameTimes } from "@automovie/render";
+import { AutoMovieRenderScrub } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/predicates";
@@ -9,10 +9,11 @@ import { nclose } from "../../internal/predicates";
  * Scenarios:
  *
  * 1. Two seconds at 30 fps: 60 frames at 0, 1/30, …, 59/30.
- * 2. A zero rate or a zero duration samples nothing.
+ * 2. A fractional frame count rounds before the grid is sampled.
+ * 3. A zero or nonfinite rate or duration samples nothing.
  */
 export function test_render_root_frame_times(): void {
-  const times: number[] = frameTimes(30, 2);
+  const times: number[] = AutoMovieRenderScrub.frameTimes(30, 2);
   TestValidator.predicate(
     "60 frames",
     times.length === 60 &&
@@ -20,6 +21,13 @@ export function test_render_root_frame_times(): void {
       nclose(times[1]!, 1 / 30) &&
       nclose(times[59]!, 59 / 30),
   );
-  TestValidator.equals("no rate", frameTimes(0, 2), []);
-  TestValidator.equals("no duration", frameTimes(30, 0), []);
+  const partial: number[] = AutoMovieRenderScrub.frameTimes(4, 0.55);
+  TestValidator.predicate(
+    "rounded encoded count excludes a partial final frame",
+    partial.length === 2 && nclose(partial[0]!, 0) && nclose(partial[1]!, 0.25),
+  );
+  TestValidator.equals("no rate", AutoMovieRenderScrub.frameTimes(0, 2), []);
+  TestValidator.equals("no duration", AutoMovieRenderScrub.frameTimes(30, 0), []);
+  TestValidator.equals("infinite rate", AutoMovieRenderScrub.frameTimes(Infinity, 2), []);
+  TestValidator.equals("infinite duration", AutoMovieRenderScrub.frameTimes(30, Infinity), []);
 }

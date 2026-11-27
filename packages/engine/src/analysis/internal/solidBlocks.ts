@@ -1,0 +1,50 @@
+import type { IAutoMovieSolidBlockQuery } from "@automovie/interface";
+
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
+
+/*
+ * Whether a ray from `origin` along a unit `direction` is stopped by one convex
+ * solid before `maxDistance`.
+ *
+ * The slab test over half-spaces, done analytically rather than by marching:
+ * every plane either raises the entry parameter or lowers the exit one, and the
+ * solid is hit exactly when an interval survives with a positive exit. A ray
+ * that starts inside the solid is blocked at once, which is the right answer
+ * for a sample point buried in a mass.
+ *
+ * Normals need not be normalized: the numerator and the denominator scale
+ * together, so the parameter is unaffected by how long an authored normal is,
+ * and the parallel test compares the slope against the normal's own length, so
+ * it is too. A point is inside a plane when `dot(normal, point) <= offset`. A
+ * ray leaving from a point exactly on a face is not blocked, because a hit
+ * needs a positive exit. A ray whose slope against a plane is `1e-12` or less
+ * is treated as never crossing it: starting outside that plane means a miss,
+ * and starting inside leaves the other planes to decide.
+ */
+export function solidBlocks(
+  props: IAutoMovieSolidBlockQuery.IProps,
+): boolean {
+  let enter: number = 0;
+  let exit: number = props.maxDistance;
+  for (const plane of props.planes) {
+    const denominator: number = AutoMovieEngineVector3.dot(plane.normal, props.direction);
+    const distance: number =
+      plane.offset - AutoMovieEngineVector3.dot(plane.normal, props.origin);
+    if (Math.abs(denominator) <= PLANE_EPSILON * AutoMovieEngineVector3.length(plane.normal)) {
+      // Parallel to this face: either forever inside it, or forever outside.
+      if (distance < 0) return false;
+      continue;
+    }
+    const parameter: number = distance / denominator;
+    if (denominator > 0) exit = Math.min(exit, parameter);
+    else enter = Math.max(enter, parameter);
+    if (enter > exit) return false;
+  }
+  return exit > 0;
+}
+
+/*
+ * A ray whose slope against a plane, the cosine between the ray and the plane's
+ * unit normal, is this small or smaller runs parallel to it.
+ */
+const PLANE_EPSILON: number = 1e-12;

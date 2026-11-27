@@ -1,7 +1,9 @@
 import {
-  createCafeKit,
-  createTerrain,
-} from "@automovie/archetypes/environments";
+  AutoMovieArchetypeEnvironment
+} from "../../../../packages/archetypes/src/environments/AutoMovieArchetypeEnvironment";
+import {
+  AutoMovieArchetypeEnvironmentFurnishing
+} from "../../../../packages/archetypes/src/environments/AutoMovieArchetypeEnvironmentFurnishing";
 import type { IAutoMovieMotion } from "@automovie/interface";
 
 import { locationTrackedRideFixture } from "../internal/locationTrackedRideFixture";
@@ -18,22 +20,25 @@ export function bankedParkRide(): compileEnvironmentExample.IInput {
           anchor: "coaster/stops/departure",
           offset: { x: 1.6, y: 0, z: -4 },
         },
-        use: createTerrain({
-          size: [12, 10],
+        use: AutoMovieArchetypeEnvironment.terrain({
+          size: { width: 12, depth: 10 },
           paths: {
             approach: {
               points: [
-                [4, 4],
-                [0, 4],
+                { x: 4, z: 4 },
+                { x: 0, z: 4 },
               ],
               width: 0.8,
             },
           },
-          amenities: { kitchen: [7.5, 4] },
+          amenities: { kitchen: { x: 7.5, z: 4 } },
         }),
       },
       concession: {
-        use: createCafeKit({ room: [8, 6], tables: 1 }),
+        use: AutoMovieArchetypeEnvironmentFurnishing.cafeKit({
+          room: { width: 8, depth: 6 },
+          tables: 1,
+        }),
         at: { anchor: "terrain/amenities/kitchen" },
       },
     });

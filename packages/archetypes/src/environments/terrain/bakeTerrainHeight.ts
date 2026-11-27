@@ -1,42 +1,35 @@
-import { worldHeightfield } from "@automovie/engine";
+import { AutoMovieEngineWorld } from "@automovie/engine";
 import type {
   IAutoMovieHeightRule,
   IAutoMovieTerrainRecipe,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/** Memory budget for one regularly sampled terrain height record. */
-const MAX_SAMPLES: number = 1_000_000;
-
-/** A stored bilinear terrain lattice. */
-type IHeightfield = Extract<IAutoMovieHeightRule, { kind: "heightfield" }>;
-
-/**
+/*
  * Bake one bounded lattice with a checked vertical mesh approximation error.
- *
- * @param id Stable terrain identity for diagnostics.
- * @param origin Column-zero and row-zero world XZ coordinates in metres.
- * @param size Width and depth in metres.
- * @param pitch Largest allowed spacing in either direction, in metres.
- * @param tolerance Largest permitted vertical error against the bilinear
- *   surface, in metres.
- * @param height Shared grade evaluator in world metres.
- * @param advice Optional sentence the sample-budget refusal appends, naming
- *   what in the relief drives the lattice and which fields lower it.
- * @returns The canonical sampled support rule used by both scene and world
- *   records.
+ * Parameter id: Stable terrain identity for diagnostics.
+ * Parameter origin: Column-zero and row-zero world XZ coordinates in metres.
+ * Parameter size: Width and depth in metres.
+ * Parameter pitch: Largest allowed spacing in either direction, in metres.
+ * Parameter tolerance: Largest permitted vertical error against the bilinear
+ * surface, in metres.
+ * Parameter height: Shared grade evaluator in world metres.
+ * Parameter advice: Optional sentence the sample-budget refusal appends, naming
+ * what in the relief drives the lattice and which fields lower it.
+ * Returns: The canonical sampled support rule used by both scene and world
+ * records.
  */
 export function bakeTerrainHeight(
   id: string,
   origin: IAutoMovieVector3,
-  size: IAutoMovieTerrainRecipe.Point,
+  size: IAutoMovieTerrainRecipe.ISize,
   pitch: number,
   tolerance: number,
   height: (point: { x: number; z: number }) => number,
   advice?: string,
 ): IHeightfield {
-  let columns: number = Math.ceil(size[0] / pitch);
-  let rows: number = Math.ceil(size[1] / pitch);
+  let columns: number = Math.ceil(size.width / pitch);
+  let rows: number = Math.ceil(size.depth / pitch);
   let previous: IHeightfield | undefined;
   for (;;) {
     if ((columns + 1) * (rows + 1) > MAX_SAMPLES)
@@ -44,9 +37,9 @@ export function bakeTerrainHeight(
         `Terrain "${id}" needs more than ${MAX_SAMPLES} samples for its feature widths and ${tolerance} m mesh tolerance.${advice === undefined ? "" : ` ${advice}`}`,
       );
     const x: number =
-      previous === undefined ? size[0] / columns : previous.spacingX / 2;
+      previous === undefined ? size.width / columns : previous.spacingX / 2;
     const z: number =
-      previous === undefined ? size[1] / rows : previous.spacingZ / 2;
+      previous === undefined ? size.depth / rows : previous.spacingZ / 2;
     if (
       origin.x + x === origin.x ||
       origin.z + z === origin.z ||
@@ -58,7 +51,7 @@ export function bakeTerrainHeight(
       );
     let index: number = 0;
     const coarse: IHeightfield | undefined = previous;
-    const candidate: IAutoMovieHeightRule = worldHeightfield({
+    const candidate: IAutoMovieHeightRule = AutoMovieEngineWorld.heightfield({
       id,
       polygon: [],
       origin,
@@ -84,7 +77,17 @@ export function bakeTerrainHeight(
   }
 }
 
-/**
+/*
+ * Memory budget for one regularly sampled terrain height record.
+ */
+const MAX_SAMPLES: number = 1_000_000;
+
+/*
+ * A stored bilinear terrain lattice.
+ */
+type IHeightfield = Extract<IAutoMovieHeightRule, { kind: "heightfield" }>;
+
+/*
  * Conservative maximum linear-interpolation error over all complete lattice
  * cells.
  */

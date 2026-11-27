@@ -1,8 +1,8 @@
-import { matchAutoMovieInspectionPath } from "@automovie/render";
+import { AutoMovieRenderInspectionPath } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `matchAutoMovieInspectionPath` matches an object path against a pattern.
+ * `matchInspectionPath` matches an object path against a pattern.
  *
  * A pattern of one name matches that name at any depth and so does everything
  * below it; a pattern of several names is anchored at the root and also covers
@@ -34,10 +34,10 @@ export function test_render_scene_match_inspection_path(): void {
   for (const [path, pattern, expected] of cases)
     TestValidator.equals(
       `${path} ~ ${pattern}`,
-      matchAutoMovieInspectionPath(path, pattern),
+      AutoMovieRenderInspectionPath.matchPath(path, pattern),
       expected,
     );
   TestValidator.error("empty pattern", (): void => {
-    matchAutoMovieInspectionPath("a", "");
+    AutoMovieRenderInspectionPath.matchPath("a", "");
   });
 }

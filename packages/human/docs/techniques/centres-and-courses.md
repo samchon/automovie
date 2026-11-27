@@ -1,6 +1,6 @@
 # Centres and courses
 
-How a person's measures reach the figure's courses, what each course is centred on today, and what is decided and open for the trunk, the neck and the head. The JSDoc of `src/generation/f1/AutoMovieHumanF1Centres`, `AutoMovieHumanF1CourseLaw`, `AutoMovieHumanF1SegmentLengths`, `AutoMovieHumanF1NativeCourse` and `src/generation/conic/AutoMovieHumanMaterialCourse`, `AutoMovieHumanCourseRuns` holds the formulas.
+How a person's measures reach the figure's courses, what each course is centred on today, and what is decided and open for the trunk, the neck and the head. The JSDoc of `src/generation/AutoMovieHumanF1Centres`, `AutoMovieHumanF1CourseLaw`, `AutoMovieHumanF1SegmentLengths`, `AutoMovieHumanF1NativeCourse` and `src/generation/AutoMovieHumanMaterialCourse`, `AutoMovieHumanCourseRuns` holds the formulas.
 
 Statements marked *measured 2026-11-17* were measured that day on f1 by the tools and tests named beside them; statements marked *recorded* come from that day's supervision record and were not re-measured for this note.
 

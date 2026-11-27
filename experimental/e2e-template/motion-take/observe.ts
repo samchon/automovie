@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieJointPose,
   IAutoMovieMotionHumanPerformer,
@@ -11,7 +11,7 @@ import type {
   IAutoMovieScheduleEntry,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import type { HumanPerformance } from "@automovie/motions";
+import type { AutoMovieMotionHumanPerformance } from "@automovie/motions";
 import assert from "node:assert/strict";
 
 import { fixture } from "./source";
@@ -61,7 +61,7 @@ function canonicalPose(pose: IAutoMoviePose): IAutoMoviePose {
  * caches.
  */
 export function observe(
-  performance: HumanPerformance,
+  performance: AutoMovieMotionHumanPerformance,
   seconds: number,
 ): IObservation {
   const catcher: IAutoMovieMotionHumanPerformer = performance.performers.find(
@@ -109,9 +109,9 @@ export function observe(
       },
     ).point,
     parcel,
-    parcelInHand: Quaternion.rotateVector(
-      Quaternion.inverse(hand.worldRotation),
-      Vector3.subtract(parcel, hand.worldPosition),
+    parcelInHand: AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.inverse(hand.worldRotation),
+      AutoMovieEngineVector3.subtract(parcel, hand.worldPosition),
     ),
     feet,
     grip:
@@ -125,7 +125,7 @@ export function observe(
 }
 
 /** Read ordered source cues and validate chronology against the staged flight. */
-export function cues(performance: HumanPerformance): IAutoMovieScheduleCue[] {
+export function cues(performance: AutoMovieMotionHumanPerformance): IAutoMovieScheduleCue[] {
   const flights: readonly IAutoMovieMotionHumanPropFlight.IFlight[] =
     performance.flights("foam-ball");
   assert.equal(flights.length, 1, "one staged launch");

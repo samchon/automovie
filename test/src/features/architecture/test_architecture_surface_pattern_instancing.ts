@@ -1,8 +1,4 @@
-import {
-  Quaternion,
-  autoMoviePatternInstanceTransforms,
-  generateAutoMovieSurfacePattern,
-} from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineArchitecture, AutoMovieEngineSurfaceMaterial } from "@automovie/engine";
 import type {
   IAutoMovieExplicitInstanceTransform,
   IAutoMoviePatternInstancing,
@@ -67,17 +63,17 @@ const FLOOR: {
  * 6. A frame that is not orthonormal, a non-positive thickness, and a prototype
  *    table that cannot cover a drawn variant are each refused.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Generates authored square modules and maps whole placements through autoMoviePatternInstanceTransforms on wall/floor frames, checking slot identities, translations, quaternion axes/norms, dimensions, cut exclusions, seeded prototype selection, and cause-specific refusals.
+ * @evidence contracts/development/testing.md#behavioral-verification Generates authored square modules and maps whole placements through patternInstanceTransforms on wall/floor frames, checking slot identities, translations, quaternion axes/norms, dimensions, cut exclusions, seeded prototype selection, and cause-specific refusals.
  * @evidence contracts/development/testing.md#independent-expectations A two-by-one field on a half-metre grid requires eight slots, from (0.25,0.25) to (1.75,0.75); literal wall/floor axes, identity quaternion, 0.5-by-0.5 dimensions and authored thickness anchor transforms independently. A 1.75-wide field has six whole slots and two named boundary cuts; prototype indexing is checked against the separately observed generated variant.
  * @evidence contracts/development/testing.md#distinguishing-cases Wall/floor and 90-degree in-plane rotation separate translation, orientation and nonuniform scale. Whole/cut records, absent/present/empty prototype tables, repeated/changed seeds and one variant distinguish mapping and variation policies; nonfinite frame components, nonunit/nonperpendicular axes and zero thickness must retain their own refusal messages.
  * @evidence contracts/development/testing.md#execution-ownership Uses local authored records and synchronous generator/instancer/quaternion reads with no rendering, resources, clocks, global replacement or additional host. Variant tests establish selected replay/range/seed differences, not independent hash outputs or statistical quality; numerical slots do not verify GPU rendering.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Eight whole modules on a wall face become eight slots at the module centres,).
  */
 export function test_architecture_surface_pattern_instancing(): void {
-  const laid: IAutoMovieSurfacePatternResult = generateAutoMovieSurfacePattern({
+  const laid: IAutoMovieSurfacePatternResult = AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
     pattern: pattern({ variants: 3, seed: 20260810 }),
   });
-  const wall: IAutoMoviePatternInstancing = autoMoviePatternInstanceTransforms({
+  const wall: IAutoMoviePatternInstancing = AutoMovieEngineArchitecture.patternInstanceTransforms({
     result: laid,
     frame: WALL,
     thickness: 0.012,
@@ -112,7 +108,7 @@ export function test_architecture_surface_pattern_instancing(): void {
             (one: IAutoMovieExplicitInstanceTransform): boolean =>
               qclose(one.rotation, { x: 0, y: 0, z: 0, w: 1 }) &&
               vclose(
-                Quaternion.rotateVector(one.rotation, { x: 1, y: 0, z: 0 }),
+                AutoMovieEngineQuaternion.rotateVector(one.rotation, { x: 1, y: 0, z: 0 }),
                 {
                   x: 1,
                   y: 0,
@@ -157,7 +153,7 @@ export function test_architecture_surface_pattern_instancing(): void {
     },
   );
 
-  const floor: IAutoMoviePatternInstancing = autoMoviePatternInstanceTransforms(
+  const floor: IAutoMoviePatternInstancing = AutoMovieEngineArchitecture.patternInstanceTransforms(
     {
       result: laid,
       frame: FLOOR,
@@ -176,7 +172,7 @@ export function test_architecture_surface_pattern_instancing(): void {
       [
         "localX",
         (): boolean =>
-          vclose(Quaternion.rotateVector(floorRotation, { x: 1, y: 0, z: 0 }), {
+          vclose(AutoMovieEngineQuaternion.rotateVector(floorRotation, { x: 1, y: 0, z: 0 }), {
             x: 0,
             y: 0,
             z: 1,
@@ -185,7 +181,7 @@ export function test_architecture_surface_pattern_instancing(): void {
       [
         "localY",
         (): boolean =>
-          vclose(Quaternion.rotateVector(floorRotation, { x: 0, y: 1, z: 0 }), {
+          vclose(AutoMovieEngineQuaternion.rotateVector(floorRotation, { x: 0, y: 1, z: 0 }), {
             x: 1,
             y: 0,
             z: 0,
@@ -194,7 +190,7 @@ export function test_architecture_surface_pattern_instancing(): void {
       [
         "localZ",
         (): boolean =>
-          vclose(Quaternion.rotateVector(floorRotation, { x: 0, y: 0, z: 1 }), {
+          vclose(AutoMovieEngineQuaternion.rotateVector(floorRotation, { x: 0, y: 0, z: 1 }), {
             x: 0,
             y: 1,
             z: 0,
@@ -212,8 +208,8 @@ export function test_architecture_surface_pattern_instancing(): void {
   );
 
   const turned: IAutoMoviePatternInstancing =
-    autoMoviePatternInstanceTransforms({
-      result: generateAutoMovieSurfacePattern({
+    AutoMovieEngineArchitecture.patternInstanceTransforms({
+      result: AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
         pattern: pattern({
           zones: [
             zone({
@@ -260,7 +256,7 @@ export function test_architecture_surface_pattern_instancing(): void {
         "localX",
         (): boolean =>
           vclose(
-            Quaternion.rotateVector(turned.transforms[0]!.rotation, {
+            AutoMovieEngineQuaternion.rotateVector(turned.transforms[0]!.rotation, {
               x: 1,
               y: 0,
               z: 0,
@@ -272,7 +268,7 @@ export function test_architecture_surface_pattern_instancing(): void {
         "localY",
         (): boolean =>
           vclose(
-            Quaternion.rotateVector(turned.transforms[0]!.rotation, {
+            AutoMovieEngineQuaternion.rotateVector(turned.transforms[0]!.rotation, {
               x: 0,
               y: 1,
               z: 0,
@@ -291,14 +287,14 @@ export function test_architecture_surface_pattern_instancing(): void {
   );
 
   const narrow: IAutoMovieSurfacePatternResult =
-    generateAutoMovieSurfacePattern({
+    AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
       pattern: pattern({
         zones: [zone({ region: rectangle(0, 0, 1.75, 1) })],
         minimumPiece: 0.4,
       }),
     });
   const partial: IAutoMoviePatternInstancing =
-    autoMoviePatternInstanceTransforms({
+    AutoMovieEngineArchitecture.patternInstanceTransforms({
       result: narrow,
       frame: WALL,
       thickness: 0.012,
@@ -314,7 +310,7 @@ export function test_architecture_surface_pattern_instancing(): void {
 
   const prototypes: string[] = ["worn", "clean", "chipped"];
   const varied: IAutoMoviePatternInstancing =
-    autoMoviePatternInstanceTransforms({
+    AutoMovieEngineArchitecture.patternInstanceTransforms({
       result: laid,
       frame: WALL,
       thickness: 0.012,
@@ -354,7 +350,7 @@ export function test_architecture_surface_pattern_instancing(): void {
       [
         "repeatable",
         (): boolean =>
-          generateAutoMovieSurfacePattern({
+          AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
             pattern: pattern({ variants: 3, seed: 20260810 }),
           })
             .placements.map(
@@ -368,7 +364,7 @@ export function test_architecture_surface_pattern_instancing(): void {
       [
         "seedMatters",
         (): boolean =>
-          generateAutoMovieSurfacePattern({
+          AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
             pattern: pattern({ variants: 3, seed: 20260811 }),
           })
             .placements.map(
@@ -382,7 +378,7 @@ export function test_architecture_surface_pattern_instancing(): void {
       [
         "single",
         (): boolean =>
-          generateAutoMovieSurfacePattern({
+          AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
             pattern: pattern({ variants: 1 }),
           }).placements.every(
             (one: IAutoMoviePatternPlacement): boolean => one.variant === 0,
@@ -416,7 +412,7 @@ export function test_architecture_surface_pattern_instancing(): void {
         (): boolean =>
           throwsError(
             (): IAutoMoviePatternInstancing =>
-              autoMoviePatternInstanceTransforms({
+              AutoMovieEngineArchitecture.patternInstanceTransforms({
                 result: laid,
                 frame: WALL,
                 thickness: 0,
@@ -429,7 +425,7 @@ export function test_architecture_surface_pattern_instancing(): void {
         (): boolean =>
           throwsError(
             (): IAutoMoviePatternInstancing =>
-              autoMoviePatternInstanceTransforms({
+              AutoMovieEngineArchitecture.patternInstanceTransforms({
                 result: laid,
                 frame: { ...WALL, u: { x: 2, y: 0, z: 0 } },
                 thickness: 0.01,
@@ -442,7 +438,7 @@ export function test_architecture_surface_pattern_instancing(): void {
         (): boolean =>
           throwsError(
             (): IAutoMoviePatternInstancing =>
-              autoMoviePatternInstanceTransforms({
+              AutoMovieEngineArchitecture.patternInstanceTransforms({
                 result: laid,
                 frame: { ...WALL, v: { x: 0, y: 0.5, z: 0 } },
                 thickness: 0.01,
@@ -455,7 +451,7 @@ export function test_architecture_surface_pattern_instancing(): void {
         (): boolean =>
           throwsError(
             (): IAutoMoviePatternInstancing =>
-              autoMoviePatternInstanceTransforms({
+              AutoMovieEngineArchitecture.patternInstanceTransforms({
                 result: laid,
                 frame: {
                   ...WALL,
@@ -471,7 +467,7 @@ export function test_architecture_surface_pattern_instancing(): void {
         (): boolean =>
           throwsError(
             (): IAutoMoviePatternInstancing =>
-              autoMoviePatternInstanceTransforms({
+              AutoMovieEngineArchitecture.patternInstanceTransforms({
                 result: laid,
                 frame: WALL,
                 thickness: 0.01,

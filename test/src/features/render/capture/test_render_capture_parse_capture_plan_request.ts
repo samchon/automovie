@@ -1,5 +1,5 @@
 import type { IAutoMovieCapturePlanRequest } from "@automovie/interface";
-import { parseAutoMovieCapturePlanRequest } from "@automovie/render";
+import { AutoMovieRenderCapture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";
@@ -32,7 +32,7 @@ export function test_render_capture_parse_capture_plan_request(): void {
   ): boolean =>
     throwsError(
       (): unknown =>
-        parseAutoMovieCapturePlanRequest(new URLSearchParams(text)),
+        AutoMovieRenderCapture.parsePlanRequest(new URLSearchParams(text)),
       fragments,
     );
 
@@ -99,7 +99,7 @@ export function test_render_capture_parse_capture_plan_request(): void {
   );
 
   // 4. The limits themselves are read.
-  const limits: IAutoMovieCapturePlanRequest = parseAutoMovieCapturePlanRequest(
+  const limits: IAutoMovieCapturePlanRequest = AutoMovieRenderCapture.parsePlanRequest(
     new URLSearchParams(
       "from=0&window=0&compare=b&tolerance=255&longest=300&smallest=300&sweep=a&margin=0",
     ),

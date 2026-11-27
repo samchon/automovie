@@ -1,4 +1,4 @@
-import { createDog, createQuadruped } from "@automovie/archetypes";
+import { AutoMovieArchetypeDog, AutoMovieArchetypeQuadruped } from "@automovie/archetypes";
 import type {
   IAutoMovieAffordance,
   IAutoMovieModelPart,
@@ -19,7 +19,7 @@ import { observeQuadrupedAttachment } from "./observeQuadrupedAttachment";
  */
 export function test_archetypes_animals_capsule_terminal_pose(): void {
   const findings: string[] = [];
-  const original: ReturnType<typeof createDog> = createDog(
+  const original: ReturnType<typeof AutoMovieArchetypeDog.create> = AutoMovieArchetypeDog.create(
     {
       mass: 22,
       cohort: "pet",
@@ -61,10 +61,10 @@ export function test_archetypes_animals_capsule_terminal_pose(): void {
       ],
     ),
   );
-  const rounded: ReturnType<typeof createDog> = original.reposed(parts, frames);
+  const rounded: ReturnType<typeof AutoMovieArchetypeDog.create> = original.reposed(parts, frames);
   observeQuadrupedAttachment(
     rounded,
-    createQuadruped.species(rounded),
+    AutoMovieArchetypeQuadruped.species(rounded),
     "dog/authored-capsules",
     findings,
     rounded.dimensions.withersHeight!,

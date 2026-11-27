@@ -1,11 +1,11 @@
-import { bindPartner as bindPartnerLaw } from "../dressing/bindPartner";
-import { coatPartner as coatPartnerLaw } from "../dressing/coatPartner";
-import { composeHumanAdjustCuff as composeHumanAdjustCuffLaw } from "../dressing/composeHumanAdjustCuff";
-import { composeHumanStraightenPartnerTie as composeHumanStraightenPartnerTieLaw } from "../dressing/composeHumanStraightenPartnerTie";
-import { dressPartner as dressPartnerLaw } from "../dressing/dressPartner";
-import { placeOverHead as placeOverHeadLaw } from "../dressing/placeOverHead";
-import { presentHand as presentHandLaw } from "../dressing/presentHand";
-import { slipRing as slipRingLaw } from "../dressing/slipRing";
+import { bindPartner as bindPartnerLaw } from "../dressing/internal/bindPartner";
+import { coatPartner as coatPartnerLaw } from "../dressing/internal/coatPartner";
+import { composeHumanAdjustCuff as composeHumanAdjustCuffLaw } from "../dressing/internal/composeHumanAdjustCuff";
+import { composeHumanStraightenPartnerTie as composeHumanStraightenPartnerTieLaw } from "../dressing/internal/composeHumanStraightenPartnerTie";
+import { dressPartner as dressPartnerLaw } from "../dressing/internal/dressPartner";
+import { placeOverHead as placeOverHeadLaw } from "../dressing/internal/placeOverHead";
+import { presentHand as presentHandLaw } from "../dressing/internal/presentHand";
+import { slipRing as slipRingLaw } from "../dressing/internal/slipRing";
 
 /**
  * Dressing another person, or being dressed by one: binding, coating, ring and

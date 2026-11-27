@@ -1,4 +1,4 @@
-import { HumanLabour as HumanLabourSource } from "../lexicon/HumanLabour";
+import { HumanLabour as HumanLabourSource } from "../lexicon/internal/HumanLabour";
 import { HUMAN_LABOUR_HAMMER } from "./presets/HUMAN_LABOUR_HAMMER";
 import { HUMAN_LABOUR_HAUL } from "./presets/HUMAN_LABOUR_HAUL";
 import { HUMAN_LABOUR_SCRUB } from "./presets/HUMAN_LABOUR_SCRUB";

@@ -2,7 +2,9 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieSwivelSeed,
 } from "@automovie/interface";
-import { HumanLimbIncumbent } from "@automovie/motions/internal";
+import {
+  HumanLimbIncumbent
+} from "../../../../../packages/motions/src/posture/internal/HumanLimbIncumbent";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";

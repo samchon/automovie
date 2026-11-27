@@ -1,8 +1,9 @@
+import { AutoMovieEngineConstruction } from "@automovie/engine";
 import { FamilyConicLoop } from "./FamilyConicLoop";
 import { FamilyConicSource as R } from "./FamilyConicSource";
 import { FamilyConicThumbRoot } from "./FamilyConicThumbRoot";
 import { FamilyConicValley } from "./FamilyConicValley";
-import { realizeAutoMovieConstruction } from "@automovie/engine";
+
 import {
   AutoMovieHumanChainTopology,
   AutoMovieHumanConicLoft as H,
@@ -214,7 +215,7 @@ namespace FamilyConicJoints {
       compose: { frame: "host", plane: { point: [0, 0, plane / 1000], normal: [0, 0, 1] } },
     };
     const started: number = performance.now();
-    const real: IAutoMovieConstructionRealization.IRealization = realizeAutoMovieConstruction({ name: "joint." + name, root }, { chord: 0.0005, sources });
+    const real: IAutoMovieConstructionRealization.IRealization = AutoMovieEngineConstruction.realize({ name: "joint." + name, root }, { chord: 0.0005, sources });
     process.stdout.write(`== ${name} alone as a composed end: plane ${plane} mm out of the host's end, children carried ${carried} mm, rail ${rail === undefined ? "the figure's" : rail * 1000 + " mm"} ==\n`);
     process.stdout.write(`children: ${children.map((child: IAutoMovieConstructionSplit.IChild): string => `${child.partFace} (rail ${(child.rail * 1000).toFixed(1)} mm)`).join(", ")}\n`);
     process.stdout.write(`realized in ${Math.round(performance.now() - started)} ms, ${real.mesh.indices.length / 3} triangles, ${real.diagnostics.length} diagnostics\n`);
@@ -345,7 +346,7 @@ namespace FamilyConicJoints {
     if (typeof f1[field] !== "number") throw new Error("--roll: no numeric length field named " + field + "; fields: " + Object.keys(f1).join(", "));
     const lengths = { ...f1, [field]: (f1[field] as number) * Number(ratio) } as unknown as typeof AutoMovieHumanF1SegmentLengths.F1;
     const chain = AutoMovieHumanF1SegmentLengths.chain(lengths);
-    const frames = AutoMovieHumanF1Placement.frames(undefined, AutoMovieHumanChainTopology(AutoMovieHumanF1Placing.CHAIN, chain));
+    const frames = AutoMovieHumanF1Placement.frames(undefined, AutoMovieHumanChainTopology.admit(AutoMovieHumanF1Placing.CHAIN, chain));
     const person: IAutoMovieHumanConicLoft.IFamily = AutoMovieHumanF1Placement.repose(stored, frames, (datum: string) => AutoMovieHumanF1Centres.local(datum, lengths, chain)).family;
     const out: string[] = [`== ${name} for a person with ${field} x ${ratio} ==`];
     out.push("centres f1:     " + stored.centres.map(fixed).join(" "));

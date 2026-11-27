@@ -1,9 +1,4 @@
-import {
-  compareCodeUnits,
-  layoutAutoMovieSurfaceTransition,
-  mapAutoMovieSurfaceTier,
-  sampleAutoMovieSurfaceNetwork,
-} from "@automovie/engine";
+import { AutoMovieEngineText, AutoMovieEngineSweep } from "@automovie/engine";
 import type {
   AutoMovieSurfaceTier,
   IAutoMovieSubdivisionParameter,
@@ -18,9 +13,9 @@ import { throwsError } from "../../internal/throwsError";
 type Corner = { s: number; t: number };
 
 /**
- * `layoutAutoMovieSurfaceTransition` changes a sweep's column count with quads
- * only, and the sampled cage (`sampleAutoMovieSurfaceNetwork`) and tier map
- * (`mapAutoMovieSurfaceTier`) keep it a closed manifold that holds its
+ * `layoutSurfaceTransition` changes a sweep's column count with quads
+ * only, and the sampled cage (`sampleSurfaceNetwork`) and tier map
+ * (`mapSurfaceTier`) keep it a closed manifold that holds its
  * cylinder.
  *
  * Fixture: the straight tube going from 8 to 16 columns and from 16 to 12
@@ -41,7 +36,7 @@ type Corner = { s: number; t: number };
  * 5. An odd difference, more than a doubling and zero rows are refused.
  */
 export function test_engine_geometry_sweep_transition(): void {
-  const cage: IAutoMovieSurfaceCage = sampleAutoMovieSurfaceNetwork({
+  const cage: IAutoMovieSurfaceCage = AutoMovieEngineSweep.sampleSurfaceNetwork({
     network: sweepTransitionTube(),
     tier: "medium",
   });
@@ -63,22 +58,36 @@ export function test_engine_geometry_sweep_transition(): void {
     const degree: number = ringed.has(v) ? n + 2 : n;
     if (degree !== 4) irregular[degree] = (irregular[degree] ?? 0) + 1;
   });
-  TestValidator.equals("extraordinary vertices", irregular, { 3: 12, 5: 4, 6: 4 });
+  TestValidator.equals("extraordinary vertices", irregular, {
+    3: 12,
+    5: 4,
+    6: 4,
+  });
   const counts: number[] = [...edges.values()];
-  TestValidator.equals("boundary edges", counts.filter((n: number) => n === 1).length, 20);
-  TestValidator.predicate("manifold", counts.every((n: number): boolean => n === 1 || n === 2));
+  TestValidator.equals(
+    "boundary edges",
+    counts.filter((n: number) => n === 1).length,
+    20,
+  );
+  TestValidator.predicate(
+    "manifold",
+    counts.every((n: number): boolean => n === 1 || n === 2),
+  );
 
   // 2.
   const key = (q: Corner[]): string =>
     q
-      .map((c: Corner): string => `${Math.round(c.s * 1e9)},${Math.round(c.t * 1e9)}`)
-      .sort(compareCodeUnits)
+      .map(
+        (c: Corner): string =>
+          `${Math.round(c.s * 1e9)},${Math.round(c.t * 1e9)}`,
+      )
+      .sort(AutoMovieEngineText.compareCodeUnits)
       .join(";");
   for (const [start, end] of [
     [8, 16],
     [16, 12],
   ]) {
-    const quads: Corner[][] = layoutAutoMovieSurfaceTransition(start!, end!, 1);
+    const quads: Corner[][] = AutoMovieEngineSweep.layoutSurfaceTransition(start!, end!, 1);
     const set: Set<string> = new Set(quads.map(key));
     TestValidator.predicate(
       `${start} to ${end} mirrored`,
@@ -89,7 +98,7 @@ export function test_engine_geometry_sweep_transition(): void {
   }
 
   // 3.
-  const low: IAutoMovieSurfaceCage = sampleAutoMovieSurfaceNetwork({
+  const low: IAutoMovieSurfaceCage = AutoMovieEngineSweep.sampleSurfaceNetwork({
     network: sweepTransitionTube(),
     tier: "low",
   });
@@ -105,10 +114,10 @@ export function test_engine_geometry_sweep_transition(): void {
         u: 0.1 + 0.8 * ((k * 0.618) % 1),
         v: 0.1 + 0.8 * ((k * 0.382) % 1),
       };
-      const back: IAutoMovieSubdivisionParameter = mapAutoMovieSurfaceTier({
+      const back: IAutoMovieSubdivisionParameter = AutoMovieEngineSweep.mapSurfaceTier({
         from: low,
         to: cage,
-        at: mapAutoMovieSurfaceTier({ from: cage, to: low, at }).at,
+        at: AutoMovieEngineSweep.mapSurfaceTier({ from: cage, to: low, at }).at,
       }).at;
       return (
         back.face === face &&
@@ -126,7 +135,10 @@ export function test_engine_geometry_sweep_transition(): void {
     ["high", 0.003, 2.5],
   ] satisfies [AutoMovieSurfaceTier, number, number][]) {
     const [r, n]: [number, number] = sweepTransitionDeviation(tier);
-    TestValidator.predicate(`${tier}: ${r} radial, ${n} degrees`, r <= radial && n <= normal);
+    TestValidator.predicate(
+      `${tier}: ${r} radial, ${n} degrees`,
+      r <= radial && n <= normal,
+    );
   }
 
   // 5.
@@ -137,6 +149,9 @@ export function test_engine_geometry_sweep_transition(): void {
   ] satisfies [string, number, number, number, string][])
     TestValidator.predicate(
       label,
-      throwsError((): unknown => layoutAutoMovieSurfaceTransition(start, end, rows), message),
+      throwsError(
+        (): unknown => AutoMovieEngineSweep.layoutSurfaceTransition(start, end, rows),
+        message,
+      ),
     );
 }

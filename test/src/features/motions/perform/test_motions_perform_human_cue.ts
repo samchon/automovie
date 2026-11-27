@@ -1,5 +1,5 @@
 import type { IAutoMovieScheduleCue } from "@automovie/interface";
-import { HumanCue } from "@automovie/motions";
+import { AutoMovieMotionHumanCue } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -9,7 +9,7 @@ import { throwsError } from "../../internal/throwsError";
 const ROUNDING: number = 1e-12;
 
 /**
- * `HumanCue.beats` writes a beat track: a `beat` every 60 / BPM seconds from
+ * `AutoMovieMotionHumanCue.beats` writes a beat track: a `beat` every 60 / BPM seconds from
  * the first beat, and a `downbeat` at the first beat of every bar of `meter`
  * beats, listed before the beat it shares a second with.
  *
@@ -42,7 +42,7 @@ function scenario_test_motions_perform_human_cue_beats(): void {
   const step: number = 60 / 90;
   TestValidator.predicate(
     "five beats at 90 BPM in four",
-    matches(HumanCue.beats({ bpm: 90, count: 5, from: 1, meter: 4 }), [
+    matches(AutoMovieMotionHumanCue.beats({ bpm: 90, count: 5, from: 1, meter: 4 }), [
       { name: "downbeat", seconds: 1 },
       { name: "beat", seconds: 1 },
       { name: "beat", seconds: 1 + step },
@@ -56,7 +56,7 @@ function scenario_test_motions_perform_human_cue_beats(): void {
   // 2. The defaults.
   TestValidator.predicate(
     "from 0 s in four by default",
-    matches(HumanCue.beats({ bpm: 120, count: 5 }), [
+    matches(AutoMovieMotionHumanCue.beats({ bpm: 120, count: 5 }), [
       { name: "downbeat", seconds: 0 },
       { name: "beat", seconds: 0 },
       { name: "beat", seconds: 0.5 },
@@ -70,7 +70,7 @@ function scenario_test_motions_perform_human_cue_beats(): void {
   // 3. Every beat a downbeat.
   TestValidator.predicate(
     "a meter of one",
-    matches(HumanCue.beats({ bpm: 60, count: 2, meter: 1 }), [
+    matches(AutoMovieMotionHumanCue.beats({ bpm: 60, count: 2, meter: 1 }), [
       { name: "downbeat", seconds: 0 },
       { name: "beat", seconds: 0 },
       { name: "downbeat", seconds: 1 },
@@ -81,7 +81,7 @@ function scenario_test_motions_perform_human_cue_beats(): void {
   // 4. A single beat.
   TestValidator.predicate(
     "a single beat",
-    matches(HumanCue.beats({ bpm: 100, count: 1, from: 2 }), [
+    matches(AutoMovieMotionHumanCue.beats({ bpm: 100, count: 1, from: 2 }), [
       { name: "downbeat", seconds: 2 },
       { name: "beat", seconds: 2 },
     ]),
@@ -89,9 +89,9 @@ function scenario_test_motions_perform_human_cue_beats(): void {
 
   // 5. Refusals.
   for (const [label, task] of [
-    ["a tempo of 0", () => HumanCue.beats({ bpm: 0, count: 4 })],
-    ["a count of 0", () => HumanCue.beats({ bpm: 90, count: 0 })],
-    ["a meter of 0", () => HumanCue.beats({ bpm: 90, count: 4, meter: 0 })],
+    ["a tempo of 0", () => AutoMovieMotionHumanCue.beats({ bpm: 0, count: 4 })],
+    ["a count of 0", () => AutoMovieMotionHumanCue.beats({ bpm: 90, count: 0 })],
+    ["a meter of 0", () => AutoMovieMotionHumanCue.beats({ bpm: 90, count: 4, meter: 0 })],
   ] as const)
     TestValidator.predicate(`${label} is refused`, throwsError(task));
 }
@@ -122,22 +122,22 @@ const listed = (cues: readonly IAutoMovieScheduleCue[]): string =>
 function scenario_test_motions_perform_human_cue_tracks(): void {
   TestValidator.equals(
     "a travelling wave",
-    listed(HumanCue.sectionWave({ distances: [0, 3, 10], from: 2, speed: 2 })),
+    listed(AutoMovieMotionHumanCue.sectionWave({ distances: [0, 3, 10], from: 2, speed: 2 })),
     "section@2 section@3.5 section@7",
   );
   TestValidator.equals(
     "authored seconds",
-    listed(HumanCue.sectionWave({ seconds: [1, 1, 4] })),
+    listed(AutoMovieMotionHumanCue.sectionWave({ seconds: [1, 1, 4] })),
     "section@1 section@1 section@4",
   );
   TestValidator.error("out of order", () =>
-    HumanCue.sectionWave({ seconds: [2, 1] }),
+    AutoMovieMotionHumanCue.sectionWave({ seconds: [2, 1] }),
   );
 
   TestValidator.equals(
     "orders",
     listed(
-      HumanCue.orders([
+      AutoMovieMotionHumanCue.orders([
         { word: "march", at: 3, caution: 1 },
         { word: "halt", at: 1 },
       ]),
@@ -145,7 +145,7 @@ function scenario_test_motions_perform_human_cue_tracks(): void {
     "halt@1 marchCaution@2 march@3",
   );
   TestValidator.error("a caution over the word before", () =>
-    HumanCue.orders([
+    AutoMovieMotionHumanCue.orders([
       { word: "march", at: 3, caution: 2.5 },
       { word: "halt", at: 1 },
     ]),
@@ -154,7 +154,7 @@ function scenario_test_motions_perform_human_cue_tracks(): void {
   TestValidator.equals(
     "instants",
     listed(
-      HumanCue.instants(
+      AutoMovieMotionHumanCue.instants(
         {
           instants: [
             { label: "b", seconds: 2 },
@@ -172,12 +172,12 @@ function scenario_test_motions_perform_human_cue_tracks(): void {
   TestValidator.equals(
     "a line",
     listed(
-      HumanCue.dialogue([{ from: 1, to: 3, accents: [2], phrases: [2.5] }]),
+      AutoMovieMotionHumanCue.dialogue([{ from: 1, to: 3, accents: [2], phrases: [2.5] }]),
     ),
     "lineStart@1 accent@2 phraseEnd@2.5 lineEnd@3",
   );
   TestValidator.error("an accent outside", () =>
-    HumanCue.dialogue([{ from: 1, to: 3, accents: [4] }]),
+    AutoMovieMotionHumanCue.dialogue([{ from: 1, to: 3, accents: [4] }]),
   );
 }
 

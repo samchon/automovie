@@ -1,11 +1,11 @@
 import type { IAutoMovieMixFilmSound } from "@automovie/interface";
-import { planAutoMovieDialogueMouths } from "@automovie/render";
+import { AutoMovieRenderAudio } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { createDialogueReceiptFixture } from "../../internal/createDialogueReceiptFixture";
 
 /**
- * `planAutoMovieDialogueMouths` gives each line bound to exactly one actor a
+ * `AutoMovieRenderAudio.planDialogueMouths` gives each line bound to exactly one actor a
  * jaw opening per film frame from its loudness.
  *
  * Scenarios:
@@ -37,7 +37,7 @@ export function test_render_audio_plan_dialogue_mouths_lines(): void {
     }).receipt,
     samples,
   });
-  const plan = planAutoMovieDialogueMouths({
+  const plan = AutoMovieRenderAudio.planDialogueMouths({
     lines: [
       entry("l1", "ann"),
       entry("l2", "bob"),

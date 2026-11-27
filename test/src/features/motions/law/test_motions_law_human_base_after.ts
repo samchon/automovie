@@ -2,7 +2,9 @@ import type {
   IAutoMovieMotionHumanBase,
   IAutoMovieMotionHumanEntryState,
 } from "@automovie/interface";
-import { HumanBase } from "@automovie/motions/internal";
+import {
+  HumanBase
+} from "../../../../../packages/motions/src/law/internal/HumanBase";
 import { TestValidator } from "@nestia/e2e";
 
 /**

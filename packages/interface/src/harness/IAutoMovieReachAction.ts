@@ -11,8 +11,8 @@ import type { IAutoMovieActionTarget } from "./IAutoMovieActionTarget";
  * verb for any performer whose rig cannot bend the named arm (`armChainFault`),
  * because the synthesizer would otherwise produce nothing and the shot would
  * pass having performed no reach. The reference synthesizer
- * (`makeActorSynthesizer`) solves the arm with `reachPose`, an analytic
- * two-bone solve whose elbow turns only about its flexion axis and whose
+ * (`AutoMovieEngineFilm.makeActorSynthesizer`) uses the analytic two-bone
+ * `reachPose` solve. The elbow turns only about its flexion axis and the
  * shoulder spends the chain's swivel staying inside the rig's declared range. A
  * target out of range extends the arm fully toward it, and a target no in-range
  * pose reaches yields the least-violating pose for the shot's range-of-motion

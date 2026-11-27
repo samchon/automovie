@@ -11,16 +11,22 @@ A layer adds to whatever a person does and takes no part of the body from an act
 The performance takes each person's layers, for the whole film or in a window between two instants:
 
 ```ts
-import { AutoMovieMotionHumanExpression, AutoMovieMotionHumanGaze, HumanPerformance } from "@automovie/motions";
+import { AutoMovieMotionHumanExpression, AutoMovieMotionHumanGaze, AutoMovieMotionHumanPerformance } from "@automovie/motions";
 
-new HumanPerformance({
+new AutoMovieMotionHumanPerformance({
   seed,
   performers,
   composition,
   layers: {
     a: [
       AutoMovieMotionHumanExpression.breath(), // the whole film
-      { layer: AutoMovieMotionHumanGaze.HumanGaze.layer([...]), from: 2, to: { of: "dialogue", event: "lineEnd" } },
+      {
+        layer: AutoMovieMotionHumanGaze.HumanGaze.layer([
+          { from: 2, target: { kind: "point", at: { x: 1, y: 1.6, z: 2 }, frame: "world" } },
+        ]),
+        from: 2,
+        to: { of: "dialogue", event: "lineEnd" },
+      },
       // Built from the window's seconds: she sighs when his wave ends.
       { from: { of: "bye", event: "end" }, layer: (w) => AutoMovieMotionHumanExpression.affect({ displays: [{ kind: "sigh", at: w.from }] }) },
     ],

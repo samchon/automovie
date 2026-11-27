@@ -1,4 +1,4 @@
-import { beatNodeOf, scriptAncestors } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type { IAutoMovieScriptNode } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -28,18 +28,18 @@ export function test_engine_film_script_graph(): void {
   const tree: IAutoMovieScriptNode[] = createScriptTree();
   TestValidator.equals(
     "deep chain walks nearest-first to the root",
-    scriptAncestors(tree, "b1"),
+    AutoMovieEngineFilm.scriptAncestors(tree, "b1"),
     ["grp", "scene1", "act1", "root"],
   );
   TestValidator.equals(
     "the root has no ancestors",
-    scriptAncestors(tree, "root"),
+    AutoMovieEngineFilm.scriptAncestors(tree, "root"),
     [],
   );
   TestValidator.predicate(
     "unknown node id throws",
     throwsError(
-      (): string[] => scriptAncestors(tree, "ghost"),
+      (): string[] => AutoMovieEngineFilm.scriptAncestors(tree, "ghost"),
       "is not in the",
     ),
   );
@@ -47,7 +47,7 @@ export function test_engine_film_script_graph(): void {
     "dangling parent mid-walk throws",
     throwsError(
       (): string[] =>
-        scriptAncestors(
+        AutoMovieEngineFilm.scriptAncestors(
           tree.map(
             (node: IAutoMovieScriptNode): IAutoMovieScriptNode =>
               node.id === "scene1" ? { ...node, parent: "ghost" } : node,
@@ -61,7 +61,7 @@ export function test_engine_film_script_graph(): void {
     "cyclic parent chain throws",
     throwsError(
       (): string[] =>
-        scriptAncestors(
+        AutoMovieEngineFilm.scriptAncestors(
           tree.map(
             (node: IAutoMovieScriptNode): IAutoMovieScriptNode =>
               node.id === "root" ? { ...node, parent: "grp" } : node,
@@ -74,22 +74,22 @@ export function test_engine_film_script_graph(): void {
 
   TestValidator.equals(
     "beatNodeOf finds the claiming node",
-    beatNodeOf(tree, "beat-2"),
+    AutoMovieEngineFilm.beatNodeOf(tree, "beat-2"),
     "b2",
   );
   TestValidator.equals(
     "unclaimed beat yields null",
-    beatNodeOf(tree, "beat-99"),
+    AutoMovieEngineFilm.beatNodeOf(tree, "beat-99"),
     null,
   );
   TestValidator.equals(
     "null tree yields null",
-    beatNodeOf(null, "beat-1"),
+    AutoMovieEngineFilm.beatNodeOf(null, "beat-1"),
     null,
   );
   TestValidator.equals(
     "undefined tree yields null",
-    beatNodeOf(undefined, "beat-1"),
+    AutoMovieEngineFilm.beatNodeOf(undefined, "beat-1"),
     null,
   );
 }

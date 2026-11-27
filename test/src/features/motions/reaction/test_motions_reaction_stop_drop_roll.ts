@@ -1,5 +1,7 @@
 import type { IAutoMovieMotionEvent } from "@automovie/interface";
-import { stopDropRollTimeline } from "@automovie/motions/internal";
+import {
+  stopDropRollTimeline
+} from "../../../../../packages/motions/src/reaction/internal/stopDropRollTimeline";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

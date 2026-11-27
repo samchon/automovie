@@ -1,4 +1,4 @@
-import { utf8Bytes } from "@automovie/engine";
+import { AutoMovieEnginePicture } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -13,16 +13,16 @@ export function test_engine_render_utf8_bytes(): void {
   TestValidator.equals(
     "one to four bytes",
     [
-      utf8Bytes("A"),
-      utf8Bytes("\u00e9"),
-      utf8Bytes("\u20ac"),
-      utf8Bytes("\u{1f600}"),
+      AutoMovieEnginePicture.utf8Bytes("A"),
+      AutoMovieEnginePicture.utf8Bytes("\u00e9"),
+      AutoMovieEnginePicture.utf8Bytes("\u20ac"),
+      AutoMovieEnginePicture.utf8Bytes("\u{1f600}"),
     ],
     [[0x41], [0xc3, 0xa9], [0xe2, 0x82, 0xac], [0xf0, 0x9f, 0x98, 0x80]],
   );
   TestValidator.equals(
     "a lone surrogate",
-    utf8Bytes("\ud800"),
+    AutoMovieEnginePicture.utf8Bytes("\ud800"),
     [0xef, 0xbf, 0xbd],
   );
 }

@@ -1,8 +1,4 @@
-import {
-  Quaternion,
-  choosePhysicalSupportFit,
-  setPhysicalTargetJointRotation,
-} from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEnginePhysicalSupportFit, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalJoint,
   IAutoMoviePhysicalSegment,
@@ -86,7 +82,7 @@ export function test_engine_physics_choose_physical_support_fit(): void {
 
   /** Choose with the declared 1 mm tolerance and the knee as continuity joint. */
   function choose(candidates: Candidate[]): Candidate {
-    return choosePhysicalSupportFit({
+    return AutoMovieEnginePhysicalSupportFit.choose({
       candidates,
       tolerance: 0.001,
       reference,
@@ -106,11 +102,11 @@ export function test_engine_physics_choose_physical_support_fit(): void {
         ],
       ),
     );
-    setPhysicalTargetJointRotation(
+    AutoMovieEnginePhysics.setPhysicalTargetJointRotation(
       poses,
       knee,
       ["lower-0", "support-0"],
-      Quaternion.normalize({ x: Math.tan(angle / 2), y: 0, z: 0, w: 1 }),
+      AutoMovieEngineQuaternion.normalize({ x: Math.tan(angle / 2), y: 0, z: 0, w: 1 }),
     );
     return poses;
   }

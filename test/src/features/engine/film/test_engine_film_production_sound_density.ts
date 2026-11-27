@@ -1,9 +1,4 @@
-import {
-  deriveProductionSoundPlan,
-  materializeCompiledFormation,
-  materializeCompiledInstanceSet,
-  renderProductionSound,
-} from "@automovie/engine";
+import { AutoMovieEngineSound, AutoMovieEnginePopulationRuntime } from "@automovie/engine";
 import type {
   IAutoMovieCompiledFormation,
   IAutoMovieCompiledShotSource,
@@ -65,7 +60,7 @@ const unit: (
   count: number,
   lateral: number,
 ): IAutoMovieCompiledFormation =>
-  materializeCompiledFormation({
+  AutoMovieEnginePopulationRuntime.materializeCompiledFormation({
     formation: {
       id,
       model: `${id}-model`,
@@ -180,7 +175,7 @@ const compiled: () => IAutoMovieCompiledShotSource =
         unit("large-unit", LARGE_COUNT, 0.03125),
       ],
       instanceSets: [
-        materializeCompiledInstanceSet({
+        AutoMovieEnginePopulationRuntime.materializeCompiledInstanceSet({
           instanceSet: {
             id: "crowd",
             model: "crowd-model",
@@ -291,11 +286,12 @@ const amplitudeAt: (pcm: Float32Array, frame: number) => number = (
  *    it roughly ten metres from that weighted centre on either axis.
  */
 export function test_engine_film_production_sound_density(): void {
-  const plan: IAutoMovieProductionSoundPlan = deriveProductionSoundPlan({
-    timeline: timeline(),
-    contracts: new Map([["density-shot", contract()]]),
-    compiled: new Map([["density-shot", compiled()]]),
-  });
+  const plan: IAutoMovieProductionSoundPlan =
+    AutoMovieEngineSound.deriveProductionSoundPlan({
+      timeline: timeline(),
+      contracts: new Map([["density-shot", contract()]]),
+      compiled: new Map([["density-shot", compiled()]]),
+    });
   const small: IAutoMovieProductionSoundEvent = eventOf(plan, "small");
   const large: IAutoMovieProductionSoundEvent = eventOf(plan, "large");
   const mixed: IAutoMovieProductionSoundEvent = eventOf(plan, "mixed");
@@ -333,9 +329,10 @@ export function test_engine_film_production_sound_density(): void {
   );
 
   // 3. the controlled pair: same footprint, same distance, 64x the members.
-  const rendered: IAutoMovieRenderedProductionSound = renderProductionSound({
-    plan,
-  });
+  const rendered: IAutoMovieRenderedProductionSound =
+    AutoMovieEngineSound.renderProductionSound({
+      plan,
+    });
   /**
    * Read stereo amplitude at the independently chosen offset after the planned
    * event frame.

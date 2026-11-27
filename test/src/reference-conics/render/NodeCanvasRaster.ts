@@ -19,8 +19,9 @@ import type { NodeCanvasTypes } from "./NodeCanvasTypes";
  * Flat two-sided Lambert clay has no PBR, shadows, transparency or GPU/Three parity.
  * Original curves can explicitly use xray; depth curves use a 10 micrometre display bias.
  *
- * Annotation text is drawn in DejaVu Sans, shipped beside this file in `fonts/` with its
- * licence and registered once before the first draw, never in a system font such as Arial:
+ * Annotation text is drawn in DejaVu Sans, shipped beside this file in `fonts/`
+ * with its [upstream license](https://dejavu-fonts.github.io/License.html), and
+ * registered once before the first draw, never in a system font such as Arial:
  * a runner without that font would draw no glyphs, so the same frame would differ between
  * machines and a diagnostic caption would vanish. The bundled face makes glyphs, and so
  * the annotated PNG bytes, deterministic across runners.

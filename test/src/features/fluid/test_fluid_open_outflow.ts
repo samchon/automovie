@@ -1,4 +1,6 @@
-import { simulateFluidDomain } from "@automovie/engine";
+import {
+  AutoMovieEngineFluid,
+} from "@automovie/engine";
 import type {
   IAutoMovieFluidDomain,
   IAutoMovieFluidState,
@@ -62,8 +64,8 @@ export function test_fluid_open_outflow(): void {
     0,
   );
   const states: IAutoMovieFluidState[] = [1, 40, 200, 600].map(
-    (step: number): ReturnType<typeof simulateFluidDomain> =>
-      simulateFluidDomain(open, step),
+    (step: number): ReturnType<typeof AutoMovieEngineFluid.simulateFluidDomain> =>
+      AutoMovieEngineFluid.simulateFluidDomain(open, step),
   );
   const last: IAutoMovieFluidState = states[states.length - 1];
 
@@ -106,7 +108,7 @@ export function test_fluid_open_outflow(): void {
     ),
   );
 
-  const walled: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(
+  const walled: ReturnType<typeof AutoMovieEngineFluid.simulateFluidDomain> = AutoMovieEngineFluid.simulateFluidDomain(
     spillway(false),
     600,
   );

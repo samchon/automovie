@@ -12,8 +12,8 @@ const parity = process.argv[3] !== "--sdk-only";
 const require = createRequire(path.join(root, "package.json"));
 const { chromium } = require("playwright-core");
 const {
-  decodeAutoMovieRasterPng,
-  guidePassFrameName,
+  AutoMovieRenderPicture,
+  AutoMovieRenderMedia,
 } = require("@automovie/render");
 process.env.VITE_CJS_IGNORE_WARNING = "true";
 const vite = require("vite");
@@ -83,7 +83,7 @@ try {
         command = await installedFrameParity.inspector({
           page,
           url,
-          decodePng: decodeAutoMovieRasterPng,
+          decodePng: AutoMovieRenderPicture.decodeRasterPng,
         });
       assert.deepEqual(errors, [], "no browser errors");
       console.log(
@@ -109,8 +109,8 @@ assert.deepEqual(failures, [], "both installed browser consumers run");
 
 // The capture host builds a separate draw page. Exercise that consumer too,
 // then prove an uncaught module error survives without the old 120-second wait.
-const { AutoMovieCaptureHost } = require("automovie");
-const host = await AutoMovieCaptureHost.open({
+const { AutoMovieCliCaptureHost } = require("automovie");
+const host = await AutoMovieCliCaptureHost.open({
   root,
   module: "src/subjects.ts",
   backend: "software",
@@ -148,7 +148,7 @@ await fs.writeFile(
 let failedHost;
 let timer;
 try {
-  failedHost = await AutoMovieCaptureHost.open({
+  failedHost = await AutoMovieCliCaptureHost.open({
     root,
     module: scratch,
     backend: "software",
@@ -179,7 +179,7 @@ if (parity)
   await installedFrameParity.deliver({
     root,
     command,
-    decodePng: decodeAutoMovieRasterPng,
-    guideFrameName: guidePassFrameName,
+    decodePng: AutoMovieRenderPicture.decodeRasterPng,
+    guideFrameName: AutoMovieRenderMedia.guidePassFrameName,
     ffmpeg: process.env.FFMPEG_PATH?.trim() || require("ffmpeg-static"),
   });

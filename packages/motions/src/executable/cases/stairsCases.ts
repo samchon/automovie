@@ -6,25 +6,16 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanChain } from "../../HumanChain";
-import { HumanFoot } from "../../posture/HumanFoot";
-import { HumanFrame } from "../../posture/HumanFrame";
-import { climbStairs } from "../../terrain/climbStairs";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
+import { climbStairs } from "../../terrain/internal/climbStairs";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
-import { everydayVerdicts } from "./everydayVerdicts";
-import { stairsCaseBoxes } from "./stairsCaseBoxes";
+import { everydayVerdicts } from "./internal/everydayVerdicts";
+import { stairsCaseBoxes } from "./internal/stairsCaseBoxes";
 
-/** The record of `IStairsCasesStance`'s site. */
-type IStairsCasesStance = { value: number; where: string };
-
-/** The record of `IStairsCasesUnder`'s site. */
-type IStairsCasesUnder = { value: number; where: string };
-
-/** The record of `IStairsCasesNosing`'s site. */
-type IStairsCasesNosing = { value: number; where: string };
-
-/**
+/*
  * Capture cases of the stairs family: a four-tread flight of 170 mm risers and
  * 280 mm treads (2010 ADA 504.2), climbed up step over step, down step over
  * step, and up step by step, each from quiet standing before the first nosing.
@@ -38,9 +29,8 @@ type IStairsCasesNosing = { value: number; where: string };
  * - No socket ever lies more than 10 mm under the floor, a tread or a riser's top
  *   (decision 11);
  * - A planted foot's lowest socket stays within 5 mm of the surface under it.
- *
- * @param bodies The sweep bodies; `m-average` when absent.
- * @returns The cases.
+ * Parameter bodies: The sweep bodies; `m-average` when absent.
+ * Returns: The cases.
  */
 export function stairsCases(
   bodies: readonly string[] = ["m-average"],
@@ -59,7 +49,7 @@ export function stairsCases(
         FamilyCaseKit.perform(
           "stairs",
           [{ subject: "a", body: who.body }],
-          HumanChain.subject("a").act("climbStairs", params).node,
+          AutoMovieMotionHumanChain.subject("a").act("climbStairs", params).node,
         );
       const segment = performance.segments("a")[0]!;
       const flight: IAutoMovieMotionHumanClimbStairsFlight.IFlight =
@@ -166,3 +156,18 @@ export function stairsCases(
   }
   return out;
 }
+
+/*
+ * The record of `IStairsCasesStance`'s site.
+ */
+type IStairsCasesStance = { value: number; where: string };
+
+/*
+ * The record of `IStairsCasesUnder`'s site.
+ */
+type IStairsCasesUnder = { value: number; where: string };
+
+/*
+ * The record of `IStairsCasesNosing`'s site.
+ */
+type IStairsCasesNosing = { value: number; where: string };

@@ -1,17 +1,15 @@
-import {
-  createAutoMovieEllipticLoftAtlas,
-  realizeAutoMovieBicubicAtlas64,
-  realizeAutoMovieGeometry,
-  tessellateToMesh,
-} from "@automovie/engine";
-import type { IAutoMovieMesh, IAutoMoviePrimitiveShape } from "@automovie/interface";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
+import type {
+  IAutoMovieMesh,
+  IAutoMoviePrimitiveShape,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { createBicubicPlaneRecipe } from "../../internal/createBicubicPlaneRecipe";
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * `realizeAutoMovieGeometry(geometry, requirement?)` resolves a geometry recipe
+ * `realizeGeometry(geometry, requirement?)` resolves a geometry recipe
  * through its owner: a primitive tessellates, a mesh is borrowed, a bicubic
  * atlas realizes, and only "complete" refuses an incomplete atlas.
  *
@@ -20,19 +18,24 @@ import { throwsError } from "../../internal/throwsError";
  * 1. A unit box primitive equals `tessellateToMesh` of it, complete, no
  *    diagnostics.
  * 2. A mesh is returned as the same object.
- * 3. The bicubic plane equals `realizeAutoMovieBicubicAtlas64` of it.
+ * 3. The bicubic plane equals `realizeBicubicAtlas64` of it.
  * 4. An eight-patch elliptic loft atlas limited to one cell is incomplete: shown
  *    for "display", refused for "complete" ("Bicubic atlas processing is
  *    incomplete").
  */
 export function test_engine_geometry_realize_geometry(): void {
   // 1.
-  const shape: IAutoMoviePrimitiveShape = { type: "box", width: 1, height: 1, depth: 1 };
+  const shape: IAutoMoviePrimitiveShape = {
+    type: "box",
+    width: 1,
+    height: 1,
+    depth: 1,
+  };
   TestValidator.equals(
     "primitive",
-    realizeAutoMovieGeometry({ type: "primitive", shape }),
+    AutoMovieEngineGeometry.realizeGeometry({ type: "primitive", shape }),
     {
-      mesh: tessellateToMesh(shape),
+      mesh: AutoMovieEngineGeometry.tessellateToMesh(shape),
       complete: true,
       diagnostics: [],
     },
@@ -48,22 +51,26 @@ export function test_engine_geometry_realize_geometry(): void {
   };
   TestValidator.predicate(
     "borrowed",
-    realizeAutoMovieGeometry({ type: "mesh", mesh }).mesh === mesh,
+    AutoMovieEngineGeometry.realizeGeometry({ type: "mesh", mesh }).mesh ===
+      mesh,
   );
 
   // 3.
   const plane = createBicubicPlaneRecipe();
   TestValidator.equals(
     "atlas",
-    realizeAutoMovieGeometry(plane),
-    realizeAutoMovieBicubicAtlas64(plane),
+    AutoMovieEngineGeometry.realizeGeometry(plane),
+    AutoMovieEngineGeometry.realizeBicubicAtlas64(plane),
   );
 
   // 4.
-  const starved = createAutoMovieEllipticLoftAtlas({
+  const starved = AutoMovieEngineGeometry.createEllipticLoftAtlas({
     loft: {
       spans: [0, 1].map((i: number) => ({
-        interval: [i * 0.05, (i + 1) * 0.05] satisfies [number, number],
+        interval: {
+          lowerY: i * 0.05,
+          upperY: (i + 1) * 0.05,
+        },
         radiusX: [0.02, 0.02, 0.02, 0.02] satisfies [
           number,
           number,
@@ -87,13 +94,14 @@ export function test_engine_geometry_realize_geometry(): void {
   }).geometry;
   TestValidator.equals(
     "display",
-    realizeAutoMovieGeometry(starved).complete,
+    AutoMovieEngineGeometry.realizeGeometry(starved).complete,
     false,
   );
   TestValidator.predicate(
     "complete",
     throwsError(
-      (): unknown => realizeAutoMovieGeometry(starved, "complete"),
+      (): unknown =>
+        AutoMovieEngineGeometry.realizeGeometry(starved, "complete"),
       "Bicubic atlas processing is incomplete",
     ),
   );

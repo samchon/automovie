@@ -27,7 +27,7 @@ import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
  *
  * What the surfaces decide, with no arc declared: the turn between the two
  * outward normals at each point is the fold's angle, which a `fold` width law
- * reads (`AutoMovieConstructionWidths`); a point where the tangent planes meet
+ * reads (`AutoMovieEngineConstructionWidths`); a point where the tangent planes meet
  * under `grazing` is on a smooth arc and any other on a fold arc (`arc`). What
  * the loop decides is only what the normals cannot (`toward`): the host's rail
  * stands outside the loop at every point, and on a smooth arc the part's rail

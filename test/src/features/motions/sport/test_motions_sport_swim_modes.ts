@@ -1,12 +1,16 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanSwim,
 } from "@automovie/interface";
-import { HumanChain, HumanPerformance } from "@automovie/motions";
-import { FamilyCaseKit } from "@automovie/motions/executable/internal";
-import { swim } from "@automovie/motions/internal";
+import { AutoMovieMotionHumanChain, AutoMovieMotionHumanPerformance } from "@automovie/motions";
+import {
+  FamilyCaseKit
+} from "../../../../../packages/motions/src/executable/cases/FamilyCaseKit";
+import {
+  swim
+} from "../../../../../packages/motions/src/sport/internal/swim";
 import { TestValidator } from "@nestia/e2e";
 
 const ACTOR = "a";
@@ -24,7 +28,7 @@ export function test_motions_sport_swim_modes(): void {
     ["breaststroke", 1.35],
     ["float", 2],
   ] as const) {
-    const take: HumanPerformance = film(body, [stroke]);
+    const take: AutoMovieMotionHumanPerformance = film(body, [stroke]);
     TestValidator.predicate(
       `${stroke} keeps its single cycle clock`,
       () => Math.abs(take.duration - seconds) < 1e-9,
@@ -39,7 +43,7 @@ export function test_motions_sport_swim_modes(): void {
     ["frontCrawl", "backstroke"],
     ["backstroke", "frontCrawl"],
   ] as const) {
-    const take: HumanPerformance = film(body, strokes);
+    const take: AutoMovieMotionHumanPerformance = film(body, strokes);
     const segments = take.segments(ACTOR);
     for (let i: number = 1; i < strokes.length; ++i) {
       const before: Stroke = strokes[i - 1]!;
@@ -55,7 +59,7 @@ export function test_motions_sport_swim_modes(): void {
           return (
             chest.y - hips.y > 0.3 &&
             Math.abs(mouth(take, body, middle) - (WATER + 0.05)) < 0.002 &&
-            Vector3.distance(hips, later.get("hips")!.worldPosition) < 0.002
+            AutoMovieEngineVector3.distance(hips, later.get("hips")!.worldPosition) < 0.002
           );
         });
       if (after === "frontCrawl") breath(take, body, segment);
@@ -83,8 +87,8 @@ export function test_motions_sport_swim_modes(): void {
     }
   }
 
-  const repeat: HumanPerformance = film(body, ["frontCrawl", "frontCrawl"]);
-  const longer: HumanPerformance = film(body, ["frontCrawl"], 2);
+  const repeat: AutoMovieMotionHumanPerformance = film(body, ["frontCrawl", "frontCrawl"]);
+  const longer: AutoMovieMotionHumanPerformance = film(body, ["frontCrawl"], 2);
   const next = repeat.segments(ACTOR)[1]!;
   continuous(repeat, next.start, "consecutive crawl cycles");
   breath(repeat, body, next);
@@ -94,7 +98,7 @@ export function test_motions_sport_swim_modes(): void {
     TestValidator.predicate("two crawls match one two-cycle take", () =>
       (["hips", "chest", "leftHand", "rightFoot"] as const).every(
         (bone) =>
-          Vector3.distance(
+          AutoMovieEngineVector3.distance(
             a.get(bone)!.worldPosition,
             b.get(bone)!.worldPosition,
           ) < 0.002,
@@ -107,10 +111,10 @@ function film(
   body: IAutoMovieMotionHumanBody,
   strokes: readonly Stroke[],
   count: number = 1,
-): HumanPerformance {
-  let chain = HumanChain.subject(ACTOR);
+): AutoMovieMotionHumanPerformance {
+  let chain = AutoMovieMotionHumanChain.subject(ACTOR);
   for (const kind of strokes) chain = chain.swim({ kind, water: WATER, count });
-  return new HumanPerformance({
+  return new AutoMovieMotionHumanPerformance({
     seed: "swim-mode-entry",
     performers: [
       {
@@ -125,14 +129,14 @@ function film(
   });
 }
 
-function continuous(take: HumanPerformance, cut: number, label: string): void {
+function continuous(take: AutoMovieMotionHumanPerformance, cut: number, label: string): void {
   const at = take.bones(ACTOR, cut);
   for (const t of [cut - SAMPLE, cut + SAMPLE]) {
     const edge = take.bones(ACTOR, t);
     TestValidator.predicate(`${label} has no cut jump`, () =>
       (["hips", "leftHand", "rightHand"] as const).every(
         (bone) =>
-          Vector3.distance(
+          AutoMovieEngineVector3.distance(
             edge.get(bone)!.worldPosition,
             at.get(bone)!.worldPosition,
           ) < (bone === "hips" ? 0.009 : 0.028),
@@ -142,7 +146,7 @@ function continuous(take: HumanPerformance, cut: number, label: string): void {
 }
 
 function mouth(
-  take: HumanPerformance,
+  take: AutoMovieMotionHumanPerformance,
   body: IAutoMovieMotionHumanBody,
   t: number,
 ): number {
@@ -150,12 +154,12 @@ function mouth(
   const frame = take.bones(ACTOR, t).get(local.bone)!;
   return (
     frame.worldPosition.y +
-    Quaternion.rotateVector(frame.worldRotation, local.point).y
+    AutoMovieEngineQuaternion.rotateVector(frame.worldRotation, local.point).y
   );
 }
 
 function breath(
-  take: HumanPerformance,
+  take: AutoMovieMotionHumanPerformance,
   body: IAutoMovieMotionHumanBody,
   segment: IAutoMovieMotionHumanSegment,
 ): void {

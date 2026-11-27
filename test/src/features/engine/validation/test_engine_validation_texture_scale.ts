@@ -1,4 +1,4 @@
-import { validateTextureScale } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import {
   IAutoMovieMaterial,
   IAutoMovieModel,
@@ -110,7 +110,7 @@ const run: (
   parts: IAutoMovieModelPart[],
   materials: IAutoMovieMaterial[],
 ): IAutoMovieValidation =>
-  validateTextureScale({ models: [model(parts, materials)] });
+  AutoMovieEngineValidation.validateTextureScale({ models: [model(parts, materials)] });
 
 /**
  * A surface and the material bound to it are measured against each other.
@@ -401,7 +401,7 @@ export function test_engine_validation_texture_scale(): void {
       run([meshPart("edge", "oak", rect(9, 0))], [bound]),
       run([meshPart("unbound", null, rect(9, 9))], [bound]),
       run([meshPart("missing", "walnut", rect(9, 9))], [bound]),
-      validateTextureScale({ models: [] }),
+      AutoMovieEngineValidation.validateTextureScale({ models: [] }),
     ].map(
       (validation: IAutoMovieValidation, index: number): [string, boolean] => [
         unmeasurable[index]!,

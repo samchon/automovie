@@ -153,13 +153,17 @@ export namespace AutoMovieHumanDigitSection {
   }
 }
 
-/** One half's curve. */
+/*
+ * One half's curve.
+ */
 interface IHalf {
-  /** Jet at its own angle in `[0, pi]`; `sign` 1 palmar, -1 dorsal (both axes turned). */
+  /*
+   * Jet at its own angle in `[0, pi]`; `sign` 1 palmar, -1 dorsal (both axes turned).
+   */
   jet: (theta: number, sign: number) => IAutoMovieHumanSeamKnot.Jet;
 }
 
-/**
+/*
  * A half of depth `h` and half width `w` whose side speed is `lambda` and whose apex curvature is
  * `rho` times the half ellipse's. Refused where the half would not stay
  * convex: `rho` outside (0, 1.5], or a side speed so far from the depth that
@@ -205,7 +209,9 @@ function half(
   };
 }
 
-/** `s'(theta)`. */
+/*
+ * `s'(theta)`.
+ */
 function derivative(theta: number, a: number, c: number): number {
   const s: number = Math.sin(theta);
   const k: number = Math.cos(theta);

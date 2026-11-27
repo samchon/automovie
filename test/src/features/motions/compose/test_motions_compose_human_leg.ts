@@ -9,14 +9,26 @@ import type {
 } from "@automovie/interface";
 import { AutoMovieMotionHumanStance } from "@automovie/motions";
 import {
-  AutoMovieMotionClock,
-  AutoMovieMotionHumanLeg,
-  AutoMovieMotionHumanLegPhrase,
-  HumanFoot,
-  HumanFrame,
-  poseBones,
-  resolveHumanPosture,
-} from "@automovie/motions/internal";
+  motionClock
+} from "../../../../../packages/motions/src/compose/internal/motionClock";
+import {
+  AutoMovieMotionHumanLeg
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanLeg";
+import {
+  AutoMovieMotionHumanLegPhrase
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanLegPhrase";
+import {
+  HumanFoot
+} from "../../../../../packages/motions/src/posture/internal/HumanFoot";
+import {
+  HumanFrame
+} from "../../../../../packages/motions/src/posture/internal/HumanFrame";
+import {
+  poseBones
+} from "../../../../../packages/motions/src/posture/internal/poseBones";
+import {
+  resolveHumanPosture
+} from "../../../../../packages/motions/src/posture/internal/resolveHumanPosture";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -30,7 +42,7 @@ import { vclose } from "../../internal/vclose";
 const REACH: number = 0.005;
 
 /** A 2 s phrase clock: ready, stroke start, stroke, stroke end, relax. */
-const CLOCK: IAutoMovieMotionClock = AutoMovieMotionClock(2, [
+const CLOCK: IAutoMovieMotionClock = motionClock(2, [
   { name: "ready", seconds: 0.25 },
   { name: "strokeStart", seconds: 0.5 },
   { name: "stroke", seconds: 1 },

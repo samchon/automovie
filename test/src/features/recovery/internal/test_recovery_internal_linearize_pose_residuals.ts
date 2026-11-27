@@ -1,4 +1,4 @@
-import { linearizeRecoveryPoseResiduals } from "@automovie/recovery";
+import { AutoMovieRecoveryCameraMap } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -25,8 +25,8 @@ export function test_recovery_internal_linearize_pose_residuals(): void {
     derivatives: [F, e33, zero, zero, zero],
     tangent: [],
   };
-  const linear: ReturnType<typeof linearizeRecoveryPoseResiduals> =
-    linearizeRecoveryPoseResiduals(model, [[0, 0]], [[0, 1]]);
+  const linear: ReturnType<typeof AutoMovieRecoveryCameraMap.linearizePoseResiduals> =
+    AutoMovieRecoveryCameraMap.linearizePoseResiduals(model, [[0, 0]], [[0, 1]]);
   TestValidator.predicate(
     "the residual",
     nclose(linear.residuals[0]!, -1 / Math.SQRT2, 1e-12),
@@ -42,10 +42,10 @@ export function test_recovery_internal_linearize_pose_residuals(): void {
     [2, 3, 4].every((at: number): boolean => nclose(row[at]!, 0, 1e-12)),
   );
   TestValidator.error("unpaired points", (): unknown =>
-    linearizeRecoveryPoseResiduals(model, [[0, 0]], []),
+    AutoMovieRecoveryCameraMap.linearizePoseResiduals(model, [[0, 0]], []),
   );
   TestValidator.error("four derivatives", (): unknown =>
-    linearizeRecoveryPoseResiduals(
+    AutoMovieRecoveryCameraMap.linearizePoseResiduals(
       { ...model, derivatives: [F, e33, zero, zero] },
       [[0, 0]],
       [[0, 1]],

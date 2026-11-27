@@ -1,15 +1,15 @@
-import type { createLift } from "@automovie/archetypes/environments";
-import {
-  Quaternion,
-  Vector3,
-  bakedTransformFromClipsAt,
-} from "@automovie/engine";
+import type {
+  AutoMovieArchetypeEnvironment
+} from "../../../../packages/archetypes/src/environments/AutoMovieArchetypeEnvironment";
+import { AutoMovieEngineFilm, AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanSegment,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanFoot } from "@automovie/motions/internal";
+import {
+  HumanFoot
+} from "../../../../packages/motions/src/posture/internal/HumanFoot";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -35,7 +35,7 @@ import { environmentLiftFixture } from "./environmentLiftFixture";
  * second after the upper doors open).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the authored choreography, the movement consumers and the negative schedule cases.
- * @evidence contracts/development/testing.md#behavioral-verification Reads the public environment and transfer producer, native HumanPerformance plans and actual poses, and the engine's baked object motion frames.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads the public environment and transfer producer, native AutoMovieMotionHumanPerformance plans and actual poses, and the engine's baked object motion frames.
  * @evidence contracts/development/testing.md#independent-expectations Expected sill heights and midpoint travel come from explicit fixture dimensions. The choreography's ownership comes from its independently named stage props, and the expected resting contact is the upper sill plane.
  * @evidence contracts/development/testing.md#distinguishing-cases Closed dock versus absent cab, different floor spacing, separated landing and moving panels, and both entered and exited sole ownership distinguish geometry, state and moving support.
  * @evidence contracts/development/testing.md#execution-ownership One named synchronous test exercises reused product motion and clip seams. The issued production capture owns image verification.
@@ -47,7 +47,7 @@ export function test_location_lift(): void {
     environmentLiftActor(fixture);
   const cab: string = `${fixture.id}/cab`;
   const at = (node: string, time: number): IAutoMovieTransform =>
-    bakedTransformFromClipsAt(
+    AutoMovieEngineFilm.bakedTransformFromClipsAt(
       fixture.environment.runtime.objectMotions,
       node,
       time,
@@ -99,16 +99,18 @@ export function test_location_lift(): void {
   // The cab leaves the ground at the schedule's first closed key there,
   // arrives at its first upper key and opens at its first open one; the
   // rider steps out over the exit's 2 s crossing from that opening.
-  const schedule: readonly createLift.IKey[] = fixture.schedule;
+  const schedule: readonly AutoMovieArchetypeEnvironment.ILiftKey[] =
+    fixture.schedule;
   const leaves: number = schedule.find(
-    (key: createLift.IKey): boolean =>
+    (key: AutoMovieArchetypeEnvironment.ILiftKey): boolean =>
       key.stop === "ground" && key.doors === "closed" && key.seconds > 0,
   )!.seconds;
   const arrives: number = schedule.find(
-    (key: createLift.IKey): boolean => key.stop === "upper",
+    (key: AutoMovieArchetypeEnvironment.ILiftKey): boolean =>
+      key.stop === "upper",
   )!.seconds;
   const opens: number = schedule.find(
-    (key: createLift.IKey): boolean =>
+    (key: AutoMovieArchetypeEnvironment.ILiftKey): boolean =>
       key.stop === "upper" && key.doors === "open",
   )!.seconds;
   const rideTime: number = leaves + 0.7 * (arrives - leaves);
@@ -151,9 +153,9 @@ export function test_location_lift(): void {
   TestValidator.predicate(
     "the call anchor stays on its fixed plate while the cab moves",
     vclose(
-      Vector3.add(
+      AutoMovieEngineVector3.add(
         plate.position,
-        Quaternion.rotateVector(plate.rotation, button.frame.translation),
+        AutoMovieEngineQuaternion.rotateVector(plate.rotation, button.frame.translation),
       ),
       fixture.environment.anchors["lift/ground/call"]!.translation,
     ),
@@ -164,7 +166,7 @@ export function test_location_lift(): void {
     "another authored rise changes the sill, with the travelling cab at unit scale",
     nclose(taller.environment.anchors["lift/upper"]!.translation.y, 4.1) &&
       vclose(
-        bakedTransformFromClipsAt(
+        AutoMovieEngineFilm.bakedTransformFromClipsAt(
           taller.environment.runtime.objectMotions,
           cab,
           halfway,

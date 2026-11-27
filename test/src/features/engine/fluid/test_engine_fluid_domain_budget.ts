@@ -1,4 +1,4 @@
-import { fluidDomainBudget } from "@automovie/engine";
+import { AutoMovieEngineFluid } from "@automovie/engine";
 import type { IAutoMovieFluidBudget } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -15,7 +15,7 @@ import { fluidDomain } from "../../internal/fluidFixtures";
  *    steps, no spray.
  */
 export function test_engine_fluid_domain_budget(): void {
-  const budget: IAutoMovieFluidBudget = fluidDomainBudget(fluidDomain());
+  const budget: IAutoMovieFluidBudget = AutoMovieEngineFluid.fluidDomainBudget(fluidDomain());
   TestValidator.equals(
     "the 2 x 1 grid's counts",
     [

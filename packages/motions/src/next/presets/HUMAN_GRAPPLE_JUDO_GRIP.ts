@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanGrapple } from "@automovie/interface";
 
-/**
+/*
  * The judo grip preset: judo's grip (kumikata) for a throw, the right hand on
  * the partner's left collar and the left on the right sleeve, held two seconds
  * (provisional). Spread into `clinch`'s parameters beside the partner; each

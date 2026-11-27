@@ -1,10 +1,4 @@
-import {
-  serviceNetworkSchematic,
-  serviceSystemLoad,
-  serviceSystemReach,
-  validateServiceNetwork,
-  validateWetZones,
-} from "@automovie/engine";
+import { AutoMovieEngineService } from "@automovie/engine";
 import {
   AutoMovieServiceFlow,
   IAutoMovieBuiltEnvironment,
@@ -257,7 +251,7 @@ export function test_service_circulation_loop(): void {
         (): boolean =>
           validationHasNoWarnings(
             "circulation graph",
-            validateServiceNetwork({ network: loop, environment }),
+            AutoMovieEngineService.validateServiceNetwork({ network: loop, environment }),
           ),
       ],
       [
@@ -265,7 +259,7 @@ export function test_service_circulation_loop(): void {
         (): boolean =>
           validationHasNoWarnings(
             "circulation zones",
-            validateWetZones({ network: loop, environment }),
+            AutoMovieEngineService.validateWetZones({ network: loop, environment }),
           ),
       ],
     ]),
@@ -278,13 +272,13 @@ export function test_service_circulation_loop(): void {
       [
         "undirected",
         (): boolean =>
-          serviceSystemReach({ network: loop, system: "loop" }).join() ===
+          AutoMovieEngineService.serviceSystemReach({ network: loop, system: "loop" }).join() ===
           "heater,riser-tee,loop-tap",
       ],
       [
         "fromRoot",
         (): boolean =>
-          serviceSystemReach({
+          AutoMovieEngineService.serviceSystemReach({
             network: flowing("from-root"),
             system: "loop",
           }).join() === "heater,riser-tee,loop-tap",
@@ -292,7 +286,7 @@ export function test_service_circulation_loop(): void {
       [
         "toRoot",
         (): boolean =>
-          serviceSystemReach({
+          AutoMovieEngineService.serviceSystemReach({
             network: flowing("to-root"),
             system: "loop",
           }).join() === "heater,riser-tee,loop-tap",
@@ -302,7 +296,7 @@ export function test_service_circulation_loop(): void {
         (): boolean =>
           (["from-root", "to-root", "undirected"] as const).every(
             (flow: AutoMovieServiceFlow): boolean =>
-              validateServiceNetwork({ network: flowing(flow), environment })
+              AutoMovieEngineService.validateServiceNetwork({ network: flowing(flow), environment })
                 .success,
           ),
       ],
@@ -315,7 +309,7 @@ export function test_service_circulation_loop(): void {
     },
   );
 
-  const consumingRing: IAutoMovieValidation = validateServiceNetwork({
+  const consumingRing: IAutoMovieValidation = AutoMovieEngineService.validateServiceNetwork({
     network: withPort(
       loop,
       "riser-ring",
@@ -346,14 +340,14 @@ export function test_service_circulation_loop(): void {
       [
         "enteringAccepted",
         (): boolean =>
-          validateServiceNetwork({ network: ringConsumer, environment })
+          AutoMovieEngineService.validateServiceNetwork({ network: ringConsumer, environment })
             .success,
       ],
       [
         "countedAtNeitherEnd",
         (): boolean =>
           nclose(
-            serviceSystemLoad({
+            AutoMovieEngineService.serviceSystemLoad({
               network: ringConsumer,
               system: ringConsumer.systems[0]!,
             }),
@@ -369,7 +363,7 @@ export function test_service_circulation_loop(): void {
     },
   );
 
-  const starved: IAutoMovieValidation = validateServiceNetwork({
+  const starved: IAutoMovieValidation = AutoMovieEngineService.validateServiceNetwork({
     network: circulation({
       systems: circulation().systems.map(
         (entry: IAutoMovieServiceSystem): IAutoMovieServiceSystem => ({
@@ -387,7 +381,7 @@ export function test_service_circulation_loop(): void {
         "load",
         (): boolean =>
           nclose(
-            serviceSystemLoad({ network: loop, system: loop.systems[0]! }),
+            AutoMovieEngineService.serviceSystemLoad({ network: loop, system: loop.systems[0]! }),
             0.0007,
             1e-15,
           ),
@@ -411,8 +405,8 @@ export function test_service_circulation_loop(): void {
     { load: true, refused: true, overshoot: true, alone: true },
   );
 
-  const schematic: ReturnType<typeof serviceNetworkSchematic> =
-    serviceNetworkSchematic({ network: loop, system: "loop" });
+  const schematic: ReturnType<typeof AutoMovieEngineService.serviceNetworkSchematic> =
+    AutoMovieEngineService.serviceNetworkSchematic({ network: loop, system: "loop" });
   TestValidator.equals(
     "the ring draws as a ring, with its own hand-computed totals",
     namedFacts([
@@ -458,7 +452,7 @@ export function test_service_circulation_loop(): void {
       (entry: IAutoMovieServiceSegment): boolean => entry.id !== "return-leg",
     ),
   });
-  const broken: IAutoMovieValidation = validateServiceNetwork({
+  const broken: IAutoMovieValidation = AutoMovieEngineService.validateServiceNetwork({
     network: opened,
     environment,
   });
@@ -477,7 +471,7 @@ export function test_service_circulation_loop(): void {
       [
         "stillReached",
         (): boolean =>
-          serviceSystemReach({ network: opened, system: "loop" }).join() ===
+          AutoMovieEngineService.serviceSystemReach({ network: opened, system: "loop" }).join() ===
           "heater,riser-tee,loop-tap",
       ],
     ]),
@@ -491,7 +485,7 @@ export function test_service_circulation_loop(): void {
     network.segments.filter(
       (run: IAutoMovieServiceSegment): boolean => run.system === id,
     ).length ===
-    serviceSystemReach({ network, system: id }).length - 1;
+    AutoMovieEngineService.serviceSystemReach({ network, system: id }).length - 1;
   TestValidator.equals(
     "the tree this suite is otherwise built on could not have stood in for a ring",
     namedFacts([

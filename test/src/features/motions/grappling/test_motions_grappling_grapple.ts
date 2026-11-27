@@ -1,4 +1,18 @@
-import { HumanRefusal, grappleArms, grappleFront, grappleStances, grappleSumo } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  grappleArms
+} from "../../../../../packages/motions/src/grappling/internal/grappleArms";
+import {
+  grappleFront
+} from "../../../../../packages/motions/src/grappling/internal/grappleFront";
+import {
+  grappleStances
+} from "../../../../../packages/motions/src/grappling/internal/grappleStances";
+import {
+  grappleSumo
+} from "../../../../../packages/motions/src/grappling/internal/grappleSumo";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -14,8 +28,8 @@ const MEASURE: Parameters<typeof grappleFront.chest>[0]["measure"] &
 };
 
 /** A duration refusal of the arms' plan asking a least duration. */
-const short = (minimum: number): HumanRefusal =>
-  new HumanRefusal({
+const short = (minimum: number): AutoMovieMotionHumanRefusal =>
+  new AutoMovieMotionHumanRefusal({
     kind: "parameter",
     axis: "duration",
     value: 4,

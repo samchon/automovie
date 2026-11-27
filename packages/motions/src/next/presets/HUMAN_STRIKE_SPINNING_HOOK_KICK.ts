@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanStrike } from "@automovie/interface";
 
-/**
+/*
  * The spinningHookKick preset: a spinning hook kick with the rear leg. Spread
  * into `footStrike`'s parameters beside the rest that the composition gives;
  * each value means what the law's member of the same name does. The

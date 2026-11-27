@@ -1,10 +1,10 @@
-import { tessellateAutoMovieContourLoft64 } from "@automovie/engine";
+import { AutoMovieEngineCurve } from "@automovie/engine";
 import type { IAutoMovieContourLoft64 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { contourStripOracle as O } from "../internal/contourStripOracle.ts";
-import { nclose } from "../internal/nclose.ts";
-import { throwsError } from "../internal/throwsError.ts";
+import { contourStripOracle as O } from "./contourStripOracle";
+import { nclose } from "./nclose";
+import { throwsError } from "./throwsError";
 import { assertContourLoftMalformedCurves } from "./assertContourLoftMalformedCurves";
 import { contourLoftBoundaryOracle as B } from "./contourLoftBoundaryOracle";
 
@@ -49,7 +49,7 @@ export function assertContourLoftBoundaryAdmission(): void {
   };
 
   const local: IAutoMovieContourLoft64.IResult =
-    tessellateAutoMovieContourLoft64({
+    AutoMovieEngineCurve.tessellateContourLoft64({
       sections: localSections,
       intervals: [localInterval],
       events: [],
@@ -77,7 +77,7 @@ export function assertContourLoftBoundaryAdmission(): void {
   );
 
   const hidden: IAutoMovieContourLoft64.IResult =
-    tessellateAutoMovieContourLoft64({
+    AutoMovieEngineCurve.tessellateContourLoft64({
       sections: [
         { coordinateMm: 0, loops: [] },
         { coordinateMm: 2, loops: [] },
@@ -186,7 +186,7 @@ export function assertContourLoftBoundaryAdmission(): void {
 
   for (const scenario of malformed) {
     const retained: IAutoMovieContourLoft64.IResult =
-      tessellateAutoMovieContourLoft64({
+      AutoMovieEngineCurve.tessellateContourLoft64({
         sections: admissionSections,
         intervals: scenario.intervals,
         events: [],
@@ -272,7 +272,7 @@ export function assertContourLoftBoundaryAdmission(): void {
   };
 
   const validBirth: IAutoMovieContourLoft64.IResult =
-    tessellateAutoMovieContourLoft64({
+    AutoMovieEngineCurve.tessellateContourLoft64({
       sections: birthSections,
       intervals: birthIntervals,
       events: [birth],
@@ -302,7 +302,7 @@ export function assertContourLoftBoundaryAdmission(): void {
 
   for (const scenario of invalidEvents) {
     const retained: IAutoMovieContourLoft64.IResult =
-      tessellateAutoMovieContourLoft64({
+      AutoMovieEngineCurve.tessellateContourLoft64({
         sections: birthSections,
         intervals: birthIntervals,
         events: scenario.events,
@@ -348,7 +348,7 @@ export function assertContourLoftBoundaryAdmission(): void {
       "an event without identifiable saved brackets still refuses",
       throwsError(
         (): IAutoMovieContourLoft64.IResult =>
-          tessellateAutoMovieContourLoft64({
+          AutoMovieEngineCurve.tessellateContourLoft64({
             sections: birthSections,
             intervals: birthIntervals,
             events: [badBracket],

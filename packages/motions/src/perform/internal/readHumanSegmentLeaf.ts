@@ -1,0 +1,291 @@
+import { AutoMovieEngineHingedArmSwivel } from "@automovie/engine";
+import type {
+  AutoMovieHumanLimb,
+  AutoMovieHumanoidBone,
+  AutoMovieMotionHumanChannel,
+  IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPlayback,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSegment,
+  IAutoMoviePose,
+  IAutoMovieSwivelSeed,
+} from "@automovie/interface";
+
+import { courseLimbSwivels } from "../../compose/internal/courseLimbSwivels";
+import { HumanLimbFit } from "../../posture/internal/HumanLimbFit";
+import type { resolveHumanPostureSource } from "../../posture/internal/resolveHumanPostureSource";
+import { HumanPreparedPlayback } from "./HumanPreparedPlayback";
+import { HumanSegmentCarry } from "./HumanSegmentCarry";
+import { HumanSegmentLayer } from "./HumanSegmentLayer";
+import { HumanSegmentOverlay } from "./HumanSegmentOverlay";
+import type { HumanSegmentPose } from "./HumanSegmentPose";
+import { demandedHumanChannels } from "./demandedHumanChannels";
+import type { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
+import { readHumanSegmentAnchors } from "./readHumanSegmentAnchors";
+import { readHumanSegmentLegs } from "./readHumanSegmentLegs";
+import { unfollowedHumanChannels } from "./unfollowedHumanChannels";
+import { unplantedHumanObservation } from "./unplantedHumanObservation";
+import { ReadHumanSegmentLeafData } from "./ReadHumanSegmentLeafData";
+
+/*
+ * Read the action before its entering offset, including current holds and
+ * overlays. A read with no fits of its own places the arms at the plan's swivel
+ * course (`readHumanSegmentLeaf.swivels`) and every other arm fit at the
+ * action's anchor course (`readHumanSegmentAnchors`).
+ */
+export function readHumanSegmentLeaf(
+  person: IAutoMovieMotionHumanSegment.IPerson,
+  segment: IAutoMovieMotionHumanSegment,
+  t: number,
+  fits: HumanSegmentPose.INear | undefined,
+  observed: ReadonlySet<AutoMovieHumanoidBone> | undefined,
+  prepared: prepareHumanSegmentPose.IPrepared,
+): readHumanSegmentLeaf.IReading {
+  const reader: typeof segment.plan.posture = segment.plan.posture;
+  const localSeconds: number = Math.min(
+    segment.plan.duration,
+    Math.max(0, t - segment.start),
+  );
+  const bare: boolean =
+    person.layers.length === 0 &&
+    person.overlays.length === 0 &&
+    person.holds.length === 0 &&
+    person.stops.size === 0;
+  // A partial observation only needs the channels its bones depend on,
+  // regardless of whether playback uses a native phase or the posture reader.
+  const channels: readonly AutoMovieMotionHumanChannel[] | undefined =
+    observed === undefined ? undefined : demandedHumanChannels(observed);
+  const sample: IAutoMovieMotionHumanPlayback.ISample | undefined =
+    HumanPreparedPlayback.read(
+      segment.plan,
+      person.performer.body,
+      reader,
+      bare,
+      fits === undefined && observed === undefined,
+      localSeconds,
+      channels,
+      prepared.resolution,
+      prepared.clamp,
+    );
+  const raw: IAutoMovieMotionHumanPosture =
+    sample?.posture ??
+    Reflect.apply(reader, segment.plan, [
+      localSeconds,
+      channels,
+      prepared.resolution,
+      prepared.clamp,
+    ]);
+  let direct: resolveHumanPostureSource.IAssembled | undefined;
+  let written: IAutoMovieMotionHumanPosture = HumanSegmentLayer.apply(
+    person,
+    raw,
+    t,
+    prepared.resolution,
+    prepared.clamp,
+    fits === undefined &&
+      person.layers.length === 1 &&
+      person.overlays.length === 0 &&
+      person.holds.length === 0 &&
+      person.stops.size === 0
+      ? (assembly: resolveHumanPostureSource.IAssembled): void => {
+          direct = assembly;
+        }
+      : undefined,
+  );
+
+  const borne: IAutoMovieMotionHumanSegment.IHeld[] = HumanSegmentCarry.borne(
+    person,
+    segment,
+    t,
+  );
+  if (borne.length !== 0) {
+    const joints: IAutoMovieMotionHumanPosture["joints"] = {
+      ...written.joints,
+    };
+    for (const h of borne) Object.assign(joints, h.fingers);
+    written = { ...written, joints };
+  }
+  // A read with no fits of its own places each limb at its plan's swivel
+  // course (`readHumanSegmentLeaf.swivels`), prepared with the performance:
+  // the displayed goals stay, the branch and swivel come from the course, so
+  // no limb is swept afresh. An observation that shows no arm reads no arm
+  // course, and a read before the performance is prepared fits cold.
+  const armed: boolean =
+    channels === undefined ||
+    channels.includes("leftArm") ||
+    channels.includes("rightArm");
+  const course:
+    | ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed>
+    | undefined =
+    fits === undefined && armed
+      ? segment.prepared?.swivels(localSeconds)
+      : undefined;
+
+  // The arm fits the course does not place (an overlay leaf's, a carry's, a
+  // contact's re-aim, an arm the course holds no seed for) are placed at the
+  // anchor course (`anchors`): the swivel interpolated between the anchor
+  // seconds around this one, so no read sweeps or refines and every read of
+  // a second shows the same pose, whatever was read before it.
+  const anchoring: boolean =
+    fits === undefined &&
+    armed &&
+    (borne.length !== 0 ||
+      (person.overlays.length !== 0 &&
+        HumanSegmentOverlay.running(person, t).length !== 0) ||
+      ReadHumanSegmentLeafData.ARMS.some(
+        (limb: AutoMovieHumanLimb): boolean =>
+          written.limbs[limb] !== undefined && course?.get(limb) === undefined,
+      ));
+  const anchors: HumanSegmentPose.IFits | undefined = anchoring
+    ? readHumanSegmentAnchors(segment, t)
+    : undefined;
+
+  // Every free leg fitted at this second (outside a legs-still window, where
+  // the legs keep one fit) continues the plan's leg chain at the frame at or
+  // before it (`readHumanSegmentLegs`): the closed-form root on the branch
+  // the frame before chose, or the legal one nearest it on the other branch
+  // where that branch has none, so a knee keeps its side from frame to
+  // frame; a planted leg keeps its own fit, which holds its foot.
+  const legs: ReadonlyMap<string, IAutoMovieSwivelSeed> =
+    fits === undefined && !still(segment.plan, localSeconds)
+      ? readHumanSegmentLegs(person, segment, t, localSeconds, written.limbs)
+      : new Map();
+  const placing: HumanSegmentPose.INear | undefined =
+    (course === undefined || course.size === 0) &&
+    anchors === undefined &&
+    legs.size === 0
+      ? fits
+      : {
+          seeds: new Map<string, IAutoMovieSwivelSeed | null>([
+            ...legs,
+            ...(anchors ?? []),
+            ...[...(course ?? [])]
+              // Legs kept over a legs-still window keep their own fit there.
+              .filter(
+                ([limb]: [AutoMovieHumanLimb, IAutoMovieSwivelSeed]): boolean =>
+                  !limb.endsWith("Leg") || !still(segment.plan, localSeconds),
+              )
+              .map(
+                ([limb, seed]: [AutoMovieHumanLimb, IAutoMovieSwivelSeed]): [
+                  string,
+                  IAutoMovieSwivelSeed,
+                ] => [`leaf::${limb}`, seed],
+              ),
+          ]),
+          tolerance: AutoMovieEngineHingedArmSwivel.RESOLUTION,
+          prescribed: true,
+        };
+  const overlaid: HumanSegmentOverlay.IOverlaid = HumanSegmentOverlay.overlaid(
+    person,
+    written,
+    t,
+    borne,
+    placing,
+    prepared.resolution,
+    unplantedHumanObservation(written.limbs, observed),
+    prepared,
+    segment,
+    direct,
+    bare && fits === undefined && observed === undefined ? sample : undefined,
+  );
+  return {
+    posture: {
+      ...written,
+      limbs: { ...written.limbs, ...overlaid.contacts },
+    },
+    carried: borne,
+    pose: overlaid.pose,
+    seeds: overlaid.seeds,
+  };
+}
+
+/*
+ * Records produced by one pre-transition leaf evaluation.
+ */
+export namespace readHumanSegmentLeaf {
+  /*
+   * A plan's swivel course of every arm goal it writes
+   * (`courseLimbSwivels.swivels`): knots on the frame grid and at the plan's
+   * events, each continuing the one before, solved once when the performance is
+   * prepared (`IAutoMovieMotionHumanSegment.IPrepared.swivels`). A displayed
+   * second places each arm at the course's swivel and branch against the goal
+   * it shows, so a near-tie no longer hops between frames and no read sweeps.
+   * The course's first knot is placed at each arm as the entry displays it
+   * (`HumanLimbFit.seed` on the entry's pose), so an arm whose goal carries on
+   * across a cut keeps the branch and swivel it was shown with rather than a
+   * cold fit's, which may take the other elbow side for the same goal.
+   * Parameter plan: The segment's plan.
+   * Parameter body: The performer's body.
+   * Parameter entry: The displayed pose the segment is entered with.
+   * Returns: The course.
+   */
+  export function swivels(
+    plan: IAutoMovieMotionHumanActionPlan,
+    body: IAutoMovieMotionHumanBody,
+    entry: IAutoMoviePose,
+  ): courseLimbSwivels.Swivels {
+    const entered: Map<AutoMovieHumanLimb, IAutoMovieSwivelSeed> = new Map();
+    for (const limb of ReadHumanSegmentLeafData.ARMS) {
+      const seed: IAutoMovieSwivelSeed | null = HumanLimbFit.seed(
+        body,
+        entry,
+        limb,
+      );
+      if (seed !== null) entered.set(limb, seed);
+    }
+    return courseLimbSwivels.swivels({
+      entry: entered,
+      body,
+      // Without an arm that follows a partner (`unfollowedHumanChannels`).
+      posture: (seconds: number): IAutoMovieMotionHumanPosture =>
+        plan.posture(seconds, unfollowedHumanChannels(plan, seconds)),
+      // The legs keep their own fits: a planted foot is held by its plant
+      // and transition corrections, which a course of the leaf alone would
+      // not see.
+      limbs: ReadHumanSegmentLeafData.ARMS,
+      span: { start: 0, end: plan.duration },
+      instants: plan.events.map(
+        (event: IAutoMovieMotionEvent): number => event.share * plan.duration,
+      ),
+    });
+  }
+
+  /*
+   * The composed posture and the fits produced on this read.
+   */
+  export interface IReading {
+    /*
+     * Authored posture with the overlay contacts.
+     */
+    posture: IAutoMovieMotionHumanPosture;
+    /*
+     * Objects still borne by this action.
+     */
+    carried: IAutoMovieMotionHumanSegment.IHeld[];
+    /*
+     * The resolved displayed pose.
+     */
+    pose: IAutoMoviePose;
+    /*
+     * Continuation seeds for the fitted limbs.
+     */
+    seeds: HumanSegmentPose.IFits;
+  }
+}
+
+/*
+ * Whether a plan second lies inside the plan's legs-still window
+ * (`IAutoMovieMotionHumanActionPlan.legsStill`), where the legs keep one fit.
+ */
+function still(
+  plan: IAutoMovieMotionHumanActionPlan,
+  seconds: number,
+): boolean {
+  return (
+    plan.legsStill !== undefined &&
+    seconds >= plan.legsStill[0] &&
+    seconds <= plan.legsStill[1]
+  );
+}

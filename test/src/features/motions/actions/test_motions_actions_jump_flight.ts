@@ -1,14 +1,15 @@
-import {
-  AutoMovieGravity,
-  Quaternion,
-  inertializeOffset,
-} from "@automovie/engine";
+import { AutoMovieEngineGravity, AutoMovieEngineQuaternion, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieHumanPostureRotation,
   IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
 } from "@automovie/interface";
-import { jumpAirborneTurning, jumpFlight } from "@automovie/motions/internal";
+import {
+  jumpAirborneTurning
+} from "../../../../../packages/motions/src/actions/internal/jumpAirborneTurning";
+import {
+  jumpFlight
+} from "../../../../../packages/motions/src/actions/internal/jumpFlight";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -52,7 +53,7 @@ const STILL: IAutoMovieMotionHumanPosture = {
  *    posture is unchanged.
  */
 export function test_motions_actions_jump_flight(): void {
-  const g: number = AutoMovieGravity.STANDARD;
+  const g: number = AutoMovieEngineGravity.STANDARD;
 
   // 1. The projectile.
   const flight: jumpFlight.IFlight = jumpFlight.solve(
@@ -111,7 +112,7 @@ export function test_motions_actions_jump_flight(): void {
     2,
     1.6,
   );
-  const quarter: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+  const quarter: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
     { x: 0, y: 1, z: 0 },
     90,
   );
@@ -140,7 +141,7 @@ export function test_motions_actions_jump_flight(): void {
   const asked: number[] = [];
   const turn: IAutoMovieHumanPostureRotation = {
     about: { x: 0, y: 1, z: 1 },
-    turn: Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 60),
+    turn: AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 60),
   };
   backward.declared.airborne!(
     (seconds: number): IAutoMovieHumanPostureRotation => {
@@ -150,7 +151,7 @@ export function test_motions_actions_jump_flight(): void {
   );
   const at = (t: number): IAutoMovieMotionHumanPosture =>
     backward.landed(STILL, t);
-  const decayed: number = inertializeOffset(60, 0, 0.4, 0.2).value;
+  const decayed: number = AutoMovieEngineMotionSampling.inertializeOffset(60, 0, 0.4, 0.2).value;
   const mid: IAutoMovieMotionHumanPosture = at(1.4);
   TestValidator.predicate(
     "the touchdown turn read once and carried away",

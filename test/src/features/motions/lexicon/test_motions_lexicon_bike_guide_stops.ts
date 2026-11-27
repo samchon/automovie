@@ -1,4 +1,6 @@
-import { HumanBikeGuidePath } from "@automovie/motions/internal";
+import {
+  HumanBikeGuidePath
+} from "../../../../../packages/motions/src/lexicon/internal/HumanBikeGuidePath";
 import { TestValidator } from "@nestia/e2e";
 
 /**

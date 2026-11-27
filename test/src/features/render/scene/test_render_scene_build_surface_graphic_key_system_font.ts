@@ -4,9 +4,11 @@ import type {
   IAutoMovieSurfaceGraphicLayer,
 } from "@automovie/interface";
 import {
-  buildAutoMovieSurfaceGraphicKey,
-  createAutoMovieSystemTextTexture,
-} from "@automovie/render/internal";
+  buildSurfaceGraphicKey
+} from "../../../../../packages/render/src/scene/surfaceGraphic/internal/buildSurfaceGraphicKey";
+import {
+  createSystemTextTexture
+} from "../../../../../packages/render/src/scene/surfaceGraphic/internal/createSystemTextTexture";
 import { TestValidator } from "@nestia/e2e";
 import type * as THREE from "three";
 
@@ -102,13 +104,13 @@ const text: (
 export function test_render_scene_build_surface_graphic_key_system_font(): void {
   withCanvas((): void => {
     const texture: THREE.CanvasTexture<OffscreenCanvas> =
-      createAutoMovieSystemTextTexture(2, 1, text(undefined));
+      createSystemTextTexture(2, 1, text(undefined));
     TestValidator.equals("canvas size", [texture.image.width, texture.image.height], [
       768, 384,
     ]);
     TestValidator.equals("first row on top", texture.flipY, false);
     TestValidator.error("zero-width box", (): void => {
-      createAutoMovieSystemTextTexture(2, 1, { ...text(undefined), width: 0 });
+      createSystemTextTexture(2, 1, { ...text(undefined), width: 0 });
     });
 
     const asked: string[] = [];
@@ -119,7 +121,7 @@ export function test_render_scene_build_surface_graphic_key_system_font(): void 
     };
     const build = (): { orders: number[]; owned: number } => {
       const owned: { dispose(): void }[] = [];
-      const group: THREE.Group = buildAutoMovieSurfaceGraphicKey({
+      const group: THREE.Group = buildSurfaceGraphicKey({
         graphic,
         width: 2,
         depth: 1,
@@ -151,7 +153,7 @@ export function test_render_scene_build_surface_graphic_key_system_font(): void 
     TestValidator.equals("no font asked", asked, []);
 
     TestValidator.error("named font is asked for", (): void => {
-      buildAutoMovieSurfaceGraphicKey({
+      buildSurfaceGraphicKey({
         graphic: { ...graphic, layers: [text("serif")] },
         width: 2,
         depth: 1,
@@ -172,6 +174,6 @@ export function test_render_scene_build_surface_graphic_key_system_font(): void 
   });
 
   TestValidator.error("host without a canvas", (): void => {
-    createAutoMovieSystemTextTexture(2, 1, text(undefined));
+    createSystemTextTexture(2, 1, text(undefined));
   });
 }

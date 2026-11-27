@@ -4,8 +4,8 @@ import type {
   IAutoMovieRecoverySavedCurveBinding,
 } from "@automovie/interface";
 
-import { bindRecoveryOrderedFits } from "../internal/bindRecoveryOrderedFits";
-import { observeRecoveryOrderedCuts } from "../internal/observeRecoveryOrderedCuts";
+import { bindRecoveryOrderedFits } from "./internal/bindRecoveryOrderedFits";
+import { observeRecoveryOrderedCuts } from "../geometry/internal/observeRecoveryOrderedCuts";
 
 /**
  * Acquisition owner for ordered source cuts and equality-gated saved-cubic

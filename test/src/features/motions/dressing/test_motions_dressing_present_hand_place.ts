@@ -1,5 +1,7 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { presentHandPlace } from "@automovie/motions/internal";
+import {
+  presentHandPlace
+} from "../../../../../packages/motions/src/dressing/internal/presentHandPlace";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../../internal/vclose";

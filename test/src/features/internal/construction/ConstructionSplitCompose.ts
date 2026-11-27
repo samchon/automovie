@@ -1,4 +1,5 @@
-import { realizeAutoMovieConstruction } from "@automovie/engine";
+
+import { AutoMovieEngineConstruction } from "@automovie/engine";
 import type {
   IAutoMovieConstructionNode,
   IAutoMovieConstructionRealization,
@@ -147,9 +148,9 @@ export namespace ConstructionSplitCompose {
       host: o.host ?? through(o.lean),
       hostFace: "trunk",
       hostEnd: "top",
-      seam: [-1, 1],
+      seam: { startPhaseRad: -1, endPhaseRad: 1 },
       ...(o.profile === undefined ? {} : { profile: o.profile }),
-      ...(o.two === true ? {} : { outer: [{ seam: [-2.4, 2.4] }] }),
+      ...(o.two === true ? {} : { outer: [{ seam: { startPhaseRad: -2.4, endPhaseRad: 2.4 } }] }),
       count: COLUMNS,
       rows: 4,
       children:
@@ -180,7 +181,7 @@ export namespace ConstructionSplitCompose {
     root: IAutoMovieConstructionNode,
     skin: boolean = false,
   ): IAutoMovieConstructionRealization.IRealization {
-    const result = realizeAutoMovieConstruction(
+    const result = AutoMovieEngineConstruction.realize(
       { name: "made", root },
       { chord: skin ? 1e-4 : 1e-2, skin },
     );

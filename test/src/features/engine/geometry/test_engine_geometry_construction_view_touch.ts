@@ -1,4 +1,5 @@
-import { realizeAutoMovieConstruction } from "@automovie/engine";
+
+import { AutoMovieEngineConstruction } from "@automovie/engine";
 import type {
   IAutoMovieConstructionRealization,
   IAutoMovieConstructionView,
@@ -60,7 +61,7 @@ export function test_engine_geometry_construction_view_touch(): void {
     for (const [part, half] of parts) {
       const label: string = `${part.name} at ${k}`;
       const real: IAutoMovieConstructionRealization.IWithoutSkin =
-        realizeAutoMovieConstruction(
+        AutoMovieEngineConstruction.realize(
           { name: "made", root: part },
           { chord: 1e-4 * k, skin: false },
         );

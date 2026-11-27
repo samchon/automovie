@@ -1,4 +1,4 @@
-import { validatePlantingInstallations } from "@automovie/engine";
+import { AutoMovieEnginePlanting } from "@automovie/engine";
 import {
   IAutoMovieFluidDomain,
   IAutoMoviePlantingCluster,
@@ -59,8 +59,8 @@ const check: Parameters<
   fluidDomains?: IAutoMovieFluidDomain[];
   semantic?: boolean;
   ceiling?: number;
-}): ReturnType<typeof validatePlantingInstallations> =>
-  validatePlantingInstallations({
+}): ReturnType<typeof AutoMovieEnginePlanting.validatePlantingInstallations> =>
+  AutoMovieEnginePlanting.validatePlantingInstallations({
     environment: roomEnvironment({
       semantic: props.semantic,
       ceiling: props.ceiling,

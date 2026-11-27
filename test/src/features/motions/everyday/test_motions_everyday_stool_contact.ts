@@ -1,12 +1,14 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
   IAutoMovieMotionHumanSeated,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanRefusal } from "@automovie/motions";
-import { seated } from "@automovie/motions/internal";
+import { AutoMovieMotionHumanRefusal } from "@automovie/motions";
+import {
+  seated
+} from "../../../../../packages/motions/src/everyday/internal/seated";
 import { TestValidator } from "@nestia/e2e";
 import { strict as assert } from "node:assert";
 
@@ -44,14 +46,14 @@ export async function test_motions_everyday_stool_contact(): Promise<void> {
   // The stored rig has both axes aligned and the left hip directly on hips.
   assert.equal(joint.parent, hips.bone);
   const hip: IAutoMovieVector3 = hips.rest.translation;
-  const offset: IAutoMovieVector3 = Vector3.add(
+  const offset: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     hip,
     rig.surfaces.sockets.seat.point,
   );
   const body: Parameters<typeof seated.point>[0] = {
     rest: new Map<AutoMovieHumanoidBone, IAutoMovieVector3>([
       ["hips", hip],
-      ["leftUpperLeg", Vector3.add(hip, joint.rest.translation)],
+      ["leftUpperLeg", AutoMovieEngineVector3.add(hip, joint.rest.translation)],
     ]),
     measure: rig.measure,
     surfaces: rig.surfaces,
@@ -97,7 +99,7 @@ export async function test_motions_everyday_stool_contact(): Promise<void> {
     (): void =>
       seated.check(rig, { at: { x: 0, y: below, z: 0 }, yaw: 0 }, floor),
     (error: unknown): boolean =>
-      error instanceof HumanRefusal &&
+      error instanceof AutoMovieMotionHumanRefusal &&
       error.kind === "reach" &&
       error.axis === "seat" &&
       typeof error.value === "number" &&

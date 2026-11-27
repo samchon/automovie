@@ -1,9 +1,5 @@
-import {
-  type AutoMovieArchetype,
-  createFood,
-  createTableware,
-} from "@automovie/archetypes";
-import { physicalShapePairDistance } from "@automovie/engine";
+import { type AutoMovieArchetype, AutoMovieArchetypeFood, AutoMovieArchetypeTableware } from "@automovie/archetypes";
+import { AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieRigidTransform,
@@ -30,7 +26,7 @@ function apart(
     for (const q of b.shapes())
       least = Math.min(
         least,
-        physicalShapePairDistance(pose(at), p, pose(bt), q),
+        AutoMovieEnginePhysics.physicalShapePairDistance(pose(at), p, pose(bt), q),
       );
   return least;
 }
@@ -100,23 +96,23 @@ export function test_archetype_props_stacking(): void {
           findings.push(`${name}: ${j} floats ${gap} m above ${i}`);
       }
   };
-  for (const kind of createTableware.KINDS)
+  for (const kind of AutoMovieArchetypeTableware.KINDS)
     stack(
       kind,
       [0, 1, 2, 3, 4].map(
-        (seed: number): AutoMovieArchetype => createTableware({ kind }, seed),
+        (seed: number): AutoMovieArchetype => AutoMovieArchetypeTableware.create({ kind }, seed),
       ),
     );
 
   // 3. Food on a platter.
-  for (const kind of createFood.KINDS)
+  for (const kind of AutoMovieArchetypeFood.KINDS)
     stack(`${kind} on a platter`, [
-      createTableware({ kind: "platter" }, 5),
-      createFood({ kind }, 5),
+      AutoMovieArchetypeTableware.create({ kind: "platter" }, 5),
+      AutoMovieArchetypeFood.create({ kind }, 5),
     ]);
 
   // 4. A plate a millimetre low enters the plate beneath.
-  const lower: ReturnType<typeof createTableware> = createTableware(
+  const lower: ReturnType<typeof AutoMovieArchetypeTableware.create> = AutoMovieArchetypeTableware.create(
     { kind: "plate" },
     6,
   );
@@ -124,7 +120,7 @@ export function test_archetype_props_stacking(): void {
   sunk.translation.y -= 0.001;
   if (
     !(
-      apart(lower, origin, createTableware({ kind: "plate" }, 7), sunk) <
+      apart(lower, origin, AutoMovieArchetypeTableware.create({ kind: "plate" }, 7), sunk) <
       -OVERLAP
     )
   )

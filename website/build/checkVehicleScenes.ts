@@ -1,24 +1,8 @@
-import {
-  Quaternion,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidSocket,
-  IAutoMovieHumanoidSurfaces,
-  IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanFoot,
-  IAutoMovieMotionHumanPerformance,
-  IAutoMovieMotionHumanPerformer,
-  IAutoMovieMotionHumanRide,
-  IAutoMovieMotionHumanSegment,
-  IAutoMovieResolvedBone,
-  IAutoMovieRigidTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, AutoMovieHumanoidSocket, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanPerformer, IAutoMovieMotionHumanRide, IAutoMovieMotionHumanSegment, IAutoMovieResolvedBone, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 import { AutoMovieMotionHumanSeat } from "@automovie/motions";
-import { HumanColliders, HumanFoot } from "@automovie/motions/internal";
+import { HumanColliders } from "../../packages/motions/src/posture/internal/HumanColliders";
+import { HumanFoot } from "../../packages/motions/src/posture/internal/HumanFoot";
 import { strict as assert } from "node:assert";
 
 import { PlaygroundPerformance } from "../src/playground/package/PlaygroundPerformance";
@@ -140,13 +124,13 @@ function checkRide(
     );
     const socket: IAutoMovieHumanoidSurfaces.IFrame =
       actor.body.surfaces.sockets.seat;
-    const seatPoint: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.point(
+    const seatPoint: IAutoMovieVector3 = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePoint(
       socket,
       bones.get(socket.bone)!,
     );
-    const onSeat: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.inverse(support.pose.rotation),
-      Vector3.subtract(seatPoint, support.pose.translation),
+    const onSeat: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.inverse(support.pose.rotation),
+      AutoMovieEngineVector3.subtract(seatPoint, support.pose.translation),
     );
     const lift: number = AutoMovieMotionHumanSeat.seated.point(actor.body, {
       at: { x: 0, y: 0, z: 0 },
@@ -180,7 +164,7 @@ function checkRide(
           at,
         ).pose.translation;
         assert(
-          Vector3.distance(ball, anchor) <= HumanFoot.BEARING,
+          AutoMovieEngineVector3.distance(ball, anchor) <= HumanFoot.BEARING,
           label + " " + rest,
         );
       }
@@ -229,7 +213,7 @@ function checkPush(
     for (const [id, key] of PUSH_HANDLES) {
       const hand: IAutoMovieHumanoidSurfaces.IFrame =
         actor.body.surfaces.sockets[key];
-      const wrist: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.point(
+      const wrist: IAutoMovieVector3 = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePoint(
         hand,
         bones.get(hand.bone)!,
       );
@@ -240,9 +224,9 @@ function checkPush(
         id,
         at,
       );
-      const local: IAutoMovieVector3 = Quaternion.rotateVector(
-        Quaternion.inverse(handle.pose.rotation),
-        Vector3.subtract(wrist, handle.pose.translation),
+      const local: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.inverse(handle.pose.rotation),
+        AutoMovieEngineVector3.subtract(wrist, handle.pose.translation),
       );
       assert(Math.hypot(local.y, local.z) <= GRIP, id + " rod axis");
       assert(
@@ -264,7 +248,7 @@ function checkTravel(
     subject,
     performance.duration,
   );
-  assert(Vector3.distance(start.position, stopped.position) > TRAVEL, label);
+  assert(AutoMovieEngineVector3.distance(start.position, stopped.position) > TRAVEL, label);
   assert.deepEqual(
     performance.prop(subject, performance.duration - STOPPED),
     stopped,

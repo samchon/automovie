@@ -1,4 +1,6 @@
-import { realizeShotCameraOutcome } from "@automovie/engine/internal";
+import {
+  realizeShotCameraOutcome
+} from "../../../../../packages/engine/src/film/internal/realizeShotCameraOutcome";
 import type {
   IAutoMovieCamera,
   IAutoMovieClip,

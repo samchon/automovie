@@ -1,5 +1,5 @@
 /**
- * The deterministic conversion `decodeProductionAudioAsset` applied to turn a
+ * The deterministic conversion `AutoMovieIngestAudio.decodeAsset` applied to turn a
  * WAVE source into mono mixer input, recorded so a render plan can check it
  * against the source format it claims.
  */

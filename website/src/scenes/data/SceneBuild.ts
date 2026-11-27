@@ -1,4 +1,4 @@
-import { createHolster } from "@automovie/archetypes";
+import { AutoMovieArchetypeHolster } from "@automovie/archetypes";
 import type {
   IAutoMovieMotionHumanGraspUse,
   IAutoMovieMotionTarget,
@@ -242,9 +242,9 @@ export namespace SceneBuild {
     side: "left" | "right",
     cant: number,
   ): IPlaygroundComposition.IObject {
-    const length: number = createHolster({
+    const length: number = AutoMovieArchetypeHolster.create({
       kind,
-      blade: blade as createHolster.Blade,
+      blade: blade as AutoMovieArchetypeHolster.Blade,
     }).affordance("mouth").frame.translation.y;
     const half: number = (cant * Math.PI) / 360;
     return {

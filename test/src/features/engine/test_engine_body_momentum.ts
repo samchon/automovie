@@ -1,20 +1,5 @@
-import {
-  Quaternion,
-  Vector3,
-  resolveAutoMovieCenterOfMass,
-  resolveAutoMovieMomentum,
-  resolvePose,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieBodyMomentum,
-  IAutoMovieJointPose,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieQuaternion,
-  IAutoMovieResolveCenterOfMass,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics, AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, IAutoMovieBodyMomentum, IAutoMovieJointPose, IAutoMovieMotionHumanBody, IAutoMovieQuaternion, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -22,7 +7,7 @@ import { throwsError } from "../internal/throwsError";
 
 /**
  * The whole-body inertia tensor and momenta of a posed body (#3422), read
- * from the one mass model of `resolveAutoMovieCenterOfMass`.
+ * from the one mass model of `AutoMovieEngineKinematics.resolveAutoMovieCenterOfMass`.
  *
  * Scenarios:
  * 1. Rigid rotation: the average man and the small woman, in their rest pose
@@ -74,17 +59,17 @@ export function test_engine_body_momentum(): void {
           bone,
           {
             ...r,
-            worldPosition: Vector3.add(
-              Vector3.add(
+            worldPosition: AutoMovieEngineVector3.add(
+              AutoMovieEngineVector3.add(
                 about,
-                Quaternion.rotateVector(
+                AutoMovieEngineQuaternion.rotateVector(
                   q,
-                  Vector3.subtract(r.worldPosition, about),
+                  AutoMovieEngineVector3.subtract(r.worldPosition, about),
                 ),
               ),
               shift,
             ),
-            worldRotation: Quaternion.multiply(q, r.worldRotation),
+            worldRotation: AutoMovieEngineQuaternion.multiply(q, r.worldRotation),
           },
         ],
       ),
@@ -94,7 +79,7 @@ export function test_engine_body_momentum(): void {
     joints: IAutoMovieJointPose[],
   ): Bones =>
     new Map(
-      resolvePose(
+      AutoMovieEngineKinematics.resolvePose(
         { skeleton: body.skeleton.id, root: null, joints },
         body.skeleton,
       ).map(
@@ -110,12 +95,12 @@ export function test_engine_body_momentum(): void {
   const largest = (t: readonly (readonly number[])[]): number =>
     Math.max(...t.flat().map((v: number): number => Math.abs(v)));
   const ZERO: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-  const STILL: IAutoMovieQuaternion = Quaternion.identity();
+  const STILL: IAutoMovieQuaternion = AutoMovieEngineQuaternion.identity();
 
   for (const name of ["m-average", "f-small"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const model: IAutoMovieResolveCenterOfMass.IModel =
-      resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
+      AutoMovieEngineKinematics.resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
     const poses: Record<"rest" | "crouch", Bones> = {
       rest: posed(body, []),
       crouch: posed(body, [
@@ -128,11 +113,11 @@ export function test_engine_body_momentum(): void {
     };
     for (const [pose, bones] of Object.entries(poses)) {
       // 1. Rigid rotation about the centre: L = I w, no linear momentum.
-      const centre: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
+      const centre: IAutoMovieVector3 = AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(
         model,
         bones,
       );
-      const axis: IAutoMovieVector3 = Vector3.normalize({
+      const axis: IAutoMovieVector3 = AutoMovieEngineVector3.normalize({
         x: 0.3,
         y: 1,
         z: -0.5,
@@ -143,32 +128,32 @@ export function test_engine_body_momentum(): void {
         moved(
           bones,
           centre,
-          Quaternion.fromAxisAngle(axis, (sign * rate * dt * 90) / Math.PI),
+          AutoMovieEngineQuaternion.fromAxisAngle(axis, (sign * rate * dt * 90) / Math.PI),
           ZERO,
         );
-      const m: IAutoMovieBodyMomentum = resolveAutoMovieMomentum(
+      const m: IAutoMovieBodyMomentum = AutoMovieEngineKinematics.resolveAutoMovieMomentum(
         model,
         half(-1),
         half(1),
         dt,
       );
-      const expected: IAutoMovieVector3 = resolveAutoMovieMomentum.apply(
-        resolveAutoMovieMomentum.inertia(model, bones),
-        Vector3.scale(axis, rate),
+      const expected: IAutoMovieVector3 = AutoMovieEngineKinematics.applyAutoMovieMomentumTensor(
+        AutoMovieEngineKinematics.resolveAutoMovieMomentumInertia(model, bones),
+        AutoMovieEngineVector3.scale(axis, rate),
       );
       const relative: number =
-        Vector3.length(Vector3.subtract(m.angular, expected)) /
-        Vector3.length(expected);
+        AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(m.angular, expected)) /
+        AutoMovieEngineVector3.length(expected);
       if (!(relative <= 1e-6))
         findings.push(`${name} ${pose}: L differs from I w by ${relative}`);
-      if (!(Vector3.length(m.linear) <= 1e-9))
+      if (!(AutoMovieEngineVector3.length(m.linear) <= 1e-9))
         findings.push(
-          `${name} ${pose}: linear momentum ${Vector3.length(m.linear)} under a rigid turn`,
+          `${name} ${pose}: linear momentum ${AutoMovieEngineVector3.length(m.linear)} under a rigid turn`,
         );
 
       // 3. Translation leaves the tensor; a rotation transforms it as R I Rᵀ.
-      const tensor: number[][] = resolveAutoMovieMomentum.inertia(model, bones);
-      const shifted: number[][] = resolveAutoMovieMomentum.inertia(
+      const tensor: number[][] = AutoMovieEngineKinematics.resolveAutoMovieMomentumInertia(model, bones);
+      const shifted: number[][] = AutoMovieEngineKinematics.resolveAutoMovieMomentumInertia(
         model,
         moved(bones, ZERO, STILL, { x: 3, y: 0, z: -2 }),
       );
@@ -182,35 +167,35 @@ export function test_engine_body_momentum(): void {
         findings.push(
           `${name} ${pose}: a translation changes the tensor by ${drift}`,
         );
-      const r: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
-        Vector3.normalize({ x: 1, y: -2, z: 0.7 }),
+      const r: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
+        AutoMovieEngineVector3.normalize({ x: 1, y: -2, z: 0.7 }),
         73,
       );
-      const turned: number[][] = resolveAutoMovieMomentum.inertia(
+      const turned: number[][] = AutoMovieEngineKinematics.resolveAutoMovieMomentumInertia(
         model,
         moved(bones, ZERO, r, ZERO),
       );
       let worst: number = 0;
       for (let i: number = 0; i < 3; i++) {
         // Column i of R I Rᵀ is R I (Rᵀ e_i), read against the turned body's tensor.
-        const back: IAutoMovieVector3 = Quaternion.rotateVector(
-          Quaternion.inverse(r),
+        const back: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+          AutoMovieEngineQuaternion.inverse(r),
           [
             { x: 1, y: 0, z: 0 },
             { x: 0, y: 1, z: 0 },
             { x: 0, y: 0, z: 1 },
           ][i]!,
         );
-        const want: IAutoMovieVector3 = Quaternion.rotateVector(
+        const want: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
           r,
-          resolveAutoMovieMomentum.apply(tensor, back),
+          AutoMovieEngineKinematics.applyAutoMovieMomentumTensor(tensor, back),
         );
         const got: IAutoMovieVector3 = {
           x: turned[0]![i]!,
           y: turned[1]![i]!,
           z: turned[2]![i]!,
         };
-        worst = Math.max(worst, Vector3.length(Vector3.subtract(want, got)));
+        worst = Math.max(worst, AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(want, got)));
       }
       if (!(worst <= 1e-9 * scale))
         findings.push(
@@ -219,31 +204,31 @@ export function test_engine_body_momentum(): void {
 
       // 5. A uniform translation: p = m v and no angular momentum.
       const v: IAutoMovieVector3 = { x: 0.4, y: -0.3, z: 1.2 };
-      const glide: IAutoMovieBodyMomentum = resolveAutoMovieMomentum(
+      const glide: IAutoMovieBodyMomentum = AutoMovieEngineKinematics.resolveAutoMovieMomentum(
         model,
         bones,
-        moved(bones, ZERO, STILL, Vector3.scale(v, 0.01)),
+        moved(bones, ZERO, STILL, AutoMovieEngineVector3.scale(v, 0.01)),
         0.01,
       );
-      const p: IAutoMovieVector3 = Vector3.scale(v, body.profile.mass);
+      const p: IAutoMovieVector3 = AutoMovieEngineVector3.scale(v, body.profile.mass);
       if (
         !(
-          Vector3.length(Vector3.subtract(glide.linear, p)) <=
-          1e-9 * Vector3.length(p)
+          AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(glide.linear, p)) <=
+          1e-9 * AutoMovieEngineVector3.length(p)
         )
       )
         findings.push(
           `${name} ${pose}: linear momentum ${JSON.stringify(glide.linear)} for m v ${JSON.stringify(p)}`,
         );
-      if (!(Vector3.length(glide.angular) <= 1e-9))
+      if (!(AutoMovieEngineVector3.length(glide.angular) <= 1e-9))
         findings.push(
-          `${name} ${pose}: a translation reads angular momentum ${Vector3.length(glide.angular)}`,
+          `${name} ${pose}: a translation reads angular momentum ${AutoMovieEngineVector3.length(glide.angular)}`,
         );
     }
 
     // 4. The symmetric rest pose has no products across the sagittal plane.
     if (name === "m-average") {
-      const rest: number[][] = resolveAutoMovieMomentum.inertia(
+      const rest: number[][] = AutoMovieEngineKinematics.resolveAutoMovieMomentumInertia(
         model,
         poses.rest,
       );
@@ -264,7 +249,7 @@ export function test_engine_body_momentum(): void {
     y: (mass * (w * w + d * d)) / 12,
     z: (mass * (w * w + h * h)) / 12,
   };
-  const quarter: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+  const quarter: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
     { x: 0, y: 0, z: 1 },
     90,
   );
@@ -302,7 +287,7 @@ export function test_engine_body_momentum(): void {
     [0, box.y + box.x + 2 * mass * 0.09, 0],
     [0, 0, 2 * box.z + 2 * mass * 0.09],
   ];
-  const twoTensor: number[][] = resolveAutoMovieMomentum.inertia(twoBox, pair);
+  const twoTensor: number[][] = AutoMovieEngineKinematics.resolveAutoMovieMomentumInertia(twoBox, pair);
   for (let i: number = 0; i < 3; i++)
     for (let j: number = 0; j < 3; j++)
       if (!(Math.abs(twoTensor[i]![j]! - closed[i]![j]!) <= 1e-12))
@@ -314,7 +299,7 @@ export function test_engine_body_momentum(): void {
   TestValidator.predicate(
     "a zero interval is refused",
     throwsError((): void => {
-      resolveAutoMovieMomentum(twoBox, pair, pair, 0);
+      AutoMovieEngineKinematics.resolveAutoMovieMomentum(twoBox, pair, pair, 0);
     }),
   );
 

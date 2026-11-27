@@ -1,30 +1,14 @@
-import {
-  Quaternion,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanPerformance,
-  IAutoMovieMotionHumanProp,
-  IAutoMovieMotionHumanSegment,
-  IAutoMovieMotionHumanToolWork,
-  IAutoMovieMotionHumanUseTool,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanToolWork, IAutoMovieMotionHumanUseTool, IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanChain } from "../../HumanChain";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
-import { everydayVerdicts } from "./everydayVerdicts";
-import { toolCaseHeld } from "./toolCaseHeld";
-import { toolCasePot } from "./toolCasePot";
+import { everydayVerdicts } from "./internal/everydayVerdicts";
+import { toolCaseHeld } from "./internal/toolCaseHeld";
+import { toolCasePot } from "./internal/toolCasePot";
 
-/** The record of `IToolCasesWorst`'s site. */
-type IToolCasesWorst = { value: number; where: string };
-
-/**
+/*
  * Capture cases of the cyclic tool-use family, four cycles each with the right
  * hand from quiet standing, the tool first taken up from a bench beside the
  * right hand: `tool-hammer` on a nail at bench height, `tool-saw` over a cut
@@ -36,11 +20,10 @@ type IToolCasesWorst = { value: number; where: string };
  * displayed grip socket and hand through the tool's offset in the hand, lies
  * within 10 mm of the work point (the issue's tip-meets-work bound, at decision
  * 11's declared accuracy).
- *
- * @param bodies The sweep bodies; `m-average` when absent.
- * @param only Whether to build a case with this name, or every case when
- *   absent.
- * @returns The cases.
+ * Parameter bodies: The sweep bodies; `m-average` when absent.
+ * Parameter only: Whether to build a case with this name, or every case when
+ * absent.
+ * Returns: The cases.
  */
 export function toolCases(
   bodies: readonly string[] = ["m-average"],
@@ -79,7 +62,7 @@ export function toolCases(
           FamilyCaseKit.perform(
             "tool",
             [{ subject: "a", body: who.body }],
-            HumanChain.subject("a")
+            AutoMovieMotionHumanChain.subject("a")
               .stand({ hold: 0.3 })
               .pickUp({
                 prop: "tool",
@@ -111,13 +94,13 @@ export function toolCases(
           performance.bones("a", t);
         const frame: IAutoMovieMotionHumanBody["surfaces"]["sockets"]["gripRight"] =
           who.body.surfaces.sockets.gripRight;
-        const grip: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
+        const grip: IAutoMovieVector3 = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
           frame,
           bones.get(frame.bone)!,
         ).point;
-        return Vector3.add(
+        return AutoMovieEngineVector3.add(
           grip,
-          Quaternion.rotateVector(
+          AutoMovieEngineQuaternion.rotateVector(
             bones.get("rightHand")!.worldRotation,
             offer.tool.offset,
           ),
@@ -126,7 +109,7 @@ export function toolCases(
       let worst: IToolCasesWorst = { value: 0, where: "none" };
       for (let k: number = 1; k <= 4; k++) {
         const t: number = FamilyCaseKit.event(performance, `contact${k}`);
-        const gap: number = Vector3.length(Vector3.subtract(tip(t), at));
+        const gap: number = AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(tip(t), at));
         if (gap > worst.value)
           worst = { value: gap, where: `contact${k} at ${t.toFixed(2)} s` };
       }
@@ -154,3 +137,8 @@ export function toolCases(
   }
   return out;
 }
+
+/*
+ * The record of `IToolCasesWorst`'s site.
+ */
+type IToolCasesWorst = { value: number; where: string };

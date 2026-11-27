@@ -1,7 +1,9 @@
 import {
-  HumanMinimumJerkSpline,
-  HumanQuinticSegment,
-} from "@automovie/motions/internal";
+  HumanMinimumJerkSpline
+} from "../../../../../packages/motions/src/posture/internal/HumanMinimumJerkSpline";
+import {
+  HumanQuinticSegment
+} from "../../../../../packages/motions/src/posture/internal/HumanQuinticSegment";
 import { TestValidator } from "@nestia/e2e";
 
 /** Relative rounding of the block elimination and one quintic's derivatives. */

@@ -17,7 +17,7 @@ import { KnockdownCount as KnockdownCountSource } from "../sport/kickboxing/Knoc
  * - `Ring`: A bounded fighting area: a square ring on the floor, centred on a
  *   point and turned by a heading, inside its ropes.
  * - `Rules`: The kickboxing ruleset a performance's schedule must keep, in the
- *   engine's `checkAutoMovieLegality` form, for the motions vocabulary's
+ *   engine's `checkLegality` form, for the motions vocabulary's
  *   `punch`, `kick`, `defend` and `knockdown` actions.
  * - `KnockdownCount`: The knockdown procedure's clock and corner (GLORY Rules
  *   5.05.B.2 to 5 and Appendix 3.D, as inspected in the kickboxing research):
@@ -42,7 +42,7 @@ export namespace AutoMovieMotionHumanKickboxing {
    * 6.1 to 7.3 m inside the ropes; the size is the production's). Corners are
    * named in the ring's own frame: the red and blue corners on one diagonal,
    * the two neutral corners on the other. A ring placed in the scene is read
-   * from its own contacts (`of`, `createRing`'s): its centre and floor from the
+   * from its own contacts (`of`, `AutoMovieArchetypeRing.create`'s): its centre and floor from the
    * `canvas`, its size from the top ropes on opposite sides, its heading from
    * the placement, and its corners named on its posts' tops, `corner1` (`+X
    * +Z`) blue, `corner3` red, `corner4` and `corner2` the neutral corners.
@@ -51,7 +51,7 @@ export namespace AutoMovieMotionHumanKickboxing {
 
   /**
    * The kickboxing ruleset a performance's schedule must keep, in the engine's
-   * `checkAutoMovieLegality` form, for the motions vocabulary's `punch`,
+   * `checkLegality` form, for the motions vocabulary's `punch`,
    * `kick`, `defend` and `knockdown` actions.
    *
    * From the GLORY Official Rules V2.2, §5.07 (as inspected in the kickboxing

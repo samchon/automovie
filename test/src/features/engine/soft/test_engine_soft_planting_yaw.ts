@@ -1,4 +1,4 @@
-import { plantingYaw } from "@automovie/engine";
+import { AutoMovieEnginePlanting } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { qclose } from "../../internal/qclose";
@@ -18,14 +18,14 @@ import { qclose } from "../../internal/qclose";
 export function test_engine_soft_planting_yaw(): void {
   TestValidator.predicate(
     "no jitter",
-    qclose(plantingYaw(0.37, 0), { x: 0, y: 0, z: 0, w: 1 }, 1e-15),
+    qclose(AutoMovieEnginePlanting.plantingYaw(0.37, 0), { x: 0, y: 0, z: 0, w: 1 }, 1e-15),
   );
   TestValidator.predicate(
     "the rational circle at t = 1/2",
-    qclose(plantingYaw(0.25, 1), { x: 0, y: 0.8, z: 0, w: 0.6 }, 1e-15),
+    qclose(AutoMovieEnginePlanting.plantingYaw(0.25, 1), { x: 0, y: 0.8, z: 0, w: 0.6 }, 1e-15),
   );
   TestValidator.predicate(
     "the zero sample",
-    qclose(plantingYaw(0, 1), { x: 0, y: 0, z: 0, w: 1 }, 1e-15),
+    qclose(AutoMovieEnginePlanting.plantingYaw(0, 1), { x: 0, y: 0, z: 0, w: 1 }, 1e-15),
   );
 }

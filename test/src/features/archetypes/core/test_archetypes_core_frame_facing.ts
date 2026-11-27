@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { vclose } from "../../internal/vclose";
+import { throwsError, vclose } from "../../internal/predicates";
 
 /**
  * `AutoMovieArchetypeFrame.facing` builds a frame whose +Y is `out` and +X the
@@ -16,6 +16,8 @@ import { vclose } from "../../internal/vclose";
  * 1. Out (0, 0, 2), along (1, 1, 0): +Y = +Z, +X = (1, 1, 0)/√2 with its +Z part
  *    (none) removed, +Z = X × Y.
  * 2. With no `along` and out along +X, the hint is world +Z, so +X = +Z.
+ * 3. A subnormal along component perpendicular to +Z still sets +X.
+ * 4. Zero, parallel and antiparallel directions, or a nonfinite origin, refuse.
  */
 export function test_archetypes_core_frame_facing(): void {
   const frame: IAutoMovieTransform = AutoMovieArchetypeFrame.facing(
@@ -45,4 +47,39 @@ export function test_archetypes_core_frame_facing(): void {
       1e-12,
     ),
   );
+
+  const origin: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+  const front: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
+  const across: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
+  const nearParallel: IAutoMovieTransform = AutoMovieArchetypeFrame.facing(
+    origin,
+    front,
+    { x: 1e-320, y: 0, z: 1 },
+  );
+  TestValidator.predicate(
+    "subnormal direction sets the across axis",
+    vclose(AutoMovieArchetypeFrame.axis(nearParallel, "x"), across, 1e-12),
+  );
+
+  const invalid: [
+    name: string,
+    at: IAutoMovieVector3,
+    out: IAutoMovieVector3,
+    along: IAutoMovieVector3,
+  ][] = [
+    ["zero out", origin, origin, across],
+    ["zero along", origin, front, origin],
+    ["parallel", origin, front, front],
+    ["antiparallel", origin, front, { x: 0, y: 0, z: -2 }],
+    ["nonfinite origin", { ...origin, x: Number.NaN }, front, across],
+  ];
+  const admitted: string[] = [];
+  for (const [name, at, out, along] of invalid)
+    if (
+      !throwsError((): IAutoMovieTransform =>
+        AutoMovieArchetypeFrame.facing(at, out, along),
+      )
+    )
+      admitted.push(name);
+  TestValidator.equals("all invalid frames refused", admitted, []);
 }

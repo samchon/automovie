@@ -1,12 +1,4 @@
-import {
-  AutoMovieConstructionContinuation,
-  AutoMovieLoftJet,
-  AutoMovieLoftSectionConnect,
-  AutoMovieLoftSectionSource,
-  AutoMovieViewAxis,
-  AutoMovieViewLoft,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
+import { AutoMovieEngineConstructionContinuation, AutoMovieEngineLoftJet, AutoMovieEngineLoftSectionConnect, AutoMovieEngineLoftSectionSource, AutoMovieEngineViewAxis, AutoMovieEngineViewLoft, AutoMovieEngineConstruction } from "@automovie/engine";
 import type {
   IAutoMovieConstructionContinuation,
   IAutoMovieConstructionDiagnostic,
@@ -63,7 +55,7 @@ export namespace ConstructionNativeContinuation {
     };
     return {
       name,
-      axis: AutoMovieViewAxis.straight(
+      axis: AutoMovieEngineViewAxis.straight(
         [0, offset, 0],
         [1, 0, 0],
         [0, 0, direction],
@@ -82,7 +74,7 @@ export namespace ConstructionNativeContinuation {
    * geometry.
    */
   export function chain(source: IAutoMovieViewPart): IAutoMovieLoftChain {
-    const result: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create(source);
+    const result: IAutoMovieViewLoft.IResult = AutoMovieEngineViewLoft.create(source);
     if (
       result.chain === null ||
       result.surface === null ||
@@ -157,9 +149,9 @@ export namespace ConstructionNativeContinuation {
         layer.liftCurvatures = new Array<number>(current.order).fill(0.6);
       }
     const result: IAutoMovieLoftChain | string =
-      AutoMovieConstructionContinuation.apply(host, "top", part, "bottom");
+      AutoMovieEngineConstructionContinuation.apply(host, "top", part, "bottom");
     if (typeof result === "string") throw new Error(result);
-    const actual: IAutoMovieLoftSurfaceJet = AutoMovieLoftJet.at(
+    const actual: IAutoMovieLoftSurfaceJet = AutoMovieEngineLoftJet.at(
       result,
       0,
       0.37,
@@ -192,16 +184,16 @@ export namespace ConstructionNativeContinuation {
     delta: number,
   ): void {
     const field: IAutoMovieLoftSectionSource.IEndpoint["field"] | string =
-      AutoMovieLoftSectionConnect.capture(chain, chain.layers[0]!.y);
+      AutoMovieEngineLoftSectionConnect.capture(chain, chain.layers[0]!.y);
     if (typeof field === "string" || field.kind !== "native")
       throw new Error(String(field));
     (field.inputs[key][quarter] as [number, number, number])[derivative]! +=
       delta;
-    chain.layers[0]!.sectionSource = AutoMovieLoftSectionSource.bind(
+    chain.layers[0]!.sectionSource = AutoMovieEngineLoftSectionSource.bind(
       chain.layers[0]!,
       field,
     );
-    Object.assign(chain, AutoMovieLoftSectionConnect.finish(chain));
+    Object.assign(chain, AutoMovieEngineLoftSectionConnect.finish(chain));
   }
 
   /**
@@ -291,7 +283,7 @@ export namespace ConstructionNativeContinuation {
       let refused: boolean = false;
       try {
         const result: IAutoMovieLoftChain | string =
-          AutoMovieConstructionContinuation.apply(host, "top", part, "bottom");
+          AutoMovieEngineConstructionContinuation.apply(host, "top", part, "bottom");
         refused =
           typeof result === "string" &&
           (!(name === "fullness interior" || name.startsWith("physical")) ||
@@ -311,11 +303,11 @@ export namespace ConstructionNativeContinuation {
       pole: 0,
     };
     const unavailable: IAutoMovieViewLoft.IResult =
-      AutoMovieViewLoft.create(singular);
+      AutoMovieEngineViewLoft.create(singular);
     if (unavailable.chain === null)
       throw new Error(JSON.stringify(unavailable.diagnostics));
     const result: IAutoMovieLoftChain | string =
-      AutoMovieConstructionContinuation.apply(
+      AutoMovieEngineConstructionContinuation.apply(
         host,
         "top",
         unavailable.chain,
@@ -336,7 +328,7 @@ export namespace ConstructionNativeContinuation {
     });
     let caught: unknown;
     try {
-      AutoMovieConstructionContinuation.apply(host, "top", getter, "bottom");
+      AutoMovieEngineConstructionContinuation.apply(host, "top", getter, "bottom");
     } catch (error: unknown) {
       caught = error;
     }
@@ -375,7 +367,7 @@ export namespace ConstructionNativeContinuation {
         partEnd: "bottom",
       };
       const real: IAutoMovieConstructionRealization.IRealization =
-        realizeAutoMovieConstruction(
+        AutoMovieEngineConstruction.realize(
           { name: "nested", root },
           {
             chord: 0.00005,
@@ -435,7 +427,7 @@ export namespace ConstructionNativeContinuation {
             0.37,
             1,
           );
-          const actual: IAutoMovieLoftSurfaceJet = AutoMovieLoftJet.at(
+          const actual: IAutoMovieLoftSurfaceJet = AutoMovieEngineLoftJet.at(
             current,
             station,
             0.37,

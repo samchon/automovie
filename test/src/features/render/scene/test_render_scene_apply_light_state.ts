@@ -4,7 +4,7 @@ import type {
   IAutoMoviePointLight,
   IAutoMovieSpotLight,
 } from "@automovie/interface";
-import { applyLightState } from "@automovie/render";
+import { AutoMovieRenderSceneLighting } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import { PointLight, RectAreaLight, SpotLight } from "three";
 
@@ -45,7 +45,7 @@ export function test_render_scene_apply_light_state(): void {
     coneAngle: 30,
   };
   const spot: SpotLight = new SpotLight();
-  applyLightState(spot, authored);
+  AutoMovieRenderSceneLighting.applyLightState(spot, authored);
   TestValidator.predicate(
     "spot placement and emission",
     () =>
@@ -62,7 +62,7 @@ export function test_render_scene_apply_light_state(): void {
   const point: PointLight = new PointLight();
   point.distance = 10;
   const punctual: IAutoMoviePointLight = { ...common, type: "point", range: 0 };
-  applyLightState(point, punctual);
+  AutoMovieRenderSceneLighting.applyLightState(point, punctual);
   TestValidator.predicate(
     "point range has no falloff cutoff",
     nclose(point.distance, 0, COPY_TOLERANCE),
@@ -75,7 +75,7 @@ export function test_render_scene_apply_light_state(): void {
     width: 2,
     height: 0.5,
   };
-  applyLightState(panel, area);
+  AutoMovieRenderSceneLighting.applyLightState(panel, area);
   TestValidator.predicate(
     "unequal panel dimensions",
     () =>

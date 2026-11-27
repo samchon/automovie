@@ -13,11 +13,12 @@ import type {
   IAutoMovieRecoveryScalarIndex,
 } from "@automovie/interface";
 
-import { RecoveryOpenSlabGraph as O } from "../internal/RecoveryOpenSlabGraph";
-import { RecoveryScalarIndex as S } from "../internal/RecoveryScalarIndex";
-import { critical } from "../internal/mesh-observations/critical";
-import { cutExact } from "../internal/mesh-observations/cutExact";
-import { planeFrame } from "../internal/mesh-observations/planeFrame";
+import { AutoMovieRecoveryOpenSlabGraph as O } from "../geometry/AutoMovieRecoveryOpenSlabGraph";
+import { AutoMovieRecoveryScalarIndex as S } from "../geometry/AutoMovieRecoveryScalarIndex";
+import { critical } from "../geometry/internal/critical";
+import { prepareCutExact } from "../internal/mesh-observations/prepareCutExact";
+import { planeFrame } from "../geometry/internal/planeFrame";
+import { prepareRecoveryOpenSlabGraph as prepareSlabGraphImplementation } from "./internal/prepareRecoveryOpenSlabGraph";
 
 /**
  * Source observation of open-curve continuation without repeating numerical
@@ -70,7 +71,7 @@ export namespace AutoMovieRecoveryOpenContinuation {
       mesh.triangles,
       heights,
     );
-    const slice: ReturnType<IAutoMovieMeshPlaneCut.Prepare> = cutExact.prepare(
+    const slice: ReturnType<IAutoMovieMeshPlaneCut.Prepare> = prepareCutExact(
       mesh,
       heights,
     );
@@ -303,5 +304,11 @@ export namespace AutoMovieRecoveryOpenContinuation {
         progress?.(i + 1, bundle.loft.sections.length);
     }
     return output;
+  }
+  /** Prepare source-backed open-slab transport queries for continuation observation. */
+  export function prepareSlabGraph(
+    source: IAutoMovieRecoveryOpenSlabGraph.Source,
+  ): ReturnType<IAutoMovieRecoveryOpenSlabGraph.Prepare> {
+    return prepareSlabGraphImplementation(source);
   }
 }

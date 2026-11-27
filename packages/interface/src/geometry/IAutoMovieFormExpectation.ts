@@ -3,7 +3,7 @@ import type { IAutoMovieVector3 } from "./IAutoMovieVector3";
 
 /**
  * What a form must be, written before it is measured and checked by
- * `checkAutoMovieFormExpectation`.
+ * `checkFormExpectation`.
  *
  * The record is an inspection contract for modelling and tests, not a
  * screenplay or authoring axis. Every field is optional; a field left out is
@@ -21,7 +21,7 @@ export interface IAutoMovieFormExpectation {
   size?: IAutoMovieFormExpectation.ISize;
 
   /**
-   * The exact number of pieces `measureAutoMovieMeshPieces` reports for the
+   * The exact number of pieces `measureMeshPieces` reports for the
    * placed parts merged into one mesh.
    */
   pieces?: number;
@@ -39,13 +39,13 @@ export interface IAutoMovieFormExpectation {
   empty?: IAutoMovieVector3[];
 
   /**
-   * How named part pairs must meet, as `measureAutoMovieModelContacts` reports
+   * How named part pairs must meet, as `measureModelContacts` reports
    * them. Pairs are never run against a mutant, which has one part.
    */
   pairs?: IAutoMovieFormExpectation.IPair[];
 
   /**
-   * The contact distance in metres passed to `measureAutoMovieModelContacts`;
+   * The contact distance in metres passed to `measureModelContacts`;
    * required when `pairs` is given.
    */
   contact?: number;
@@ -62,8 +62,14 @@ export namespace IAutoMovieFormExpectation {
   /** A stand-in the expectation must tell from the form: its box or its hull. */
   export type Mutant = "box" | "hull";
 
-  /** An inclusive `[minimum, maximum]` range in metres. */
-  export type Range = [number, number];
+  /** An inclusive minimum and maximum in metres. */
+  export interface Range {
+    /** Minimum allowed value, inclusive. */
+    min: number;
+
+    /** Maximum allowed value, inclusive. */
+    max: number;
+  }
 
   /** Extent ranges for the axes that are checked. */
   export interface ISize {

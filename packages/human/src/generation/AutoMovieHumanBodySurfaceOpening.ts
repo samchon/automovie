@@ -1,4 +1,4 @@
-import { AutoMovieLoftChain } from "@automovie/engine";
+import { AutoMovieEngineLoftChain } from "@automovie/engine";
 import type {
   IAutoMovieHumanApertureSpan,
   IAutoMovieHumanBodyApertures,
@@ -17,9 +17,6 @@ import { AutoMovieHumanBodyRoots } from "./AutoMovieHumanBodyRoots";
 import { AutoMovieHumanBodySurfaceLoft } from "./AutoMovieHumanBodySurfaceLoft";
 import { AutoMovieHumanBodySurfaceRead } from "./AutoMovieHumanBodySurfaceRead";
 import { AutoMovieHumanEyelidSurface } from "./AutoMovieHumanEyelidSurface";
-
-const { chain, interval } = AutoMovieHumanBodySurfaceRead;
-type IPoint = IAutoMovieHumanApertureSpan.IPoint;
 
 /**
  * An opening closed from its trim (`AutoMovieHumanApertureSpan`): the rim's
@@ -80,7 +77,7 @@ export namespace AutoMovieHumanBodySurfaceOpening {
     // The rim's vertices, each the surface at its own chain's chart point.
     const rim: [number, number, number][] = points.map(
       (p: IPoint): [number, number, number] =>
-        AutoMovieLoftChain.point(chain(context, p.chain), p.s, p.t),
+        AutoMovieEngineLoftChain.point(chain(context, p.chain), p.s, p.t),
     );
     context.rims.set(prepared.aperture.name, rim);
     const ring: number[] = AutoMovieHumanLoftMesh.vertices(context.mesh, rim);
@@ -207,7 +204,7 @@ export namespace AutoMovieHumanBodySurfaceOpening {
     return construction;
   }
 
-  /**
+  /*
    * The chain beyond an end of a chain through the ring they share: past a
    * parent's contact layer the child whose arc of the ring holds the phase,
    * past a child's inherited end the parent.
@@ -248,14 +245,16 @@ export namespace AutoMovieHumanBodySurfaceOpening {
     return null;
   }
 
-  /** A point's chart on a chain: its own, its copy on the shared ring, or null. */
+  /*
+   * A point's chart on a chain: its own, its copy on the shared ring, or null.
+   */
   function chartOn(p: IPoint, name: string): [number, number] | null {
     if (p.chain === name) return [p.s, p.t];
     if (p.also?.chain === name) return [p.also.s, p.also.t];
     return null;
   }
 
-  /**
+  /*
    * The hole round a rim on more than one chain: the closed edge of the
    * cells left under the hole's key nearest the rim, as vertices and their
    * places in the opening's plane, each read from the surface at the vertex's
@@ -272,7 +271,7 @@ export namespace AutoMovieHumanBodySurfaceOpening {
     const place = (v: number): [number, number] => {
       const [s, t] = hole.charts.get(v)!;
       return flat(
-        AutoMovieLoftChain.point(chain(context, hole.owners.get(v)!), s, t),
+        AutoMovieEngineLoftChain.point(chain(context, hole.owners.get(v)!), s, t),
       );
     };
     const centre: [number, number] = rim.reduce(
@@ -306,3 +305,6 @@ export namespace AutoMovieHumanBodySurfaceOpening {
     return edge;
   }
 }
+
+const { chain, interval } = AutoMovieHumanBodySurfaceRead;
+type IPoint = IAutoMovieHumanApertureSpan.IPoint;

@@ -1,5 +1,5 @@
 /**
- * How two parts of one built model meet, as `measureAutoMovieModelContacts`
+ * How two parts of one built model meet, as `measureModelContacts`
  * reports it for every unordered pair of parts.
  *
  * Both parts are measured where they sit in the model's frame, so the gap is in
@@ -34,7 +34,8 @@ export interface IAutoMovieModelContact {
    * How the pair meets, the first that applies:
    *
    * - `crossing`: the surfaces pass through each other, transversely or flat in
-   *   one plane, by `measureAutoMovieMeshCrossings` in either direction;
+   *   one plane, by `AutoMovieEngineMeshCrossingQuery.measure` in either
+   *   direction;
    * - `contained`: one part lies wholly inside the other, its share being 1;
    * - `touching`: the gap is at most the caller's contact distance;
    * - `apart`: otherwise.

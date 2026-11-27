@@ -1,7 +1,4 @@
-import {
-  canonicalizeAutoMovieJson,
-  productionFilmEffectEditFingerprint,
-} from "@automovie/engine";
+import { AutoMovieEngineCanonicalJson, AutoMovieEngineEffect } from "@automovie/engine";
 import { IAutoMovieFilmTimeline } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 import { createHash } from "node:crypto";
@@ -27,7 +24,7 @@ export function test_engine_film_effect_edit_fingerprint(): void {
   ): string =>
     `sha256:${createHash("sha256")
       .update(
-        canonicalizeAutoMovieJson({
+        AutoMovieEngineCanonicalJson.canonicalize({
           protocol: "automovie.production-render-edit.v2",
           id: timeline.id,
           fps: timeline.fps,
@@ -50,7 +47,7 @@ export function test_engine_film_effect_edit_fingerprint(): void {
     '{"fps":24,"id":"f","omissions":[],"protocol":"automovie.production-render-edit.v2","segments":[],"totalFrames":1,"tracks":{"audio":[],"captions":[],"effects":[]}}';
   TestValidator.equals(
     "a minimal edit hashes its hand-written canonical protocol text",
-    [productionFilmEffectEditFingerprint(minimal), nodeProtocolDigest(minimal)],
+    [AutoMovieEngineEffect.productionFilmEffectEditFingerprint(minimal), nodeProtocolDigest(minimal)],
     [
       `sha256:${createHash("sha256").update(Buffer.from(text, "utf8")).digest("hex")}`,
       `sha256:${createHash("sha256").update(Buffer.from(text, "utf8")).digest("hex")}`,
@@ -58,7 +55,7 @@ export function test_engine_film_effect_edit_fingerprint(): void {
   );
 
   const base: IAutoMovieFilmTimeline = filmEffectTimeline();
-  const fingerprint: string = productionFilmEffectEditFingerprint(base);
+  const fingerprint: string = AutoMovieEngineEffect.productionFilmEffectEditFingerprint(base);
   TestValidator.equals(
     "a full edit has one fingerprint through the engine and through Node",
     fingerprint,
@@ -68,28 +65,28 @@ export function test_engine_film_effect_edit_fingerprint(): void {
     "only edit fields move the fingerprint",
     {
       compileInput:
-        productionFilmEffectEditFingerprint({
+        AutoMovieEngineEffect.productionFilmEffectEditFingerprint({
           ...base,
           inputFingerprint: `sha256:${"e".repeat(64)}`,
         }) === fingerprint,
       sourceDigest:
-        productionFilmEffectEditFingerprint({
+        AutoMovieEngineEffect.productionFilmEffectEditFingerprint({
           ...base,
           sourceDigest: `sha256:${"e".repeat(64)}`,
         }) === fingerprint,
       builder:
-        productionFilmEffectEditFingerprint({ ...base, builder: "other" }) ===
+        AutoMovieEngineEffect.productionFilmEffectEditFingerprint({ ...base, builder: "other" }) ===
         fingerprint,
       totalFrames:
-        productionFilmEffectEditFingerprint({ ...base, totalFrames: 49 }) ===
+        AutoMovieEngineEffect.productionFilmEffectEditFingerprint({ ...base, totalFrames: 49 }) ===
         fingerprint,
       sourceFrame:
-        productionFilmEffectEditFingerprint({
+        AutoMovieEngineEffect.productionFilmEffectEditFingerprint({
           ...base,
           segments: [{ ...base.segments[0]!, sourceInFrame: 1 }],
         }) === fingerprint,
       intensity:
-        productionFilmEffectEditFingerprint({
+        AutoMovieEngineEffect.productionFilmEffectEditFingerprint({
           ...base,
           tracks: {
             ...base.tracks,
@@ -100,7 +97,7 @@ export function test_engine_film_effect_edit_fingerprint(): void {
           },
         }) === fingerprint,
       frameRate:
-        productionFilmEffectEditFingerprint({
+        AutoMovieEngineEffect.productionFilmEffectEditFingerprint({
           ...base,
           frameRate: { numerator: 24, denominator: 1 },
         }) === fingerprint,

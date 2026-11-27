@@ -9,12 +9,10 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
-import { AutoMovieHumanBodySurfacePhases } from "./AutoMovieHumanBodySurfacePhases";
-import { AutoMovieHumanBodySurfaceRead } from "./AutoMovieHumanBodySurfaceRead";
+import "./AutoMovieHumanBodySurfacePhases";
+import "./AutoMovieHumanBodySurfaceRead";
 import { AutoMovieHumanBodyWeb } from "./AutoMovieHumanBodyWeb";
-
-const { chain, endHeight, ringVertices } = AutoMovieHumanBodySurfaceRead;
-const { arcVertices, ownPhases } = AutoMovieHumanBodySurfacePhases;
+import { AutoMovieHumanBodySurfaceContactData } from "./internal/AutoMovieHumanBodySurfaceContactData";
 
 /** Each parent's contact rings, evaluated once with their pinch phases and shared with the children by vertex index, the webs they carry and the vertices they pin. */
 export namespace AutoMovieHumanBodySurfaceContact {
@@ -38,17 +36,17 @@ export namespace AutoMovieHumanBodySurfaceContact {
     context: IAutoMovieHumanSurfaceContext,
     event: IAutoMovieHumanBranchEvent,
   ): void {
-    const parent: IAutoMovieLoftChain = chain(context, event.parent);
+    const parent: IAutoMovieLoftChain = AutoMovieHumanBodySurfaceContactData.chain(context, event.parent);
     const parentEnd: "bottom" | "top" =
       event.direction === "down" ? "bottom" : "top";
     const childEnd: "bottom" | "top" =
       event.direction === "down" ? "top" : "bottom";
 
-    const phases: number[] = ownPhases(context, parent);
-    const ring: number[] = ringVertices(
+    const phases: number[] = AutoMovieHumanBodySurfaceContactData.ownPhases(context, parent);
+    const ring: number[] = AutoMovieHumanBodySurfaceContactData.ringVertices(
       context,
       parent,
-      endHeight(parent, parentEnd),
+      AutoMovieHumanBodySurfaceContactData.endHeight(parent, parentEnd),
       phases,
     );
     context.boundaries.set(parent.name + ":" + parentEnd, {
@@ -60,7 +58,7 @@ export namespace AutoMovieHumanBodySurfaceContact {
       (split: IAutoMovieHumanBranchSplit) => ({
         name: split.child,
         arcs: split.arcs.map((arc: [number, number]): number[] =>
-          arcVertices(ring, phases, arc),
+          AutoMovieHumanBodySurfaceContactData.arcVertices(ring, phases, arc),
         ),
       }),
     );
@@ -71,7 +69,7 @@ export namespace AutoMovieHumanBodySurfaceContact {
       const built: IAutoMovieHumanWebResult = AutoMovieHumanBodyWeb.build({
         mesh: context.mesh,
         coordinates: context.coordinates,
-        chain: (name: string): IAutoMovieLoftChain => chain(context, name),
+        chain: (name: string): IAutoMovieLoftChain => AutoMovieHumanBodySurfaceContactData.chain(context, name),
         index: (name: string): number => context.indices.get(name)!,
         parent,
         down: event.direction === "down",

@@ -1,4 +1,4 @@
-import { sampleAutoMovieDialogueMouth } from "@automovie/engine";
+import { AutoMovieEngineSound } from "@automovie/engine";
 import type {
   IAutoMovieDialogueMouth,
   IAutoMovieDialogueMouthTrack,
@@ -29,7 +29,7 @@ import { nclose } from "../internal/predicates";
  * 6. Two samplings of one second are identical.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the track, the seconds sampled and the mouth each must give.
- * @evidence contracts/development/testing.md#behavioral-verification Samples `sampleAutoMovieDialogueMouth` on a hand-written track. A sampler that reads another frame's jaw, ignores the actor, lets an earlier line keep the mouth, scales the envelope weight by another maximum or leaves the mouth open outside every line fails.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples `sampleDialogueMouth` on a hand-written track. A sampler that reads another frame's jaw, ignores the actor, lets an earlier line keep the mouth, scales the envelope weight by another maximum or leaves the mouth open outside every line fails.
  * @evidence contracts/development/testing.md#independent-expectations The openings are the track's own values by frame; 6 / 12 and 9 / 12 are the documented share of the 12 mm maximum speech opening; the dominant visemes follow from the ranges' centres and #4054's requirement that bilabials close on their own frames.
  * @evidence contracts/development/testing.md#distinguishing-cases Pairs a speaking and a silent actor, a whole-frame and a between-frame second, a phoneme-driven and an envelope line, an overlap's two sides, and a valid and a non-finite second; the blend itself belongs to `test_engine_dialogue_viseme_coarticulation` and planning the track to `test_render_dialogue_mouth_track`.
  * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through `test_engine_dialogue_mouth_sample`; it starts no process.
@@ -71,7 +71,11 @@ export function test_engine_dialogue_mouth_sample(): void {
     actor: string,
     frame: number,
   ): IAutoMovieDialogueMouth =>
-    sampleAutoMovieDialogueMouth({ track, actor, seconds: frame / 24 });
+    AutoMovieEngineSound.sampleDialogueMouth({
+      track,
+      actor,
+      seconds: frame / 24,
+    });
   const heaviest: (weights: IAutoMovieHumanVisemeWeights) => string = (
     weights: IAutoMovieHumanVisemeWeights,
   ): string =>

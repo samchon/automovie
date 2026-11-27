@@ -1,10 +1,17 @@
-import type { IAutoMovieComposition, IAutoMovieIntent } from "@automovie/interface";
-import { HumanChain } from "@automovie/motions";
+import type {
+  IAutoMovieComposition,
+  IAutoMovieIntent,
+} from "@automovie/interface";
+import { AutoMovieMotionHumanChain } from "@automovie/motions";
 import {
-  composeHumanAdjustCuff,
-  composeHumanStraightenPartnerTie,
-  composeHumanStraightenTie,
-} from "@automovie/motions/internal";
+  composeHumanAdjustCuff
+} from "../../../../../packages/motions/src/dressing/internal/composeHumanAdjustCuff";
+import {
+  composeHumanStraightenPartnerTie
+} from "../../../../../packages/motions/src/dressing/internal/composeHumanStraightenPartnerTie";
+import {
+  composeHumanStraightenTie
+} from "../../../../../packages/motions/src/dressing/internal/composeHumanStraightenTie";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -23,13 +30,13 @@ export function test_motions_dressing_compose_touches(): void {
   const intent: (node: IAutoMovieComposition) => IAutoMovieIntent = (
     node: IAutoMovieComposition,
   ): IAutoMovieIntent => {
-    if (node.kind === "intent") return node.intent;
-    if (node.kind === "sequence" || node.kind === "parallel")
+    if (node.type === "intent") return node.intent;
+    if (node.type === "sequence" || node.type === "parallel")
       return intent(node.parts[node.parts.length - 1]!);
     throw new Error(`An anchored node carries no intent of its own`);
   };
   const cuff: IAutoMovieIntent = intent(
-    composeHumanAdjustCuff(HumanChain.subject("a"), { cuff: "left" }).node,
+    composeHumanAdjustCuff(AutoMovieMotionHumanChain.subject("a"), { cuff: "left" }).node,
   );
   TestValidator.equals(
     "the cuff",
@@ -47,7 +54,7 @@ export function test_motions_dressing_compose_touches(): void {
     ],
   );
   const own: IAutoMovieIntent = intent(
-    composeHumanStraightenTie(HumanChain.subject("a"), "right").node,
+    composeHumanStraightenTie(AutoMovieMotionHumanChain.subject("a"), "right").node,
   );
   TestValidator.equals(
     "the own tie",
@@ -66,7 +73,7 @@ export function test_motions_dressing_compose_touches(): void {
     ],
   );
   const partner: IAutoMovieIntent = intent(
-    composeHumanStraightenPartnerTie(HumanChain.subject("a"), {
+    composeHumanStraightenPartnerTie(AutoMovieMotionHumanChain.subject("a"), {
       partner: "b",
       side: "left",
     }).node,

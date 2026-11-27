@@ -1,13 +1,11 @@
 import type { IAutoMovieInspectionDiagnostics } from "@automovie/interface";
 import {
-  AutoMovieInspectorPlayhead,
-  type IAutoMovieInspectorAction,
-  type IAutoMovieInspectorState,
-  createAutoMovieInspectorState,
-  locateAutoMovieInspectorFinding,
-  reduceAutoMovieInspectorState,
-  showAutoMovieInspectorFinding,
-  stopAutoMovieInspectorTime,
+  AutoMovieViewerInspectorPlayhead,
+  AutoMovieViewerInspector,
+  type IAutoMovieViewerInspectorAction,
+  type IAutoMovieViewerInspectorState,
+
+
 } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 
@@ -45,8 +43,8 @@ export function test_viewer_inspector_show_inspector_finding(): void {
 
   // 1. The handler, then the readout's effect.
   const shown: IRun = run(
-    (playhead: AutoMovieInspectorPlayhead, dispatch: IDispatch): void =>
-      showAutoMovieInspectorFinding({
+    (playhead: AutoMovieViewerInspectorPlayhead, dispatch: IDispatch): void =>
+      AutoMovieViewerInspector.showFinding({
         observation: witness,
         paths,
         playhead,
@@ -73,9 +71,9 @@ export function test_viewer_inspector_show_inspector_finding(): void {
 
   // 2. Pausing in place first lets the stop edit win.
   const earlier: IRun = run(
-    (playhead: AutoMovieInspectorPlayhead, dispatch: IDispatch): void => {
+    (playhead: AutoMovieViewerInspectorPlayhead, dispatch: IDispatch): void => {
       playhead.pause();
-      dispatch(locateAutoMovieInspectorFinding(witness, paths));
+      dispatch(AutoMovieViewerInspector.locateFinding({ observation: witness, paths }));
     },
   );
   TestValidator.equals(
@@ -85,14 +83,14 @@ export function test_viewer_inspector_show_inspector_finding(): void {
   );
 
   // 3. No stop, no edit.
-  const playing: AutoMovieInspectorPlayhead = new AutoMovieInspectorPlayhead();
+  const playing: AutoMovieViewerInspectorPlayhead = new AutoMovieViewerInspectorPlayhead();
   playing.setDuration(4);
   playing.play();
   TestValidator.equals(
     "playing and already stopped snapshots imply nothing",
     [
-      stopAutoMovieInspectorTime(true, playing.getSnapshot()),
-      stopAutoMovieInspectorTime(false, {
+      AutoMovieViewerInspector.stopTime(true, playing.getSnapshot()),
+      AutoMovieViewerInspector.stopTime(false, {
         ...playing.getSnapshot(),
         playing: false,
       }),
@@ -102,12 +100,12 @@ export function test_viewer_inspector_show_inspector_finding(): void {
 }
 
 /** Where a handler sends its request edits. */
-type IDispatch = (action: IAutoMovieInspectorAction) => void;
+type IDispatch = (action: IAutoMovieViewerInspectorAction) => void;
 
 /** The reduced request and the playhead after one handled click. */
 interface IRun {
-  state: IAutoMovieInspectorState;
-  playhead: AutoMovieInspectorPlayhead;
+  state: IAutoMovieViewerInspectorState;
+  playhead: AutoMovieViewerInspectorPlayhead;
 }
 
 /**
@@ -115,24 +113,24 @@ interface IRun {
  * then the readout's stop rule, and reduce every edit in order.
  */
 function run(
-  handler: (playhead: AutoMovieInspectorPlayhead, dispatch: IDispatch) => void,
+  handler: (playhead: AutoMovieViewerInspectorPlayhead, dispatch: IDispatch) => void,
 ): IRun {
-  const playhead: AutoMovieInspectorPlayhead = new AutoMovieInspectorPlayhead();
+  const playhead: AutoMovieViewerInspectorPlayhead = new AutoMovieViewerInspectorPlayhead();
   playhead.setDuration(4);
   playhead.seek(3);
   playhead.play();
-  const actions: IAutoMovieInspectorAction[] = [];
+  const actions: IAutoMovieViewerInspectorAction[] = [];
   const was: boolean = playhead.getSnapshot().playing;
-  handler(playhead, (action: IAutoMovieInspectorAction): void => {
+  handler(playhead, (action: IAutoMovieViewerInspectorAction): void => {
     actions.push(action);
   });
-  const stop: IAutoMovieInspectorAction.ITime | null =
-    stopAutoMovieInspectorTime(was, playhead.getSnapshot());
+  const stop: IAutoMovieViewerInspectorAction.ITime | null =
+    AutoMovieViewerInspector.stopTime(was, playhead.getSnapshot());
   if (stop !== null) actions.push(stop);
   return {
     state: actions.reduce(
-      reduceAutoMovieInspectorState,
-      createAutoMovieInspectorState("?from=0&to=4&rate=24"),
+      AutoMovieViewerInspector.reduceState,
+      AutoMovieViewerInspector.createState("?from=0&to=4&rate=24"),
     ),
     playhead,
   };

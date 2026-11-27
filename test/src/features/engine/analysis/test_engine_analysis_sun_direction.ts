@@ -1,4 +1,4 @@
-import { autoMovieSunDirection } from "@automovie/engine";
+import { AutoMovieEngineEnvironment } from "@automovie/engine";
 import type {
   IAutoMovieSunDirection,
   IAutoMovieVector3,
@@ -8,7 +8,7 @@ import { TestValidator } from "@nestia/e2e";
 import { vclose } from "../../internal/vclose";
 
 /**
- * `autoMovieSunDirection` turns azimuth (eastward from north) and elevation
+ * `sunDirection` turns azimuth (eastward from north) and elevation
  * into `cos e (cos a · N + sin a · E) + sin e · U`, with E = N × U.
  *
  * Scenarios:
@@ -27,7 +27,7 @@ export function test_engine_analysis_sun_direction(): void {
     azimuth: number,
     elevation: number,
   ): IAutoMovieVector3 =>
-    autoMovieSunDirection({
+    AutoMovieEngineEnvironment.sunDirection({
       context,
       position: { zenith: 90 - elevation, azimuth, elevation },
     });
@@ -41,7 +41,7 @@ export function test_engine_analysis_sun_direction(): void {
     vclose(at(0, 45), { x: 0, y: Math.SQRT1_2, z: -Math.SQRT1_2 }, 1e-15),
   );
   TestValidator.error("north along up", (): unknown =>
-    autoMovieSunDirection({
+    AutoMovieEngineEnvironment.sunDirection({
       context: { ...context, north: { x: 0, y: 2, z: 0 } },
       position: { zenith: 0, azimuth: 0, elevation: 90 },
     }),

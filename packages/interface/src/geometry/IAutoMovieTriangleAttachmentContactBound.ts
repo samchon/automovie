@@ -1,6 +1,6 @@
 /**
  * Bound on every possible contact of an anchored fan with one support face,
- * returned by `boundAutoMovieTriangleAttachmentContact`.
+ * returned by `boundTriangleAttachmentContact`.
  *
  * When `proved` is true, any contact lies within `cap` metres of the fan's
  * registered root. `cornerGap` and `rootDeficit` are the outward-rounded slab

@@ -1,9 +1,11 @@
-import type { IAutoMovieHumanHeadIdentity } from "@automovie/interface";
+import type {
+  IAutoMovieHumanHeadIdentity,
+  IAutoMovieHumanPair,
+} from "@automovie/interface";
 import type { tags } from "typia";
 
 import type { IAutoMovieHumanEarSchema } from "./IAutoMovieHumanEarSchema";
 import type { IAutoMovieHumanFaceSchema } from "./IAutoMovieHumanFaceSchema";
-import type { IAutoMovieHumanPairSchema } from "./IAutoMovieHumanPairSchema";
 
 /** Typia admission/schema metadata for IAutoMovieHumanHeadIdentity. The canonical shape belongs to interface; this refinement adds its existing ranges and nested schema metadata. Import this schema type when generating validators or schemas: the plain canonical type intentionally carries no typia dependency. */
 export type IAutoMovieHumanHeadIdentitySchema = IAutoMovieHumanHeadIdentity & {
@@ -166,5 +168,5 @@ export type IAutoMovieHumanHeadIdentitySchema = IAutoMovieHumanHeadIdentity & {
   face: IAutoMovieHumanFaceSchema;
 
   /** Independent left and right auricles. */
-  earPair: IAutoMovieHumanPairSchema<IAutoMovieHumanEarSchema>;
+  earPair: IAutoMovieHumanPair<IAutoMovieHumanEarSchema>;
 };

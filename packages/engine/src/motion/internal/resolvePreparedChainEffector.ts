@@ -1,0 +1,26 @@
+import type {
+  IAutoMovieChainBone,
+  IAutoMovieResolvePreparedChainEffectorResolvedPreparedEffectorProps,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
+import { resolvePreparedChainLower } from "./resolvePreparedChainLower";
+
+/*
+ * Resolve the effector produced by two candidate clinical joints through a
+ * prepared chain, in the same model-metre frame as its target. Clinical
+ * axes/rest frames must match preparation and candidate inversion. A supplied
+ * lower frame must be the completed prefix for these exact same inputs.
+ */
+export function resolvePreparedChainEffector(
+  props: IAutoMovieResolvePreparedChainEffectorResolvedPreparedEffectorProps,
+  lower?: IAutoMovieChainBone,
+): IAutoMovieVector3 {
+  const frame: IAutoMovieChainBone = lower ?? resolvePreparedChainLower(props);
+  return AutoMovieEngineVector3.add(
+    frame.worldPosition,
+    AutoMovieEngineQuaternion.rotateVector(frame.worldRotation, props.prepared.effectorOffset),
+  );
+}

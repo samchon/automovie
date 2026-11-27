@@ -1,27 +1,8 @@
+import { AutoMovieEngineHumanoidJointAxes, AutoMovieEngineHumanoidRestFrame, AutoMovieEngineVector3, AutoMovieEngineViolationCollector, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieFitDigitToTarget, IAutoMovieHumanoidSurfaces, IAutoMovieJointConstraint, IAutoMovieJointPose, IAutoMovieMotionHumanBody, IAutoMoviePose, IAutoMovieResolvedBone, IAutoMovieVector3, IAutoMovieViolationCollector } from "@automovie/interface";
 import {
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
-  Vector3,
-  ViolationCollector,
-  fitDigitToTarget,
-  getConstraint,
-  resolveAutoMovieHumanoidSurfaces,
-  validateJointRom,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
-  IAutoMovieFitDigitToTarget,
-  IAutoMovieHumanoidSurfaces,
-  IAutoMovieJointConstraint,
-  IAutoMovieJointPose,
-  IAutoMovieMotionHumanBody,
-  IAutoMoviePose,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-  IAutoMovieViolationCollector,
-} from "@automovie/interface";
-import { poseBones } from "@automovie/motions/internal";
+  poseBones
+} from "../../../../packages/motions/src/posture/internal/poseBones";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -92,7 +73,7 @@ const surfaceAt = (
   const frame: IAutoMovieHumanoidSurfaces.IFrame =
     body.surfaces.regions[region];
   const bone: IAutoMovieResolvedBone = poseBones(body, pose).get(frame.bone)!;
-  return resolveAutoMovieHumanoidSurfaces.place(frame, bone);
+  return AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(frame, bone);
 };
 
 /** Random in-range angles of a digit's free axes. */
@@ -102,7 +83,7 @@ const random = (
   draw: () => number,
 ): IAutoMovieJointPose[] =>
   bones.map((bone: AutoMovieHumanoidBone): IAutoMovieJointPose => {
-    const c = getConstraint(
+    const c = AutoMovieEngineKinematics.getConstraint(
       bone,
       body.skeleton.bones.find((b) => b.bone === bone)?.constraint ?? null,
     );
@@ -131,7 +112,7 @@ const fit = (
     body.surfaces.regions[
       `${digit.toLowerCase()}Tip${side === "left" ? "Left" : "Right"}` as AutoMovieHumanoidRegion
     ];
-  return fitDigitToTarget({
+  return AutoMovieEngineKinematics.fitDigitToTarget({
     skeleton: body.skeleton,
     pose: from,
     bones: digitBones(side, digit),
@@ -139,8 +120,8 @@ const fit = (
     target,
     ...(digit === "Thumb" ? {} : { coupling: 2 / 3 }),
     ...(rate === undefined ? {} : { rate }),
-    jointAxes: HUMANOID_JOINT_AXES,
-    restFrames: HUMANOID_REST_FRAME,
+    jointAxes: AutoMovieEngineHumanoidJointAxes,
+    restFrames: AutoMovieEngineHumanoidRestFrame,
   });
 };
 
@@ -206,15 +187,15 @@ export function test_engine_digit_fit(): void {
       // verdicts' measure), not by the clamp the fit projects with: a
       // thumb base gated by swing and twist is judged by its cone.
       for (const j of result.joints) {
-        const constraint: IAutoMovieJointConstraint | null = getConstraint(
+        const constraint: IAutoMovieJointConstraint | null = AutoMovieEngineKinematics.getConstraint(
           j.bone,
           body.skeleton.bones.find((b) => b.bone === j.bone)?.constraint ??
             null,
         );
         if (constraint === null) continue;
         const collector: IAutoMovieViolationCollector =
-          new ViolationCollector();
-        validateJointRom({ joint: j, constraint, path: j.bone, collector });
+          new AutoMovieEngineViolationCollector();
+        AutoMovieEngineKinematics.validateJointRom({ joint: j, constraint, path: j.bone, collector });
         for (const item of collector.items)
           outside.push(JSON.stringify(item).slice(0, 160));
       }
@@ -235,7 +216,7 @@ export function test_engine_digit_fit(): void {
     posed(body, []),
     "indexTipRight",
   ).point;
-  const far: IAutoMovieVector3 = Vector3.add(rest, { x: -0.2, y: 0, z: 0 });
+  const far: IAutoMovieVector3 = AutoMovieEngineVector3.add(rest, { x: -0.2, y: 0, z: 0 });
   const beyond: IAutoMovieFitDigitToTarget.IResult = fit(
     body,
     "right",
@@ -250,15 +231,15 @@ export function test_engine_digit_fit(): void {
     );
     nearest = Math.min(
       nearest,
-      Vector3.length(
-        Vector3.subtract(surfaceAt(body, pose, "indexTipRight").point, far),
+      AutoMovieEngineVector3.length(
+        AutoMovieEngineVector3.subtract(surfaceAt(body, pose, "indexTipRight").point, far),
       ),
     );
   }
   check(
     `an unreachable point leaves ${beyond.residual.toFixed(4)} m, the reached point's own distance, and no sampled point is nearer by more than 0.5 mm`,
     Math.abs(
-      beyond.residual - Vector3.length(Vector3.subtract(beyond.point, far)),
+      beyond.residual - AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(beyond.point, far)),
     ) <= REACH && beyond.residual <= nearest + REACH,
   );
 
@@ -286,8 +267,8 @@ export function test_engine_digit_fit(): void {
   const knuckle: IAutoMovieVector3 = poseBones(body, start).get(
     "rightIndexProximal",
   )!.worldPosition;
-  const inward: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.subtract(knuckle, origin),
+  const inward: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    AutoMovieEngineVector3.subtract(knuckle, origin),
   );
   let jump: number = 0;
   let pathMiss: number = 0;
@@ -298,7 +279,7 @@ export function test_engine_digit_fit(): void {
       body,
       "right",
       "Index",
-      Vector3.add(origin, Vector3.scale(inward, mm / 1000)),
+      AutoMovieEngineVector3.add(origin, AutoMovieEngineVector3.scale(inward, mm / 1000)),
       // Continuation: each fit seeded from the one before, as a caller
       // following a moving target does.
       previous === undefined ? start : posed(body, previous),
@@ -338,11 +319,11 @@ export function test_engine_digit_fit(): void {
   )!.worldPosition;
   const distal: IAutoMovieVector3 =
     initial.get("rightIndexDistal")!.worldPosition;
-  const proximalLength: number = Vector3.length(
-    Vector3.subtract(middle, knuckle),
+  const proximalLength: number = AutoMovieEngineVector3.length(
+    AutoMovieEngineVector3.subtract(middle, knuckle),
   );
-  const middleLength: number = Vector3.length(Vector3.subtract(distal, middle));
-  const tipLength: number = Vector3.length(
+  const middleLength: number = AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(distal, middle));
+  const tipLength: number = AutoMovieEngineVector3.length(
     body.surfaces.regions.indexTipRight.point,
   );
   const chainLength: number = proximalLength + middleLength + tipLength;
@@ -354,9 +335,9 @@ export function test_engine_digit_fit(): void {
       (2 * chainLength)) *
     (Math.PI / 180) ** 2;
   const softWidth: number = 1 / (4 * curvature * (STEP * 1000) ** 2);
-  const interiorTarget: IAutoMovieVector3 = Vector3.add(
+  const interiorTarget: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     origin,
-    Vector3.scale(inward, 0.02),
+    AutoMovieEngineVector3.scale(inward, 0.02),
   );
   check(
     "soft reach leaves a target below its band bit-identical",
@@ -374,12 +355,12 @@ export function test_engine_digit_fit(): void {
   let shrinks: boolean = false;
   let radialMiss: number = 0;
   for (let mm: number = 0; mm <= 20; mm++) {
-    const target: IAutoMovieVector3 = Vector3.add(origin, {
+    const target: IAutoMovieVector3 = AutoMovieEngineVector3.add(origin, {
       x: 0,
       y: -mm / 1000,
       z: 0,
     });
-    const distance: number = Vector3.length(Vector3.subtract(target, knuckle));
+    const distance: number = AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(target, knuckle));
     const expected: number =
       distance <= chainLength - softWidth
         ? distance
@@ -397,7 +378,7 @@ export function test_engine_digit_fit(): void {
     radialMiss = Math.max(
       radialMiss,
       Math.abs(
-        Vector3.length(Vector3.subtract(result.point, knuckle)) - expected,
+        AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(result.point, knuckle)) - expected,
       ),
     );
     if (before !== undefined) {

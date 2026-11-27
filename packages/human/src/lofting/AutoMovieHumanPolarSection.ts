@@ -1,3 +1,4 @@
+import { AutoMovieEnginePlanarHull } from "@automovie/engine";
 import type { IAutoMovieHumanPolarSection } from "@automovie/interface";
 
 /**
@@ -65,46 +66,12 @@ export namespace AutoMovieHumanPolarSection {
    * @param radii Radii at uniform polar angles.
    */
   export function girth(radii: readonly number[]): number {
-    const points: [number, number][] = radii
-      .map((r: number, j: number): [number, number] => {
+    const points: [number, number][] = radii.map(
+      (r: number, j: number): [number, number] => {
         const t: number = (2 * Math.PI * j) / radii.length;
         return [r * Math.cos(t), r * Math.sin(t)];
-      })
-      .sort(
-        (a: [number, number], b: [number, number]): number =>
-          a[0] - b[0] || a[1] - b[1],
-      );
-    const half = (list: [number, number][]): [number, number][] => {
-      const out: [number, number][] = [];
-      for (const p of list) {
-        while (
-          out.length >= 2 &&
-          turn(out[out.length - 2]!, out[out.length - 1]!, p) <= 0
-        )
-          out.pop();
-        out.push(p);
-      }
-      out.pop();
-      return out;
-    };
-    const hull: [number, number][] = [
-      ...half(points),
-      ...half([...points].reverse()),
-    ];
-    let sum: number = 0;
-    hull.forEach((p: [number, number], i: number): void => {
-      const q: [number, number] = hull[(i + 1) % hull.length]!;
-      sum += Math.hypot(q[0] - p[0], q[1] - p[1]);
-    });
-    return sum;
+      },
+    );
+    return AutoMovieEnginePlanarHull.perimeter(points, 0, 1);
   }
-}
-
-/** Sign of the turn from `o` through `a` to `b`. */
-function turn(
-  o: readonly [number, number],
-  a: readonly [number, number],
-  b: readonly [number, number],
-): number {
-  return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
 }

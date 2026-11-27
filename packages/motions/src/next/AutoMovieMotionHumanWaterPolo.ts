@@ -1,4 +1,4 @@
-import { scoreWaterPoloGoal as scoreWaterPoloGoalLaw } from "../sport/scoreWaterPoloGoal";
+import { scoreWaterPoloGoal as scoreWaterPoloGoalLaw } from "../sport/internal/scoreWaterPoloGoal";
 
 /**
  * Water polo: the credit of the direct, airborne portion of a shot. The same

@@ -1,4 +1,4 @@
-import { sampleClip } from "@automovie/engine";
+import { AutoMovieEngineSequence } from "@automovie/engine";
 import type {
   AutoMovieInterpolation,
   IAutoMovieChannel,
@@ -55,7 +55,7 @@ const value: (source: IAutoMovieClip, seconds: number) => number[] = (
   source: IAutoMovieClip,
   seconds: number,
 ): number[] => {
-  const sampled: Map<string, IAutoMovieSampledChannel> = sampleClip(
+  const sampled: Map<string, IAutoMovieSampledChannel> = AutoMovieEngineSequence.sampleClip(
     source,
     seconds,
   );
@@ -140,7 +140,7 @@ export function test_engine_resolve_sample_clip(): void {
     "a repeated channel and a negative duration",
     throwsError(
       (): unknown =>
-        sampleClip(
+        AutoMovieEngineSequence.sampleClip(
           clip([
             slide("linear", [0, 0, 0, 10, 0, 0]),
             slide("linear", [0, 0, 0, 10, 0, 0]),
@@ -150,7 +150,7 @@ export function test_engine_resolve_sample_clip(): void {
       "duplicate track channel",
     ) &&
       throwsError(
-        (): unknown => sampleClip({ ...linear, duration: -1 }, 0),
+        (): unknown => AutoMovieEngineSequence.sampleClip({ ...linear, duration: -1 }, 0),
         "non-negative",
       ),
   );

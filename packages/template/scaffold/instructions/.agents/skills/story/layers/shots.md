@@ -10,7 +10,7 @@ Set camera height, point of view and movement for the action and the delivered a
 
 ## Continuity across a cut
 
-<!-- @source Bordwell and Thompson, Film Art, on continuity editing. Walter Murch, In the Blink of an Eye, on priorities at a cut. -->
+<!-- @reference Bordwell and Thompson, Film Art, on continuity editing. Walter Murch, In the Blink of an Eye, on priorities at a cut. -->
 
 Keep eyelines and screen direction across cuts. Cross the axis on screen through camera or subject movement, or to create deliberate disorientation.
 

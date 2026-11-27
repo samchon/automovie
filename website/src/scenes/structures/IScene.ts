@@ -79,7 +79,7 @@ export namespace IScene {
     emitter: string;
 
     /** The performer's action and event that switch it on in the played take. */
-    on: IPracticalLight.ICue;
+    on: IPracticalLightCue;
 
     /** The on-state point light's colour, a 24-bit sRGB number. */
     color: number;
@@ -87,18 +87,16 @@ export namespace IScene {
     /** The on-state point light's intensity, candela. */
     intensity: number;
   }
-  export namespace IPracticalLight {
-    /** A named event of one performer's action in the played take. */
-    export interface ICue {
-      /** The performer. */
-      subject: string;
+  /** A named event of one performer's action in the played take. */
+  export interface IPracticalLightCue {
+    /** The performer. */
+    subject: string;
 
-      /** The action's id in the timeline, the first span of that id. */
-      action: string;
+    /** The action's id in the timeline, the first span of that id. */
+    action: string;
 
-      /** The action's event name. */
-      event: string;
-    }
+    /** The action's event name. */
+    event: string;
   }
 
   /** A setting the gallery groups scenes under. */

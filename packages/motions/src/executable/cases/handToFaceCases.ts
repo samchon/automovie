@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieJointPose,
   IAutoMovieMotionHumanBody,
@@ -8,20 +8,20 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanChain } from "../../HumanChain";
-import { createHumanBody } from "../../body/createHumanBody";
-import { AutoMovieMotionHumanTouchEffector } from "../../compose/AutoMovieMotionHumanTouchEffector";
-import { AutoMovieMotionHumanTouchForm } from "../../compose/AutoMovieMotionHumanTouchForm";
-import { handToFace } from "../../daily/handToFace";
-import { HumanPerformance } from "../../perform/HumanPerformance";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
-import { MotionBodies } from "../MotionBodies";
-import type { humanPolygonMan } from "../humanPolygonMan";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
+import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
+import { AutoMovieMotionHumanTouchEffector } from "../../compose/internal/AutoMovieMotionHumanTouchEffector";
+import { AutoMovieMotionHumanTouchForm } from "../../compose/internal/AutoMovieMotionHumanTouchForm";
+import { handToFace } from "../../daily/internal/handToFace";
+import { AutoMovieMotionHumanPerformance } from "../../perform/AutoMovieMotionHumanPerformance";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
+import { MotionBodies } from "../internal/MotionBodies";
+import type { humanPolygonMan } from "../internal/humanPolygonMan";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { TouchVerdicts } from "./TouchVerdicts";
-import { everydayVerdicts } from "./everydayVerdicts";
+import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/**
+/*
  * Capture cases of the hand-to-face tasks on the polygon man, one per task,
  * standing from quiet standing with the right hand.
  *
@@ -40,9 +40,8 @@ import { everydayVerdicts } from "./everydayVerdicts";
  * - Reading: the sheet between 17.5 and 58 cm from the eyes (Bababekova et al.
  *   2011's range for text) and the neck's and head's flexion from the upright
  *   entry between 33 and 45 degrees at `atSheet` (Lee et al. 2015).
- *
- * @param bodies The bodies; `m-average` when absent.
- * @returns The cases.
+ * Parameter bodies: The bodies; `m-average` when absent.
+ * Returns: The cases.
  */
 export function handToFaceCases(
   bodies: readonly string[] = ["m-average"],
@@ -50,7 +49,7 @@ export function handToFaceCases(
   const out: IMotionCaptureCase[] = [];
   for (const id of bodies) {
     const man: humanPolygonMan.IPolygonMan = MotionBodies.population(id);
-    const body: IAutoMovieMotionHumanBody = createHumanBody(
+    const body: IAutoMovieMotionHumanBody = AutoMovieMotionHumanBody.create(
       man.body.skeleton,
       man.body.profile,
     );
@@ -66,7 +65,7 @@ export function handToFaceCases(
       try {
         performance = perform(
           body,
-          HumanChain.subject("a").act("handToFace", { kind: task }),
+          AutoMovieMotionHumanChain.subject("a").act("handToFace", { kind: task }),
         );
       } catch (error) {
         out.push(FamilyCaseKit.refused(`hand-face-${task}${suffix}`, error));
@@ -156,8 +155,8 @@ export function handToFaceCases(
         const at: number = TouchVerdicts.event(performance, "a", "atMouth");
         const hand = performance.bones("a", at).get("rightHand")!;
         // The cup's axis is the axis of the cylinder the fist holds.
-        const cup: IAutoMovieVector3 = Vector3.normalize(
-          Quaternion.rotateVector(
+        const cup: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+          AutoMovieEngineQuaternion.rotateVector(
             hand.worldRotation,
             AutoMovieMotionHumanTouchEffector.axis("right", "grasp"),
           ),
@@ -175,8 +174,8 @@ export function handToFaceCases(
       if (task === "read") {
         const at: number = TouchVerdicts.event(performance, "a", "atSheet");
         const bones = performance.bones("a", at);
-        const eyes: IAutoMovieVector3 = Vector3.scale(
-          Vector3.add(
+        const eyes: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+          AutoMovieEngineVector3.add(
             bones.get("leftEye")!.worldPosition,
             bones.get("rightEye")!.worldPosition,
           ),
@@ -189,7 +188,7 @@ export function handToFaceCases(
             "right",
             row.effector,
           );
-        const distance: number = Vector3.length(Vector3.subtract(sheet, eyes));
+        const distance: number = AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(sheet, eyes));
         verdicts.push({
           name: "sheet 17.5 to 58 cm from the eyes at atSheet",
           passed: distance >= 0.175 && distance <= 0.58,
@@ -226,12 +225,14 @@ export function handToFaceCases(
   return out;
 }
 
-/** A performance of one polygon man standing at the origin heading +Z. */
+/*
+ * A performance of one polygon man standing at the origin heading +Z.
+ */
 function perform(
   body: IAutoMovieMotionHumanBody,
   chain: IAutoMovieMotionHumanChain,
 ): IAutoMovieMotionHumanPerformance {
-  return new HumanPerformance({
+  return new AutoMovieMotionHumanPerformance({
     seed: "hand-face",
     performers: [
       {

@@ -1,13 +1,13 @@
 import {
-  AutoMovieConstructionContinuation,
-  AutoMovieConstructionPortCurve,
-  AutoMovieConstructionSeeds,
-  AutoMovieConstructionSplitBand as Band,
-  AutoMovieConstructionSplitSeam as Seam,
-  AutoMovieNaturalSpline,
-  AutoMovieSolidChain,
-  AutoMovieSolidRibbon,
-  AutoMovieSolidVector as V,
+  AutoMovieEngineConstructionContinuation,
+  AutoMovieEngineConstructionPortCurve,
+  AutoMovieEngineConstructionSeeds,
+  AutoMovieEngineConstructionSplitBand as Band,
+  AutoMovieEngineConstructionSplitSeam as Seam,
+  AutoMovieEngineNaturalSpline,
+  AutoMovieEngineSolidChain,
+  AutoMovieEngineSolidRibbon,
+  AutoMovieEngineSolidVector as V,
 } from "@automovie/engine";
 import { AutoMovieHumanPeriodicRailRange } from "@automovie/human";
 import type {
@@ -212,10 +212,10 @@ export function FamilyConicNativePremises(
         : Seam.create({
             ...host,
             into: node.hostEnd === "bottom" ? -1 : 1,
-            knots: seam.profile.knots.map(([a, d]): [number, number] => [
-              a * 1000,
-              d * 1000,
-            ]),
+            knots: seam.profile.knots.map(({ alongM, depthM }) => ({
+              alongMm: alongM * 1000,
+              depthMm: depthM * 1000,
+            })),
             ...(seam.profile.heading === undefined
               ? {}
               : { heading: seam.profile.heading }),
@@ -237,13 +237,13 @@ export function FamilyConicNativePremises(
             distances = node.rails.map(
               (x: number): number => stop + side.into * x * 1000,
             );
-          const bounds = AutoMovieHumanPeriodicRailRange(distances),
+          const bounds = AutoMovieHumanPeriodicRailRange.of(distances),
             limits = domain(part);
           if (!(bounds[0] > limits[0] && bounds[1] < limits[1]))
             throw new Error(
               "proved complete curved rail bound leaves its actual source domain",
             );
-          side.along = AutoMovieNaturalSpline.periodic(distances);
+          side.along = AutoMovieEngineNaturalSpline.periodic(distances);
           keptDomains[node.partFace] =
             side.into === 1 ? [bounds[1], limits[1]] : [limits[0], bounds[0]];
           rows.push({
@@ -258,8 +258,8 @@ export function FamilyConicNativePremises(
         const {
           addresses: charts,
           inward,
-        }: ReturnType<typeof AutoMovieConstructionPortCurve.chart> =
-          AutoMovieConstructionPortCurve.chart(node.loop, n);
+        }: ReturnType<typeof AutoMovieEngineConstructionPortCurve.chart> =
+          AutoMovieEngineConstructionPortCurve.chart(node.loop, n);
         const jets = charts.map(([s, t]) => host.surface.jet(s, t));
         const loop = jets.map((jet): AutoMovieVector3Tuple => [...jet.p]);
         const outward = V.unit(
@@ -280,7 +280,7 @@ export function FamilyConicNativePremises(
             ]),
           );
           return speed > 0
-            ? AutoMovieSolidRibbon.of(
+            ? AutoMovieEngineSolidRibbon.of(
                 host.surface,
                 charts[k]![0],
                 charts[k]![1],
@@ -375,8 +375,8 @@ export function FamilyConicNativePremises(
                   host: { surface: source.surface, station, into },
                   arc:
                     index === 0
-                      ? node.seam
-                      : [node.seam[1], node.seam[0] + 2 * Math.PI],
+                      ? [node.seam.startPhaseRad, node.seam.endPhaseRad]
+                      : [node.seam.endPhaseRad, node.seam.startPhaseRad + 2 * Math.PI],
                   normal: normal(source, node.hostEnd),
                   child: side,
                   count: node.count,
@@ -423,8 +423,8 @@ export function FamilyConicNativePremises(
         } else {
           const count: number = seams.length,
             q: number = node.count / 4,
-            a = (j: number): number => seams[j]!.seam[0],
-            b = (j: number): number => seams[j]!.seam[1];
+            a = (j: number): number => seams[j]!.seam.startPhaseRad,
+            b = (j: number): number => seams[j]!.seam.endPhaseRad;
           const p = seams.find(
             (s): boolean => s.profile !== undefined,
           )?.profile;
@@ -573,14 +573,14 @@ export function FamilyConicNativePremises(
             side,
           );
         } else {
-          const made = AutoMovieConstructionContinuation.apply(
+          const made = AutoMovieEngineConstructionContinuation.apply(
             host.chain,
             node.hostEnd,
             part.chain,
             node.partEnd,
           );
           if (typeof made === "string") throw new Error(made);
-          const surface = AutoMovieSolidChain.surface(made);
+          const surface = AutoMovieEngineSolidChain.surface(made);
           if (surface === null)
             throw new Error("continued actual surface2 unavailable");
           sources.set(node.partFace, { chain: made, surface });
@@ -610,7 +610,7 @@ export function FamilyConicNativePremises(
           hostSurface =
             observe?.seedSurface?.(node.name, "host", host.surface) ??
             host.surface;
-        const seed = AutoMovieConstructionSeeds.create(
+        const seed = AutoMovieEngineConstructionSeeds.create(
           node.seed,
           partSurface,
           part.chain.layers.map((layer) => layer.y),

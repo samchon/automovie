@@ -1,5 +1,5 @@
-import type { IAutoMovieScene } from "../scene/IAutoMovieScene.js";
-import type { IAutoMovieSemanticMask } from "./IAutoMovieSemanticMask.js";
+import type { IAutoMovieScene } from "../scene/IAutoMovieScene";
+import type { IAutoMovieSemanticMask } from "./IAutoMovieSemanticMask";
 
 /** A built scene and the palette its structural mask pass must paint it with. */
 export interface IAutoMovieSemanticMaskBinding {

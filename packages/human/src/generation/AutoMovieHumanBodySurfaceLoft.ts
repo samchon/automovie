@@ -1,4 +1,4 @@
-import { AutoMovieLoftSection } from "@automovie/engine";
+import { AutoMovieEngineLoftSection } from "@automovie/engine";
 import type {
   IAutoMovieHumanBodySurfaceLoft,
   IAutoMovieHumanSurfaceAppendage,
@@ -15,33 +15,19 @@ import { AutoMovieHumanBodySurfacePhases } from "./AutoMovieHumanBodySurfacePhas
 import { AutoMovieHumanBodySurfacePoles } from "./AutoMovieHumanBodySurfacePoles";
 import { AutoMovieHumanBodySurfaceRead } from "./AutoMovieHumanBodySurfaceRead";
 
-const {
-  chain,
-  endHeight,
-  capHeight,
-  interval,
-  ringVertices,
-}: typeof AutoMovieHumanBodySurfaceRead = AutoMovieHumanBodySurfaceRead;
-const {
-  boundary,
-  cells,
-  domeBase,
-  pole,
-  zipped,
-}: typeof AutoMovieHumanBodySurfacePoles = AutoMovieHumanBodySurfacePoles;
-const { inheritedPhases, ownPhases }: typeof AutoMovieHumanBodySurfacePhases =
-  AutoMovieHumanBodySurfacePhases;
-
-/** A chain lofted between its owned and inherited rings and poles, its holes, and the zipper that joins it to its neighbours. */
+/**
+ * A chain lofted between its owned and inherited rings and poles, its holes,
+ * and the zipper that joins it to its neighbours.
+ */
 export namespace AutoMovieHumanBodySurfaceLoft {
   /**
    * Loft one chain between its resolved bottom and top boundaries.
    *
-   * Rings are generated at the interior bisection stations in the chain's
-   * own phase set. An own boundary ring already has that phase set and joins
-   * by an ordinary band; an inherited ring joins by a zipper; a missing
-   * boundary is generated at the end height, or at the dome base of a
-   * rounded pole, and closed at its pole.
+   * Rings are generated at the interior bisection stations in the chain's own
+   * phase set. An own boundary ring already has that phase set and joins by an
+   * ordinary band; an inherited ring joins by a zipper; a missing boundary is
+   * generated at the end height, or at the dome base of a rounded pole, and
+   * closed at its pole.
    *
    * @evidence contracts/common.md#principled-implementation Retained pole source.station extends bisection through the public original Point0 domain. Only exact zero tips are omitted as rings; every positive principal section survives.
    * @evidence contracts/common.md#clear-and-simple-design Existing adaptive bands read both regular and retained cap values; the last tiny ring closes at its explicit pole point.
@@ -180,13 +166,14 @@ export namespace AutoMovieHumanBodySurfaceLoft {
     // Poles close the ends that no event owns, but for a pole a root winds
     // round, whose cells the root left out; an appendage keeps its root
     // ring for its strip.
-    const wound: (end: "bottom" | "top") => boolean = (
-      end: "bottom" | "top",
-    ): boolean =>
-      (target.pole?.end === end || target.opposite?.end === end) &&
-      (context.roots.get(target.name) ?? []).some(
-        (r): boolean => r.appendage?.winding !== undefined,
+    function wound(end: "bottom" | "top"): boolean {
+      return (
+        (target.pole?.end === end || target.opposite?.end === end) &&
+        (context.roots.get(target.name) ?? []).some(
+          (r): boolean => r.appendage?.winding !== undefined,
+        )
       );
+    }
     if (bottom.kind === "pole" && !wound("bottom"))
       pole(context, target, "bottom", rings[0]!);
     if (top.kind === "pole" && !wound("top"))
@@ -203,27 +190,10 @@ export namespace AutoMovieHumanBodySurfaceLoft {
       });
   }
 
-  /** Read the actual explicit regular section, independently of physical station jets. Native conic principal sections have distinct cardinal values. Genuine legacy absence keeps its previous endpoint policy; no retained source domain is bypassed to replay an unavailable cap. */
-  function positiveEnd(
-    target: IAutoMovieLoftChain,
-    end: "bottom" | "top",
-  ): boolean {
-    const source: ReturnType<typeof AutoMovieLoftSection.phase> =
-      AutoMovieLoftSection.phase(target, endHeight(target, end));
-    if (source === null) return false;
-    const first: readonly number[] = source(0).p;
-    return [Math.PI / 2, Math.PI, (3 * Math.PI) / 2].some(
-      (phase: number): boolean =>
-        source(phase).p.some(
-          (value: number, axis: number): boolean => value !== first[axis],
-        ),
-    );
-  }
-
   /**
-   * Join one appendage to its base: the hole the base left round the root
-   * loop, traced from the cells left out, and the strip to the appendage's
-   * root ring.
+   * Join one appendage to its base: the hole the base left round the root loop,
+   * traced from the cells left out, and the strip to the appendage's root
+   * ring.
    */
   export function join(
     context: IAutoMovieHumanSurfaceContext,
@@ -258,10 +228,10 @@ export namespace AutoMovieHumanBodySurfaceLoft {
   }
 
   /**
-   * The hole a base left round a loop: the closed edge of its left-out
-   * cells nearest the loop, as vertices and their chart points; for a loop
-   * winding round the cap pole, the edge ring whose mean station is the
-   * loop's nearest.
+   * The hole a base left round a loop: the closed edge of its left-out cells
+   * nearest the loop, as vertices and their chart points; for a loop winding
+   * round the cap pole, the edge ring whose mean station is the loop's
+   * nearest.
    */
   export function holeEdge(
     context: IAutoMovieHumanSurfaceContext,
@@ -363,4 +333,44 @@ export namespace AutoMovieHumanBodySurfaceLoft {
 
   /** Samples of a root loop when testing cells against it. */
   export const LOOP: number = 256;
+
+  /*
+   * Read the actual explicit regular section, independently of physical station
+   * jets. Native conic principal sections have distinct cardinal values.
+   * Genuine legacy absence keeps its previous endpoint policy; no retained
+   * source domain is bypassed to replay an unavailable cap.
+   */
+  function positiveEnd(
+    target: IAutoMovieLoftChain,
+    end: "bottom" | "top",
+  ): boolean {
+    const source: ReturnType<typeof AutoMovieEngineLoftSection.phase> =
+      AutoMovieEngineLoftSection.phase(target, endHeight(target, end));
+    if (source === null) return false;
+    const first: readonly number[] = source(0).p;
+    return [Math.PI / 2, Math.PI, (3 * Math.PI) / 2].some(
+      (phase: number): boolean =>
+        source(phase).p.some(
+          (value: number, axis: number): boolean => value !== first[axis],
+        ),
+    );
+  }
 }
+
+const {
+  chain,
+  endHeight,
+  capHeight,
+  interval,
+  ringVertices,
+}: typeof AutoMovieHumanBodySurfaceRead = AutoMovieHumanBodySurfaceRead;
+const {
+  boundary,
+  cells,
+  domeBase,
+  pole,
+  zipped,
+}: typeof AutoMovieHumanBodySurfacePoles = AutoMovieHumanBodySurfacePoles;
+
+const { inheritedPhases, ownPhases }: typeof AutoMovieHumanBodySurfacePhases =
+  AutoMovieHumanBodySurfacePhases;

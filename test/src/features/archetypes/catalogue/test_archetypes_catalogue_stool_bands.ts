@@ -1,4 +1,4 @@
-import { createSeat } from "@automovie/archetypes";
+import { AutoMovieArchetypeSeat } from "@automovie/archetypes";
 import type {
   IAutoMoviePhysicalShape,
   IAutoMovieVector3,
@@ -22,7 +22,7 @@ export function test_archetypes_catalogue_stool_bands(): void {
     ["barStool", 1.067 - 12 * 0.0254, 0.3],
     ["barStool", 1.067 - 10 * 0.0254, 0.35],
   ] as const) {
-    const seat: IAutoMoviePhysicalShape | undefined = createSeat({
+    const seat: IAutoMoviePhysicalShape | undefined = AutoMovieArchetypeSeat.create({
       kind,
       seatHeight: height,
       seatWidth: diameter,

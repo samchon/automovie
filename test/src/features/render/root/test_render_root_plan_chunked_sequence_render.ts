@@ -1,13 +1,9 @@
-﻿import type {
+import type {
   IAutoMovieRenderSpec,
   IAutoMovieSequence,
   IAutoMovieSequenceRenderPlan,
   IAutoMovieShot,
-} from "@automovie/interface";
-import {
-  planChunkedSequenceRender,
-  planSequenceRender,
-} from "@automovie/render";
+} from "@automovie/interface";import { AutoMovieRenderSequence } from "@automovie/render";;
 import { TestValidator } from "@nestia/e2e";
 
 const shot = (id: string, duration: number): IAutoMovieShot => ({
@@ -55,13 +51,13 @@ const SPEC: IAutoMovieRenderSpec = {
  * 5. A chunk size of 0 is refused.
  */
 export function test_render_root_plan_chunked_sequence_render(): void {
-  const plan: IAutoMovieSequenceRenderPlan = planSequenceRender({
+  const plan: IAutoMovieSequenceRenderPlan = AutoMovieRenderSequence.plan({
     sequence: SEQUENCE,
     shots: [shot("shot:a", 2), shot("shot:b", 2)],
     spec: SPEC,
   });
   TestValidator.equals("frames", plan.frames.length, 10);
-  const chunked = planChunkedSequenceRender({ plan, spec: SPEC, chunkFrames: 4 });
+  const chunked = AutoMovieRenderSequence.planChunked({ plan, spec: SPEC, chunkFrames: 4 });
   TestValidator.equals("chunk count", chunked.chunkCount, 3);
   TestValidator.equals(
     "ranges",
@@ -107,7 +103,7 @@ export function test_render_root_plan_chunked_sequence_render(): void {
   );
   TestValidator.equals("no passes by default", chunked.passManifests, undefined);
 
-  const passes = planChunkedSequenceRender({
+  const passes = AutoMovieRenderSequence.planChunked({
     plan,
     spec: SPEC,
     chunkFrames: 4,
@@ -127,6 +123,6 @@ export function test_render_root_plan_chunked_sequence_render(): void {
     true,
   );
   TestValidator.error("zero chunk", (): void => {
-    planChunkedSequenceRender({ plan, spec: SPEC, chunkFrames: 0 });
+   AutoMovieRenderSequence.planChunked({ plan, spec: SPEC, chunkFrames: 0 });
   });
 }

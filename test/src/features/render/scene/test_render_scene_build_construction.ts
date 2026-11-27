@@ -1,6 +1,6 @@
 import {
-  AutoMovieThreeKind,
-  buildAutoMovieConstruction,
+  AutoMovieRenderThreeKind,
+  AutoMovieRenderSceneLayout,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
@@ -16,7 +16,7 @@ import * as THREE from "three";
  * 3. Duplicate identities and point exhaustion refuse.
  */
 export async function test_render_scene_build_construction(): Promise<void> {
-  const lines: Parameters<typeof buildAutoMovieConstruction>[0] = [
+  const lines: Parameters<typeof AutoMovieRenderSceneLayout.buildConstruction>[0]["lines"] = [
     {
       id: "section",
       closed: true,
@@ -35,15 +35,15 @@ export async function test_render_scene_build_construction(): Promise<void> {
       ],
     },
   ];
-  const result: ReturnType<typeof buildAutoMovieConstruction> =
-    buildAutoMovieConstruction(lines, { color: 0xff9900, maxPoints: 5 });
+  const result: ReturnType<typeof AutoMovieRenderSceneLayout.buildConstruction> =
+    AutoMovieRenderSceneLayout.buildConstruction({ lines, options: { color: 0xff9900, maxPoints: 5 } });
   const [section, guide]: (THREE.Object3D | undefined)[] =
     result.object.children;
   if (
     section === undefined ||
     guide === undefined ||
-    !AutoMovieThreeKind.isLine(section) ||
-    !AutoMovieThreeKind.isLine(guide)
+    !AutoMovieRenderThreeKind.isLine(section) ||
+    !AutoMovieRenderThreeKind.isLine(guide)
   )
     throw new Error("Expected a section and a guide line");
   TestValidator.predicate(
@@ -60,7 +60,7 @@ export async function test_render_scene_build_construction(): Promise<void> {
     section.material === guide.material,
   );
   const material: THREE.Material | THREE.Material[] = section.material;
-  if (!AutoMovieThreeKind.isMaterial(material))
+  if (!AutoMovieRenderThreeKind.isMaterial(material))
     throw new Error("Expected one line material");
   let disposals: number = 0;
   section.geometry.addEventListener("dispose", (): void => {
@@ -102,7 +102,7 @@ export async function test_render_scene_build_construction(): Promise<void> {
   for (const invalid of variants) {
     let refused: boolean = false;
     try {
-      buildAutoMovieConstruction(invalid, { color: 0, maxPoints: 5 });
+      AutoMovieRenderSceneLayout.buildConstruction({ lines: invalid, options: { color: 0, maxPoints: 5 } });
     } catch {
       refused = true;
     }
@@ -110,7 +110,7 @@ export async function test_render_scene_build_construction(): Promise<void> {
   }
   let exhausted: boolean = false;
   try {
-    buildAutoMovieConstruction(lines, { color: 0, maxPoints: 4 });
+    AutoMovieRenderSceneLayout.buildConstruction({ lines, options: { color: 0, maxPoints: 4 } });
   } catch {
     exhausted = true;
   }

@@ -1,8 +1,8 @@
-import { admitAutoMovieControlPasses } from "@automovie/render";
+import { AutoMovieRenderDraw } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `admitAutoMovieControlPasses` keeps the named guide passes in request order
+ * `AutoMovieRenderDraw.admitControlPasses` keeps the named guide passes in request order
  * and refuses `beauty`, a name that is no guide pass and a repeat.
  *
  * Scenarios:
@@ -14,10 +14,10 @@ import { TestValidator } from "@nestia/e2e";
 export function test_render_delivery_admit_control_passes(): void {
   TestValidator.equals(
     "request order",
-    admitAutoMovieControlPasses(["pose", "depth"]),
+    AutoMovieRenderDraw.admitControlPasses(["pose", "depth"]),
     ["pose", "depth"],
   );
-  TestValidator.equals("nothing", admitAutoMovieControlPasses([]), []);
+  TestValidator.equals("nothing", AutoMovieRenderDraw.admitControlPasses([]), []);
   for (const [passes, message] of [
     [["beauty"], "film itself"],
     [["faces"], "not a guide pass"],
@@ -27,7 +27,7 @@ export function test_render_delivery_admit_control_passes(): void {
       message,
       ((): string => {
         try {
-          admitAutoMovieControlPasses(passes);
+          AutoMovieRenderDraw.admitControlPasses(passes);
           return "";
         } catch (error) {
           return error instanceof Error && error.message.includes(message)

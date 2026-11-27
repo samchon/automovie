@@ -1,10 +1,10 @@
 import type { IAutoMovieHumanConicLoft } from "@automovie/interface";
 
-import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
-import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
-import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
+import { AutoMovieHumanConicSection } from "../AutoMovieHumanConicSection";
+import { AutoMovieHumanF1Joints } from "../AutoMovieHumanF1Joints";
+import { AutoMovieHumanF1Placement } from "../AutoMovieHumanF1Placement";
 
-/**
+/*
  * f1's arm tape wall on the +Z side; the other side is its mirror image in the median plane z = 0, which f1's reference satisfies exactly.
  *
  * Frame: the figure's absolute reference pose, millimetres, forward +X, up +Y, +Z the reference's left. The course runs
@@ -181,8 +181,8 @@ export const AutoMovieHumanF1Arm: IAutoMovieHumanConicLoft.IFamily = {
   reliefs: [
     {
       name: "arm.hollow.0",
-      stations: [2, 96],
-      phases: [-1.4393, 4.4439],
+      stations: { start: 2, end: 96 },
+      phases: { start: -1.4393, end: 4.4439 },
       axis: AutoMovieHumanF1Placement.direction("arm.hollow.0.axis"),
       turn: AutoMovieHumanF1Placement.direction("arm.hollow.0.turn"),
       rows: 13,
@@ -228,8 +228,8 @@ export const AutoMovieHumanF1Arm: IAutoMovieHumanConicLoft.IFamily = {
     },
     {
       name: "arm.hollow.1",
-      stations: [204, 310],
-      phases: [-1.4393, 4.4439],
+      stations: { start: 204, end: 310 },
+      phases: { start: -1.4393, end: 4.4439 },
       axis: AutoMovieHumanF1Placement.direction("arm.hollow.1.axis"),
       turn: AutoMovieHumanF1Placement.direction("arm.hollow.1.turn"),
       rows: 14,
@@ -258,8 +258,8 @@ export const AutoMovieHumanF1Arm: IAutoMovieHumanConicLoft.IFamily = {
     },
     {
       name: "arm.fore",
-      stations: [300, 440],
-      phases: [0, 6.283185307179586],
+      stations: { start: 300, end: 440 },
+      phases: { start: 0, end: 6.283185307179586 },
       axis: AutoMovieHumanF1Placement.direction("arm.fore.axis"),
       turn: AutoMovieHumanF1Placement.direction("arm.fore.turn"),
       rows: 19,
@@ -305,8 +305,8 @@ export const AutoMovieHumanF1Arm: IAutoMovieHumanConicLoft.IFamily = {
     },
     {
       name: "arm.hand",
-      stations: [400, 575],
-      phases: [0, 6.283185307179586],
+      stations: { start: 400, end: 575 },
+      phases: { start: 0, end: 6.283185307179586 },
       axis: AutoMovieHumanF1Placement.direction("arm.hand.axis"),
       turn: AutoMovieHumanF1Placement.direction("arm.hand.turn"),
       rows: 36,

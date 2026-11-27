@@ -1,5 +1,13 @@
 import type { IAutoMovieMotionHumanFormation, IAutoMovieVector3 } from "@automovie/interface";
-import { HumanFormation, HumanFormationPath, HumanRefusal } from "@automovie/motions/internal";
+import {
+  HumanFormation
+} from "../../../../../packages/motions/src/ensemble/internal/HumanFormation";
+import {
+  HumanFormationPath
+} from "../../../../../packages/motions/src/ensemble/internal/HumanFormationPath";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -88,7 +96,7 @@ namespace part_human_formation_path {
       try {
         HumanFormationPath.lay(path, 1, 2);
       } catch (error: unknown) {
-        if (error instanceof HumanRefusal) return error.axis;
+        if (error instanceof AutoMovieMotionHumanRefusal) return error.axis;
       }
       return "admitted";
     };

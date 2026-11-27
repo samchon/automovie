@@ -6,14 +6,14 @@ Compare matching cells so only the factor under study differs.
 
 | Pair | Separates |
 | --- | --- |
-| Before and after a correction | The change's effect from what was already there, and regressions outside it |
-| A reference or fixed source and the result | The result's own errors from the source's |
+| Before and after a correction | Effects and regressions beyond the change |
+| Fixed source or reference and result | Differences from the source |
 | A computed result and its picture | A calculation fault from a display fault |
-| The source's picture and the encoded file | What encoding, color conversion or assembly changed |
-| A conditioning input and what a generator made from it | What the generator kept, moved or invented |
-| A coarse form and its detail option | What the detail shows at the size it is used |
-| A sequential capture and a restart or seek to the same time | State that depends on how the time was reached |
-| This delivery and the previous one | What changed between them at matched times |
+| Source picture and encoded file | Encoding, color or assembly changes |
+| Conditioning input and generated result | What stayed, moved or appeared |
+| Coarse form and its detail option | Added detail at its intended size |
+| Sequence against seek or restart | State depends on how time was reached |
+| Current and previous delivery | Changes at matched times |
 
 ## Matched cells
 
@@ -27,7 +27,7 @@ Report each unmatched cell and its cause.
 | --- | --- |
 | The pair side by side | What each still looks like on its own terms |
 | One over the other | A shift in placement, silhouette, horizon or facing |
-| A difference image | Where the pixels changed, including where no change was meant |
+| Difference image | Pixel changes, including unintended ones |
 | A measured difference per cell | Which pairs to open first |
 
 Use measured differences to prioritize inspection. Inspect even identical output. Treat unexplained differences outside the target region as regressions.

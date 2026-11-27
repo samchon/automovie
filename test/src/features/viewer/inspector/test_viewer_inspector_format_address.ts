@@ -1,12 +1,9 @@
 import type { IAutoMovieCapturePlanRequest } from "@automovie/interface";
-import {
-  formatAutoMovieInspectorAddress,
-  readAutoMovieInspectorAddress,
-} from "@automovie/viewer";
+import { AutoMovieViewerInspector } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `formatAutoMovieInspectorAddress` writes a request as query text that reads
+ * `AutoMovieViewerInspector.formatAddress` writes a request as query text that reads
  * back to it, escaping what a query needs but keeping `,` `:` `;` `/` `@` and
  * `=` readable.
  *
@@ -19,13 +16,13 @@ import { TestValidator } from "@nestia/e2e";
 export function test_viewer_inspector_format_address(): void {
   TestValidator.equals(
     "the empty request",
-    formatAutoMovieInspectorAddress(readAutoMovieInspectorAddress("")),
+    AutoMovieViewerInspector.formatAddress(AutoMovieViewerInspector.readAddress("")),
     "",
   );
-  const request: IAutoMovieCapturePlanRequest = readAutoMovieInspectorAddress(
+  const request: IAutoMovieCapturePlanRequest = AutoMovieViewerInspector.readAddress(
     `subject=${encodeURIComponent("a&b c")}&parts=hero/**,prop&color=hero/arm=ff8800`,
   );
-  const address: string = formatAutoMovieInspectorAddress(request);
+  const address: string = AutoMovieViewerInspector.formatAddress(request);
   TestValidator.predicate(
     "escaped and readable",
     address.includes("subject=a%26b%20c") &&
@@ -34,7 +31,7 @@ export function test_viewer_inspector_format_address(): void {
   );
   TestValidator.equals(
     "reads back",
-    readAutoMovieInspectorAddress(address),
+    AutoMovieViewerInspector.readAddress(address),
     request,
   );
 }

@@ -3,7 +3,7 @@ import type {
   IAutoMovieModel,
   IAutoMovieModelPart,
 } from "@automovie/interface";
-import { AutoMovieThreeKind, buildModel } from "@automovie/render";
+import { AutoMovieRenderThreeKind, AutoMovieRenderSceneLayout } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -111,7 +111,7 @@ export function test_render_scene_build_model_anisotropy_tangent(): void {
       const original: string = JSON.stringify(part);
       for (const anisotropic of [true, false]) {
         const textures: THREE.Texture[] = [];
-        const output: ReturnType<typeof buildModel> = buildModel(
+        const output: ReturnType<typeof AutoMovieRenderSceneLayout.buildModel> = AutoMovieRenderSceneLayout.buildModel(
           {
             ...base,
             parts: [part],
@@ -129,7 +129,7 @@ export function test_render_scene_build_model_anisotropy_tangent(): void {
           },
         );
         const mesh: THREE.Object3D | undefined = output.parts.get("strip");
-        if (mesh === undefined || !AutoMovieThreeKind.isMesh(mesh))
+        if (mesh === undefined || !AutoMovieRenderThreeKind.isMesh(mesh))
           throw new Error("Expected the strip mesh");
         const expected: boolean = anisotropic && mode === "rigid";
         TestValidator.predicate(
@@ -158,7 +158,7 @@ export function test_render_scene_build_model_anisotropy_tangent(): void {
           }
         }
         const material: THREE.Material = singleMaterial(mesh.material);
-        if (!AutoMovieThreeKind.isMeshPhysicalMaterial(material))
+        if (!AutoMovieRenderThreeKind.isMeshPhysicalMaterial(material))
           throw new Error("Expected a physical material");
         if (mapped)
           TestValidator.predicate(
@@ -192,7 +192,7 @@ export function test_render_scene_build_model_anisotropy_tangent(): void {
         );
         mesh.geometry.dispose();
         material.dispose();
-        if (AutoMovieThreeKind.isSkinnedMesh(mesh)) mesh.skeleton.dispose();
+        if (AutoMovieRenderThreeKind.isSkinnedMesh(mesh)) mesh.skeleton.dispose();
         for (const texture of textures) texture.dispose();
       }
     }

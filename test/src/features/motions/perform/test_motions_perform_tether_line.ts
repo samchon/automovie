@@ -1,8 +1,10 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import {
-  humanTetherCatenary,
-  humanTetherReach,
-} from "@automovie/motions/internal";
+  humanTetherCatenary
+} from "../../../../../packages/motions/src/perform/internal/humanTetherCatenary";
+import {
+  humanTetherReach
+} from "../../../../../packages/motions/src/perform/internal/humanTetherReach";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

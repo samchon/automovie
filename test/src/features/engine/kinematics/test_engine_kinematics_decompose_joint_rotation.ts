@@ -1,8 +1,4 @@
-import {
-  Quaternion,
-  decomposeJointRotation,
-  jointToQuaternion,
-} from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   IAutoMovieJointAxes,
   IAutoMovieQuaternion,
@@ -36,7 +32,7 @@ const HALF_ROOT_TWO: number = Math.SQRT1_2;
  *    25 under axes of lengths 2, 3 and 4.
  */
 export function test_engine_kinematics_decompose_joint_rotation(): void {
-  const flexed: IAutoMovieResolvedJointAngles = decomposeJointRotation({
+  const flexed: IAutoMovieResolvedJointAngles = AutoMovieEngineKinematics.decomposeJointRotation({
     x: HALF_ROOT_TWO,
     y: 0,
     z: 0,
@@ -48,7 +44,7 @@ export function test_engine_kinematics_decompose_joint_rotation(): void {
       nclose(flexed.abduction, 0, ROUNDING) &&
       nclose(flexed.twist, 0, ROUNDING),
   );
-  const twisted: IAutoMovieResolvedJointAngles = decomposeJointRotation({
+  const twisted: IAutoMovieResolvedJointAngles = AutoMovieEngineKinematics.decomposeJointRotation({
     x: 0,
     y: HALF_ROOT_TWO,
     z: 0,
@@ -60,7 +56,7 @@ export function test_engine_kinematics_decompose_joint_rotation(): void {
       nclose(twisted.flexion, 0, ROUNDING) &&
       nclose(twisted.abduction, 0, ROUNDING),
   );
-  const rest: IAutoMovieResolvedJointAngles = decomposeJointRotation({
+  const rest: IAutoMovieResolvedJointAngles = AutoMovieEngineKinematics.decomposeJointRotation({
     x: 0,
     y: 0,
     z: 0,
@@ -72,7 +68,7 @@ export function test_engine_kinematics_decompose_joint_rotation(): void {
       nclose(rest.abduction, 0, ROUNDING) &&
       nclose(rest.twist, 0, ROUNDING),
   );
-  const custom: IAutoMovieResolvedJointAngles = decomposeJointRotation(
+  const custom: IAutoMovieResolvedJointAngles = AutoMovieEngineKinematics.decomposeJointRotation(
     {
       x: 0,
       y: Math.sin(Math.PI / 14.4),
@@ -95,11 +91,11 @@ export function test_engine_kinematics_decompose_joint_rotation(): void {
     twist: { x: 0, y: 0, z: 1 },
     twistPlacement: "distal",
   };
-  const bent: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+  const bent: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
     distal.flexion,
     125,
   );
-  const inDomain: IAutoMovieResolvedJointAngles = decomposeJointRotation(
+  const inDomain: IAutoMovieResolvedJointAngles = AutoMovieEngineKinematics.decomposeJointRotation(
     bent,
     distal,
     undefined,
@@ -120,9 +116,9 @@ export function test_engine_kinematics_decompose_joint_rotation(): void {
   );
   TestValidator.predicate(
     "the principal chart reads 55 degrees",
-    nclose(decomposeJointRotation(bent, distal).flexion, 55, ROUNDING),
+    nclose(AutoMovieEngineKinematics.decomposeJointRotation(bent, distal).flexion, 55, ROUNDING),
   );
-  const clinical: IAutoMovieResolvedJointAngles = decomposeJointRotation(
+  const clinical: IAutoMovieResolvedJointAngles = AutoMovieEngineKinematics.decomposeJointRotation(
     bent,
     distal,
     { flexion: { sign: -1, neutral: 20 } },
@@ -139,8 +135,8 @@ export function test_engine_kinematics_decompose_joint_rotation(): void {
     "a reversed, offset frame",
     nclose(clinical.flexion, -105, ROUNDING),
   );
-  const lock: IAutoMovieResolvedJointAngles = decomposeJointRotation(
-    Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90),
+  const lock: IAutoMovieResolvedJointAngles = AutoMovieEngineKinematics.decomposeJointRotation(
+    AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90),
     {
       flexion: { x: 0, y: 1, z: 0 },
       abduction: { x: 0, y: 0, z: 1 },
@@ -156,7 +152,7 @@ export function test_engine_kinematics_decompose_joint_rotation(): void {
   for (let index: number = 0; index < 256; ++index) {
     const q: IAutoMovieQuaternion = randomUnitQuaternion(rng);
     recomposed &&= qclose(
-      jointToQuaternion(decomposeJointRotation(q)),
+      AutoMovieEngineKinematics.jointToQuaternion(AutoMovieEngineKinematics.decomposeJointRotation(q)),
       q,
       ROUND_TRIP,
     );

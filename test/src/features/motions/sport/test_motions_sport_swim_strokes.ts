@@ -1,5 +1,7 @@
 import type { IAutoMovieMotionClock } from "@automovie/interface";
-import { swim } from "@automovie/motions/internal";
+import {
+  swim
+} from "../../../../../packages/motions/src/sport/internal/swim";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

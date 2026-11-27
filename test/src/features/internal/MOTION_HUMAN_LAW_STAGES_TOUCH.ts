@@ -1,6 +1,8 @@
 import type { IAutoMovieMotionHumanBody } from "@automovie/interface";
 import { AutoMovieMotionHumanTouch } from "@automovie/motions";
-import { HumanPerception } from "@automovie/motions/internal";
+import {
+  HumanPerception
+} from "../../../../packages/motions/src/law/internal/HumanPerception";
 
 import { motionHumanLawSweep } from "./motionHumanLawSweep";
 

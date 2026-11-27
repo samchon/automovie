@@ -1,7 +1,7 @@
 import {
-  FLUID_MAX_CELLS,
-  FLUID_MAX_STEPS,
-  validateFluidDomain,
+  AutoMovieEngineFluid,
+  AutoMovieEngineFluidMaxCells,
+  AutoMovieEngineFluidMaxSteps,
 } from "@automovie/engine";
 import {
   IAutoMovieFluidDomain,
@@ -91,7 +91,7 @@ const spray: (
  *    grids nobody can afford are exactly the ones a counted budget can stop
  *    counting.
  * 3. The solver: a non-positive step, gravity, and reference depth; a negative
- *    drag and dry depth; a step budget past `FLUID_MAX_STEPS`.
+ *    drag and dry depth; a step budget past `AutoMovieEngineFluidMaxSteps`.
  * 4. Stability: an above-limit step has a located range finding, while the
  *    limit step is accepted, and finite gravity/depth whose product overflows
  *    cause a step finding. This entry does not assert the measured overshoot.
@@ -112,7 +112,7 @@ const spray: (
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A well-formed basin with a source, a drain and a spray validates clean.).
  */
 export function test_fluid_domain_validation(): void {
-  const clean: ReturnType<typeof validateFluidDomain> = validateFluidDomain({
+  const clean: ReturnType<typeof AutoMovieEngineFluid.validateFluidDomain> = AutoMovieEngineFluid.validateFluidDomain({
     domain: basin({
       sources: [source()],
       drains: [drain()],
@@ -125,7 +125,7 @@ export function test_fluid_domain_validation(): void {
     true,
   );
 
-  const lattice: ReturnType<typeof validateFluidDomain> = validateFluidDomain({
+  const lattice: ReturnType<typeof AutoMovieEngineFluid.validateFluidDomain> = AutoMovieEngineFluid.validateFluidDomain({
     domain: basin({
       grid: {
         columns: 2.5,
@@ -136,7 +136,7 @@ export function test_fluid_domain_validation(): void {
       },
     }),
   });
-  const huge: ReturnType<typeof validateFluidDomain> = validateFluidDomain({
+  const huge: ReturnType<typeof AutoMovieEngineFluid.validateFluidDomain> = AutoMovieEngineFluid.validateFluidDomain({
     domain: basin({
       grid: {
         columns: 300,
@@ -152,8 +152,8 @@ export function test_fluid_domain_validation(): void {
   });
   // Both side lengths are perfectly legal safe integers; only their product,
   // 2⁶⁰ cells, is unaffordable, and it is past `Number.MAX_SAFE_INTEGER`.
-  const overflowing: ReturnType<typeof validateFluidDomain> =
-    validateFluidDomain({
+  const overflowing: ReturnType<typeof AutoMovieEngineFluid.validateFluidDomain> =
+    AutoMovieEngineFluid.validateFluidDomain({
       domain: basin({
         grid: {
           columns: 2 ** 30,
@@ -185,7 +185,7 @@ export function test_fluid_domain_validation(): void {
         (): boolean => hasViolation(lattice, "range", "$input.grid.cellZ"),
       ],
       ["budget", (): boolean => hasViolation(huge, "range", "$input.grid")],
-      ["budgetValue", (): boolean => FLUID_MAX_CELLS === 65_536],
+      ["budgetValue", (): boolean => AutoMovieEngineFluidMaxCells === 65_536],
       [
         "overflow",
         (): boolean => hasViolation(overflowing, "range", "$input.grid"),
@@ -209,7 +209,7 @@ export function test_fluid_domain_validation(): void {
     },
   );
 
-  const solver: ReturnType<typeof validateFluidDomain> = validateFluidDomain({
+  const solver: ReturnType<typeof AutoMovieEngineFluid.validateFluidDomain> = AutoMovieEngineFluid.validateFluidDomain({
     domain: basin({
       solver: {
         fixedStepSeconds: 0,
@@ -217,7 +217,7 @@ export function test_fluid_domain_validation(): void {
         drag: -1,
         dryDepth: -0.5,
         referenceDepth: 0,
-        maxSteps: FLUID_MAX_STEPS + 1,
+        maxSteps: AutoMovieEngineFluidMaxSteps + 1,
       },
     }),
   });
@@ -264,7 +264,7 @@ export function test_fluid_domain_validation(): void {
   // dt·sqrt(g·H)·sqrt(1/dx² + 1/dz²) with g = 8, H = 2, dx = dz = 1 is
   // dt·4·sqrt(2), so dt = 1/(4·sqrt(2)) sits exactly on the stability limit.
   const onLimit: number = 1 / (4 * Math.SQRT2);
-  const stable: ReturnType<typeof validateFluidDomain> = validateFluidDomain({
+  const stable: ReturnType<typeof AutoMovieEngineFluid.validateFluidDomain> = AutoMovieEngineFluid.validateFluidDomain({
     domain: basin({
       grid: {
         columns: 4,
@@ -283,7 +283,7 @@ export function test_fluid_domain_validation(): void {
       },
     }),
   });
-  const unstable: ReturnType<typeof validateFluidDomain> = validateFluidDomain({
+  const unstable: ReturnType<typeof AutoMovieEngineFluid.validateFluidDomain> = AutoMovieEngineFluid.validateFluidDomain({
     domain: basin({
       grid: {
         columns: 4,
@@ -318,8 +318,8 @@ export function test_fluid_domain_validation(): void {
 
   // Every input is a legal finite number, but g·H overflows: the Courant
   // number is infinite, which is unstable rather than unmeasured.
-  const overflowingCourant: ReturnType<typeof validateFluidDomain> =
-    validateFluidDomain({
+  const overflowingCourant: ReturnType<typeof AutoMovieEngineFluid.validateFluidDomain> =
+    AutoMovieEngineFluid.validateFluidDomain({
       domain: basin({
         solver: {
           fixedStepSeconds: 0.015625,

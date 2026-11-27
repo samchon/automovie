@@ -1,4 +1,6 @@
-import { HumanKnotTiming } from "@automovie/motions/internal";
+import {
+  HumanKnotTiming
+} from "../../../../../packages/motions/src/posture/internal/HumanKnotTiming";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

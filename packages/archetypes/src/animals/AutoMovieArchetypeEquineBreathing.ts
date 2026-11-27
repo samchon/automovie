@@ -1,4 +1,8 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import {
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
+  AutoMovieEngineMotionSampling,
+} from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieModelPart,
@@ -14,54 +18,8 @@ import {
   type AutoMovieArchetypeRide,
 } from "../core";
 import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
-import { QuadrupedCarriage } from "./QuadrupedCarriage";
-import { createQuadruped } from "./createQuadruped";
-
-/**
- * A resting adult horse's breathing rate, breaths per minute: the middle of the
- * 8 to 16 the MSD Veterinary Manual gives as normal at rest.
- */
-const REST_RATE: number = 12;
-
-/** The barrel's girth swing at rest, metres of radius: authored. */
-const REST_DEPTH: number = 0.004;
-
-/**
- * The barrel's girth swing in a stride-locked breath, metres of radius:
- * authored.
- */
-const STRIDE_DEPTH: number = 0.012;
-
-/**
- * The gaits whose breaths lock 1:1 to the stride (Attenburrow 1982; Lafortuna
- * et al. 1996, J Exp Biol 166:19 on 1:1 coupling at the canter and gallop).
- */
-const LOCKED: ReadonlySet<string> = new Set<string>(["canter", "gallop"]);
-
-/**
- * The rate at which the nostrils flare fully on each breath, breaths per
- * minute, and how much a full flare widens them, a fraction of their radius:
- * authored.
- */
-const FLARE: Readonly<IFlare> = { rate: 90, widen: 0.6 };
-
-/** The nostrils' part ids. */
-const NOSTRILS: ReadonlySet<string> = new Set<string>([
-  "leftNostril",
-  "rightNostril",
-]);
-
-/** The nostril flare's authored shape. */
-interface IFlare {
-  /** Breaths per minute at which a breath flares the nostrils fully. */
-  rate: number;
-
-  /** The widening of a full flare, a fraction of the nostril's radius. */
-  widen: number;
-}
-
-/** A named instant of a ride. */
-type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];
+import { QuadrupedCarriage } from "./quadruped/QuadrupedCarriage";
+import { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
 /**
  * An equid's breathing, a layer over any of its rides: the barrel's displayed
@@ -159,7 +117,7 @@ export namespace AutoMovieArchetypeEquineBreathing {
       options.efforts ?? [],
     );
     const carriers: ReturnType<typeof QuadrupedCarriage.of> =
-      QuadrupedCarriage.of(animal, createQuadruped.species(animal));
+      QuadrupedCarriage.of(animal, AutoMovieArchetypeQuadruped.species(animal));
     const landings: readonly number[] = ride.instants
       .filter((instant: Instant): boolean => instant.label === "leftForeOn")
       .map((instant: Instant): number => instant.seconds);
@@ -210,26 +168,26 @@ export namespace AutoMovieArchetypeEquineBreathing {
       if (trunk?.transform === undefined || trunk.transform === null)
         return base;
       const centre: IAutoMovieVector3 = trunk.transform.translation;
-      const axis: IAutoMovieVector3 = Quaternion.rotateVector(
+      const axis: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
         trunk.transform.rotation,
         { x: 0, y: 1, z: 0 },
       );
       const outward = (frame: IAutoMovieTransform): IAutoMovieTransform => {
-        const from: IAutoMovieVector3 = Vector3.subtract(
+        const from: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
           frame.translation,
           centre,
         );
-        const radial: IAutoMovieVector3 = Vector3.addScaled(
+        const radial: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(
           from,
           axis,
-          -Vector3.dot(from, axis),
+          -AutoMovieEngineVector3.dot(from, axis),
         );
-        const length: number = Vector3.length(radial);
+        const length: number = AutoMovieEngineVector3.length(radial);
         return length < 1e-9
           ? AutoMovieArchetypeFrame.copy(frame)
           : {
               ...frame,
-              translation: Vector3.addScaled(
+              translation: AutoMovieEngineVector3.addScaled(
                 frame.translation,
                 radial,
                 growth / length,
@@ -280,7 +238,7 @@ export namespace AutoMovieArchetypeEquineBreathing {
     };
   }
 
-  /**
+  /*
    * The free clock's breath: the rest rate raised by the active recovery, its
    * phase the closed-form integral of the rate.
    */
@@ -296,7 +254,7 @@ export namespace AutoMovieArchetypeEquineBreathing {
       const integral: number = u - (2.5 * u ** 4 - 3 * u ** 5 + u ** 6);
       cycles += ((effort.rate - REST_RATE) * effort.seconds * integral) / 60;
       if (u < 1) {
-        const left: number = 1 - minimumJerk.share(u);
+        const left: number = 1 - AutoMovieEngineMotionSampling.minimumJerkShare(u);
         rate = REST_RATE + (effort.rate - REST_RATE) * left;
         depth = REST_DEPTH + (effort.depth - REST_DEPTH) * left;
       }
@@ -304,7 +262,7 @@ export namespace AutoMovieArchetypeEquineBreathing {
     return { phase: cycles - Math.floor(cycles), rate, depth, locked: false };
   }
 
-  /**
+  /*
    * A part with its capsule or cylinder radius grown by a length and by a
    * fraction, or a box's cross-section likewise.
    */
@@ -331,7 +289,9 @@ export namespace AutoMovieArchetypeEquineBreathing {
     return part;
   }
 
-  /** Admit the efforts. */
+  /*
+   * Admit the efforts.
+   */
   function admit(
     archetype: string,
     efforts: readonly IEffort[],
@@ -363,3 +323,62 @@ export namespace AutoMovieArchetypeEquineBreathing {
     return sorted;
   }
 }
+
+
+/*
+ * A resting adult horse's breathing rate, breaths per minute: the middle of the
+ * 8 to 16 the MSD Veterinary Manual gives as normal at rest.
+ */
+const REST_RATE: number = 12;
+
+/*
+ * The barrel's girth swing at rest, metres of radius: authored.
+ */
+const REST_DEPTH: number = 0.004;
+
+/*
+ * The barrel's girth swing in a stride-locked breath, metres of radius:
+ * authored.
+ */
+const STRIDE_DEPTH: number = 0.012;
+
+/*
+ * The gaits whose breaths lock 1:1 to the stride (Attenburrow 1982; Lafortuna
+ * et al. 1996, J Exp Biol 166:19 on 1:1 coupling at the canter and gallop).
+ */
+const LOCKED: ReadonlySet<string> = new Set<string>(["canter", "gallop"]);
+
+/*
+ * The rate at which the nostrils flare fully on each breath, breaths per
+ * minute, and how much a full flare widens them, a fraction of their radius:
+ * authored.
+ */
+const FLARE: Readonly<IFlare> = { rate: 90, widen: 0.6 };
+
+/*
+ * The nostrils' part ids.
+ */
+const NOSTRILS: ReadonlySet<string> = new Set<string>([
+  "leftNostril",
+  "rightNostril",
+]);
+
+/*
+ * The nostril flare's authored shape.
+ */
+interface IFlare {
+  /*
+   * Breaths per minute at which a breath flares the nostrils fully.
+   */
+  rate: number;
+
+  /*
+   * The widening of a full flare, a fraction of the nostril's radius.
+   */
+  widen: number;
+}
+
+/*
+ * A named instant of a ride.
+ */
+type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];

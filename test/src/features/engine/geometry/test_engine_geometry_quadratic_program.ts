@@ -1,17 +1,14 @@
-import {
-  solveAutoMovieQuadraticKernel,
-  solveAutoMovieQuadraticProgram,
-} from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import type { IAutoMovieQuadraticRow } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/predicates";
 
-type Input = Parameters<typeof solveAutoMovieQuadraticProgram>[0];
-type Result = ReturnType<typeof solveAutoMovieQuadraticProgram>;
+type Input = Parameters<typeof AutoMovieEngineMath.solveQuadraticProgram>[0];
+type Result = ReturnType<typeof AutoMovieEngineMath.solveQuadraticProgram>;
 
 /**
- * `solveAutoMovieQuadraticProgram` minimizes sum d_i x_i^2 / 2 + q.x over
+ * `solveQuadraticProgram` minimizes sum d_i x_i^2 / 2 + q.x over
  * linear rows lower <= a.x <= upper, returning status 1 solved, 2 primal
  * infeasible (with a Farkas witness) or 3 dual infeasible (with a descent
  * ray).
@@ -45,7 +42,7 @@ type Result = ReturnType<typeof solveAutoMovieQuadraticProgram>;
  *    public solve still succeeds.
  */
 export function test_engine_geometry_quadratic_program(): void {
-  const solve = solveAutoMovieQuadraticProgram;
+  const solve = AutoMovieEngineMath.solveQuadraticProgram;
   const row = (
     indices: number[],
     weights: number[],
@@ -186,7 +183,7 @@ export function test_engine_geometry_quadratic_program(): void {
       infeasible.dual[0]! < -0.1 &&
       infeasible.dual[1]! > 0.1 &&
       Math.abs(infeasible.dual[0]! + infeasible.dual[1]!) < 1e-7 &&
-      2 * infeasible.dual[0]! + infeasible.dual[1]! < -0.1,
+      (2 * infeasible.dual[0]! + infeasible.dual[1]! < -0.1),
   );
   const unbounded: Result = solve({ diagonal: [0], linear: [-1], rows: [] });
   TestValidator.predicate(
@@ -273,7 +270,7 @@ export function test_engine_geometry_quadratic_program(): void {
     solve({ ...valid, rows: [equality], initial: [0] }).status,
     1,
   );
-  const setup = solveAutoMovieQuadraticKernel({
+  const setup = AutoMovieEngineMath.solveQuadraticKernel({
     diagonal: [],
     linear: [],
     columns: [0],

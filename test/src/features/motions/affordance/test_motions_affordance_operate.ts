@@ -1,5 +1,13 @@
 import type { IAutoMovieMotionHumanOperateState, IAutoMovieMotionTarget } from "@automovie/interface";
-import { HumanRefusal, operateLongInsertCourse, operateState } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  operateLongInsertCourse
+} from "../../../../../packages/motions/src/affordance/internal/operateLongInsertCourse";
+import {
+  operateState
+} from "../../../../../packages/motions/src/affordance/internal/operateState";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -92,7 +100,7 @@ namespace part_operate_long_insert_course {
       try {
         course(asked);
       } catch (error: unknown) {
-        return error instanceof HumanRefusal && error.axis === "kind";
+        return error instanceof AutoMovieMotionHumanRefusal && error.axis === "kind";
       }
       return false;
     };

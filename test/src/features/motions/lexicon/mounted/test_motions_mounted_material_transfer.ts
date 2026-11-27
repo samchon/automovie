@@ -1,12 +1,20 @@
-import { createHorse } from "@automovie/archetypes";
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieArchetypeHorse } from "@automovie/archetypes";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPropReader,
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
-import { HumanObject } from "@automovie/motions";
-import { HumanFrame, HumanPropFrame, sit } from "@automovie/motions/internal";
+import { AutoMovieMotionHumanObject } from "@automovie/motions";
+import {
+  HumanFrame
+} from "../../../../../../packages/motions/src/posture/internal/HumanFrame";
+import {
+  HumanPropFrame
+} from "../../../../../../packages/motions/src/perform/internal/HumanPropFrame";
+import {
+  sit
+} from "../../../../../../packages/motions/src/everyday/internal/sit";
 
 import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
 import { motionActionContext } from "../../../internal/motionActionContext";
@@ -14,16 +22,16 @@ import { motionActionContext } from "../../../internal/motionActionContext";
 /** The mount's own prepared support order and settled boundary on the real tack. */
 export async function test_motions_mounted_material_transfer(): Promise<void> {
   const body = await humanFixtureBody("m-average");
-  const horse = createHorse(
+  const horse = AutoMovieArchetypeHorse.create(
     { withersHeight: 1.65, stirrupDrop: 0.66, tempo: 0 },
     1028,
   );
   const frame: IAutoMovieRigidTransform = {
     position: { x: 0, y: 0, z: 0 },
-    rotation: Quaternion.identity(),
+    rotation: AutoMovieEngineQuaternion.identity(),
   };
-  const seat = HumanObject.seat(horse, frame, "seat", "horse");
-  const prop = HumanObject.prop("horse", horse, frame);
+  const seat = AutoMovieMotionHumanObject.seat(horse, frame, "seat", "horse");
+  const prop = AutoMovieMotionHumanObject.prop("horse", horse, frame);
   const reader: IAutoMovieMotionHumanPropReader = {
     prop,
     frame: () => frame,
@@ -83,7 +91,7 @@ export async function test_motions_mounted_material_transfer(): Promise<void> {
       `far tread loads at ${far.from * plan.duration}s before the seat arrives at ${saddle.from * plan.duration}s`,
     );
   if (
-    Vector3.distance(before.root, after.root) > 0.002 ||
+    AutoMovieEngineVector3.distance(before.root, after.root) > 0.002 ||
     Math.abs(before.pitch - after.pitch) > 0.25
   )
     faults.push(

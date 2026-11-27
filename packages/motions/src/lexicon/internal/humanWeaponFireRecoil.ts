@@ -1,0 +1,66 @@
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
+import type {
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+/*
+ * A shot's muzzle rise: the held hand turns about the horizontal axis square to
+ * the bore (`bore × up`, carrying the muzzle up), or about the tool's own side
+ * (`axis × edge` in the hand) when the bore stands vertical, by `rise` degrees
+ * over the shot's progress.
+ * Parameter rotation: The held hand's rotation at the shot.
+ * Parameter axis: The tool's bore axis in the hand.
+ * Parameter edge: The tool's edge direction in the hand.
+ * Parameter rise: The muzzle's rise, degrees.
+ * Returns: The bore, the rise's axis and the hand's rotation at a progress.
+ */
+export function humanWeaponFireRecoil(
+  rotation: IAutoMovieQuaternion,
+  axis: IAutoMovieVector3,
+  edge: IAutoMovieVector3,
+  rise: number,
+): humanWeaponFireRecoil.IRecoil {
+  const bore: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(rotation, axis);
+  const across: IAutoMovieVector3 = AutoMovieEngineVector3.cross(bore, { x: 0, y: 1, z: 0 });
+  const about: IAutoMovieVector3 =
+    AutoMovieEngineVector3.length(across) < 1e-6
+      ? AutoMovieEngineQuaternion.rotateVector(rotation, AutoMovieEngineVector3.cross(axis, edge))
+      : AutoMovieEngineVector3.normalize(across);
+  return {
+    bore,
+    about,
+    turned: (progress: number): IAutoMovieQuaternion =>
+      AutoMovieEngineQuaternion.multiply(
+        AutoMovieEngineQuaternion.fromAxisAngle(about, rise * Math.min(1, progress)),
+        rotation,
+      ),
+  };
+}
+
+/*
+ * The muzzle rise.
+ */
+export namespace humanWeaponFireRecoil {
+  /*
+   * The bore, the rise's axis and the turning hand.
+   */
+  export interface IRecoil {
+    /*
+     * The bore in the world, unit.
+     */
+    bore: IAutoMovieVector3;
+
+    /*
+     * The axis the muzzle rises about, unit.
+     */
+    about: IAutoMovieVector3;
+
+    /*
+     * The hand's rotation at a progress, clamped at the rise.
+     * Parameter progress: The shot's progress.
+     * Returns: The hand's world rotation.
+     */
+    turned(progress: number): IAutoMovieQuaternion;
+  }
+}

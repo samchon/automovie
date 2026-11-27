@@ -2,7 +2,12 @@ import type {
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanSegment,
 } from "@automovie/interface";
-import { HumanPerformanceContacts, HumanRefusal } from "@automovie/motions/internal";
+import {
+  HumanPerformanceContacts
+} from "../../../../../packages/motions/src/perform/internal/HumanPerformanceContacts";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { standingPerformanceState } from "../../internal/fixtures/standingPerformanceState";
@@ -86,7 +91,7 @@ export async function test_motions_perform_hold_ownership(): Promise<void> {
       plan: { ...take.plan, contacts: [{ ...grip, support: { kind: "prop", subject: "book" } }] },
     }, false);
   } catch (error: unknown) {
-    refused = error instanceof HumanRefusal && error.axis === "hand" && error.value === "left" &&
+    refused = error instanceof AutoMovieMotionHumanRefusal && error.axis === "hand" && error.value === "left" &&
       error.feasible?.kind === "alternatives" && error.feasible.values.join() === "right";
   }
   TestValidator.predicate("the held hand refuses another object", refused);

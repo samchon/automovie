@@ -1,4 +1,4 @@
-import { builtSpaceObservationStations } from "@automovie/engine";
+import { AutoMovieEngineBuiltEnvironment } from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieBuiltOpening,
@@ -52,7 +52,7 @@ export function test_architecture_space_station_placement(): void {
   TestValidator.equals(
     "a space that closes no volume keeps its stations and places none",
     unplaced(
-      builtSpaceObservationStations(
+      AutoMovieEngineBuiltEnvironment.spaceObservationStations(
         room(
           {
             id: "hall",
@@ -76,7 +76,7 @@ export function test_architecture_space_station_placement(): void {
 
   TestValidator.equals(
     "a shell whose box centre is outside itself places nothing",
-    unplaced(builtSpaceObservationStations(room(tetrahedron()), "hall")),
+    unplaced(AutoMovieEngineBuiltEnvironment.spaceObservationStations(room(tetrahedron()), "hall")),
     { count: 8, placed: 0 },
   );
 
@@ -87,7 +87,7 @@ export function test_architecture_space_station_placement(): void {
         "a space narrowing toward its floor keeps its box centre",
         (): boolean =>
           vclose(
-            builtSpaceObservationStations(room(wedge()), "hall")[0]!.pose!
+            AutoMovieEngineBuiltEnvironment.spaceObservationStations(room(wedge()), "hall")[0]!.pose!
               .position,
             { x: 2, y: 2, z: 1 },
           ),
@@ -96,7 +96,7 @@ export function test_architecture_space_station_placement(): void {
         "a space whose box centre is in its own notch uses its first cell",
         (): boolean =>
           vclose(
-            builtSpaceObservationStations(room(notched()), "hall")[0]!.pose!
+            AutoMovieEngineBuiltEnvironment.spaceObservationStations(room(notched()), "hall")[0]!.pose!
               .position,
             { x: 2, y: 1.5, z: 0.5 },
           ),
@@ -109,7 +109,7 @@ export function test_architecture_space_station_placement(): void {
   );
 
   const point: IAutoMovieSpaceObservationStation[] =
-    builtSpaceObservationStations(room(pointVolume()), "hall");
+    AutoMovieEngineBuiltEnvironment.spaceObservationStations(room(pointVolume()), "hall");
   TestValidator.equals(
     "a point volume retains four centres and four corners",
     [
@@ -163,7 +163,7 @@ export function test_architecture_space_station_placement(): void {
   );
 
   const faceless: IAutoMovieSpaceObservationStation[] =
-    builtSpaceObservationStations(withFacelessOpening(), "hall");
+    AutoMovieEngineBuiltEnvironment.spaceObservationStations(withFacelessOpening(), "hall");
 
   TestValidator.equals(
     "an unreachable opening keeps its threshold station, unplaced",

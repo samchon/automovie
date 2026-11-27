@@ -1,10 +1,10 @@
-import { compareCodeUnits, intersectAutoMovieConvexPolygons } from "@automovie/engine";
+import { AutoMovieEngineText, AutoMovieEngineGeometry } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 type P = [number, number];
 
 /**
- * `intersectAutoMovieConvexPolygons(subject, boundary)` clips a convex subject
+ * `intersectConvexPolygons(subject, boundary)` clips a convex subject
  * by a convex boundary (Sutherland-Hodgman), keeping the subject's winding;
  * either may wind either way.
  *
@@ -30,12 +30,14 @@ export function test_engine_geometry_intersect_convex_polygons(): void {
       return s + a[0] * b[1] - a[1] * b[0];
     }, 0) / 2;
   const sorted = (polygon: P[]): string[] =>
-    polygon.map((p: P): string => p.join(",")).sort(compareCodeUnits);
+    polygon
+      .map((p: P): string => p.join(","))
+      .sort(AutoMovieEngineText.compareCodeUnits);
 
   // 1.
   TestValidator.equals(
     "ccw",
-    intersectAutoMovieConvexPolygons(square(0, 2), square(1, 3)),
+    AutoMovieEngineGeometry.intersectConvexPolygons(square(0, 2), square(1, 3)),
     [
       [1, 1],
       [2, 1],
@@ -48,14 +50,14 @@ export function test_engine_geometry_intersect_convex_polygons(): void {
   TestValidator.equals(
     "cw boundary",
     sorted(
-      intersectAutoMovieConvexPolygons(square(0, 2), square(1, 3).reverse()),
+      AutoMovieEngineGeometry.intersectConvexPolygons(square(0, 2), square(1, 3).reverse()),
     ),
     ["1,1", "1,2", "2,1", "2,2"],
   );
   TestValidator.equals(
     "cw subject",
     area(
-      intersectAutoMovieConvexPolygons(square(0, 2).reverse(), square(1, 3)),
+      AutoMovieEngineGeometry.intersectConvexPolygons(square(0, 2).reverse(), square(1, 3)),
     ),
     -1,
   );
@@ -63,12 +65,12 @@ export function test_engine_geometry_intersect_convex_polygons(): void {
   // 3.
   TestValidator.equals(
     "disjoint",
-    intersectAutoMovieConvexPolygons(square(0, 1), square(5, 6)),
+    AutoMovieEngineGeometry.intersectConvexPolygons(square(0, 1), square(5, 6)),
     [],
   );
   TestValidator.equals(
     "zero-area boundary",
-    intersectAutoMovieConvexPolygons(square(0, 1), [
+    AutoMovieEngineGeometry.intersectConvexPolygons(square(0, 1), [
       [0, 0],
       [1, 0],
       [2, 0],
@@ -79,7 +81,7 @@ export function test_engine_geometry_intersect_convex_polygons(): void {
   // 4.
   TestValidator.equals(
     "touch",
-    intersectAutoMovieConvexPolygons(square(0, 1), square(1, 2)),
+    AutoMovieEngineGeometry.intersectConvexPolygons(square(0, 1), square(1, 2)),
     [[1, 1]],
   );
 }

@@ -4,12 +4,14 @@ Finish generated takes' sound together and verify it with the user. Follow the l
 
 ## Separation
 
-<!-- @source [Sound Demixing Challenge 2023](https://arxiv.org/html/2308.06981v4) evaluates film stems. [AudioShake](https://www.audioshake.ai/products/dialogue-music-effects-separation) is a commercial implementation. -->
+<!-- @reference [Sound Demixing Challenge 2023](https://arxiv.org/html/2308.06981v4) evaluates film stems. [AudioShake](https://www.audioshake.ai/products/dialogue-music-effects-separation) is a commercial implementation. -->
 
 Separate speech from the mix before replacing lines or beds. Change the required stem and remix. Choose a separator by these criteria:
 
-- separates dialogue, music and effects stems, because a voice-only tool discards the bed;
-- is proven on real film mixes rather than synthetic ones, where effects are the hardest stem;
+- separates dialogue, music and effects stems
+  - A voice-only tool discards the bed.
+- proven on real film mixes, where effects are the hardest stem
+  - Synthetic mixes alone are insufficient.
 - returns stems that sum back to the original mix at its level;
 - is licensed for commercial use in its weights, not only its code;
 - supports the film's sample rate and channels.

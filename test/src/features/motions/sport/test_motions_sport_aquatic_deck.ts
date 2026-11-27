@@ -1,4 +1,4 @@
-import { createPoolEdge } from "@automovie/archetypes";
+import { AutoMovieArchetypePoolEdge } from "@automovie/archetypes";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
@@ -6,8 +6,14 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanProp,
 } from "@automovie/interface";
-import { HumanObject } from "@automovie/motions";
-import { HumanRefusal, aquatic } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanObject,
+  AutoMovieMotionHumanRefusal,
+} from "@automovie/motions";
+
+import {
+  aquatic
+} from "../../../../../packages/motions/src/sport/internal/aquatic";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -24,9 +30,9 @@ import { motionActionContext } from "../../internal/motionActionContext";
  */
 export async function test_motions_sport_aquatic_deck(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
-  const staged: IAutoMovieMotionHumanProp = HumanObject.prop(
+  const staged: IAutoMovieMotionHumanProp = AutoMovieMotionHumanObject.prop(
     "pool",
-    createPoolEdge({ kind: "deckEdge" }),
+    AutoMovieArchetypePoolEdge.create({ kind: "deckEdge" }),
     { at: { x: 0, y: 0, z: 0 }, yaw: 0, fixed: true },
   );
   const prop: IAutoMovieMotionHumanProp = {
@@ -60,7 +66,7 @@ export async function test_motions_sport_aquatic_deck(): Promise<void> {
     }
     TestValidator.predicate(
       `${kind} refuses an exhausted material footprint`,
-      error instanceof HumanRefusal &&
+      error instanceof AutoMovieMotionHumanRefusal &&
         error.axis === "support" &&
         error.reason.includes("deck"),
     );

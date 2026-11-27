@@ -1,9 +1,9 @@
-import { prepareRecoveryCriticalBrackets } from "@automovie/recovery";
+import { AutoMovieRecoveryShape } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
 
-type Critical = Parameters<typeof prepareRecoveryCriticalBrackets>[0][number];
+type Critical = Parameters<typeof AutoMovieRecoveryShape.prepareCriticalBrackets>[0][number];
 
 /**
  * `prepareRecoveryCriticalBrackets` brackets each critical level by
@@ -34,7 +34,7 @@ export function test_recovery_internal_prepare_critical_brackets(): void {
   const simple = new Set<number>([1.5]);
   const none: string[] = [];
   const noGaps: { beforeMm: number; afterMm: number; reason: string }[] = [];
-  const ok = prepareRecoveryCriticalBrackets(
+  const ok = AutoMovieRecoveryShape.prepareCriticalBrackets(
     [event(false)],
     heights,
     1,
@@ -55,7 +55,7 @@ export function test_recovery_internal_prepare_critical_brackets(): void {
   const flatLevels = new Set<number>([1.5]);
   const diagnostics: string[] = [];
   const gaps: { beforeMm: number; afterMm: number; reason: string }[] = [];
-  const flat = prepareRecoveryCriticalBrackets(
+  const flat = AutoMovieRecoveryShape.prepareCriticalBrackets(
     [event(true)],
     heights,
     1,

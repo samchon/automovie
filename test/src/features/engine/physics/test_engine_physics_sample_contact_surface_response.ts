@@ -1,7 +1,4 @@
-import {
-  compileImpactEffects,
-  sampleContactSurfaceResponse,
-} from "@automovie/engine";
+import { AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieContactReceipt,
   IAutoMovieEffectRecipe,
@@ -96,8 +93,8 @@ export function test_engine_physics_sample_contact_surface_response(): void {
     geometricImpulses: Record<string, number>,
   ): number | "refused" {
     try {
-      const streams: ReturnType<typeof compileImpactEffects> =
-        compileImpactEffects({
+      const streams: ReturnType<typeof AutoMovieEnginePhysics.compileImpactEffects> =
+        AutoMovieEnginePhysics.compileImpactEffects({
           contacts: [contact],
           geometricImpulses,
           recipe: recipe(),
@@ -122,7 +119,7 @@ export function test_engine_physics_sample_contact_surface_response(): void {
     geometricImpulses: Record<string, number>,
   ): number | "refused" {
     try {
-      return sampleContactSurfaceResponse({
+      return AutoMovieEnginePhysics.sampleContactSurfaceResponse({
         contacts: [contact],
         seconds: 2,
         point: contact.point,

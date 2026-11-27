@@ -1,4 +1,4 @@
-import { deriveAutoMovieDrawingSchedule } from "@automovie/engine";
+import { AutoMovieEngineDrawing } from "@automovie/engine";
 import type {
   IAutoMovieBuiltBoundary,
   IAutoMovieBuiltEnvironment,
@@ -47,7 +47,10 @@ export function test_drawing_subject_location(): void {
   ) => IAutoMovieDrawingSchedule = (
     subject: "space" | "opening" | "connector",
   ): IAutoMovieDrawingSchedule =>
-    deriveAutoMovieDrawingSchedule({ environment, subject });
+    AutoMovieEngineDrawing.deriveAutoMovieDrawingSchedule({
+      environment,
+      subject,
+    });
 
   const openings: IAutoMovieDrawingSchedule = scheduleOf("opening");
   const connectors: IAutoMovieDrawingSchedule = scheduleOf("connector");
@@ -205,7 +208,7 @@ export function test_drawing_subject_location(): void {
     "a boundary that cites no region is refused before a schedule sees it",
     throwsError(
       (): IAutoMovieDrawingSchedule =>
-        deriveAutoMovieDrawingSchedule({
+        AutoMovieEngineDrawing.deriveAutoMovieDrawingSchedule({
           environment: {
             ...environment,
             boundaries: environment.boundaries.map(

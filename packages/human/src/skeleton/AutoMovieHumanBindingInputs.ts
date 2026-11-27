@@ -1,4 +1,4 @@
-import { AutoMovieLoftChain } from "@automovie/engine";
+import { AutoMovieEngineLoftChain } from "@automovie/engine";
 import type {
   IAutoMovieHumanBindingInputs,
   IAutoMovieHumanBodyCalibration,
@@ -121,7 +121,7 @@ export namespace AutoMovieHumanBindingInputs {
           );
           const points: number[] = [];
           for (const y of stations)
-            for (const p of AutoMovieLoftChain.ring(chain, y, phases))
+            for (const p of AutoMovieEngineLoftChain.ring(chain, y, phases))
               points.push(p[0], p[1], p[2]);
           return { chain: chain.name, phases: PHASES, stations, points };
         },

@@ -1,8 +1,8 @@
-import { resolveProductionVideoProfile } from "@automovie/render";
+import { AutoMovieRenderDelivery } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `resolveProductionVideoProfile` fixes the H.264-in-MP4 picture profile of a
+ * `AutoMovieRenderDelivery.resolveVideoProfile` fixes the H.264-in-MP4 picture profile of a
  * video deliverable.
  *
  * Scenarios:
@@ -12,7 +12,7 @@ import { TestValidator } from "@nestia/e2e";
  * 2. Editing one result's matrix leaves the next result unchanged.
  */
 export function test_render_delivery_resolve_production_video_profile(): void {
-  const profile = resolveProductionVideoProfile({
+  const profile = AutoMovieRenderDelivery.resolveVideoProfile({
     width: 640,
     height: 360,
     frameRate: { numerator: 24, denominator: 1 },
@@ -39,7 +39,7 @@ export function test_render_delivery_resolve_production_video_profile(): void {
   profile.trackMatrix[0] = 99;
   TestValidator.predicate(
     "fresh matrix",
-    resolveProductionVideoProfile({
+    AutoMovieRenderDelivery.resolveVideoProfile({
       width: 1,
       height: 1,
       frameRate: { numerator: 24, denominator: 1 },

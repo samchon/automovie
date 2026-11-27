@@ -1,11 +1,4 @@
-import {
-  serviceEnvelopeObstructions,
-  serviceMaintenanceBounds,
-  serviceSegmentBounds,
-  serviceSegmentClashes,
-  serviceSegmentSpanBounds,
-  validateServiceNetwork,
-} from "@automovie/engine";
+import { AutoMovieEngineService } from "@automovie/engine";
 import {
   IAutoMovieBuiltEnvironment,
   IAutoMovieConstraintViolation,
@@ -91,7 +84,7 @@ export function test_service_network_geometry(): void {
   const coldRun: IAutoMovieServiceSegment = network.segments[0]!;
   const coldBranch: IAutoMovieServiceSegment = network.segments[1]!;
 
-  const overall: IAutoMoviePropBox = serviceSegmentBounds(coldRun);
+  const overall: IAutoMoviePropBox = AutoMovieEngineService.serviceSegmentBounds(coldRun);
   TestValidator.equals(
     "a run's overall bound is its extremes grown by its radius",
     namedFacts([
@@ -112,12 +105,12 @@ export function test_service_network_geometry(): void {
     "a run with no route has no bound to give",
     throwsError(
       (): IAutoMoviePropBox =>
-        serviceSegmentBounds(segment({ id: "ghost", route: [] })),
+        AutoMovieEngineService.serviceSegmentBounds(segment({ id: "ghost", route: [] })),
       ['"ghost" has no route'],
     ),
   );
 
-  const spans: IAutoMoviePropBox[] = serviceSegmentSpanBounds(coldBranch);
+  const spans: IAutoMoviePropBox[] = AutoMovieEngineService.serviceSegmentSpanBounds(coldBranch);
   TestValidator.equals(
     "each leg of a turning run carries its own volume",
     namedFacts([
@@ -145,7 +138,7 @@ export function test_service_network_geometry(): void {
       [
         "singleVertexHasNoLeg",
         (): boolean =>
-          serviceSegmentSpanBounds(segment({ route: [{ x: 1, y: 2, z: 3 }] }))
+          AutoMovieEngineService.serviceSegmentSpanBounds(segment({ route: [{ x: 1, y: 2, z: 3 }] }))
             .length === 0,
       ],
     ]),
@@ -159,7 +152,7 @@ export function test_service_network_geometry(): void {
     },
   );
 
-  const ahu: IAutoMoviePropBox | null = serviceMaintenanceBounds(
+  const ahu: IAutoMoviePropBox | null = AutoMovieEngineService.serviceMaintenanceBounds(
     network.nodes[5]!,
   );
   TestValidator.equals(
@@ -178,7 +171,7 @@ export function test_service_network_geometry(): void {
       ],
       [
         "absentWhereUnneeded",
-        (): boolean => serviceMaintenanceBounds(network.nodes[9]!) === null,
+        (): boolean => AutoMovieEngineService.serviceMaintenanceBounds(network.nodes[9]!) === null,
       ],
     ]),
     { present: true, min: true, max: true, absentWhereUnneeded: true },
@@ -190,7 +183,7 @@ export function test_service_network_geometry(): void {
       [
         "inside",
         (): boolean =>
-          serviceEnvelopeObstructions({
+          AutoMovieEngineService.serviceEnvelopeObstructions({
             network,
             bounds: box([8, 1, 4.2], [8.2, 2, 4.4]),
           }).join() === "ahu",
@@ -198,7 +191,7 @@ export function test_service_network_geometry(): void {
       [
         "panel",
         (): boolean =>
-          serviceEnvelopeObstructions({
+          AutoMovieEngineService.serviceEnvelopeObstructions({
             network,
             bounds: box([8.2, 1, 2.5], [8.4, 2, 2.8]),
           }).join() === "panel",
@@ -206,7 +199,7 @@ export function test_service_network_geometry(): void {
       [
         "face",
         (): boolean =>
-          serviceEnvelopeObstructions({
+          AutoMovieEngineService.serviceEnvelopeObstructions({
             network,
             bounds: box([8.5, 1, 4.2], [9, 2, 4.4]),
           }).length === 0,
@@ -214,7 +207,7 @@ export function test_service_network_geometry(): void {
       [
         "both",
         (): boolean =>
-          serviceEnvelopeObstructions({
+          AutoMovieEngineService.serviceEnvelopeObstructions({
             network,
             bounds: box([8.2, 1, 2.5], [8.6, 2, 4.2]),
           }).join() === "panel,ahu",
@@ -222,7 +215,7 @@ export function test_service_network_geometry(): void {
       [
         "away",
         (): boolean =>
-          serviceEnvelopeObstructions({
+          AutoMovieEngineService.serviceEnvelopeObstructions({
             network,
             bounds: box([0, 0, 0], [0.5, 0.5, 0.5]),
           }).length === 0,
@@ -272,21 +265,21 @@ export function test_service_network_geometry(): void {
       position: { x: 4, y: 2.5, z: 1 },
     }),
   );
-  const clashed: IAutoMovieValidation = validateServiceNetwork({
+  const clashed: IAutoMovieValidation = AutoMovieEngineService.validateServiceNetwork({
     network: crossed,
     environment,
   });
   TestValidator.equals(
     "sharing a lane clashes, sharing a fitting does not",
     namedFacts([
-      ["clean", (): boolean => serviceSegmentClashes(network).length === 0],
+      ["clean", (): boolean => AutoMovieEngineService.serviceSegmentClashes(network).length === 0],
       [
         "onePair",
         (): boolean =>
-          serviceSegmentClashes(crossed)
+          AutoMovieEngineService.serviceSegmentClashes(crossed)
             .map(
               (
-                clash: ReturnType<typeof serviceSegmentClashes>[number],
+                clash: ReturnType<typeof AutoMovieEngineService.serviceSegmentClashes>[number],
               ): string => `${clash.left}/${clash.right}`,
             )
             .join() === "cold-run/hot-run",
@@ -300,7 +293,7 @@ export function test_service_network_geometry(): void {
       [
         "degenerateRouteIgnored",
         (): boolean =>
-          serviceSegmentClashes({
+          AutoMovieEngineService.serviceSegmentClashes({
             ...network,
             segments: [
               ...network.segments,
@@ -329,7 +322,7 @@ export function test_service_network_geometry(): void {
       },
     }),
   );
-  const obstruction: IAutoMovieValidation = validateServiceNetwork({
+  const obstruction: IAutoMovieValidation = AutoMovieEngineService.validateServiceNetwork({
     network: blocked,
     environment,
   });

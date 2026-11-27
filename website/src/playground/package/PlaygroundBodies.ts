@@ -3,13 +3,13 @@ import type {
   IAutoMovieHumanCanonicalBody,
   IAutoMovieMotionHumanBody,
 } from "@automovie/interface";
-import { createHumanBody } from "@automovie/motions";
+import { AutoMovieMotionHumanBody } from "@automovie/motions";
 
 import { PLAYGROUND_BODIES } from "../data/PLAYGROUND_BODIES";
 
 /**
- * The prepared bodies of the playground: each person of `PLAYGROUND_BODIES`
- * as the canonical body `@automovie/human` builds and the body
+ * The prepared bodies of the playground: each person of `PLAYGROUND_BODIES` as
+ * the canonical body `@automovie/human` builds and the body
  * `@automovie/motions` performs with.
  *
  * Preparing a body takes about two seconds, so each is prepared once, when a
@@ -51,7 +51,10 @@ export namespace PlaygroundBodies {
       });
     const made: IPrepared = {
       canonical,
-      body: createHumanBody(canonical.skeleton, canonical.profile),
+      body: AutoMovieMotionHumanBody.create(
+        canonical.skeleton,
+        canonical.profile,
+      ),
     };
     prepared.set(id, made);
     return made;

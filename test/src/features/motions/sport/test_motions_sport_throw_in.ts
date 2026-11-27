@@ -1,4 +1,4 @@
-import { AutoMovieGravity } from "@automovie/engine";
+import { AutoMovieEngineGravity } from "@automovie/engine";
 import type {
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanBallSport,
@@ -6,9 +6,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionClock,
-  throwInRelease,
-} from "@automovie/motions/internal";
+  motionClock
+} from "../../../../../packages/motions/src/compose/internal/motionClock";
+import {
+  throwInRelease
+} from "../../../../../packages/motions/src/sport/internal/throwInRelease";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -31,7 +33,7 @@ import { throwsError } from "../../internal/throwsError";
  * 4. Without an aimed point, or with one above the rising line, it is refused.
  */
 export function test_motions_sport_throw_in(): void {
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.sequence([
+  const clock: IAutoMovieMotionClock = motionClock.sequence([
     { name: "ready", seconds: 0.5 },
     { name: "stroke", seconds: 0.5 },
   ]);
@@ -73,7 +75,7 @@ export function test_motions_sport_throw_in(): void {
     released!.launches.length === 1 &&
       released!.launches[0]!.seconds === 0.5 &&
       nclose(Math.atan2(v.y, v.z), Math.PI / 6, 1e-12) &&
-      nclose(v.y * t - (AutoMovieGravity.STANDARD * t * t) / 2, -1, 1e-9),
+      nclose(v.y * t - (AutoMovieEngineGravity.STANDARD * t * t) / 2, -1, 1e-9),
   );
 
   // 3. and 4. Nothing to release, or no path.

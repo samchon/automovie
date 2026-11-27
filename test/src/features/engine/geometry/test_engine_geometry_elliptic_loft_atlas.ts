@@ -1,16 +1,15 @@
-import {
-  createAutoMovieEllipticLoftAtlas,
-  realizeAutoMovieBicubicAtlas64,
-} from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type { IAutoMovieEllipticLoft } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";
 
-type Input = Parameters<typeof createAutoMovieEllipticLoftAtlas>[0];
+type Input = Parameters<
+  typeof AutoMovieEngineGeometry.createEllipticLoftAtlas
+>[0];
 
 /**
- * `createAutoMovieEllipticLoftAtlas` turns cubic ellipse profiles into an open
+ * `createEllipticLoftAtlas` turns cubic ellipse profiles into an open
  * bicubic atlas whose patches share their boundary controls, outward facing.
  *
  * Fixture: two 0.05 m spans of the constant ellipse of half axes 0.02 (x) and
@@ -36,7 +35,7 @@ export function test_engine_geometry_elliptic_loft_atlas(): void {
     loft: {
       spans: [0, 1].map(
         (i: number): IAutoMovieEllipticLoft["spans"][number] => ({
-          interval: [i * 0.05, (i + 1) * 0.05],
+          interval: { lowerY: i * 0.05, upperY: (i + 1) * 0.05 },
           radiusX: [0.02, 0.02, 0.02, 0.02],
           radiusZ: [0.01, 0.01, 0.01, 0.01],
           centreX: [0, 0, 0, 0],
@@ -49,8 +48,9 @@ export function test_engine_geometry_elliptic_loft_atlas(): void {
     maxCells: 20_000,
     maxVertices: 30_000,
   });
-  const result: ReturnType<typeof createAutoMovieEllipticLoftAtlas> =
-    createAutoMovieEllipticLoftAtlas(make());
+  const result: ReturnType<
+    typeof AutoMovieEngineGeometry.createEllipticLoftAtlas
+  > = AutoMovieEngineGeometry.createEllipticLoftAtlas(make());
   const patches = result.geometry.patches;
 
   // 1.
@@ -78,8 +78,9 @@ export function test_engine_geometry_elliptic_loft_atlas(): void {
   );
 
   // 3.
-  const actual: ReturnType<typeof realizeAutoMovieBicubicAtlas64> =
-    realizeAutoMovieBicubicAtlas64(result.geometry);
+  const actual: ReturnType<
+    typeof AutoMovieEngineGeometry.realizeBicubicAtlas64
+  > = AutoMovieEngineGeometry.realizeBicubicAtlas64(result.geometry);
   TestValidator.predicate(
     "complete",
     actual.complete &&
@@ -108,10 +109,11 @@ export function test_engine_geometry_elliptic_loft_atlas(): void {
   // 4.
   const crease: Input = make();
   crease.loft.spans[1]!.radiusX = [0.02, 0.025, 0.025, 0.03];
-  const joined: ReturnType<typeof realizeAutoMovieBicubicAtlas64> =
-    realizeAutoMovieBicubicAtlas64(
-      createAutoMovieEllipticLoftAtlas(crease).geometry,
-    );
+  const joined: ReturnType<
+    typeof AutoMovieEngineGeometry.realizeBicubicAtlas64
+  > = AutoMovieEngineGeometry.realizeBicubicAtlas64(
+    AutoMovieEngineGeometry.createEllipticLoftAtlas(crease).geometry,
+  );
   const jp: number[] = joined.mesh.positions;
   const limits: number[] = [];
   for (let i: number = 0; i < jp.length; i += 3)
@@ -130,8 +132,17 @@ export function test_engine_geometry_elliptic_loft_atlas(): void {
   // 5.
   const variants: [string, (input: Input) => void][] = [
     ["zero radius", (i) => void (i.loft.spans[0]!.radiusX[1] = 0)],
-    ["gap", (i) => void (i.loft.spans[1]!.interval[0] += 0.001)],
-    ["reversed", (i) => void i.loft.spans[0]!.interval.reverse()],
+    ["gap", (i) => void (i.loft.spans[1]!.interval.lowerY += 0.001)],
+    [
+      "reversed",
+      (i) => {
+        const span: IAutoMovieEllipticLoft["spans"][number] = i.loft.spans[0]!;
+        span.interval = {
+          lowerY: span.interval.upperY,
+          upperY: span.interval.lowerY,
+        };
+      },
+    ],
     ["unequal seam", (i) => void (i.loft.spans[1]!.radiusZ[0] += 0.001)],
     ["zero budget", (i) => void (i.maxVertices = 0)],
   ];
@@ -140,13 +151,17 @@ export function test_engine_geometry_elliptic_loft_atlas(): void {
     edit(input);
     TestValidator.predicate(
       label,
-      throwsError((): unknown => createAutoMovieEllipticLoftAtlas(input)),
+      throwsError((): unknown =>
+        AutoMovieEngineGeometry.createEllipticLoftAtlas(input),
+      ),
     );
   }
   TestValidator.equals(
     "one cell",
-    realizeAutoMovieBicubicAtlas64({ ...result.geometry, maxCells: 1 })
-      .complete,
+    AutoMovieEngineGeometry.realizeBicubicAtlas64({
+      ...result.geometry,
+      maxCells: 1,
+    }).complete,
     false,
   );
 }

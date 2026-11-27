@@ -1,6 +1,6 @@
-import { AutoMovieMotionHumanStrikeLaws } from "./AutoMovieMotionHumanStrikeLaws";
-import { AutoMovieMotionHumanStrikePresets } from "./AutoMovieMotionHumanStrikePresets";
-import { AutoMovieMotionHumanStrikeRows } from "./AutoMovieMotionHumanStrikeRows";
+import { AutoMovieMotionHumanStrikeLaws } from "./internal/AutoMovieMotionHumanStrikeLaws";
+import { AutoMovieMotionHumanStrikePresets } from "./presets/AutoMovieMotionHumanStrikePresets";
+import { AutoMovieMotionHumanStrikeRows } from "./internal/AutoMovieMotionHumanStrikeRows";
 
 /**
  * The strikes: punches, kicks, knees and the close and foot strikes, which

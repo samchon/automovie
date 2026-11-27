@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -8,17 +8,17 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanChain } from "../../HumanChain";
-import { createHumanBody } from "../../body/createHumanBody";
-import { HumanPerformance } from "../../perform/HumanPerformance";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
-import { MotionBodies } from "../MotionBodies";
-import type { humanPolygonMan } from "../humanPolygonMan";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
+import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
+import { AutoMovieMotionHumanPerformance } from "../../perform/AutoMovieMotionHumanPerformance";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
+import { MotionBodies } from "../internal/MotionBodies";
+import type { humanPolygonMan } from "../internal/humanPolygonMan";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { TouchVerdicts } from "./TouchVerdicts";
-import { everydayVerdicts } from "./everydayVerdicts";
+import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/**
+/*
  * Capture cases of swimming on a water plane at 1.2 m, drawn as a thin box,
  * three cycles each.
  *
@@ -30,9 +30,8 @@ import { everydayVerdicts } from "./everydayVerdicts";
  *   of the arm along the swim, the mouth above the plane at each `breath`, and
  *   the cycle periodic: the right wrist's place relative to the hips the same
  *   within 10 mm at each cycle's start.
- *
- * @param bodies The bodies; `m-average` when absent.
- * @returns The cases.
+ * Parameter bodies: The bodies; `m-average` when absent.
+ * Returns: The cases.
  */
 export function swimCases(
   bodies: readonly string[] = ["m-average"],
@@ -41,7 +40,7 @@ export function swimCases(
   const water: number = 1.2;
   for (const id of bodies) {
     const man: humanPolygonMan.IPolygonMan = MotionBodies.population(id);
-    const body: IAutoMovieMotionHumanBody = createHumanBody(
+    const body: IAutoMovieMotionHumanBody = AutoMovieMotionHumanBody.create(
       man.body.skeleton,
       man.body.profile,
     );
@@ -56,7 +55,7 @@ export function swimCases(
 
       // Process boundary: a case that throws is reported as that case's refusal, and the remaining cases still run.
       try {
-        performance = new HumanPerformance({
+        performance = new AutoMovieMotionHumanPerformance({
           seed: "swim",
           performers: [
             {
@@ -67,7 +66,7 @@ export function swimCases(
               proficiency: { level: "trained" as const },
             },
           ],
-          composition: HumanChain.subject("a").act("swim", {
+          composition: AutoMovieMotionHumanChain.subject("a").act("swim", {
             kind,
             water,
             count: 3,
@@ -141,12 +140,12 @@ export function swimCases(
           },
         );
         const relative = (t: number): IAutoMovieVector3 =>
-          Vector3.subtract(at(t, "rightHand"), at(t, "hips"));
+          AutoMovieEngineVector3.subtract(at(t, "rightHand"), at(t, "hips"));
         let drift: number = 0;
         for (const t of starts.slice(1))
           drift = Math.max(
             drift,
-            Vector3.length(Vector3.subtract(relative(t), relative(starts[0]!))),
+            AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(relative(t), relative(starts[0]!))),
           );
         verdicts.push(
           everydayVerdicts.within(

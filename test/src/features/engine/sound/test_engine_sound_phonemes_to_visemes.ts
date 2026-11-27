@@ -1,11 +1,11 @@
-import { productionPhonemesToVisemes } from "@automovie/engine";
+import { AutoMovieEngineSound } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/predicates";
 
 /**
- * `productionPhonemesToVisemes` times each phoneme of a chunk with an equal
- * share of the chunk's samples.
+ * `AutoMovieEngineSound.phonemesToVisemes` times each phoneme of a chunk with
+ * an equal share of the chunk's samples.
  *
  * Scenarios:
  *
@@ -14,7 +14,7 @@ import { throwsError } from "../../internal/predicates";
  * 2. A chunk that does not span an increasing interval is refused.
  */
 export function test_engine_sound_phonemes_to_visemes(): void {
-  const timed = productionPhonemesToVisemes({
+  const timed = AutoMovieEngineSound.phonemesToVisemes({
     chunks: [{ phonemes: "pa", startSample: 0, endSample: 100 }],
   });
   TestValidator.equals(
@@ -28,7 +28,7 @@ export function test_engine_sound_phonemes_to_visemes(): void {
   TestValidator.predicate(
     "empty interval",
     throwsError(() =>
-      productionPhonemesToVisemes({
+      AutoMovieEngineSound.phonemesToVisemes({
         chunks: [{ phonemes: "pa", startSample: 5, endSample: 5 }],
       }),
     ),

@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeRide } from "@automovie/archetypes";
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMoviePrimitiveShape,
@@ -61,16 +61,16 @@ export namespace equineFloorObservation {
       part.geometry.type !== "primitive"
     )
       return Infinity;
-    const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+    const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       placement.rotation,
       part.transform.rotation,
     );
-    const centre: IAutoMovieVector3 = Vector3.add(
-      Quaternion.rotateVector(placement.rotation, part.transform.translation),
+    const centre: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+      AutoMovieEngineQuaternion.rotateVector(placement.rotation, part.transform.translation),
       placement.translation,
     );
     const shape: IAutoMoviePrimitiveShape = part.geometry.shape;
-    const axis: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+    const axis: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(rotation, {
       x: 0,
       y: 1,
       z: 0,
@@ -92,7 +92,7 @@ export namespace equineFloorObservation {
             low = Math.min(
               low,
               centre.y +
-                Quaternion.rotateVector(rotation, {
+                AutoMovieEngineQuaternion.rotateVector(rotation, {
                   x: (x * shape.width) / 2,
                   y: (y * shape.height) / 2,
                   z: (z * shape.depth) / 2,

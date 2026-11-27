@@ -1,4 +1,5 @@
-import { realizeAutoMovieConstruction } from "@automovie/engine";
+
+import { AutoMovieEngineConstruction } from "@automovie/engine";
 import type {
   IAutoMovieConstructionRealization,
   IAutoMovieConstructionView,
@@ -58,7 +59,7 @@ export function test_engine_geometry_construction_trim(): void {
     },
   );
   const real: IAutoMovieConstructionRealization.IWithoutSkin =
-    realizeAutoMovieConstruction(
+    AutoMovieEngineConstruction.realize(
       {
         name: "made",
         root: {
@@ -67,10 +68,10 @@ export function test_engine_geometry_construction_trim(): void {
           host: tube,
           face: "tube",
           landmarks,
-          guesses: angles.map((_: number, m: number): [number, number] => [
-            at(m)[0] + 0.001,
-            at(m)[1] + 0.01,
-          ]),
+          guesses: angles.map((_: number, m: number) => ({
+            station: at(m)[0] + 0.001,
+            phase: at(m)[1] + 0.01,
+          })),
         },
       },
       { chord: 1e-4, skin: false },

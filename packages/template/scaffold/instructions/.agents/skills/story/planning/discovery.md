@@ -11,7 +11,7 @@ On the long route, repeat discovery at each applicable checkpoint. Inspect avail
 | Checkpoint, in order | What it looks for |
 | --- | --- |
 | After settings | What the canon needs that direction did not foresee |
-| Before composition, when commissioned | What no source folder, research or contract covers yet |
+| Before composition, if commissioned | Gaps in sources, research or contract |
 | After output review | What the output or handoff shows the work still needs |
 
 Before composition, look for unowned element kinds, unsupported behavior, camera or staging choices, and failures no contract covers.

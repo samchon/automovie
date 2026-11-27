@@ -1,12 +1,4 @@
-import {
-  closestPointOnSegmentXZ,
-  footprintContains,
-  footprintConvexPieces,
-  footprintRingPlacement,
-  intersectAutoMovieConvexPolygons,
-  signedArea,
-  surfaceHeightAt,
-} from "@automovie/engine";
+import { AutoMovieEngineSpace, AutoMovieEngineMath, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieFootprint,
   IAutoMovieFootprintRing,
@@ -17,18 +9,14 @@ import type {
 
 import type { prepareTerrainGrades } from "./prepareTerrainGrades";
 
-/** A named path with world-metre waypoints and applicable grade limits. */
-type IPath = ReturnType<typeof prepareTerrainGrades>["paths"][number];
-
-/**
+/*
  * Check a named route against the accepted support surface.
- *
- * @param path Resolved world-metre waypoints, fixed heights and optional slope
- *   limit.
- * @param footprint Closed rectangular parcel with its excluded hole rings.
- * @param rule World height authority retained for staging and rendering.
- * @throws If the prescribed width misses support, a waypoint misses its fixed
- *   height or the slope is infeasible.
+ * Parameter path: Resolved world-metre waypoints, fixed heights and optional slope
+ * limit.
+ * Parameter footprint: Closed rectangular parcel with its excluded hole rings.
+ * Parameter rule: World height authority retained for staging and rendering.
+ * If the prescribed width misses support, a waypoint misses its fixed
+ * height or the slope is infeasible.
  */
 export function admitTerrainRoute(
   path: IPath,
@@ -37,14 +25,14 @@ export function admitTerrainRoute(
 ): void {
   const obstructions: IAutoMovieVector3[][] = footprint.holes.flatMap(
     (outer: IAutoMovieFootprintRing): IAutoMovieVector3[][] =>
-      footprintConvexPieces({ outer, holes: [] }),
+      AutoMovieEngineSpace.footprintConvexPieces({ outer, holes: [] }),
   );
   for (const [index, point] of path.points.entries()) {
-    if (!footprintContains(footprint, point.x, point.z))
+    if (!AutoMovieEngineSpace.footprintContains(footprint, point.x, point.z))
       throw new Error(
         `Terrain path "${path.id}" waypoint ${index} is outside parcel land.`,
       );
-    const value: number = surfaceHeightAt({ height: rule }, point.x, point.z);
+    const value: number = AutoMovieEngineSpace.surfaceHeightAt({ height: rule }, point.x, point.z);
     if (
       path.fixed[index] &&
       Math.abs(value - point.y) >
@@ -81,7 +69,14 @@ export function admitTerrainRoute(
   }
 }
 
-/** A butt-ended strip can meet a rim at a door or parcel boundary. */
+/*
+ * A named path with world-metre waypoints and applicable grade limits.
+ */
+type IPath = ReturnType<typeof prepareTerrainGrades>["paths"][number];
+
+/*
+ * A butt-ended strip can meet a rim at a door or parcel boundary.
+ */
 function stripFits(
   segment: IPath["segments"][number],
   radius: number,
@@ -96,7 +91,7 @@ function stripFits(
   for (const end of [from, to])
     for (const side of [-radius, radius])
       if (
-        footprintRingPlacement(
+        AutoMovieEngineSpace.footprintRingPlacement(
           outer,
           end.x + acrossX * side,
           end.z + acrossZ * side,
@@ -119,12 +114,12 @@ function stripFits(
         return [x * alongX + z * alongZ, x * acrossX + z * acrossZ];
       },
     );
-    const intersection: [number, number][] = intersectAutoMovieConvexPolygons(
+    const intersection: [number, number][] = AutoMovieEngineGeometry.intersectConvexPolygons(
       local,
       strip,
     );
     const area: number = Math.abs(
-      signedArea(
+      AutoMovieEngineGeometry.signedArea(
         intersection.map(
           ([x, y]: [number, number]): IAutoMoviePlanarPoint => ({ x, y }),
         ),
@@ -137,14 +132,16 @@ function stripFits(
   return true;
 }
 
-/** Radius of the largest clearance disk before meeting this closed ring's rim. */
+/*
+ * Radius of the largest clearance disk before meeting this closed ring's rim.
+ */
 function distanceToRim(
   ring: IAutoMovieFootprintRing,
   point: IAutoMovieVector3,
 ): number {
   let distance: number = Infinity;
   for (let edge: number = 0; edge < ring.points.length; edge += 1) {
-    const closest: IAutoMovieVector3 = closestPointOnSegmentXZ(
+    const closest: IAutoMovieVector3 = AutoMovieEngineMath.closestPointOnSegmentXZ(
       point,
       ring.points[edge]!,
       ring.points[(edge + 1) % ring.points.length]!,
@@ -157,7 +154,7 @@ function distanceToRim(
   return distance;
 }
 
-/**
+/*
  * Bound centerline slope by evaluating the derivative of each crossed cell's
  * quadratic.
  */
@@ -177,7 +174,7 @@ function routeGrade(
     (a: number, b: number): number => a - b,
   );
   const evaluate: (t: number) => number = (t: number): number =>
-    surfaceHeightAt({ height: rule }, from.x + dx * t, from.z + dz * t);
+    AutoMovieEngineSpace.surfaceHeightAt({ height: rule }, from.x + dx * t, from.z + dz * t);
   let max: number = 0;
   for (let index: number = 0; index + 1 < times.length; index += 1) {
     const start: number = times[index]!;
@@ -193,7 +190,9 @@ function routeGrade(
   return max;
 }
 
-/** Insert only lattice boundaries strictly between the two axis coordinates. */
+/*
+ * Insert only lattice boundaries strictly between the two axis coordinates.
+ */
 function addAxisCuts(
   cuts: Set<number>,
   from: number,

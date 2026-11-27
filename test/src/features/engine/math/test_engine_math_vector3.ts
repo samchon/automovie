@@ -1,11 +1,11 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, vclose } from "../../internal/predicates";
 
 /**
- * `Vector3` arithmetic, cross product, norm, normalization, distance and
+ * `AutoMovieEngineVector3` arithmetic, cross product, norm, normalization, distance and
  * interpolation, each against a hand-computed value.
  *
  * Scenarios:
@@ -34,37 +34,37 @@ import { nclose, vclose } from "../../internal/predicates";
  *    when the inputs change afterwards, and issues independent records.
  */
 export function test_engine_math_vector3(): void {
-  const a: IAutoMovieVector3 = Vector3.create(1, 2, 3);
-  const b: IAutoMovieVector3 = Vector3.create(4, 5, 6);
+  const a: IAutoMovieVector3 = AutoMovieEngineVector3.create(1, 2, 3);
+  const b: IAutoMovieVector3 = AutoMovieEngineVector3.create(4, 5, 6);
 
   // 1.
-  TestValidator.equals("add", Vector3.add(a, b), { x: 5, y: 7, z: 9 });
-  TestValidator.equals("subtract", Vector3.subtract(b, a), {
+  TestValidator.equals("add", AutoMovieEngineVector3.add(a, b), { x: 5, y: 7, z: 9 });
+  TestValidator.equals("subtract", AutoMovieEngineVector3.subtract(b, a), {
     x: 3,
     y: 3,
     z: 3,
   });
-  TestValidator.equals("scale", Vector3.scale(a, 2), { x: 2, y: 4, z: 6 });
-  TestValidator.equals("dot", Vector3.dot(a, b), 32);
+  TestValidator.equals("scale", AutoMovieEngineVector3.scale(a, 2), { x: 2, y: 4, z: 6 });
+  TestValidator.equals("dot", AutoMovieEngineVector3.dot(a, b), 32);
   TestValidator.equals(
     "dot perpendicular",
-    Vector3.dot({ x: 1, y: 0, z: 0 }, { x: 0, y: 1, z: 0 }),
+    AutoMovieEngineVector3.dot({ x: 1, y: 0, z: 0 }, { x: 0, y: 1, z: 0 }),
     0,
   );
-  const fused: IAutoMovieVector3 = Vector3.addScaled(
+  const fused: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(
     { x: 1, y: 2, z: 3 },
     { x: 2, y: -3, z: 4 },
     0.5,
   );
   TestValidator.equals("add scaled", fused, { x: 2, y: 0.5, z: 5 });
   fused.x = 999;
-  const replay: IAutoMovieVector3 = Vector3.addScaled(
+  const replay: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(
     { x: 1, y: 2, z: 3 },
     { x: 2, y: -3, z: 4 },
     0.5,
   );
   TestValidator.equals("fresh record", replay, { x: 2, y: 0.5, z: 5 });
-  const zero: IAutoMovieVector3 = Vector3.addScaled(
+  const zero: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(
     { x: -0, y: -0, z: -0 },
     { x: -0, y: -0, z: -0 },
     1,
@@ -75,13 +75,13 @@ export function test_engine_math_vector3(): void {
   );
 
   // 2.
-  const X: IAutoMovieVector3 = Vector3.create(1, 0, 0);
-  const Y: IAutoMovieVector3 = Vector3.create(0, 1, 0);
-  const Z: IAutoMovieVector3 = Vector3.create(0, 0, 1);
-  TestValidator.equals("X x Y", Vector3.cross(X, Y), Z);
-  TestValidator.equals("Y x Z", Vector3.cross(Y, Z), X);
-  TestValidator.equals("Z x X", Vector3.cross(Z, X), Y);
-  TestValidator.equals("Y x X", Vector3.cross(Y, X), { x: 0, y: 0, z: -1 });
+  const X: IAutoMovieVector3 = AutoMovieEngineVector3.create(1, 0, 0);
+  const Y: IAutoMovieVector3 = AutoMovieEngineVector3.create(0, 1, 0);
+  const Z: IAutoMovieVector3 = AutoMovieEngineVector3.create(0, 0, 1);
+  TestValidator.equals("X x Y", AutoMovieEngineVector3.cross(X, Y), Z);
+  TestValidator.equals("Y x Z", AutoMovieEngineVector3.cross(Y, Z), X);
+  TestValidator.equals("Z x X", AutoMovieEngineVector3.cross(Z, X), Y);
+  TestValidator.equals("Y x X", AutoMovieEngineVector3.cross(Y, X), { x: 0, y: 0, z: -1 });
   for (const alias of ["new", "origin", "a", "b"] as const) {
     const origin: IAutoMovieVector3 = { x: 1, y: 2, z: 3 };
     const pa: IAutoMovieVector3 = { x: 4, y: 6, z: 3 };
@@ -94,7 +94,7 @@ export function test_engine_math_vector3(): void {
           : alias === "b"
             ? pb
             : { x: 99, y: 88, z: 77 };
-    Vector3.crossDifferenceInto(target, origin, pa, pb);
+    AutoMovieEngineVector3.crossDifferenceInto(target, origin, pa, pb);
     TestValidator.equals(`displacement ${alias}`, target, {
       x: 8,
       y: -6,
@@ -113,18 +113,18 @@ export function test_engine_math_vector3(): void {
   }
 
   // 3.
-  TestValidator.equals("length 3-4-5", Vector3.length({ x: 3, y: 4, z: 0 }), 5);
-  TestValidator.equals("length zero", Vector3.length(Vector3.create()), 0);
+  TestValidator.equals("length 3-4-5", AutoMovieEngineVector3.length({ x: 3, y: 4, z: 0 }), 5);
+  TestValidator.equals("length zero", AutoMovieEngineVector3.length(AutoMovieEngineVector3.create()), 0);
   TestValidator.predicate(
     "unit",
-    nclose(Vector3.length(Vector3.normalize({ x: 3, y: 4, z: 0 })), 1, 1e-12),
+    nclose(AutoMovieEngineVector3.length(AutoMovieEngineVector3.normalize({ x: 3, y: 4, z: 0 })), 1, 1e-12),
   );
-  TestValidator.equals("direction", Vector3.normalize({ x: 5, y: 0, z: 0 }), {
+  TestValidator.equals("direction", AutoMovieEngineVector3.normalize({ x: 5, y: 0, z: 0 }), {
     x: 1,
     y: 0,
     z: 0,
   });
-  TestValidator.equals("zero stays zero", Vector3.normalize(Vector3.create()), {
+  TestValidator.equals("zero stays zero", AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.create()), {
     x: 0,
     y: 0,
     z: 0,
@@ -135,18 +135,18 @@ export function test_engine_math_vector3(): void {
     const vector: IAutoMovieVector3 = { x: 0, y: 0, z: size };
     TestValidator.predicate(
       `direction ${size}`,
-      vclose(Vector3.normalize(vector), { x: 0, y: 0, z: 1 }, 1e-12),
+      vclose(AutoMovieEngineVector3.normalize(vector), { x: 0, y: 0, z: 1 }, 1e-12),
     );
     TestValidator.predicate(
       `length ${size}`,
-      nclose(Vector3.length(vector) / size, 1, 1e-12),
+      nclose(AutoMovieEngineVector3.length(vector) / size, 1, 1e-12),
     );
   }
   for (const size of [1e155, 1e-200]) {
     TestValidator.predicate(
       `3-4-5 direction ${size}`,
       vclose(
-        Vector3.normalize({ x: 3 * size, y: -4 * size, z: 0 }),
+        AutoMovieEngineVector3.normalize({ x: 3 * size, y: -4 * size, z: 0 }),
         { x: 0.6, y: -0.8, z: 0 },
         1e-12,
       ),
@@ -154,7 +154,7 @@ export function test_engine_math_vector3(): void {
     TestValidator.predicate(
       `3-4-5 length ${size}`,
       nclose(
-        Vector3.length({ x: 3 * size, y: 4 * size, z: 0 }) / size,
+        AutoMovieEngineVector3.length({ x: 3 * size, y: 4 * size, z: 0 }) / size,
         5,
         1e-12,
       ),
@@ -164,45 +164,45 @@ export function test_engine_math_vector3(): void {
     TestValidator.predicate(
       `diagonal ${size}`,
       vclose(
-        Vector3.normalize({ x: size, y: size, z: size }),
+        AutoMovieEngineVector3.normalize({ x: size, y: size, z: size }),
         { x: 1 / Math.sqrt(3), y: 1 / Math.sqrt(3), z: 1 / Math.sqrt(3) },
         1e-12,
       ),
     );
   TestValidator.equals(
     "unrepresentable length",
-    Vector3.length({ x: Number.MAX_VALUE, y: Number.MAX_VALUE, z: 0 }),
+    AutoMovieEngineVector3.length({ x: Number.MAX_VALUE, y: Number.MAX_VALUE, z: 0 }),
     Infinity,
   );
 
   // 5.
   TestValidator.equals(
     "distance",
-    Vector3.distance({ x: 1, y: 2, z: 3 }, { x: 4, y: 6, z: 3 }),
+    AutoMovieEngineVector3.distance({ x: 1, y: 2, z: 3 }, { x: 4, y: 6, z: 3 }),
     5,
   );
   for (const exponent of [-600, -500, 500, 600]) {
     const scale: number = 2 ** exponent;
     TestValidator.equals(
       `distance 2^${exponent}`,
-      Vector3.distance({ x: scale, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }) / scale,
+      AutoMovieEngineVector3.distance({ x: scale, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }) / scale,
       1,
     );
   }
 
   // 6.
-  const start: IAutoMovieVector3 = Vector3.create(0, 0, 0);
-  const end: IAutoMovieVector3 = Vector3.create(2, 4, 6);
-  TestValidator.equals("lerp 0", Vector3.lerp(start, end, 0), start);
-  TestValidator.equals("lerp 1", Vector3.lerp(start, end, 1), end);
-  TestValidator.equals("lerp half", Vector3.lerp(start, end, 0.5), {
+  const start: IAutoMovieVector3 = AutoMovieEngineVector3.create(0, 0, 0);
+  const end: IAutoMovieVector3 = AutoMovieEngineVector3.create(2, 4, 6);
+  TestValidator.equals("lerp 0", AutoMovieEngineVector3.lerp(start, end, 0), start);
+  TestValidator.equals("lerp 1", AutoMovieEngineVector3.lerp(start, end, 1), end);
+  TestValidator.equals("lerp half", AutoMovieEngineVector3.lerp(start, end, 0.5), {
     x: 1,
     y: 2,
     z: 3,
   });
   const from: IAutoMovieVector3 = { x: 1, y: 2, z: 3 };
   const to: IAutoMovieVector3 = { x: 5, y: -2, z: 7 };
-  const read = Vector3.prepareLerp(from, to);
+  const read = AutoMovieEngineVector3.prepareLerp(from, to);
   const expected: [number, IAutoMovieVector3][] = [
     [1.5, { x: 7, y: -4, z: 9 }],
     [0.25, { x: 2, y: 1, z: 4 }],
@@ -217,7 +217,7 @@ export function test_engine_math_vector3(): void {
   to.y = 88;
   to.z = 12;
   TestValidator.equals("snapshot kept", read(0.25), { x: 2, y: 1, z: 4 });
-  TestValidator.equals("raw reads edits", Vector3.lerp(from, to, 0.25), {
+  TestValidator.equals("raw reads edits", AutoMovieEngineVector3.lerp(from, to, 0.25), {
     x: 75.5,
     y: 23.5,
     z: -5.25,

@@ -1,4 +1,4 @@
-import { pointSegmentDistance } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -24,7 +24,7 @@ export function test_engine_math_point_segment_distance(): void {
     z: number,
     from: IAutoMovieVector3,
     to: IAutoMovieVector3,
-  ): number => pointSegmentDistance({ x, y, z }, from, to);
+  ): number => AutoMovieEngineMath.pointSegmentDistance({ x, y, z }, from, to);
   TestValidator.predicate("interior", nclose(near(0, 1, 0, a, b), 1, 1e-12));
   TestValidator.predicate("past end", nclose(near(3, 0, 0, a, b), 2, 1e-12));
   const origin: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };

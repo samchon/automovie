@@ -1,7 +1,17 @@
-import { Quaternion } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanSignature, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-import { HumanSignature } from "@automovie/motions";
-import { HumanFoot } from "@automovie/motions/internal";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import { AutoMovieMotionHumanSignature } from "@automovie/motions";
+import {
+  HumanFoot
+} from "../../../../../packages/motions/src/posture/internal/HumanFoot";
 import { TestValidator } from "@nestia/e2e";
 
 import { auditStanceMotion } from "../../internal/auditStanceMotion";
@@ -24,8 +34,8 @@ const ROUNDING: number = 1e-9;
 const HEIGHT: readonly [number, number] = [0.53, 0.59];
 
 /**
- * `HumanSignature` reads the kinematic signature of a performer off displayed
- * bones, each reading a contract of its own:
+ * `AutoMovieMotionHumanSignature` reads the kinematic signature of a performer
+ * off displayed bones, each reading a contract of its own:
  *
  * 1. The reader keeps its motion, subject, body and heading, and `bones` reads the
  *    motion's bones of the subject.
@@ -59,14 +69,14 @@ export async function test_motions_audit_human_signature(): Promise<void> {
   const reader = (
     points: readonly (readonly [AutoMovieHumanoidBone, IAutoMovieVector3])[],
     yaw: number = 0,
-  ): HumanSignature.IHeading => ({
+  ): AutoMovieMotionHumanSignature.IHeading => ({
     motion: { duration: 1, bones: () => resolvedBones(points) },
     subject: "a",
     yaw,
   });
 
   // 2. Joints.
-  const rising: HumanSignature.IBones = {
+  const rising: AutoMovieMotionHumanSignature.IBones = {
     motion: {
       duration: 1,
       bones: (_subject: string, t: number) =>
@@ -77,23 +87,38 @@ export async function test_motions_audit_human_signature(): Promise<void> {
   TestValidator.predicate(
     "the joint",
     vclose(
-      HumanSignature.joint(rising, 0.5, "head"),
+      AutoMovieMotionHumanSignature.joint(rising, 0.5, "head"),
       { x: 0, y: 1.55, z: 0 },
       ROUNDING,
-    ) && throwsError(() => HumanSignature.joint(rising, 0.5, "leftHand")),
+    ) &&
+      throwsError(() =>
+        AutoMovieMotionHumanSignature.joint(rising, 0.5, "leftHand"),
+      ),
   );
 
   // 3. Forward.
   TestValidator.predicate(
     "the headings",
-    vclose(HumanSignature.forward(0), { x: 0, y: 0, z: 1 }, ROUNDING) &&
-      vclose(HumanSignature.forward(90), { x: 1, y: 0, z: 0 }, ROUNDING) &&
-      vclose(HumanSignature.forward(180), { x: 0, y: 0, z: -1 }, ROUNDING),
+    vclose(
+      AutoMovieMotionHumanSignature.forward(0),
+      { x: 0, y: 0, z: 1 },
+      ROUNDING,
+    ) &&
+      vclose(
+        AutoMovieMotionHumanSignature.forward(90),
+        { x: 1, y: 0, z: 0 },
+        ROUNDING,
+      ) &&
+      vclose(
+        AutoMovieMotionHumanSignature.forward(180),
+        { x: 0, y: 0, z: -1 },
+        ROUNDING,
+      ),
   );
 
   // 4. Trunk.
   const lean = (ahead: number, yaw: number): number =>
-    HumanSignature.trunk(
+    AutoMovieMotionHumanSignature.trunk(
       reader(
         [
           ["leftUpperLeg", { x: 0, y: 1, z: 0.1 }],
@@ -139,41 +164,73 @@ export async function test_motions_audit_human_signature(): Promise<void> {
   TestValidator.predicate(
     "the flexions",
     nclose(
-      HumanSignature.flexion(proximal, centre, { x: 0, y: 0, z: 0 }),
+      AutoMovieMotionHumanSignature.flexion(proximal, centre, {
+        x: 0,
+        y: 0,
+        z: 0,
+      }),
       0,
       ROUNDING,
     ) &&
       nclose(
-        HumanSignature.flexion(proximal, centre, { x: 0, y: 0.5, z: 0.3 }),
+        AutoMovieMotionHumanSignature.flexion(proximal, centre, {
+          x: 0,
+          y: 0.5,
+          z: 0.3,
+        }),
         90,
         ROUNDING,
       ) &&
       nclose(
-        HumanSignature.flexion(proximal, centre, { x: 0, y: 0, z: 0.5 }),
+        AutoMovieMotionHumanSignature.flexion(proximal, centre, {
+          x: 0,
+          y: 0,
+          z: 0.5,
+        }),
         45,
         ROUNDING,
       ) &&
       nclose(
-        HumanSignature.flexion(proximal, centre, { x: 0, y: 1.2, z: 0 }),
+        AutoMovieMotionHumanSignature.flexion(proximal, centre, {
+          x: 0,
+          y: 1.2,
+          z: 0,
+        }),
         180,
         ROUNDING,
       ) &&
-      nclose(HumanSignature.knee(limbs, 0, "left"), 45, ROUNDING) &&
-      nclose(HumanSignature.knee(limbs, 0, "right"), 0, ROUNDING) &&
-      nclose(HumanSignature.hip(limbs, 0, "right"), 90, ROUNDING) &&
-      nclose(HumanSignature.elbow(limbs, 0, "right"), 120, ROUNDING),
+      nclose(
+        AutoMovieMotionHumanSignature.knee(limbs, 0, "left"),
+        45,
+        ROUNDING,
+      ) &&
+      nclose(
+        AutoMovieMotionHumanSignature.knee(limbs, 0, "right"),
+        0,
+        ROUNDING,
+      ) &&
+      nclose(
+        AutoMovieMotionHumanSignature.hip(limbs, 0, "right"),
+        90,
+        ROUNDING,
+      ) &&
+      nclose(
+        AutoMovieMotionHumanSignature.elbow(limbs, 0, "right"),
+        120,
+        ROUNDING,
+      ),
   );
 
   // 6. Head.
   const pitch = (axis: "x" | "y", degrees: number): number =>
-    HumanSignature.head(
+    AutoMovieMotionHumanSignature.head(
       {
         motion: {
           duration: 1,
           bones: () =>
             resolvedBones(
               [["head", { x: 0, y: 1.6, z: 0 }]],
-              Quaternion.fromAxisAngle(
+              AutoMovieEngineQuaternion.fromAxisAngle(
                 { x: axis === "x" ? 1 : 0, y: axis === "y" ? 1 : 0, z: 0 },
                 degrees,
               ),
@@ -188,7 +245,7 @@ export async function test_motions_audit_human_signature(): Promise<void> {
     nclose(pitch("x", 20), 20, ROUNDING) &&
       nclose(pitch("x", -15), -15, ROUNDING) &&
       nclose(pitch("y", 90), 0, ROUNDING) &&
-      throwsError(() => HumanSignature.head(reader([]), 0)),
+      throwsError(() => AutoMovieMotionHumanSignature.head(reader([]), 0)),
   );
 
   // 7. Speed.
@@ -197,7 +254,7 @@ export async function test_motions_audit_human_signature(): Promise<void> {
     from: number,
     to: number,
   ): number =>
-    HumanSignature.speed(
+    AutoMovieMotionHumanSignature.speed(
       {
         motion: {
           duration: 2,
@@ -228,15 +285,18 @@ export async function test_motions_audit_human_signature(): Promise<void> {
   );
 
   // 8. Times and means.
-  const coarse: number[] = HumanSignature.times(0, 0.1, 30);
-  const fine: number[] = HumanSignature.times(0, 0.1, 120);
+  const coarse: number[] = AutoMovieMotionHumanSignature.times(0, 0.1, 30);
+  const fine: number[] = AutoMovieMotionHumanSignature.times(0, 0.1, 120);
   TestValidator.predicate(
     "the series",
     coarse.length === 4 &&
       coarse.every((t: number, k: number): boolean => fine[4 * k] === t) &&
-      HumanSignature.times(1, 0, 30).length === 0 &&
-      HumanSignature.times(0, 1).length === 61 &&
-      HumanSignature.mean([1, 2, 3], (t: number): number => 2 * t) === 4,
+      AutoMovieMotionHumanSignature.times(1, 0, 30).length === 0 &&
+      AutoMovieMotionHumanSignature.times(0, 1).length === 61 &&
+      AutoMovieMotionHumanSignature.mean(
+        [1, 2, 3],
+        (t: number): number => 2 * t,
+      ) === 4,
   );
 
   // 9. Regions.
@@ -245,7 +305,7 @@ export async function test_motions_audit_human_signature(): Promise<void> {
   ).surfaces;
   const regionBone = surfaces.regions.sternum.bone;
   const placed = (position: IAutoMovieVector3, turned: boolean) =>
-    HumanSignature.region(
+    AutoMovieMotionHumanSignature.region(
       {
         motion: {
           duration: 1,
@@ -275,7 +335,7 @@ export async function test_motions_audit_human_signature(): Promise<void> {
         ROUNDING,
       ) &&
       throwsError(() =>
-        HumanSignature.region(
+        AutoMovieMotionHumanSignature.region(
           {
             motion: { duration: 1, bones: () => resolvedBones([]) },
             subject: "a",
@@ -295,7 +355,7 @@ export async function test_motions_audit_human_signature(): Promise<void> {
   const signature = (
     motion: IAutoMovieMotionHumanSignature.IMotion,
   ): IAutoMovieMotionHumanSignature.IReader =>
-    HumanSignature(motion, "a", body, 0);
+    AutoMovieMotionHumanSignature.read(motion, "a", body, 0);
   const still: IAutoMovieMotionHumanSignature.IReader = signature(
     shifted(() => 0),
   );
@@ -304,26 +364,34 @@ export async function test_motions_audit_human_signature(): Promise<void> {
     still.subject === "a" &&
       still.body === body &&
       still.yaw === 0 &&
-      HumanSignature.bones(still, 0).has("hips"),
+      AutoMovieMotionHumanSignature.bones(still, 0).has("hips"),
   );
-  const mass: IAutoMovieVector3 = HumanSignature.centre(still, 0);
+  const mass: IAutoMovieVector3 = AutoMovieMotionHumanSignature.centre(
+    still,
+    0,
+  );
   TestValidator.predicate(
     "the centre",
     mass.y >= HEIGHT[0] * body.measure.stature &&
       mass.y <= HEIGHT[1] * body.measure.stature &&
       Math.abs(mass.x) <= 0.01 &&
       nclose(
-        HumanSignature.centre(signature(shifted(() => 1)), 0).x - mass.x,
+        AutoMovieMotionHumanSignature.centre(signature(shifted(() => 1)), 0).x -
+          mass.x,
         1,
         ROUNDING,
       ),
   );
   const sockets: IAutoMovieMotionHumanFoot.ISocket[] = HumanFoot.sockets(
     body,
-    HumanSignature.bones(still, 0),
+    AutoMovieMotionHumanSignature.bones(still, 0),
     "left",
   );
-  const sole: IAutoMovieVector3 = HumanSignature.sole(still, 0, "left");
+  const sole: IAutoMovieVector3 = AutoMovieMotionHumanSignature.sole(
+    still,
+    0,
+    "left",
+  );
   TestValidator.predicate(
     "the sole",
     sockets.every(
@@ -333,7 +401,8 @@ export async function test_motions_audit_human_signature(): Promise<void> {
   const bears = (
     motion: IAutoMovieMotionHumanSignature.IMotion,
     floor: number,
-  ) => HumanSignature.bears(signature(motion), 0.5, "left", floor);
+  ) =>
+    AutoMovieMotionHumanSignature.bears(signature(motion), 0.5, "left", floor);
   TestValidator.equals(
     "the bearing",
     [
@@ -365,9 +434,9 @@ export async function test_motions_audit_human_signature(): Promise<void> {
     };
   };
   const apart = (x: number): number =>
-    HumanSignature.apart(
-      HumanSignature(pair(x), "a", body, 0),
-      HumanSignature(pair(x), "b", body, 0),
+    AutoMovieMotionHumanSignature.apart(
+      AutoMovieMotionHumanSignature.read(pair(x), "a", body, 0),
+      AutoMovieMotionHumanSignature.read(pair(x), "b", body, 0),
       0,
     );
   const far: number = apart(2);
@@ -407,11 +476,8 @@ export async function test_motions_audit_human_signature(): Promise<void> {
         ),
       ),
   });
-  const gait: IAutoMovieMotionHumanSignature.IGait = HumanSignature.gait(
-    walking,
-    0,
-    2,
-  );
+  const gait: IAutoMovieMotionHumanSignature.IGait =
+    AutoMovieMotionHumanSignature.gait(walking, 0, 2);
   TestValidator.predicate(
     "the gait",
     JSON.stringify(gait.strikes) ===

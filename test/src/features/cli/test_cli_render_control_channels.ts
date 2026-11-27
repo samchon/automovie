@@ -1,20 +1,17 @@
+import { AutoMovieEngineSound } from "@automovie/engine";
 import type {
   AutoMovieInspectionShade,
   IAutoMovieControlRecord,
   IAutoMovieDrawnPass,
 } from "@automovie/interface";
 import {
-  AUTOMOVIE_MP4_SRGB_COLOUR,
-  admitAutoMovieControlPasses,
-  assertProductionAacProfile,
-  assertProductionVideoProfile,
-  auditAutoMovieDeliveryContent,
-  createAutoMovieLoudnessMeter,
-  renderAutoMovieDrawnVideo,
-  resolveProductionVideoProfile,
+  AutoMovieRenderMp4SrgbColour,
+  AutoMovieRenderDelivery,
+  AutoMovieRenderDraw,
+  AutoMovieRenderVideo,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
-import { renderAutoMovieVideo } from "automovie";
+import { AutoMovieCliRender } from "automovie";
 import { createHash } from "node:crypto";
 import * as fs from "node:fs/promises";
 import * as os from "node:os";
@@ -52,7 +49,7 @@ export async function test_cli_render_control_channels(): Promise<void> {
   // 1. Admission.
   TestValidator.equals(
     "guide passes in request order",
-    admitAutoMovieControlPasses(["mask", "depth", "albedo"]),
+    AutoMovieRenderDraw.admitControlPasses(["mask", "depth", "albedo"]),
     ["mask", "depth", "albedo"],
   );
   for (const [passes, reason] of [
@@ -62,7 +59,7 @@ export async function test_cli_render_control_channels(): Promise<void> {
   ] as const)
     TestValidator.predicate(
       `${passes.join(",")} is refused`,
-      throwsError((): unknown => admitAutoMovieControlPasses(passes), reason),
+      throwsError((): unknown => AutoMovieRenderDraw.admitControlPasses(passes), reason),
     );
 
   const root: string = await fs.mkdtemp(
@@ -84,18 +81,15 @@ export async function test_cli_render_control_channels(): Promise<void> {
   let encoded: Buffer = header(true);
   const fixture: (
     out?: string,
-  ) => Parameters<typeof renderAutoMovieVideo>[0] = (
+  ) => Parameters<typeof AutoMovieCliRender.renderVideo>[0] = (
     out?: string,
-  ): Parameters<typeof renderAutoMovieVideo>[0] => ({
+  ): Parameters<typeof AutoMovieCliRender.renderVideo>[0] => ({
     host: {
       render: {
-        renderAutoMovieDrawnVideo,
-        auditAutoMovieDeliveryContent,
-        createAutoMovieLoudnessMeter,
-        AUTOMOVIE_MP4_SRGB_COLOUR,
-        assertProductionAacProfile,
-        assertProductionVideoProfile,
-        resolveProductionVideoProfile,
+        AutoMovieRenderVideo,
+        createAutoMovieLoudnessMeter: AutoMovieEngineSound.createLoudnessMeter,
+        AutoMovieRenderMp4SrgbColour,
+        AutoMovieRenderDelivery,
       },
       session: async () => ({
         backend: "fixture",
@@ -139,7 +133,7 @@ export async function test_cli_render_control_channels(): Promise<void> {
     ffmpeg: "fixture-ffmpeg",
     passes: ["depth", "mask"],
   });
-  const run: NonNullable<Parameters<typeof renderAutoMovieVideo>[1]> = async (
+  const run: NonNullable<Parameters<typeof AutoMovieCliRender.renderVideo>[1]> = async (
     _binary,
     args,
   ) => {
@@ -168,8 +162,8 @@ export async function test_cli_render_control_channels(): Promise<void> {
   try {
     // 2. Published into --out.
     const out: string = path.join(root, "out");
-    const written: Awaited<ReturnType<typeof renderAutoMovieVideo>> =
-      await renderAutoMovieVideo(fixture("out"), run);
+    const written: Awaited<ReturnType<typeof AutoMovieCliRender.renderVideo>> =
+      await AutoMovieCliRender.renderVideo(fixture("out"), run);
     const report: any = JSON.parse(
       await fs.readFile(path.join(out, "render-report.json"), "utf8"),
     );
@@ -223,7 +217,7 @@ export async function test_cli_render_control_channels(): Promise<void> {
     );
 
     // 3. The default folder.
-    await renderAutoMovieVideo(fixture(), run);
+    await AutoMovieCliRender.renderVideo(fixture(), run);
     TestValidator.predicate(
       "the default folder holds the channels",
       (
@@ -236,7 +230,7 @@ export async function test_cli_render_control_channels(): Promise<void> {
     // 4. A blocked attempt keeps the former film and channels.
     const keptFilm: Buffer = await fs.readFile(path.join(out, "film.mp4"));
     encoded = header(false);
-    const published: boolean = await renderAutoMovieVideo(fixture("out"), run)
+    const published: boolean = await AutoMovieCliRender.renderVideo(fixture("out"), run)
       .then((): boolean => true)
       .catch((): boolean => false);
     if (published) throw new Error("A limited-range file was published");

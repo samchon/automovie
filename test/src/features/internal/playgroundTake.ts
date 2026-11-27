@@ -1,11 +1,11 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieRigidTransform,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanPerformance } from "@automovie/motions";
+import { AutoMovieMotionHumanPerformance } from "@automovie/motions";
 
 import { collectTakeClean } from "./collectTakeClean";
 
@@ -32,7 +32,7 @@ export namespace playgroundTake {
 
   /** One performer as a performance takes it. */
   export type Performer = ConstructorParameters<
-    typeof HumanPerformance
+    typeof AutoMovieMotionHumanPerformance
   >[0]["performers"][number];
 
   /**
@@ -58,9 +58,9 @@ export namespace playgroundTake {
     frame: IAutoMovieRigidTransform,
     point: IAutoMovieVector3,
   ): IAutoMovieVector3 {
-    return Quaternion.rotateVector(
-      Quaternion.inverse(frame.rotation),
-      Vector3.subtract(point, frame.position),
+    return AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.inverse(frame.rotation),
+      AutoMovieEngineVector3.subtract(point, frame.position),
     );
   }
 
@@ -74,8 +74,8 @@ export namespace playgroundTake {
    * @returns Its world position.
    */
   export function joint(
-    film: HumanPerformance,
-    bone: Parameters<ReturnType<HumanPerformance["bones"]>["get"]>[0],
+    film: AutoMovieMotionHumanPerformance,
+    bone: Parameters<ReturnType<AutoMovieMotionHumanPerformance["bones"]>["get"]>[0],
     at: number,
     subject: string = "a",
   ): IAutoMovieVector3 {
@@ -91,7 +91,7 @@ export namespace playgroundTake {
    */
   export function clean(
     label: string,
-    take: HumanPerformance,
+    take: AutoMovieMotionHumanPerformance,
     failures: string[],
   ): void {
     collectTakeClean(label, take, failures);

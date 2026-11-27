@@ -1,7 +1,4 @@
-import {
-  AutoMovieStepPlanner as Planner,
-  resolveAutoMovieContactEvents,
-} from "@automovie/engine";
+import { AutoMovieEngineStepPlanner as Planner, AutoMovieEngineCompositionContact } from "@automovie/engine";
 import type {
   IAutoMovieResolveContactEvents,
   IAutoMovieStepPlanner,
@@ -104,7 +101,7 @@ export function test_engine_physics_step_planner_degenerate_termination(): void 
     ...change,
   });
   const events: IAutoMovieResolveContactEvents.IEvent[] =
-    resolveAutoMovieContactEvents(input({}));
+    AutoMovieEngineCompositionContact.resolveEvents(input({}));
   TestValidator.predicate(
     "a late-live weapon past 2^23 s touches at its first live second",
     events.length === 1 &&
@@ -116,13 +113,13 @@ export function test_engine_physics_step_planner_degenerate_termination(): void 
   TestValidator.predicate(
     "an infinite span end is refused",
     throwsError((): unknown =>
-      resolveAutoMovieContactEvents(input({ to: Infinity })),
+      AutoMovieEngineCompositionContact.resolveEvents(input({ to: Infinity })),
     ),
   );
   TestValidator.predicate(
     "a step count past 2^53 is refused",
     throwsError((): unknown =>
-      resolveAutoMovieContactEvents(input({ step: 1e-20 })),
+      AutoMovieEngineCompositionContact.resolveEvents(input({ step: 1e-20 })),
     ),
   );
 }

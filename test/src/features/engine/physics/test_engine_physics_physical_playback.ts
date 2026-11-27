@@ -1,7 +1,7 @@
 import {
-  AutoMoviePhysicalPlayback,
-  AutoMoviePhysicsCache,
-  Quaternion,
+  AutoMovieEnginePhysicalPlayback,
+  AutoMovieEnginePhysicsCache,
+  AutoMovieEngineQuaternion,
 } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalPlayback,
@@ -10,7 +10,7 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `AutoMoviePhysicalPlayback.encode`, `decode` and `at` read every body's every
+ * `AutoMovieEnginePhysicalPlayback.encode`, `decode` and `at` read every body's every
  * segment back as the live cache reads it, at any seek order.
  *
  * Fixture: a cache at 4 Hz over 0.5 s of two bodies that carry the same two
@@ -30,11 +30,11 @@ export async function test_engine_physics_physical_playback(): Promise<void> {
   const bones: string[] = ["trunk", "limb"];
   const state = (seed: number): IAutoMoviePhysicalSegmentState => ({
     position: { x: seed, y: seed + 0.25, z: seed + 0.5 },
-    rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, seed),
+    rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, seed),
     velocity: { x: -seed, y: -seed - 0.25, z: -seed - 0.5 },
     angularVelocity: { x: seed / 7, y: seed / 11, z: seed / 13 },
   });
-  const cache: AutoMoviePhysicsCache = new AutoMoviePhysicsCache(
+  const cache: AutoMovieEnginePhysicsCache = new AutoMovieEnginePhysicsCache(
     `sha256:${"a".repeat(64)}`,
     rate,
     duration,
@@ -59,8 +59,8 @@ export async function test_engine_physics_physical_playback(): Promise<void> {
       cache.ownership.push({ body, bone, seconds: 0, kind: "dynamic" });
   const bytes: number = 1 << 16;
   const reader: IAutoMoviePhysicalPlayback =
-    await AutoMoviePhysicalPlayback.decode(
-      await AutoMoviePhysicalPlayback.encode(cache, bytes),
+    await AutoMovieEnginePhysicalPlayback.decode(
+      await AutoMovieEnginePhysicalPlayback.encode(cache, bytes),
       cache.identity,
       {
         maximumBytes: bytes,

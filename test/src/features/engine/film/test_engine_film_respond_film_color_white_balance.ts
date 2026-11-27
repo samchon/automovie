@@ -1,13 +1,10 @@
-import {
-  autoMoviePlanckianWhite,
-  respondAutoMovieFilmColor,
-} from "@automovie/engine";
+import { AutoMovieEngineFilmResponse } from "@automovie/engine";
 import type { IAutoMovieFilmOptics } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `respondAutoMovieFilmColor` adapts the Planckian white of the stated
- * temperature to the D65 working white, and `autoMoviePlanckianWhite` is warm
+ * `respondFilmColor` adapts the Planckian white of the stated
+ * temperature to the D65 working white, and `planckianWhite` is warm
  * below D65 and cool above.
  *
  * Scenarios:
@@ -21,7 +18,7 @@ import { TestValidator } from "@nestia/e2e";
  *    blue above red.
  */
 export function test_engine_film_respond_film_color_white_balance(): void {
-  const light: [number, number, number] = autoMoviePlanckianWhite(3200);
+  const light: [number, number, number] = AutoMovieEngineFilmResponse.autoMoviePlanckianWhite(3200);
   const radiance: [number, number, number] = [
     (0.18 * 1000 * light[0]) / Math.PI,
     (0.18 * 1000 * light[1]) / Math.PI,
@@ -36,11 +33,11 @@ export function test_engine_film_respond_film_color_white_balance(): void {
       Math.round(Math.min(1, Math.max(0, value)) * 255),
     );
   const warm: number[] = bytes(
-    respondAutoMovieFilmColor({ color: radiance, optics }),
+    AutoMovieEngineFilmResponse.respondAutoMovieFilmColor({ color: radiance, optics }),
   );
   TestValidator.predicate("unbalanced is warm", warm[0]! > warm[2]! + 20);
   const balanced: number[] = bytes(
-    respondAutoMovieFilmColor({
+    AutoMovieEngineFilmResponse.respondAutoMovieFilmColor({
       color: radiance,
       optics: { ...optics, whiteBalance: 3200 },
     }),
@@ -49,7 +46,7 @@ export function test_engine_film_respond_film_color_white_balance(): void {
     "balanced is neutral",
     Math.max(...balanced) - Math.min(...balanced) <= 2,
   );
-  const cool: [number, number, number] = autoMoviePlanckianWhite(12000);
+  const cool: [number, number, number] = AutoMovieEngineFilmResponse.autoMoviePlanckianWhite(12000);
   TestValidator.predicate(
     "3200 K is warm and 12000 K cool",
     light[0] > light[1] && light[1] > light[2] && cool[2] > cool[0],

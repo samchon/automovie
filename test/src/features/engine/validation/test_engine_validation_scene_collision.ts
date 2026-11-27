@@ -1,8 +1,4 @@
-import {
-  Quaternion,
-  measureAutoMovieSceneCollision,
-  preparePhysicalGeometry,
-} from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEnginePhysicalGeometry, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieSceneCollision as Collision,
   IAutoMoviePhysicalShape,
@@ -35,7 +31,7 @@ import { nclose } from "../../internal/nclose";
  */
 export async function test_engine_validation_scene_collision(): Promise<void> {
   const geometry: IAutoMoviePreparePhysicalGeometry.IQueries =
-    await preparePhysicalGeometry();
+    await AutoMovieEnginePhysicalGeometry.prepare();
   const radius: number = 0.375;
   const formationA: Collision.IGroup = {
     id: "line-a",
@@ -77,20 +73,20 @@ export async function test_engine_validation_scene_collision(): Promise<void> {
       )
         expected.push([a, b].sort(compareText).join("|"));
 
-  const simple: Collision.IResult = measureAutoMovieSceneCollision({
+  const simple: Collision.IResult = AutoMovieEngineValidation.measureSceneCollision({
     parts,
     geometry,
     seconds: 0,
     maxComparisons: 200,
   });
-  const refined: Collision.IResult = measureAutoMovieSceneCollision({
+  const refined: Collision.IResult = AutoMovieEngineValidation.measureSceneCollision({
     parts,
     geometry,
     seconds: 0,
     maxComparisons: 200,
     refinement: "region",
   });
-  const reordered: Collision.IResult = measureAutoMovieSceneCollision({
+  const reordered: Collision.IResult = AutoMovieEngineValidation.measureSceneCollision({
     parts: parts.slice().reverse(),
     geometry,
     seconds: 0,
@@ -136,7 +132,7 @@ export async function test_engine_validation_scene_collision(): Promise<void> {
   );
 
   const box: IAutoMovieVector3 = { x: 0.5, y: 0.5, z: 0.5 };
-  const inside: Collision.IResult = measureAutoMovieSceneCollision({
+  const inside: Collision.IResult = AutoMovieEngineValidation.measureSceneCollision({
     parts: [
       shapePart("box", 0, { kind: "box", halfExtents: box }),
       shapePart("contents", 0.125, { kind: "sphere", radius: 0.125 }),
@@ -198,7 +194,7 @@ export async function test_engine_validation_scene_collision(): Promise<void> {
     [0.5, "confirmed"],
   ];
   for (const [seconds, status] of instants) {
-    const actual: Collision.IResult = measureAutoMovieSceneCollision({
+    const actual: Collision.IResult = AutoMovieEngineValidation.measureSceneCollision({
       parts: held,
       geometry,
       seconds,
@@ -214,7 +210,7 @@ export async function test_engine_validation_scene_collision(): Promise<void> {
     );
   }
 
-  const scoped: Collision.IResult = measureAutoMovieSceneCollision({
+  const scoped: Collision.IResult = AutoMovieEngineValidation.measureSceneCollision({
     parts: held,
     geometry,
     seconds: 0.125,
@@ -246,7 +242,7 @@ export async function test_engine_validation_scene_collision(): Promise<void> {
       bounds: { min: { x: 4.5, y: -1, z: -1 }, max: { x: 5.5, y: 1, z: 1 } },
     },
   };
-  const candidate: Collision.IResult = measureAutoMovieSceneCollision({
+  const candidate: Collision.IResult = AutoMovieEngineValidation.measureSceneCollision({
     parts: [
       proxy,
       proxyTarget,
@@ -287,7 +283,7 @@ export async function test_engine_validation_scene_collision(): Promise<void> {
     ["unsupported"],
   );
 
-  const proxyMiss: Collision.IResult = measureAutoMovieSceneCollision({
+  const proxyMiss: Collision.IResult = AutoMovieEngineValidation.measureSceneCollision({
     parts: [proxy, shapePart("remote", -2, { kind: "sphere", radius: 0.5 })],
     geometry,
     seconds: 0,
@@ -311,7 +307,7 @@ export async function test_engine_validation_scene_collision(): Promise<void> {
       group: cord,
     }),
   );
-  const enclosedMiss: Collision.IResult = measureAutoMovieSceneCollision({
+  const enclosedMiss: Collision.IResult = AutoMovieEngineValidation.measureSceneCollision({
     parts: [
       ...segments,
       shapePart("post", 12, { kind: "sphere", radius: 0.5 }),
@@ -329,7 +325,7 @@ export async function test_engine_validation_scene_collision(): Promise<void> {
     },
     { findings: [], proxies: [], groups: [cord] },
   );
-  const enclosedHit: Collision.IResult = measureAutoMovieSceneCollision({
+  const enclosedHit: Collision.IResult = AutoMovieEngineValidation.measureSceneCollision({
     parts: [
       ...segments,
       shapePart("post", 10.75, { kind: "sphere", radius: 0.5 }),
@@ -362,7 +358,7 @@ export async function test_engine_validation_scene_collision(): Promise<void> {
     ],
   );
 
-  const budget: Collision.IResult = measureAutoMovieSceneCollision({
+  const budget: Collision.IResult = AutoMovieEngineValidation.measureSceneCollision({
     parts: [proxy, proxyTarget],
     geometry,
     seconds: 0,
@@ -379,7 +375,7 @@ export async function test_engine_validation_scene_collision(): Promise<void> {
   );
   assert.throws(
     (): Collision.IResult =>
-      measureAutoMovieSceneCollision({
+      AutoMovieEngineValidation.measureSceneCollision({
         parts: [proxy, proxy],
         geometry,
         seconds: 0,
@@ -423,10 +419,10 @@ function shapePart(
           material: "solid",
           transform: {
             position: { x: 0, y: 0, z: 0 },
-            rotation: Quaternion.identity(),
+            rotation: AutoMovieEngineQuaternion.identity(),
           },
         },
-        pose: { position: { x, y: 0, z: 0 }, rotation: Quaternion.identity() },
+        pose: { position: { x, y: 0, z: 0 }, rotation: AutoMovieEngineQuaternion.identity() },
       },
     },
   };

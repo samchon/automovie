@@ -1,4 +1,4 @@
-import { filterRecoveryImageGaussian } from "@automovie/recovery";
+import { AutoMovieRecoveryObservation } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -18,13 +18,13 @@ import { nclose } from "../../internal/nclose";
  */
 export function test_recovery_internal_filter_image_gaussian(): void {
   const constant: Float64Array = new Float64Array(12).fill(5);
-  const blurred: Float64Array = filterRecoveryImageGaussian(
+  const blurred: Float64Array = AutoMovieRecoveryObservation.filterImageGaussian(
     constant,
     4,
     3,
     2,
   );
-  const slope: Float64Array = filterRecoveryImageGaussian(
+  const slope: Float64Array = AutoMovieRecoveryObservation.filterImageGaussian(
     constant,
     4,
     3,
@@ -50,8 +50,8 @@ export function test_recovery_internal_filter_image_gaussian(): void {
   for (let k: number = -4; k <= 4; k++) total += Math.exp(-0.5 * k * k);
   const g0: number = 1 / total;
   const g1: number = Math.exp(-0.5) / total;
-  const centre: Float64Array = filterRecoveryImageGaussian(impulse, 9, 9, 1);
-  const derivative: Float64Array = filterRecoveryImageGaussian(
+  const centre: Float64Array = AutoMovieRecoveryObservation.filterImageGaussian(impulse, 9, 9, 1);
+  const derivative: Float64Array = AutoMovieRecoveryObservation.filterImageGaussian(
     impulse,
     9,
     9,

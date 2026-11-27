@@ -1,4 +1,6 @@
-import { validateUniqueIds } from "@automovie/engine";
+import {
+  validateUniqueIds
+} from "../../../../../packages/engine/src/validation/internal/validateUniqueIds";
 import type { IAutoMovieConstraintViolation } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

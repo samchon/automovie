@@ -1,8 +1,8 @@
-import { expandAutoMovieInspectionSweep } from "@automovie/render";
+import { AutoMovieRenderInspectionMarks } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `expandAutoMovieInspectionSweep` lists the units a sweep pattern names and
+ * `expandInspectionSweep` lists the units a sweep pattern names and
  * the objects near each.
  *
  * Scenarios:
@@ -21,17 +21,17 @@ export function test_render_scene_expand_inspection_sweep(): void {
   const objects = [box("a", 0, 1), box("b", 1.5, 2.5), box("c", 10, 11)];
   TestValidator.equals(
     "margin 1",
-    expandAutoMovieInspectionSweep({ objects, pattern: "a", margin: 1 }),
+    AutoMovieRenderInspectionMarks.expandSweep({ objects, pattern: "a", margin: 1 }),
     [{ unit: "a", alone: ["a"], neighbours: ["b"] }],
   );
   TestValidator.equals(
     "margin 0.2",
-    expandAutoMovieInspectionSweep({ objects, pattern: "a", margin: 0.2 }),
+    AutoMovieRenderInspectionMarks.expandSweep({ objects, pattern: "a", margin: 0.2 }),
     [{ unit: "a", alone: ["a"], neighbours: [] }],
   );
   TestValidator.equals(
     "parent unit",
-    expandAutoMovieInspectionSweep({
+    AutoMovieRenderInspectionMarks.expandSweep({
       objects: [box("a", 0, 1), box("a/arm", 0, 0.5), box("b", 1.5, 2.5)],
       pattern: "a",
       margin: 1,
@@ -39,9 +39,9 @@ export function test_render_scene_expand_inspection_sweep(): void {
     [{ unit: "a", alone: ["a"], neighbours: ["b"] }],
   );
   TestValidator.error("no match", (): void => {
-    expandAutoMovieInspectionSweep({ objects, pattern: "zzz", margin: 1 });
+    AutoMovieRenderInspectionMarks.expandSweep({ objects, pattern: "zzz", margin: 1 });
   });
   TestValidator.error("negative margin", (): void => {
-    expandAutoMovieInspectionSweep({ objects, pattern: "a", margin: -1 });
+    AutoMovieRenderInspectionMarks.expandSweep({ objects, pattern: "a", margin: -1 });
   });
 }

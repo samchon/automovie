@@ -1,7 +1,7 @@
-import type { IAutoMovieRenderChunk } from "./IAutoMovieRenderChunk.js";
-import type { IAutoMovieRenderPassManifest } from "./IAutoMovieRenderPassManifest.js";
-import type { IAutoMovieRenderReassembly } from "./IAutoMovieRenderReassembly.js";
-import type { IAutoMovieSequenceRenderPlan } from "./IAutoMovieSequenceRenderPlan.js";
+import type { IAutoMovieRenderChunk } from "./IAutoMovieRenderChunk";
+import type { IAutoMovieRenderPassManifest } from "./IAutoMovieRenderPassManifest";
+import type { IAutoMovieRenderReassembly } from "./IAutoMovieRenderReassembly";
+import type { IAutoMovieSequenceRenderPlan } from "./IAutoMovieSequenceRenderPlan";
 
 /**
  * A long sequence render split into independently renderable chunks plus the

@@ -1,4 +1,4 @@
-import { readAutoMovieTransmissionTextureTarget } from "@automovie/render";
+import { AutoMovieRenderSceneTexture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -44,9 +44,22 @@ export async function test_render_scene_read_transmission_texture_target(): Prom
     capabilities: { samples },
     extensions: { has: (name: string): boolean => capabilities.includes(name) },
   });
+  const readTransmissionTarget = (
+    owner: string,
+    transmissionScope: string,
+    renderer: ReturnType<typeof facts>,
+    camera: import("three").Camera,
+  ): import("@automovie/interface").IAutoMovieRenderTextureTarget =>
+    AutoMovieRenderSceneTexture.readTransmissionTarget({
+      owner,
+      transmissionScope,
+      renderer,
+      camera,
+    });
+
   TestValidator.equals(
     "byte capability fallback",
-    readAutoMovieTransmissionTextureTarget("view", "shot", facts([]), camera),
+    readTransmissionTarget("view", "shot", facts([]), camera),
     {
       owner: "view",
       transmissionScope: "shot",
@@ -65,7 +78,7 @@ export async function test_render_scene_read_transmission_texture_target(): Prom
   ])
     TestValidator.equals(
       "either half-float capability",
-      readAutoMovieTransmissionTextureTarget(
+      readTransmissionTarget(
         "view",
         "shot",
         facts([capability], 8),
@@ -75,13 +88,13 @@ export async function test_render_scene_read_transmission_texture_target(): Prom
     );
   TestValidator.equals(
     "actual requested sample population",
-    readAutoMovieTransmissionTextureTarget("view", "shot", facts([], 8), camera)
+    readTransmissionTarget("view", "shot", facts([], 8), camera)
       .samples,
     8,
   );
   TestValidator.equals(
     "an absent viewport uses renderer facts",
-    readAutoMovieTransmissionTextureTarget(
+    readTransmissionTarget(
       "view",
       "shot",
       facts([]),
@@ -91,7 +104,7 @@ export async function test_render_scene_read_transmission_texture_target(): Prom
   );
   TestValidator.equals(
     "native structural viewport extent",
-    readAutoMovieTransmissionTextureTarget(
+    readTransmissionTarget(
       "view",
       "shot",
       facts([]),
@@ -105,13 +118,13 @@ export async function test_render_scene_read_transmission_texture_target(): Prom
   TestValidator.equals(
     "camera viewport overrides the renderer",
     [
-      readAutoMovieTransmissionTextureTarget(
+      readTransmissionTarget(
         "view",
         "shot",
         facts([]),
         cameraViewport,
       ).width,
-      readAutoMovieTransmissionTextureTarget(
+      readTransmissionTarget(
         "view",
         "shot",
         facts([]),

@@ -1,4 +1,4 @@
-import { measureRecoveryEpipolarErrors } from "@automovie/recovery";
+import { AutoMovieRecoveryCameraGeometry } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -16,7 +16,7 @@ import { nclose } from "../../internal/nclose";
  * 3. Unpaired points are refused.
  */
 export function test_recovery_internal_measure_epipolar_errors(): void {
-  const [error] = measureRecoveryEpipolarErrors(
+  const [error] = AutoMovieRecoveryCameraGeometry.measureEpipolarErrors(
     [0, 0, 0, 0, 0, -1, 0, 1, 0],
     [[0, 0]],
     [[0, 1]],
@@ -30,7 +30,7 @@ export function test_recovery_internal_measure_epipolar_errors(): void {
   );
   TestValidator.equals(
     "no lines",
-    measureRecoveryEpipolarErrors(
+    AutoMovieRecoveryCameraGeometry.measureEpipolarErrors(
       new Array<number>(9).fill(0),
       [[0, 0]],
       [[0, 1]],
@@ -38,6 +38,6 @@ export function test_recovery_internal_measure_epipolar_errors(): void {
     [null],
   );
   TestValidator.error("unpaired points", (): unknown =>
-    measureRecoveryEpipolarErrors([0, 0, 0, 0, 0, -1, 0, 1, 0], [], [[0, 0]]),
+    AutoMovieRecoveryCameraGeometry.measureEpipolarErrors([0, 0, 0, 0, 0, -1, 0, 1, 0], [], [[0, 0]]),
   );
 }

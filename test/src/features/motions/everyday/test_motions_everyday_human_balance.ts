@@ -6,10 +6,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanBalance,
-  HumanBalanceExtrapolated,
-  prepareBearingTrunkBalance,
-} from "@automovie/motions/internal";
+  HumanBalance
+} from "../../../../../packages/motions/src/everyday/internal/HumanBalance";
+import {
+  HumanBalanceExtrapolated
+} from "../../../../../packages/motions/src/everyday/internal/HumanBalanceExtrapolated";
+import {
+  prepareBearingTrunkBalance
+} from "../../../../../packages/motions/src/everyday/internal/prepareBearingTrunkBalance";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";

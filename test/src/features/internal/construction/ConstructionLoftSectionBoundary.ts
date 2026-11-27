@@ -1,8 +1,8 @@
 import {
-  AutoMovieLoftSectionBoundary,
-  AutoMovieLoftSectionLegacy,
-  AutoMovieLoftViewRead,
-  AutoMovieLoftViewSource,
+  AutoMovieEngineLoftSectionBoundary,
+  AutoMovieEngineLoftSectionLegacy,
+  AutoMovieEngineLoftViewRead,
+  AutoMovieEngineLoftViewSource,
 } from "@automovie/engine";
 import type {
   IAutoMovieLoftSectionBoundary,
@@ -75,7 +75,7 @@ function caps(failures: string[], input: IAutoMovieViewPart): void {
     fullness: { kind: "shoulder", shoulder: constant },
   };
   const admitted: IAutoMovieLoftViewSource.IResult | null =
-    AutoMovieLoftViewSource.create(part);
+    AutoMovieEngineLoftViewSource.create(part);
   if (admitted === null || admitted.source === null)
     throw new Error(
       `The cap fixture has no original scalar source: ${JSON.stringify(admitted?.diagnostics)}`,
@@ -83,7 +83,7 @@ function caps(failures: string[], input: IAutoMovieViewPart): void {
   const source: IAutoMovieLoftViewSource.ISource = admitted.source;
   const station: number = h * (1 - y);
   const reading: IAutoMovieLoftViewRead.IJets | string =
-    AutoMovieLoftViewRead.jets(source, station);
+    AutoMovieEngineLoftViewRead.jets(source, station);
   if (typeof reading === "string") throw new Error(reading);
   const difference: number = Math.SQRT2 - 1 - 0.3;
   const q: number = 10 * y ** 3 - 15 * y ** 4 + 6 * y ** 5;
@@ -109,8 +109,8 @@ function caps(failures: string[], input: IAutoMovieViewPart): void {
     ],
   };
   for (const read of [
-    AutoMovieLoftViewRead.values,
-    AutoMovieLoftViewRead.jets,
+    AutoMovieEngineLoftViewRead.values,
+    AutoMovieEngineLoftViewRead.jets,
   ]) {
     const result: ReturnType<typeof read> = read(malformed, h);
     if (typeof result !== "string" || !result.includes("overlap"))
@@ -126,7 +126,7 @@ function caps(failures: string[], input: IAutoMovieViewPart): void {
     ],
   };
   const ellipse: IAutoMovieLoftViewRead.IJets | string =
-    AutoMovieLoftViewRead.jets(constantCap, h);
+    AutoMovieEngineLoftViewRead.jets(constantCap, h);
   if (typeof ellipse === "string") throw new Error(ellipse);
   check(
     ellipse.shoulders[0]!,
@@ -160,11 +160,11 @@ function bridge(failures: string[]): void {
     inputs: inputs(5, 0.6),
   };
   const made: IAutoMovieLoftSectionBoundary.IBridge | string =
-    AutoMovieLoftSectionBoundary.create(a, b);
+    AutoMovieEngineLoftSectionBoundary.create(a, b);
   if (typeof made === "string") throw new Error(made);
   for (const end of [a, b]) {
     const value: IAutoMovieLoftViewRead.IJets | string =
-      AutoMovieLoftSectionBoundary.read(made, end.station);
+      AutoMovieEngineLoftSectionBoundary.read(made, end.station);
     if (JSON.stringify(value) !== JSON.stringify(end.inputs))
       failures.push(
         "A scalar bridge changed an exact retained endpoint tuple.",
@@ -180,7 +180,7 @@ function bridge(failures: string[]): void {
     const shoulder: number =
       1 / (1 + Math.exp(-(Math.log(0.3 / 0.7) + du * q)));
     const result: IAutoMovieLoftViewRead.IJets | string =
-      AutoMovieLoftSectionBoundary.read(made, 2 + 3 * u);
+      AutoMovieEngineLoftSectionBoundary.read(made, 2 + 3 * u);
     if (typeof result === "string") throw new Error(result);
     check(
       result.extents[0]!,
@@ -202,14 +202,14 @@ function bridge(failures: string[]): void {
     );
   }
   const tiny: IAutoMovieLoftSectionBoundary.IBridge | string =
-    AutoMovieLoftSectionBoundary.create(
+    AutoMovieEngineLoftSectionBoundary.create(
       { ...a, station: 0 },
       { ...b, station: 1e-200 },
     );
   if (typeof tiny === "string") throw new Error(tiny);
-  if (typeof AutoMovieLoftSectionBoundary.values(tiny, 5e-201) === "string")
+  if (typeof AutoMovieEngineLoftSectionBoundary.values(tiny, 5e-201) === "string")
     failures.push("Finite scalar bridge values incorrectly require physical2.");
-  if (typeof AutoMovieLoftSectionBoundary.read(tiny, 5e-201) !== "string")
+  if (typeof AutoMovieEngineLoftSectionBoundary.read(tiny, 5e-201) !== "string")
     failures.push("An unrepresentable physical bridge2 was admitted.");
 }
 
@@ -219,7 +219,7 @@ function bridge(failures: string[]): void {
  */
 function finite(failures: string[]): void {
   try {
-    AutoMovieLoftSectionLegacy.extend(
+    AutoMovieEngineLoftSectionLegacy.extend(
       [
         [1e308, 0],
         [1e308, 0],

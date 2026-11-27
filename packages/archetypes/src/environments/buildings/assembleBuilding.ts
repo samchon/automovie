@@ -1,12 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  buildAutoMovieWall,
-  builtBoundaryWallCut,
-  convexHull2D,
-  lowerBuiltEnvironment,
-  placeTransformedPoint,
-} from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineBuiltEnvironment, AutoMovieEngineMath, AutoMovieEngineBuiltEnvironmentWorkflow, AutoMovieEngineFilm, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieBuiltConnector,
   IAutoMovieBuiltEnvironment,
@@ -23,7 +15,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
-import { deriveArchetypeSeed } from "../../core/deriveArchetypeSeed";
+import { deriveArchetypeSeed } from "../../core/internal/deriveArchetypeSeed";
 import { buildingDoor } from "./buildingDoor";
 import { buildingModel } from "./buildingModel";
 import type { buildingPlans } from "./buildingPlans";
@@ -32,25 +24,7 @@ import { buildingWalls } from "./buildingWalls";
 import { emitBuildingRoom } from "./emitBuildingRoom";
 import { emitBuildingStair } from "./emitBuildingStair";
 
-/** Root element and root space share this identity in their independent tables. */
-const ROOT: string = "structure";
-
-/** Optional scene records assembled from the checked source geometry. */
-interface IAssembly {
-  /** One building graph and its visible model inventory. */
-  environment: IAutoMovieBuiltEnvironment;
-
-  /** Module-local names of world-space attachment frames. */
-  anchors: Record<string, IAutoMovieTransform>;
-
-  /** Live leaf placements, whose model and node identities agree. */
-  props: IAutoMoviePropSpec[];
-
-  /** Scene-node rotation clips for the leaf's authored motion. */
-  clips: IAutoMovieClip[];
-}
-
-/**
+/*
  * Lower an admitted upright building plan to normal stage, runtime and anchor
  * records.
  */
@@ -136,14 +110,44 @@ export function assembleBuilding(
     }
   }
   return {
-    ...lowerBuiltEnvironment(assembly.environment),
+    ...AutoMovieEngineBuiltEnvironmentWorkflow.lowerBuiltEnvironment(assembly.environment),
     anchors: assembly.anchors,
     ...(assembly.props.length === 0 ? {} : { props: assembly.props }),
     ...(assembly.clips.length === 0 ? {} : { objectMotions: assembly.clips }),
   };
 }
 
-/**
+/*
+ * Root element and root space share this identity in their independent tables.
+ */
+const ROOT: string = "structure";
+
+/*
+ * Optional scene records assembled from the checked source geometry.
+ */
+interface IAssembly {
+  /*
+   * One building graph and its visible model inventory.
+   */
+  environment: IAutoMovieBuiltEnvironment;
+
+  /*
+   * Module-local names of world-space attachment frames.
+   */
+  anchors: Record<string, IAutoMovieTransform>;
+
+  /*
+   * Live leaf placements, whose model and node identities agree.
+   */
+  props: IAutoMoviePropSpec[];
+
+  /*
+   * Scene-node rotation clips for the leaf's authored motion.
+   */
+  clips: IAutoMovieClip[];
+}
+
+/*
  * Record one shared or exterior wall and pass its owned apertures to the mesh
  * kernel.
  */
@@ -159,10 +163,10 @@ function addWall(
   const dz: number = wall.to.y - wall.from.y;
   const width: number = Math.hypot(dx, dz);
   const local: IAutoMovieTransform = frame(
-    Vector3.create(wall.from.x, level.elevation, wall.from.y),
-    Quaternion.fromAxisAngle(
-      Vector3.create(0, 1, 0),
-      Math.atan2(-dz, dx) / Quaternion.DEG2RAD,
+    AutoMovieEngineVector3.create(wall.from.x, level.elevation, wall.from.y),
+    AutoMovieEngineQuaternion.fromAxisAngle(
+      AutoMovieEngineVector3.create(0, 1, 0),
+      Math.atan2(-dz, dx) / AutoMovieEngineQuaternion.DEG2RAD,
     ),
   );
   const world: IAutoMovieTransform = AutoMovieArchetypeFrame.compose(
@@ -188,13 +192,13 @@ function addWall(
   });
   for (const binding of wall.openings)
     addOpening(assembly, level, id, width, thickness, binding, local, context);
-  const cut: ReturnType<typeof builtBoundaryWallCut> = builtBoundaryWallCut(
+  const cut: ReturnType<typeof AutoMovieEngineBuiltEnvironment.boundaryWallCut> = AutoMovieEngineBuiltEnvironment.boundaryWallCut(
     assembly.environment,
     id,
   );
   const center: IAutoMovieTransform = AutoMovieArchetypeFrame.compose(
     local,
-    frame(Vector3.create(width / 2, level.height / 2, 0)),
+    frame(AutoMovieEngineVector3.create(width / 2, level.height / 2, 0)),
   );
   addElement(
     assembly,
@@ -205,13 +209,13 @@ function addWall(
     buildingModel(
       `${context.id}/${id}`,
       "wall",
-      { type: "mesh", mesh: buildAutoMovieWall(cut) },
+      { type: "mesh", mesh: AutoMovieEngineGeometry.buildWall(cut) },
       color,
     ),
   );
 }
 
-/**
+/*
  * Resolve a single wall cut into an aperture, named sill, and optional moving
  * leaf.
  */
@@ -228,7 +232,7 @@ function addOpening(
   const { opening, turn } = binding;
   const leafKey: string = `${level.id}/${opening.id}`;
   const id: string = `${context.id}/${leafKey}`;
-  const room: string = `${level.id}/${opening.between[0]}`;
+  const room: string = `${level.id}/${opening.between.from}`;
   const door: buildingDoor.IDoor | null =
     opening.kind === "door"
       ? buildingDoor(
@@ -257,11 +261,11 @@ function addOpening(
       `opening "${id}" does not fit its wall's width, clear height or end joints`,
     );
   const facing: IAutoMovieQuaternion = turn
-    ? Quaternion.fromAxisAngle(Vector3.create(0, 1, 0), 180)
-    : Quaternion.identity();
+    ? AutoMovieEngineQuaternion.fromAxisAngle(AutoMovieEngineVector3.create(0, 1, 0), 180)
+    : AutoMovieEngineQuaternion.identity();
   const datum: IAutoMovieTransform = AutoMovieArchetypeFrame.compose(
     local,
-    frame(Vector3.create(center, sill, 0), facing),
+    frame(AutoMovieEngineVector3.create(center, sill, 0), facing),
   );
   const world: IAutoMovieTransform = AutoMovieArchetypeFrame.compose(
     context.frame,
@@ -278,7 +282,7 @@ function addOpening(
       ["head", clearCenter, clearHeight],
     ] as const)
       assembly.anchors[`${leafKey}/clear/${edge}`] =
-        AutoMovieArchetypeFrame.compose(world, frame(Vector3.create(x, y, 0)));
+        AutoMovieArchetypeFrame.compose(world, frame(AutoMovieEngineVector3.create(x, y, 0)));
   assembly.environment.openings.push({
     id: leafKey,
     kind: opening.kind,
@@ -316,7 +320,8 @@ function addOpening(
       assembly,
       leafKey,
       level.id,
-      opening.between,
+      opening.between.from,
+      opening.between.to,
       world,
       thickness,
       clearWidth,
@@ -326,7 +331,7 @@ function addOpening(
     );
 }
 
-/**
+/*
  * Let the opening's own clear footprint bridge the wall's depth at sill
  * elevation.
  */
@@ -334,7 +339,8 @@ function addThreshold(
   assembly: IAssembly,
   opening: string,
   level: string,
-  between: readonly [string, string | null],
+  fromRoom: string,
+  toRoom: string | null,
   world: IAutoMovieTransform,
   thickness: number,
   width: number,
@@ -343,7 +349,7 @@ function addThreshold(
   availableFrom: number | undefined,
 ): void {
   const id: string = `${assembly.environment.id}/${opening}/threshold`;
-  const room: string = `${level}/${between[0]}`;
+  const room: string = `${level}/${fromRoom}`;
   assembly.environment.surfaces.push({
     space: room,
     surface: {
@@ -356,23 +362,23 @@ function addThreshold(
         thickness,
       ).map(
         (point: IAutoMoviePlanarPoint): IAutoMovieVector3 =>
-          placeTransformedPoint(world, Vector3.create(point.x, 0, point.y)),
+          AutoMovieEngineFilm.placeTransformedPoint(world, AutoMovieEngineVector3.create(point.x, 0, point.y)),
       ),
       height: { kind: "constant", value: world.translation.y },
       ...(availableFrom === undefined ? {} : { availableFrom }),
     },
   });
   assembly.environment.walkable.push(id);
-  if (between[1] !== null && availableFrom === undefined) {
+  if (toRoom !== null && availableFrom === undefined) {
     const connector: IAutoMovieBuiltConnector = {
       id: opening,
       kind: "passage",
       from: room,
-      to: `${level}/${between[1]}`,
+      to: `${level}/${toRoom}`,
       bidirectional: true,
       route: [-thickness / 2, thickness / 2].map(
         (z: number): IAutoMovieVector3 =>
-          placeTransformedPoint(world, Vector3.create(center, 0, z)),
+          AutoMovieEngineFilm.placeTransformedPoint(world, AutoMovieEngineVector3.create(center, 0, z)),
       ),
       width,
       clearHeight: clearance,
@@ -382,7 +388,9 @@ function addThreshold(
   }
 }
 
-/** Build a beveled wall junction only where noncollinear edge caps meet. */
+/*
+ * Build a beveled wall junction only where noncollinear edge caps meet.
+ */
 function addWallJoints(
   assembly: IAssembly,
   level: buildingPlans.ILevel,
@@ -399,12 +407,12 @@ function addWallJoints(
       const key: string = `${end.x},${end.y}`;
       const tips: IAutoMovieVector3[] = points.get(key) ?? [];
       tips.push(
-        Vector3.create(
+        AutoMovieEngineVector3.create(
           end.x - dz * halfOverLength,
           0,
           end.y + dx * halfOverLength,
         ),
-        Vector3.create(
+        AutoMovieEngineVector3.create(
           end.x + dz * halfOverLength,
           0,
           end.y - dx * halfOverLength,
@@ -414,7 +422,7 @@ function addWallJoints(
     }
   }
   for (const [key, ends] of points) {
-    const hull: IAutoMovieVector3[] = convexHull2D(ends);
+    const hull: IAutoMovieVector3[] = AutoMovieEngineMath.convexHull2D(ends);
     if (hull.length < 3) continue;
     const id: string = `${level.id}/joint/${key}`;
     addElement(
@@ -441,7 +449,9 @@ function addWallJoints(
   }
 }
 
-/** Add a scoped geometry model and place it as one owned building element. */
+/*
+ * Add a scoped geometry model and place it as one owned building element.
+ */
 function addElement(
   assembly: IAssembly,
   id: string,
@@ -461,7 +471,9 @@ function addElement(
   });
 }
 
-/** Store the corners of a rectangular face in its local plane. */
+/*
+ * Store the corners of a rectangular face in its local plane.
+ */
 function rectangle(
   x: number,
   y: number,
@@ -476,18 +488,22 @@ function rectangle(
   ];
 }
 
-/** Orient geometry authored in XY so the planar y becomes the building Z. */
+/*
+ * Orient geometry authored in XY so the planar y becomes the building Z.
+ */
 function horizontalPlate(y: number): IAutoMovieTransform {
   return frame(
-    Vector3.create(0, y, 0),
-    Quaternion.fromAxisAngle(Vector3.create(1, 0, 0), 90),
+    AutoMovieEngineVector3.create(0, y, 0),
+    AutoMovieEngineQuaternion.fromAxisAngle(AutoMovieEngineVector3.create(1, 0, 0), 90),
   );
 }
 
-/** Rigid unit-scale frame at an explicit origin. */
+/*
+ * Rigid unit-scale frame at an explicit origin.
+ */
 function frame(
   translation: IAutoMovieVector3,
-  rotation: IAutoMovieQuaternion = Quaternion.identity(),
+  rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.identity(),
 ): IAutoMovieTransform {
-  return { translation, rotation, scale: Vector3.create(1, 1, 1) };
+  return { translation, rotation, scale: AutoMovieEngineVector3.create(1, 1, 1) };
 }

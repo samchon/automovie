@@ -177,7 +177,7 @@ export namespace AutoMovieArchetypeMarks {
   }
 }
 
-/**
+/*
  * The default colour of each affordance kind's marks, sRGB hex; distinct, as
  * the instrument requires of kinds drawn together.
  */

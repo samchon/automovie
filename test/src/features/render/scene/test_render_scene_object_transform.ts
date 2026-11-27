@@ -1,5 +1,7 @@
-import { applyTransform } from "@automovie/render";
-import { objectTransform } from "@automovie/render/internal";
+import { AutoMovieRenderSceneMotion } from "@automovie/render";
+import {
+  objectTransform
+} from "../../../../../packages/render/src/scene/internal/objectTransform";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -22,7 +24,7 @@ export function test_render_scene_object_transform(): void {
     scale: { x: 2, y: 3, z: 4 },
   };
   const object: THREE.Object3D = new THREE.Object3D();
-  applyTransform(object, transform);
+  AutoMovieRenderSceneMotion.applyTransform(object, transform);
   const read: ReturnType<typeof objectTransform> = objectTransform(object);
   TestValidator.equals("round trip", read, transform);
   object.position.x = 9;

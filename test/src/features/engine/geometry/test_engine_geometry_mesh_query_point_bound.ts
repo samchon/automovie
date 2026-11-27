@@ -1,8 +1,8 @@
-import { boundAutoMovieMeshQueryPoint } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `boundAutoMovieMeshQueryPoint(node, point, cutoff?)` is the squared distance
+ * `boundMeshQueryPoint(node, point, cutoff?)` is the squared distance
  * from a point to a box, summed x, y, z, returning the partial sum as soon as
  * it strictly exceeds the cutoff.
  *
@@ -21,9 +21,9 @@ export function test_engine_geometry_mesh_query_point_bound(): void {
   TestValidator.equals(
     "full",
     [
-      boundAutoMovieMeshQueryPoint(box, [0.5, 0.5, 0.5]),
-      boundAutoMovieMeshQueryPoint(box, [3, 0.5, 0.5]),
-      boundAutoMovieMeshQueryPoint(box, [2, 3, -1]),
+      AutoMovieEngineGeometry.boundMeshQueryPoint(box, [0.5, 0.5, 0.5]),
+      AutoMovieEngineGeometry.boundMeshQueryPoint(box, [3, 0.5, 0.5]),
+      AutoMovieEngineGeometry.boundMeshQueryPoint(box, [2, 3, -1]),
     ],
     [0, 4, 6],
   );
@@ -32,7 +32,7 @@ export function test_engine_geometry_mesh_query_point_bound(): void {
   TestValidator.equals(
     "cutoffs",
     [0.5, 3, 6, 5.9].map((cutoff: number): number =>
-      boundAutoMovieMeshQueryPoint(box, [2, 3, -1], cutoff),
+      AutoMovieEngineGeometry.boundMeshQueryPoint(box, [2, 3, -1], cutoff),
     ),
     [1, 5, 6, 6],
   );

@@ -1,8 +1,8 @@
 import {
-  FLUID_MAX_FLOWS,
-  FLUID_MAX_SPRAYS,
-  FLUID_MAX_SPRAY_PARTICLES,
-  validateFluidDomain,
+  AutoMovieEngineFluid,
+  AutoMovieEngineFluidMaxFlows,
+  AutoMovieEngineFluidMaxSprays,
+  AutoMovieEngineFluidMaxSprayParticles,
 } from "@automovie/engine";
 import type {
   IAutoMovieFluidDomain,
@@ -32,14 +32,14 @@ export function runFluidDomainPopulationCases(props: {
   const { basin, source, drain, spray }: typeof props = props;
   const solid: boolean[] = new Array<boolean>(16).fill(false);
   solid[5] = true;
-  const arrays: ReturnType<typeof validateFluidDomain> = validateFluidDomain({
+  const arrays: ReturnType<typeof AutoMovieEngineFluid.validateFluidDomain> = AutoMovieEngineFluid.validateFluidDomain({
     domain: basin({
       bed: [0, 0, 0],
       depth: [-0.1, 99, 0.25, 0.25],
       solid,
     }),
   });
-  const wetPier: ReturnType<typeof validateFluidDomain> = validateFluidDomain({
+  const wetPier: ReturnType<typeof AutoMovieEngineFluid.validateFluidDomain> = AutoMovieEngineFluid.validateFluidDomain({
     domain: basin({ solid, depth: new Array<number>(16).fill(0.25) }),
   });
 
@@ -67,7 +67,7 @@ export function runFluidDomainPopulationCases(props: {
         "solidLength",
         (): boolean =>
           hasViolation(
-            validateFluidDomain({ domain: basin({ solid: [false] }) }),
+            AutoMovieEngineFluid.validateFluidDomain({ domain: basin({ solid: [false] }) }),
             "type",
             "$input.solid",
           ),
@@ -83,7 +83,7 @@ export function runFluidDomainPopulationCases(props: {
     },
   );
 
-  const flows: ReturnType<typeof validateFluidDomain> = validateFluidDomain({
+  const flows: ReturnType<typeof AutoMovieEngineFluid.validateFluidDomain> = AutoMovieEngineFluid.validateFluidDomain({
     domain: basin({
       solid,
       sources: [
@@ -105,20 +105,20 @@ export function runFluidDomainPopulationCases(props: {
       ],
     }),
   });
-  const tooMany: ReturnType<typeof validateFluidDomain> = validateFluidDomain({
+  const tooMany: ReturnType<typeof AutoMovieEngineFluid.validateFluidDomain> = AutoMovieEngineFluid.validateFluidDomain({
     domain: basin({
       sources: Array.from(
-        { length: FLUID_MAX_FLOWS + 1 },
+        { length: AutoMovieEngineFluidMaxFlows + 1 },
         (_: unknown, at: number): ReturnType<typeof source> =>
           source({ id: `jet-${at}` }),
       ),
       drains: Array.from(
-        { length: FLUID_MAX_FLOWS + 1 },
+        { length: AutoMovieEngineFluidMaxFlows + 1 },
         (_: unknown, at: number): ReturnType<typeof drain> =>
           drain({ id: `drain-${at}` }),
       ),
       sprays: Array.from(
-        { length: FLUID_MAX_SPRAYS + 1 },
+        { length: AutoMovieEngineFluidMaxSprays + 1 },
         (_: unknown, at: number): ReturnType<typeof spray> =>
           spray({ id: `mist-${at}` }),
       ),
@@ -199,7 +199,7 @@ export function runFluidDomainPopulationCases(props: {
     },
   );
 
-  const mists: ReturnType<typeof validateFluidDomain> = validateFluidDomain({
+  const mists: ReturnType<typeof AutoMovieEngineFluid.validateFluidDomain> = AutoMovieEngineFluid.validateFluidDomain({
     domain: basin({
       sprays: [
         spray({
@@ -210,7 +210,7 @@ export function runFluidDomainPopulationCases(props: {
           spread: 2,
           size: 0,
           lodDistance: 0,
-          maxParticles: FLUID_MAX_SPRAY_PARTICLES + 1,
+          maxParticles: AutoMovieEngineFluidMaxSprayParticles + 1,
           seed: 1.5,
           direction: { x: 0, y: 0, z: 0 },
         }),
@@ -288,7 +288,7 @@ export function runFluidDomainPopulationCases(props: {
 
   TestValidator.equals(
     "a tiny finite spray axis is still a direction",
-    validateFluidDomain({
+    AutoMovieEngineFluid.validateFluidDomain({
       domain: basin({
         sprays: [spray({ direction: { x: 1e-200, y: 0, z: 0 } })],
       }),

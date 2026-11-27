@@ -1,4 +1,4 @@
-import { AutoMovieArchetypeUnits, createSignPost } from "@automovie/archetypes";
+import { AutoMovieArchetypeUnits, AutoMovieArchetypeSignPost } from "@automovie/archetypes";
 import type {
   IAutoMovieAffordance,
   IAutoMovieModelPart,
@@ -38,7 +38,7 @@ export function test_archetype_sign_post_face(): void {
     ["STOP 36 in", 36],
   ] as const) {
     const size: number = inches * AutoMovieArchetypeUnits.INCH;
-    const sign: ReturnType<typeof createSignPost> = createSignPost(
+    const sign: ReturnType<typeof AutoMovieArchetypeSignPost.create> = AutoMovieArchetypeSignPost.create(
       { model },
       1,
     );

@@ -1,4 +1,4 @@
-import { validateSoftBodyDomain } from "@automovie/engine";
+import { AutoMovieEngineSoftBody } from "@automovie/engine";
 import {
   IAutoMovieConstraintViolation,
   IAutoMovieSoftBodyDomain,
@@ -34,7 +34,7 @@ export function test_soft_body_travel_admission(): void {
     step: number,
     speed: number = 1,
   ): IAutoMovieValidation =>
-    validateSoftBodyDomain({
+    AutoMovieEngineSoftBody.validateSoftBodyDomain({
       domain: {
         ...base,
         solver: {

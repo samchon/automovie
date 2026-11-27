@@ -2,25 +2,25 @@ import type {
   AutoMovieMotionHumanActionName,
   IAutoMovieComposition,
 } from "@automovie/interface";
-import { HumanChain } from "@automovie/motions";
+import { AutoMovieMotionHumanChain } from "@automovie/motions";
 
 /**
  * A chain whose named append takes parameters read at run time.
  *
- * The law sweep stages every row of the ledger, and a row is text
- * (`side=left`, `kind=wave`) that the stage writes into the action's
- * parameters. No static type can check a value that is only known when the
- * ledger is read, so the sweep's stages append through this chain, whose
- * `act` accepts any parameter object for a vocabulary name. The typed chain
- * is pinned by `test_human_motion_chain_vocabulary`; a row whose value the law
- * does not accept is refused by the law when the sweep performs it.
+ * The law sweep stages every row of the ledger, and a row is text (`side=left`,
+ * `kind=wave`) that the stage writes into the action's parameters. No static
+ * type can check a value that is only known when the ledger is read, so the
+ * sweep's stages append through this chain, whose `act` accepts any parameter
+ * object for a vocabulary name. The typed chain is pinned by
+ * `test_human_motion_chain_vocabulary`; a row whose value the law does not
+ * accept is refused by the law when the sweep performs it.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States why the sweep needs run-time parameters and what still checks them.
  * @evidence contracts/development/design.md#principled-representation The vocabulary chain with only its named append widened to run-time parameters.
  * @evidence contracts/development/design.md#minimal-and-owned-surface One constructor and one widened method.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Appends through the chain's own intent path, so the composition is what a typed call builds.
  */
-export class MotionHumanSweepChain extends HumanChain {
+export class MotionHumanSweepChain extends AutoMovieMotionHumanChain {
   /**
    * An empty sweep chain of a person.
    *
@@ -28,7 +28,7 @@ export class MotionHumanSweepChain extends HumanChain {
    * @returns The chain.
    */
   public static override subject(subject: string): MotionHumanSweepChain {
-    return new MotionHumanSweepChain(subject, { kind: "sequence", parts: [] });
+    return new MotionHumanSweepChain(subject, { type: "sequence", parts: [] });
   }
 
   /**
@@ -45,7 +45,7 @@ export class MotionHumanSweepChain extends HumanChain {
     anchor?: string,
   ): this {
     const node: IAutoMovieComposition = {
-      kind: "intent",
+      type: "intent",
       intent: {
         subject: this.subject,
         capability: name,

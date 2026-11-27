@@ -1,4 +1,6 @@
-import { HumanSeidelProgram } from "@automovie/motions/internal";
+import {
+  HumanSeidelProgram
+} from "../../../../../packages/motions/src/posture/internal/HumanSeidelProgram";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

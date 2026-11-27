@@ -1,4 +1,4 @@
-import { bindProfile } from "@automovie/engine";
+import { AutoMovieEngineResolve } from "@automovie/engine";
 import {
   IAutoMovieAimDriver,
   type IAutoMovieBoundProfile,
@@ -88,8 +88,8 @@ const DRIVERS: IAutoMovieDriver[] = [
     type: "driven",
     output: nodeChannel("a"),
     source: POINTER,
-    inRange: [0, 1],
-    outRange: [0, 2],
+    inRange: { from: 0, to: 1 },
+    outRange: { from: 0, to: 2 },
     clamp: true,
   },
   {
@@ -160,7 +160,8 @@ const makeBinding: (
  *    with no prefix the mapped ids are the bare boneMap values.
  * 3. A semantic key missing from boneMap throws naming the profile and key.
  * 4. A binding whose `profile` id does not match the applied profile throws.
- * 5. Prototype spellings require explicit own mappings; declared own constructor and __proto__ names bind normally.
+ * 5. Prototype spellings require explicit own mappings; declared own constructor
+ *    and **proto** names bind normally.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls actual bindProfile across all supported driver/channel arms, prefix and refusal paths; inherited prototype names must take the missing-key diagnostic while declared own names remain valid bindings.
  * @evidence contracts/development/testing.md#independent-expectations The authored a/b/c/g/p map defines exact A/B/C/G/P ids after actor/ prefix. Object.fromEntries supplies constructor/__proto__ as own string entries, whereas an empty ordinary record declares neither despite its prototype properties.
@@ -169,7 +170,7 @@ const makeBinding: (
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Every driver type's node fields remap through boneMap + `"actor/"` prefix:).
  */
 export function test_resolve_bind_profile(): void {
-  const bound: IAutoMovieBoundProfile = bindProfile({
+  const bound: IAutoMovieBoundProfile = AutoMovieEngineResolve.bindProfile({
     profile: makeProfile(DRIVERS),
     binding: makeBinding(MAP),
     nodePrefix: "actor/",
@@ -259,7 +260,7 @@ export function test_resolve_bind_profile(): void {
     POINTER,
   );
 
-  const bare: IAutoMovieBoundProfile = bindProfile({
+  const bare: IAutoMovieBoundProfile = AutoMovieEngineResolve.bindProfile({
     profile: makeProfile([]),
     binding: makeBinding(MAP),
   });
@@ -272,15 +273,19 @@ export function test_resolve_bind_profile(): void {
       "inherited property is not an authored profile mapping",
       throwsError(
         (): IAutoMovieBoundProfile =>
-          bindProfile({ profile, binding: makeBinding({}) }),
+          AutoMovieEngineResolve.bindProfile({
+            profile,
+            binding: makeBinding({}),
+          }),
         `has no boneMap entry for "${key}"`,
       ),
     );
-    const own: ReturnType<typeof bindProfile> = bindProfile({
-      profile,
-      binding: makeBinding(Object.fromEntries([[key, "joint"]])),
-      nodePrefix: "actor/",
-    });
+    const own: ReturnType<typeof AutoMovieEngineResolve.bindProfile> =
+      AutoMovieEngineResolve.bindProfile({
+        profile,
+        binding: makeBinding(Object.fromEntries([[key, "joint"]])),
+        nodePrefix: "actor/",
+      });
     TestValidator.equals(
       "own reserved spelling binds exactly",
       own.limits[0]!.channel.kind === "node"
@@ -301,7 +306,7 @@ export function test_resolve_bind_profile(): void {
     "unmapped key throws",
     throwsError(
       (): IAutoMovieBoundProfile =>
-        bindProfile({
+        AutoMovieEngineResolve.bindProfile({
           profile: makeProfile([]),
           binding: makeBinding({}),
         }),
@@ -312,7 +317,7 @@ export function test_resolve_bind_profile(): void {
     "binding/profile id mismatch throws",
     throwsError(
       (): IAutoMovieBoundProfile =>
-        bindProfile({
+        AutoMovieEngineResolve.bindProfile({
           profile: makeProfile([]),
           binding: { ...makeBinding(MAP), profile: "other" },
         }),

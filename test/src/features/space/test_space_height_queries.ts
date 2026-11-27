@@ -1,14 +1,4 @@
-import {
-  heightAt,
-  isWalkable,
-  prepareSpace,
-  prepareSurface,
-  preparedSurfaceContains,
-  surfaceAt,
-  surfaceContains,
-  surfaceHeightAt,
-  validateSpace,
-} from "@automovie/engine";
+import { AutoMovieEngineSpace, AutoMovieEngineValidation } from "@automovie/engine";
 import {
   IAutoMovieSpace,
   IAutoMovieSurface,
@@ -103,64 +93,64 @@ const space: IAutoMovieSpace = {
 export function test_space_height_queries(): void {
   TestValidator.predicate(
     "flat patch height",
-    nclose(heightAt(space, 1, 1)!, 0),
+    nclose(AutoMovieEngineSpace.heightAt(space, 1, 1)!, 0),
   );
   TestValidator.equals(
     "flat patch surface",
-    surfaceAt(space, 1, 1)!.id,
+    AutoMovieEngineSpace.surfaceAt(space, 1, 1)!.id,
     "floor",
   );
 
-  TestValidator.predicate("ramp mid height", nclose(heightAt(space, 8, 2)!, 2));
+  TestValidator.predicate("ramp mid height", nclose(AutoMovieEngineSpace.heightAt(space, 8, 2)!, 2));
   TestValidator.predicate(
     "ramp quarter height",
-    nclose(heightAt(space, 7, 1)!, 1.5),
+    nclose(AutoMovieEngineSpace.heightAt(space, 7, 1)!, 1.5),
   );
   TestValidator.predicate(
     "ramp constant across z",
-    nclose(heightAt(space, 8, 0.5)!, heightAt(space, 8, 3.5)!),
+    nclose(AutoMovieEngineSpace.heightAt(space, 8, 0.5)!, AutoMovieEngineSpace.heightAt(space, 8, 3.5)!),
   );
 
-  TestValidator.equals("over nothing surface", surfaceAt(space, 50, 50), null);
-  TestValidator.equals("over nothing height", heightAt(space, 50, 50), null);
+  TestValidator.equals("over nothing surface", AutoMovieEngineSpace.surfaceAt(space, 50, 50), null);
+  TestValidator.equals("over nothing height", AutoMovieEngineSpace.heightAt(space, 50, 50), null);
   TestValidator.equals(
     "over nothing walkable",
-    isWalkable(space, 50, 50),
+    AutoMovieEngineSpace.isWalkable(space, 50, 50),
     false,
   );
 
-  TestValidator.equals("topmost wins", surfaceAt(space, 3, 3)!.id, "deck");
+  TestValidator.equals("topmost wins", AutoMovieEngineSpace.surfaceAt(space, 3, 3)!.id, "deck");
   TestValidator.equals(
     "no-go top blocks standing",
-    heightAt(space, 3, 3),
+    AutoMovieEngineSpace.heightAt(space, 3, 3),
     null,
   );
   TestValidator.equals(
     "no-go top not walkable",
-    isWalkable(space, 3, 3),
+    AutoMovieEngineSpace.isWalkable(space, 3, 3),
     false,
   );
 
   TestValidator.equals(
     "tie keeps earlier",
-    surfaceAt(space, 20, 20)!.id,
+    AutoMovieEngineSpace.surfaceAt(space, 20, 20)!.id,
     "tieA",
   );
-  TestValidator.equals("walkable on floor", isWalkable(space, 1, 1), true);
+  TestValidator.equals("walkable on floor", AutoMovieEngineSpace.isWalkable(space, 1, 1), true);
 
-  const prepared: ReturnType<typeof prepareSpace> = prepareSpace(space);
+  const prepared: ReturnType<typeof AutoMovieEngineSpace.prepareSpace> = AutoMovieEngineSpace.prepareSpace(space);
   TestValidator.equals(
     "prepared surfaceAt reuses the same topmost decision",
-    surfaceAt(space, 3, 3, prepared)!.id,
+    AutoMovieEngineSpace.surfaceAt(space, 3, 3, prepared)!.id,
     "deck",
   );
   TestValidator.predicate(
     "prepared heightAt reuses ramp interpolation",
-    nclose(heightAt(space, 8, 2, prepared)!, 2),
+    nclose(AutoMovieEngineSpace.heightAt(space, 8, 2, prepared)!, 2),
   );
   TestValidator.equals(
     "prepared isWalkable agrees with heightAt",
-    isWalkable(space, 8, 2, prepared),
+    AutoMovieEngineSpace.isWalkable(space, 8, 2, prepared),
     true,
   );
 
@@ -170,7 +160,7 @@ export function test_space_height_queries(): void {
   };
   TestValidator.predicate(
     "degenerate ramp axis reads flat",
-    nclose(surfaceHeightAt(degenerate, 8, 2), 1),
+    nclose(AutoMovieEngineSpace.surfaceHeightAt(degenerate, 8, 2), 1),
   );
 
   const bowtie: IAutoMovieSurface = {
@@ -179,32 +169,32 @@ export function test_space_height_queries(): void {
   };
   TestValidator.equals(
     "a self-crossing footprint encloses nothing, so it holds nothing",
-    surfaceContains(bowtie, 5, 5),
+    AutoMovieEngineSpace.surfaceContains(bowtie, 5, 5),
     false,
   );
   TestValidator.equals(
     "prepared reading of the same ring agrees",
-    preparedSurfaceContains(prepareSurface(bowtie), 5, 5),
+    AutoMovieEngineSpace.preparedSurfaceContains(AutoMovieEngineSpace.prepareSurface(bowtie), 5, 5),
     false,
   );
   TestValidator.equals(
     "and validation refuses it rather than leaving it to the query",
-    validateSpace({ space: { ...space, surfaces: [bowtie] } }).success,
+    AutoMovieEngineValidation.validateSpace({ space: { ...space, surfaces: [bowtie] } }).success,
     false,
   );
 
   const snapshot: IAutoMovieSurface = { ...floor };
-  const preparedSnapshot: ReturnType<typeof prepareSurface> =
-    prepareSurface(snapshot);
+  const preparedSnapshot: ReturnType<typeof AutoMovieEngineSpace.prepareSurface> =
+    AutoMovieEngineSpace.prepareSurface(snapshot);
   snapshot.polygon = [v(0, 0), v(1, 0), v(1, 1), v(0, 1)];
   TestValidator.equals(
     "default surfaceContains rebuilds after surface mutation",
-    surfaceContains(snapshot, 5, 5),
+    AutoMovieEngineSpace.surfaceContains(snapshot, 5, 5),
     false,
   );
   TestValidator.equals(
     "prepared surface containment keeps its caller-owned footprint snapshot",
-    preparedSurfaceContains(preparedSnapshot, 5, 5),
+    AutoMovieEngineSpace.preparedSurfaceContains(preparedSnapshot, 5, 5),
     true,
   );
 
@@ -228,16 +218,16 @@ export function test_space_height_queries(): void {
     namedFacts([
       [
         "theStoredSample",
-        (): boolean => nclose(surfaceHeightAt(short, 0, 0), 1, 0),
+        (): boolean => nclose(AutoMovieEngineSpace.surfaceHeightAt(short, 0, 0), 1, 0),
       ],
       [
         "theMissingOnes",
-        (): boolean => nclose(surfaceHeightAt(short, 10, 10), 0, 0),
+        (): boolean => nclose(AutoMovieEngineSpace.surfaceHeightAt(short, 10, 10), 0, 0),
       ],
       [
         "andTheValidatorRefusesIt",
         (): boolean =>
-          validateSpace({ space: { ...space, surfaces: [short] } }).success ===
+          AutoMovieEngineValidation.validateSpace({ space: { ...space, surfaces: [short] } }).success ===
           false,
       ],
     ]),

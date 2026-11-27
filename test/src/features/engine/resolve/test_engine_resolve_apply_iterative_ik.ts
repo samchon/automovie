@@ -1,4 +1,4 @@
-import { Matrix4, applyIterativeIK } from "@automovie/engine";
+import { AutoMovieEngineMatrix4, AutoMovieEngineResolve } from "@automovie/engine";
 import type {
   IAutoMovieIKDriver,
   IAutoMovieQuaternion,
@@ -29,7 +29,7 @@ const IDENTITY: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
 /** A world matrix at a place. */
 const at: (position: IAutoMovieVector3) => number[] = (
   position: IAutoMovieVector3,
-): number[] => Matrix4.compose(position, IDENTITY, { x: 1, y: 1, z: 1 });
+): number[] => AutoMovieEngineMatrix4.compose(position, IDENTITY, { x: 1, y: 1, z: 1 });
 
 /** A two-segment arm along +X, 1 m each, and a goal at (0, 2, 0). */
 const world: () => Map<string, number[]> = (): Map<string, number[]> =>
@@ -83,7 +83,7 @@ const place: (
 ) => IAutoMovieVector3 = (
   source: Map<string, number[]>,
   id: string,
-): IAutoMovieVector3 => Matrix4.position(source.get(id)!);
+): IAutoMovieVector3 => AutoMovieEngineMatrix4.position(source.get(id)!);
 
 /**
  * `applyIterativeIK` moves a chain toward a goal by CCD or FABRIK sweeps,
@@ -102,7 +102,7 @@ const place: (
 export function test_engine_resolve_apply_iterative_ik(): void {
   for (const solver of ["fabrik", "ccd"] as const) {
     const moved: Map<string, number[]> = world();
-    applyIterativeIK(driver({ solver }), moved, local(), CHILDREN);
+    AutoMovieEngineResolve.applyIterativeIK(driver({ solver }), moved, local(), CHILDREN);
     const root: IAutoMovieVector3 = place(moved, "root");
     const mid: IAutoMovieVector3 = place(moved, "mid");
     const tip: IAutoMovieVector3 = place(moved, "tip");
@@ -125,7 +125,7 @@ export function test_engine_resolve_apply_iterative_ik(): void {
     );
   }
   const still: Map<string, number[]> = world();
-  applyIterativeIK(driver({ influence: 0 }), still, local(), CHILDREN);
+  AutoMovieEngineResolve.applyIterativeIK(driver({ influence: 0 }), still, local(), CHILDREN);
   TestValidator.predicate(
     "no influence",
     vclose(place(still, "tip"), { x: 2, y: 0, z: 0 }, LENGTH),
@@ -134,7 +134,7 @@ export function test_engine_resolve_apply_iterative_ik(): void {
     "refusals",
     throwsError(
       (): void =>
-        applyIterativeIK(
+        AutoMovieEngineResolve.applyIterativeIK(
           driver({ chain: ["root"] }),
           world(),
           local(),
@@ -144,7 +144,7 @@ export function test_engine_resolve_apply_iterative_ik(): void {
     ) &&
       throwsError(
         (): void =>
-          applyIterativeIK(
+          AutoMovieEngineResolve.applyIterativeIK(
             driver({ iterations: 0 }),
             world(),
             local(),
@@ -154,7 +154,7 @@ export function test_engine_resolve_apply_iterative_ik(): void {
       ) &&
       throwsError(
         (): void =>
-          applyIterativeIK(
+          AutoMovieEngineResolve.applyIterativeIK(
             driver({ chain: ["root", "root"] }),
             world(),
             local(),

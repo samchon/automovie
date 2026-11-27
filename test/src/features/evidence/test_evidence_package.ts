@@ -1,5 +1,7 @@
-import { createEvidenceConfig } from "@automovie/evidence";
-import { createEngineeringClaims } from "@automovie/evidence/internal";
+import { AutoMovieEvidenceConfig } from "@automovie/evidence";
+import {
+  createEngineeringClaims
+} from "../../../../packages/evidence/src/config/claims/createEngineeringClaims";
 import {
   EvidenceChecker,
   type IEvidenceCheckAnalysis,
@@ -96,7 +98,9 @@ export async function test_evidence_package(): Promise<void> {
       "docs/body/screenplay/unfinished/001-draft.md",
       "The story is unfinished.\n",
     );
-    const config: IEvidenceConfig = createEvidenceConfig({ location: coding });
+    const config: IEvidenceConfig = AutoMovieEvidenceConfig.create({
+      location: coding,
+    });
     const configFile: string = path.join(coding, "evidence.config.ts");
     const missing: IEvidenceCheckAnalysis = await EvidenceChecker.evaluate(
       createEvidenceConfigPlan(config, configFile),
@@ -173,17 +177,17 @@ export async function test_evidence_package(): Promise<void> {
     config.claims[0].files.push("do-not-share.ts");
     assert.ok(!createEngineeringClaims()[0].files.includes("do-not-share.ts"));
     assert.ok(
-      !createEvidenceConfig({ location: coding }).claims[0].files.includes(
-        "do-not-share.ts",
-      ),
+      !AutoMovieEvidenceConfig.create({
+        location: coding,
+      }).claims[0].files.includes("do-not-share.ts"),
     );
     assert.throws(
-      (): IEvidenceConfig => createEvidenceConfig({ location: "." }),
+      (): IEvidenceConfig => AutoMovieEvidenceConfig.create({ location: "." }),
       /absolute/i,
     );
 
     ProductionWorkflowFixture.complete(narrative, "short");
-    const selected: IEvidenceConfig = createEvidenceConfig({
+    const selected: IEvidenceConfig = AutoMovieEvidenceConfig.create({
       location: narrative,
       narrative: {
         mode: "short",
@@ -203,7 +207,7 @@ export async function test_evidence_package(): Promise<void> {
       "docs/contracts/work/extra/cues.md",
       "# Additional work\n\n## Fixed cue {#fixed-cue}\n\nEstablish the commissioned cue.\n",
     );
-    const extended: IEvidenceConfig = createEvidenceConfig({
+    const extended: IEvidenceConfig = AutoMovieEvidenceConfig.create({
       location: narrative,
       narrative: {
         mode: "short",
@@ -243,7 +247,7 @@ export async function test_evidence_package(): Promise<void> {
       "docs/contracts/work/discovery/results.md",
       "<!--\n@evidenceExclude discovery/common.md#scope The settings fixture needs no additional common rule.\n@evidenceExclude discovery/settings.md#scope The settings fixture needs no additional canon rule.\n-->\n# Discovery\n\nOnly settings is submitted.\n",
     );
-    const settings: IEvidenceConfig = createEvidenceConfig({
+    const settings: IEvidenceConfig = AutoMovieEvidenceConfig.create({
       location: long,
       narrative: { mode: "long", construction: { settings: "evidence" } },
     });
@@ -296,7 +300,7 @@ export async function test_evidence_package(): Promise<void> {
       "docs/contracts/work/discovery/results.md",
       `<!--\n${["common", "narratives", "settings", "treatments"].map((group: string): string => `@evidenceExclude discovery/${group}.md#scope The fixture needs no additional ${group} rule.`).join("\n")}\n-->\n# Discovery\n\nSettings closed; treatments is submitted.\n`,
     );
-    const handed: IEvidenceConfig = createEvidenceConfig({
+    const handed: IEvidenceConfig = AutoMovieEvidenceConfig.create({
       location: long,
       narrative: {
         mode: "long",
@@ -400,7 +404,7 @@ export async function test_evidence_package(): Promise<void> {
       "src/laws/footwork/stepLength.ts",
       step([]),
     );
-    const staged: IEvidenceConfig = createEvidenceConfig({
+    const staged: IEvidenceConfig = AutoMovieEvidenceConfig.create({
       location: production,
       research: "evidence",
       development: { behaviors: "evidence" },
@@ -512,7 +516,7 @@ export async function test_evidence_package(): Promise<void> {
         " * @evidence docs/body/screenplay/bout/001-ring.md#s01-b01 The scene realizes the feint.",
       ),
     );
-    const composed: IEvidenceConfig = createEvidenceConfig({
+    const composed: IEvidenceConfig = AutoMovieEvidenceConfig.create({
       location: production,
       research: "evidence",
       development: { behaviors: "evidence", composition: "evidence" },
@@ -578,7 +582,7 @@ export async function test_evidence_package(): Promise<void> {
       "# Reviewed cases\n\n## Step\n\nFoot support observed in the catalog.\n",
     );
     const configureCatalog = (): IEvidenceConfig =>
-      createEvidenceConfig({
+      AutoMovieEvidenceConfig.create({
         location: production,
         research: "evidence",
         development: {
@@ -673,7 +677,7 @@ export async function test_evidence_package(): Promise<void> {
           claim.name === "the code realizes every instruction section",
       );
     const passless = (): IEvidenceConfig =>
-      createEvidenceConfig({
+      AutoMovieEvidenceConfig.create({
         location: production,
         research: "evidence",
         narrative: { mode: "none" },
@@ -687,7 +691,7 @@ export async function test_evidence_package(): Promise<void> {
     );
     assert.equal(
       relates(
-        createEvidenceConfig({
+        AutoMovieEvidenceConfig.create({
           location: production,
           narrative: { mode: "none" },
         }),

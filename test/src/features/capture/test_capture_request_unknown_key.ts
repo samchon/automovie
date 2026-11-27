@@ -1,7 +1,4 @@
-import {
-  parseAutoMovieCapturePlanRequest,
-  readAutoMovieCaptureArguments,
-} from "@automovie/render";
+import { AutoMovieRenderCapture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/throwsError";
@@ -29,7 +26,7 @@ export function test_capture_request_unknown_key(): void {
       `the address refuses ${key}`,
       throwsError(
         (): unknown =>
-          parseAutoMovieCapturePlanRequest(new URLSearchParams([[key, "1"]])),
+          AutoMovieRenderCapture.parsePlanRequest(new URLSearchParams([[key, "1"]])),
         `"${key}"`,
       ),
     );
@@ -37,8 +34,8 @@ export function test_capture_request_unknown_key(): void {
       `the command line refuses ${key}`,
       throwsError(
         (): unknown =>
-          parseAutoMovieCapturePlanRequest(
-            readAutoMovieCaptureArguments([`--${key}`, "1"]),
+          AutoMovieRenderCapture.parsePlanRequest(
+            AutoMovieRenderCapture.readArguments([`--${key}`, "1"]),
           ),
         `"${key}"`,
       ),
@@ -50,7 +47,7 @@ export function test_capture_request_unknown_key(): void {
     "an unknown key is refused first",
     throwsError(
       (): unknown =>
-        parseAutoMovieCapturePlanRequest(
+        AutoMovieRenderCapture.parsePlanRequest(
           new URLSearchParams("rate=fast&colour=red"),
         ),
       '"colour"',
@@ -62,7 +59,7 @@ export function test_capture_request_unknown_key(): void {
     "a repeated key is refused",
     throwsError(
       (): unknown =>
-        parseAutoMovieCapturePlanRequest(new URLSearchParams("rate=5&rate=6")),
+        AutoMovieRenderCapture.parsePlanRequest(new URLSearchParams("rate=5&rate=6")),
       ['"rate"', "twice"],
     ),
   );
@@ -70,7 +67,7 @@ export function test_capture_request_unknown_key(): void {
   // 4. The control.
   TestValidator.equals(
     "known keys read",
-    parseAutoMovieCapturePlanRequest(new URLSearchParams("rate=6&shade=clay"))
+    AutoMovieRenderCapture.parsePlanRequest(new URLSearchParams("rate=6&shade=clay"))
       .passes,
     ["clay"],
   );

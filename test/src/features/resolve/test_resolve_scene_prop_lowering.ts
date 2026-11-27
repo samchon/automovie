@@ -1,4 +1,4 @@
-import { sceneToNodes } from "@automovie/engine";
+import { AutoMovieEngineResolve } from "@automovie/engine";
 import {
   type IAutoMovieModel,
   type IAutoMovieNode,
@@ -84,7 +84,7 @@ export function test_resolve_scene_prop_lowering(): void {
       ),
     },
   };
-  const nodes: IAutoMovieNode[] = sceneToNodes({
+  const nodes: IAutoMovieNode[] = AutoMovieEngineResolve.sceneToNodes({
     scene: placedScene(),
     props: { door: spec },
   });
@@ -125,7 +125,7 @@ export function test_resolve_scene_prop_lowering(): void {
     "group",
   );
 
-  const rigid: IAutoMovieNode[] = sceneToNodes({
+  const rigid: IAutoMovieNode[] = AutoMovieEngineResolve.sceneToNodes({
     scene: placedScene(),
     props: { door: { ...spec, articulation: null } },
   });

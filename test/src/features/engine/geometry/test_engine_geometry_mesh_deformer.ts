@@ -1,4 +1,4 @@
-import { createAutoMovieMeshDeformer } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieMesh,
   IAutoMovieMeshDeformationField,
@@ -10,7 +10,7 @@ import { nclose } from "../../internal/predicates";
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * `createAutoMovieMeshDeformer` applies compact-field influences to a mesh,
+ * `createMeshDeformer` applies compact-field influences to a mesh,
  * moving each vertex by displacement (1 - |x - c|^2 / r^2)^3 and transforming
  * normals by the map's inverse transpose, keeping unit normals where the
  * geometry stays representable.
@@ -48,7 +48,7 @@ export function test_engine_geometry_mesh_deformer(): void {
 
   // 1.
   for (const stretch of [1e150, 1e155]) {
-    const apply = createAutoMovieMeshDeformer([
+    const apply = AutoMovieEngineGeometry.createMeshDeformer([
       {
         center: { x: 0, y: 0, z: 0 },
         radius: { x: 1e160, y: 1e160, z: 1e160 },
@@ -77,7 +77,7 @@ export function test_engine_geometry_mesh_deformer(): void {
         displacement: { x: 0, y: 0, z: amount * radius },
         stretch: { x: 0, y: 0, z: 0 },
       };
-      const result: IAutoMovieMesh = createAutoMovieMeshDeformer([influence])({
+      const result: IAutoMovieMesh = AutoMovieEngineGeometry.createMeshDeformer([influence])({
         positions: [radius / 2, 0, 0, 0, 0, 0],
         indices: [],
         normals: [0, 0, 1, 0, 0, 1],
@@ -120,7 +120,7 @@ export function test_engine_geometry_mesh_deformer(): void {
     skin: null,
   };
   const before: string = JSON.stringify(line);
-  const apply = createAutoMovieMeshDeformer([field]);
+  const apply = AutoMovieEngineGeometry.createMeshDeformer([field]);
   field.displacement.z = 100;
   const lifted: IAutoMovieMesh = apply(line);
   const length: number = Math.hypot(27 / 32, 1);
@@ -163,7 +163,7 @@ export function test_engine_geometry_mesh_deformer(): void {
   );
   TestValidator.equals(
     "no fields",
-    createAutoMovieMeshDeformer([])(line),
+    AutoMovieEngineGeometry.createMeshDeformer([])(line),
     line,
   );
   TestValidator.equals(
@@ -190,7 +190,7 @@ export function test_engine_geometry_mesh_deformer(): void {
     TestValidator.predicate(
       `radius ${radius.x}`,
       throwsError(
-        (): unknown => createAutoMovieMeshDeformer([{ ...base, radius }]),
+        (): unknown => AutoMovieEngineGeometry.createMeshDeformer([{ ...base, radius }]),
         "finite vectors and strictly positive radii",
       ),
     );
@@ -214,11 +214,11 @@ export function test_engine_geometry_mesh_deformer(): void {
     TestValidator.predicate(
       label,
       throwsError(
-        (): unknown => createAutoMovieMeshDeformer(fields)(line),
+        (): unknown => AutoMovieEngineGeometry.createMeshDeformer(fields)(line),
         "local surface orientation",
       ),
     );
-  createAutoMovieMeshDeformer([
+  AutoMovieEngineGeometry.createMeshDeformer([
     { ...base, displacement: zero, stretch: { x: -0.99, y: 0, z: 0 } },
   ])(line);
 }

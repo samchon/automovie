@@ -1,4 +1,4 @@
-import { factorRecoveryMapMetric } from "@automovie/recovery";
+import { AutoMovieRecoveryCameraMap } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -23,7 +23,7 @@ const METRIC_ROUNDING: number = 8192 * Number.EPSILON;
  *    squared 116/19. A camera parallel to the point cannot gain rank.
  */
 export function test_recovery_internal_factor_map_metric(): void {
-  const block: Parameters<typeof factorRecoveryMapMetric>[0][number] = {
+  const block: Parameters<typeof AutoMovieRecoveryCameraMap.factorMapMetric>[0][number] = {
     pointRows: [
       [2, 0, 0],
       [0, 4, 0],
@@ -34,8 +34,8 @@ export function test_recovery_internal_factor_map_metric(): void {
     right: [0, 0, 0, 0],
   };
   for (const damping of [0, 1]) {
-    const measured: ReturnType<typeof factorRecoveryMapMetric> =
-      factorRecoveryMapMetric(
+    const measured: ReturnType<typeof AutoMovieRecoveryCameraMap.factorMapMetric> =
+      AutoMovieRecoveryCameraMap.factorMapMetric(
         [block],
         chart.minimumRatio,
         damping,
@@ -64,7 +64,7 @@ export function test_recovery_internal_factor_map_metric(): void {
   TestValidator.error(
     "point elimination removes all camera evidence",
     (): unknown =>
-      factorRecoveryMapMetric(
+      AutoMovieRecoveryCameraMap.factorMapMetric(
         [{ ...block, cameraRows: [[1], [0], [0], [0]] }],
         chart.minimumRatio,
         1,

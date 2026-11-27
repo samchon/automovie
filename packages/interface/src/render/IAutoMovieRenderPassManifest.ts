@@ -1,4 +1,4 @@
-import type { AutoMovieGuidePass } from "../cinematics/AutoMovieGuidePass.js";
+import type { AutoMovieGuidePass } from "../cinematics/AutoMovieGuidePass";
 
 /**
  * One guide pass's whole-timeline walk order across the chunks: how a host

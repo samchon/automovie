@@ -1,9 +1,4 @@
-import {
-  ViolationCollector,
-  compareCodeUnits,
-  getConstraint,
-  validateJointRom,
-} from "@automovie/engine";
+import { AutoMovieEngineViolationCollector, AutoMovieEngineText, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   IAutoMovieConstraintViolation,
   IAutoMovieJointConstraint,
@@ -46,8 +41,9 @@ const faults: (
   joint: IAutoMovieJointPose,
   constraint: IAutoMovieJointConstraint,
 ): IAutoMovieConstraintViolation[] => {
-  const collector: ViolationCollector = new ViolationCollector();
-  validateJointRom({ joint, constraint, path: "$input", collector });
+  const collector: AutoMovieEngineViolationCollector =
+    new AutoMovieEngineViolationCollector();
+  AutoMovieEngineKinematics.validateJointRom({ joint, constraint, path: "$input", collector });
   return collector.items;
 };
 
@@ -124,7 +120,7 @@ export function test_engine_rom_validate_joint_rom(): void {
     "two bad axes",
     faults(pose({ flexion: 999, twist: 999 }), ELBOW)
       .map((item: IAutoMovieConstraintViolation): string => item.path)
-      .sort(compareCodeUnits),
+      .sort(AutoMovieEngineText.compareCodeUnits),
     ["$input.flexion", "$input.twist"],
   );
   const cone: IAutoMovieJointConstraint = {
@@ -167,7 +163,7 @@ export function test_engine_rom_validate_joint_rom(): void {
       resting[0]!.path === zero[0]!.path &&
       nclose(resting[0]!.overshoot!, zero[0]!.overshoot!, EXACT),
   );
-  const shoulder: IAutoMovieJointConstraint = getConstraint(
+  const shoulder: IAutoMovieJointConstraint = AutoMovieEngineKinematics.getConstraint(
     "leftUpperArm",
     null,
   )!;
@@ -183,7 +179,7 @@ export function test_engine_rom_validate_joint_rom(): void {
       swingTwist: null,
     })
       .map((item: IAutoMovieConstraintViolation): string => item.path)
-      .sort(compareCodeUnits),
+      .sort(AutoMovieEngineText.compareCodeUnits),
     ["$input.flexion", "$input.swing", "$input.twist"],
   );
   TestValidator.equals(

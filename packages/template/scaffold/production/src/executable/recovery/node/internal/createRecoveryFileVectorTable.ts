@@ -23,7 +23,7 @@ export function createRecoveryFileVectorTable(
     typeof input.write !== "function"
   )
     throw new Error("A bounded exclusive binary64 vector table is required");
-  /**
+  /*
    * One erased private page header owns an admitted base row and valid prefix.
    * Valid rows exclude unread padding. The enclosing owner keeps at most three
    * headers/buffers, flushes before reuse and releases them with its table.

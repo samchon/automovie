@@ -1,4 +1,4 @@
-import { followPathMotion, sampleTimes } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling, AutoMovieEngineMotionTrajectory } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -26,8 +26,8 @@ const END: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
 export function test_engine_motion_follow_path_motion(): void {
   const walk = (
     waypoints: IAutoMovieVector3[],
-  ): ReturnType<typeof followPathMotion> =>
-    followPathMotion({
+  ): ReturnType<typeof AutoMovieEngineMotionTrajectory.followPathMotion> =>
+    AutoMovieEngineMotionTrajectory.followPathMotion({
       id: "path",
       gait: { ...createValidMotion(), loop: true },
       waypoints,
@@ -43,14 +43,14 @@ export function test_engine_motion_follow_path_motion(): void {
   // 2. Refusals.
   TestValidator.predicate(
     "no path without two distinct waypoints",
-    throwsError((): ReturnType<typeof followPathMotion> => walk([START])) &&
+    throwsError((): ReturnType<typeof AutoMovieEngineMotionTrajectory.followPathMotion> => walk([START])) &&
       throwsError(
-        (): ReturnType<typeof followPathMotion> => walk([START, START]),
+        (): ReturnType<typeof AutoMovieEngineMotionTrajectory.followPathMotion> => walk([START, START]),
       ),
   );
 
   // 3. An instant.
-  const zero: number[] = sampleTimes(0, 24);
+  const zero: number[] = AutoMovieEngineMotionSampling.sampleTimes(0, 24);
   TestValidator.predicate(
     "a zero duration samples its own instant",
     zero.length > 0 && zero.every((t: number): boolean => t === 0),

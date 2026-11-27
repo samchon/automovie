@@ -1,4 +1,6 @@
-import { ArchetypeTrackProfile } from "@automovie/archetypes/internal";
+import {
+  ArchetypeTrackProfile
+} from "../../../../../packages/archetypes/src/core/internal/ArchetypeTrackProfile";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

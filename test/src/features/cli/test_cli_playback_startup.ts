@@ -1,4 +1,4 @@
-import { recordAutoMoviePlayback } from "automovie";
+import { AutoMovieCliReview } from "automovie";
 import assert from "node:assert/strict";
 import * as fs from "node:fs/promises";
 import * as os from "node:os";
@@ -73,7 +73,7 @@ export async function test_cli_playback_startup(): Promise<void> {
       let timer: ReturnType<typeof setTimeout> | undefined;
       try {
         const recording = Promise.race([
-          recordAutoMoviePlayback({
+          AutoMovieCliReview.recordPlayback({
             chromium,
             url: "http://127.0.0.1/",
             seconds: 0,

@@ -1,1 +1,3 @@
-export { default } from "./lint";
+import { createLintConfig } from "#config/createLintConfig";
+
+export default createLintConfig();

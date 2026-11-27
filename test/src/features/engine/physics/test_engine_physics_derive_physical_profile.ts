@@ -1,8 +1,4 @@
-import {
-  deriveCenterOfMass,
-  derivePhysicalProfile,
-  validatePhysicalProfile,
-} from "@automovie/engine";
+import { AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieModel,
   IAutoMoviePhysicalSegment,
@@ -33,7 +29,7 @@ export function test_engine_physics_derive_physical_profile(): void {
     "existing model and physical profile share neutral centre",
     vclose(
       profile.centerOfMass,
-      deriveCenterOfMass(model)!,
+      AutoMovieEnginePhysics.deriveCenterOfMass(model)!,
       PhysicalTolerance.ACCUMULATED,
     ) && profile.joints.length === model.skeleton!.bones.length - 1,
   );
@@ -41,7 +37,7 @@ export function test_engine_physics_derive_physical_profile(): void {
     profile.segments[0]!,
   );
   replacement.mass += 1;
-  const overridden: P = derivePhysicalProfile(model, {
+  const overridden: P = AutoMovieEnginePhysics.derivePhysicalProfile(model, {
     density: 1000,
     densities: {},
     material: "solid",
@@ -65,7 +61,7 @@ export function test_engine_physics_derive_physical_profile(): void {
   const d: number = 0.9 * (1 - Math.cos(Math.PI / 8));
   TestValidator.predicate(
     "independent primitive assembly totals",
-    validatePhysicalProfile(four).length === 0 &&
+    AutoMovieEnginePhysics.validatePhysicalProfile(four).length === 0 &&
       Math.abs(four.mass - 8) < PhysicalTolerance.ROUNDING &&
       vclose(
         four.centerOfMass,
@@ -113,7 +109,7 @@ export function test_engine_physics_derive_physical_profile(): void {
       },
     ],
   };
-  const derived: P = derivePhysicalProfile(analytic, {
+  const derived: P = AutoMovieEnginePhysics.derivePhysicalProfile(analytic, {
     density: 1,
     densities: {},
     material: "solid",
@@ -131,7 +127,7 @@ export function test_engine_physics_derive_physical_profile(): void {
     "independent rotated bone and unbound-part centre",
     vclose(derived.centerOfMass, expected, PhysicalTolerance.ROUNDING) &&
       vclose(
-        deriveCenterOfMass(analytic)!,
+        AutoMovieEnginePhysics.deriveCenterOfMass(analytic)!,
         expected,
         PhysicalTolerance.ROUNDING,
       ),

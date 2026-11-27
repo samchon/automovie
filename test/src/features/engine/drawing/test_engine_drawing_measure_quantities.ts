@@ -1,4 +1,4 @@
-import { measureAutoMovieQuantities } from "@automovie/engine";
+import { AutoMovieEngineDrawing } from "@automovie/engine";
 import type {
   AutoMovieQuantitySubject,
   IAutoMovieQuantityFinding,
@@ -30,7 +30,7 @@ const total: (
   )?.total ?? null;
 
 /**
- * `measureAutoMovieQuantities` takes off counts, areas and volumes from a built
+ * `measureQuantities` takes off counts, areas and volumes from a built
  * environment.
  *
  * Scenarios, on the authored atelier (6 elements; a 10 x 3 x 6 m hall and a 10
@@ -47,9 +47,10 @@ const total: (
  * 6. A contributor bound below one is refused.
  */
 export function test_engine_drawing_measure_quantities(): void {
-  const report: IAutoMovieQuantityReport = measureAutoMovieQuantities({
-    environment: drawingEnvironment(),
-  });
+  const report: IAutoMovieQuantityReport =
+    AutoMovieEngineDrawing.measureAutoMovieQuantities({
+      environment: drawingEnvironment(),
+    });
   TestValidator.equals(
     "the protocol and the environment",
     [report.protocol, report.environment],
@@ -81,14 +82,15 @@ export function test_engine_drawing_measure_quantities(): void {
             gap.subject === subject && gap.status === "unsupported",
         ),
     ) &&
-      measureAutoMovieQuantities({ environment: drawingEnvironment() })
-        .digest === report.digest,
+      AutoMovieEngineDrawing.measureAutoMovieQuantities({
+        environment: drawingEnvironment(),
+      }).digest === report.digest,
   );
   TestValidator.predicate(
     "a zero contributor bound",
     throwsError(
       (): unknown =>
-        measureAutoMovieQuantities({
+        AutoMovieEngineDrawing.measureAutoMovieQuantities({
           environment: drawingEnvironment(),
           maxContributors: 0,
         }),

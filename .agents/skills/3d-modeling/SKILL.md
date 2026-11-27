@@ -9,16 +9,16 @@ Read the asset's required appearance and controls. Use the source the user choos
 
 | Read | For |
 | --- | --- |
-| [Environments](environments.md) | Building a place: a furnished room, a terrain or an outdoor set |
+| [Environments](environments.md) | Build furnished rooms, terrain or outdoor sets |
 | [Crafting](crafting/SKILL.md) | Building or changing a form from dimensions and formulas |
 | [Lofting](crafting/lofting.md) | Building or fitting a form from related sections and guides |
 | [Diffusion](diffusion/SKILL.md) | Generating a form with a diffusion model |
-| [Sources](sources.md) | Looking for an existing mesh, material, environment map or motion clip |
-| [Conditioning](conditioning.md) | Taking a found or generated mesh into the project, or varying it by a parameter |
+| [Sources](sources.md) | Find meshes, materials, environment maps or motion clips |
+| [Conditioning](conditioning.md) | Use a found or generated mesh, or vary it by parameter |
 | [Mesh recovery](crafting/recovery.md) | Rebuilding a fixed mesh as curves or surfaces |
 | [Modularization](modularization.md) | Defining parts, groups, placements or shared boundaries |
-| [Rigging](rigging.md) | Adding or changing a skeleton, skin, attachment or deformation control |
-| [Inspecting a form](inspection.md) | Inspecting a form's measures, coverage, construction or light |
+| [Rigging](rigging.md) | Add or change skeletons, skin, attachments or deformation |
+| [Inspecting a form](inspection.md) | Check measures, coverage, construction or light |
 
 Mesh recovery covers saved coefficients and reverse renders. Modularization applies to every source.
 

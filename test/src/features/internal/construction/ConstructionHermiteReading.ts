@@ -1,4 +1,4 @@
-import { AutoMovieViewHermite, AutoMovieViewOutline } from "@automovie/engine";
+import { AutoMovieEngineViewHermite, AutoMovieEngineViewOutline } from "@automovie/engine";
 import type {
   IAutoMovieViewHermite,
   IAutoMovieViewPart,
@@ -22,8 +22,8 @@ export namespace ConstructionHermiteReading {
           },
         ],
       };
-      const source: ReturnType<typeof AutoMovieViewOutline.create> =
-        AutoMovieViewOutline.create(raw);
+      const source: ReturnType<typeof AutoMovieEngineViewOutline.create> =
+        AutoMovieEngineViewOutline.create(raw);
       if ("detail" in source) throw new Error(source.detail);
       if (source.hermite === undefined)
         throw new Error("Requested quintic is absent");
@@ -39,8 +39,8 @@ export namespace ConstructionHermiteReading {
                   1 + 4 * t - 9 * t * t + 4 * t ** 3 + 2.5 * t ** 4,
                   4 - 18 * t + 12 * t * t + 10 * t ** 3,
                 ];
-        const at: ReturnType<typeof AutoMovieViewOutline.at> =
-          AutoMovieViewOutline.at(source, x);
+        const at: ReturnType<typeof AutoMovieEngineViewOutline.at> =
+          AutoMovieEngineViewOutline.at(source, x);
         if (typeof at === "string" || at.stationJet === null)
           failures.push("Quintic qualified reading absent " + unit + "/" + t);
         else if (
@@ -65,8 +65,8 @@ export namespace ConstructionHermiteReading {
 
     // Unequal spans and a signed-zero start distinguish exact knot reads
     // from an extension or the neighbouring interval's rounded polynomial.
-    const source: ReturnType<typeof AutoMovieViewOutline.create> =
-      AutoMovieViewOutline.create({
+    const source: ReturnType<typeof AutoMovieEngineViewOutline.create> =
+      AutoMovieEngineViewOutline.create({
         knots: [
           { site: "a", station: -2, value: -0, jet: { first: -3, second: 2 } },
           { site: "b", station: 0.5, value: 7, jet: { first: 2, second: -1 } },
@@ -87,12 +87,12 @@ function same(
   x: number,
   failures: string[],
 ): void {
-  const combined: [number, number, number] = AutoMovieViewHermite.read(
+  const combined: [number, number, number] = AutoMovieEngineViewHermite.read(
     curve,
     x,
   );
-  const value: number = AutoMovieViewHermite.value(curve, x);
-  const derivative: [number, number] = AutoMovieViewHermite.derivative(
+  const value: number = AutoMovieEngineViewHermite.value(curve, x);
+  const derivative: [number, number] = AutoMovieEngineViewHermite.derivative(
     curve,
     x,
   );

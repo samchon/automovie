@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanTouch } from "@automovie/interface";
 
-/**
+/*
  * The values the `coverEars` row of `HumanEmblem` fixes on `touch`, spread into
  * its parameters. Both hands over the ears.
  */

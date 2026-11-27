@@ -2,8 +2,8 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import type { AutoMovieArchetypeQuadrupedLimb } from "./AutoMovieArchetypeQuadrupedLimb";
-import { QuadrupedPelvis } from "./QuadrupedPelvis";
-import { QuadrupedScapula } from "./QuadrupedScapula";
+import { QuadrupedPelvis } from "./quadruped/QuadrupedPelvis";
+import { QuadrupedScapula } from "./quadruped/QuadrupedScapula";
 
 /**
  * A common vertical body-root interval satisfying four fixed limb attachments.
@@ -175,15 +175,21 @@ export namespace AutoMovieArchetypeQuadrupedRootRange {
     >;
   }
 
-  /** The intersection and the limbs setting its two bounds. */
+  /*
+   * The intersection and the limbs setting its two bounds.
+   */
   interface IBound extends IRange {
-    /** The limb setting the lower bound; absent when the body floor does. */
+    /*
+     * The limb setting the lower bound; absent when the body floor does.
+     */
     lowest?: AutoMovieArchetypeQuadrupedBody.Limb;
-    /** The limb setting the upper bound. */
+    /*
+     * The limb setting the upper bound.
+     */
     highest?: AutoMovieArchetypeQuadrupedBody.Limb;
   }
 
-  /**
+  /*
    * Intersect the four limbs' bounds with the body floor, naming the binding
    * limbs.
    */
@@ -227,7 +233,7 @@ export namespace AutoMovieArchetypeQuadrupedRootRange {
     return bound;
   }
 
-  /**
+  /*
    * The share of a stance's load a hoof bears, clamped to 0 to 1; one when the
    * constraint states none.
    */
@@ -235,7 +241,7 @@ export namespace AutoMovieArchetypeQuadrupedRootRange {
     return Math.min(1, Math.max(0, constraint.load ?? 1));
   }
 
-  /**
+  /*
    * A limb's cap on the root height, relaxed by its unloaded share of the leg's
    * reach: exact while the hoof bears, none in effect mid-swing, continuous
    * between.
@@ -247,7 +253,9 @@ export namespace AutoMovieArchetypeQuadrupedRootRange {
       : high + free * constraint.reach.maximum;
   }
 
-  /** One limb's lowest and highest root translation. */
+  /*
+   * One limb's lowest and highest root translation.
+   */
   function limbBounds(
     limb: AutoMovieArchetypeQuadrupedBody.Limb,
     constraint: IConstraint | undefined,
@@ -301,7 +309,9 @@ export namespace AutoMovieArchetypeQuadrupedRootRange {
     return [low, high];
   }
 
-  /** Recover a nonnegative vertical leg without squaring a large radius. */
+  /*
+   * Recover a nonnegative vertical leg without squaring a large radius.
+   */
   function vertical(radius: number, horizontal: number): number {
     const ratio: number = horizontal / radius;
     return radius * Math.sqrt((1 - ratio) * (1 + ratio));

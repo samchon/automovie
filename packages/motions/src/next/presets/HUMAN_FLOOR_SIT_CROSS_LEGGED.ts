@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanFloor } from "@automovie/interface";
 
-/**
+/*
  * The sitCrossLegged preset of `lieDown`: Sitting down on the floor
  * cross-legged and staying three seconds (provisional). Spread into `lieDown`'s
  * parameters; the `sitCrossLegged` row reads it.

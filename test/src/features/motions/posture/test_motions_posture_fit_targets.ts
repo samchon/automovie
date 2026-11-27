@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBodyFitTypes,
@@ -8,7 +8,9 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanFitTargets } from "@automovie/motions/internal";
+import {
+  HumanFitTargets
+} from "../../../../../packages/motions/src/posture/internal/HumanFitTargets";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -180,7 +182,7 @@ export function test_motions_posture_fit_targets(): void {
   const turned: IAutoMovieMotionHumanBodyFitTypes.ITarget = {
     bone: "leftHand",
     goal: P,
-    rotation: Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90),
+    rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90),
   };
   TestValidator.predicate(
     "a held rotation",
@@ -210,7 +212,7 @@ export function test_motions_posture_fit_targets(): void {
   );
 
   // 6. A plant on a moving bone.
-  const hips: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+  const hips: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
     { x: 0, y: 1, z: 0 },
     90,
   );
@@ -250,7 +252,7 @@ export function test_motions_posture_fit_targets(): void {
     frame: material,
     goal: { x: 0, y: 0, z: 0.35 },
     axes: ["y", "z"],
-    rotation: Quaternion.inverse(hips),
+    rotation: AutoMovieEngineQuaternion.inverse(hips),
     normal: { local: { x: 0, y: 0, z: 1 }, world: { x: -1, y: 0, z: 0 } },
   };
   const lateral: IAutoMovieMotionHumanBodyFitTypes.ITarget = {

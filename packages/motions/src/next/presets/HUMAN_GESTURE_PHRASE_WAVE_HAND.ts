@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanGesture } from "@automovie/interface";
 
-/**
+/*
  * The values the `waveHand` row of `HumanUpperRows` fixes on `armPhrase`,
  * spread into its parameters. A wave: the open hand oscillates out and in,
  * raised beside the head, palm forward.

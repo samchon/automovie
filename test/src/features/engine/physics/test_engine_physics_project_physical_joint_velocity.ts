@@ -1,8 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  projectPhysicalJointVelocity,
-} from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalJointAxis,
   IAutoMovieQuaternion,
@@ -64,13 +60,13 @@ export function test_engine_physics_project_physical_joint_velocity(): void {
       }),
     ),
   ];
-  const projected: IAutoMovieVector3 = projectPhysicalJointVelocity(
+  const projected: IAutoMovieVector3 = AutoMovieEnginePhysics.projectPhysicalJointVelocity(
     current,
     axes,
     requested,
     dt,
   );
-  const opposite: IAutoMovieVector3 = projectPhysicalJointVelocity(
+  const opposite: IAutoMovieVector3 = AutoMovieEnginePhysics.projectPhysicalJointVelocity(
     { x: -current.x, y: -current.y, z: -current.z, w: -current.w },
     axes,
     requested,
@@ -79,10 +75,10 @@ export function test_engine_physics_project_physical_joint_velocity(): void {
   const advance: (velocity: IAutoMovieVector3) => number = (
     velocity: IAutoMovieVector3,
   ): number => {
-    const speed: number = Vector3.length(velocity);
-    const after: IAutoMovieQuaternion = Quaternion.multiply(
-      Quaternion.fromAxisAngle(
-        Vector3.scale(velocity, 1 / speed),
+    const speed: number = AutoMovieEngineVector3.length(velocity);
+    const after: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.fromAxisAngle(
+        AutoMovieEngineVector3.scale(velocity, 1 / speed),
         (speed * dt * 180) / Math.PI,
       ),
       current,
@@ -100,26 +96,26 @@ export function test_engine_physics_project_physical_joint_velocity(): void {
   );
   TestValidator.predicate(
     "quaternion sign cannot change the velocity policy",
-    Vector3.length(Vector3.subtract(projected, opposite)) <
+    AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(projected, opposite)) <
       PhysicalTolerance.ACCUMULATED,
   );
-  const free: IAutoMovieVector3 = projectPhysicalJointVelocity(
-    Quaternion.identity(),
+  const free: IAutoMovieVector3 = AutoMovieEnginePhysics.projectPhysicalJointVelocity(
+    AutoMovieEngineQuaternion.identity(),
     [{ ...axis, minimum: -Math.PI, maximum: Math.PI }],
     requested,
     dt,
   );
-  const interior: IAutoMovieVector3 = projectPhysicalJointVelocity(
-    Quaternion.identity(),
+  const interior: IAutoMovieVector3 = AutoMovieEnginePhysics.projectPhysicalJointVelocity(
+    AutoMovieEngineQuaternion.identity(),
     [axis],
     requested,
     dt,
   );
   TestValidator.predicate(
     "interior and full-turn intent stay unchanged",
-    Vector3.length(Vector3.subtract(free, requested)) <
+    AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(free, requested)) <
       PhysicalTolerance.ACCUMULATED &&
-      Vector3.length(Vector3.subtract(interior, requested)) <
+      AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(interior, requested)) <
         PhysicalTolerance.ACCUMULATED,
   );
 }

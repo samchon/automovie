@@ -7,18 +7,28 @@
  * @evidence contracts/development/common.md#meaningful-documentation States sampled bytes and the distinct counter meanings.
  */
 export interface IAutoMovieRecoveryMemoryUsage {
-  /** Resident bytes sampled by the host. */
+  /*
+   * Resident bytes sampled by the host.
+   */
   rss: number;
 
-  /** Allocated managed-heap bytes. */
+  /*
+   * Allocated managed-heap bytes.
+   */
   heapTotal: number;
 
-  /** Used managed-heap bytes. */
+  /*
+   * Used managed-heap bytes.
+   */
   heapUsed: number;
 
-  /** Host-reported external allocations, bytes. */
+  /*
+   * Host-reported external allocations, bytes.
+   */
   external: number;
 
-  /** Array-buffer bytes included by the host's accounting. */
+  /*
+   * Array-buffer bytes included by the host's accounting.
+   */
   arrayBuffers: number;
 }

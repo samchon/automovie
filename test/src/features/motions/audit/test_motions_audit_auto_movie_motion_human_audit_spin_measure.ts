@@ -1,11 +1,13 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanAuditMotion,
   IAutoMovieMotionHumanAuditSpin,
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanAuditSpin } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanAuditSpin
+} from "../../../../../packages/motions/src/audit/internal/AutoMovieMotionHumanAuditSpin";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -49,7 +51,7 @@ export function test_motions_audit_auto_movie_motion_human_audit_spin_measure():
     duration: 2,
     segments: () => [],
     bones: (_subject: string, t: number) => {
-      const turn = Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, angle(t));
+      const turn = AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, angle(t));
       return new Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>([
         [
           "head",

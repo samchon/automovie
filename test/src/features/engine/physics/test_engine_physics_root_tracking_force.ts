@@ -1,4 +1,4 @@
-import { AutoMoviePhysicalTracking } from "@automovie/engine";
+import { AutoMovieEnginePhysicalTracking } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -31,12 +31,12 @@ export function test_engine_physics_root_tracking_force(): void {
   TestValidator.predicate(
     "implicit spring and damping terms oppose velocity and scale linearly within the cap",
     vclose(
-      AutoMoviePhysicalTracking.force(error, velocity, 2, 8, 4, 12, 0.25),
+      AutoMovieEnginePhysicalTracking.force(error, velocity, 2, 8, 4, 12, 0.25),
       { x: 2, y: -10 / 7, z: -12 / 7 },
       FORCE_ROUNDING,
     ) &&
       vclose(
-        AutoMoviePhysicalTracking.force(
+        AutoMovieEnginePhysicalTracking.force(
           { x: 2, y: -1, z: 0 },
           { x: 1.5, y: -0.5, z: 1 },
           2,
@@ -52,7 +52,7 @@ export function test_engine_physics_root_tracking_force(): void {
   TestValidator.predicate(
     "the cap rescales the whole force rather than limiting its components individually",
     vclose(
-      AutoMoviePhysicalTracking.force(
+      AutoMovieEnginePhysicalTracking.force(
         { x: 3 / 8, y: 1 / 2, z: 0 },
         rest,
         2,
@@ -68,12 +68,12 @@ export function test_engine_physics_root_tracking_force(): void {
   TestValidator.predicate(
     "zero cap and zero demand each produce zero force",
     vclose(
-      AutoMoviePhysicalTracking.force(error, velocity, 2, 8, 4, 0, 0.25),
+      AutoMovieEnginePhysicalTracking.force(error, velocity, 2, 8, 4, 0, 0.25),
       rest,
       FORCE_ROUNDING,
     ) &&
       vclose(
-        AutoMoviePhysicalTracking.force(rest, rest, 2, 8, 4, 12, 0.25),
+        AutoMovieEnginePhysicalTracking.force(rest, rest, 2, 8, 4, 12, 0.25),
         rest,
         FORCE_ROUNDING,
       ),

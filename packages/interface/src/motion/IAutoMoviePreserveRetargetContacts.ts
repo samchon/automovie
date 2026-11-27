@@ -2,7 +2,7 @@ import type { IAutoMovieRestFrame } from "../pose/IAutoMovieRestFrame";
 import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieJointAxes } from "../skeleton/IAutoMovieJointAxes";
 import type { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton";
-import type { IAutoMovieViolationCollector } from "../validation/IAutoMovieViolationCollector";
+import type { IAutoMovieViolationWarningSink } from "../validation/IAutoMovieViolationWarningSink";
 import type { IAutoMovieMotion } from "./IAutoMovieMotion";
 import type { IAutoMovieRetargetContactProps } from "./IAutoMovieRetargetContactProps";
 
@@ -62,6 +62,6 @@ export namespace IAutoMoviePreserveRetargetContacts {
     contacts: IAutoMovieRetargetContactProps | undefined;
 
     /** Sink the residual-slide warnings are reported on. */
-    collector: IAutoMovieViolationCollector;
+    collector: IAutoMovieViolationWarningSink;
   };
 }

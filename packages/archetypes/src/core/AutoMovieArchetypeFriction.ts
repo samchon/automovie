@@ -79,6 +79,15 @@ export namespace AutoMovieArchetypeFriction {
   /** One measured pair's coefficients. */
   export type ICoefficients = AutoMovieArchetypeMaterial.IFriction;
 
+  /** A coefficient's measured or authored minimum and maximum. */
+  export interface IRange {
+    /** Smallest coefficient. */
+    readonly minimum: number;
+
+    /** Largest coefficient. */
+    readonly maximum: number;
+  }
+
   /**
    * Every measured pair, keyed by its two materials in alphabetical order
    * joined by `/`.
@@ -107,10 +116,12 @@ export namespace AutoMovieArchetypeFriction {
   /**
    * A coefficient's single value: itself, or the middle of its measured range.
    *
-   * @param value A coefficient or its range.
+   * @param value A coefficient or its range, with named minimum and maximum.
    * @returns The value.
    */
-  export function value(value: number | readonly [number, number]): number {
-    return typeof value === "number" ? value : (value[0] + value[1]) / 2;
+  export function value(value: number | IRange): number {
+    return typeof value === "number"
+      ? value
+      : (value.minimum + value.maximum) / 2;
   }
 }

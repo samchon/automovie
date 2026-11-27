@@ -1,4 +1,9 @@
-import { StrikingQuality, punchReach } from "@automovie/motions/internal";
+import {
+  StrikingQuality
+} from "../../../../../packages/motions/src/striking/internal/StrikingQuality";
+import {
+  punchReach
+} from "../../../../../packages/motions/src/striking/internal/punchReach";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

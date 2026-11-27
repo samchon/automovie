@@ -4,7 +4,7 @@ Each study answers for its own subject. The research index points readers to its
 
 ## Depicted practice
 
-<!-- @source [Kinovea](https://kinovea.readthedocs.io/en/latest/userinterface/glossary.html#calibration) defines frame rate and spatial calibration. -->
+<!-- @reference [Kinovea](https://kinovea.readthedocs.io/en/latest/userinterface/glossary.html#calibration) defines frame rate and spatial calibration. -->
 
 Which production decision does the study support, and under what conditions? For a subject's appearance or another static fact, identify the feature the production can rely on.
 

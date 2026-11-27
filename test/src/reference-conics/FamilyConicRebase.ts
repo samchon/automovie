@@ -22,7 +22,7 @@ import path from "node:path";
  * belongs to, and the proof that the figure's source did not move.
  *
  * Usage, from `test/` after `pnpm conic:build`, each writing under `test/.shots/family-conic-rebase/`:
- * - `node .shots/esbuild/FamilyConicRebase.cjs --tables` writes `packages/human/src/generation/f1/AutoMovieHumanF1Placing.ts`: the chain
+ * - `node .shots/esbuild/FamilyConicRebase.cjs --tables` writes `packages/human/src/generation/AutoMovieHumanF1Placing.ts`: the chain
  *   (`AutoMovieHumanSegmentFrame.chain` of `AutoMovieHumanF1Frames.segments()`), every datum of `AutoMovieHumanF1Joints` and
  *   `AutoMovieHumanF1Landmarks` and every course centre as `{ frame, local point }`, every family's `up` and every relief's `axis` and
  *   `turn` as `{ frame, local direction }`, and each family's course as datum names; and the receipt `assignment.txt`.
@@ -306,6 +306,7 @@ namespace FamilyConicRebase {
   }
 
   const F1: string = "packages/human/src/generation/f1";
+  const GENERATION: string = "packages/human/src/generation";
   const same = (a: readonly number[], b: readonly number[]): boolean =>
     a.length === b.length &&
     a.every((x: number, i: number): boolean => Object.is(x, b[i]));
@@ -315,7 +316,7 @@ namespace FamilyConicRebase {
   /** The stored tables parsed from the package module's text; null when it is not written yet. */
   async function stored(root: string): Promise<ITables | null> {
     const text: string | null = await fs
-      .readFile(path.join(root, F1, "AutoMovieHumanF1Placing.ts"), "utf8")
+      .readFile(path.join(root, GENERATION, "AutoMovieHumanF1Placing.ts"), "utf8")
       .catch((): null => null);
     if (text === null) return null;
     const read = <X>(name: string, open: string, close: string): X => {
@@ -405,7 +406,7 @@ namespace FamilyConicRebase {
   /** The segment a relief's directions are stored in, with the note of how its window lies on the course. */
   function reliefFrame(
     family: IFamily,
-    relief: { name: string; stations: [number, number] },
+    relief: { name: string; stations: { start: number; end: number } },
   ): { frame: string; note?: string } {
     if (family.name === "trunk") {
       const hit: [string, string] | undefined = TRUNK.find(
@@ -424,11 +425,11 @@ namespace FamilyConicRebase {
     const course = AutoMovieHumanConicLoft.axis(family);
     const at = (s: number): string =>
       legs[nearestLeg(family.centres, course.at(s).origin)]!;
-    const middle: number = (relief.stations[0] + relief.stations[1]) / 2;
+    const middle: number = (relief.stations.start + relief.stations.end) / 2;
     const [from, on, to]: string[] = [
-      at(relief.stations[0]),
+      at(relief.stations.start),
       at(middle),
-      at(relief.stations[1]),
+      at(relief.stations.end),
     ];
     return {
       frame: on!,
@@ -437,9 +438,9 @@ namespace FamilyConicRebase {
         : {
             note:
               "window " +
-              relief.stations[0] +
+              relief.stations.start +
               " to " +
-              relief.stations[1] +
+              relief.stations.end +
               " mm runs from the " +
               from +
               " to the " +
@@ -768,7 +769,7 @@ namespace FamilyConicRebase {
       "",
     ];
     await fs.writeFile(
-      path.join(root, F1, "AutoMovieHumanF1Placing.ts"),
+      path.join(root, GENERATION, "AutoMovieHumanF1Placing.ts"),
       text.join("\n"),
     );
     receipt.splice(
@@ -817,6 +818,8 @@ namespace FamilyConicRebase {
     const report: string[] = [];
     const use: string =
       'import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";';
+    const familyUse: string =
+      'import { AutoMovieHumanF1Placement } from "../AutoMovieHumanF1Placement";';
     const imported = (lines: string[], line: string): void => {
       if (lines.includes(line)) return;
       const last: number = lines.reduce(
@@ -833,7 +836,7 @@ namespace FamilyConicRebase {
       "AutoMovieHumanF1Landmarks.ts",
     ]) {
       const lines: string[] = (
-        await fs.readFile(path.join(root, F1, file), "utf8")
+        await fs.readFile(path.join(root, GENERATION, file), "utf8")
       ).split("\n");
       let count: number = 0;
       lines.forEach((text: string, i: number): void => {
@@ -863,7 +866,7 @@ namespace FamilyConicRebase {
         ++count;
       });
       if (count > 0) imported(lines, use);
-      await fs.writeFile(path.join(root, F1, file), lines.join("\n"));
+      await fs.writeFile(path.join(root, GENERATION, file), lines.join("\n"));
       report.push(file + ": " + count + " datums rewritten");
     }
 
@@ -927,7 +930,7 @@ namespace FamilyConicRebase {
         }
       });
       if (changed.some((field: string): boolean => field !== "centres"))
-        imported(lines, use);
+        imported(lines, familyUse);
       if (
         lines.some((text: string): boolean =>
           text.includes("AutoMovieHumanF1Joints."),
@@ -935,7 +938,7 @@ namespace FamilyConicRebase {
       )
         imported(
           lines,
-          'import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";',
+          'import { AutoMovieHumanF1Joints } from "../AutoMovieHumanF1Joints";',
         );
       await fs.writeFile(path.join(root, F1, file), lines.join("\n"));
       report.push(

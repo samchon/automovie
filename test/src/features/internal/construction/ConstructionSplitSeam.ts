@@ -1,4 +1,5 @@
-import { realizeAutoMovieConstruction } from "@automovie/engine";
+
+import { AutoMovieEngineConstruction } from "@automovie/engine";
 import type {
   IAutoMovieConstructionNode,
   IAutoMovieConstructionRealization,
@@ -37,10 +38,10 @@ export namespace ConstructionSplitSeam {
     (-0.025 * (0.03 / 0.08 ** 2)) / Math.sqrt(1 - (0.03 / 0.08) ** 2);
 
   /** The profile's knots (along from A, depth below the end), metres. */
-  export const KNOTS: [number, number][] = [
-    [0.008, 0.005],
-    [0.0232, 0.006],
-    [0.0383, 0.005],
+  export const KNOTS: IAutoMovieConstructionSplit.IProfileKnot[] = [
+    { alongM: 0.008, depthM: 0.005 },
+    { alongM: 0.0232, depthM: 0.006 },
+    { alongM: 0.0383, depthM: 0.005 },
   ];
 
   /** The corner of the ribbons, radians. */
@@ -93,7 +94,7 @@ export namespace ConstructionSplitSeam {
       host: host(),
       hostFace: "trunk",
       hostEnd: "top",
-      seam: [0, Math.PI],
+      seam: { startPhaseRad: 0, endPhaseRad: Math.PI },
       ...(profile === undefined ? {} : { profile }),
       count: COLUMNS,
       rows: 4,
@@ -131,7 +132,7 @@ export namespace ConstructionSplitSeam {
     root: IAutoMovieConstructionNode,
     skin: boolean = false,
   ): IAutoMovieConstructionRealization.IRealization {
-    const result = realizeAutoMovieConstruction(
+    const result = AutoMovieEngineConstruction.realize(
       { name: "made", root },
       { chord: skin ? 1e-4 : 1e-2, skin },
     );

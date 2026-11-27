@@ -1,12 +1,14 @@
-import { AutoMovieGravity } from "@automovie/engine";
+import { AutoMovieEngineGravity } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanThrowObjectLaunch,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  throwObjectCurve,
-  throwObjectLaunch,
-} from "@automovie/motions/internal";
+  throwObjectCurve
+} from "../../../../../packages/motions/src/throwing/internal/throwObjectCurve";
+import {
+  throwObjectLaunch
+} from "../../../../../packages/motions/src/throwing/internal/throwObjectLaunch";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../../internal/vclose";
@@ -84,7 +86,7 @@ function scenario_test_motions_throwing_throw_object_launch(): void {
     { x: 10, y: 0, z: 0 },
     45,
   );
-  const speed: number = Math.sqrt(10 * AutoMovieGravity.STANDARD);
+  const speed: number = Math.sqrt(10 * AutoMovieEngineGravity.STANDARD);
   TestValidator.predicate(
     "the range equation",
     velocity !== undefined &&

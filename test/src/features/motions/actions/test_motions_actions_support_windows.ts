@@ -2,7 +2,9 @@ import type {
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanSupport,
 } from "@automovie/interface";
-import { supportWindows } from "@automovie/motions/internal";
+import {
+  supportWindows
+} from "../../../../../packages/motions/src/actions/internal/supportWindows";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

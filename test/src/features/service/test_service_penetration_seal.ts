@@ -1,4 +1,4 @@
-import { validateServiceNetwork } from "@automovie/engine";
+import { AutoMovieEngineService } from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieBuiltSpace,
@@ -29,7 +29,7 @@ import {
 const environment: IAutoMovieBuiltEnvironment = serviceEnvironment();
 const refuse: (network?: IAutoMovieServiceNetwork) => IAutoMovieValidation = (
   network: IAutoMovieServiceNetwork = serviceNetwork(),
-): IAutoMovieValidation => validateServiceNetwork({ network, environment });
+): IAutoMovieValidation => AutoMovieEngineService.validateServiceNetwork({ network, environment });
 
 /** The same building with every room reduced to a name and no volume. */
 const semantic: () => IAutoMovieBuiltEnvironment =
@@ -144,7 +144,7 @@ export function test_service_penetration_seal(): void {
     },
   );
 
-  const spare: IAutoMovieValidation = validateServiceNetwork({
+  const spare: IAutoMovieValidation = AutoMovieEngineService.validateServiceNetwork({
     network: {
       ...clean,
       penetrations: [
@@ -455,7 +455,7 @@ export function test_service_penetration_seal(): void {
     },
   );
 
-  const nowhere: IAutoMovieValidation = validateServiceNetwork({
+  const nowhere: IAutoMovieValidation = AutoMovieEngineService.validateServiceNetwork({
     network: withSegment(
       clean,
       "cold-run",

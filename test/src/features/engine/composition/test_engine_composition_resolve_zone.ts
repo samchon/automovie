@@ -1,11 +1,11 @@
-import { resolveAutoMovieZone } from "@automovie/engine";
+import { AutoMovieEngineCompositionZone } from "@automovie/engine";
 import type { IAutoMovieVector3, IAutoMovieZone } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../../internal/predicates";
 
 /**
- * `resolveAutoMovieZone` gives the world point a move goes to inside a zone.
+ * `resolveZone` gives the world point a move goes to inside a zone.
  *
  * Zone: centre (10, 0, 20), radius 4, landmark `door` at (12, 0, 21).
  *
@@ -26,15 +26,15 @@ export function test_engine_composition_resolve_zone(): void {
       landmarks: { door: { x: 12, y: 0, z: 21 } },
     },
   ];
-  const centre: IAutoMovieVector3 = resolveAutoMovieZone(zones, "yard");
+  const centre: IAutoMovieVector3 = AutoMovieEngineCompositionZone.resolve(zones, "yard");
   TestValidator.equals("centre", centre, { x: 10, y: 0, z: 20 });
   TestValidator.predicate("copy", centre !== zones[0]!.center);
   TestValidator.equals(
     "landmark",
-    resolveAutoMovieZone(zones, "yard", "door"),
+    AutoMovieEngineCompositionZone.resolve(zones, "yard", "door"),
     { x: 12, y: 0, z: 21 },
   );
-  const ahead: IAutoMovieVector3 = resolveAutoMovieZone(zones, "yard", {
+  const ahead: IAutoMovieVector3 = AutoMovieEngineCompositionZone.resolve(zones, "yard", {
     bearing: 0,
     share: 0.5,
   });
@@ -42,7 +42,7 @@ export function test_engine_composition_resolve_zone(): void {
     "ahead",
     nclose(ahead.x, 10, 1e-12) && nclose(ahead.z, 22, 1e-12),
   );
-  const side: IAutoMovieVector3 = resolveAutoMovieZone(zones, "yard", {
+  const side: IAutoMovieVector3 = AutoMovieEngineCompositionZone.resolve(zones, "yard", {
     bearing: Math.PI / 2,
     share: 1,
   });
@@ -52,16 +52,16 @@ export function test_engine_composition_resolve_zone(): void {
   );
   TestValidator.predicate(
     "zone",
-    throwsError(() => resolveAutoMovieZone(zones, "roof")),
+    throwsError(() => AutoMovieEngineCompositionZone.resolve(zones, "roof")),
   );
   TestValidator.predicate(
     "landmark name",
-    throwsError(() => resolveAutoMovieZone(zones, "yard", "gate")),
+    throwsError(() => AutoMovieEngineCompositionZone.resolve(zones, "yard", "gate")),
   );
   TestValidator.predicate(
     "share",
     throwsError(() =>
-      resolveAutoMovieZone(zones, "yard", { bearing: 0, share: 2 }),
+      AutoMovieEngineCompositionZone.resolve(zones, "yard", { bearing: 0, share: 2 }),
     ),
   );
 }

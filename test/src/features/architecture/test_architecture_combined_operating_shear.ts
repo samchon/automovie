@@ -1,4 +1,4 @@
-import { validateBuiltEnvironment } from "@automovie/engine";
+import { AutoMovieEngineArchitecture } from "@automovie/engine";
 import {
   IAutoMovieBuiltElement,
   IAutoMovieBuiltEnvironment,
@@ -39,7 +39,7 @@ export function test_architecture_combined_operating_shear(): void {
     operatingOpening("parent-opening", parent.id, Math.PI / 2),
     operatingOpening("child-opening", child.id, Math.PI / 4),
   ];
-  const combined: IAutoMovieValidation = validateBuiltEnvironment({
+  const combined: IAutoMovieValidation = AutoMovieEngineArchitecture.validateBuiltEnvironment({
     environment: source,
   });
   TestValidator.predicate(
@@ -59,7 +59,7 @@ export function test_architecture_combined_operating_shear(): void {
     ];
     TestValidator.equals(
       "either alternative alone remains representable",
-      validateBuiltEnvironment({ environment: single }).success,
+      AutoMovieEngineArchitecture.validateBuiltEnvironment({ environment: single }).success,
       true,
     );
   }
@@ -67,7 +67,7 @@ export function test_architecture_combined_operating_shear(): void {
   distant.elements[0]!.transform.translation.x = 1e12;
   distant.openings[0]!.operation!.state = "active";
   distant.openings[1]!.operation!.state = "active";
-  const distantResult: IAutoMovieValidation = validateBuiltEnvironment({
+  const distantResult: IAutoMovieValidation = AutoMovieEngineArchitecture.validateBuiltEnvironment({
     environment: distant,
   });
   TestValidator.predicate(
@@ -83,7 +83,7 @@ export function test_architecture_combined_operating_shear(): void {
   overflow.openings = [];
   overflow.elements[0]!.transform.scale.x = 1e200;
   overflow.elements[1]!.transform.scale.x = 1e200;
-  const overflowResult: IAutoMovieValidation = validateBuiltEnvironment({
+  const overflowResult: IAutoMovieValidation = AutoMovieEngineArchitecture.validateBuiltEnvironment({
     environment: overflow,
   });
   TestValidator.predicate(

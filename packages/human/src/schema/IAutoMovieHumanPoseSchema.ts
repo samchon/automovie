@@ -1,10 +1,12 @@
-import type { IAutoMovieHumanPose } from "@automovie/interface";
+import type {
+  IAutoMovieHumanPair,
+  IAutoMovieHumanPose,
+} from "@automovie/interface";
 
 import type { IAutoMovieHumanArmPoseSchema } from "./IAutoMovieHumanArmPoseSchema";
 import type { IAutoMovieHumanHeadPoseSchema } from "./IAutoMovieHumanHeadPoseSchema";
 import type { IAutoMovieHumanLegPoseSchema } from "./IAutoMovieHumanLegPoseSchema";
 import type { IAutoMovieHumanNeckPoseSchema } from "./IAutoMovieHumanNeckPoseSchema";
-import type { IAutoMovieHumanPairSchema } from "./IAutoMovieHumanPairSchema";
 import type { IAutoMovieHumanPelvisPoseSchema } from "./IAutoMovieHumanPelvisPoseSchema";
 import type { IAutoMovieHumanSpinePoseSchema } from "./IAutoMovieHumanSpinePoseSchema";
 
@@ -17,7 +19,7 @@ export type IAutoMovieHumanPoseSchema = IAutoMovieHumanPose & {
   neck?: IAutoMovieHumanNeckPoseSchema;
 
   /** Shoulder girdle, arm and hand of each side. */
-  arms?: IAutoMovieHumanPairSchema<IAutoMovieHumanArmPoseSchema>;
+  arms?: IAutoMovieHumanPair<IAutoMovieHumanArmPoseSchema>;
 
   /** Thoracic and lumbar spine. */
   spine?: IAutoMovieHumanSpinePoseSchema;
@@ -26,5 +28,5 @@ export type IAutoMovieHumanPoseSchema = IAutoMovieHumanPose & {
   pelvis?: IAutoMovieHumanPelvisPoseSchema;
 
   /** Hip, knee, ankle, foot and toes of each side. */
-  legs?: IAutoMovieHumanPairSchema<IAutoMovieHumanLegPoseSchema>;
+  legs?: IAutoMovieHumanPair<IAutoMovieHumanLegPoseSchema>;
 };

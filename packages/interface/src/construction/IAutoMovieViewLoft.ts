@@ -62,24 +62,27 @@ export namespace IAutoMovieViewLoft {
      * object is shared across results, including early failures; consumers must
      * preserve it.
      */
-    continuity: {
-      /**
-       * C2 for ordinary four-quarter sections; a successfully published chain
-       * with conic-chain stations reports C1 because its joins can have sided
-       * second phase partials. Failure results retain the default C2 label even
-       * when partial chain stations survive.
-       */
-      phase: "C2" | "C1";
-
-      /**
-       * C2 over regular physical stations for ordinary sections, conservatively
-       * C1 for a successfully published chain with moving conic-chain joins.
-       * Failure results retain the default C2 label; no label asserts finite
-       * station derivatives at a collapsed pole.
-       */
-      station: "C2" | "C1";
-    };
+    continuity: IResultContinuity;
   }
+
+  /** The continuity object of {@link IResult}. */
+  export type IResultContinuity = {
+    /**
+     * C2 for ordinary four-quarter sections; a successfully published chain
+     * with conic-chain stations reports C1 because its joins can have sided
+     * second phase partials. Failure results retain the default C2 label even
+     * when partial chain stations survive.
+     */
+    phase: "C2" | "C1";
+
+    /**
+     * C2 over regular physical stations for ordinary sections, conservatively
+     * C1 for a successfully published chain with moving conic-chain joins.
+     * Failure results retain the default C2 label; no label asserts finite
+     * station derivatives at a collapsed pole.
+     */
+    station: "C2" | "C1";
+  };
 
   /** One emitted station. */
   export interface IStation {

@@ -15,29 +15,29 @@ import type {
 import { AutoMovieHumanBodyAnatomy } from "./AutoMovieHumanBodyAnatomy";
 import { AutoMovieHumanLimbSources } from "./AutoMovieHumanLimbSources";
 import { AutoMovieHumanTrunkRows } from "./AutoMovieHumanTrunkRows";
-import { AutoMovieHumanFootInterim } from "./foot/AutoMovieHumanFootInterim";
-import { AutoMovieHumanMassInterim } from "./trunk/AutoMovieHumanMassInterim";
-import { AutoMovieHumanTrunkInterim } from "./trunk/AutoMovieHumanTrunkInterim";
-import { AutoMovieHumanTrunkLaws } from "./trunk/AutoMovieHumanTrunkLaws";
-import { AutoMovieHumanTrunkViews } from "./trunk/AutoMovieHumanTrunkViews";
+import { AutoMovieHumanFootInterim } from "./AutoMovieHumanFootInterim";
+import { AutoMovieHumanMassInterim } from "./AutoMovieHumanMassInterim";
+import { AutoMovieHumanTrunkInterim } from "./AutoMovieHumanTrunkInterim";
+import { AutoMovieHumanTrunkLaws } from "./AutoMovieHumanTrunkLaws";
+import { AutoMovieHumanTrunkViews } from "./AutoMovieHumanTrunkViews";
 
 /**
  * The body lane's input for a person while some of its laws are still owed
  * (#3044's rule for priors the campaign has not yet replaced: read from the
- * construction that produces them today, listed as remaining, never refit).
- * The trunk's owed values come from the old trunk's solve
- * (`AutoMovieHumanTrunkInterim`, `AutoMovieHumanMassInterim`), and the
- * spine joints from the remaining legacy trunk. Limb originals and the full
- * bind skeleton consume the same independent local rest/source owners. The arm, the digits, the foot and the
- * toes take their sections from the person's tapes, the published digit
- * joints and the reference set's outline tables
+ * construction that produces them today, listed as remaining, never refit). The
+ * trunk's owed values come from the old trunk's solve
+ * (`AutoMovieHumanTrunkInterim`, `AutoMovieHumanMassInterim`), and the spine
+ * joints from the remaining legacy trunk. Limb originals and the full bind
+ * skeleton consume the same independent local rest/source owners. The arm, the
+ * digits, the foot and the toes take their sections from the person's tapes,
+ * the published digit joints and the reference set's outline tables
  * (`AutoMovieHumanArmInterim`, `AutoMovieHumanDigitInterim`,
  * `AutoMovieHumanFootInterim`); no old limb chain is read (`log-body.md`).
  *
  * Published values and landed laws are read as they are: the trunk's boxes,
- * heights and back profile (`AutoMovieHumanTrunkViews`, `AutoMovieHumanTrunkLaws`),
- * the leg's tapes, sites, thigh depth and bone place (`AutoMovieHumanLegLaws`),
- * the foot's instep and ball lengths.
+ * heights and back profile (`AutoMovieHumanTrunkViews`,
+ * `AutoMovieHumanTrunkLaws`), the leg's tapes, sites, thigh depth and bone
+ * place (`AutoMovieHumanLegLaws`), the foot's instep and ball lengths.
  */
 export namespace AutoMovieHumanBodyLaneInterim {
   /**
@@ -58,16 +58,16 @@ export namespace AutoMovieHumanBodyLaneInterim {
     // The same input-derived frame places head/S00 and the remaining legacy
     // trunk. A skeletal ankle offset must not be added to its skin priors again.
     const placed: IAutoMovieHumanBodyFrame.IOutput = input.frame;
-    const pending: (
+    function pending(
       upper: IAutoMovieHumanTrunkViewLaws.ILaws["upper"],
-    ) => IAutoMovieHumanTrunkLaws.IPending = (
-      upper: IAutoMovieHumanTrunkViewLaws.ILaws["upper"],
-    ): IAutoMovieHumanTrunkLaws.IPending => ({
-      chest: solution.landmarks.bustPoint[1],
-      cervicale: placed.cervicale,
-      perineum: placed.perineum,
-      upper,
-    });
+    ): IAutoMovieHumanTrunkLaws.IPending {
+      return {
+        chest: solution.landmarks.bustPoint[1],
+        cervicale: placed.cervicale,
+        perineum: placed.perineum,
+        upper,
+      };
+    }
     const laws: IAutoMovieHumanTrunkViewLaws.ILaws = AutoMovieHumanTrunkLaws.of(
       measures,
       input.scale,
@@ -84,19 +84,13 @@ export namespace AutoMovieHumanBodyLaneInterim {
       ),
     );
 
-    const side: (name: "left" | "right") => IAutoMovieHumanBodyLane.ISide = (
-      name: "left" | "right",
-    ): IAutoMovieHumanBodyLane.ISide => {
-      const fold: (
-        from: number,
-        to: number,
-      ) => IAutoMovieHumanBodyLane.IFold = (
-        from: number,
-        to: number,
-      ): IAutoMovieHumanBodyLane.IFold => ({
-        search: { phi: 0, from, to },
-        radius,
-      });
+    function side(name: "left" | "right"): IAutoMovieHumanBodyLane.ISide {
+      function fold(from: number, to: number): IAutoMovieHumanBodyLane.IFold {
+        return {
+          search: { phi: 0, from, to },
+          radius,
+        };
+      }
       return {
         get leg(): IAutoMovieHumanBodyLane.ISide["leg"] {
           const own: ReturnType<IAutoMovieHumanLimbSources.IOutput["leg"]> =
@@ -136,7 +130,7 @@ export namespace AutoMovieHumanBodyLaneInterim {
         },
         toeNames: AutoMovieHumanFootInterim.names(name),
       };
-    };
+    }
 
     const sides: Record<"left" | "right", IAutoMovieHumanBodyLane.ISide> = {
       left: side("left"),

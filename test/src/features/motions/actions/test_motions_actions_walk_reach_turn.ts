@@ -1,6 +1,11 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type { IAutoMovieMotionHumanWalkFoot } from "@automovie/interface";
-import { HumanFoot, walkReach } from "@automovie/motions/internal";
+import {
+  HumanFoot
+} from "../../../../../packages/motions/src/posture/internal/HumanFoot";
+import {
+  walkReach
+} from "../../../../../packages/motions/src/actions/internal/walkReach";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -46,13 +51,13 @@ export function test_motions_actions_walk_reach_turn(): void {
     walkReach.weight(foot(0)) === 1 &&
       nclose(
         walkReach.weight(foot(0, 0.125)),
-        1 - minimumJerk.share(0.5),
+        1 - AutoMovieEngineMotionSampling.minimumJerkShare(0.5),
         ROUNDING,
       ) &&
       walkReach.weight(foot(0, 0.5)) === 0 &&
       nclose(
         walkReach.weight(foot(0, 0.875)),
-        minimumJerk.share(0.5),
+        AutoMovieEngineMotionSampling.minimumJerkShare(0.5),
         ROUNDING,
       ),
   );

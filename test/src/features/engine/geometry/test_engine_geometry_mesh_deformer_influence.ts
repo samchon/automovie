@@ -1,4 +1,4 @@
-import { createAutoMovieMeshDeformer } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieMesh,
   IAutoMovieMeshDeformationField,
@@ -44,7 +44,7 @@ export function test_engine_geometry_mesh_deformer_influence(): void {
     displacement: { x: 0, y: 0, z: 1 },
     stretch: { x: 0, y: 0, z: 0 },
   };
-  const apply = createAutoMovieMeshDeformer([field]);
+  const apply = AutoMovieEngineGeometry.createMeshDeformer([field]);
   const constant = (weight: number): IAutoMovieMeshDeformationInfluence[] =>
     [0, 1, 2].map(() => ({ weight, gradient: { x: 0, y: 0, z: 0 } }));
 
@@ -80,7 +80,7 @@ export function test_engine_geometry_mesh_deformer_influence(): void {
   TestValidator.equals("unit mask", apply(mesh, constant(1)), apply(mesh));
 
   // 3.
-  const reflect = createAutoMovieMeshDeformer([
+  const reflect = AutoMovieEngineGeometry.createMeshDeformer([
     {
       ...field,
       displacement: { x: 0, y: 0, z: 0 },
@@ -108,7 +108,7 @@ export function test_engine_geometry_mesh_deformer_influence(): void {
     );
 
   // 5.
-  const translate = createAutoMovieMeshDeformer([
+  const translate = AutoMovieEngineGeometry.createMeshDeformer([
     {
       ...field,
       radius: { x: 1000, y: 1000, z: 1000 },

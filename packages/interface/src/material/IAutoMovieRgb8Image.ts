@@ -2,7 +2,7 @@
  * Detached RGB8 raster and the caller-declared transfer function of its
  * samples.
  *
- * `decodeAutoMoviePpmImage` admits the dimensions and exact raster extent
+ * `AutoMovieIngestPpmImage.decode` admits the dimensions and exact raster extent
  * before copying P6 bytes. It does not infer or convert transfer functions.
  * Recovery hosts consume sRGB rasters and attach their own source identity and
  * calibration; this image alone proves neither calibration nor source-byte

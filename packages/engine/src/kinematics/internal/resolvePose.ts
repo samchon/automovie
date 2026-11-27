@@ -1,0 +1,177 @@
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  IAutoMovieJointAxes,
+  IAutoMoviePose,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieRestFrame,
+  IAutoMovieSkeleton,
+  IAutoMovieSkeletonTopology,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
+import { AutoMovieEngineSkeletonRootParent } from "../AutoMovieEngineSkeletonRootParent";
+import { indexSkeletonTopologyChildren } from "./indexSkeletonTopologyChildren";
+import { jointToQuaternion } from "./jointToQuaternion";
+import { AutoMovieEngineKinematics } from "../AutoMovieEngineKinematics";
+import { resolvePoseBone } from "./resolvePoseBone";
+import { skeletonJointAxes } from "./skeletonJointAxes";
+
+/*
+ * Forward kinematics: resolve a pose against its skeleton into one transform
+ * per bone.
+ *
+ * Each bone's local rotation is its rest rotation composed with the pose's
+ * articulation (jointToQuaternion); its world rotation is the parent's
+ * world rotation times that, and its world position is the parent's position
+ * plus the rest translation turned by the parent's world rotation. Rest scale
+ * is not applied. The walk starts at the pose's `root` transform, or the origin
+ * with identity rotation when it is `null`, and visits parents before children,
+ * so the result lists bones in that order. The renderer uses `localRotation`;
+ * validators and solvers use the world fields.
+ *
+ * Only bones reachable from a null-parent root are resolved. A bone with an
+ * undeclared parent, in a detached subtree or in a parent cycle is omitted, and
+ * a skeleton without a root resolves to an empty array; callers that need a
+ * bone gate on reachableBoneNames, which reports the same set. A joint
+ * for an undeclared or unreachable bone contributes no transform, but every
+ * authored record is still admitted in order; a repeated bone takes the later
+ * joint. An optional requested set returns only its reachable bones and
+ * computes their ancestors, pruning unrelated subtrees after admission.
+ * Parameter pose: Joint angles and root transform to resolve.
+ * Parameter skeleton: Rig the pose articulates.
+ * Parameter jointAxes: Per-bone clinical axes, such as `AutoMovieEngineHumanoidJointAxes`, for
+ * the bones that declare none of their own (skeletonJointAxes); a bone
+ * in neither uses the default basis.
+ * Parameter restFrames: Per-bone rest frames that read the joint angles as
+ * clinical, such as `AutoMovieEngineHumanoidRestFrame`; an absent bone reads its angles as
+ * rest-relative.
+ * Parameter topology: Index of the same, unchanged skeleton from
+ * AutoMovieEngineKinematics.indexSkeletonTopology, reused across poses; omitted, one is built
+ * for this call.
+ * Parameter prepared: Optional operation-owned raw FK adapter; it shares pure
+ * exact-angle factors while preserving every current input read and fresh
+ * returned transform.
+ * Parameter requested: Optional output bone set; omitted, resolve every reachable
+ * bone. Ancestors are computed internally and need not be requested.
+ */
+export const resolvePose: (
+  pose: IAutoMoviePose,
+  skeleton: IAutoMovieSkeleton,
+  jointAxes?:
+    | Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>
+    | undefined,
+  restFrames?:
+    | Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>
+    | undefined,
+  topology?: IAutoMovieSkeletonTopology,
+  prepared?: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution>,
+  requested?: ReadonlySet<string>,
+) => IAutoMovieResolvedBone[] = (
+  pose: IAutoMoviePose,
+  skeleton: IAutoMovieSkeleton,
+  jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>,
+  restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>,
+  topology?: IAutoMovieSkeletonTopology,
+  prepared?: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution>,
+  requested?: ReadonlySet<string>,
+): IAutoMovieResolvedBone[] => {
+  const childrenByParent: IAutoMovieSkeletonTopology["childrenByParent"] =
+    topology?.childrenByParent ?? indexSkeletonTopologyChildren(skeleton);
+  const axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> =
+    skeletonJointAxes(skeleton, jointAxes);
+  const articulation: Map<AutoMovieHumanoidBone, IAutoMovieQuaternion> =
+    new Map();
+  for (const j of pose.joints)
+    articulation.set(
+      j.bone,
+      prepared === undefined
+        ? jointToQuaternion(j, axes[j.bone], restFrames?.[j.bone])
+        : prepared.joint(j, axes[j.bone], restFrames?.[j.bone]),
+    );
+
+  const resolved: IAutoMovieResolvedBone[] = [];
+  let missingArticulation: IAutoMovieQuaternion | undefined;
+  const required: ReadonlySet<string> | undefined =
+    requested === undefined ? undefined : ancestorClosure(skeleton, requested);
+
+  // The walk receives the bone object directly (the children map already holds
+  // it), so there is no name→bone lookup during the descent.
+  const walk: (
+    bone: IAutoMovieBone,
+    parentWorldRot: IAutoMovieQuaternion,
+    parentWorldPos: IAutoMovieVector3,
+  ) => void = (
+    bone: IAutoMovieBone,
+    parentWorldRot: IAutoMovieQuaternion,
+    parentWorldPos: IAutoMovieVector3,
+  ): void => {
+    if (required !== undefined && !required.has(bone.bone)) return;
+    let art: IAutoMovieQuaternion | undefined = articulation.get(bone.bone);
+    if (art === undefined) {
+      missingArticulation ??=
+        prepared === undefined ? IDENTITY : AutoMovieEngineQuaternion.identity();
+      art = missingArticulation;
+    }
+    const reading: IAutoMovieResolvedBone =
+      prepared === undefined
+        ? resolvePoseBone(bone, parentWorldRot, parentWorldPos, art)
+        : prepared.bone(bone, parentWorldRot, parentWorldPos, art);
+    if (requested === undefined || requested.has(bone.bone))
+      resolved.push(reading);
+
+    const children: readonly IAutoMovieBone[] | undefined =
+      childrenByParent.get(bone.bone);
+    if (children !== undefined && children !== null)
+      for (const child of children)
+        walk(child, reading.worldRotation, reading.worldPosition);
+  };
+
+  const rootTranslation: IAutoMovieVector3 =
+    pose.root?.translation ??
+    (prepared === undefined ? ORIGIN : AutoMovieEngineVector3.create(0, 0, 0));
+  const rootRotation: IAutoMovieQuaternion =
+    pose.root?.rotation ??
+    (prepared === undefined ? IDENTITY : AutoMovieEngineQuaternion.identity());
+  const roots: readonly IAutoMovieBone[] | undefined =
+    childrenByParent.get(AutoMovieEngineSkeletonRootParent);
+  if (roots !== undefined && roots !== null)
+    for (const root of roots) walk(root, rootRotation, rootTranslation);
+
+  return resolved;
+};
+
+/*
+ * Only the direct pure FK path borrows these defaults; no callback or output
+ * receives them.
+ */
+const IDENTITY: IAutoMovieQuaternion = AutoMovieEngineQuaternion.identity();
+
+/*
+ * Model-frame origin for the same direct pure path.
+ */
+const ORIGIN: IAutoMovieVector3 = AutoMovieEngineVector3.create(0, 0, 0);
+
+/*
+ * Include each demanded bone's parents so ordinary FK can prune unrelated
+ * subtrees.
+ */
+function ancestorClosure(
+  skeleton: IAutoMovieSkeleton,
+  requested: ReadonlySet<string>,
+): ReadonlySet<string> {
+  const parents: Map<string, AutoMovieHumanoidBone | null> = new Map();
+  for (const bone of skeleton.bones) parents.set(bone.bone, bone.parent);
+  const required: Set<string> = new Set();
+  for (const name of requested) {
+    let bone: string | null | undefined = name;
+    while (bone !== null && bone !== undefined && !required.has(bone)) {
+      required.add(bone);
+      bone = parents.get(bone);
+    }
+  }
+  return required;
+}

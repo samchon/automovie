@@ -1,7 +1,7 @@
 /**
  * Ordered generating polyline in model-local metres, published by support-loft
  * emission and recovery and borrowed by construction display. Closed paths omit
- * the repeated first point. buildAutoMovieConstruction additionally requires
+ * the repeated first point. buildConstruction additionally requires
  * unique nonempty ids, finite float32-representable coordinates and at least
  * two open or three closed points within its point budget; it draws supplied
  * samples without refitting. Emitted curves can share point tuples at common

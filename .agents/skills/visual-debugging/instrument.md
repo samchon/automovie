@@ -27,8 +27,9 @@ Refuse unsupported mark kinds before drawing. Give each kind a distinct color an
 A view is one of three things:
 
 - the subject's delivery camera;
-- a fixed camera given by a point and its target, optionally orthographic at a stated scale and with a stated roll;
-- a name, either one of the subject's own views or a named direction fitted to what is drawn.
+- a fixed camera given by its point and target
+  - An orthographic camera may specify scale and roll.
+- a subject's own view name or a named direction fitted to the drawing
 
 A named direction may be orthographic for scale-true lengths, and may frame only a selected part or only the flagged marks.
 
@@ -78,9 +79,9 @@ Sample the video itself. Detect cuts at the configured FFmpeg threshold (default
 
 | Capability | Reason |
 | --- | --- |
-| Field shades and raking light rigs | Coarse models are judged by silhouette and construction |
+| Field shades and raking lights | Coarse form by silhouette and structure |
 | Ghost poses | Use time-ordered stills and trails |
-| Round comparison inside the page | The capture writes comparison sheets, which are read as stills |
+| In-page comparison | The capture writes sheets for still inspection |
 | Sound | Outside the product's scope for 3D hints |
 
 Supply skin weights, UVs and curvature as marks when needed under [form inspection](../3d-modeling/inspection.md#fields-judged-only-where-needed).

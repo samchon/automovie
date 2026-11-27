@@ -3,8 +3,8 @@ export namespace IAutoMovieWorldHeightfield {
   /** Bake a supplied height callback into a row-major terrain lattice. */
   export type IInput = {
     /**
-     * Surface identity containing non-whitespace text; worldHeightfield rejects
-     * blank input and preserves the original spelling.
+     * Surface identity containing non-whitespace text. Baking preserves its
+     * spelling.
      */
     id: string;
     /**
@@ -22,23 +22,13 @@ export namespace IAutoMovieWorldHeightfield {
      * Finite world XZ position of lattice column zero, row zero. The
      * constructor checks both coordinates before invoking height.
      */
-    origin: {
-      /** World X in metres at column zero. */
-      x: number;
-      /** World Z in metres at row zero. */
-      z: number;
-    };
+    origin: IInputOrigin;
     /**
      * Strictly positive finite axis pitches in metres. Individually admitted
      * pitches and dimensions do not guarantee representable derived
      * coordinates.
      */
-    spacing: {
-      /** Metres per column in the positive world X direction. */
-      x: number;
-      /** Metres per row in the positive world Z direction. */
-      z: number;
-    };
+    spacing: IInputSpacing;
     /**
      * Safe integer at least two. Each row contains this many samples; the
      * product with rows has no separate allocation budget here.
@@ -65,5 +55,21 @@ export namespace IAutoMovieWorldHeightfield {
      * slope does not infer or override it.
      */
     walkable: boolean;
+  };
+
+  /** The spacing object of {@link IInput}. */
+  export type IInputSpacing = {
+    /** Metres per column in the positive world X direction. */
+    x: number;
+    /** Metres per row in the positive world Z direction. */
+    z: number;
+  };
+
+  /** The origin object of {@link IInput}. */
+  export type IInputOrigin = {
+    /** World X in metres at column zero. */
+    x: number;
+    /** World Z in metres at row zero. */
+    z: number;
   };
 }

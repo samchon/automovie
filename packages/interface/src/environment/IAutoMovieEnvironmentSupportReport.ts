@@ -37,7 +37,7 @@ export namespace IAutoMovieEnvironmentSupportReport {
      */
     buildings?: readonly IBuilding[];
 
-    /** Contact slack in metres. Defaults to `AUTOMOVIE_SUPPORT_TOLERANCE`. */
+    /** Contact slack in metres. Defaults to `AutoMovieEngineSupportTolerance`. */
     tolerance?: number;
   };
 

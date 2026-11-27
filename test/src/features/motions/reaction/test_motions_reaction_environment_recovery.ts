@@ -1,4 +1,6 @@
-import { environmentRecoveryCue } from "@automovie/motions/internal";
+import {
+  environmentRecoveryCue
+} from "../../../../../packages/motions/src/reaction/internal/environmentRecoveryCue";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

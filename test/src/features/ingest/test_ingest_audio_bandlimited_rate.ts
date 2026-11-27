@@ -1,4 +1,4 @@
-import { decodeProductionAudioAsset } from "@automovie/ingest";
+import { AutoMovieIngestAudio } from "@automovie/ingest";
 import { TestValidator } from "@nestia/e2e";
 
 import { createDialogueReceiptFixture } from "../internal/createDialogueReceiptFixture";
@@ -34,7 +34,7 @@ export function test_ingest_audio_bandlimited_rate(): void {
       sampleRate: 24_000,
     });
   const decode: () => Float32Array = (): Float32Array =>
-    decodeProductionAudioAsset({
+    AutoMovieIngestAudio.decodeAsset({
       path: "tone.wav",
       bytes: pcm,
       sampleRate: 48_000,

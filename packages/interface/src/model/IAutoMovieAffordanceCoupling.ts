@@ -7,12 +7,12 @@
  * spatial transforms, so a screw's rotation can drive the slider its handle
  * rides. A `ratio` is any finite number, negative for a follower that turns
  * against its leader; every travel it gives over the leader's range lies in the
- * follower's own range. A `table` lists `[leader, follower]` pairs, each in the
- * travel unit of its articulation's kind, the leader's travels strictly
- * increasing from the least of its range to the greatest, and every follower's
- * travel inside the follower's range; between pairs the follower's travel is
- * interpolated linearly. A table need not be monotone: a pistol's hammer falls
- * as its slide returns. With `reversible: true`, a state may instead name this
+ * follower's own range. A `table` lists points with `leader` strictly
+ * increasing from the least of its range to the greatest, and `follower`
+ * staying within its own range. Each field uses its articulation kind's travel
+ * unit; between points the follower's travel is interpolated linearly. A table
+ * need not be monotone: a pistol's hammer falls as its slide returns. With
+ * `reversible: true`, a state may instead name this
  * follower: the ratio must be nonzero, or the table's outputs strictly
  * monotone, so its leader travel is unique. A state names only one input per
  * coupled degree of freedom; redundant or conflicting inputs are refused.
@@ -41,10 +41,10 @@ export type IAutoMovieAffordanceCoupling =
       id: string;
 
       /**
-       * `[leader, follower]` travel pairs, the leader's strictly increasing
-       * over its whole range.
+       * Travel points with `leader` strictly increasing over its whole range;
+       * each value uses its articulation kind's travel unit.
        */
-      table: [number, number][];
+      table: IAutoMovieAffordanceCoupling.IPoint[];
 
       /** A table is not a ratio. */
       ratio?: never;
@@ -56,3 +56,14 @@ export type IAutoMovieAffordanceCoupling =
        */
       reversible?: boolean;
     };
+
+export namespace IAutoMovieAffordanceCoupling {
+  /** One leader and follower travel point in their respective kind units. */
+  export interface IPoint {
+    /** Travel of the leader articulation, in its kind's unit. */
+    leader: number;
+
+    /** Travel of the follower articulation, in its kind's unit. */
+    follower: number;
+  }
+}

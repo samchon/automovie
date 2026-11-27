@@ -1,4 +1,4 @@
-import { worldRamp } from "@automovie/engine";
+import { AutoMovieEngineWorld } from "@automovie/engine";
 import type {
   IAutoMovieWorldRamp,
   IAutoMovieWorldSurface,
@@ -34,7 +34,7 @@ export function test_engine_space_world_ramp(): void {
     rise: 2,
     walkable: true,
   };
-  const ramp: IAutoMovieWorldSurface = worldRamp(input);
+  const ramp: IAutoMovieWorldSurface = AutoMovieEngineWorld.ramp(input);
   const corners: readonly (readonly [number, number])[] = [
     [-6, -4],
     [-6, 4],
@@ -56,7 +56,7 @@ export function test_engine_space_world_ramp(): void {
       nclose(ramp.height.originHeight, 1, 0),
   );
   for (const span of [2 ** -800, 2 ** 800]) {
-    const extreme: IAutoMovieWorldSurface = worldRamp({
+    const extreme: IAutoMovieWorldSurface = AutoMovieEngineWorld.ramp({
       ...input,
       from: { x: 0, z: 0 },
       to: { x: span, z: 0 },
@@ -85,7 +85,7 @@ export function test_engine_space_world_ramp(): void {
     TestValidator.predicate(
       label,
       throwsError(
-        () => worldRamp({ ...input, ...overrides }),
+        () => AutoMovieEngineWorld.ramp({ ...input, ...overrides }),
         "requires finite distinct endpoints",
       ),
     );
@@ -99,7 +99,7 @@ export function test_engine_space_world_ramp(): void {
     TestValidator.predicate(
       label,
       throwsError(
-        () => worldRamp({ ...input, ...overrides }),
+        () => AutoMovieEngineWorld.ramp({ ...input, ...overrides }),
         "requires representable footprint",
       ),
     );

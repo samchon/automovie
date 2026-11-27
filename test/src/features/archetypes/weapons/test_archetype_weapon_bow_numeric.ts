@@ -1,11 +1,4 @@
-import {
-  type AutoMovieArchetype,
-  AutoMovieArchetypeBuilder,
-  AutoMovieArchetypeDrawSession,
-  AutoMovieArchetypeFrame,
-  AutoMovieArchetypeRefusal,
-  createBow,
-} from "@automovie/archetypes";
+import { type AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame, AutoMovieArchetypeRefusal, AutoMovieArchetypeBow } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -46,10 +39,10 @@ import { TestValidator } from "@nestia/e2e";
 export function test_archetype_weapon_bow_numeric(): void {
   const findings: string[] = [];
   for (const kind of ["longbow", "recurve", "horseBow"] as const) {
-    const bow: ReturnType<typeof createBow> = createBow({ kind });
+    const bow: ReturnType<typeof AutoMovieArchetypeBow.create> = AutoMovieArchetypeBow.create({ kind });
     const stroke: number = bow.affordance("string").travel!;
     for (const mass of [0, -1, Number.NaN, Infinity, -Infinity])
-      if (!refuses((): number => createBow.launchSpeed(bow, mass, 0), "mass"))
+      if (!refuses((): number => AutoMovieArchetypeBow.launchSpeed(bow, mass, 0), "mass"))
         findings.push(`${kind}: invalid arrow mass ${mass} was accepted`);
     for (const travel of [
       -Number.MIN_VALUE,
@@ -60,22 +53,22 @@ export function test_archetype_weapon_bow_numeric(): void {
     ])
       if (
         !refuses(
-          (): number => createBow.launchSpeed(bow, 0.02, travel),
+          (): number => AutoMovieArchetypeBow.launchSpeed(bow, 0.02, travel),
           "travel",
         )
       )
         findings.push(`${kind}: invalid string travel ${travel} was accepted`);
-    if (createBow.launchSpeed(bow, 0.02, 0) !== 0)
+    if (AutoMovieArchetypeBow.launchSpeed(bow, 0.02, 0) !== 0)
       findings.push(`${kind}: brace does not have exactly zero speed`);
     for (const mass of [Number.MIN_VALUE, 0.02, Number.MAX_VALUE]) {
-      const speed: number = createBow.launchSpeed(bow, mass, stroke);
+      const speed: number = AutoMovieArchetypeBow.launchSpeed(bow, mass, stroke);
       if (!(speed > 0))
         findings.push(
           `${kind}: positive arrow mass ${mass} lost a finite positive speed`,
         );
     }
   }
-  const bow: ReturnType<typeof createBow> = createBow({ kind: "recurve" });
+  const bow: ReturnType<typeof AutoMovieArchetypeBow.create> = AutoMovieArchetypeBow.create({ kind: "recurve" });
   const stroke: number = bow.affordance("string").travel!;
   const virtual: number = (0.02 * (1 - 0.765)) / 0.765;
   for (const tiny of [1e-134, 1e-200]) {
@@ -85,7 +78,7 @@ export function test_archetype_weapon_bow_numeric(): void {
         Math.sqrt(stroke)) /
         Math.sqrt(0.02 + virtual)) *
       (tiny / stroke) ** (1 / (2 * 0.426));
-    const speed: number = createBow.launchSpeed(bow, 0.02, tiny);
+    const speed: number = AutoMovieArchetypeBow.launchSpeed(bow, 0.02, tiny);
     if (!(expected > 0 && speed > 0 && Math.abs(speed / expected - 1) <= 1e-12))
       findings.push(
         `representable speed at travel ${tiny} lost energy-first precision`,
@@ -97,18 +90,18 @@ export function test_archetype_weapon_bow_numeric(): void {
   ] as const) {
     const expected: number =
       (Math.sqrt(2 * 0.426) * Math.sqrt(force)) / Math.sqrt(mass + virtual);
-    const speed: number = createBow.launchSpeed(metadata(force), mass, 1);
+    const speed: number = AutoMovieArchetypeBow.launchSpeed(metadata(force), mass, 1);
     if (!(speed > 0 && Math.abs(speed / expected - 1) <= 1e-12))
       findings.push(
         "a representable extreme full-draw speed was lost to radicand scale",
       );
-    if (createBow.launchSpeed(metadata(force), mass, 0) !== 0)
+    if (AutoMovieArchetypeBow.launchSpeed(metadata(force), mass, 0) !== 0)
       findings.push("an extreme finite draw force did not preserve brace zero");
   }
   for (const draw of [undefined, 0, -1, Number.NaN, Infinity, -Infinity])
     if (
       !refuses(
-        (): number => createBow.launchSpeed(metadata(draw), 0.02, 0.5),
+        (): number => AutoMovieArchetypeBow.launchSpeed(metadata(draw), 0.02, 0.5),
         "draw",
       )
     )
@@ -116,18 +109,18 @@ export function test_archetype_weapon_bow_numeric(): void {
 
   for (const value of [0, -1, Number.NaN, Infinity, -Infinity]) {
     if (
-      !refuses((): [number, number][] => createBow.limbs(value, 4, 1), "half")
+      !refuses((): [number, number][] => AutoMovieArchetypeBow.limbs(value, 4, 1), "half")
     )
       findings.push(`invalid limb length ${value} was accepted`);
     if (
-      !refuses((): [number, number][] => createBow.limbs(3, value, 1), "brace")
+      !refuses((): [number, number][] => AutoMovieArchetypeBow.limbs(3, value, 1), "brace")
     )
       findings.push(`invalid brace length ${value} was accepted`);
   }
   for (const travel of [-1, 5, Number.NaN, Infinity, -Infinity])
     if (
       !refuses(
-        (): [number, number][] => createBow.limbs(3, 4, travel),
+        (): [number, number][] => AutoMovieArchetypeBow.limbs(3, 4, travel),
         "travel",
       )
     )
@@ -141,15 +134,15 @@ export function test_archetype_weapon_bow_numeric(): void {
   ] as const)
     if (
       !refuses(
-        (): [number, number][] => createBow.limbs(half, brace, travel),
+        (): [number, number][] => AutoMovieArchetypeBow.limbs(half, brace, travel),
         "geometry",
       )
     )
       findings.push("unrepresentable limb/nock geometry emitted a table");
-  const neutral: [number, number][] = createBow.limbs(3, 4, 0);
+  const neutral: [number, number][] = AutoMovieArchetypeBow.limbs(3, 4, 0);
   if (neutral.length !== 1 || neutral[0]?.[0] !== 0 || neutral[0]?.[1] !== 0)
     findings.push("zero stroke did not have exactly one neutral row");
-  const tangent: [number, number][] = createBow.limbs(3, 4, 4);
+  const tangent: [number, number][] = AutoMovieArchetypeBow.limbs(3, 4, 4);
   const last: [number, number] | undefined = tangent[tangent.length - 1];
   if (
     !(
@@ -159,7 +152,7 @@ export function test_archetype_weapon_bow_numeric(): void {
     )
   )
     findings.push("the 3-4-5 triangle's tangent endpoint has the wrong turn");
-  const small: [number, number][] = createBow.limbs(3e-200, 4e-200, 1e-200);
+  const small: [number, number][] = AutoMovieArchetypeBow.limbs(3e-200, 4e-200, 1e-200);
   const smallLast: [number, number] | undefined = small[small.length - 1];
   const smallExpected: number =
     ((Math.asin(41 / 50) - Math.atan2(4, 3)) * 180) / Math.PI;
@@ -174,7 +167,7 @@ export function test_archetype_weapon_bow_numeric(): void {
       "the finite small triangle lost its angle to squared-length underflow",
     );
   const scale: number = 2 ** -700;
-  const scaledTangent: [number, number][] = createBow.limbs(
+  const scaledTangent: [number, number][] = AutoMovieArchetypeBow.limbs(
     3 * scale,
     4 * scale,
     4 * scale,
@@ -195,7 +188,7 @@ export function test_archetype_weapon_bow_numeric(): void {
     [1, 2 ** -600],
     [2 ** 50, 1],
   ] as const) {
-    const narrowRows: [number, number][] = createBow.limbs(half, brace, brace);
+    const narrowRows: [number, number][] = AutoMovieArchetypeBow.limbs(half, brace, brace);
     const narrowLast: [number, number] | undefined =
       narrowRows[narrowRows.length - 1];
     const narrowExpected: number = ((brace / half / 4) * 180) / Math.PI;
@@ -225,13 +218,13 @@ export function test_archetype_weapon_bow_numeric(): void {
   /** A public producer fixture isolates declared force without mutating a bow. */
   function metadata(
     force: number | undefined,
-  ): AutoMovieArchetype<createBow.Affordance, createBow.Dimension> {
-    const draw: AutoMovieArchetypeDrawSession<createBow.Dimension> =
-      new AutoMovieArchetypeDrawSession("bow", createBow.UNITS, undefined, {});
+  ): AutoMovieArchetype<AutoMovieArchetypeBow.Affordance, AutoMovieArchetypeBow.Dimension> {
+    const draw: AutoMovieArchetypeDrawSession<AutoMovieArchetypeBow.Dimension> =
+      new AutoMovieArchetypeDrawSession("bow", AutoMovieArchetypeBow.UNITS, undefined, {});
     if (force !== undefined) draw.derive("draw", force);
     return new AutoMovieArchetypeBuilder<
-      createBow.Affordance,
-      createBow.Dimension
+      AutoMovieArchetypeBow.Affordance,
+      AutoMovieArchetypeBow.Dimension
     >({
       name: "bow force fixture",
       material: "composite",

@@ -1,4 +1,4 @@
-import { propAnchorFrame, propBlockedPassages } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieBuiltElement,
   IAutoMovieBuiltSurface,
@@ -29,7 +29,7 @@ export function assertFilmPropPassagesAndAnchors(
         [
           "filledOpeningIsBlocked",
           (): boolean =>
-            propBlockedPassages({
+            AutoMovieEngineFilm.propBlockedPassages({
               environment,
               bounds: box(3.9, 0.5, -0.02, 4.1, 1.5, 0.02),
             }).some(
@@ -40,7 +40,7 @@ export function assertFilmPropPassagesAndAnchors(
         [
           "sweptConnectorIsBlocked",
           (): boolean =>
-            propBlockedPassages({
+            AutoMovieEngineFilm.propBlockedPassages({
               environment,
               bounds: box(-4.6, 0.5, -3.1, -4.4, 1.5, -2.9),
             }).some(
@@ -51,7 +51,7 @@ export function assertFilmPropPassagesAndAnchors(
         [
           "openCutIsNeverBlocked",
           (): boolean =>
-            propBlockedPassages({
+            AutoMovieEngineFilm.propBlockedPassages({
               environment,
               bounds: box(3.9, 0.5, -0.02, 4.1, 1.5, 0.02),
             }).length === 1,
@@ -59,7 +59,7 @@ export function assertFilmPropPassagesAndAnchors(
         [
           "unmodelledFillIsNeverBlocked",
           (): boolean =>
-            propBlockedPassages({
+            AutoMovieEngineFilm.propBlockedPassages({
               environment: { ...environment, models: [] },
               bounds: box(3.9, 0.5, -0.02, 4.1, 1.5, 0.02),
             }).length === 0,
@@ -67,7 +67,7 @@ export function assertFilmPropPassagesAndAnchors(
         [
           "unresolvedFillIsNeverBlocked",
           (): boolean =>
-            propBlockedPassages({
+            AutoMovieEngineFilm.propBlockedPassages({
               environment: {
                 ...environment,
                 elements: environment.elements.filter(
@@ -81,7 +81,7 @@ export function assertFilmPropPassagesAndAnchors(
         [
           "degenerateRouteSweepsNothing",
           (): boolean =>
-            propBlockedPassages({
+            AutoMovieEngineFilm.propBlockedPassages({
               environment: {
                 ...environment,
                 connectors: [
@@ -97,7 +97,7 @@ export function assertFilmPropPassagesAndAnchors(
         [
           "clearOfEverythingBlocksNothing",
           (): boolean =>
-            propBlockedPassages({
+            AutoMovieEngineFilm.propBlockedPassages({
               environment,
               bounds: box(0, 0, 0, 0.1, 0.1, 0.1),
             }).length === 0,
@@ -105,7 +105,7 @@ export function assertFilmPropPassagesAndAnchors(
         [
           "spaceHasNoFrame",
           (): boolean =>
-            propAnchorFrame({
+            AutoMovieEngineFilm.propAnchorFrame({
               target: { kind: "space", environment: "house", space: "room" },
               environments: [environment],
             }) === null,
@@ -114,7 +114,7 @@ export function assertFilmPropPassagesAndAnchors(
           "elementFrameIsItsWorldTransform",
           (): boolean =>
             vclose(
-              propAnchorFrame({
+              AutoMovieEngineFilm.propAnchorFrame({
                 target: {
                   kind: "element",
                   environment: "house",
@@ -129,7 +129,7 @@ export function assertFilmPropPassagesAndAnchors(
           "boundaryFrameIsItsFirstElement",
           (): boolean =>
             vclose(
-              propAnchorFrame({
+              AutoMovieEngineFilm.propAnchorFrame({
                 target: {
                   kind: "boundary",
                   environment: "house",
@@ -144,7 +144,7 @@ export function assertFilmPropPassagesAndAnchors(
           "openingFrameIsItsFill",
           (): boolean =>
             vclose(
-              propAnchorFrame({
+              AutoMovieEngineFilm.propAnchorFrame({
                 target: {
                   kind: "opening",
                   environment: "house",
@@ -159,7 +159,7 @@ export function assertFilmPropPassagesAndAnchors(
           "anchoredSurfaceFrameIsItsCentroid",
           (): boolean =>
             vclose(
-              propAnchorFrame({
+              AutoMovieEngineFilm.propAnchorFrame({
                 target: {
                   kind: "surface",
                   environment: "house",
@@ -174,7 +174,7 @@ export function assertFilmPropPassagesAndAnchors(
           "ruledSurfaceFrameReadsItsHeightRule",
           (): boolean =>
             vclose(
-              propAnchorFrame({
+              AutoMovieEngineFilm.propAnchorFrame({
                 target: {
                   kind: "surface",
                   environment: "house",
@@ -189,7 +189,7 @@ export function assertFilmPropPassagesAndAnchors(
           "affordanceFrameRidesItsStagedProp",
           (): boolean =>
             vclose(
-              propAnchorFrame({
+              AutoMovieEngineFilm.propAnchorFrame({
                 target: {
                   kind: "prop-affordance",
                   prop: "table",
@@ -338,7 +338,7 @@ export function assertFilmPropPassagesAndAnchors(
                       };
                     },
               ): boolean =>
-                propAnchorFrame({
+                AutoMovieEngineFilm.propAnchorFrame({
                   target: probe.target,
                   environments: [environment],
                   props: propRegistry(),
@@ -349,7 +349,7 @@ export function assertFilmPropPassagesAndAnchors(
         [
           "unstagedAffordanceAnswersNull",
           (): boolean =>
-            propAnchorFrame({
+            AutoMovieEngineFilm.propAnchorFrame({
               target: {
                 kind: "prop-affordance",
                 prop: "table",
@@ -362,7 +362,7 @@ export function assertFilmPropPassagesAndAnchors(
         [
           "unregisteredPropsAnswerNull",
           (): boolean =>
-            propAnchorFrame({
+            AutoMovieEngineFilm.propAnchorFrame({
               target: {
                 kind: "prop-affordance",
                 prop: "table",
@@ -404,7 +404,7 @@ export function assertFilmPropPassagesAndAnchors(
                       readonly opening: "doorway";
                     },
               ): boolean =>
-                propAnchorFrame({
+                AutoMovieEngineFilm.propAnchorFrame({
                   target,
                   environments: [
                     {
@@ -425,7 +425,7 @@ export function assertFilmPropPassagesAndAnchors(
         [
           "emptyPolygonSurfaceAnswersNull",
           (): boolean =>
-            propAnchorFrame({
+            AutoMovieEngineFilm.propAnchorFrame({
               target: {
                 kind: "surface",
                 environment: "house",

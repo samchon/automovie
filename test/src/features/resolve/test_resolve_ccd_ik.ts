@@ -1,4 +1,4 @@
-import { Matrix4, resolveWorldDrivers } from "@automovie/engine";
+import { AutoMovieEngineMatrix4, AutoMovieEngineResolve } from "@automovie/engine";
 import {
   IAutoMovieDriver,
   IAutoMovieIKDriver,
@@ -16,7 +16,7 @@ import {
 const W: (p: IAutoMovieVector3) => number[] = (
   p: IAutoMovieVector3,
 ): number[] =>
-  Matrix4.compose(p, { x: 0, y: 0, z: 0, w: 1 }, { x: 1, y: 1, z: 1 });
+  AutoMovieEngineMatrix4.compose(p, { x: 0, y: 0, z: 0, w: 1 }, { x: 1, y: 1, z: 1 });
 
 const ccd: (over: Partial<IAutoMovieIKDriver>) => IAutoMovieIKDriver = (
   over: Partial<IAutoMovieIKDriver>,
@@ -45,7 +45,7 @@ const bentWorld: (goal: IAutoMovieVector3) => Map<string, number[]> = (
 const at: (world: Map<string, number[]>, id: string) => IAutoMovieVector3 = (
   world: Map<string, number[]>,
   id: string,
-): IAutoMovieVector3 => Matrix4.position(world.get(id)!);
+): IAutoMovieVector3 => AutoMovieEngineMatrix4.position(world.get(id)!);
 
 const dist: (a: IAutoMovieVector3, b: IAutoMovieVector3) => number = (
   a: IAutoMovieVector3,
@@ -87,7 +87,7 @@ const dist: (a: IAutoMovieVector3, b: IAutoMovieVector3) => number = (
 export function test_resolve_ccd_ik(): void {
   // 1. reachable goal converges, lengths preserved
   const w1: Map<string, number[]> = bentWorld({ x: 1.2, y: 0.5, z: 0 });
-  resolveWorldDrivers([ccd({})], w1, new Map(), new Map());
+  AutoMovieEngineResolve.resolveWorldDrivers([ccd({})], w1, new Map(), new Map());
   TestValidator.predicate(
     "tip converges onto the goal",
     dist(at(w1, "t"), { x: 1.2, y: 0.5, z: 0 }) <= 1e-3,
@@ -103,7 +103,7 @@ export function test_resolve_ccd_ik(): void {
 
   // 2. determinism
   const w2: Map<string, number[]> = bentWorld({ x: 1.2, y: 0.5, z: 0 });
-  resolveWorldDrivers([ccd({})], w2, new Map(), new Map());
+  AutoMovieEngineResolve.resolveWorldDrivers([ccd({})], w2, new Map(), new Map());
   TestValidator.predicate(
     "deterministic mid",
     vclose(at(w1, "m"), at(w2, "m"), 0),
@@ -115,7 +115,7 @@ export function test_resolve_ccd_ik(): void {
 
   // 3. unreachable goal → full extension toward it
   const w3: Map<string, number[]> = bentWorld({ x: 0, y: 5, z: 0 });
-  resolveWorldDrivers([ccd({})], w3, new Map(), new Map());
+  AutoMovieEngineResolve.resolveWorldDrivers([ccd({})], w3, new Map(), new Map());
   TestValidator.predicate(
     "unreachable goal fully extends the chain",
     dist(at(w3, "t"), { x: 0, y: 2, z: 0 }) <= 1e-2,
@@ -137,7 +137,7 @@ export function test_resolve_ccd_ik(): void {
 
   // 4. influence 0.5 = halfway between original and solved tip
   const w4: Map<string, number[]> = bentWorld({ x: 1.2, y: 0.5, z: 0 });
-  resolveWorldDrivers([ccd({ influence: 0.5 })], w4, new Map(), new Map());
+  AutoMovieEngineResolve.resolveWorldDrivers([ccd({ influence: 0.5 })], w4, new Map(), new Map());
   const solvedTip: IAutoMovieVector3 = at(w1, "t");
   TestValidator.predicate(
     "half influence blends the tip linearly",
@@ -154,7 +154,7 @@ export function test_resolve_ccd_ik(): void {
 
   // 5. null iterations → default budget still converges
   const w5: Map<string, number[]> = bentWorld({ x: 1.2, y: 0.5, z: 0 });
-  resolveWorldDrivers([ccd({ iterations: null })], w5, new Map(), new Map());
+  AutoMovieEngineResolve.resolveWorldDrivers([ccd({ iterations: null })], w5, new Map(), new Map());
   TestValidator.predicate(
     "default budget converges on an easy goal",
     dist(at(w5, "t"), { x: 1.2, y: 0.5, z: 0 }) <= 1e-3,
@@ -162,7 +162,7 @@ export function test_resolve_ccd_ik(): void {
 
   // 6. goal on the tip → early-out, nothing moves
   const w6: Map<string, number[]> = bentWorld({ x: 1, y: 1, z: 0 });
-  resolveWorldDrivers([ccd({})], w6, new Map(), new Map());
+  AutoMovieEngineResolve.resolveWorldDrivers([ccd({})], w6, new Map(), new Map());
   TestValidator.equals(
     "converged input early-outs unchanged",
     namedFacts([
@@ -194,7 +194,7 @@ export function test_resolve_ccd_ik(): void {
       title,
       throwsError(
         (): IAutoMovieDriver[] =>
-          resolveWorldDrivers([ccd(over)], world, new Map(), new Map()),
+          AutoMovieEngineResolve.resolveWorldDrivers([ccd(over)], world, new Map(), new Map()),
         expected,
       ),
     );
@@ -246,7 +246,7 @@ export function test_resolve_ccd_ik(): void {
     ["t", W({ x: 1, y: 0, z: 0 })],
     ["g", W({ x: -2, y: 0, z: 0 })],
   ]);
-  resolveWorldDrivers([ccd({ chain: ["r", "t"] })], w8x, new Map(), new Map());
+  AutoMovieEngineResolve.resolveWorldDrivers([ccd({ chain: ["r", "t"] })], w8x, new Map(), new Map());
   TestValidator.predicate(
     "X-aligned segment flips behind (unreachable shell)",
     vclose(at(w8x, "t"), { x: -1, y: 0, z: 0 }, 1e-9),
@@ -256,7 +256,7 @@ export function test_resolve_ccd_ik(): void {
     ["t", W({ x: 0, y: 1, z: 0 })],
     ["g", W({ x: 0, y: -2, z: 0 })],
   ]);
-  resolveWorldDrivers([ccd({ chain: ["r", "t"] })], w8y, new Map(), new Map());
+  AutoMovieEngineResolve.resolveWorldDrivers([ccd({ chain: ["r", "t"] })], w8y, new Map(), new Map());
   TestValidator.predicate(
     "Y-aligned segment flips behind (other perpendicular branch)",
     vclose(at(w8y, "t"), { x: 0, y: -1, z: 0 }, 1e-9),

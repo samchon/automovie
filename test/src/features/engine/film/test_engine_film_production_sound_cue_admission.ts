@@ -1,4 +1,4 @@
-import { renderProductionSound } from "@automovie/engine";
+import { AutoMovieEngineSound } from "@automovie/engine";
 import type {
   IAutoMovieProductionSoundPlan,
   IAutoMovieRenderedProductionSound,
@@ -75,7 +75,7 @@ export function test_engine_film_production_sound_cue_admission(): void {
   ): boolean =>
     throwsError(
       (): IAutoMovieRenderedProductionSound =>
-        renderProductionSound({
+        AutoMovieEngineSound.renderProductionSound({
           plan: plan(cue),
           assets: new Map([["public/bed.wav", assets]]),
         }),

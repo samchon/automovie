@@ -7,10 +7,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  crawlCourse,
-  crawlDownTiming,
-  crawlUnder,
-} from "@automovie/motions/internal";
+  crawlCourse
+} from "../../../../../packages/motions/src/floor/internal/crawlCourse";
+import {
+  crawlDownTiming
+} from "../../../../../packages/motions/src/floor/internal/crawlDownTiming";
+import {
+  crawlUnder
+} from "../../../../../packages/motions/src/floor/internal/crawlUnder";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";

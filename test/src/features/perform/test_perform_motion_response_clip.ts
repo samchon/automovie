@@ -1,9 +1,4 @@
-import {
-  makeActorSynthesizer,
-  resolvePose,
-  sampleMotion,
-  validateMotion,
-} from "@automovie/engine";
+import { AutoMovieEngineMotionSampling, AutoMovieEngineKinematics, AutoMovieEngineValidation, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieActorContext,
   IAutoMovieMotion,
@@ -44,7 +39,7 @@ export function test_perform_motion_response_clip(): void {
     ["left", { x: 2, y: 0, z: 0 }],
     ["right", { x: -2, y: 0, z: 0 }],
   ]);
-  const synth = makeActorSynthesizer(new Map([["actor", ctx]]), nodes);
+  const synth = AutoMovieEngineFilm.makeActorSynthesizer(new Map([["actor", ctx]]), nodes);
   const signal = (
     force: number,
     node: string = "front",
@@ -81,18 +76,18 @@ export function test_perform_motion_response_clip(): void {
   for (const motion of [soft, strong])
     TestValidator.equals(
       "rig-valid response",
-      validateMotion({ motion, skeleton: rig }).success,
+      AutoMovieEngineValidation.validateMotion({ motion, skeleton: rig }).success,
       true,
     );
   const read = (node: string) =>
-    resolvePose(sampleMotion(clip(0.7, node), 0.16).pose, rig).find(
+    AutoMovieEngineKinematics.resolvePose(AutoMovieEngineMotionSampling.sampleMotion(clip(0.7, node), 0.16).pose, rig).find(
       (b) => b.bone === "head",
     )!.worldPosition.x;
   TestValidator.predicate(
     "mirrored displacements",
     read("left") < -0.01 && read("right") > 0.01,
   );
-  const rigless = makeActorSynthesizer(
+  const rigless = AutoMovieEngineFilm.makeActorSynthesizer(
     new Map([["actor", { ...ctx, rig: undefined }]]),
     nodes,
   );

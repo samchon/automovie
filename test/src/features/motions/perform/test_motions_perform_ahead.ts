@@ -3,8 +3,10 @@ import type {
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanPerformanceState,
 } from "@automovie/interface";
-import { HumanObject } from "@automovie/motions";
-import { HumanPerformanceAhead } from "@automovie/motions/internal";
+import { AutoMovieMotionHumanObject } from "@automovie/motions";
+import {
+  HumanPerformanceAhead
+} from "../../../../../packages/motions/src/perform/internal/HumanPerformanceAhead";
 import { TestValidator } from "@nestia/e2e";
 
 import { standingPerformanceState } from "../../internal/fixtures/standingPerformanceState";
@@ -30,7 +32,7 @@ import { testAffordance } from "../../internal/fixtures/testAffordance";
  *    cued by another anchor or by a proximity, or no cut, is none.
  */
 export async function test_motions_perform_ahead(): Promise<void> {
-  const sword = HumanObject.prop(
+  const sword = AutoMovieMotionHumanObject.prop(
     "sword",
     { affordances: [testAffordance("tip", "handle", { x: 0, y: 1, z: 0 })] },
     { at: { x: 0, y: 0, z: 0 }, yaw: 0 },
@@ -152,21 +154,29 @@ export async function test_motions_perform_ahead(): Promise<void> {
       { ...intent("wave"), ...(until === undefined ? {} : { until }) },
       ordinal,
     );
-  TestValidator.equals("a cut at an event", cut({ event: "peak" }), {
-    event: "peak",
-    plant: { prop: "sword", end: "tip", lean: 0.2 },
-  });
+  TestValidator.equals(
+    "a cut at an event",
+    cut({ type: "event", event: "peak" }),
+    {
+      event: "peak",
+      plant: { prop: "sword", end: "tip", lean: 0.2 },
+    },
+  );
   TestValidator.equals("the plant reads the resolved parameters", planted, [
     { hand: "right", weapon: "sword", lean: 0.2 },
   ]);
-  TestValidator.equals("a cut at a share", cut({ share: 0.5 }, 2), {
-    share: 0.5,
-  });
+  TestValidator.equals(
+    "a cut at a share",
+    cut({ type: "share", share: 0.5 }, 2),
+    { share: 0.5 },
+  );
   TestValidator.predicate(
     "no cut of its own",
     cut(undefined) === undefined &&
-      cut({ of: "bell", event: "ring" }) === undefined &&
+      cut({ type: "anchor-event", of: "bell", event: "ring" }) ===
+        undefined &&
       cut({
+        type: "proximity",
         proximity: {
           effector: "palmRight",
           target: { kind: "point", frame: "world", at: { x: 0, y: 0, z: 0 } },

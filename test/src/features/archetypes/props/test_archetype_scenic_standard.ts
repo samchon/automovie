@@ -1,10 +1,10 @@
-import { createScenicStandard } from "@automovie/archetypes";
+import { AutoMovieArchetypeScenicStandard } from "@automovie/archetypes";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanProp,
   IAutoMoviePhysicalShape,
 } from "@automovie/interface";
-import { HumanObject } from "@automovie/motions";
+import { AutoMovieMotionHumanObject } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeExtent } from "../../internal/archetypeExtent";
@@ -36,7 +36,7 @@ export function test_archetype_scenic_standard(): void {
   const close = (actual: number, expected: number): boolean =>
     nclose(actual, expected, MILLIMETRE);
   for (const kind of ["banner", "roundel"] as const) {
-    const model: ReturnType<typeof createScenicStandard> = createScenicStandard(
+    const model: ReturnType<typeof AutoMovieArchetypeScenicStandard.create> = AutoMovieArchetypeScenicStandard.create(
       {
         kind,
         length: 1.7,
@@ -86,7 +86,7 @@ export function test_archetype_scenic_standard(): void {
         close(grip.frame.translation.y - grip.length! / 2, shaft.low) &&
         close(grip.frame.translation.y + grip.length! / 2, panel.low),
     );
-    const prop: IAutoMovieMotionHumanProp = HumanObject.prop(
+    const prop: IAutoMovieMotionHumanProp = AutoMovieMotionHumanObject.prop(
       "standard",
       model,
       {
@@ -122,10 +122,10 @@ export function test_archetype_scenic_standard(): void {
   }
   TestValidator.equals(
     "the same seed returns the same visible geometry",
-    JSON.stringify(createScenicStandard({ kind: "banner" }, 1009).shapes()),
-    JSON.stringify(createScenicStandard({ kind: "banner" }, 1009).shapes()),
+    JSON.stringify(AutoMovieArchetypeScenicStandard.create({ kind: "banner" }, 1009).shapes()),
+    JSON.stringify(AutoMovieArchetypeScenicStandard.create({ kind: "banner" }, 1009).shapes()),
   );
   TestValidator.error("head size must be positive", () =>
-    createScenicStandard({ kind: "roundel", headSpan: 0 }),
+    AutoMovieArchetypeScenicStandard.create({ kind: "roundel", headSpan: 0 }),
   );
 }

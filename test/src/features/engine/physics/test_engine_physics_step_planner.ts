@@ -1,4 +1,4 @@
-import { AutoMovieStepPlanner as Planner } from "@automovie/engine";
+import { AutoMovieEngineStepPlanner as Planner } from "@automovie/engine";
 import type {
   IAutoMovieFootfallPattern,
   IAutoMovieStepPlanner,

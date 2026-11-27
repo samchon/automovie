@@ -1,8 +1,6 @@
 import {
-  autoMovieFeatureEdgeDistance,
-  autoMovieWearWeight,
-  measureAutoMovieFeatureEdges,
-  tessellate,
+  AutoMovieEngineGeometry,
+  AutoMovieEngineMaterial,
 } from "@automovie/engine";
 import type {
   IAutoMovieMaterialWear,
@@ -11,10 +9,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieThreeKind,
-  type IMaterialShaderSource,
-  applyMaterialWear,
-  readAutoMovieBufferAttribute,
+  AutoMovieRenderWearShading,
+  AutoMovieRenderThreeKind,
+  type IAutoMovieRenderMaterialShaderSource,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
@@ -37,17 +34,17 @@ import { surfaceTriangleOf } from "../../internal/surfaceTriangleOf";
  * 2. The texture's first texels hold each measured edge as `a.xyz, convex` and
  *    `b.xyz, 0`.
  * 3. Decoding the texture as the shader does, the distances at 200 surface points
- *    equal `autoMovieFeatureEdgeDistance` within 1e-12, and the edge weight
- *    `autoMovieWearWeight` is zero at and beyond the layer width and positive
- *    on an edge.
+ *    equal `featureEdgeDistance` within 1e-12, and the edge weight
+ *    `AutoMovieEngineMaterial.wearWeight` is zero at and beyond the layer width
+ *    and positive on an edge.
  * 4. The compile hook on three's physical program reads the list and the bind-pose
  *    position in the vertex stage, mixes colour before the alpha map and
  *    roughness before the metalness map, and names its layers in the program
  *    key.
  *
  * GPU arithmetic is checked by a float-target capture under the
- * visual-debugging skill: at 1280 × 720, the 24-vertex box and the box
- * subdivided 8 × 8 per face each write their edge weight and their interpolated
+ * visual-debugging skill: at 1280 횞 720, the 24-vertex box and the box
+ * subdivided 8 횞 8 per face each write their edge weight and their interpolated
  * bind-pose point, and every covered pixel's weight must equal the CPU weight
  * at that pixel's own point within 1e-3. Comparing the two boxes' weights pixel
  * by pixel is not a valid check: the rasterizer snaps each triangle's vertices
@@ -56,7 +53,7 @@ import { surfaceTriangleOf } from "../../internal/surfaceTriangleOf";
  * that into a difference of up to 0.014 that no shader could remove.
  */
 export function test_render_scene_apply_material_wear(): void {
-  const box: IAutoMovieTessellation = tessellate({
+  const box: IAutoMovieTessellation = AutoMovieEngineGeometry.tessellate({
     type: "box",
     width: 1,
     height: 1,
@@ -83,20 +80,19 @@ export function test_render_scene_apply_material_wear(): void {
   };
   const material: THREE.MeshStandardMaterial = new THREE.MeshStandardMaterial();
   const worn: { geometry: THREE.BufferGeometry; texture: THREE.DataTexture } =
-    applyMaterialWear(geometry, material, wear);
+    AutoMovieRenderWearShading.apply(geometry, material, wear);
   const measured: IAutoMovieMeasureFeatureEdges.IResult =
-    measureAutoMovieFeatureEdges({
+    AutoMovieEngineGeometry.measureFeatureEdges({
       positions: geometry.getAttribute("position").array,
       indices: box.indices,
       reach: 0.03,
     });
   const data: THREE.TypedArray | null = worn.texture.image.data;
-  if (data === null || !AutoMovieThreeKind.isFloat32Array(data))
+  if (data === null || !AutoMovieRenderThreeKind.isFloat32Array(data))
     throw new Error("Expected a float wear texture");
-  const list: THREE.BufferAttribute = readAutoMovieBufferAttribute(
-    worn.geometry,
+  const list: THREE.BufferAttribute = worn.geometry.getAttribute(
     "wearList",
-  );
+  ) as THREE.BufferAttribute;
 
   // 1. Non-indexed with per-triangle lists.
   let lists: boolean = worn.geometry.index === null && list.count === 36;
@@ -137,8 +133,11 @@ export function test_render_scene_apply_material_wear(): void {
     const t: number = surfaceTriangleOf(box.positions, box.indices, point);
     agree &&= nclose(
       decode(data, list.getX(3 * t), list.getY(3 * t), point, 0.03),
-      autoMovieFeatureEdgeDistance({ edges: measured, triangle: t, point })
-        .convex,
+      AutoMovieEngineGeometry.featureEdgeDistance({
+        edges: measured,
+        triangle: t,
+        point,
+      }).convex,
       1e-6,
     );
   }
@@ -146,13 +145,13 @@ export function test_render_scene_apply_material_wear(): void {
   const onEdge: IAutoMovieVector3 = { x: 0.5, y: 0.5, z: 0.1 };
   TestValidator.predicate(
     "the edge weight is positive on the edge and zero at its width",
-    autoMovieWearWeight(wear.edge!, 0, 3, onEdge) > 0 &&
-      autoMovieWearWeight(wear.edge!, 0.03, 3, onEdge) === 0 &&
-      autoMovieWearWeight(wear.edge!, 0.2, 3, onEdge) === 0,
+    AutoMovieEngineMaterial.wearWeight(wear.edge!, 0, 3, onEdge) > 0 &&
+      AutoMovieEngineMaterial.wearWeight(wear.edge!, 0.03, 3, onEdge) === 0 &&
+      AutoMovieEngineMaterial.wearWeight(wear.edge!, 0.2, 3, onEdge) === 0,
   );
 
   // 4. Splices and key.
-  const shader: IMaterialShaderSource = compileMaterialShaderSource(material);
+  const shader: IAutoMovieRenderMaterialShaderSource = compileMaterialShaderSource(material);
   TestValidator.predicate(
     "the patch reads the list and bind pose, then mixes colour and roughness in order",
     /#include <begin_vertex>\s*vWearList = wearList;\s*vWearPoint = position;/.test(

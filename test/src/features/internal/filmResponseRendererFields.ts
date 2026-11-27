@@ -1,4 +1,4 @@
-import type { IAutoMovieFilmResponseRenderer } from "@automovie/render";
+import type { IAutoMovieRenderFilmResponseRenderer } from "@automovie/render";
 import * as THREE from "three";
 
 /**
@@ -7,7 +7,7 @@ import * as THREE from "three";
  * through the stage.
  */
 export function filmResponseRendererFields(): Omit<
-  IAutoMovieFilmResponseRenderer,
+  IAutoMovieRenderFilmResponseRenderer,
   "render"
 > {
   let target: THREE.WebGLRenderTarget | null = null;

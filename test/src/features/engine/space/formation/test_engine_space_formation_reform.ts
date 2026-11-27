@@ -1,7 +1,4 @@
-import {
-  formationSlotPosition,
-  sampleFormationMotion,
-} from "@automovie/engine";
+import { AutoMovieEnginePopulationFormation } from "@automovie/engine";
 import {
   IAutoMovieFormationDesign,
   IAutoMovieFormationMotion,
@@ -116,7 +113,7 @@ export function test_engine_space_formation_reform(): void {
   const at: (time: number) => IAutoMovieSampledFormationMotion = (
     time: number,
   ): IAutoMovieSampledFormationMotion =>
-    sampleFormationMotion(cues, "block", time);
+    AutoMovieEnginePopulationFormation.sampleFormationMotion(cues, "block", time);
   const placed: (
     formation: IAutoMovieFormationPlacement,
     slot: number,
@@ -126,16 +123,16 @@ export function test_engine_space_formation_reform(): void {
     slot: number,
     time: number,
   ): IAutoMovieVector3 =>
-    formationSlotPosition(formation, slot, at(time).reform);
+    AutoMovieEnginePopulationFormation.formationSlotPosition(formation, slot, at(time).reform);
 
   const straight: IAutoMovieFormationPlacement = unit();
   const designed: (slot: number) => IAutoMovieVector3 = (
     slot: number,
-  ): IAutoMovieVector3 => formationSlotPosition(straight, slot);
+  ): IAutoMovieVector3 => AutoMovieEnginePopulationFormation.formationSlotPosition(straight, slot);
   const target: (slot: number) => IAutoMovieVector3 = (
     slot: number,
   ): IAutoMovieVector3 =>
-    formationSlotPosition({ ...straight, layout: column }, slot);
+    AutoMovieEnginePopulationFormation.formationSlotPosition({ ...straight, layout: column }, slot);
 
   // A member whose two places differ in both axes, so neither a lateral nor a
   // depth blend alone can produce the midpoint below.
@@ -220,7 +217,7 @@ export function test_engine_space_formation_reform(): void {
         (): boolean =>
           vclose(
             placed(turned, SLOT, 3),
-            formationSlotPosition({ ...turned, layout: column }, SLOT),
+            AutoMovieEnginePopulationFormation.formationSlotPosition({ ...turned, layout: column }, SLOT),
           ),
       ],
     ]),
@@ -241,10 +238,10 @@ export function test_engine_space_formation_reform(): void {
   const dressedEnd: (slot: number) => IAutoMovieVector3 = (
     slot: number,
   ): IAutoMovieVector3 =>
-    formationSlotPosition(
+    AutoMovieEnginePopulationFormation.formationSlotPosition(
       straight,
       slot,
-      sampleFormationMotion(dressedCues, "block", 3).reform,
+      AutoMovieEnginePopulationFormation.sampleFormationMotion(dressedCues, "block", 3).reform,
     );
   TestValidator.equals(
     "a re-form ends on the target arrangement's own dressing",
@@ -258,7 +255,7 @@ export function test_engine_space_formation_reform(): void {
           ).every((slot: number): boolean =>
             vclose(
               dressedEnd(slot),
-              formationSlotPosition(
+              AutoMovieEnginePopulationFormation.formationSlotPosition(
                 { ...straight, layout: dressedColumn },
                 slot,
               ),
@@ -309,10 +306,10 @@ export function test_engine_space_formation_reform(): void {
     y: number;
     z: number;
   } = (time: number): { x: number; y: number; z: number } =>
-    formationSlotPosition(
+    AutoMovieEnginePopulationFormation.formationSlotPosition(
       straight,
       6,
-      sampleFormationMotion(sequential, "block", time).reform,
+      AutoMovieEnginePopulationFormation.sampleFormationMotion(sequential, "block", time).reform,
     );
   for (const time of [3.5, 4])
     TestValidator.predicate(

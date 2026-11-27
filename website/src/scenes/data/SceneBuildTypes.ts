@@ -1,11 +1,13 @@
 import type {
+  IAutoMovieIntent,
   IAutoMovieMotionHumanActionParams,
   IAutoMovieMotionHumanLexiconParams,
   IAutoMovieMotionHumanSeated,
   IAutoMovieMotionObstacleAperture,
 } from "@automovie/interface";
 import type { AutoMovieMotionHumanCarryPerson } from "@automovie/motions";
-import type { HumanSocial, shoulderClasp } from "@automovie/motions/internal";
+import type { HumanSocial } from "../../../../packages/motions/src/lexicon/internal/HumanSocial";
+import type { shoulderClasp } from "../../../../packages/motions/src/lexicon/internal/shoulderClasp";
 
 import type { IPlaygroundComposition } from "../../playground/structures/IPlaygroundComposition";
 
@@ -149,8 +151,11 @@ export namespace SceneBuildTypes {
   /** Chain operators applied to an authored action. */
   export interface IActionOptions extends Pick<
     IPlaygroundComposition.IAction,
-    "anchor" | "until" | "sync"
+    "anchor" | "sync"
   > {
+    /** Where the action is interrupted, in the schedule's tagged form. */
+    until?: IAutoMovieIntent.IUntil;
+
     /** Actions layered over this one after their own inputs have been checked. */
     over?: AuthoredAction[];
   }

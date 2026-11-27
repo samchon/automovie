@@ -1,8 +1,8 @@
 import type { EvidenceMarkdownSymbol } from "@wrtnlabs/evidence";
 
-import type { ProductionStage } from "./ProductionStage";
+import type { AutoMovieEvidenceProductionStage } from "./AutoMovieEvidenceProductionStage";
 
-/**
+/*
  * Describes one work-local contract claim.
  *
  * A work owns contracts the shared config cannot state for it: a scale target,
@@ -11,10 +11,12 @@ import type { ProductionStage } from "./ProductionStage";
  * — only the document, the hosts, and when the claim is off differ.
  */
 export interface IPackageChecklistClaimProps {
-  /** Names the claim in diagnostics. State what the hosts must reach. */
+  /*
+   * Names the claim in diagnostics. State what the hosts must reach.
+   */
   name: string;
 
-  /**
+  /*
    * Locates the contract inside the production's `docs/contracts`.
    *
    * Give the path as hosts cite it, such as
@@ -24,17 +26,19 @@ export interface IPackageChecklistClaimProps {
    */
   document: string | string[];
 
-  /**
+  /*
    * Selects the host files this checklist binds, relative to `docs/body`.
    *
    * The hosts answer in detached construction evidence.
    */
   files: string[];
 
-  /** Sets the stage of the layer that owns the hosts. */
-  stage: ProductionStage;
+  /*
+   * Sets the stage of the layer that owns the hosts.
+   */
+  stage: AutoMovieEvidenceProductionStage;
 
-  /**
+  /*
    * Selects which Markdown units are hosts.
    *
    * State it. This is the per-unit-or-per-population choice, and a default
@@ -45,25 +49,21 @@ export interface IPackageChecklistClaimProps {
    */
   symbol: EvidenceMarkdownSymbol | EvidenceMarkdownSymbol[];
 
-  /**
+  /*
    * Whether every selected host answers every item of the document.
    *
    * A checklist is answered by each host for itself, so a strong sibling never
    * answers for a weak one. Turn it off for a role the population distributes
    * among its hosts instead, where one host realizing it answers for the rest.
-   *
-   * @default true
    */
   checklist?: boolean;
 
-  /**
+  /*
    * Turns the claim off for a reason beyond its stage.
    *
    * A scale target the current population cannot reach belongs here. A duty a
    * realized host owes whatever the population does not: leave this unset, or
    * the pilot silently drops the guard.
-   *
-   * @default false
    */
   inapplicable?: boolean;
 }

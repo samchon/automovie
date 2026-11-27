@@ -4,9 +4,9 @@ import {
   FamilyConicNativeRootObservations as Observation,
 } from "./FamilyConicNativeRootObservations";
 import {
-  AutoMovieConstructionAdmission,
-  AutoMovieSolidChain,
-  AutoMovieViewLoft,
+  AutoMovieEngineConstructionAdmission,
+  AutoMovieEngineSolidChain,
+  AutoMovieEngineViewLoft,
 } from "@automovie/engine";
 import {
   AutoMovieHumanF1 as Figure,
@@ -96,8 +96,8 @@ namespace FamilyConicNativeRootInputs {
     )
       throw new Error("completed cases/round generation hashes differ");
     const allowed: Set<string> = new Set([
-      "packages/engine/src/geometry/construction/AutoMovieConstructionSplitBand.ts",
-      "packages/engine/src/geometry/construction/AutoMovieConstructionSeeds.ts",
+      "packages/engine/src/geometry/AutoMovieConstructionSplitBand.ts",
+      "packages/engine/src/geometry/AutoMovieConstructionSeeds.ts",
       "packages/engine/src/geometry/construction/index.ts",
     ]);
     const current: Record<string, string> = {},
@@ -256,7 +256,7 @@ namespace FamilyConicNativeRootInputs {
         if (bone === undefined) {
           bone = Figure.assemble(
             undefined,
-            AutoMovieHumanHipSupportPlacement(
+            AutoMovieHumanHipSupportPlacement.place(
               plan.fields,
               Placing.CHAIN,
               "femur",
@@ -276,7 +276,7 @@ namespace FamilyConicNativeRootInputs {
             : Figure.constructionFrom(assembly),
           constructed: number = performance.now();
         try {
-          AutoMovieConstructionAdmission.admit(declared.root);
+          AutoMovieEngineConstructionAdmission.admit(declared.root);
         } catch (error: unknown) {
           failures.push({
             owner: "tree admission",
@@ -286,15 +286,15 @@ namespace FamilyConicNativeRootInputs {
         const sources: Map<string, Source> = new Map();
         for (const [name, part] of declared.sources) {
           try {
-            const raw: ReturnType<typeof AutoMovieViewLoft.create> =
-              AutoMovieViewLoft.create(part);
+            const raw: ReturnType<typeof AutoMovieEngineViewLoft.create> =
+              AutoMovieEngineViewLoft.create(part);
             if (raw.chain === null)
               throw new Error(JSON.stringify(raw.diagnostics));
-            const chain: IAutoMovieLoftChain = AutoMovieSolidChain.framed(
+            const chain: IAutoMovieLoftChain = AutoMovieEngineSolidChain.framed(
                 raw.chain,
               ),
               surface: IAutoMovieSolidSurface | null =
-                AutoMovieSolidChain.surface(chain);
+                AutoMovieEngineSolidChain.surface(chain);
             if (surface === null)
               throw new Error("actual full relieved source unavailable");
             sources.set(name, { chain, surface });

@@ -1,4 +1,4 @@
-import { GhoshConicApproximationDisplacement as displacement } from "@automovie/recovery";
+import { AutoMovieRecoveryConicApproximation } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -20,19 +20,19 @@ import { nclose } from "../../internal/nclose";
  * 3. A zero normal has no displacement.
  */
 export function test_recovery_internal_ghosh_conic_displacement(): void {
-  const found = displacement({ value: [1, 2, 4], normal: [0, 1, 0] }, 0.5);
+  const found = AutoMovieRecoveryConicApproximation.displaceGhoshApproximation({ value: [1, 2, 4], normal: [0, 1, 0] }, 0.5);
   TestValidator.predicate(
     "the larger root",
     found !== undefined && nclose(found, 2, 1e-12),
   );
-  const onConic = displacement({ value: [1, 0, 0], normal: [0, 1, 0] }, 0.5);
+  const onConic = AutoMovieRecoveryConicApproximation.displaceGhoshApproximation({ value: [1, 0, 0], normal: [0, 1, 0] }, 0.5);
   TestValidator.predicate(
     "already on the conic",
     onConic !== undefined && nclose(onConic, 0, 1e-12),
   );
   TestValidator.equals(
     "a zero normal",
-    displacement({ value: [1, 2, 4], normal: [0, 0, 0] }, 0.5),
+    AutoMovieRecoveryConicApproximation.displaceGhoshApproximation({ value: [1, 2, 4], normal: [0, 0, 0] }, 0.5),
     undefined,
   );
 }

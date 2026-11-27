@@ -5,20 +5,14 @@ import { FamilyConicNativePremises } from "./FamilyConicNativePremises";
 import {
   FamilyConicNativeRootObservations as Observation,
 } from "./FamilyConicNativeRootObservations";
-import {
-  AutoMovieConstructionAdmission,
-  AutoMovieSolidChain,
-  AutoMovieViewLoft,
-  bracketedRoot,
-  pointInPlanarRing,
-} from "@automovie/engine";
+import { AutoMovieEngineConstructionAdmission, AutoMovieEngineSolidChain, AutoMovieEngineViewLoft, AutoMovieEngineMath, AutoMovieEngineGeometry } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft as Loft,
   AutoMovieHumanF1 as Figure,
   AutoMovieHumanF1Engineering as Engineering,
   AutoMovieHumanF1NativeLaw as Law,
   AutoMovieHumanF1NativeTape,
-  AutoMovieHumanNativeCalipers,
+  AutoMovieHumanNativeCalipers as Calipers,
   AutoMovieHumanSegmentFrame as Frame,
 } from "@automovie/human";
 import type {
@@ -217,7 +211,7 @@ namespace FamilyConicNativeRound {
             source.stations.at(-1)!,
           ];
           try {
-            const actual = AutoMovieHumanNativeCalipers(
+            const actual = Calipers.read(
               source,
               request.station,
             );
@@ -344,7 +338,7 @@ namespace FamilyConicNativeRound {
             ? a
             : fb === 0
               ? b
-              : bracketedRoot(
+              : AutoMovieEngineMath.bracketedRoot(
                   (station: number): number =>
                     source.surface.jet(station, phase).p[1] - y,
                   a,
@@ -376,7 +370,7 @@ namespace FamilyConicNativeRound {
       domain,
       planeY: y,
       crossingStations: roots,
-      inside: pointInPlanarRing(
+      inside: AutoMovieEngineGeometry.pointInPlanarRing(
         { x: joint.origin[0], y: joint.origin[2] },
         ring,
       ),
@@ -536,7 +530,7 @@ namespace FamilyConicNativeRound {
       const parts = { trunk: part("trunk"), breast: part("breast") },
         generated: number = performance.now();
       let counts: unknown;
-      const result = AutoMovieHumanF1NativeTape(
+      const result = AutoMovieHumanF1NativeTape.read(
         parts,
         Identity.dataHash(fields),
         128,
@@ -585,15 +579,15 @@ namespace FamilyConicNativeRound {
     const baselineStarted: number = performance.now();
     for (const [name, part] of originalConstruction.sources) {
       try {
-        const raw: ReturnType<typeof AutoMovieViewLoft.create> =
-          AutoMovieViewLoft.create(part);
+        const raw: ReturnType<typeof AutoMovieEngineViewLoft.create> =
+          AutoMovieEngineViewLoft.create(part);
         if (raw.chain === null)
           throw new Error(JSON.stringify(raw.diagnostics));
-        const chain: IAutoMovieLoftChain = AutoMovieSolidChain.framed(
+        const chain: IAutoMovieLoftChain = AutoMovieEngineSolidChain.framed(
             raw.chain,
           ),
           surface: IAutoMovieSolidSurface | null =
-            AutoMovieSolidChain.surface(chain);
+            AutoMovieEngineSolidChain.surface(chain);
         if (surface === null)
           throw new Error(
             "independent ordinary original full source unavailable",
@@ -629,7 +623,7 @@ namespace FamilyConicNativeRound {
           declared = Figure.constructionFrom(assembly),
           constructed: number = performance.now();
         try {
-          AutoMovieConstructionAdmission.admit(declared.root);
+          AutoMovieEngineConstructionAdmission.admit(declared.root);
         } catch (error: unknown) {
           failures.push({
             owner: "tree admission",
@@ -640,11 +634,11 @@ namespace FamilyConicNativeRound {
           sourceRows: unknown[] = [];
         for (const [name, part] of declared.sources) {
           try {
-            const raw = AutoMovieViewLoft.create(part);
+            const raw = AutoMovieEngineViewLoft.create(part);
             if (raw.chain === null)
               throw new Error(JSON.stringify(raw.diagnostics));
-            const chain = AutoMovieSolidChain.framed(raw.chain),
-              surface = AutoMovieSolidChain.surface(chain);
+            const chain = AutoMovieEngineSolidChain.framed(raw.chain),
+              surface = AutoMovieEngineSolidChain.surface(chain);
             if (surface === null)
               throw new Error("actual relieved source2 unavailable");
             const source = { part, chain, surface };

@@ -1,5 +1,7 @@
-import { AutoMovieGravity } from "@automovie/engine";
-import { tapDanceFlights } from "@automovie/motions/internal";
+import { AutoMovieEngineGravity } from "@automovie/engine";
+import {
+  tapDanceFlights
+} from "../../../../../packages/motions/src/exercise/internal/tapDanceFlights";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -42,7 +44,7 @@ export function test_motions_exercise_tap_dance_flights(): void {
     "the hop",
     nclose(
       tapDanceFlights.hop(flights, 1.3),
-      (AutoMovieGravity.STANDARD * 0.04) / 8,
+      (AutoMovieEngineGravity.STANDARD * 0.04) / 8,
       1e-12,
     ) &&
       tapDanceFlights.hop(flights, 1) === 0 &&

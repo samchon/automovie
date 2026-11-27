@@ -1,5 +1,5 @@
-import { createHorse, rideHorse } from "@automovie/archetypes";
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieArchetypeHorseRide, AutoMovieArchetypeHorse } from "@automovie/archetypes";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanBody,
@@ -13,12 +13,17 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanMount,
-  HumanChain,
-  HumanObject,
-  HumanPerformance,
-  HumanSignature,
+  AutoMovieMotionHumanSignature,
+  AutoMovieMotionHumanChain,
+  AutoMovieMotionHumanObject,
+  AutoMovieMotionHumanPerformance,
 } from "@automovie/motions";
-import { HumanFrame, HumanHand } from "@automovie/motions/internal";
+import {
+  HumanFrame
+} from "../../../../packages/motions/src/posture/internal/HumanFrame";
+import {
+  HumanHand
+} from "../../../../packages/motions/src/posture/internal/HumanHand";
 
 /**
  * A rider staged on a tacked horse that stands while the rider sits and then
@@ -28,16 +33,16 @@ import { HumanFrame, HumanHand } from "@automovie/motions/internal";
  */
 export namespace mountedHorseScene {
   /** The horse producer's model. */
-  export type Horse = ReturnType<typeof createHorse>;
+  export type Horse = ReturnType<typeof AutoMovieArchetypeHorse.create>;
 
   /** A horse's ride along a course. */
-  export type Ride = ReturnType<typeof rideHorse>;
+  export type Ride = ReturnType<typeof AutoMovieArchetypeHorseRide.ride>;
 
   /** The rider's chain once seated. */
-  export type Seated = ReturnType<ReturnType<typeof HumanChain.subject>["sit"]>;
+  export type Seated = ReturnType<ReturnType<typeof AutoMovieMotionHumanChain.subject>["sit"]>;
 
   /** A rider's chain before sitting on. */
-  export type Chain = ReturnType<typeof HumanChain.subject>;
+  export type Chain = ReturnType<typeof AutoMovieMotionHumanChain.subject>;
 
   /** Acts on the ground before sitting on. */
   export type Before = (chain: Chain) => Chain;
@@ -51,7 +56,7 @@ export namespace mountedHorseScene {
     ride: Ride;
 
     /** The film. */
-    film: HumanPerformance;
+    film: AutoMovieMotionHumanPerformance;
 
     /** The rider's body. */
     body: IAutoMovieMotionHumanBody;
@@ -87,8 +92,8 @@ export namespace mountedHorseScene {
     from: IAutoMovieVector3;
 
     /** Its acts. */
-    acts: (chain: ReturnType<typeof HumanChain.subject>) => {
-      node: ReturnType<typeof HumanChain.subject>["node"];
+    acts: (chain: ReturnType<typeof AutoMovieMotionHumanChain.subject>) => {
+      node: ReturnType<typeof AutoMovieMotionHumanChain.subject>["node"];
     };
   }
 
@@ -116,7 +121,7 @@ export namespace mountedHorseScene {
     course?: Ride;
 
     /** The performance's cue tracks; none when absent. */
-    cues?: ConstructorParameters<typeof HumanPerformance>[0]["cues"];
+    cues?: ConstructorParameters<typeof AutoMovieMotionHumanPerformance>[0]["cues"];
 
     /** The acts after sitting. */
     acts: (seated: Seated) => Seated;
@@ -138,10 +143,10 @@ export namespace mountedHorseScene {
     partners?: IPartner[];
 
     /** Further laws the acts use, beside the ride and the mounted law. */
-    laws?: ConstructorParameters<typeof HumanPerformance>[0]["laws"];
+    laws?: ConstructorParameters<typeof AutoMovieMotionHumanPerformance>[0]["laws"];
 
     /** Further props, beside the horse. */
-    props?: ConstructorParameters<typeof HumanPerformance>[0]["props"];
+    props?: ConstructorParameters<typeof AutoMovieMotionHumanPerformance>[0]["props"];
 
     /**
      * The grade the horse stands and goes on, degrees, nose up; level when
@@ -164,14 +169,14 @@ export namespace mountedHorseScene {
     const local = (at: number): number =>
       Math.max(0, Math.min(ride.duration, at - wait));
     // A forward axis turned up by the grade: a turn of minus the grade about +X.
-    const tilt: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    const tilt: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
       { x: 1, y: 0, z: 0 },
       -(props.grade ?? 0),
     );
     const graded = (frame: IAutoMovieTransform): IAutoMovieTransform => ({
       ...frame,
-      translation: Quaternion.rotateVector(tilt, frame.translation),
-      rotation: Quaternion.multiply(tilt, frame.rotation),
+      translation: AutoMovieEngineQuaternion.rotateVector(tilt, frame.translation),
+      rotation: AutoMovieEngineQuaternion.multiply(tilt, frame.rotation),
     });
     const place = (at: number): IAutoMovieRigidTransform => {
       const frame: IAutoMovieTransform = graded(ride.at(local(at)).placement);
@@ -180,7 +185,7 @@ export namespace mountedHorseScene {
     const part = (id: string, at: number): IAutoMovieTransform =>
       graded(ride.frame(id as Parameters<Ride["frame"]>[0], local(at)));
     // The saddle is the horse's: a sit on it is carried with the horse.
-    const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(
+    const seat: IAutoMovieMotionHumanSeated.ISeat = AutoMovieMotionHumanObject.seat(
       ride.at(0).archetype,
       place(0),
       "seat",
@@ -189,14 +194,14 @@ export namespace mountedHorseScene {
     // The rider's chain to the acts: the acts before, then the sit unless the rider boards the seat itself.
     const mounted = (): Chain => {
       const ground: Chain = (props.before ?? ((c: Chain): Chain => c))(
-        HumanChain.subject("rider"),
+        AutoMovieMotionHumanChain.subject("rider"),
       );
       return props.seated === false ? ground : ground.sit({ seat, hold: 0.5 });
     };
-    const film: HumanPerformance = new HumanPerformance({
+    const film: AutoMovieMotionHumanPerformance = new AutoMovieMotionHumanPerformance({
       seed: "equine-mounted-supports",
       props: [
-        HumanObject.prop("horse", horse, place(0), place, part),
+        AutoMovieMotionHumanObject.prop("horse", horse, place(0), place, part),
         ...(props.props ?? []),
       ],
       laws: [
@@ -231,12 +236,12 @@ export namespace mountedHorseScene {
         props.partners === undefined || props.partners.length === 0
           ? props.acts(mounted()).node
           : {
-              kind: "parallel",
+              type: "parallel",
               parts: [
                 props.acts(mounted()).node,
                 ...props.partners.map(
                   (partner: IPartner) =>
-                    partner.acts(HumanChain.subject(partner.subject)).node,
+                    partner.acts(AutoMovieMotionHumanChain.subject(partner.subject)).node,
                 ),
               ],
             },
@@ -246,7 +251,7 @@ export namespace mountedHorseScene {
       ride,
       film,
       body,
-      reader: HumanSignature(film, "rider", body, 0),
+      reader: AutoMovieMotionHumanSignature.read(film, "rider", body, 0),
       seat,
       part,
       place,
@@ -278,13 +283,13 @@ export namespace mountedHorseScene {
       acts: (seated) => seated,
     });
     const hangs = dry.film.bones("rider", 0.01);
-    const ahead: IAutoMovieVector3 = Quaternion.rotateVector(
+    const ahead: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       hangs.get("hips")!.worldRotation,
       { x: 0, y: 0, z: 1 },
     );
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       HumanHand.frame(body, hangs, "right", "grip").point,
-      Vector3.add(Vector3.scale(Vector3.normalize({ ...ahead, y: 0 }), 0.3), {
+      AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(AutoMovieEngineVector3.normalize({ ...ahead, y: 0 }), 0.3), {
         x: 0,
         y: 0.15,
         z: 0,
@@ -305,7 +310,7 @@ export namespace mountedHorseScene {
     const scale: number = Math.sqrt(horse.dimensions.withersHeight! / 1.38);
     const speed: number =
       ({ walk: 1.4, trot: 3, canter: 5, gallop: 8 } as const)[gait] * scale;
-    return rideHorse(
+    return AutoMovieArchetypeHorseRide.ride(
       horse,
       {
         start: { x: 0, z: 0, heading: 0 },
@@ -329,9 +334,9 @@ export namespace mountedHorseScene {
     frame: IAutoMovieTransform,
     point: IAutoMovieVector3,
   ): IAutoMovieVector3 {
-    return Quaternion.rotateVector(
-      Quaternion.inverse(frame.rotation),
-      Vector3.subtract(point, frame.translation),
+    return AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.inverse(frame.rotation),
+      AutoMovieEngineVector3.subtract(point, frame.translation),
     );
   }
 
@@ -346,8 +351,8 @@ export namespace mountedHorseScene {
     frame: IAutoMovieTransform,
     direction: IAutoMovieVector3,
   ): IAutoMovieVector3 {
-    return Quaternion.rotateVector(
-      Quaternion.inverse(frame.rotation),
+    return AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.inverse(frame.rotation),
       direction,
     );
   }
@@ -370,20 +375,20 @@ export namespace mountedHorseScene {
   ): number {
     const hand = scene.film.bones("rider", at).get(`${side}Hand`)!;
     const offset = HumanHand.offset(scene.body, side, "palm");
-    const actual: IAutoMovieVector3 = Vector3.add(
+    const actual: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       hand.worldPosition,
-      Quaternion.rotateVector(hand.worldRotation, offset.point),
+      AutoMovieEngineQuaternion.rotateVector(hand.worldRotation, offset.point),
     );
     const contact: IAutoMovieTransform = scene.part(id, at);
     const radius: number =
       (scene.horse.affordances.find(
         (a: IAutoMovieAffordance): boolean => a.id === id,
       )!.aperture ?? 0) / 2;
-    return Vector3.distance(
+    return AutoMovieEngineVector3.distance(
       actual,
-      Vector3.addScaled(
+      AutoMovieEngineVector3.addScaled(
         contact.translation,
-        Quaternion.rotateVector(contact.rotation, { x: 0, y: 1, z: 0 }),
+        AutoMovieEngineQuaternion.rotateVector(contact.rotation, { x: 0, y: 1, z: 0 }),
         radius,
       ),
     );
@@ -399,9 +404,9 @@ export namespace mountedHorseScene {
    */
   export function joint(
     scene: IScene,
-    bone: Parameters<typeof HumanSignature.joint>[2],
+    bone: Parameters<typeof AutoMovieMotionHumanSignature.joint>[2],
     at: number,
   ): IAutoMovieVector3 {
-    return HumanSignature.joint(scene.reader, at, bone);
+    return AutoMovieMotionHumanSignature.joint(scene.reader, at, bone);
   }
 }

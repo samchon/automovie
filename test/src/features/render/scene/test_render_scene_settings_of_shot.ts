@@ -1,14 +1,11 @@
-import {
-  assessAutoMovieRenderBudget,
-  autoMovieRenderTargetSettingsOfShot,
-} from "@automovie/render";
+import { AutoMovieRenderBudgetPreflight } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { createCompiledShotSourceFixture } from "../../internal/createCompiledShotSourceFixture";
 
 /**
- * `autoMovieRenderTargetSettingsOfShot` reads a shot's render target from its
- * environment, and `assessAutoMovieRenderBudget` refuses a verdict without a
+ * `AutoMovieRenderBudgetPreflight.targetSettingsOfShot` reads a shot's render
+ * target from its environment, and `assessBudget` refuses a verdict without a
  * renderer.
  *
  * Scenarios:
@@ -22,7 +19,7 @@ import { createCompiledShotSourceFixture } from "../../internal/createCompiledSh
  */
 export function test_render_scene_settings_of_shot(): void {
   const settings = (environment: Parameters<typeof createCompiledShotSourceFixture>[0]) =>
-    autoMovieRenderTargetSettingsOfShot({
+    AutoMovieRenderBudgetPreflight.targetSettingsOfShot({
       compiled: createCompiledShotSourceFixture(environment),
       width: 640,
       height: 360,
@@ -58,7 +55,7 @@ export function test_render_scene_settings_of_shot(): void {
   });
   TestValidator.equals("shadows off", settings(environment(false)).shadows, false);
 
-  const assessment = assessAutoMovieRenderBudget({
+  const assessment = AutoMovieRenderBudgetPreflight.assessBudget({
     compiled: createCompiledShotSourceFixture(),
     shot: "shot:fixture",
     budget: null,

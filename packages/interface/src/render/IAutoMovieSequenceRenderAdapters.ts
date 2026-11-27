@@ -1,5 +1,5 @@
-import type { IAutoMovieSequenceRenderFrame } from "./IAutoMovieSequenceRenderFrame.js";
-import type { IAutoMovieSequenceRenderPlan } from "./IAutoMovieSequenceRenderPlan.js";
+import type { IAutoMovieSequenceRenderFrame } from "./IAutoMovieSequenceRenderFrame";
+import type { IAutoMovieSequenceRenderPlan } from "./IAutoMovieSequenceRenderPlan";
 
 /**
  * Host I/O for sequence rendering. The capture adapter receives the resolved

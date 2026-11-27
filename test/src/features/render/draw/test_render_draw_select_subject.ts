@@ -1,10 +1,10 @@
-import { selectAutoMovieDrawSubject } from "@automovie/render";
+import { AutoMovieRenderDraw } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/predicates";
 
 /**
- * `selectAutoMovieDrawSubject` picks the named subject, or with no name the
+ * `selectDrawSubject` picks the named subject, or with no name the
  * only one, and otherwise refuses, listing every subject the module offers.
  *
  * Scenarios:
@@ -20,31 +20,31 @@ export function test_render_draw_select_subject(): void {
   TestValidator.equals(
     "named",
     [
-      selectAutoMovieDrawSubject(two, "sequel"),
-      selectAutoMovieDrawSubject(two, "starter"),
-      selectAutoMovieDrawSubject(["starter"], null),
+      AutoMovieRenderDraw.selectAutoMovieDrawSubject(two, "sequel"),
+      AutoMovieRenderDraw.selectAutoMovieDrawSubject(two, "starter"),
+      AutoMovieRenderDraw.selectAutoMovieDrawSubject(["starter"], null),
     ],
     ["sequel", "starter", "starter"],
   );
   TestValidator.predicate(
     "refusals list the offered subjects",
     throwsError(
-      (): string => selectAutoMovieDrawSubject(two, "prequel"),
+      (): string => AutoMovieRenderDraw.selectAutoMovieDrawSubject(two, "prequel"),
       "starter, sequel",
     ) &&
       throwsError(
-        (): string => selectAutoMovieDrawSubject(two, null),
+        (): string => AutoMovieRenderDraw.selectAutoMovieDrawSubject(two, null),
         "starter, sequel",
       ),
   );
   TestValidator.predicate(
     "an empty module offers no subject",
     throwsError(
-      (): string => selectAutoMovieDrawSubject([], null),
+      (): string => AutoMovieRenderDraw.selectAutoMovieDrawSubject([], null),
       "offers no subject",
     ) &&
       throwsError(
-        (): string => selectAutoMovieDrawSubject([], "starter"),
+        (): string => AutoMovieRenderDraw.selectAutoMovieDrawSubject([], "starter"),
         "offers no subject",
       ),
   );

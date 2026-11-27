@@ -50,6 +50,7 @@
     "@trivago/prettier-plugin-sort-imports": "catalog:typescript",
     "@ttsc/evidence": "catalog:samchon",
     "@ttsc/lint": "catalog:samchon",
+    "@ttsc/unplugin": "catalog:samchon",
     "@types/node": "catalog:utils",
     "@types/pngjs": "catalog:media",
     "@types/three": "catalog:three",
@@ -63,6 +64,7 @@
     "prettier-plugin-jsdoc": "catalog:typescript",
     "rimraf": "catalog:utils",
     "three": "catalog:three",
+    "tinyglobby": "catalog:utils",
     "ttsc": "catalog:samchon",
     "typescript": "catalog:typescript",
     "typescript-compiler": "npm:typescript@5.9.3"

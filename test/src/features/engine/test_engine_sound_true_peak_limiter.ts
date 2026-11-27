@@ -1,7 +1,4 @@
-import {
-  masterProductionSound,
-  renderProductionSound,
-} from "@automovie/engine";
+import { AutoMovieEngineSound } from "@automovie/engine";
 import type {
   IAutoMovieProductionSoundPlan,
   IAutoMovieRenderedProductionSound,
@@ -78,18 +75,23 @@ export function test_engine_sound_true_peak_limiter(): void {
   const mix: (transient: boolean) => IAutoMovieRenderedProductionSound = (
     transient: boolean,
   ): IAutoMovieRenderedProductionSound =>
-    renderProductionSound({ plan, assets: new Map([["bed", bed(transient)]]) });
+    AutoMovieEngineSound.renderProductionSound({
+      plan,
+      assets: new Map([["bed", bed(transient)]]),
+    });
 
   const loud: IAutoMovieRenderedProductionSound = mix(true);
   const before: Float32Array = loud.pcm.slice();
-  const first: IAutoMovieRenderedProductionSound = masterProductionSound({
-    plan,
-    rendered: loud,
-  });
-  const second: IAutoMovieRenderedProductionSound = masterProductionSound({
-    plan,
-    rendered: loud,
-  });
+  const first: IAutoMovieRenderedProductionSound =
+    AutoMovieEngineSound.masterProductionSound({
+      plan,
+      rendered: loud,
+    });
+  const second: IAutoMovieRenderedProductionSound =
+    AutoMovieEngineSound.masterProductionSound({
+      plan,
+      rendered: loud,
+    });
   TestValidator.predicate(
     "the mix carries a +0.6 dBTP transient",
     loud.analysis.truePeakDbtp !== null &&
@@ -113,10 +115,11 @@ export function test_engine_sound_true_peak_limiter(): void {
     ),
   );
 
-  const plain: IAutoMovieRenderedProductionSound = masterProductionSound({
-    plan,
-    rendered: mix(false),
-  });
+  const plain: IAutoMovieRenderedProductionSound =
+    AutoMovieEngineSound.masterProductionSound({
+      plan,
+      rendered: mix(false),
+    });
   TestValidator.predicate(
     "a bed without a transient is not limited",
     plain.loudness.master !== undefined &&

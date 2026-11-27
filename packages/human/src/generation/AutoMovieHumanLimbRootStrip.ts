@@ -18,9 +18,9 @@ import type {
  * the trunk with its tangent and curvature vector (G2) and arrives on the
  * limb's own surface the same way, and neither piece is faded into the other.
  *
- * The strip reads the two published jets; it reads neither the
- * trunk's chain nor the limb's tube, so the limb chain that composes it decides
- * where its own sections end.
+ * The strip reads the two published jets; it reads neither the trunk's chain
+ * nor the limb's tube, so the limb chain that composes it decides where its own
+ * sections end.
  */
 export namespace AutoMovieHumanLimbRootStrip {
   /**
@@ -94,30 +94,6 @@ export namespace AutoMovieHumanLimbRootStrip {
   }
 
   /**
-   * The scale that gives a derivative a speed equal to a chord.
-   *
-   * @param chord The column's chord, mm.
-   * @param first The owner's first derivative there.
-   * @returns The scale, the chord itself where the derivative vanishes.
-   */
-  function speed(chord: number, first: AutoMovieVector3Tuple): number {
-    const f: number = Math.hypot(first[0], first[1], first[2]);
-
-    return f > 0 ? chord / f : chord;
-  }
-
-  /**
-   * The distance between two points.
-   *
-   * @param a One point, mm.
-   * @param b The other, mm.
-   * @returns The distance, mm.
-   */
-  function length(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number {
-    return Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
-  }
-
-  /**
    * An owner ring's jet where the ray from a centre toward a point's level
    * projection meets the ring's outline, the jets interpolated along the
    * outline's edge there. The strip pairs each column by this crossing, so a
@@ -142,19 +118,17 @@ export namespace AutoMovieHumanLimbRootStrip {
     const ux: number = dx / l;
     const uz: number = dz / l;
     const n: number = ring.length;
-    const mix: (
+    function mix(
       a: AutoMovieVector3Tuple,
       b: AutoMovieVector3Tuple,
       f: number,
-    ) => AutoMovieVector3Tuple = (
-      a: AutoMovieVector3Tuple,
-      b: AutoMovieVector3Tuple,
-      f: number,
-    ): AutoMovieVector3Tuple => [
-      a[0] + f * (b[0] - a[0]),
-      a[1] + f * (b[1] - a[1]),
-      a[2] + f * (b[2] - a[2]),
-    ];
+    ): AutoMovieVector3Tuple {
+      return [
+        a[0] + f * (b[0] - a[0]),
+        a[1] + f * (b[1] - a[1]),
+        a[2] + f * (b[2] - a[2]),
+      ];
+    }
     let best: number = -1;
     let found: IAutoMovieHumanLimbRootStrip.IJet = ring[0]!;
 
@@ -211,8 +185,8 @@ export namespace AutoMovieHumanLimbRootStrip {
   }
 
   /**
-   * The jet of a smooth curve along its run, read by central differences of
-   * its points a step either side.
+   * The jet of a smooth curve along its run, read by central differences of its
+   * points a step either side.
    *
    * @param at The curve's point at a run, mm.
    * @param run Where the jet is read, mm.
@@ -269,5 +243,27 @@ export namespace AutoMovieHumanLimbRootStrip {
           (2 * p[k]! - 5 * a[k]! + 4 * b[k]! - c[k]!) / (step * step),
       ) as AutoMovieVector3Tuple,
     };
+  }
+
+  /*
+   * The scale that gives a derivative a speed equal to a chord.
+   * Parameter chord: The column's chord, mm.
+   * Parameter first: The owner's first derivative there.
+   * Returns: The scale, the chord itself where the derivative vanishes.
+   */
+  function speed(chord: number, first: AutoMovieVector3Tuple): number {
+    const f: number = Math.hypot(first[0], first[1], first[2]);
+
+    return f > 0 ? chord / f : chord;
+  }
+
+  /*
+   * The distance between two points.
+   * Parameter a: One point, mm.
+   * Parameter b: The other, mm.
+   * Returns: The distance, mm.
+   */
+  function length(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number {
+    return Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
   }
 }

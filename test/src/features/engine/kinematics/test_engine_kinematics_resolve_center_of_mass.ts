@@ -1,16 +1,5 @@
-import {
-  Quaternion,
-  resolveAutoMovieCenterOfMass,
-  resolvePose,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMoviePhysicalProfile,
-  IAutoMoviePhysicalSegment,
-  IAutoMovieResolveCenterOfMass,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics, AutoMovieEngineQuaternion } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, IAutoMoviePhysicalProfile, IAutoMoviePhysicalSegment, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import type { IHumanFixture } from "../../internal/fixtures/IHumanFixture";
@@ -26,7 +15,7 @@ const MASS: number = 1e-9;
 const CENTRE: number = 1e-9;
 
 /**
- * `resolveAutoMovieCenterOfMass` builds a body's segmental mass model, whose
+ * `AutoMovieEngineKinematics.resolveAutoMovieCenterOfMass` builds a body's segmental mass model, whose
  * `place` is the mass-weighted mean of the segments' centres posed on their
  * bones (Winter, Biomechanics and Motor Control of Human Movement, ch. 4).
  *
@@ -50,7 +39,7 @@ export async function test_engine_kinematics_resolve_center_of_mass(): Promise<v
   for (const name of humanFixture.NAMES) {
     const person: IHumanFixture = await humanFixture(name);
     const model: IAutoMovieResolveCenterOfMass.IModel =
-      resolveAutoMovieCenterOfMass(person.skeleton, person.profile);
+      AutoMovieEngineKinematics.resolveAutoMovieCenterOfMass(person.skeleton, person.profile);
 
     // 1. The total mass.
     const mass: number = person.profile.segments.reduce(
@@ -65,7 +54,7 @@ export async function test_engine_kinematics_resolve_center_of_mass(): Promise<v
 
     // 2. The rest centre from the profile alone.
     const rest: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map(
-      resolvePose(
+      AutoMovieEngineKinematics.resolvePose(
         { skeleton: person.skeleton.id, root: null, joints: [] },
         person.skeleton,
       ).map(
@@ -76,7 +65,7 @@ export async function test_engine_kinematics_resolve_center_of_mass(): Promise<v
     );
     const expected: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     for (const segment of person.profile.segments) {
-      const local: IAutoMovieVector3 = Quaternion.rotateVector(
+      const local: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
         segment.neutral.rotation,
         segment.centerOfMass,
       );
@@ -89,7 +78,7 @@ export async function test_engine_kinematics_resolve_center_of_mass(): Promise<v
     }
     TestValidator.predicate(
       `${name}: the rest centre is the profile's weighted mean`,
-      vclose(resolveAutoMovieCenterOfMass.place(model, rest), expected, CENTRE),
+      vclose(AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(model, rest), expected, CENTRE),
     );
 
     // 3. A segment on a bone the rig lacks.
@@ -102,7 +91,7 @@ export async function test_engine_kinematics_resolve_center_of_mass(): Promise<v
     };
     TestValidator.predicate(
       `${name}: a segment off the rig is refused`,
-      throwsError(() => resolveAutoMovieCenterOfMass(person.skeleton, stray)),
+      throwsError(() => AutoMovieEngineKinematics.resolveAutoMovieCenterOfMass(person.skeleton, stray)),
     );
 
     // 4. No mass.
@@ -118,7 +107,7 @@ export async function test_engine_kinematics_resolve_center_of_mass(): Promise<v
     TestValidator.predicate(
       `${name}: a weightless profile is refused`,
       throwsError(() =>
-        resolveAutoMovieCenterOfMass(person.skeleton, weightless),
+        AutoMovieEngineKinematics.resolveAutoMovieCenterOfMass(person.skeleton, weightless),
       ),
     );
 
@@ -129,7 +118,7 @@ export async function test_engine_kinematics_resolve_center_of_mass(): Promise<v
     missing.delete(model.segments[0]!.bone);
     TestValidator.predicate(
       `${name}: placing on bones that miss a segment is refused`,
-      throwsError(() => resolveAutoMovieCenterOfMass.place(model, missing)),
+      throwsError(() => AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(model, missing)),
     );
   }
 }

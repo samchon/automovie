@@ -1,6 +1,6 @@
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
-/**
+/*
  * Resolve an imported joint name to the humanoid slot its rig convention means.
  *
  * The name is lowercased, a leading `mixamorig` prefix (with or without its
@@ -10,21 +10,19 @@ import type { AutoMovieHumanoidBone } from "@automovie/interface";
  * Mixamo, VRM-style slot names (`leftUpperArm`), and Unreal mannequin spine
  * chains (`spine_01` to `spine_03`). Fingers, eyes and jaw have no alias, so a
  * hand rig maps only to its hand slot.
- *
- * @param name Joint node name exactly as the source declares it.
- * @returns The slot, or `undefined` when no convention in the table names it.
+ * Parameter name: Joint node name exactly as the source declares it.
+ * Returns: The slot, or `undefined` when no convention in the table names it.
  */
-export const humanoidBoneOfName: (
+export function humanoidBoneOfName(
   name: string,
-) => AutoMovieHumanoidBone | undefined = (
-  name: string,
-): AutoMovieHumanoidBone | undefined =>
-  HUMANOID_ALIASES.get(
+): AutoMovieHumanoidBone | undefined {
+  return HUMANOID_ALIASES.get(
     name
       .toLowerCase()
       .replace(/^mixamorig:?/u, "")
       .replace(/[\s_.:|-]/gu, ""),
   );
+}
 
 const HUMANOID_ALIASES: ReadonlyMap<string, AutoMovieHumanoidBone> = new Map<
   string,

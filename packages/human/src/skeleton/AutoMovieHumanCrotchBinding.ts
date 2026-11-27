@@ -1,4 +1,4 @@
-import { AutoMovieLoftChain } from "@automovie/engine";
+import { AutoMovieEngineLoftChain } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanBindingLimb,
@@ -48,7 +48,7 @@ export namespace AutoMovieHumanCrotchBinding {
     let low: number = Infinity;
     if (trunk !== undefined)
       for (const layer of trunk.layers)
-        for (const p of AutoMovieLoftChain.ring(trunk, layer.y, PHASES))
+        for (const p of AutoMovieEngineLoftChain.ring(trunk, layer.y, PHASES))
           if (Math.abs(p[2]) < BAND) low = Math.min(low, p[1]);
     return low * scale;
   }
@@ -137,7 +137,7 @@ export namespace AutoMovieHumanCrotchBinding {
   }
 }
 
-/**
+/*
  * Phases sampling the trunk's sections for its midline, finely enough to land
  * on it (convention: 96, under 4 degrees apart, so a symmetric ring lands on
  * the median plane at its front and back).
@@ -147,5 +147,7 @@ const PHASES: number[] = Array.from(
   (_: unknown, i: number): number => (2 * Math.PI * i) / 96,
 );
 
-/** Distance from the median plane within which a section's point is on the midline, calibration mm (convention). */
+/*
+ * Distance from the median plane within which a section's point is on the midline, calibration mm (convention).
+ */
 const BAND: number = 1;

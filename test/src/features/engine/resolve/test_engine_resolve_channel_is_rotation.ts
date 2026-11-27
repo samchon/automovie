@@ -1,4 +1,4 @@
-import { channelIsRotation } from "@automovie/engine";
+import { AutoMovieEngineResolve } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -13,17 +13,17 @@ import { TestValidator } from "@nestia/e2e";
 export function test_engine_resolve_channel_is_rotation(): void {
   TestValidator.predicate(
     "node channels",
-    channelIsRotation({ kind: "node", node: "n", path: "rotation" }) &&
-      !channelIsRotation({ kind: "node", node: "n", path: "translation" }),
+    AutoMovieEngineResolve.channelIsRotation({ kind: "node", node: "n", path: "rotation" }) &&
+      !AutoMovieEngineResolve.channelIsRotation({ kind: "node", node: "n", path: "translation" }),
   );
   TestValidator.predicate(
     "pointer channels",
-    channelIsRotation({
+    AutoMovieEngineResolve.channelIsRotation({
       kind: "pointer",
       pointer: "/p",
       valueType: "quaternion",
     }) &&
-      !channelIsRotation({
+      !AutoMovieEngineResolve.channelIsRotation({
         kind: "pointer",
         pointer: "/p",
         valueType: "scalar",

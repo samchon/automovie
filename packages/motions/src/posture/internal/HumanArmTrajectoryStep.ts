@@ -1,0 +1,50 @@
+import type { HumanArmSeed } from "./HumanArmSeed";
+import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
+
+/*
+ * The iterate after a step of the convex subproblem: each inner waypoint's free
+ * coordinates moved by the step, the others kept, then projected onto the hard
+ * ranges (`ranged`), which the subproblem meets only to its linearisation and
+ * its solver's tolerance.
+ * Parameter c: The context.
+ * Parameter x: Each arm's coordinates at each waypoint.
+ * Parameter step: The subproblem's solution, by waypoint and then arm.
+ * Parameter pinned: Exact positions of the solved hold poses.
+ * Returns: The new iterate.
+ */
+export function HumanArmTrajectoryStep(
+  c: StepContext,
+  x: readonly (readonly number[])[][],
+  step: Float64Array,
+  pinned?: HumanArmSeed.IHolds,
+): number[][][] {
+  return x.map((arm: readonly (readonly number[])[], a: number): number[][] =>
+    arm.map((v: readonly number[], k: number): number[] => {
+      if (!M.inner(c, k)) return [...v];
+      const held: number[] | undefined = pinned?.get(c.times[k]!)?.[a];
+      if (held !== undefined && c.sites[a]![k] !== undefined) return [...held];
+      const out: number[] = [...v];
+      c.free[a]!.forEach((d: number, f: number): void => {
+        out[d] = out[d]! + step[(k - 1) * c.width + c.offset[a]! + f]!;
+      });
+      return M.ranged(c, a, out);
+    }),
+  );
+}
+
+/*
+ * The knot and chart data needed to apply a step.
+ */
+type StepContext = Pick<
+  M.IContext,
+  | "n"
+  | "open"
+  | "times"
+  | "sites"
+  | "rest"
+  | "back"
+  | "free"
+  | "bounds"
+  | "offset"
+  | "width"
+>;

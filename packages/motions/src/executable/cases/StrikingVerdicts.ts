@@ -1,43 +1,15 @@
-import {
-  Vector3,
-  clampPose,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  IAutoMovieHumanLimbGoal,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanPerformance,
-  IAutoMovieMotionHumanSegment,
-  IAutoMovieMotionHumanStrikingRecord,
-  IAutoMoviePose,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieHumanLimbGoal, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanStrikingRecord, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { StrikingLimb } from "./StrikingLimb";
 import { StrikingVerdictsGap } from "./StrikingVerdictsGap";
 
-/** The record of `IPenetrationDeepest`'s site. */
-type IPenetrationDeepest = { at: number };
-
-/** The record of `IContactClosest`'s site. */
-type IContactClosest = { at: number };
-
-/** The alternatives of `ContactDeclared`'s site. */
-type ContactDeclared = "feint" | "miss" | "graze" | undefined;
-
-/** The record of `IStrikeOther`'s site. */
-type IStrikeOther = { id: string; body: IAutoMovieMotionHumanBody };
-
-/**
+/*
  * Every verdict of one strike.
- *
- * @param strike The strike.
- * @returns The contact (or extension), penetration, support slip, range of
- *   motion and, for a kick, leg goal verdicts.
+ * Parameter strike: The strike.
+ * Returns: The contact (or extension), penetration, support slip, range of
+ * motion and, for a kick, leg goal verdicts.
  */
 export function StrikingVerdicts(
   strike: StrikingVerdicts.IStrike,
@@ -51,7 +23,7 @@ export function StrikingVerdicts(
   ];
 }
 
-/**
+/*
  * The verdicts of a displayed strike, each measured on the shown bones against
  * the action's own goal, each able to fail and each printing its bound.
  *
@@ -78,84 +50,96 @@ export function StrikingVerdicts(
  * - Refusal: a redirect after the chamber key is refused as an illegal cut.
  */
 export namespace StrikingVerdicts {
-  /** What part of a body a strike met. */
+  /*
+   * What part of a body a strike met.
+   */
   export type Class = "guard" | "head" | "trunk" | "leg";
 
-  /** The part of a segment its event seconds and peak are read from. */
+  /*
+   * The part of a segment its event seconds and peak are read from.
+   */
   export type ITimed = Pick<IAutoMovieMotionHumanSegment, "start" | "end"> & {
-    /** The plan's events, duration and planned contact. */
+    /*
+     * The plan's events, duration and planned contact.
+     */
     plan: Pick<
       IAutoMovieMotionHumanSegment["plan"],
       "events" | "duration" | "contact"
     >;
   };
 
-  /**
+  /*
    * The declared outcome a strike's parameters carry: a feint share, or the
    * declared accuracy.
    */
   export interface IDeclared {
-    /** A feint's share of the delivery, in (0, 1); none for a committed strike. */
+    /*
+     * A feint's share of the delivery, in (0, 1); none for a committed strike.
+     */
     feint?: number;
 
-    /** The declared accuracy (`hit`, `graze` or `miss`). */
+    /*
+     * The declared accuracy (`hit`, `graze` or `miss`).
+     */
     accuracy?: unknown;
   }
 
-  /** One displayed strike under audit. */
+  /*
+   * One displayed strike under audit.
+   */
   export interface IStrike {
-    /** The performance it was shown in. */
+    /*
+     * The performance it was shown in.
+     */
     performance: IAutoMovieMotionHumanPerformance;
 
-    /** The striker's subject id. */
+    /*
+     * The striker's subject id.
+     */
     id: string;
 
-    /** The striker's body. */
+    /*
+     * The striker's body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The other person, when there is one. */
+    /*
+     * The other person, when there is one.
+     */
     other: IStrikeOther | undefined;
 
-    /** The strike's segment. */
+    /*
+     * The strike's segment.
+     */
     segment: IAutoMovieMotionHumanSegment;
 
-    /** The end joint that carries it. */
+    /*
+     * The end joint that carries it.
+     */
     limb: StrikingLimb.End;
 
-    /** What the strike decided; undefined when its plan records nothing. */
+    /*
+     * What the strike decided; undefined when its plan records nothing.
+     */
     record: IAutoMovieMotionHumanStrikingRecord.IRecord | undefined;
 
-    /** The film second the limb stopped on a surface, if it did. */
+    /*
+     * The film second the limb stopped on a surface, if it did.
+     */
     stop: number | undefined;
 
-    /**
+    /*
      * The part classes the scenario declares the strike meets; any when
      * undefined.
      */
     meets: readonly Class[] | undefined;
   }
 
-  /**
-   * The 15 mm within which a stopped limb touches a surface or an extended one
-   * its aim.
-   */
-  const TOUCH: number = 0.015;
-
-  /** The 10 mm a limb may sink into the other body. */
-  const SINK: number = 0.01;
-
-  /** The 5 mm a planted or pivoting ball may drift. */
-  const SLIP: number = 0.005;
-
-  /** The 2 mm within which a displayed ankle meets its goal. */
-  const GOAL: number = 0.002;
-
-  /**
+  /*
    * The film second of a segment's named event.
-   *
-   * @param segment The segment.
-   * @param event The event's name.
-   * @returns The second, or undefined when the plan has no such event.
+   * Parameter segment: The segment.
+   * Parameter event: The event's name.
+   * Returns: The second, or undefined when the plan has no such event.
    */
   export function at(segment: ITimed, event: string): number | undefined {
     const share: number | undefined = segment.plan.events.find(
@@ -167,12 +151,11 @@ export namespace StrikingVerdicts {
       : segment.start + share * segment.plan.duration;
   }
 
-  /**
+  /*
    * The film second a strike shows its peak: its planned contact, else its
    * `shown` or `chamber` event, else its end, and never after its end.
-   *
-   * @param segment The strike's segment.
-   * @returns The second.
+   * Parameter segment: The strike's segment.
+   * Returns: The second.
    */
   export function peak(segment: ITimed): number {
     return Math.min(
@@ -183,13 +166,12 @@ export namespace StrikingVerdicts {
     );
   }
 
-  /**
+  /*
    * The class of a body part by its bone: the head and the neck are the head,
    * the pelvis and the spine the trunk, the thigh, the shank and the foot the
    * leg, and the shoulder girdle, the arm, the hand and its digits the guard.
-   *
-   * @param bone The bone.
-   * @returns Its class.
+   * Parameter bone: The bone.
+   * Returns: Its class.
    */
   export function classify(bone: AutoMovieHumanoidBone): Class {
     if (/^(head|neck|jaw)$|Eye$/.test(bone)) return "head";
@@ -198,12 +180,11 @@ export namespace StrikingVerdicts {
     return "guard";
   }
 
-  /**
+  /*
    * What a strike met against what it declared.
-   *
-   * @param strike The strike.
-   * @returns The contact verdict, or the extension verdict when there is no
-   *   other body.
+   * Parameter strike: The strike.
+   * Returns: The contact verdict, or the extension verdict when there is no
+   * other body.
    */
   export function contact(strike: IStrike): IMotionCaptureCase.IVerdict {
     const g: IAutoMovieMotionHumanSegment = strike.segment;
@@ -260,11 +241,11 @@ export namespace StrikingVerdicts {
         .bones(strike.id, g.entryTime)
         .get(StrikingLimb.root(strike.limb))!.worldPosition;
       const beyond: number =
-        Vector3.length(Vector3.subtract(record.planned, root)) - length;
+        AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(record.planned, root)) - length;
       return {
         name,
         passed: beyond > 0,
-        detail: `declared beyond reach by ${(1000 * Vector3.length(Vector3.subtract(record.planned, record.reached))).toFixed(0)} mm; the target lies ${(1000 * Math.abs(beyond)).toFixed(0)} mm ${beyond > 0 ? "beyond" : "within"} the bare limb's ${(1000 * length).toFixed(0)} mm from its root; bound beyond`,
+        detail: `declared beyond reach by ${(1000 * AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(record.planned, record.reached))).toFixed(0)} mm; the target lies ${(1000 * Math.abs(beyond)).toFixed(0)} mm ${beyond > 0 ? "beyond" : "within"} the bare limb's ${(1000 * length).toFixed(0)} mm from its root; bound beyond`,
       };
     }
     if (strike.stop === undefined)
@@ -290,11 +271,10 @@ export namespace StrikingVerdicts {
     };
   }
 
-  /**
+  /*
    * How near a strike at no body comes to its planned point at its peak.
-   *
-   * @param strike The strike.
-   * @returns The extension verdict.
+   * Parameter strike: The strike.
+   * Returns: The extension verdict.
    */
   export function extension(strike: IStrike): IMotionCaptureCase.IVerdict {
     const g: IAutoMovieMotionHumanSegment = strike.segment;
@@ -322,7 +302,7 @@ export namespace StrikingVerdicts {
       .bones(strike.id, g.entryTime)
       .get(StrikingLimb.root(strike.limb))!.worldPosition;
     const beyond: number =
-      Vector3.length(Vector3.subtract(record.planned, root)) - length;
+      AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(record.planned, root)) - length;
     const bound: number = beyond <= 0 ? TOUCH : beyond + 0.1 * length;
     return {
       name,
@@ -331,13 +311,12 @@ export namespace StrikingVerdicts {
     };
   }
 
-  /**
+  /*
    * How deep the limb sinks into the other body over the strike, the deepest
    * instant named with what it sank into, so a sink after the stop reads apart
    * from one before it.
-   *
-   * @param strike The strike.
-   * @returns The penetration verdict.
+   * Parameter strike: The strike.
+   * Returns: The penetration verdict.
    */
   export function penetration(strike: IStrike): IMotionCaptureCase.IVerdict {
     const g: IAutoMovieMotionHumanSegment = strike.segment;
@@ -358,13 +337,12 @@ export namespace StrikingVerdicts {
     };
   }
 
-  /**
+  /*
    * The largest drift of a foot's ball within the strike's plant and pivot
    * windows (a pivot turns about the ball, so the ball must stay), with that
    * window's start and the second its drift first passed 1 mm.
-   *
-   * @param strike The strike.
-   * @returns The support slip verdict.
+   * Parameter strike: The strike.
+   * Returns: The support slip verdict.
    */
   export function slip(strike: IStrike): IMotionCaptureCase.IVerdict {
     const g: IAutoMovieMotionHumanSegment = strike.segment;
@@ -388,14 +366,14 @@ export namespace StrikingVerdicts {
           c.part === "leftFoot" ? "ballLeft" : "ballRight"
         ];
       const ball = (t: number): IAutoMovieVector3 =>
-        resolveAutoMovieHumanoidSurfaces.place(
+        AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
           frame,
           strike.performance.bones(strike.id, t).get(frame.bone)!,
         ).point;
       const origin: IAutoMovieVector3 = ball(from);
       let onset: number | undefined;
       for (let t: number = from; t <= to + 1e-9; t += 1 / 48) {
-        const d: number = Vector3.length(Vector3.subtract(ball(t), origin));
+        const d: number = AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(ball(t), origin));
         if (onset === undefined && d > 0.001) onset = t;
         if (d > worst) {
           worst = d;
@@ -410,11 +388,10 @@ export namespace StrikingVerdicts {
     };
   }
 
-  /**
+  /*
    * How far any displayed joint leaves its range of motion over the strike.
-   *
-   * @param strike The strike.
-   * @returns The range of motion verdict.
+   * Parameter strike: The strike.
+   * Returns: The range of motion verdict.
    */
   export function rangeOfMotion(strike: IStrike): IMotionCaptureCase.IVerdict {
     const g: IAutoMovieMotionHumanSegment = strike.segment;
@@ -422,7 +399,7 @@ export namespace StrikingVerdicts {
     let where: string = "";
     for (let t: number = g.entryTime; t <= g.end + 1e-9; t += 1 / 48) {
       const pose: IAutoMoviePose = strike.performance.pose(strike.id, t);
-      const clamped: IAutoMoviePose = clampPose(pose, strike.body.skeleton);
+      const clamped: IAutoMoviePose = AutoMovieEngineKinematics.clampPose(pose, strike.body.skeleton);
       for (const j of pose.joints) {
         const c: IAutoMoviePose["joints"][number] = clamped.joints.find(
           (x: IAutoMoviePose["joints"][number]): boolean => x.bone === j.bone,
@@ -445,13 +422,12 @@ export namespace StrikingVerdicts {
     };
   }
 
-  /**
+  /*
    * How far a kick's displayed ankle lies from the ankle goal its plan asks
    * for, from the launch to the stop or the peak, so a leg the fit could not
    * bring onto its goal shows.
-   *
-   * @param strike The kick.
-   * @returns The leg goal verdict.
+   * Parameter strike: The kick.
+   * Returns: The leg goal verdict.
    */
   export function goal(strike: IStrike): IMotionCaptureCase.IVerdict {
     const g: IAutoMovieMotionHumanSegment = strike.segment;
@@ -467,8 +443,8 @@ export namespace StrikingVerdicts {
       ).limbs[`${side}Leg`];
       if (asked === undefined) continue;
       samples++;
-      const d: number = Vector3.length(
-        Vector3.subtract(
+      const d: number = AutoMovieEngineVector3.length(
+        AutoMovieEngineVector3.subtract(
           strike.performance.bones(strike.id, t).get(`${side}Foot`)!
             .worldPosition,
           asked.point,
@@ -488,4 +464,45 @@ export namespace StrikingVerdicts {
           : `the ankle lies at most ${(1000 * worst).toFixed(2)} mm from its goal (at ${when.toFixed(3)} s, ${samples} samples from ${from.toFixed(3)} to ${to.toFixed(3)} s); bound 2 mm`,
     };
   }
+
+  /*
+   * The 15 mm within which a stopped limb touches a surface or an extended one
+   * its aim.
+   */
+  const TOUCH: number = 0.015;
+
+  /*
+   * The 10 mm a limb may sink into the other body.
+   */
+  const SINK: number = 0.01;
+
+  /*
+   * The 5 mm a planted or pivoting ball may drift.
+   */
+  const SLIP: number = 0.005;
+
+  /*
+   * The 2 mm within which a displayed ankle meets its goal.
+   */
+  const GOAL: number = 0.002;
 }
+
+/*
+ * The record of `IPenetrationDeepest`'s site.
+ */
+type IPenetrationDeepest = { at: number };
+
+/*
+ * The record of `IContactClosest`'s site.
+ */
+type IContactClosest = { at: number };
+
+/*
+ * The alternatives of `ContactDeclared`'s site.
+ */
+type ContactDeclared = "feint" | "miss" | "graze" | undefined;
+
+/*
+ * The record of `IStrikeOther`'s site.
+ */
+type IStrikeOther = { id: string; body: IAutoMovieMotionHumanBody };

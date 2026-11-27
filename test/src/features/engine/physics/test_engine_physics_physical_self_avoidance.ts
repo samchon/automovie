@@ -1,11 +1,4 @@
-import {
-  preparePhysicalGeometry as Geometry,
-  Quaternion,
-  Vector3,
-  isPhysicalProfilePairExcluded,
-  planPhysicalContactTargets,
-  setPhysicalTargetJointRotation,
-} from "@automovie/engine";
+import { AutoMovieEnginePhysicalGeometry as Geometry, AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalJoint,
   IAutoMoviePhysicalSegment,
@@ -32,7 +25,7 @@ import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
  */
 export async function test_engine_physics_physical_self_avoidance(): Promise<void> {
   const profile: P = PhysicalModelFixtures.quadrupod();
-  const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry();
+  const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry.prepare();
   const targets: Record<string, IAutoMovieRigidTransform> = Object.fromEntries(
     profile.segments.map(
       (
@@ -47,14 +40,14 @@ export async function test_engine_physics_physical_self_avoidance(): Promise<voi
     (candidate: IAutoMoviePhysicalJoint): boolean =>
       candidate.child === "upper-0",
   )!;
-  setPhysicalTargetJointRotation(
+  AutoMovieEnginePhysics.setPhysicalTargetJointRotation(
     targets,
     joint,
     ["upper-0", "lower-0", "support-0"],
-    Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, -85),
+    AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, -85),
   );
-  const fitted: ReturnType<typeof planPhysicalContactTargets> =
-    planPhysicalContactTargets({
+  const fitted: ReturnType<typeof AutoMovieEnginePhysics.planPhysicalContactTargets> =
+    AutoMovieEnginePhysics.planPhysicalContactTargets({
       body: "mechanism",
       profiles: { mechanism: profile },
       targets,
@@ -76,7 +69,7 @@ export async function test_engine_physics_physical_self_avoidance(): Promise<voi
     targets.body,
   );
   TestValidator.predicate("joint neighbours excluded", (): boolean =>
-    isPhysicalProfilePairExcluded(profile, "body", "upper-0"),
+    AutoMovieEnginePhysics.isPhysicalProfilePairExcluded(profile, "body", "upper-0"),
   );
   const excluded: P = {
     ...profile,
@@ -89,14 +82,14 @@ export async function test_engine_physics_physical_self_avoidance(): Promise<voi
     ],
   };
   TestValidator.predicate("provider pivot exclusion retained", (): boolean =>
-    isPhysicalProfilePairExcluded(excluded, "lower-0", "body"),
+    AutoMovieEnginePhysics.isPhysicalProfilePairExcluded(excluded, "lower-0", "body"),
   );
 
   const shifted: Record<string, IAutoMovieRigidTransform> =
     structuredClone(targets);
   shifted.body!.position.x += 0.2;
-  const connected: ReturnType<typeof planPhysicalContactTargets> =
-    planPhysicalContactTargets({
+  const connected: ReturnType<typeof AutoMovieEnginePhysics.planPhysicalContactTargets> =
+    AutoMovieEnginePhysics.planPhysicalContactTargets({
       body: "mechanism",
       profiles: { mechanism: profile },
       targets: shifted,
@@ -111,17 +104,17 @@ export async function test_engine_physics_physical_self_avoidance(): Promise<voi
       connected.targets[connection.parent]!;
     const child: IAutoMovieRigidTransform =
       connected.targets[connection.child]!;
-    const first: IAutoMovieRigidTransform["position"] = Vector3.add(
+    const first: IAutoMovieRigidTransform["position"] = AutoMovieEngineVector3.add(
       parent.position,
-      Quaternion.rotateVector(parent.rotation, connection.parentFrame.position),
+      AutoMovieEngineQuaternion.rotateVector(parent.rotation, connection.parentFrame.position),
     );
-    const second: IAutoMovieRigidTransform["position"] = Vector3.add(
+    const second: IAutoMovieRigidTransform["position"] = AutoMovieEngineVector3.add(
       child.position,
-      Quaternion.rotateVector(child.rotation, connection.childFrame.position),
+      AutoMovieEngineQuaternion.rotateVector(child.rotation, connection.childFrame.position),
     );
     TestValidator.predicate(
       "root-only feedback cannot disconnect " + connection.id,
-      Vector3.length(Vector3.subtract(first, second)) <
+      AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(first, second)) <
         PhysicalTolerance.ACCUMULATED,
     );
   }
@@ -133,7 +126,7 @@ export async function test_engine_physics_physical_self_avoidance(): Promise<voi
     let result: number = 0;
     for (const [index, first] of profile.segments.entries())
       for (const second of profile.segments.slice(index + 1)) {
-        if (isPhysicalProfilePairExcluded(profile, first.bone, second.bone))
+        if (AutoMovieEnginePhysics.isPhysicalProfilePairExcluded(profile, first.bone, second.bone))
           continue;
         for (const a of first.shapes)
           for (const b of second.shapes)

@@ -1,11 +1,4 @@
-import {
-  buildAutoMoviePolyhedron,
-  buildAutoMovieWall,
-  extrudeAutoMovieProfile,
-  extrudeAutoMovieRegion,
-  revolveAutoMovieProfile,
-  tessellateToMesh,
-} from "@automovie/engine";
+import { AutoMovieEnginePlanarRegion, AutoMovieEngineGeometry } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -36,7 +29,7 @@ export function test_engine_geometry_uv_coordinate_source(): void {
     { x: h, y: h },
     { x: -h, y: h },
   ];
-  const face: IAutoMovieMesh = buildAutoMoviePolyhedron([
+  const face: IAutoMovieMesh = AutoMovieEngineGeometry.buildPolyhedron([
     [
       { x: 0, y: 0, z: 0 },
       { x: 3, y: 0, z: 0 },
@@ -44,7 +37,7 @@ export function test_engine_geometry_uv_coordinate_source(): void {
       { x: 0, y: 2, z: 0 },
     ],
   ]);
-  const region: IAutoMovieMesh = extrudeAutoMovieRegion({
+  const region: IAutoMovieMesh = AutoMovieEnginePlanarRegion.extrude({
     outer: [
       { x: 0, y: 0 },
       { x: 3, y: 0 },
@@ -63,7 +56,7 @@ export function test_engine_geometry_uv_coordinate_source(): void {
       { at: 1, outer: square(0.5) },
     ],
   });
-  const turned: IAutoMovieMesh = revolveAutoMovieProfile({
+  const turned: IAutoMovieMesh = AutoMovieEngineGeometry.revolveProfile({
     profile: [
       { x: 3, y: 0 },
       { x: 3, y: 1 },
@@ -93,9 +86,9 @@ export function test_engine_geometry_uv_coordinate_source(): void {
   TestValidator.equals(
     "no UVs",
     [
-      extrudeAutoMovieProfile({ profile: square(0.5), depth: 1 }).uvs,
-      buildAutoMovieWall({ width: 1, height: 1, depth: 0.1, openings: [] }).uvs,
-      tessellateToMesh({ type: "box", width: 1, height: 1, depth: 1 }).uvs,
+      AutoMovieEngineGeometry.extrudeProfile({ profile: square(0.5), depth: 1 }).uvs,
+      AutoMovieEngineGeometry.buildWall({ width: 1, height: 1, depth: 0.1, openings: [] }).uvs,
+      AutoMovieEngineGeometry.tessellateToMesh({ type: "box", width: 1, height: 1, depth: 1 }).uvs,
     ],
     [null, null, null],
   );

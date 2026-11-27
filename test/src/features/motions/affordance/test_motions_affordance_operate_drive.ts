@@ -10,7 +10,9 @@ import type {
   IAutoMovieMotionPropDrive,
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
-import { operateDrive } from "@automovie/motions/internal";
+import {
+  operateDrive
+} from "../../../../../packages/motions/src/affordance/internal/operateDrive";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

@@ -1,4 +1,4 @@
-import { analyzeAutoMovieSpaceAir } from "@automovie/engine";
+import { AutoMovieEngineAnalysis } from "@automovie/engine";
 import type {
   AutoMovieAnalysisDomain,
   IAutoMovieAnalysisMetric,
@@ -125,7 +125,7 @@ export function assertAnalysisEnvelopeHygrothermalPart2(
   ) => IAutoMovieAnalysisRun = (
     overrides: Partial<IAutoMovieSpaceAirRequest> = {},
   ): IAutoMovieAnalysisRun =>
-    analyzeAutoMovieSpaceAir({ request: airRequest(overrides) });
+    AutoMovieEngineAnalysis.spaceAir({ request: airRequest(overrides) });
   const ventilated: IAutoMovieAnalysisRun = air();
   TestValidator.predicate(
     "ventilation answers the zone balance and refuses to answer the flow field",

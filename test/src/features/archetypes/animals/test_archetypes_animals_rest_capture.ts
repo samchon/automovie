@@ -1,9 +1,13 @@
 import {
-  AutoMovieArchetypeQuadrupedJoints,
-  archetypeCaptureRest,
-  archetypeQuadrupedMarks,
-} from "@automovie/archetypes/executable/internal";
-import { Vector3 } from "@automovie/engine";
+  AutoMovieArchetypeQuadrupedJoints
+} from "../../../../../packages/archetypes/src/animals/AutoMovieArchetypeQuadrupedJoints";
+import {
+  archetypeCaptureRest
+} from "../../../../../packages/archetypes/src/executable/internal/archetypeCaptureRest";
+import {
+  archetypeQuadrupedMarks
+} from "../../../../../packages/archetypes/src/executable/internal/archetypeQuadrupedMarks";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /** Draw-time support marks follow the actual fitted solids through rest. */
@@ -44,13 +48,13 @@ export function test_archetypes_animals_rest_capture(): void {
     const joints: ReturnType<typeof AutoMovieArchetypeQuadrupedJoints.read> =
       AutoMovieArchetypeQuadrupedJoints.read(settled.parts);
     for (const [limb, [attachment, joint]] of Object.entries(joints.limbs)) {
-      const proximal: ReturnType<typeof Vector3.subtract> = Vector3.subtract(
+      const proximal: ReturnType<typeof AutoMovieEngineVector3.subtract> = AutoMovieEngineVector3.subtract(
         joint!,
         attachment!,
       );
       TestValidator.predicate(
         `${name} ${limb} folds close to the floor during the hold`,
-        proximal.y <= 0.2 * Vector3.length(proximal),
+        proximal.y <= 0.2 * AutoMovieEngineVector3.length(proximal),
       );
     }
   }

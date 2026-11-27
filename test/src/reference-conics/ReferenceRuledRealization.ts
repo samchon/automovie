@@ -1,5 +1,5 @@
 /** Host-only adaptation of the retained reference-experiments realization, SHA-256 5859b65144d933c1393344f3834e60582b6b8a0e8b70fb947dc3a7895905c13b. Numerical owners, options, ordering and coefficient evaluation are unchanged. */
-import { tessellateAutoMovieLocalHermite64 as T } from "@automovie/engine";
+import { AutoMovieEngineCurve } from "@automovie/engine";
 import type {
   IAutoMovieCubicBezierCurve64,
   IAutoMovieLocalHermiteStream64,
@@ -11,15 +11,7 @@ import type {
   IAutoMovieRecoveryTensorConstruction,
   IAutoMovieRecoveryTensorFamiliesInput,
 } from "@automovie/interface";
-import {
-  describeRecoveryNamedDomains,
-  describeRecoveryOpenRun,
-  normalizeRecoveryCourse,
-  prepareRecoveryLocalContinuation,
-  realizeAutoMovieRecoveryAnalyticDomains,
-  reconstructRecovery,
-  restoreRecoveryCurveBasis,
-} from "@automovie/recovery";
+import { AutoMovieRecoveryCurveConversion, AutoMovieRecoveryOpenRun, AutoMovieRecoveryReconstruction } from "@automovie/recovery";
 
 /** Browser consumer policy; mathematical limits remain the official Node limits. */
 interface Options {
@@ -41,9 +33,9 @@ interface Options {
 type Node = { section: number; arc: number };
 /** Closed diagnostic messages kept verbatim in the summary; the rest are counted. */
 const DIAGNOSTIC_EXAMPLES: number = 32;
-/** Same explicit graph edge accepted by prepareRecoveryLocalContinuation. */
+/** Same explicit graph edge accepted by AutoMovieRecoveryOpenRun.prepareLocalContinuation. */
 type Edge =
-  ReturnType<typeof prepareRecoveryLocalContinuation>["outgoing"] extends Map<
+  ReturnType<typeof AutoMovieRecoveryOpenRun.prepareLocalContinuation>["outgoing"] extends Map<
     string,
     infer E
   >
@@ -103,12 +95,12 @@ export async function ReferenceRuledRealization(
       strips: ReturnType<typeof histogram>;
       primitives: number;
       interactions: ReturnType<typeof histogram>;
-      tensorReports: ReturnType<typeof reconstructRecovery>["tensorReports"];
+      tensorReports: ReturnType<typeof AutoMovieRecoveryReconstruction.reconstructRecovery>["tensorReports"];
       analyticReports: ReturnType<
-        typeof reconstructRecovery
+        typeof AutoMovieRecoveryReconstruction.reconstructRecovery
       >["analyticReports"];
       named: {
-        members: ReturnType<typeof describeRecoveryNamedDomains>["members"];
+        members: ReturnType<typeof AutoMovieRecoveryReconstruction.describeNamedDomains>["members"];
         diagnostics: string[];
       };
     };
@@ -128,8 +120,9 @@ export async function ReferenceRuledRealization(
   if (options.operator !== "ruled")
     throw new Error("Explicit recoveryLocal ruled operator required");
   const bundle: IAutoMovieRecoveryTensorFamiliesInput =
-    restoreRecoveryCurveBasis(
+    AutoMovieRecoveryCurveConversion.convertBundle(
       savedCurves,
+      "bezier",
     ) as IAutoMovieRecoveryTensorFamiliesInput;
   if (
     !(
@@ -148,10 +141,11 @@ export async function ReferenceRuledRealization(
     throw new Error(
       "A complete source-free open-continuation sidecar is required",
     );
-  const analytic: ReturnType<typeof realizeAutoMovieRecoveryAnalyticDomains> =
-    realizeAutoMovieRecoveryAnalyticDomains(bundle, graph);
-  const prepared: ReturnType<typeof prepareRecoveryLocalContinuation> =
-    prepareRecoveryLocalContinuation(bundle, graph, analytic);
+  const analytic: ReturnType<
+    typeof AutoMovieRecoveryReconstruction.realizeAnalyticDomains
+  > = AutoMovieRecoveryReconstruction.realizeAnalyticDomains(bundle, graph);
+  const prepared: ReturnType<typeof AutoMovieRecoveryOpenRun.prepareLocalContinuation> =
+    AutoMovieRecoveryOpenRun.prepareLocalContinuation(bundle, graph, analytic);
   const {
     key,
     outgoing,
@@ -161,12 +155,12 @@ export async function ReferenceRuledRealization(
     unsupportedGroupsWithOpenArcs,
   }: typeof prepared = prepared;
   await pause();
-  const base: ReturnType<typeof reconstructRecovery> = reconstructRecovery(
+  const base: ReturnType<typeof AutoMovieRecoveryReconstruction.reconstructRecovery> = AutoMovieRecoveryReconstruction.reconstructRecovery(
     bundle,
     { observeWork: true, analytic },
   );
-  const named: ReturnType<typeof describeRecoveryNamedDomains> =
-    describeRecoveryNamedDomains(bundle, base);
+  const named: ReturnType<typeof AutoMovieRecoveryReconstruction.describeNamedDomains> =
+    AutoMovieRecoveryReconstruction.describeNamedDomains(bundle, base);
   const plannedTensorFamilies: number = named.members.filter(
     (member: (typeof named.members)[number]): boolean =>
       member.kind === "tensor-family",
@@ -277,8 +271,8 @@ export async function ReferenceRuledRealization(
       current = outgoing.get(key(current.after));
     }
     const id: string = "recovery.local." + key(nodes[0]!);
-    const metadata: ReturnType<typeof describeRecoveryOpenRun> =
-      describeRecoveryOpenRun(bundle, nodes);
+    const metadata: ReturnType<typeof AutoMovieRecoveryOpenRun.describeOpenRun> =
+      AutoMovieRecoveryOpenRun.describeOpenRun(bundle, nodes);
     const record: IAutoMovieRecoveryLocalRunReport = {
       id,
       firstSection: nodes[0]!.section,
@@ -312,12 +306,12 @@ export async function ReferenceRuledRealization(
     try {
       const courses: IAutoMovieCubicBezierCurve64[] = nodes.map(
         (n: Node, i: number): IAutoMovieCubicBezierCurve64 =>
-          normalizeRecoveryCourse(
+          AutoMovieRecoveryOpenRun.normalizeCourse(
             bundle.reports[n.section]!.open[n.arc]!.curve,
             reversals[i]!,
           ),
       );
-      iterator = T({
+      iterator = AutoMovieEngineCurve.tessellateLocalHermite64({
         name: id,
         topologyDomain: id,
         stations: nodes.map(

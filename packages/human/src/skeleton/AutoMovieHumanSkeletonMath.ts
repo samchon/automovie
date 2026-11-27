@@ -5,15 +5,13 @@ import type {
   IAutoMovieHumanSkeletonMath,
 } from "@automovie/interface";
 
-/** Existing registered-frame clinical axes and rigid-transform arithmetic, shared by skeleton preparation and FK.
- * Extracted without changing formulas, operation order or conventions; it owns no pose evaluation or body calibration.
+/**
+ * Existing registered-frame clinical axes and rigid-transform arithmetic,
+ * shared by skeleton preparation and FK. Extracted without changing formulas,
+ * operation order or conventions; it owns no pose evaluation or body
+ * calibration.
  */
 export namespace AutoMovieHumanSkeletonMath {
-  /** Body directions of the registered frame. */
-  const FORWARD: AutoMovieVector3Tuple = [1, 0, 0];
-  const UP: AutoMovieVector3Tuple = [0, 1, 0];
-  const LEFT: AutoMovieVector3Tuple = [0, 0, 1];
-
   /**
    * Clinical axes of one bone from its rest direction d.
    *
@@ -27,15 +25,11 @@ export namespace AutoMovieHumanSkeletonMath {
   ): IAutoMovieHumanSkeletonMath.IAxes {
     const s: number = bone.startsWith("right") ? -1 : 1;
     const side: string = bone.startsWith("right") ? "right" : "left";
-    const toward: (
+    function toward(
       flex: AutoMovieVector3Tuple,
       abd: AutoMovieVector3Tuple,
       twistSign: number,
-    ) => IAutoMovieHumanSkeletonMath.IAxes = (
-      flex: AutoMovieVector3Tuple,
-      abd: AutoMovieVector3Tuple,
-      twistSign: number,
-    ): IAutoMovieHumanSkeletonMath.IAxes => {
+    ): IAutoMovieHumanSkeletonMath.IAxes {
       const f: AutoMovieVector3Tuple = unit(cross(d, perp(flex, d)));
       const a0: AutoMovieVector3Tuple = unit(cross(d, perp(abd, d)));
       return {
@@ -43,16 +37,15 @@ export namespace AutoMovieHumanSkeletonMath {
         abduction: unit(sub(a0, times(f, dot(a0, f)))),
         twist: times(d, twistSign),
       };
-    };
-    const foot: () => IAutoMovieHumanSkeletonMath.IAxes =
-      (): IAutoMovieHumanSkeletonMath.IAxes => {
-        const f: AutoMovieVector3Tuple = unit(cross(d, perp(UP, d)));
-        return {
-          flexion: f,
-          abduction: times(d, -s),
-          twist: times(unit(cross(f, d)), -s),
-        };
+    }
+    function foot(): IAutoMovieHumanSkeletonMath.IAxes {
+      const f: AutoMovieVector3Tuple = unit(cross(d, perp(UP, d)));
+      return {
+        flexion: f,
+        abduction: times(d, -s),
+        twist: times(unit(cross(f, d)), -s),
       };
+    }
 
     // Midline column and pelvis: flex forward, bend right, turn the face left.
     if (["hips", "spine", "chest", "neck", "atlas", "head"].includes(bone))
@@ -93,9 +86,9 @@ export namespace AutoMovieHumanSkeletonMath {
       );
 
     // Hand and digits: palmar and radial directions of this hand at rest.
-    const at: (name: string) => AutoMovieVector3Tuple = (
-      name: string,
-    ): AutoMovieVector3Tuple => byBone.get(`${side}${name}`)!.position;
+    function at(name: string): AutoMovieVector3Tuple {
+      return byBone.get(`${side}${name}`)!.position;
+    }
     const radial: AutoMovieVector3Tuple = unit(
       sub(at("IndexProximal"), at("LittleProximal")),
     );
@@ -112,7 +105,6 @@ export namespace AutoMovieHumanSkeletonMath {
     const ulnar: boolean = bone.includes("Ring") || bone.includes("Little");
     return toward(palmar, times(radial, ulnar ? -1 : 1), s);
   }
-
   /** Quaternion of a turn by `degrees` about a unit axis. */
   export function fromAxisAngle(
     axis: AutoMovieVector3Tuple,
@@ -122,7 +114,6 @@ export namespace AutoMovieHumanSkeletonMath {
     const s: number = Math.sin(h);
     return [axis[0] * s, axis[1] * s, axis[2] * s, Math.cos(h)];
   }
-
   /** Hamilton product p q. */
   export function multiply(
     p: AutoMovieQuaternionTuple,
@@ -146,31 +137,6 @@ export namespace AutoMovieHumanSkeletonMath {
       [-q[0], -q[1], -q[2], q[3]],
     );
     return [r[0], r[1], r[2]];
-  }
-
-  /** Component of v orthogonal to unit n. */
-  function perp(
-    v: AutoMovieVector3Tuple,
-    n: AutoMovieVector3Tuple,
-  ): AutoMovieVector3Tuple {
-    return sub(v, times(n, dot(v, n)));
-  }
-
-  /** Dot product. */
-  function dot(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number {
-    return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-  }
-
-  /** Cross product a x b. */
-  function cross(
-    a: AutoMovieVector3Tuple,
-    b: AutoMovieVector3Tuple,
-  ): AutoMovieVector3Tuple {
-    return [
-      a[1] * b[2] - a[2] * b[1],
-      a[2] * b[0] - a[0] * b[2],
-      a[0] * b[1] - a[1] * b[0],
-    ];
   }
 
   /** Sum a + b. */
@@ -201,5 +167,45 @@ export namespace AutoMovieHumanSkeletonMath {
   export function unit(v: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
     const n: number = Math.hypot(...v);
     return [v[0] / n, v[1] / n, v[2] / n];
+  }
+
+  /*
+   * Body directions of the registered frame.
+   */
+  const FORWARD: AutoMovieVector3Tuple = [1, 0, 0];
+
+  const UP: AutoMovieVector3Tuple = [0, 1, 0];
+
+  const LEFT: AutoMovieVector3Tuple = [0, 0, 1];
+
+  /*
+   * Component of v orthogonal to unit n.
+   */
+  function perp(
+    v: AutoMovieVector3Tuple,
+    n: AutoMovieVector3Tuple,
+  ): AutoMovieVector3Tuple {
+    return sub(v, times(n, dot(v, n)));
+  }
+
+  /*
+   * Dot product.
+   */
+  function dot(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number {
+    return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+  }
+
+  /*
+   * Cross product a x b.
+   */
+  function cross(
+    a: AutoMovieVector3Tuple,
+    b: AutoMovieVector3Tuple,
+  ): AutoMovieVector3Tuple {
+    return [
+      a[1] * b[2] - a[2] * b[1],
+      a[2] * b[0] - a[0] * b[2],
+      a[0] * b[1] - a[1] * b[0],
+    ];
   }
 }

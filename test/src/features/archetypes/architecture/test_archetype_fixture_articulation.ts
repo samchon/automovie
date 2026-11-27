@@ -1,8 +1,4 @@
-import {
-  AutoMovieArchetypeUnits,
-  createAppliance,
-  createSanitary,
-} from "@automovie/archetypes";
+import { AutoMovieArchetypeUnits, AutoMovieArchetypeAppliance, AutoMovieArchetypeSanitary } from "@automovie/archetypes";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -35,12 +31,12 @@ export function test_archetype_fixture_articulation(): void {
   };
 
   // 1. The toilet's lid.
-  const toilet: ReturnType<typeof createSanitary> = createSanitary(
+  const toilet: ReturnType<typeof AutoMovieArchetypeSanitary.create> = AutoMovieArchetypeSanitary.create(
     { kind: "toilet" },
     6,
   );
   const seat: number = toilet.dimensions.seat!;
-  const closed: ReturnType<typeof createSanitary> = toilet.articulate({
+  const closed: ReturnType<typeof AutoMovieArchetypeSanitary.create> = toilet.articulate({
     lid: toilet.affordance("lid").travel!,
   });
   near(
@@ -57,7 +53,7 @@ export function test_archetype_fixture_articulation(): void {
     findings.push("the lid does not stand open at rest");
 
   // 2. The fridge's doors.
-  const fridge: ReturnType<typeof createAppliance> = createAppliance(
+  const fridge: ReturnType<typeof AutoMovieArchetypeAppliance.create> = AutoMovieArchetypeAppliance.create(
     { kind: "refrigerator" },
     6,
   );
@@ -67,7 +63,7 @@ export function test_archetype_fixture_articulation(): void {
     findings.push(
       `the fridge door opens ${fridge.affordance("fridgeDoor").travel} degrees, the maker's 90 expected`,
     );
-  const opened: ReturnType<typeof createAppliance> = fridge.articulate({
+  const opened: ReturnType<typeof AutoMovieArchetypeAppliance.create> = fridge.articulate({
     fridgeDoor: 90,
   });
   near(
@@ -94,7 +90,7 @@ export function test_archetype_fixture_articulation(): void {
   );
 
   // 3. The washer's door.
-  const washer: ReturnType<typeof createAppliance> = createAppliance(
+  const washer: ReturnType<typeof AutoMovieArchetypeAppliance.create> = AutoMovieArchetypeAppliance.create(
     { kind: "washingMachine" },
     6,
   );
@@ -116,7 +112,7 @@ export function test_archetype_fixture_articulation(): void {
   );
 
   // 4. The microwave's door does not open.
-  const microwave: ReturnType<typeof createAppliance> = createAppliance(
+  const microwave: ReturnType<typeof AutoMovieArchetypeAppliance.create> = AutoMovieArchetypeAppliance.create(
     { kind: "microwave" },
     6,
   );
@@ -127,7 +123,7 @@ export function test_archetype_fixture_articulation(): void {
     // Refused, as a door that states no travel is.
   }
   // 5. The basin mixer's lever.
-  const basin: ReturnType<typeof createSanitary> = createSanitary(
+  const basin: ReturnType<typeof AutoMovieArchetypeSanitary.create> = AutoMovieArchetypeSanitary.create(
     { kind: "washbasin" },
     6,
   );

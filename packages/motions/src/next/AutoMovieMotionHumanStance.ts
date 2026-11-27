@@ -1,5 +1,5 @@
-import { AutoMovieMotionHumanStanceLaws } from "./AutoMovieMotionHumanStanceLaws";
-import { AutoMovieMotionHumanStanceRows } from "./AutoMovieMotionHumanStanceRows";
+import { AutoMovieMotionHumanStanceLaws } from "./internal/AutoMovieMotionHumanStanceLaws";
+import { AutoMovieMotionHumanStanceRows } from "./internal/AutoMovieMotionHumanStanceRows";
 
 /**
  * The standing postures: quiet standing, shifting weight, bending, crouching,

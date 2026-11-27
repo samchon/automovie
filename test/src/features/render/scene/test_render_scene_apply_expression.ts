@@ -1,4 +1,4 @@
-import { applyExpression } from "@automovie/render";
+import { AutoMovieRenderSceneMotion } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -19,14 +19,14 @@ import { nclose } from "../../internal/predicates";
  */
 export function test_render_scene_apply_expression(): void {
   const apply: (
-    expression: Parameters<typeof applyExpression>[1],
-    visemes: Parameters<typeof applyExpression>[2],
+    expression: Parameters<typeof AutoMovieRenderSceneMotion.applyExpression>[1],
+    visemes: Parameters<typeof AutoMovieRenderSceneMotion.applyExpression>[2],
   ) => Map<string, number> = (
-    expression: Parameters<typeof applyExpression>[1],
-    visemes: Parameters<typeof applyExpression>[2],
+    expression: Parameters<typeof AutoMovieRenderSceneMotion.applyExpression>[1],
+    visemes: Parameters<typeof AutoMovieRenderSceneMotion.applyExpression>[2],
   ): Map<string, number> => {
     const values: Map<string, number> = new Map();
-    applyExpression(
+    AutoMovieRenderSceneMotion.applyExpression(
       {
         object: new THREE.Group(),
         bones: new Map(),

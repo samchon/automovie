@@ -1,4 +1,6 @@
-import { clampJointToSkeleton, jointToQuaternion } from "@automovie/engine";
+import {
+  AutoMovieEngineKinematics,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieAngleRange,
@@ -85,7 +87,7 @@ const GATED: IAutoMovieJointConstraint = {
 };
 
 /**
- * `clampJointToSkeleton.of` clamps one joint to the rig's current record of its
+ * `AutoMovieEngineKinematics.clampJointToSkeletonOf` clamps one joint to the rig's current record of its
  * bone: the first declaration's constraint, its last declared axes, nothing for
  * an unconstrained bone.
  *
@@ -116,7 +118,7 @@ export function test_engine_rom_clamp_joint_to_skeleton(): void {
   TestValidator.equals(
     "the first declaration",
     angles(
-      clampJointToSkeleton.of(
+      AutoMovieEngineKinematics.clampJointToSkeletonOf(
         "leftLowerArm",
         first,
       )(joint("leftLowerArm", 35, 31, null)),
@@ -139,7 +141,7 @@ export function test_engine_rom_clamp_joint_to_skeleton(): void {
     "the hinge fallback",
     [{ id: "current-rig", bones: [] }, nullFirst].map(
       (skeleton: IAutoMovieSkeleton): (number | null)[] =>
-        angles(clampJointToSkeleton.of("rightLowerArm", skeleton)(sides)),
+        angles(AutoMovieEngineKinematics.clampJointToSkeletonOf("rightLowerArm", skeleton)(sides)),
     ),
     [
       [7, 0, null],
@@ -154,7 +156,7 @@ export function test_engine_rom_clamp_joint_to_skeleton(): void {
   const read: () => (number | null)[] = (): (number | null)[] =>
     [35, -40].map(
       (flexion: number): number | null =>
-        clampJointToSkeleton.of(
+        AutoMovieEngineKinematics.clampJointToSkeletonOf(
           "leftLowerArm",
           plain,
         )(joint("leftLowerArm", flexion, null, null)).flexion,
@@ -180,7 +182,7 @@ export function test_engine_rom_clamp_joint_to_skeleton(): void {
   const clipped: (skeleton: IAutoMovieSkeleton) => boolean = (
     skeleton: IAutoMovieSkeleton,
   ): boolean => {
-    const out: IAutoMovieJointPose = clampJointToSkeleton.of(
+    const out: IAutoMovieJointPose = AutoMovieEngineKinematics.clampJointToSkeletonOf(
       "spine",
       skeleton,
     )(axial);
@@ -188,7 +190,7 @@ export function test_engine_rom_clamp_joint_to_skeleton(): void {
       nclose(out.flexion!, 0, 1e-9) &&
       nclose(out.abduction!, 0, 1e-9) &&
       nclose(out.twist!, 15, 1e-9) &&
-      qclose(jointToQuaternion(out, VALID), expected, 1e-9)
+      qclose(AutoMovieEngineKinematics.jointToQuaternion(out, VALID), expected, 1e-9)
     );
   };
   const zeroFlexion: IAutoMovieJointAxes = {
@@ -202,7 +204,7 @@ export function test_engine_rom_clamp_joint_to_skeleton(): void {
   ): boolean =>
     throwsError(
       (): IAutoMovieJointPose =>
-        clampJointToSkeleton.of("spine", skeleton)(axial),
+        AutoMovieEngineKinematics.clampJointToSkeletonOf("spine", skeleton)(axial),
       "axes.flexion",
     );
   const results: boolean[] = [
@@ -238,7 +240,7 @@ export function test_engine_rom_clamp_joint_to_skeleton(): void {
   const hips: IAutoMovieJointPose = joint("hips", 5, 999, null);
   TestValidator.predicate(
     "an unconstrained joint is returned as is",
-    clampJointToSkeleton.of("hips", {
+    AutoMovieEngineKinematics.clampJointToSkeletonOf("hips", {
       id: "current-rig",
       bones: [bone("hips", null, zeroFlexion)],
     })(hips) === hips,

@@ -1,4 +1,7 @@
-import { AutoMovieArchetypeUnits, createFireRing } from "@automovie/archetypes";
+import {
+  AutoMovieArchetypeFireRing,
+  AutoMovieArchetypeUnits,
+} from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../../internal/archetypeBandSweep";
@@ -18,8 +21,8 @@ import { archetypeExtent } from "../../internal/archetypeExtent";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the two scenarios and what each pins.
  */
 export function test_archetype_nature_fire_ring(): void {
-  const ring = (seed: number): ReturnType<typeof createFireRing> =>
-    createFireRing({ kind: "campground" }, seed);
+  const ring = (seed: number): ReturnType<typeof AutoMovieArchetypeFireRing.create> =>
+    AutoMovieArchetypeFireRing.create({ kind: "campground" }, seed);
   const inch: number = AutoMovieArchetypeUnits.INCH;
   const row = (
     name: string,
@@ -50,7 +53,7 @@ export function test_archetype_nature_fire_ring(): void {
       (s: number): number => ring(s).body.mass,
     ),
   ]);
-  const made: ReturnType<typeof createFireRing> = ring(0);
+  const made: ReturnType<typeof AutoMovieArchetypeFireRing.create> = ring(0);
   const wall: ReturnType<typeof archetypeExtent> = archetypeExtent(made, "z", [
     "plate0",
   ]);

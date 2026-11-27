@@ -1,23 +1,12 @@
-import {
-  Vector3,
-  physicalShapePairDistance,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidRegion,
-  IAutoMovieMotionClock,
-  IAutoMovieMotionHumanArmTarget,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanPrimitive,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineVector3, AutoMovieEnginePhysics, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidRegion, IAutoMovieMotionClock, IAutoMovieMotionHumanArmTarget, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieVector3 } from "@automovie/interface";
 import { AutoMovieMotionHumanStance } from "@automovie/motions";
 import {
-  AutoMovieMotionClock,
-  HumanColliders,
-} from "@automovie/motions/internal";
+  motionClock
+} from "../../../../packages/motions/src/compose/internal/motionClock";
+import {
+  HumanColliders
+} from "../../../../packages/motions/src/posture/internal/HumanColliders";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "./motionHumanBody";
@@ -41,7 +30,7 @@ export function motionContactArmFixture(): motionContactArmFixture.IInputs {
     ...AutoMovieMotionHumanStance.stand.posture(body, { x: 0, y: 0, z: 0 }, 0),
     root: { x: 0, y: 0, z: 0 },
   };
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
+  const clock: IAutoMovieMotionClock = motionClock.phrase({
     prepare: 1,
     wait: 1,
     attack: 1,
@@ -94,7 +83,7 @@ export namespace motionContactArmFixture {
     const point: IAutoMovieVector3 = shown.limbs.rightArm!.point;
     TestValidator.predicate(
       `at ${time} s wrist ${JSON.stringify(point)} reaches ${JSON.stringify(expected)}`,
-      Vector3.distance(point, expected) <= 1e-9,
+      AutoMovieEngineVector3.distance(point, expected) <= 1e-9,
     );
   }
   /** Resolve a named skin landmark using its carrier's displayed transform. */
@@ -105,7 +94,7 @@ export namespace motionContactArmFixture {
   ): IAutoMovieVector3 {
     const frame: IAutoMovieMotionHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
       body.surfaces.regions[region];
-    return resolveAutoMovieHumanoidSurfaces.place(frame, bones.get(frame.bone)!)
+    return AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(frame, bones.get(frame.bone)!)
       .point;
   }
 
@@ -149,7 +138,7 @@ export namespace motionContactArmFixture {
           for (const right of b.shapes)
             least = Math.min(
               least,
-              physicalShapePairDistance(a.pose, left, b.pose, right),
+              AutoMovieEnginePhysics.physicalShapePairDistance(a.pose, left, b.pose, right),
             );
     return least;
   }

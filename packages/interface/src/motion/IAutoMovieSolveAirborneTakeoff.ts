@@ -7,7 +7,7 @@ import type { IAutoMovieIntegrateMotionTrajectory } from "./IAutoMovieIntegrateM
 export namespace IAutoMovieSolveAirborneTakeoff {
   /** What a take-off is solved from. */
   export interface IProps {
-    /** The shape's history (`integrateAirborneRotation.history`). */
+    /** The shape's history (`AutoMovieEngineMotionAirborneRotation.history`). */
     history: IAutoMovieIntegrateAirborneRotation.IHistory;
 
     /** Take-off, seconds. */

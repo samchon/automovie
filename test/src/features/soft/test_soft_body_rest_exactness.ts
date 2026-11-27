@@ -1,8 +1,4 @@
-import {
-  simulateSoftBody,
-  softBodyRestConfiguration,
-  softBodyStateDigest,
-} from "@automovie/engine";
+import { AutoMovieEngineSoftBody } from "@automovie/engine";
 import {
   IAutoMovieSoftBodyDomain,
   IAutoMovieSoftBodyState,
@@ -62,7 +58,7 @@ const undisturbed: () => IAutoMovieSoftBodyDomain =
  */
 export function test_soft_body_rest_exactness(): void {
   const domain: IAutoMovieSoftBodyDomain = undisturbed();
-  const settled: IAutoMovieSoftBodyState = simulateSoftBody(domain, 256);
+  const settled: IAutoMovieSoftBodyState = AutoMovieEngineSoftBody.simulateSoftBody(domain, 256);
   TestValidator.equals(
     "an undisturbed panel is bit-identical to its rest mesh",
     namedFacts([
@@ -80,8 +76,8 @@ export function test_soft_body_rest_exactness(): void {
       [
         "digest",
         (): boolean =>
-          softBodyStateDigest(settled) ===
-          softBodyStateDigest(simulateSoftBody(domain, 256)),
+          AutoMovieEngineSoftBody.softBodyStateDigest(settled) ===
+          AutoMovieEngineSoftBody.softBodyStateDigest(AutoMovieEngineSoftBody.simulateSoftBody(domain, 256)),
       ],
     ]),
     {
@@ -94,7 +90,7 @@ export function test_soft_body_rest_exactness(): void {
     },
   );
 
-  const anchored: IAutoMovieSoftBodyState = simulateSoftBody(domain, 1);
+  const anchored: IAutoMovieSoftBodyState = AutoMovieEngineSoftBody.simulateSoftBody(domain, 1);
   TestValidator.equals(
     "a null anchor position holds the particle at its own rest coordinate",
     namedFacts([
@@ -105,7 +101,7 @@ export function test_soft_body_rest_exactness(): void {
     { x: true, y: true, z: true },
   );
 
-  const falling: IAutoMovieSoftBodyState = simulateSoftBody(
+  const falling: IAutoMovieSoftBodyState = AutoMovieEngineSoftBody.simulateSoftBody(
     softPanel({
       columns: 4,
       rows: 3,
@@ -146,39 +142,39 @@ export function test_soft_body_rest_exactness(): void {
         "default",
         (): boolean =>
           exactValues(
-            softBodyRestConfiguration(domain),
-            simulateSoftBody(domain, 0).positions,
+            AutoMovieEngineSoftBody.softBodyRestConfiguration(domain),
+            AutoMovieEngineSoftBody.simulateSoftBody(domain, 0).positions,
           ),
       ],
       [
         "anchored",
         (): boolean =>
           exactValues(
-            softBodyRestConfiguration(gathered),
-            simulateSoftBody(gathered, 0).positions,
+            AutoMovieEngineSoftBody.softBodyRestConfiguration(gathered),
+            AutoMovieEngineSoftBody.simulateSoftBody(gathered, 0).positions,
           ),
       ],
       [
         "named",
         (): boolean =>
           exactValues(
-            softBodyRestConfiguration(gathered, "drawn"),
-            simulateSoftBody(gathered, 0, "drawn").positions,
+            AutoMovieEngineSoftBody.softBodyRestConfiguration(gathered, "drawn"),
+            AutoMovieEngineSoftBody.simulateSoftBody(gathered, 0, "drawn").positions,
           ),
       ],
       [
         "notTheAuthoredMesh",
         (): boolean =>
-          exactValues(softBodyRestConfiguration(gathered), gathered.rest) ===
+          exactValues(AutoMovieEngineSoftBody.softBodyRestConfiguration(gathered), gathered.rest) ===
             false &&
-          nclose(softBodyRestConfiguration(gathered)[0], 2, 0) &&
-          nclose(softBodyRestConfiguration(gathered, "drawn")[0], -3, 0),
+          nclose(AutoMovieEngineSoftBody.softBodyRestConfiguration(gathered)[0], 2, 0) &&
+          nclose(AutoMovieEngineSoftBody.softBodyRestConfiguration(gathered, "drawn")[0], -3, 0),
       ],
       [
         "undeclaredStateThrows",
         (): boolean =>
           throwsError(
-            (): number[] => softBodyRestConfiguration(gathered, "shut"),
+            (): number[] => AutoMovieEngineSoftBody.softBodyRestConfiguration(gathered, "shut"),
             'does not declare a named state "shut"',
           ),
       ],

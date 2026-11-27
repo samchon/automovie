@@ -1,4 +1,4 @@
-import { sampleClip, validateClipArtifact } from "@automovie/engine";
+import { AutoMovieEngineSequence, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   AutoMovieInterpolation,
   IAutoMovieChannel,
@@ -41,7 +41,7 @@ const faultOn: (value: IAutoMovieClip) => IAutoMovieConstraintViolation = (
   value: IAutoMovieClip,
 ): IAutoMovieConstraintViolation => {
   const violations: IAutoMovieConstraintViolation[] = [];
-  validateClipArtifact(value, "$input.clip", violations);
+  AutoMovieEngineValidation.validateClipArtifact(value, "$input.clip", violations);
   const found: IAutoMovieConstraintViolation | undefined = violations.find(
     (item: IAutoMovieConstraintViolation): boolean =>
       item.path === "$input.clip.tracks[0].values",
@@ -133,7 +133,7 @@ export function test_engine_validation_clip_stride_diagnostic(): void {
   TestValidator.predicate(
     "the sampler's throw carries the same numbers",
     throwsError(
-      (): ReturnType<typeof sampleClip> => sampleClip(uneven, 0),
+      (): ReturnType<typeof AutoMovieEngineSequence.sampleClip> => AutoMovieEngineSequence.sampleClip(uneven, 0),
       ["keyframe count 67", "195 does not", "values must hold 201"],
     ),
   );

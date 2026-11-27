@@ -1,8 +1,4 @@
-import {
-  ViolationCollector,
-  compileCameraClearanceReports,
-  evaluateCameraClearance,
-} from "@automovie/engine";
+import { AutoMovieEngineViolationCollector, AutoMovieEngineFilm } from "@automovie/engine";
 import {
   IAutoMovieCamera,
   IAutoMovieCameraClearanceEnvelope,
@@ -64,10 +60,10 @@ const envelope: (
 
 const evaluate: (
   over?: IFilmCameraClearanceEvaluationOverrides,
-) => ReturnType<typeof evaluateCameraClearance> = (
+) => ReturnType<typeof AutoMovieEngineFilm.evaluateCameraClearance> = (
   over: IFilmCameraClearanceEvaluationOverrides = {},
-): ReturnType<typeof evaluateCameraClearance> =>
-  evaluateCameraClearance({
+): ReturnType<typeof AutoMovieEngineFilm.evaluateCameraClearance> =>
+  AutoMovieEngineFilm.evaluateCameraClearance({
     camera: "camera-main",
     envelope: over.envelope ?? envelope(),
     revision: over.revision ?? "revision-7",
@@ -176,11 +172,11 @@ export function test_engine_film_camera_clearance(): void {
     ],
   };
   const baseAdapterProps: Omit<
-    Parameters<typeof compileCameraClearanceReports>[0],
+    Parameters<typeof AutoMovieEngineFilm.compileCameraClearanceReports>[0],
     "out" | "runtime"
   > & {
     runtime: NonNullable<
-      Parameters<typeof compileCameraClearanceReports>[0]["runtime"]
+      Parameters<typeof AutoMovieEngineFilm.compileCameraClearanceReports>[0]["runtime"]
     >;
   } = {
     scene: clearStage.scene,
@@ -226,9 +222,9 @@ export function test_engine_film_camera_clearance(): void {
   function inspectAdapter(
     over: IFilmCameraClearanceAdapterOverrides = {},
   ): IFilmCameraClearanceAdapterResult {
-    const out: IAutoMovieViolationCollector = new ViolationCollector();
-    const reports: ReturnType<typeof compileCameraClearanceReports> =
-      compileCameraClearanceReports({
+    const out: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
+    const reports: ReturnType<typeof AutoMovieEngineFilm.compileCameraClearanceReports> =
+      AutoMovieEngineFilm.compileCameraClearanceReports({
         ...baseAdapterProps,
         ...over,
         out,

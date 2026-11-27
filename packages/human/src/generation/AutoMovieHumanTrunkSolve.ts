@@ -1,4 +1,4 @@
-import { AutoMovieStationHermite } from "@automovie/engine";
+import { AutoMovieEngineStationHermite } from "@automovie/engine";
 import type { IAutoMovieHumanTrunkSolve } from "@automovie/interface";
 
 /**
@@ -122,7 +122,7 @@ export namespace AutoMovieHumanTrunkSolve {
       b.value,
     ];
     const read = (order: 0 | 1 | 2): number => {
-      const w: number[] = AutoMovieStationHermite.weights(u, H, order, true);
+      const w: number[] = AutoMovieEngineStationHermite.weights(u, H, order, true);
 
       return w.reduce(
         (s: number, weight: number, k: number): number => s + weight * ends[k]!,

@@ -1,11 +1,11 @@
-import { AutoMovieCubicOval64 } from "@automovie/engine";
+import { AutoMovieEngineCubicOval64 } from "@automovie/engine";
 import type { IAutoMovieCubicOval64 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../../internal/predicates";
 
 /**
- * `AutoMovieCubicOval64.axesBySimpson` sizes an oval of a given girth and
+ * `AutoMovieEngineCubicOval64.axesBySimpson` sizes an oval of a given girth and
  * breadth-to-depth aspect.
  *
  * Scenarios:
@@ -18,18 +18,18 @@ import { nclose, throwsError } from "../../internal/predicates";
  */
 export function test_engine_geometry_cubic_oval(): void {
   const extreme: IAutoMovieCubicOval64.IAxesBySimpsonResult =
-    AutoMovieCubicOval64.axesBySimpson(100, Number.MAX_VALUE);
+    AutoMovieEngineCubicOval64.axesBySimpson(100, Number.MAX_VALUE);
   TestValidator.predicate("extreme depth", extreme.depthMm > 0);
   TestValidator.predicate(
     "extreme breadth",
     Math.abs(extreme.breadthMm / 50 - 1) < 1e-3,
   );
   const wide: IAutoMovieCubicOval64.IAxesBySimpsonResult =
-    AutoMovieCubicOval64.axesBySimpson(100, 4);
+    AutoMovieEngineCubicOval64.axesBySimpson(100, 4);
   const tall: IAutoMovieCubicOval64.IAxesBySimpsonResult =
-    AutoMovieCubicOval64.axesBySimpson(100, 0.25);
+    AutoMovieEngineCubicOval64.axesBySimpson(100, 0.25);
   const large: IAutoMovieCubicOval64.IAxesBySimpsonResult =
-    AutoMovieCubicOval64.axesBySimpson(200, 4);
+    AutoMovieEngineCubicOval64.axesBySimpson(200, 4);
   TestValidator.predicate(
     "reciprocal breadth",
     nclose(wide.breadthMm, tall.depthMm, 1e-9),
@@ -48,6 +48,6 @@ export function test_engine_geometry_cubic_oval(): void {
   );
   TestValidator.predicate(
     "underflow",
-    throwsError(() => AutoMovieCubicOval64.axesBySimpson(Number.MIN_VALUE)),
+    throwsError(() => AutoMovieEngineCubicOval64.axesBySimpson(Number.MIN_VALUE)),
   );
 }

@@ -1,4 +1,4 @@
-import { simulateSoftBody, softBodySurfaceGeometry } from "@automovie/engine";
+import { AutoMovieEngineSoftBody } from "@automovie/engine";
 import {
   IAutoMovieSoftBodyDomain,
   IAutoMovieSoftBodySurface,
@@ -62,9 +62,9 @@ const rug: (columns: number, rows: number) => IAutoMovieSoftBodyDomain = (
  */
 export function test_soft_body_surface_geometry(): void {
   const flat: IAutoMovieSoftBodyDomain = rug(3, 3);
-  const surface: IAutoMovieSoftBodySurface = softBodySurfaceGeometry({
+  const surface: IAutoMovieSoftBodySurface = AutoMovieEngineSoftBody.softBodySurfaceGeometry({
     domain: flat,
-    state: simulateSoftBody(flat, 0),
+    state: AutoMovieEngineSoftBody.simulateSoftBody(flat, 0),
   });
   TestValidator.equals(
     "one vertex per particle and two triangles per quad",
@@ -120,9 +120,9 @@ export function test_soft_body_surface_geometry(): void {
     rows: 3,
     overrides: { id: "drape" },
   });
-  const hanging: IAutoMovieSoftBodySurface = softBodySurfaceGeometry({
+  const hanging: IAutoMovieSoftBodySurface = AutoMovieEngineSoftBody.softBodySurfaceGeometry({
     domain: curtain,
-    state: simulateSoftBody(curtain, 0),
+    state: AutoMovieEngineSoftBody.simulateSoftBody(curtain, 0),
   });
   TestValidator.equals(
     "bounds are the world extent, and a hanging panel faces +z",
@@ -149,9 +149,9 @@ export function test_soft_body_surface_geometry(): void {
     rows: 4,
     overrides: { id: "cord" },
   });
-  const thread: IAutoMovieSoftBodySurface = softBodySurfaceGeometry({
+  const thread: IAutoMovieSoftBodySurface = AutoMovieEngineSoftBody.softBodySurfaceGeometry({
     domain: cord,
-    state: simulateSoftBody(cord, 0),
+    state: AutoMovieEngineSoftBody.simulateSoftBody(cord, 0),
   });
   TestValidator.equals(
     "a one-particle-wide lattice is a cord, not a surface",
@@ -178,9 +178,9 @@ export function test_soft_body_surface_geometry(): void {
     rows: 1,
     overrides: { id: "batten" },
   });
-  const rail: IAutoMovieSoftBodySurface = softBodySurfaceGeometry({
+  const rail: IAutoMovieSoftBodySurface = AutoMovieEngineSoftBody.softBodySurfaceGeometry({
     domain: batten,
-    state: simulateSoftBody(batten, 0),
+    state: AutoMovieEngineSoftBody.simulateSoftBody(batten, 0),
   });
   TestValidator.equals(
     "a one-particle-deep lattice is the mirror boundary of the cord",

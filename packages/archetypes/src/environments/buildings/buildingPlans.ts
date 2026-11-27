@@ -1,28 +1,29 @@
-import { triangulateAutoMovieRegion } from "@automovie/engine";
+import { AutoMovieEnginePlanarRegion } from "@automovie/engine";
 import type {
   IAutoMovieProfilePoint,
   IAutoMovieRegionTriangulation,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import type { AutoMovieArchetypeEnvironment } from "../AutoMovieArchetypeEnvironment";
+import type { IAutoMovieArchetypeEnvironmentBuildingFootprint } from "../IAutoMovieArchetypeEnvironmentBuildingFootprint";
+import type { IAutoMovieArchetypeEnvironmentBuildingPoint } from "../IAutoMovieArchetypeEnvironmentBuildingPoint";
 import { buildingWalkable } from "./buildingWalkable";
-import type { createBuilding } from "./createBuilding";
 
-/**
+/*
  * Admit room footprints and storey elevations into a reusable local plan.
  *
  * Positive-area overlap excludes rooms at the same level. Edge and vertex
  * contact remain available to the shared wall construction.
- *
- * @param props Building-local authoring input, in metres.
- * @returns The normalized local plan.
- * @throws Error naming an invalid level, room or opening.
+ * Parameter props: Building-local authoring input, in metres.
+ * Returns: The normalized local plan.
+ * Error naming an invalid level, room or opening.
  */
 export function buildingPlans(
-  props: createBuilding.IProps,
+  props: AutoMovieArchetypeEnvironment.IBuildingProps,
 ): buildingPlans.IPlan {
   const color: string = props.color ?? "#c1b7a5";
-  if ("footprint" in props)
+  if (props.type === "exterior")
     return {
       kind: "facade",
       region: draftRegion(props.footprint, "facade.footprint"),
@@ -66,12 +67,11 @@ export function buildingPlans(
       rooms.push({ id, region, support: region });
     }
     if (rooms.length === 0) throw new Error(`${path}.rooms is empty`);
-    const openings: createBuilding.Opening[] = structuredClone([
-      ...(level.openings ?? []),
-    ]);
+    const openings: AutoMovieArchetypeEnvironment.IBuildingOpening[] =
+      structuredClone([...(level.openings ?? [])]);
     for (const opening of openings) {
       admitId(opening.id, names, `${path}.openings`);
-      const [from, to] = opening.between;
+      const { from, to } = opening.between;
       if (
         from === to ||
         !rooms.some((room: buildingPlans.IRoom): boolean => room.id === from) ||
@@ -104,84 +104,134 @@ export function buildingPlans(
   return { kind: "plan", levels, stairs, wall, slab, color };
 }
 
-/** Normalized local geometry shared by the wall, slab and support assemblers. */
+/*
+ * Normalized local geometry shared by the wall, slab and support assemblers.
+ */
 export namespace buildingPlans {
-  /** An admitted planar region in XZ metres. */
+  /*
+   * An admitted planar region in XZ metres.
+   */
   export interface IRegion {
-    /**
+    /*
      * Canonically wound triangulation, with the planar Y component standing for
      * Z.
      */
     readonly region: IAutoMovieRegionTriangulation;
 
-    /** Outer ring followed by any holes, each in canonical winding. */
+    /*
+     * Outer ring followed by any holes, each in canonical winding.
+     */
     readonly rings: IAutoMovieProfilePoint[][];
 
-    /** Rectangle center or an interior point of the largest triangle. */
+    /*
+     * Rectangle center or an interior point of the largest triangle.
+     */
     readonly anchor: IAutoMovieProfilePoint;
 
-    /** Min X and Z followed by Max X and Z, in metres. */
+    /*
+     * Min X and Z followed by Max X and Z, in metres.
+     */
     readonly bounds: readonly [number, number, number, number];
   }
 
-  /** A named room in one normalized level. */
+  /*
+   * A named room in one normalized level.
+   */
   export interface IRoom {
-    /** Path segment unique to this level. */
+    /*
+     * Path segment unique to this level.
+     */
     readonly id: string;
 
-    /** Room's local floor plan. */
+    /*
+     * Room's local floor plan.
+     */
     readonly region: IRegion;
 
-    /** Walkable portion of the floor beyond the physical wall thickness. */
+    /*
+     * Walkable portion of the floor beyond the physical wall thickness.
+     */
     support: Pick<IRegion, "rings" | "anchor">;
 
-    /** Floor region after adding any generated stair voids. */
+    /*
+     * Floor region after adding any generated stair voids.
+     */
     floor?: IRegion;
 
-    /** Ceiling region after adding any generated stair voids. */
+    /*
+     * Ceiling region after adding any generated stair voids.
+     */
     ceiling?: IRegion;
   }
 
-  /** One normalized storey in local metres. */
+  /*
+   * One normalized storey in local metres.
+   */
   export interface ILevel {
-    /** Path segment unique to this building. */
+    /*
+     * Path segment unique to this building.
+     */
     readonly id: string;
 
-    /** Finished floor above the local origin, metres. */
+    /*
+     * Finished floor above the local origin, metres.
+     */
     readonly elevation: number;
 
-    /** Clear storey height, metres. */
+    /*
+     * Clear storey height, metres.
+     */
     readonly height: number;
 
-    /** Admitted rooms in author order. */
+    /*
+     * Admitted rooms in author order.
+     */
     readonly rooms: readonly IRoom[];
 
-    /** Owned copy of the aperture declarations. */
-    readonly openings: readonly createBuilding.Opening[];
+    /*
+     * Owned copy of the aperture declarations.
+     */
+    readonly openings: readonly AutoMovieArchetypeEnvironment.IBuildingOpening[];
   }
 
-  /** A stair with its resolved endpoints and exact adjoining slab cut. */
+  /*
+   * A stair with its resolved endpoints and exact adjoining slab cut.
+   */
   export interface IStair {
-    /** Stair id scoped by the building. */
+    /*
+     * Stair id scoped by the building.
+     */
     readonly id: string;
 
-    /** Admitted logical room ids in ascent order. */
+    /*
+     * Admitted logical room ids in ascent order.
+     */
     readonly rooms: readonly [string, string];
 
-    /** Building-local landing endpoints in metres. */
+    /*
+     * Building-local landing endpoints in metres.
+     */
     readonly endpoints: readonly [IAutoMovieVector3, IAutoMovieVector3];
 
-    /** Clear width across the flight in metres. */
+    /*
+     * Clear width across the flight in metres.
+     */
     readonly width: number;
 
-    /** Number of equal steps, including the upper tread. */
+    /*
+     * Number of equal steps, including the upper tread.
+     */
     readonly steps: number;
 
-    /** Smaller clear height of the two attached rooms in metres. */
+    /*
+     * Smaller clear height of the two attached rooms in metres.
+     */
     readonly clearHeight: number;
   }
 
-  /** Closed internal choice of interior building or facade mass. */
+  /*
+   * Closed internal choice of interior building or facade mass.
+   */
   export type IPlan =
     | {
         readonly kind: "facade";
@@ -199,26 +249,28 @@ export namespace buildingPlans {
       };
 }
 
-/** Resolve the levels and apply one stair corridor as both required slab holes. */
+/*
+ * Resolve the levels and apply one stair corridor as both required slab holes.
+ */
 function prepareStair(
-  stair: createBuilding.Stair,
+  stair: AutoMovieArchetypeEnvironment.IBuildingStair,
   levels: readonly buildingPlans.ILevel[],
 ): buildingPlans.IStair {
   const path: string = `building.stairs.${stair.id}`;
   const lowerIndex: number = levels.findIndex(
-    (level: buildingPlans.ILevel): boolean => level.id === stair.from[0],
+    (level: buildingPlans.ILevel): boolean => level.id === stair.from.level,
   );
   const lower: buildingPlans.ILevel | undefined = levels[lowerIndex];
   const upper: buildingPlans.ILevel | undefined = levels[lowerIndex + 1];
   const room: buildingPlans.IRoom | undefined = lower?.rooms.find(
-    (candidate: buildingPlans.IRoom): boolean => candidate.id === stair.from[1],
+    (candidate: buildingPlans.IRoom): boolean => candidate.id === stair.from.room,
   );
   const landing: buildingPlans.IRoom | undefined = upper?.rooms.find(
-    (candidate: buildingPlans.IRoom): boolean => candidate.id === stair.to[1],
+    (candidate: buildingPlans.IRoom): boolean => candidate.id === stair.to.room,
   );
   if (
     lower === undefined ||
-    upper?.id !== stair.to[0] ||
+    upper?.id !== stair.to.level ||
     room === undefined ||
     landing === undefined
   )
@@ -226,19 +278,19 @@ function prepareStair(
       `${path} must name rooms on adjacent levels in ascending order`,
     );
   const width: number = positive(stair.width, `${path}.width`);
-  const [from, to] = stair.run;
-  const dx: number = to[0] - from[0];
-  const dz: number = to[1] - from[1];
+  const { from, to } = stair.run;
+  const dx: number = to.x - from.x;
+  const dz: number = to.z - from.z;
   const run: number = positive(Math.hypot(dx, dz), `${path}.run`);
   // Rotating the along-run vector in the plan gives the same +X axis as
   // the span's right-handed +Z yaw. Use one corridor for both slab cuts.
   const x: number = ((dz / run) * width) / 2;
   const z: number = ((-dx / run) * width) / 2;
-  const cut: readonly createBuilding.Point[] = [
-    [from[0] - x, from[1] - z],
-    [from[0] + x, from[1] + z],
-    [to[0] + x, to[1] + z],
-    [to[0] - x, to[1] - z],
+  const cut: readonly IAutoMovieArchetypeEnvironmentBuildingPoint[] = [
+    { x: from.x - x, z: from.z - z },
+    { x: from.x + x, z: from.z + z },
+    { x: to.x + x, z: to.z + z },
+    { x: to.x - x, z: to.z - z },
   ];
   room.ceiling = addCut(room.ceiling ?? room.region, cut, `${path}.ceiling`);
   landing.floor = addCut(landing.floor ?? landing.region, cut, `${path}.floor`);
@@ -246,8 +298,8 @@ function prepareStair(
     id: stair.id,
     rooms: [`${lower.id}/${room.id}`, `${upper.id}/${landing.id}`],
     endpoints: [
-      { x: from[0], y: lower.elevation, z: from[1] },
-      { x: to[0], y: upper.elevation, z: to[1] },
+      { x: from.x, y: lower.elevation, z: from.z },
+      { x: to.x, y: upper.elevation, z: to.z },
     ],
     width,
     steps: stair.steps,
@@ -255,36 +307,50 @@ function prepareStair(
   };
 }
 
-/**
+/*
  * Re-admit a slab with a new, strictly contained void along with its prior
  * holes.
  */
 function addCut(
   region: buildingPlans.IRegion,
-  cut: readonly createBuilding.Point[],
+  cut: readonly IAutoMovieArchetypeEnvironmentBuildingPoint[],
   path: string,
 ): buildingPlans.IRegion {
-  /** Convert one stored canonical ring back to the compact plan input. */
+  /*
+   * Convert one stored canonical ring back to the compact plan input.
+   */
   const ring = (
     points: readonly IAutoMovieProfilePoint[],
-  ): createBuilding.Point[] =>
-    points.map(({ x, y }): createBuilding.Point => [x, y]);
+  ): IAutoMovieArchetypeEnvironmentBuildingPoint[] =>
+    points.map(
+      ({ x, y }): IAutoMovieArchetypeEnvironmentBuildingPoint => ({
+        x,
+        z: y,
+      }),
+    );
   return draftRegion(
     {
-      polygon: ring(region.rings[0]!),
-      holes: [...region.rings.slice(1).map(ring), cut],
+      type: "polygon",
+      value: {
+        vertices: ring(region.rings[0]!),
+        holes: [...region.rings.slice(1).map(ring), cut],
+      },
     },
     path,
   );
 }
 
-/** Admit a strictly positive finite metre dimension and retain its value. */
+/*
+ * Admit a strictly positive finite metre dimension and retain its value.
+ */
 function positive(value: number, path: string): number {
   if (value <= 0) throw new Error(`${path} must be positive and finite`);
   return value;
 }
 
-/** Admit a local anchor path segment against all earlier names at its level. */
+/*
+ * Admit a local anchor path segment against all earlier names at its level.
+ */
 function admitId(id: string, names: Set<string>, path: string): void {
   if (id.trim().length === 0 || id.includes("/") || id === "." || id === "..")
     throw new Error(`${path} has invalid path segment "${id}"`);
@@ -292,35 +358,36 @@ function admitId(id: string, names: Set<string>, path: string): void {
   names.add(id);
 }
 
-/**
+/*
  * Turn either footprint syntax into canonical rings, shared triangles and a
  * guaranteed interior frame origin.
  */
 function draftRegion(
-  footprint: createBuilding.Footprint,
+  footprint: IAutoMovieArchetypeEnvironmentBuildingFootprint,
   path: string,
 ): buildingPlans.IRegion {
-  let outer: readonly createBuilding.Point[];
-  let holes: readonly (readonly createBuilding.Point[])[] = [];
+  let outer: readonly IAutoMovieArchetypeEnvironmentBuildingPoint[];
+  let holes: readonly (readonly IAutoMovieArchetypeEnvironmentBuildingPoint[])[] =
+    [];
   let center: IAutoMovieProfilePoint | undefined;
-  if ("polygon" in footprint) {
-    outer = footprint.polygon;
-    holes = footprint.holes ?? [];
+  if (footprint.type === "polygon") {
+    outer = footprint.value.vertices;
+    holes = footprint.value.holes ?? [];
   } else {
-    const [x, z, width, depth] = footprint;
+    const { x, z, width, depth } = footprint.value;
     const right: number = x + positive(width, `${path}.width`);
     const back: number = z + positive(depth, `${path}.depth`);
     outer = [
-      [x, z],
-      [right, z],
-      [right, back],
-      [x, back],
+      { x, z },
+      { x: right, z },
+      { x: right, z: back },
+      { x, z: back },
     ];
     center = { x: x + width / 2, y: z + depth / 2 };
   }
   let region: IAutoMovieRegionTriangulation;
   try {
-    region = triangulateAutoMovieRegion({
+    region = AutoMovieEnginePlanarRegion.triangulate({
       outer: outer.map(planPoint),
       holes: holes.map((ring): IAutoMovieProfilePoint[] => ring.map(planPoint)),
     });
@@ -353,12 +420,14 @@ function draftRegion(
   };
 }
 
-/** Interpret the second tuple ordinate as planar Y for the XZ analysis. */
-function planPoint([x, y]: createBuilding.Point): IAutoMovieProfilePoint {
-  return { x, y };
+/*
+ * Map local XZ metres to planar XY metres for triangulation.
+ */
+function planPoint(point: IAutoMovieArchetypeEnvironmentBuildingPoint): IAutoMovieProfilePoint {
+  return { x: point.x, y: point.z };
 }
 
-/**
+/*
  * Return the centroid of the largest admitted triangle, strictly in the plan
  * region.
  */
@@ -381,7 +450,9 @@ function largestTriangleCenter(
   return center;
 }
 
-/** Which two plan interiors share area rather than only an edge or vertex. */
+/*
+ * Which two plan interiors share area rather than only an edge or vertex.
+ */
 function interiorsMeet(
   a: buildingPlans.IRegion,
   b: buildingPlans.IRegion,
@@ -403,7 +474,9 @@ function interiorsMeet(
   return false;
 }
 
-/** Three corners from the admitted triangulation, starting at one index offset. */
+/*
+ * Three corners from the admitted triangulation, starting at one index offset.
+ */
 function triangle(
   region: IAutoMovieRegionTriangulation,
   offset: number,
@@ -419,7 +492,9 @@ function triangle(
   ];
 }
 
-/** Test projections onto the three normalized edge normals in local metres. */
+/*
+ * Test projections onto the three normalized edge normals in local metres.
+ */
 function separated(
   first: readonly IAutoMovieProfilePoint[],
   second: readonly IAutoMovieProfilePoint[],
@@ -429,7 +504,9 @@ function separated(
     const length: number = Math.hypot(b.x - a.x, b.y - a.y);
     const x: number = (a.y - b.y) / length;
     const y: number = (b.x - a.x) / length;
-    /** Project relative to the edge origin to preserve local precision. */
+    /*
+     * Project relative to the edge origin to preserve local precision.
+     */
     const project = (p: IAutoMovieProfilePoint): number =>
       (p.x - a.x) * x + (p.y - a.y) * y;
     const u: number[] = first.map(project);

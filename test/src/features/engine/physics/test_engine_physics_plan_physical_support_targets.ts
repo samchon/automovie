@@ -1,9 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  physicalSupportPoint,
-  planPhysicalSupportTargets,
-} from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieFootfallPattern,
   IAutoMoviePhysicalProfile,
@@ -41,12 +36,12 @@ function articulated(
 ): boolean {
   return profile.joints.every(
     (joint: IProfile["joints"][number]): boolean =>
-      Vector3.distance(
-        physicalSupportPoint(
+      AutoMovieEngineVector3.distance(
+        AutoMovieEnginePhysics.physicalSupportPoint(
           targets[joint.parent]!,
           joint.parentFrame.position,
         ),
-        physicalSupportPoint(targets[joint.child]!, joint.childFrame.position),
+        AutoMovieEnginePhysics.physicalSupportPoint(targets[joint.child]!, joint.childFrame.position),
       ) <= ANCHOR,
   );
 }
@@ -80,9 +75,9 @@ export function test_engine_physics_plan_physical_support_targets(): void {
     const shape = shin(side).shapes[0]!;
     const reach: number =
       shape.kind === "capsule" ? shape.halfLength + shape.radius : 0;
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       shape.transform.position,
-      Quaternion.rotateVector(shape.transform.rotation, {
+      AutoMovieEngineQuaternion.rotateVector(shape.transform.rotation, {
         x: 0,
         y: -reach,
         z: 0,
@@ -103,12 +98,12 @@ export function test_engine_physics_plan_physical_support_targets(): void {
     })),
   };
   const moving = biped.limbs[0]!;
-  const start: IAutoMovieVector3 = physicalSupportPoint(
+  const start: IAutoMovieVector3 = AutoMovieEnginePhysics.physicalSupportPoint(
     standing[moving.bone]!,
     moving.localPoint!,
   );
   const goal: IAutoMovieVector3 = { ...start, z: start.z + 0.18 };
-  const stepped = planPhysicalSupportTargets({
+  const stepped = AutoMovieEnginePhysics.planPhysicalSupportTargets({
     profile: stickman,
     pattern: biped,
     targets: standing,
@@ -123,11 +118,11 @@ export function test_engine_physics_plan_physical_support_targets(): void {
       stepped.rootDrop < MAXIMUM_DROP &&
       biped.limbs.every(
         (limb): boolean =>
-          Vector3.distance(
-            physicalSupportPoint(stepped.targets[limb.bone]!, limb.localPoint!),
+          AutoMovieEngineVector3.distance(
+            AutoMovieEnginePhysics.physicalSupportPoint(stepped.targets[limb.bone]!, limb.localPoint!),
             limb === moving
               ? goal
-              : physicalSupportPoint(standing[limb.bone]!, limb.localPoint!),
+              : AutoMovieEnginePhysics.physicalSupportPoint(standing[limb.bone]!, limb.localPoint!),
           ) <= ENDPOINT,
       ) &&
       articulated(stickman, stepped.targets),
@@ -155,7 +150,7 @@ export function test_engine_physics_plan_physical_support_targets(): void {
   };
   const anchor = (child: string): IAutoMovieVector3 => {
     const joint = quadrupod.joints.find((j) => j.child === child)!;
-    return physicalSupportPoint(
+    return AutoMovieEnginePhysics.physicalSupportPoint(
       rest[joint.parent]!,
       joint.parentFrame.position,
     );
@@ -166,7 +161,7 @@ export function test_engine_physics_plan_physical_support_targets(): void {
       ...rest["support-0"]!.position,
       x: rest["support-0"]!.position.x + reach,
     };
-    const planned = planPhysicalSupportTargets({
+    const planned = AutoMovieEnginePhysics.planPhysicalSupportTargets({
       profile: quadrupod,
       pattern: quadruped,
       targets: rest,
@@ -186,7 +181,7 @@ export function test_engine_physics_plan_physical_support_targets(): void {
       Math.abs(planned.rootDrop - drop) <= ANCHOR &&
       quadruped.limbs.every(
         (limb): boolean =>
-          Vector3.distance(
+          AutoMovieEngineVector3.distance(
             planned.targets[limb.bone]!.position,
             limb.bone === "support-0" ? target : rest[limb.bone]!.position,
           ) <= ENDPOINT,

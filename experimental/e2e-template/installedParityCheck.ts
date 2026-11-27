@@ -18,7 +18,7 @@ export const checks = [
         pass: "depth",
         occurrence: "slide/0",
         diagnostic: { check: "installed-parity", key: "cart/5" },
-        at: { second: 0.625 },
+        at: { type: "second", second: 0.625 },
       },
       {
         kind: "delivery",

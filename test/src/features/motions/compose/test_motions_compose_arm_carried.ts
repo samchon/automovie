@@ -9,12 +9,20 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanArm,
-  AutoMovieMotionHumanBend,
-  composeAutoMovieMotionHumanAction,
-  poseBones,
-  resolveHumanPosture,
-} from "@automovie/motions/internal";
+  AutoMovieMotionHumanArm
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanArm";
+import {
+  AutoMovieMotionHumanBend
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanBend";
+import {
+  composeMotionHumanAction
+} from "../../../../../packages/motions/src/compose/internal/composeMotionHumanAction";
+import {
+  poseBones
+} from "../../../../../packages/motions/src/posture/internal/poseBones";
+import {
+  resolveHumanPosture
+} from "../../../../../packages/motions/src/posture/internal/resolveHumanPosture";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -91,7 +99,7 @@ export async function test_motions_compose_arm_carried(): Promise<void> {
     { name: "back", seconds: 1.8 },
   ]);
   const plan: IAutoMovieMotionHumanActionPlan =
-    composeAutoMovieMotionHumanAction({
+    composeMotionHumanAction({
       base: syntheticHumanPlan({ duration: 2, posture: standing }),
       clock,
       primitives: [

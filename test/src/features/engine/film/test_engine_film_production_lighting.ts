@@ -1,4 +1,4 @@
-import { Quaternion, inheritProductionLighting } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineFilm } from "@automovie/engine";
 import {
   AutoMovieChannelValueType,
   IAutoMovieChannel,
@@ -49,12 +49,12 @@ const keyed: (q: IAutoMovieQuaternion) => number[] = (
 
 const aboutY: (deg: number) => IAutoMovieQuaternion = (
   deg: number,
-): IAutoMovieQuaternion => Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, deg);
+): IAutoMovieQuaternion => AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, deg);
 
 const directionOf: (light: IAutoMovieLight) => IAutoMovieVector3 = (
   light: IAutoMovieLight,
 ): IAutoMovieVector3 =>
-  Quaternion.rotateVector(light.transform.rotation, { x: 0, y: 0, z: -1 });
+  AutoMovieEngineQuaternion.rotateVector(light.transform.rotation, { x: 0, y: 0, z: -1 });
 
 /** The authored directional source turns a quarter turn and fades over the span. */
 const daylight: IAutoMovieLight = {
@@ -152,7 +152,7 @@ export function test_engine_film_production_lighting(): void {
     seconds: number = 0,
   ): IAutoMovieLight =>
     lightOf(
-      inheritProductionLighting({
+      AutoMovieEngineFilm.inheritProductionLighting({
         lighting: lighting(),
         lights: staged,
         pin: { originSeconds },
@@ -185,7 +185,7 @@ export function test_engine_film_production_lighting(): void {
     seconds: number,
   ): IAutoMovieLight =>
     lightOf(
-      inheritProductionLighting({
+      AutoMovieEngineFilm.inheritProductionLighting({
         lighting: lighting(),
         lights: staged,
         pin: { originSeconds: 0, rate: SPAN / 2 },
@@ -200,13 +200,13 @@ export function test_engine_film_production_lighting(): void {
   );
 
   // 3. nothing declared, or nothing pinned: unchanged, element by element.
-  const undeclared: IAutoMovieLight[] = inheritProductionLighting({
+  const undeclared: IAutoMovieLight[] = AutoMovieEngineFilm.inheritProductionLighting({
     lighting: null,
     lights: staged,
     pin: { originSeconds: SPAN },
     seconds: 0,
   });
-  const unpinned: IAutoMovieLight[] = inheritProductionLighting({
+  const unpinned: IAutoMovieLight[] = AutoMovieEngineFilm.inheritProductionLighting({
     lighting: lighting(),
     lights: staged,
     pin: null,
@@ -244,7 +244,7 @@ export function test_engine_film_production_lighting(): void {
   );
 
   // 4. replace by id in place, keep the rest by identity, append the unstaged.
-  const merged: IAutoMovieLight[] = inheritProductionLighting({
+  const merged: IAutoMovieLight[] = AutoMovieEngineFilm.inheritProductionLighting({
     lighting: lighting({ lights: [daylight, moon] }),
     lights: staged,
     pin: { originSeconds: SPAN },

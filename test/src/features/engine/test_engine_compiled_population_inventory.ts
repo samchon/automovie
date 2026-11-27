@@ -1,10 +1,4 @@
-import {
-  materializeCompiledFormation,
-  materializeCompiledFormationInventory,
-  materializeCompiledInstanceSet,
-  materializeCompiledInstanceSetInventory,
-  worldRamp,
-} from "@automovie/engine";
+import { AutoMovieEngineWorld, AutoMovieEnginePopulationRuntime } from "@automovie/engine";
 import {
   type IAutoMovieCompiledFormation,
   type IAutoMovieCompiledInstanceSet,
@@ -49,7 +43,7 @@ const grove: (id: string) => IAutoMovieInstanceSetDesign = (
   variation: { scale: { min: 1, max: 1 }, palette: ["#00ff00"], traits: [] },
 });
 
-const field: IAutoMovieWorldSurface = worldRamp({
+const field: IAutoMovieWorldSurface = AutoMovieEngineWorld.ramp({
   id: "field",
   from: { x: -5, z: -5 },
   to: { x: -5, z: 5 },
@@ -63,16 +57,17 @@ const field: IAutoMovieWorldSurface = worldRamp({
  * A production's compiled populations are keyed by id in code-unit order, and
  * selected records match direct kernel calls with the same inputs.
  *
- * For these ASCII ids, code-unit order puts upper-case before lower-case, which is
- * not the order the designs are listed in here, so a key order that merely
+ * For these ASCII ids, code-unit order puts upper-case before lower-case, which
+ * is not the order the designs are listed in here, so a key order that merely
  * followed insertion would fail.
  *
  * Scenarios:
  *
- * 1. Formations listed b, B, a are keyed B, a, b, and the selected
- *    B record matches a direct kernel call with radii, terrain and no model groups.
+ * 1. Formations listed b, B, a are keyed B, a, b, and the selected B record
+ *    matches a direct kernel call with radii, terrain and no model groups.
  * 2. Instance sets declared y, X, x are keyed X, x, y, and X matches the direct
- *    instance-set kernel's output for the same world, radii and no model groups.
+ *    instance-set kernel's output for the same world, radii and no model
+ *    groups.
  * 3. No formations, and a world that declares no instance sets or an empty list,
  *    compile to empty inventories.
  *
@@ -88,7 +83,7 @@ export function test_engine_compiled_population_inventory(): void {
     ["tree", 2],
   ]);
   const formations: Readonly<Record<string, IAutoMovieCompiledFormation>> =
-    materializeCompiledFormationInventory({
+    AutoMovieEnginePopulationRuntime.materializeCompiledFormationInventory({
       formations: new Map([
         ["b", unit("b")],
         ["B", unit("B")],
@@ -105,7 +100,7 @@ export function test_engine_compiled_population_inventory(): void {
     instanceSets: [grove("y"), grove("X"), grove("x")],
   };
   const instanceSets: Readonly<Record<string, IAutoMovieCompiledInstanceSet>> =
-    materializeCompiledInstanceSetInventory({
+    AutoMovieEnginePopulationRuntime.materializeCompiledInstanceSetInventory({
       world,
       projectionRadii: radii,
     });
@@ -143,7 +138,7 @@ export function test_engine_compiled_population_inventory(): void {
     "an inventory formation is the formation kernel's record",
     test12ValuesClose(
       formations.B,
-      materializeCompiledFormation({
+      AutoMovieEnginePopulationRuntime.materializeCompiledFormation({
         formation: unit("B"),
         projectionRadii: radii,
         surfaces: [field],
@@ -154,7 +149,7 @@ export function test_engine_compiled_population_inventory(): void {
     "an inventory instance set is the instance-set kernel's record",
     test12ValuesClose(
       instanceSets.X,
-      materializeCompiledInstanceSet({
+      AutoMovieEnginePopulationRuntime.materializeCompiledInstanceSet({
         instanceSet: grove("X"),
         world,
         projectionRadii: radii,
@@ -168,21 +163,21 @@ export function test_engine_compiled_population_inventory(): void {
         "noFormations",
         (): boolean =>
           Object.keys(
-            materializeCompiledFormationInventory({ formations: new Map() }),
+            AutoMovieEnginePopulationRuntime.materializeCompiledFormationInventory({ formations: new Map() }),
           ).length === 0,
       ],
       [
         "noInstanceSetsKey",
         (): boolean =>
           Object.keys(
-            materializeCompiledInstanceSetInventory({ world: { routes: [] } }),
+            AutoMovieEnginePopulationRuntime.materializeCompiledInstanceSetInventory({ world: { routes: [] } }),
           ).length === 0,
       ],
       [
         "emptyInstanceSets",
         (): boolean =>
           Object.keys(
-            materializeCompiledInstanceSetInventory({
+            AutoMovieEnginePopulationRuntime.materializeCompiledInstanceSetInventory({
               world: { routes: [], instanceSets: [] },
             }),
           ).length === 0,

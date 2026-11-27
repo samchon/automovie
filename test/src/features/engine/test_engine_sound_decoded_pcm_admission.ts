@@ -1,4 +1,4 @@
-import { renderProductionSound } from "@automovie/engine";
+import { AutoMovieEngineSound } from "@automovie/engine";
 import type { IAutoMovieProductionSoundPlan } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -75,8 +75,8 @@ export function test_engine_sound_decoded_pcm_admission(): void {
       // builder refuses it when lowering the edit, and the mix refuses the
       // same contradiction rather than rendering it as silence.
       zeroCueRefused: throwsError(
-        (): ReturnType<typeof renderProductionSound> =>
-          renderProductionSound({ plan: zeroCuePlan }),
+        (): ReturnType<typeof AutoMovieEngineSound.renderProductionSound> =>
+          AutoMovieEngineSound.renderProductionSound({ plan: zeroCuePlan }),
         ['cue "zero"', "positive whole-frame span"],
       ),
     },
@@ -96,13 +96,14 @@ export function test_engine_sound_decoded_pcm_admission(): void {
     ],
   };
 
-  const decodedCue: ReturnType<typeof renderProductionSound> =
-    renderProductionSound({
-      plan: decodedCuePlan,
-      assets: new Map([
-        [decodedCuePlan.cues[0]!.asset, Float32Array.from([1e-6])],
-      ]),
-    });
+  const decodedCue: ReturnType<
+    typeof AutoMovieEngineSound.renderProductionSound
+  > = AutoMovieEngineSound.renderProductionSound({
+    plan: decodedCuePlan,
+    assets: new Map([
+      [decodedCuePlan.cues[0]!.asset, Float32Array.from([1e-6])],
+    ]),
+  });
 
   const resampledDialoguePlan: IAutoMovieProductionSoundPlan = {
     ...eventPlan(),
@@ -120,22 +121,23 @@ export function test_engine_sound_decoded_pcm_admission(): void {
     ],
   };
 
-  const resampledDialogue: ReturnType<typeof renderProductionSound> =
-    renderProductionSound({
-      plan: resampledDialoguePlan,
-      // Half the four-frame span: 2000 samples of a 1 kHz tone at 0.07 peak,
-      // near the −23 LUFS dialogue target, so levelling accepts it.
-      dialogue: new Map([
-        [
-          "resampled",
-          Float32Array.from(
-            { length: 2000 },
-            (_: unknown, index: number): number =>
-              0.07 * Math.sin((2 * Math.PI * 1000 * index) / 48_000),
-          ),
-        ],
-      ]),
-    });
+  const resampledDialogue: ReturnType<
+    typeof AutoMovieEngineSound.renderProductionSound
+  > = AutoMovieEngineSound.renderProductionSound({
+    plan: resampledDialoguePlan,
+    // Half the four-frame span: 2000 samples of a 1 kHz tone at 0.07 peak,
+    // near the −23 LUFS dialogue target, so levelling accepts it.
+    dialogue: new Map([
+      [
+        "resampled",
+        Float32Array.from(
+          { length: 2000 },
+          (_: unknown, index: number): number =>
+            0.07 * Math.sin((2 * Math.PI * 1000 * index) / 48_000),
+        ),
+      ],
+    ]),
+  });
 
   TestValidator.equals(
     "decoded generation extents, absolute loudness gate and unit-rate dialogue placement remain explicit",
@@ -144,8 +146,8 @@ export function test_engine_sound_decoded_pcm_admission(): void {
       decodedPastEndIsSilent: nclose(decodedCue.pcm[2]!, 0, 0),
       subGateLoudness: decodedCue.analysis.integratedLoudness,
       emptyDialogueIsRefused: throwsError(
-        (): ReturnType<typeof renderProductionSound> =>
-          renderProductionSound({
+        (): ReturnType<typeof AutoMovieEngineSound.renderProductionSound> =>
+          AutoMovieEngineSound.renderProductionSound({
             plan: oneSampleDialoguePlan,
             dialogue: new Map([["one-sample", new Float32Array()]]),
           }),
@@ -154,7 +156,6 @@ export function test_engine_sound_decoded_pcm_admission(): void {
       resampledDialogueAudible: resampledDialogue.pcm.some(
         (sample: number): boolean => sample !== 0,
       ),
-
     },
     {
       decodedFirstSample: true,
@@ -174,15 +175,16 @@ export function test_engine_sound_decoded_pcm_admission(): void {
   TestValidator.predicate(
     "a film yielding no native samples cannot claim a valid mix",
     throwsError(
-      (): ReturnType<typeof renderProductionSound> =>
-        renderProductionSound({ plan: emptyFilm }),
+      (): ReturnType<typeof AutoMovieEngineSound.renderProductionSound> =>
+        AutoMovieEngineSound.renderProductionSound({ plan: emptyFilm }),
       ["generated production mix", "empty PCM"],
     ),
   );
-  const oneFrame: ReturnType<typeof renderProductionSound> =
-    renderProductionSound({
-      plan: { ...emptyFilm, totalFrames: 1 },
-    });
+  const oneFrame: ReturnType<
+    typeof AutoMovieEngineSound.renderProductionSound
+  > = AutoMovieEngineSound.renderProductionSound({
+    plan: { ...emptyFilm, totalFrames: 1 },
+  });
   TestValidator.predicate(
     "the adjacent one-sample native clock remains supported",
     test12ValuesClose(

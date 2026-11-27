@@ -2,8 +2,10 @@ import type {
   IAutoMovieComposition,
   IAutoMovieIntent,
 } from "@automovie/interface";
-import { HumanChain } from "@automovie/motions";
-import { HumanPocket } from "@automovie/motions/internal";
+import { AutoMovieMotionHumanChain } from "@automovie/motions";
+import {
+  HumanPocket
+} from "../../../../../packages/motions/src/handling/internal/HumanPocket";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -15,13 +17,13 @@ import { TestValidator } from "@nestia/e2e";
  */
 export function test_motions_handling_human_pocket_take_out(): void {
   const last = (node: IAutoMovieComposition): IAutoMovieIntent => {
-    if (node.kind === "intent") return node.intent;
-    if (node.kind === "sequence" || node.kind === "parallel")
+    if (node.type === "intent") return node.intent;
+    if (node.type === "sequence" || node.type === "parallel")
       return last(node.parts[node.parts.length - 1]!);
     throw new Error("An anchored node carries no intent of its own");
   };
   const intent: IAutoMovieIntent = last(
-    HumanPocket.takeOut(HumanChain.subject("a"), "phone", "grip", "right").node,
+    HumanPocket.takeOut(AutoMovieMotionHumanChain.subject("a"), "phone", "grip", "right").node,
   );
   TestValidator.equals(
     "the pickup",

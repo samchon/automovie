@@ -7,9 +7,9 @@ import type { IAutoMovieAnalysisTarget } from "./IAutoMovieAnalysisTarget";
 /**
  * Everything one room-acoustic study is configured with.
  *
- * `analyzeAutoMovieAcoustics` throws on a blank id, subject or revision, a
+ * `analyzeAcoustics` throws on a blank id, subject or revision, a
  * non-positive volume, an empty surface list, any malformed or repeated member,
- * more receivers than `AUTOMOVIE_ANALYSIS_MAX_SAMPLES`, or a malformed target.
+ * more receivers than `AutoMovieEngineAnalysisMaxSamples`, or a malformed target.
  * Every field except `id`, `subject` and `inputRevision` enters the settings
  * digest; those three go into the run header.
  */
@@ -40,7 +40,7 @@ export interface IAutoMovieAcousticRequest {
 
   /**
    * Listening positions the field is reported at; at most
-   * `AUTOMOVIE_ANALYSIS_MAX_SAMPLES`, and empty makes the level metrics a gap.
+   * `AutoMovieEngineAnalysisMaxSamples`, and empty makes the level metrics a gap.
    */
   receivers: readonly IAutoMovieAcousticReceiver[];
 

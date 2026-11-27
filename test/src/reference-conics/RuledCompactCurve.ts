@@ -1,4 +1,4 @@
-import { AutoMovieBernstein64 as B } from "@automovie/engine";
+import { AutoMovieEngineBernstein64 as B } from "@automovie/engine";
 import type {
   AutoMovieBernsteinPolynomial64,
   AutoMovieCubicBezierControls3,
@@ -141,7 +141,7 @@ export namespace RuledCompactCurve {
       planeMm: plane,
       period,
       source: {
-        domain: [0, period],
+        domain: { start: 0, end: period },
         knots: prefix.slice(1, -1),
         breaks,
         closed: curve.closed,

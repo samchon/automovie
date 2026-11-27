@@ -1,4 +1,4 @@
-import { AutoMovieSplineCurve } from "@automovie/engine";
+import { AutoMovieEngineSplineCurve } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanLimbFrame,
@@ -96,10 +96,10 @@ export namespace AutoMovieHumanLimbFrame {
       },
     );
     return {
-      coefficients: AutoMovieSplineCurve.interpolate(
+      coefficients: AutoMovieEngineSplineCurve.interpolate(
         local.map((q: AutoMovieVector3Tuple): [number, number] => [q[0], q[1]]),
       ),
-      lift: AutoMovieSplineCurve.interpolate(
+      lift: AutoMovieEngineSplineCurve.interpolate(
         local.map((q: AutoMovieVector3Tuple): [number, number] => [q[2], 0]),
       ).slice(0, order),
     };
@@ -205,7 +205,9 @@ export namespace AutoMovieHumanLimbFrame {
     );
   }
 
-  /** Three-point derivative of a list of arrays over unequal stations. */
+  /*
+   * Three-point derivative of a list of arrays over unequal stations.
+   */
   function derivative(
     s: readonly number[],
     values: readonly (readonly number[])[],
@@ -227,7 +229,9 @@ export namespace AutoMovieHumanLimbFrame {
     );
   }
 
-  /** The part of u square to a unit normal, as a unit vector. */
+  /*
+   * The part of u square to a unit normal, as a unit vector.
+   */
   function orthogonal(
     u: AutoMovieVector3Tuple,
     n: AutoMovieVector3Tuple,

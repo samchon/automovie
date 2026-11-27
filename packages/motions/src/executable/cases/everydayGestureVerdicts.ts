@@ -1,26 +1,13 @@
-import {
-  Quaternion,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  IAutoMovieJointPose,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanGestureStroke,
-  IAutoMovieMotionHumanPerformance,
-  IAutoMovieMotionHumanTargetGrid,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanGestureStroke, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanTargetGrid, IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanFrame } from "../../posture/HumanFrame";
-import { HumanHand } from "../../posture/HumanHand";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
+import { HumanHand } from "../../posture/internal/HumanHand";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { MotionPlaceVerdicts } from "./MotionPlaceVerdicts";
-import { everydayGestureSwings } from "./everydayGestureSwings";
+import { everydayGestureSwings } from "./internal/everydayGestureSwings";
 
-/**
+/*
  * The checks that a gesture performs its own goal, measured on the displayed
  * poses of its stroke (from `strokeStart` to `strokeEnd`), so a figure that
  * never made the gesture fails them:
@@ -49,15 +36,14 @@ import { everydayGestureSwings } from "./everydayGestureSwings";
  * Thresholds other than the head range are provisional, set at about half of
  * each gesture's planned size so they test that the gesture happens, not its
  * exact size.
- *
- * @param kind The gesture.
- * @param performance The performance.
- * @param body The body.
- * @param from Stroke start, film seconds.
- * @param to Stroke end, film seconds.
- * @param cycles The stroke's declared repetitions.
- * @returns The verdicts; empty for gestures the capture already checks (point,
- *   clap, touches, bow).
+ * Parameter kind: The gesture.
+ * Parameter performance: The performance.
+ * Parameter body: The body.
+ * Parameter from: Stroke start, film seconds.
+ * Parameter to: Stroke end, film seconds.
+ * Parameter cycles: The stroke's declared repetitions.
+ * Returns: The verdicts; empty for gestures the capture already checks (point,
+ * clap, touches, bow).
  */
 export function everydayGestureVerdicts(
   kind: IAutoMovieMotionHumanGestureStroke.Kind,
@@ -75,7 +61,7 @@ export function everydayGestureVerdicts(
     t: number,
     bone: AutoMovieHumanoidBone,
   ): IAutoMovieVector3 =>
-    Quaternion.rotateVector(
+    AutoMovieEngineQuaternion.rotateVector(
       performance.bones("a", t).get(bone)!.worldRotation,
       { x: 0, y: 0, z: 1 },
     );
@@ -99,7 +85,7 @@ export function everydayGestureVerdicts(
       Math.acos(
         Math.max(
           -1,
-          Math.min(1, Vector3.dot(Vector3.normalize(v), Vector3.normalize(d))),
+          Math.min(1, AutoMovieEngineVector3.dot(AutoMovieEngineVector3.normalize(v), AutoMovieEngineVector3.normalize(d))),
         ),
       ),
     );
@@ -211,8 +197,8 @@ export function everydayGestureVerdicts(
     case "rubHands": {
       const gaps: number[] = times.map((t: number): number =>
         Math.abs(
-          Vector3.dot(
-            Vector3.subtract(palm(t, "left").point, palm(t, "right").point),
+          AutoMovieEngineVector3.dot(
+            AutoMovieEngineVector3.subtract(palm(t, "left").point, palm(t, "right").point),
             palm(t, "right").normal,
           ),
         ),
@@ -281,7 +267,7 @@ export function everydayGestureVerdicts(
     case "raiseHand":
     case "cheer": {
       const crown = body.surfaces.regions.crown;
-      const top: number = resolveAutoMovieHumanoidSurfaces.place(
+      const top: number = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
         crown,
         performance.bones("a", mid).get(crown.bone)!,
       ).point.y;
@@ -331,7 +317,7 @@ export function everydayGestureVerdicts(
       });
     case "scratchHead": {
       const temple = body.surfaces.regions.templeRight;
-      const at: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
+      const at: IAutoMovieVector3 = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
         temple,
         performance.bones("a", mid).get(temple.bone)!,
       ).point;
@@ -345,8 +331,8 @@ export function everydayGestureVerdicts(
       return [
         verdict(
           "fingertip at the temple",
-          Vector3.length(Vector3.subtract(tip, at)) <= 0.015 + 0.012,
-          `${(Vector3.length(Vector3.subtract(tip, at)) * 1000).toFixed(1)} mm`,
+          AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(tip, at)) <= 0.015 + 0.012,
+          `${(AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(tip, at)) * 1000).toFixed(1)} mm`,
         ),
       ];
     }

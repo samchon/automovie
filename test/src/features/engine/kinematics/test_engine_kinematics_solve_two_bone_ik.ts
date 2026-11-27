@@ -1,4 +1,4 @@
-import { solveTwoBoneIK } from "@automovie/engine";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
 import type { IAutoMovieTwoBoneIK } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -22,32 +22,32 @@ const ROUNDING: number = 1e-9;
  * 5. A non-positive bone length is refused.
  */
 export function test_engine_kinematics_solve_two_bone_ik(): void {
-  const right: IAutoMovieTwoBoneIK = solveTwoBoneIK(3, 4, 5);
+  const right: IAutoMovieTwoBoneIK = AutoMovieEngineKinematics.solveTwoBoneIK(3, 4, 5);
   TestValidator.predicate(
     "the 3-4-5 triangle",
     nclose(right.bend, 90, ROUNDING) &&
       nclose(right.lift, (Math.acos(0.6) * 180) / Math.PI, ROUNDING) &&
       !right.clamped,
   );
-  const straight: IAutoMovieTwoBoneIK = solveTwoBoneIK(3, 4, 7);
+  const straight: IAutoMovieTwoBoneIK = AutoMovieEngineKinematics.solveTwoBoneIK(3, 4, 7);
   TestValidator.predicate(
     "stretched",
     nclose(straight.bend, 180, ROUNDING) &&
       nclose(straight.lift, 0, ROUNDING) &&
       !straight.clamped,
   );
-  const over: IAutoMovieTwoBoneIK = solveTwoBoneIK(3, 4, 10);
+  const over: IAutoMovieTwoBoneIK = AutoMovieEngineKinematics.solveTwoBoneIK(3, 4, 10);
   TestValidator.predicate(
     "clamped",
     over.clamped && nclose(over.bend, 180, ROUNDING),
   );
-  const folded: IAutoMovieTwoBoneIK = solveTwoBoneIK(3, 4, 1);
+  const folded: IAutoMovieTwoBoneIK = AutoMovieEngineKinematics.solveTwoBoneIK(3, 4, 1);
   TestValidator.predicate(
     "folded",
     nclose(folded.bend, 0, ROUNDING) && nclose(folded.lift, 180, ROUNDING),
   );
   TestValidator.predicate(
     "a zero bone",
-    throwsError(() => solveTwoBoneIK(0, 4, 2), "upper length must be > 0"),
+    throwsError(() => AutoMovieEngineKinematics.solveTwoBoneIK(0, 4, 2), "upper length must be > 0"),
   );
 }

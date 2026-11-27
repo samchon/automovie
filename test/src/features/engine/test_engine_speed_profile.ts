@@ -1,4 +1,4 @@
-import { speedProfile } from "@automovie/engine";
+import { AutoMovieEngineMotionTrajectory } from "@automovie/engine";
 import type { IAutoMovieSpeedProfile } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -21,7 +21,7 @@ import { TestValidator } from "@nestia/e2e";
  */
 export function test_engine_speed_profile(): void {
   const findings: string[] = [];
-  const profile: IAutoMovieSpeedProfile.IProfile = speedProfile({
+  const profile: IAutoMovieSpeedProfile.IProfile = AutoMovieEngineMotionTrajectory.speedProfile({
     start: 1,
     speed: 2,
     acceleration: 2,
@@ -89,7 +89,7 @@ export function test_engine_speed_profile(): void {
   close(profile.at(profile.end + 5).distance, 59, "after the end");
 
   // 5. Reach.
-  const reach: { minimum: number; maximum: number } = speedProfile.reach(
+  const reach: { minimum: number; maximum: number } = AutoMovieEngineMotionTrajectory.speedProfileReach(
     10,
     5,
     2,
@@ -97,7 +97,7 @@ export function test_engine_speed_profile(): void {
   );
   close(reach.minimum, Math.sqrt(100 - 30), "the least speed reached");
   close(reach.maximum, Math.sqrt(100 + 20), "the greatest speed reached");
-  close(speedProfile.reach(2, 50, 2, 3).minimum, 0, "a stop within reach");
+  close(AutoMovieEngineMotionTrajectory.speedProfileReach(2, 50, 2, 3).minimum, 0, "a stop within reach");
 
   // 6. Impossible profiles.
   for (const [name, stretches] of [
@@ -116,7 +116,7 @@ export function test_engine_speed_profile(): void {
   ] as const) {
     let threw: boolean = false;
     try {
-      speedProfile({
+      AutoMovieEngineMotionTrajectory.speedProfile({
         start: 0,
         speed: 0,
         acceleration: 2,

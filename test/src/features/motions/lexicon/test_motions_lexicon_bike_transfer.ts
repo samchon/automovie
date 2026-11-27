@@ -3,7 +3,9 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { humanBikeTransferLine } from "@automovie/motions/internal";
+import {
+  humanBikeTransferLine
+} from "../../../../../packages/motions/src/lexicon/internal/humanBikeTransferLine";
 import { TestValidator } from "@nestia/e2e";
 
 /** A sole's four corners on the floor around a point along +Z. */

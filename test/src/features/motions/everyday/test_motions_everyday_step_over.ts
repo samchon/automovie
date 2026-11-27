@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -6,14 +6,26 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanClearance,
-  HumanFoot,
-  HumanFootRotation,
-  HumanFrame,
-  stand,
-  stepOver,
-  stepOverPathSwing,
-} from "@automovie/motions/internal";
+  AutoMovieMotionHumanClearance
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanClearance";
+import {
+  HumanFoot
+} from "../../../../../packages/motions/src/posture/internal/HumanFoot";
+import {
+  HumanFootRotation
+} from "../../../../../packages/motions/src/posture/internal/HumanFootRotation";
+import {
+  HumanFrame
+} from "../../../../../packages/motions/src/posture/internal/HumanFrame";
+import {
+  stand
+} from "../../../../../packages/motions/src/actions/internal/stand";
+import {
+  stepOver
+} from "../../../../../packages/motions/src/everyday/internal/stepOver";
+import {
+  stepOverPathSwing
+} from "../../../../../packages/motions/src/everyday/internal/stepOverPathSwing";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -129,7 +141,7 @@ export async function test_motions_everyday_step_over(): Promise<void> {
   );
   const radius: number = Math.max(
     ...HumanFoot.SOCKETS.map((socket: IAutoMovieMotionHumanFoot.Socket) =>
-      Vector3.length(HumanFoot.offset(body, "left", socket)),
+      AutoMovieEngineVector3.length(HumanFoot.offset(body, "left", socket)),
     ),
   );
   TestValidator.predicate(

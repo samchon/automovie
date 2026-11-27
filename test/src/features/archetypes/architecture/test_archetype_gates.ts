@@ -1,4 +1,4 @@
-import { createGate } from "@automovie/archetypes";
+import { AutoMovieArchetypeGate } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeExtent } from "../../internal/archetypeExtent";
@@ -34,7 +34,7 @@ export function test_archetype_gates(): void {
       {
         name: "turnstile passage",
         measure: (seed: number): readonly number[] => [
-          createGate({ kind: "turnstile" }, seed).affordance("passage").width!,
+          AutoMovieArchetypeGate.create({ kind: "turnstile" }, seed).affordance("passage").width!,
         ],
         models: [[0.457], [0.508], [0.559]],
         source: "Boon Edam Trilock 60",
@@ -42,7 +42,7 @@ export function test_archetype_gates(): void {
       {
         name: "speed gate passage",
         measure: (seed: number): readonly number[] => {
-          const gate: ReturnType<typeof createGate> = createGate(
+          const gate: ReturnType<typeof AutoMovieArchetypeGate.create> = AutoMovieArchetypeGate.create(
             { kind: "speedGate" },
             seed,
           );
@@ -57,7 +57,7 @@ export function test_archetype_gates(): void {
     ]),
   );
   for (const seed of [0, 11]) {
-    const turnstile: ReturnType<typeof createGate> = createGate(
+    const turnstile: ReturnType<typeof AutoMovieArchetypeGate.create> = AutoMovieArchetypeGate.create(
       { kind: "turnstile" },
       seed,
     );
@@ -88,7 +88,7 @@ export function test_archetype_gates(): void {
       0.416,
     );
 
-    const gate: ReturnType<typeof createGate> = createGate(
+    const gate: ReturnType<typeof AutoMovieArchetypeGate.create> = AutoMovieArchetypeGate.create(
       { kind: "speedGate" },
       seed,
     );

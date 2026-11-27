@@ -1,7 +1,4 @@
-import {
-  builtEnvironmentEnvelopeFaces,
-  validateBuiltEnvironment,
-} from "@automovie/engine";
+import { AutoMovieEngineBuiltEnvironment, AutoMovieEngineArchitecture } from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvelopeFace,
   IAutoMovieBuiltEnvironment,
@@ -52,12 +49,12 @@ export function test_architecture_envelope_faces(): void {
 
   TestValidator.equals(
     "the rectangular hall is a legal building",
-    validateBuiltEnvironment({ environment: record }).success,
+    AutoMovieEngineArchitecture.validateBuiltEnvironment({ environment: record }).success,
     true,
   );
 
   const faces: IAutoMovieBuiltEnvelopeFace[] =
-    builtEnvironmentEnvelopeFaces(record);
+    AutoMovieEngineBuiltEnvironment.environmentEnvelopeFaces(record);
 
   TestValidator.equals(
     "every enclosing separation is an exposed face, in boundary order",
@@ -162,7 +159,7 @@ export function test_architecture_envelope_faces(): void {
   );
 
   const odd: IAutoMovieBuiltEnvelopeFace[] =
-    builtEnvironmentEnvelopeFaces(oddBoundaries());
+    AutoMovieEngineBuiltEnvironment.environmentEnvelopeFaces(oddBoundaries());
 
   TestValidator.equals(
     "only the two exposed separations of the odd record are faces",

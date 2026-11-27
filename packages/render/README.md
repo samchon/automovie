@@ -12,15 +12,15 @@ npm install @automovie/render
 
 ### The draw-only page
 
-Use `installAutoMovieDraw` in a browser page over the same `IAutoMovieDrawSubject` records your inspector uses. `AutoMovieDrawSession` lets a host describe a subject, draw a planned still or draw a delivery frame. If you import Three.js in the host, use the same version as the render package.
+Use `AutoMovieRenderDraw.installAutoMovieDraw` in a browser page over the same `IAutoMovieRenderDrawSubject` records your inspector uses. `AutoMovieRenderDrawSession` lets a host describe a subject, draw a planned still or draw a delivery frame. If you import Three.js in the host, use the same version as the render package.
 
 ## Capture
 
-`planAutoMovieCapture` turns the subject and request into cells. `runAutoMovieCapture` draws them with your host and writes stills, contact sheets and `record.json`. Use `renderAutoMovieDrawnVideo` to draw and encode an entire subject.
+`AutoMovieRenderCapture.plan` turns the subject and request into cells. `AutoMovieRenderCapture.run` draws them with your host and writes stills, contact sheets and `record.json`. Use `AutoMovieRenderVideo.renderDrawnVideo` to draw and encode an entire subject.
 
 ## Inspection
 
-`parseAutoMovieInspectionRequest` reads the shared URL and CLI request. `applyAutoMovieInspection` applies the selected view and marks to a scene.
+`AutoMovieRenderInspectionRequest.parseRequest` reads the shared URL and CLI request. `AutoMovieRenderInspection.apply` applies the selected view and marks to a scene.
 
 ## Request keys
 

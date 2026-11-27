@@ -1,5 +1,10 @@
 import type { IAutoMoviePose } from "@automovie/interface";
-import { galleryCaseFist, galleryCaseZero } from "@automovie/motions/executable/internal";
+import {
+  galleryCaseFist
+} from "../../../../../packages/motions/src/executable/cases/internal/galleryCaseFist";
+import {
+  galleryCaseZero
+} from "../../../../../packages/motions/src/executable/cases/internal/galleryCaseZero";
 import { TestValidator } from "@nestia/e2e";
 
 /**

@@ -1,10 +1,12 @@
-import { ANKLE_DORSIFLEXION } from "@automovie/engine";
+import { AutoMovieEngineAnkleDorsiflexion } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanAuditMotion,
   IAutoMovieMotionHumanAuditRange,
   IAutoMovieMotionHumanContactWindow,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanAuditRange } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanAuditRange
+} from "../../../../../packages/motions/src/audit/internal/AutoMovieMotionHumanAuditRange";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -21,7 +23,7 @@ const FLEXION: number = 30;
 /**
  * `AutoMovieMotionHumanAuditRange.unloaded` reads a foot that bears no weight
  * against the unloaded ankle's dorsiflexion limit, 20 degrees (AAOS norms,
- * `ANKLE_DORSIFLEXION.unloaded`); a foot a plant, pivot or bearing window holds
+ * `AutoMovieEngineAnkleDorsiflexion.unloaded`); a foot a plant, pivot or bearing window holds
  * is not read, and an instant both feet are held reads no pose.
  *
  * Scenarios, 1 s read at 4 Hz, both ankles dorsiflexed 30 degrees, the right
@@ -91,7 +93,7 @@ export function test_motions_audit_auto_movie_motion_human_audit_range_unloaded(
     "a lifted foot",
     nclose(
       lifted.overshoot.value,
-      FLEXION - ANKLE_DORSIFLEXION.unloaded,
+      FLEXION - AutoMovieEngineAnkleDorsiflexion.unloaded,
       ROUNDING,
     ) &&
       lifted.overshoot.seconds === 0.75 &&

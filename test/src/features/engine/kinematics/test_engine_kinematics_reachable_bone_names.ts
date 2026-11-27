@@ -1,4 +1,4 @@
-import { compareCodeUnits, indexSkeletonTopology, reachableBoneNames } from "@automovie/engine";
+import { AutoMovieEngineText, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
@@ -28,7 +28,8 @@ const bone: (
 /** The reachable names, sorted. */
 const names: (skeleton: IAutoMovieSkeleton) => string[] = (
   skeleton: IAutoMovieSkeleton,
-): string[] => [...reachableBoneNames(skeleton)].sort(compareCodeUnits);
+): string[] =>
+  [...AutoMovieEngineKinematics.reachableBoneNames(skeleton)].sort(AutoMovieEngineText.compareCodeUnits);
 
 /**
  * `reachableBoneNames` is the set of bones a walk from the null-parent roots
@@ -75,18 +76,18 @@ export function test_engine_kinematics_reachable_bone_names(): void {
     id: "grown",
     bones: [bone("hips", null)],
   };
-  const snapshot = indexSkeletonTopology(grown);
+  const snapshot = AutoMovieEngineKinematics.indexSkeletonTopology(grown);
   grown.bones.push(bone("spine", "hips"));
   TestValidator.equals(
     "a snapshot and a fresh read",
-    [[...reachableBoneNames(grown, snapshot)], names(grown)],
+    [[...AutoMovieEngineKinematics.reachableBoneNames(grown, snapshot)], names(grown)],
     [["hips"], ["hips", "spine"]],
   );
   TestValidator.predicate(
     "a repeated bone",
     throwsError(
       () =>
-        indexSkeletonTopology({
+        AutoMovieEngineKinematics.indexSkeletonTopology({
           id: "twice",
           bones: [bone("hips", null), bone("hips", "hips")],
         }),

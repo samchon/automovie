@@ -1,13 +1,15 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanToesOnFloor,
-  HumanFoot,
-} from "@automovie/motions/internal";
+  AutoMovieMotionHumanToesOnFloor
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanToesOnFloor";
+import {
+  HumanFoot
+} from "../../../../../packages/motions/src/posture/internal/HumanFoot";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -68,7 +70,7 @@ export async function test_motions_compose_toes_on_floor(): Promise<void> {
   const foot: IAutoMovieMotionHumanFoot.IPlacement = at(half, -20);
   const ball: IAutoMovieVector3 = HumanFoot.point(body, "left", "ball", foot);
   const toe: IAutoMovieVector3 = HumanFoot.point(body, "left", "toe", foot);
-  const length: number = Vector3.distance(ball, toe);
+  const length: number = AutoMovieEngineVector3.distance(ball, toe);
   const down = (drop: number): number =>
     (Math.asin(drop / length) * 180) / Math.PI;
   TestValidator.predicate(

@@ -1,4 +1,4 @@
-import { Matrix4, resolveWorldDrivers } from "@automovie/engine";
+import { AutoMovieEngineMatrix4, AutoMovieEngineResolve } from "@automovie/engine";
 import {
   type IAutoMovieDriver,
   IAutoMovieParentDriver,
@@ -20,7 +20,7 @@ const W: (
   pos: IAutoMovieVector3,
   rot: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 },
   scl: IAutoMovieVector3 = { x: 1, y: 1, z: 1 },
-): number[] => Matrix4.compose(pos, rot, scl);
+): number[] => AutoMovieEngineMatrix4.compose(pos, rot, scl);
 
 const parent: (
   over: Partial<IAutoMovieParentDriver>,
@@ -82,7 +82,7 @@ export function test_resolve_parent_driver(): void {
   const children: Map<string, string[]> = new Map<string, string[]>([
     ["o", ["c"]],
   ]);
-  resolveWorldDrivers(
+  AutoMovieEngineResolve.resolveWorldDrivers(
     [parent({ translation: true, rotation: true, scale: true })],
     world,
     localById,
@@ -92,7 +92,7 @@ export function test_resolve_parent_driver(): void {
     position: IAutoMovieVector3;
     rotation: IAutoMovieQuaternion;
     scale: IAutoMovieVector3;
-  } = Matrix4.decompose(world.get("o")!);
+  } = AutoMovieEngineMatrix4.decompose(world.get("o")!);
   TestValidator.predicate(
     "owner inherits parent position",
     vclose(own.position, { x: 10, y: 0, z: 0 }, 1e-5),
@@ -107,7 +107,7 @@ export function test_resolve_parent_driver(): void {
   );
   TestValidator.predicate(
     "child recomposed off the new owner frame",
-    !vclose(Matrix4.position(world.get("c")!), { x: 0, y: 1, z: 0 }, 1e-3),
+    !vclose(AutoMovieEngineMatrix4.position(world.get("c")!), { x: 0, y: 1, z: 0 }, 1e-3),
   );
 
   // 2. all flags off → owner unchanged
@@ -115,17 +115,17 @@ export function test_resolve_parent_driver(): void {
     ["o", W({ x: 3, y: 4, z: 5 })],
     ["p", W({ x: 10, y: 0, z: 0 }, parentRot, parentScale)],
   ]);
-  resolveWorldDrivers([parent({})], world2, new Map(), new Map());
+  AutoMovieEngineResolve.resolveWorldDrivers([parent({})], world2, new Map(), new Map());
   TestValidator.predicate(
     "all flags off leaves the owner put",
-    vclose(Matrix4.position(world2.get("o")!), { x: 3, y: 4, z: 5 }, 1e-5),
+    vclose(AutoMovieEngineMatrix4.position(world2.get("o")!), { x: 3, y: 4, z: 5 }, 1e-5),
   );
 
   TestValidator.predicate(
     "missing parent-driver owner rejects incomplete world map",
     throwsError(
       (): IAutoMovieDriver[] =>
-        resolveWorldDrivers(
+        AutoMovieEngineResolve.resolveWorldDrivers(
           [parent({ owner: "missing", translation: true })],
           new Map([["p", W({ x: 10, y: 0, z: 0 })]]),
           new Map(),
@@ -138,7 +138,7 @@ export function test_resolve_parent_driver(): void {
     "missing parent-driver parent rejects incomplete world map",
     throwsError(
       (): IAutoMovieDriver[] =>
-        resolveWorldDrivers(
+        AutoMovieEngineResolve.resolveWorldDrivers(
           [parent({ parent: "missing", translation: true })],
           new Map([["o", W({ x: 0, y: 0, z: 0 })]]),
           new Map(),

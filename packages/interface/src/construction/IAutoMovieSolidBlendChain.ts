@@ -24,7 +24,7 @@ export namespace IAutoMovieSolidBlendChain {
 
     /**
      * The curve parameter of the chain's phase 0, radians
-     * (`AutoMovieSolidIntersection.IPoint.t`).
+     * (`AutoMovieEngineSolidIntersection.IPoint.t`).
      */
     seed: number;
 
@@ -44,7 +44,7 @@ export namespace IAutoMovieSolidBlendChain {
     /**
      * The part's chart direction at each column from the curve's preimage
      * toward its rail, of unit world speed at the preimage
-     * (`AutoMovieSolidRail.IRail.partAcross`): the part continues past its rail
+     * (`AutoMovieEngineSolidRail.IRail.partAcross`): the part continues past its rail
      * along it.
      */
     partAcross: [number, number][];
@@ -54,26 +54,14 @@ export namespace IAutoMovieSolidBlendChain {
 
     /**
      * The declared chords at each column, mm
-     * (`AutoMovieSolidJoin.IJoin.widths`); the part's null where its rail is
+     * (`AutoMovieEngineSolidJoin.IJoin.widths`); the part's null where its rail is
      * one fixed station.
      */
-    widths: {
-      /**
-       * Declared host-side chord width in millimetres at each corresponding
-       * column, in the blend's phase order.
-       */
-      host: number[];
-
-      /**
-       * Declared part-side chord width in millimetres at each column, or null
-       * for a rail constrained to one fixed station.
-       */
-      part: (number | null)[];
-    };
+    widths: IBlendWidths;
 
     /**
      * The kind of the curve's parameter
-     * (`AutoMovieSolidIntersection.Parameter`).
+     * (`AutoMovieEngineSolidIntersection.Parameter`).
      */
     parameter: IAutoMovieSolidIntersection.Parameter["kind"];
 
@@ -83,6 +71,21 @@ export namespace IAutoMovieSolidBlendChain {
      */
     sigma: 1 | -1;
   }
+
+  /** The widths object of {@link IBlend}. */
+  export type IBlendWidths = {
+    /**
+     * Declared host-side chord width in millimetres at each corresponding
+     * column, in the blend's phase order.
+     */
+    host: number[];
+
+    /**
+     * Declared part-side chord width in millimetres at each column, or null
+     * for a rail constrained to one fixed station.
+     */
+    part: (number | null)[];
+  };
 
   /**
    * Uniform phase columns at 2pi*k/count, each pairing two world-space ribbons.

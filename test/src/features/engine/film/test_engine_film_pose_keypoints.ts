@@ -1,4 +1,4 @@
-import { resolvePoseKeypoints } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import {
   AutoMovieHumanoidBone,
   IAutoMovieCamera,
@@ -83,7 +83,7 @@ const keypoints: (props: {
   cameraMotion?: IAutoMovieClip | null;
   time?: number;
 }): IAutoMoviePoseKeypoint[] =>
-  resolvePoseKeypoints({
+  AutoMovieEngineFilm.resolvePoseKeypoints({
     pose: props.pose,
     skeleton: skeleton(props.headRest ?? t3(0, 1, 0)),
     node: { transform: props.node ?? t3(0, 0, 0) },
@@ -185,7 +185,7 @@ export function test_engine_film_pose_keypoints(): void {
   );
   TestValidator.equals(
     "the default joint set emits only the rig's bones",
-    resolvePoseKeypoints({
+    AutoMovieEngineFilm.resolvePoseKeypoints({
       pose: poseAt(0, 0, -5),
       skeleton: skeleton(t3(0, 1, 0)),
       node: { transform: t3(0, 0, 0) },

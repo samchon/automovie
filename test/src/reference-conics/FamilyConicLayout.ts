@@ -1,4 +1,4 @@
-import { AutoMovieNaturalSpline } from "@automovie/engine";
+import { AutoMovieEngineNaturalSpline } from "@automovie/engine";
 import { AutoMovieHumanConicSection as S } from "@automovie/human";
 import type {
   AutoMovieVector2Tuple,
@@ -386,7 +386,7 @@ export namespace FamilyConicLayout {
 
   /**
    * The linear least-squares natural cubic of each field on shared knots: the knot values whose natural spline (the engine's
-   * `AutoMovieNaturalSpline`, which the family's reader evaluates) comes nearest the stations' values in the sum of squares. The spline is
+   * `AutoMovieEngineNaturalSpline`, which the family's reader evaluates) comes nearest the stations' values in the sum of squares. The spline is
    * linear in its knot values, so its basis is the splines of the unit vectors, and the normal equations are solved once for all fields.
    *
    * @param stations The stations, mm.
@@ -402,8 +402,8 @@ export namespace FamilyConicLayout {
     const n: number = knots.length;
     const basis: number[][] = stations.map((s: number): number[] =>
       Array.from({ length: n }, (_: unknown, j: number): number =>
-        AutoMovieNaturalSpline.evaluate(
-          AutoMovieNaturalSpline.create(
+        AutoMovieEngineNaturalSpline.evaluate(
+          AutoMovieEngineNaturalSpline.create(
             [...knots],
             knots.map((_: number, i: number): number => (i === j ? 1 : 0)),
           ),

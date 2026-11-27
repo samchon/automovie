@@ -9,7 +9,7 @@ import { isCanonLayer } from "../isCanonLayer";
 import { createLanguageDiscoveryReferences } from "./createLanguageDiscoveryReferences";
 import { createSharedReference } from "./createSharedReference";
 
-/**
+/*
  * Creates the open-world discovery duties one layer's population covers.
  *
  * Canon, settings or a short's brief, searches its own directives and subject,

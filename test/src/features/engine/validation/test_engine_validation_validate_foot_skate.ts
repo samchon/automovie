@@ -1,4 +1,4 @@
-import { validateFootSkate } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieConstraintViolation,
   IAutoMovieFootContactWindow,
@@ -79,7 +79,7 @@ export function test_engine_validation_validate_foot_skate(): void {
     1,
   );
   const skate = (limit: number, physicsIntent?: string): IAutoMovieValidation =>
-    validateFootSkate({
+    AutoMovieEngineValidation.validateFootSkate({
       motion,
       skeleton,
       contacts: [
@@ -125,7 +125,7 @@ export function test_engine_validation_validate_foot_skate(): void {
   TestValidator.predicate(
     "undeclared bone",
     hasViolation(
-      validateFootSkate({
+      AutoMovieEngineValidation.validateFootSkate({
         motion,
         skeleton,
         contacts: [
@@ -146,7 +146,7 @@ export function test_engine_validation_validate_foot_skate(): void {
     [1, 0],
     [1, 1],
   ];
-  const invalidWindows: IAutoMovieValidation = validateFootSkate({
+  const invalidWindows: IAutoMovieValidation = AutoMovieEngineValidation.validateFootSkate({
     motion,
     skeleton,
     contacts: windows.map(

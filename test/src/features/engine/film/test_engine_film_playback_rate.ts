@@ -1,22 +1,17 @@
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import {
-  cutSequence,
-  resolveSequencePlayback,
-  sequenceEventTimeline,
-  sequenceTimeline,
-} from "@automovie/engine";
-import type {
-  IAutoMovieCut,
-  IAutoMovieEditPlan,
-  IAutoMovieInteractionEvent,
-  IAutoMoviePlaybackEntry,
-  IAutoMoviePlaybackEvent,
-  IAutoMoviePlaybackSample,
-  IAutoMovieSequenceEntry,
-  IAutoMovieSequenceRenderFrame,
-  IAutoMovieSequenceRenderPlan,
-  IAutoMovieShot,
+  type IAutoMovieCut,
+  type IAutoMovieEditPlan,
+  type IAutoMovieInteractionEvent,
+  type IAutoMoviePlaybackEntry,
+  type IAutoMoviePlaybackEvent,
+  type IAutoMoviePlaybackSample,
+  type IAutoMovieSequenceEntry,
+  type IAutoMovieSequenceRenderFrame,
+  type IAutoMovieSequenceRenderPlan,
+  type IAutoMovieShot,
 } from "@automovie/interface";
-import { planSequenceRender } from "@automovie/render";
+import { AutoMovieRenderSequence } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../../internal/predicates";
@@ -80,11 +75,11 @@ export function test_engine_film_playback_rate(): void {
     ],
   };
 
-  const cut: IAutoMovieCut = cutSequence(plan, [shot]);
+  const cut: IAutoMovieCut = AutoMovieEngineFilm.cutSequence(plan, [shot]);
   if (!cut.success) throw new Error("both plays must retain the handoff");
 
   TestValidator.predicate("retimed cut runtime", nclose(cut.runtime, 4.5));
-  const render: IAutoMovieSequenceRenderPlan = planSequenceRender({
+  const render: IAutoMovieSequenceRenderPlan = AutoMovieRenderSequence.plan({
     sequence: cut.sequence,
     shots: [shot],
     spec: {
@@ -115,23 +110,18 @@ export function test_engine_film_playback_rate(): void {
       nclose(frame.blend?.shotTimeSeconds ?? NaN, 2) &&
       nclose(frame.blend?.alpha ?? NaN, 0.5),
   );
-  const scrubbed: IAutoMoviePlaybackSample | null = resolveSequencePlayback(
-    cut.sequence,
-    [shot],
-    0.75,
-  );
+  const scrubbed: IAutoMoviePlaybackSample | null =
+    AutoMovieEngineFilm.resolveSequencePlayback(cut.sequence, [shot], 0.75);
   TestValidator.predicate(
     "random access samples the same dissolve",
     nclose(scrubbed?.time ?? NaN, 0.625) &&
       nclose(scrubbed?.blend?.time ?? NaN, 2) &&
       nclose(scrubbed?.blend?.alpha ?? NaN, 0.5),
   );
-  const replays: IAutoMoviePlaybackEvent[] = sequenceEventTimeline(
-    cut.sequence,
-    [shot],
-  ).filter(
-    (event: IAutoMoviePlaybackEvent): boolean => event.id === handoff.id,
-  );
+  const replays: IAutoMoviePlaybackEvent[] =
+    AutoMovieEngineFilm.sequenceEventTimeline(cut.sequence, [shot]).filter(
+      (event: IAutoMoviePlaybackEvent): boolean => event.id === handoff.id,
+    );
   TestValidator.equals(
     "one handoff per retained play",
     replays.map((event: IAutoMoviePlaybackEvent): number => event.entry),
@@ -144,7 +134,7 @@ export function test_engine_film_playback_rate(): void {
       nclose(replays[1]!.globalTime, 2.5),
   );
 
-  const legacy: IAutoMovieCut = cutSequence(
+  const legacy: IAutoMovieCut = AutoMovieEngineFilm.cutSequence(
     {
       ...plan,
       entries: [entry, { ...entry, playbackRate: 1 }],
@@ -169,12 +159,12 @@ export function test_engine_film_playback_rate(): void {
   };
   TestValidator.equals(
     "legacy playback placement has no rate field",
-    sequenceTimeline(legacy.sequence, [shot]).entries[0]!,
+    AutoMovieEngineFilm.sequenceTimeline(legacy.sequence, [shot]).entries[0]!,
     placement,
   );
 
   for (const playbackRate of [0, -1, Number.MIN_VALUE]) {
-    const invalid: IAutoMovieCut = cutSequence(
+    const invalid: IAutoMovieCut = AutoMovieEngineFilm.cutSequence(
       { ...plan, entries: [{ ...entry, playbackRate }], requiredEvents: [] },
       [shot],
     );
@@ -184,7 +174,7 @@ export function test_engine_film_playback_rate(): void {
       "$input.entries[0].playbackRate",
     );
   }
-  const underflow: IAutoMovieCut = cutSequence(
+  const underflow: IAutoMovieCut = AutoMovieEngineFilm.cutSequence(
     {
       ...plan,
       entries: [{ ...entry, trim: null, playbackRate: 2 }],
@@ -201,7 +191,7 @@ export function test_engine_film_playback_rate(): void {
     "direct layout rejects an invalid rate",
     throwsError(
       (): unknown =>
-        sequenceTimeline(
+        AutoMovieEngineFilm.sequenceTimeline(
           { ...cut.sequence, shots: [{ ...entry, playbackRate: 0 }] },
           [shot],
         ),
@@ -209,7 +199,7 @@ export function test_engine_film_playback_rate(): void {
     ),
   );
 
-  const overlap: IAutoMovieCut = cutSequence(
+  const overlap: IAutoMovieCut = AutoMovieEngineFilm.cutSequence(
     {
       ...plan,
       entries: [

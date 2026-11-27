@@ -1,9 +1,9 @@
-import { HumanBoltAction as HumanBoltActionSource } from "../lexicon/HumanBoltAction";
-import { HumanFirearm as HumanFirearmSource } from "../lexicon/HumanFirearm";
-import { HumanRevolver as HumanRevolverSource } from "../lexicon/HumanRevolver";
-import { HumanWeaponFirearm as HumanWeaponFirearmSource } from "../lexicon/HumanWeaponFirearm";
-import { HumanWeaponHeld as HumanWeaponHeldLaw } from "../lexicon/HumanWeaponHeld";
-import { HumanWeaponPresent as HumanWeaponPresentSource } from "../lexicon/HumanWeaponPresent";
+import { HumanBoltAction as HumanBoltActionSource } from "../lexicon/internal/HumanBoltAction";
+import { HumanFirearm as HumanFirearmSource } from "../lexicon/internal/HumanFirearm";
+import { HumanRevolver as HumanRevolverSource } from "../lexicon/internal/HumanRevolver";
+import { HumanWeaponFirearm as HumanWeaponFirearmSource } from "../lexicon/internal/HumanWeaponFirearm";
+import { HumanWeaponHeld as HumanWeaponHeldLaw } from "../lexicon/internal/HumanWeaponHeld";
+import { HumanWeaponPresent as HumanWeaponPresentSource } from "../lexicon/internal/HumanWeaponPresent";
 import { HUMAN_FIREARM_DRAW } from "./presets/HUMAN_FIREARM_DRAW";
 import { HUMAN_FIREARM_REACH_HOLSTER } from "./presets/HUMAN_FIREARM_REACH_HOLSTER";
 import { HUMAN_FIREARM_SURRENDER } from "./presets/HUMAN_FIREARM_SURRENDER";
@@ -91,7 +91,7 @@ export namespace AutoMovieMotionHumanFirearm {
    * shot's press and recoil: a pistol, a long gun, a crossbow, a bow, a couched
    * lance (generalised `present`).
    *
-   * The weapon is a prop the hand holds (`HumanObject.prop`, taken by its
+   * The weapon is a prop the hand holds (`AutoMovieMotionHumanObject.prop`, taken by its
    * `grip`); the law reads its working point `tip` and its sighting `edge` (a
    * firearm's `muzzle` and `sight` when absent) as the hand holds them, so the
    * weapon's line is what is aimed. The line runs from the `anchor` to the
@@ -132,7 +132,7 @@ export namespace AutoMovieMotionHumanFirearm {
    * or a ready position, the shot's recoil, and the draw and the return to a
    * holster.
    *
-   * The firearm is a prop the hand holds (`HumanObject.prop` of a handgun or a
+   * The firearm is a prop the hand holds (`AutoMovieMotionHumanObject.prop` of a handgun or a
    * long gun, taken by its `grip`); presenting and firing are the generalised
    * launcher laws of `HumanWeaponPresent` under the firearm's names, reading
    * the gun's `muzzle` and `sight` and aiming from the eye (a handgun) or the

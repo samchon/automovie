@@ -8,7 +8,7 @@ import type { IAutoMovieDrawingTriangle } from "./IAutoMovieDrawingTriangle";
  * One built environment indexed for a single drawing, schedule or feature
  * derivation.
  *
- * Produced by `indexAutoMovieDrawingDesign` and owned by the derivation that
+ * Produced by `indexDrawingDesign` and owned by the derivation that
  * built it. The index reads the environment as it was when indexed, so a caller
  * that edits the environment builds a new one rather than reusing it.
  */
@@ -40,7 +40,7 @@ export interface IAutoMovieDrawingDesignIndex {
    * Triangles of one model part in model-frame metres.
    *
    * Memoized per part object for the index's lifetime, so a model placed many
-   * times is tessellated once. Throws as `autoMovieDrawingPartTriangles` does
+   * times is tessellated once. Throws as `drawingPartTriangles` does
    * for a malformed mesh. The returned array is shared between calls and must
    * not be mutated.
    */

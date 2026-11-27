@@ -1,4 +1,4 @@
-import { dist } from "@automovie/recovery";
+import { AutoMovieRecoveryGeometry } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -11,7 +11,7 @@ import { TestValidator } from "@nestia/e2e";
 export function test_recovery_internal_dist(): void {
   TestValidator.equals(
     "distances",
-    [dist([1, 1, 1], [4, 5, 1]), dist([4, 5, 1], [1, 1, 1])],
+    [AutoMovieRecoveryGeometry.dist([1, 1, 1], [4, 5, 1]), AutoMovieRecoveryGeometry.dist([4, 5, 1], [1, 1, 1])],
     [5, 5],
   );
 }

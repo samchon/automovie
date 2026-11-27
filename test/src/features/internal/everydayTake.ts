@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -16,11 +16,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanObject,
-  HumanPerformance,
-  HumanRefusal,
+  AutoMovieMotionHumanObject,
+  AutoMovieMotionHumanPerformance,
+  AutoMovieMotionHumanRefusal,
 } from "@automovie/motions";
-import { HumanPropFrame } from "@automovie/motions/internal";
+import {
+  HumanPropFrame
+} from "../../../../packages/motions/src/perform/internal/HumanPropFrame";
 
 import { assertTakeClean } from "./assertTakeClean";
 
@@ -65,7 +67,7 @@ export namespace everydayTake {
     const placement: IAutoMovieMotionHumanObject.Placement = fixed
       ? { position, rotation, fixed: true }
       : { position, rotation };
-    return HumanObject.prop(subject, model, placement);
+    return AutoMovieMotionHumanObject.prop(subject, model, placement);
   }
 
   /**
@@ -86,10 +88,10 @@ export namespace everydayTake {
     chain: IAutoMovieMotionHumanChain,
     laws: IAutoMovieMotionHumanPerformance.IInput["laws"] = [],
     others: readonly IOther[] = [],
-  ): HumanPerformance {
+  ): AutoMovieMotionHumanPerformance {
     let composition: IAutoMovieMotionHumanChain = chain;
     for (const other of others) composition = composition.with(other.chain);
-    return new HumanPerformance({
+    return new AutoMovieMotionHumanPerformance({
       seed,
       performers: [
         {
@@ -127,7 +129,7 @@ export namespace everydayTake {
    * @returns Metres.
    */
   export function drift(
-    take: HumanPerformance,
+    take: AutoMovieMotionHumanPerformance,
     side: AutoMovieHumanSide,
     subject: string,
     from: number,
@@ -149,7 +151,7 @@ export namespace everydayTake {
     let most: number = 0;
     for (let i: number = 1; i <= 24; ++i) {
       const t: number = from + ((to - from) * i) / 24;
-      most = Math.max(most, Vector3.distance(read(t).position, rest.position));
+      most = Math.max(most, AutoMovieEngineVector3.distance(read(t).position, rest.position));
     }
     return most;
   }
@@ -165,7 +167,7 @@ export namespace everydayTake {
    * @returns World metres.
    */
   export function point(
-    take: HumanPerformance,
+    take: AutoMovieMotionHumanPerformance,
     model: IPosable,
     subject: string,
     id: string,
@@ -181,9 +183,9 @@ export namespace everydayTake {
         ? rest
         : posedSite(model, take.state(subject, t), id);
     const frame: IAutoMovieRigidTransform = take.prop(subject, t);
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       frame.position,
-      Quaternion.rotateVector(frame.rotation, site.frame.translation),
+      AutoMovieEngineQuaternion.rotateVector(frame.rotation, site.frame.translation),
     );
   }
 
@@ -212,11 +214,11 @@ export namespace everydayTake {
    * @param build The build.
    * @returns The refusal, or undefined when it built.
    */
-  export function refusal(build: () => unknown): HumanRefusal | undefined {
+  export function refusal(build: () => unknown): AutoMovieMotionHumanRefusal | undefined {
     try {
       build();
     } catch (error: unknown) {
-      if (error instanceof HumanRefusal) return error;
+      if (error instanceof AutoMovieMotionHumanRefusal) return error;
       throw error;
     }
     return undefined;
@@ -230,7 +232,7 @@ export namespace everydayTake {
    * @param label What the take is.
    * @param take The placed take.
    */
-  export function clean(label: string, take: HumanPerformance): void {
+  export function clean(label: string, take: AutoMovieMotionHumanPerformance): void {
     try {
       assertTakeClean(label, take);
     } catch (error: unknown) {
@@ -262,7 +264,7 @@ export namespace everydayTake {
    * @returns The text.
    */
   export function describe(error: unknown): string {
-    if (error instanceof HumanRefusal || !(error instanceof Error))
+    if (error instanceof AutoMovieMotionHumanRefusal || !(error instanceof Error))
       return String(error);
     return [String(error), ...(error.stack ?? "").split("\n").slice(1, 9)].join(
       " | ",

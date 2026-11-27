@@ -1,10 +1,10 @@
 import type { IAutoMovieCapturePlanRequest } from "@automovie/interface";
 import {
-  type IAutoMovieInspectorState,
-  createAutoMovieInspectorAddressWriter,
-  createAutoMovieInspectorState,
-  formatAutoMovieInspectorAddress,
-  readAutoMovieInspectorAddress,
+  type IAutoMovieViewerInspectorState,
+  AutoMovieViewerInspector,
+
+
+
 } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 
@@ -47,16 +47,16 @@ export function test_inspector_page(): void {
       written.push([state, String(url)]);
     },
   };
-  const write: (text: string) => void = createAutoMovieInspectorAddressWriter({
+  const write: (text: string) => void = AutoMovieViewerInspector.createAddressWriter({
     location,
     history,
   });
 
   // 1. Write, then read back.
-  const request: IAutoMovieCapturePlanRequest = readAutoMovieInspectorAddress(
+  const request: IAutoMovieCapturePlanRequest = AutoMovieViewerInspector.readAddress(
     "?parts=hero/**&marks=edge&views=front@ortho&at=1.5&color=hero/arm=ff8800",
   );
-  const text: string = formatAutoMovieInspectorAddress(request);
+  const text: string = AutoMovieViewerInspector.formatAddress(request);
   write(text);
   TestValidator.equals(
     "one entry replaced with path, query and fragment",
@@ -66,7 +66,7 @@ export function test_inspector_page(): void {
   const address: URL = new URL(written[0]![1], "http://page.test");
   TestValidator.equals(
     "the written query reads back",
-    readAutoMovieInspectorAddress(address.search),
+    AutoMovieViewerInspector.readAddress(address.search),
     request,
   );
 
@@ -89,14 +89,14 @@ export function test_inspector_page(): void {
   );
 
   // 3. Refusals name the key.
-  const empty: IAutoMovieCapturePlanRequest = readAutoMovieInspectorAddress("");
+  const empty: IAutoMovieCapturePlanRequest = AutoMovieViewerInspector.readAddress("");
   for (const [query, key] of [
     ["?parts=hero/**&unknown=1", "unknown"],
     ["?shade=clay&shade=faces", "shade"],
   ] as const) {
     let message: string = "";
     try {
-      readAutoMovieInspectorAddress(query);
+      AutoMovieViewerInspector.readAddress(query);
     } catch (error) {
       message = error instanceof Error ? error.message : String(error);
     }
@@ -104,8 +104,8 @@ export function test_inspector_page(): void {
       `${query} is refused naming ${key}`,
       message.includes(`"${key}"`),
     );
-    const opened: IAutoMovieInspectorState =
-      createAutoMovieInspectorState(query);
+    const opened: IAutoMovieViewerInspectorState =
+      AutoMovieViewerInspector.createState(query);
     TestValidator.equals(
       `${query} opens the empty request`,
       opened.request,

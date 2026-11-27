@@ -1,4 +1,4 @@
-import { validateAutoMovieMaterialSubstance } from "@automovie/engine";
+import { AutoMovieEngineArchitecture } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { substance } from "../internal/materialFixtures";
@@ -6,10 +6,10 @@ import { hasViolation, namedFacts } from "../internal/predicates";
 
 const judge: (
   overrides: Parameters<typeof substance>[1],
-) => ReturnType<typeof validateAutoMovieMaterialSubstance> = (
+) => ReturnType<typeof AutoMovieEngineArchitecture.validateMaterialSubstance> = (
   overrides: Parameters<typeof substance>[1],
-): ReturnType<typeof validateAutoMovieMaterialSubstance> =>
-  validateAutoMovieMaterialSubstance({
+): ReturnType<typeof AutoMovieEngineArchitecture.validateMaterialSubstance> =>
+  AutoMovieEngineArchitecture.validateMaterialSubstance({
     substance: substance("brick-fired", overrides),
   });
 

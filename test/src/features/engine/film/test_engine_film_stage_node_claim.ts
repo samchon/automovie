@@ -1,5 +1,7 @@
-import { ViolationCollector } from "@automovie/engine";
-import { prepareStageNodeClaim } from "@automovie/engine/internal";
+import { AutoMovieEngineViolationCollector } from "@automovie/engine";
+import {
+  prepareStageNodeClaim
+} from "../../../../../packages/engine/src/film/staging/internal/prepareStageNodeClaim";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -12,7 +14,7 @@ import { TestValidator } from "@nestia/e2e";
  * 2. A new namespace starts empty, independently of the first operation.
  */
 export function test_engine_film_stage_node_claim(): void {
-  const out: ViolationCollector = new ViolationCollector();
+  const out: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();
   const claim: ReturnType<typeof prepareStageNodeClaim> =
     prepareStageNodeClaim(out);
   claim("Chair", "$input.actors[0].node");

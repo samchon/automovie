@@ -3,7 +3,12 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { prepareRiseFeet, riseSeatOff } from "@automovie/motions/internal";
+import {
+  prepareRiseFeet
+} from "../../../../../packages/motions/src/everyday/internal/prepareRiseFeet";
+import {
+  riseSeatOff
+} from "../../../../../packages/motions/src/everyday/internal/riseSeatOff";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

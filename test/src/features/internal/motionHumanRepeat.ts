@@ -5,7 +5,9 @@ import type {
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanAuditMotion } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanAuditMotion
+} from "../../../../packages/motions/src/audit/internal/AutoMovieMotionHumanAuditMotion";
 
 import { motionHumanFrame } from "./motionHumanFrame";
 

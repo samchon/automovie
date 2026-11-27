@@ -1,8 +1,8 @@
 import {
-  AutoMovieConicFieldJet,
-  AutoMovieViewConic,
-  AutoMovieViewOutline,
-  AutoMovieViewSectionField,
+  AutoMovieEngineConicFieldJet,
+  AutoMovieEngineViewConic,
+  AutoMovieEngineViewOutline,
+  AutoMovieEngineViewSectionField,
 } from "@automovie/engine";
 import type {
   IAutoMovieConicArcField,
@@ -21,10 +21,10 @@ type Prepared = IAutoMovieViewSectionField.IPrepared;
 type Radial = readonly [number, number, number, number, number, number];
 
 /**
- * `AutoMovieViewSectionField.prepare` and `read` carry a station's scalar
+ * `AutoMovieEngineViewSectionField.prepare` and `read` carry a station's scalar
  * 2-jets (value, first and second derivative along the station) into the radial
  * six-jet `[R, R_s, R_phi, R_ss, R_s phi, R_phi phi]` without reinterpolating
- * them; `AutoMovieConicFieldJet.AD` is the bivariate second-order algebra they
+ * them; `AutoMovieEngineConicFieldJet.AD` is the bivariate second-order algebra they
  * run in.
  *
  * Tolerance: a component agrees within `budget * scale + 256 epsilon` of the
@@ -40,7 +40,7 @@ type Radial = readonly [number, number, number, number, number, number];
  *    0.001, 1 and 1000 and aspects 1 to 64, with shoulders sqrt 2 - 1: at
  *    eleven phases from -0.17 to 2 pi + 0.13 the reading equals the implicit
  *    ellipse's six-jet, and its [R, R_phi, R_phi phi] equals the NUMBER
- *    algebra's `AutoMovieViewConic.radius` exactly.
+ *    algebra's `AutoMovieEngineViewConic.radius` exactly.
  * 3. Outline sources on one mm, a = scale (1 + s^2) and b = scale (2 + s), read at
  *    s = 0, 0.25, 0.5, 0.75 and 1: their station jets equal the closed
  *    polynomials, their ellipse satisfies scenario 2, and the square of four
@@ -83,7 +83,7 @@ export function test_engine_geometry_conic_field(): void {
     shoulders: readonly Scalar[],
   ): Prepared => {
     const value: Prepared | IAutoMovieConicArcField.IFailure =
-      AutoMovieViewSectionField.prepare(extents, shoulders);
+      AutoMovieEngineViewSectionField.prepare(extents, shoulders);
     if (value.kind === "failure") throw new Error(value.detail);
     return value;
   };
@@ -92,7 +92,7 @@ export function test_engine_geometry_conic_field(): void {
     phi: number,
   ): IAutoMovieViewSectionField.IRadialJet => {
     const value: IAutoMovieViewSectionField.IRead =
-      AutoMovieViewSectionField.read(at, phi);
+      AutoMovieEngineViewSectionField.read(at, phi);
     if ("kind" in value) throw new Error(value.detail);
     return value;
   };
@@ -101,7 +101,7 @@ export function test_engine_geometry_conic_field(): void {
   const h: ReturnType<typeof ConstructionConicFieldOracle.polynomial> =
     ConstructionConicFieldOracle.polynomial(0.3, 0.4);
   const AD: IAutoMovieConicFieldJet.IAlgebra<IAutoMovieConicFieldJet.IJet> =
-    AutoMovieConicFieldJet.AD;
+    AutoMovieEngineConicFieldJet.AD;
   close(AD.multiply(h.value, h.value), h.square, 1, "product", 1e-12);
   close(AD.sqrt(h.square), h.value, 1, "sqrt", 1e-12);
   close(AD.cbrt(h.cube), h.value, 1, "cbrt", 1e-12);
@@ -130,11 +130,11 @@ export function test_engine_geometry_conic_field(): void {
     const e: number[] = [a[0], b[0], a[0], b[0]];
     const rs: number[] = [r[0], r[0], r[0], r[0]];
     const numeric: IAutoMovieViewConic.ICurve =
-      AutoMovieViewConic.prepareGeometry(
-        AutoMovieConicFieldJet.NUMBER,
+      AutoMovieEngineViewConic.prepareGeometry(
+        AutoMovieEngineConicFieldJet.NUMBER,
         e,
         rs,
-        AutoMovieViewConic.curvatures(AutoMovieConicFieldJet.NUMBER, e, rs),
+        AutoMovieEngineViewConic.curvatures(AutoMovieEngineConicFieldJet.NUMBER, e, rs),
       );
     for (const phi of [
       0,
@@ -158,7 +158,7 @@ export function test_engine_geometry_conic_field(): void {
       );
       close(
         [value[0], value[2], value[5]],
-        AutoMovieViewConic.radius(numeric, phi),
+        AutoMovieEngineViewConic.radius(numeric, phi),
         scale,
         `${name} NUMBER ${phi}`,
         0,
@@ -181,7 +181,7 @@ export function test_engine_geometry_conic_field(): void {
     firstB: number,
     second: number,
   ): IAutoMovieViewOutline.IOutline => {
-    const curve: IAutoMovieViewOutline.IResult = AutoMovieViewOutline.create({
+    const curve: IAutoMovieViewOutline.IResult = AutoMovieEngineViewOutline.create({
       knots: [
         { site: "start", station: 0, value: a, jet: { first: firstA, second } },
         { site: "end", station: 1, value: b, jet: { first: firstB, second } },
@@ -195,7 +195,7 @@ export function test_engine_geometry_conic_field(): void {
     s: number,
   ): Scalar => {
     const reading: IAutoMovieViewOutline.IReading | string =
-      AutoMovieViewOutline.at(source, s);
+      AutoMovieEngineViewOutline.at(source, s);
     if (typeof reading === "string") throw new Error(reading);
     if (reading.stationJet === null)
       throw new Error(`no station jet: ${reading.stationJetStatus}`);
@@ -238,11 +238,11 @@ export function test_engine_geometry_conic_field(): void {
   // 4.
   const e: number[] = [3, 2, 4, 1];
   const r: number[] = [0.2, 0.4, 0.6, 0.3];
-  const base: IAutoMovieViewConic.ICurve = AutoMovieViewConic.prepareGeometry(
-    AutoMovieConicFieldJet.NUMBER,
+  const base: IAutoMovieViewConic.ICurve = AutoMovieEngineViewConic.prepareGeometry(
+    AutoMovieEngineConicFieldJet.NUMBER,
     e,
     r,
-    AutoMovieViewConic.curvatures(AutoMovieConicFieldJet.NUMBER, e, r),
+    AutoMovieEngineViewConic.curvatures(AutoMovieEngineConicFieldJet.NUMBER, e, r),
   );
   const phases: number[] = [0.13, -0.21];
   base.quarters.forEach(
@@ -262,7 +262,7 @@ export function test_engine_geometry_conic_field(): void {
       r.map((v: number): Scalar => [v, 0, 0]),
     );
     for (const phi of phases) {
-      const p: readonly number[] = AutoMovieViewConic.radius(base, phi);
+      const p: readonly number[] = AutoMovieEngineViewConic.radius(base, phi);
       close(
         radial(at, phi),
         [
@@ -302,7 +302,7 @@ export function test_engine_geometry_conic_field(): void {
   close(radial(json, 0.37), expected, 1, "JSON copy");
   TestValidator.predicate(
     "same-geometry ray",
-    AutoMovieViewConic.read(at.geometry, 0.37) !== null,
+    AutoMovieEngineViewConic.read(at.geometry, 0.37) !== null,
   );
   radial(at, 0.37)[0] = 999;
   close(radial(at, 0.37), expected, 1, "fresh reading");
@@ -310,12 +310,12 @@ export function test_engine_geometry_conic_field(): void {
   stale.geometry.quarters[0]!.extents = [4, 2];
   TestValidator.predicate(
     "stale copy refused",
-    "kind" in AutoMovieViewSectionField.read(stale, 0.37),
+    "kind" in AutoMovieEngineViewSectionField.read(stale, 0.37),
   );
   const broken: Prepared = structuredClone(at);
   broken.source.failure = "broken present source";
   const refused: IAutoMovieViewSectionField.IRead =
-    AutoMovieViewSectionField.read(broken, 0.37);
+    AutoMovieEngineViewSectionField.read(broken, 0.37);
   TestValidator.predicate(
     "broken source named",
     "kind" in refused && refused.detail.includes("broken present source"),
@@ -324,7 +324,7 @@ export function test_engine_geometry_conic_field(): void {
   for (const bad of malformed)
     TestValidator.equals(
       `malformed ${bad.length}`,
-      AutoMovieViewSectionField.prepare(bad, [
+      AutoMovieEngineViewSectionField.prepare(bad, [
         shoulder,
         shoulder,
         shoulder,

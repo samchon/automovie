@@ -1,4 +1,4 @@
-import { createAutoMovieSignedMeshQuery } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieMesh,
   IAutoMovieSignedMeshQueryHit,
@@ -9,7 +9,7 @@ import { createSignedOctahedron } from "../../internal/createSignedMeshFixture";
 import { nclose, throwsError } from "../../internal/predicates";
 
 /**
- * `createAutoMovieSignedMeshQuery` signs distances only on a closed, oriented
+ * `createSignedMeshQuery` signs distances only on a closed, oriented
  * manifold, vertex links included.
  *
  * Fixture: the unit octahedron (|x| + |y| + |z| = 1) at x = 0, and copies at x
@@ -31,7 +31,7 @@ export function test_engine_geometry_signed_mesh_topology(): void {
   const right: IAutoMovieMesh = createSignedOctahedron(3);
 
   // 1.
-  const pair = createAutoMovieSignedMeshQuery({
+  const pair = AutoMovieEngineGeometry.createSignedMeshQuery({
     ...left,
     positions: [...left.positions, ...right.positions],
     indices: [...right.indices!.map((v: number): number => v + 6), ...left.indices!],
@@ -50,12 +50,12 @@ export function test_engine_geometry_signed_mesh_topology(): void {
   };
   TestValidator.predicate(
     "welded",
-    nclose(createAutoMovieSignedMeshQuery(unindexed)([2, 0, 0]).signedDistance, 1),
+    nclose(AutoMovieEngineGeometry.createSignedMeshQuery(unindexed)([2, 0, 0]).signedDistance, 1),
   );
   TestValidator.predicate(
     "unused position",
     nclose(
-      createAutoMovieSignedMeshQuery({ ...left, positions: [...left.positions, 20, 20, 20] })([2, 0, 0])
+      AutoMovieEngineGeometry.createSignedMeshQuery({ ...left, positions: [...left.positions, 20, 20, 20] })([2, 0, 0])
         .signedDistance,
       1,
     ),
@@ -79,5 +79,5 @@ export function test_engine_geometry_signed_mesh_topology(): void {
       "disconnected surface fans",
     ],
   ] satisfies [string, IAutoMovieMesh, string][])
-    TestValidator.predicate(label, throwsError((): unknown => createAutoMovieSignedMeshQuery(mesh), message));
+    TestValidator.predicate(label, throwsError((): unknown => AutoMovieEngineGeometry.createSignedMeshQuery(mesh), message));
 }

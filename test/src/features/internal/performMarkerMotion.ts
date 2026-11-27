@@ -1,12 +1,12 @@
-import { performShot } from "@automovie/engine";
-import type {
-  IAutoMovieAttachJob,
-  IAutoMovieClip,
-  IAutoMoviePerformedShot,
-  IAutoMoviePropSpec,
-  IAutoMovieSceneNode,
-  IAutoMovieScript,
-  IAutoMovieSkeleton,
+import { AutoMovieEngineFilm } from "@automovie/engine";
+import {
+  type IAutoMovieAttachJob,
+  type IAutoMovieClip,
+  type IAutoMoviePerformedShot,
+  type IAutoMoviePropSpec,
+  type IAutoMovieSceneNode,
+  type IAutoMovieScript,
+  type IAutoMovieSkeleton,
 } from "@automovie/interface";
 
 import { filmAttachSynthesizer } from "./filmAttachSynthesizer";
@@ -51,7 +51,7 @@ export function performMarkerMotion(
       pose: null,
     }),
   );
-  return performShot({
+  return AutoMovieEngineFilm.performShot({
     script,
     staged: {
       success: true,

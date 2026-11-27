@@ -1,11 +1,5 @@
-import { createHorse } from "@automovie/archetypes";
-import {
-  Quaternion,
-  Vector3,
-  physicalShapeContactManifold,
-  physicalShapeNearest,
-  physicalShapePairDistance,
-} from "@automovie/engine";
+import { AutoMovieArchetypeHorse } from "@automovie/archetypes";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanPosture,
@@ -13,17 +7,31 @@ import type {
   IAutoMoviePhysicalShape,
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
-import { HumanObject } from "@automovie/motions";
+import { AutoMovieMotionHumanObject } from "@automovie/motions";
 import {
-  HumanColliders,
-  HumanFoot,
-  HumanPropFrame,
-  poseBones,
-  prepareCoupledMount,
-  prepareMountMaterialSeat,
-  resolveHumanPosture,
-  seated,
-} from "@automovie/motions/internal";
+  HumanColliders
+} from "../../../../../../packages/motions/src/posture/internal/HumanColliders";
+import {
+  HumanFoot
+} from "../../../../../../packages/motions/src/posture/internal/HumanFoot";
+import {
+  HumanPropFrame
+} from "../../../../../../packages/motions/src/perform/internal/HumanPropFrame";
+import {
+  poseBones
+} from "../../../../../../packages/motions/src/posture/internal/poseBones";
+import {
+  prepareCoupledMount
+} from "../../../../../../packages/motions/src/lexicon/internal/prepareCoupledMount";
+import {
+  prepareMountMaterialSeat
+} from "../../../../../../packages/motions/src/lexicon/internal/prepareMountMaterialSeat";
+import {
+  resolveHumanPosture
+} from "../../../../../../packages/motions/src/posture/internal/resolveHumanPosture";
+import {
+  seated
+} from "../../../../../../packages/motions/src/everyday/internal/seated";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
@@ -31,16 +39,16 @@ import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
 /** Fit the stored rider on the actual connected saddle and both stock irons. */
 export async function test_motions_mounted_seated_key(): Promise<void> {
   const body = await humanFixtureBody("m-average");
-  const horse = createHorse(
+  const horse = AutoMovieArchetypeHorse.create(
     { withersHeight: 1.65, stirrupDrop: 0.66, tempo: 0 },
     1028,
   );
   const frame: IAutoMovieRigidTransform = {
     position: { x: 0, y: 0, z: 0 },
-    rotation: Quaternion.identity(),
+    rotation: AutoMovieEngineQuaternion.identity(),
   };
-  const seat = HumanObject.seat(horse, frame, "seat", "horse");
-  const prop = HumanObject.prop("horse", horse, frame);
+  const seat = AutoMovieMotionHumanObject.seat(horse, frame, "seat", "horse");
+  const prop = AutoMovieMotionHumanObject.prop("horse", horse, frame);
   const reader: IAutoMovieMotionHumanPropReader = {
     prop,
     frame: () => frame,
@@ -91,7 +99,7 @@ export async function test_motions_mounted_seated_key(): Promise<void> {
   const seatGap = Math.min(
     ...hips.flatMap((part) =>
       part.shapes.map((skin) =>
-        physicalShapePairDistance(
+        AutoMovieEnginePhysics.physicalShapePairDistance(
           part.pose,
           skin,
           material.frame,
@@ -100,14 +108,14 @@ export async function test_motions_mounted_seated_key(): Promise<void> {
       ),
     ),
   );
-  const down = Quaternion.rotateVector(material.seat.frame.rotation, {
+  const down = AutoMovieEngineQuaternion.rotateVector(material.seat.frame.rotation, {
     x: 0,
     y: -1,
     z: 0,
   });
   const witness = hips.some((part) =>
     part.shapes.some((skin) =>
-      physicalShapeContactManifold(
+      AutoMovieEnginePhysics.physicalShapeContactManifold(
         part.pose,
         skin,
         material.frame,
@@ -116,11 +124,11 @@ export async function test_motions_mounted_seated_key(): Promise<void> {
         precision,
       ).some(
         ({ pointA, pointB }) =>
-          Vector3.distance(pointA, pointB) <= precision &&
+          AutoMovieEngineVector3.distance(pointA, pointB) <= precision &&
           Math.abs(
-            Vector3.dot(
+            AutoMovieEngineVector3.dot(
               down,
-              Vector3.subtract(pointB, material.seat.frame.position),
+              AutoMovieEngineVector3.subtract(pointB, material.seat.frame.position),
             ),
           ) <= precision,
       ),
@@ -132,9 +140,9 @@ export async function test_motions_mounted_seated_key(): Promise<void> {
   );
   for (const side of ["left", "right"] as const) {
     const { point, rotation, contact } = key.feet[side];
-    const ball = Vector3.add(
+    const ball = AutoMovieEngineVector3.add(
       point,
-      Quaternion.rotateVector(rotation!, contact!),
+      AutoMovieEngineQuaternion.rotateVector(rotation!, contact!),
     );
     const tread = material.treads[side];
     const placed = HumanPropFrame.relative(tread.frame, {
@@ -146,7 +154,7 @@ export async function test_motions_mounted_seated_key(): Promise<void> {
         .filter(({ bone }) => bone === `${side}Foot` || bone === `${side}Toes`)
         .flatMap(({ pose, shapes }) =>
           shapes.map((skin) =>
-            Math.abs(physicalShapeNearest(pose, skin, ball, ball).distance),
+            Math.abs(AutoMovieEnginePhysics.physicalShapeNearest(pose, skin, ball, ball).distance),
           ),
         ),
     );
@@ -165,7 +173,7 @@ export async function test_motions_mounted_seated_key(): Promise<void> {
         `${part.bone} clears the posed horse and its tack`,
         material.shapes.every(
           (obstacle: IAutoMoviePhysicalShape) =>
-            physicalShapePairDistance(
+            AutoMovieEnginePhysics.physicalShapePairDistance(
               part.pose,
               actor,
               material.frame,

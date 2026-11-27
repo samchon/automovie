@@ -1,33 +1,17 @@
 import type { IAutoMovieMark, IAutoMoviePose } from "@automovie/interface";
 import {
-  type AutoMovieDrawSubjects,
-  type IAutoMovieDrawScene,
-  type IAutoMovieDrawSubject,
+  type AutoMovieRenderDrawSubjects,
+  type IAutoMovieRenderDrawScene,
+  type IAutoMovieRenderDrawSubject,
 } from "@automovie/render";
 import * as THREE from "three";
 
-import { applyMotionCaptureGhost } from "../capture/applyMotionCaptureGhost";
-import { markMotionCaptureCase } from "../capture/markMotionCaptureCase";
-import type { IMotionCaptureProps } from "./IMotionCaptureProps";
-import { MotionCaptureFigure } from "./MotionCaptureFigure";
+import { applyMotionCaptureGhost } from "./internal/applyMotionCaptureGhost";
+import { markMotionCaptureCase } from "../capture/internal/markMotionCaptureCase";
+import type { IMotionCaptureProps } from "./internal/IMotionCaptureProps";
+import { MotionCaptureFigure } from "./internal/MotionCaptureFigure";
 
-/**
- * Steps per second of the key that matches an asked second to a sampled
- * instant: microseconds, far finer than any two instants of a case and far
- * coarser than float error.
- */
-const MICRO: number = 1_000_000;
-
-/**
- * Margin in metres around everything a case draws, which the ground grid
- * covers.
- */
-const MARGIN: number = 0.18;
-
-/** Side in metres of one cell of the ground grid. */
-const GRID_CELL: number = 0.25;
-
-/**
+/*
  * The draw page's subjects for the motion capture harness: one subject, named
  * by the case, built from the case's props.
  *
@@ -46,30 +30,43 @@ const GRID_CELL: number = 0.25;
  * instants, so each still's caption and record row name its beat. The delivery
  * camera stands on the three-quarter side looking at the middle of what is
  * drawn; the case is read through the fitted views `motionCapture` asks for.
- *
- * @param props The case's page data, from `planMotionCaptureProps`.
- * @returns The case's subject under its name.
- * @throws {Error} When the page was given no case data.
+ * Parameter props: The case's page data, from `planMotionCaptureProps`.
+ * Returns: The case's subject under its name.
+ * When the page was given no case data.
  */
-export const subjects: AutoMovieDrawSubjects<IMotionCaptureProps | null> = (
+export const subjects: AutoMovieRenderDrawSubjects<IMotionCaptureProps | null> = (
   props: IMotionCaptureProps | null,
-): Readonly<Record<string, IAutoMovieDrawSubject>> => {
+): Readonly<Record<string, IAutoMovieRenderDrawSubject>> => {
   if (props === null)
     throw new Error("The motion case page was given no case data");
   return {
     [props.name]: {
-      create: async (): Promise<IAutoMovieDrawScene> => build(props),
+      create: async (): Promise<IAutoMovieRenderDrawScene> => build(props),
     },
   };
 };
-/** The record of `IBuildFiguresItem`'s site. */
-type IBuildFiguresItem = {
-  figure: MotionCaptureFigure;
-  poses: IAutoMoviePose[];
-};
 
-/** Build the case's scene. */
-function build(data: IMotionCaptureProps): IAutoMovieDrawScene {
+/*
+ * Steps per second of the key that matches an asked second to a sampled
+ * instant: microseconds, far finer than any two instants of a case and far
+ * coarser than float error.
+ */
+const MICRO: number = 1_000_000;
+
+/*
+ * Margin in metres around everything a case draws, which the ground grid
+ * covers.
+ */
+const MARGIN: number = 0.18;
+
+/*
+ * Side in metres of one cell of the ground grid.
+ */
+const GRID_CELL: number = 0.25;
+/*
+ * Build the case's scene.
+ */
+function build(data: IMotionCaptureProps): IAutoMovieRenderDrawScene {
   const scene: THREE.Scene = new THREE.Scene();
   scene.background = new THREE.Color(0xe9e6df);
   scene.add(new THREE.AmbientLight(0xffffff, 0.55));
@@ -235,3 +232,11 @@ function build(data: IMotionCaptureProps): IAutoMovieDrawScene {
       disposers.forEach((dispose: () => void): void => dispose()),
   };
 }
+
+/*
+ * The record of `IBuildFiguresItem`'s site.
+ */
+type IBuildFiguresItem = {
+  figure: MotionCaptureFigure;
+  poses: IAutoMoviePose[];
+};

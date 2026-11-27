@@ -14,8 +14,8 @@ Preserve convexity, concavity, silhouette runs, muscle maxima and anatomical fea
 
 Inventory each definition's owner, domain and frame map, including contributing pieces, loops, guides and ports. Verify curves before lofts. Record an unavailable reference comparison under [reference comparison](screenshot.md#reference-comparison).
 
-1. Overlay each curve in its own front, side, top, back and relevant oblique views.
-2. Inspect each part with its host, children and neighbours at their shared joins.
+1. Overlay each curve in front, side, top, back and relevant oblique views.
+2. Compare the part, host, children and neighbours at their shared joins.
 3. Inspect the whole figure for coverage and proportions.
 
 Measure maximum and mean deviation in millimetres at stations, guides and section diagonals. Investigate differences beyond a few millimetres. Record each expected change before fixing all causes in one batch. Remeasure, and revisit the cause when the measurement misses its prediction.
@@ -24,11 +24,12 @@ If a law misses its reference, verify the definition, frame and population. Use 
 
 ## Steps one and two
 
-Use these gates for the first two [steps](SKILL.md#three-steps).
+Apply these gates to reference tracing and the rebase to joint coordinates.
 
-- Step 1. Match every overlay and compare each part's clay from standard and oblique views.
+- Step 1. Match every overlay. Check each part's clay.
+  - Use standard and oblique views.
 - Step 2. Return the rebased coordinates to the reference pose exactly.
-- Both. Realize the joints and pass anatomical order and surface integrity checks.
+- Both. Realize joints and check anatomical order and surface integrity.
 
 Verify traced knots against reference artifacts such as hatching, holes or jagged slices. Before each fix, inventory whole-figure defects and their measured owners.
 
@@ -50,10 +51,11 @@ Apply [visual debugging](../visual-debugging/SKILL.md) and [form inspection](../
 
 1. For accepted originals, capture the [three passes](screenshot.md#the-three-passes) with matched cameras.
    - Check parts alone, with neighbours and assembled.
-2. Check the whole person in clay and beauty, in neutral, bind and commissioned poses.
+2. Check clay and beauty in neutral, bind and all commissioned whole-body poses.
 3. Inspect regions and joins in close-up.
-   - Use face owner colours for ownership and faces shade for open or flipped surfaces.
-4. Overdraw suspect surface lines with the source curves, sections and family axis.
+   - Use face owner colours for ownership.
+   - Use faces shade for open or flipped surfaces.
+4. Overlay suspect lines with source curves, sections and the family axis.
 5. Record each finding with its location, measured cause and owner.
 
 ## Review

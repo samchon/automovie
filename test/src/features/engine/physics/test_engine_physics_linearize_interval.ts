@@ -1,4 +1,4 @@
-import { linearizePhysicalInterval } from "@automovie/engine";
+import { AutoMovieEnginePhysics } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -20,31 +20,31 @@ import { TestValidator } from "@nestia/e2e";
  *    -1e-4; a narrow interval (-1e-4, [0, 1e-6]) gives [1e-4, 0].
  */
 export function test_engine_physics_linearize_interval(): void {
-  TestValidator.equals("above", linearizePhysicalInterval(5, 0, 3)(4), [0, 1]);
+  TestValidator.equals("above", AutoMovieEnginePhysics.linearizePhysicalInterval(5, 0, 3)(4), [0, 1]);
   TestValidator.equals(
     "below",
-    linearizePhysicalInterval(-1, 0, 3)(0.5),
+    AutoMovieEnginePhysics.linearizePhysicalInterval(-1, 0, 3)(0.5),
     [0.5, 0],
   );
-  TestValidator.equals("inside", linearizePhysicalInterval(1, 0, 3)(9), [0, 0]);
+  TestValidator.equals("inside", AutoMovieEnginePhysics.linearizePhysicalInterval(1, 0, 3)(9), [0, 0]);
   TestValidator.equals(
     "equality",
-    linearizePhysicalInterval(2, 2, 2)(7),
+    AutoMovieEnginePhysics.linearizePhysicalInterval(2, 2, 2)(7),
     [5, 0],
   );
   TestValidator.equals(
     "only maximum",
-    linearizePhysicalInterval(5, undefined, 3)(4),
+    AutoMovieEnginePhysics.linearizePhysicalInterval(5, undefined, 3)(4),
     [1],
   );
   TestValidator.equals(
     "only minimum",
-    linearizePhysicalInterval(-1, 0, undefined)(0.5),
+    AutoMovieEnginePhysics.linearizePhysicalInterval(-1, 0, undefined)(0.5),
     [0.5],
   );
   const delta: number = 1e-4;
   for (const value of [-1e-6, 1e-6]) {
-    const model: (probe: number) => number[] = linearizePhysicalInterval(
+    const model: (probe: number) => number[] = AutoMovieEnginePhysics.linearizePhysicalInterval(
       value,
       0,
       0,
@@ -61,7 +61,7 @@ export function test_engine_physics_linearize_interval(): void {
     );
   }
   for (const value of [0, 0.5, 1]) {
-    const model: (probe: number) => number[] = linearizePhysicalInterval(
+    const model: (probe: number) => number[] = AutoMovieEnginePhysics.linearizePhysicalInterval(
       value,
       0,
       1,
@@ -71,17 +71,17 @@ export function test_engine_physics_linearize_interval(): void {
   }
   TestValidator.equals(
     "violated lower",
-    linearizePhysicalInterval(-1e-6, 0)(delta),
+    AutoMovieEnginePhysics.linearizePhysicalInterval(-1e-6, 0)(delta),
     [delta],
   );
   TestValidator.equals(
     "violated upper",
-    linearizePhysicalInterval(1e-6, undefined, 0)(-delta),
+    AutoMovieEnginePhysics.linearizePhysicalInterval(1e-6, undefined, 0)(-delta),
     [-delta],
   );
   TestValidator.equals(
     "narrow",
-    linearizePhysicalInterval(-delta, 0, 1e-6)(delta),
+    AutoMovieEnginePhysics.linearizePhysicalInterval(-delta, 0, 1e-6)(delta),
     [delta, 0],
   );
 }

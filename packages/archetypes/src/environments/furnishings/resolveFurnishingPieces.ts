@@ -1,8 +1,9 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   AutoMovieFurnishingWall,
   IAutoMovieFurnishingClearance,
   IAutoMovieFurnishingLayout,
+  IAutoMovieFurnishingOverride,
   IAutoMovieFurnishingRelation,
   IAutoMovieModel,
   IAutoMoviePropBox,
@@ -11,28 +12,7 @@ import type {
 
 import { FurnishingRect } from "./FurnishingRect";
 
-/** A wall's heading and its map from run and inward distance to room XZ. */
-interface IWallFrame {
-  /** The heading that faces a piece's front into the room. */
-  heading: number;
-
-  /**
-   * The room-frame X and Z of a point `u` metres along the run from its start
-   * corner and `v` metres out from the wall's inner face.
-   */
-  at: (u: number, v: number) => readonly [x: number, z: number];
-}
-
-/** One wall piece's run interval, for an `after` relation. */
-interface IRun {
-  /** The wall the piece stands on. */
-  wall: AutoMovieFurnishingWall;
-
-  /** Distance in metres from the run's start corner to the box's far end. */
-  end: number;
-}
-
-/**
+/*
  * Place a room's individually related pieces in record order and reserve the
  * floor each keeps clear.
  *
@@ -48,15 +28,14 @@ interface IRun {
  * run coordinates `(u, v)`: its box starts at the offset, or `gap` past its
  * `after` piece's box, along the run, which is the piece's local +X, and its
  * back face rests on the wall at `v = 0`.
- *
- * @param props The occurrence id, room, aisle, overrides, pieces and the
- *   rectangles already blocked, which this call extends.
- * @returns Each piece's placement in record order and the wall of each piece a
- *   `wall` relation placed.
- * @throws Naming the occurrence and role for a malformed relation or clearance,
- *   a missing, later or other-wall reference, a box outside the room or
- *   entering a blocked rectangle, and a clearance outside the room or entered
- *   by a blocked rectangle.
+ * Parameter props: The occurrence id, room, aisle, overrides, pieces and the
+ * rectangles already blocked, which this call extends.
+ * Returns: Each piece's placement in record order and the wall of each piece a
+ * `wall` relation placed.
+ * Naming the occurrence and role for a malformed relation or clearance,
+ * a missing, later or other-wall reference, a box outside the room or
+ * entering a blocked rectangle, and a clearance outside the room or entered
+ * by a blocked rectangle.
  */
 export function resolveFurnishingPieces(
   props: resolveFurnishingPieces.IProps,
@@ -93,7 +72,7 @@ export function resolveFurnishingPieces(
   for (const role of roles) {
     const piece: resolveFurnishingPieces.IPiece = props.pieces[role]!;
     const override:
-      | { readonly at: readonly [number, number]; readonly heading?: number }
+      | IAutoMovieFurnishingOverride
       | undefined = props.overrides?.[role];
     let placement: FurnishingRect.IPlacement;
     let heading: number;
@@ -102,8 +81,8 @@ export function resolveFurnishingPieces(
       placement = FurnishingRect.locate(
         piece.model,
         piece.bounds,
-        override.at[0],
-        override.at[1],
+        override.at.x,
+        override.at.z,
         heading,
       );
     } else if (piece.place.kind === "at") {
@@ -111,8 +90,8 @@ export function resolveFurnishingPieces(
       placement = FurnishingRect.locate(
         piece.model,
         piece.bounds,
-        piece.place.at[0],
-        piece.place.at[1],
+        piece.place.at.x,
+        piece.place.at.z,
         heading,
       );
     } else if (piece.place.kind === "facing") {
@@ -139,7 +118,7 @@ export function resolveFurnishingPieces(
         y: 0,
         z: target.bounds.max.z + place.distance + piece.bounds.max.z,
       };
-      const turned: IAutoMovieVector3 = Quaternion.rotateVector(
+      const turned: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
         target.rotation,
         local,
       );
@@ -201,7 +180,91 @@ export function resolveFurnishingPieces(
   return { placed, walls };
 }
 
-/** The heading and run coordinates of one wall of a `width` by `depth` room. */
+/*
+ * The related pieces the resolver places, the room it places them in and what
+ * it returns.
+ */
+export namespace resolveFurnishingPieces {
+  /*
+   * One related piece with its measured rest box.
+   */
+  export interface IPiece {
+    /*
+     * The piece's model.
+     */
+    model: IAutoMovieModel;
+
+    /*
+     * The model's measured rest box in its own frame, in metres.
+     */
+    bounds: IAutoMoviePropBox;
+
+    /*
+     * How the piece is placed.
+     */
+    place: IAutoMovieFurnishingRelation;
+
+    /*
+     * Floor rectangles the piece keeps clear.
+     */
+    clear?: readonly IAutoMovieFurnishingClearance[];
+  }
+
+  /*
+   * The room, its reservations and the pieces to place.
+   */
+  export interface IProps {
+    /*
+     * Occurrence id that prefixes every refusal.
+     */
+    id: string;
+
+    /*
+     * The usable room in its own frame, centred on the origin.
+     */
+    room: FurnishingRect.IRect;
+
+    /*
+     * The room's aisle in metres, the least default clearance width.
+     */
+    aisle: number;
+
+    /*
+     * Role-keyed absolute placements that replace a piece's relation.
+     */
+    overrides: IAutoMovieFurnishingLayout["overrides"];
+
+    /*
+     * The pieces by role, in resolution order.
+     */
+    pieces: Readonly<Record<string, IPiece>>;
+
+    /*
+     * Rectangles already blocked by label, extended with each piece and
+     * clearance.
+     */
+    blocked: Map<string, FurnishingRect.IRect>;
+  }
+
+  /*
+   * Each piece's placement and the wall each wall piece stands on.
+   */
+  export interface IResult {
+    /*
+     * Placements by role, in record order.
+     */
+    placed: Map<string, FurnishingRect.IPlacement>;
+
+    /*
+     * The wall of each piece a `wall` relation placed, by role.
+     */
+    walls: Map<string, AutoMovieFurnishingWall>;
+  }
+}
+
+/*
+ * The heading and run coordinates of one wall of a `width` by `depth` room.
+ */
 function wallFrame(
   wall: AutoMovieFurnishingWall,
   width: number,
@@ -218,7 +281,7 @@ function wallFrame(
   return { heading: 90, at: (u: number, v: number) => [-w + v, d - u] };
 }
 
-/**
+/*
  * Check and block each clearance rectangle of a placed piece.
  *
  * A rectangle reaches `depth` out from the chosen face of the piece's local box
@@ -289,56 +352,33 @@ function reserve(
   }
 }
 
-/**
- * The related pieces the resolver places, the room it places them in and what
- * it returns.
+/*
+ * A wall's heading and its map from run and inward distance to room XZ.
  */
-export namespace resolveFurnishingPieces {
-  /** One related piece with its measured rest box. */
-  export interface IPiece {
-    /** The piece's model. */
-    model: IAutoMovieModel;
+interface IWallFrame {
+  /*
+   * The heading that faces a piece's front into the room.
+   */
+  heading: number;
 
-    /** The model's measured rest box in its own frame, in metres. */
-    bounds: IAutoMoviePropBox;
+  /*
+   * The room-frame X and Z of a point `u` metres along the run from its start
+   * corner and `v` metres out from the wall's inner face.
+   */
+  at: (u: number, v: number) => readonly [x: number, z: number];
+}
 
-    /** How the piece is placed. */
-    place: IAutoMovieFurnishingRelation;
+/*
+ * One wall piece's run interval, for an `after` relation.
+ */
+interface IRun {
+  /*
+   * The wall the piece stands on.
+   */
+  wall: AutoMovieFurnishingWall;
 
-    /** Floor rectangles the piece keeps clear. */
-    clear?: readonly IAutoMovieFurnishingClearance[];
-  }
-
-  /** The room, its reservations and the pieces to place. */
-  export interface IProps {
-    /** Occurrence id that prefixes every refusal. */
-    id: string;
-
-    /** The usable room in its own frame, centred on the origin. */
-    room: FurnishingRect.IRect;
-
-    /** The room's aisle in metres, the least default clearance width. */
-    aisle: number;
-
-    /** Role-keyed absolute placements that replace a piece's relation. */
-    overrides: IAutoMovieFurnishingLayout["overrides"];
-
-    /** The pieces by role, in resolution order. */
-    pieces: Readonly<Record<string, IPiece>>;
-
-    /**
-     * Rectangles already blocked by label, extended with each piece and
-     * clearance.
-     */
-    blocked: Map<string, FurnishingRect.IRect>;
-  }
-
-  /** Each piece's placement and the wall each wall piece stands on. */
-  export interface IResult {
-    /** Placements by role, in record order. */
-    placed: Map<string, FurnishingRect.IPlacement>;
-
-    /** The wall of each piece a `wall` relation placed, by role. */
-    walls: Map<string, AutoMovieFurnishingWall>;
-  }
+  /*
+   * Distance in metres from the run's start corner to the box's far end.
+   */
+  end: number;
 }

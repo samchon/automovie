@@ -1,4 +1,4 @@
-import { impactRecoil, validatePoseResult } from "@automovie/engine";
+import { AutoMovieEngineValidation, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieBone,
   IAutoMovieSkeleton,
@@ -63,8 +63,8 @@ export function test_engine_physics_impact_recoil(): void {
     id: "falloff-rig",
     bones: [bone("spine", null), bone("chest", "spine")],
   };
-  const stopped = impactRecoil({ flexion: 10 }, ["spine", "chest"], chain, 0);
-  const kept = impactRecoil({ flexion: 10 }, ["spine", "chest"], chain, 1);
+  const stopped = AutoMovieEnginePhysics.impactRecoil({ flexion: 10 }, ["spine", "chest"], chain, 0);
+  const kept = AutoMovieEnginePhysics.impactRecoil({ flexion: 10 }, ["spine", "chest"], chain, 1);
   TestValidator.equals(
     "the falloff",
     [
@@ -79,7 +79,7 @@ export function test_engine_physics_impact_recoil(): void {
     TestValidator.predicate(
       `falloff ${falloff}`,
       throwsError(() =>
-        impactRecoil({ flexion: 10 }, ["spine", "chest"], chain, falloff),
+        AutoMovieEnginePhysics.impactRecoil({ flexion: 10 }, ["spine", "chest"], chain, falloff),
       ),
     );
 
@@ -95,7 +95,7 @@ export function test_engine_physics_impact_recoil(): void {
       bone("chest", "spine"),
     ],
   };
-  const pose = impactRecoil(
+  const pose = AutoMovieEnginePhysics.impactRecoil(
     { flexion: 200, abduction: 100, twist: 10 },
     ["spine", "chest"],
     ranged,
@@ -110,17 +110,17 @@ export function test_engine_physics_impact_recoil(): void {
       near(chest!.flexion, 40) &&
       near(chest!.abduction, 25) &&
       near(
-        impactRecoil({ flexion: -200 }, ["spine"], ranged, 1).joints[0]!
+        AutoMovieEnginePhysics.impactRecoil({ flexion: -200 }, ["spine"], ranged, 1).joints[0]!
           .flexion,
         -30,
       ) &&
       near(
-        impactRecoil({ abduction: 15 }, ["leftHand"], ranged, 0.6).joints[0]!
+        AutoMovieEnginePhysics.impactRecoil({ abduction: 15 }, ["leftHand"], ranged, 0.6).joints[0]!
           .abduction,
         15,
       ),
   );
-  TestValidator.equals("valid", validatePoseResult(pose, ranged), {
+  TestValidator.equals("valid", AutoMovieEngineValidation.validatePoseResult(pose, ranged), {
     success: true,
   });
 
@@ -129,12 +129,12 @@ export function test_engine_physics_impact_recoil(): void {
     id: "elbow-rig",
     bones: [bone("leftLowerArm", null)],
   };
-  const elbow = impactRecoil({ abduction: 8 }, ["leftLowerArm"], elbowRig, 1);
+  const elbow = AutoMovieEnginePhysics.impactRecoil({ abduction: 8 }, ["leftLowerArm"], elbowRig, 1);
   const hipRig: IAutoMovieSkeleton = {
     id: "hip-rig",
     bones: [bone("leftUpperLeg", null)],
   };
-  const hip = impactRecoil(
+  const hip = AutoMovieEnginePhysics.impactRecoil(
     { flexion: 120, abduction: 45 },
     ["leftUpperLeg"],
     hipRig,
@@ -148,7 +148,7 @@ export function test_engine_physics_impact_recoil(): void {
   );
   TestValidator.equals(
     "both valid",
-    [validatePoseResult(elbow, elbowRig), validatePoseResult(hip, hipRig)],
+    [AutoMovieEngineValidation.validatePoseResult(elbow, elbowRig), AutoMovieEngineValidation.validatePoseResult(hip, hipRig)],
     [{ success: true }, { success: true }],
   );
 
@@ -168,15 +168,15 @@ export function test_engine_physics_impact_recoil(): void {
       }),
     ],
   };
-  const twisted = impactRecoil({ twist: 8 }, ["leftLowerArm"], stiff, 1);
-  const zero = impactRecoil({ flexion: 0 }, ["leftLowerArm"], stiff, 1);
-  const pushed = impactRecoil(
+  const twisted = AutoMovieEnginePhysics.impactRecoil({ twist: 8 }, ["leftLowerArm"], stiff, 1);
+  const zero = AutoMovieEnginePhysics.impactRecoil({ flexion: 0 }, ["leftLowerArm"], stiff, 1);
+  const pushed = AutoMovieEnginePhysics.impactRecoil(
     { flexion: 200, abduction: 1 },
     ["leftLowerArm"],
     stiff,
     1,
   );
-  const downstream = impactRecoil(
+  const downstream = AutoMovieEnginePhysics.impactRecoil(
     { flexion: 50 },
     ["leftLowerArm", "leftHand"],
     stiff,
@@ -202,7 +202,7 @@ export function test_engine_physics_impact_recoil(): void {
   TestValidator.equals(
     "all valid",
     [twisted, zero, pushed, downstream].map((p) =>
-      validatePoseResult(p, stiff),
+      AutoMovieEngineValidation.validatePoseResult(p, stiff),
     ),
     [
       { success: true },

@@ -1,13 +1,13 @@
 import type { IEvidenceClaim, IEvidenceReference } from "@wrtnlabs/evidence";
 
 import type { IProductionConfigProps } from "../../IProductionConfigProps";
-import type { ProductionStage } from "../../ProductionStage";
-import { createNarrativeUnitFiles } from "../../createNarrativeUnitFiles";
+import type { AutoMovieEvidenceProductionStage } from "../../AutoMovieEvidenceProductionStage";
+import { createNarrativeUnitFiles } from "../createNarrativeUnitFiles";
 import { constructionStage } from "../constructionStage";
 import { createSettingReferences } from "../references/createSettingReferences";
 import { BODY_ROOT } from "../utilities/BODY_ROOT";
 
-/**
+/*
  * Connects treatment H2s to settings, or short screenplay H2s to the brief.
  *
  * Edges stay on the concrete consumers: a narrative H2 cites the canon H2 it
@@ -19,7 +19,7 @@ export function createSettingCoverageClaim(
   layer: "treatments" | "screenplay",
   canon: "settings" | "brief" = "settings",
 ): IEvidenceClaim | undefined {
-  const stage: ProductionStage = constructionStage(props, layer);
+  const stage: AutoMovieEvidenceProductionStage = constructionStage(props, layer);
   const reference: IEvidenceReference[] = createSettingReferences(
     props.location,
     canon,

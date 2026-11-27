@@ -1,6 +1,8 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { KickSwing } from "@automovie/motions/internal";
+import {
+  KickSwing
+} from "../../../../../packages/motions/src/striking/internal/KickSwing";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -47,11 +49,11 @@ export function test_motions_striking_kick_swing(): void {
     vclose(KickSwing.between(down, ahead, 0).thigh, down.thigh, 1e-12) &&
       vclose(KickSwing.between(down, ahead, 1).thigh, ahead.thigh, 1e-9) &&
       vclose(KickSwing.between(down, ahead, 1).shank, ahead.shank, 1e-9) &&
-      nclose(Vector3.length(half.thigh), 0.5, 1e-12) &&
-      nclose(Vector3.length(half.shank), 0.5, 1e-12),
+      nclose(AutoMovieEngineVector3.length(half.thigh), 0.5, 1e-12) &&
+      nclose(AutoMovieEngineVector3.length(half.shank), 0.5, 1e-12),
   );
   const same = (v: IAutoMovieVector3): IAutoMovieVector3 => v;
-  const quarter = Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90);
+  const quarter = AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90);
   const hinge = KickSwing.turn(quarter, same);
   const negated = KickSwing.turn(
     { x: -quarter.x, y: -quarter.y, z: -quarter.z, w: -quarter.w },

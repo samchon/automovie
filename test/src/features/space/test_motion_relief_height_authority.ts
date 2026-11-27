@@ -1,12 +1,4 @@
-import {
-  formationSlotPosition,
-  heightAt,
-  spaceGround,
-  stageScene,
-  surfaceHeightAt,
-  worldHeightfield,
-  worldSurfaceHeight,
-} from "@automovie/engine";
+import { AutoMovieEngineWorld, AutoMovieEnginePopulationFormation, AutoMovieEngineSpace, AutoMovieEngineFilm } from "@automovie/engine";
 import {
   type IAutoMovieFormationPlacement,
   IAutoMovieSpace,
@@ -38,7 +30,7 @@ const RISE: number = 0.2;
  * x` off both records.
  */
 const terrain: () => IAutoMovieWorldSurface = (): IAutoMovieWorldSurface =>
-  worldHeightfield({
+  AutoMovieEngineWorld.heightfield({
     id: "slope",
     polygon: [
       { x: -8, z: -4 },
@@ -132,8 +124,11 @@ const stateless: IAutoMovieSurface = {
 /**
  * Static formation placement and a staged surface read the same ground height.
  * Scenarios:
+ *
  * - Sample lattice, cell interior, both edges and positions past the edge.
- * - Compare formed slots against the slope; retain anchored floors, ramps and fallbacks through staging.
+ * - Compare formed slots against the slope; retain anchored floors, ramps and
+ *   fallbacks through staging.
+ *
  * @evidence contracts/development/testing.md#behavioral-verification Reads public terrain, formation and staged space APIs.
  * @evidence contracts/development/testing.md#independent-expectations Height on the lattice is its slope times the clamped abscissa.
  * @evidence contracts/development/testing.md#distinguishing-cases Flat, ramp and absent declarations produce different elevations.
@@ -151,10 +146,10 @@ export function test_motion_relief_height_authority(): void {
     [-8, -4],
     [40, 40],
   ] as const) {
-    const y = surfaceHeightAt(patch, x, z);
+    const y = AutoMovieEngineSpace.surfaceHeightAt(patch, x, z);
     TestValidator.equals(
       "world and staged height agree exactly",
-      worldSurfaceHeight(world, { x, z }),
+      AutoMovieEngineWorld.surfaceHeight(world, { x, z }),
       y,
     );
     TestValidator.predicate(
@@ -164,11 +159,11 @@ export function test_motion_relief_height_authority(): void {
   }
   const formation = rank([world], 0);
   for (let i = 0; i < formation.count; i++) {
-    const point = formationSlotPosition(formation, i);
+    const point = AutoMovieEnginePopulationFormation.formationSlotPosition(formation, i);
     TestValidator.equals(
       "slot stands on staged ground",
       point.y,
-      heightAt(space, point.x, point.z),
+      AutoMovieEngineSpace.heightAt(space, point.x, point.z),
     );
     TestValidator.predicate(
       "slot samples its own slope position",
@@ -185,13 +180,13 @@ export function test_motion_relief_height_authority(): void {
     [sill, 9, -9, 3],
     [stateless, 3, 4, 0],
   ] as const)
-    TestValidator.equals("anchored height", surfaceHeightAt(surface, x, z), y);
+    TestValidator.equals("anchored height", AutoMovieEngineSpace.surfaceHeightAt(surface, x, z), y);
   TestValidator.equals(
     "outside all surfaces uses the declared fallback",
-    [spaceGround(space)(50, 50), spaceGround(space, 7)(50, 50)],
+    [AutoMovieEngineSpace.spaceGround(space)(50, 50), AutoMovieEngineSpace.spaceGround(space, 7)(50, 50)],
     [0, 7],
   );
-  const staged = stageScene(
+  const staged = AutoMovieEngineFilm.stageScene(
     makeScriptWrite(),
     makeStagingWrite({ space: flat }),
   );

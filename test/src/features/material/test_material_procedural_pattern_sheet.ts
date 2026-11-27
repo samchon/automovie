@@ -1,7 +1,7 @@
 import {
-  autoMoviePatternTextureTransforms,
-  generateAutoMovieSurfacePattern,
-  sampleAutoMovieProceduralSurface,
+  AutoMovieEngineArchitecture,
+  AutoMovieEngineMaterial,
+  AutoMovieEngineSurfaceMaterial,
 } from "@automovie/engine";
 import type {
   AutoMovieSurfacePatternGenerator,
@@ -39,15 +39,15 @@ import { throwsError } from "../internal/throwsError";
  * 4. A sample whose form does not match the surface, a point for a piece or a UV
  *    for a surface without one, throws.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Lays a real pattern with `generateAutoMovieSurfacePattern`, takes each board's transform from `autoMoviePatternTextureTransforms` and samples through `sampleAutoMovieProceduralSurface`; a face sheet that added a per-piece offset, a module sheet that did not, or an id that entered a face sample fails.
+ * @evidence contracts/development/testing.md#behavioral-verification Lays a real pattern with `generateSurfacePattern`, takes each board's transform from `patternTextureTransforms` and samples through `sampleProceduralSurfaceImplementation`; a face sheet that added a per-piece offset, a module sheet that did not, or an id that entered a face sample fails.
  * @evidence contracts/development/testing.md#independent-expectations A face point is mapped to each board's own UV from the board's placement alone, `(point − corner) / size`, without the transform; continuity across joints then follows from the face sheet's definition, and module differences from its per-occurrence offset.
  * @evidence contracts/development/testing.md#distinguishing-cases End joints and long joints, face against module, and a renamed id; admission of zero tiles and missing UV0 is owned by `test_material_procedural_admission`.
  * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_material_procedural_pattern_sheet`, with in-memory inputs only.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each naming the input and the behavior it pins.
  */
 export function test_material_procedural_pattern_sheet(): void {
-  const field: IAutoMovieSurfacePatternResult = generateAutoMovieSurfacePattern(
-    {
+  const field: IAutoMovieSurfacePatternResult =
+    AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
       pattern: pattern({
         zones: [
           zone({
@@ -61,8 +61,7 @@ export function test_material_procedural_pattern_sheet(): void {
         ],
         minimumPiece: 0.05,
       }),
-    },
-  );
+    });
   const face: IAutoMovieTransformsById = transforms(field, "face");
   const module: IAutoMovieTransformsById = transforms(field, "module");
   const boards: IAutoMoviePatternPlacement[] = field.placements.filter(
@@ -143,7 +142,7 @@ export function test_material_procedural_pattern_sheet(): void {
   TestValidator.predicate(
     "a point for a piece throws",
     throwsError(() =>
-      sampleAutoMovieProceduralSurface({
+      AutoMovieEngineMaterial.sampleProceduralSurface({
         surface,
         point: { x: 0, y: 0, z: 0 },
       }),
@@ -154,7 +153,7 @@ export function test_material_procedural_pattern_sheet(): void {
   TestValidator.predicate(
     "a UV for a surface without a piece throws",
     throwsError(() =>
-      sampleAutoMovieProceduralSurface({
+      AutoMovieEngineMaterial.sampleProceduralSurface({
         surface: plain,
         uv: { u: 0, v: 0 },
         offset: 0,
@@ -191,7 +190,7 @@ function transforms(
   kind: "face" | "module",
 ): IAutoMovieTransformsById {
   return new Map(
-    autoMoviePatternTextureTransforms({
+    AutoMovieEngineArchitecture.patternTextureTransforms({
       result: field,
       tile: { u: 1, v: 1 },
       sheet: kind === "face" ? { kind, origin: { u: 0, v: 0 } } : { kind },
@@ -225,7 +224,7 @@ function finish(
     seed: 77,
     scale: 0.01,
     colors: [color(0.2), color(0.6)],
-    roughness: [0.5, 0.7],
+    roughness: { atZero: 0.5, atOne: 0.7 },
     relief: 0.0005,
     axis: { x: 1, y: 0, z: 0 },
     piece: { sheet, tile: { u: 1, v: 1 }, transform },
@@ -243,7 +242,7 @@ function sample(
   u: number,
   v: number,
 ): IAutoMovieColor {
-  return sampleAutoMovieProceduralSurface({
+  return AutoMovieEngineMaterial.sampleProceduralSurface({
     surface: finish(sheet, transform),
     uv: {
       u: (u - (board.center.u - board.size.u / 2)) / board.size.u,

@@ -1,7 +1,4 @@
-import {
-  extrudeAutoMovieProfile,
-  mergeAutoMovieMeshParts,
-} from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieMeshAssembly,
   IAutoMovieMeshPart,
@@ -70,7 +67,7 @@ export const arch: (props: {
     volume += area(quad) * props.depth;
     parts.push({
       id: `voussoir-${step + 1}`,
-      mesh: extrudeAutoMovieProfile({ profile: quad, depth: props.depth }),
+      mesh: AutoMovieEngineGeometry.extrudeProfile({ profile: quad, depth: props.depth }),
     });
   }
   if (props.springing > 0)
@@ -87,8 +84,8 @@ export const arch: (props: {
       volume += area(pier) * props.depth;
       parts.push({
         id: `pier-${name}`,
-        mesh: extrudeAutoMovieProfile({ profile: pier, depth: props.depth }),
+        mesh: AutoMovieEngineGeometry.extrudeProfile({ profile: pier, depth: props.depth }),
       });
     }
-  return { assembly: mergeAutoMovieMeshParts(parts), volume };
+  return { assembly: AutoMovieEngineGeometry.mergeMeshParts(parts), volume };
 };

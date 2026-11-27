@@ -1,8 +1,4 @@
-import {
-  markAutoMovieContacts,
-  markAutoMovieSkeleton,
-  markAutoMovieSupportWrenches,
-} from "@automovie/engine";
+import { AutoMovieEnginePhysicalSkeleton, AutoMovieEngineCompositionContact } from "@automovie/engine";
 import type { IAutoMovieMark } from "@automovie/interface";
 
 import type { IFilmProduction } from "./IFilmProduction";
@@ -28,11 +24,11 @@ export function markFilmProduction(
     | undefined = performance.supports?.();
   return [
     ...(production.marks?.(seconds) ?? []),
-    ...markAutoMovieSkeleton({
+    ...AutoMovieEnginePhysicalSkeleton.mark({
       bodies: performance.bodies,
       frame: performance.frame(),
     }),
-    ...markAutoMovieContacts({
+    ...AutoMovieEngineCompositionContact.markContacts({
       receipts: performance.contacts(),
       seconds,
       metresPerNewton: performance.metresPerNewton,
@@ -45,7 +41,7 @@ export function markFilmProduction(
     }),
     ...(supports === undefined
       ? []
-      : markAutoMovieSupportWrenches({
+      : AutoMovieEngineCompositionContact.markSupportWrenches({
           wrenches: supports.wrenches,
           interval: supports.interval,
           seconds,

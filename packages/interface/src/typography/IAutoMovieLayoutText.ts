@@ -32,13 +32,7 @@ export namespace IAutoMovieLayoutText {
      * The box the text is set in, metres, both edges positive. A line wider
      * than `width` wraps at its last U+0020 before the limit.
      */
-    box: {
-      /** Box width, metres. */
-      width: number;
-
-      /** Box height, metres. */
-      height: number;
-    };
+    box: IPropsBox;
 
     /**
      * Horizontal alignment of each line in the box; default `"start"`, the left
@@ -52,6 +46,15 @@ export namespace IAutoMovieLayoutText {
      */
     lineHeight?: number;
   }
+
+  /** The box object of {@link IProps}. */
+  export type IPropsBox = {
+    /** Box width, metres. */
+    width: number;
+
+    /** Box height, metres. */
+    height: number;
+  };
 
   /** One glyph placed on its line. */
   export interface IGlyph {

@@ -2,7 +2,9 @@ import type {
   IAutoMovieMotionHumanAuditMotion,
   IAutoMovieMotionHumanContactWindow,
 } from "@automovie/interface";
-import { splitSolvedHumanAuditSpan } from "@automovie/motions/internal";
+import {
+  splitSolvedHumanAuditSpan
+} from "../../../../../packages/motions/src/audit/internal/splitSolvedHumanAuditSpan";
 import { TestValidator } from "@nestia/e2e";
 
 /**

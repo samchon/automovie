@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanTouch } from "@automovie/interface";
 
-/**
+/*
  * The values the `danceHold` row of `HumanPartner` fixes on `touch`, spread
  * into its parameters. The follower's hold of a walking partner dance once both
  * stand: her left palm laid on the leader and held 1.5 s. The composition gives

@@ -1,18 +1,20 @@
+import type { AutoMovieArchetypeEnvironmentFurnishing } from "../AutoMovieArchetypeEnvironmentFurnishing";
 import type {
   IAutoMovieEnvironmentContribution,
   IAutoMovieEnvironmentModule,
-  IAutoMovieFurnishingLayout,
   IAutoMovieModel,
   IAutoMoviePropBox,
+  IAutoMovieFurnishingRoomSize,
 } from "@automovie/interface";
-
-import { deriveArchetypeSeed } from "../../core/deriveArchetypeSeed";
-import { createBookcase } from "../../furniture/createBookcase";
-import { createSeat } from "../../furniture/createSeat";
-import { createTable } from "../../furniture/createTable";
+import {
+  AutoMovieArchetypeBookcase,
+  AutoMovieArchetypeSeat,
+  AutoMovieArchetypeTable,
+} from "../../furniture";
+import { deriveArchetypeSeed } from "../../core/internal/deriveArchetypeSeed";
 import { furnishRoom } from "./furnishRoom";
 
-/**
+/*
  * Furnish a living room: a sofa centred on the `-z` wall, a coffee table facing
  * it, two armchairs facing the sofa across the table and a bookcase centred on
  * the `-x` wall.
@@ -26,14 +28,14 @@ import { furnishRoom } from "./furnishRoom";
  * The room is measured from its floor centre and follows the kit's placement
  * frame. No clearance is cited: no published standard read for this kit gives a
  * distance between a sofa and a coffee table.
- *
- * @param params The room layout and the sofa-to-table gap.
- * @returns The placed-room module.
- * @throws When a piece leaves the room or overlaps another piece or a
- *   `keepClear` area, naming the role.
+ * Parameter params: The room layout and the sofa-to-table gap.
+ * Returns: The placed-room module.
+ * When a piece leaves the room or overlaps another piece or a
+ * `keepClear` area, naming the role.
  */
 export function createLivingRoomKit(
-  params: createLivingRoomKit.IParams,
+  params: AutoMovieArchetypeEnvironmentFurnishing.ILivingRoomKitParams,
+  defaultGap: number,
 ): IAutoMovieEnvironmentModule {
   return (
     context: IAutoMovieEnvironmentModule.IContext,
@@ -43,26 +45,32 @@ export function createLivingRoomKit(
       role: string,
     ): number | undefined =>
       seed === undefined ? undefined : deriveArchetypeSeed(seed, role);
-    const gap: number = params.tableGap ?? createLivingRoomKit.TABLE_GAP;
+    const gap: number = params.tableGap ?? defaultGap;
     if (!(gap >= 0))
       throw new Error(
         `${context.id} tableGap needs a finite nonnegative distance: ${gap}`,
       );
-    const sofa: IAutoMovieModel = createSeat({ kind: "sofa" }, draw("sofa"));
-    const coffee: IAutoMovieModel = createTable(
+    const sofa: IAutoMovieModel = AutoMovieArchetypeSeat.create(
+      { kind: "sofa" },
+      draw("sofa"),
+    );
+    const coffee: IAutoMovieModel = AutoMovieArchetypeTable.create(
       { kind: "coffee" },
       draw("coffee"),
     );
-    const armchair: IAutoMovieModel = createSeat(
+    const armchair: IAutoMovieModel = AutoMovieArchetypeSeat.create(
       { kind: "armchair" },
       draw("armchair"),
     );
-    const bookcase: IAutoMovieModel = createBookcase({}, draw("bookcase"));
+    const bookcase: IAutoMovieModel = AutoMovieArchetypeBookcase.create(
+      {},
+      draw("bookcase"),
+    );
     const sofaBox: IAutoMoviePropBox = furnishRoom.measure(sofa);
     const coffeeBox: IAutoMoviePropBox = furnishRoom.measure(coffee);
     const armchairBox: IAutoMoviePropBox = furnishRoom.measure(armchair);
     const bookcaseBox: IAutoMoviePropBox = furnishRoom.measure(bookcase);
-    const [width, depth]: readonly [width: number, depth: number] = params.room;
+    const { width, depth }: IAutoMovieFurnishingRoomSize = params.room;
 
     // The armchairs' front faces stand past the table's far face, and their
     // boxes sit side by side with `gap` between them.
@@ -117,23 +125,4 @@ export function createLivingRoomKit(
       },
     });
   };
-}
-
-/** The living-room kit's parameters and its default sofa-to-table gap. */
-export namespace createLivingRoomKit {
-  /**
-   * The default clear floor in metres between the sofa's and the coffee table's
-   * front faces: an authored layout default, not a published clearance.
-   */
-  export const TABLE_GAP: number = 0.45;
-
-  /** The room layout and the sofa-to-table gap. */
-  export interface IParams extends IAutoMovieFurnishingLayout {
-    /**
-     * Clear floor in metres between the sofa's and the coffee table's front
-     * faces, and between the table and the armchairs. The default is
-     * {@link TABLE_GAP}.
-     */
-    readonly tableGap?: number;
-  }
 }

@@ -1,4 +1,6 @@
-import { humanInteractionMeshShape } from "@automovie/motions/internal";
+import {
+  humanInteractionMeshShape
+} from "../../../../../packages/motions/src/posture/internal/humanInteractionMeshShape";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

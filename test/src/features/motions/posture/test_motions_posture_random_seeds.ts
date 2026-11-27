@@ -1,4 +1,6 @@
-import { HumanRandomSeeds } from "@automovie/motions/internal";
+import {
+  HumanRandomSeeds
+} from "../../../../../packages/motions/src/posture/internal/HumanRandomSeeds";
 import { TestValidator } from "@nestia/e2e";
 
 /**

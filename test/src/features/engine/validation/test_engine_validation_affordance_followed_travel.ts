@@ -1,4 +1,4 @@
-import { affordanceFollowedTravel } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type { IAutoMovieAffordanceCoupling } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -22,17 +22,17 @@ export function test_engine_validation_affordance_followed_travel(): void {
   const table: IAutoMovieAffordanceCoupling = {
     id: "cam",
     table: [
-      [0, 0],
-      [1, 10],
-      [3, 20],
+      { leader: 0, follower: 0 },
+      { leader: 1, follower: 10 },
+      { leader: 3, follower: 20 },
     ],
   };
   TestValidator.equals(
     "the followed travel",
     [
-      affordanceFollowedTravel(ratio, 4),
+      AutoMovieEngineValidation.affordanceFollowedTravel(ratio, 4),
       ...[-1, 1, 2, 5].map((leader: number): number =>
-        affordanceFollowedTravel(table, leader),
+        AutoMovieEngineValidation.affordanceFollowedTravel(table, leader),
       ),
     ],
     [2, 0, 10, 15, 20],
@@ -43,12 +43,12 @@ export function test_engine_validation_affordance_followed_travel(): void {
   TestValidator.predicate(
     "the half-travel identity survives a product below the least subnormal",
     nclose(
-      affordanceFollowedTravel(
+      AutoMovieEngineValidation.affordanceFollowedTravel(
         {
           id: "small",
           table: [
-            [0, 0],
-            [small, small],
+            { leader: 0, follower: 0 },
+            { leader: small, follower: small },
           ],
         },
         small / 2,
@@ -60,12 +60,12 @@ export function test_engine_validation_affordance_followed_travel(): void {
   TestValidator.predicate(
     "a slope of 2^20 amplifies one least subnormal before it rounds away",
     nclose(
-      affordanceFollowedTravel(
+      AutoMovieEngineValidation.affordanceFollowedTravel(
         {
           id: "steep",
           table: [
-            [0, 0],
-            [2 ** 10, -(2 ** 30)],
+            { leader: 0, follower: 0 },
+            { leader: 2 ** 10, follower: -(2 ** 30) },
           ],
         },
         Number.MIN_VALUE,
@@ -78,12 +78,12 @@ export function test_engine_validation_affordance_followed_travel(): void {
     "opposing extremes interpolate at the midpoint and third quarter",
     [0, high / 2].every((leading: number): boolean =>
       nclose(
-        affordanceFollowedTravel(
+        AutoMovieEngineValidation.affordanceFollowedTravel(
           {
             id: "wide",
             table: [
-              [-high, high],
-              [high, -high],
+              { leader: -high, follower: high },
+              { leader: high, follower: -high },
             ],
           },
           leading,

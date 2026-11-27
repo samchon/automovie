@@ -1,6 +1,6 @@
 import {
-  AutoMovieBernstein64 as B,
-  AutoMovieCurveMath64 as V,
+  AutoMovieEngineBernstein64 as B,
+  AutoMovieEngineCurveMath64 as V,
 } from "@automovie/engine";
 import type {
   AutoMovieCubicBezierControls3,
@@ -11,8 +11,8 @@ import type {
   IAutoMovieRecoveryEventCurveSource,
 } from "@automovie/interface";
 
-import { readRecoveryEventCurveControls } from "../internal/readRecoveryEventCurveControls";
-import { readRecoveryEventCurveParent } from "../internal/readRecoveryEventCurveParent";
+import { readRecoveryEventCurveControls } from "./internal/readRecoveryEventCurveControls";
+import { readRecoveryEventCurveParent } from "./internal/readRecoveryEventCurveParent";
 
 /**
  * Named cubic occurrences retain native coefficient owners and oriented

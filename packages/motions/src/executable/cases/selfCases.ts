@@ -1,4 +1,4 @@
-import { AutoMovieChain } from "@automovie/engine";
+import { AutoMovieEngineChain } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidRegion,
@@ -12,20 +12,20 @@ import type {
   IAutoMovieMotionTarget,
 } from "@automovie/interface";
 
-import { HumanChain } from "../../HumanChain";
-import { createHumanBody } from "../../body/createHumanBody";
-import { AutoMovieMotionHumanTouchEffector } from "../../compose/AutoMovieMotionHumanTouchEffector";
-import { AutoMovieMotionHumanTouchForm } from "../../compose/AutoMovieMotionHumanTouchForm";
-import { HumanPerformance } from "../../perform/HumanPerformance";
-import { touch } from "../../touch/touch";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
-import { MotionBodies } from "../MotionBodies";
-import type { humanPolygonMan } from "../humanPolygonMan";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
+import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
+import { AutoMovieMotionHumanTouchEffector } from "../../compose/internal/AutoMovieMotionHumanTouchEffector";
+import { AutoMovieMotionHumanTouchForm } from "../../compose/internal/AutoMovieMotionHumanTouchForm";
+import { AutoMovieMotionHumanPerformance } from "../../perform/AutoMovieMotionHumanPerformance";
+import { touch } from "../../touch/internal/touch";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
+import { MotionBodies } from "../internal/MotionBodies";
+import type { humanPolygonMan } from "../internal/humanPolygonMan";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { TouchVerdicts } from "./TouchVerdicts";
-import { everydayVerdicts } from "./everydayVerdicts";
+import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/**
+/*
  * Capture cases of the self-directed body actions on one polygon man standing
  * from quiet standing.
  *
@@ -43,9 +43,8 @@ import { everydayVerdicts } from "./everydayVerdicts";
  * times, and the forearm never deeper than 10 mm into the rest of the body. The
  * stretch and victory rows check both wrists above the crown at `stroke`; the
  * fist pump checks three drops of the fist.
- *
- * @param bodies The bodies; `m-average` when absent.
- * @returns The cases.
+ * Parameter bodies: The bodies; `m-average` when absent.
+ * Returns: The cases.
  */
 export function selfCases(
   bodies: readonly string[] = ["m-average"],
@@ -101,7 +100,7 @@ export function selfCases(
   ];
   for (const id of bodies) {
     const man: humanPolygonMan.IPolygonMan = MotionBodies.population(id);
-    const body: IAutoMovieMotionHumanBody = createHumanBody(
+    const body: IAutoMovieMotionHumanBody = AutoMovieMotionHumanBody.create(
       man.body.skeleton,
       man.body.profile,
     );
@@ -110,7 +109,7 @@ export function selfCases(
       const name: string = `self-${label}${suffix}`;
       const performance: IAutoMovieMotionHumanPerformance | null =
         FamilyCaseKit.attempt(out, name, () =>
-          perform(body, HumanChain.subject("a").act("touch", params)),
+          perform(body, AutoMovieMotionHumanChain.subject("a").act("touch", params)),
         );
       if (performance === null) continue;
       const kind: IAutoMovieMotionHumanTouchForm.Kind = params.kind ?? "pat";
@@ -249,7 +248,7 @@ export function selfCases(
       const name: string = `self-${kind}${suffix}`;
       const performance: IAutoMovieMotionHumanPerformance | null =
         FamilyCaseKit.attempt(out, name, () =>
-          perform(body, HumanChain.subject("a").act("selfAction", { kind })),
+          perform(body, AutoMovieMotionHumanChain.subject("a").act("selfAction", { kind })),
         );
       if (performance === null) continue;
       const stroke: number = TouchVerdicts.event(performance, "a", "stroke");
@@ -303,12 +302,14 @@ export function selfCases(
   return out;
 }
 
-/** A performance of one polygon man standing at the origin heading +Z. */
+/*
+ * A performance of one polygon man standing at the origin heading +Z.
+ */
 function perform(
   body: IAutoMovieMotionHumanBody,
   chain: IAutoMovieMotionHumanChain,
 ): IAutoMovieMotionHumanPerformance {
-  return new HumanPerformance({
+  return new AutoMovieMotionHumanPerformance({
     seed: "self",
     performers: [
       {
@@ -319,6 +320,6 @@ function perform(
         proficiency: { level: "trained" as const },
       },
     ],
-    composition: new AutoMovieChain(chain.node).node,
+    composition: new AutoMovieEngineChain(chain.node).node,
   });
 }

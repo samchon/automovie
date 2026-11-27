@@ -1,10 +1,10 @@
-import type { IAutoMovieHumanAppearance } from "./appearance/IAutoMovieHumanAppearance";
-import type { IAutoMovieHumanPigmentation } from "./appearance/IAutoMovieHumanPigmentation";
-import type { IAutoMovieHumanBodyParameters } from "./body/IAutoMovieHumanBodyParameters";
-import type { IAutoMovieHumanExtremityDimensions } from "./body/IAutoMovieHumanExtremityDimensions";
-import type { IAutoMovieHumanExpression } from "./expression/IAutoMovieHumanExpression";
-import type { IAutoMovieHumanHeadIdentity } from "./head/IAutoMovieHumanHeadIdentity";
-import type { IAutoMovieHumanPose } from "./pose/IAutoMovieHumanPose";
+import type { IAutoMovieHumanAppearance } from "./IAutoMovieHumanAppearance";
+import type { IAutoMovieHumanPigmentation } from "./IAutoMovieHumanPigmentation";
+import type { IAutoMovieHumanBodyParameters } from "./IAutoMovieHumanBodyParameters";
+import type { IAutoMovieHumanExtremityDimensions } from "./IAutoMovieHumanExtremityDimensions";
+import type { IAutoMovieHumanExpression } from "./IAutoMovieHumanExpression";
+import type { IAutoMovieHumanHeadIdentity } from "./IAutoMovieHumanHeadIdentity";
+import type { IAutoMovieHumanPose } from "./IAutoMovieHumanPose";
 
 /**
  * Complete Human input. Lengths, angles and unknown values retain each field's

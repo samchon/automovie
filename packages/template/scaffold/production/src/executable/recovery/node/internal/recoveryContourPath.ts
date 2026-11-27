@@ -1,10 +1,10 @@
-import { tessellateAutoMovieContourPath64 as T } from "@automovie/engine";
+import { AutoMovieEngineCurve } from "@automovie/engine";
 import type { IAutoMovieModel } from "@automovie/interface";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
-import { writeAutoMovieRecoveryArtifact } from "../artifact/writeAutoMovieRecoveryArtifact";
+import { writeRecoveryArtifact } from "../artifact/writeRecoveryArtifact";
 
 /**
  * Compile a bounded saved polygon/path publication through the engine. Usage:
@@ -41,7 +41,7 @@ export function recoveryContourPath(args: string[], sourceEpoch: string): void {
     frame: string;
     condition: string;
     observationsHash: string;
-    subjects: (Parameters<typeof T>[0] & {
+    subjects: (Parameters<typeof AutoMovieEngineCurve.tessellateContourPath64>[0] & {
       id: string;
       unsupportedPairCount: number;
     })[];
@@ -51,7 +51,7 @@ export function recoveryContourPath(args: string[], sourceEpoch: string): void {
     frame: string;
     condition: string;
     observationsHash: string;
-    subjects: (Parameters<typeof T>[0] & {
+    subjects: (Parameters<typeof AutoMovieEngineCurve.tessellateContourPath64>[0] & {
       id: string;
       unsupportedPairCount: number;
     })[];
@@ -88,7 +88,7 @@ export function recoveryContourPath(args: string[], sourceEpoch: string): void {
   const started: number = performance.now(),
     results: object[] = [];
   for (const subject of input.subjects) {
-    const generated: ReturnType<typeof T> = T({
+    const generated: ReturnType<typeof AutoMovieEngineCurve.tessellateContourPath64> = AutoMovieEngineCurve.tessellateContourPath64({
       ...subject,
       topologyDomain: `contour-path.${inputSha256}.${subject.id}`,
     });
@@ -129,8 +129,8 @@ export function recoveryContourPath(args: string[], sourceEpoch: string): void {
       generatedAt: new Date().toISOString(),
     };
     const file: string = path.join(output, `${subject.id}.json`);
-    const published: ReturnType<typeof writeAutoMovieRecoveryArtifact> =
-      writeAutoMovieRecoveryArtifact(file, {
+    const published: ReturnType<typeof writeRecoveryArtifact> =
+      writeRecoveryArtifact(file, {
         schema: "automovie-recovery-engine-model-v1",
         model,
         construction: { units: "m", lines: generated.construction },
@@ -166,7 +166,7 @@ export function recoveryContourPath(args: string[], sourceEpoch: string): void {
       }),
     );
   }
-  writeAutoMovieRecoveryArtifact(path.join(output, "compile.json"), {
+  writeRecoveryArtifact(path.join(output, "compile.json"), {
     schema: "automovie-recovery-path-compilation-v1",
     sourceEpoch,
     inputSha256,

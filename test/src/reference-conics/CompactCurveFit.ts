@@ -4,10 +4,7 @@ import type {
   IAutoMoviePiecewisePlanarCurveSource,
   IAutoMovieRegisteredPlanarCurvePiece,
 } from "@automovie/interface";
-import {
-  AutoMovieRecoveryCompactApproximation as C,
-  approximateAutoMovieRecoveryCompactCurves as approximate,
-} from "@automovie/recovery";
+import { AutoMovieRecoveryCompactApproximation as C } from "@automovie/recovery";
 
 import { CompactCurveSource as S } from "./CompactCurveSource";
 import type { ConicPaperInput as I } from "./ConicPaperInput";
@@ -162,7 +159,7 @@ export namespace CompactCurveFit {
           record.diagnostics = source.refusals;
         } else {
           const fitted: IAutoMovieCompactCurveApproximation.IResult =
-            approximate(source.curve, options);
+            C.approximate(source.curve, options);
           record.result = fitted;
           record.storage.fitted = S.storage(fitted.pieces).total;
           record.status = fitted.status;

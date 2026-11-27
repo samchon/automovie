@@ -1,5 +1,5 @@
 import type { IAutoMovieProductionDesign } from "@automovie/interface";
-import { resolveProductionRenderTierFrameFormat } from "@automovie/render";
+import { AutoMovieRenderFilm } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -24,7 +24,7 @@ export function test_render_film_resolve_production_render_tier_frame_format(): 
     crop: { left: 0, top: 0.1, right: 1, bottom: 0.9 },
   };
   const final: IAutoMovieProductionDesign["frameFormat"] =
-    resolveProductionRenderTierFrameFormat(source, {
+    AutoMovieRenderFilm.resolveTierFrameFormat(source, {
       kind: "final",
       resolutionScale: 1,
       frameStep: 1,
@@ -35,7 +35,7 @@ export function test_render_film_resolve_production_render_tier_frame_format(): 
   );
   TestValidator.equals(
     "a half proxy",
-    resolveProductionRenderTierFrameFormat(source, {
+    AutoMovieRenderFilm.resolveTierFrameFormat(source, {
       kind: "proxy",
       resolutionScale: 0.5,
       frameStep: 2,
@@ -50,7 +50,7 @@ export function test_render_film_resolve_production_render_tier_frame_format(): 
     },
   );
   const tiny: IAutoMovieProductionDesign["frameFormat"] =
-    resolveProductionRenderTierFrameFormat(source, {
+    AutoMovieRenderFilm.resolveTierFrameFormat(source, {
       kind: "proxy",
       resolutionScale: 0.001,
       frameStep: 1,

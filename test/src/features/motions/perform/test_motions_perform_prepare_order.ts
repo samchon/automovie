@@ -1,4 +1,6 @@
-import { prepareHumanPerformanceOrder } from "@automovie/motions/internal";
+import {
+  prepareHumanPerformanceOrder
+} from "../../../../../packages/motions/src/perform/internal/prepareHumanPerformanceOrder";
 import { TestValidator } from "@nestia/e2e";
 
 /** A person of the order: a name, the ready hook and the actions. */

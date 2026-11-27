@@ -1,4 +1,6 @@
-import { clinch } from "@automovie/motions/internal";
+import {
+  clinch
+} from "../../../../../packages/motions/src/grappling/internal/clinch";
 import { TestValidator } from "@nestia/e2e";
 
 /**

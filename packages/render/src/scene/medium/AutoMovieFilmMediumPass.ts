@@ -1,25 +1,23 @@
 import type { IAutoMovieMedium } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
-import { AUTOMOVIE_FILM_RESPONSE_SHADERS } from "../filmResponse/AUTOMOVIE_FILM_RESPONSE_SHADERS.js";
-import type { AutoMovieFilmAlpha } from "../filmResponse/AutoMovieFilmAlpha.js";
-import type { IAutoMovieFilmResponseRenderer } from "../filmResponse/IAutoMovieFilmResponseRenderer.js";
-import { buildAutoMovieMediumShader } from "./buildAutoMovieMediumShader.js";
-import { collectAutoMovieMediumLights } from "./collectAutoMovieMediumLights.js";
-import { readAutoMovieSceneMedium } from "./readAutoMovieSceneMedium.js";
+import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind";
+import { AutoMovieRenderFilmResponseShaders } from "../AutoMovieRenderFilmResponseShaders";
+import type { AutoMovieRenderFilmAlpha } from "../AutoMovieRenderFilmAlpha";
+import type { IAutoMovieRenderFilmResponseRenderer } from "../IAutoMovieRenderFilmResponseRenderer";
+import { buildMediumShader } from "./internal/buildMediumShader";
+import { collectMediumLights } from "./internal/collectMediumLights";
+import { readSceneMedium } from "./internal/readSceneMedium";
+import { AutoMovieFilmMediumPassData } from "./internal/AutoMovieFilmMediumPassData";
 
-/** The golden ratio's conjugate, the step of the dither shift per sample. */
-const GOLDEN: number = (Math.sqrt(5) - 1) / 2;
-
-/**
+/*
  * The film response stage's participating-medium pass: march the scene's
  * physical haze over the linear beauty target, in place, right after the
  * scene's linear light is drawn.
  *
  * `apply` does nothing for a scene without a medium. Otherwise it collects the
  * scene's lights and their drawn shadow maps, compiles or reuses the march
- * program for that light signature (`buildAutoMovieMediumShader`), marches into
+ * program for that light signature (`buildMediumShader`), marches into
  * its own half-float target reading the linear colour and depth, and copies the
  * result back over the linear colour and alpha, leaving the depth. The dither
  * shift of sample `index` is `index × 0.618…` modulo one, an additive
@@ -31,80 +29,104 @@ const GOLDEN: number = (Math.sqrt(5) - 1) / 2;
  * true, because a disabled renderer leaves stale maps behind.
  */
 export class AutoMovieFilmMediumPass {
-  /** The march output, or null before the first medium draw. */
+  /*
+   * The march output, or null before the first medium draw.
+   */
   private target_: THREE.WebGLRenderTarget | null = null;
 
-  /** March programs by light signature. */
+  /*
+   * March programs by light signature.
+   */
   private readonly programs_: Map<string, THREE.RawShaderMaterial> = new Map();
 
-  /** The copy program writing the march back over the linear colour. */
+  /*
+   * The copy program writing the march back over the linear colour.
+   */
   private readonly copy_: THREE.RawShaderMaterial = new THREE.RawShaderMaterial(
     {
       glslVersion: THREE.GLSL3,
-      vertexShader: AUTOMOVIE_FILM_RESPONSE_SHADERS.vertex,
-      fragmentShader: AUTOMOVIE_FILM_RESPONSE_SHADERS.downsample,
+      vertexShader: AutoMovieRenderFilmResponseShaders.vertex,
+      fragmentShader: AutoMovieRenderFilmResponseShaders.downsample,
       uniforms: { tSource: { value: null } },
       depthTest: false,
       depthWrite: false,
     },
   );
 
-  /** The full-frame quad. */
+  /*
+   * The full-frame quad.
+   */
   private readonly quad_: THREE.Mesh<THREE.PlaneGeometry, THREE.Material> =
     new THREE.Mesh(new THREE.PlaneGeometry(2, 2), this.copy_);
 
-  /** The scene holding only the quad. */
+  /*
+   * The scene holding only the quad.
+   */
   private readonly frame_: THREE.Scene = new THREE.Scene();
 
-  /** A camera the quad's clip-space vertices ignore. */
+  /*
+   * A camera the quad's clip-space vertices ignore.
+   */
   private readonly camera_: THREE.OrthographicCamera =
     new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
 
-  /** Put the quad in its scene; nothing is allocated on the GPU yet. */
+  /*
+   * Put the quad in its scene; nothing is allocated on the GPU yet.
+   */
   public constructor() {
     this.quad_.frustumCulled = false;
     this.frame_.add(this.quad_);
   }
 
-  /**
+  /*
    * March the scene's medium over `linear`, in place, when the scene carries
    * one; the renderer's target is restored before returning or throwing.
    */
   public apply(props: {
-    /** The renderer, whose shadow maps the scene's render just drew. */
-    renderer: IAutoMovieFilmResponseRenderer;
+    /*
+     * The renderer, whose shadow maps the scene's render just drew.
+     */
+    renderer: IAutoMovieRenderFilmResponseRenderer;
 
-    /** The scene, carrying its medium. */
+    /*
+     * The scene, carrying its medium.
+     */
     scene: THREE.Scene;
 
-    /** The camera the linear target was drawn through. */
+    /*
+     * The camera the linear target was drawn through.
+     */
     camera: THREE.Camera;
 
-    /** The linear target with its depth texture. */
+    /*
+     * The linear target with its depth texture.
+     */
     linear: THREE.WebGLRenderTarget;
 
-    /** The accumulation sample index, 0 for a single draw. */
+    /*
+     * The accumulation sample index, 0 for a single draw.
+     */
     index: number;
 
-    /**
+    /*
      * How the picture's alpha is kept; absent marches an opaque picture, as
-     * `buildAutoMovieMediumShader` states for each.
+     * `buildMediumShader` states for each.
      */
-    alpha?: AutoMovieFilmAlpha;
+    alpha?: AutoMovieRenderFilmAlpha;
   }): void {
-    const medium: IAutoMovieMedium | null = readAutoMovieSceneMedium(
+    const medium: IAutoMovieMedium | null = readSceneMedium(
       props.scene,
     );
     if (medium === null) return;
     const { renderer, linear, camera }: typeof props = props;
-    const lights: collectAutoMovieMediumLights.ILight[] =
-      collectAutoMovieMediumLights(
+    const lights: collectMediumLights.ILight[] =
+      collectMediumLights(
         props.scene,
         renderer.shadowMap.enabled === true,
       );
     const signature: string = lights
       .map(
-        (light: collectAutoMovieMediumLights.ILight): string =>
+        (light: collectMediumLights.ILight): string =>
           `${light.kind}:${light.shadow?.kind ?? "none"}`,
       )
       .join(",");
@@ -120,16 +142,16 @@ export class AutoMovieFilmMediumPass {
         value: new THREE.Vector3().setFromMatrixPosition(camera.matrixWorld),
       },
       uOrthographic: {
-        value: AutoMovieThreeKind.isOrthographicCamera(camera) ? 1 : 0,
+        value: AutoMovieRenderThreeKind.isOrthographicCamera(camera) ? 1 : 0,
       },
       uScattering: { value: medium.scattering },
       uExtinction: { value: medium.scattering + medium.absorption },
       uAnisotropy: { value: medium.anisotropy },
-      uShift: { value: (props.index * GOLDEN) % 1 },
+      uShift: { value: (props.index * AutoMovieFilmMediumPassData.GOLDEN) % 1 },
       uMatte: { value: props.alpha === "coverage" ? 1 : 0 },
     };
     lights.forEach(
-      (light: collectAutoMovieMediumLights.ILight, i: number): void => {
+      (light: collectMediumLights.ILight, i: number): void => {
         uniforms[`uColor${i}`] = { value: light.color };
         uniforms[`uPosition${i}`] = { value: light.position };
         uniforms[`uDirection${i}`] = { value: light.direction };
@@ -155,8 +177,8 @@ export class AutoMovieFilmMediumPass {
     if (program === undefined) {
       program = new THREE.RawShaderMaterial({
         glslVersion: THREE.GLSL3,
-        vertexShader: AUTOMOVIE_FILM_RESPONSE_SHADERS.vertex,
-        fragmentShader: buildAutoMovieMediumShader(lights),
+        vertexShader: AutoMovieRenderFilmResponseShaders.vertex,
+        fragmentShader: buildMediumShader(lights),
         uniforms,
         depthTest: false,
         depthWrite: false,
@@ -188,7 +210,9 @@ export class AutoMovieFilmMediumPass {
     }
   }
 
-  /** Release the target, the programs and the quad. */
+  /*
+   * Release the target, the programs and the quad.
+   */
   public dispose(): void {
     this.target_?.dispose();
     this.target_ = null;
@@ -198,7 +222,9 @@ export class AutoMovieFilmMediumPass {
     this.quad_.geometry.dispose();
   }
 
-  /** The march target at a raster, made or remade as needed. */
+  /*
+   * The march target at a raster, made or remade as needed.
+   */
   private prepare(width: number, height: number): THREE.WebGLRenderTarget {
     if (
       this.target_ !== null &&

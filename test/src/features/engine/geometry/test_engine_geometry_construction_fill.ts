@@ -1,4 +1,5 @@
-import { realizeAutoMovieConstruction } from "@automovie/engine";
+
+import { AutoMovieEngineConstruction } from "@automovie/engine";
 import type {
   IAutoMovieConstructionFill,
   IAutoMovieConstructionRealization,
@@ -25,7 +26,7 @@ export function test_engine_geometry_construction_fill(): void {
   const realize = (
     fills: IAutoMovieConstructionFill[],
   ): IAutoMovieConstructionRealization.IRealization =>
-    realizeAutoMovieConstruction(
+    AutoMovieEngineConstruction.realize(
       {
         name: "made.fill",
         root: ConstructionShapes.assembly(1, "left"),

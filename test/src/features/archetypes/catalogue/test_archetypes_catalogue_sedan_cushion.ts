@@ -1,4 +1,4 @@
-import { createCar } from "@automovie/archetypes";
+import { AutoMovieArchetypeCar } from "@automovie/archetypes";
 import type {
   IAutoMovieAffordance,
   IAutoMoviePhysicalShape,
@@ -14,19 +14,23 @@ import { vclose } from "../../internal/vclose";
  * A sedan's driver seat reads the collider of its actual cushion.
  *
  * Scenarios:
- * 1. Fit the low and high Class A seating-reference heights to the two sedan models.
- * 2. The seat starts at the cushion's front edge and uses the same width and depth.
+ *
+ * 1. Fit the low and high Class A seating-reference heights to the two sedan
+ *    models.
+ * 2. The seat starts at the cushion's front edge and uses the same width and
+ *    depth.
  */
 export function test_archetypes_catalogue_sedan_cushion(): void {
   for (const [model, height] of [
     ["corolla", 0.127],
     ["camry", 0.405],
   ] as const) {
-    const car: ReturnType<typeof createCar> = createCar({
-      kind: "sedan",
-      model,
-      seatHeight: height,
-    });
+    const car: ReturnType<typeof AutoMovieArchetypeCar.create> =
+      AutoMovieArchetypeCar.create({
+        kind: "sedan",
+        model,
+        seatHeight: height,
+      });
     const cushion: IAutoMoviePhysicalShape | undefined = car
       .shapes()
       .find((shape): boolean => shape.id === "cushion-driver");
@@ -37,7 +41,11 @@ export function test_archetypes_catalogue_sedan_cushion(): void {
     const half: IAutoMovieVector3 = cushion.halfExtents;
     TestValidator.predicate(
       `the ${model} driver socket stands on the front edge of its cushion`,
-      vclose(seat.frame.translation, { x, y: y + half.y, z: z + half.z }, 1e-9) &&
+      vclose(
+        seat.frame.translation,
+        { x, y: y + half.y, z: z + half.z },
+        1e-9,
+      ) &&
         nclose(seat.frame.translation.y, 0.3 + height - 0.0975, 1e-9) &&
         seat.width !== undefined &&
         nclose(seat.width, 2 * half.x, 1e-9) &&

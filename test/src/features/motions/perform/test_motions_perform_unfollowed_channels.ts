@@ -1,4 +1,6 @@
-import { unfollowedHumanChannels } from "@automovie/motions/internal";
+import {
+  unfollowedHumanChannels
+} from "../../../../../packages/motions/src/perform/internal/unfollowedHumanChannels";
 import { TestValidator } from "@nestia/e2e";
 
 /**

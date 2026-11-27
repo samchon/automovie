@@ -1,7 +1,4 @@
-import {
-  type IAutoMovieInspectionHandle,
-  applyAutoMovieInspection,
-} from "@automovie/render";
+import { type IAutoMovieRenderInspectionHandle, AutoMovieRenderInspection } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -43,7 +40,7 @@ export function test_render_scene_apply_inspection_mark_kind_unknown(): void {
   // 1. An unknown pattern.
   const children: number = stage.children.length;
   try {
-    applyAutoMovieInspection({
+    AutoMovieRenderInspection.apply({
       scene: stage,
       request: InspectionScene.ask({ marks: ["curve/spline"] }),
       marks,
@@ -73,19 +70,19 @@ export function test_render_scene_apply_inspection_mark_kind_unknown(): void {
 
   // 2. The sliver kind exists only with its limit.
   TestValidator.error("slivers without a limit are refused", (): void => {
-    applyAutoMovieInspection({
+    AutoMovieRenderInspection.apply({
       scene: stage,
       request: InspectionScene.ask({ marks: ["defect/sliver"] }),
     });
   });
-  applyAutoMovieInspection({
+  AutoMovieRenderInspection.apply({
     scene: stage,
     request: InspectionScene.ask({ marks: ["defect/sliver"], sliver: 30 }),
   }).restore();
 
   // 3. Bare names under the path grammar.
   const drawnBy = (pattern: string): number => {
-    const handle: IAutoMovieInspectionHandle = applyAutoMovieInspection({
+    const handle: IAutoMovieRenderInspectionHandle = AutoMovieRenderInspection.apply({
       scene: stage,
       request: InspectionScene.ask({ marks: [pattern] }),
       marks,
@@ -103,7 +100,7 @@ export function test_render_scene_apply_inspection_mark_kind_unknown(): void {
   );
 
   // 4. No pattern.
-  const none: IAutoMovieInspectionHandle = applyAutoMovieInspection({
+  const none: IAutoMovieRenderInspectionHandle = AutoMovieRenderInspection.apply({
     scene: stage,
     request: InspectionScene.ask({}),
     marks,

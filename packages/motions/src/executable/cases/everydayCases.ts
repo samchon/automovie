@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
@@ -8,38 +8,22 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanChain } from "../../HumanChain";
-import { createHumanBody } from "../../body/createHumanBody";
-import { HumanBalance } from "../../everyday/HumanBalance";
-import { HumanProxemics } from "../../everyday/HumanProxemics";
-import { rest } from "../../everyday/rest";
-import { HumanHand } from "../../posture/HumanHand";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
-import { MotionBodies } from "../MotionBodies";
-import type { humanPolygonMan } from "../humanPolygonMan";
-import { everydayCaseKit } from "./everydayCaseKit";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
+import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
+import { HumanBalance } from "../../everyday/internal/HumanBalance";
+import { HumanProxemics } from "../../everyday/internal/HumanProxemics";
+import { rest } from "../../everyday/internal/rest";
+import { HumanHand } from "../../posture/internal/HumanHand";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
+import { MotionBodies } from "../internal/MotionBodies";
+import type { humanPolygonMan } from "../internal/humanPolygonMan";
+import { everydayCaseKit } from "./internal/everydayCaseKit";
 import { everydayGestureCases } from "./everydayGestureCases";
 import { everydayPostureCases } from "./everydayPostureCases";
 import { everydayTypeCases } from "./everydayTypeCases";
-import { everydayVerdicts } from "./everydayVerdicts";
+import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-const { perform, figure, event, angle, frame } = everydayCaseKit;
-/** The record of `IEverydayCasesMarginsResult`'s site. */
-type IEverydayCasesMarginsResult = { push: number; side: number };
-
-/** The alternatives of `EverydayCasesFamily`'s site. */
-type EverydayCasesFamily =
-  | "approach"
-  | "look"
-  | "gesture"
-  | "rest"
-  | "seat"
-  | "bend"
-  | "step"
-  | "brace"
-  | "type";
-
-/**
+/*
  * Capture cases of the everyday laws on the polygon man, each with the numeric
  * verdicts its family's acceptance names, so a sheet is read together with the
  * measured contacts it shows.
@@ -81,10 +65,9 @@ type EverydayCasesFamily =
  *   each key's pressed centre within 10 mm and the key dip 2 to 4 mm.
  * - `everyday-step`: stepping over a 0.3 m box, at tenths of the crossing; every
  *   sole point at least 5 cm above the box while over it.
- *
- * @param family One family or every family when absent.
- * @param bodies The sweep bodies to run each case on; `m-average` when absent.
- * @returns The cases.
+ * Parameter family: One family or every family when absent.
+ * Parameter bodies: The sweep bodies to run each case on; `m-average` when absent.
+ * Returns: The cases.
  */
 export function everydayCases(
   family?: EverydayCasesFamily,
@@ -96,7 +79,7 @@ export function everydayCases(
   const within = everydayVerdicts.within;
   for (const id of bodies) {
     const man: humanPolygonMan.IPolygonMan = MotionBodies.population(id);
-    const body: IAutoMovieMotionHumanBody = createHumanBody(
+    const body: IAutoMovieMotionHumanBody = AutoMovieMotionHumanBody.create(
       man.body.skeleton,
       man.body.profile,
     );
@@ -115,12 +98,12 @@ export function everydayCases(
           [man, { x: 0, y: 0, z: 0 }, 0],
           [partner, { x: 0.4, y: 0, z: 3.2 }, 180],
         ],
-        HumanChain.subject("a")
+        AutoMovieMotionHumanChain.subject("a")
           .approach({
             target: { kind: "person", subject: "b", region: "sternum" },
             at: "personal",
           })
-          .with(HumanChain.subject("b").stand({ hold: 8 })),
+          .with(AutoMovieMotionHumanChain.subject("b").stand({ hold: 8 })),
       );
       const walking = performance.segments("a")[0]!;
       const sternum = (subject: string, t: number): IAutoMovieVector3 =>
@@ -132,7 +115,7 @@ export function everydayCases(
       const pa: IAutoMovieVector3 = sternum("a", walking.end);
       const pb: IAutoMovieVector3 = sternum("b", walking.end);
       const gap: number = Math.hypot(pa.x - pb.x, pa.z - pb.z);
-      const forward: IAutoMovieVector3 = Quaternion.rotateVector(
+      const forward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
         performance.bones("a", walking.end).get("hips")!.worldRotation,
         { x: 0, y: 0, z: 1 },
       );
@@ -186,7 +169,7 @@ export function everydayCases(
         }),
       );
       const performance: IAutoMovieMotionHumanPerformance = one(
-        HumanChain.subject("a")
+        AutoMovieMotionHumanChain.subject("a")
           .look({ target: targets[0]!, duration: 1.2 })
           .look({ target: targets[1]!, duration: 1.2 }),
       );
@@ -207,8 +190,8 @@ export function everydayCases(
             within(
               `${eye} on target ${i}`,
               angle(
-                Quaternion.rotateVector(e.worldRotation, { x: 0, y: 0, z: 1 }),
-                Vector3.subtract(point, e.worldPosition),
+                AutoMovieEngineQuaternion.rotateVector(e.worldRotation, { x: 0, y: 0, z: 1 }),
+                AutoMovieEngineVector3.subtract(point, e.worldPosition),
               ),
               2,
               "deg",
@@ -247,7 +230,7 @@ export function everydayCases(
         ["behindHead", "behindHead"],
         ["side", "chinRest"],
       ];
-      let chain: IAutoMovieMotionHumanChain = HumanChain.subject("a");
+      let chain: IAutoMovieMotionHumanChain = AutoMovieMotionHumanChain.subject("a");
       for (const [left, right] of places)
         chain = chain.rest({ left, right, hold: 1.5 });
       const performance: IAutoMovieMotionHumanPerformance = one(chain);
@@ -279,7 +262,7 @@ export function everydayCases(
           verdicts.push(
             within(
               `${right} ${side} ${goal.surface} at its place`,
-              Vector3.length(Vector3.subtract(got.point, goal.point)),
+              AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(got.point, goal.point)),
               0.015,
               "mm",
             ),
@@ -298,7 +281,7 @@ export function everydayCases(
 
     if (wants("brace")) {
       const performance: IAutoMovieMotionHumanPerformance = one(
-        HumanChain.subject("a").brace({
+        AutoMovieMotionHumanChain.subject("a").brace({
           target: { kind: "point", at: { x: 0, y: 1.2, z: 2 }, frame: "world" },
           kind: "push",
         }),
@@ -349,3 +332,23 @@ export function everydayCases(
   }
   return out;
 }
+const { perform, figure, event, angle, frame } = everydayCaseKit;
+
+/*
+ * The record of `IEverydayCasesMarginsResult`'s site.
+ */
+type IEverydayCasesMarginsResult = { push: number; side: number };
+
+/*
+ * The alternatives of `EverydayCasesFamily`'s site.
+ */
+type EverydayCasesFamily =
+  | "approach"
+  | "look"
+  | "gesture"
+  | "rest"
+  | "seat"
+  | "bend"
+  | "step"
+  | "brace"
+  | "type";

@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanGesture } from "@automovie/interface";
 
-/**
+/*
  * The values the `handInPocket` row of `HumanUpperRows` fixes on `armPhrase`,
  * spread into its parameters. A hand in the pocket: the fingertips visit the
  * front pocket and stay.

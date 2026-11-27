@@ -1,12 +1,4 @@
-import {
-  builtEnvironmentElementPartBounds,
-  builtEnvironmentPlacementBounds,
-  builtEnvironmentPlacementOverlap,
-  builtEnvironmentPlacementOverlapSweep,
-  builtEnvironmentSupportStatus,
-  builtEnvironmentSupportSweep,
-  validateBuiltEnvironment,
-} from "@automovie/engine";
+import { AutoMovieEngineBuiltEnvironment, AutoMovieEngineArchitecture } from "@automovie/engine";
 import type {
   IAutoMovieBuiltElement,
   IAutoMovieBuiltEnvironment,
@@ -220,16 +212,16 @@ const environment: () => IAutoMovieBuiltEnvironment =
  */
 export function test_architecture_built_environment_multipart_support(): void {
   const world: IAutoMovieBuiltEnvironment = environment();
-  validateBuiltEnvironment({ environment: world });
+  AutoMovieEngineArchitecture.validateBuiltEnvironment({ environment: world });
 
   const union: IAutoMovieBuiltPlacementBounds | null =
-    builtEnvironmentPlacementBounds({
+    AutoMovieEngineBuiltEnvironment.environmentPlacementBounds({
       environment: world,
       target: { kind: "element", id: "shelf" },
     });
   const parts: IAutoMovieSubjectBox[] | null =
-    builtEnvironmentElementPartBounds(world, "shelf");
-  const support: IAutoMovieBuiltSupportResult = builtEnvironmentSupportStatus({
+    AutoMovieEngineBuiltEnvironment.environmentElementPartBounds(world, "shelf");
+  const support: IAutoMovieBuiltSupportResult = AutoMovieEngineBuiltEnvironment.environmentSupportStatus({
     environment: world,
     query: {
       kind: "bearing",
@@ -238,7 +230,7 @@ export function test_architecture_built_environment_multipart_support(): void {
     },
   });
   const overlap: IAutoMovieBuiltPlacementOverlapResult =
-    builtEnvironmentPlacementOverlap({
+    AutoMovieEngineBuiltEnvironment.environmentPlacementOverlap({
       environment: world,
       left: { kind: "element", id: "case" },
       right: { kind: "element", id: "shelf" },
@@ -251,18 +243,18 @@ export function test_architecture_built_environment_multipart_support(): void {
         ? { ...element, transform: place(0, 0.85, 0) }
         : element,
   );
-  const sweep: IAutoMovieBuiltSupportSweepReport = builtEnvironmentSupportSweep(
+  const sweep: IAutoMovieBuiltSupportSweepReport = AutoMovieEngineBuiltEnvironment.environmentSupportSweep(
     { environment: world },
   );
   const overlaps: IAutoMovieBuiltPlacementOverlapReport =
-    builtEnvironmentPlacementOverlapSweep({
+    AutoMovieEngineBuiltEnvironment.environmentPlacementOverlapSweep({
       environment: world,
     });
   const sunkOverlaps: IAutoMovieBuiltPlacementOverlapReport =
-    builtEnvironmentPlacementOverlapSweep({
+    AutoMovieEngineBuiltEnvironment.environmentPlacementOverlapSweep({
       environment: sunkWorld,
     });
-  const notch: IAutoMovieBuiltSupportResult = builtEnvironmentSupportStatus({
+  const notch: IAutoMovieBuiltSupportResult = AutoMovieEngineBuiltEnvironment.environmentSupportStatus({
     environment: notchEnvironment(),
     query: {
       kind: "bearing",
@@ -270,7 +262,7 @@ export function test_architecture_built_environment_multipart_support(): void {
       support: { kind: "element", id: "bench" },
     },
   });
-  const sunk: IAutoMovieBuiltSupportResult = builtEnvironmentSupportStatus({
+  const sunk: IAutoMovieBuiltSupportResult = AutoMovieEngineBuiltEnvironment.environmentSupportStatus({
     environment: sunkWorld,
     query: {
       kind: "bearing",

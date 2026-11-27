@@ -1,7 +1,7 @@
 import {
-  AutoMovieLoftChain,
-  AutoMovieLoftJet,
-  AutoMovieSplineCurve,
+  AutoMovieEngineLoftChain,
+  AutoMovieEngineLoftJet,
+  AutoMovieEngineSplineCurve,
 } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
@@ -124,8 +124,8 @@ export namespace AutoMovieHumanBodyStrip {
         const e3: AutoMovieVector3Tuple = cross(e1, normal);
         const M: number = row.length / 3;
         const ab: [number, number, number, number] =
-          AutoMovieSplineCurve.evaluate(row.slice(0, 2 * M), M, u);
-        const cc: number = AutoMovieSplineCurve.evaluate(
+          AutoMovieEngineSplineCurve.evaluate(row.slice(0, 2 * M), M, u);
+        const cc: number = AutoMovieEngineSplineCurve.evaluate(
           [...row.slice(2 * M), ...row.slice(2 * M)],
           M,
           u,
@@ -190,8 +190,8 @@ export namespace AutoMovieHumanBodyStrip {
     dt: number,
     ds: number,
   ): IAutoMovieHumanBodyStrip.AcrossResult {
-    if (AutoMovieLoftJet.carries(chain)) {
-      const j: IAutoMovieLoftSurfaceJet = AutoMovieLoftJet.at(
+    if (AutoMovieEngineLoftJet.carries(chain)) {
+      const j: IAutoMovieLoftSurfaceJet = AutoMovieEngineLoftJet.at(
         chain,
         clamp(chain, s),
         t,
@@ -227,10 +227,10 @@ export namespace AutoMovieHumanBodyStrip {
     s: number,
     t: number,
   ): AutoMovieVector3Tuple {
-    return AutoMovieLoftChain.point(chain, clamp(chain, s), t);
+    return AutoMovieEngineLoftChain.point(chain, clamp(chain, s), t);
   }
 
-  /**
+  /*
    * The column at ring phase u: the appendage's end point and outward
    * station derivatives, the root loop's base point and its derivatives
    * across the loop away from the hole, and the edge length.
@@ -249,7 +249,7 @@ export namespace AutoMovieHumanBodyStrip {
     const outward: number = root.end === "bottom" ? -1 : 1;
     const A: AutoMovieVector3Tuple = surface(appendage, end, u);
     const [a1, a2] = station(appendage, end, u, outward);
-    const [s, remainder, ds, dr] = AutoMovieSplineCurve.evaluate(
+    const [s, remainder, ds, dr] = AutoMovieEngineSplineCurve.evaluate(
       root.root,
       root.root.length / 2,
       u,
@@ -283,10 +283,10 @@ export namespace AutoMovieHumanBodyStrip {
     };
   }
 
-  /**
+  /*
    * First fundamental form `[P_t . P_t, P_t . P_s, P_s . P_s]` of a chain at
    * a chart point, phase first: from its jet where it carries one, otherwise
-   * from central differences of its points over {@link H} mm of station and
+   * from central differences of its points over H mm of station and
    * 1e-4 rad of phase.
    */
   function metric(
@@ -296,8 +296,8 @@ export namespace AutoMovieHumanBodyStrip {
   ): [number, number, number] {
     let Pt: AutoMovieVector3Tuple;
     let Ps: AutoMovieVector3Tuple;
-    if (AutoMovieLoftJet.carries(chain)) {
-      const j: IAutoMovieLoftSurfaceJet = AutoMovieLoftJet.at(
+    if (AutoMovieEngineLoftJet.carries(chain)) {
+      const j: IAutoMovieLoftSurfaceJet = AutoMovieEngineLoftJet.at(
         chain,
         clamp(chain, s),
         t,
@@ -322,7 +322,7 @@ export namespace AutoMovieHumanBodyStrip {
     return [dot(Pt, Pt), dot(Pt, Ps), dot(Ps, Ps)];
   }
 
-  /**
+  /*
    * Quintic Hermite blend of a column's edges at w (`order` 0) or its w
    * derivative (`order` 1): weights of the start point, start tangent,
    * start second derivative, end second derivative, end tangent, end point.
@@ -363,7 +363,7 @@ export namespace AutoMovieHumanBodyStrip {
     );
   }
 
-  /**
+  /*
    * First and second derivatives of a chain at its end along its station,
    * outward and by arc length: from its jet where it carries one, otherwise
    * from one-sided differences into the chain.
@@ -374,8 +374,8 @@ export namespace AutoMovieHumanBodyStrip {
     u: number,
     outward: number,
   ): [AutoMovieVector3Tuple, AutoMovieVector3Tuple] {
-    if (AutoMovieLoftJet.carries(chain)) {
-      const j: IAutoMovieLoftSurfaceJet = AutoMovieLoftJet.at(chain, end, u);
+    if (AutoMovieEngineLoftJet.carries(chain)) {
+      const j: IAutoMovieLoftSurfaceJet = AutoMovieEngineLoftJet.at(chain, end, u);
       return arcLength(scale(j.s, outward), j.ss);
     }
     const p0: AutoMovieVector3Tuple = surface(chain, end, u);
@@ -387,7 +387,7 @@ export namespace AutoMovieHumanBodyStrip {
     );
   }
 
-  /**
+  /*
    * Derivatives of a curve reparameterized by arc length: the unit tangent
    * and the curvature vector, the second derivative's part across the
    * tangent.
@@ -402,11 +402,15 @@ export namespace AutoMovieHumanBodyStrip {
     ];
   }
 
-  /** Station step of the difference derivatives, mm. */
+  /*
+   * Station step of the difference derivatives, mm.
+   */
   const H: number = 0.05;
 }
 
-/** A station clamped into a chain's range. */
+/*
+ * A station clamped into a chain's range.
+ */
 function clamp(chain: IAutoMovieLoftChain, s: number): number {
   return Math.min(
     chain.layers[chain.layers.length - 1]!.y,
@@ -414,19 +418,25 @@ function clamp(chain: IAutoMovieLoftChain, s: number): number {
   );
 }
 
-/** Sum of vectors. */
+/*
+ * Sum of vectors.
+ */
 function add(...vs: AutoMovieVector3Tuple[]): AutoMovieVector3Tuple {
   const out: AutoMovieVector3Tuple = [0, 0, 0];
   for (const v of vs) for (let k: number = 0; k < 3; k++) out[k] += v[k]!;
   return out;
 }
 
-/** Vector times a scalar. */
+/*
+ * Vector times a scalar.
+ */
 function scale(v: AutoMovieVector3Tuple, k: number): AutoMovieVector3Tuple {
   return [v[0] * k, v[1] * k, v[2] * k];
 }
 
-/** Cross product. */
+/*
+ * Cross product.
+ */
 function cross(
   a: AutoMovieVector3Tuple,
   b: AutoMovieVector3Tuple,
@@ -438,7 +448,9 @@ function cross(
   ];
 }
 
-/** Unit vector, or zero for a zero vector. */
+/*
+ * Unit vector, or zero for a zero vector.
+ */
 function unit(v: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
   const l: number = Math.hypot(v[0], v[1], v[2]);
   return l > 0 ? scale(v, 1 / l) : [0, 0, 0];

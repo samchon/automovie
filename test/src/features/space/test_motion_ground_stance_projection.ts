@@ -1,10 +1,4 @@
-import {
-  followPathMotion,
-  plantStanceFeet,
-  spaceGround,
-  validateFootSkate,
-  validateGroundContact,
-} from "@automovie/engine";
+import { AutoMovieEngineMotionPlanting, AutoMovieEngineMotionTrajectory, AutoMovieEngineSpace, AutoMovieEngineValidation } from "@automovie/engine";
 import {
   IAutoMovieKeyframe,
   IAutoMovieMotion,
@@ -79,7 +73,7 @@ const legSkeleton: IAutoMovieSkeleton = {
   ],
 };
 const KNEE_REST_FLEXION: number = (2 * Math.atan2(0.15, 0.4) * 180) / Math.PI;
-const REST_FRAMES: Parameters<typeof plantStanceFeet>[0]["restFrames"] = {
+const REST_FRAMES: Parameters<typeof AutoMovieEngineMotionPlanting.plantStanceFeet>[0]["restFrames"] = {
   leftLowerLeg: {
     flexion: { sign: 1 as const, neutral: KNEE_REST_FLEXION },
   },
@@ -130,8 +124,8 @@ export function test_motion_ground_stance_projection(): void {
       },
     })),
   };
-  for (const ground of [spaceGround(space), spaceGround(relief)]) {
-    const path = followPathMotion({
+  for (const ground of [AutoMovieEngineSpace.spaceGround(space), AutoMovieEngineSpace.spaceGround(relief)]) {
+    const path = AutoMovieEngineMotionTrajectory.followPathMotion({
       id: "climb",
       gait,
       waypoints: [v(0, 0), v(0.15, 0)],
@@ -145,7 +139,7 @@ export function test_motion_ground_stance_projection(): void {
         (0.2 * 0.15) / 2,
       ),
     );
-    const planted = plantStanceFeet({
+    const planted = AutoMovieEngineMotionPlanting.plantStanceFeet({
       skeleton: legSkeleton,
       motion: path.motion,
       groundY: ground,
@@ -156,7 +150,7 @@ export function test_motion_ground_stance_projection(): void {
       restFrames: REST_FRAMES,
     });
     const skate = (motion: IAutoMovieMotion) =>
-      validateFootSkate({
+      AutoMovieEngineValidation.validateFootSkate({
         motion,
         skeleton: legSkeleton,
         contacts: [{ bone: "leftFoot", start: 0, end: 1 }],
@@ -174,7 +168,7 @@ export function test_motion_ground_stance_projection(): void {
       "planted foot clears measured ground",
       validationHasNoWarnings(
         "planted ground contact",
-        validateGroundContact({
+        AutoMovieEngineValidation.validateGroundContact({
           motion: planted.motion,
           skeleton: legSkeleton,
           footBones: ["leftFoot"],

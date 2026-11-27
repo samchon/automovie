@@ -1,13 +1,5 @@
-import {
-  type AutoMovieArchetypeEquine,
-  AutoMovieArchetypeEquineHobble,
-  AutoMovieArchetypeFrame,
-  AutoMovieArchetypeRide,
-  createDog,
-  createHobble,
-  createHorse,
-} from "@automovie/archetypes";
-import { Quaternion, physicalShapeSegmentDistance } from "@automovie/engine";
+import { type AutoMovieArchetypeEquine, AutoMovieArchetypeEquineHobble, AutoMovieArchetypeFrame, AutoMovieArchetypeRide, AutoMovieArchetypeDog, AutoMovieArchetypeHobble, AutoMovieArchetypeHorse } from "@automovie/archetypes";
+import { AutoMovieEngineQuaternion, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMoviePhysicalShape,
@@ -24,7 +16,7 @@ import { vclose } from "../../internal/vclose";
 /** Keep the world and the model frame coincident in the local bore tests. */
 const IDENTITY: IAutoMovieRigidTransform = {
   position: { x: 0, y: 0, z: 0 },
-  rotation: Quaternion.identity(),
+  rotation: AutoMovieEngineQuaternion.identity(),
 };
 
 /**
@@ -37,7 +29,7 @@ const IDENTITY: IAutoMovieRigidTransform = {
  * 3. Live cannon rotation carries all cuff cells and both strap anchors.
  */
 export function test_archetypes_animals_annular_fittings(): void {
-  const hobble: ReturnType<typeof createHobble> = createHobble(0.04, {
+  const hobble: ReturnType<typeof AutoMovieArchetypeHobble.create> = AutoMovieArchetypeHobble.create(0.04, {
     strap: 0.4,
   });
   for (const side of ["leftCuff", "rightCuff"]) {
@@ -55,7 +47,7 @@ export function test_archetypes_animals_annular_fittings(): void {
       0.008,
     );
   }
-  const dog: ReturnType<typeof createDog> = createDog({
+  const dog: ReturnType<typeof AutoMovieArchetypeDog.create> = AutoMovieArchetypeDog.create({
     mass: 22,
     cohort: "pet",
     collar: {
@@ -88,7 +80,7 @@ export function test_archetypes_animals_annular_fittings(): void {
     0.003,
   );
 
-  const horse: ReturnType<typeof createHorse> = createHorse({ tack: "bare" });
+  const horse: ReturnType<typeof AutoMovieArchetypeHorse.create> = AutoMovieArchetypeHorse.create({ tack: "bare" });
   const carrier: ReturnType<
     typeof AutoMovieArchetypeRide.along<
       AutoMovieArchetypeEquine.Affordance,
@@ -107,7 +99,7 @@ export function test_archetypes_animals_annular_fittings(): void {
       archetype: horse,
       placement: {
         ...state.placement,
-        rotation: Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 18 * seconds),
+        rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 18 * seconds),
       },
     }),
   );
@@ -169,7 +161,7 @@ function probes(
     });
     return Math.min(
       ...cells.map((cell: IAutoMoviePhysicalShape): number =>
-        physicalShapeSegmentDistance(IDENTITY, cell, point, point),
+        AutoMovieEnginePhysics.physicalShapeSegmentDistance(IDENTITY, cell, point, point),
       ),
     );
   };

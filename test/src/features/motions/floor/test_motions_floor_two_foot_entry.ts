@@ -1,4 +1,9 @@
-import { HumanRefusal, floorEntry } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  floorEntry
+} from "../../../../../packages/motions/src/floor/internal/floorEntry";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -18,11 +23,11 @@ export function test_motions_floor_two_foot_entry(): void {
     [false, false],
   ];
   for (const [left, right] of unsupported) {
-    let refusal: HumanRefusal | undefined;
+    let refusal: AutoMovieMotionHumanRefusal | undefined;
     try {
       floorEntry.bothFeet(left, right, "Crouch over both feet", "Stand first");
     } catch (error: unknown) {
-      if (!(error instanceof HumanRefusal)) throw error;
+      if (!(error instanceof AutoMovieMotionHumanRefusal)) throw error;
       refusal = error;
     }
     TestValidator.predicate(

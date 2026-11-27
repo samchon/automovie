@@ -1,21 +1,8 @@
-import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
-  IAutoMovieHumanoidSurfaces,
-  IAutoMovieMotionEvent,
-  IAutoMovieMotionHumanAuditMeasure,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanPerformance,
-  IAutoMovieMotionHumanSegment,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import { HumanRefusal } from "@automovie/motions";
-import {
-  AutoMovieMotionHumanAuditPartner,
-  HumanHand,
-} from "@automovie/motions/internal";
+import { AutoMovieEngineKinematics, AutoMovieEngineVector3 } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaces, IAutoMovieMotionEvent, IAutoMovieMotionHumanAuditMeasure, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
+import { AutoMovieMotionHumanRefusal } from "@automovie/motions";
+import { AutoMovieMotionHumanAuditPartner } from "../../packages/motions/src/audit/internal/AutoMovieMotionHumanAuditPartner";
+import { HumanHand } from "../../packages/motions/src/posture/internal/HumanHand";
 import { strict as assert } from "node:assert";
 
 import { PlaygroundPerformance } from "../src/playground/package/PlaygroundPerformance";
@@ -97,7 +84,7 @@ export function checkFarewellScene(): void {
   assert.throws(
     () => PlaygroundPerformance.build(distant),
     (error: unknown): boolean =>
-      error instanceof HumanRefusal &&
+      error instanceof AutoMovieMotionHumanRefusal &&
       error.performer === "tia" &&
       error.act === "cheekKiss" &&
       error.axis === "region",
@@ -133,7 +120,7 @@ function checkTake(
     assert(Math.abs(meet - at(b, "meet")) < 1e-9);
     assert(Math.abs(rebound - at(b, "rebound")) < 1e-9);
     const gap: (seconds: number) => number = (seconds: number): number =>
-      Vector3.distance(fist(film, "tia", seconds), fist(film, "val", seconds));
+      AutoMovieEngineVector3.distance(fist(film, "tia", seconds), fist(film, "val", seconds));
     assert(
       [meet, (meet + rebound) / 2, rebound].every(
         (seconds: number): boolean => gap(seconds) <= TOUCH,
@@ -193,7 +180,7 @@ function kiss(
   const part: number = at(segment, "part");
   assert(contact < part, name + " holds");
   const gap: (seconds: number) => number = (seconds: number): number =>
-    Vector3.distance(
+    AutoMovieEngineVector3.distance(
       skin(film, actor, "mouth", seconds),
       skin(film, target, region, seconds),
     );
@@ -249,7 +236,7 @@ function skin(
 ): IAutoMovieVector3 {
   const frame: IAutoMovieHumanoidSurfaces.IFrame = body(film, subject).surfaces
     .regions[region];
-  return resolveAutoMovieHumanoidSurfaces.place(
+  return AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
     frame,
     film.bones(subject, seconds).get(frame.bone)!,
   ).point;
@@ -286,7 +273,7 @@ function continuous(
       seconds + STEP,
     );
     for (const site of LANDMARKS) {
-      const distance: number = Vector3.distance(
+      const distance: number = AutoMovieEngineVector3.distance(
         prior.get(site)!.worldPosition,
         next.get(site)!.worldPosition,
       );

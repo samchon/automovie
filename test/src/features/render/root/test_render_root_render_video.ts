@@ -3,7 +3,7 @@ import type {
   IAutoMovieRenderResult,
   IAutoMovieRenderSpec,
 } from "@automovie/interface";
-import { renderVideo } from "@automovie/render";
+import { AutoMovieRenderVideo } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, rejectsError } from "../../internal/predicates";
@@ -57,7 +57,7 @@ export async function test_render_root_render_video(): Promise<void> {
       return "encoded.mp4";
     },
   };
-  const result: IAutoMovieRenderResult = await renderVideo(
+  const result: IAutoMovieRenderResult = await AutoMovieRenderVideo.render(
     SPEC,
     0.5,
     "capture",
@@ -104,7 +104,7 @@ export async function test_render_root_render_video(): Promise<void> {
   TestValidator.predicate(
     "empty capture refuses",
     await rejectsError(
-      () => renderVideo(SPEC, 0.0625, "capture", "result.mp4", adapters),
+      () => AutoMovieRenderVideo.render(SPEC, 0.0625, "capture", "result.mp4", adapters),
       "zero frames",
     ),
   );
@@ -114,7 +114,7 @@ export async function test_render_root_render_video(): Promise<void> {
     "capture refusal propagates",
     await rejectsError(
       () =>
-        renderVideo(SPEC, 0.75, "capture", "result.mp4", {
+        AutoMovieRenderVideo.render(SPEC, 0.75, "capture", "result.mp4", {
           ...adapters,
           captureFrame: async (
             seconds: number,

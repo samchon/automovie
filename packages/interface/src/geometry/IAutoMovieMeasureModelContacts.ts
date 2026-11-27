@@ -2,7 +2,7 @@
 export namespace IAutoMovieMeasureModelContacts {
   /**
    * What decides a contact report: the distance below which two parts that do
-   * not cross count as touching. `measureAutoMovieModelContacts` refuses a
+   * not cross count as touching. `measureModelContacts` refuses a
    * missing, negative or non-finite distance.
    */
   export interface IOptions {

@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieTransform,
@@ -36,13 +36,13 @@ export function animalTerminalSole(
   const shape: typeof part.geometry.shape = part.geometry.shape;
   if (!(shape.height > 0 && shape.radius > 0))
     throw new Error(`Invalid actual terminal dimensions ${part.id}`);
-  const axis: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.multiply(placement.rotation, part.transform.rotation),
+  const axis: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.multiply(placement.rotation, part.transform.rotation),
     { x: 0, y: 1, z: 0 },
   );
   const centre: number =
     placement.translation.y +
-    Quaternion.rotateVector(placement.rotation, part.transform.translation).y;
+    AutoMovieEngineQuaternion.rotateVector(placement.rotation, part.transform.translation).y;
   const extent: number =
     (Math.abs(axis.y) * shape.height) / 2 +
     shape.radius * (shape.type === "capsule" ? 1 : Math.hypot(axis.x, axis.z));

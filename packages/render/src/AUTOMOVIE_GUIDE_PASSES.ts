@@ -1,6 +1,6 @@
 import type { AutoMovieGuidePass } from "@automovie/interface";
 
-/**
+/*
  * Every member of the closed `AutoMovieGuidePass` union, in declaration order,
  * as the runtime list a requested pass name is checked against.
  *

@@ -1,8 +1,8 @@
 import { TestValidator } from "@nestia/e2e";
-import { deriveAutoMovieProjectName } from "automovie";
+import { AutoMovieCliScaffold } from "automovie";
 
 /**
- * `deriveAutoMovieProjectName` lowercases a directory's basename, folds each
+ * `deriveProjectNameImplementation` lowercases a directory's basename, folds each
  * run outside `a-z 0-9 . _ -` into one `-`, and trims leading `-._` and
  * trailing `-.`; nothing left falls back to the default name.
  *
@@ -16,15 +16,15 @@ import { deriveAutoMovieProjectName } from "automovie";
 export function test_cli_root_derive_project_name(): void {
   TestValidator.equals(
     "a spaced title",
-    deriveAutoMovieProjectName("/work/My Film (2026)"),
+    AutoMovieCliScaffold.deriveProjectName("/work/My Film (2026)"),
     "my-film-2026",
   );
   TestValidator.equals(
     "trimmed ends",
-    deriveAutoMovieProjectName("/work/_draft."),
+    AutoMovieCliScaffold.deriveProjectName("/work/_draft."),
     "draft",
   );
-  const fallback: string = deriveAutoMovieProjectName("/work/---");
+  const fallback: string = AutoMovieCliScaffold.deriveProjectName("/work/---");
   TestValidator.predicate(
     "the default name",
     fallback.length > 0 && fallback !== "---",

@@ -1,6 +1,6 @@
 import {
-  AutoMovieFilmIndirectStage,
-  type IMaterialShaderSource,
+  AutoMovieRenderFilmIndirectStage,
+  type IAutoMovieRenderMaterialShaderSource,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
@@ -48,7 +48,7 @@ export function test_render_scene_film_indirect_stage(): void {
       toneMapping: THREE.NoToneMapping,
       exposure: 1,
     });
-  const stage: AutoMovieFilmIndirectStage = new AutoMovieFilmIndirectStage();
+  const stage: AutoMovieRenderFilmIndirectStage = new AutoMovieRenderFilmIndirectStage();
   const gate: () => number = (): number =>
     stage.uniforms.uFilmOcclusionOn!.value;
   let inside: number = -1;
@@ -77,7 +77,7 @@ export function test_render_scene_film_indirect_stage(): void {
   );
 
   // 2. After the occlusion chunk, indirect terms only.
-  const shader: IMaterialShaderSource = compileMaterialShaderSource(lit);
+  const shader: IAutoMovieRenderMaterialShaderSource = compileMaterialShaderSource(lit);
   const at: number = shader.fragmentShader.indexOf("autoMovieFilmVisibility =");
   TestValidator.predicate(
     "visibility multiplies only indirect light, after the light loop and the occlusion map",

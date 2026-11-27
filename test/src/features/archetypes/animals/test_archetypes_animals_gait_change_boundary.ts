@@ -1,9 +1,8 @@
+import { type AutoMovieArchetypeQuadrupedBody as Body, AutoMovieArchetypeQuadruped } from "@automovie/archetypes";
 import {
-  type AutoMovieArchetypeQuadrupedBody as Body,
-  createQuadruped,
-} from "@automovie/archetypes";
-import { QuadrupedChange } from "@automovie/archetypes/internal";
-import { AutoMovieGravity } from "@automovie/engine";
+  QuadrupedChange
+} from "../../../../../packages/archetypes/src/animals/quadruped/QuadrupedChange";
+import { AutoMovieEngineGravity } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -24,13 +23,13 @@ const SPEED_ROUNDOFF: number = 32 * Number.EPSILON;
  *    gait exactly at the boundary from either side.
  */
 export function test_archetypes_animals_gait_change_boundary(): void {
-  const horse: createQuadruped.ISpecies = createQuadruped.SPECIES.horse;
+  const horse: AutoMovieArchetypeQuadruped.ISpecies = AutoMovieArchetypeQuadruped.SPECIES.horse;
   const dimensions: Partial<Record<Body.Dimension, number>> = {
     withersHeight: 1.38,
     mass: 170,
   };
   const hip: number = 0.9;
-  const walk: number = Math.sqrt(0.35 * AutoMovieGravity.STANDARD * hip);
+  const walk: number = Math.sqrt(0.35 * AutoMovieEngineGravity.STANDARD * hip);
   TestValidator.predicate(
     "Froude and mass reduce to their independent reference values",
     nclose(
@@ -73,7 +72,7 @@ export function test_archetypes_animals_gait_change_boundary(): void {
       previous,
     );
 
-  const dog: createQuadruped.ISpecies = createQuadruped.SPECIES.dog;
+  const dog: AutoMovieArchetypeQuadruped.ISpecies = AutoMovieArchetypeQuadruped.SPECIES.dog;
   for (const previous of ["walk", "trot"] as const) {
     TestValidator.equals(
       `the canine 2.69 m/s boundary selects trot from ${previous}`,

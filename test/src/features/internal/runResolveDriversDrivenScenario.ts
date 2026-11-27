@@ -1,4 +1,4 @@
-import { resolveDrivers } from "@automovie/engine";
+import { AutoMovieEngineResolve } from "@automovie/engine";
 import type {
   IAutoMovieDrivenDriver,
   IAutoMovieDriver,
@@ -13,15 +13,21 @@ import { nclose } from "./nclose";
 import { throwsError } from "./throwsError";
 
 /**
- * Execute the existing linear/curve scalar-driver cases and malformed-input refusals. Literal interval arithmetic supplies expectations, and scalar array comparisons retain zero tolerance and width checks.
+ * Execute the existing linear/curve scalar-driver cases and malformed-input
+ * refusals. Literal interval arithmetic supplies expectations, and scalar array
+ * comparisons retain zero tolerance and width checks.
  *
  * Scenarios:
+ *
  * 1. A present source remaps 5 from [0,10] to 50 on [0,100].
- * 2. An absent source uses the lower input endpoint and maps to the lower output endpoint.
+ * 2. An absent source uses the lower input endpoint and maps to the lower output
+ *    endpoint.
  * 3. Clamping pins source20 to output100, while omitted clamp permits output200.
  * 4. The degenerate input interval [5,5] selects output3.
- * 5. A curve supersedes linear fields, interpolates source8.5 to55 and holds endpoints below/above its domain.
- * 6. Empty or vector source values, an empty curve and non-increasing coordinates reject.
+ * 5. A curve supersedes linear fields, interpolates source8.5 to55 and holds
+ *    endpoints below/above its domain.
+ * 6. Empty or vector source values, an empty curve and non-increasing coordinates
+ *    reject.
  * 7. Node TRS and nonscalar pointer outputs reject a scalar write.
  */
 export function runResolveDriversDrivenScenario(): void {
@@ -33,7 +39,7 @@ export function runResolveDriversDrivenScenario(): void {
       source === undefined
         ? seed([])
         : seed([["ptr:/in", ptr("/in"), [source]]]);
-    resolveDrivers([driver], sampled, new Map());
+    AutoMovieEngineResolve.resolveDrivers([driver], sampled, new Map());
     return sampled.get("ptr:/out")!.value;
   };
   TestValidator.predicate(
@@ -41,8 +47,13 @@ export function runResolveDriversDrivenScenario(): void {
     sameValues(run(driven({}), 5), [50]),
   );
   TestValidator.predicate(
-    "absent source uses inRange[0]",
-    sameValues(run(driven({ inRange: [2, 4], outRange: [7, 9] })), [7]),
+    "absent source uses inRange.from",
+    sameValues(
+      run(
+        driven({ inRange: { from: 2, to: 4 }, outRange: { from: 7, to: 9 } }),
+      ),
+      [7],
+    ),
   );
   TestValidator.predicate(
     "driven driver rejects a node TRS output channel",
@@ -73,8 +84,14 @@ export function runResolveDriversDrivenScenario(): void {
     sameValues(run(driven({ clamp: true }), 20), [100]),
   );
   TestValidator.predicate(
-    "degenerate input range maps to outRange[0]",
-    sameValues(run(driven({ inRange: [5, 5], outRange: [3, 9] }), 5), [3]),
+    "degenerate input range maps to outRange.from",
+    sameValues(
+      run(
+        driven({ inRange: { from: 5, to: 5 }, outRange: { from: 3, to: 9 } }),
+        5,
+      ),
+      [3],
+    ),
   );
   const curveOnly: IAutoMovieDrivenDriver = {
     type: "driven",
@@ -95,8 +112,8 @@ export function runResolveDriversDrivenScenario(): void {
     type: "driven",
     output: ptr("/out"),
     source: ptr("/in"),
-    inRange: [0, 10],
-    outRange: [0, 100],
+    inRange: { from: 0, to: 10 },
+    outRange: { from: 0, to: 100 },
   };
   TestValidator.predicate(
     "linear driver without clamp extrapolates (clamp defaults false)",
@@ -111,7 +128,7 @@ export function runResolveDriversDrivenScenario(): void {
             type: "driven",
             output: ptr("/out"),
             source: ptr("/in"),
-            outRange: [0, 100],
+            outRange: { from: 0, to: 100 },
           },
           5,
         ),
@@ -127,7 +144,7 @@ export function runResolveDriversDrivenScenario(): void {
             type: "driven",
             output: ptr("/out"),
             source: ptr("/in"),
-            inRange: [0, 10],
+            inRange: { from: 0, to: 10 },
           },
           5,
         ),
@@ -159,7 +176,7 @@ export function runResolveDriversDrivenScenario(): void {
     "driven driver rejects empty source value",
     throwsError(
       (): IAutoMovieDriver[] =>
-        resolveDrivers(
+        AutoMovieEngineResolve.resolveDrivers(
           [driven({})],
           seed([["ptr:/in", ptr("/in"), []]]),
           new Map(),
@@ -171,7 +188,7 @@ export function runResolveDriversDrivenScenario(): void {
     "driven driver rejects vector source value",
     throwsError(
       (): IAutoMovieDriver[] =>
-        resolveDrivers(
+        AutoMovieEngineResolve.resolveDrivers(
           [driven({})],
           seed([["ptr:/in", ptr("/in"), [5, 99]]]),
           new Map(),

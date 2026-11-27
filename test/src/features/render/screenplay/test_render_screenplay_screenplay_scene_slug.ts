@@ -1,4 +1,6 @@
-import { screenplaySceneSlug } from "@automovie/render/internal";
+import {
+  screenplaySceneSlug
+} from "../../../../../packages/render/src/screenplay/internal/screenplaySceneSlug";
 import { TestValidator } from "@nestia/e2e";
 
 /**

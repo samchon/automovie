@@ -1,4 +1,6 @@
-import { HumanArmSiteStepFeasible } from "@automovie/motions/internal";
+import {
+  HumanArmSiteStepFeasible
+} from "../../../../../packages/motions/src/posture/internal/HumanArmSiteStepFeasible";
 import { TestValidator } from "@nestia/e2e";
 
 /**

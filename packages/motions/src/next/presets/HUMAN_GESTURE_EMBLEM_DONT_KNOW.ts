@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanGesture } from "@automovie/interface";
 
-/**
+/*
  * The values the `dontKnow` row of `HumanEmblem` fixes on `gesture`, spread
  * into its parameters. "I do not know": the shrug with the palms turned up.
  */

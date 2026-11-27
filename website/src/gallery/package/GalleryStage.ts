@@ -1,13 +1,9 @@
 import { AutoMovieArchetypeMarks } from "@automovie/archetypes";
 import type { IAutoMovieMark } from "@automovie/interface";
+import { type IAutoMovieRenderInspectionHandle, type IAutoMovieRenderModelObject, AutoMovieRenderSceneLayout, AutoMovieRenderInspection, AutoMovieRenderInspectionRequest } from "@automovie/render";
 import {
-  type IAutoMovieInspectionHandle,
-  type IAutoMovieModelObject,
-  applyAutoMovieInspection,
-  buildModel,
-  parseAutoMovieInspectionRequest,
-} from "@automovie/render";
-import { type IAutoMovieViewerHandle, mountViewer } from "@automovie/viewer";
+  AutoMovieViewer,
+} from "@automovie/viewer";
 import * as THREE from "three";
 
 import type { IGalleryAdapter } from "../IGalleryAdapter";
@@ -22,8 +18,8 @@ import { GalleryArchetype } from "./GalleryArchetype";
  * Everything drawn comes from the packages. A model is built by `render`'s
  * `buildModel`, the affordance marks by `AutoMovieArchetypeMarks` and drawn by
  * `render`'s inspection, and the
- * canvas loop is `viewer`'s `mountViewer`. This module owns only the camera's
- * orbit and where the affordance ids are placed over the canvas.
+ * canvas loop is `viewer`'s `AutoMovieViewer.mount`. This module owns only the
+ * camera's orbit and where the affordance ids are placed over the canvas.
  */
 export namespace GalleryStage {
   /**
@@ -136,11 +132,11 @@ export namespace GalleryStage {
 
     let gridCell: number = 0.25;
     let content: IContent | null = null;
-    let inspection: IAutoMovieInspectionHandle | null = null;
+    let inspection: IAutoMovieRenderInspectionHandle | null = null;
     const tags: Map<string, HTMLElement> = new Map();
     const projected: THREE.Vector3 = new THREE.Vector3();
 
-    const viewer: IAutoMovieViewerHandle = mountViewer(
+    const viewer: AutoMovieViewer.IHandle = AutoMovieViewer.mount(
       canvas,
       scene,
       camera,
@@ -312,9 +308,9 @@ export namespace GalleryStage {
         if (reframe || grid === null) frame(content.object);
 
         if (request.affordances && content.marks.length !== 0) {
-          inspection = applyAutoMovieInspection({
+          inspection = AutoMovieRenderInspection.apply({
             scene,
-            request: parseAutoMovieInspectionRequest(
+            request: AutoMovieRenderInspectionRequest.parseRequest(
               (name: string): string | null =>
                 name === "marks" ? "affordance/*" : null,
             ),
@@ -356,7 +352,7 @@ export namespace GalleryStage {
     view: Omit<IGalleryView, "grid">;
   } {
     const built: GalleryArchetype.IBuilt = GalleryArchetype.build(request);
-    const model: IAutoMovieModelObject = buildModel(built.archetype);
+    const model: IAutoMovieRenderModelObject = AutoMovieRenderSceneLayout.buildModel(built.archetype);
     model.object.name = "subject";
     const box: THREE.Box3 = new THREE.Box3().setFromObject(model.object);
     // An arrow a fifth of the model's diagonal, never longer than the

@@ -1,10 +1,7 @@
 import type { IAutoMovieDeliveryContentAudit } from "@automovie/interface";
-import { auditAutoMovieDeliveryContent } from "@automovie/render";
+import { AutoMovieRenderDelivery } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
-import {
-  runAutoMovieDeliveryDecode,
-  runAutoMovieDeliveryReferenceDecode,
-} from "automovie";
+import { AutoMovieCliDelivery } from "automovie";
 
 import { deliveryDecodeRecordingFilter } from "../internal/deliveryDecodeRecordingFilter";
 import { deliveryDecodeRecordings } from "../internal/deliveryDecodeRecordings";
@@ -99,7 +96,7 @@ export async function test_cli_delivery_recorded_audit(): Promise<void> {
     source: string,
     policy: Partial<Audit["expected"]> = {},
   ) =>
-    auditAutoMovieDeliveryContent({
+    AutoMovieRenderDelivery.auditContent({
       source: { file, sha256: "ab".repeat(32) },
       expected: {
         ...expected,
@@ -108,14 +105,14 @@ export async function test_cli_delivery_recorded_audit(): Promise<void> {
         ...policy,
       },
       thresholds,
-      streams: await runAutoMovieDeliveryDecode(
+      streams: await AutoMovieCliDelivery.decode(
         "ffmpeg",
         file,
         expected,
         thresholds,
         run,
       ),
-      reference: await runAutoMovieDeliveryReferenceDecode(
+      reference: await AutoMovieCliDelivery.referenceDecode(
         "ffmpeg",
         encoder(source),
         expected,
@@ -207,7 +204,7 @@ export async function test_cli_delivery_recorded_audit(): Promise<void> {
     [["missing-stream", "audio"]],
   );
 
-  const plainReference = await runAutoMovieDeliveryReferenceDecode(
+  const plainReference = await AutoMovieCliDelivery.referenceDecode(
     "ffmpeg",
     encoder("plain"),
     expected,
@@ -236,18 +233,18 @@ export async function test_cli_delivery_recorded_audit(): Promise<void> {
       { status: "missing" },
     ],
   );
-  const lost = auditAutoMovieDeliveryContent({
+  const lost = AutoMovieRenderDelivery.auditContent({
     source: { file: "black.mp4", sha256: "ab".repeat(32) },
     expected: { ...expected, audioRequired: false, contentRequired: false },
     thresholds,
-    streams: await runAutoMovieDeliveryDecode(
+    streams: await AutoMovieCliDelivery.decode(
       "ffmpeg",
       "black.mp4",
       expected,
       thresholds,
       run,
     ),
-    reference: await runAutoMovieDeliveryReferenceDecode(
+    reference: await AutoMovieCliDelivery.referenceDecode(
       "ffmpeg",
       encoder("plain"),
       expected,

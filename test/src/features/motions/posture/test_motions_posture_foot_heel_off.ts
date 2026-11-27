@@ -1,11 +1,13 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanFoot } from "@automovie/motions/internal";
+import {
+  HumanFoot
+} from "../../../../../packages/motions/src/posture/internal/HumanFoot";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -64,7 +66,7 @@ export async function test_motions_posture_foot_heel_off(): Promise<void> {
           return (
             nclose(off.toes, toes, ROUNDING) &&
             vclose(
-              Vector3.add(off.ankle, Quaternion.rotateVector(actual, BALL)),
+              AutoMovieEngineVector3.add(off.ankle, AutoMovieEngineQuaternion.rotateVector(actual, BALL)),
               ANCHOR,
               ROUNDING,
             )

@@ -1,4 +1,4 @@
-import { physicalBalanceBracing } from "@automovie/engine";
+import { AutoMovieEnginePhysicalBalance } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalBalance,
   IAutoMovieVector3,
@@ -34,18 +34,18 @@ export function test_engine_physics_balance_bracing(): void {
       { x: -0.5, y: 0, z: 0.5 },
     ],
   };
-  const common: Omit<Parameters<typeof physicalBalanceBracing>[0], "center"> = {
+  const common: Omit<Parameters<typeof AutoMovieEnginePhysicalBalance.bracing>[0], "center"> = {
     assessment,
     floor: 0,
     minimumCenterHeight: 0.4,
     maximumRootShift: 0.2,
     exhausted: true,
   };
-  const standing = physicalBalanceBracing({
+  const standing = AutoMovieEnginePhysicalBalance.bracing({
     ...common,
     center: { x: 0, y: 1, z: 0 },
   });
-  const fallen = physicalBalanceBracing({
+  const fallen = AutoMovieEnginePhysicalBalance.bracing({
     ...common,
     center: { x: 0, y: 0.3, z: 0 },
   });

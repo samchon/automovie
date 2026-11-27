@@ -1,4 +1,4 @@
-import { createRecoveryMapTriangularMetric } from "@automovie/recovery";
+import { AutoMovieRecoveryCameraMap } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -27,8 +27,8 @@ export function test_recovery_internal_triangular_map_metric(): void {
     [0, 4, 2, 0, 1],
     [0, 0, 8, 2, 3],
   ];
-  const metric: ReturnType<typeof createRecoveryMapTriangularMetric> =
-    createRecoveryMapTriangularMetric([point], camera, [[2, 4, 8]], [2, 4]);
+  const metric: ReturnType<typeof AutoMovieRecoveryCameraMap.createMapTriangularMetric> =
+    AutoMovieRecoveryCameraMap.createMapTriangularMetric([point], camera, [[2, 4, 8]], [2, 4]);
   const whitened: number[] = [5, 8, 9, 8, 8];
   const physical: number[] = [70, 276, 36, 164, 640];
   const same = (
@@ -62,8 +62,8 @@ export function test_recovery_internal_triangular_map_metric(): void {
     metric.unwhiten([1, 2]),
   );
 
-  const singular: ReturnType<typeof createRecoveryMapTriangularMetric> =
-    createRecoveryMapTriangularMetric(
+  const singular: ReturnType<typeof AutoMovieRecoveryCameraMap.createMapTriangularMetric> =
+    AutoMovieRecoveryCameraMap.createMapTriangularMetric(
       [point],
       [
         [0, 1],

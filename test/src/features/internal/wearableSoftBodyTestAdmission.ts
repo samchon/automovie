@@ -1,4 +1,4 @@
-import { simulateAutoMovieWearableSoftBody } from "@automovie/engine";
+import { AutoMovieEngineSoftBody } from "@automovie/engine";
 import type {
   IAutoMovieResolvedBone,
   IAutoMovieSoftBodyDomain,
@@ -27,8 +27,8 @@ export function wearableSoftBodyTestAdmission(
     "wearable admission, frame identity, lookup, and transform failures are closed",
     {
       missingFrame: throwsError(
-        (): ReturnType<typeof simulateAutoMovieWearableSoftBody> =>
-          simulateAutoMovieWearableSoftBody({
+        (): ReturnType<typeof AutoMovieEngineSoftBody.simulateAutoMovieWearableSoftBody> =>
+          AutoMovieEngineSoftBody.simulateAutoMovieWearableSoftBody({
             domain: domain(),
             step: 1,
             frames: [actorFrame(0, 0)],
@@ -38,8 +38,8 @@ export function wearableSoftBodyTestAdmission(
         "frames 0 through 1",
       ),
       noMovingBoundary: throwsError(
-        (): ReturnType<typeof simulateAutoMovieWearableSoftBody> =>
-          simulateAutoMovieWearableSoftBody({
+        (): ReturnType<typeof AutoMovieEngineSoftBody.simulateAutoMovieWearableSoftBody> =>
+          AutoMovieEngineSoftBody.simulateAutoMovieWearableSoftBody({
             domain: staticDomain,
             step: 0,
             frames: [{ step: 0, nodes: [], actors: [] }],
@@ -49,8 +49,8 @@ export function wearableSoftBodyTestAdmission(
         "declares no moving boundary",
       ),
       wrongFrameStep: throwsError(
-        (): ReturnType<typeof simulateAutoMovieWearableSoftBody> =>
-          simulateAutoMovieWearableSoftBody({
+        (): ReturnType<typeof AutoMovieEngineSoftBody.simulateAutoMovieWearableSoftBody> =>
+          AutoMovieEngineSoftBody.simulateAutoMovieWearableSoftBody({
             domain: domain(),
             step: 0,
             frames: [actorFrame(1, 0)],
@@ -60,8 +60,8 @@ export function wearableSoftBodyTestAdmission(
         "must name absolute step 0",
       ),
       missingNode: throwsError(
-        (): ReturnType<typeof simulateAutoMovieWearableSoftBody> =>
-          simulateAutoMovieWearableSoftBody({
+        (): ReturnType<typeof AutoMovieEngineSoftBody.simulateAutoMovieWearableSoftBody> =>
+          AutoMovieEngineSoftBody.simulateAutoMovieWearableSoftBody({
             domain: nodeDomain,
             step: 0,
             frames: [{ step: 0, nodes: [], actors: [] }],
@@ -71,8 +71,8 @@ export function wearableSoftBodyTestAdmission(
         'missing node "pole"',
       ),
       missingCapsuleActor: throwsError(
-        (): ReturnType<typeof simulateAutoMovieWearableSoftBody> =>
-          simulateAutoMovieWearableSoftBody({
+        (): ReturnType<typeof AutoMovieEngineSoftBody.simulateAutoMovieWearableSoftBody> =>
+          AutoMovieEngineSoftBody.simulateAutoMovieWearableSoftBody({
             domain: capsuleOnly,
             step: 0,
             frames: [{ step: 0, nodes: [], actors: [] }],
@@ -83,7 +83,7 @@ export function wearableSoftBodyTestAdmission(
       ),
       duplicateActor: throwsError((): void => {
         const frame: ReturnType<typeof actorFrame> = actorFrame(0, 0);
-        simulateAutoMovieWearableSoftBody({
+        AutoMovieEngineSoftBody.simulateAutoMovieWearableSoftBody({
           domain: domain(),
           step: 0,
           frames: [{ ...frame, actors: [...frame.actors, frame.actors[0]!] }],
@@ -93,7 +93,7 @@ export function wearableSoftBodyTestAdmission(
       }, "ids must be unique"),
       missingBone: throwsError((): void => {
         const frame: ReturnType<typeof actorFrame> = actorFrame(0, 0);
-        simulateAutoMovieWearableSoftBody({
+        AutoMovieEngineSoftBody.simulateAutoMovieWearableSoftBody({
           domain: domain(),
           step: 0,
           frames: [
@@ -116,7 +116,7 @@ export function wearableSoftBodyTestAdmission(
       }, "missing bone"),
       duplicateBone: throwsError((): void => {
         const frame: ReturnType<typeof actorFrame> = actorFrame(0, 0);
-        simulateAutoMovieWearableSoftBody({
+        AutoMovieEngineSoftBody.simulateAutoMovieWearableSoftBody({
           domain: domain(),
           step: 0,
           frames: [
@@ -138,8 +138,8 @@ export function wearableSoftBodyTestAdmission(
         });
       }, "repeats bone"),
       invalidMaxSubjects: throwsError(
-        (): ReturnType<typeof simulateAutoMovieWearableSoftBody> =>
-          simulateAutoMovieWearableSoftBody({
+        (): ReturnType<typeof AutoMovieEngineSoftBody.simulateAutoMovieWearableSoftBody> =>
+          AutoMovieEngineSoftBody.simulateAutoMovieWearableSoftBody({
             domain: domain(),
             step: 0,
             frames: [actorFrame(0, 0)],
@@ -149,8 +149,8 @@ export function wearableSoftBodyTestAdmission(
         "max subjects",
       ),
       invalidSubjectIndex: throwsError(
-        (): ReturnType<typeof simulateAutoMovieWearableSoftBody> =>
-          simulateAutoMovieWearableSoftBody({
+        (): ReturnType<typeof AutoMovieEngineSoftBody.simulateAutoMovieWearableSoftBody> =>
+          AutoMovieEngineSoftBody.simulateAutoMovieWearableSoftBody({
             domain: domain(),
             step: 0,
             frames: [actorFrame(0, 0)],

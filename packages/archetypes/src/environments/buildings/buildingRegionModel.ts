@@ -1,4 +1,4 @@
-import { extrudeAutoMovieRegion } from "@automovie/engine";
+import { AutoMovieEnginePlanarRegion } from "@automovie/engine";
 import type {
   IAutoMovieModel,
   IAutoMovieProfilePoint,
@@ -6,7 +6,9 @@ import type {
 
 import { buildingModel } from "./buildingModel";
 
-/** Extrude an admitted XZ plan encoded in XY into a closed, oriented slab model. */
+/*
+ * Extrude an admitted XZ plan encoded in XY into a closed, oriented slab model.
+ */
 export function buildingRegionModel(
   id: string,
   name: string,
@@ -19,7 +21,7 @@ export function buildingRegionModel(
     name,
     {
       type: "mesh",
-      mesh: extrudeAutoMovieRegion({
+      mesh: AutoMovieEnginePlanarRegion.extrude({
         outer: rings[0]!,
         holes: rings.slice(1),
         depth,

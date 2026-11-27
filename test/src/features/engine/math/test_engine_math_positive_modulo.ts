@@ -1,4 +1,4 @@
-import { positiveModulo } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -16,7 +16,7 @@ export function test_engine_math_positive_modulo(): void {
   TestValidator.equals(
     "values wrap into [0, 360)",
     [370.5, -1, 720, -360, -1e-20].map((value: number): number =>
-      positiveModulo(value, 360),
+      AutoMovieEngineMath.positiveModulo(value, 360),
     ),
     [10.5, 359, 0, 0, 0],
   );

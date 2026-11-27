@@ -13,7 +13,7 @@ Lead with the screenplay, its staged performance and deterministic frame generat
 
 State only what the repository does. Take a command, a file path, an option, a diagnostic or a number from the source or a run. Show real output, or mark an excerpt as abridged and say whose numbers it shows. Leave out what a release does not ship, and describe people only as the polygon man.
 
-Write every page, label and doc under [Writing](../documentation/writing.md). A landing page may use short headlines, but each sentence still makes one plain claim.
+Write every page, label and doc using the [documentation skill](../documentation/SKILL.md). A landing page may use short headlines, but each sentence still makes one plain claim.
 
 ## Building a page
 
@@ -28,9 +28,10 @@ The documentation is two trees, each with a `_meta.ts` per folder. The guide in 
 Verify on the production build, because the dev server compiles the packages for minutes and serves what the export does not.
 
 1. Run `pnpm --filter @automovie/website typecheck`.
-2. Run `build`, which runs the checks and the bake before the export and the bundle check after it.
+2. Run `build` for pre-export checks and bake, then the bundle check.
 3. Run `smoke`, which opens every case in a headless browser.
-4. Use `shots --full --scroll` at 1440 and 390 px in both themes and reduced motion.
+4. Use `shots --full --scroll` at 1440 and 390 px.
+   - Check both themes and reduced motion.
 5. Inspect the take stills with `posters`.
 
 Judge the screenshots under [visual debugging](../visual-debugging/SKILL.md) and against the rules in DESIGN.md. Fix every finding of a round by cause before the next round.

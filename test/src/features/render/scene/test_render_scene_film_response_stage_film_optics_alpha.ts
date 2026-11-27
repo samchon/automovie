@@ -1,4 +1,4 @@
-import { AutoMovieFilmResponseStage } from "@automovie/render";
+import { AutoMovieRenderFilmResponseStage } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -30,7 +30,7 @@ export function test_render_scene_film_response_stage_film_optics_alpha(): void 
       toneMapping: THREE.NoToneMapping,
       exposure: 1,
     });
-  const stage: AutoMovieFilmResponseStage = new AutoMovieFilmResponseStage();
+  const stage: AutoMovieRenderFilmResponseStage = new AutoMovieRenderFilmResponseStage();
   const draw: (alpha?: "transparent" | "coverage") => unknown = (
     alpha?: "transparent" | "coverage",
   ): unknown => {

@@ -8,7 +8,9 @@ import type {
   IAutoMoviePose,
   IAutoMovieSwivelSeed,
 } from "@automovie/interface";
-import { HumanSegmentLegs } from "@automovie/motions/internal";
+import {
+  HumanSegmentLegs
+} from "../../../../../packages/motions/src/perform/internal/HumanSegmentLegs";
 import { TestValidator } from "@nestia/e2e";
 
 import { syntheticHumanPlan } from "../../internal/synthetic/syntheticHumanPlan";

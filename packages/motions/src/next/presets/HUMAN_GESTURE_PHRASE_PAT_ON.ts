@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanGesture } from "@automovie/interface";
 
-/**
+/*
  * The values the `patOn` row of `HumanUpperRows` fixes on `armPhrase`, spread
  * into its parameters. A pat: the flat palm bounces on the target, up and
  * down.

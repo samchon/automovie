@@ -8,7 +8,7 @@ Run [discovery](../planning/discovery.md) on the director's [recorded answers](.
 
 | Submitted layer | Required parent |
 | --- | --- |
-| Settings | Adopted instructions, discovered requirements and the [studies](../planning/research.md) its facts use |
+| Settings | Adopted instructions, discovered requirements and [studies](../planning/research.md) |
 | Treatments | Completed settings |
 | Scripts | Completed treatments |
 | Screenplay | Completed treatments and scripts |

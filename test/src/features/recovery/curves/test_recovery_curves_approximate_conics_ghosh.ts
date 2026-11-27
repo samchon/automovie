@@ -4,16 +4,13 @@ import type {
   IAutoMoviePlanarCurveSource,
   IAutoMovieRegisteredConicArc,
 } from "@automovie/interface";
-import {
-  AutoMovieRecoveryConicApproximation as C,
-  approximateAutoMovieRecoveryConicsGhosh as approximate,
-} from "@automovie/recovery";
+import { AutoMovieRecoveryConicApproximation as C } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
 
 /**
- * `approximateAutoMovieRecoveryConicsGhosh` returns the endpoint-bitangent
+ * `approximateRecoveryConicsGhosh` returns the endpoint-bitangent
  * conic of a smooth planar chart, never crossing a source break, and refuses
  * to call a chart complete when its arc budget is zero.
  *
@@ -36,7 +33,7 @@ export function test_recovery_curves_approximate_conics_ghosh(): void {
     const rx: number = direction === 1 ? 40 : 25;
     const ry: number = direction === 1 ? 20 : 25;
     const ellipse: IAutoMoviePlanarCurveSource = {
-      domain: [0, Math.PI / 2],
+      domain: { start: 0, end: Math.PI / 2 },
       breaks: [],
       closed: false,
       evaluate: (t: number): Readonly<AutoMovieVector2Tuple> => [
@@ -51,7 +48,7 @@ export function test_recovery_curves_approximate_conics_ghosh(): void {
         direction * ry * Math.sin(t + (order * Math.PI) / 2),
       ],
     };
-    const result: IAutoMovieConicApproximation.IResult = approximate(
+    const result: IAutoMovieConicApproximation.IResult = C.approximateGhosh(
       ellipse,
       options,
     );
@@ -73,7 +70,7 @@ export function test_recovery_curves_approximate_conics_ghosh(): void {
   }
 
   const exponential: IAutoMoviePlanarCurveSource = {
-    domain: [0, 0.8],
+    domain: { start: 0, end: 0.8 },
     breaks: [0.3],
     closed: false,
     evaluate: (t: number): Readonly<AutoMovieVector2Tuple> => [
@@ -85,7 +82,7 @@ export function test_recovery_curves_approximate_conics_ghosh(): void {
       order: 1 | 2 | 3 | 4 | 5,
     ): Readonly<AutoMovieVector2Tuple> => [order === 1 ? 1 : 0, Math.exp(t)],
   };
-  const fit: IAutoMovieConicApproximation.IResult = approximate(
+  const fit: IAutoMovieConicApproximation.IResult = C.approximateGhosh(
     exponential,
     options,
   );
@@ -101,7 +98,7 @@ export function test_recovery_curves_approximate_conics_ghosh(): void {
 
   TestValidator.predicate(
     "a zero arc budget is not complete",
-    approximate(exponential, { ...options, maximumArcs: 0 }).status !==
+    C.approximateGhosh(exponential, { ...options, maximumArcs: 0 }).status !==
       "complete",
   );
 }

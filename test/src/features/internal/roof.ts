@@ -1,4 +1,4 @@
-import { buildAutoMoviePolyhedron } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import { IAutoMovieMesh, type IAutoMovieVector3 } from "@automovie/interface";
 
 /**
@@ -47,7 +47,7 @@ export const roof: (props: {
     y: props.height,
     z: props.depth / 2 - props.ridgeInset,
   };
-  return buildAutoMoviePolyhedron([
+  return AutoMovieEngineGeometry.buildPolyhedron([
     [b0, b1, b2, b3],
     [b1, r0, r1, b2],
     [b3, r1, r0, b0],

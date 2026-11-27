@@ -1,14 +1,18 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanProp,
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanTiming,
-  HumanRefusal,
-  wardrobeHands,
-} from "@automovie/motions/internal";
+  motionHumanTiming
+} from "../../../../../packages/motions/src/compose/internal/motionHumanTiming";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  wardrobeHands
+} from "../../../../../packages/motions/src/dressing/internal/wardrobeHands";
 import { TestValidator } from "@nestia/e2e";
 import { strict as assert } from "node:assert";
 
@@ -52,12 +56,12 @@ export function test_motions_dressing_wardrobe(): void {
   assert.throws(
     () => wardrobeHands.sleeveMount("coat", 0.121),
     (error: unknown): boolean =>
-      error instanceof HumanRefusal && error.axis === "prop" && error.value === "coat",
+      error instanceof AutoMovieMotionHumanRefusal && error.axis === "prop" && error.value === "coat",
   );
   assert.throws(
     () => wardrobeHands.closureHand("right", "coat"),
     (error: unknown): boolean =>
-      error instanceof HumanRefusal && error.axis === "side" && error.value === "right",
+      error instanceof AutoMovieMotionHumanRefusal && error.axis === "side" && error.value === "right",
   );
 
   // 2. Sites.
@@ -69,14 +73,14 @@ export function test_motions_dressing_wardrobe(): void {
     kind,
     frame: {
       translation: { x: 0, y: 0, z: 0 },
-      rotation: Quaternion.identity(),
+      rotation: AutoMovieEngineQuaternion.identity(),
       scale: { x: 1, y: 1, z: 1 },
     },
     extent: null,
   });
   const jacket: IAutoMovieMotionHumanProp = {
     subject: "jacket",
-    frame: { position: { x: 0, y: 1, z: 0 }, rotation: Quaternion.identity() },
+    frame: { position: { x: 0, y: 1, z: 0 }, rotation: AutoMovieEngineQuaternion.identity() },
     points: {},
     affordances: [point("collar", "handle"), point("sleeve", "aperture")],
   };
@@ -88,7 +92,7 @@ export function test_motions_dressing_wardrobe(): void {
       wardrobeHands.site(jacket, id, kind);
       return false;
     } catch (error: unknown) {
-      return error instanceof HumanRefusal && error.axis === "opening";
+      return error instanceof AutoMovieMotionHumanRefusal && error.axis === "opening";
     }
   };
   TestValidator.predicate(
@@ -136,7 +140,7 @@ export function test_motions_dressing_wardrobe(): void {
   try {
     wardrobeHands.middle(opening({ x: 0, y: 0, z: 0, w: 1 }));
   } catch (error: unknown) {
-    narrow = error instanceof HumanRefusal && error.axis === "opening";
+    narrow = error instanceof AutoMovieMotionHumanRefusal && error.axis === "opening";
   }
   TestValidator.predicate(
     "the middles",
@@ -156,11 +160,11 @@ export function test_motions_dressing_wardrobe(): void {
   // 5. A path.
   const from: IAutoMovieRigidTransform = {
     position: { x: 0, y: 0, z: 0 },
-    rotation: Quaternion.identity(),
+    rotation: AutoMovieEngineQuaternion.identity(),
   };
   const to: IAutoMovieRigidTransform = {
     position: { x: 1, y: 0, z: 0 },
-    rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90),
+    rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90),
   };
   const half: IAutoMovieRigidTransform = wardrobeHands.path(from, to, 0.5);
   TestValidator.predicate(
@@ -168,7 +172,7 @@ export function test_motions_dressing_wardrobe(): void {
     vclose(half.position, { x: 0.5, y: 0, z: 0 }, ROUNDING) &&
       qclose(
         half.rotation,
-        Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 45),
+        AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 45),
         ROUNDING,
       ) &&
       vclose(
@@ -187,7 +191,7 @@ export function test_motions_dressing_wardrobe(): void {
   // 6. A displacement.
   const turned: IAutoMovieRigidTransform = {
     position: { x: 0.1, y: 1, z: 0.2 },
-    rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 30),
+    rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 30),
   };
   const moved: IAutoMovieRigidTransform = wardrobeHands.displaced(turned, {
     x: 0,
@@ -229,7 +233,7 @@ export function test_motions_dressing_wardrobe(): void {
   TestValidator.equals(
     "the refusals",
     ["opening", "reach", "base", "side"].map((axis: string) => {
-      const r: HumanRefusal = wardrobeHands.refusal(axis, 0.3, `no ${axis}`);
+      const r: AutoMovieMotionHumanRefusal = wardrobeHands.refusal(axis, 0.3, `no ${axis}`);
       return [r.kind, r.axis, r.value, r.reason];
     }),
     [
@@ -243,7 +247,7 @@ export function test_motions_dressing_wardrobe(): void {
   // 9. Durations.
   const at = (x: number): IAutoMovieRigidTransform => ({
     position: { x, y: 1, z: 0 },
-    rotation: Quaternion.identity(),
+    rotation: AutoMovieEngineQuaternion.identity(),
   });
   TestValidator.equals(
     "the durations",
@@ -252,8 +256,8 @@ export function test_motions_dressing_wardrobe(): void {
       wardrobeHands.duration(at(0), at(0)),
     ],
     [
-      Math.max(SHORTEST, AutoMovieMotionHumanTiming.transport(1)),
-      Math.max(SHORTEST, AutoMovieMotionHumanTiming.transport(0)),
+      Math.max(SHORTEST, motionHumanTiming.transport(1)),
+      Math.max(SHORTEST, motionHumanTiming.transport(0)),
     ],
   );
 }

@@ -1,4 +1,4 @@
-import { composeScene } from "@automovie/engine";
+import { AutoMovieEngineResolve } from "@automovie/engine";
 import { IAutoMovieNode, IAutoMovieTransform } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -55,7 +55,7 @@ const tx: (m: number[]) => number = (m: number[]): number => m[12]!;
  */
 export function test_resolve_compose_scene(): void {
   // 1. lone root, no overrides
-  const root: Map<string, number[]> = composeScene([node("r", null, 1)]);
+  const root: Map<string, number[]> = AutoMovieEngineResolve.composeScene([node("r", null, 1)]);
   TestValidator.predicate(
     "root world translation",
     nclose(tx(root.get("r")!), 1),
@@ -66,7 +66,7 @@ export function test_resolve_compose_scene(): void {
     string,
     IAutoMovieTransform
   >([["c", { ...IDENTITY, translation: { x: 2, y: 0, z: 0 } }]]);
-  const world: Map<string, number[]> = composeScene(
+  const world: Map<string, number[]> = AutoMovieEngineResolve.composeScene(
     [node("c", "p", 1), node("p", null, 10)],
     overrides,
   );
@@ -82,14 +82,14 @@ export function test_resolve_compose_scene(): void {
     "duplicate node ids reject ambiguous graph",
     throwsError(
       (): Map<string, number[]> =>
-        composeScene([node("dup", null, 1), node("dup", null, 2)]),
+        AutoMovieEngineResolve.composeScene([node("dup", null, 1), node("dup", null, 2)]),
       ['node id "dup"', "nodes[1].id"],
     ),
   );
   TestValidator.predicate(
     "missing parent rejects dangling graph",
     throwsError(
-      (): Map<string, number[]> => composeScene([node("child", "missing", 1)]),
+      (): Map<string, number[]> => AutoMovieEngineResolve.composeScene([node("child", "missing", 1)]),
       ['node "child" references missing parent "missing"', "nodes[0].parent"],
     ),
   );
@@ -97,7 +97,7 @@ export function test_resolve_compose_scene(): void {
     "parent cycle rejects recursive graph",
     throwsError(
       (): Map<string, number[]> =>
-        composeScene([node("a", "b", 1), node("b", "a", 2)]),
+        AutoMovieEngineResolve.composeScene([node("a", "b", 1), node("b", "a", 2)]),
       'node parent cycle includes "a"',
     ),
   );

@@ -1,4 +1,4 @@
-import { Matrix4, resolveWorldDrivers } from "@automovie/engine";
+import { AutoMovieEngineMatrix4, AutoMovieEngineResolve } from "@automovie/engine";
 import {
   type IAutoMovieDriver,
   IAutoMovieIKDriver,
@@ -14,7 +14,7 @@ import { vclose } from "../internal/vclose";
 const W: (p: IAutoMovieVector3) => number[] = (
   p: IAutoMovieVector3,
 ): number[] =>
-  Matrix4.compose(p, { x: 0, y: 0, z: 0, w: 1 }, { x: 1, y: 1, z: 1 });
+  AutoMovieEngineMatrix4.compose(p, { x: 0, y: 0, z: 0, w: 1 }, { x: 1, y: 1, z: 1 });
 
 const ik: (over: Partial<IAutoMovieIKDriver>) => IAutoMovieIKDriver = (
   over: Partial<IAutoMovieIKDriver>,
@@ -56,14 +56,14 @@ const solve: (
     ["g", W(goal)],
   ]);
   if (pole !== undefined) world.set("p", W(pole));
-  resolveWorldDrivers([d], world, new Map(), new Map());
+  AutoMovieEngineResolve.resolveWorldDrivers([d], world, new Map(), new Map());
   return world;
 };
 
 const at: (world: Map<string, number[]>, id: string) => IAutoMovieVector3 = (
   world: Map<string, number[]>,
   id: string,
-): IAutoMovieVector3 => Matrix4.position(world.get(id)!);
+): IAutoMovieVector3 => AutoMovieEngineMatrix4.position(world.get(id)!);
 
 /**
  * Analytic two-bone IK places a root/mid/tip chain toward its goal, preserving link lengths and using the pole to select its bend plane.
@@ -198,7 +198,7 @@ export function test_resolve_ik_driver(): void {
     hitRadius: 0.1,
     center: null,
   };
-  const deferred: IAutoMovieDriver[] = resolveWorldDrivers(
+  const deferred: IAutoMovieDriver[] = AutoMovieEngineResolve.resolveWorldDrivers(
     [ik({ solver: "ccd" }), ik({ chain: ["r", "m"] }), spring],
     new Map([
       ["r", W({ x: 0, y: 0, z: 0 })],
@@ -221,7 +221,7 @@ export function test_resolve_ik_driver(): void {
     "two-bone IK rejects negative influence",
     throwsError(
       (): IAutoMovieDriver[] =>
-        resolveWorldDrivers(
+        AutoMovieEngineResolve.resolveWorldDrivers(
           [ik({ influence: -0.1 })],
           new Map(),
           new Map(),
@@ -234,7 +234,7 @@ export function test_resolve_ik_driver(): void {
     "two-bone IK rejects influence above one",
     throwsError(
       (): IAutoMovieDriver[] =>
-        resolveWorldDrivers(
+        AutoMovieEngineResolve.resolveWorldDrivers(
           [ik({ influence: 1.1 })],
           new Map(),
           new Map(),
@@ -247,7 +247,7 @@ export function test_resolve_ik_driver(): void {
     "two-bone IK rejects zero upper segment length",
     throwsError(
       (): IAutoMovieDriver[] =>
-        resolveWorldDrivers(
+        AutoMovieEngineResolve.resolveWorldDrivers(
           [ik({})],
           new Map([
             ["r", W({ x: 0, y: 0, z: 0 })],
@@ -265,7 +265,7 @@ export function test_resolve_ik_driver(): void {
     "two-bone IK rejects zero lower segment length",
     throwsError(
       (): IAutoMovieDriver[] =>
-        resolveWorldDrivers(
+        AutoMovieEngineResolve.resolveWorldDrivers(
           [ik({})],
           new Map([
             ["r", W({ x: 0, y: 0, z: 0 })],
@@ -284,7 +284,7 @@ export function test_resolve_ik_driver(): void {
     "missing IK root rejects incomplete world map",
     throwsError(
       (): IAutoMovieDriver[] =>
-        resolveWorldDrivers(
+        AutoMovieEngineResolve.resolveWorldDrivers(
           [ik({ chain: ["missing", "m", "t"] })],
           new Map([
             ["m", W({ x: 1, y: 0, z: 0 })],
@@ -301,7 +301,7 @@ export function test_resolve_ik_driver(): void {
     "missing IK mid rejects incomplete world map",
     throwsError(
       (): IAutoMovieDriver[] =>
-        resolveWorldDrivers(
+        AutoMovieEngineResolve.resolveWorldDrivers(
           [ik({ chain: ["r", "missing", "t"] })],
           new Map([
             ["r", W({ x: 0, y: 0, z: 0 })],
@@ -318,7 +318,7 @@ export function test_resolve_ik_driver(): void {
     "missing IK tip rejects incomplete world map",
     throwsError(
       (): IAutoMovieDriver[] =>
-        resolveWorldDrivers(
+        AutoMovieEngineResolve.resolveWorldDrivers(
           [ik({ chain: ["r", "m", "missing"] })],
           new Map([
             ["r", W({ x: 0, y: 0, z: 0 })],
@@ -335,7 +335,7 @@ export function test_resolve_ik_driver(): void {
     "missing IK goal rejects incomplete world map",
     throwsError(
       (): IAutoMovieDriver[] =>
-        resolveWorldDrivers(
+        AutoMovieEngineResolve.resolveWorldDrivers(
           [ik({ goal: "missing" })],
           new Map([
             ["r", W({ x: 0, y: 0, z: 0 })],
@@ -352,7 +352,7 @@ export function test_resolve_ik_driver(): void {
     "missing IK pole rejects incomplete world map",
     throwsError(
       (): IAutoMovieDriver[] =>
-        resolveWorldDrivers(
+        AutoMovieEngineResolve.resolveWorldDrivers(
           [ik({ pole: { node: "missing", angle: 0 } })],
           new Map([
             ["r", W({ x: 0, y: 0, z: 0 })],

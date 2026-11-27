@@ -112,7 +112,7 @@ export namespace IAutoMovieSolidRail {
    * the normals cannot tell a rail's side. A contact declared as a closed loop
    * on the host knows both sides at every point: the host's rail stands outside
    * the loop, and the part's on the side its surface is kept
-   * (`AutoMovieSolidSharedCurve`). Each rail then takes, of its two directions
+   * (`AutoMovieEngineSolidSharedCurve`). Each rail then takes, of its two directions
    * square to the curve, the one with a positive product with its vector here.
    */
   export interface IToward {

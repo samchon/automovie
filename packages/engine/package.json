@@ -3,13 +3,9 @@
   "version": "0.4.3",
   "description": "automovie deterministic engine, kinematics, ROM validation, motion sampling, tessellation",
   "main": "src/index.ts",
-  "exports": {
-    ".": "./src/index.ts",
-    "./internal": "./src/internal.ts",
-    "./package.json": "./package.json"
-  },
   "scripts": {
     "build": "rimraf lib && ttsc",
+    "prepack": "node ../../scripts/copy-package-notices.mjs",
     "evidence": "evidence"
   },
   "keywords": [],
@@ -22,11 +18,9 @@
   "files": [
     "lib",
     "src",
-    "vendor/clarabel",
-    "vendor/ihmc",
-    "vendor/quadratic",
     "package.json",
     "LICENSE",
+    "THIRD_PARTY_NOTICES.md",
     "README.md"
   ],
   "publishConfig": {
@@ -38,10 +32,6 @@
         "types": "./lib/index.d.ts",
         "default": "./lib/index.js"
       },
-      "./internal": {
-        "types": "./lib/internal.d.ts",
-        "default": "./lib/internal.js"
-      },
       "./package.json": "./package.json"
     }
   },
@@ -49,6 +39,7 @@
     "@automovie/interface": "workspace:^"
   },
   "devDependencies": {
+    "@automovie/config": "workspace:^",
     "@ttsc/evidence": "catalog:samchon",
     "@ttsc/lint": "catalog:samchon",
     "@wrtnlabs/evidence": "catalog:samchon",

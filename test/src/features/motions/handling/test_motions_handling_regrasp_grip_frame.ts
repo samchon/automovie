@@ -1,21 +1,9 @@
-import {
-  Quaternion,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanHand,
-  IAutoMovieMotionHumanProp,
-  IAutoMovieMotionHumanRegrasp,
-  IAutoMovieResolvedBone,
-  IAutoMovieRigidTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanRegrasp, IAutoMovieResolvedBone, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 import { AutoMovieMotionHumanPrehension } from "@automovie/motions";
-import { poseBones } from "@automovie/motions/internal";
+import {
+  poseBones
+} from "../../../../../packages/motions/src/posture/internal/poseBones";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -37,10 +25,10 @@ import { vclose } from "../../internal/vclose";
 export async function test_motions_handling_regrasp_grip_frame(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
   const rotation: IAutoMovieRigidTransform["rotation"] =
-    Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 70);
+    AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 70);
   const prop: IAutoMovieMotionHumanProp = {
     subject: "mug",
-    frame: { position: { x: 0, y: 0, z: 0 }, rotation: Quaternion.identity() },
+    frame: { position: { x: 0, y: 0, z: 0 }, rotation: AutoMovieEngineQuaternion.identity() },
     points: {},
     shapes: [
       {
@@ -62,7 +50,7 @@ export async function test_motions_handling_regrasp_grip_frame(): Promise<void> 
   for (const side of ["right", "left"] as const) {
     const carried: IAutoMovieRigidTransform = {
       position: { x: side === "right" ? 0.11 : -0.09, y: 0.04, z: -0.05 },
-      rotation: Quaternion.fromAxisAngle(
+      rotation: AutoMovieEngineQuaternion.fromAxisAngle(
         { x: 0, y: 1, z: 0 },
         side === "right" ? 25 : -35,
       ),
@@ -82,7 +70,7 @@ export async function test_motions_handling_regrasp_grip_frame(): Promise<void> 
       body,
       context.entry.pose,
     ).get(`${side}Hand`)!;
-    const socket: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
+    const socket: IAutoMovieVector3 = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
       body.surfaces.sockets[side === "right" ? "gripRight" : "gripLeft"],
       wrist,
     ).point;
@@ -98,37 +86,37 @@ export async function test_motions_handling_regrasp_grip_frame(): Promise<void> 
 
     // Match the held object to its second wrist fit, then take it with that
     // wrist kept at the first pose. This gives the target in world coordinates.
-    const end: IAutoMovieVector3 = Vector3.add(
+    const end: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       wrist.worldPosition,
-      Quaternion.rotateVector(
-        Quaternion.multiply(
+      AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.multiply(
           wrist.worldRotation,
-          Quaternion.inverse(fitted.rotation),
+          AutoMovieEngineQuaternion.inverse(fitted.rotation),
         ),
-        Vector3.subtract(start.position, fitted.point),
+        AutoMovieEngineVector3.subtract(start.position, fitted.point),
       ),
     );
     const motion: NonNullable<IAutoMovieMotionHumanContactWindow["inHand"]> =
       regrasp.plan(context).contacts[0]!.inHand!;
-    const stored: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.inverse(wrist.worldRotation),
-      Vector3.subtract(start.position, socket),
+    const stored: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.inverse(wrist.worldRotation),
+      AutoMovieEngineVector3.subtract(start.position, socket),
     );
     for (const share of [0, 0.5, 1]) {
       const change: IAutoMovieRigidTransform = motion(share);
-      const displayed: IAutoMovieVector3 = Vector3.add(
+      const displayed: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         socket,
-        Quaternion.rotateVector(
+        AutoMovieEngineQuaternion.rotateVector(
           wrist.worldRotation,
-          Vector3.add(
-            Quaternion.rotateVector(change.rotation, stored),
+          AutoMovieEngineVector3.add(
+            AutoMovieEngineQuaternion.rotateVector(change.rotation, stored),
             change.position,
           ),
         ),
       );
       TestValidator.predicate(
         `${side} grip follows the second grasp at share ${share}`,
-        vclose(displayed, Vector3.lerp(start.position, end, share), 1e-10),
+        vclose(displayed, AutoMovieEngineVector3.lerp(start.position, end, share), 1e-10),
       );
     }
   }

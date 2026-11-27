@@ -1,10 +1,12 @@
 import {
-  AUTOMOVIE_MP4_SRGB_COLOUR,
-  assertProductionVideoProfile,
-  resolveProductionVideoProfile,
+  AutoMovieRenderMp4SrgbColour,
+  AutoMovieRenderDelivery,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
-import { readAutoMovieDeliveryProbe } from "automovie";
+import {
+  AutoMovieCliDelivery,
+  type IAutoMovieCliDeliveryProbe,
+} from "automovie";
 import * as fs from "node:fs/promises";
 import * as os from "node:os";
 import * as path from "node:path";
@@ -15,7 +17,7 @@ import { writeDeliveryMp4Header } from "../internal/writeDeliveryMp4Header";
 type Video = NonNullable<Parameters<typeof writeDeliveryMp4Header>[0]["video"]>;
 
 /** What the delivery probe reads from one file. */
-type Probed = Awaited<ReturnType<typeof readAutoMovieDeliveryProbe>>;
+type Probed = IAutoMovieCliDeliveryProbe;
 
 /**
  * The delivery probe reads every picture and sound fact the delivery profiles
@@ -24,8 +26,8 @@ type Probed = Awaited<ReturnType<typeof readAutoMovieDeliveryProbe>>;
  * Scenarios:
  *
  * 1. A 241-frame, 24 fps file on one 24-tick movie and track clock with a
- *    full-range sRGB `colr` box reads back every probe field, runs 10.041666… s
- *    in both clocks, and passes `assertProductionVideoProfile`.
+ *    full-range sRGB `colr` box reads back every probe field, runs 10.041666??s
+ *    in both clocks, and passes `AutoMovieRenderDelivery.assertVideoProfile`.
  * 2. The same file without `colr`, with a 90-degree track matrix, and with an edit
  *    starting at media time 1024 reads back an absent colour, the stored matrix
  *    and that edit, and the profile refuses each.
@@ -72,12 +74,12 @@ export async function test_cli_delivery_video_probe(): Promise<void> {
   const probe: (bytes: Buffer) => Promise<Probed> = async (
     bytes: Buffer,
   ): Promise<Probed> =>
-    readAutoMovieDeliveryProbe(
+    AutoMovieCliDelivery.readProbe(
       await write("probe.mp4", bytes),
-      AUTOMOVIE_MP4_SRGB_COLOUR,
+      AutoMovieRenderMp4SrgbColour,
     );
-  const profile: ReturnType<typeof resolveProductionVideoProfile> =
-    resolveProductionVideoProfile({
+  const profile: ReturnType<typeof AutoMovieRenderDelivery.resolveVideoProfile> =
+    AutoMovieRenderDelivery.resolveVideoProfile({
       width: 64,
       height: 48,
       frameRate: { numerator: 24, denominator: 1 },
@@ -86,7 +88,7 @@ export async function test_cli_delivery_video_probe(): Promise<void> {
     actual: Probed["video"],
   ): string => {
     try {
-      assertProductionVideoProfile({ expected: profile, actual });
+      AutoMovieRenderDelivery.assertVideoProfile({ expected: profile, actual });
       return "";
     } catch (error) {
       return error instanceof Error ? error.message.split(":")[0]! : "";

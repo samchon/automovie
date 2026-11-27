@@ -2,7 +2,9 @@ import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { admitLeadReach } from "@automovie/motions/internal";
+import {
+  admitLeadReach
+} from "../../../../../packages/motions/src/lexicon/internal/admitLeadReach";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";

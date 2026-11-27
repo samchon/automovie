@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanGesture } from "@automovie/interface";
 
-/**
+/*
  * The values the `stopHand` row of `HumanUpperRows` fixes on `armPhrase`,
  * spread into its parameters. A stop sign: the open hand held out ahead at
  * shoulder height, palm forward.

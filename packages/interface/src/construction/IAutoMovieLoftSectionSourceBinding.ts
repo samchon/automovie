@@ -1,7 +1,7 @@
 /**
  * Independent numeric snapshot binding a retained section source to one layer.
  *
- * AutoMovieLoftSectionSource.retain and bind copy these arrays without freezing
+ * AutoMovieEngineLoftSectionSource.retain and bind copy these arrays without freezing
  * them. Later validate/endpoint calls require the reached layer rows to match
  * exactly, including dense finite entries and expected width; changing the
  * layer requires rebinding or removing its explicit source. Snapshots preserve

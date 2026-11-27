@@ -1,20 +1,22 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  ArchetypeDraw,
   AutoMovieArchetype,
   AutoMovieArchetypeBuilder,
   AutoMovieArchetypeDrawSession,
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core";
+import {
+  ArchetypeDraw,
+} from "../core/internal/ArchetypeDraw";
 import type { AutoMovieArchetypeEquineGaitedProfile } from "./AutoMovieArchetypeEquineGaitedProfile";
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
-import { EquinePack } from "./EquinePack";
-import { EquineTack } from "./EquineTack";
-import { createHorse } from "./createHorse";
-import { selectEquineTack } from "./selectEquineTack";
+import { EquinePack } from "./equine/EquinePack";
+import { EquineTack } from "./equine/EquineTack";
+import { AutoMovieArchetypeHorse } from "./AutoMovieArchetypeHorse";
+import { selectEquineTack } from "./fittings/selectEquineTack";
 
 /**
  * The equid model `createHorse`, `createPony`, `createDonkey`, `createMule` and
@@ -293,7 +295,7 @@ export namespace AutoMovieArchetypeEquine {
    */
   export function rig(
     dimensions: Readonly<Partial<Record<Dimension, number>>>,
-    body: AutoMovieArchetypeQuadrupedBody.IBody = createHorse.BODY,
+    body: AutoMovieArchetypeQuadrupedBody.IBody = AutoMovieArchetypeHorse.BODY,
   ): IRig {
     const rest: AutoMovieArchetypeQuadrupedBody.IRig =
       AutoMovieArchetypeQuadrupedBody.rig(body, dimensions);
@@ -304,8 +306,8 @@ export namespace AutoMovieArchetypeEquine {
     );
     return {
       ...rest,
-      draft: Vector3.create(side, shoulder.y, rest.limbs.leftFore[1]!.z),
-      hitch: Vector3.create(0, axis, rest.trunk / 2 - SADDLE),
+      draft: AutoMovieEngineVector3.create(side, shoulder.y, rest.limbs.leftFore[1]!.z),
+      hitch: AutoMovieEngineVector3.create(0, axis, rest.trunk / 2 - SADDLE),
     };
   }
 

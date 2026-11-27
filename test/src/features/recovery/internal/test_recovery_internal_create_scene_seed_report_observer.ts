@@ -4,7 +4,7 @@ import type {
   IAutoMovieRecoveryMapJointFit,
   IAutoMovieRecoverySceneWork,
 } from "@automovie/interface";
-import { createRecoverySceneSeedReportObserver } from "@automovie/recovery";
+import { AutoMovieRecoveryCameraMap } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -81,8 +81,8 @@ export function test_recovery_internal_create_scene_seed_report_observer(): void
     "refusedSeedJoint"
   > = {};
   const work: IAutoMovieRecoverySceneWork = makeWork();
-  const observer: ReturnType<typeof createRecoverySceneSeedReportObserver> =
-    createRecoverySceneSeedReportObserver(target, work, budget);
+  const observer: ReturnType<typeof AutoMovieRecoveryCameraMap.createSceneSeedReportObserver> =
+    AutoMovieRecoveryCameraMap.createSceneSeedReportObserver(target, work, budget);
   TestValidator.predicate(
     "setup precedes any report or paired observation",
     work.linearWork === 32 && target.refusedSeedJoint === undefined,
@@ -116,8 +116,8 @@ export function test_recovery_internal_create_scene_seed_report_observer(): void
   > = {};
   const repeatedWork: IAutoMovieRecoverySceneWork = makeWork();
   const repeatedObserver: ReturnType<
-    typeof createRecoverySceneSeedReportObserver
-  > = createRecoverySceneSeedReportObserver(repeated, repeatedWork, {
+    typeof AutoMovieRecoveryCameraMap.createSceneSeedReportObserver
+  > = AutoMovieRecoveryCameraMap.createSceneSeedReportObserver(repeated, repeatedWork, {
     ...budget,
     maxLinearWork: 160,
   });
@@ -143,7 +143,7 @@ export function test_recovery_internal_create_scene_seed_report_observer(): void
   const setupWork: IAutoMovieRecoverySceneWork = makeWork();
   caught = null;
   try {
-    createRecoverySceneSeedReportObserver(setupTarget, setupWork, {
+    AutoMovieRecoveryCameraMap.createSceneSeedReportObserver(setupTarget, setupWork, {
       ...budget,
       maxLinearWork: 31,
     });
@@ -162,8 +162,8 @@ export function test_recovery_internal_create_scene_seed_report_observer(): void
     "refusedSeedJoint"
   > = {};
   const pairWork: IAutoMovieRecoverySceneWork = makeWork();
-  const pairObserver: ReturnType<typeof createRecoverySceneSeedReportObserver> =
-    createRecoverySceneSeedReportObserver(pairTarget, pairWork, {
+  const pairObserver: ReturnType<typeof AutoMovieRecoveryCameraMap.createSceneSeedReportObserver> =
+    AutoMovieRecoveryCameraMap.createSceneSeedReportObserver(pairTarget, pairWork, {
       ...budget,
       maxLinearWork: 95,
     });

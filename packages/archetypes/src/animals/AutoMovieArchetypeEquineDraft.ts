@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieTransform,
@@ -9,26 +9,58 @@ import {
   AutoMovieArchetypeRefusal,
   AutoMovieArchetypeRide,
 } from "../core";
-import type { ArchetypeTowing } from "../core/ArchetypeTowing";
-import { createCart } from "../vehicles/createCart";
+import type { ArchetypeTowing } from "../core/internal/ArchetypeTowing";
+import { AutoMovieArchetypeCart } from "../vehicles/AutoMovieArchetypeCart";
 import { type AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
 import type { AutoMovieArchetypeEquineDraftPlan } from "./AutoMovieArchetypeEquineDraftPlan";
 import { AutoMovieArchetypeQuadrupedFooting } from "./AutoMovieArchetypeQuadrupedFooting";
-import { EquineHarness } from "./EquineHarness";
-import { rideHorse } from "./rideHorse";
-import type { rideQuadruped } from "./rideQuadruped";
+import { EquineHarness } from "./equine/EquineHarness";
+import { AutoMovieArchetypeHorseRide } from "./AutoMovieArchetypeHorseRide";
+import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
-/** Points a slack trace is laid through, ends included. */
+/** Operations for putting a harnessed horse to a fitted cart. */
+export namespace AutoMovieArchetypeEquineDraft {
+  /**
+   * Build the coupled take and its authored trace states.
+   *
+   * @param horse A horse in harness tack.
+   * @param cart A cart built for that horse.
+   * @param params The course stages, durations, trace sag and optional footing.
+   * @returns The take.
+   * @throws {AutoMovieArchetypeRefusal} For incompatible harness/cart fit, invalid stage values, and refusals from the ride or towing contracts.
+   */
+  export function create(
+    horse: AutoMovieArchetype<
+      AutoMovieArchetypeEquine.Affordance,
+      AutoMovieArchetypeEquine.Dimension
+    >,
+    cart: AutoMovieArchetype<
+      AutoMovieArchetypeCart.Affordance,
+      AutoMovieArchetypeCart.Dimension
+    >,
+    params: AutoMovieArchetypeEquineDraftPlan.IParams,
+  ): AutoMovieArchetypeEquineDraftPlan.ITake<
+    AutoMovieArchetypeEquine.Affordance,
+    AutoMovieArchetypeEquine.Dimension,
+    AutoMovieArchetypeCart.Affordance,
+    AutoMovieArchetypeCart.Dimension
+  > {
+    return equineDraft(horse, cart, params);
+  }
+}
+
+/*
+ * Points a slack trace is laid through, ends included.
+ */
 const SAG_POINTS: number = 9;
-
-/**
+/*
  * A harnessed horse put to a two-wheeled cart, drawing it and taken out again,
  * on one film clock: it backs between the parked cart's shafts, stands while
  * the traces are hooked, draws the cart through the authored legs, brakes into
  * the breeching to a stop, stands while the traces are unhooked, and walks out
  * of the shafts, leaving the cart standing.
  *
- * The horse is the ordinary ride (`rideHorse`) on one course: a rein-back of
+ * The horse is the ordinary ride (`AutoMovieArchetypeHorseRide.ride`) on one course: a rein-back of
  * `approach` metres pausing `connect` seconds, the `pull` legs at `cruise`
  * ending in a stop that pauses `release` seconds, and the `depart` legs. The
  * cart is the existing vehicle contract (`createCart`, `createCart.towing`,
@@ -50,37 +82,36 @@ const SAG_POINTS: number = 9;
  * trace sags `sag` metres at its middle along a parabola through `SAG_POINTS`
  * points; this is a look, not a cable simulation or a measured draught force.
  * The driving lines are laid while the horse stands in the shafts.
- *
- * @param horse A horse in `harness` tack.
- * @param cart A `cart` kind built for that horse.
- * @param params The course stages, their durations, the trace sag and optional
- *   footing.
- * @returns The take.
- * @throws {AutoMovieArchetypeRefusal} For a horse without the harness's hitch,
- *   a cart whose coupling or single tree does not fit the horse's hitch and
- *   points of draft, nonpositive stage values, and as the ride and the towing
- *   refuse.
+ * Parameter horse: A horse in `harness` tack.
+ * Parameter cart: A `cart` kind built for that horse.
+ * Parameter params: The course stages, their durations, the trace sag and optional
+ * footing.
+ * Returns: The take.
+ * For a horse without the harness's hitch,
+ * a cart whose coupling or single tree does not fit the horse's hitch and
+ * points of draft, nonpositive stage values, and as the ride and the towing
+ * refuse.
  */
-export function AutoMovieArchetypeEquineDraft(
+function equineDraft(
   horse: AutoMovieArchetype<
     AutoMovieArchetypeEquine.Affordance,
     AutoMovieArchetypeEquine.Dimension
   >,
-  cart: AutoMovieArchetype<createCart.Affordance, createCart.Dimension>,
+  cart: AutoMovieArchetype<AutoMovieArchetypeCart.Affordance, AutoMovieArchetypeCart.Dimension>,
   params: AutoMovieArchetypeEquineDraftPlan.IParams,
 ): AutoMovieArchetypeEquineDraftPlan.ITake<
   AutoMovieArchetypeEquine.Affordance,
   AutoMovieArchetypeEquine.Dimension,
-  createCart.Affordance,
-  createCart.Dimension
+  AutoMovieArchetypeCart.Affordance,
+  AutoMovieArchetypeCart.Dimension
 > {
   type HorseSample = AutoMovieArchetypeRide.ISample<
     AutoMovieArchetypeEquine.Affordance,
     AutoMovieArchetypeEquine.Dimension
   >;
   type CartSample = AutoMovieArchetypeRide.ISample<
-    createCart.Affordance,
-    createCart.Dimension
+    AutoMovieArchetypeCart.Affordance,
+    AutoMovieArchetypeCart.Dimension
   >;
   const refuse = (axis: string, value: unknown, reason: string): never => {
     throw new AutoMovieArchetypeRefusal({
@@ -120,7 +151,7 @@ export function AutoMovieArchetypeEquineDraft(
   if (
     params.footing === undefined &&
     [...params.pull, ...params.depart].some(
-      (leg: rideQuadruped.ILeg): boolean => (leg.rise ?? 0) !== 0,
+      (leg: AutoMovieArchetypeQuadruped.IRideLeg): boolean => (leg.rise ?? 0) !== 0,
     )
   )
     refuse(
@@ -131,7 +162,7 @@ export function AutoMovieArchetypeEquineDraft(
 
   // One course: back in, pull and stop, walk out.
   const last: number = params.pull.length;
-  const legs: rideQuadruped.ILeg[] = [
+  const legs: AutoMovieArchetypeQuadruped.IRideLeg[] = [
     {
       kind: "straight",
       length: params.approach,
@@ -141,7 +172,7 @@ export function AutoMovieArchetypeEquineDraft(
       gait: "walk",
     },
     ...params.pull.map(
-      (leg: rideQuadruped.ILeg, k: number): rideQuadruped.ILeg =>
+      (leg: AutoMovieArchetypeQuadruped.IRideLeg, k: number): AutoMovieArchetypeQuadruped.IRideLeg =>
         k === last - 1 ? { ...leg, pause: params.release } : leg,
     ),
     ...params.depart,
@@ -149,13 +180,13 @@ export function AutoMovieArchetypeEquineDraft(
   const ride: AutoMovieArchetypeRide.IRide<
     AutoMovieArchetypeEquine.Affordance,
     AutoMovieArchetypeEquine.Dimension
-  > = rideHorse(horse, {
+  > = AutoMovieArchetypeHorseRide.ride(horse, {
     start: params.start,
     legs,
     cruise: params.cruise,
     acceleration: params.acceleration,
     deceleration: params.deceleration,
-    speeds: legs.map((_: rideQuadruped.ILeg, k: number): number =>
+    speeds: legs.map((_: AutoMovieArchetypeQuadruped.IRideLeg, k: number): number =>
       k === 0 || k === last || k === legs.length - 1 ? 0 : params.cruise,
     ),
     footing: params.footing,
@@ -199,7 +230,7 @@ export function AutoMovieArchetypeEquineDraft(
       seconds: number,
     ): IAutoMovieTransform => ride.frame(id, events.connect + hold(seconds)),
   };
-  const traces: AutoMovieArchetypeRide.ILine[] = createCart.lines(cart);
+  const traces: AutoMovieArchetypeRide.ILine[] = AutoMovieArchetypeCart.lines(cart);
   const footing: AutoMovieArchetypeQuadrupedFooting.IPlan | undefined =
     params.footing === undefined
       ? undefined
@@ -216,28 +247,30 @@ export function AutoMovieArchetypeEquineDraft(
         })
       : (x: number, z: number): ArchetypeTowing.IPlane => {
           const landing: AutoMovieArchetypeQuadrupedFooting.ILanding =
-            footing.landing({ x, y: 0, z }, Quaternion.identity());
+            footing.landing({ x, y: 0, z }, AutoMovieEngineQuaternion.identity());
           return { point: landing.point, normal: landing.normal };
         };
   const towed: AutoMovieArchetypeRide.ITowedRide<
-    createCart.Affordance,
-    createCart.Dimension
+    AutoMovieArchetypeCart.Affordance,
+    AutoMovieArchetypeCart.Dimension
   > = AutoMovieArchetypeRide.towed(leader, "hitch", cart, "coupling", {
-    support: createCart.towing(cart),
+    support: AutoMovieArchetypeCart.towing(cart),
     lines: traces,
     ground,
   });
 
   return { duration: ride.duration, events, ride, at };
 
-  /** One displayed second. */
+  /*
+   * One displayed second.
+   */
   function at(
     seconds: number,
   ): AutoMovieArchetypeEquineDraftPlan.ISample<
     AutoMovieArchetypeEquine.Affordance,
     AutoMovieArchetypeEquine.Dimension,
-    createCart.Affordance,
-    createCart.Dimension
+    AutoMovieArchetypeCart.Affordance,
+    AutoMovieArchetypeCart.Dimension
   > {
     const stage: AutoMovieArchetypeEquineDraftPlan.Stage =
       seconds < events.connect
@@ -290,7 +323,9 @@ export function AutoMovieArchetypeEquineDraft(
     };
   }
 
-  /** A trace hanging below its chord on a parabola of the authored sag. */
+  /*
+   * A trace hanging below its chord on a parabola of the authored sag.
+   */
   function slack(
     line: AutoMovieArchetypeRide.ILineState,
   ): AutoMovieArchetypeRide.ILineState {
@@ -305,7 +340,7 @@ export function AutoMovieArchetypeEquineDraft(
     };
   }
 
-  /**
+  /*
    * Refuse a cart whose coupling and single tree were not built for this
    * horse's hitch and points of draft.
    */

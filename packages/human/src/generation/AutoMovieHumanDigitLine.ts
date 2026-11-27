@@ -84,17 +84,23 @@ export namespace AutoMovieHumanDigitLine {
   }
 }
 
-/** Unit vector; zero stays zero. */
+/*
+ * Unit vector; zero stays zero.
+ */
 function unit(a: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
   const l: number = Math.hypot(a[0], a[1], a[2]) || 1;
   return [a[0] / l, a[1] / l, a[2] / l];
 }
 
-/** Smoothstep clamped to [0, 1]. */
+/*
+ * Smoothstep clamped to [0, 1].
+ */
 function smooth(x: number): number {
   const t: number = Math.min(1, Math.max(0, x));
   return t * t * (3 - 2 * t);
 }
 
-/** Half step of a tangent read on the line, mm. */
+/*
+ * Half step of a tangent read on the line, mm.
+ */
 const TANGENT: number = 0.2;

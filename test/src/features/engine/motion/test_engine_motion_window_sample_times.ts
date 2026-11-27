@@ -1,4 +1,4 @@
-import { windowSampleTimes } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -20,19 +20,19 @@ import { nclose } from "../../internal/nclose";
 export function test_engine_motion_window_sample_times(): void {
   TestValidator.equals(
     "a whole number of steps",
-    windowSampleTimes(2, 3, 2),
+    AutoMovieEngineMotionSampling.windowSampleTimes(2, 3, 2),
     [2, 2.5, 3],
   );
-  TestValidator.equals("four instants", windowSampleTimes(0, 1, 3).length, 4);
+  TestValidator.equals("four instants", AutoMovieEngineMotionSampling.windowSampleTimes(0, 1, 3).length, 4);
   TestValidator.equals(
     "the last instant is the end",
-    windowSampleTimes(0, 1.1, 3).at(-1),
+    AutoMovieEngineMotionSampling.windowSampleTimes(0, 1.1, 3).at(-1),
     1.1,
   );
-  TestValidator.equals("an empty window", windowSampleTimes(0, 0, 24), [0]);
+  TestValidator.equals("an empty window", AutoMovieEngineMotionSampling.windowSampleTimes(0, 0, 24), [0]);
   const start: number = 2 ** 53;
   const end: number = start + 2;
-  const narrow: number[] = windowSampleTimes(start, end, 4);
+  const narrow: number[] = AutoMovieEngineMotionSampling.windowSampleTimes(start, end, 4);
   TestValidator.predicate(
     "spacing below the local ulp leaves precisely the two represented instants",
     narrow.length === 2 &&
@@ -41,7 +41,7 @@ export function test_engine_motion_window_sample_times(): void {
   );
   const limit: number = 2 ** 1023;
   const endpoint: number = 1.5 * limit;
-  const wide: number[] = windowSampleTimes(-endpoint, endpoint, 2 ** -1022);
+  const wide: number[] = AutoMovieEngineMotionSampling.windowSampleTimes(-endpoint, endpoint, 2 ** -1022);
   const expected: readonly number[] = [
     -endpoint,
     -limit,

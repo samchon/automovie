@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanGesture } from "@automovie/interface";
 
-/**
+/*
  * The values the `wipeMouthAcross` row of `HumanUpperRows` fixes on
  * `armPhrase`, spread into its parameters. Wiping the mouth: the back of the
  * hand draws across the lips.

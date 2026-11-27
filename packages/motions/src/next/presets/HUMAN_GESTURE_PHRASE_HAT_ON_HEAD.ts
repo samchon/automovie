@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanGesture } from "@automovie/interface";
 
-/**
+/*
  * The values the `hatOnHead` row of `HumanUpperRows` fixes on `armPhrase`,
  * spread into its parameters. Putting on a hat: the hand that holds it visits
  * the crown and stays a beat.

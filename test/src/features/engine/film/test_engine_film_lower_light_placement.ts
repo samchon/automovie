@@ -1,4 +1,6 @@
-import { lowerLightPlacement } from "@automovie/engine/internal";
+import {
+  lowerLightPlacement
+} from "../../../../../packages/engine/src/film/staging/internal/lowerLightPlacement";
 import type {
   IAutoMovieLight,
   IAutoMovieStageLight,

@@ -1,4 +1,6 @@
-import { shotBeat } from "@automovie/render/internal";
+import {
+  shotBeat
+} from "../../../../../packages/render/src/shotBeat";
 import { TestValidator } from "@nestia/e2e";
 
 /**

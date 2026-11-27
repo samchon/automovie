@@ -1,4 +1,7 @@
-import { lowerWetZoneDrainage, validateFluidDomain } from "@automovie/engine";
+import {
+  AutoMovieEngineFluid,
+  AutoMovieEngineService,
+} from "@automovie/engine";
 import type {
   IAutoMovieConstraintViolation,
   IAutoMovieFluidDomain,
@@ -51,7 +54,7 @@ export function assertWetZoneDrainageLowering(
     { refused: true, atDrain: true },
   );
 
-  const lowered: IAutoMovieFluidDomain = lowerWetZoneDrainage({
+  const lowered: IAutoMovieFluidDomain = AutoMovieEngineService.lowerWetZoneDrainage({
     network: clean,
     zone: "bath-zone",
     domain: bathFloor(),
@@ -97,7 +100,7 @@ export function assertWetZoneDrainageLowering(
       ["sill", () => nclose(lowered.drains[0]!.sillLevel, 0.125, 1e-15)],
       ["opensAtOnce", () => nclose(lowered.drains[0]!.start, 0, 0)],
       ["neverCloses", () => lowered.drains[0]!.end === null],
-      ["stillValid", () => validateFluidDomain({ domain: lowered }).success],
+      ["stillValid", () => AutoMovieEngineFluid.validateFluidDomain({ domain: lowered }).success],
       [
         "latticeUntouched",
         () => lowered.grid === bathFloor().grid || lowered.grid.columns === 4,
@@ -105,7 +108,7 @@ export function assertWetZoneDrainageLowering(
       [
         "gradeIsNotHydraulic",
         () => {
-          const deeper: IAutoMovieFluidDomain = lowerWetZoneDrainage({
+          const deeper: IAutoMovieFluidDomain = AutoMovieEngineService.lowerWetZoneDrainage({
             network: basin,
             zone: "bath-zone",
             domain: bathFloor(),
@@ -156,7 +159,7 @@ export function assertWetZoneDrainageLowering(
     },
   );
 
-  const strandedSupply: IAutoMovieFluidDomain = lowerWetZoneDrainage({
+  const strandedSupply: IAutoMovieFluidDomain = AutoMovieEngineService.lowerWetZoneDrainage({
     network: withPort(
       clean,
       "basin-cold",
@@ -186,7 +189,7 @@ export function assertWetZoneDrainageLowering(
         () =>
           throwsError(
             () =>
-              lowerWetZoneDrainage({
+              AutoMovieEngineService.lowerWetZoneDrainage({
                 network: clean,
                 zone: "no-such-zone",
                 domain: bathFloor(),
@@ -199,7 +202,7 @@ export function assertWetZoneDrainageLowering(
         () =>
           throwsError(
             () =>
-              lowerWetZoneDrainage({
+              AutoMovieEngineService.lowerWetZoneDrainage({
                 network: withZone(
                   clean,
                   "bath-zone",
@@ -219,7 +222,7 @@ export function assertWetZoneDrainageLowering(
         () =>
           throwsError(
             () =>
-              lowerWetZoneDrainage({
+              AutoMovieEngineService.lowerWetZoneDrainage({
                 network: clean,
                 zone: "bath-zone",
                 domain: bathFloor({
@@ -240,7 +243,7 @@ export function assertWetZoneDrainageLowering(
         () =>
           throwsError(
             () =>
-              lowerWetZoneDrainage({
+              AutoMovieEngineService.lowerWetZoneDrainage({
                 network: clean,
                 zone: "bath-zone",
                 domain: bathFloor({
@@ -261,7 +264,7 @@ export function assertWetZoneDrainageLowering(
         () =>
           throwsError(
             () =>
-              lowerWetZoneDrainage({
+              AutoMovieEngineService.lowerWetZoneDrainage({
                 network: clean,
                 zone: "bath-zone",
                 domain: bathFloor({
@@ -285,7 +288,7 @@ export function assertWetZoneDrainageLowering(
         () =>
           throwsError(
             () =>
-              lowerWetZoneDrainage({
+              AutoMovieEngineService.lowerWetZoneDrainage({
                 network: clean,
                 zone: "bath-zone",
                 domain: bathFloor({

@@ -1,5 +1,5 @@
 import type { IAutoMovieRasterImage } from "@automovie/interface";
-import { AutoMovieRasterSheet } from "@automovie/render";
+import { AutoMovieRenderRasterSheet } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -42,7 +42,7 @@ export function test_render_picture_raster_sheet_nearest(): void {
     cell: number,
     reduction: "area" | "nearest",
   ): IAutoMovieRasterImage => {
-    const sheet: AutoMovieRasterSheet = new AutoMovieRasterSheet(
+    const sheet: AutoMovieRenderRasterSheet = new AutoMovieRenderRasterSheet(
       1,
       1,
       cell,

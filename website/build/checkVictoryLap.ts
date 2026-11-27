@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionEvent,
@@ -8,7 +8,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { AutoMovieMotionHumanTouch } from "@automovie/motions";
-import { HumanFoot } from "@automovie/motions/internal";
+import { HumanFoot } from "../../packages/motions/src/posture/internal/HumanFoot";
 import { strict as assert } from "node:assert";
 
 import { PlaygroundPerformance } from "../src/playground/package/PlaygroundPerformance";
@@ -60,7 +60,7 @@ export function checkVictoryLap(): void {
     const winner: IArrival = arrival(built, "w1");
     const runnerUp: IArrival = arrival(built, "w2");
     assert(Math.abs(winner.time - runnerUp.time) <= 1e-7, take.label);
-    assert(Vector3.distance(winner.point, runnerUp.point) <= MEET, take.label);
+    assert(AutoMovieEngineVector3.distance(winner.point, runnerUp.point) <= MEET, take.label);
 
     const thumbs: IAutoMovieMotionHumanSegment = built.performance
       .segments("w2")

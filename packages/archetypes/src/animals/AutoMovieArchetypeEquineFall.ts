@@ -1,4 +1,8 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import {
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
+  AutoMovieEngineMotionSampling,
+} from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieTransform,
@@ -16,17 +20,8 @@ import type { AutoMovieArchetypeEquineLibertyCue } from "./AutoMovieArchetypeEqu
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { AutoMovieArchetypeQuadrupedLateralRest } from "./AutoMovieArchetypeQuadrupedLateralRest";
 import type { AutoMovieArchetypeQuadrupedLateralRestPlan } from "./AutoMovieArchetypeQuadrupedLateralRestPlan";
-import { EquineBlend } from "./EquineBlend";
-import { rideQuadruped } from "./rideQuadruped";
-
-/**
- * The fastest a trained fall is staged from, metres per second: an authored
- * bound at a canter or slow gallop.
- */
-const FALL_SPEED: number = 7;
-
-/** A named instant of a ride. */
-type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];
+import { EquineBlend } from "./equine/EquineBlend";
+import { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
 /**
  * A trained fall from a canter or gallop onto prepared ground: the horse goes
@@ -73,7 +68,9 @@ export namespace AutoMovieArchetypeEquineFall {
     Id,
     D | AutoMovieArchetypeQuadrupedBody.Dimension
   > {
-    /** The source dimensions with the quadruped size the ride solves. */
+    /*
+     * The source dimensions with the quadruped size the ride solves.
+     */
     type Dimension = D | AutoMovieArchetypeQuadrupedBody.Dimension;
     const refuse = (axis: string, value: unknown, reason: string): never => {
       throw new AutoMovieArchetypeRefusal({
@@ -115,7 +112,7 @@ export namespace AutoMovieArchetypeEquineFall {
       cue.from,
     );
     const heading: IAutoMovieQuaternion = yaw(start.placement.rotation);
-    const forward: IAutoMovieVector3 = Quaternion.rotateVector(heading, {
+    const forward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(heading, {
       x: 0,
       y: 0,
       z: 1,
@@ -128,7 +125,7 @@ export namespace AutoMovieArchetypeEquineFall {
     const clip: AutoMovieArchetypeQuadrupedLateralRestPlan.IClip<
       Id,
       Dimension
-    > = AutoMovieArchetypeQuadrupedLateralRest(
+    > = AutoMovieArchetypeQuadrupedLateralRest.plan(
       animal,
       AutoMovieArchetypeEquineLiberty.rested(animal, ground, cue.rest),
       cue.lateral,
@@ -147,7 +144,7 @@ export namespace AutoMovieArchetypeEquineFall {
       seconds: number,
     ): IAutoMovieTransform => ({
       ...frame,
-      translation: Vector3.addScaled(
+      translation: AutoMovieEngineVector3.addScaled(
         frame.translation,
         forward,
         travel(seconds),
@@ -163,7 +160,7 @@ export namespace AutoMovieArchetypeEquineFall {
     const away: AutoMovieArchetypeRide.IRide<Id, Dimension> | undefined =
       cue.away === undefined
         ? undefined
-        : rideQuadruped(
+        : AutoMovieArchetypeQuadruped.ride(
             animal,
             {
               start: {
@@ -210,7 +207,7 @@ export namespace AutoMovieArchetypeEquineFall {
         slid(ground, seconds),
         lying.placement,
       );
-      const share: number = minimumJerk.share(
+      const share: number = AutoMovieEngineMotionSampling.minimumJerkShare(
         Math.min(1, (seconds - cue.from) / cue.drop),
       );
       if (share >= 1)
@@ -267,19 +264,31 @@ export namespace AutoMovieArchetypeEquineFall {
     };
   }
 
-  /**
+  /*
    * The turn about the vertical that carries +Z onto a rotation's forward
    * direction on the floor.
    */
   function yaw(rotation: IAutoMovieQuaternion): IAutoMovieQuaternion {
-    const forward: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+    const forward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(rotation, {
       x: 0,
       y: 0,
       z: 1,
     });
-    return Quaternion.fromAxisAngle(
+    return AutoMovieEngineQuaternion.fromAxisAngle(
       { x: 0, y: 1, z: 0 },
       (Math.atan2(forward.x, forward.z) * 180) / Math.PI,
     );
   }
 }
+
+
+/*
+ * The fastest a trained fall is staged from, metres per second: an authored
+ * bound at a canter or slow gallop.
+ */
+const FALL_SPEED: number = 7;
+
+/*
+ * A named instant of a ride.
+ */
+type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];

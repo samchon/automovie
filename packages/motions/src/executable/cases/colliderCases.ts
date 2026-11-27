@@ -1,8 +1,8 @@
 import {
-  Quaternion,
-  Vector3,
-  physicalHullFaces,
-  physicalShapeSegmentDistance,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
+  AutoMovieEnginePhysicalHullFaces,
+  AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import { AutoMovieHumanCanonicalBody } from "@automovie/human";
 import type {
@@ -13,21 +13,15 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import {
-  type AutoMovieHumanPolygon,
-  buildHumanPolygon,
-} from "@automovie/render";
+import { AutoMovieRenderHumanPolygon } from "@automovie/render";
 import * as THREE from "three";
 
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
-import { MotionBodies } from "../MotionBodies";
-import { colliderCaseInside } from "./colliderCaseInside";
-import { colliderCaseNearest } from "./colliderCaseNearest";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
+import { MotionBodies } from "../internal/MotionBodies";
+import { colliderCaseInside } from "./internal/colliderCaseInside";
+import { colliderCaseNearest } from "./internal/colliderCaseNearest";
 
-/** The alternatives of `ColliderCasesWorstEntry`'s site. */
-type ColliderCasesWorstEntry = "vertex" | "band" | "face" | "digit";
-
-/**
+/*
  * Capture cases of the polygon man's colliders against its drawn surface
  * (`colliders-<body>`), one for each body of `MotionBodies.SWEEP`: the body
  * stands at its T-pose rest, where the contact profile's shapes are placed by
@@ -54,10 +48,9 @@ type ColliderCasesWorstEntry = "vertex" | "band" | "face" | "digit";
  *
  * Only the centre and the left side are measured, the body being built
  * mirrored.
- *
- * @param names The bodies measured.
- * @param only The harness's name filter; every case when absent.
- * @returns The cases, each built as it is read.
+ * Parameter names: The bodies measured.
+ * Parameter only: The harness's name filter; every case when absent.
+ * Returns: The cases, each built as it is read.
  */
 export function* colliderCases(
   names: readonly string[] = MotionBodies.SWEEP,
@@ -67,7 +60,7 @@ export function* colliderCases(
     if (only !== undefined && !only(`colliders-${name}`)) continue;
     const body: IAutoMovieHumanCanonicalBody.IBody =
       MotionBodies.population(name).body;
-    const drawing: AutoMovieHumanPolygon.IDrawing = buildHumanPolygon(
+    const drawing: AutoMovieRenderHumanPolygon.IDrawing = AutoMovieRenderHumanPolygon.build(
       AutoMovieHumanCanonicalBody.display(body),
     );
     const meshes: IMesh[] = [];
@@ -131,7 +124,7 @@ export function* colliderCases(
         Math.min(
           ...segment.shapes.map((shape: IAutoMoviePhysicalShape): number =>
             Math.abs(
-              physicalShapeSegmentDistance(segment.neutral, shape, p, p),
+              AutoMovieEnginePhysics.physicalShapeSegmentDistance(segment.neutral, shape, p, p),
             ),
           ),
         );
@@ -143,7 +136,7 @@ export function* colliderCases(
           0,
           Math.min(
             ...segment.shapes.map((shape: IAutoMoviePhysicalShape): number =>
-              physicalShapeSegmentDistance(segment.neutral, shape, p, p),
+              AutoMovieEnginePhysics.physicalShapeSegmentDistance(segment.neutral, shape, p, p),
             ),
           ),
         );
@@ -233,37 +226,58 @@ export function* colliderCases(
   }
 }
 
-/** One drawn module's triangles at the T-pose rest, canonical metres. */
+/*
+ * The alternatives of `ColliderCasesWorstEntry`'s site.
+ */
+type ColliderCasesWorstEntry = "vertex" | "band" | "face" | "digit";
+
+/*
+ * One drawn module's triangles at the T-pose rest, canonical metres.
+ */
 interface IMesh {
-  /** The drawn Human joint. */
+  /*
+   * The drawn Human joint.
+   */
   joint: string;
 
-  /** The rig bone that carries it. */
+  /*
+   * The rig bone that carries it.
+   */
   carrier: string;
 
-  /** Its triangles. */
+  /*
+   * Its triangles.
+   */
   triangles: THREE.Triangle[];
 }
 
-/** A largest measured gap and where it was found. */
+/*
+ * A largest measured gap and where it was found.
+ */
 interface IWorst {
-  /** Metres. */
+  /*
+   * Metres.
+   */
   value: number;
 
-  /** The joint, bone or shape. */
+  /*
+   * The joint, bone or shape.
+   */
   where: string;
 }
 
-/** The single precision of a mesh buffer over a two metre body, metres. */
+/*
+ * The single precision of a mesh buffer over a two metre body, metres.
+ */
 const PRECISION: number = 1e-5;
 
-/**
+/*
  * How far a collider and the drawn surface may lie apart between shared
  * vertices, metres.
  */
 const FIDELITY: number = 3e-3;
 
-/**
+/*
  * Points on a shape's surface, canonical metres: a hull's face centres, corners
  * and a four step fan over each face; a capsule's caps by latitude and
  * longitude and its side at eighths of its length.
@@ -272,24 +286,24 @@ function samples(
   pose: IAutoMovieRigidTransform,
   shape: IAutoMoviePhysicalShape,
 ): THREE.Vector3[] {
-  const centre: IAutoMovieVector3 = Vector3.add(
+  const centre: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     pose.position,
-    Quaternion.rotateVector(pose.rotation, shape.transform.position),
+    AutoMovieEngineQuaternion.rotateVector(pose.rotation, shape.transform.position),
   );
-  const rotation = Quaternion.multiply(pose.rotation, shape.transform.rotation);
+  const rotation = AutoMovieEngineQuaternion.multiply(pose.rotation, shape.transform.rotation);
   const out: THREE.Vector3[] = [];
   const push = (local: IAutoMovieVector3): void => {
-    const p: IAutoMovieVector3 = Vector3.add(
+    const p: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       centre,
-      Quaternion.rotateVector(rotation, local),
+      AutoMovieEngineQuaternion.rotateVector(rotation, local),
     );
     out.push(new THREE.Vector3(p.x, p.y, p.z));
   };
   if (shape.kind === "hull") {
-    for (const face of physicalHullFaces(shape.points).faces) {
+    for (const face of AutoMovieEnginePhysicalHullFaces.build(shape.points).faces) {
       let middle: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
       for (const p of face.loop)
-        middle = Vector3.add(middle, Vector3.scale(p, 1 / face.loop.length));
+        middle = AutoMovieEngineVector3.add(middle, AutoMovieEngineVector3.scale(p, 1 / face.loop.length));
       push(middle);
       face.loop.forEach((p: IAutoMovieVector3, i: number): void => {
         const q: IAutoMovieVector3 = face.loop[(i + 1) % face.loop.length]!;
@@ -298,9 +312,9 @@ function samples(
             const wp: number = (a - b) / 4;
             const wq: number = b / 4;
             push(
-              Vector3.add(
-                Vector3.scale(middle, 1 - wp - wq),
-                Vector3.add(Vector3.scale(p, wp), Vector3.scale(q, wq)),
+              AutoMovieEngineVector3.add(
+                AutoMovieEngineVector3.scale(middle, 1 - wp - wq),
+                AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(p, wp), AutoMovieEngineVector3.scale(q, wq)),
               ),
             );
           }

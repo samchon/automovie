@@ -1,5 +1,5 @@
-import type { createSiegeEngine } from "@automovie/archetypes";
-import { Quaternion, Vector3 } from "@automovie/engine";
+import type { AutoMovieArchetypeSiegeEngine } from "@automovie/archetypes";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieVector3,
@@ -10,7 +10,7 @@ import { archetypeSpanObservation } from "./archetypeSpanObservation";
 import { nclose } from "./nclose";
 
 /** The actual public launcher and its current real controls. */
-type Engine = ReturnType<typeof createSiegeEngine>;
+type Engine = ReturnType<typeof AutoMovieArchetypeSiegeEngine.create>;
 
 /**
  * Observe the actual pin/drawbar, fixed trestle and cross-post windlass.
@@ -70,7 +70,7 @@ export function siegeStructureControls(
   );
   point(
     `${label} actual windlass through posts`,
-    Vector3.scale(Vector3.add(shaft[0], shaft[1]), 0.5),
+    AutoMovieEngineVector3.scale(AutoMovieEngineVector3.add(shaft[0], shaft[1]), 0.5),
     { x: 0, y: 0.6, z: 0 },
   );
   const drum: readonly [IAutoMovieVector3, IAutoMovieVector3] = ends(
@@ -99,7 +99,7 @@ export function siegeStructureControls(
   const at: IAutoMovieVector3 = pulled.affordance("pin").frame.translation;
   point(
     `${label} actual pin grip centre`,
-    Vector3.scale(Vector3.add(pin[0], pin[1]), 0.5),
+    AutoMovieEngineVector3.scale(AutoMovieEngineVector3.add(pin[0], pin[1]), 0.5),
     at,
   );
   point(`${label} actual pin extracts on declared slider X`, at, {
@@ -178,12 +178,12 @@ export function siegeStructureControls(
     const centre: IAutoMovieVector3 = bed.transform!.translation;
     point(
       `${label}/${side} bed has a horizontal support face`,
-      Quaternion.rotateVector(bed.transform!.rotation, { x: 0, y: 1, z: 0 }),
+      AutoMovieEngineQuaternion.rotateVector(bed.transform!.rotation, { x: 0, y: 1, z: 0 }),
       { x: 0, y: 1, z: 0 },
     );
     point(
       `${label}/${side} bed follows the slider direction`,
-      Quaternion.rotateVector(bed.transform!.rotation, { x: 0, y: 0, z: 1 }),
+      AutoMovieEngineQuaternion.rotateVector(bed.transform!.rotation, { x: 0, y: 0, z: 1 }),
       { x: 0, y: 0, z: 1 },
     );
     const low: IAutoMovieVector3 = {
@@ -224,8 +224,8 @@ export function siegeStructureControls(
       const endpoint: IAutoMovieVector3 = crosshead[sign === 1 ? 1 : 0];
       const crossheadRadius: number = rod(retained, "release-carriage").radius;
       point(`${label}/${travel} actual crosshead carries the pin centre`,
-        Vector3.scale(Vector3.add(crosshead[0], crosshead[1]), 0.5),
-        Vector3.scale(Vector3.add(current[0], current[1]), 0.5));
+        AutoMovieEngineVector3.scale(AutoMovieEngineVector3.add(crosshead[0], crosshead[1]), 0.5),
+        AutoMovieEngineVector3.scale(AutoMovieEngineVector3.add(current[0], current[1]), 0.5));
       near(`${label}/${travel}/${side} actual bed touches crosshead underside`,
         high.y, endpoint.y - crossheadRadius);
       truth(

@@ -1,4 +1,4 @@
-import { AutoMovieChain } from "@automovie/engine";
+import { AutoMovieEngineChain } from "@automovie/engine";
 import type {
   IAutoMovieChain,
   IAutoMovieComposition,
@@ -7,7 +7,7 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `AutoMovieChain` composes immutably: `next` appends to a sequence and `with`
+ * `AutoMovieEngineChain` composes immutably: `next` appends to a sequence and `with`
  * to a parallel group, each flattening only a head of its own kind, and every
  * step returns a new chain of the caller's own class.
  *
@@ -25,11 +25,11 @@ export function test_engine_composition_chain(): void {
     capability,
   });
   const intent = (capability: string): IAutoMovieComposition => ({
-    kind: "intent",
+    type: "intent",
     intent: act(capability),
   });
 
-  const first: IAutoMovieChain = AutoMovieChain.of(act("reach"));
+  const first: IAutoMovieChain = AutoMovieEngineChain.of(act("reach"));
   const sequence: IAutoMovieChain = first.next(act("turn")).next(act("nod"));
   TestValidator.equals(
     "next flattens a sequence head and leaves the first chain alone",
@@ -37,7 +37,7 @@ export function test_engine_composition_chain(): void {
     [
       intent("reach"),
       {
-        kind: "sequence",
+        type: "sequence",
         parts: [intent("reach"), intent("turn"), intent("nod")],
       },
     ],
@@ -47,10 +47,10 @@ export function test_engine_composition_chain(): void {
     "next after with nests the parallel group",
     first.with(act("watch")).with(act("wait")).next(act("turn")).node,
     {
-      kind: "sequence",
+      type: "sequence",
       parts: [
         {
-          kind: "parallel",
+          type: "parallel",
           parts: [intent("reach"), intent("watch"), intent("wait")],
         },
         intent("turn"),
@@ -59,7 +59,7 @@ export function test_engine_composition_chain(): void {
   );
 
   /** A production chain with a verb of its own. */
-  class Performer extends AutoMovieChain {
+  class Performer extends AutoMovieEngineChain {
     public turn(): Performer {
       return this.next(act("turn"));
     }
@@ -69,9 +69,9 @@ export function test_engine_composition_chain(): void {
     "a subclass keeps its own verb after every step",
     own.turn().node,
     {
-      kind: "sequence",
+      type: "sequence",
       parts: [
-        { kind: "parallel", parts: [intent("reach"), intent("watch")] },
+        { type: "parallel", parts: [intent("reach"), intent("watch")] },
         intent("turn"),
         intent("turn"),
       ],

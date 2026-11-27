@@ -1,31 +1,14 @@
-import { resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  IAutoMovieMotionHumanCrawl,
-  IAutoMovieMotionHumanLieDown,
-  IAutoMovieMotionHumanPerformance,
-  IAutoMovieVector3,
-} from "@automovie/interface";
 
-import { HumanChain } from "../../HumanChain";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanSide, IAutoMovieMotionHumanCrawl, IAutoMovieMotionHumanLieDown, IAutoMovieMotionHumanPerformance, IAutoMovieVector3 } from "@automovie/interface";
+
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
-import { everydayVerdicts } from "./everydayVerdicts";
-import { floorCaseSpan } from "./floorCaseSpan";
+import { everydayVerdicts } from "./internal/everydayVerdicts";
+import { floorCaseSpan } from "./internal/floorCaseSpan";
 
-/** The alternatives of `FloorCasesRisesLimb`'s site. */
-type FloorCasesRisesLimb = "leftHand" | "rightHand" | "leftKnee" | "rightKnee";
-
-/** The record of `IFloorCasesKnee`'s site. */
-type IFloorCasesKnee = { low: number; high: number };
-
-/** The record of `IFloorCasesHeight`'s site. */
-type IFloorCasesHeight = { low: number; high: number };
-
-/** The record of `IFloorCasesSlip`'s site. */
-type IFloorCasesSlip = { value: number; where: string };
-
-/**
+/*
  * Capture cases of the lying and crawling family, each from quiet standing:
  *
  * - `floor-lie-supine`, `floor-lie-prone`, `floor-lie-lateralLeft`: lying down
@@ -39,9 +22,8 @@ type IFloorCasesSlip = { value: number; where: string };
  *   middle of each knee stance; and the displayed lift-offs of the left hand
  *   and the right knee, and of the right hand and the left knee, within 10 % of
  *   a cycle of each other (the issue's diagonal pattern).
- *
- * @param bodies The sweep bodies; `m-average` when absent.
- * @returns The cases.
+ * Parameter bodies: The sweep bodies; `m-average` when absent.
+ * Returns: The cases.
  */
 export function floorCases(
   bodies: readonly string[] = ["m-average"],
@@ -59,7 +41,7 @@ export function floorCases(
         FamilyCaseKit.perform(
           "floor",
           [{ subject: "a", body: who.body }],
-          HumanChain.subject("a").act("lieDown", params).node,
+          AutoMovieMotionHumanChain.subject("a").act("lieDown", params).node,
         );
       const settled: number = FamilyCaseKit.event(performance, "settled");
       let deepest: number = Infinity;
@@ -102,7 +84,7 @@ export function floorCases(
         FamilyCaseKit.perform(
           "floor",
           [{ subject: "a", body: who.body }],
-          HumanChain.subject("a").act("crawl", params).node,
+          AutoMovieMotionHumanChain.subject("a").act("crawl", params).node,
         );
       const segment = performance.segments("a")[0]!;
       const at = (share: number): number =>
@@ -110,7 +92,7 @@ export function floorCases(
       const palm = (side: AutoMovieHumanSide, t: number): IAutoMovieVector3 => {
         const frame =
           who.body.surfaces.sockets[side === "left" ? "palmLeft" : "palmRight"];
-        return resolveAutoMovieHumanoidSurfaces.place(
+        return AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
           frame,
           performance.bones("a", t).get(frame.bone)!,
         ).point;
@@ -226,3 +208,23 @@ export function floorCases(
   }
   return out;
 }
+
+/*
+ * The alternatives of `FloorCasesRisesLimb`'s site.
+ */
+type FloorCasesRisesLimb = "leftHand" | "rightHand" | "leftKnee" | "rightKnee";
+
+/*
+ * The record of `IFloorCasesKnee`'s site.
+ */
+type IFloorCasesKnee = { low: number; high: number };
+
+/*
+ * The record of `IFloorCasesHeight`'s site.
+ */
+type IFloorCasesHeight = { low: number; high: number };
+
+/*
+ * The record of `IFloorCasesSlip`'s site.
+ */
+type IFloorCasesSlip = { value: number; where: string };

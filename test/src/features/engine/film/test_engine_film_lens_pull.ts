@@ -1,11 +1,13 @@
-import { resolveAutoMovieLensAt } from "@automovie/engine";
-import type { IAutoMovieCameraIntent } from "@automovie/interface";
+import { AutoMovieEngineFilm } from "@automovie/engine";
+import {
+  type IAutoMovieCameraIntent,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/predicates";
 
 /**
- * `resolveAutoMovieLensAt` eases a timed focus pull between its two marks,
+ * `resolveLensAt` eases a timed focus pull between its two marks,
  * starting and landing with zero rate.
  *
  * Camera: static at the origin looking down -Z; pull from a mark 2 m deep to
@@ -30,7 +32,7 @@ export function test_engine_film_lens_pull(): void {
     fNumber: 2,
   };
   const depth = (seconds: number): number | undefined =>
-    resolveAutoMovieLensAt({
+    AutoMovieEngineFilm.resolveAutoMovieLensAt({
       intents: [intent],
       seconds,
       position: { x: 0, y: 0, z: 0 },

@@ -1,7 +1,4 @@
-import {
-  AUTOMOVIE_ANALYSIS_MAX_SAMPLES,
-  autoMovieDewPoint,
-} from "@automovie/engine";
+import { AutoMovieEngineAnalysisMaxSamples, AutoMovieEngineEnvironment } from "@automovie/engine";
 import type {
   IAutoMovieAnalysisRun,
   IAutoMovieEnvelopeAssembly,
@@ -91,7 +88,7 @@ export function assertAnalysisEnvelopeHygrothermalPart3(
             } =>
               study({
                 assemblies: Array.from(
-                  { length: AUTOMOVIE_ANALYSIS_MAX_SAMPLES + 1 },
+                  { length: AutoMovieEngineAnalysisMaxSamples + 1 },
                   (
                     _: unknown,
                     index: number,
@@ -386,13 +383,13 @@ export function assertAnalysisEnvelopeHygrothermalPart3(
         "a dew point of air with none",
         (): boolean =>
           throwsError(
-            (): number => autoMovieDewPoint(20, 0),
+            (): number => AutoMovieEngineEnvironment.dewPoint(20, 0),
             "relative humidity within (0, 1]",
           ),
       ],
       [
         "a dew point of saturated air",
-        (): boolean => nclose(autoMovieDewPoint(20, 1), 20, 1e-9),
+        (): boolean => nclose(AutoMovieEngineEnvironment.dewPoint(20, 1), 20, 1e-9),
       ],
     ]),
     {

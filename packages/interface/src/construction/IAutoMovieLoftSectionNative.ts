@@ -4,7 +4,7 @@ import type { IAutoMovieLoftSectionPhase } from "./IAutoMovieLoftSectionPhase";
 /**
  * Cartesian readings of a prepared native section in its two-dimensional chart.
  *
- * AutoMovieLoftSectionNative prepares conic quarters or the declared G1 chain's
+ * AutoMovieEngineLoftSectionNative prepares conic quarters or the declared G1 chain's
  * readers at a fixed station, then reads the requested orders at the same polar
  * phase. Chart positions use millimetres, phase uses radians, and the
  * independent physical station uses millimetres. These are surface partials,
@@ -13,7 +13,7 @@ import type { IAutoMovieLoftSectionPhase } from "./IAutoMovieLoftSectionPhase";
  * successful read owns fresh vectors.
  *
  * Native preparation and the requested reader own numerical admission and throw
- * AutoMovieLoftAdmissionError for rejected geometry. Exceptions from supplied
+ * AutoMovieEngineLoftAdmissionError for rejected geometry. Exceptions from supplied
  * getters propagate unchanged. The interface adds no validator or fallback.
  */
 export namespace IAutoMovieLoftSectionNative {

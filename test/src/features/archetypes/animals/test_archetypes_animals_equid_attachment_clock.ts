@@ -1,13 +1,4 @@
-import {
-  AutoMovieArchetypeQuadrupedBody as Body,
-  AutoMovieArchetypeQuadrupedGait as Gait,
-  type AutoMovieArchetypeEquine,
-  createDonkey,
-  createHorse,
-  createMule,
-  createPony,
-  createQuadruped,
-} from "@automovie/archetypes";
+import { AutoMovieArchetypeQuadrupedBody as Body, AutoMovieArchetypeQuadrupedGait as Gait, type AutoMovieArchetypeEquine, AutoMovieArchetypeMule, AutoMovieArchetypePony, AutoMovieArchetypeDonkey, AutoMovieArchetypeHorse, AutoMovieArchetypeQuadruped } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -20,7 +11,7 @@ type Tack = Extract<AutoMovieArchetypeEquine.Tack, "saddle" | "harness" | "both"
 interface ICase {
   name: string;
   height: number;
-  model(tack: Tack): ReturnType<typeof createHorse>;
+  model(tack: Tack): ReturnType<typeof AutoMovieArchetypeHorse.create>;
 }
 
 /** Closed-form equine timing comparisons involve at most two conversions and a ratio. */
@@ -41,14 +32,14 @@ const CLOCK_ROUNDOFF: number = 32 * Number.EPSILON;
  */
 export function test_archetypes_animals_equid_attachment_clock(): void {
   const cases: readonly ICase[] = [
-    { name: "horse", height: 1.615, model: (tack: Tack): ReturnType<typeof createHorse> =>
-      createHorse({ withersHeight: 1.615, tack, tempo: 0, stirrupDrop: 0.575 }, 43) },
-    { name: "donkey", height: 1.1262, model: (tack: Tack): ReturnType<typeof createHorse> =>
-      createDonkey({ withersHeight: 1.1262, tack, tempo: 0, stirrupDrop: 0.575 }, 43) },
-    { name: "Connemara pony", height: 1.46, model: (tack: Tack): ReturnType<typeof createHorse> =>
-      createPony({ breed: "connemara", tack, tempo: 0, stirrupDrop: 0.575 }, 43) },
-    { name: "female mule", height: 1.304, model: (tack: Tack): ReturnType<typeof createHorse> =>
-      createMule({ sex: "female", tack, tempo: 0, stirrupDrop: 0.575 }, 43) },
+    { name: "horse", height: 1.615, model: (tack: Tack): ReturnType<typeof AutoMovieArchetypeHorse.create> =>
+      AutoMovieArchetypeHorse.create({ withersHeight: 1.615, tack, tempo: 0, stirrupDrop: 0.575 }, 43) },
+    { name: "donkey", height: 1.1262, model: (tack: Tack): ReturnType<typeof AutoMovieArchetypeHorse.create> =>
+      AutoMovieArchetypeDonkey.create({ withersHeight: 1.1262, tack, tempo: 0, stirrupDrop: 0.575 }, 43) },
+    { name: "Connemara pony", height: 1.46, model: (tack: Tack): ReturnType<typeof AutoMovieArchetypeHorse.create> =>
+      AutoMovieArchetypePony.create({ breed: "connemara", tack, tempo: 0, stirrupDrop: 0.575 }, 43) },
+    { name: "female mule", height: 1.304, model: (tack: Tack): ReturnType<typeof AutoMovieArchetypeHorse.create> =>
+      AutoMovieArchetypeMule.create({ sex: "female", tack, tempo: 0, stirrupDrop: 0.575 }, 43) },
   ];
   const saddle: readonly string[] = ["seat", "pommel", "cantle", "leftStirrup", "rightStirrup",
     "leftRein", "rightRein", "lead", "mane"];
@@ -64,7 +55,7 @@ export function test_archetypes_animals_equid_attachment_clock(): void {
       const label: string = `${fixture.name}/${tack}`;
       try {
         const animal: ReturnType<ICase["model"]> = fixture.model(tack);
-        const species: createQuadruped.ISpecies = createQuadruped.species(animal);
+        const species: AutoMovieArchetypeQuadruped.ISpecies = AutoMovieArchetypeQuadruped.species(animal);
         TestValidator.predicate(
           `${label} retains its reference height`,
           nclose(animal.dimensions.withersHeight!, fixture.height, CLOCK_ROUNDOFF),

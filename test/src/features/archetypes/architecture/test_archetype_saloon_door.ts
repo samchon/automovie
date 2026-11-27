@@ -1,7 +1,4 @@
-import {
-  AutoMovieArchetypeUnits,
-  createSaloonDoor,
-} from "@automovie/archetypes";
+import { AutoMovieArchetypeUnits, AutoMovieArchetypeSaloonDoor } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../../internal/archetypeBandSweep";
@@ -36,7 +33,7 @@ export function test_archetype_saloon_door(): void {
       {
         name: "saloon door opening",
         measure: (seed: number): readonly number[] => [
-          createSaloonDoor({}, seed).affordance("passage").width!,
+          AutoMovieArchetypeSaloonDoor.create({}, seed).affordance("passage").width!,
         ],
         models: [[30 * inch], [32 * inch], [36 * inch]],
         source: "Swinging Cafe Doors",
@@ -46,14 +43,14 @@ export function test_archetype_saloon_door(): void {
       {
         name: "saloon door floor gap",
         measure: (seed: number): number =>
-          archetypeExtent(createSaloonDoor({}, seed), "y").low,
+          archetypeExtent(AutoMovieArchetypeSaloonDoor.create({}, seed), "y").low,
         minimum: 18 * inch,
         maximum: 24 * inch,
         source: "unbranded installation sheet",
       },
     ]),
   );
-  const doors: ReturnType<typeof createSaloonDoor> = createSaloonDoor({}, 4);
+  const doors: ReturnType<typeof AutoMovieArchetypeSaloonDoor.create> = AutoMovieArchetypeSaloonDoor.create({}, 4);
   const opening: number = doors.affordance("passage").width!;
   near(
     "the left leaf's width",
@@ -78,7 +75,7 @@ export function test_archetype_saloon_door(): void {
       findings.push(
         `${id} opens ${doors.affordance(id).travel} and back ${doors.affordance(id).reverse} degrees, 125 each way expected`,
       );
-  const open: ReturnType<typeof createSaloonDoor> = doors.articulate({
+  const open: ReturnType<typeof AutoMovieArchetypeSaloonDoor.create> = doors.articulate({
     leftLeaf: 90,
     rightLeaf: 90,
   });
@@ -88,7 +85,7 @@ export function test_archetype_saloon_door(): void {
       archetypeExtent(open, "z", [part]).high,
       opening / 2 + (0.75 * inch) / 2,
     );
-  const back: ReturnType<typeof createSaloonDoor> = doors.articulate({
+  const back: ReturnType<typeof AutoMovieArchetypeSaloonDoor.create> = doors.articulate({
     leftLeaf: -90,
     rightLeaf: -90,
   });

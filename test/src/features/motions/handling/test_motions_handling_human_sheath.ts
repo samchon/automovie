@@ -5,8 +5,14 @@ import type {
   IAutoMovieMotionHumanSheath,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanChain } from "@automovie/motions";
-import { HumanRefusal, HumanSheath } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanChain,
+  AutoMovieMotionHumanRefusal,
+} from "@automovie/motions";
+
+import {
+  HumanSheath
+} from "../../../../../packages/motions/src/handling/internal/HumanSheath";
 import { TestValidator } from "@nestia/e2e";
 
 import { compositionIntents } from "../../internal/compositionIntents";
@@ -133,7 +139,7 @@ export function test_motions_handling_human_sheath(): void {
     try {
       HumanSheath(carrier, held, asked);
     } catch (error: unknown) {
-      if (error instanceof HumanRefusal) return error.axis;
+      if (error instanceof AutoMovieMotionHumanRefusal) return error.axis;
     }
     return "admitted";
   };
@@ -166,12 +172,12 @@ export function test_motions_handling_human_sheath(): void {
     [
       named(
         compositionIntents(
-          HumanSheath.draw(HumanChain.subject("a"), staged.sheath).node,
+          HumanSheath.draw(AutoMovieMotionHumanChain.subject("a"), staged.sheath).node,
         ),
       ),
       named(
         compositionIntents(
-          HumanSheath.sheathe(HumanChain.subject("a"), staged.sheath, "left")
+          HumanSheath.sheathe(AutoMovieMotionHumanChain.subject("a"), staged.sheath, "left")
             .node,
         ),
       ),

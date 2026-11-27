@@ -4,12 +4,12 @@ import type {
   IAutoMovieMotionHumanPerformance,
 } from "@automovie/interface";
 
-import { HumanChain } from "../../HumanChain";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
-import { everydayVerdicts } from "./everydayVerdicts";
+import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/**
+/*
  * Capture cases of the crouch, squat and kneel family, each performed alone
  * from quiet standing on the polygon man.
  *
@@ -28,9 +28,8 @@ import { everydayVerdicts } from "./everydayVerdicts";
  *   the margin of stability not negative from the start to the end of the step
  *   back (before the knee bears); and for sitting back the knee flexion at
  *   `seatOnHeels` inside the high-flexion band.
- *
- * @param bodies The sweep bodies to run each case on; `m-average` when absent.
- * @returns The cases.
+ * Parameter bodies: The sweep bodies to run each case on; `m-average` when absent.
+ * Returns: The cases.
  */
 export function crouchCases(
   bodies: readonly string[] = ["m-average"],
@@ -46,7 +45,7 @@ export function crouchCases(
         FamilyCaseKit.perform(
           "crouch",
           [{ subject: "a", body: who.body }],
-          HumanChain.subject("a").act("crouch", params).node,
+          AutoMovieMotionHumanChain.subject("a").act("crouch", params).node,
         );
       const lowest: number = FamilyCaseKit.event(performance, "lowest");
       const knee: number = Math.max(
@@ -93,7 +92,7 @@ export function crouchCases(
         FamilyCaseKit.perform(
           "kneel",
           [{ subject: "a", body: who.body }],
-          HumanChain.subject("a").act("kneel", params).node,
+          AutoMovieMotionHumanChain.subject("a").act("kneel", params).node,
         );
       const contact: number = FamilyCaseKit.event(performance, "kneeContact");
       const settled: number = FamilyCaseKit.event(performance, "settled");
@@ -169,7 +168,9 @@ export function crouchCases(
   return out;
 }
 
-/** Slip, ROM and the planted feet's height off the floor. */
+/*
+ * Slip, ROM and the planted feet's height off the floor.
+ */
 function common(
   performance: IAutoMovieMotionHumanPerformance,
   who: FamilyCaseKit.IBody,

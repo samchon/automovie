@@ -3,7 +3,9 @@ import type {
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanChannel } from "@automovie/motions/internal";
+import {
+  motionHumanChannel
+} from "../../../../../packages/motions/src/compose/internal/motionHumanChannel";
 import { TestValidator } from "@nestia/e2e";
 
 /** A goal at a height, planted or not. */
@@ -56,7 +58,7 @@ const WAVE: IAutoMovieMotionHumanPosture = {
 };
 
 /**
- * `AutoMovieMotionHumanChannel.merge` lays an overlay over its base action: the
+ * `motionHumanChannel.merge` lays an overlay over its base action: the
  * channels the overlay claims, and only those, are taken from the overlay's
  * posture, every other field kept as the base has it. So an arm overlay over a
  * walk or a carry takes the arm and keeps the root, the trunk and both legs,
@@ -82,7 +84,7 @@ const WAVE: IAutoMovieMotionHumanPosture = {
  */
 export function test_motions_compose_channel_merge(): void {
   // 1. A one-hand wave.
-  const waved: IAutoMovieMotionHumanPosture = AutoMovieMotionHumanChannel.merge(
+  const waved: IAutoMovieMotionHumanPosture = motionHumanChannel.merge(
     WALK,
     WAVE,
     ["rightArm", "rightHand"],
@@ -111,7 +113,7 @@ export function test_motions_compose_channel_merge(): void {
 
   // 3. A two-hand clap.
   const clapped: IAutoMovieMotionHumanPosture =
-    AutoMovieMotionHumanChannel.merge(WALK, WAVE, ["leftArm", "rightArm"]);
+    motionHumanChannel.merge(WALK, WAVE, ["leftArm", "rightArm"]);
   TestValidator.predicate(
     "the clap takes both arms and keeps the legs",
     clapped.joints.leftUpperArm === WAVE.joints.leftUpperArm &&
@@ -125,7 +127,7 @@ export function test_motions_compose_channel_merge(): void {
 
   // 4. One digit.
   const pointed: IAutoMovieMotionHumanPosture =
-    AutoMovieMotionHumanChannel.merge(WALK, WAVE, ["rightIndex"]);
+    motionHumanChannel.merge(WALK, WAVE, ["rightIndex"]);
   TestValidator.predicate(
     "a digit claim takes the digit alone",
     pointed.joints.rightIndexProximal === WAVE.joints.rightIndexProximal &&
@@ -136,19 +138,19 @@ export function test_motions_compose_channel_merge(): void {
   // 5. Coverage.
   TestValidator.predicate(
     "trunk turn and hand coverage",
-    AutoMovieMotionHumanChannel.covers(["trunkTurn"], "spine") &&
-      !AutoMovieMotionHumanChannel.covers(["trunkTurn"], "leftShoulder") &&
-      AutoMovieMotionHumanChannel.covers(["leftHand"], "leftThumbDistal") &&
-      !AutoMovieMotionHumanChannel.covers(["leftHand"], "leftLowerArm") &&
-      AutoMovieMotionHumanChannel.claims(["rightHand"], "rightIndex"),
+    motionHumanChannel.covers(["trunkTurn"], "spine") &&
+      !motionHumanChannel.covers(["trunkTurn"], "leftShoulder") &&
+      motionHumanChannel.covers(["leftHand"], "leftThumbDistal") &&
+      !motionHumanChannel.covers(["leftHand"], "leftLowerArm") &&
+      motionHumanChannel.claims(["rightHand"], "rightIndex"),
   );
 
   const claims: AutoMovieMotionHumanChannelClaim[] = [
     "rightIndex",
     "trunkTurn",
   ];
-  const prepared: ReturnType<typeof AutoMovieMotionHumanChannel.prepareMerge> =
-    AutoMovieMotionHumanChannel.prepareMerge(claims);
+  const prepared: ReturnType<typeof motionHumanChannel.prepareMerge> =
+    motionHumanChannel.prepareMerge(claims);
   claims.push("leftLeg");
   const first: IAutoMovieMotionHumanPosture = prepared(WALK, WAVE);
   const second: IAutoMovieMotionHumanPosture = prepared(WAVE, WALK);

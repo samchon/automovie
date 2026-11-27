@@ -12,7 +12,7 @@ import type { IAutoMovieRenderTotals } from "./IAutoMovieRenderTotals";
  * The inventory is separate from budget verdict and live renderer observations.
  * Some metrics count exact populations, while others bound submissions or
  * estimate device allocation under their stated input premises.
- * auditAutoMovieRenderObservation can compare available observations with
+ * AutoMovieRenderBudgetPreflight.auditObservation can compare available observations with
  * report bounds, but currently has only test callers in this repository; it is
  * not a wired capture audit.
  *

@@ -1,5 +1,7 @@
-import { Vector3 } from "@automovie/engine";
-import { defendGoals } from "@automovie/motions/internal";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
+import {
+  defendGoals
+} from "../../../../../packages/motions/src/striking/internal/defendGoals";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -24,13 +26,13 @@ export function test_motions_striking_defend_goals(): void {
     0.45,
     0.4,
   );
-  const k = Vector3.normalize({ x: -0.35, y: 0.7, z: -0.55 });
-  const knee = Vector3.add(hip, Vector3.scale(k, 0.45));
-  const s = Vector3.normalize({ x: 0, y: -0.9, z: -0.2 });
+  const k = AutoMovieEngineVector3.normalize({ x: -0.35, y: 0.7, z: -0.55 });
+  const knee = AutoMovieEngineVector3.add(hip, AutoMovieEngineVector3.scale(k, 0.45));
+  const s = AutoMovieEngineVector3.normalize({ x: 0, y: -0.9, z: -0.2 });
   TestValidator.predicate(
     "the leg",
-    vclose(goal.point, Vector3.add(knee, Vector3.scale(s, 0.4)), 1e-12) &&
+    vclose(goal.point, AutoMovieEngineVector3.add(knee, AutoMovieEngineVector3.scale(s, 0.4)), 1e-12) &&
       vclose(goal.bend, { ...knee, z: knee.z - 0.2 }, 1e-12) &&
-      nclose(Vector3.distance(goal.point, knee), 0.4, 1e-12),
+      nclose(AutoMovieEngineVector3.distance(goal.point, knee), 0.4, 1e-12),
   );
 }

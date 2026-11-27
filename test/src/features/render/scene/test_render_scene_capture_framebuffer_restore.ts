@@ -1,8 +1,4 @@
-import {
-  type IAutoMovieFramebufferContext,
-  type IAutoMovieFramebufferRenderer,
-  captureAutoMovieFramebufferRestore,
-} from "@automovie/render";
+import { type IAutoMovieRenderFramebufferContext, type IAutoMovieRenderFramebufferRenderer, AutoMovieRenderSceneFramebuffer } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import { throws } from "node:assert/strict";
 import { Vector4, type Vector4Tuple, WebGLRenderTarget } from "three";
@@ -31,7 +27,7 @@ export function test_render_scene_capture_framebuffer_restore(): void {
   const unavailable: () => never = (): never => {
     throw new Error("Unexpected native framebuffer access");
   };
-  const context: IAutoMovieFramebufferContext = {
+  const context: IAutoMovieRenderFramebufferContext = {
     SCISSOR_BOX: 0x0c10,
     SCISSOR_TEST: 0x0c11,
     FRAMEBUFFER: 0x8d40,
@@ -50,7 +46,7 @@ export function test_render_scene_capture_framebuffer_restore(): void {
   const calls: string[] = [];
   const failure: Error = new Error("The selected target could not be rebound");
   let failBinding: boolean = false;
-  const renderer: IAutoMovieFramebufferRenderer = {
+  const renderer: IAutoMovieRenderFramebufferRenderer = {
     getRenderTarget: (): WebGLRenderTarget => target,
     getActiveCubeFace: (): number => 3,
     getActiveMipmapLevel: (): number => 2,
@@ -58,7 +54,7 @@ export function test_render_scene_capture_framebuffer_restore(): void {
     getScissor: (out: Vector4): Vector4 => out.set(5, 6, 7, 8),
     getScissorTest: (): boolean => false,
     getCurrentViewport: (out: Vector4): Vector4 => out.set(9, 10, 11, 12),
-    getContext: (): IAutoMovieFramebufferContext => context,
+    getContext: (): IAutoMovieRenderFramebufferContext => context,
     setViewport: (
       rect: Vector4 | number,
       y?: number,
@@ -115,7 +111,7 @@ export function test_render_scene_capture_framebuffer_restore(): void {
     resetState: unavailable,
   };
 
-  const restore: () => void = captureAutoMovieFramebufferRestore(renderer);
+  const restore: () => void = AutoMovieRenderSceneFramebuffer.captureRestore(renderer);
   TestValidator.equals("capture does not call setters", calls, []);
   restore();
   TestValidator.equals("logical registers precede rebind", calls, [

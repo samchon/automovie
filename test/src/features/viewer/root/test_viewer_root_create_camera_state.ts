@@ -1,8 +1,5 @@
-import { AutoMovieThreeKind } from "@automovie/render";
-import {
-  type IViewerCameraStateSnapshot,
-  createViewerCameraState,
-} from "@automovie/viewer";
+import { AutoMovieRenderThreeKind } from "@automovie/render";
+import { AutoMovieViewerDisplay } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
 import * as THREE from "three";
@@ -10,7 +7,7 @@ import * as THREE from "three";
 import { nclose } from "../../internal/predicates";
 
 /** A native camera's crop window, as its snapshot holds it. */
-type IViewerCropWindow = NonNullable<IViewerCameraStateSnapshot["view"]>;
+type IViewerCropWindow = NonNullable<AutoMovieViewerDisplay.ICameraStateSnapshot["view"]>;
 
 /**
  * Native camera transfer preserves film/view-offset lenses and transforms,
@@ -31,7 +28,7 @@ export async function test_viewer_root_create_camera_state(): Promise<void> {
     new THREE.PerspectiveCamera(42, 1.6, 0.1, 120),
     new THREE.OrthographicCamera(-3, 3, 2, -2, 0, 120),
   ]) {
-    if (AutoMovieThreeKind.isPerspectiveCamera(camera)) {
+    if (AutoMovieRenderThreeKind.isPerspectiveCamera(camera)) {
       camera.filmGauge = 50;
       camera.filmOffset = 3;
       camera.focus = 15;
@@ -42,7 +39,7 @@ export async function test_viewer_root_create_camera_state(): Promise<void> {
     camera.layers.set(3);
     camera.zoom = 1.4;
     camera.setViewOffset(1600, 1000, 150, 70, 900, 700);
-    if (AutoMovieThreeKind.isPerspectiveCamera(camera)) camera.aspect = 1.4;
+    if (AutoMovieRenderThreeKind.isPerspectiveCamera(camera)) camera.aspect = 1.4;
     camera.updateProjectionMatrix();
     camera.updateMatrixWorld(true);
     const crop: IViewerCropWindow = {
@@ -54,7 +51,7 @@ export async function test_viewer_root_create_camera_state(): Promise<void> {
       width: 900,
       height: 700,
     };
-    const expected: IViewerCameraStateSnapshot = {
+    const expected: AutoMovieViewerDisplay.ICameraStateSnapshot = {
       type: camera.type,
       position: [1, 2, 3],
       quaternion: camera.quaternion.toArray(),
@@ -63,7 +60,7 @@ export async function test_viewer_root_create_camera_state(): Promise<void> {
       layers: 1 << 3,
       projection: camera.projectionMatrix.toArray(),
       view: crop,
-      lens: AutoMovieThreeKind.isPerspectiveCamera(camera)
+      lens: AutoMovieRenderThreeKind.isPerspectiveCamera(camera)
         ? {
             kind: "perspective",
             fov: 42,
@@ -86,12 +83,12 @@ export async function test_viewer_root_create_camera_state(): Promise<void> {
             zoom: 1.4,
           },
     };
-    const owner: ReturnType<typeof createViewerCameraState> =
-      createViewerCameraState(camera);
-    const assertState: (reference: IViewerCameraStateSnapshot) => void = (
-      reference: IViewerCameraStateSnapshot,
+    const owner: AutoMovieViewerDisplay.ICameraState =
+      AutoMovieViewerDisplay.createCameraState({ camera });
+    const assertState: (reference: AutoMovieViewerDisplay.ICameraStateSnapshot) => void = (
+      reference: AutoMovieViewerDisplay.ICameraStateSnapshot,
     ): void => {
-      const actual: IViewerCameraStateSnapshot = owner.capture();
+      const actual: AutoMovieViewerDisplay.ICameraStateSnapshot = owner.capture();
       TestValidator.equals(
         "native class is preserved",
         actual.type,
@@ -127,11 +124,11 @@ export async function test_viewer_root_create_camera_state(): Promise<void> {
         reference.lens.kind,
       );
       const lens: (
-        snapshot: IViewerCameraStateSnapshot,
+        snapshot: AutoMovieViewerDisplay.ICameraStateSnapshot,
       ) => Record<string, number> = (
-        snapshot: IViewerCameraStateSnapshot,
+        snapshot: AutoMovieViewerDisplay.ICameraStateSnapshot,
       ): Record<string, number> => {
-        const { kind: _kind, ...scalars }: IViewerCameraStateSnapshot["lens"] =
+        const { kind: _kind, ...scalars }: AutoMovieViewerDisplay.ICameraStateSnapshot["lens"] =
           snapshot.lens;
         return scalars;
       };
@@ -145,7 +142,7 @@ export async function test_viewer_root_create_camera_state(): Promise<void> {
       }
     };
     assertState(expected);
-    const state: IViewerCameraStateSnapshot = owner.capture();
+    const state: AutoMovieViewerDisplay.ICameraStateSnapshot = owner.capture();
     camera.clearViewOffset();
     camera.position.set(8, 9, 10);
     camera.zoom = 0.7;
@@ -156,7 +153,7 @@ export async function test_viewer_root_create_camera_state(): Promise<void> {
       state.projection,
     );
     shifted.elements[0] += 1;
-    const invalids: IViewerCameraStateSnapshot[] = [
+    const invalids: AutoMovieViewerDisplay.ICameraStateSnapshot[] = [
       { ...state, type: "unknown" },
       { ...state, quaternion: [0, 0, 0, 0] },
       { ...state, projection: new THREE.Matrix4().multiplyScalar(0).toArray() },
@@ -178,41 +175,41 @@ export async function test_viewer_root_create_camera_state(): Promise<void> {
     }
     camera.clearViewOffset();
     camera.updateProjectionMatrix();
-    const disabledExpected: IViewerCameraStateSnapshot = {
+    const disabledExpected: AutoMovieViewerDisplay.ICameraStateSnapshot = {
       ...expected,
       projection: camera.projectionMatrix.toArray(),
       view: { ...crop, enabled: false },
     };
     assertState(disabledExpected);
-    const disabled: IViewerCameraStateSnapshot = owner.capture();
+    const disabled: AutoMovieViewerDisplay.ICameraStateSnapshot = owner.capture();
     owner.restore(disabled);
     assertState(disabledExpected);
     camera.view = null;
     camera.updateProjectionMatrix();
-    const wholeExpected: IViewerCameraStateSnapshot = {
+    const wholeExpected: AutoMovieViewerDisplay.ICameraStateSnapshot = {
       ...expected,
       projection: camera.projectionMatrix.toArray(),
       view: null,
     };
     assertState(wholeExpected);
-    const whole: IViewerCameraStateSnapshot = owner.capture();
+    const whole: AutoMovieViewerDisplay.ICameraStateSnapshot = owner.capture();
     owner.restore(whole);
     assertState(wholeExpected);
     camera.matrixAutoUpdate = false;
-    assert.throws((): IViewerCameraStateSnapshot => owner.capture());
+    assert.throws((): AutoMovieViewerDisplay.ICameraStateSnapshot => owner.capture());
     assert.throws((): void => owner.restore(state));
     camera.matrixAutoUpdate = true;
     camera.matrixWorldAutoUpdate = false;
-    assert.throws((): IViewerCameraStateSnapshot => owner.capture());
+    assert.throws((): AutoMovieViewerDisplay.ICameraStateSnapshot => owner.capture());
     camera.matrixWorldAutoUpdate = true;
     new THREE.Group().add(camera);
-    assert.throws((): IViewerCameraStateSnapshot => owner.capture());
+    assert.throws((): AutoMovieViewerDisplay.ICameraStateSnapshot => owner.capture());
     camera.removeFromParent();
     camera.projectionMatrix.elements[0] += 1;
-    assert.throws((): IViewerCameraStateSnapshot => owner.capture());
+    assert.throws((): AutoMovieViewerDisplay.ICameraStateSnapshot => owner.capture());
   }
   assert.throws(
-    (): IViewerCameraStateSnapshot =>
-      createViewerCameraState(new THREE.Camera()).capture(),
+    (): AutoMovieViewerDisplay.ICameraStateSnapshot =>
+      AutoMovieViewerDisplay.createCameraState({ camera: new THREE.Camera() }).capture(),
   );
 }

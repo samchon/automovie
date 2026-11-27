@@ -1,7 +1,4 @@
-import {
-  type IAutoMovieDrawScene,
-  describeAutoMovieDrawScene,
-} from "@automovie/render";
+import { type IAutoMovieRenderDrawScene, AutoMovieRenderDraw } from "@automovie/render";
 import assert from "node:assert/strict";
 import * as THREE from "three";
 
@@ -21,7 +18,7 @@ import * as THREE from "three";
 export function test_render_draw_describe_draw_scene(): void {
   const reads: number[] = [];
   let seeks: number = 0;
-  const scene: IAutoMovieDrawScene = {
+  const scene: IAutoMovieRenderDrawScene = {
     scene: new THREE.Scene(),
     camera: new THREE.PerspectiveCamera(),
     durationSeconds: 3,
@@ -50,15 +47,15 @@ export function test_render_draw_describe_draw_scene(): void {
     },
     dispose: () => {},
   };
-  const late: ReturnType<typeof describeAutoMovieDrawScene> =
-    describeAutoMovieDrawScene("late", scene);
+  const late: ReturnType<typeof AutoMovieRenderDraw.describeAutoMovieDrawScene> =
+    AutoMovieRenderDraw.describeAutoMovieDrawScene("late", scene);
   assert.equal(late.marks.filter((kind) => kind === "joint").length, 1);
   assert.ok(late.marks.includes("contact") && late.marks.includes("edge"));
   assert.equal(seeks, 0);
   assert.deepEqual(reads, [0]);
   assert.deepEqual(scene.marks!(0), []);
   assert.equal(scene.marks!(2)[0]?.kind, "joint");
-  const initial: IAutoMovieDrawScene = {
+  const initial: IAutoMovieRenderDrawScene = {
     ...scene,
     marks: () => [
       {
@@ -73,10 +70,10 @@ export function test_render_draw_describe_draw_scene(): void {
     ],
   };
   delete initial.markKinds;
-  const legacy = describeAutoMovieDrawScene("legacy", initial);
+  const legacy = AutoMovieRenderDraw.describeAutoMovieDrawScene("legacy", initial);
   assert.ok(legacy.marks.includes("curve"));
-  const mixed: ReturnType<typeof describeAutoMovieDrawScene> =
-    describeAutoMovieDrawScene("mixed", {
+  const mixed: ReturnType<typeof AutoMovieRenderDraw.describeAutoMovieDrawScene> =
+    AutoMovieRenderDraw.describeAutoMovieDrawScene("mixed", {
       ...initial,
       markKinds: ["curve", "joint"],
     });

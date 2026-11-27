@@ -1,5 +1,5 @@
 import type { AutoMovieArchetype } from "@automovie/archetypes";
-import { Quaternion, validateModel } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieVector3,
@@ -50,7 +50,7 @@ export namespace AnimalCohortObservation {
     expected: Expected,
     authoredMass?: number,
   ): void {
-    if (!validateModel({ model: animal }).success)
+    if (!AutoMovieEngineValidation.validateModel({ model: animal }).success)
       findings.push(`${label}: actual model admission failed`);
     near(
       findings,
@@ -237,7 +237,7 @@ export namespace AnimalCohortObservation {
         bar.geometry.shape.type !== "cylinder")
     )
       throw new Error("A body landmark requires its actual rigid bar");
-    const offset: IAutoMovieVector3 = Quaternion.rotateVector(
+    const offset: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       bar.transform!.rotation,
       { x: 0, y: (sign * bar.geometry.shape.height) / 2, z: 0 },
     );

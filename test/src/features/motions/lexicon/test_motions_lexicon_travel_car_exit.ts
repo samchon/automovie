@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieHumanLimbGoal,
@@ -11,11 +11,17 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanRefusal,
-  admitCarExitSill,
-  stand,
-  verifyCarExitSill,
-} from "@automovie/motions/internal";
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  admitCarExitSill
+} from "../../../../../packages/motions/src/lexicon/internal/admitCarExitSill";
+import {
+  stand
+} from "../../../../../packages/motions/src/actions/internal/stand";
+import {
+  verifyCarExitSill
+} from "../../../../../packages/motions/src/lexicon/internal/verifyCarExitSill";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -48,7 +54,7 @@ async function materialContact(): Promise<void> {
       ...upright.limbs,
       leftLeg: {
         ...foot,
-        rotation: Quaternion.fromAxisAngle(
+        rotation: AutoMovieEngineQuaternion.fromAxisAngle(
           { x: 1, y: 0, z: 0 },
           60 * (1 - seconds),
         ),
@@ -56,7 +62,7 @@ async function materialContact(): Promise<void> {
       },
     },
   });
-  const pitched = Quaternion.rotateVector(pose(0.5).limbs.leftLeg!.rotation!, {
+  const pitched = AutoMovieEngineQuaternion.rotateVector(pose(0.5).limbs.leftLeg!.rotation!, {
     x: 0,
     y: -0.06,
     z: 0.14,
@@ -67,7 +73,7 @@ async function materialContact(): Promise<void> {
   );
   const frame: IAutoMovieRigidTransform = {
     position: { x: 0, y: 0, z: 0 },
-    rotation: Quaternion.identity(),
+    rotation: AutoMovieEngineQuaternion.identity(),
   };
   const through: IAutoMovieMotionObstacleAperture = {
     ...DOOR,
@@ -95,7 +101,7 @@ async function materialContact(): Promise<void> {
       width: 0.18,
       depth: 0.34,
       frame: {
-        translation: Vector3.add(foot.point, { x, y, z: 0.04 }),
+        translation: AutoMovieEngineVector3.add(foot.point, { x, y, z: 0.04 }),
         rotation: frame.rotation,
         scale: { x: 1, y: 1, z: 1 },
       },
@@ -127,7 +133,7 @@ async function materialContact(): Promise<void> {
       );
       return undefined;
     } catch (error: unknown) {
-      if (!(error instanceof HumanRefusal)) throw error;
+      if (!(error instanceof AutoMovieMotionHumanRefusal)) throw error;
       return error.reason;
     }
   };

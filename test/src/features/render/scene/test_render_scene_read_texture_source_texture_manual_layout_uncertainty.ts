@@ -1,6 +1,6 @@
-import { measureAutoMovieRenderTextureClosure } from "@automovie/engine";
+import { AutoMovieEngineRenderTexture } from "@automovie/engine";
 import type { IAutoMovieRenderTextureSource } from "@automovie/interface";
-import { readAutoMovieTextureSource } from "@automovie/render";
+import { AutoMovieRenderSceneTexture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import type {
   CompressedTexture,
@@ -41,7 +41,7 @@ export async function test_render_scene_read_texture_source_texture_manual_layou
   } = { width: 8, height: 8, data: new Uint8Array(256) };
   const read: () => IAutoMovieRenderTextureSource =
     (): IAutoMovieRenderTextureSource =>
-      readAutoMovieTextureSource("manual", texture);
+      AutoMovieRenderSceneTexture.readSource("manual", texture);
   TestValidator.equals(
     "empty manual list retains authority",
     read().allocationStateKnown,
@@ -83,8 +83,8 @@ export async function test_render_scene_read_texture_source_texture_manual_layou
           fact.allocationStateKnown,
           false,
         );
-        const cost: ReturnType<typeof measureAutoMovieRenderTextureClosure> =
-          measureAutoMovieRenderTextureClosure({
+        const cost: ReturnType<typeof AutoMovieEngineRenderTexture.measureAutoMovieRenderTextureClosure> =
+          AutoMovieEngineRenderTexture.measureAutoMovieRenderTextureClosure({
             materials: [material("surface", "manual")],
             sources: [fact],
             environment: null,
@@ -107,14 +107,14 @@ export async function test_render_scene_read_texture_source_texture_manual_layou
       }
   }
   texture.mipmaps = [first];
-  const environment: ReturnType<typeof measureAutoMovieRenderTextureClosure> =
-    measureAutoMovieRenderTextureClosure({
+  const environment: ReturnType<typeof AutoMovieEngineRenderTexture.measureAutoMovieRenderTextureClosure> =
+    AutoMovieEngineRenderTexture.measureAutoMovieRenderTextureClosure({
       materials: [material("pbr")],
       sources: [read()],
       environment: "manual",
     });
   const environmentProducts: ReturnType<
-    typeof measureAutoMovieRenderTextureClosure
+    typeof AutoMovieEngineRenderTexture.measureAutoMovieRenderTextureClosure
   > = environment.filter(
     (
       row: import("@automovie/interface").IAutoMovieRenderTextureCost,
@@ -163,8 +163,8 @@ export async function test_render_scene_read_texture_source_texture_manual_layou
   TestValidator.equals(
     "framebuffer family keeps its own base",
     [
-      readAutoMovieTextureSource("framebuffer", framebuffer).width,
-      readAutoMovieTextureSource("framebuffer", framebuffer)
+      AutoMovieRenderSceneTexture.readSource("framebuffer", framebuffer).width,
+      AutoMovieRenderSceneTexture.readSource("framebuffer", framebuffer)
         .allocationStateKnown,
     ],
     [4, false],
@@ -177,7 +177,7 @@ export async function test_render_scene_read_texture_source_texture_manual_layou
     THREE.LinearMipmapLinearFilter,
   ]) {
     framebuffer.minFilter = filter;
-    const fact: IAutoMovieRenderTextureSource = readAutoMovieTextureSource(
+    const fact: IAutoMovieRenderTextureSource = AutoMovieRenderSceneTexture.readSource(
       "framebuffer",
       framebuffer,
     );
@@ -191,8 +191,8 @@ export async function test_render_scene_read_texture_source_texture_manual_layou
       fact.mipmapped,
       filter !== THREE.NearestFilter && filter !== THREE.LinearFilter,
     );
-    const cost: ReturnType<typeof measureAutoMovieRenderTextureClosure> =
-      measureAutoMovieRenderTextureClosure({
+    const cost: ReturnType<typeof AutoMovieEngineRenderTexture.measureAutoMovieRenderTextureClosure> =
+      AutoMovieEngineRenderTexture.measureAutoMovieRenderTextureClosure({
         materials: [material("copy", "framebuffer")],
         sources: [fact],
         environment: null,
@@ -220,26 +220,26 @@ export async function test_render_scene_read_texture_source_texture_manual_layou
   depth.mipmaps = [first];
   TestValidator.equals(
     "depth family keeps its own base",
-    readAutoMovieTextureSource("depth", depth).width,
+    AutoMovieRenderSceneTexture.readSource("depth", depth).width,
     4,
   );
   depth.mipmaps = [];
   TestValidator.equals(
     "depth requires its attachment owner rather than raw source authority",
-    readAutoMovieTextureSource("depth", depth).allocationStateKnown,
+    AutoMovieRenderSceneTexture.readSource("depth", depth).allocationStateKnown,
     false,
   );
   const compressed: CompressedTexture<CompressedTextureImageData> =
     new THREE.CompressedTexture([first], 4, 4, THREE.RGBA_S3TC_DXT5_Format);
   TestValidator.equals(
     "compressed manual container has no allocation authority",
-    readAutoMovieTextureSource("compressed", compressed).allocationStateKnown,
+    AutoMovieRenderSceneTexture.readSource("compressed", compressed).allocationStateKnown,
     false,
   );
   compressed.mipmaps = [];
   TestValidator.equals(
     "compressed authority is independent of manual population",
-    readAutoMovieTextureSource("compressed", compressed).allocationStateKnown,
+    AutoMovieRenderSceneTexture.readSource("compressed", compressed).allocationStateKnown,
     false,
   );
   const target: WebGLRenderTarget<Texture<unknown, TextureEventMap>> =
@@ -247,7 +247,7 @@ export async function test_render_scene_read_texture_source_texture_manual_layou
   target.texture.mipmaps = [first];
   TestValidator.equals(
     "target attachment keeps owner extent",
-    readAutoMovieTextureSource("target", target.texture).width,
+    AutoMovieRenderSceneTexture.readSource("target", target.texture).width,
     4,
   );
   texture.dispose();

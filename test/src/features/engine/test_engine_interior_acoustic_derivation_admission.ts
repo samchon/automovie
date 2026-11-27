@@ -1,7 +1,4 @@
-import {
-  applyAutoMovieInteriorAcousticResponse,
-  deriveAutoMovieInteriorAcousticResponse,
-} from "@automovie/engine";
+import { AutoMovieEngineSound } from "@automovie/engine";
 import type {
   IAutoMovieAcousticRequest,
   IAutoMovieAcousticResponseProfile,
@@ -12,11 +9,15 @@ import { createInteriorAcousticTestInputs } from "../internal/audio/createInteri
 import { throwsError } from "../internal/predicates";
 
 /**
- * Unavailable analysis, revision mismatch and malformed room inputs are refused before a response can be consumed.
+ * Unavailable analysis, revision mismatch and malformed room inputs are refused
+ * before a response can be consumed.
  *
  * Scenarios:
- * 1. An unavailable response and a mismatched revision are refused by their own boundaries.
- * 2. A malformed digest, space mismatch, missing source/receiver, coincident endpoints and missing partitions retain their original outcomes.
+ *
+ * 1. An unavailable response and a mismatched revision are refused by their own
+ *    boundaries.
+ * 2. A malformed digest, space mismatch, missing source/receiver, coincident
+ *    endpoints and missing partitions retain their original outcomes.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls actual room-response derivation and PCM application, observing unavailable/not-run/unsupported outcomes and named revision/subject/coincidence refusals before an unavailable response can mix.
  * @evidence contracts/development/testing.md#independent-expectations Authored room/endpoint presence and fixed profile/revision syntax determine expected states and literal refusal fragments. The fixture's revision is declared metadata rather than a recomputed physical-geometry digest; no measured room or audio-device observation is claimed.
@@ -32,14 +33,15 @@ export function test_engine_interior_acoustic_derivation_admission(): void {
   }: ReturnType<typeof createInteriorAcousticTestInputs> =
     createInteriorAcousticTestInputs();
 
-  const unresolved: ReturnType<typeof deriveAutoMovieInteriorAcousticResponse> =
-    deriveAutoMovieInteriorAcousticResponse({
-      sourceSpace: "room-a",
-      listenerSpace: null,
-      inputRevision: digest,
-      request: null,
-      profile,
-    });
+  const unresolved: ReturnType<
+    typeof AutoMovieEngineSound.deriveInteriorAcousticResponse
+  > = AutoMovieEngineSound.deriveInteriorAcousticResponse({
+    sourceSpace: "room-a",
+    listenerSpace: null,
+    inputRevision: digest,
+    request: null,
+    profile,
+  });
 
   const dry: Float32Array = Float32Array.from([1, 0]);
 
@@ -47,8 +49,10 @@ export function test_engine_interior_acoustic_derivation_admission(): void {
     "unavailable response and mismatched revisions are refused",
     {
       unavailable: throwsError(
-        (): ReturnType<typeof applyAutoMovieInteriorAcousticResponse> =>
-          applyAutoMovieInteriorAcousticResponse({
+        (): ReturnType<
+          typeof AutoMovieEngineSound.applyInteriorAcousticResponse
+        > =>
+          AutoMovieEngineSound.applyInteriorAcousticResponse({
             samples: dry,
             channels: 1,
             sampleRate: 100,
@@ -57,8 +61,10 @@ export function test_engine_interior_acoustic_derivation_admission(): void {
         "unsupported",
       ),
       revision: throwsError(
-        (): ReturnType<typeof deriveAutoMovieInteriorAcousticResponse> =>
-          deriveAutoMovieInteriorAcousticResponse({
+        (): ReturnType<
+          typeof AutoMovieEngineSound.deriveInteriorAcousticResponse
+        > =>
+          AutoMovieEngineSound.deriveInteriorAcousticResponse({
             sourceSpace: "room-a",
             listenerSpace: "room-a",
             inputRevision:
@@ -80,8 +86,8 @@ export function test_engine_interior_acoustic_derivation_admission(): void {
       request: IAutoMovieAcousticRequest | null;
       profile: IAutoMovieAcousticResponseProfile;
     }> = {},
-  ): ReturnType<typeof deriveAutoMovieInteriorAcousticResponse> {
-    return deriveAutoMovieInteriorAcousticResponse({
+  ): ReturnType<typeof AutoMovieEngineSound.deriveInteriorAcousticResponse> {
+    return AutoMovieEngineSound.deriveInteriorAcousticResponse({
       sourceSpace: "room-a",
       listenerSpace: "room-a",
       inputRevision: digest,

@@ -1,14 +1,5 @@
-import {
-  AutoMoviePhysicalBalance,
-  Quaternion,
-  Vector3,
-  physicalShapeBounds,
-  physicalStanceBalance,
-  physicalStanceSupport,
-  physicalStanceSwing,
-  physicalSupportPoint,
-} from "@automovie/engine";
-import { fitHumanPhysicalStandingPose } from "@automovie/human";
+import { AutoMovieEnginePhysicalBalance, AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysicalStanceBalance, AutoMovieEnginePhysicalStanceSupport, AutoMovieEnginePhysicalStanceSwing, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieHumanPhysicalStandingPose } from "@automovie/human";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMoviePhysicalProfile,
@@ -21,7 +12,7 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanChain, HumanPerformance } from "@automovie/motions";
+import { AutoMovieMotionHumanChain, AutoMovieMotionHumanPerformance } from "@automovie/motions";
 
 import { PhysicalSupportFixtures } from "./PhysicalSupportFixtures";
 
@@ -113,7 +104,7 @@ const FALLEN: number = 0.6;
  *   at most m omega b (omega T) / (1 - e^(-omega T)), T the pulse, which no
  *   controller exceeds without a step or the hip.
  * - One step: the leading limb steps after the reaction, its unloading ramp
- *   (`physicalStanceBalance.FADE`) and its quickest swing to its reach l, T in
+ *   (`AutoMovieEnginePhysicalStanceBalance.FADE`) and its quickest swing to its reach l, T in
  *   all (Khadiv et al. 2017, Section III-B), while the remaining supports hold
  *   the centre of pressure at their edge p. The capture point there grows as p
  *
@@ -177,7 +168,7 @@ export namespace PhysicalDisturbance {
   /** The canonical Human in its public Stand, handed over to physics. */
   export function standing(human: IAutoMovieMotionHumanBody): ISubject {
     const profile: IAutoMoviePhysicalProfile = human.profile;
-    const performance: HumanPerformance = new HumanPerformance({
+    const performance: AutoMovieMotionHumanPerformance = new AutoMovieMotionHumanPerformance({
       seed: "disturbance",
       performers: [
         {
@@ -188,15 +179,15 @@ export namespace PhysicalDisturbance {
           proficiency: { level: "trained" },
         },
       ],
-      composition: HumanChain.subject("a").stand({ hold: 1, sway: 0 }).node,
+      composition: AutoMovieMotionHumanChain.subject("a").stand({ hold: 1, sway: 0 }).node,
     });
     // The pose's bones by name, which the profile's segments are keyed by.
     const pose = performance.bones("a", 0.9);
     const bones = new Map<string, NonNullable<ReturnType<typeof pose.get>>>(
       pose,
     );
-    const fit: ReturnType<typeof fitHumanPhysicalStandingPose> =
-      fitHumanPhysicalStandingPose({
+    const fit: ReturnType<typeof AutoMovieHumanPhysicalStandingPose.fit> =
+      AutoMovieHumanPhysicalStandingPose.fit({
         profile,
         targets: Object.fromEntries(
           profile.segments.map(
@@ -280,7 +271,7 @@ export namespace PhysicalDisturbance {
    * pendulum, with the controller's own step time (`timing`). The linear
    * inverted pendulum is integrated through the 0.1 s pulse under the
    * centre-of-pressure law clamped to the support polygon
-   * (`physicalStanceSupport.polygon`, `.GAIN`):
+   * (`AutoMovieEnginePhysicalStanceSupport.polygon`, `.GAIN`):
    *
    * - In place: the largest pulse whose capture point stays on the polygon (Hof
    *   et al. 2005, Eqs. 7-8);
@@ -321,7 +312,7 @@ export namespace PhysicalDisturbance {
       y: 0,
       z: axis === "z" ? sign : 0,
     });
-    const polygon: IAutoMovieVector3[] = physicalStanceSupport.polygon(
+    const polygon: IAutoMovieVector3[] = AutoMovieEnginePhysicalStanceSupport.polygon(
       subject.profile,
       subject.targets,
       limbs,
@@ -329,7 +320,7 @@ export namespace PhysicalDisturbance {
     );
     const from: number = center[axis];
     const middles = limbs.map((limb) => {
-      const at: number[] = physicalStanceSupport
+      const at: number[] = AutoMovieEnginePhysicalStanceSupport
         .polygon(subject.profile, subject.targets, [limb], 0)
         .map((point: IAutoMovieVector3): number => point[axis]);
       return { limb, middle: (Math.min(...at) + Math.max(...at)) / 2 };
@@ -341,12 +332,12 @@ export namespace PhysicalDisturbance {
       from,
       high:
         from +
-        physicalStanceSwing.reach(polygon, { ...center, y: 0 }, along(1)),
+        AutoMovieEnginePhysicalStanceSwing.reach(polygon, { ...center, y: 0 }, along(1)),
       low:
         from -
-        physicalStanceSwing.reach(polygon, { ...center, y: 0 }, along(-1)),
+        AutoMovieEnginePhysicalStanceSwing.reach(polygon, { ...center, y: 0 }, along(-1)),
       rest: Math.max(
-        ...physicalStanceSupport
+        ...AutoMovieEnginePhysicalStanceSupport
           .polygon(
             subject.profile,
             subject.targets,
@@ -379,7 +370,7 @@ export namespace PhysicalDisturbance {
         const xi: number = x + v / omega;
         const u: number = Math.max(
           low,
-          Math.min(high, xi + physicalStanceBalance.GAIN * (xi - from)),
+          Math.min(high, xi + AutoMovieEnginePhysicalStanceBalance.GAIN * (xi - from)),
         );
         const a: number =
           omega * omega * (x - u) + (t < PUSH_SECONDS ? force / mass : 0);
@@ -458,7 +449,7 @@ export namespace PhysicalDisturbance {
   /**
    * The controller's own step time for a full-reach step, seconds: the
    * reaction, the unloading ramp and the quickest swing the hip allows
-   * (`physicalStanceSwing.swingBound`), as `advancePhysicalBalance` states it
+   * (`AutoMovieEnginePhysicalStanceSwing.swingBound`), as `advancePhysicalBalance` states it
    * at the standing pose.
    */
   export function timing(subject: ISubject): number {
@@ -480,7 +471,7 @@ export namespace PhysicalDisturbance {
     );
     const leg = limbs
       .map((limb) =>
-        physicalStanceSwing.swingLeg(
+        AutoMovieEnginePhysicalStanceSwing.swingLeg(
           subject.profile,
           // The targets as the rigid poses the swing reads.
           new Map(
@@ -500,7 +491,7 @@ export namespace PhysicalDisturbance {
       .reduce((a, b) => (b.mass > a.mass ? b : a));
     const peak: number = Math.min(
       policy.maximumForce / heaviest - 9.81,
-      physicalStanceSwing.swingBound({
+      AutoMovieEnginePhysicalStanceSwing.swingBound({
         effective: leg.mass,
         length: leg.length,
         torque: leg.torque,
@@ -508,8 +499,8 @@ export namespace PhysicalDisturbance {
     );
     return (
       (policy.reactionSeconds ?? 0) +
-      physicalStanceBalance.FADE +
-      AutoMoviePhysicalBalance.duration(reach, 0, peak)
+      AutoMovieEnginePhysicalStanceBalance.FADE +
+      AutoMovieEnginePhysicalBalance.duration(reach, 0, peak)
     );
   }
 
@@ -710,7 +701,7 @@ export namespace PhysicalDisturbance {
         if (!box) {
           const boxes = [step - 1, step].flatMap((k: number) =>
             [...segment.shapes, ...(segment.contactShapes ?? [])].map((shape) =>
-              physicalShapeBounds(frames[k]!.bodies[id]![bone]!, shape),
+              AutoMovieEnginePhysics.physicalShapeBounds(frames[k]!.bodies[id]![bone]!, shape),
             ),
           );
           box = {
@@ -753,14 +744,14 @@ export namespace PhysicalDisturbance {
       subject.profile.segments.reduce(
         (sum: number, segment: IAutoMoviePhysicalSegment): number => {
           const state = frame.bodies[id]![segment.bone]!;
-          const arm: IAutoMovieVector3 = Quaternion.rotateVector(
+          const arm: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
             state.rotation,
             segment.centerOfMass,
           );
           return (
             sum +
             segment.mass *
-              (state.velocity.y + Vector3.cross(state.angularVelocity, arm).y)
+              (state.velocity.y + AutoMovieEngineVector3.cross(state.angularVelocity, arm).y)
           );
         },
         0,
@@ -785,7 +776,7 @@ export namespace PhysicalDisturbance {
       ...cache.supportWrenches
         .filter((wrench): boolean => wrench.body === id)
         .map(
-          (wrench): number => Vector3.length(wrench.allocated.force) - maximum,
+          (wrench): number => AutoMovieEngineVector3.length(wrench.allocated.force) - maximum,
         ),
     );
     if (excess > 1e-6)
@@ -863,7 +854,7 @@ export namespace PhysicalDisturbance {
         const spread = (pose: IAutoMovieRigidTransform): number => {
           const heights: number[] = face.map(
             (local: IAutoMovieVector3): number =>
-              physicalSupportPoint(pose, local).y,
+              AutoMovieEnginePhysics.physicalSupportPoint(pose, local).y,
           );
           return Math.max(...heights) - Math.min(...heights);
         };
@@ -889,13 +880,13 @@ export namespace PhysicalDisturbance {
     for (const shape of [...segment.shapes, ...(segment.contactShapes ?? [])])
       if (shape.kind === "hull")
         for (const point of shape.points)
-          local.push(physicalSupportPoint(shape.transform, point));
+          local.push(AutoMovieEnginePhysics.physicalSupportPoint(shape.transform, point));
       else if (shape.kind === "box")
         for (const x of [-1, 1])
           for (const y of [-1, 1])
             for (const z of [-1, 1])
               local.push(
-                physicalSupportPoint(shape.transform, {
+                AutoMovieEnginePhysics.physicalSupportPoint(shape.transform, {
                   x: x * shape.halfExtents.x,
                   y: y * shape.halfExtents.y,
                   z: z * shape.halfExtents.z,
@@ -903,7 +894,7 @@ export namespace PhysicalDisturbance {
               );
     if (local.length === 0) return [];
     const heights: number[] = local.map(
-      (point: IAutoMovieVector3): number => physicalSupportPoint(pose, point).y,
+      (point: IAutoMovieVector3): number => AutoMovieEnginePhysics.physicalSupportPoint(pose, point).y,
     );
     const lowest: number = Math.min(...heights);
     return local.filter(
@@ -913,8 +904,8 @@ export namespace PhysicalDisturbance {
 
   /** The angle between two orientations, degrees. */
   function turn(a: IAutoMovieQuaternion, b: IAutoMovieQuaternion): number {
-    const q: IAutoMovieQuaternion = Quaternion.multiply(
-      Quaternion.inverse(b),
+    const q: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.inverse(b),
       a,
     );
     return (2 * Math.acos(Math.min(1, Math.abs(q.w))) * 180) / Math.PI;
@@ -975,13 +966,13 @@ export namespace PhysicalDisturbance {
       y: 0,
       z: now.z + velocity.z / omega,
     };
-    const polygon: IAutoMovieVector3[] = physicalStanceSupport.polygon(
+    const polygon: IAutoMovieVector3[] = AutoMovieEnginePhysicalStanceSupport.polygon(
       subject.profile,
       poses,
       limbsOf(subject),
       0,
     );
-    const nearest: IAutoMovieVector3 = AutoMoviePhysicalBalance.nearest(
+    const nearest: IAutoMovieVector3 = AutoMovieEnginePhysicalBalance.nearest(
       polygon,
       capture,
     );
@@ -1053,12 +1044,12 @@ export namespace PhysicalDisturbance {
         sum: IAutoMovieVector3,
         segment: IAutoMoviePhysicalSegment,
       ): IAutoMovieVector3 =>
-        Vector3.add(
+        AutoMovieEngineVector3.add(
           sum,
-          Vector3.scale(
-            Vector3.add(
+          AutoMovieEngineVector3.scale(
+            AutoMovieEngineVector3.add(
               poses[segment.bone]!.position,
-              Quaternion.rotateVector(
+              AutoMovieEngineQuaternion.rotateVector(
                 poses[segment.bone]!.rotation,
                 segment.centerOfMass,
               ),

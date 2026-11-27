@@ -23,7 +23,7 @@ export async function test_viewer_transport_viewer_transport(): Promise<void> {
     (): AutoMovieViewerTransport =>
       new AutoMovieViewerTransport({
         place: (): void => {},
-        available: [2, 2],
+        available: { start: 2, end: 2 },
         fps: 10,
       }),
   );
@@ -33,14 +33,14 @@ export async function test_viewer_transport_viewer_transport(): Promise<void> {
     place: (seconds: number): void => {
       placed.push(seconds);
     },
-    available: [0, 4],
+    available: { start: 0, end: 4 },
     fps: 10,
     now: (): number => now,
   });
   TestValidator.equals(
     "opens paused",
     [transport.seconds, transport.playing, transport.interval],
-    [0, false, [0, 4]],
+    [0, false, { start: 0, end: 4 }],
   );
   await transport.play();
   now = 1500;

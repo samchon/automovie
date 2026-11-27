@@ -1,14 +1,13 @@
+import type { AutoMovieArchetypeEnvironmentFurnishing } from "../AutoMovieArchetypeEnvironmentFurnishing";
 import type {
   IAutoMovieEnvironmentContribution,
   IAutoMovieEnvironmentModule,
-  IAutoMovieFurnishingLayout,
   IAutoMovieFurnishingPiece,
 } from "@automovie/interface";
-
 import { furnishRoom } from "./furnishRoom";
 import type { resolveFurnishingPieces } from "./resolveFurnishingPieces";
 
-/**
+/*
  * Furnish a room by relations: pieces against walls, after one another along a
  * wall, facing an earlier piece, or at an absolute position.
  *
@@ -20,16 +19,15 @@ import type { resolveFurnishingPieces } from "./resolveFurnishingPieces";
  * `<role>`, and its model affordances as `<role>/<affordance id>`. Each piece a
  * `wall` relation placed is returned in `mounts` with its wall, so a support
  * check can judge a hung mirror or board against it.
- *
- * @param params The room layout and its pieces by role.
- * @returns The placed-room module.
- * @throws When a relation or clearance is malformed, names a missing, later or
- *   other-wall piece, or leaves a piece or clearance outside the room or
- *   overlapping another piece, clearance or `keepClear` area; each refusal
- *   names the role.
+ * Parameter params: The room layout and its pieces by role.
+ * Returns: The placed-room module.
+ * When a relation or clearance is malformed, names a missing, later or
+ * other-wall piece, or leaves a piece or clearance outside the room or
+ * overlapping another piece, clearance or `keepClear` area; each refusal
+ * names the role.
  */
 export function createFurnishedRoom(
-  params: createFurnishedRoom.IParams,
+  params: AutoMovieArchetypeEnvironmentFurnishing.IFurnishedRoomParams,
 ): IAutoMovieEnvironmentModule {
   return (
     context: IAutoMovieEnvironmentModule.IContext,
@@ -51,13 +49,4 @@ export function createFurnishedRoom(
         ),
       ),
     });
-}
-
-/** The furnished room's parameters. */
-export namespace createFurnishedRoom {
-  /** The room layout and its ordered pieces. */
-  export interface IParams extends IAutoMovieFurnishingLayout {
-    /** Pieces by role, resolved in record order. */
-    readonly pieces: Readonly<Record<string, IAutoMovieFurnishingPiece>>;
-  }
 }

@@ -14,7 +14,7 @@ import type { IAutoMovieDrawingStyle } from "./IAutoMovieDrawingStyle";
  * is output; {@link IAutoMovieDesignReference} is separately authored evidence,
  * and neither is automatically read back into building source.
  *
- * `deriveAutoMovieDrawing` validates the design first and throws for an invalid
+ * `deriveDrawing` validates the design first and throws for an invalid
  * one. Its frame gate then requires finite origin/direction/up components,
  * direction and up lengths above 1e-9, an up-cross-normal length above 1e-9,
  * positive finite scale and finite nonnegative depth/overhead when non-null.

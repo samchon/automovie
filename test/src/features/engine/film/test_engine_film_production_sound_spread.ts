@@ -1,9 +1,4 @@
-import {
-  deriveProductionSoundPlan,
-  masterProductionSound,
-  materializeCompiledFormation,
-  renderProductionSound,
-} from "@automovie/engine";
+import { AutoMovieEngineSound, AutoMovieEnginePopulationRuntime } from "@automovie/engine";
 import type {
   IAutoMovieCompiledFormation,
   IAutoMovieCompiledShotSource,
@@ -81,7 +76,7 @@ const unit: (props: {
   interval: number;
   z: number;
 }): IAutoMovieCompiledFormation =>
-  materializeCompiledFormation({
+  AutoMovieEnginePopulationRuntime.materializeCompiledFormation({
     formation: {
       id: props.id,
       model: `${props.id}-model`,
@@ -324,11 +319,12 @@ const squaredDistance: (
  *    mixes below full scale.
  */
 export function test_engine_film_production_sound_spread(): void {
-  const plan: IAutoMovieProductionSoundPlan = deriveProductionSoundPlan({
-    timeline: timeline(),
-    contracts: new Map([["spread-shot", contract()]]),
-    compiled: new Map([["spread-shot", compiled()]]),
-  });
+  const plan: IAutoMovieProductionSoundPlan =
+    AutoMovieEngineSound.deriveProductionSoundPlan({
+      timeline: timeline(),
+      contracts: new Map([["spread-shot", contract()]]),
+      compiled: new Map([["spread-shot", compiled()]]),
+    });
   const rest: IAutoMovieProductionSoundEvent = eventOf(plan, "rest");
   const closed: IAutoMovieProductionSoundEvent = eventOf(plan, "closed");
   const mixed: IAutoMovieProductionSoundEvent = eventOf(plan, "mixed");
@@ -401,22 +397,25 @@ export function test_engine_film_production_sound_spread(): void {
   );
 
   // 4. the master stage owns the headroom, and the mix keeps the mass's level.
-  const loud: IAutoMovieRenderedProductionSound = renderProductionSound({
-    plan,
-  });
-  const quiet: IAutoMovieRenderedProductionSound = renderProductionSound({
-    plan: {
-      ...plan,
-      events: plan.events.filter(
-        (event: IAutoMovieProductionSoundEvent): boolean =>
-          event.event !== "near",
-      ),
-    },
-  });
-  const mastered: IAutoMovieRenderedProductionSound = masterProductionSound({
-    plan,
-    rendered: loud,
-  });
+  const loud: IAutoMovieRenderedProductionSound =
+    AutoMovieEngineSound.renderProductionSound({
+      plan,
+    });
+  const quiet: IAutoMovieRenderedProductionSound =
+    AutoMovieEngineSound.renderProductionSound({
+      plan: {
+        ...plan,
+        events: plan.events.filter(
+          (event: IAutoMovieProductionSoundEvent): boolean =>
+            event.event !== "near",
+        ),
+      },
+    });
+  const mastered: IAutoMovieRenderedProductionSound =
+    AutoMovieEngineSound.masterProductionSound({
+      plan,
+      rendered: loud,
+    });
   TestValidator.predicate(
     "a mass loud enough to leave no headroom clips the mix and is limited by the master",
     eventOf(plan, "near").memberCount === NEAR_COUNT &&

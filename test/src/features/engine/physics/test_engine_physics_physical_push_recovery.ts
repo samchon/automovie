@@ -1,6 +1,6 @@
 import {
-  physicalPlanarPolygon as Polygon,
-  physicalPushRecovery as Recovery,
+  AutoMovieEnginePhysicalPlanarPolygon as Polygon,
+  AutoMovieEnginePhysicalPushRecovery as Recovery,
 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 

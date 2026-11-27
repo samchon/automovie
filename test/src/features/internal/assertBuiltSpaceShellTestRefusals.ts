@@ -1,4 +1,4 @@
-import { validateBuiltEnvironment } from "@automovie/engine";
+import { AutoMovieEngineArchitecture } from "@automovie/engine";
 import type { IAutoMovieSpaceShell } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -27,12 +27,12 @@ export const assertBuiltSpaceShellTestRefusals: (
     shell: IAutoMovieSpaceShell,
   ): boolean =>
     hasViolation(
-      validateBuiltEnvironment({ environment: work({ shell }) }),
+      AutoMovieEngineArchitecture.validateBuiltEnvironment({ environment: work({ shell }) }),
       "range",
       ".shell",
     ) ||
     hasViolation(
-      validateBuiltEnvironment({ environment: work({ shell }) }),
+      AutoMovieEngineArchitecture.validateBuiltEnvironment({ environment: work({ shell }) }),
       "type",
       ".shell",
     );
@@ -45,7 +45,7 @@ export const assertBuiltSpaceShellTestRefusals: (
         "bothSpellingsAtOnce",
         (): boolean =>
           hasViolation(
-            validateBuiltEnvironment({
+            AutoMovieEngineArchitecture.validateBuiltEnvironment({
               environment: work({
                 cells: [
                   {

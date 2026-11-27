@@ -1,8 +1,8 @@
-import { readAutoMovieVideoSceneCuts } from "@automovie/render";
+import { AutoMovieRenderCapture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `readAutoMovieVideoSceneCuts` reads cut times and scores from an FFmpeg
+ * `readVideoSceneCuts` reads cut times and scores from an FFmpeg
  * metadata report.
  *
  * Scenarios:
@@ -15,7 +15,7 @@ import { TestValidator } from "@nestia/e2e";
 export function test_render_capture_read_video_scene_cuts(): void {
   TestValidator.equals(
     "two frames",
-    readAutoMovieVideoSceneCuts(
+    AutoMovieRenderCapture.readVideoSceneCuts(
       [
         "frame:0    pts:0       pts_time:0",
         "lavfi.scd.score=12.5",
@@ -32,17 +32,17 @@ export function test_render_capture_read_video_scene_cuts(): void {
   );
   TestValidator.equals(
     "header time",
-    readAutoMovieVideoSceneCuts(
+    AutoMovieRenderCapture.readVideoSceneCuts(
       "frame:0 pts:0 pts_time:2.25\nlavfi.scd.score=7",
     ),
     [{ seconds: 2.25, score: 7 }],
   );
-  TestValidator.equals("empty", readAutoMovieVideoSceneCuts(""), []);
+  TestValidator.equals("empty", AutoMovieRenderCapture.readVideoSceneCuts(""), []);
   for (const report of [
     "frame:0 pts_time:1",
     "frame:0 pts_time:1\nlavfi.scd.score=high",
   ])
     TestValidator.error(report, (): void => {
-      readAutoMovieVideoSceneCuts(report);
+      AutoMovieRenderCapture.readVideoSceneCuts(report);
     });
 }

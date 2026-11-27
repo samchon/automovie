@@ -1,16 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  createPhysicalHullShape,
-  physicalHullErode,
-  physicalHullFaces,
-  physicalHullMass,
-  physicalShapeBounds,
-  physicalShapeNearest,
-  physicalShapePairDistance,
-  physicalShapeSegmentDistance,
-  physicalShapeSpan,
-} from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysicalHull, AutoMovieEnginePhysicalHullFaces, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalHullFaces,
   IAutoMoviePhysicalShape,
@@ -59,7 +47,7 @@ const NATIVE_DISTANCE: number = 1e-7;
 export function test_engine_physics_create_physical_hull_shape(): void {
   const still: IAutoMovieRigidTransform = {
     position: { x: 0, y: 0, z: 0 },
-    rotation: Quaternion.identity(),
+    rotation: AutoMovieEngineQuaternion.identity(),
   };
   const half: IAutoMovieVector3 = { x: 0.5, y: 0.2, z: 0.1 };
   const corners = (h: IAutoMovieVector3): IAutoMovieVector3[] =>
@@ -78,7 +66,7 @@ export function test_engine_physics_create_physical_hull_shape(): void {
     a: IAutoMovieVector3,
     b: IAutoMovieVector3,
     e: number = PhysicalTolerance.ACCUMULATED,
-  ): boolean => Vector3.length(Vector3.subtract(a, b)) <= e;
+  ): boolean => AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(a, b)) <= e;
   const hullOf = (
     points: IAutoMovieVector3[],
     transform: IAutoMovieRigidTransform = still,
@@ -101,7 +89,7 @@ export function test_engine_physics_create_physical_hull_shape(): void {
   });
 
   // 1. Faces, vertices and the buried point.
-  const faces: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces([
+  const faces: IAutoMoviePhysicalHullFaces.IHull = AutoMovieEnginePhysicalHullFaces.build([
     ...corners(half),
     { x: 0.5, y: 0, z: 0 },
     { x: 0.1, y: 0, z: 0 },
@@ -118,12 +106,12 @@ export function test_engine_physics_create_physical_hull_shape(): void {
       close(faces.centre, { x: 0, y: 0, z: 0 }, PhysicalTolerance.ROUNDING) &&
       Math.abs(faces.radius - Math.sqrt(0.3)) < PhysicalTolerance.ROUNDING &&
       Math.abs(faces.depth - 0.1) < PhysicalTolerance.ROUNDING &&
-      physicalHullFaces(corners(half)).buried <= faces.tolerance,
+      AutoMovieEnginePhysicalHullFaces.build(corners(half)).buried <= faces.tolerance,
   );
 
   // A factory hull shares the group's rotation and reads its scalar distance.
-  const factory: ReturnType<typeof createPhysicalHullShape> =
-    createPhysicalHullShape();
+  const factory: ReturnType<typeof AutoMovieEnginePhysicalHull.createShapeFactory> =
+    AutoMovieEnginePhysicalHull.createShapeFactory();
   const native: IAutoMoviePhysicalShape = factory.shape(
     "native",
     "solid",
@@ -133,17 +121,17 @@ export function test_engine_physics_create_physical_hull_shape(): void {
     ),
     corners(half),
   );
-  const scalar: ReturnType<typeof physicalShapeSegmentDistance.prepare> =
-    physicalShapeSegmentDistance.prepare(still, native);
+  const scalar: ReturnType<typeof AutoMovieEnginePhysics.preparePhysicalShapeSegmentDistance> =
+    AutoMovieEnginePhysics.preparePhysicalShapeSegmentDistance(still, native);
   const inward: IAutoMovieVector3 = { x: 0, y: 0, z: 0.07 };
   assert.equal(native.transform.rotation, factory.rotation);
   assert(Math.abs(scalar(inward, inward) + 0.03) < PhysicalTolerance.ROUNDING);
   // 2. Mass properties.
   const moved: IAutoMovieVector3[] = corners(half).map(
     (p: IAutoMovieVector3): IAutoMovieVector3 =>
-      Vector3.add(p, { x: 1, y: 2, z: 3 }),
+      AutoMovieEngineVector3.add(p, { x: 1, y: 2, z: 3 }),
   );
-  const mass: ReturnType<typeof physicalHullMass> = physicalHullMass(moved);
+  const mass: ReturnType<typeof AutoMovieEnginePhysics.hullMass> = AutoMovieEnginePhysics.hullMass(moved);
   const axes: IAutoMovieVector3[] = [
     { x: 1, y: 0, z: 0 },
     { x: 0, y: 1, z: 0 },
@@ -165,15 +153,15 @@ export function test_engine_physics_create_physical_hull_shape(): void {
         (axis: IAutoMovieVector3): boolean =>
           Math.abs(
             Math.abs(
-              Vector3.dot(
-                Quaternion.rotateVector(mass.inertiaRotation, axis),
+              AutoMovieEngineVector3.dot(
+                AutoMovieEngineQuaternion.rotateVector(mass.inertiaRotation, axis),
                 axis,
               ),
             ) - 1,
           ) < PhysicalTolerance.ACCUMULATED,
       ),
   );
-  const tetrahedron: ReturnType<typeof physicalHullMass> = physicalHullMass([
+  const tetrahedron: ReturnType<typeof AutoMovieEnginePhysics.hullMass> = AutoMovieEnginePhysics.hullMass([
     { x: 0, y: 0, z: 0 },
     ...axes,
   ]);
@@ -191,14 +179,14 @@ export function test_engine_physics_create_physical_hull_shape(): void {
   // hull's local X to world -Z and its local Z to world +X.
   const quarter: IAutoMovieRigidTransform = {
     position: { x: 0, y: 0, z: 3 },
-    rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90),
+    rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90),
   };
   const hull: IAutoMoviePhysicalShape = hullOf(corners(half));
   const point = (
     pose: IAutoMovieRigidTransform,
     p: IAutoMovieVector3,
   ): IAutoMoviePhysicalShapeNearest.IResult =>
-    physicalShapeNearest(pose, hull, p, p);
+    AutoMovieEnginePhysics.physicalShapeNearest(pose, hull, p, p);
   const off: IAutoMoviePhysicalShapeNearest.IResult = point(quarter, {
     x: 0,
     y: 0,
@@ -227,16 +215,16 @@ export function test_engine_physics_create_physical_hull_shape(): void {
       close(corner.point, half) &&
       close(
         corner.normal,
-        Vector3.scale({ x: 0.3, y: 0.4, z: 0.3 }, 1 / Math.sqrt(0.34)),
+        AutoMovieEngineVector3.scale({ x: 0.3, y: 0.4, z: 0.3 }, 1 / Math.sqrt(0.34)),
       ),
   );
   const pose: IAutoMovieRigidTransform = {
     position: { x: 1, y: 2, z: 3 },
-    rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 55),
+    rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 55),
   };
   const transform: IAutoMovieRigidTransform = {
     position: { x: 0.1, y: -0.2, z: 0.3 },
-    rotation: Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 35),
+    rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 35),
   };
   const turnedHull: IAutoMoviePhysicalShape = hullOf(corners(half), transform);
   const turnedBox: IAutoMoviePhysicalShape = boxOf(half, transform);
@@ -257,8 +245,8 @@ export function test_engine_physics_create_physical_hull_shape(): void {
     worst = Math.max(
       worst,
       Math.abs(
-        physicalShapeNearest(pose, turnedHull, a, b).distance -
-          physicalShapeNearest(pose, turnedBox, a, b).distance,
+        AutoMovieEnginePhysics.physicalShapeNearest(pose, turnedHull, a, b).distance -
+          AutoMovieEnginePhysics.physicalShapeNearest(pose, turnedBox, a, b).distance,
       ),
     );
   }
@@ -268,9 +256,9 @@ export function test_engine_physics_create_physical_hull_shape(): void {
   );
 
   // 4. Bounds and spans.
-  const hullBounds: ReturnType<typeof physicalShapeBounds> =
-    physicalShapeBounds(pose, turnedHull);
-  const boxBounds: ReturnType<typeof physicalShapeBounds> = physicalShapeBounds(
+  const hullBounds: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeBounds> =
+    AutoMovieEnginePhysics.physicalShapeBounds(pose, turnedHull);
+  const boxBounds: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeBounds> = AutoMovieEnginePhysics.physicalShapeBounds(
     pose,
     turnedBox,
   );
@@ -285,7 +273,7 @@ export function test_engine_physics_create_physical_hull_shape(): void {
     low: number,
     high: number,
   ): boolean => {
-    const [lo, hi]: readonly [number, number] = physicalShapeSpan(
+    const [lo, hi]: readonly [number, number] = AutoMovieEnginePhysics.physicalShapeSpan(
       still,
       shape,
       axis,
@@ -348,13 +336,13 @@ export function test_engine_physics_create_physical_hull_shape(): void {
 
   // 5. Erosion.
   const eroded: IAutoMoviePhysicalShape = hullOf(
-    physicalHullErode(corners(half), 0.05),
+    AutoMovieEnginePhysics.physicalHullErode(corners(half), 0.05),
   );
-  const erodedBounds: ReturnType<typeof physicalShapeBounds> =
-    physicalShapeBounds(still, eroded);
+  const erodedBounds: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeBounds> =
+    AutoMovieEnginePhysics.physicalShapeBounds(still, eroded);
   TestValidator.predicate(
     "eroded box",
-    physicalHullFaces(physicalHullErode(corners(half), 0.05)).vertices
+    AutoMovieEnginePhysicalHullFaces.build(AutoMovieEnginePhysics.physicalHullErode(corners(half), 0.05)).vertices
       .length === 8 &&
       close(
         erodedBounds.max,
@@ -368,7 +356,7 @@ export function test_engine_physics_create_physical_hull_shape(): void {
       ),
   );
   assert.throws(
-    (): IAutoMovieVector3[] => physicalHullErode(corners(half), 0.1),
+    (): IAutoMovieVector3[] => AutoMovieEnginePhysics.physicalHullErode(corners(half), 0.1),
     /volume/i,
   );
 
@@ -379,7 +367,7 @@ export function test_engine_physics_create_physical_hull_shape(): void {
     axis: IAutoMovieVector3,
   ): IAutoMovieRigidTransform => ({
     position: { x, y: 0, z: 0 },
-    rotation: Quaternion.fromAxisAngle(axis, degrees),
+    rotation: AutoMovieEngineQuaternion.fromAxisAngle(axis, degrees),
   });
   const cube: IAutoMovieVector3 = { x: 0.5, y: 0.5, z: 0.5 };
   const pair = (
@@ -389,9 +377,9 @@ export function test_engine_physics_create_physical_hull_shape(): void {
     b: IAutoMoviePhysicalShape,
     expected: number,
   ): boolean =>
-    Math.abs(physicalShapePairDistance(poseA, a, poseB, b) - expected) <
+    Math.abs(AutoMovieEnginePhysics.physicalShapePairDistance(poseA, a, poseB, b) - expected) <
       NATIVE_DISTANCE &&
-    Math.abs(physicalShapePairDistance(poseB, b, poseA, a) - expected) <
+    Math.abs(AutoMovieEnginePhysics.physicalShapePairDistance(poseB, b, poseA, a) - expected) <
       NATIVE_DISTANCE;
   const ball = (radius: number): IAutoMoviePhysicalShape => ({
     id: "sphere",

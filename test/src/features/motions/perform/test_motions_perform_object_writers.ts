@@ -1,8 +1,10 @@
 import type { IAutoMovieMotionHumanProp } from "@automovie/interface";
 import {
-  HumanPerformanceObject,
-  HumanRefusal,
-} from "@automovie/motions/internal";
+  HumanPerformanceObject
+} from "../../../../../packages/motions/src/perform/internal/HumanPerformanceObject";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { drivenDoorState } from "../../internal/fixtures/drivenDoorState";
@@ -214,7 +216,7 @@ export async function test_motions_perform_object_writers(): Promise<void> {
     "overlapping and out-of-range drives",
     refused(
       () => HumanPerformanceObject.admit(overlapping.self),
-      (error: HumanRefusal): boolean =>
+      (error: AutoMovieMotionHumanRefusal): boolean =>
         error.kind === "cut" &&
         error.axis === "drives" &&
         error.value === "door.hinge" &&
@@ -224,7 +226,7 @@ export async function test_motions_perform_object_writers(): Promise<void> {
     ) &&
       refused(
         () => HumanPerformanceObject.admit(overrun.self),
-        (error: HumanRefusal): boolean =>
+        (error: AutoMovieMotionHumanRefusal): boolean =>
           error.kind === "parameter" &&
           error.axis === "drives" &&
           error.value === 200,
@@ -235,12 +237,12 @@ export async function test_motions_perform_object_writers(): Promise<void> {
 /** Whether a task throws a refusal the check accepts. */
 function refused(
   task: () => unknown,
-  check: (error: HumanRefusal) => boolean,
+  check: (error: AutoMovieMotionHumanRefusal) => boolean,
 ): boolean {
   try {
     task();
     return false;
   } catch (error) {
-    return error instanceof HumanRefusal && check(error);
+    return error instanceof AutoMovieMotionHumanRefusal && check(error);
   }
 }

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieQuaternion,
@@ -17,59 +17,6 @@ import type { AutoMovieArchetypeEquineExpressionCue } from "./AutoMovieArchetype
 import { AutoMovieArchetypeEquineStance } from "./AutoMovieArchetypeEquineStance";
 import type { AutoMovieArchetypeEquineStanceCue } from "./AutoMovieArchetypeEquineStanceCue";
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
-
-/** How long a struck horse's response lasts, seconds, and its ease: authored. */
-const RESPONSE: Readonly<IResponse> = { seconds: 1.2, ease: 0.2 };
-
-/**
- * Each region's bar and the share along it, from the bar's start, of its aimed
- * point.
- */
-const REGIONS: Readonly<
-  Record<AutoMovieArchetypeEquineEncounterCue.Region, IRegion>
-> = {
-  neck: { bar: "neck", along: 0.5 },
-  head: { bar: "head", along: 0.4 },
-  shoulder: { bar: "trunk", along: 0.85 },
-  barrel: { bar: "trunk", along: 0.5 },
-  hindquarters: { bar: "hindquarters", along: 0.5 },
-};
-
-/** A struck horse's authored response. */
-interface IResponse {
-  /** Seconds it lasts. */
-  seconds: number;
-
-  /** Seconds of its ease in and out. */
-  ease: number;
-}
-
-/** Where a region is on the body. */
-interface IRegion {
-  /** The bar it lies on. */
-  bar: AutoMovieArchetypeQuadrupedBody.Bone;
-
-  /** The share along the bar, from its start. */
-  along: number;
-}
-
-/** A point on a body's surface and its outward normal. */
-interface ISurface {
-  /** The point, world metres. */
-  point: IAutoMovieVector3;
-
-  /** The unit outward normal. */
-  normal: IAutoMovieVector3;
-}
-
-/**
- * Closed-form passes refining a bite's target and the poll the reach will put
- * above it: authored.
- */
-const REFINE: number = 4;
-
-/** Two of a kind, one per horse. */
-type Pair<T> = readonly [T, T];
 
 /**
  * Two horses' agonistic encounter on one scene clock: threats, bites, rearing
@@ -242,7 +189,9 @@ export namespace AutoMovieArchetypeEquineEncounter {
     return [stagedOf(0), stagedOf(1)];
   }
 
-  /** A ride followed by its retreat from the retreat's start second. */
+  /*
+   * A ride followed by its retreat from the retreat's start second.
+   */
   function retreated<Id extends string, D extends string>(
     ride: AutoMovieArchetypeRide.IRide<Id, D>,
     retreat: AutoMovieArchetypeEquineEncounterCue.IRetreat<Id, D> | undefined,
@@ -277,7 +226,7 @@ export namespace AutoMovieArchetypeEquineEncounter {
     };
   }
 
-  /**
+  /*
    * Where a hoof's endpoint goes to touch a region of the other horse, and the
    * surface's outward normal, both in the attacker's halted base model space.
    */
@@ -292,19 +241,19 @@ export namespace AutoMovieArchetypeEquineEncounter {
       AutoMovieArchetypeQuadrupedBody.BONES[limb][0],
     );
     const aimed: ISurface = surface(other, region, from, false);
-    const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+    const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
       me.placement.rotation,
     );
     return {
-      point: Quaternion.rotateVector(
+      point: AutoMovieEngineQuaternion.rotateVector(
         inverse,
-        Vector3.subtract(aimed.point, me.placement.translation),
+        AutoMovieEngineVector3.subtract(aimed.point, me.placement.translation),
       ),
-      normal: Quaternion.rotateVector(inverse, aimed.normal),
+      normal: AutoMovieEngineQuaternion.rotateVector(inverse, aimed.normal),
     };
   }
 
-  /**
+  /*
    * Where a bite's muzzle goes on a region so the head meets the surface
    * end-on.
    *
@@ -327,8 +276,8 @@ export namespace AutoMovieArchetypeEquineEncounter {
       biter.placement,
       neck.from,
     );
-    const link: number = Vector3.distance(neck.from, neck.to);
-    const muzzle: number = Vector3.distance(head.from, head.to) + head.radius;
+    const link: number = AutoMovieEngineVector3.distance(neck.from, neck.to);
+    const muzzle: number = AutoMovieEngineVector3.distance(head.from, head.to) + head.radius;
     let poll: IAutoMovieVector3 = AutoMovieArchetypeFrame.point(
       biter.placement,
       head.from,
@@ -336,18 +285,18 @@ export namespace AutoMovieArchetypeEquineEncounter {
     let target: IAutoMovieVector3 = poll;
     for (let pass: number = 0; pass < REFINE; pass++) {
       target = surface(other, region, poll, true).point;
-      const span: number = Vector3.distance(root, target);
-      const along: IAutoMovieVector3 = Vector3.scale(
-        Vector3.subtract(target, root),
+      const span: number = AutoMovieEngineVector3.distance(root, target);
+      const along: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+        AutoMovieEngineVector3.subtract(target, root),
         1 / span,
       );
-      const up: IAutoMovieVector3 = Vector3.normalize(
-        Vector3.addScaled({ x: 0, y: 1, z: 0 }, along, -along.y),
+      const up: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+        AutoMovieEngineVector3.addScaled({ x: 0, y: 1, z: 0 }, along, -along.y),
       );
       const x: number =
         (link * link - muzzle * muzzle + span * span) / (2 * span);
-      poll = Vector3.addScaled(
-        Vector3.addScaled(root, along, x),
+      poll = AutoMovieEngineVector3.addScaled(
+        AutoMovieEngineVector3.addScaled(root, along, x),
         up,
         Math.sqrt(Math.max(0, link * link - x * x)),
       );
@@ -355,7 +304,7 @@ export namespace AutoMovieArchetypeEquineEncounter {
     return target;
   }
 
-  /**
+  /*
    * A region's surface point facing a world point, on a sample's bar: at the
    * region's share along the bar, or, when `facing`, at the foot of the
    * perpendicular from the point onto the bar (kept within its middle), so an
@@ -377,31 +326,33 @@ export namespace AutoMovieArchetypeEquineEncounter {
       sample.placement,
       shape.to,
     );
-    const axis: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(end, start),
+    const axis: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.subtract(end, start),
     );
-    const span: number = Vector3.distance(start, end);
+    const span: number = AutoMovieEngineVector3.distance(start, end);
     const along: number = facing
       ? Math.min(
           0.9,
           Math.max(
             0.1,
-            Vector3.dot(Vector3.subtract(toward, start), axis) / span,
+            AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(toward, start), axis) / span,
           ),
         )
       : where.along;
-    const centre: IAutoMovieVector3 = Vector3.lerp(start, end, along);
-    const out: IAutoMovieVector3 = Vector3.subtract(toward, centre);
-    const radial: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.addScaled(out, axis, -Vector3.dot(out, axis)),
+    const centre: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(start, end, along);
+    const out: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(toward, centre);
+    const radial: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.addScaled(out, axis, -AutoMovieEngineVector3.dot(out, axis)),
     );
     return {
-      point: Vector3.addScaled(centre, radial, shape.radius),
+      point: AutoMovieEngineVector3.addScaled(centre, radial, shape.radius),
       normal: radial,
     };
   }
 
-  /** A part's world centre in a sample. */
+  /*
+   * A part's world centre in a sample.
+   */
   function center<Id extends string, D extends string>(
     sample: AutoMovieArchetypeRide.ISample<Id, D>,
     id: string,
@@ -409,11 +360,13 @@ export namespace AutoMovieArchetypeEquineEncounter {
     const shape: IBar = bar(sample.archetype, id);
     return AutoMovieArchetypeFrame.point(
       sample.placement,
-      Vector3.lerp(shape.from, shape.to, 0.5),
+      AutoMovieEngineVector3.lerp(shape.from, shape.to, 0.5),
     );
   }
 
-  /** A bar part's ends and radius in model space. */
+  /*
+   * A bar part's ends and radius in model space.
+   */
   function bar<Id extends string, D extends string>(
     model: AutoMovieArchetype<Id, D>,
     id: string,
@@ -432,29 +385,112 @@ export namespace AutoMovieArchetypeEquineEncounter {
       (geometry.shape.type === "capsule" || geometry.shape.type === "cylinder")
         ? geometry.shape.radius
         : 0;
-    const half: IAutoMovieVector3 = Quaternion.rotateVector(
+    const half: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       part.transform!.rotation,
       { x: 0, y: height / 2, z: 0 },
     );
     return {
-      from: Vector3.subtract(part.transform!.translation, half),
-      to: Vector3.add(part.transform!.translation, half),
+      from: AutoMovieEngineVector3.subtract(part.transform!.translation, half),
+      to: AutoMovieEngineVector3.add(part.transform!.translation, half),
       radius,
     };
   }
 }
 
-/** A bar's ends and radius. */
+/*
+ * How long a struck horse's response lasts, seconds, and its ease: authored.
+ */
+const RESPONSE: Readonly<IResponse> = { seconds: 1.2, ease: 0.2 };
+
+/*
+ * Each region's bar and the share along it, from the bar's start, of its aimed
+ * point.
+ */
+const REGIONS: Readonly<
+  Record<AutoMovieArchetypeEquineEncounterCue.Region, IRegion>
+> = {
+  neck: { bar: "neck", along: 0.5 },
+  head: { bar: "head", along: 0.4 },
+  shoulder: { bar: "trunk", along: 0.85 },
+  barrel: { bar: "trunk", along: 0.5 },
+  hindquarters: { bar: "hindquarters", along: 0.5 },
+};
+
+/*
+ * Closed-form passes refining a bite's target and the poll the reach will put
+ * above it: authored.
+ */
+const REFINE: number = 4;
+
+/*
+ * A struck horse's authored response.
+ */
+interface IResponse {
+  /*
+   * Seconds it lasts.
+   */
+  seconds: number;
+
+  /*
+   * Seconds of its ease in and out.
+   */
+  ease: number;
+}
+
+/*
+ * Where a region is on the body.
+ */
+interface IRegion {
+  /*
+   * The bar it lies on.
+   */
+  bar: AutoMovieArchetypeQuadrupedBody.Bone;
+
+  /*
+   * The share along the bar, from its start.
+   */
+  along: number;
+}
+
+/*
+ * A point on a body's surface and its outward normal.
+ */
+interface ISurface {
+  /*
+   * The point, world metres.
+   */
+  point: IAutoMovieVector3;
+
+  /*
+   * The unit outward normal.
+   */
+  normal: IAutoMovieVector3;
+}
+
+/** Two of a kind, one per horse. */
+type Pair<T> = readonly [T, T];
+
+/*
+ * A bar's ends and radius.
+ */
 interface IBar {
-  /** Its start. */
+  /*
+   * Its start.
+   */
   from: IAutoMovieVector3;
 
-  /** Its end. */
+  /*
+   * Its end.
+   */
   to: IAutoMovieVector3;
 
-  /** Its radius. */
+  /*
+   * Its radius.
+   */
   radius: number;
 }
 
-/** A named instant of a ride. */
+/*
+ * A named instant of a ride.
+ */
 type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];

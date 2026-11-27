@@ -2,7 +2,9 @@ import { ACKNOWLEDGEMENT } from "./ACKNOWLEDGEMENT";
 import type { EvidenceDeclarationKind } from "./EvidenceDeclarationKind";
 import { REVIEW } from "./REVIEW";
 
-/** Classifies one exact structural evidence declaration. */
+/*
+ * Classifies one exact structural evidence declaration.
+ */
 export function declarationKind(
   line: string,
 ): EvidenceDeclarationKind | undefined {

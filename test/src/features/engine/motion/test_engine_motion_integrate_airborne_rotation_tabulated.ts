@@ -1,7 +1,7 @@
 import {
-  Quaternion,
-  Vector3,
-  integrateAirborneRotation,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
+  AutoMovieEngineMotionAirborneRotation,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -61,7 +61,7 @@ export function test_engine_motion_integrate_airborne_rotation_tabulated(): void
   tabulatedGrid();
   const findings: string[] = [];
   const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-  const identity: IAutoMovieQuaternion = Quaternion.identity();
+  const identity: IAutoMovieQuaternion = AutoMovieEngineQuaternion.identity();
   const model: IAutoMovieResolveCenterOfMass.IModel = {
     mass: 2,
     segments: (["hips", "head"] as const).map(
@@ -82,7 +82,7 @@ export function test_engine_motion_integrate_airborne_rotation_tabulated(): void
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
     reads++;
     seen.push(t);
-    const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
       { x: 1, y: 0, z: 0 },
       ((0.25 * t + 0.1 * t * t) * 180) / Math.PI,
     );
@@ -105,10 +105,10 @@ export function test_engine_motion_integrate_airborne_rotation_tabulated(): void
   };
 
   // 1. Build at construction, one read a knot.
-  const observation: ReturnType<typeof integrateAirborneRotation.observe> =
-    integrateAirborneRotation.observe();
-  const history: integrateAirborneRotation.ICachedHistory =
-    integrateAirborneRotation.tabulated(
+  const observation: ReturnType<typeof AutoMovieEngineMotionAirborneRotation.observe> =
+    AutoMovieEngineMotionAirborneRotation.observe();
+  const history: AutoMovieEngineMotionAirborneRotation.ICachedHistory =
+    AutoMovieEngineMotionAirborneRotation.tabulated(
       model,
       shape,
       { from: 0, to: 1, step: 1 / 120 },
@@ -146,8 +146,8 @@ export function test_engine_motion_integrate_airborne_rotation_tabulated(): void
       findings.push(
         `at ${t} s the principal moments miss the closed form by ${off}`,
       );
-    const missed: number = Vector3.length(
-      Vector3.subtract(relative, { x: 1 + 0.8 * t, y: 0, z: 0 }),
+    const missed: number = AutoMovieEngineVector3.length(
+      AutoMovieEngineVector3.subtract(relative, { x: 1 + 0.8 * t, y: 0, z: 0 }),
     );
     if (!(missed <= 1e-6))
       findings.push(
@@ -162,7 +162,7 @@ export function test_engine_motion_integrate_airborne_rotation_tabulated(): void
 
   // 3. A fractional number of steps: equal intervals inside the span.
   seen.length = 0;
-  integrateAirborneRotation.tabulated(model, shape, {
+  AutoMovieEngineMotionAirborneRotation.tabulated(model, shape, {
     from: 2,
     to: 2.1,
     step: 0.03,
@@ -180,7 +180,7 @@ export function test_engine_motion_integrate_airborne_rotation_tabulated(): void
   const flown = (
     over: IAutoMovieIntegrateAirborneRotation.IHistory,
   ): IAutoMovieQuaternion =>
-    integrateAirborneRotation({
+    AutoMovieEngineMotionAirborneRotation.integrate({
       history: over,
       t0: 0,
       t1: 1,
@@ -188,9 +188,9 @@ export function test_engine_motion_integrate_airborne_rotation_tabulated(): void
       momentum: { x: 3, y: 0.4, z: 0.2 },
       tolerance: { relative: 1e-10, absolute: 1e-10 },
     }).orientation(1);
-  const apart: number = Quaternion.angle(
+  const apart: number = AutoMovieEngineQuaternion.angle(
     flown(history),
-    flown(integrateAirborneRotation.history(model, shape, { from: 0, to: 1 })),
+    flown(AutoMovieEngineMotionAirborneRotation.history(model, shape, { from: 0, to: 1 })),
   );
   if (!(apart <= 1e-5))
     findings.push(
@@ -201,7 +201,7 @@ export function test_engine_motion_integrate_airborne_rotation_tabulated(): void
   TestValidator.predicate(
     "a span that does not increase is refused",
     throwsError((): void => {
-      integrateAirborneRotation.tabulated(model, shape, {
+      AutoMovieEngineMotionAirborneRotation.tabulated(model, shape, {
         from: 1,
         to: 1,
         step: 0.01,
@@ -211,7 +211,7 @@ export function test_engine_motion_integrate_airborne_rotation_tabulated(): void
   TestValidator.predicate(
     "a step that is not positive is refused",
     throwsError((): void => {
-      integrateAirborneRotation.tabulated(model, shape, {
+      AutoMovieEngineMotionAirborneRotation.tabulated(model, shape, {
         from: 0,
         to: 1,
         step: 0,
@@ -232,7 +232,7 @@ function tabulatedGrid(): void {
         mass: 1,
         point: { x: 0, y: 0, z: 0 },
         inertia: { x: 0.5, y: 0.5, z: 0.5 },
-        axes: Quaternion.identity(),
+        axes: AutoMovieEngineQuaternion.identity(),
       }),
     ),
   };
@@ -240,7 +240,7 @@ function tabulatedGrid(): void {
     radius: number,
     radians: number,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
-    const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
       { x: 1, y: 0, z: 0 },
       (radians * 180) / Math.PI,
     );
@@ -262,7 +262,7 @@ function tabulatedGrid(): void {
     );
   };
   const midpoint: IAutoMovieIntegrateAirborneRotation.IInstant =
-    integrateAirborneRotation.tabulated(
+    AutoMovieEngineMotionAirborneRotation.tabulated(
       model,
       (t: number) => pose(t === 2 ? 2 : 0, 0),
       {
@@ -285,14 +285,14 @@ function tabulatedGrid(): void {
     return pose(0, t * t);
   };
   const grid: Required<
-    Parameters<typeof integrateAirborneRotation.tabulated>[2]
+    Parameters<typeof AutoMovieEngineMotionAirborneRotation.tabulated>[2]
   > = {
     from: 0,
     to: 1,
     step: 0.25,
     turn: 0.15,
   };
-  integrateAirborneRotation.tabulated(model, rotating, grid)(0.5);
+  AutoMovieEngineMotionAirborneRotation.tabulated(model, rotating, grid)(0.5);
   seen.sort((a: number, b: number): number => a - b);
   TestValidator.predicate(
     "adjacent sampled turns",
@@ -309,20 +309,20 @@ function tabulatedGrid(): void {
   );
 
   TestValidator.error("too many uniform knots", () => {
-    integrateAirborneRotation.tabulated(model, rotating, {
+    AutoMovieEngineMotionAirborneRotation.tabulated(model, rotating, {
       ...grid,
       step: Number.MIN_VALUE,
     })(0.5);
   });
   TestValidator.error("indistinguishable seconds", () => {
-    integrateAirborneRotation.tabulated(model, rotating, {
+    AutoMovieEngineMotionAirborneRotation.tabulated(model, rotating, {
       from: 1,
       to: 1 + Number.EPSILON,
       step: Number.EPSILON / 4,
     })(1);
   });
   TestValidator.error("too many knots for requested turn", () => {
-    integrateAirborneRotation.tabulated(model, rotating, {
+    AutoMovieEngineMotionAirborneRotation.tabulated(model, rotating, {
       ...grid,
       turn: Number.MIN_VALUE,
     })(0.5);

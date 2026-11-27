@@ -1,5 +1,7 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { walkLegCapsules } from "@automovie/motions/internal";
+import {
+  walkLegCapsules
+} from "../../../../../packages/motions/src/actions/internal/walkLegCapsules";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

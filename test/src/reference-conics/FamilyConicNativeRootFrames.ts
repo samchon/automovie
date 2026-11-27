@@ -1,9 +1,9 @@
 import { FamilyConicCaseIdentity as Identity } from "./FamilyConicCaseIdentity";
 import {
-  AutoMovieNaturalSpline,
-  AutoMovieSolidChain,
-  AutoMovieSolidVector as V,
-  AutoMovieViewLoft,
+  AutoMovieEngineNaturalSpline,
+  AutoMovieEngineSolidChain,
+  AutoMovieEngineSolidVector as V,
+  AutoMovieEngineViewLoft,
 } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft as H,
@@ -88,8 +88,10 @@ namespace FamilyConicNativeRootFrames {
     const clock: number = (2 * Math.PI * k) / count,
       q: number = loop.shape?.[k] ?? 1;
     return [
-      loop.centre[0] * 1000 + q * loop.semi[0] * 1000 * Math.cos(clock),
-      loop.centre[1] + q * (loop.sense ?? 1) * loop.semi[1] * Math.sin(clock),
+      loop.centre.station * 1000 +
+        q * loop.semi.stationMetres * 1000 * Math.cos(clock),
+      loop.centre.phase +
+        q * (loop.sense ?? 1) * loop.semi.phaseRadians * Math.sin(clock),
     ];
   }
 
@@ -201,7 +203,7 @@ namespace FamilyConicNativeRootFrames {
         if (bone === undefined) {
           bone = Figure.assemble(
             undefined,
-            AutoMovieHumanHipSupportPlacement(
+            AutoMovieHumanHipSupportPlacement.place(
               saved.fields,
               Placing.CHAIN,
               "femur",
@@ -220,13 +222,13 @@ namespace FamilyConicNativeRootFrames {
             assembly.body.trunk,
             originalPart.stations,
           ),
-          parentRaw: ReturnType<typeof AutoMovieViewLoft.create> =
-            AutoMovieViewLoft.create(parentPart);
+          parentRaw: ReturnType<typeof AutoMovieEngineViewLoft.create> =
+            AutoMovieEngineViewLoft.create(parentPart);
         if (parentRaw.chain === null)
           throw new Error(JSON.stringify(parentRaw.diagnostics));
         const parent: IAutoMovieSolidSurface | null =
-          AutoMovieSolidChain.surface(
-            AutoMovieSolidChain.framed(parentRaw.chain),
+          AutoMovieEngineSolidChain.surface(
+            AutoMovieEngineSolidChain.framed(parentRaw.chain),
           );
         if (parent === null)
           throw new Error("full relieved trunk differential unavailable");
@@ -295,7 +297,7 @@ namespace FamilyConicNativeRootFrames {
               const along: ((phase: number) => number) | undefined =
                 stations === undefined
                   ? undefined
-                  : AutoMovieNaturalSpline.periodic(stations);
+                  : AutoMovieEngineNaturalSpline.periodic(stations);
               const sourceFirst: number = prior.knots[0]!,
                 fallbackStation: number =
                   sourceFirst + (key === "arm" ? 10 : key === "nose" ? 1.5 : 1);

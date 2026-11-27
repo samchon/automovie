@@ -1,4 +1,4 @@
-import { AutoMoviePhysicalBalance as Balance } from "@automovie/engine";
+import { AutoMovieEnginePhysicalBalance as Balance } from "@automovie/engine";
 import type {
   IAutoMovieFootfallPattern,
   IAutoMoviePhysicalBalance,

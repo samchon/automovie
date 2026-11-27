@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanGesture } from "@automovie/interface";
 
-/**
+/*
  * The values the `beckonHand` row of `HumanUpperRows` fixes on `armPhrase`,
  * spread into its parameters. A beckon: the open hand held out ahead, palm up,
  * draws in toward the chest and out again.

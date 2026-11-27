@@ -1,5 +1,5 @@
-import { createHorse } from "@automovie/archetypes";
-import { AutoMovieComposition, Vector3 } from "@automovie/engine";
+import { AutoMovieArchetypeHorse } from "@automovie/archetypes";
+import { AutoMovieEngineComposition, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanSegment,
@@ -9,9 +9,9 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanMount,
-  HumanChain,
-  HumanObject,
-  HumanPerformance,
+  AutoMovieMotionHumanChain,
+  AutoMovieMotionHumanObject,
+  AutoMovieMotionHumanPerformance,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -19,7 +19,7 @@ import { assertTakeClean } from "../../../internal/assertTakeClean";
 import { motionHumanBody } from "../../../internal/motionHumanBody";
 
 /** The horse producer's model. */
-type Horse = ReturnType<typeof createHorse>;
+type Horse = ReturnType<typeof AutoMovieArchetypeHorse.create>;
 
 /**
  * Metres between the two held horses' heads, either side of the holder: an
@@ -47,7 +47,7 @@ const HOLD: number = 8;
  */
 export function test_motions_cavalry_holders(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
-  const horse: Horse = createHorse({ withersHeight: 1.62, tempo: 0 }, 1029);
+  const horse: Horse = AutoMovieArchetypeHorse.create({ withersHeight: 1.62, tempo: 0 }, 1029);
   const parked: (x: number) => IAutoMovieRigidTransform = (
     x: number,
   ): IAutoMovieRigidTransform => ({
@@ -58,9 +58,9 @@ export function test_motions_cavalry_holders(): void {
     x: number,
   ): IAutoMovieVector3 => {
     const frame: IAutoMovieTransform = horse.affordance("lead").frame;
-    return Vector3.add(frame.translation, { x, y: 0, z: 0 });
+    return AutoMovieEngineVector3.add(frame.translation, { x, y: 0, z: 0 });
   };
-  const film: HumanPerformance = new HumanPerformance({
+  const film: AutoMovieMotionHumanPerformance = new AutoMovieMotionHumanPerformance({
     seed: "holders",
     performers: [
       {
@@ -73,11 +73,11 @@ export function test_motions_cavalry_holders(): void {
     ],
     laws: [AutoMovieMotionHumanMount.leadHorse],
     props: [
-      HumanObject.prop("left", horse, parked(PAIR / 2)),
-      HumanObject.prop("right", horse, parked(-PAIR / 2)),
+      AutoMovieMotionHumanObject.prop("left", horse, parked(PAIR / 2)),
+      AutoMovieMotionHumanObject.prop("right", horse, parked(-PAIR / 2)),
     ],
-    composition: AutoMovieComposition.parallel(
-      HumanChain.subject("holder")
+    composition: AutoMovieEngineComposition.parallel(
+      AutoMovieMotionHumanChain.subject("holder")
         .stand({ hold: HOLD })
         .over((holder) =>
           holder

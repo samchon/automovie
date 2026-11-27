@@ -1,5 +1,7 @@
-import { ViolationCollector, sceneFogTransmittance } from "@automovie/engine";
-import { resolveStagedFog } from "@automovie/engine/internal";
+import { AutoMovieEngineViolationCollector, AutoMovieEngineScene } from "@automovie/engine";
+import {
+  resolveStagedFog
+} from "../../../../../packages/engine/src/film/staging/internal/resolveStagedFog";
 import type { IAutoMovieFog, IAutoMovieStage } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -23,7 +25,7 @@ const FOG_ROUNDING: number = 32 * Number.EPSILON;
  *    identify their own field.
  */
 export function test_engine_film_resolve_staged_fog(): void {
-  const out: ViolationCollector = new ViolationCollector();
+  const out: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();
   const reference: NonNullable<IAutoMovieStage["fogVisibility"]> = {
     cameraDepthM: 16,
     transmittance: 0.25,
@@ -45,9 +47,9 @@ export function test_engine_film_resolve_staged_fog(): void {
       clear !== undefined &&
       fog.color === reference.color &&
       nclose(fog.density, Math.sqrt(2 * Math.LN2) / 16, FOG_ROUNDING) &&
-      nclose(sceneFogTransmittance(fog, 32), 1 / 256, FOG_ROUNDING) &&
+      nclose(AutoMovieEngineScene.sceneFogTransmittance(fog, 32), 1 / 256, FOG_ROUNDING) &&
       clear.density === 0 &&
-      sceneFogTransmittance(clear, 32) === 1,
+      AutoMovieEngineScene.sceneFogTransmittance(clear, 32) === 1,
   );
   TestValidator.predicate(
     "a supplied density retains its record",

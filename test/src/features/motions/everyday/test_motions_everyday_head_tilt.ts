@@ -1,5 +1,10 @@
 import type { IAutoMovieMotionClock } from "@automovie/interface";
-import { HumanRefusal, headTiltClock } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  headTiltClock
+} from "../../../../../packages/motions/src/everyday/internal/headTiltClock";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -29,7 +34,7 @@ export async function test_motions_everyday_head_tilt(): Promise<void> {
   try {
     headTiltClock({ duration: 0.5 });
   } catch (error: unknown) {
-    if (error instanceof HumanRefusal) axis = error.axis;
+    if (error instanceof AutoMovieMotionHumanRefusal) axis = error.axis;
   }
   TestValidator.equals("too short", axis, "seconds");
 }

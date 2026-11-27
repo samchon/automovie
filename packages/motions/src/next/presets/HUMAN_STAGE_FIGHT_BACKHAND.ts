@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanStageFight } from "@automovie/interface";
 
-/**
+/*
  * The backhand preset: one tap of the hand's back swept across the target. The
  * `backhand` row of `HumanStageFight` reads it, so the row and the preset share
  * one value.

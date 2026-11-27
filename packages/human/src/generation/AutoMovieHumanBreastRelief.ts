@@ -29,20 +29,21 @@ export namespace AutoMovieHumanBreastRelief {
 
     // The footprint's stations: the window over it runs on across the vault
     // onto the shoulders' chain, held under the neck by the base's bounds.
-    const stations: [number, number] = [
-      o[1] + dome.reach.v[0],
-      o[1] + dome.reach.v[1],
-    ];
+    const stations = {
+      start: o[1] + dome.reach.v[0],
+      end: o[1] + dome.reach.v[1],
+    };
 
     // The lateral reach in phases on the base: the front's phase rises with z.
-    const phases: [number, number] = [
-      input.phaseOf(o[2] + dome.reach.u[0]),
-      input.phaseOf(o[2] + dome.reach.u[1]),
-    ];
-    const apex: [number, number] = [
-      (o[1] - stations[0]) / (stations[1] - stations[0]),
-      (input.phaseOf(o[2]) - phases[0]) / (phases[1] - phases[0]),
-    ];
+    const phases = {
+      start: input.phaseOf(o[2] + dome.reach.u[0]),
+      end: input.phaseOf(o[2] + dome.reach.u[1]),
+    };
+    const apex = {
+      station: (o[1] - stations.start) / (stations.end - stations.start),
+      phase:
+        (input.phaseOf(o[2]) - phases.start) / (phases.end - phases.start),
+    };
     const left: IAutoMovieLoftRelief = AutoMovieHumanTrunkReliefNet.fromFeature(
       "trunk.breast.left",
       dome,

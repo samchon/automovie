@@ -1,4 +1,4 @@
-import { Transform } from "@automovie/engine";
+import { AutoMovieEngineTransform } from "@automovie/engine";
 import { AutoMovieHumanCanonicalBody } from "@automovie/human";
 import type {
   AutoMovieHumanoidBone,
@@ -6,21 +6,12 @@ import type {
   IAutoMoviePose,
 } from "@automovie/interface";
 
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
-import { MotionBodies } from "../MotionBodies";
-import { galleryCaseFist } from "./galleryCaseFist";
-import { galleryCaseZero } from "./galleryCaseZero";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
+import { MotionBodies } from "../internal/MotionBodies";
+import { galleryCaseFist } from "./internal/galleryCaseFist";
+import { galleryCaseZero } from "./internal/galleryCaseZero";
 
-/** The record of `IGalleryCasesGalleryP`'s site. */
-type IGalleryCasesGalleryP = { label: string };
-
-/** The record of `IGalleryCasesPosesItem`'s site. */
-type IGalleryCasesPosesItem = {
-  label: string;
-  joints: Partial<Record<AutoMovieHumanoidBone, [number, number, number]>>;
-};
-
-/**
+/*
  * Inspection cases of the polygon man itself: `gallery` shows one body in
  * single-joint clinical poses (each instant one pose), and `bodies` stands the
  * three fixture bodies side by side at clinical neutral.
@@ -28,8 +19,7 @@ type IGalleryCasesPosesItem = {
  * The gallery's verdicts check the frame: a left-arm forward flexion raises the
  * hand on +X (the anatomical left) and in front (+Z), and a right hip flexion
  * carries the right knee forward on -X.
- *
- * @returns The two cases.
+ * Returns: The two cases.
  */
 export function galleryCases(): IMotionCaptureCase[] {
   const body: IAutoMovieHumanCanonicalBody.IBody =
@@ -105,7 +95,7 @@ export function galleryCases(): IMotionCaptureCase[] {
           body: b,
           pose: (): IAutoMoviePose => ({
             ...galleryCaseZero(b, {}),
-            root: Transform.of(
+            root: AutoMovieEngineTransform.of(
               { x: (i - 1) * 0.8, y: 0, z: 0 },
               { x: 0, y: 0, z: 0, w: 1 },
             ),
@@ -117,10 +107,27 @@ export function galleryCases(): IMotionCaptureCase[] {
   return [gallery, bodies];
 }
 
-/** The record of `IJointResult`'s site. */
+/*
+ * The record of `IGalleryCasesGalleryP`'s site.
+ */
+type IGalleryCasesGalleryP = { label: string };
+
+/*
+ * The record of `IGalleryCasesPosesItem`'s site.
+ */
+type IGalleryCasesPosesItem = {
+  label: string;
+  joints: Partial<Record<AutoMovieHumanoidBone, [number, number, number]>>;
+};
+
+/*
+ * The record of `IJointResult`'s site.
+ */
 type IJointResult = { x: number; y: number; z: number };
 
-/** One Human joint's canonical position under a pose. */
+/*
+ * One Human joint's canonical position under a pose.
+ */
 function joint(
   body: IAutoMovieHumanCanonicalBody.IBody,
   pose: IAutoMoviePose,

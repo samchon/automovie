@@ -1,11 +1,4 @@
-import {
-  AutoMovieConstructionProfile,
-  AutoMovieConstructionProfileBody,
-  AutoMovieConstructionProfileSkin,
-  AutoMovieSolidBody,
-  AutoMovieSolidMesh,
-  AutoMovieViewAxis,
-} from "@automovie/engine";
+import { AutoMovieEngineConstructionProfile, AutoMovieEngineConstructionProfileBody, AutoMovieEngineSolidBody, AutoMovieEngineSolidMesh, AutoMovieEngineViewAxis, AutoMovieEngineConstruction } from "@automovie/engine";
 import type {
   IAutoMovieConstructionJoin,
   IAutoMovieConstructionNode,
@@ -125,7 +118,7 @@ export namespace ConstructionProfileRealization {
     );
     return {
       definition: definition("L", pieces),
-      plane: { id: "plane", axis: AutoMovieViewAxis.horizontal() },
+      plane: { id: "plane", axis: AutoMovieEngineViewAxis.horizontal() },
       curves,
     };
   }
@@ -191,7 +184,7 @@ export namespace ConstructionProfileRealization {
     data.loops[0]!.surfaceOrientation = direction;
     return {
       definition: data,
-      plane: { id: "plane", axis: AutoMovieViewAxis.horizontal() },
+      plane: { id: "plane", axis: AutoMovieEngineViewAxis.horizontal() },
       curves: new Map([["cone", curve]]),
     };
   }
@@ -219,8 +212,8 @@ export namespace ConstructionProfileRealization {
         type: "point",
         partFace: "missing",
         hostFace,
-        part: [0.0005, 0],
-        host: [0.0005, 0],
+        part: { station: 0.0005, phase: 0 },
+        host: { station: 0.0005, phase: 0 },
       },
       parameter: { type: "phase" },
       partWidth: { type: "chord", value: 0.0001 },
@@ -262,8 +255,8 @@ export namespace ConstructionProfileRealization {
         vv: [0, 0, 0],
       }),
     };
-    const mesh: IAutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
-    const owner: number = AutoMovieSolidMesh.owner(mesh, surface);
+    const mesh: IAutoMovieSolidMesh.IMesh = AutoMovieEngineSolidMesh.create();
+    const owner: number = AutoMovieEngineSolidMesh.owner(mesh, surface);
     const chart: [number, number][] = [
       [0, 0],
       [1, 0],
@@ -271,7 +264,7 @@ export namespace ConstructionProfileRealization {
       [0, 1],
     ];
     const vertices: number[] = chart.map(([u, v]: [number, number]): number =>
-      AutoMovieSolidMesh.vertex(mesh, [u, v, 0], owner, u, v),
+      AutoMovieEngineSolidMesh.vertex(mesh, [u, v, 0], owner, u, v),
     );
     return {
       mesh,
@@ -296,19 +289,19 @@ export namespace ConstructionProfileRealization {
   /** An actual hole inside the original tip strip must receive a named refusal, never a whole-ring fan that covers it. */
   export function cutCap(failures: string[]): void {
     const prepared: IAutoMoviePreparedConstructionProfile.IPrepared =
-      AutoMovieConstructionProfile.create(cone(1, 1, true));
-    const body: IAutoMovieSolidBody.IBody = AutoMovieSolidBody.create(
+      AutoMovieEngineConstructionProfile.create(cone(1, 1, true));
+    const body: IAutoMovieSolidBody.IBody = AutoMovieEngineSolidBody.create(
       "actual cap cut",
       [],
     );
     const ends: IAutoMovieConstructionProfileBody.IEnd[] =
-      AutoMovieConstructionProfileBody.append(body, prepared, 0.02);
+      AutoMovieEngineConstructionProfileBody.append(body, prepared, 0.02);
     const end: IAutoMovieConstructionProfileBody.IEnd = ends[0]!;
     const surface: IAutoMovieSolidSurface = body.faces[0]!.surface;
-    const owner: number = AutoMovieSolidMesh.owner(body.mesh, surface);
+    const owner: number = AutoMovieEngineSolidMesh.owner(body.mesh, surface);
     // The regular domain is disjoint from this cap-only cut, so its actual mesh/open records remain valid.
     const diagnostics: { contract: string; detail: string }[] = [];
-    const open: IAutoMovieSolidMesh.IOpen[][] = AutoMovieSolidBody.draw(
+    const open: IAutoMovieSolidMesh.IOpen[][] = AutoMovieEngineSolidBody.draw(
       body,
       (_node: string, detail: string): void => {
         diagnostics.push({ contract: "face triangulation", detail });
@@ -324,11 +317,11 @@ export namespace ConstructionProfileRealization {
       kind: "hole",
       chart,
       vertices: chart.map(([u, v]: [number, number]): number =>
-        AutoMovieSolidMesh.vertex(body.mesh, surface.point!(u, v), owner, u, v),
+        AutoMovieEngineSolidMesh.vertex(body.mesh, surface.point!(u, v), owner, u, v),
       ),
       neighbours: [],
     });
-    AutoMovieConstructionProfileSkin(
+    AutoMovieEngineConstruction.constructionProfileSkin(
       body,
       ends,
       open,

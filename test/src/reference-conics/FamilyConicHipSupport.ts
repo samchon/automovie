@@ -1,11 +1,11 @@
 import {
-  AutoMovieConstructionAdmission,
-  AutoMovieConstructionSplitBand,
-  AutoMovieConstructionSplitSeam,
-  AutoMovieConstructionViews,
-  AutoMovieSolidChain,
-  AutoMovieSolidVector as V,
-  AutoMovieViewLoft,
+  AutoMovieEngineConstructionAdmission,
+  AutoMovieEngineConstructionSplitBand,
+  AutoMovieEngineConstructionSplitSeam,
+  AutoMovieEngineConstructionViews,
+  AutoMovieEngineSolidChain,
+  AutoMovieEngineSolidVector as V,
+  AutoMovieEngineViewLoft,
 } from "@automovie/engine";
 import {
   AutoMovieHumanF1 as H,
@@ -166,22 +166,20 @@ namespace FamilyConicHipSupport {
     );
     if (normal === null)
       return { unavailable: "Actual host end plane degenerate" };
-    const scale: number = AutoMovieConstructionViews.SCALE;
+    const scale: number = AutoMovieEngineConstructionViews.SCALE;
     const curve: IAutoMovieConstructionSplitSeam.ISeam | string | undefined =
       split.profile === undefined
         ? undefined
-        : AutoMovieConstructionSplitSeam.create({
+        : AutoMovieEngineConstructionSplitSeam.create({
             host: host.surface,
             station: layer.y,
             into: hostInto,
             seam: split.seam,
             normal,
-            knots: split.profile.knots.map(
-              ([along, depth]: [number, number]): [number, number] => [
-                along * scale,
-                depth * scale,
-              ],
-            ),
+            knots: split.profile.knots.map(({ alongM, depthM }) => ({
+              alongMm: alongM * scale,
+              depthMm: depthM * scale,
+            })),
             ...(split.profile.heading === undefined
               ? {}
               : { heading: split.profile.heading }),
@@ -224,13 +222,13 @@ namespace FamilyConicHipSupport {
               unavailable: "Actual child rail leaves its open owned domain",
             };
           const band: IAutoMovieConstructionSplitBand.IBand | string =
-            AutoMovieConstructionSplitBand.create({
+            AutoMovieEngineConstructionSplitBand.create({
               name: child.band,
               host: { surface: host.surface, station: layer.y, into: hostInto },
               arc:
                 index === 0
-                  ? split.seam
-                  : [split.seam[1], split.seam[0] + 2 * Math.PI],
+                  ? [split.seam.startPhaseRad, split.seam.endPhaseRad]
+                  : [split.seam.endPhaseRad, split.seam.startPhaseRad + 2 * Math.PI],
               normal,
               child: { surface: source.surface, station: rail, into },
               count: split.count,
@@ -297,7 +295,7 @@ namespace FamilyConicHipSupport {
     const declared: IAutoMovieHumanF1.IConstruction = H.constructionFrom(assembly);
     const failures: { owner: string; detail: string }[] = [];
     try {
-      AutoMovieConstructionAdmission.admit(declared.root);
+      AutoMovieEngineConstructionAdmission.admit(declared.root);
     } catch (error: unknown) {
       failures.push({
         owner: "tree admission",
@@ -308,7 +306,7 @@ namespace FamilyConicHipSupport {
     const rows: unknown[] = [];
     for (const [name, part] of declared.sources) {
       try {
-        const raw: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create(part);
+        const raw: IAutoMovieViewLoft.IResult = AutoMovieEngineViewLoft.create(part);
         if (raw.chain === null) {
           failures.push({
             owner: name,
@@ -316,11 +314,11 @@ namespace FamilyConicHipSupport {
           });
           continue;
         }
-        const chain: IAutoMovieLoftChain = AutoMovieSolidChain.framed(
+        const chain: IAutoMovieLoftChain = AutoMovieEngineSolidChain.framed(
           raw.chain,
         );
         const surface: IAutoMovieSolidSurface | null =
-          AutoMovieSolidChain.surface(chain);
+          AutoMovieEngineSolidChain.surface(chain);
         if (surface === null) {
           failures.push({
             owner: name,

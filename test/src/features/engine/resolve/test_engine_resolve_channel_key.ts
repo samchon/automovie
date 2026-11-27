@@ -1,4 +1,4 @@
-import { channelKey } from "@automovie/engine";
+import { AutoMovieEngineResolve } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -13,12 +13,12 @@ import { TestValidator } from "@nestia/e2e";
 export function test_engine_resolve_channel_key(): void {
   TestValidator.equals(
     "a node channel",
-    channelKey({ kind: "node", node: "arm", path: "rotation" }),
+    AutoMovieEngineResolve.channelKey({ kind: "node", node: "arm", path: "rotation" }),
     "node:arm:rotation",
   );
   TestValidator.equals(
     "a pointer channel",
-    channelKey({
+    AutoMovieEngineResolve.channelKey({
       kind: "pointer",
       pointer: "/lights/lamp/intensity",
       valueType: "scalar",

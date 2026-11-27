@@ -8,25 +8,25 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { createHumanBody } from "../../body/createHumanBody";
-import { HumanPerformance } from "../../perform/HumanPerformance";
-import { DefenceOutcome } from "../../striking/DefenceOutcome";
-import { StrikingRecord } from "../../striking/StrikingRecord";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
-import { MotionBodies } from "../MotionBodies";
-import type { humanPolygonMan } from "../humanPolygonMan";
+import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
+import { AutoMovieMotionHumanPerformance } from "../../perform/AutoMovieMotionHumanPerformance";
+import { DefenceOutcome } from "../../striking/internal/DefenceOutcome";
+import { StrikingRecord } from "../../striking/internal/StrikingRecord";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
+import { MotionBodies } from "../internal/MotionBodies";
+import type { humanPolygonMan } from "../internal/humanPolygonMan";
 import { StrikingEventVerdicts } from "./StrikingEventVerdicts";
 import { StrikingLimb } from "./StrikingLimb";
 import { StrikingVerdicts } from "./StrikingVerdicts";
 import { strikingScenarios } from "./strikingScenarios";
 
-/**
+/*
  * Capture cases of the striking laws on the polygon man, for what the numeric
  * tests cannot show: whether a strike reads as the technique, whether the body
  * carries it, and what the limb meets.
  *
  * Every body of `MotionBodies.SWEEP` plays subject `a` of every scenario of
- * {@link strikingScenarios}, one case per family and body (`<family>-<body>`).
+ * strikingScenarios, one case per family and body (`<family>-<body>`).
  * Its partner, subject `b`, is the average man, except that the tall man and
  * the small woman face each other, so the sweep holds the largest stature
  * difference both ways. The observed cover uses the average body only.
@@ -34,16 +34,15 @@ import { strikingScenarios } from "./strikingScenarios";
  * Each case draws the launch, the chamber or mid-delivery, the stop (or the
  * planned contact) and the end of every strike, trails the striking wrist or
  * ankle and marks the planned contact point. Its verdicts are those of
- * {@link StrikingVerdicts} for every strike, the defence verdict of every
+ * StrikingVerdicts for every strike, the defence verdict of every
  * defence, and, where the scenario carries a late redirect, its refusal. The
  * metrics name the partner and the gap, and for each kick that reaches its
  * chamber key before any stop the heights of its knee, its hip, its target and
  * the defender's shoulders at that key, for the side-sheet review.
- *
- * @param family One scenario family, or all when absent.
- * @param only Keeps the cases whose name it accepts, the others not being
- *   built; every case when absent.
- * @returns The cases, each built as it is read.
+ * Parameter family: One scenario family, or all when absent.
+ * Parameter only: Keeps the cases whose name it accepts, the others not being
+ * built; every case when absent.
+ * Returns: The cases, each built as it is read.
  */
 export function* strikingCases(
   family?: string,
@@ -77,7 +76,13 @@ export function* strikingCases(
       const man: humanPolygonMan.IPolygonMan = MotionBodies.population(name);
       return [
         name,
-        { man, body: createHumanBody(man.body.skeleton, man.body.profile) },
+        {
+          man,
+          body: AutoMovieMotionHumanBody.create(
+            man.body.skeleton,
+            man.body.profile,
+          ),
+        },
       ];
     }),
   );
@@ -91,57 +96,89 @@ export function* strikingCases(
     );
 }
 
-/** A case kept: its name, scenario, performer and partner. */
+/*
+ * A case kept: its name, scenario, performer and partner.
+ */
 interface IKept {
-  /** The case's name. */
+  /*
+   * The case's name.
+   */
   name: string;
 
-  /** Its scenario family. */
+  /*
+   * Its scenario family.
+   */
   scenario: string;
 
-  /** The performer's population name. */
+  /*
+   * The performer's population name.
+   */
   who: string;
 
-  /** The partner's population name. */
+  /*
+   * The partner's population name.
+   */
   partner: string;
 }
 
-/** A prepared polygon man and the motion body read from it. */
+/*
+ * A prepared polygon man and the motion body read from it.
+ */
 interface IPerson {
-  /** The polygon man drawn. */
+  /*
+   * The polygon man drawn.
+   */
   man: humanPolygonMan.IPolygonMan;
 
-  /** Its motion body. */
+  /*
+   * Its motion body.
+   */
   body: IAutoMovieMotionHumanBody;
 }
-/** The record of `IThrownOther`'s site. */
+/*
+ * The record of `IThrownOther`'s site.
+ */
 type IThrownOther = { id: string; body: IAutoMovieMotionHumanBody };
 
-/** One strike of a case: who throws it, at whom, and its segment. */
+/*
+ * One strike of a case: who throws it, at whom, and its segment.
+ */
 interface IThrown {
-  /** The striker's subject id. */
+  /*
+   * The striker's subject id.
+   */
   id: string;
 
-  /** The striker's body. */
+  /*
+   * The striker's body.
+   */
   body: IAutoMovieMotionHumanBody;
 
-  /** The other person, when there is one. */
+  /*
+   * The other person, when there is one.
+   */
   other: IThrownOther | undefined;
 
-  /** The strike's segment. */
+  /*
+   * The strike's segment.
+   */
   segment: IAutoMovieMotionHumanSegment;
 }
-/** The record of `IBuildTargetsItem`'s site. */
+/*
+ * The record of `IBuildTargetsItem`'s site.
+ */
 type IBuildTargetsItem = {
   at: IAutoMovieVector3;
   radius: number;
   color: number;
 };
 
-/** The record of `IBuildTrailsItem`'s site. */
+/*
+ * The record of `IBuildTrailsItem`'s site.
+ */
 type IBuildTrailsItem = { color: number; points: IAutoMovieVector3[] };
 
-/**
+/*
  * Build one case: run the scenario's performance for the two bodies and read
  * its instants, overlays, verdicts and metrics from the displayed poses.
  */
@@ -158,7 +195,7 @@ function build(
   const perform = (
     a: IAutoMovieMotionHumanChain,
   ): IAutoMovieMotionHumanPerformance =>
-    new HumanPerformance({
+    new AutoMovieMotionHumanPerformance({
       seed: s.coverAfterContact?.seed ?? scenario,
       performers: [
         {
@@ -342,7 +379,9 @@ function build(
   };
 }
 
-/** Check the visible response against first physical contact and both clocks. */
+/*
+ * Check the visible response against first physical contact and both clocks.
+ */
 function observeCover(
   performance: IAutoMovieMotionHumanPerformance,
   strike: string,

@@ -1,4 +1,5 @@
-import { realizeAutoMovieConstruction } from "@automovie/engine";
+
+import { AutoMovieEngineConstruction } from "@automovie/engine";
 import type {
   IAutoMovieConstructionKnot,
   IAutoMovieConstructionRealization,
@@ -41,7 +42,7 @@ export function test_engine_geometry_construction_view_girth(): void {
     (): [number, number, number, number] => [a, b, a, b],
     "open",
   );
-  const perimeter: number = ConstructionShapes.Oracle.perimeter(a, b);
+  const perimeter: number = ConstructionShapes.oraclePerimeter(a, b);
   const part: IAutoMovieConstructionView = {
     ...base,
     fullness: {
@@ -59,7 +60,7 @@ export function test_engine_geometry_construction_view_girth(): void {
     },
   };
   const real: IAutoMovieConstructionRealization.IWithoutSkin =
-    realizeAutoMovieConstruction(
+    AutoMovieEngineConstruction.realize(
       { name: "made", root: part },
       { chord: 1e-4, skin: false },
     );

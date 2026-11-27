@@ -1,12 +1,12 @@
 /**
- * Data contracts of `solveAutoMovieSunPosition`, which places the sun in the
+ * Data contracts of `solveSunPosition`, which places the sun in the
  * sky of a site at a UTC instant.
  */
 export namespace IAutoMovieSolveSunPosition {
   /**
    * The observer's site and the instant to solve.
    *
-   * `solveAutoMovieSunPosition` refuses a latitude outside `[-90, 90]`, a
+   * `solveSunPosition` refuses a latitude outside `[-90, 90]`, a
    * non-finite longitude or elevation, a calendar field that is not an integer
    * in its range, a non-positive pressure and a temperature at or below
    * absolute zero, by throwing an error that names the field.

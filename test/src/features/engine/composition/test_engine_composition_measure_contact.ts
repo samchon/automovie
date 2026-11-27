@@ -1,8 +1,4 @@
-import {
-  preparePhysicalGeometry as Geometry,
-  auditAutoMovieOutcome,
-  measureAutoMovieContact,
-} from "@automovie/engine";
+import { AutoMovieEnginePhysicalGeometry as Geometry, AutoMovieEngineCompositionOutcome, AutoMovieEngineCompositionContact } from "@automovie/engine";
 import type {
   IAutoMovieAuditOutcome,
   IAutoMovieMeasureContact,
@@ -17,9 +13,9 @@ import { PhysicalFixtures } from "../../internal/PhysicalFixtures";
 const ROUNDING: number = 1e-6;
 
 /**
- * `measureAutoMovieContact` measures the contact between two subjects'
+ * `measureContact` measures the contact between two subjects'
  * displayed colliders, and its record feeds the outcome audit
- * (`auditAutoMovieOutcome`) unchanged.
+ * (`auditOutcome`) unchanged.
  *
  * Scenarios, two 0.1 m spheres at 1 m height:
  *
@@ -30,7 +26,7 @@ const ROUNDING: number = 1e-6;
  * 3. A side whose bones declare no colliders is refused.
  */
 export async function test_engine_composition_measure_contact(): Promise<void> {
-  const queries: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry();
+  const queries: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry.prepare();
   const profile: IAutoMoviePhysicalProfile = PhysicalFixtures.sphere(0.1);
   const side = (
     subject: string,
@@ -47,13 +43,13 @@ export async function test_engine_composition_measure_contact(): Promise<void> {
     },
     bones: ["root"],
   });
-  const touching: IAutoMovieMeasureContact.IResult = measureAutoMovieContact({
+  const touching: IAutoMovieMeasureContact.IResult = AutoMovieEngineCompositionContact.measure({
     a: side("a", 0),
     b: side("b", 0.19),
     queries,
     seconds: 1,
   });
-  const apart: IAutoMovieMeasureContact.IResult = measureAutoMovieContact({
+  const apart: IAutoMovieMeasureContact.IResult = AutoMovieEngineCompositionContact.measure({
     a: side("a", 0),
     b: side("b", 0.25),
     queries,
@@ -73,14 +69,14 @@ export async function test_engine_composition_measure_contact(): Promise<void> {
     "the measured contacts",
     Math.abs(touching.separation + 0.01) < ROUNDING &&
       touching.contact !== null &&
-      auditAutoMovieOutcome(outcome, [touching.contact]).length === 0 &&
+      AutoMovieEngineCompositionOutcome.audit(outcome, [touching.contact]).length === 0 &&
       Math.abs(apart.separation - 0.05) < ROUNDING &&
       apart.contact === null &&
-      auditAutoMovieOutcome(outcome, []).length === 1,
+      AutoMovieEngineCompositionOutcome.audit(outcome, []).length === 1,
   );
   let refused: boolean = false;
   try {
-    measureAutoMovieContact({
+    AutoMovieEngineCompositionContact.measure({
       a: { ...side("a", 0), bones: ["none"] },
       b: side("b", 0.19),
       queries,

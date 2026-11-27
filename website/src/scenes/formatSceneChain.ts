@@ -1,3 +1,5 @@
+import { AutoMovieEngineScheduleCut } from "@automovie/engine";
+import { ArchetypeRegistry } from "../archetypes/ArchetypeRegistry";
 import { playgroundActionParams } from "../playground/data/playgroundActionParams";
 import { playgroundAidWalkAction } from "../playground/package/playgroundAidWalkAction";
 import type { IPlaygroundComposition } from "../playground/structures/IPlaygroundComposition";
@@ -6,16 +8,16 @@ import type { ISceneChainNames } from "./structures/ISceneChainNames";
 
 /**
  * A composition as the TypeScript an agent writes against `@automovie/motions`:
- * the archetypes it places, one `HumanChain` per performer, each vocabulary
+ * the archetypes it places, one `AutoMovieMotionHumanChain` per performer, each vocabulary
  * action appended with `act` and each lexicon row with `registered`, cut with
  * `until`, timed with `sync` and with the actions performed over it in `over`;
  * the people's chains joined with `with`, each mutual action after them with
  * `next`; the laws the performance registers; each placed archetype as a prop
- * through `HumanObject.prop`, with the person and bone it starts worn on, and a
+ * through `AutoMovieMotionHumanObject.prop`, with the person and bone it starts worn on, and a
  * blade that starts in its carrier staged by `HumanSheath.of`; and the authored
- * impulses. It shows the input `HumanPerformance` is built from, as
+ * impulses. It shows the input `AutoMovieMotionHumanPerformance` is built from, as
  * `PlaygroundPerformance` builds it, ending in the one line `const performance
- * = new HumanPerformance(input);`. A seat is written as `HumanObject.seat` of
+ * = new AutoMovieMotionHumanPerformance(input);`. A seat is written as `AutoMovieMotionHumanObject.seat` of
  * the archetype that carries it, and an opening as `HumanObstacle.apertures`.
  * Each person's body is read from `bodies`, declared as the
  * `IAutoMovieMotionHumanBody` of each of the site's body ids, since a body is
@@ -36,7 +38,7 @@ export function formatSceneChain(
     (object: IPlaygroundComposition.IObject): boolean =>
       object.course !== undefined,
   );
-  const imports: Set<string> = new Set<string>(["HumanChain"]);
+  const imports: Set<string> = new Set<string>(["AutoMovieMotionHumanChain"]);
   const body: string[] = [];
   const indent: (text: string, by: string) => string = (
     text: string,
@@ -71,7 +73,12 @@ export function formatSceneChain(
         `${by}.${method}(${JSON.stringify(action.name)}, ${indent(value(params), by)}${action.anchor === undefined ? "" : `, ${JSON.stringify(action.anchor)}`})`,
       ];
       if (action.until !== undefined)
-        out.push(`${by}.until(${indent(value(action.until), by)})`);
+        out.push(
+          `${by}.until(${indent(
+            value(AutoMovieEngineScheduleCut.normalize(action.until)),
+            by,
+          )})`,
+        );
       if (action.over !== undefined && action.over.length !== 0)
         out.push(
           `${by}.over((overlay) =>`,
@@ -85,13 +92,16 @@ export function formatSceneChain(
     });
 
   for (const o of objects) {
+    const producer: string =
+      ArchetypeRegistry.get(o.producer)?.expression ??
+      `archetypes.${o.producer}`;
     const key: string = names.frames.includes(o.producer)
       ? "frame"
       : names.formats.includes(o.producer)
         ? "format"
         : "kind";
     body.push(
-      `const ${identifier(o.subject)} = archetypes.${o.producer}(${options(o, key)}${o.seed === undefined ? "" : `, ${JSON.stringify(o.seed)}`});`,
+      `const ${identifier(o.subject)} = ${producer}(${options(o, key)}${o.seed === undefined ? "" : `, ${JSON.stringify(o.seed)}`});`,
       o.rotation === undefined
         ? `const ${identifier(o.subject)}At = { at: { x: ${o.x}, y: ${o.y ?? 0}, z: ${o.z} }, yaw: ${o.yaw}${o.fixed === true ? ", fixed: true" : ""} };`
         : `const ${identifier(o.subject)}At = { position: { x: ${o.x}, y: ${o.y ?? 0}, z: ${o.z} }, rotation: ${literal(o.rotation, imports)}${o.fixed === true ? ", fixed: true" : ""} };`,
@@ -145,7 +155,7 @@ export function formatSceneChain(
     if (performer.actions.length === 0) continue;
     body.push(
       `// ${performer.subject}: body ${performer.body}, at (${performer.x}, ${performer.z}) m, facing ${performer.yaw}째, ${performer.proficiency}`,
-      `const ${identifier(performer.subject)} = HumanChain.subject(${JSON.stringify(performer.subject)})`,
+      `const ${identifier(performer.subject)} = AutoMovieMotionHumanChain.subject(${JSON.stringify(performer.subject)})`,
       ...calls(performer.actions, performer.body, "  "),
     );
     body[body.length - 1] += ";";
@@ -163,12 +173,12 @@ export function formatSceneChain(
     );
   const mutuals: string[] = composition.mutuals.map(
     (mutual: IPlaygroundComposition.IMutual): string =>
-      `HumanChain.mutual(\n  ${use(names.mutuals[mutual.name] ?? mutual.name)},\n  { ${Object.entries(
+      `AutoMovieMotionHumanChain.mutual(\n  ${use(names.mutuals[mutual.name] ?? mutual.name)},\n  { ${Object.entries(
         mutual.cast,
       )
         .map(
           ([role, subject]: [string, string]): string =>
-            `${role}: HumanChain.subject(${JSON.stringify(subject)})`,
+            `${role}: AutoMovieMotionHumanChain.subject(${JSON.stringify(subject)})`,
         )
         .join(", ")} },\n  ${indent(value(mutual.params), "  ")},\n)`,
   );
@@ -195,7 +205,7 @@ export function formatSceneChain(
   // Each placed archetype is a prop the actions name; one worn at the start
   // rides the wearer's bone until a hand draws it.
   if (objects.length !== 0) {
-    imports.add("HumanObject");
+    imports.add("AutoMovieMotionHumanObject");
     body.push(
       "",
       "const props = [",
@@ -218,7 +228,7 @@ export function formatSceneChain(
           aid !== undefined
             ? ", " +
               use("HumanAidWalk") +
-              ".track(HumanObject.frame(" +
+              ".track(AutoMovieMotionHumanObject.frame(" +
               name +
               "At), " +
               value(aid) +
@@ -231,7 +241,7 @@ export function formatSceneChain(
   }, (id, seconds) => ${read}, Object.keys(${homeState}).map((articulation) => ({
     articulation, start: 0, travel: (seconds) => Reflect.get(${state}, articulation) ?? 0,
   }))`;
-        const made: string = `HumanObject.prop(${JSON.stringify(o.subject)}, ${name}, ${name}At${travel})`;
+        const made: string = `AutoMovieMotionHumanObject.prop(${JSON.stringify(o.subject)}, ${name}, ${name}At${travel})`;
         return o.worn === undefined
           ? `  ${made},`
           : `  { ...${made}, worn: ${indent(literal(o.worn, imports), "  ")} },`;
@@ -266,7 +276,7 @@ export function formatSceneChain(
 
   // The performance is built from the people, the composition, the props
   // and the laws, each list given only where the scene has one.
-  imports.add("HumanPerformance");
+  imports.add("AutoMovieMotionHumanPerformance");
   body.push(
     "",
     "// Each body id's motion body, prepared from the site's measures.",
@@ -288,7 +298,7 @@ export function formatSceneChain(
     ...(hasCues ? ["  cues,"] : []),
     ...(names.laws.length === 0 ? [] : ["  laws,"]),
     "};",
-    "const performance = new HumanPerformance(input);",
+    "const performance = new AutoMovieMotionHumanPerformance(input);",
   );
 
   const header: string[] = [
@@ -342,8 +352,8 @@ function literal(value: unknown, imports: Set<string>): string {
         imports.add("HumanObstacle");
         return `HumanObstacle.apertures(${identifier(aperture)}, ${identifier(aperture)}At)${typeof id === "string" ? `.find((o) => o.id === ${JSON.stringify(id)})!` : "[0]!"}`;
       }
-      imports.add("HumanObject");
-      return `HumanObject.seat(${identifier(seat as string)}, ${identifier(seat as string)}At${typeof id === "string" ? `, ${JSON.stringify(id)}` : ""})`;
+      imports.add("AutoMovieMotionHumanObject");
+      return `AutoMovieMotionHumanObject.seat(${identifier(seat as string)}, ${identifier(seat as string)}At${typeof id === "string" ? `, ${JSON.stringify(id)}` : ""})`;
     }
     const entries: string[] = Object.entries(value).map(
       ([key, inner]: [string, unknown]): string =>

@@ -1,23 +1,15 @@
-import { resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type {
-  IAutoMovieMotionHumanChain,
-  IAutoMovieMotionHumanOperate,
-  IAutoMovieMotionHumanPerformance,
-  IAutoMovieMotionHumanWipe,
-  IAutoMovieVector3,
-} from "@automovie/interface";
 
-import { HumanChain } from "../../HumanChain";
-import { AutoMovieMotionInterval } from "../../compose/AutoMovieMotionInterval";
-import { wipe } from "../../tasks/wipe";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import type { IAutoMovieMotionHumanChain, IAutoMovieMotionHumanOperate, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanWipe, IAutoMovieVector3 } from "@automovie/interface";
+
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
+import { AutoMovieMotionInterval } from "../../compose/internal/AutoMovieMotionInterval";
+import { wipe } from "../../tasks/internal/wipe";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
-import { everydayVerdicts } from "./everydayVerdicts";
+import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/** The record of `IHouseholdCasesHeight`'s site. */
-type IHouseholdCasesHeight = { low: number; high: number };
-
-/**
+/*
  * Capture cases of the household family, from quiet standing with the right
  * hand, at a counter 225 mm below the elbow (Li, Chang and Zhang 2024's
  * preferred band of 200 to 250 mm):
@@ -31,9 +23,8 @@ type IHouseholdCasesHeight = { low: number; high: number };
  * and that from `strokeStart` to `strokeEnd` of the wipe the palm socket lies
  * within -10 to +10 mm of the counter's top and within 10 mm of the wipe's
  * planned circle (provisional bounds at decision 11's accuracy).
- *
- * @param bodies The sweep bodies; `m-average` when absent.
- * @returns The cases.
+ * Parameter bodies: The sweep bodies; `m-average` when absent.
+ * Returns: The cases.
  */
 export function householdCases(
   bodies: readonly string[] = ["m-average"],
@@ -62,10 +53,10 @@ export function householdCases(
       },
     };
     const chains: [string, IAutoMovieMotionHumanChain][] = [
-      ["wipe", HumanChain.subject("a").act("wipe", wiping)],
+      ["wipe", AutoMovieMotionHumanChain.subject("a").act("wipe", wiping)],
       [
         "drawer-wipe",
-        HumanChain.subject("a").act("operate", drawer).act("wipe", wiping),
+        AutoMovieMotionHumanChain.subject("a").act("operate", drawer).act("wipe", wiping),
       ],
     ];
     for (const [label, chain] of chains) {
@@ -84,7 +75,7 @@ export function householdCases(
       const to: number = at("strokeEnd");
       const palm = (t: number): IAutoMovieVector3 => {
         const frame = who.body.surfaces.sockets.palmRight;
-        return resolveAutoMovieHumanoidSurfaces.place(
+        return AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
           frame,
           performance.bones("a", t).get(frame.bone)!,
         ).point;
@@ -139,3 +130,8 @@ export function householdCases(
   }
   return out;
 }
+
+/*
+ * The record of `IHouseholdCasesHeight`'s site.
+ */
+type IHouseholdCasesHeight = { low: number; high: number };

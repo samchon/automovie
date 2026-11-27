@@ -1,10 +1,12 @@
-import { Quaternion, physicalShapeFaceContact } from "@automovie/engine";
+import { AutoMovieEnginePhysics, AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalShape,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanSocial } from "@automovie/motions/internal";
+import {
+  HumanSocial
+} from "../../../../../packages/motions/src/lexicon/internal/HumanSocial";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -24,7 +26,7 @@ import { nclose } from "../../internal/nclose";
 export function test_motions_touch_arm_wrestle(): void {
   const frame: IAutoMovieRigidTransform = {
     position: { x: 0, y: 0, z: 0 },
-    rotation: Quaternion.identity(),
+    rotation: AutoMovieEngineQuaternion.identity(),
   };
   const elbow: IAutoMoviePhysicalShape = {
     id: "elbow",
@@ -40,8 +42,8 @@ export function test_motions_touch_arm_wrestle(): void {
     { x: 0.08, y: 0, z: 0.08 },
     { x: -0.08, y: 0, z: 0.08 },
   ];
-  const face: ReturnType<typeof physicalShapeFaceContact.prepare> =
-    physicalShapeFaceContact.prepare(frame, outline);
+  const face: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeFaceContactPrepare> =
+    AutoMovieEnginePhysics.physicalShapeFaceContactPrepare(frame, outline);
   const gap = (x: number, y: number): number | undefined =>
     face({ ...frame, position: { x, y, z: 0 } }, elbow)?.clearance;
   TestValidator.predicate(

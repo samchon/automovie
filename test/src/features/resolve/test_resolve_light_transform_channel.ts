@@ -1,4 +1,4 @@
-import { Quaternion, resolveShotLighting } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineResolve } from "@automovie/engine";
 import {
   AutoMovieChannelValueType,
   IAutoMovieChannel,
@@ -89,13 +89,13 @@ const keyed: (q: IAutoMovieQuaternion) => number[] = (
 /** Rotation of `deg` about world Y, the axis a light swings across a sky on. */
 const aboutY: (deg: number) => IAutoMovieQuaternion = (
   deg: number,
-): IAutoMovieQuaternion => Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, deg);
+): IAutoMovieQuaternion => AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, deg);
 
 /** The direction a light shines: its local −Z, carried by its rotation. */
 const directionOf: (light: IAutoMovieLight) => IAutoMovieVector3 = (
   light: IAutoMovieLight,
 ): IAutoMovieVector3 =>
-  Quaternion.rotateVector(light.transform.rotation, { x: 0, y: 0, z: -1 });
+  AutoMovieEngineQuaternion.rotateVector(light.transform.rotation, { x: 0, y: 0, z: -1 });
 
 /** Angle in degrees between two unit vectors. */
 const angleBetween: (a: IAutoMovieVector3, b: IAutoMovieVector3) => number = (
@@ -118,7 +118,7 @@ const lampAt: (clips: IAutoMovieClip[], seconds: number) => IAutoMovieLight = (
   clips: IAutoMovieClip[],
   seconds: number,
 ): IAutoMovieLight =>
-  lightOf(resolveShotLighting({ lights: LIGHTS, clips, seconds }), "lamp");
+  lightOf(AutoMovieEngineResolve.resolveShotLighting({ lights: LIGHTS, clips, seconds }), "lamp");
 
 /** A lamp turning a quarter turn about Y across the beat. */
 const SWING: IAutoMovieClip = clip(
@@ -298,7 +298,7 @@ export function test_resolve_light_transform_channel(): void {
   ): boolean =>
     throwsError(
       (): IAutoMovieLight[] =>
-        resolveShotLighting({ lights: LIGHTS, clips, seconds: 1 }),
+        AutoMovieEngineResolve.resolveShotLighting({ lights: LIGHTS, clips, seconds: 1 }),
       [fragment],
     );
   TestValidator.equals(

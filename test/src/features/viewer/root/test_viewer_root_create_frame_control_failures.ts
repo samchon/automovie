@@ -1,4 +1,4 @@
-import { createViewerFrameControl } from "@automovie/viewer";
+import { AutoMovieViewerDisplay } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
 import * as THREE from "three";
@@ -15,8 +15,8 @@ import * as THREE from "three";
 export function test_viewer_root_create_frame_control_failures(): void {
   const acquisition: Error = new Error("source pause failed");
   let frames: number = 0;
-  const refused: ReturnType<typeof createViewerFrameControl> =
-    createViewerFrameControl({
+  const refused: AutoMovieViewerDisplay.IFrameControl =
+    AutoMovieViewerDisplay.createFrameControl({
       camera: new THREE.PerspectiveCamera(),
       currentSeconds: (): number => 2,
       assertActive: (): void => {},
@@ -39,8 +39,8 @@ export function test_viewer_root_create_frame_control_failures(): void {
   const rebase: Error = new Error("mount rebase failed");
   const release: Error = new Error("source resume failed");
   let released: number = 0;
-  const failed: ReturnType<typeof createViewerFrameControl> =
-    createViewerFrameControl({
+  const failed: AutoMovieViewerDisplay.IFrameControl =
+    AutoMovieViewerDisplay.createFrameControl({
       camera: new THREE.PerspectiveCamera(),
       currentSeconds: (): number => 2,
       assertActive: (): void => {},
@@ -81,8 +81,8 @@ export function test_viewer_root_create_frame_control_failures(): void {
 
   const terminal: Error = new Error("terminal cleanup failed");
   const flags: boolean[] = [];
-  const closing: ReturnType<typeof createViewerFrameControl> =
-    createViewerFrameControl({
+  const closing: AutoMovieViewerDisplay.IFrameControl =
+    AutoMovieViewerDisplay.createFrameControl({
       camera: new THREE.PerspectiveCamera(),
       currentSeconds: (): number => 2,
       assertActive: (): void => {},

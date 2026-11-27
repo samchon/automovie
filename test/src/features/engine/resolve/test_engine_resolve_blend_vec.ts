@@ -1,4 +1,4 @@
-import { blendVec } from "@automovie/engine";
+import { AutoMovieEngineResolve } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -16,10 +16,10 @@ export function test_engine_resolve_blend_vec(): void {
   const b: IAutoMovieVector3 = { x: 2, y: 4, z: -6 };
   TestValidator.predicate(
     "a quarter",
-    vclose(blendVec(a, b, 0.25), { x: 0.5, y: 1, z: -1.5 }),
+    vclose(AutoMovieEngineResolve.blendVec(a, b, 0.25), { x: 0.5, y: 1, z: -1.5 }),
   );
   TestValidator.predicate(
     "the ends",
-    vclose(blendVec(a, b, 0), a) && vclose(blendVec(a, b, 1), b),
+    vclose(AutoMovieEngineResolve.blendVec(a, b, 0), a) && vclose(AutoMovieEngineResolve.blendVec(a, b, 1), b),
   );
 }

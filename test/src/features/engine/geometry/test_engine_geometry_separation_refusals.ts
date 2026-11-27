@@ -1,8 +1,4 @@
-import {
-  boundAutoMovieConvexSeparation,
-  boundAutoMovieProjectionSeparation,
-  createAutoMovieMeshSeparationQuery,
-} from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieMesh,
   IAutoMovieMeshSeparationQuery,
@@ -13,9 +9,9 @@ import { TestValidator } from "@nestia/e2e";
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * The separation bounds (`boundAutoMovieConvexSeparation`,
- * `boundAutoMovieProjectionSeparation`) and the resident query
- * (`createAutoMovieMeshSeparationQuery`) refuse unrepresentable arithmetic and
+ * The separation bounds (`boundConvexSeparation`,
+ * `boundProjectionSeparation`) and the resident query
+ * (`createMeshSeparationQuery`) refuse unrepresentable arithmetic and
  * malformed work by name instead of returning a separation a consumer could
  * accept.
  *
@@ -55,32 +51,32 @@ export function test_engine_geometry_separation_refusals(): void {
   // 1.
   refused(
     "empty feature",
-    () => boundAutoMovieConvexSeparation([], [p(1)]),
+    () => AutoMovieEngineGeometry.boundConvexSeparation([], [p(1)]),
     "finite vertex",
   );
   refused(
     "target -1",
-    () => boundAutoMovieConvexSeparation([p(0)], [p(1)], -1),
+    () => AutoMovieEngineGeometry.boundConvexSeparation([p(0)], [p(1)], -1),
     "nonnegative",
   );
   refused(
     "empty projection",
-    () => boundAutoMovieProjectionSeparation([], [p(1)], p(1)),
+    () => AutoMovieEngineGeometry.boundProjectionSeparation([], [p(1)], p(1)),
     "nonempty finite",
   );
   refused(
     "projection overflow",
-    () => boundAutoMovieProjectionSeparation([p(-M)], [p(M)], p(1)),
+    () => AutoMovieEngineGeometry.boundProjectionSeparation([p(-M)], [p(M)], p(1)),
     "representable",
   );
   refused(
     "enclosure overflow",
-    () => boundAutoMovieProjectionSeparation([p(0)], [p(M)], p(1)),
+    () => AutoMovieEngineGeometry.boundProjectionSeparation([p(0)], [p(M)], p(1)),
     "overflowing infinity",
   );
   refused(
     "face overflow",
-    () => boundAutoMovieConvexSeparation([p(-M), p(M), p(0, 1)], [p(0)]),
+    () => AutoMovieEngineGeometry.boundConvexSeparation([p(-M), p(M), p(0, 1)], [p(0)]),
     "face differences",
   );
 
@@ -88,7 +84,7 @@ export function test_engine_geometry_separation_refusals(): void {
   refused(
     "empty resident",
     () =>
-      createAutoMovieMeshSeparationQuery({
+      AutoMovieEngineGeometry.createMeshSeparationQuery({
         ...mesh,
         positions: [],
         indices: [],
@@ -97,29 +93,29 @@ export function test_engine_geometry_separation_refusals(): void {
   );
   refused(
     "index 9",
-    () => createAutoMovieMeshSeparationQuery({ ...mesh, indices: [0, 1, 9] }),
+    () => AutoMovieEngineGeometry.createMeshSeparationQuery({ ...mesh, indices: [0, 1, 9] }),
     "vertex",
   );
   refused(
     "sparse indices",
     () =>
-      createAutoMovieMeshSeparationQuery({ ...mesh, indices: new Array(3) }),
+      AutoMovieEngineGeometry.createMeshSeparationQuery({ ...mesh, indices: new Array(3) }),
     "vertex",
   );
   const beyond: IAutoMovieMesh = {
     ...mesh,
     positions: mesh.positions.map((v: number): number => v * 1e39),
   };
-  createAutoMovieMeshSeparationQuery(beyond);
+  AutoMovieEngineGeometry.createMeshSeparationQuery(beyond);
   refused(
     "beyond Float32",
-    () => createAutoMovieMeshSeparationQuery(beyond, "float32"),
+    () => AutoMovieEngineGeometry.createMeshSeparationQuery(beyond, "float32"),
     "finite represented resident vertices",
   );
 
   // 3.
   const query: IAutoMovieMeshSeparationQuery =
-    createAutoMovieMeshSeparationQuery(mesh);
+    AutoMovieEngineGeometry.createMeshSeparationQuery(mesh);
   TestValidator.equals(
     "certified",
     query([p(0, 0, 1)], { clearance: 0.5, budget: { remaining: 1 } }).certified,

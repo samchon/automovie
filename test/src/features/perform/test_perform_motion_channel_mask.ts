@@ -1,4 +1,4 @@
-import { compilePerformance } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieActionCall,
   IAutoMovieActionSynthesizer,
@@ -53,7 +53,7 @@ export function test_perform_motion_channel_mask(): void {
       1,
     );
   };
-  const lower = compilePerformance([action("lowerBody")], synth);
+  const lower = AutoMovieEngineFilm.compilePerformance([action("lowerBody")], synth);
   TestValidator.equals("lower body loss", lower.masked, [
     {
       action: 0,
@@ -73,7 +73,7 @@ export function test_perform_motion_channel_mask(): void {
         !k.pose.joints.some((j) => j.bone === "leftUpperArm"),
     ),
   );
-  const result = compilePerformance(
+  const result = AutoMovieEngineFilm.compilePerformance(
     [action("upperBody"), action("face")],
     synth,
   );

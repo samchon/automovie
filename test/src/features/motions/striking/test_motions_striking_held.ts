@@ -1,5 +1,7 @@
 import type { IAutoMovieMotionHumanStrikingHeld } from "@automovie/interface";
-import { StrikingHeld } from "@automovie/motions/internal";
+import {
+  StrikingHeld
+} from "../../../../../packages/motions/src/striking/internal/StrikingHeld";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

@@ -2,7 +2,7 @@ import type { IAutoMovieCrowdAgent } from "./IAutoMovieCrowdAgent";
 
 /**
  * Plan-time floor steering inputs and retained trajectory readers.
- * steerAutoMovieCrowd admits finite positive agent radii and desired speeds,
+ * AutoMovieEngineMotionCrowd.steer admits finite positive agent radii and desired speeds,
  * finite starts and nonempty goals; integrateMotionTrajectory admits the
  * interval and step for a nonempty crowd. Other geometry and law ranges remain
  * caller obligations.
@@ -23,33 +23,36 @@ export namespace IAutoMovieSteerCrowd {
     /** The first film second. */
     from: number;
 
-    /** The last film second, after `from`. */
+    /** The last film second, after ifromi. */
     to: number;
 
     /**
-     * The integrator's step, seconds; `integrateMotionTrajectory.STEP` when
+     * The integrator's step, seconds; AutoMovieEngineMotionTrajectory.integrateMotionTrajectoryStep() when
      * absent.
      */
     step?: number;
 
     /**
-     * The law's relaxation time and horizon, seconds; `RELAXATION` and
-     * `HORIZON` when absent.
+     * The law's relaxation time and horizon, seconds; iRELAXATIONi and
+     * iHORIZONi when absent.
      */
-    law?: {
-      /**
-       * Positive finite response time in seconds for desired-velocity
-       * relaxation; defaults to 0.5 seconds when law is absent. Not
-       * range-checked here.
-       */
-      relaxation: number;
-      /**
-       * Positive finite anticipation horizon in seconds for avoidance; defaults
-       * to 3 seconds when law is absent. Not range-checked here.
-       */
-      horizon: number;
-    };
+    law?: IPropsLaw;
   }
+
+  /** The law object of {@link IProps}. */
+  export type IPropsLaw = {
+    /**
+     * Positive finite response time in seconds for desired-velocity
+     * relaxation; defaults to 0.5 seconds when law is absent. Not
+     * range-checked here.
+     */
+    relaxation: number;
+    /**
+     * Positive finite anticipation horizon in seconds for avoidance; defaults
+     * to 3 seconds when law is absent. Not range-checked here.
+     */
+    horizon: number;
+  };
 
   /** A planned pass. */
   export interface IResult {

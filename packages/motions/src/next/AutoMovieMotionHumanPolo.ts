@@ -1,4 +1,4 @@
-import { HumanPolo as HumanPoloLaw } from "../lexicon/HumanPolo";
+import { HumanPolo as HumanPoloLaw } from "../lexicon/internal/HumanPolo";
 
 /**
  * A polo stroke from the saddle. The ball leaves the mallet at 20 m/s unless

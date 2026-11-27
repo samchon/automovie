@@ -3,9 +3,11 @@ import type {
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 import {
-  HumanPostureRaw,
-  createHumanPostureCurve,
-} from "@automovie/motions/internal";
+  HumanPostureRaw
+} from "../../../../../packages/motions/src/posture/internal/HumanPostureRaw";
+import {
+  createHumanPostureCurve
+} from "../../../../../packages/motions/src/posture/internal/createHumanPostureCurve";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../../internal/vclose";

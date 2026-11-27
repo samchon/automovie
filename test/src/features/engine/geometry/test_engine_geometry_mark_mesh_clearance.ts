@@ -1,7 +1,4 @@
-import {
-  markAutoMovieMeshClearance,
-  measureAutoMovieMeshClearance,
-} from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieMark,
   IAutoMovieMesh,
@@ -12,7 +9,7 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../../internal/predicates";
 
 /**
- * `markAutoMovieMeshClearance` draws each clearance witness as a segment from
+ * `markMeshClearance` draws each clearance witness as a segment from
  * the front surface to the back surface along the measured axis, flagged
  * where the back stands in front.
  *
@@ -37,10 +34,10 @@ export function test_engine_geometry_mark_mesh_clearance(): void {
   });
   const marks = (front: IAutoMovieMesh): IAutoMovieMark[] => {
     const witnesses: IAutoMovieMeshClearanceWitness[] = [];
-    measureAutoMovieMeshClearance(front, triangle(0), "z", (w: IAutoMovieMeshClearanceWitness): void => {
+    AutoMovieEngineGeometry.measureMeshClearance(front, triangle(0), "z", (w: IAutoMovieMeshClearanceWitness): void => {
       witnesses.push(w);
     });
-    return markAutoMovieMeshClearance({ path: "lid", front, axis: "z", witnesses, anchor: "box" });
+    return AutoMovieEngineGeometry.markMeshClearance({ path: "lid", front, axis: "z", witnesses, anchor: "box" });
   };
   const segment = (mark: IAutoMovieMark): number[] =>
     mark.shape.type === "segments" ? mark.shape.points : [];
@@ -82,7 +79,7 @@ export function test_engine_geometry_mark_mesh_clearance(): void {
 
   // 4.
   TestValidator.error("vertex outside the front", (): void => {
-    markAutoMovieMeshClearance({
+    AutoMovieEngineGeometry.markMeshClearance({
       path: "lid",
       front: triangle(0.1),
       axis: "z",

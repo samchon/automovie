@@ -1,10 +1,12 @@
-﻿import { Quaternion } from "@automovie/engine";
+﻿import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanAuditMeasure,
   IAutoMovieMotionHumanBody,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanAuditGround } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanAuditGround
+} from "../../../../../packages/motions/src/audit/internal/AutoMovieMotionHumanAuditGround";
 import { TestValidator } from "@nestia/e2e";
 
 import { auditStanceMotion } from "../../internal/auditStanceMotion";
@@ -72,7 +74,7 @@ export async function test_motions_audit_auto_movie_motion_human_audit_ground_sl
   // reading that left the support's rotation out would not hold the foot.
   const deck = (t: number) => ({
     position: { x: 0, y: 0, z: t },
-    rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90),
+    rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90),
   });
   const onDeck = (speed: number): number =>
     AutoMovieMotionHumanAuditGround.slip(

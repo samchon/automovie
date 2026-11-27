@@ -1,11 +1,11 @@
-import { Vector3, rotationBetween } from "@automovie/engine";
+import { AutoMovieEngineMath, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import type { AutoMovieArchetypeBuilder } from "../core";
-import { ArchetypeMassPrimitive } from "../core/ArchetypeMassPrimitive";
+import { ArchetypeMassPrimitive } from "../core/internal/ArchetypeMassPrimitive";
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { AutoMovieArchetypeQuadrupedHeadAttachment } from "./AutoMovieArchetypeQuadrupedHeadAttachment";
 
@@ -99,9 +99,13 @@ export namespace AutoMovieArchetypeQuadrupedEars {
     const norm: number = Math.hypot(direction.x, direction.y, direction.z);
     const left: IAutoMovieVector3 =
       norm > 0 && norm <= Number.MAX_VALUE
-        ? { x: direction.x / norm, y: direction.y / norm, z: direction.z / norm }
-        : Vector3.normalize(direction);
-    if (!(Vector3.length(left) > 0))
+        ? {
+            x: direction.x / norm,
+            y: direction.y / norm,
+            z: direction.z / norm,
+          }
+        : AutoMovieEngineVector3.normalize(direction);
+    if (!(AutoMovieEngineVector3.length(left) > 0))
       throw new RangeError("Ear plates require a nonzero authored direction");
     const solid: ReturnType<typeof ArchetypeMassPrimitive> =
       ArchetypeMassPrimitive({
@@ -129,23 +133,27 @@ export namespace AutoMovieArchetypeQuadrupedEars {
         y: left.y,
         z: left.z,
       };
-      const root: IAutoMovieVector3 = AutoMovieArchetypeQuadrupedHeadAttachment(
-        head,
-        {
-          x: head.poll.x + sign * head.headRadius,
-          y: head.poll.y + head.headRadius,
-          z: head.poll.z,
-        },
-        rootRadius,
-      );
-      const centre: IAutoMovieVector3 = Vector3.add(
+      const root: IAutoMovieVector3 =
+        AutoMovieArchetypeQuadrupedHeadAttachment.attach(
+          head,
+          {
+            x: head.poll.x + sign * head.headRadius,
+            y: head.poll.y + head.headRadius,
+            z: head.poll.z,
+          },
+          rootRadius,
+        );
+      const centre: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         root,
-        Vector3.scale(direction, length / 2),
+        AutoMovieEngineVector3.scale(direction, length / 2),
       );
       plans.push({
         id,
         centre,
-        rotation: rotationBetween({ x: 0, y: 1, z: 0 }, direction),
+        rotation: AutoMovieEngineMath.rotationBetween(
+          { x: 0, y: 1, z: 0 },
+          direction,
+        ),
       });
     }
     return {
@@ -173,7 +181,9 @@ export namespace AutoMovieArchetypeQuadrupedEars {
       },
     };
 
-    /** Convert a positive profile ratio to a representable solid extent. */
+    /*
+     * Convert a positive profile ratio to a representable solid extent.
+     */
     function metres(ratio: number): number {
       if (!(withers > 0 && ratio > 0 && ratio <= maximum))
         throw new RangeError("Ear plate dimensions must fit in metres");
@@ -184,13 +194,21 @@ export namespace AutoMovieArchetypeQuadrupedEars {
     }
   }
 
-  /** One fully admitted real plate before either is appended to the body. */
+  /*
+   * One fully admitted real plate before either is appended to the body.
+   */
   interface IPlan {
-    /** Stable head-carried part identity. */
+    /*
+     * Stable head-carried part identity.
+     */
     id: "leftEar" | "rightEar";
-    /** Model-space primitive centre. */
+    /*
+     * Model-space primitive centre.
+     */
     centre: IAutoMovieVector3;
-    /** Unit rigid orientation, local Y along the complete ear length. */
+    /*
+     * Unit rigid orientation, local Y along the complete ear length.
+     */
     rotation: IAutoMovieQuaternion;
   }
 }

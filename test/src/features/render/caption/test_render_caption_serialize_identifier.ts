@@ -1,8 +1,8 @@
-import { serializeAutoMovieWebVttIdentifier } from "@automovie/render";
+import { AutoMovieRenderCaption } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `serializeAutoMovieWebVttIdentifier` returns an admitted identifier as is and
+ * `AutoMovieRenderCaption.serializeWebVttIdentifier` returns an admitted identifier as is and
  * throws for one WebVTT cannot carry.
  *
  * Scenarios:
@@ -13,13 +13,13 @@ import { TestValidator } from "@nestia/e2e";
 export function test_render_caption_serialize_identifier(): void {
   TestValidator.equals(
     "cue-1",
-    serializeAutoMovieWebVttIdentifier("cue-1"),
+    AutoMovieRenderCaption.serializeWebVttIdentifier("cue-1"),
     "cue-1",
   );
   TestValidator.error("an arrow", (): string =>
-    serializeAutoMovieWebVttIdentifier("a-->b"),
+    AutoMovieRenderCaption.serializeWebVttIdentifier("a-->b"),
   );
   TestValidator.error("an empty identifier", (): string =>
-    serializeAutoMovieWebVttIdentifier(""),
+    AutoMovieRenderCaption.serializeWebVttIdentifier(""),
   );
 }

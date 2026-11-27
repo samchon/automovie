@@ -1,4 +1,4 @@
-import { AutoMovieViewChain } from "@automovie/engine";
+import { AutoMovieEngineViewChain } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanConicLoft,
@@ -8,54 +8,59 @@ import type {
   IAutoMovieViewChain,
 } from "@automovie/interface";
 
-import { AutoMovieHumanConicLoft } from "./AutoMovieHumanConicLoft";
-import { AutoMovieHumanConicSection } from "./AutoMovieHumanConicSection";
-import type { AutoMovieHumanEmptyProbes } from "./AutoMovieHumanEmptyProbes";
+import { AutoMovieHumanConicLoft } from "../AutoMovieHumanConicLoft";
+import { AutoMovieHumanConicSection } from "../AutoMovieHumanConicSection";
+import type { AutoMovieHumanEmptyProbes } from "../AutoMovieHumanEmptyProbes";
 
-/**
+/*
  * The wall geometry `AutoMovieHumanEmptyProbes` places its gap probes by: a
  * family's course, the walls two families face each other with, and the ring
  * phase spacing a gap must exceed.
  *
  * Walls are read on the families' original sections
  * (`AutoMovieHumanConicSection.chain` at the station, read along a ray by
- * `AutoMovieViewChain.radius`), never on a realized skin. Every point is
+ * `AutoMovieEngineViewChain.radius`), never on a realized skin. Every point is
  * millimetres in the families' frame (forward +X, up +Y, left +Z). Each
  * family's course, field reader and phase count is built once and cached by the
  * family.
  */
 export namespace AutoMovieHumanEmptyProbeWalls {
-  /** The facing walls of two sides at one station of the first. */
+  /*
+   * The facing walls of two sides at one station of the first.
+   */
   export interface IGap {
-    /**
+    /*
      * The signed distance from the first side's wall to the second's along the
      * line between their course points, mm; negative where they cross.
      */
     gap: number;
 
-    /**
+    /*
      * Twice the larger ring phase spacing of the two sides at their stations,
      * mm.
      */
     required: number;
 
-    /** The midpoint between the two wall points, mm. */
+    /*
+     * The midpoint between the two wall points, mm.
+     */
     middle: AutoMovieVector3Tuple;
 
-    /** The second side's station, mm. */
+    /*
+     * The second side's station, mm.
+     */
     other: number;
   }
 
-  /**
+  /*
    * The walls of `a` at `station` and of `b` at the station where its course
    * comes nearest `a`'s course point there, each read along the ray from its
    * course point toward the other's.
-   *
-   * @param a The side whose station is given.
-   * @param station The station of `a`'s course, mm.
-   * @param b The other side.
-   * @returns The gap between the facing walls, the gap required, their midpoint
-   *   and `b`'s station.
+   * Parameter a: The side whose station is given.
+   * Parameter station: The station of `a`'s course, mm.
+   * Parameter b: The other side.
+   * Returns: The gap between the facing walls, the gap required, their midpoint
+   * and `b`'s station.
    */
   export function facing(
     a: AutoMovieHumanEmptyProbes.ISide,
@@ -80,12 +85,11 @@ export namespace AutoMovieHumanEmptyProbeWalls {
     };
   }
 
-  /**
+  /*
    * A family's course, built once: `AutoMovieHumanConicLoft.axis` builds a new
    * jointed course on every call.
-   *
-   * @param family The family.
-   * @returns Its course, shared by later calls with the same family.
+   * Parameter family: The family.
+   * Returns: Its course, shared by later calls with the same family.
    */
   export function axisOf(
     family: IAutoMovieHumanConicLoft.IFamily,
@@ -96,7 +100,9 @@ export namespace AutoMovieHumanEmptyProbeWalls {
     return axis;
   }
 
-  /** A side's course point at a station. */
+  /*
+   * A side's course point at a station.
+   */
   function course(
     side: AutoMovieHumanEmptyProbes.ISide,
     station: number,
@@ -107,7 +113,7 @@ export namespace AutoMovieHumanEmptyProbeWalls {
       : [origin[0]!, origin[1]!, origin[2]!];
   }
 
-  /**
+  /*
    * A side's wall point at a station on the ray from its course point toward
    * `target`, projected into the section's plane. A twin's wall is the stored
    * family's wall toward the reflected target, reflected.
@@ -128,7 +134,7 @@ export namespace AutoMovieHumanEmptyProbeWalls {
     const frame: IAutoMovieLoftSectionFrame = axisOf(side.family).at(station);
     const toward: number[] = sub(target, frame.origin);
     const phi: number = Math.atan2(dot(toward, frame.v), dot(toward, frame.u));
-    const radius: number = AutoMovieViewChain.radius(
+    const radius: number = AutoMovieEngineViewChain.radius(
       section(side.family, station),
       phi,
     );
@@ -143,7 +149,9 @@ export namespace AutoMovieHumanEmptyProbeWalls {
     ) as AutoMovieVector3Tuple;
   }
 
-  /** A family's original section at a station, as the engine's conic chain. */
+  /*
+   * A family's original section at a station, as the engine's conic chain.
+   */
   function section(
     family: IAutoMovieHumanConicLoft.IFamily,
     station: number,
@@ -154,7 +162,7 @@ export namespace AutoMovieHumanEmptyProbeWalls {
     );
   }
 
-  /**
+  /*
    * The ring phase spacing of a family at a station, mm: the section's girth
    * there over the family's phase count. The girth is Ramanujan's perimeter of
    * the ellipse on the section's half extents, and the count is
@@ -182,13 +190,15 @@ export namespace AutoMovieHumanEmptyProbeWalls {
     return girth(family, station) / count;
   }
 
-  /** Each family's course, built once. */
+  /*
+   * Each family's course, built once.
+   */
   const AXES: WeakMap<
     IAutoMovieHumanConicLoft.IFamily,
     IAutoMovieViewAxis.IAxis
   > = new WeakMap();
 
-  /**
+  /*
    * Each family's field reader, built once: `AutoMovieHumanConicLoft.reader`
    * fits its natural cubics on every call.
    */
@@ -197,11 +207,15 @@ export namespace AutoMovieHumanEmptyProbeWalls {
     (s: number) => number[]
   > = new WeakMap();
 
-  /** Each family's uniform phase count, read once. */
+  /*
+   * Each family's uniform phase count, read once.
+   */
   const COUNTS: WeakMap<IAutoMovieHumanConicLoft.IFamily, number> =
     new WeakMap();
 
-  /** A family's field reader, cached. */
+  /*
+   * A family's field reader, cached.
+   */
   function readerOf(
     family: IAutoMovieHumanConicLoft.IFamily,
   ): (s: number) => number[] {
@@ -211,7 +225,7 @@ export namespace AutoMovieHumanEmptyProbeWalls {
     return read;
   }
 
-  /**
+  /*
    * Ramanujan's perimeter of the ellipse on a section's half extents, mm, as
    * the loft reads a girth.
    */
@@ -233,7 +247,7 @@ export namespace AutoMovieHumanEmptyProbeWalls {
     return Math.PI * (3 * (a! + b!) - Math.sqrt((3 * a! + b!) * (a! + 3 * b!)));
   }
 
-  /**
+  /*
    * The station of a side's course nearest a point: the best station of a
    * millimetre grid over the fields' domain, then the root of the distance's
    * derivative, `(C(s) - p) . C'(s)`, by regula falsi on the grid steps either
@@ -247,13 +261,14 @@ export namespace AutoMovieHumanEmptyProbeWalls {
       side.family.knots[0]!,
       side.family.knots.at(-1)!,
     ];
-    const distance: (s: number) => number = (s: number): number =>
-      Math.hypot(...sub(course(side, s), point));
+    function distance(s: number): number {
+      return Math.hypot(...sub(course(side, s), point));
+    }
     let best: number = first;
     for (let s: number = first; s <= last; s += 1)
       if (distance(s) < distance(best)) best = s;
     if (distance(last) < distance(best)) best = last;
-    const slope: (s: number) => number = (s: number): number => {
+    function slope(s: number): number {
       const h: number = 1e-3;
       const [lo, hi]: [number, number] = [
         Math.max(first, s - h),
@@ -263,7 +278,7 @@ export namespace AutoMovieHumanEmptyProbeWalls {
         sub(course(side, s), point),
         sub(course(side, hi), course(side, lo)),
       );
-    };
+    }
     let [lo, hi]: [number, number] = [
       Math.max(first, best - 1),
       Math.min(last, best + 1),
@@ -282,12 +297,16 @@ export namespace AutoMovieHumanEmptyProbeWalls {
     return Math.abs(flo) <= Math.abs(fhi) ? lo : hi;
   }
 
-  /** The difference of two points. */
+  /*
+   * The difference of two points.
+   */
   function sub(a: readonly number[], b: readonly number[]): number[] {
     return [a[0]! - b[0]!, a[1]! - b[1]!, a[2]! - b[2]!];
   }
 
-  /** The dot product of two vectors. */
+  /*
+   * The dot product of two vectors.
+   */
   function dot(a: readonly number[], b: readonly number[]): number {
     return a[0]! * b[0]! + a[1]! * b[1]! + a[2]! * b[2]!;
   }

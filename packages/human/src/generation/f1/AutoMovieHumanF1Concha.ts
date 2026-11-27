@@ -1,10 +1,10 @@
 import type { IAutoMovieHumanConicLoft } from "@automovie/interface";
 
-import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
-import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
-import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
+import { AutoMovieHumanConicSection } from "../AutoMovieHumanConicSection";
+import { AutoMovieHumanF1Joints } from "../AutoMovieHumanF1Joints";
+import { AutoMovieHumanF1Placement } from "../AutoMovieHumanF1Placement";
 
-/**
+/*
  * f1's concha tape wall on the +Z side; the other side is its mirror image in the median plane z = 0, which f1's reference satisfies exactly.
  * It is the cutter of the ear's bowl, cut from the figure after the ear is attached.
  *
@@ -13,7 +13,7 @@ import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
  * first skin met along the course lies past `s` (`FamilyConicBody.ts concha --concha-depth=20 --concha-course=16.5,1563,90/16.5,1563,60
  * --concha-up=0,1,0 --concha-domain=21,24 --concha-tip=25 --concha-lead=18`), fitted 65.5 to 69 mm out, where those regions close.
  * It reaches the bowl's floor, past the ear's leaf, which starts 78 mm out: its cut crosses the ear's band from rim to rim and back,
- * which the engine clips as one pair of runs (`AutoMovieSolidClip`). Its outer end is closed 9 mm past its lead's start, so the curve
+ * which the engine clips as one pair of runs (`AutoMovieEngineSolidClip`). Its outer end is closed 9 mm past its lead's start, so the curve
  * where it meets the leaf never runs along an open end.
  *
  * Hand edits after that fit, so the cut is a bowl and not a prism. The fitted floor section (its first knot, 69 mm out) is held from

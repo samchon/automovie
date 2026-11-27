@@ -1,4 +1,4 @@
-import { validatePropPlacements } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieConstraintViolation,
@@ -116,7 +116,7 @@ export function test_engine_film_prop_placement_identity(): void {
       }),
     );
     prop.placement!.relations = relations;
-    const distinct: IAutoMovieValidation = validatePropPlacements({
+    const distinct: IAutoMovieValidation = AutoMovieEngineFilm.validatePropPlacements({
       props: [prop],
       set: [],
       builtEnvironments: [],
@@ -131,7 +131,7 @@ export function test_engine_film_prop_placement_identity(): void {
       0,
     );
     relations.push(relations[0]!);
-    const repeated: IAutoMovieValidation = validatePropPlacements({
+    const repeated: IAutoMovieValidation = AutoMovieEngineFilm.validatePropPlacements({
       props: [prop],
       set: [],
       builtEnvironments: [],

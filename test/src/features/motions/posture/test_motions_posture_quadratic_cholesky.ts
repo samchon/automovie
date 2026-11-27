@@ -1,4 +1,6 @@
-import { HumanQuadraticCholesky } from "@automovie/motions/internal";
+import {
+  HumanQuadraticCholesky
+} from "../../../../../packages/motions/src/posture/internal/HumanQuadraticCholesky";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

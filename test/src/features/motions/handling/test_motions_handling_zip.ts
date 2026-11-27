@@ -1,5 +1,10 @@
 import type { IAutoMovieAffordance } from "@automovie/interface";
-import { HumanRefusal, zipSites } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  zipSites
+} from "../../../../../packages/motions/src/handling/internal/zipSites";
 import { strict as assert } from "node:assert";
 
 import { testAffordance } from "../../internal/fixtures/testAffordance";
@@ -53,7 +58,7 @@ export function test_motions_handling_zip(): void {
 /** Match the missing admission requirement on the affected pouch. */
 function refused(reason: string): (error: unknown) => boolean {
   return (error: unknown): boolean =>
-    error instanceof HumanRefusal &&
+    error instanceof AutoMovieMotionHumanRefusal &&
     error.axis === "pouch" &&
     error.value === "pouch" &&
     error.reason.includes(reason);

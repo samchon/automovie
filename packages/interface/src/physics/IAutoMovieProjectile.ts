@@ -59,7 +59,7 @@ export namespace IAutoMovieProjectile {
     /** The body's mass, kg, finite and positive. */
     mass: number;
 
-    /** The fluid's density rho, kg/m³; `AutoMovieAir.DENSITY` when absent. */
+    /** The fluid's density rho, kg/m³; `AutoMovieEngineAir.DENSITY` when absent. */
     density?: number;
   }
 

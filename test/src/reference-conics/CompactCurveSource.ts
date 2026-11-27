@@ -246,7 +246,7 @@ export namespace CompactCurveSource {
     };
     return {
       curve: {
-        domain: [0, period],
+        domain: { start: 0, end: period },
         knots: prefix.slice(1, -1),
         breaks,
         closed: true,

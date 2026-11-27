@@ -1,6 +1,6 @@
 /**
  * What each archetype family holds, as its section on the archetypes page
- * says it, by the family's name in `ARCHETYPE_FAMILIES`. A family the
+ * says it, beside each group's public topic exports. A family the
  * installed release adds and this table lacks shows no sentence.
  */
 export const ARCHETYPE_FAMILY_NOTES: Readonly<Record<string, string>> = {

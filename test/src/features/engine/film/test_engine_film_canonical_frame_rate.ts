@@ -1,4 +1,4 @@
-import { canonicalProductionFrameRate } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";
@@ -17,9 +17,9 @@ export function test_engine_film_canonical_frame_rate(): void {
   TestValidator.equals(
     "each rate's reduced identity",
     [
-      canonicalProductionFrameRate(24),
-      canonicalProductionFrameRate({ numerator: 48, denominator: 2 }),
-      canonicalProductionFrameRate({ numerator: 30000, denominator: 1001 }),
+      AutoMovieEngineFilm.canonicalProductionFrameRate(24),
+      AutoMovieEngineFilm.canonicalProductionFrameRate({ numerator: 48, denominator: 2 }),
+      AutoMovieEngineFilm.canonicalProductionFrameRate({ numerator: 30000, denominator: 1001 }),
     ],
     [
       { numerator: 24, denominator: 1 },
@@ -30,11 +30,11 @@ export function test_engine_film_canonical_frame_rate(): void {
   TestValidator.predicate(
     "nonpositive rates are refused",
     throwsError(
-      () => canonicalProductionFrameRate(0),
+      () => AutoMovieEngineFilm.canonicalProductionFrameRate(0),
       "positive safe integer",
     ) &&
       throwsError(
-        () => canonicalProductionFrameRate({ numerator: 24, denominator: 0 }),
+        () => AutoMovieEngineFilm.canonicalProductionFrameRate({ numerator: 24, denominator: 0 }),
         "positive safe-integer terms",
       ),
   );

@@ -1,6 +1,6 @@
 /**
  * Owned nearest-feature reading from one compiled oriented surface, returned by
- * the query `createAutoMovieSignedMeshQuery` compiles.
+ * the query `createSignedMeshQuery` compiles.
  *
  * Vectors use the mesh-local metre frame. The query owns its compiled snapshot;
  * changing these returned vectors cannot alter later readings. A boundary

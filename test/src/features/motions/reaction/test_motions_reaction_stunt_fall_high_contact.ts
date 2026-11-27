@@ -1,11 +1,13 @@
-import { Quaternion, physicalShapeFaceContact } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanContactWindow,
   IAutoMoviePhysicalShape,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanMaterialContact } from "@automovie/motions/internal";
+import {
+  HumanMaterialContact
+} from "../../../../../packages/motions/src/posture/internal/HumanMaterialContact";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -25,7 +27,7 @@ import { vclose } from "../../internal/vclose";
 export function test_motions_reaction_stunt_fall_high_contact(): void {
   const neutral: IAutoMovieRigidTransform = {
     position: { x: 0, y: 0, z: 0 },
-    rotation: Quaternion.identity(),
+    rotation: AutoMovieEngineQuaternion.identity(),
   };
   const ball: IAutoMoviePhysicalShape = {
     id: "exterior",
@@ -45,8 +47,8 @@ export function test_motions_reaction_stunt_fall_high_contact(): void {
     (
       seconds: number,
     ): IAutoMovieMotionHumanContactWindow.IMaterial | undefined => {
-      const found: ReturnType<typeof physicalShapeFaceContact> =
-        physicalShapeFaceContact(
+      const found: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeFaceContact> =
+        AutoMovieEnginePhysics.physicalShapeFaceContact(
           {
             ...neutral,
             position: { x: seconds / 2, y: 1.3 - 5 * seconds ** 2, z: 0 },

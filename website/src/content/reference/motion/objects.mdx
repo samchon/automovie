@@ -8,21 +8,21 @@ An object says where a person meets it through its affordances: a seat, a handle
 
 ## Objects in a performance
 
-`HumanObject` gives the actions what they read of an object, placed where the scene puts it. `HumanObject.seat` makes a seat, and `HumanObject.prop` a prop a hand can take:
+`AutoMovieMotionHumanObject` gives the actions what they read of an object, placed where the scene puts it. `AutoMovieMotionHumanObject.seat` makes a seat, and `AutoMovieMotionHumanObject.prop` a prop a hand can take:
 
 ```ts
-import { createDrinkware, createSeat } from "@automovie/archetypes";
-import { HumanChain, HumanObject, HumanPerformance } from "@automovie/motions";
+import { AutoMovieArchetypeDrinkware, AutoMovieArchetypeSeat } from "@automovie/archetypes";
+import { AutoMovieMotionHumanChain, AutoMovieMotionHumanObject, AutoMovieMotionHumanPerformance } from "@automovie/motions";
 
-const chair = createSeat({ kind: "dining" }, "scene-3/chair-1");
-const glass = createDrinkware({ kind: "glass" });
+const chair = AutoMovieArchetypeSeat.create({ kind: "dining" }, 31);
+const glass = AutoMovieArchetypeDrinkware.create({ kind: "glass" });
 
-new HumanPerformance({
+new AutoMovieMotionHumanPerformance({
   seed,
   performers,
-  props: [HumanObject.prop("glass", glass, { at: { x: 0.2, y: 0.74, z: 0.4 }, yaw: 0 })],
-  composition: HumanChain.subject("a")
-    .sit({ seat: HumanObject.seat(chair, { at: { x: 0, y: 0, z: -0.5 }, yaw: 0 }) })
+  props: [AutoMovieMotionHumanObject.prop("glass", glass, { at: { x: 0.2, y: 0.74, z: 0.4 }, yaw: 0 })],
+  composition: AutoMovieMotionHumanChain.subject("a")
+    .sit({ seat: AutoMovieMotionHumanObject.seat(chair, { at: { x: 0, y: 0, z: -0.5 }, yaw: 0 }) })
     .pickUp({ prop: "glass", handle: "body" }).node,
 });
 ```
@@ -41,19 +41,19 @@ Any other use of a holding hand is refused, naming the free hand.
 
 ### Seats
 
-A seat too low to sit down on from standing is refused with the least height that fits. A seat higher than the feet reach the floor from is not refused: the body gets onto it, and the feet take its rests or hang. `HumanObject.seat` reads those rests from the object, such as a stool's bar, a bicycle's pedals or a horse's stirrups, together with whether the seat is sat astride and the side it is mounted from.
+A seat too low to sit down on from standing is refused with the least height that fits. A seat higher than the feet reach the floor from is not refused: the body gets onto it, and the feet take its rests or hang. `AutoMovieMotionHumanObject.seat` reads those rests from the object, such as a stool's bar, a bicycle's pedals or a horse's stirrups, together with whether the seat is sat astride and the side it is mounted from.
 
 ## Archetypes
 
 An archetype is a coarse model made by a typed producer function from parameters and a seed. It is as plain as recognising the thing allows: a chair is a seat, a back and four legs. What a person's act reads is exact. Seat heights, handle heights, risers and treads, grip diameters and a saddle's height each come from a cited standard or measurement, and a seed varies them only inside the cited band.
 
 ```ts
-import { createDoor, createSeat } from "@automovie/archetypes";
+import { AutoMovieArchetypeDoor, AutoMovieArchetypeSeat } from "@automovie/archetypes";
 
-const chair = createSeat({ kind: "dining" }, "scene-3/chair-1"); // every free dimension drawn in its band
-const stool = createSeat({ kind: "barStool", seatHeight: 0.78 }); // one dimension fixed, the rest at mid-band
+const chair = AutoMovieArchetypeSeat.create({ kind: "dining" }, 31); // every free dimension drawn in its band
+const stool = AutoMovieArchetypeSeat.create({ kind: "barStool", seatHeight: 0.78 }); // one dimension fixed, the rest at mid-band
 
-const door = createDoor({ hinge: "left", hardware: "lever" }, 7);
+const door = AutoMovieArchetypeDoor.create({ hinge: "left", hardware: "lever" }, 7);
 const open = door.articulate({ hinge: 70 }); // the leaf, its lever and their contacts moved
 open.affordance("pull").frame; // the lever's grip on the open leaf
 ```
@@ -76,7 +76,7 @@ The producers are grouped in families, each also a subpath such as `@automovie/a
 | `/nature` | Fire rings, rocks, tents and trees |
 | `/environments` | Place builders that compose a set from placed items |
 
-Each producer's JSDoc states how the thing stands in its own space, and its namespace lists its kinds, affordance ids, dimensions and bands, such as `createSeat.BANDS`. [Archetypes](/archetypes/) shows the families drawn.
+Each producer's JSDoc states how the thing stands in its own space, and its namespace lists its kinds, affordance ids, dimensions and bands, such as `AutoMovieArchetypeSeat.BANDS`. [Archetypes](/archetypes/) shows the families drawn.
 
 ## Articulations and rides
 
@@ -85,10 +85,10 @@ A door's leaf, a drawer, a lever and a bicycle's crank are parts bound to an art
 A ride moves an archetype along a course of straight legs and turns, from rest to a cruising speed and back to rest:
 
 ```ts
-import { createCar, driveCar } from "@automovie/archetypes";
+import { AutoMovieArchetypeCar } from "@automovie/archetypes";
 
-const car = createCar({ kind: "sedan" }, 3);
-const ride = driveCar(car, {
+const car = AutoMovieArchetypeCar.create({ kind: "sedan" }, 3);
+const ride = AutoMovieArchetypeCar.drive(car, {
   start: { x: 0, z: 0, heading: 0 },
   legs: [{ kind: "straight", length: 30 }, { kind: "turn", radius: 12, angle: 90 }],
   cruise: 8,

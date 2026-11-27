@@ -1,15 +1,15 @@
-import { HumanLeadHorse as HumanLeadHorseLaw } from "../lexicon/HumanLeadHorse";
-import { HumanLunge as HumanLungeLaw } from "../lexicon/HumanLunge";
-import { HumanLungeChange as HumanLungeChangeSource } from "../lexicon/HumanLungeChange";
-import { HumanLungeHands as HumanLungeHandsSource } from "../lexicon/HumanLungeHands";
-import { HumanLungePivot as HumanLungePivotSource } from "../lexicon/HumanLungePivot";
-import { HumanMountReach as HumanMountReachSource } from "../lexicon/HumanMountReach";
-import { HumanMountRider as HumanMountRiderSource } from "../lexicon/HumanMountRider";
-import { HumanMounted as HumanMountedLaw } from "../lexicon/HumanMounted";
-import { HumanMountedPresentation as HumanMountedPresentationSource } from "../lexicon/HumanMountedPresentation";
-import { HumanRide as HumanRideLaw } from "../lexicon/HumanRide";
-import { HumanTendHorse as HumanTendHorseLaw } from "../lexicon/HumanTendHorse";
-import { HumanUnseat as HumanUnseatLaw } from "../lexicon/HumanUnseat";
+import { HumanLeadHorse as HumanLeadHorseLaw } from "../lexicon/internal/HumanLeadHorse";
+import { HumanLunge as HumanLungeLaw } from "../lexicon/internal/HumanLunge";
+import { HumanLungeChange as HumanLungeChangeSource } from "../lexicon/internal/HumanLungeChange";
+import { HumanLungeHands as HumanLungeHandsSource } from "../lexicon/internal/HumanLungeHands";
+import { HumanLungePivot as HumanLungePivotSource } from "../lexicon/internal/HumanLungePivot";
+import { HumanMountReach as HumanMountReachSource } from "../lexicon/internal/HumanMountReach";
+import { HumanMountRider as HumanMountRiderSource } from "../lexicon/internal/HumanMountRider";
+import { HumanMounted as HumanMountedLaw } from "../lexicon/internal/HumanMounted";
+import { HumanMountedPresentation as HumanMountedPresentationSource } from "../lexicon/internal/HumanMountedPresentation";
+import { HumanRide as HumanRideLaw } from "../lexicon/internal/HumanRide";
+import { HumanTendHorse as HumanTendHorseLaw } from "../lexicon/internal/HumanTendHorse";
+import { HumanUnseat as HumanUnseatLaw } from "../lexicon/internal/HumanUnseat";
 
 /**
  * Living mounts: riding a horse, handling it from the ground and leaving its
@@ -20,7 +20,7 @@ import { HumanUnseat as HumanUnseatLaw } from "../lexicon/HumanUnseat";
  *
  * - `rideHorse`: Riding: a seated person carried by a support that moves by
  *   itself, such as a car, a bicycle or a horse given to the performance as a
- *   moving prop (`HumanObject.prop` with a motion).
+ *   moving prop (`AutoMovieMotionHumanObject.prop` with a motion).
  * - `leadHorse`: Keep one handler's hand on the horse's actual moving lead frame.
  * - `tendHorse`: A handler's hand on a horse's actual moving contact while the
  *   handler stands: brushing, headgear, lead, saddle and a held hoof.
@@ -68,20 +68,19 @@ import { HumanUnseat as HumanUnseatLaw } from "../lexicon/HumanUnseat";
  *   parts: the ankle that points a foot down to a pedal the leg would not
  *   reach, and the trunk that leans forward to a bar the arms would not reach.
  *
- * A member here is the shipped law, preset or row itself, bound to its owner by
- * `typeof` and never wrapped, so its parameters, units, frames and refusals are
- * those its own comment states. The family's shared model and each law's
- * parameters are declared by {@link IAutoMovieMotionHumanMount} in
- * `@automovie/interface`.
+ * Use `IAutoMovieMotionHumanRide.IParams` for the ride. Ground handling uses
+ * `IAutoMovieMotionHumanLeadHorse`, `IAutoMovieMotionHumanTendHorse`, or
+ * `IAutoMovieMotionHumanLunge`. Use `IAutoMovieMotionHumanUnseat` for leaving
+ * the saddle and `IAutoMovieMotionHumanMounted` for mounted figures.
  */
 export namespace AutoMovieMotionHumanMount {
   /**
    * Riding: a seated person carried by a support that moves by itself, such as
    * a car, a bicycle or a horse given to the performance as a moving prop
-   * (`HumanObject.prop` with a motion).
+   * (`AutoMovieMotionHumanObject.prop` with a motion).
    *
    * The rider sits down on the support first (`sit` on its seat where it stands
-   * at that second; `HumanObject.seat` reads a saddle with its pedals or
+   * at that second; `AutoMovieMotionHumanObject.seat` reads a saddle with its pedals or
    * stirrups) and then rides it: the seated posture is carried rigidly with the
    * support, turning, leaning and pitching as it does, the seat and each foot
    * that rested on it bearing on it, so nothing slides in the support's frame.
@@ -220,7 +219,7 @@ export namespace AutoMovieMotionHumanMount {
    * which `StrikingBlade.turned` splits `AutoMovieMotionHumanTrunk.CHEST` to
    * the chest and the rest to the lumbar spine, so a rider presents as far off
    * the horse's heading as the chest's and the spine's axial ranges
-   * (`DEFAULT_HUMANOID_ROM`, the bound `HumanSupportAim` keeps a moving
+   * (`AutoMovieEngineDefaultHumanoidRom`, the bound `HumanSupportAim` keeps a moving
    * support's aim within) allow plus the arms' own `TURN`, which reaches behind
    * the rider's shoulders, short of dead astern: there the horse must turn.
    */

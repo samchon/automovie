@@ -1,4 +1,4 @@
-import { locateOnBeat } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import {
   IAutoMovieConstraintViolation,
   IAutoMovieScriptNode,
@@ -39,7 +39,7 @@ const sample: () => IAutoMovieConstraintViolation[] =
 export function test_engine_film_locate_on_beat(): void {
   const tree: IAutoMovieScriptNode[] = createScriptTree();
   const violations: IAutoMovieConstraintViolation[] = sample();
-  const located: IAutoMovieConstraintViolation[] = locateOnBeat(
+  const located: IAutoMovieConstraintViolation[] = AutoMovieEngineFilm.locateOnBeat(
     violations,
     tree,
     "beat-1",
@@ -69,7 +69,7 @@ export function test_engine_film_locate_on_beat(): void {
     true,
   );
 
-  const treeless: IAutoMovieConstraintViolation[] = locateOnBeat(
+  const treeless: IAutoMovieConstraintViolation[] = AutoMovieEngineFilm.locateOnBeat(
     sample(),
     null,
     "beat-1",
@@ -83,7 +83,7 @@ export function test_engine_film_locate_on_beat(): void {
       ),
     true,
   );
-  const unclaimed: IAutoMovieConstraintViolation[] = locateOnBeat(
+  const unclaimed: IAutoMovieConstraintViolation[] = AutoMovieEngineFilm.locateOnBeat(
     sample(),
     tree,
     "beat-99",

@@ -3,7 +3,7 @@ import type { IAutoMovieModel } from "../model/IAutoMovieModel";
 import type { IAutoMovieMotion } from "../motion/IAutoMovieMotion";
 import type { IAutoMovieCamera } from "../scene/IAutoMovieCamera";
 import type { IAutoMovieScene } from "../scene/IAutoMovieScene";
-import type { IAutoMovieViolationCollector } from "../validation/IAutoMovieViolationCollector";
+import type { IAutoMovieViolationAppendItemsSink } from "../validation/IAutoMovieViolationAppendItemsSink";
 import type { IAutoMovieCameraClearanceRuntime } from "./IAutoMovieCameraClearanceRuntime";
 import type { IAutoMovieShot } from "./IAutoMovieShot";
 import type { IAutoMovieShotCoverage } from "./IAutoMovieShotCoverage";
@@ -40,19 +40,7 @@ export namespace IAutoMovieCompileCameraClearanceReports {
     scene: IAutoMovieScene;
 
     /** Hero take; the record itself is always present. */
-    hero: {
-      /**
-       * Camera whose id must occur in scene.cameras; this supplied object's
-       * envelope and world transform are used.
-       */
-      camera: IAutoMovieCamera;
-
-      /**
-       * Camera-node tracks on the shot-local seconds clock, or null to retain
-       * the staged transform.
-       */
-      motion: IAutoMovieShot["cameraMotion"];
-    };
+    hero: IPropsHero;
 
     /** The shot's coverage takes, each naming a staged camera. */
     coverage: readonly IAutoMovieShotCoverage[];
@@ -86,6 +74,21 @@ export namespace IAutoMovieCompileCameraClearanceReports {
     runtime: IAutoMovieCameraClearanceRuntime | undefined;
 
     /** Collector that receives every refusal, after any items it already holds. */
-    out: IAutoMovieViolationCollector;
+    out: IAutoMovieViolationAppendItemsSink;
+  };
+
+  /** The hero object of {@link IProps}. */
+  export type IPropsHero = {
+    /**
+     * Camera whose id must occur in scene.cameras; this supplied object's
+     * envelope and world transform are used.
+     */
+    camera: IAutoMovieCamera;
+
+    /**
+     * Camera-node tracks on the shot-local seconds clock, or null to retain
+     * the staged transform.
+     */
+    motion: IAutoMovieShot["cameraMotion"];
   };
 }

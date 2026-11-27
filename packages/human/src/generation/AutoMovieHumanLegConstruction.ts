@@ -6,8 +6,8 @@ import type {
   IAutoMovieLoftContract,
 } from "@automovie/interface";
 
-import { AutoMovieHumanLegChain } from "./leg/AutoMovieHumanLegChain";
-import { AutoMovieHumanLegStand } from "./leg/AutoMovieHumanLegStand";
+import { AutoMovieHumanLegChain } from "./AutoMovieHumanLegChain";
+import { AutoMovieHumanLegStand } from "./AutoMovieHumanLegStand";
 
 /**
  * Both legs generated on their own bones, from the ankle ring, the crotch

@@ -1,17 +1,4 @@
-import {
-  builtEnvironmentSpaceFidelity,
-  footprintContains,
-  footprintConvexPieces,
-  footprintRing,
-  footprintRingPlacement,
-  measureAutoMovieQuantities,
-  propSupportFace,
-  propSupportGap,
-  surfaceFootprint,
-  surfaceHeightAt,
-  tessellateSurface,
-  validateSpace,
-} from "@automovie/engine";
+import { AutoMovieEngineSpace, AutoMovieEngineDrawing, AutoMovieEngineBuiltEnvironment, AutoMovieEngineFilm, AutoMovieEngineGeometry, AutoMovieEngineValidation } from "@automovie/engine";
 import {
   AutoMovieSurfaceKind,
   IAutoMovieBuiltEnvironment,
@@ -47,7 +34,7 @@ export const assertFootprintVoidGeometry: (
     spaceOf,
     pieceArea,
   }: typeof props = props;
-  const drawn: IAutoMovieTessellation = tessellateSurface(plate)!;
+  const drawn: IAutoMovieTessellation = AutoMovieEngineGeometry.tessellateSurface(plate)!;
   TestValidator.equals(
     "the drawn plate has the void open, exactly where the query says it is",
     namedFacts([
@@ -58,7 +45,7 @@ export const assertFootprintVoidGeometry: (
           Array.from(
             { length: drawn.positions.length / 3 },
             (_: unknown, index: number): boolean =>
-              footprintRingPlacement(
+              AutoMovieEngineSpace.footprintRingPlacement(
                 holed.holes[0]!,
                 drawn.positions[index * 3]!,
                 drawn.positions[index * 3 + 2]!,
@@ -76,7 +63,7 @@ export const assertFootprintVoidGeometry: (
               x += drawn.positions[at]! / 3;
               z += drawn.positions[at + 2]! / 3;
             }
-            if (footprintContains(holed, x, z) === false) return false;
+            if (AutoMovieEngineSpace.footprintContains(holed, x, z) === false) return false;
           }
           return true;
         },
@@ -95,8 +82,8 @@ export const assertFootprintVoidGeometry: (
       [
         "collinearHoldsNothing",
         (): boolean =>
-          footprintContains(
-            { outer: footprintRing([v(0, 0), v(1, 1), v(2, 2)]), holes: [] },
+          AutoMovieEngineSpace.footprintContains(
+            { outer: AutoMovieEngineSpace.footprintRing([v(0, 0), v(1, 1), v(2, 2)]), holes: [] },
             1,
             1,
           ) === false,
@@ -104,28 +91,28 @@ export const assertFootprintVoidGeometry: (
       [
         "twoPointsHoldNothing",
         (): boolean =>
-          footprintRingPlacement(footprintRing([v(0, 0), v(1, 0)]), 0.5, 0) ===
+          AutoMovieEngineSpace.footprintRingPlacement(AutoMovieEngineSpace.footprintRing([v(0, 0), v(1, 0)]), 0.5, 0) ===
           "outside",
       ],
       [
         "noPiecesFromNoArea",
         (): boolean =>
-          footprintConvexPieces({
-            outer: footprintRing([v(0, 0), v(1, 1), v(2, 2)]),
+          AutoMovieEngineSpace.footprintConvexPieces({
+            outer: AutoMovieEngineSpace.footprintRing([v(0, 0), v(1, 1), v(2, 2)]),
             holes: [],
           }).length === 0,
       ],
       [
         "nothingIsDrawnForNoArea",
         (): boolean =>
-          tessellateSurface({
+          AutoMovieEngineGeometry.tessellateSurface({
             ...plate,
             polygon: [v(0, 0), v(1, 1), v(2, 2)],
           }) === null,
       ],
       [
         "theHoledPlateValidates",
-        (): boolean => validateSpace({ space: holedSpace }).success,
+        (): boolean => AutoMovieEngineValidation.validateSpace({ space: holedSpace }).success,
       ],
     ]),
     {
@@ -137,8 +124,8 @@ export const assertFootprintVoidGeometry: (
     },
   );
 
-  const diamondPieces: IAutoMovieVector3[][] = footprintConvexPieces(
-    surfaceFootprint(diamond),
+  const diamondPieces: IAutoMovieVector3[][] = AutoMovieEngineSpace.footprintConvexPieces(
+    AutoMovieEngineSpace.surfaceFootprint(diamond),
   );
   TestValidator.equals(
     "a band that closes to a point is the triangle it is",
@@ -181,8 +168,8 @@ export const assertFootprintVoidGeometry: (
         "everyPieceStandsOnTheDiamond",
         (): boolean =>
           diamondPieces.every((piece: IAutoMovieVector3[]): boolean =>
-            footprintContains(
-              surfaceFootprint(diamond),
+            AutoMovieEngineSpace.footprintContains(
+              AutoMovieEngineSpace.surfaceFootprint(diamond),
               piece.reduce(
                 (sum: number, point: IAutoMovieVector3): number =>
                   sum + point.x,
@@ -205,7 +192,7 @@ export const assertFootprintVoidGeometry: (
     },
   );
 
-  const relieved: IAutoMovieTessellation = tessellateSurface(relief)!;
+  const relieved: IAutoMovieTessellation = AutoMovieEngineGeometry.tessellateSurface(relief)!;
   TestValidator.equals(
     "relief over a holed plate keeps both the lattice and the void",
     namedFacts([
@@ -217,7 +204,7 @@ export const assertFootprintVoidGeometry: (
             (_: unknown, index: number): boolean =>
               nclose(
                 relieved.positions[index * 3 + 1]!,
-                surfaceHeightAt(
+                AutoMovieEngineSpace.surfaceHeightAt(
                   relief,
                   relieved.positions[index * 3]!,
                   relieved.positions[index * 3 + 2]!,
@@ -236,7 +223,7 @@ export const assertFootprintVoidGeometry: (
           Array.from(
             { length: relieved.positions.length / 3 },
             (_: unknown, index: number): boolean =>
-              footprintRingPlacement(
+              AutoMovieEngineSpace.footprintRingPlacement(
                 holed.holes[0]!,
                 relieved.positions[index * 3]!,
                 relieved.positions[index * 3 + 2]!,
@@ -252,7 +239,7 @@ export const assertFootprintVoidGeometry: (
   );
 
   const environment: IAutoMovieBuiltEnvironment = gallery();
-  const face: IAutoMoviePropSupportFace = propSupportFace({
+  const face: IAutoMoviePropSupportFace = AutoMovieEngineFilm.propSupportFace({
     target: { kind: "surface", environment: "gallery", surface: "plate" },
     environments: [environment],
   })!;
@@ -279,16 +266,16 @@ export const assertFootprintVoidGeometry: (
       [
         "aCrateOverAnArmBears",
         (): boolean =>
-          nclose(propSupportGap({ face, bounds: crate(1, 4) }) ?? NaN, 0, 0),
+          nclose(AutoMovieEngineFilm.propSupportGap({ face, bounds: crate(1, 4) }) ?? NaN, 0, 0),
       ],
       [
         "aCrateOverTheAtriumBearsOnNothing",
-        (): boolean => propSupportGap({ face, bounds: crate(4, 4) }) === null,
+        (): boolean => AutoMovieEngineFilm.propSupportGap({ face, bounds: crate(4, 4) }) === null,
       ],
       [
         "aPatchWithNoAreaIsNoFace",
         (): boolean =>
-          propSupportFace({
+          AutoMovieEngineFilm.propSupportFace({
             target: {
               kind: "surface",
               environment: "gallery",
@@ -311,7 +298,9 @@ export const assertFootprintVoidGeometry: (
         "theTakeOffSubtractsTheVoid",
         (): boolean =>
           nclose(
-            measureAutoMovieQuantities({ environment }).findings.find(
+            AutoMovieEngineDrawing.measureAutoMovieQuantities({
+              environment,
+            }).findings.find(
               (entry: IAutoMovieQuantityFinding): boolean =>
                 entry.subject === "space-floor-area",
             )!.total,
@@ -322,7 +311,7 @@ export const assertFootprintVoidGeometry: (
       [
         "aPatchIsNotAVolume",
         (): boolean =>
-          builtEnvironmentSpaceFidelity(environment, "hall") === "unstated",
+          AutoMovieEngineBuiltEnvironment.environmentSpaceFidelity(environment, "hall") === "unstated",
       ],
     ]),
     {
@@ -335,11 +324,11 @@ export const assertFootprintVoidGeometry: (
     },
   );
 
-  const skewed: IAutoMovieFootprint = surfaceFootprint({
+  const skewed: IAutoMovieFootprint = AutoMovieEngineSpace.surfaceFootprint({
     ...ell,
     polygon: [v(0, 0), v(4, 0), v(4, 2), v(2, 2), v(2 + 1e-10, 4), v(0, 4)],
   });
-  const skewedPieces: IAutoMovieVector3[][] = footprintConvexPieces(skewed);
+  const skewedPieces: IAutoMovieVector3[][] = AutoMovieEngineSpace.footprintConvexPieces(skewed);
   TestValidator.equals(
     "an admitted thin band remains part of the exact region",
     namedFacts([
@@ -372,7 +361,7 @@ export const assertFootprintVoidGeometry: (
       ],
       [
         "theNotchIsStillOut",
-        (): boolean => footprintContains(skewed, 3, 3) === false,
+        (): boolean => AutoMovieEngineSpace.footprintContains(skewed, 3, 3) === false,
       ],
     ]),
     {
@@ -397,7 +386,7 @@ export const assertFootprintVoidGeometry: (
       [
         "validationRefusesIt",
         (): boolean =>
-          validateSpace({ space: spaceOf(crossing) }).success === false,
+          AutoMovieEngineValidation.validateSpace({ space: spaceOf(crossing) }).success === false,
       ],
     ]),
     {

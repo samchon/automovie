@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanGesture } from "@automovie/interface";
 
-/**
+/*
  * The values the `scratchOn` row of `HumanUpperRows` fixes on `armPhrase`,
  * spread into its parameters. A scratch: the fingertips oscillate in short
  * strokes on the target.

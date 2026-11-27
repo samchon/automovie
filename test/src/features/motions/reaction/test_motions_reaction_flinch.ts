@@ -2,7 +2,12 @@ import type {
   IAutoMovieMotionClock,
   IAutoMovieMotionManner,
 } from "@automovie/interface";
-import { AutoMovieMotionManner, flinch } from "@automovie/motions/internal";
+import {
+  motionManner
+} from "../../../../../packages/motions/src/compose/internal/motionManner";
+import {
+  flinch
+} from "../../../../../packages/motions/src/reaction/internal/flinch";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -17,11 +22,11 @@ import { nclose } from "../../internal/nclose";
  */
 export function test_motions_reaction_flinch(): void {
   const slow: IAutoMovieMotionManner.IModifiers = {
-    ...AutoMovieMotionManner.NEUTRAL,
+    ...motionManner.NEUTRAL,
     tempo: 2,
   };
   const neutral: IAutoMovieMotionClock = flinch.timetable(
-    AutoMovieMotionManner.NEUTRAL,
+    motionManner.NEUTRAL,
   );
   const late: IAutoMovieMotionClock = flinch.timetable(slow);
   TestValidator.predicate(

@@ -1,8 +1,8 @@
-import { measureAutoMovieTextureStorage } from "@automovie/engine";
+import { AutoMovieEngineRenderTexture } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `measureAutoMovieTextureStorage` is the bytes of a texture, with its mip
+ * `measureTextureStorage` is the bytes of a texture, with its mip
  * chain when mipmapped, or null when the size is unrepresentable.
  *
  * Scenarios:
@@ -17,19 +17,19 @@ export function test_engine_render_texture_storage(): void {
   TestValidator.equals(
     "a plain texture and its chain",
     [
-      measureAutoMovieTextureStorage({
+      AutoMovieEngineRenderTexture.measureAutoMovieTextureStorage({
         width: 4,
         height: 4,
         bytesPerTexel: 4,
         mipmapped: false,
       }),
-      measureAutoMovieTextureStorage({
+      AutoMovieEngineRenderTexture.measureAutoMovieTextureStorage({
         width: 4,
         height: 4,
         bytesPerTexel: 4,
         mipmapped: true,
       }),
-      measureAutoMovieTextureStorage({
+      AutoMovieEngineRenderTexture.measureAutoMovieTextureStorage({
         width: 4,
         height: 1,
         bytesPerTexel: 4,
@@ -41,25 +41,25 @@ export function test_engine_render_texture_storage(): void {
   TestValidator.equals(
     "unrepresentable sizes",
     [
-      measureAutoMovieTextureStorage({
+      AutoMovieEngineRenderTexture.measureAutoMovieTextureStorage({
         width: 0,
         height: 4,
         bytesPerTexel: 4,
         mipmapped: false,
       }),
-      measureAutoMovieTextureStorage({
+      AutoMovieEngineRenderTexture.measureAutoMovieTextureStorage({
         width: 4,
         height: 4,
         bytesPerTexel: null,
         mipmapped: false,
       }),
-      measureAutoMovieTextureStorage({
+      AutoMovieEngineRenderTexture.measureAutoMovieTextureStorage({
         width: 4,
         height: 4,
         bytesPerTexel: 0,
         mipmapped: false,
       }),
-      measureAutoMovieTextureStorage({
+      AutoMovieEngineRenderTexture.measureAutoMovieTextureStorage({
         width: 2 ** 30,
         height: 2 ** 30,
         bytesPerTexel: 16,

@@ -1,4 +1,6 @@
-/** Maps a byte offset to a one-based line and Unicode text column. */
+/*
+ * Maps a byte offset to a one-based line and Unicode text column.
+ */
 export function locate(
   bytes: Buffer,
   offset: number,

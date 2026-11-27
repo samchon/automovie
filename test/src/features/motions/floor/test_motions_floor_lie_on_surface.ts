@@ -4,10 +4,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanRefusal,
-  lieOnSurfaceFits,
-  lieOnSurfaceSite,
-} from "@automovie/motions/internal";
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  lieOnSurfaceFits
+} from "../../../../../packages/motions/src/floor/internal/lieOnSurfaceFits";
+import {
+  lieOnSurfaceSite
+} from "../../../../../packages/motions/src/floor/internal/lieOnSurfaceSite";
 import { TestValidator } from "@nestia/e2e";
 
 namespace part_lie_on_surface_fits {
@@ -35,7 +39,7 @@ namespace part_lie_on_surface_fits {
       try {
         lieOnSurfaceFits(body, { depth, width }, 0.05);
       } catch (error: unknown) {
-        return error instanceof HumanRefusal ? error.axis : "other";
+        return error instanceof AutoMovieMotionHumanRefusal ? error.axis : "other";
       }
       return undefined;
     };
@@ -89,7 +93,7 @@ namespace part_lie_on_surface_site {
       try {
         lieOnSurfaceSite(reader, id, kind);
       } catch (error: unknown) {
-        return error instanceof HumanRefusal ? error.axis : "other";
+        return error instanceof AutoMovieMotionHumanRefusal ? error.axis : "other";
       }
       return undefined;
     };

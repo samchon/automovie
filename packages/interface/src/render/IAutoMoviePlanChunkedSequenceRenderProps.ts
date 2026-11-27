@@ -1,5 +1,5 @@
-import type { IAutoMovieRenderSpec } from "../cinematics/IAutoMovieRenderSpec.js";
-import type { IAutoMovieSequenceRenderPlan } from "./IAutoMovieSequenceRenderPlan.js";
+import type { IAutoMovieRenderSpec } from "../cinematics/IAutoMovieRenderSpec";
+import type { IAutoMovieSequenceRenderPlan } from "./IAutoMovieSequenceRenderPlan";
 
 /**
  * Whole-sequence manifest and independent chunk encoding controls.

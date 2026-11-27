@@ -1,4 +1,6 @@
-import { deriveArchetypeSeed } from "@automovie/archetypes/internal";
+import {
+  deriveArchetypeSeed
+} from "../../../../../packages/archetypes/src/core/internal/deriveArchetypeSeed";
 import { TestValidator } from "@nestia/e2e";
 
 /**

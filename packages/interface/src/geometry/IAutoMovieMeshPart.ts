@@ -2,13 +2,13 @@ import type { IAutoMovieMesh } from "../model/IAutoMovieMesh";
 import type { IAutoMovieMeshTransform } from "./IAutoMovieMeshTransform";
 
 /**
- * One named rigid member that {@link mergeAutoMovieMeshParts} places and
+ * One named rigid member that {@link mergeMeshParts} places and
  * concatenates into an assembly.
  *
  * The merge refuses a blank or repeated `id` and a mesh whose index buffer is
  * malformed, then reports the member's index range under the same `id` as an
  * {@link IAutoMovieMeshGroup}. A placed member goes through
- * `transformAutoMovieMesh`, which refuses a skinned mesh, a non-unit rotation
+ * `transformMesh`, which refuses a skinned mesh, a non-unit rotation
  * and a scale that collapses an axis; an unplaced member is concatenated as
  * given.
  */

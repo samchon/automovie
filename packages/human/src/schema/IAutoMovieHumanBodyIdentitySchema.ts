@@ -1,10 +1,12 @@
-import type { IAutoMovieHumanBodyIdentity } from "@automovie/interface";
+import type {
+  IAutoMovieHumanBodyIdentity,
+  IAutoMovieHumanPair,
+} from "@automovie/interface";
 import type { tags } from "typia";
 
 import type { IAutoMovieHumanArmIdentitySchema } from "./IAutoMovieHumanArmIdentitySchema";
 import type { IAutoMovieHumanBodyAnatomySchema } from "./IAutoMovieHumanBodyAnatomySchema";
 import type { IAutoMovieHumanLegIdentitySchema } from "./IAutoMovieHumanLegIdentitySchema";
-import type { IAutoMovieHumanPairSchema } from "./IAutoMovieHumanPairSchema";
 import type { IAutoMovieHumanPostureSchema } from "./IAutoMovieHumanPostureSchema";
 
 /** Typia admission/schema metadata for IAutoMovieHumanBodyIdentity. The canonical shape belongs to interface; this refinement adds its existing ranges and nested schema metadata. Import this schema type when generating validators or schemas: the plain canonical type intentionally carries no typia dependency. */
@@ -59,8 +61,8 @@ export type IAutoMovieHumanBodyIdentitySchema = IAutoMovieHumanBodyIdentity &
     posture: IAutoMovieHumanPostureSchema;
 
     /** Independent arm measurements. */
-    armPair: IAutoMovieHumanPairSchema<IAutoMovieHumanArmIdentitySchema>;
+    armPair: IAutoMovieHumanPair<IAutoMovieHumanArmIdentitySchema>;
 
     /** Independent leg measurements. */
-    legPair: IAutoMovieHumanPairSchema<IAutoMovieHumanLegIdentitySchema>;
+    legPair: IAutoMovieHumanPair<IAutoMovieHumanLegIdentitySchema>;
   };

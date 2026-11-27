@@ -1,4 +1,4 @@
-import { AutoMovieLoftChain } from "@automovie/engine";
+import { AutoMovieEngineLoftChain } from "@automovie/engine";
 import type {
   IAutoMovieHumanApertureSpan,
   IAutoMovieHumanBodyApertures,
@@ -186,7 +186,7 @@ export namespace AutoMovieHumanApertureSpan {
         (x: readonly number[]): number => chord(x, a, b),
         (p.chain === ring.owner ? p : q).t,
       );
-      const point: [number, number, number] = AutoMovieLoftChain.point(
+      const point: [number, number, number] = AutoMovieEngineLoftChain.point(
         owner,
         ring.station,
         t,
@@ -269,7 +269,7 @@ export namespace AutoMovieHumanApertureSpan {
     );
   }
 
-  /**
+  /*
    * The phase of a chain's section at a station where a cost of its point is
    * least: a scan of the whole section from the guess (two chains need not
    * share a phase convention), then Newton on the cost's slope.
@@ -280,7 +280,7 @@ export namespace AutoMovieHumanApertureSpan {
     cost: (x: readonly number[]) => number,
     guess: number,
   ): number {
-    const at: (t: number) => number[] = AutoMovieLoftChain.sampler(chain, s);
+    const at: (t: number) => number[] = AutoMovieEngineLoftChain.sampler(chain, s);
     const gap = (t: number): number => cost(at(t));
     let t: number = guess;
     let least: number = gap(t);
@@ -306,7 +306,9 @@ export namespace AutoMovieHumanApertureSpan {
     return t;
   }
 
-  /** Squared distance of a point from the segment between two margin points. */
+  /*
+   * Squared distance of a point from the segment between two margin points.
+   */
   function chord(
     x: readonly number[],
     a: readonly number[],
@@ -334,7 +336,7 @@ export namespace AutoMovieHumanApertureSpan {
     );
   }
 
-  /**
+  /*
    * The ring two chains share, its owner the event parent whose contact layer
    * it is, or null.
    */
@@ -366,7 +368,7 @@ export namespace AutoMovieHumanApertureSpan {
     return null;
   }
 
-  /**
+  /*
    * Every margin point's foot on one chain: the chain point nearest the
    * margin point's line of sight along the opening's `forward` axis, so the
    * foot projects onto the margin's outline (`AutoMovieHumanLoftAperture.IOutline`,
@@ -409,7 +411,7 @@ export namespace AutoMovieHumanApertureSpan {
         s += 0.5
       ) {
         const at: (t: number) => [number, number, number] =
-          AutoMovieLoftChain.sampler(chain, s);
+          AutoMovieEngineLoftChain.sampler(chain, s);
         for (let i: number = 0; i < 512; i++) {
           const t: number = (2 * Math.PI * i) / 512;
           const p: [number, number, number] = at(t);
@@ -443,12 +445,14 @@ export namespace AutoMovieHumanApertureSpan {
       return found;
     };
 
-    /** Gauss-Newton on the squared distance to a margin point's line of sight. */
+    /*
+     * Gauss-Newton on the squared distance to a margin point's line of sight.
+     */
     function solve(start: [number, number], target: readonly number[]): IFoot {
       let [s, t] = start;
       let past: boolean = false;
       for (let iteration: number = 0; iteration < 30; iteration++) {
-        const p: [number, number, number] = AutoMovieLoftChain.point(
+        const p: [number, number, number] = AutoMovieEngineLoftChain.point(
           chain,
           s,
           t,
@@ -459,12 +463,12 @@ export namespace AutoMovieHumanApertureSpan {
           p[2] - target[2]!,
         ]);
         const h: number = s + STEP <= y1 ? STEP : -STEP;
-        const ps: [number, number, number] = AutoMovieLoftChain.point(
+        const ps: [number, number, number] = AutoMovieEngineLoftChain.point(
           chain,
           s + h,
           t,
         );
-        const pt: [number, number, number] = AutoMovieLoftChain.point(
+        const pt: [number, number, number] = AutoMovieEngineLoftChain.point(
           chain,
           s,
           t + TURN,
@@ -501,7 +505,7 @@ export namespace AutoMovieHumanApertureSpan {
         s = next;
         t += dt;
       }
-      const p: [number, number, number] = AutoMovieLoftChain.point(chain, s, t);
+      const p: [number, number, number] = AutoMovieEngineLoftChain.point(chain, s, t);
       return {
         s,
         t,
@@ -528,7 +532,7 @@ export namespace AutoMovieHumanApertureSpan {
     });
   }
 
-  /**
+  /*
    * The stations of a chain whose sections pass near a margin, or null: the
    * span of the layers whose ring, read at a few phases, comes within `reach`
    * of the margin's box, widened by one layer on each side.
@@ -550,7 +554,7 @@ export namespace AutoMovieHumanApertureSpan {
     let last: number = -1;
     layers.forEach((layer: IAutoMovieLoftChain.ILayer, k: number): void => {
       const at: (t: number) => [number, number, number] =
-        AutoMovieLoftChain.sampler(chain, layer.y);
+        AutoMovieEngineLoftChain.sampler(chain, layer.y);
       for (let i: number = 0; i < PHASES; i++) {
         const p: [number, number, number] = at((2 * Math.PI * i) / PHASES);
         if (
@@ -571,17 +575,21 @@ export namespace AutoMovieHumanApertureSpan {
     ];
   }
 
-  /** Dot product. */
+  /*
+   * Dot product.
+   */
   function dot(a: readonly number[], b: readonly number[]): number {
     return a[0]! * b[0]! + a[1]! * b[1]! + a[2]! * b[2]!;
   }
 
-  /** How many points name a chain. */
+  /*
+   * How many points name a chain.
+   */
   function count(owners: readonly (string | null)[], name: string): number {
     return owners.filter((o: string | null): boolean => o === name).length;
   }
 
-  /**
+  /*
    * Distance from its line of sight under which a foot is solved, mm: the
    * station step the skin takes round an opening (`AutoMovieHumanBodyApertures`,
    * 0.5 mm) over five, the distance within which a skin point already counted
@@ -589,51 +597,83 @@ export namespace AutoMovieHumanApertureSpan {
    */
   const SOLVED: number = 0.1;
 
-  /** How far past the shared ring a chain's polygon is closed, mm, so its cells on the ring fall inside. */
+  /*
+   * How far past the shared ring a chain's polygon is closed, mm, so its cells on the ring fall inside.
+   */
   const PAST: number = 1;
 
-  /** Least feet a trim loop is drawn through, as for `AutoMovieSolidTrim`'s landmarks. */
+  /*
+   * Least feet a trim loop is drawn through, as for `AutoMovieEngineSolidTrim`'s landmarks.
+   */
   const MARGIN: number = 4;
 
-  /** Distance beyond the margin and its tolerance a chain's section is searched over, mm. */
+  /*
+   * Distance beyond the margin and its tolerance a chain's section is searched over, mm.
+   */
   const REACH: number = 8;
 
-  /** Phases a layer's ring is read at to find the stations near a margin. */
+  /*
+   * Phases a layer's ring is read at to find the stations near a margin.
+   */
   const PHASES: number = 64;
 
-  /** Station step of a difference, mm. */
+  /*
+   * Station step of a difference, mm.
+   */
   const STEP: number = 0.01;
 
-  /** Phase step of a difference, radians. */
+  /*
+   * Phase step of a difference, radians.
+   */
   const TURN: number = 1e-4;
 
-  /** A foot of one margin point. */
+  /*
+   * A foot of one margin point.
+   */
   interface IFoot {
-    /** Station. */
+    /*
+     * Station.
+     */
     s: number;
 
-    /** Phase. */
+    /*
+     * Phase.
+     */
     t: number;
 
-    /** Distance from the margin point's line of sight, mm. */
+    /*
+     * Distance from the margin point's line of sight, mm.
+     */
     distance: number;
 
-    /** Whether the foot is held at an end ring while the nearest point lies beyond it. */
+    /*
+     * Whether the foot is held at an end ring while the nearest point lies beyond it.
+     */
     past: boolean;
   }
 
-  /** A ring two chains share. */
+  /*
+   * A ring two chains share.
+   */
   interface IRing {
-    /** The event parent, whose contact layer the ring is. */
+    /*
+     * The event parent, whose contact layer the ring is.
+     */
     owner: string;
 
-    /** The child that copies it. */
+    /*
+     * The child that copies it.
+     */
     neighbour: string;
 
-    /** The ring's station, mm. */
+    /*
+     * The ring's station, mm.
+     */
     station: number;
 
-    /** The chain below the ring. */
+    /*
+     * The chain below the ring.
+     */
     lower: string;
   }
 }

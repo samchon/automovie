@@ -1,3 +1,2 @@
-export type { IAutoMovieAnalysisOverlayObject } from "./IAutoMovieAnalysisOverlayObject.js";
-export { autoMovieAnalysisRampColor } from "./autoMovieAnalysisRampColor.js";
-export { buildAnalysisOverlayObject } from "./buildAnalysisOverlayObject.js";
+export { AutoMovieRenderAnalysisOverlay } from "./AutoMovieRenderAnalysisOverlay";
+export type { IAutoMovieRenderAnalysisOverlayObject } from "./IAutoMovieRenderAnalysisOverlayObject";

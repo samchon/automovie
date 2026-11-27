@@ -50,25 +50,25 @@ export function test_human_feature_laws(): void {
     if (spans) {
       same(law.name + " centre", made.centre, [0, 0, 60]);
       same(law.name + " along", made.along, [0, 0, 1]);
-      close(law.name + " half length", made.extent[0], 60);
+      close(law.name + " half length", made.extent.along, 60);
     } else {
       same(law.name + " centre", made.centre, [10, -200, 30]);
       same(law.name + " along", made.along, [0, -1, 0]);
       same(law.name + " across", made.across, [0, 0, -1]);
       same(law.name + " normal", F.cross(made.along, made.across), [1, 0, 0]);
-      close(law.name + " half extent along", made.extent[0], (law.along ?? Number.NaN) * 1000);
+      close(law.name + " half extent along", made.extent.along, (law.along ?? Number.NaN) * 1000);
     }
-    close(law.name + " half extent across", made.extent[1], law.across * 1000);
+    close(law.name + " half extent across", made.extent.across, law.across * 1000);
     close(law.name + " height", made.height, law.height * 1000);
     close(law.name + " height at the centre", Template.height(made, 0, 0), law.height * 1000);
-    close(law.name + " height on the edge along", Template.height(made, made.extent[0], 0), 0);
-    close(law.name + " height on the edge across", Template.height(made, 0, -made.extent[1]), 0);
+    close(law.name + " height on the edge along", Template.height(made, made.extent.along, 0), 0);
+    close(law.name + " height on the edge across", Template.height(made, 0, -made.extent.across), 0);
 
     const doubled: Template.ITemplate = Laws.template(law, spans ? two : one, 2000);
-    close(law.name + " doubled across", doubled.extent[1], 2 * made.extent[1]);
+    close(law.name + " doubled across", doubled.extent.across, 2 * made.extent.across);
     close(law.name + " doubled height", doubled.height, 2 * made.height);
     same(law.name + " doubled along", doubled.along, made.along);
-    if (!spans) close(law.name + " doubled along extent", doubled.extent[0], 2 * made.extent[0]);
+    if (!spans) close(law.name + " doubled along extent", doubled.extent.along, 2 * made.extent.along);
 
     if (hollows.includes(law.name) !== law.height < 0) failures.push(law.name + ": a hollow's height is negative and a mound's positive");
     const fuller: Template.ITemplate = Template.at(made, { along: 1, across: 1, tissue: 1.5 });

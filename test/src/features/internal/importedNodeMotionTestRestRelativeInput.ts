@@ -1,7 +1,4 @@
-import {
-  Quaternion,
-  type importedNodeClipToAutoMovieMotion,
-} from "@automovie/engine";
+import { AutoMovieEngineQuaternion, type AutoMovieEngineMotionClip } from "@automovie/engine";
 import type {
   IAutoMovieClip,
   IAutoMovieQuaternion,
@@ -21,10 +18,10 @@ import { importedNodeMotionTestSkeleton as skeleton } from "./importedNodeMotion
  * @evidence contracts/development/testing.md#execution-ownership Returns fresh clip/skeleton records and borrows the original mapping array unchanged; no file, native importer, renderer, browser or GPU is opened and no foreign method is replaced.
  */
 export function importedNodeMotionTestRestRelativeInput(
-  mapping: Parameters<typeof importedNodeClipToAutoMovieMotion>[0]["mapping"],
-): Parameters<typeof importedNodeClipToAutoMovieMotion>[0] {
+  mapping: Parameters<typeof AutoMovieEngineMotionClip.importedNodeClipToAutoMovieMotion>[0]["mapping"],
+): Parameters<typeof AutoMovieEngineMotionClip.importedNodeClipToAutoMovieMotion>[0] {
   const sourceSkeleton: IAutoMovieSkeleton = skeleton();
-  const restRotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+  const restRotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
     { x: 1, y: 0, z: 0 },
     30,
   );

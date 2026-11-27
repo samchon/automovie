@@ -1,6 +1,6 @@
 import {
-  preparePhysicalGeometry as Geometry,
-  auditPhysicalOutcomes,
+  AutoMovieEnginePhysicalGeometry as Geometry,
+  AutoMovieEnginePhysicalSimulation,
 } from "@automovie/engine";
 import type {
   IAutoMovieAuditPhysicalOutcomes,
@@ -25,7 +25,7 @@ const CLEARANCE: number = 1e-5;
  * 1. Exercise actual public inputs and compare physical quantities.
  */
 export async function test_engine_physics_prepare_physical_geometry_layers(): Promise<void> {
-  const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry();
+  const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry.prepare();
   const sphere: IAutoMoviePhysicalShape = {
     kind: "sphere",
     id: "surface",
@@ -101,7 +101,7 @@ export async function test_engine_physics_prepare_physical_geometry_layers(): Pr
       geometry.contact(box, floor, 0) === null,
   );
   const outcome: IAutoMovieAuditPhysicalOutcomes.IFinding[] =
-    auditPhysicalOutcomes({
+    AutoMovieEnginePhysicalSimulation.auditOutcomes({
       actions: [
         {
           id: "planned-hit",

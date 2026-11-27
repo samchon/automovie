@@ -3,8 +3,8 @@ import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 /**
  * One exact live billboard derived from a compiled effect stream.
  *
- * `sampleCompiledEffect` recomputes every field from the compiled effect seed,
- * the spawn index and the sampled time, so a particle carries no state between
+ * The Engine sampler recomputes every field from the compiled effect seed, the
+ * spawn index and the sampled time, so a particle carries no state between
  * samples and the same inputs give the same particle on every host.
  */
 export interface IAutoMovieEffectParticle {

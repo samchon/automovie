@@ -1,16 +1,4 @@
-/** One published clear floor figure in metres, with the clause that sets it. */
-interface IClearance {
-  /** Reach out from the piece's face. */
-  depth: number;
-
-  /** Length along the face, or null where the kit spans the face it serves. */
-  width: number | null;
-
-  /** The clause, quoted with its address. */
-  source: string;
-}
-
-/**
+/*
  * The clear floor figures the room kits reserve, each with its source:
  *
  * - `clearFloor`: 2010 ADA Standards 305.3, a clear floor space 30 in (760 mm) by
@@ -54,3 +42,23 @@ export const ROOM_CLEARANCES: Readonly<
       "NKBA Kitchen Planning Guidelines, work aisle at least 48 inches (1219 mm) wide for more than one cook (https://kb.nkba.org/uploads/2022/05/Kitchen-Planning-Guidelines.pdf)",
   },
 };
+
+/*
+ * One published clear floor figure in metres, with the clause that sets it.
+ */
+interface IClearance {
+  /*
+   * Reach out from the piece's face.
+   */
+  depth: number;
+
+  /*
+   * Length along the face, or null where the kit spans the face it serves.
+   */
+  width: number | null;
+
+  /*
+   * The clause, quoted with its address.
+   */
+  source: string;
+}

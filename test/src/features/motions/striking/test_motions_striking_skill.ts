@@ -3,7 +3,9 @@ import type {
   IAutoMovieMotionHumanStrikingSkill,
   IAutoMovieRandom,
 } from "@automovie/interface";
-import { StrikingSkill } from "@automovie/motions/internal";
+import {
+  StrikingSkill
+} from "../../../../../packages/motions/src/striking/internal/StrikingSkill";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

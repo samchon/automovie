@@ -1,9 +1,4 @@
-import {
-  designLineageCompare,
-  designLineageDecisionComparisons,
-  designLineageDigest,
-  validateDesignLineage,
-} from "@automovie/engine";
+import { AutoMovieEngineDesignLineage, AutoMovieEngineArchitecture } from "@automovie/engine";
 import type {
   IAutoMovieDesignComparison,
   IAutoMovieDesignDifference,
@@ -34,7 +29,7 @@ import { throwsError } from "../internal/predicates";
  */
 export function test_architecture_design_lineage_alternatives(): void {
   const lineage: IAutoMovieDesignLineage = renovationLineage();
-  const comparison: IAutoMovieDesignComparison = designLineageCompare(
+  const comparison: IAutoMovieDesignComparison = AutoMovieEngineDesignLineage.designLineageCompare(
     lineage,
     "warm-oak",
     "cool-stone",
@@ -97,7 +92,7 @@ export function test_architecture_design_lineage_alternatives(): void {
     ],
   );
 
-  const pairs: IAutoMovieDesignComparison[] = designLineageDecisionComparisons(
+  const pairs: IAutoMovieDesignComparison[] = AutoMovieEngineDesignLineage.designLineageDecisionComparisons(
     lineage,
     "d-interior",
   );
@@ -148,24 +143,24 @@ export function test_architecture_design_lineage_alternatives(): void {
   );
   TestValidator.equals(
     "a settled decision still validates",
-    validateDesignLineage({ lineage: settled }).success,
+    AutoMovieEngineArchitecture.validateDesignLineage({ lineage: settled }).success,
     true,
   );
   TestValidator.equals(
     "the rejected scheme is still comparable after the choice is made",
-    designLineageCompare(settled, "warm-oak", "cool-stone").differences,
+    AutoMovieEngineDesignLineage.designLineageCompare(settled, "warm-oak", "cool-stone").differences,
     comparison.differences,
   );
   TestValidator.predicate(
     "recording the selection moves the lineage digest",
-    designLineageDigest(settled) !== designLineageDigest(lineage),
+    AutoMovieEngineDesignLineage.designLineageDigest(settled) !== AutoMovieEngineDesignLineage.designLineageDigest(lineage),
   );
 
   TestValidator.predicate(
     "alternatives on different base revisions are refused, not mixed",
     throwsError(
       (): IAutoMovieDesignComparison =>
-        designLineageCompare(lineage, "warm-oak", "legacy-scheme"),
+        AutoMovieEngineDesignLineage.designLineageCompare(lineage, "warm-oak", "legacy-scheme"),
       [
         'cannot compare variant "warm-oak" of revision "r2"',
         'variant "legacy-scheme" of revision "r1"',
@@ -176,7 +171,7 @@ export function test_architecture_design_lineage_alternatives(): void {
     "an unknown alternative is refused rather than compared as empty",
     throwsError(
       (): IAutoMovieDesignComparison =>
-        designLineageCompare(lineage, "warm-oak", "brutalist"),
+        AutoMovieEngineDesignLineage.designLineageCompare(lineage, "warm-oak", "brutalist"),
       'has no design variant "brutalist"',
     ),
   );
@@ -184,7 +179,7 @@ export function test_architecture_design_lineage_alternatives(): void {
     "an unknown decision is refused rather than answered with no pairs",
     throwsError(
       (): IAutoMovieDesignComparison[] =>
-        designLineageDecisionComparisons(lineage, "d-roof"),
+        AutoMovieEngineDesignLineage.designLineageDecisionComparisons(lineage, "d-roof"),
       'has no decision "d-roof"',
     ),
   );

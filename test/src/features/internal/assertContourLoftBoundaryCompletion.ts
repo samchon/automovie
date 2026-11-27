@@ -1,4 +1,4 @@
-import { tessellateAutoMovieContourLoft64 } from "@automovie/engine";
+import { AutoMovieEngineCurve } from "@automovie/engine";
 import type {
   AutoMovieCubicBezierControls3,
   IAutoMovieContourLoft64,
@@ -6,8 +6,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { contourStripOracle as O } from "../internal/contourStripOracle.ts";
-import { throwsError } from "../internal/throwsError.ts";
+import { contourStripOracle as O } from "./contourStripOracle";
+import { throwsError } from "./throwsError";
 import type { assertContourLoftBoundaryCore } from "./assertContourLoftBoundaryCore";
 import { contourLoftBoundaryOracle as B } from "./contourLoftBoundaryOracle";
 
@@ -51,7 +51,7 @@ export function assertContourLoftBoundaryCompletion(
   );
 
   const cones: IAutoMovieContourLoft64.IResult =
-    tessellateAutoMovieContourLoft64({
+    AutoMovieEngineCurve.tessellateContourLoft64({
       sections: coneSections,
       events: extrema,
       chordToleranceMm: 0.25,
@@ -75,7 +75,7 @@ export function assertContourLoftBoundaryCompletion(
   );
 
   const unmatched: IAutoMovieContourLoft64.IResult =
-    tessellateAutoMovieContourLoft64({
+    AutoMovieEngineCurve.tessellateContourLoft64({
       sections: coneSections,
       events: [],
       chordToleranceMm: 0.25,
@@ -103,7 +103,7 @@ export function assertContourLoftBoundaryCompletion(
       },
     ];
     const merge: IAutoMovieContourLoft64.IResult =
-      tessellateAutoMovieContourLoft64({
+      AutoMovieEngineCurve.tessellateContourLoft64({
         sections: mergeSections,
         intervals: [
           {
@@ -142,7 +142,7 @@ export function assertContourLoftBoundaryCompletion(
   }
 
   const empty: IAutoMovieContourLoft64.IResult =
-    tessellateAutoMovieContourLoft64({
+    AutoMovieEngineCurve.tessellateContourLoft64({
       sections: [],
       events: [],
       intervals: [],
@@ -162,7 +162,7 @@ export function assertContourLoftBoundaryCompletion(
       "nonpositive tolerance refuses",
       throwsError(
         (): IAutoMovieContourLoft64.IResult =>
-          tessellateAutoMovieContourLoft64({
+          AutoMovieEngineCurve.tessellateContourLoft64({
             ...input,
             chordToleranceMm: tolerance,
           }),
@@ -174,7 +174,7 @@ export function assertContourLoftBoundaryCompletion(
     "nonincreasing section addresses refuse",
     throwsError(
       (): IAutoMovieContourLoft64.IResult =>
-        tessellateAutoMovieContourLoft64({
+        AutoMovieEngineCurve.tessellateContourLoft64({
           ...input,
           sections: [...sections].reverse(),
         }),
@@ -203,7 +203,7 @@ export function assertContourLoftBoundaryCompletion(
   };
 
   const failed: IAutoMovieContourLoft64.IResult =
-    tessellateAutoMovieContourLoft64({
+    AutoMovieEngineCurve.tessellateContourLoft64({
       ...input,
       sections: [
         { ...sections[0], loops: [{ curve: disconnected, winding: 1 }] },

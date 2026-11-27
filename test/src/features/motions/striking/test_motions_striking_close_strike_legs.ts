@@ -1,4 +1,6 @@
-import { CloseStrikeLegs } from "@automovie/motions/internal";
+import {
+  CloseStrikeLegs
+} from "../../../../../packages/motions/src/striking/internal/CloseStrikeLegs";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

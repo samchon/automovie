@@ -3,7 +3,7 @@ import type { IAutoMovieMeshRayQueryOptions } from "./IAutoMovieMeshRayQueryOpti
 
 /**
  * Synchronous ray queries over one owned resident-mesh snapshot, returned by
- * `createAutoMovieMeshRayCaster`.
+ * `createMeshRayCaster`.
  *
  * Every query takes an XYZ `origin` and `direction` in the mesh-local metre
  * frame, a `maximum` travel and an optional `minimum` travel (default zero),

@@ -1,5 +1,10 @@
-import { ROM_TOLERANCE } from "@automovie/engine";
-import { KickForm, kickChainRead } from "@automovie/motions/internal";
+import { AutoMovieEngineRomTolerance } from "@automovie/engine";
+import {
+  KickForm
+} from "../../../../../packages/motions/src/striking/internal/KickForm";
+import {
+  kickChainRead
+} from "../../../../../packages/motions/src/striking/internal/kickChainRead";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -19,7 +24,7 @@ export function test_motions_striking_kick_chain_read(): void {
     [
       kickChainRead.status(2 * KickForm.RESIDUAL, 0, "round"),
       kickChainRead.status(2 * KickForm.RESIDUAL, most + 90, "round"),
-      kickChainRead.status(0, most + ROM_TOLERANCE + 1, "round"),
+      kickChainRead.status(0, most + AutoMovieEngineRomTolerance + 1, "round"),
       kickChainRead.status(0, most, "round"),
     ],
     ["short", "short", "jammed", "reached"],

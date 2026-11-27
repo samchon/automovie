@@ -1,4 +1,4 @@
-import { playbackFrameSamples } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMoviePlaybackSample,
   IAutoMovieSequence,
@@ -41,7 +41,7 @@ export function test_engine_film_playback_frames(): void {
       { shot: "b", trim: null, transition: null },
     ],
   };
-  const samples: IAutoMoviePlaybackSample[] = playbackFrameSamples(sequence, [
+  const samples: IAutoMoviePlaybackSample[] = AutoMovieEngineFilm.playbackFrameSamples(sequence, [
     shot("a", 1),
     shot("b", 1),
   ]);
@@ -57,7 +57,7 @@ export function test_engine_film_playback_frames(): void {
   TestValidator.predicate(
     "zero fps",
     throwsError(
-      () => playbackFrameSamples({ ...sequence, fps: 0 }, [shot("a", 1)]),
+      () => AutoMovieEngineFilm.playbackFrameSamples({ ...sequence, fps: 0 }, [shot("a", 1)]),
       ["sequence fps", "> 0", "0"],
     ),
   );

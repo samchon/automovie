@@ -8,23 +8,29 @@ Commit instructions, bodies and Evidence answers. Keep review records local. Ide
 
 | Location, when used | Owns |
 | --- | --- |
-| `docs/instructions/*.md` | Creative requirements, source boundaries and identified delegated writing choices |
-| `docs/body/settings/<domain>/<subject>.md` | One subject's facts, one file per subject |
-| `docs/body/settings/outline/index.md` | Domain and file navigation without duplicating facts |
-| `docs/body/brief/<domain>/<subject>.md` | A short's brief, one subject per file in a settings domain |
-| `docs/body/treatments/NNN-event.md` | Flat ordered events, causes, consequences, and information release |
-| `docs/body/scripts/NNN-part/NNN-episode.md` | First-draft scenes, dialogue and release partition, with part indexes |
-| `docs/body/screenplay/<film>/NNN-<scene>.md` | Complete final audiovisual text, one file per scene |
+| `docs/instructions/*.md` | Requirements, source limits and delegated choices |
+| `docs/body/settings/<domain>/<subject>.md` | One subject's facts per file |
+| `docs/body/settings/outline/index.md` | Domain and file links, no facts |
+| `docs/body/brief/<domain>/<subject>.md` | Short brief, one subject per file |
+| `docs/body/treatments/NNN-event.md` | Events, causes, effects and reveals |
+| `docs/body/scripts/NNN-part/NNN-episode.md` | Draft scenes and dialogue |
+| `docs/body/screenplay/<film>/NNN-<scene>.md` | Final audiovisual scene text |
 | `docs/research/index.md` | The source index |
-| `docs/research/<discipline>/<topic>.md` | The studies of each practice and style |
+| `docs/research/<discipline>/<topic>.md` | Studies of practices and styles |
 | `references/` | Retained research originals that are permitted copies |
-| Ignored `references/private/` | Retained research originals whose rights are unconfirmed |
-| `docs/contracts/work/...`, `docs/contracts/language/...` | Production story contracts |
+| Ignored `references/private/` | Retained originals with unconfirmed rights |
+| `docs/contracts/work/...`, `docs/contracts/language/...` | Story contracts |
 | `docs/acceptance/<film>.md` | The film's tracked acceptance record |
 | `docs/acceptance/catalog.md` | The catalog's accepted cases |
-| `docs/evidence/construction/{units,files}/<layer>/...` | Separate construction answers for units and whole files |
-| Ignored `docs/review/draft/<layer>/<relative-file>.md` | Current unit reviews mirroring the manuscript |
-| Ignored `docs/review/draft/<layer>/verdict/index.md` | Current complete-population verdict |
+| `docs/evidence/construction/{units,files}/<layer>/...` | Evidence answers |
+| Ignored `docs/review/draft/<layer>/<relative-file>.md` | Unit reviews |
+| Ignored `docs/review/draft/<layer>/verdict/index.md` | Full verdict |
+
+Number treatments by event order and keep the event files flat. Keep first-draft scripts with their release partitions and part indexes.
+
+Keep separate construction answers for units and whole files.
+
+Unit review files mirror the manuscript, and the current verdict covers the full population.
 
 The verdict file also holds the findings and the author's decisions on them.
 
@@ -46,7 +52,7 @@ Without settings or a brief, use `docs/instructions/appearance-<subject>.md` for
 
 ### Scene elements
 
-<!-- @source The opening of [Knives Out](https://rian-johnson.com/pdfs/knives-out.pdf#page=2) describes the rooms along Fran's route. [ScreenSkills](https://www.screenskills.com/skills-checklists/scripted-film-and-tv/props-department/standby-props-skills/) covers prop continuity. [Movie Magic Scheduling](https://mms-docs.ep.com/Elements/ManagingElements.html) tracks named elements across scenes. -->
+<!-- @reference The opening of [Knives Out](https://rian-johnson.com/pdfs/knives-out.pdf#page=2) describes the rooms along Fran's route. [ScreenSkills](https://www.screenskills.com/skills-checklists/scripted-film-and-tv/props-department/standby-props-skills/) covers prop continuity. [Movie Magic Scheduling](https://mms-docs.ep.com/Elements/ManagingElements.html) tracks named elements across scenes. -->
 
 Identify places, people, props and groups in the scene's [standing state](layers/notation.md#records). Link each subject that has a record. Give a scene-local instance a stable name only when the action tracks it. A house key and a spare key may share a design but change hands separately. Describe other dressing and crowds collectively.
 

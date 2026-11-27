@@ -1,30 +1,18 @@
-import {
-  Quaternion,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  IAutoMovieMotionHumanPerformance,
-  IAutoMovieMotionHumanSegment,
-  IAutoMovieResolvedBone,
-  IAutoMovieRigidTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieResolvedBone, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanChain } from "../../HumanChain";
-import { AutoMovieMotionHumanAuditSkin } from "../../audit/AutoMovieMotionHumanAuditSkin";
-import { dress } from "../../dressing/dress";
-import { HumanColliders } from "../../posture/HumanColliders";
-import { HumanHand } from "../../posture/HumanHand";
-import { StrikingRoll } from "../../striking/StrikingRoll";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
+import { AutoMovieMotionHumanAuditSkin } from "../../audit/internal/AutoMovieMotionHumanAuditSkin";
+import { dress } from "../../dressing/internal/dress";
+import { HumanColliders } from "../../posture/internal/HumanColliders";
+import { HumanHand } from "../../posture/internal/HumanHand";
+import { StrikingRoll } from "../../striking/internal/StrikingRoll";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
-import { dressCaseWearable } from "./dressCaseWearable";
-import { everydayVerdicts } from "./everydayVerdicts";
+import { dressCaseWearable } from "./internal/dressCaseWearable";
+import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/**
+/*
  * Capture cases of the dressing family, from quiet standing, the item first
  * taken up by its `hold` in the right hand from before the body, for its use:
  * worn on its region (`HumanGraspUse.IUse`, line `worn`): `dress-hat` (the hat
@@ -44,9 +32,8 @@ import { everydayVerdicts } from "./everydayVerdicts";
  * al. 2012, the issue's ADL ranges). The elevation is read on the displayed
  * bones, since a joint's clinical flexion and abduction channels alias each
  * other once the arm is raised past the horizontal and turned.
- *
- * @param bodies The sweep bodies; `m-average` when absent.
- * @returns The cases.
+ * Parameter bodies: The sweep bodies; `m-average` when absent.
+ * Returns: The cases.
  */
 export function dressCases(
   bodies: readonly string[] = ["m-average"],
@@ -61,7 +48,7 @@ export function dressCases(
         FamilyCaseKit.perform(
           "dress",
           [{ subject: "a", body: who.body }],
-          HumanChain.subject("a")
+          AutoMovieMotionHumanChain.subject("a")
             .pickUp({
               prop: "item",
               handle: "hold",
@@ -96,7 +83,7 @@ export function dressCases(
         side: AutoMovieHumanSide,
       ): IAutoMovieVector3 =>
         item === "hat"
-          ? resolveAutoMovieHumanoidSurfaces.place(
+          ? AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
               who.body.surfaces.sockets[
                 side === "left" ? "palmLeft" : "palmRight"
               ],
@@ -110,13 +97,13 @@ export function dressCases(
         const region =
           item === "hat" ? "crown" : side === "left" ? "earLeft" : "earRight";
         const frame = who.body.surfaces.regions[region];
-        const at: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
+        const at: IAutoMovieVector3 = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
           frame,
           bones.get(frame.bone)!,
         ).point;
         if (item !== "hat") return at;
         // The head's displayed surface along the brim's direction.
-        const direction: IAutoMovieVector3 = Vector3.normalize({
+        const direction: IAutoMovieVector3 = AutoMovieEngineVector3.normalize({
           x: (side === "left" ? 1 : -1) * dress.HAT.out,
           y: 0,
           z: dress.HAT.ahead,
@@ -124,30 +111,30 @@ export function dressCases(
         return HumanColliders.cast(
           who.body,
           new Map([...bones].filter(([b]) => b === "head" || b === "neck")),
-          Vector3.add(
+          AutoMovieEngineVector3.add(
             { ...at, y: at.y - dress.HAT.down * r },
-            Vector3.scale(direction, 4 * r),
+            AutoMovieEngineVector3.scale(direction, 4 * r),
           ),
-          Vector3.scale(direction, -1),
+          AutoMovieEngineVector3.scale(direction, -1),
           8 * r,
         )!.point;
       };
       const bones = performance.bones("a", stroke);
       const region = who.body.surfaces.regions[dress.WORN[item]];
       const frame: IAutoMovieRigidTransform = performance.prop("item", stroke);
-      const steadied: number = Vector3.length(
-        Vector3.subtract(surface(bones, "left"), want(bones, "left")),
+      const steadied: number = AutoMovieEngineVector3.length(
+        AutoMovieEngineVector3.subtract(surface(bones, "left"), want(bones, "left")),
       );
-      const placed: number = Vector3.length(
-        Vector3.subtract(
-          Vector3.add(
+      const placed: number = AutoMovieEngineVector3.length(
+        AutoMovieEngineVector3.subtract(
+          AutoMovieEngineVector3.add(
             frame.position,
-            Quaternion.rotateVector(
+            AutoMovieEngineQuaternion.rotateVector(
               frame.rotation,
               dressCaseWearable.WEAR[item].translation,
             ),
           ),
-          resolveAutoMovieHumanoidSurfaces.place(
+          AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
             region,
             bones.get(region.bone)!,
           ).point,
@@ -165,19 +152,19 @@ export function dressCases(
             HumanColliders.distance(who.body, head, surface(all, side))
               .distance,
           );
-          const along: IAutoMovieVector3 = Vector3.normalize(
-            Vector3.subtract(
+          const along: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+            AutoMovieEngineVector3.subtract(
               all.get(`${side}LowerArm`)!.worldPosition,
               all.get(`${side}UpperArm`)!.worldPosition,
             ),
           );
-          const down: IAutoMovieVector3 = Quaternion.rotateVector(
+          const down: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
             all.get("chest")!.worldRotation,
             { x: 0, y: -1, z: 0 },
           );
           elevation = Math.max(
             elevation,
-            (Math.acos(Math.min(1, Math.max(-1, Vector3.dot(along, down)))) *
+            (Math.acos(Math.min(1, Math.max(-1, AutoMovieEngineVector3.dot(along, down)))) *
               180) /
               Math.PI,
           );

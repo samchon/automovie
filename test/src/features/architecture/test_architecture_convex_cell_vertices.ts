@@ -1,7 +1,4 @@
-import {
-  builtConvexCellVertices,
-  builtSpaceVolumeBounds,
-} from "@automovie/engine";
+import { AutoMovieEngineBuiltEnvironment } from "@automovie/engine";
 import type {
   IAutoMovieSubjectBox,
   IAutoMovieVector3,
@@ -33,7 +30,7 @@ export function test_architecture_convex_cell_vertices(): void {
     "a unit cube's planes cut exactly its own eight corners",
     ((): boolean => {
       const observed: [number, number, number][] = ordered(
-        builtConvexCellVertices(
+        AutoMovieEngineBuiltEnvironment.convexCellVertices(
           boxCell("cube", { x: 0, y: 0, z: 0 }, { x: 1, y: 1, z: 1 }),
         ),
       );
@@ -115,7 +112,7 @@ export function test_architecture_convex_cell_vertices(): void {
         "six planes through one point cut that point once",
         (): boolean =>
           ordered(
-            builtConvexCellVertices(
+            AutoMovieEngineBuiltEnvironment.convexCellVertices(
               boxCell("point", { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }),
             ),
           ).length === 1,
@@ -124,7 +121,7 @@ export function test_architecture_convex_cell_vertices(): void {
         "a plane with no normal states no half-space",
         (): boolean =>
           ordered(
-            builtConvexCellVertices({
+            AutoMovieEngineBuiltEnvironment.convexCellVertices({
               id: "with-null-plane",
               planes: [
                 { normal: { x: 0, y: 0, z: 0 }, offset: 7 },
@@ -137,7 +134,7 @@ export function test_architecture_convex_cell_vertices(): void {
       [
         "and one half-space closes nothing",
         (): boolean =>
-          builtConvexCellVertices({
+          AutoMovieEngineBuiltEnvironment.convexCellVertices({
             id: "sky",
             planes: [{ normal: { x: 0, y: 1, z: 0 }, offset: 3 }],
           }).length === 0,
@@ -156,7 +153,7 @@ export function test_architecture_convex_cell_vertices(): void {
       [
         "a celled space measures the corners its planes cut",
         (): boolean => {
-          const box: IAutoMovieSubjectBox | null = builtSpaceVolumeBounds({
+          const box: IAutoMovieSubjectBox | null = AutoMovieEngineBuiltEnvironment.spaceVolumeBounds({
             id: "hall",
             kind: "room",
             parent: null,
@@ -175,7 +172,7 @@ export function test_architecture_convex_cell_vertices(): void {
       [
         "a shelled space measures its own vertices",
         (): boolean => {
-          const box: IAutoMovieSubjectBox | null = builtSpaceVolumeBounds({
+          const box: IAutoMovieSubjectBox | null = AutoMovieEngineBuiltEnvironment.spaceVolumeBounds({
             id: "hall",
             kind: "room",
             parent: null,
@@ -200,7 +197,7 @@ export function test_architecture_convex_cell_vertices(): void {
       [
         "a space stating no volume measures nothing",
         (): boolean =>
-          builtSpaceVolumeBounds({
+          AutoMovieEngineBuiltEnvironment.spaceVolumeBounds({
             id: "hall",
             kind: "zone",
             parent: null,
@@ -210,7 +207,7 @@ export function test_architecture_convex_cell_vertices(): void {
       [
         "and a space whose cell closes nothing measures nothing either",
         (): boolean =>
-          builtSpaceVolumeBounds({
+          AutoMovieEngineBuiltEnvironment.spaceVolumeBounds({
             id: "hall",
             kind: "room",
             parent: null,

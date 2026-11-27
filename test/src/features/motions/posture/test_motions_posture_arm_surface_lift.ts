@@ -1,13 +1,15 @@
 import {
-  Quaternion,
-  Vector3,
-  physicalShapeSegmentDistance,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
+  AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import {
-  HumanArmSurfaceLift,
-  HumanArmTrajectoryModel,
-} from "@automovie/motions/internal";
+  HumanArmSurfaceLift
+} from "../../../../../packages/motions/src/posture/internal/HumanArmSurfaceLift";
+import {
+  HumanArmTrajectoryModel
+} from "../../../../../packages/motions/src/posture/internal/HumanArmTrajectoryModel";
 import { TestValidator } from "@nestia/e2e";
 
 import { armTrajectoryReading } from "../../internal/armTrajectoryReading";
@@ -30,7 +32,7 @@ export function test_motions_posture_arm_surface_lift(): void {
   const shape: NonNullable<Parameters<typeof HumanArmSurfaceLift>[0]["shape"]> = {
     bone: "fixture:surface",
     part: 0,
-    pose: { position: centre, rotation: Quaternion.identity() },
+    pose: { position: centre, rotation: AutoMovieEngineQuaternion.identity() },
     shape: armTrajectoryReading.sphere(1),
     centre,
     radius: 1,
@@ -40,8 +42,8 @@ export function test_motions_posture_arm_surface_lift(): void {
     normal,
     shape,
     gap: (p: IAutoMovieVector3): number =>
-      physicalShapeSegmentDistance(shape.pose, shape.shape, p, p),
-    normalAt: Vector3.normalize,
+      AutoMovieEnginePhysics.physicalShapeSegmentDistance(shape.pose, shape.shape, p, p),
+    normalAt: AutoMovieEngineVector3.normalize,
   };
   TestValidator.equals(
     "a point above the authored face",

@@ -8,7 +8,9 @@
  * @evidence contracts/development/common.md#meaningful-documentation States row-count admission, absolute byte addressing, progress and borrowed-buffer/descriptor lifetimes.
  */
 export interface RecoveryFileVectorTableInput {
-  /** Positive logical row ceiling, safely representable as rowCount times 24 bytes. */
+  /*
+   * Positive logical row ceiling, safely representable as rowCount times 24 bytes.
+   */
   maxRows: number;
 
   /**

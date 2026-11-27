@@ -1,4 +1,4 @@
-import type { IAutoMoviePoseKeypointActor } from "./IAutoMoviePoseKeypointActor.js";
+import type { IAutoMoviePoseKeypointActor } from "./IAutoMoviePoseKeypointActor";
 
 /**
  * One output frame of the pose-keypoint sidecar: the live beat and every

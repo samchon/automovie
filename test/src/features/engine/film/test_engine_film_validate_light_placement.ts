@@ -1,5 +1,7 @@
-import { ViolationCollector } from "@automovie/engine";
-import { validateLightPlacementShape } from "@automovie/engine/internal";
+import { AutoMovieEngineViolationCollector } from "@automovie/engine";
+import {
+  validateLightPlacementShape
+} from "../../../../../packages/engine/src/film/staging/internal/validateLightPlacementShape";
 import type { IAutoMovieStageLight } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -15,7 +17,7 @@ import { TestValidator } from "@nestia/e2e";
  *    size and a strictly ordered clip interval.
  */
 export function test_engine_film_validate_light_placement(): void {
-  const out: ViolationCollector = new ViolationCollector();
+  const out: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();
   const key: IAutoMovieStageLight = {
     node: "fill",
     role: "fill",

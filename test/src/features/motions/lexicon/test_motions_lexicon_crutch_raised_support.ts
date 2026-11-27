@@ -11,12 +11,20 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanCrutchWalk,
-  HumanFoot,
-  crutchWalkCourse,
-  poseBones,
-  resolveHumanPosture,
-} from "@automovie/motions/internal";
+  HumanCrutchWalk
+} from "../../../../../packages/motions/src/lexicon/internal/HumanCrutchWalk";
+import {
+  HumanFoot
+} from "../../../../../packages/motions/src/posture/internal/HumanFoot";
+import {
+  crutchWalkCourse
+} from "../../../../../packages/motions/src/lexicon/internal/crutchWalkCourse";
+import {
+  poseBones
+} from "../../../../../packages/motions/src/posture/internal/poseBones";
+import {
+  resolveHumanPosture
+} from "../../../../../packages/motions/src/posture/internal/resolveHumanPosture";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";

@@ -3,7 +3,9 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionWeaponContact,
 } from "@automovie/interface";
-import { StrikingStopRide } from "@automovie/motions/internal";
+import {
+  StrikingStopRide
+} from "../../../../../packages/motions/src/striking/internal/StrikingStopRide";
 import { TestValidator } from "@nestia/e2e";
 
 /** The posture a strike shows, before any ride. */

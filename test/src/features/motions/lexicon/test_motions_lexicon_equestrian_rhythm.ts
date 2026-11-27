@@ -1,4 +1,6 @@
-import { humanEquestrianRhythm } from "@automovie/motions/internal";
+import {
+  humanEquestrianRhythm
+} from "../../../../../packages/motions/src/lexicon/internal/humanEquestrianRhythm";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

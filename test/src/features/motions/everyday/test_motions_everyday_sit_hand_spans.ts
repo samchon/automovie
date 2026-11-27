@@ -1,4 +1,6 @@
-import { sitHandSpans } from "@automovie/motions/internal";
+import {
+  sitHandSpans
+} from "../../../../../packages/motions/src/everyday/internal/sitHandSpans";
 import { TestValidator } from "@nestia/e2e";
 
 /**

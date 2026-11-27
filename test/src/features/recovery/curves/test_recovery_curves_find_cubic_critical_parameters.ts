@@ -1,9 +1,9 @@
 import type { IAutoMovieCubicCriticalParameters } from "@automovie/interface";
-import { findAutoMovieRecoveryCubicCriticalParameters } from "@automovie/recovery";
+import { AutoMovieRecoveryConicApproximation } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `findAutoMovieRecoveryCubicCriticalParameters` finds where a planar cubic
+ * `AutoMovieRecoveryConicApproximation.cubicCriticalParameters` finds where a planar cubic
  * Bezier's curvature numerator D = p' × p'' vanishes, where its affine
  * curvature is stationary, and where its velocity vanishes, in (0, 1).
  *
@@ -30,7 +30,7 @@ export function test_recovery_curves_find_cubic_critical_parameters(): void {
     "Critical parameters are binary64 polynomial-root candidates, not certified real-root enclosures; close multiple roots may remain unresolved.";
   TestValidator.equals(
     "a constant cubic",
-    findAutoMovieRecoveryCubicCriticalParameters([
+    AutoMovieRecoveryConicApproximation.cubicCriticalParameters([
       [2, 2],
       [2, 2],
       [2, 2],
@@ -48,7 +48,7 @@ export function test_recovery_curves_find_cubic_critical_parameters(): void {
     },
   );
   const line: IAutoMovieCubicCriticalParameters =
-    findAutoMovieRecoveryCubicCriticalParameters([
+    AutoMovieRecoveryConicApproximation.cubicCriticalParameters([
       [0, 0],
       [1, 0],
       [2, 0],
@@ -61,7 +61,7 @@ export function test_recovery_curves_find_cubic_critical_parameters(): void {
   );
   TestValidator.equals(
     "an S-curve",
-    findAutoMovieRecoveryCubicCriticalParameters([
+    AutoMovieRecoveryConicApproximation.cubicCriticalParameters([
       [0, 0],
       [1, 1],
       [2, -1],
@@ -78,7 +78,7 @@ export function test_recovery_curves_find_cubic_critical_parameters(): void {
   );
   TestValidator.equals(
     "a cusp",
-    findAutoMovieRecoveryCubicCriticalParameters([
+    AutoMovieRecoveryConicApproximation.cubicCriticalParameters([
       [0, 0],
       [1, 1],
       [0, 1],

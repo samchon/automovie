@@ -1,6 +1,6 @@
-import { createBoat, rowBoat } from "@automovie/archetypes";
-import { RigidCarrierSample } from "@automovie/engine";
-import { HumanObject } from "@automovie/motions";
+import { AutoMovieArchetypeBoat } from "@automovie/archetypes";
+import { AutoMovieEngineRigidCarrierSample } from "@automovie/engine";
+import { AutoMovieMotionHumanObject } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -14,11 +14,11 @@ import { TestValidator } from "@nestia/e2e";
  * 3. A wrapped socket callback cannot inherit the source's stationary domain.
  */
 export function test_motions_perform_object_rowboat_binding(): void {
-  const boat: ReturnType<typeof createBoat> = createBoat(
+  const boat: ReturnType<typeof AutoMovieArchetypeBoat.create> = AutoMovieArchetypeBoat.create(
     { kind: "rowboat" },
     2,
   );
-  const course: Parameters<typeof rowBoat>[1] = {
+  const course: Parameters<typeof AutoMovieArchetypeBoat.row>[1] = {
     start: { x: 0, z: 0, heading: 0 },
     legs: [{ kind: "straight", length: 20 }],
     cruise: 1.5,
@@ -27,17 +27,17 @@ export function test_motions_perform_object_rowboat_binding(): void {
   };
   const start: number = 6;
   for (const sea of [undefined, { height: 1, seed: 7 }] as const) {
-    const ride: ReturnType<typeof rowBoat> = rowBoat(boat, course, { sea });
-    const binding: ReturnType<typeof rowBoat.bind> = rowBoat.bind(ride, start);
-    const actual: ReturnType<typeof HumanObject.prop> = HumanObject.prop(
+    const ride: ReturnType<typeof AutoMovieArchetypeBoat.row> = AutoMovieArchetypeBoat.row(boat, course, { sea });
+    const binding: ReturnType<typeof AutoMovieArchetypeBoat.bind> = AutoMovieArchetypeBoat.bind(ride, start);
+    const actual: ReturnType<typeof AutoMovieMotionHumanObject.prop> = AutoMovieMotionHumanObject.prop(
       "boat",
       boat,
       binding.motion(0),
       binding.motion,
       binding.point,
     );
-    const domains: readonly RigidCarrierSample.IHold[] =
-      RigidCarrierSample.holds(actual)!;
+    const domains: readonly AutoMovieEngineRigidCarrierSample.IHold[] =
+      AutoMovieEngineRigidCarrierSample.holds(actual)!;
     const end: number = start + ride.duration;
     TestValidator.predicate(
       "departure is still the initial clock sample",
@@ -46,20 +46,20 @@ export function test_motions_perform_object_rowboat_binding(): void {
     TestValidator.predicate(
       "the exact course endpoint is a live sample",
       () =>
-        !domains.some((domain: RigidCarrierSample.IHold): boolean =>
+        !domains.some((domain: AutoMovieEngineRigidCarrierSample.IHold): boolean =>
           domain.contains(end),
         ),
     );
     TestValidator.predicate(
       "only still water has a terminal hold",
       () =>
-        domains.some((domain: RigidCarrierSample.IHold): boolean =>
+        domains.some((domain: AutoMovieEngineRigidCarrierSample.IHold): boolean =>
           domain.contains(end + 1),
         ) ===
         (sea === undefined),
     );
 
-    const wrapped: ReturnType<typeof HumanObject.prop> = HumanObject.prop(
+    const wrapped: ReturnType<typeof AutoMovieMotionHumanObject.prop> = AutoMovieMotionHumanObject.prop(
       "other",
       boat,
       binding.motion(0),
@@ -69,7 +69,7 @@ export function test_motions_perform_object_rowboat_binding(): void {
     );
     TestValidator.predicate(
       "an opaque reader does not inherit a stationary domain",
-      () => RigidCarrierSample.holds(wrapped) === undefined,
+      () => AutoMovieEngineRigidCarrierSample.holds(wrapped) === undefined,
     );
   }
 }

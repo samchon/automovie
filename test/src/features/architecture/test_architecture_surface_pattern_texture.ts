@@ -1,7 +1,4 @@
-import {
-  autoMoviePatternTextureTransforms,
-  generateAutoMovieSurfacePattern,
-} from "@automovie/engine";
+import { AutoMovieEngineArchitecture, AutoMovieEngineSurfaceMaterial } from "@automovie/engine";
 import type {
   IAutoMoviePatternPlacement,
   IAutoMoviePatternPoint,
@@ -95,18 +92,18 @@ const sample: (
  * 10. A non-positive texture turn and a non-finite sheet origin are refused.
  * 11. The same run transformed twice preserves structure and numeric components.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Generates square/slab/rotated-piece patterns and calls autoMoviePatternTextureTransforms for module/face sheets, inspecting identities, offsets/scales/turns, independently sampled UV endpoints/centres, retained cut-piece mappings, mirrored grain policy, shear partition, input refusals and replay.
+ * @evidence contracts/development/testing.md#behavioral-verification Generates square/slab/rotated-piece patterns and calls patternTextureTransforms for module/face sheets, inspecting identities, offsets/scales/turns, independently sampled UV endpoints/centres, retained cut-piece mappings, mirrored grain policy, shear partition, input refusals and replay.
  * @evidence contracts/development/testing.md#independent-expectations The zero-centre texture matrix diag(scale) times R(-rotation) supplies a separate sampling oracle, confirmed against the viewer binding and Three Matrix3.setUvTransform. Literal quarter-by-half face spans, 0.6-by-one slabs, mirrored endpoint swaps, centred 45-degree square sampling and fixed skewed-piece ids/dimensions anchor the expected records.
  * @evidence contracts/development/testing.md#distinguishing-cases Module versus face anchoring, straight versus 90/45-degree grain, flipped/unflipped twins, whole/boundary-cut mappings and non-square versus square off-grain pieces distinguish coordinate, mirror and shear policies. Zero/NaN tile values and infinite face origin must retain the stated refusal cause; replay uses the existing structural numeric comparator.
  * @evidence contracts/development/testing.md#execution-ownership Uses local generated declarations and synchronous numerical UV records/oracles without texture loading, rendering, resources, clocks, global replacement or an added host. Independent UV arithmetic and selected cases do not certify rendered book matching, cut-mesh UV authoring or every near-shear numerical boundary.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 11 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A sheet pinned to the module gives every piece the same image: the identity).
  */
 export function test_architecture_surface_pattern_texture(): void {
-  const field: IAutoMovieSurfacePatternResult = generateAutoMovieSurfacePattern(
+  const field: IAutoMovieSurfacePatternResult = AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern(
     { pattern: pattern() },
   );
   const perModule: IAutoMoviePatternTexturing =
-    autoMoviePatternTextureTransforms({
+    AutoMovieEngineArchitecture.patternTextureTransforms({
       result: field,
       tile: { u: 0.5, v: 0.5 },
       sheet: { kind: "module" },
@@ -143,7 +140,7 @@ export function test_architecture_surface_pattern_texture(): void {
     { count: true, sheared: true, ids: true, identity: true },
   );
 
-  const perFace: IAutoMoviePatternTexturing = autoMoviePatternTextureTransforms(
+  const perFace: IAutoMoviePatternTexturing = AutoMovieEngineArchitecture.patternTextureTransforms(
     {
       result: field,
       tile: { u: 2, v: 1 },
@@ -221,8 +218,8 @@ export function test_architecture_surface_pattern_texture(): void {
   );
 
   const acrossSheet: IAutoMoviePatternTexturing =
-    autoMoviePatternTextureTransforms({
-      result: generateAutoMovieSurfacePattern({
+    AutoMovieEngineArchitecture.patternTextureTransforms({
+      result: AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
         pattern: pattern({
           id: "across-grain",
           zones: [zone({ generate: stackBond(0.5, 90) })],
@@ -271,8 +268,8 @@ export function test_architecture_surface_pattern_texture(): void {
   );
 
   const flippedField: IAutoMoviePatternTexturing =
-    autoMoviePatternTextureTransforms({
-      result: generateAutoMovieSurfacePattern({
+    AutoMovieEngineArchitecture.patternTextureTransforms({
+      result: AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
         pattern: pattern({
           id: "flipped-field",
           zones: [
@@ -345,8 +342,8 @@ export function test_architecture_surface_pattern_texture(): void {
   );
 
   const narrowed: IAutoMoviePatternTexturing =
-    autoMoviePatternTextureTransforms({
-      result: generateAutoMovieSurfacePattern({
+    AutoMovieEngineArchitecture.patternTextureTransforms({
+      result: AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
         pattern: pattern({
           id: "narrow",
           zones: [zone({ region: rectangle(0, 0, 1.75, 1) })],
@@ -373,8 +370,8 @@ export function test_architecture_surface_pattern_texture(): void {
   assertPatternTextureBookMatch(sample);
 
   const diagonal: IAutoMoviePatternTexturing =
-    autoMoviePatternTextureTransforms({
-      result: generateAutoMovieSurfacePattern({
+    AutoMovieEngineArchitecture.patternTextureTransforms({
+      result: AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
         pattern: pattern({
           id: "diagonal-grain",
           zones: [
@@ -461,8 +458,8 @@ export function test_architecture_surface_pattern_texture(): void {
     u: number;
     v: number;
   }): IAutoMoviePatternTexturing =>
-    autoMoviePatternTextureTransforms({
-      result: generateAutoMovieSurfacePattern({
+    AutoMovieEngineArchitecture.patternTextureTransforms({
+      result: AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
         pattern: pattern({
           id: "skewed",
           zones: [
@@ -542,7 +539,7 @@ export function test_architecture_surface_pattern_texture(): void {
         (): boolean =>
           throwsError(
             (): IAutoMoviePatternTexturing =>
-              autoMoviePatternTextureTransforms({
+              AutoMovieEngineArchitecture.patternTextureTransforms({
                 result: field,
                 tile: { u: 0, v: 0.5 },
                 sheet: { kind: "module" },
@@ -557,7 +554,7 @@ export function test_architecture_surface_pattern_texture(): void {
   TestValidator.predicate(
     "the same run transformed twice preserves structure and numeric components",
     test12ValuesClose(
-      autoMoviePatternTextureTransforms({
+      AutoMovieEngineArchitecture.patternTextureTransforms({
         result: field,
         tile: { u: 2, v: 1 },
         sheet: { kind: "face", origin: { u: 0, v: 0 } },

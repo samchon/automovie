@@ -5,10 +5,10 @@ import type { AutoMovieVector3Tuple } from "../geometry/AutoMovieVector3Tuple";
  * from its chart `(u, v)` to world millimetres with exact first and second
  * partial derivatives.
  *
- * The merge and the diff (`AutoMovieSolidMerge`, `AutoMovieSolidDiff`) work on
+ * The merge and the diff (`AutoMovieEngineSolidMerge`, `AutoMovieEngineSolidDiff`) work on
  * two such surfaces, find where they meet and blend them, so they need nothing
  * else of a part: a lofted chain is one with `u` its station and `v` its phase
- * (`AutoMovieSolidChain`), and a closed form is one in a test. The derivatives
+ * (`AutoMovieEngineSolidChain`), and a closed form is one in a test. The derivatives
  * must be the map's own, analytic or of a smooth fit, because the
  * intersection's tangent and curvature and the blend's G2 edges are built from
  * them; a difference across a step of the map would throw both.

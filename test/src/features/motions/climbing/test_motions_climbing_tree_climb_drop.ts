@@ -4,11 +4,17 @@ import type {
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 import {
-  poseBones,
-  resolveHumanPosture,
-  stand,
-  treeClimbDrop,
-} from "@automovie/motions/internal";
+  poseBones
+} from "../../../../../packages/motions/src/posture/internal/poseBones";
+import {
+  resolveHumanPosture
+} from "../../../../../packages/motions/src/posture/internal/resolveHumanPosture";
+import {
+  stand
+} from "../../../../../packages/motions/src/actions/internal/stand";
+import {
+  treeClimbDrop
+} from "../../../../../packages/motions/src/climbing/treeClimb/treeClimbDrop";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";

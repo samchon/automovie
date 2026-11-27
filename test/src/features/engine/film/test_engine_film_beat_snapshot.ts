@@ -1,4 +1,4 @@
-import { resolveBeatSnapshot } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieMotion,
   IAutoMovieResolveBeatProps,
@@ -43,12 +43,12 @@ export function test_engine_film_beat_snapshot(): void {
     },
     motions: [first, second],
   };
-  resolveBeatSnapshot(props, 0);
+  AutoMovieEngineFilm.resolveBeatSnapshot(props, 0);
   TestValidator.predicate(
     "duplicate",
     throwsError(
       () =>
-        resolveBeatSnapshot(
+        AutoMovieEngineFilm.resolveBeatSnapshot(
           { ...props, motions: [first, second, { ...first, duration: 2 }] },
           0,
         ),

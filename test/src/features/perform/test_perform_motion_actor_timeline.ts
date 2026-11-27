@@ -1,4 +1,4 @@
-import { compilePerformance } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieActionCall,
   IAutoMovieActionSynthesizer,
@@ -40,7 +40,7 @@ export function test_perform_motion_actor_timeline(): void {
     repeat,
   });
   const reserved = ["__proto__", "constructor", "toString"];
-  const actors = compilePerformance(
+  const actors = AutoMovieEngineFilm.compilePerformance(
     [wave([...reserved, "silent"], 0, 2), wave("__proto__", 3)],
     synth,
   ).performances;
@@ -70,7 +70,7 @@ export function test_perform_motion_actor_timeline(): void {
   }
   TestValidator.equals(
     "empty action set",
-    Object.keys(compilePerformance([], synth).performances),
+    Object.keys(AutoMovieEngineFilm.compilePerformance([], synth).performances),
     [],
   );
 }

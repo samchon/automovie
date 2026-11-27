@@ -1,4 +1,4 @@
-import { simulateSoftBody, validateSoftBodyDomain } from "@automovie/engine";
+import { AutoMovieEngineSoftBody } from "@automovie/engine";
 import {
   IAutoMovieSoftBodyDomain,
   IAutoMovieSoftBodyState,
@@ -63,7 +63,7 @@ const dropped: (
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A half-space with a **non-unit** normal `(0, 2, 0)` and offset `−0.5` holds).
  */
 export function test_soft_body_collision(): void {
-  const floor: IAutoMovieSoftBodyState = simulateSoftBody(
+  const floor: IAutoMovieSoftBodyState = AutoMovieEngineSoftBody.simulateSoftBody(
     dropped([
       {
         kind: "plane",
@@ -84,7 +84,7 @@ export function test_soft_body_collision(): void {
     { resting: true, heldAbove: true, contacts: true },
   );
 
-  const ramp: IAutoMovieSoftBodyState = simulateSoftBody(
+  const ramp: IAutoMovieSoftBodyState = AutoMovieEngineSoftBody.simulateSoftBody(
     dropped([
       { kind: "plane", id: "ramp", normal: { x: 1, y: 1, z: 0 }, offset: -0.5 },
     ]),
@@ -105,7 +105,7 @@ export function test_soft_body_collision(): void {
     { onPlane: true, slidX: true, fell: true },
   );
 
-  const ball: IAutoMovieSoftBodyState = simulateSoftBody(
+  const ball: IAutoMovieSoftBodyState = AutoMovieEngineSoftBody.simulateSoftBody(
     dropped([
       {
         kind: "sphere",
@@ -162,7 +162,7 @@ export function test_soft_body_collision(): void {
       ],
     },
   });
-  const escaped: IAutoMovieSoftBodyState = simulateSoftBody(buried, 1);
+  const escaped: IAutoMovieSoftBodyState = AutoMovieEngineSoftBody.simulateSoftBody(buried, 1);
   TestValidator.equals(
     "a particle at a ball's centre leaves upward, and the authoring is refused",
     namedFacts([
@@ -171,7 +171,7 @@ export function test_soft_body_collision(): void {
         "refused",
         (): boolean =>
           hasViolation(
-            validateSoftBodyDomain({ domain: buried }),
+            AutoMovieEngineSoftBody.validateSoftBodyDomain({ domain: buried }),
             "type",
             "colliders[0]",
           ),
@@ -180,7 +180,7 @@ export function test_soft_body_collision(): void {
     { upward: true, refused: true },
   );
 
-  const crate: IAutoMovieSoftBodyState = simulateSoftBody(
+  const crate: IAutoMovieSoftBodyState = AutoMovieEngineSoftBody.simulateSoftBody(
     dropped([
       {
         kind: "box",
@@ -201,7 +201,7 @@ export function test_soft_body_collision(): void {
     { restsOnTop: true, notPushedSideways: true, contacts: true },
   );
 
-  const canopy: IAutoMovieSoftBodyState = simulateSoftBody(
+  const canopy: IAutoMovieSoftBodyState = AutoMovieEngineSoftBody.simulateSoftBody(
     softPanel({
       columns: 1,
       rows: 2,
@@ -238,7 +238,7 @@ export function test_soft_body_collision(): void {
     { restsUnder: true, notPushedThrough: true, contacts: true },
   );
 
-  const missed: IAutoMovieSoftBodyState = simulateSoftBody(
+  const missed: IAutoMovieSoftBodyState = AutoMovieEngineSoftBody.simulateSoftBody(
     dropped([
       {
         kind: "box",

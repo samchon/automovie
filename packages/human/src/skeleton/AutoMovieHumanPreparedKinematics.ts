@@ -351,109 +351,179 @@ export namespace AutoMovieHumanPreparedKinematics {
   }
 }
 
-/** One canonical clinical leaf, expanded and traversed without splitting per trial. */
+/*
+ * One canonical clinical leaf, expanded and traversed without splitting per trial.
+ */
 interface IChannel {
-  /** Single canonical row, retaining units, sign and limits. */
+  /*
+   * Single canonical row, retaining units, sign and limits.
+   */
   row: (typeof AutoMovieHumanPoseChannels)[number];
 
-  /** Expanded public path, also the observable clamp identity. */
+  /*
+   * Expanded public path, also the observable clamp identity.
+   */
   path: string;
 
-  /** Expanded driven joint. */
+  /*
+   * Expanded driven joint.
+   */
   bone: string;
 
-  /** Fixed object traversal; caller pose objects are never cached. */
+  /*
+   * Fixed object traversal; caller pose objects are never cached.
+   */
   parts: readonly string[];
 
-  /** Axis sign after reflecting world-direction channels on the right. */
+  /*
+   * Axis sign after reflecting world-direction channels on the right.
+   */
   sign: number;
 }
 
-/** Compiled fixed anatomical metadata for a parent-before-child joint. */
+/*
+ * Compiled fixed anatomical metadata for a parent-before-child joint.
+ */
 interface IBone {
-  /** Neutral anatomical centre and direction. */
+  /*
+   * Neutral anatomical centre and direction.
+   */
   joint: IAutoMovieHumanJointCentres.IJoint;
 
-  /** Parent index; undefined identifies the root. */
+  /*
+   * Parent index; undefined identifies the root.
+   */
   parent: number | undefined;
 
-  /** Neutral parent-relative offset in source millimetres. */
+  /*
+   * Neutral parent-relative offset in source millimetres.
+   */
   offset: AutoMovieVector3Tuple;
 
-  /** Existing registered clinical axes. */
+  /*
+   * Existing registered clinical axes.
+   */
   axes: IAutoMovieHumanSkeletonMath.IAxes;
 
-  /** Forearm twist is shared with its hand. */
+  /*
+   * Forearm twist is shared with its hand.
+   */
   lowerArm: boolean;
 
-  /** Hand receives the distal fraction of forearm twist. */
+  /*
+   * Hand receives the distal fraction of forearm twist.
+   */
   hand: boolean;
 
-  /** Scapula returns its girdle's elevation turn. */
+  /*
+   * Scapula returns its girdle's elevation turn.
+   */
   scapula: boolean;
 }
 
-/** One bounded private cache record, keyed by every applied local dependency. */
+/*
+ * One bounded private cache record, keyed by every applied local dependency.
+ */
 interface ILocal {
-  /** Applied flexion after sign and resting-arm scaling. */
+  /*
+   * Applied flexion after sign and resting-arm scaling.
+   */
   flexion: number;
 
-  /** Applied abduction after sign and resting-arm scaling. */
+  /*
+   * Applied abduction after sign and resting-arm scaling.
+   */
   abduction: number;
 
-  /** Applied twist. */
+  /*
+   * Applied twist.
+   */
   twist: number;
 
-  /** Applied jaw forward translation. */
+  /*
+   * Applied jaw forward translation.
+   */
   forward: number;
 
-  /** Applied jaw lateral translation. */
+  /*
+   * Applied jaw lateral translation.
+   */
   lateral: number;
 
-  /** Applied shoulder lift, or zero. */
+  /*
+   * Applied shoulder lift, or zero.
+   */
   lift: number;
 
-  /** Parent forearm's applied twist, or zero. */
+  /*
+   * Parent forearm's applied twist, or zero.
+   */
   handTwist: number;
 
-  /** Clinical hip share carried by the root, zero on other joints. */
+  /*
+   * Clinical hip share carried by the root, zero on other joints.
+   */
   tilt: number;
 
-  /** Parent girdle's return quaternion, compared component by component. */
+  /*
+   * Parent girdle's return quaternion, compared component by component.
+   */
   incoming: AutoMovieQuaternionTuple | undefined;
 
-  /** Local neutral-relative rotation. */
+  /*
+   * Local neutral-relative rotation.
+   */
   rotation: AutoMovieQuaternionTuple;
 
-  /** This girdle's own return rotation for its child. */
+  /*
+   * This girdle's own return rotation for its child.
+   */
   back: AutoMovieQuaternionTuple | undefined;
 }
 
-/** Exact local/parent identity reuses both world and bind-composed arithmetic. */
+/*
+ * Exact local/parent identity reuses both world and bind-composed arithmetic.
+ */
 interface IWorld {
-  /** Private immutable local quaternion identity. */
+  /*
+   * Private immutable local quaternion identity.
+   */
   local: AutoMovieQuaternionTuple;
 
-  /** Private immutable parent placement identity. */
+  /*
+   * Private immutable parent placement identity.
+   */
   parent: IAutoMovieHumanBonePlacement | undefined;
 
-  /** Private world position and neutral-relative rotation. */
+  /*
+   * Private world position and neutral-relative rotation.
+   */
   placement: IAutoMovieHumanBonePlacement;
 
-  /** Same placement rotation composed with the fixed bind-to-neutral turn. */
+  /*
+   * Same placement rotation composed with the fixed bind-to-neutral turn.
+   */
   bound: AutoMovieQuaternionTuple;
 }
 
-/** Clavicle share of Inman's scapulohumeral rhythm, degrees per elevated arm degree. */
+/*
+ * Clavicle share of Inman's scapulohumeral rhythm, degrees per elevated arm degree.
+ */
 const RHYTHM: number = 0.2;
 
-/** Arm elevation below which the girdle stays still, degrees from downward vertical. */
+/*
+ * Arm elevation below which the girdle stays still, degrees from downward vertical.
+ */
 const SETTING: number = 30;
 
-/** Elevation interval over which the preserved rhythm takes up smoothly, degrees. */
+/*
+ * Elevation interval over which the preserved rhythm takes up smoothly, degrees.
+ */
 const EASE: number = 10;
 
-/** Match the old scalar key's zero equivalence without allocating a joined string. */
+/*
+ * Match the old scalar key's zero equivalence without allocating a joined string.
+ */
 function sameBack(
   a: AutoMovieQuaternionTuple | undefined,
   b: AutoMovieQuaternionTuple | undefined,
@@ -469,12 +539,16 @@ function sameBack(
   );
 }
 
-/** Arm elevation from the downward plumb line, preserving the original rhythm law. */
+/*
+ * Arm elevation from the downward plumb line, preserving the original rhythm law.
+ */
 function fromVertical(direction: AutoMovieVector3Tuple): number {
   return (Math.acos(Math.max(-1, Math.min(1, -direction[1]))) * 180) / Math.PI;
 }
 
-/** Read the current scalar value; no pose identity or previous input is trusted. */
+/*
+ * Read the current scalar value; no pose identity or previous input is trusted.
+ */
 function read(pose: unknown, parts: readonly string[]): number | undefined {
   let node: unknown = pose;
   for (const key of parts) {

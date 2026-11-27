@@ -13,7 +13,7 @@ export namespace IAutoMovieSectionDrawingSpaces {
    * logical spaces.
    *
    * DeriveAutoMovieDrawing calls this only for cutting projections, after
-   * validateBuiltEnvironment and autoMovieDrawingFrame. The lower-level
+   * validateBuiltEnvironment and drawingFrame. The lower-level
    * sectioner assumes that referenced boundary elements exist, that the design
    * index matches the environment, and that the frame is usable; it does not
    * revalidate or mutate the authored design.
@@ -45,7 +45,7 @@ export namespace IAutoMovieSectionDrawingSpaces {
   };
 
   /**
-   * Fresh mutable section regions and the facts deriveAutoMovieDrawing turns
+   * Fresh mutable section regions and the facts deriveDrawing turns
    * into section gaps.
    *
    * Each bounded cell section with at least three unrounded points becomes one

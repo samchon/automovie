@@ -1,5 +1,7 @@
 import type { IAutoMovieMotionHumanContactWindow } from "@automovie/interface";
-import { HumanSegmentEntry } from "@automovie/motions/internal";
+import {
+  HumanSegmentEntry
+} from "../../../../../packages/motions/src/perform/internal/HumanSegmentEntry";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

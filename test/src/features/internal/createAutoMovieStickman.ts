@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import {
   IAutoMovieModel,
   IAutoMovieModelPart,
@@ -262,4 +262,4 @@ const rotateZ: (
   y: number,
   z: number,
 ): IAutoMovieTransform =>
-  transform(x, y, z, Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, degrees));
+  transform(x, y, z, AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, degrees));

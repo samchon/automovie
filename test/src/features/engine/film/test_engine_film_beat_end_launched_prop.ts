@@ -1,4 +1,4 @@
-import { resolveBeatEnd } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import {
   IAutoMovieBeatEndActorState,
   IAutoMovieClip,
@@ -140,7 +140,7 @@ const stoneAt: (
   duration: number,
   objectMotions: IAutoMovieClip[],
 ): IAutoMovieVector3 =>
-  resolveBeatEnd({
+  AutoMovieEngineFilm.resolveBeatEnd({
     beat: "beat-1",
     scene,
     shot: shotOf(duration, objectMotions),
@@ -192,7 +192,7 @@ export function test_engine_film_beat_end_launched_prop(): void {
     ...shotOf(3, [HELD, FLIGHT]),
     performances: [{ node: "stone", motion: null, startOffset: 1 }],
   };
-  const offsetEnd: IAutoMovieBeatEndActorState = resolveBeatEnd({
+  const offsetEnd: IAutoMovieBeatEndActorState = AutoMovieEngineFilm.resolveBeatEnd({
     beat: "beat-1",
     scene,
     shot: offsetShot,
@@ -244,7 +244,7 @@ export function test_engine_film_beat_end_launched_prop(): void {
   );
 
   // 6. the landed stone is not still flying.
-  const landed: IAutoMovieBeatEndActorState = resolveBeatEnd({
+  const landed: IAutoMovieBeatEndActorState = AutoMovieEngineFilm.resolveBeatEnd({
     beat: "beat-1",
     scene,
     shot: shotOf(5, [HELD, FLIGHT]),
@@ -280,7 +280,7 @@ export function test_engine_film_beat_end_launched_prop(): void {
     vclose(stoneAt(5, [FLIGHT, HELD]), LANDED, 1e-9),
   );
 
-  const justStarted: IAutoMovieBeatEndActorState = resolveBeatEnd({
+  const justStarted: IAutoMovieBeatEndActorState = AutoMovieEngineFilm.resolveBeatEnd({
     beat: "beat-1",
     scene,
     shot: shotOf(5, [JUST_STARTED]),
@@ -321,7 +321,7 @@ export function test_engine_film_beat_end_launched_prop(): void {
   TestValidator.predicate(
     "an authored scale reaches the beat end",
     vclose(
-      resolveBeatEnd({
+      AutoMovieEngineFilm.resolveBeatEnd({
         beat: "beat-1",
         scene,
         shot: shotOf(5, [grown]),

@@ -12,16 +12,16 @@ import type { AutoMovieJointTwistPlacement } from "./AutoMovieJointTwistPlacemen
  *
  * A rig declares them on the bone itself, {@link IAutoMovieBone.axes}, which
  * takes precedence over the per-bone table a host passes to the engine, such as
- * `HUMANOID_JOINT_AXES`; a bone that declares none reads that table, then
- * `DEFAULT_JOINT_AXES`.
+ * `AutoMovieEngineHumanoidJointAxes`; a bone that declares none reads that table, then
+ * `AutoMovieEngineDefaultJointAxes`.
  *
  * Each axis is a direction in the bone's local frame; any nonzero length is
  * accepted and normalized before use. The three must be finite, longer than
  * `1e-9`, and mutually orthogonal, the normalized axes' dot products within
  * `1e-6` of zero, in either handedness; otherwise `normalizeJointAxes` throws,
  * `validateJointAxesBasis` reports an issue, and `validateModel` refuses a bone
- * that declares them. `DEFAULT_JOINT_AXES` maps flexion to X, abduction to Z
- * and twist to Y, and `HUMANOID_JOINT_AXES` remaps the arms and turns hip,
+ * that declares them. `AutoMovieEngineDefaultJointAxes` maps flexion to X, abduction to Z
+ * and twist to Y, and `AutoMovieEngineHumanoidJointAxes` remaps the arms and turns hip,
  * ankle and toe flexion to −X, so positive flexion swings the thigh forward and
  * lifts the toes.
  */

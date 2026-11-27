@@ -1,11 +1,11 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanVerdicts,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanPerformance } from "@automovie/motions";
+import { AutoMovieMotionHumanPerformance } from "@automovie/motions";
 
 import { motionActionUnit } from "./motionActionUnit";
 import type { motionComplaints } from "./motionComplaints";
@@ -68,7 +68,7 @@ export namespace armCourseContract {
   export function course(
     checks: motionComplaints.IGatherer,
     label: string,
-    take: HumanPerformance,
+    take: AutoMovieMotionHumanPerformance,
     subject: string,
     act: IAutoMovieMotionHumanSegment,
     sides: readonly AutoMovieHumanSide[],
@@ -97,7 +97,7 @@ export namespace armCourseContract {
       let before: IAutoMovieVector3 = wrist(act.entryTime);
       for (let k: number = 1; k <= steps; ++k) {
         const next: IAutoMovieVector3 = wrist(act.entryTime + k * dt);
-        peak = Math.max(peak, Vector3.distance(next, before) / dt);
+        peak = Math.max(peak, AutoMovieEngineVector3.distance(next, before) / dt);
         before = next;
       }
       checks.check(

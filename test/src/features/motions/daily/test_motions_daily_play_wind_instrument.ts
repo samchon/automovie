@@ -1,5 +1,10 @@
 import type { IAutoMovieAffordance } from "@automovie/interface";
-import { HumanRefusal, playWindInstrument } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  playWindInstrument
+} from "../../../../../packages/motions/src/daily/internal/playWindInstrument";
 import { strict as assert } from "node:assert";
 
 import { testAffordance } from "../../internal/fixtures/testAffordance";
@@ -26,7 +31,7 @@ export function test_motions_daily_play_wind_instrument(): void {
     () =>
       playWindInstrument.mouthpiece({ affordances: [handle, alternate] }, "horn"),
     (error: unknown): boolean =>
-      error instanceof HumanRefusal &&
+      error instanceof AutoMovieMotionHumanRefusal &&
       error.axis === "point" &&
       error.value === "mouthpiece",
   );

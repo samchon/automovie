@@ -4,7 +4,7 @@ import type {
   IAutoMoviePlanarCurveSource,
   IAutoMovieRegisteredConicArc,
 } from "@automovie/interface";
-import { approximateAutoMovieRecoveryConicsAhn as approximate } from "@automovie/recovery";
+import { AutoMovieRecoveryConicApproximation } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { RecoveryConicSources } from "../../internal/RecoveryConicSources";
@@ -26,7 +26,7 @@ export function test_recovery_curves_approximate_conics_ahn_inflections(): void 
     RecoveryConicSources.options();
 
   const cubic: IAutoMoviePlanarCurveSource = RecoveryConicSources.cubic;
-  const inflected: IAutoMovieConicApproximation.IResult = approximate(
+  const inflected: IAutoMovieConicApproximation.IResult = AutoMovieRecoveryConicApproximation.approximateAhn(
     cubic,
     options,
   );
@@ -45,12 +45,12 @@ export function test_recovery_curves_approximate_conics_ahn_inflections(): void 
       nclose(inflected.arcs.at(-1)!.domain[1], 1, 0),
   );
   const convex: IAutoMoviePlanarCurveSource = RecoveryConicSources.convex;
-  const fitted: IAutoMovieConicApproximation.IResult = approximate(
+  const fitted: IAutoMovieConicApproximation.IResult = AutoMovieRecoveryConicApproximation.approximateAhn(
     convex,
     options,
   );
   TestValidator.equals("nonconic complete", fitted.status, "complete");
-  let previous: number = convex.domain[0];
+  let previous: number = convex.domain.start;
   for (const arc of fitted.arcs) {
     TestValidator.predicate(
       "nonconic no source gap",
@@ -88,6 +88,6 @@ export function test_recovery_curves_approximate_conics_ahn_inflections(): void 
   }
   TestValidator.predicate(
     "nonconic reaches final endpoint",
-    nclose(previous, convex.domain[1], 0),
+    nclose(previous, convex.domain.end, 0),
   );
 }

@@ -2,9 +2,9 @@ import type {
   IAutoMovieDialogueLipSync,
   IAutoMovieDrawnVideoResult,
 } from "@automovie/interface";
-import { renderAutoMovieDrawnVideo } from "@automovie/render";
+import { AutoMovieRenderVideo } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
-import { renderAutoMovieVideo } from "automovie";
+import { AutoMovieCliRender } from "automovie";
 import * as fs from "node:fs/promises";
 import * as os from "node:os";
 import * as path from "node:path";
@@ -34,9 +34,9 @@ export async function test_cli_render_video_lip_sync(): Promise<void> {
   const delivery: CliRenderDeliveryFixture = new CliRenderDeliveryFixture(root);
   const lipSyncFixture: (
     lipSync: IAutoMovieDialogueLipSync[],
-  ) => Parameters<typeof renderAutoMovieVideo>[0] = (
+  ) => Parameters<typeof AutoMovieCliRender.renderVideo>[0] = (
     lipSync: IAutoMovieDialogueLipSync[],
-  ): Parameters<typeof renderAutoMovieVideo>[0] => ({
+  ): Parameters<typeof AutoMovieCliRender.renderVideo>[0] => ({
     ...delivery.input,
     host: {
       ...delivery.input.host,
@@ -45,12 +45,15 @@ export async function test_cli_render_video_lip_sync(): Promise<void> {
 
         // The host's own drawing, with the mixed sound record a sound list
         // would have produced handed to the encoder.
-        renderAutoMovieDrawnVideo: (props) =>
-          renderAutoMovieDrawnVideo({
-            ...props,
-            encode: (args, drawn) =>
-              props.encode(args, { ...drawn, sound: soundRecord(lipSync) }),
-          }),
+        AutoMovieRenderVideo: {
+          ...delivery.input.host.render.AutoMovieRenderVideo,
+          renderDrawnVideo: (props) =>
+            AutoMovieRenderVideo.renderDrawnVideo({
+              ...props,
+              encode: (args, drawn) =>
+                props.encode(args, { ...drawn, sound: soundRecord(lipSync) }),
+            }),
+        },
       },
     },
   });
@@ -73,7 +76,7 @@ export async function test_cli_render_video_lip_sync(): Promise<void> {
   try {
     let lateMessage: string = "published";
     try {
-      await renderAutoMovieVideo(
+      await AutoMovieCliRender.renderVideo(
         lipSyncFixture([measured("fail", 1)]),
         delivery.run,
       );
@@ -87,7 +90,7 @@ export async function test_cli_render_video_lip_sync(): Promise<void> {
       status: "unmeasured",
       reason: "envelope-jaw",
     };
-    await renderAutoMovieVideo(
+    await AutoMovieCliRender.renderVideo(
       lipSyncFixture([measured("inconclusive", 0), unmeasured]),
       delivery.run,
     );

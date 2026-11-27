@@ -1,11 +1,8 @@
-import {
-  formatAutoMovieInspectionRequest,
-  parseAutoMovieInspectionRequest,
-} from "@automovie/render";
+import { AutoMovieRenderInspectionRequest } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `formatAutoMovieInspectionRequest` writes the keys that differ from the
+ * `formatInspectionRequest` writes the keys that differ from the
  * absent request, in the order the request lists them.
  *
  * Scenarios:
@@ -17,15 +14,15 @@ import { TestValidator } from "@nestia/e2e";
 export function test_render_scene_format_inspection_request(): void {
   const read = (
     values: [string, string][],
-  ): ReturnType<typeof parseAutoMovieInspectionRequest> => {
+  ): ReturnType<typeof AutoMovieRenderInspectionRequest.parseRequest> => {
     const map: Map<string, string> = new Map<string, string>(values);
-    return parseAutoMovieInspectionRequest((key: string): string | undefined =>
+    return AutoMovieRenderInspectionRequest.parseRequest((key: string): string | undefined =>
       map.get(key),
     );
   };
   TestValidator.equals(
     "absent",
-    formatAutoMovieInspectionRequest(read([])),
+    AutoMovieRenderInspectionRequest.formatRequest(read([])),
     [],
   );
   const values: [string, string][] = [
@@ -39,7 +36,7 @@ export function test_render_scene_format_inspection_request(): void {
   ];
   TestValidator.equals(
     "round trip",
-    formatAutoMovieInspectionRequest(read(values)),
+    AutoMovieRenderInspectionRequest.formatRequest(read(values)),
     values,
   );
 }

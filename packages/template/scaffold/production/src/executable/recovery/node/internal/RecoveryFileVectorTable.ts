@@ -53,22 +53,34 @@ export interface RecoveryFileVectorTable {
    * @evidence contracts/development/common.md#meaningful-documentation States local counter meanings and absence of buffer ownership transfer.
    */
   statistics: () => {
-    /** Admitted logical rows, independently of current backing-file length. */
+    /*
+     * Admitted logical rows, independently of current backing-file length.
+     */
     rows: number;
 
-    /** Actual allocated reusable page bytes, including unused page capacity. */
+    /*
+     * Actual allocated reusable page bytes, including unused page capacity.
+     */
     allocatedPageBytes: number;
 
-    /** Attempted read callback calls, including short or failed transfers. */
+    /*
+     * Attempted read callback calls, including short or failed transfers.
+     */
     readTransfers: number;
 
-    /** Attempted write callback calls, including short or failed transfers. */
+    /*
+     * Attempted write callback calls, including short or failed transfers.
+     */
     writeTransfers: number;
 
-    /** True only after all required valid-prefix flushes succeeded. */
+    /*
+     * True only after all required valid-prefix flushes succeeded.
+     */
     finished: boolean;
 
-    /** True after the first terminal row or transfer failure. */
+    /*
+     * True after the first terminal row or transfer failure.
+     */
     failed: boolean;
   };
 }

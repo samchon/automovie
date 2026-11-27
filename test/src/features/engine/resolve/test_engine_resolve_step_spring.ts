@@ -1,4 +1,4 @@
-import { Matrix4, createSpringState, stepSpring } from "@automovie/engine";
+import { AutoMovieEngineMatrix4, AutoMovieEngineResolve } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieSpringDriver,
@@ -20,7 +20,7 @@ const IDENTITY: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
 /** A world matrix at a place. */
 const at: (position: IAutoMovieVector3) => number[] = (
   position: IAutoMovieVector3,
-): number[] => Matrix4.compose(position, IDENTITY, { x: 1, y: 1, z: 1 });
+): number[] => AutoMovieEngineMatrix4.compose(position, IDENTITY, { x: 1, y: 1, z: 1 });
 
 /** A pendulum: root "a" at the origin and joint "b" one metre below it. */
 const world: () => Map<string, number[]> = (): Map<string, number[]> =>
@@ -76,27 +76,27 @@ const driver: (
  *    it.
  */
 export function test_engine_resolve_step_spring(): void {
-  const rest: IAutoMovieSpringState = createSpringState();
+  const rest: IAutoMovieSpringState = AutoMovieEngineResolve.createSpringState();
   const still: Map<string, number[]> = world();
-  stepSpring(driver({}), still, rest, 1, LOCAL);
+  AutoMovieEngineResolve.stepSpring(driver({}), still, rest, 1, LOCAL);
   TestValidator.predicate(
     "no gravity, no pull",
-    vclose(Matrix4.position(still.get("b")!), { x: 0, y: -1, z: 0 }, ROUNDING),
+    vclose(AutoMovieEngineMatrix4.position(still.get("b")!), { x: 0, y: -1, z: 0 }, ROUNDING),
   );
   const swung: Map<string, number[]> = world();
-  const state: IAutoMovieSpringState = createSpringState();
-  stepSpring(driver({ gravityPower: 1 }), swung, state, 1, LOCAL);
+  const state: IAutoMovieSpringState = AutoMovieEngineResolve.createSpringState();
+  AutoMovieEngineResolve.stepSpring(driver({ gravityPower: 1 }), swung, state, 1, LOCAL);
   TestValidator.predicate(
     "gravity along X",
     vclose(
-      Matrix4.position(swung.get("b")!),
+      AutoMovieEngineMatrix4.position(swung.get("b")!),
       { x: Math.SQRT1_2, y: -Math.SQRT1_2, z: 0 },
       ROUNDING,
     ),
   );
   const pulled: Map<string, number[]> = world();
-  const pulledState: IAutoMovieSpringState = createSpringState();
-  stepSpring(
+  const pulledState: IAutoMovieSpringState = AutoMovieEngineResolve.createSpringState();
+  AutoMovieEngineResolve.stepSpring(
     driver({ gravityPower: 1, stiffness: 0.5 }),
     pulled,
     pulledState,
@@ -107,7 +107,7 @@ export function test_engine_resolve_step_spring(): void {
   TestValidator.predicate(
     "gravity against a stiffness pull",
     vclose(
-      Matrix4.position(pulled.get("b")!),
+      AutoMovieEngineMatrix4.position(pulled.get("b")!),
       { x: 1 / root5, y: -2 / root5, z: 0 },
       ROUNDING,
     ) &&
@@ -119,15 +119,15 @@ export function test_engine_resolve_step_spring(): void {
       ),
   );
   const hit: Map<string, number[]> = world();
-  stepSpring(
+  AutoMovieEngineResolve.stepSpring(
     driver({ gravityPower: 1, stiffness: 0.5 }),
     hit,
-    createSpringState(),
+    AutoMovieEngineResolve.createSpringState(),
     1,
     LOCAL,
     [{ center: { x: 0, y: -1, z: 0 }, radius: 0.4 }],
   );
-  const place: IAutoMovieVector3 = Matrix4.position(hit.get("b")!);
+  const place: IAutoMovieVector3 = AutoMovieEngineMatrix4.position(hit.get("b")!);
   TestValidator.predicate(
     "pushed out to the surface of the sphere",
     nclose(Math.hypot(place.x, place.y + 1, place.z), 0.5, ROUNDING) &&

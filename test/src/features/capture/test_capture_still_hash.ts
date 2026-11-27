@@ -1,20 +1,23 @@
 import type { IAutoMovieRasterImage } from "@automovie/interface";
-import {
-  decodeAutoMovieRasterPng,
-  encodeAutoMovieRasterPng,
-  hashAutoMovieRasterImage,
-} from "@automovie/render";
+import { AutoMovieRenderPicture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import { createHash } from "node:crypto";
 
 /**
- * A still's content hash is SHA-256 over its size and RGB bytes, so an unchanged still hashes alike across rounds and encoders, and any changed pixel or shape changes it.
+ * A still's content hash is SHA-256 over its size and RGB bytes, so an
+ * unchanged still hashes alike across rounds and encoders, and any changed
+ * pixel or shape changes it.
  *
  * Scenarios:
  *
- * 1. For pictures of 1 by 1, 3 by 6, 15 by 1, 64 by 36 and 4 by 4 pixels, whose hashed messages of 53 and 56 bytes straddle SHA-256's padding boundary and of 6920 bytes span many blocks, the hash equals Node's `createHash("sha256")` over the same documented bytes.
- * 2. A picture and the picture decoded from its encoded PNG hash alike, and so do two pictures differing only in alpha.
- * 3. One changed channel of one pixel changes the hash, and so does the same bytes laid out 6 by 3 instead of 3 by 6.
+ * 1. For pictures of 1 by 1, 3 by 6, 15 by 1, 64 by 36 and 4 by 4 pixels, whose
+ *    hashed messages of 53 and 56 bytes straddle SHA-256's padding boundary and
+ *    of 6920 bytes span many blocks, the hash equals Node's
+ *    `createHash("sha256")` over the same documented bytes.
+ * 2. A picture and the picture decoded from its encoded PNG hash alike, and so do
+ *    two pictures differing only in alpha.
+ * 3. One changed channel of one pixel changes the hash, and so does the same bytes
+ *    laid out 6 by 3 instead of 3 by 6.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Hashes real pictures through the public function and compares against an independent SHA-256 and against altered pictures; a hash over compressed bytes, over alpha, without the size, or with a padding error fails.
  * @evidence contracts/development/testing.md#independent-expectations Node's `crypto` SHA-256 over the documented message (big-endian width and height, then RGB rows) is the oracle; a message of 56 bytes or more is where SHA-256 padding needs a second block.
@@ -65,7 +68,7 @@ export async function test_capture_still_hash(): Promise<void> {
     const image: IAutoMovieRasterImage = picture(width, height);
     TestValidator.equals(
       `${width}x${height} matches SHA-256`,
-      hashAutoMovieRasterImage(image),
+      AutoMovieRenderPicture.hashRasterImage(image),
       oracle(image),
     );
   }
@@ -74,15 +77,17 @@ export async function test_capture_still_hash(): Promise<void> {
   const still: IAutoMovieRasterImage = picture(64, 36);
   TestValidator.equals(
     "a decoded still hashes as it was drawn",
-    hashAutoMovieRasterImage(
-      await decodeAutoMovieRasterPng(await encodeAutoMovieRasterPng(still)),
+    AutoMovieRenderPicture.hashRasterImage(
+      await AutoMovieRenderPicture.decodeRasterPng(
+        await AutoMovieRenderPicture.encodeRasterPng(still),
+      ),
     ),
-    hashAutoMovieRasterImage(still),
+    AutoMovieRenderPicture.hashRasterImage(still),
   );
   TestValidator.equals(
     "alpha does not count",
-    hashAutoMovieRasterImage(picture(5, 5, 0)),
-    hashAutoMovieRasterImage(picture(5, 5)),
+    AutoMovieRenderPicture.hashRasterImage(picture(5, 5, 0)),
+    AutoMovieRenderPicture.hashRasterImage(picture(5, 5)),
   );
 
   // 3. Changes that must count.
@@ -90,12 +95,16 @@ export async function test_capture_still_hash(): Promise<void> {
   changed.pixels[1000 * 4 + 1] ^= 1;
   TestValidator.predicate(
     "one channel changes the hash",
-    hashAutoMovieRasterImage(changed) !== hashAutoMovieRasterImage(still),
+    AutoMovieRenderPicture.hashRasterImage(changed) !==
+      AutoMovieRenderPicture.hashRasterImage(still),
   );
   const narrow: IAutoMovieRasterImage = picture(3, 6);
   TestValidator.predicate(
     "the shape changes the hash",
-    hashAutoMovieRasterImage({ width: 6, height: 3, pixels: narrow.pixels }) !==
-      hashAutoMovieRasterImage(narrow),
+    AutoMovieRenderPicture.hashRasterImage({
+      width: 6,
+      height: 3,
+      pixels: narrow.pixels,
+    }) !== AutoMovieRenderPicture.hashRasterImage(narrow),
   );
 }

@@ -1,0 +1,105 @@
+import {
+  IAutoMovieBuiltBoundary,
+  type IAutoMovieBuiltEnvelopeFace,
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltSpace,
+  IAutoMoviePlanarPoint,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
+import { compareRenderIds } from "../../render/internal/compareRenderIds";
+import { builtEnvironmentBuildingOfSpace } from "./builtEnvironmentBuildingOfSpace";
+import { builtSpaceContainsPoint } from "./builtSpaceContainsPoint";
+import { AutoMovieEngineEnvelopeFacadeLimit } from "../AutoMovieEngineEnvelopeFacadeLimit";
+import { ObservationGeometry } from "./ObservationGeometry";
+import { outlineCentroid } from "./outlineCentroid";
+
+/*
+ * Every exposed separation of every building unit, placed in world space.
+ *
+ * A face is exposed when its boundary separates exactly one declared space.
+ * Each result carries placed vertices, shoelace centroid, owning building and a
+ * computed normal used for roof/underside/facade classification. Authored +Z
+ * flips only if the positive-offset centroid probe is inside the space; the
+ * opposite side is not tested. Off-volume faces, concave outlines and numerical
+ * limitations preclude a general outward-orientation certificate. Results sort
+ * by boundary id in code-unit order.
+ *
+ * Throws when an exposed face's space belongs to no building unit, which
+ * validation refuses.
+ */
+export function builtEnvironmentEnvelopeFaces(
+  environment: IAutoMovieBuiltEnvironment,
+): IAutoMovieBuiltEnvelopeFace[] {
+  const spaces: Map<string, IAutoMovieBuiltSpace> = new Map(
+    environment.spaces.map(
+      (space: IAutoMovieBuiltSpace): [string, IAutoMovieBuiltSpace] => [
+        space.id,
+        space,
+      ],
+    ),
+  );
+  const owners: Map<string, string> = new Map();
+  const faces: IAutoMovieBuiltEnvelopeFace[] = [];
+  for (const boundary of environment.boundaries) {
+    const face: IAutoMovieBuiltBoundary["face"] = boundary.face;
+    if (face === undefined || boundary.spaces.length !== 1) continue;
+    const space: IAutoMovieBuiltSpace | undefined = spaces.get(
+      boundary.spaces[0]!,
+    );
+    if (space === undefined) continue;
+    const place = (point: IAutoMoviePlanarPoint): IAutoMovieVector3 =>
+      AutoMovieEngineVector3.add(
+        face.origin,
+        AutoMovieEngineQuaternion.rotateVector(face.rotation, {
+          x: point.x,
+          y: point.y,
+          z: 0,
+        }),
+      );
+    const centroid: IAutoMovieVector3 = place(outlineCentroid(face.outline));
+    const authored: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineQuaternion.rotateVector(face.rotation, { x: 0, y: 0, z: 1 }),
+    );
+    const normal: IAutoMovieVector3 = builtSpaceContainsPoint(
+      space,
+      AutoMovieEngineVector3.add(
+        centroid,
+        AutoMovieEngineVector3.scale(authored, ObservationGeometry.ProbeMeters),
+      ),
+    )
+      ? AutoMovieEngineVector3.scale(authored, -1)
+      : authored;
+    let building: string | undefined = owners.get(space.id);
+    if (building === undefined) {
+      building = builtEnvironmentBuildingOfSpace(environment, space.id);
+      owners.set(space.id, building);
+    }
+    faces.push({
+      boundary: boundary.id,
+      building,
+      space: space.id,
+      kind: boundary.kind,
+      aspect:
+        normal.y > AutoMovieEngineEnvelopeFacadeLimit
+          ? "roof"
+          : normal.y < -AutoMovieEngineEnvelopeFacadeLimit
+            ? "underside"
+            : "facade",
+      normal,
+      centroid,
+      vertices: face.outline.map(
+        (point: IAutoMoviePlanarPoint): IAutoMovieVector3 => place(point),
+      ),
+      thickness: face.thickness,
+    });
+  }
+  return faces.sort(
+    (
+      left: IAutoMovieBuiltEnvelopeFace,
+      right: IAutoMovieBuiltEnvelopeFace,
+    ): number => compareRenderIds(left.boundary, right.boundary),
+  );
+}

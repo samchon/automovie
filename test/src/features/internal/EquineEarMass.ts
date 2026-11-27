@@ -1,11 +1,4 @@
-import {
-  AutoMovieArchetypeBuilder,
-  AutoMovieArchetypeDrawSession,
-  AutoMovieArchetypeEquine,
-  AutoMovieArchetypeQuadrupedHead,
-  createHorse,
-  type createQuadruped,
-} from "@automovie/archetypes";
+import { AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeEquine, AutoMovieArchetypeQuadrupedHead, AutoMovieArchetypeHorse, type AutoMovieArchetypeQuadruped } from "@automovie/archetypes";
 import type {
   IAutoMovieModelPart,
   IAutoMovieVector3,
@@ -25,7 +18,7 @@ import { nclose } from "./nclose";
  */
 export namespace EquineEarMass {
   /** The real public quadruped model, including its aggregate physical output. */
-  type Model = ReturnType<typeof createQuadruped>;
+  type Model = ReturnType<typeof AutoMovieArchetypeQuadruped.create>;
 
   /** Integrated actual harness body must retain each source segment's total. */
   export function body(model: Model, label: string, findings: string[]): void {
@@ -96,16 +89,16 @@ export namespace EquineEarMass {
           draw,
           material: "skin",
         });
-      AutoMovieArchetypeQuadrupedHead(
+      AutoMovieArchetypeQuadrupedHead.lay(
         builder,
         rig,
         1.6,
         {
           // The head capsule and pinnae only: the horse's massless jaw is no fracture piece.
-          poll: createHorse.BODY.head.poll,
-          nose: createHorse.BODY.head.nose,
-          radius: createHorse.BODY.head.radius,
-          mouth: createHorse.BODY.head.mouth,
+          poll: AutoMovieArchetypeHorse.BODY.head.poll,
+          nose: AutoMovieArchetypeHorse.BODY.head.nose,
+          radius: AutoMovieArchetypeHorse.BODY.head.radius,
+          mouth: AutoMovieArchetypeHorse.BODY.head.mouth,
           ears: {
             length: 0.2,
             width: 0.08,

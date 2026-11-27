@@ -1,0 +1,88 @@
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanPropFrame,
+  IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
+} from "@automovie/interface";
+
+/*
+ * Rigid frames of position and rotation, composed and taken relative: a prop
+ * kept in a bone's frame while it rides the bone, a hand kept in the chest's
+ * frame while the trunk carries it, a stuck arrow kept in the frame of what it
+ * struck.
+ */
+export namespace HumanPropFrame {
+  /*
+   * A frame given in `parent`'s frame, in the world.
+   * Parameter parent: The parent's world frame.
+   * Parameter local: The frame in the parent's frame.
+   * Returns: The world frame.
+   */
+  export function compose(
+    parent: IAutoMovieRigidTransform,
+    local: IAutoMovieRigidTransform,
+  ): IAutoMovieRigidTransform {
+    return {
+      position: AutoMovieEngineVector3.add(
+        parent.position,
+        AutoMovieEngineQuaternion.rotateVector(parent.rotation, local.position),
+      ),
+      rotation: AutoMovieEngineQuaternion.normalize(
+        AutoMovieEngineQuaternion.multiply(parent.rotation, local.rotation),
+      ),
+    };
+  }
+
+  /*
+   * A world frame in `parent`'s frame: the inverse of compose.
+   * Parameter parent: The parent's world frame.
+   * Parameter world: The world frame.
+   * Returns: The frame in the parent's frame.
+   */
+  export function relative(
+    parent: IAutoMovieRigidTransform,
+    world: IAutoMovieRigidTransform,
+  ): IAutoMovieRigidTransform {
+    const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(parent.rotation);
+    return {
+      position: AutoMovieEngineQuaternion.rotateVector(
+        inverse,
+        AutoMovieEngineVector3.subtract(world.position, parent.position),
+      ),
+      rotation: AutoMovieEngineQuaternion.multiply(inverse, world.rotation),
+    };
+  }
+
+  /*
+   * The parent frame that places a local child frame at a world frame.
+   * Parameter world: The child's destination in the world.
+   * Parameter local: The child's frame relative to its parent.
+   * Returns: The parent frame, solving parent times local equals world.
+   */
+  export function parent(
+    world: IAutoMovieRigidTransform,
+    local: IAutoMovieRigidTransform,
+  ): IAutoMovieRigidTransform {
+    const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
+      AutoMovieEngineQuaternion.multiply(world.rotation, AutoMovieEngineQuaternion.inverse(local.rotation)),
+    );
+    return {
+      position: AutoMovieEngineVector3.subtract(
+        world.position,
+        AutoMovieEngineQuaternion.rotateVector(rotation, local.position),
+      ),
+      rotation,
+    };
+  }
+
+  /*
+   * A resolved bone's world frame.
+   * Parameter bone: The bone's world position and rotation.
+   * Returns: The frame.
+   */
+  export function bone(
+    bone: IAutoMovieMotionHumanPropFrame.IBoneBone,
+  ): IAutoMovieRigidTransform {
+    return { position: bone.worldPosition, rotation: bone.worldRotation };
+  }
+}

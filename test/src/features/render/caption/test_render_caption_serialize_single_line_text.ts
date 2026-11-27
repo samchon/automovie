@@ -1,8 +1,8 @@
-import { serializeAutoMovieWebVttSingleLineText } from "@automovie/render";
+import { AutoMovieRenderCaption } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `serializeAutoMovieWebVttSingleLineText` turns every control, line breaks
+ * `AutoMovieRenderCaption.serializeWebVttSingleLineText` turns every control, line breaks
  * included, into a space and escapes "&", "<" and ">".
  *
  * Scenarios:
@@ -13,12 +13,12 @@ import { TestValidator } from "@nestia/e2e";
 export function test_render_caption_serialize_single_line_text(): void {
   TestValidator.equals(
     "controls",
-    serializeAutoMovieWebVttSingleLineText("a\nb\tc"),
+    AutoMovieRenderCaption.serializeWebVttSingleLineText("a\nb\tc"),
     "a b c",
   );
   TestValidator.equals(
     "markup",
-    serializeAutoMovieWebVttSingleLineText("<b>&</b>"),
+    AutoMovieRenderCaption.serializeWebVttSingleLineText("<b>&</b>"),
     "&lt;b&gt;&amp;&lt;/b&gt;",
   );
 }

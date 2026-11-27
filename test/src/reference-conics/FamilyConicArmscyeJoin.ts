@@ -3,11 +3,7 @@ import { FamilyConicSource as R } from "./FamilyConicSource";
 import { NodeCanvasCamera } from "./render/NodeCanvasCamera";
 import { NodeCanvasRaster } from "./render/NodeCanvasRaster";
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
-import {
-  AutoMovieLoftViewFullSource as Full,
-  AutoMovieViewChain,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
+import { AutoMovieEngineLoftViewFullSource as Full, AutoMovieEngineViewChain, AutoMovieEngineConstruction } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft as H,
   AutoMovieHumanConicSection as S,
@@ -34,7 +30,7 @@ import path from "node:path";
 
 /**
  * The armscye as a shared-loop join, pre-checked on f1's two generated fields before anything is built (the Human skill's Shared
- * Connections: every premise the operator admits on, read from `AutoMovieConstructionSharedLoop` and `AutoMovieSolidSharedCurve`).
+ * Connections: every premise the operator admits on, read from `AutoMovieEngineConstructionSharedLoop` and `AutoMovieEngineSolidSharedCurve`).
  *
  * A mixed join (`IAutoMovieConstructionJoin.loop`) declares one closed loop on the host's chart and asks that the part's face pass
  * through it within the join's tolerance all round, that the part keep one side, and that each fold width fit. This tool measures how
@@ -335,7 +331,7 @@ namespace FamilyConicArmscyeJoin {
       const frame: IAutoMovieLoftSectionFrame = course.at(s);
       const section: IAutoMovieViewChain.ISection = S.chain(read(s), family.layout);
       if (section.fault !== null) throw new Error("the carried arm's section at " + s + " is not admitted: " + section.fault);
-      const r: number = AutoMovieViewChain.radius(section, angle);
+      const r: number = AutoMovieEngineViewChain.radius(section, angle);
       return [0, 1, 2].map((k: number): number => frame.origin[k]! + r * (Math.cos(angle) * frame.u[k]! + Math.sin(angle) * frame.v[k]!)) as V;
     };
     out.push("");
@@ -519,7 +515,7 @@ namespace FamilyConicArmscyeJoin {
       grazing: option("grazing", 0.2),
     };
     const started: number = performance.now();
-    const real: IAutoMovieConstructionRealization.IRealization = realizeAutoMovieConstruction({ name: "f1.armscye", root }, { chord: 0.0005, sources });
+    const real: IAutoMovieConstructionRealization.IRealization = AutoMovieEngineConstruction.realize({ name: "f1.armscye", root }, { chord: 0.0005, sources });
     process.stdout.write(JSON.stringify({ milliseconds: Math.round(performance.now() - started), diagnostics: real.diagnostics, joins: real.joins.length, triangles: real.mesh.indices.length / 3 }).slice(0, 6000) + "\n");
     if (real.mesh.positions.length === 0) return;
     await fs.mkdir(out, { recursive: true });

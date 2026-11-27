@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, derivePhysicalProfile } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieModel,
   IAutoMoviePhysicalJoint,
@@ -25,7 +25,7 @@ export namespace PhysicalModelFixtures {
       limbRadius: 0.04,
       material: material("solid"),
     });
-    const profile: P = derivePhysicalProfile(model, {
+    const profile: P = AutoMovieEnginePhysics.derivePhysicalProfile(model, {
       density: 1000,
       densities: {},
       material: "solid",
@@ -86,7 +86,7 @@ export namespace PhysicalModelFixtures {
           depth: dimensions[2],
         }),
       ]);
-      const profile: P = derivePhysicalProfile(model, {
+      const profile: P = AutoMovieEnginePhysics.derivePhysicalProfile(model, {
         density,
         densities: {},
         material: "solid",
@@ -182,13 +182,13 @@ export namespace PhysicalModelFixtures {
       segment: IAutoMoviePhysicalSegment,
       anchor: IAutoMovieVector3,
     ): IAutoMovieRigidTransform => {
-      const inverse: IAutoMovieRigidTransform["rotation"] = Quaternion.inverse(
+      const inverse: IAutoMovieRigidTransform["rotation"] = AutoMovieEngineQuaternion.inverse(
         segment.neutral.rotation,
       );
       return {
-        position: Quaternion.rotateVector(
+        position: AutoMovieEngineQuaternion.rotateVector(
           inverse,
-          Vector3.subtract(anchor, segment.neutral.position),
+          AutoMovieEngineVector3.subtract(anchor, segment.neutral.position),
         ),
         rotation: inverse,
       };

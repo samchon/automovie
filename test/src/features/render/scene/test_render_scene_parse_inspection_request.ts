@@ -1,9 +1,9 @@
 import type { IAutoMovieInspectionRequest } from "@automovie/interface";
-import { parseAutoMovieInspectionRequest } from "@automovie/render";
+import { AutoMovieRenderInspectionRequest } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `parseAutoMovieInspectionRequest` reads an inspection request from named
+ * `parseInspectionRequest` reads an inspection request from named
  * text values.
  *
  * Scenarios:
@@ -18,7 +18,7 @@ import { TestValidator } from "@nestia/e2e";
 export function test_render_scene_parse_inspection_request(): void {
   const read = (entries: [string, string][]): IAutoMovieInspectionRequest => {
     const values: Map<string, string> = new Map<string, string>(entries);
-    return parseAutoMovieInspectionRequest((key: string): string | undefined =>
+    return AutoMovieRenderInspectionRequest.parseRequest((key: string): string | undefined =>
       values.get(key),
     );
   };

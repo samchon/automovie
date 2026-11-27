@@ -1,4 +1,4 @@
-import { RigidCarrierSample } from "@automovie/engine";
+import { AutoMovieEngineRigidCarrierSample } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionPlayback,
@@ -42,19 +42,19 @@ export function test_engine_kinematics_rigid_carrier_sample(): void {
   const interval: {
     from: number;
     to: number;
-    contains: RigidCarrierSample.IHold["contains"];
+    contains: AutoMovieEngineRigidCarrierSample.IHold["contains"];
   } = {
     from: 0.5,
     to: 1.25,
     contains: (seconds: number): boolean => seconds >= 0.5 && seconds < 1.25,
   };
-  const playback: IAutoMovieMotionPlayback<RigidCarrierSample.IRead> = {
-    sample: (): RigidCarrierSample.IRead => {
+  const playback: IAutoMovieMotionPlayback<AutoMovieEngineRigidCarrierSample.IRead> = {
+    sample: (): AutoMovieEngineRigidCarrierSample.IRead => {
       ++calls;
       return { frame, point: (): IAutoMovieTransform => transform };
     },
   };
-  const source: RigidCarrierSample.IBinding = RigidCarrierSample.bind(
+  const source: AutoMovieEngineRigidCarrierSample.IBinding = AutoMovieEngineRigidCarrierSample.bind(
     model,
     motion,
     point,
@@ -62,7 +62,7 @@ export function test_engine_kinematics_rigid_carrier_sample(): void {
     playback,
   );
   const prop = (): IAutoMovieMotionHumanProp &
-    RigidCarrierSample.IAdaptable => ({
+    AutoMovieEngineRigidCarrierSample.IAdaptable => ({
     subject: "lift",
     frame,
     points: {},
@@ -73,10 +73,10 @@ export function test_engine_kinematics_rigid_carrier_sample(): void {
     }),
   });
   const accepted = prop();
-  RigidCarrierSample.adapt(accepted, model, source.motion, source.point);
+  AutoMovieEngineRigidCarrierSample.adapt(accepted, model, source.motion, source.point);
   interval.to = 99;
-  const hold: RigidCarrierSample.IHold | undefined =
-    RigidCarrierSample.holds(accepted)?.[0];
+  const hold: AutoMovieEngineRigidCarrierSample.IHold | undefined =
+    AutoMovieEngineRigidCarrierSample.holds(accepted)?.[0];
   TestValidator.predicate(
     "the clock and interval are borrowed without reading motion",
     hold !== undefined &&
@@ -85,19 +85,19 @@ export function test_engine_kinematics_rigid_carrier_sample(): void {
       hold.to === 1.25 &&
       hold.contains(0.5) &&
       !hold.contains(1.25) &&
-      RigidCarrierSample.playback(accepted) === playback &&
+      AutoMovieEngineRigidCarrierSample.playback(accepted) === playback &&
       calls === 0,
   );
 
   const wrongModel = prop();
   const wrongSocket = prop();
-  RigidCarrierSample.adapt(
+  AutoMovieEngineRigidCarrierSample.adapt(
     wrongModel,
     { ...model },
     source.motion,
     source.point,
   );
-  RigidCarrierSample.adapt(
+  AutoMovieEngineRigidCarrierSample.adapt(
     wrongSocket,
     model,
     source.motion,
@@ -105,24 +105,24 @@ export function test_engine_kinematics_rigid_carrier_sample(): void {
   );
   TestValidator.predicate(
     "a different identity or source reader carries no domains",
-    RigidCarrierSample.holds(wrongModel) === undefined &&
-      RigidCarrierSample.playback(wrongSocket) === undefined &&
+    AutoMovieEngineRigidCarrierSample.holds(wrongModel) === undefined &&
+      AutoMovieEngineRigidCarrierSample.playback(wrongSocket) === undefined &&
       calls === 0,
   );
 
   const changedPoint = prop();
   const independent = prop();
-  RigidCarrierSample.adapt(changedPoint, model, source.motion, source.point);
-  RigidCarrierSample.adapt(independent, model, source.motion, source.point);
+  AutoMovieEngineRigidCarrierSample.adapt(changedPoint, model, source.motion, source.point);
+  AutoMovieEngineRigidCarrierSample.adapt(independent, model, source.motion, source.point);
   accepted.motion = (): IAutoMovieRigidTransform => frame;
   changedPoint.point = (): undefined => undefined;
   TestValidator.predicate(
     "either wrapper replacement revokes its own adapter's metadata",
-    RigidCarrierSample.holds(accepted) === undefined &&
-      RigidCarrierSample.playback(accepted) === undefined &&
-      RigidCarrierSample.holds(changedPoint) === undefined &&
-      RigidCarrierSample.playback(changedPoint) === undefined &&
-      RigidCarrierSample.holds(independent)?.[0] === hold &&
+    AutoMovieEngineRigidCarrierSample.holds(accepted) === undefined &&
+      AutoMovieEngineRigidCarrierSample.playback(accepted) === undefined &&
+      AutoMovieEngineRigidCarrierSample.holds(changedPoint) === undefined &&
+      AutoMovieEngineRigidCarrierSample.playback(changedPoint) === undefined &&
+      AutoMovieEngineRigidCarrierSample.holds(independent)?.[0] === hold &&
       calls === 0,
   );
 }

@@ -1,5 +1,7 @@
 import type { IAutoMovieMotionHumanPosture } from "@automovie/interface";
-import { admittedSupportPosture } from "@automovie/motions/internal";
+import {
+  admittedSupportPosture
+} from "../../../../../packages/motions/src/actions/internal/admittedSupportPosture";
 import { TestValidator } from "@nestia/e2e";
 
 /**

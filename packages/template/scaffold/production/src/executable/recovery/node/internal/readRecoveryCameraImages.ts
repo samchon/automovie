@@ -1,4 +1,4 @@
-import { decodeAutoMoviePpmImage } from "@automovie/ingest";
+import { AutoMovieIngestPpmImage } from "@automovie/ingest";
 import type {
   IAutoMovieRecoveryCameraFile,
   IAutoMovieRecoveryCameraView,
@@ -6,7 +6,7 @@ import type {
 import { createHash } from "node:crypto";
 import path from "node:path";
 
-import { readAutoMovieRecoveryBoundedFile } from "./readAutoMovieRecoveryBoundedFile";
+import { readRecoveryBoundedFile } from "./readRecoveryBoundedFile";
 
 /**
  * Acquire a bounded fixed camera set without changing its supplied pixel chart.
@@ -51,14 +51,14 @@ export function readRecoveryCameraImages(
       throw new Error(
         "Every camera image requires closed path/hash/provenance/calibration metadata",
       );
-    const image: Buffer = readAutoMovieRecoveryBoundedFile(
+    const image: Buffer = readRecoveryBoundedFile(
       path.resolve(path.dirname(manifestPath), view.path),
       maxInputBytes,
     );
     if (createHash("sha256").update(image).digest("hex") !== view.sha256)
       throw new Error(`Fixed camera image hash mismatch: ${view.id}`);
-    const decoded: ReturnType<typeof decodeAutoMoviePpmImage> =
-      decodeAutoMoviePpmImage(image, {
+    const decoded: ReturnType<typeof AutoMovieIngestPpmImage.decode> =
+      AutoMovieIngestPpmImage.decode(image, {
         maxPixels: maxPixels - pixels,
         maxHeaderBytes,
         transfer: "srgb",

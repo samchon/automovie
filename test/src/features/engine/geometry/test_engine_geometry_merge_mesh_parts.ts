@@ -1,4 +1,4 @@
-import { mergeAutoMovieMeshParts } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieMesh,
   IAutoMovieMeshAssembly,
@@ -8,7 +8,7 @@ import { TestValidator } from "@nestia/e2e";
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * `mergeAutoMovieMeshParts(parts)` places each member by its transform, merges
+ * `mergeMeshParts(parts)` places each member by its transform, merges
  * them, and reports each member's range of the merged index buffer (an
  * unindexed member counting one index per vertex).
  *
@@ -39,7 +39,7 @@ export function test_engine_geometry_merge_mesh_parts(): void {
     { id: "riser", mesh: triangle(null), transform: lift },
   ];
   const before: string = JSON.stringify(parts);
-  const merged: IAutoMovieMeshAssembly = mergeAutoMovieMeshParts(parts);
+  const merged: IAutoMovieMeshAssembly = AutoMovieEngineGeometry.mergeMeshParts(parts);
   TestValidator.equals("groups", merged.groups, [
     { id: "tread", start: 0, count: 3 },
     { id: "riser", start: 3, count: 3 },
@@ -56,7 +56,7 @@ export function test_engine_geometry_merge_mesh_parts(): void {
     "repeated id",
     throwsError(
       (): unknown =>
-        mergeAutoMovieMeshParts([
+        AutoMovieEngineGeometry.mergeMeshParts([
           parts[0]!,
           { id: "tread", mesh: triangle(null) },
         ]),
@@ -67,7 +67,7 @@ export function test_engine_geometry_merge_mesh_parts(): void {
     "malformed",
     throwsError(
       (): unknown =>
-        mergeAutoMovieMeshParts([
+        AutoMovieEngineGeometry.mergeMeshParts([
           parts[0]!,
           { id: "riser", mesh: triangle([0, 1]) },
         ]),

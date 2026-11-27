@@ -5,11 +5,11 @@ import type { IAutoMovieSceneNode } from "../scene/IAutoMovieSceneNode";
 /**
  * One generated visible wall/building block and its support footprint.
  *
- * Built by `worldBlock` from a base point at the bottom centre and a positive
- * size. The block is never rotated, so `bounds` is exact.
- * `assertWorldPlacements` refuses two blocks whose bounds overlap with positive
- * volume, a block whose footprint does not rest on a declared surface, and a
- * route crossing a block.
+ * Built by `AutoMovieEngineWorld.block` from a base point at the bottom centre
+ * and a positive size. The block is never rotated, so `bounds` is exact.
+ * `AutoMovieEngineWorld.assertPlacements` refuses two blocks whose bounds
+ * overlap with positive volume, a block whose footprint does not rest on a
+ * declared surface, and a route crossing a block.
  */
 export interface IAutoMovieWorldBlock {
   /**
@@ -56,8 +56,8 @@ export namespace IAutoMovieWorldBlock {
    */
   export type IInput = {
     /**
-     * Nonblank block/node identity. worldBlock derives its model identity
-     * through productionRuntimeModelId and rejects whitespace-only input.
+     * Nonblank block and node identity. The model identity uses the compiler's
+     * runtime model namespace.
      */
     id: string;
     /**

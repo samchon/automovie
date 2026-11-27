@@ -1,4 +1,4 @@
-import { AutoMovieSeamStation } from "@automovie/engine";
+import { AutoMovieEngineSeamStation } from "@automovie/engine";
 import type {
   IAutoMovieHumanShoulderRing,
   IAutoMovieHumanTrunkChains,
@@ -121,7 +121,7 @@ export namespace AutoMovieHumanTrunkChains {
         },
       );
 
-      return AutoMovieSeamStation.continuous(
+      return AutoMovieEngineSeamStation.continuous(
         {
           name,
           basis: "spline",

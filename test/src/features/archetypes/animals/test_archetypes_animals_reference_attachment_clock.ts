@@ -1,19 +1,11 @@
-import {
-  AutoMovieArchetypeQuadrupedBody as Body,
-  AutoMovieArchetypeQuadrupedGait as Gait,
-  AutoMovieArchetypeQuadrupedLocomotion,
-  createCamel,
-  createDeer,
-  createOx,
-  createQuadruped,
-} from "@automovie/archetypes";
+import { AutoMovieArchetypeQuadrupedBody as Body, AutoMovieArchetypeQuadrupedGait as Gait, AutoMovieArchetypeQuadrupedLocomotion, AutoMovieArchetypeCamel, AutoMovieArchetypeDeer, AutoMovieArchetypeOx, AutoMovieArchetypeQuadruped } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
 import { observeQuadrupedAttachment } from "./observeQuadrupedAttachment";
 
 /** A common actual producer type with a live lead and four terminal solids. */
-type Animal = ReturnType<typeof createCamel>;
+type Animal = ReturnType<typeof AutoMovieArchetypeCamel.create>;
 
 /** One source observation or caller-authored clock. Durations are seconds. */
 interface ICase {
@@ -40,15 +32,15 @@ const CLOCK_ROUNDOFF: number = 32 * Number.EPSILON;
  */
 export function test_archetypes_animals_reference_attachment_clock(): void {
   const findings: string[] = [];
-  const lead: NonNullable<createCamel.IParams["lead"]> = {
+  const lead: NonNullable<AutoMovieArchetypeCamel.IParams["lead"]> = {
     width: 0.02,
     thickness: 0.003,
     leadLength: 0.6,
     leadRadius: 0.004,
   };
-  const ox: Animal = createOx({ mass: 300, tempo: 0, lead }, 73);
-  const camel: Animal = createCamel({ mass: 450, tempo: 0, lead }, 73);
-  const deer: Animal = createDeer({ mass: 70, tempo: 0, lead }, 73);
+  const ox: Animal = AutoMovieArchetypeOx.create({ mass: 300, tempo: 0, lead }, 73);
+  const camel: Animal = AutoMovieArchetypeCamel.create({ mass: 450, tempo: 0, lead }, 73);
+  const deer: Animal = AutoMovieArchetypeDeer.create({ mass: 70, tempo: 0, lead }, 73);
   const deerTable: Gait.ITable =
     AutoMovieArchetypeQuadrupedLocomotion.deer({
       trot: [{ speed: 2, stride: 0.6, foreStance: 0.3, hindStance: 0.3 }],
@@ -116,7 +108,7 @@ export function test_archetypes_animals_reference_attachment_clock(): void {
     },
   ];
   for (const item of cases) {
-    const species: createQuadruped.ISpecies = createQuadruped.species(item.animal);
+    const species: AutoMovieArchetypeQuadruped.ISpecies = AutoMovieArchetypeQuadruped.species(item.animal);
     const source: Gait.ClockSource = item.table === undefined ? species : { ...species, table: item.table };
     const clock: Gait.ITiming = Gait.timing(source, item.gait, item.speed);
     TestValidator.predicate(
@@ -144,7 +136,7 @@ export function test_archetypes_animals_reference_attachment_clock(): void {
       });
   }
   for (const animal of [ox, camel, deer])
-    observeQuadrupedAttachment(animal, createQuadruped.species(animal), animal.archetype, findings, animal.dimensions.withersHeight!);
+    observeQuadrupedAttachment(animal, AutoMovieArchetypeQuadruped.species(animal), animal.archetype, findings, animal.dimensions.withersHeight!);
   TestValidator.equals(
     "actual reference-species attachment and solid support",
     findings,

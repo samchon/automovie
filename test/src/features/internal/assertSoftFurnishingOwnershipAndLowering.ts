@@ -1,8 +1,4 @@
-import {
-  lowerSoftFurnishing,
-  validateAutoMovieSoftFurnishingDomainOwnership,
-  validateSoftFurnishings,
-} from "@automovie/engine";
+import { AutoMovieEngineSoftFurnishing } from "@automovie/engine";
 import {
   IAutoMovieConstraintViolation,
   IAutoMovieSoftBodyDomain,
@@ -46,7 +42,7 @@ export function assertSoftFurnishingOwnershipAndLowering(
     furnishings: IAutoMovieSoftFurnishing[],
   ): [unknown, string][] => {
     const validation: IAutoMovieValidation =
-      validateAutoMovieSoftFurnishingDomainOwnership(furnishings);
+      AutoMovieEngineSoftFurnishing.validateAutoMovieSoftFurnishingDomainOwnership(furnishings);
     return validation.success === true
       ? []
       : validation.violations.map(
@@ -72,7 +68,7 @@ export function assertSoftFurnishingOwnershipAndLowering(
       [
         "sameEnvironment",
         (): boolean =>
-          validateAutoMovieSoftFurnishingDomainOwnership([
+          AutoMovieEngineSoftFurnishing.validateAutoMovieSoftFurnishingDomainOwnership([
             softFurnishing(),
             softFurnishing({ id: "second-curtain" }),
           ]).success === false,
@@ -80,7 +76,7 @@ export function assertSoftFurnishingOwnershipAndLowering(
       [
         "differentEnvironment",
         (): boolean =>
-          validateAutoMovieSoftFurnishingDomainOwnership([
+          AutoMovieEngineSoftFurnishing.validateAutoMovieSoftFurnishingDomainOwnership([
             softFurnishing(),
             softFurnishing({ id: "second-curtain", environment: "other" }),
           ]).success === false,
@@ -88,7 +84,7 @@ export function assertSoftFurnishingOwnershipAndLowering(
       [
         "differentDomains",
         (): boolean =>
-          validateAutoMovieSoftFurnishingDomainOwnership([
+          AutoMovieEngineSoftFurnishing.validateAutoMovieSoftFurnishingDomainOwnership([
             softFurnishing(),
             softFurnishing({
               id: "second-curtain",
@@ -108,7 +104,7 @@ export function assertSoftFurnishingOwnershipAndLowering(
       [
         "prevalidated",
         (): boolean =>
-          validateSoftFurnishings({
+          AutoMovieEngineSoftFurnishing.validateSoftFurnishings({
             environment: roomEnvironment(),
             furnishings: [
               softFurnishing(),
@@ -131,28 +127,28 @@ export function assertSoftFurnishingOwnershipAndLowering(
   const frame: (
     furnishing: IAutoMovieSoftFurnishing,
     domain: IAutoMovieSoftBodyDomain,
-  ) => ReturnType<typeof lowerSoftFurnishing> = (
+  ) => ReturnType<typeof AutoMovieEngineSoftFurnishing.lowerSoftFurnishing> = (
     furnishing: IAutoMovieSoftFurnishing,
     domain: IAutoMovieSoftBodyDomain,
-  ): ReturnType<typeof lowerSoftFurnishing> =>
-    lowerSoftFurnishing({ furnishing, domain, time: 0.5 });
-  const notRun: ReturnType<typeof lowerSoftFurnishing> = frame(
+  ): ReturnType<typeof AutoMovieEngineSoftFurnishing.lowerSoftFurnishing> =>
+    AutoMovieEngineSoftFurnishing.lowerSoftFurnishing({ furnishing, domain, time: 0.5 });
+  const notRun: ReturnType<typeof AutoMovieEngineSoftFurnishing.lowerSoftFurnishing> = frame(
     softFurnishing(),
     panel({ mass: [1] }),
   );
-  const unnamed: ReturnType<typeof lowerSoftFurnishing> = frame(
+  const unnamed: ReturnType<typeof AutoMovieEngineSoftFurnishing.lowerSoftFurnishing> = frame(
     softFurnishing({ state: "shut" }),
     panel(),
   );
-  const unsupported: ReturnType<typeof lowerSoftFurnishing> = frame(
+  const unsupported: ReturnType<typeof AutoMovieEngineSoftFurnishing.lowerSoftFurnishing> = frame(
     softFurnishing(),
     panel({ selfCollision: true }),
   );
-  const resting: ReturnType<typeof lowerSoftFurnishing> = frame(
+  const resting: ReturnType<typeof AutoMovieEngineSoftFurnishing.lowerSoftFurnishing> = frame(
     softFurnishing({ mode: "rest" }),
     panel(),
   );
-  const solved: ReturnType<typeof lowerSoftFurnishing> = frame(
+  const solved: ReturnType<typeof AutoMovieEngineSoftFurnishing.lowerSoftFurnishing> = frame(
     softFurnishing({ state: "open" }),
     panel(),
   );
@@ -198,7 +194,7 @@ export function assertSoftFurnishingOwnershipAndLowering(
       [
         "mismatchedDomain",
         (): boolean => {
-          const odd: ReturnType<typeof lowerSoftFurnishing> = frame(
+          const odd: ReturnType<typeof AutoMovieEngineSoftFurnishing.lowerSoftFurnishing> = frame(
             softFurnishing({ domain: "other" }),
             panel(),
           );
@@ -229,7 +225,7 @@ export function assertSoftFurnishingOwnershipAndLowering(
 
   // The default panel steps at 1/64 s and declares 1000 of them, so its clock
   // reaches 15.625 s and no further.
-  const late: ReturnType<typeof lowerSoftFurnishing> = lowerSoftFurnishing({
+  const late: ReturnType<typeof AutoMovieEngineSoftFurnishing.lowerSoftFurnishing> = AutoMovieEngineSoftFurnishing.lowerSoftFurnishing({
     furnishing: softFurnishing(),
     domain: panel(),
     time: 16,
@@ -248,7 +244,7 @@ export function assertSoftFurnishingOwnershipAndLowering(
       [
         "lastReachable",
         (): boolean =>
-          lowerSoftFurnishing({
+          AutoMovieEngineSoftFurnishing.lowerSoftFurnishing({
             furnishing: softFurnishing(),
             domain: panel(),
             time: 15.625,
@@ -257,7 +253,7 @@ export function assertSoftFurnishingOwnershipAndLowering(
       [
         "beforeTheClock",
         (): boolean =>
-          lowerSoftFurnishing({
+          AutoMovieEngineSoftFurnishing.lowerSoftFurnishing({
             furnishing: softFurnishing(),
             domain: panel(),
             time: -4,

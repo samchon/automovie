@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanAuditMotion,
@@ -9,10 +9,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  poseBones,
-  resolveHumanPosture,
-  stand,
-} from "@automovie/motions/internal";
+  poseBones
+} from "../../../../packages/motions/src/posture/internal/poseBones";
+import {
+  resolveHumanPosture
+} from "../../../../packages/motions/src/posture/internal/resolveHumanPosture";
+import {
+  stand
+} from "../../../../packages/motions/src/actions/internal/stand";
 
 /**
  * A typed synthetic audit motion for a unit test of one audit check: one person
@@ -50,7 +54,7 @@ export function auditStanceMotion(
           IAutoMovieResolvedBone,
         ] => [
           name,
-          { ...bone, worldPosition: Vector3.add(bone.worldPosition, by) },
+          { ...bone, worldPosition: AutoMovieEngineVector3.add(bone.worldPosition, by) },
         ],
       ),
     );

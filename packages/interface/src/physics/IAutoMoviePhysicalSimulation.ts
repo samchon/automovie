@@ -5,7 +5,7 @@ import type { IAutoMoviePhysicsCache } from "./IAutoMoviePhysicsCache";
 /**
  * Completed fixed-step simulation and its solver-free replay data.
  *
- * AutoMoviePhysicalSimulation.compute admits an owned clone of sampled inputs,
+ * AutoMovieEnginePhysicalSimulation.compute admits an owned clone of sampled inputs,
  * applies simulation defaults, and publishes this view after completion.
  * Cancellation or native failure rejects without a partial successful result.
  * Native worlds and event queues are released before the promise settles;

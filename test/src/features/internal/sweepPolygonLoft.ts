@@ -1,4 +1,4 @@
-import { meshAutoMovieSweep } from "@automovie/engine";
+import { AutoMovieEngineSweep } from "@automovie/engine";
 import type {
   IAutoMovieMesh,
   IAutoMovieSweep,
@@ -6,7 +6,7 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Loft polygon sections along a path with `meshAutoMovieSweep`, the way the
+ * Loft polygon sections along a path with `meshSweep`, the way the
  * geometry tests author a profile run: corner `k` of each section meets corner
  * `k` of the next by parameter, one flat-shaded ring sits at each path point,
  * and the section plane's first axis is the first leg crossed with `+Y`, or
@@ -63,5 +63,5 @@ export function sweepPolygonLoft(props: {
     ),
     correspondence: "parameter",
   };
-  return meshAutoMovieSweep({ sweep });
+  return AutoMovieEngineSweep.meshSweep({ sweep });
 }

@@ -1,13 +1,4 @@
-import {
-  AutoMovieXpbdCollider,
-  AutoMovieXpbdWorld,
-  AutoMoviePhysicalSimulation as Simulation,
-  Vector3,
-  bindPhysicalWorld,
-  isPhysicalPairExcluded,
-  preparePhysicalContactHooks,
-  type solveXpbdContacts,
-} from "@automovie/engine";
+import { AutoMovieEngineXpbdCollider, AutoMovieEngineXpbdWorld, AutoMovieEnginePhysicalSimulation as Simulation, AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalFrame,
   IAutoMoviePhysicalJoint,
@@ -60,7 +51,7 @@ export async function test_engine_physics_xpbd_collision_exclusions(): Promise<v
         parent: parent.bone,
         child: segment.bone,
         parentFrame: {
-          position: Vector3.subtract(
+          position: AutoMovieEngineVector3.subtract(
             segment.neutral.position,
             parent.neutral.position,
           ),
@@ -110,8 +101,8 @@ export async function test_engine_physics_xpbd_collision_exclusions(): Promise<v
   const drift: (run: IAutoMoviePhysicalSimulation) => number = (
     run: IAutoMoviePhysicalSimulation,
   ): number =>
-    Vector3.length(
-      Vector3.subtract(
+    AutoMovieEngineVector3.length(
+      AutoMovieEngineVector3.subtract(
         run.cache.at(DURATION).bodies.rig!.tip!.position,
         tip.neutral.position,
       ),
@@ -169,18 +160,18 @@ function verifyHookScope(
   other.profile.collisionExclusions = [];
   input.bodies.push(other);
 
-  const world: AutoMovieXpbdWorld = new AutoMovieXpbdWorld(input.gravity);
-  const bound: ReturnType<typeof bindPhysicalWorld> = bindPhysicalWorld(
+  const world: AutoMovieEngineXpbdWorld = new AutoMovieEngineXpbdWorld(input.gravity);
+  const bound: ReturnType<typeof Simulation.bindWorld> = Simulation.bindWorld(
     world,
     input,
     false,
   );
-  const filter: solveXpbdContacts.Filter = preparePhysicalContactHooks(
+  const filter: AutoMovieEngineXpbdWorld.Filter = AutoMovieEnginePhysics.preparePhysicalContactHooks(
     input,
     bound,
   );
-  const first: AutoMovieXpbdCollider = collider("rig", "root", baseShape.id);
-  const missing: AutoMovieXpbdCollider = new AutoMovieXpbdCollider(
+  const first: AutoMovieEngineXpbdCollider = collider("rig", "root", baseShape.id);
+  const missing: AutoMovieEngineXpbdCollider = new AutoMovieEngineXpbdCollider(
     Number.POSITIVE_INFINITY,
     first.body,
     baseShape,
@@ -240,7 +231,7 @@ function verifyHookScope(
   const otherTip: number = collider("other", "tip").handle;
   TestValidator.equals(
     "the live public lookup keeps undeclared self contact",
-    isPhysicalPairExcluded(input, bound, otherRoot, otherTip),
+    AutoMovieEnginePhysics.isPhysicalPairExcluded(input, bound, otherRoot, otherTip),
     false,
   );
   other.profile.collisionExclusions.push({
@@ -250,7 +241,7 @@ function verifyHookScope(
   });
   TestValidator.equals(
     "the live public lookup observes mutable caller data",
-    isPhysicalPairExcluded(input, bound, otherRoot, otherTip),
+    AutoMovieEnginePhysics.isPhysicalPairExcluded(input, bound, otherRoot, otherTip),
     true,
   );
 
@@ -259,7 +250,7 @@ function verifyHookScope(
     id: string,
     bone: string,
     shape?: string,
-  ): AutoMovieXpbdCollider {
+  ): AutoMovieEngineXpbdCollider {
     for (const [key, side] of bound.colliders)
       if (
         side.body === id &&
@@ -267,7 +258,7 @@ function verifyHookScope(
         (shape === undefined || side.shape === shape)
       )
         return world.colliders.find(
-          (candidate: AutoMovieXpbdCollider): boolean =>
+          (candidate: AutoMovieEngineXpbdCollider): boolean =>
             candidate.handle === key,
         )!;
     throw new Error(`Missing test collider ${id}/${bone}/${shape ?? ""}`);
@@ -280,10 +271,10 @@ interface IPairCase {
   label: string;
 
   /** The first collider. */
-  a: AutoMovieXpbdCollider;
+  a: AutoMovieEngineXpbdCollider;
 
   /** The second collider. */
-  b: AutoMovieXpbdCollider;
+  b: AutoMovieEngineXpbdCollider;
 
   /** Whether the pair must never touch. */
   veto: boolean;

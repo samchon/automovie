@@ -1,8 +1,8 @@
 import {
-  AutoMovieConicArc,
-  AutoMovieConicFieldJet,
-  AutoMovieConicHermite,
-  AutoMovieConicHermiteField,
+  AutoMovieEngineConicArc,
+  AutoMovieEngineConicFieldJet,
+  AutoMovieEngineConicHermite,
+  AutoMovieEngineConicHermiteField,
 } from "@automovie/engine";
 import type {
   IAutoMovieConicArc,
@@ -31,18 +31,18 @@ import { ConstructionConicOracle } from "../../internal/construction/Constructio
  *    near both ends and at 33 interior shares equal the independent implicit
  *    ellipse's within 2e-9 (the oracle's comparison); a made 0.01 slope error
  *    is rejected by the same comparison.
- * 2. G2 preparations (`AutoMovieConicHermite.create(1, 1, sqrt 2 - 1, tau)`) with
+ * 2. G2 preparations (`AutoMovieEngineConicHermite.create(1, 1, sqrt 2 - 1, tau)`) with
  *    tau from 1e-12 to 1e-240 give a circle: the radius within 1e-7 of 1, and
  *    the polar curvature numerator nonnegative to 256 epsilon of its size, at
  *    seven shares of the arc.
- * 3. The projective readings (`AutoMovieConicHermiteField.projective`) of a patch
+ * 3. The projective readings (`AutoMovieEngineConicHermiteField.projective`) of a patch
  *    at clocks -700, 0 and 700 in the plain and the source-Hessian algebras:
  *    the clocked logarithms equal log w_i + i clock (plus log 3 on the two
  *    inner controls) minus the logarithm of the sum of their exponentials,
  *    computed independently with the largest subtracted, within 1e-9 of their
  *    size; at most four primal reads are spent; two queries share no result
  *    array.
- * 4. Raw rays (`AutoMovieConicArc.locate`) at aspects and scales 0.001, 1 and
+ * 4. Raw rays (`AutoMovieEngineConicArc.locate`) at aspects and scales 0.001, 1 and
  *    1000, shoulders 1e-12 to 1 - epsilon and six phases are found with a
  *    native parameter; at shoulder sqrt 2 - 1 (the exact ellipse) the point,
  *    the unit tangent and the radial jet equal the implicit ellipse's within
@@ -97,7 +97,7 @@ export function test_engine_geometry_conic_projective(): void {
             ConstructionConicOracle.compare(
               findings,
               `ellipse ${aspect}/${reverse}/${scale}/${k}/${share}`,
-              AutoMovieConicHermite.radius(patch, share * patch.angle),
+              AutoMovieEngineConicHermite.radius(patch, share * patch.angle),
               ConstructionConicOracle.ellipse(a, b, share * patch.angle),
               scale,
               2e-9,
@@ -128,11 +128,11 @@ export function test_engine_geometry_conic_projective(): void {
   const E: number = Math.SQRT2 - 1;
   for (const tau of [1e-12, 1e-30, 1e-60, 1e-120, 1e-240]) {
     const prepared: IAutoMovieConicHermite.IPatch | string | null =
-      AutoMovieConicHermite.create(1, 1, E, tau);
+      AutoMovieEngineConicHermite.create(1, 1, E, tau);
     if (prepared === null || typeof prepared === "string")
       throw new Error(`G2 fixture ${tau}: ${prepared}`);
     for (const share of [0, 0.01, 0.1, 0.5, 0.9, 0.99, 1]) {
-      const jet: IAutoMoviePolarSector.Jet = AutoMovieConicHermite.radius(
+      const jet: IAutoMoviePolarSector.Jet = AutoMovieEngineConicHermite.radius(
         prepared,
         share * prepared.angle,
       );
@@ -187,7 +187,7 @@ export function test_engine_geometry_conic_projective(): void {
     };
     const weights: T[] = patch.weights.map((value: T): T => ops.log(value));
     const actual: IAutoMovieConicHermiteField.IProjective<T> =
-      AutoMovieConicHermiteField.projective(counted, patch, weights, clock);
+      AutoMovieEngineConicHermiteField.projective(counted, patch, weights, clock);
     TestValidator.predicate(`${label} primal reads`, reads <= 4);
     const logs: number[] = independentLogs(first, clock);
     logs.forEach((expectedLog: number, i: number): void => {
@@ -198,7 +198,7 @@ export function test_engine_geometry_conic_projective(): void {
       );
     });
     const next: IAutoMovieConicHermiteField.IProjective<T> =
-      AutoMovieConicHermiteField.projective(ops, patch, weights, clock);
+      AutoMovieEngineConicHermiteField.projective(ops, patch, weights, clock);
     TestValidator.predicate(
       `${label} separate point arrays`,
       actual.point !== next.point,
@@ -210,7 +210,7 @@ export function test_engine_geometry_conic_projective(): void {
   };
   for (const [k, patch] of patches) {
     const ops: IAutoMovieConicFieldJet.IAlgebra<IAutoMovieConicFieldJet.IJet> =
-      AutoMovieConicFieldJet.AD;
+      AutoMovieEngineConicFieldJet.AD;
     const source: IAutoMovieConicHermite.IPatch<IAutoMovieConicFieldJet.IJet> =
       {
         ...patch,
@@ -240,7 +240,7 @@ export function test_engine_geometry_conic_projective(): void {
       };
     for (const clock of [-700, 0, 700]) {
       projective(
-        AutoMovieConicFieldJet.NUMBER,
+        AutoMovieEngineConicFieldJet.NUMBER,
         patch,
         patch,
         clock,
@@ -271,7 +271,7 @@ export function test_engine_geometry_conic_projective(): void {
           Math.PI / 2,
         ]) {
           const a: number = aspect * scale;
-          const ray: IAutoMovieConicArc.IRay | null = AutoMovieConicArc.locate(
+          const ray: IAutoMovieConicArc.IRay | null = AutoMovieEngineConicArc.locate(
             a,
             scale,
             r,
@@ -282,7 +282,7 @@ export function test_engine_geometry_conic_projective(): void {
             `${label} found`,
             ray !== null && ray.native !== null,
           );
-          const next: IAutoMovieConicArc.IRay | null = AutoMovieConicArc.locate(
+          const next: IAutoMovieConicArc.IRay | null = AutoMovieEngineConicArc.locate(
             a,
             scale,
             r,

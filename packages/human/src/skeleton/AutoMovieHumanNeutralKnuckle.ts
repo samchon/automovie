@@ -12,18 +12,17 @@ import { AutoMovieHumanSkeletonMath as Math3D } from "./AutoMovieHumanSkeletonMa
 /**
  * A finger's metacarpophalangeal neutral: the proximal phalanx extended along
  * the hand (Neutral-0: the extended position is the zero of every finger
- * motion), the fingers side by side at the least spread at which their skins
- * do not cross.
+ * motion), the fingers side by side at the least spread at which their skins do
+ * not cross.
  *
  * Extended fingers laid parallel at the knuckles' own spacing cross wherever
  * two neighbours are together thicker than the knuckles stand apart, so, as the
  * resting arm clears the trunk, each pair of neighbours parts by the least
  * angle in the palm's plane at which their skins meet and no more: at each
  * depth of a finger's shaft the axes' gap grows by the depth times the sine of
- * the angle, and it must reach the two fingers' radii at that depth.
- * The middle finger is the hand's axis and stays on it; the index parts
- * radially, the ring and the little ulnarly, each from its neighbour nearer the
- * middle.
+ * the angle, and it must reach the two fingers' radii at that depth. The middle
+ * finger is the hand's axis and stays on it; the index parts radially, the ring
+ * and the little ulnarly, each from its neighbour nearer the middle.
  */
 export namespace AutoMovieHumanNeutralKnuckle {
   /** The fingers, radial to ulnar. */
@@ -38,7 +37,8 @@ export namespace AutoMovieHumanNeutralKnuckle {
    * Each finger's line at neutral.
    *
    * @param body The bind skeleton.
-   * @param rings The skin; the side's finger chains `finger.<side>.<name>` are read.
+   * @param rings The skin; the side's finger chains `finger.<side>.<name>` are
+   *   read.
    * @param side Which hand.
    * @param hand The hand's world turn.
    * @param down The arm's unit direction at neutral, the middle finger's line.
@@ -81,13 +81,10 @@ export namespace AutoMovieHumanNeutralKnuckle {
     );
 
     // The least parting of each neighbouring pair, radians.
-    const part: (
+    function part(
       a: IAutoMovieHumanNeutralKnuckle.IFinger,
       b: IAutoMovieHumanNeutralKnuckle.IFinger,
-    ) => number = (
-      a: IAutoMovieHumanNeutralKnuckle.IFinger,
-      b: IAutoMovieHumanNeutralKnuckle.IFinger,
-    ): number => {
+    ): number {
       const gap: number = Math.abs(
         Turn.dot(Math3D.sub(a.knuckle, b.knuckle), across),
       );
@@ -98,7 +95,7 @@ export namespace AutoMovieHumanNeutralKnuckle {
           most = Math.max(most, Math.asin(Math.min(1, need / depth)));
       });
       return most;
-    };
+    }
     const angles: number[] = [
       part(read4[0]!, read4[1]!),
       0,
@@ -147,7 +144,9 @@ export namespace AutoMovieHumanNeutralKnuckle {
     return Turn.straighten(body, `${side}${finger}Proximal`, hand, line);
   }
 
-  /** A finger's radius at a depth: its shaft ring nearest that depth. */
+  /*
+   * A finger's radius at a depth: its shaft ring nearest that depth.
+   */
   function radiusAt(
     finger: IAutoMovieHumanNeutralKnuckle.IFinger,
     depth: number,
@@ -160,7 +159,7 @@ export namespace AutoMovieHumanNeutralKnuckle {
     return finger.radii[best] ?? 0;
   }
 
-  /**
+  /*
    * One finger's skin: its knuckle and its shaft rings' depths and radii, or
    * null without its chain.
    */

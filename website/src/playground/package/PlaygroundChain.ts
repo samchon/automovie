@@ -1,10 +1,10 @@
+import { AutoMovieEngineScheduleCut } from "@automovie/engine";
 import type {
   AutoMovieHumanSex,
   IAutoMovieComposition,
 } from "@automovie/interface";
-import * as motions from "@automovie/motions";
-import { HUMAN_ACTIONS, HumanChain } from "@automovie/motions";
-import * as internal from "@automovie/motions/internal";
+import { AutoMovieMotionHumanActions, AutoMovieMotionHumanChain } from "@automovie/motions";
+import { MotionInventory } from "../../motions/package/MotionInventory";
 
 import { PLAYGROUND_BODIES } from "../data/PLAYGROUND_BODIES";
 import { playgroundActionParams } from "../data/playgroundActionParams";
@@ -13,7 +13,7 @@ import { PlaygroundObjects } from "./PlaygroundObjects";
 
 /**
  * Turns the playground's composition data into the composition
- * `HumanPerformance` takes, through `HumanChain`.
+ * `AutoMovieMotionHumanPerformance` takes, through `AutoMovieMotionHumanChain`.
  *
  * The data names actions by text, so the chain is driven through the
  * untyped shape below rather than its typed methods. What the installed
@@ -34,7 +34,7 @@ export namespace PlaygroundChain {
     registered?(name: string, params: object, anchor?: string): ILoose;
 
     /** Cut the last action. */
-    until(until: object): ILoose;
+    until(until: IPlaygroundComposition.IAction["until"]): ILoose;
 
     /** Time the last action to an instant. */
     sync?(sync: object): ILoose;
@@ -71,15 +71,10 @@ export namespace PlaygroundChain {
     ): { name: string };
   }
 
-  /** The package's exports by name, for the tables only some releases have. */
-  const EXPORTS: Readonly<Record<string, unknown>> = {
-    ...(motions as Readonly<Record<string, unknown>>),
-    ...(internal as Readonly<Record<string, unknown>>),
-  };
 
   /** A chain's prototype, which shows the operators the installed package has. */
   const PROTOTYPE: Record<string, unknown> =
-    HumanChain.prototype as unknown as Record<string, unknown>;
+    AutoMovieMotionHumanChain.prototype as unknown as Record<string, unknown>;
 
   /** What a built composition needs beside its node. */
   export interface IBuilt {
@@ -106,7 +101,7 @@ export namespace PlaygroundChain {
    * @returns Each family's law records by family name; empty when the package has no such table.
    */
   export function lexicon(): Record<string, ILaw[]> {
-    const table: unknown = EXPORTS["HUMAN_LEXICON"];
+    const table: unknown = MotionInventory.lexicon();
     if (typeof table !== "object" || table === null) return {};
     return table as Record<string, ILaw[]>;
   }
@@ -118,23 +113,14 @@ export namespace PlaygroundChain {
    * @returns Each law by its name.
    */
   export function exported(): Map<string, ILaw> {
-    const found: Map<string, ILaw> = new Map();
-    for (const value of Object.values(EXPORTS))
-      if (
-        typeof value === "object" &&
-        value !== null &&
-        typeof (value as ILaw).name === "string" &&
-        typeof (value as { plan?: unknown }).plan === "function"
-      )
-        found.set((value as ILaw).name, value as ILaw);
-    return found;
+    return MotionInventory.exported();
   }
 
   /**
    * The laws available by the name a composition supplies. A lexicon row
    * takes precedence if the released package also exposes that name directly.
    *
-   * @returns Laws that can be appended by HumanChain.registered.
+   * @returns Laws that can be appended by AutoMovieMotionHumanChain.registered.
    */
   export function registeredLaws(): ReadonlyMap<string, ILaw> {
     const laws: Map<string, ILaw> = exported();
@@ -172,36 +158,7 @@ export namespace PlaygroundChain {
    * @returns The action and its public expression for each name.
    */
   export function mutualExports(): Record<string, IMutualExport> {
-    const join: unknown = (HumanChain as unknown as Record<string, unknown>)[
-      "mutual"
-    ];
-    if (typeof join !== "function") return {};
-    const found: Record<string, IMutualExport> = {};
-    const register = (value: unknown, expression: string): void => {
-      if (
-        typeof value === "object" &&
-        value !== null &&
-        typeof (value as IMutual).name === "string" &&
-        Array.isArray((value as IMutual).roles) &&
-        typeof (value as IMutual).act === "function"
-      ) {
-        const record: IMutual = value as IMutual;
-        found[record.name] = { record, expression };
-      }
-    };
-    for (const [key, space] of Object.entries(EXPORTS)) {
-      if (typeof space !== "object" || space === null) continue;
-      register(space, key);
-      for (const [member, value] of Object.entries(space)) {
-        register(value, `${key}.${member}`);
-        // A family namespace holds a law that carries its mutual action, as
-        // `AutoMovieMotionHumanCarryPerson.HumanAssistedTransfer.mutual`.
-        if (typeof value !== "object" || value === null) continue;
-        for (const [inner, nested] of Object.entries(value))
-          register(nested, `${key}.${member}.${inner}`);
-      }
-    }
-    return found;
+    return MotionInventory.mutualExports();
   }
 
   /**
@@ -234,19 +191,20 @@ export namespace PlaygroundChain {
       // A released row or standalone law is registered with the performance
       // and appended by name. Other names go to act for normal SDK admission.
       const row: ILaw | undefined =
-        action.name in HUMAN_ACTIONS ? undefined : rows.get(action.name);
+        action.name in AutoMovieMotionHumanActions ? undefined : rows.get(action.name);
       let next: ILoose;
       if (row !== undefined && chain.registered !== undefined) {
         laws.set(row.name, row);
         next = chain.registered(action.name, params, action.anchor);
       } else next = chain.act(action.name, params, action.anchor);
 
-      if (action.until !== undefined) next = next.until(action.until);
+      if (action.until !== undefined)
+        next = next.until(AutoMovieEngineScheduleCut.normalize(action.until));
 
       if (action.over !== undefined && action.over.length !== 0) {
         if (next.over === undefined)
           throw new Error(
-            "The installed @automovie/motions has no HumanChain.over, so one action cannot be performed over another yet",
+            "The installed @automovie/motions has no AutoMovieMotionHumanChain.over, so one action cannot be performed over another yet",
           );
         const overlaid: IPlaygroundComposition.IAction[] = action.over;
         next = next.over(
@@ -262,7 +220,7 @@ export namespace PlaygroundChain {
       if (action.sync !== undefined) {
         if (next.sync === undefined)
           throw new Error(
-            "The installed @automovie/motions has no HumanChain.sync, so an action cannot be timed to another instant yet",
+            "The installed @automovie/motions has no AutoMovieMotionHumanChain.sync, so an action cannot be timed to another instant yet",
           );
         next = next.sync(action.sync);
       }
@@ -270,7 +228,7 @@ export namespace PlaygroundChain {
     };
 
     const empty = (subject: string): ILoose =>
-      HumanChain.subject(subject) as unknown as ILoose;
+      AutoMovieMotionHumanChain.subject(subject) as unknown as ILoose;
     const chains: ILoose[] = data.performers
       .filter(
         (performer: IPlaygroundComposition.IPerformer): boolean =>
@@ -290,7 +248,7 @@ export namespace PlaygroundChain {
 
     // Every person's chain runs at once; each mutual action follows them all.
     const known: Record<string, IMutual> = mutuals();
-    const join = (HumanChain as unknown as Record<string, unknown>)[
+    const join = (AutoMovieMotionHumanChain as unknown as Record<string, unknown>)[
       "mutual"
     ] as
       | ((
@@ -326,7 +284,7 @@ export namespace PlaygroundChain {
         // performance, as the mutual's own documentation asks.
         for (const role of record.roles) {
           const name: string = record.act(role, params, mutual.cast).name;
-          if (name in HUMAN_ACTIONS) continue;
+          if (name in AutoMovieMotionHumanActions) continue;
           const law: ILaw | undefined = rows.get(name);
           if (law !== undefined) laws.set(law.name, law);
         }

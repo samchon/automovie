@@ -1,9 +1,11 @@
-import { parseAutoMovieInspectionRequest } from "@automovie/render";
-import { changesAutoMovieObservedScene } from "@automovie/viewer/internal";
+import { AutoMovieRenderInspectionRequest } from "@automovie/render";
+import {
+  changesObservedScene
+} from "../../../../../packages/viewer/src/inspector/internal/changesObservedScene";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `changesAutoMovieObservedScene` is true when an inspection changes the scene
+ * `changesObservedScene` is true when an inspection changes the scene
  * an observer would read.
  *
  * Scenarios:
@@ -15,9 +17,9 @@ import { TestValidator } from "@nestia/e2e";
 export function test_viewer_inspector_changes_observed_scene(): void {
   const inspection = (
     entries: [string, string][],
-  ): ReturnType<typeof parseAutoMovieInspectionRequest> => {
+  ): ReturnType<typeof AutoMovieRenderInspectionRequest.parseRequest> => {
     const values: Map<string, string> = new Map<string, string>(entries);
-    return parseAutoMovieInspectionRequest((key: string): string | undefined =>
+    return AutoMovieRenderInspectionRequest.parseRequest((key: string): string | undefined =>
       values.get(key),
     );
   };
@@ -27,7 +29,7 @@ export function test_viewer_inspector_changes_observed_scene(): void {
   ][][])
     TestValidator.equals(
       JSON.stringify(entries),
-      changesAutoMovieObservedScene(inspection(entries)),
+      changesObservedScene(inspection(entries)),
       false,
     );
   for (const entries of [
@@ -42,7 +44,7 @@ export function test_viewer_inspector_changes_observed_scene(): void {
   ] satisfies [string, string][][])
     TestValidator.equals(
       JSON.stringify(entries),
-      changesAutoMovieObservedScene(inspection(entries)),
+      changesObservedScene(inspection(entries)),
       true,
     );
 }

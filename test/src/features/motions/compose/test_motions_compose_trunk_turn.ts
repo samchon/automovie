@@ -4,9 +4,11 @@ import type {
   IAutoMovieMotionHumanPrimitive,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionClock,
-  AutoMovieMotionHumanTrunk,
-} from "@automovie/motions/internal";
+  motionClock
+} from "../../../../../packages/motions/src/compose/internal/motionClock";
+import {
+  AutoMovieMotionHumanTrunk
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanTrunk";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -21,7 +23,7 @@ import { nclose } from "../../internal/nclose";
  * 2. Check the other two axes and the supporting root at each sample.
  */
 export function test_motions_compose_trunk_turn(): void {
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock(1, [
+  const clock: IAutoMovieMotionClock = motionClock(1, [
     { name: "apex", seconds: 0.25 },
     { name: "release", seconds: 0.75 },
   ]);

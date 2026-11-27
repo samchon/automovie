@@ -1,9 +1,9 @@
-import { jump as jumpLaw } from "../actions/jump";
-import { HumanAirborneShape as HumanAirborneShapeSource } from "../lexicon/HumanAirborneShape";
-import { highJump as highJumpLaw } from "../sport/highJump";
-import { horizontalJump as horizontalJumpLaw } from "../sport/horizontalJump";
-import { hurdleClear as hurdleClearLaw } from "../sport/hurdleClear";
-import { poleVault as poleVaultLaw } from "../sport/poleVault";
+import { jump as jumpLaw } from "../actions/internal/jump";
+import { HumanAirborneShape as HumanAirborneShapeSource } from "../lexicon/internal/HumanAirborneShape";
+import { AutoMovieMotionHumanHighJump as highJumpLaw } from "../sport/internal/AutoMovieMotionHumanHighJump";
+import { horizontalJump as horizontalJumpLaw } from "../sport/internal/horizontalJump";
+import { hurdleClear as hurdleClearLaw } from "../sport/internal/hurdleClear";
+import { AutoMovieMotionHumanPoleVault as poleVaultLaw } from "../sport/poleVault/AutoMovieMotionHumanPoleVault";
 
 /**
  * The flight laws: a push-off, a flight under gravity and a landing. A flight
@@ -191,7 +191,7 @@ export namespace AutoMovieMotionHumanJump {
    * the pole, lets go as the pole stands upright, and flies on to come down
    * lying on the landing surface.
    *
-   * The pole is a held prop (`AutoMovieMotionHumanHeld`): taken up before, in
+   * The pole is a held prop (`motionHumanHeld`): taken up before, in
    * one hand or two (a vaulter's top hand and lower hand), and rigid in them.
    * Its planted end is the prop's `tip` affordance, or the one named.
    *

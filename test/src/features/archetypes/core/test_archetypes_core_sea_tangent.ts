@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeSea } from "@automovie/archetypes";
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type { IAutoMovieTransform } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -37,7 +37,7 @@ export function test_archetypes_core_sea_tangent(): void {
   TestValidator.predicate(
     "the yawed deck lies on the same tangent plane",
     vclose(
-      Quaternion.rotateVector(floated.rotation, { x: 0, y: 1, z: 0 }),
+      AutoMovieEngineQuaternion.rotateVector(floated.rotation, { x: 0, y: 1, z: 0 }),
       { x: -2 / length, y: 4 / length, z: 1 / length },
       TANGENT_ROUNDING,
     ),

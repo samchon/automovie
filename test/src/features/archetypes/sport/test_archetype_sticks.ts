@@ -1,4 +1,4 @@
-import { createStick } from "@automovie/archetypes";
+import { AutoMovieArchetypeStick } from "@automovie/archetypes";
 import type { IAutoMovieAffordance } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -36,7 +36,7 @@ export function test_archetype_sticks(): void {
       {
         name: "ice hockey blade height",
         measure: (seed: number): number =>
-          archetypeExtent(createStick({ kind: "iceHockey" }, seed), "y", [
+          archetypeExtent(AutoMovieArchetypeStick.create({ kind: "iceHockey" }, seed), "y", [
             "blade",
           ]).size,
         minimum: 0.05,
@@ -45,7 +45,7 @@ export function test_archetype_sticks(): void {
       },
     ]),
   );
-  const hockey: ReturnType<typeof createStick> = createStick(
+  const hockey: ReturnType<typeof AutoMovieArchetypeStick.create> = AutoMovieArchetypeStick.create(
     { kind: "iceHockey" },
     3,
   );
@@ -53,7 +53,7 @@ export function test_archetype_sticks(): void {
   near("the ice hockey blade's length", archetypeExtent(hockey, "x", ["blade"]).size, 0.32);
 
   // 2. The field hockey stick.
-  const field: ReturnType<typeof createStick> = createStick(
+  const field: ReturnType<typeof AutoMovieArchetypeStick.create> = AutoMovieArchetypeStick.create(
     { kind: "fieldHockey" },
     3,
   );
@@ -63,7 +63,7 @@ export function test_archetype_sticks(): void {
       findings.push(`the field hockey shaft does not pass the 51 mm ring along ${axis}`);
 
   // 3. The cricket bat.
-  const bat: ReturnType<typeof createStick> = createStick(
+  const bat: ReturnType<typeof AutoMovieArchetypeStick.create> = AutoMovieArchetypeStick.create(
     { kind: "cricketBat" },
     3,
   );

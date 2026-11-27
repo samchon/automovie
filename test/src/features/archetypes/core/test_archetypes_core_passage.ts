@@ -3,7 +3,7 @@ import {
   AutoMovieArchetypePassage,
   AutoMovieArchetypeRefusal,
 } from "@automovie/archetypes";
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieCrowdAgent,
   IAutoMovieVector3,
@@ -64,7 +64,7 @@ function plan(
         reverse: false,
         placement: {
           translation: position(seconds),
-          rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
+          rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
           scale: { x: 1, y: 1, z: 1 },
         },
       };

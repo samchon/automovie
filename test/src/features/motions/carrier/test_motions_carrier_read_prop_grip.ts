@@ -1,10 +1,15 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanMountRider,
   IAutoMovieMotionTarget,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanRefusal, readPropGrip } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  readPropGrip
+} from "../../../../../packages/motions/src/carrier/internal/readPropGrip";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../../internal/vclose";
@@ -29,7 +34,7 @@ const ROUNDING: number = 1e-12;
  * 3. A `knob` point is refused on `bar`.
  */
 export function test_motions_carrier_read_prop_grip(): void {
-  const quarter = Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90);
+  const quarter = AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90);
   const asked: { target: IAutoMovieMotionTarget; seconds: number }[] = [];
   const context: readPropGrip.IContext = {
     prop: (): readPropGrip.IReader => ({
@@ -97,7 +102,7 @@ export function test_motions_carrier_read_prop_grip(): void {
   try {
     readPropGrip(context, "bar", "knob", 0, "bar");
   } catch (error: unknown) {
-    if (error instanceof HumanRefusal) axis = error.axis;
+    if (error instanceof AutoMovieMotionHumanRefusal) axis = error.axis;
   }
   TestValidator.equals("an undeclared point", axis, "bar");
 }

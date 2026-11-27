@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanGesture } from "@automovie/interface";
 
-/**
+/*
  * The values the `countFour` row of `HumanEmblem` fixes on `gesture`, spread
  * into its parameters. Counting four on the fingers.
  */

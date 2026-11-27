@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
@@ -6,9 +6,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanLean,
-  humanPostureHeading,
-} from "@automovie/motions/internal";
+  AutoMovieMotionHumanLean
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanLean";
+import {
+  humanPostureHeading
+} from "../../../../../packages/motions/src/posture/internal/humanPostureHeading";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -48,9 +50,9 @@ export async function test_motions_compose_lean_bow(): Promise<void> {
     limbs: {},
   };
   const hip = (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 =>
-    Vector3.add(
+    AutoMovieEngineVector3.add(
       posture.root,
-      Quaternion.rotateVector(
+      AutoMovieEngineQuaternion.rotateVector(
         humanPostureHeading(posture),
         body.rest.get("hips")!,
       ),
@@ -73,7 +75,7 @@ export async function test_motions_compose_lean_bow(): Promise<void> {
     "the hips move back along the heading",
     vclose(
       hip(AutoMovieMotionHumanLean.tip(body, standing, 30, 0.05)),
-      Vector3.add(hip(standing), { x: -0.05, y: 0, z: 0 }),
+      AutoMovieEngineVector3.add(hip(standing), { x: -0.05, y: 0, z: 0 }),
       ROUNDING,
     ),
   );

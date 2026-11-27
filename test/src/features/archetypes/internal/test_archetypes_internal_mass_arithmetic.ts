@@ -1,4 +1,6 @@
-import { ArchetypeMassArithmetic } from "@automovie/archetypes/internal";
+import {
+  ArchetypeMassArithmetic
+} from "../../../../../packages/archetypes/src/core/internal/ArchetypeMassArithmetic";
 import { TestValidator } from "@nestia/e2e";
 
 /** Mass arithmetic rounds the physical result at binary64 boundaries. */

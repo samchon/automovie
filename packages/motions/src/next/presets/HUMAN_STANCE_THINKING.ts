@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanStance } from "@automovie/interface";
 
-/**
+/*
  * The thinking preset of `rest`: The thinker: the left hand supporting the
  * other elbow, the right fist under the chin. Spread into `rest`'s parameters
  * with the hold; the `thinking` row of `HumanStance` fixes these places. Where

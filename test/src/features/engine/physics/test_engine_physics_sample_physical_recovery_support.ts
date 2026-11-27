@@ -1,4 +1,4 @@
-import { samplePhysicalRecoverySupport } from "@automovie/engine";
+import { AutoMovieEnginePhysics } from "@automovie/engine";
 import type { IAutoMoviePhysicalRecoveryState } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -51,19 +51,19 @@ export function test_engine_physics_sample_physical_recovery_support(): void {
   };
   TestValidator.predicate(
     "planned time cannot invent an early landing",
-    samplePhysicalRecoverySupport(state, "first", 0.8).active &&
-      samplePhysicalRecoverySupport(state, "first", 0.8).offset.x === 0,
+    AutoMovieEnginePhysics.samplePhysicalRecoverySupport(state, "first", 0.8).active &&
+      AutoMovieEnginePhysics.samplePhysicalRecoverySupport(state, "first", 0.8).offset.x === 0,
   );
   TestValidator.predicate(
     "completed landing retains endpoint and body goal adjustments",
-    !samplePhysicalRecoverySupport(state, "first", 1.1).active &&
-      samplePhysicalRecoverySupport(state, "first", 1.1).offset.x === 0.2 &&
-      samplePhysicalRecoverySupport(state, "second", 1.1).offset.x === 0.1,
+    !AutoMovieEnginePhysics.samplePhysicalRecoverySupport(state, "first", 1.1).active &&
+      AutoMovieEnginePhysics.samplePhysicalRecoverySupport(state, "first", 1.1).offset.x === 0.2 &&
+      AutoMovieEnginePhysics.samplePhysicalRecoverySupport(state, "second", 1.1).offset.x === 0.1,
   );
   TestValidator.predicate(
     "authored handoff and actual timeout end their ownership",
-    samplePhysicalRecoverySupport(state, "first", 1.3).offset.x === 0.1 &&
-      samplePhysicalRecoverySupport(state, "second", 2.5).active &&
-      !samplePhysicalRecoverySupport(state, "second", 2.6).active,
+    AutoMovieEnginePhysics.samplePhysicalRecoverySupport(state, "first", 1.3).offset.x === 0.1 &&
+      AutoMovieEnginePhysics.samplePhysicalRecoverySupport(state, "second", 2.5).active &&
+      !AutoMovieEnginePhysics.samplePhysicalRecoverySupport(state, "second", 2.6).active,
   );
 }

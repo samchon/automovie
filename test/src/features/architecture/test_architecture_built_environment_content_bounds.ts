@@ -1,9 +1,4 @@
-import {
-  builtEnvironmentContainsPoint,
-  builtEnvironmentSpaceContentBounds,
-  builtEnvironmentSpaceNodes,
-  validateBuiltEnvironment,
-} from "@automovie/engine";
+import { AutoMovieEngineBuiltEnvironment, AutoMovieEngineArchitecture } from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieConvexSpaceCell,
@@ -290,12 +285,12 @@ export function test_architecture_built_environment_content_bounds(): void {
   const closed: IAutoMovieBuiltEnvironment = residence();
   TestValidator.equals(
     "the stair-hall record validates",
-    validateBuiltEnvironment({ environment: closed }).success,
+    AutoMovieEngineArchitecture.validateBuiltEnvironment({ environment: closed }).success,
     true,
   );
 
   const ground: IAutoMovieSubjectBox | null =
-    builtEnvironmentSpaceContentBounds(closed, "stair-ground");
+    AutoMovieEngineBuiltEnvironment.environmentSpaceContentBounds(closed, "stair-ground");
   TestValidator.equals(
     "the box is the staged contents, not the declared cell",
     namedFacts([
@@ -313,7 +308,7 @@ export function test_architecture_built_environment_content_bounds(): void {
       [
         "sameElementsAsTheNodeQuery",
         (): boolean =>
-          builtEnvironmentSpaceNodes(closed, "stair-ground").join(",") ===
+          AutoMovieEngineBuiltEnvironment.environmentSpaceNodes(closed, "stair-ground").join(",") ===
           [
             "residence/stair-tower-west",
             "residence/stair-tower-east",
@@ -337,7 +332,7 @@ export function test_architecture_built_environment_content_bounds(): void {
       [
         "cornerIsInTheSpace",
         (): boolean =>
-          builtEnvironmentContainsPoint(closed, "stair-ground", {
+          AutoMovieEngineBuiltEnvironment.environmentContainsPoint(closed, "stair-ground", {
             x: 4.1,
             y: 1.62,
             z: 6.1,
@@ -351,7 +346,7 @@ export function test_architecture_built_environment_content_bounds(): void {
         "centreOfTheContentIsInTheSpace",
         (): boolean =>
           ground !== null &&
-          builtEnvironmentContainsPoint(closed, "stair-ground", {
+          AutoMovieEngineBuiltEnvironment.environmentContainsPoint(closed, "stair-ground", {
             x: (ground.min.x + ground.max.x) / 2,
             y: (ground.min.y + ground.max.y) / 2,
             z: (ground.min.z + ground.max.z) / 2,
@@ -366,7 +361,7 @@ export function test_architecture_built_environment_content_bounds(): void {
   );
 
   const landing: IAutoMovieSubjectBox | null =
-    builtEnvironmentSpaceContentBounds(closed, "stair-landing");
+    AutoMovieEngineBuiltEnvironment.environmentSpaceContentBounds(closed, "stair-landing");
   TestValidator.equals(
     "a descendant space is measured on its own, referenced models included",
     namedFacts([
@@ -386,7 +381,7 @@ export function test_architecture_built_environment_content_bounds(): void {
   );
 
   const opened: IAutoMovieSubjectBox | null =
-    builtEnvironmentSpaceContentBounds(residence("open"), "stair-ground");
+    AutoMovieEngineBuiltEnvironment.environmentSpaceContentBounds(residence("open"), "stair-ground");
   TestValidator.equals(
     "an opened leaf is measured where it rests, not where it was authored",
     namedFacts([
@@ -408,8 +403,8 @@ export function test_architecture_built_environment_content_bounds(): void {
   TestValidator.equals(
     "a space holding nothing answers null beside an empty node list",
     {
-      bounds: builtEnvironmentSpaceContentBounds(closed, "west-wing"),
-      nodes: builtEnvironmentSpaceNodes(closed, "west-wing"),
+      bounds: AutoMovieEngineBuiltEnvironment.environmentSpaceContentBounds(closed, "west-wing"),
+      nodes: AutoMovieEngineBuiltEnvironment.environmentSpaceNodes(closed, "west-wing"),
     },
     { bounds: null, nodes: [] },
   );
@@ -418,7 +413,7 @@ export function test_architecture_built_environment_content_bounds(): void {
     "an undeclared logical space is refused by name",
     throwsError(
       (): IAutoMovieSubjectBox | null =>
-        builtEnvironmentSpaceContentBounds(closed, "cellar"),
+        AutoMovieEngineBuiltEnvironment.environmentSpaceContentBounds(closed, "cellar"),
       ['has no logical space "cellar"'],
     ),
     true,

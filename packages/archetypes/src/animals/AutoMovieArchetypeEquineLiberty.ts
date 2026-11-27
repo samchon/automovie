@@ -13,21 +13,8 @@ import { AutoMovieArchetypeQuadrupedLateralRest } from "./AutoMovieArchetypeQuad
 import type { AutoMovieArchetypeQuadrupedLateralRestPlan } from "./AutoMovieArchetypeQuadrupedLateralRestPlan";
 import { AutoMovieArchetypeQuadrupedRest } from "./AutoMovieArchetypeQuadrupedRest";
 import type { AutoMovieArchetypeQuadrupedRestPlan } from "./AutoMovieArchetypeQuadrupedRestPlan";
-import { QuadrupedCarriage } from "./QuadrupedCarriage";
-import { createQuadruped } from "./createQuadruped";
-
-/** A rest clip, sternal or lateral. */
-type Clip<Id extends string, D extends string> =
-  | AutoMovieArchetypeQuadrupedRestPlan.IClip<Id, D>
-  | AutoMovieArchetypeQuadrupedLateralRestPlan.IClip<Id, D>;
-
-/** A rest clip's sample. */
-type Shown<Id extends string, D extends string> =
-  | AutoMovieArchetypeQuadrupedRestPlan.ISample<Id, D>
-  | AutoMovieArchetypeQuadrupedLateralRestPlan.ISample<Id, D>;
-
-/** A named instant of a ride. */
-type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];
+import { QuadrupedCarriage } from "./quadruped/QuadrupedCarriage";
+import { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
 /**
  * A trained horse's liberty work after it halts: the bow, kneel and sit as
@@ -89,8 +76,8 @@ export namespace AutoMovieArchetypeEquineLiberty {
     );
     const clip: Clip<Id, D> =
       recline.lateral === undefined
-        ? AutoMovieArchetypeQuadrupedRest(animal, params)
-        : AutoMovieArchetypeQuadrupedLateralRest(
+        ? AutoMovieArchetypeQuadrupedRest.plan(animal, params)
+        : AutoMovieArchetypeQuadrupedLateralRest.plan(
             animal,
             params,
             recline.lateral,
@@ -148,7 +135,7 @@ export namespace AutoMovieArchetypeEquineLiberty {
     rest: AutoMovieArchetypeEquineLibertyCue.Rest,
   ): AutoMovieArchetypeQuadrupedRestPlan.IParams {
     const carriers: ReturnType<typeof QuadrupedCarriage.of> =
-      QuadrupedCarriage.of(animal, createQuadruped.species(animal));
+      QuadrupedCarriage.of(animal, AutoMovieArchetypeQuadruped.species(animal));
     return {
       ...rest,
       floorY: -placement.translation.y,
@@ -157,3 +144,22 @@ export namespace AutoMovieArchetypeEquineLiberty {
     };
   }
 }
+
+/*
+ * A rest clip, sternal or lateral.
+ */
+type Clip<Id extends string, D extends string> =
+  | AutoMovieArchetypeQuadrupedRestPlan.IClip<Id, D>
+  | AutoMovieArchetypeQuadrupedLateralRestPlan.IClip<Id, D>;
+
+/*
+ * A rest clip's sample.
+ */
+type Shown<Id extends string, D extends string> =
+  | AutoMovieArchetypeQuadrupedRestPlan.ISample<Id, D>
+  | AutoMovieArchetypeQuadrupedLateralRestPlan.ISample<Id, D>;
+
+/*
+ * A named instant of a ride.
+ */
+type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];

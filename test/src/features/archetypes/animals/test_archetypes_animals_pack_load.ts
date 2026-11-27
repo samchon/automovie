@@ -1,11 +1,11 @@
 import {
   type AutoMovieArchetypeEquine,
-  AutoMovieArchetypeEquinePackLoad as Pack,
+  AutoMovieArchetypeHorse,
   AutoMovieArchetypeRefusal,
   type AutoMovieArchetypeRide,
-  createHorse,
+  AutoMovieArchetypeEquinePackLoad as Pack,
 } from "@automovie/archetypes";
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieModelPart,
@@ -24,16 +24,15 @@ const METRES: number = 64 * Number.EPSILON;
  * A pack load lies against its real pad in a rotated placement.
  *
  * Scenarios:
- * 1. Both emitted boxes retain the authored mass and size. Their inside
- *    face meets the pad and the positive local Y axis faces out of it.
- * 2. A load may exactly fit the narrower pad, while either overhang, zero
- *    mass and missing tack each refuse on their associated axis.
+ *
+ * 1. Both emitted boxes retain the authored mass and size. Their inside face meets
+ *    the pad and the positive local Y axis faces out of it.
+ * 2. A load may exactly fit the narrower pad, while either overhang, zero mass and
+ *    missing tack each refuse on their associated axis.
  */
 export function test_archetypes_animals_pack_load(): void {
-  const horse: ReturnType<typeof createHorse> = createHorse(
-    { tack: "pack", withersHeight: 1.6 },
-    2,
-  );
+  const horse: ReturnType<typeof AutoMovieArchetypeHorse.create> =
+    AutoMovieArchetypeHorse.create({ tack: "pack", withersHeight: 1.6 }, 2);
   const left: IAutoMovieAffordance = horse.affordance("leftLoad");
   const right: IAutoMovieAffordance = horse.affordance("rightLoad");
   const load: Pack.ILoad = {
@@ -42,7 +41,7 @@ export function test_archetypes_animals_pack_load(): void {
     thickness: 1 / 4,
     mass: 35,
   };
-  const prepared: Pack.IPrepared = Pack(horse, load);
+  const prepared: Pack.IPrepared = Pack.prepare(horse, load);
   const placement: IAutoMovieTransform = {
     translation: { x: 2, y: 3, z: -4 },
     rotation: { x: 0, y: Math.SQRT1_2, z: 0, w: Math.SQRT1_2 },
@@ -85,9 +84,18 @@ export function test_archetypes_animals_pack_load(): void {
     const normal: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
     const local: IAutoMovieVector3 = pad.translation;
     const actual: IAutoMovieTransform = placed[id];
-    const displacement: IAutoMovieVector3 = Quaternion.rotateVector(actual.rotation, inside);
-    const localNormal: IAutoMovieVector3 = Quaternion.rotateVector(pad.rotation, normal);
-    const worldNormal: IAutoMovieVector3 = Quaternion.rotateVector(actual.rotation, normal);
+    const displacement: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+      actual.rotation,
+      inside,
+    );
+    const localNormal: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+      pad.rotation,
+      normal,
+    );
+    const worldNormal: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+      actual.rotation,
+      normal,
+    );
     TestValidator.predicate(
       `${id} inside face and outward normal follow the quarter-turn`,
       nclose(actual.translation.x + displacement.x, 2 + local.z, METRES) &&
@@ -98,10 +106,19 @@ export function test_archetypes_animals_pack_load(): void {
         nclose(worldNormal.z, -localNormal.x, METRES),
     );
   }
-  refuses("load.length", () => Pack(horse, { ...load, length: load.length + 0.001 }));
-  refuses("load.height", () => Pack(horse, { ...load, height: load.height + 0.001 }));
-  refuses("load.mass", () => Pack(horse, { ...load, mass: 0 }));
-  refuses("tack", () => Pack(createHorse({ tack: "saddle", withersHeight: 1.6 }, 2), load));
+  refuses("load.length", () =>
+    Pack.prepare(horse, { ...load, length: load.length + 0.001 }),
+  );
+  refuses("load.height", () =>
+    Pack.prepare(horse, { ...load, height: load.height + 0.001 }),
+  );
+  refuses("load.mass", () => Pack.prepare(horse, { ...load, mass: 0 }));
+  refuses("tack", () =>
+    Pack.prepare(
+      AutoMovieArchetypeHorse.create({ tack: "saddle", withersHeight: 1.6 }, 2),
+      load,
+    ),
+  );
 }
 
 /** Check the report is attributed to the offending input dimension. */

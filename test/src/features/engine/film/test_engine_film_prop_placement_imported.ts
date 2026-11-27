@@ -1,4 +1,4 @@
-import { validatePropPlacements } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieConstraintViolation,
@@ -123,7 +123,7 @@ const validate: (
   pieces: IAutoMovieStageSetPiece[] = set(),
   environments: IAutoMovieBuiltEnvironment[] = [propEnvironment()],
 ): IAutoMovieValidation =>
-  validatePropPlacements({
+  AutoMovieEngineFilm.validatePropPlacements({
     props,
     set: pieces,
     builtEnvironments: environments,

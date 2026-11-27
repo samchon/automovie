@@ -1,4 +1,4 @@
-import { inspectAutoMovieExternalModelBytes } from "@automovie/ingest";
+import { AutoMovieIngestExternalModel } from "@automovie/ingest";
 
 import { throwsError } from "../predicates";
 import type { ExternalModelMatrixObject } from "./ExternalModelMatrixObject";
@@ -17,7 +17,7 @@ export const vrmFacts: () => [string, () => boolean][] = (): [
   const inspectVrm: (document: ExternalModelMatrixObject) => unknown = (
     document: ExternalModelMatrixObject,
   ): unknown =>
-    inspectAutoMovieExternalModelBytes({
+    AutoMovieIngestExternalModel.inspectBytes({
       path: "public/models/human.vrm",
       bytes: glb(document, null),
       profile: "vrm-humanoid-v1",

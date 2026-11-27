@@ -1,4 +1,4 @@
-import { createSpringState, resolveFrame } from "@automovie/engine";
+import { AutoMovieEngineResolve } from "@automovie/engine";
 import {
   IAutoMovieIKDriver,
   IAutoMovieNode,
@@ -93,7 +93,7 @@ const at: (world: Map<string, number[]>, id: string) => IAutoMovieVector3 = (
  */
 export function test_resolve_frame_spring(): void {
   // 1. no springs input → deferred
-  const out1: IAutoMovieResolveOutput = resolveFrame({
+  const out1: IAutoMovieResolveOutput = AutoMovieEngineResolve.resolveFrame({
     nodes: nodes(),
     clip: null,
     limits: [],
@@ -114,8 +114,8 @@ export function test_resolve_frame_spring(): void {
   // 2. first-step oracle
   const len: number = Math.hypot(1, H);
   const expected1: IAutoMovieVector3 = { x: 1 / len, y: -H / len, z: 0 };
-  const state2: IAutoMovieSpringState = createSpringState();
-  const out2: IAutoMovieResolveOutput = resolveFrame({
+  const state2: IAutoMovieSpringState = AutoMovieEngineResolve.createSpringState();
+  const out2: IAutoMovieResolveOutput = AutoMovieEngineResolve.resolveFrame({
     nodes: nodes(),
     clip: null,
     limits: [],
@@ -146,7 +146,7 @@ export function test_resolve_frame_spring(): void {
     y: raw2.y / len2,
     z: 0,
   };
-  const out3: IAutoMovieResolveOutput = resolveFrame({
+  const out3: IAutoMovieResolveOutput = AutoMovieEngineResolve.resolveFrame({
     nodes: nodes(),
     clip: null,
     limits: [],
@@ -162,8 +162,8 @@ export function test_resolve_frame_spring(): void {
     "sag accumulates across frames",
     at(out3.world, "j1").y < at(out2.world, "j1").y,
   );
-  const replayState: IAutoMovieSpringState = createSpringState();
-  resolveFrame({
+  const replayState: IAutoMovieSpringState = AutoMovieEngineResolve.createSpringState();
+  AutoMovieEngineResolve.resolveFrame({
     nodes: nodes(),
     clip: null,
     limits: [],
@@ -171,7 +171,7 @@ export function test_resolve_frame_spring(): void {
     springs: { state: replayState, dt: DT },
     seconds: 0,
   });
-  const replay2: IAutoMovieResolveOutput = resolveFrame({
+  const replay2: IAutoMovieResolveOutput = AutoMovieEngineResolve.resolveFrame({
     nodes: nodes(),
     clip: null,
     limits: [],
@@ -185,13 +185,13 @@ export function test_resolve_frame_spring(): void {
   );
 
   // 4. collider push-out + no-trigger twin
-  const out4: IAutoMovieResolveOutput = resolveFrame({
+  const out4: IAutoMovieResolveOutput = AutoMovieEngineResolve.resolveFrame({
     nodes: nodes(),
     clip: null,
     limits: [],
     drivers: [spring],
     springs: {
-      state: createSpringState(),
+      state: AutoMovieEngineResolve.createSpringState(),
       dt: DT,
       colliders: [{ node: "root", radius: 1.2 }],
     },
@@ -209,13 +209,13 @@ export function test_resolve_frame_spring(): void {
       1e-9,
     ),
   );
-  const out5: IAutoMovieResolveOutput = resolveFrame({
+  const out5: IAutoMovieResolveOutput = AutoMovieEngineResolve.resolveFrame({
     nodes: nodes(),
     clip: null,
     limits: [],
     drivers: [spring],
     springs: {
-      state: createSpringState(),
+      state: AutoMovieEngineResolve.createSpringState(),
       dt: DT,
       colliders: [{ node: "root", radius: 0.5 }],
     },
@@ -231,13 +231,13 @@ export function test_resolve_frame_spring(): void {
     "missing collider node rejects",
     throwsError(
       (): IAutoMovieResolveOutput =>
-        resolveFrame({
+        AutoMovieEngineResolve.resolveFrame({
           nodes: nodes(),
           clip: null,
           limits: [],
           drivers: [spring],
           springs: {
-            state: createSpringState(),
+            state: AutoMovieEngineResolve.createSpringState(),
             dt: DT,
             colliders: [{ node: "nope", radius: 0.5 }],
           },
@@ -257,12 +257,12 @@ export function test_resolve_frame_spring(): void {
     iterations: null,
     influence: 1,
   };
-  const out6: IAutoMovieResolveOutput = resolveFrame({
+  const out6: IAutoMovieResolveOutput = AutoMovieEngineResolve.resolveFrame({
     nodes: nodes(),
     clip: null,
     limits: [],
     drivers: [spring, shortIk],
-    springs: { state: createSpringState(), dt: DT },
+    springs: { state: AutoMovieEngineResolve.createSpringState(), dt: DT },
     seconds: 0,
   });
   TestValidator.equals(

@@ -1,9 +1,9 @@
-import { placeAutoMovieInspectionLabels } from "@automovie/render";
+import { AutoMovieRenderInspection } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 /**
- * `placeAutoMovieInspectionLabels` places each box's label at its projected
+ * `AutoMovieRenderInspection.placeLabels` places each box's label at its projected
  * centre and drops those that overlap a kept one or fall off the picture.
  *
  * Scenarios:
@@ -24,7 +24,7 @@ export function test_render_scene_place_inspection_labels(): void {
     min: { x: x - 0.5, y: -0.5, z: z - 0.5 },
     max: { x: x + 0.5, y: 0.5, z: z + 0.5 },
   });
-  const placed = placeAutoMovieInspectionLabels({
+  const placed = AutoMovieRenderInspection.placeLabels({
     boxes: [box("hero/arm", 0), box("hero/hand", 0), box("", 0, 20), box("lamp", 3)],
     camera,
     width: 200,
@@ -52,7 +52,7 @@ export function test_render_scene_place_inspection_labels(): void {
   TestValidator.equals("root text", placed.dropped[1]!.text, "(root)");
   for (const patch of [{ width: 0 }, { height: 0 }, { scale: 0 }])
     TestValidator.error(JSON.stringify(patch), (): void => {
-      placeAutoMovieInspectionLabels({
+      AutoMovieRenderInspection.placeLabels({
         boxes: [],
         camera,
         width: 200,

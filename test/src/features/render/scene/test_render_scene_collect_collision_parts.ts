@@ -1,9 +1,9 @@
-import { collectAutoMovieCollisionParts } from "@automovie/render";
+import { AutoMovieRenderInspectionGeometry } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 /**
- * `collectAutoMovieCollisionParts` reads the visible drawn objects of a placed
+ * `AutoMovieRenderInspectionGeometry.collectCollisionParts` reads the visible drawn objects of a placed
  * layer as collision parts.
  *
  * Scenarios:
@@ -28,14 +28,14 @@ export function test_render_scene_collect_collision_parts(): void {
   root.add(box("left", 0), box("right", 3), hidden);
   root.updateMatrixWorld(true);
 
-  const all = collectAutoMovieCollisionParts({ root }, { posedVertices: 1000 });
+  const all = AutoMovieRenderInspectionGeometry.collectCollisionParts({ root }, { posedVertices: 1000 });
   TestValidator.equals(
     "parts",
     all.parts.map((part): string => part.id),
     ["left", "right"],
   );
   TestValidator.equals("complete", all.truncated, false);
-  const limited = collectAutoMovieCollisionParts(
+  const limited = AutoMovieRenderInspectionGeometry.collectCollisionParts(
     { root },
     { posedVertices: 1000, parts: 1 },
   );

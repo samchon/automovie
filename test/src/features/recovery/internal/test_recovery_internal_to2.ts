@@ -1,4 +1,4 @@
-import { to2 } from "@automovie/recovery";
+import { AutoMovieRecoveryGeometry } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -13,7 +13,7 @@ import { TestValidator } from "@nestia/e2e";
 export function test_recovery_internal_to2(): void {
   TestValidator.equals(
     "coordinates",
-    to2(
+    AutoMovieRecoveryGeometry.to2(
       { origin: [1, 1, 0], n: [0, 0, 1], u: [0, -1, 0], v: [1, 0, 0] },
       [3, 0, 5],
     ),

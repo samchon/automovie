@@ -1,8 +1,4 @@
-import {
-  AutoMovieComposition,
-  AutoMovieScheduleError,
-  resolveAutoMovieSchedule,
-} from "@automovie/engine";
+import { AutoMovieEngineComposition, AutoMovieEngineScheduleError, AutoMovieEngineSchedule } from "@automovie/engine";
 import type {
   IAutoMovieIntent,
   IAutoMovieIntentTiming,
@@ -20,7 +16,7 @@ import { TestValidator } from "@nestia/e2e";
  * Scenarios:
  *
  * 1. A part aligned to a 2 s kick anchored "k" with `index` 1 and no event throws
- *    an `AutoMovieScheduleError` of code `index` whose value is 1 and whose
+ *    an `AutoMovieEngineScheduleError` of code `index` whose value is 1 and whose
  *    `of` is "k".
  * 2. The same part aligned with the event `impact` and `index` 0 starts at the
  *    kick's impact, 1.0 s.
@@ -42,10 +38,10 @@ export function test_engine_composition_resolve_schedule_index_event(): void {
   // 1. An index with no event.
   let caught: unknown = undefined;
   try {
-    resolveAutoMovieSchedule(
-      AutoMovieComposition.sequence(
+    AutoMovieEngineSchedule.resolve(
+      AutoMovieEngineComposition.sequence(
         kick,
-        AutoMovieComposition.at("k", step, 0, { index: 1 }),
+        AutoMovieEngineComposition.at("k", step, 0, { index: 1 }),
       ),
       laws,
     );
@@ -54,17 +50,17 @@ export function test_engine_composition_resolve_schedule_index_event(): void {
   }
   TestValidator.predicate(
     `an index with no event is refused on code index (${String(caught)})`,
-    caught instanceof AutoMovieScheduleError &&
+    caught instanceof AutoMovieEngineScheduleError &&
       caught.code === "index" &&
       caught.value === 1 &&
       caught.of === "k",
   );
 
   // 2. The same alignment naming its event.
-  const placed: IAutoMovieSchedule = resolveAutoMovieSchedule(
-    AutoMovieComposition.parallel(
+  const placed: IAutoMovieSchedule = AutoMovieEngineSchedule.resolve(
+    AutoMovieEngineComposition.parallel(
       kick,
-      AutoMovieComposition.at("k", step, 0, { event: "impact", index: 0 }),
+      AutoMovieEngineComposition.at("k", step, 0, { event: "impact", index: 0 }),
     ),
     laws,
   );

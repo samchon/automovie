@@ -1,19 +1,33 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanClasp,
-  HumanClaspClearance,
-  HumanGrip,
-  HumanRefusal,
-  handshakeOffer,
-  poseBones,
-  resolveHumanPosture,
-  stand,
-} from "@automovie/motions/internal";
+  HumanClasp
+} from "../../../../../packages/motions/src/handling/internal/HumanClasp";
+import {
+  HumanClaspClearance
+} from "../../../../../packages/motions/src/handling/internal/HumanClaspClearance";
+import {
+  HumanGrip
+} from "../../../../../packages/motions/src/handling/internal/HumanGrip";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  handshakeOffer
+} from "../../../../../packages/motions/src/handling/internal/handshakeOffer";
+import {
+  poseBones
+} from "../../../../../packages/motions/src/posture/internal/poseBones";
+import {
+  resolveHumanPosture
+} from "../../../../../packages/motions/src/posture/internal/resolveHumanPosture";
+import {
+  stand
+} from "../../../../../packages/motions/src/actions/internal/stand";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -122,7 +136,7 @@ export async function test_motions_handling_handshake(): Promise<void> {
     Math.abs(met.point.x - (a.shoulder.x + b.shoulder.x) / 2) <= ROUNDING &&
       Math.abs(met.point.z - (a.shoulder.z + b.shoulder.z) / 2) <= ROUNDING &&
       met.point.y < a.shoulder.y &&
-      Vector3.distance(met.point, back.point) <= ROUNDING,
+      AutoMovieEngineVector3.distance(met.point, back.point) <= ROUNDING,
   );
   let refused: boolean = false;
   try {
@@ -133,7 +147,7 @@ export async function test_motions_handling_handshake(): Promise<void> {
       0,
     );
   } catch (error: unknown) {
-    refused = error instanceof HumanRefusal && error.axis === "partner";
+    refused = error instanceof AutoMovieMotionHumanRefusal && error.axis === "partner";
   }
   TestValidator.predicate("too far apart", refused);
 
@@ -150,7 +164,7 @@ export async function test_motions_handling_handshake(): Promise<void> {
     body,
     posture: theirs,
     palm: { x: -1, y: 0, z: 0 },
-    fingers: Vector3.scale(met.fingers, -1),
+    fingers: AutoMovieEngineVector3.scale(met.fingers, -1),
   };
   const choice: HumanClasp.IChoice = HumanClasp.choose(
     "right",

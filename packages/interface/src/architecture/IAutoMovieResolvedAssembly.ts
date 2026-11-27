@@ -3,7 +3,7 @@ import type { IAutoMovieResolvedLayer } from "./IAutoMovieResolvedLayer";
 /**
  * A build-up placed on a signed measuring line, ready to be dimensioned.
  *
- * Produced by `resolveAutoMovieMaterialAssembly` only after validation passes.
+ * Produced by `resolveMaterialAssembly` only after validation passes.
  * Coordinates are metres along `axis` in the host's frame: `start` is the
  * assembly's `offset`, each layer advances by its thickness in the declared
  * sense, and `extent` orders `start` and `end`. `end` is computed from the

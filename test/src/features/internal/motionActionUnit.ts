@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanVerdicts,
 } from "@automovie/interface";
-import { HumanPerformance, HumanVerdicts } from "@automovie/motions";
+import { AutoMovieMotionHumanPerformance, AutoMovieMotionHumanVerdicts } from "@automovie/motions";
 
 import type { motionComplaints } from "./motionComplaints";
 
@@ -74,7 +74,7 @@ export namespace motionActionUnit {
    * @throws An `Error` naming the action when the chain has no such occurrence.
    */
   export function segment(
-    take: HumanPerformance,
+    take: AutoMovieMotionHumanPerformance,
     subject: string,
     name: string,
     occurrence: number = 1,
@@ -110,7 +110,7 @@ export namespace motionActionUnit {
   }
 
   /**
-   * The shipped bounds' findings (`HumanVerdicts`, the limits a take is judged
+   * The shipped bounds' findings (`AutoMovieMotionHumanVerdicts`, the limits a take is judged
    * by) that are one action's own: every finding the report places in this
    * action and occurrence, a finding between two people that involves the
    * performer within the span, and a continuity finding within one frame of the
@@ -132,21 +132,21 @@ export namespace motionActionUnit {
    * @returns The findings, in the report's order.
    */
   export function findings(
-    take: HumanPerformance,
+    take: AutoMovieMotionHumanPerformance,
     subject: string,
     act: IAutoMovieMotionHumanSegment,
     span: ISpan = { from: act.entryTime, to: act.end },
     parts?: RegExp,
   ): IAutoMovieMotionHumanVerdicts.IFinding[] {
     // The occurrence as the report counts it: the segments of the same id
-    // up to this one (`HumanVerdicts`' placement).
+    // up to this one (`AutoMovieMotionHumanVerdicts`' placement).
     const occurrence: number = take
       .segments(subject)
       .filter(
         (s: IAutoMovieMotionHumanSegment): boolean =>
           s.id === act.id && s.index <= act.index,
       ).length;
-    const report: IAutoMovieMotionHumanVerdicts.IReport = HumanVerdicts(
+    const report: IAutoMovieMotionHumanVerdicts.IReport = AutoMovieMotionHumanVerdicts.read(
       take,
       RATE,
       {
@@ -188,7 +188,7 @@ export namespace motionActionUnit {
   export function bounds(
     checks: motionComplaints.IGatherer,
     label: string,
-    take: HumanPerformance,
+    take: AutoMovieMotionHumanPerformance,
     subject: string,
     act: IAutoMovieMotionHumanSegment,
     span: ISpan = { from: act.entryTime, to: act.end },

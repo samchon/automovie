@@ -1,7 +1,4 @@
-import {
-  AutoMovieLoftChain,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
+import { AutoMovieEngineLoftChain, AutoMovieEngineConstruction } from "@automovie/engine";
 import { AutoMovieHumanConicLoft, AutoMovieHumanF1 } from "@automovie/human";
 import type {
   IAutoMovieHumanConicLoft,
@@ -218,7 +215,7 @@ namespace FamilyConicEarRound {
     for (let i: number = 1; i + 1 < host.stations.length; ++i)
       for (let j: number = 0; j < PHASES; ++j) {
         const at = (s: number, k: number): number[] =>
-          AutoMovieLoftChain.point(
+          AutoMovieEngineLoftChain.point(
             host.chain,
             s,
             (2 * Math.PI * ((k + PHASES) % PHASES)) / PHASES,
@@ -407,7 +404,7 @@ namespace FamilyConicEarRound {
       for (let k: number = 0; k < seedLines; ++k) {
         const phase: number = (2 * Math.PI * k) / seedLines;
         const values: number[] = half.map((s: number): number =>
-          signed(AutoMovieLoftChain.point(own.chain, s, phase)),
+          signed(AutoMovieEngineLoftChain.point(own.chain, s, phase)),
         );
         const changes: number[] = half.filter(
           (_: number, i: number): boolean =>
@@ -429,7 +426,7 @@ namespace FamilyConicEarRound {
       const P: number = 72;
       const grid: number[][] = own.stations.map((s: number): number[] =>
         Array.from({ length: P }, (_: unknown, j: number): number =>
-          signed(AutoMovieLoftChain.point(own.chain, s, (2 * Math.PI * j) / P)),
+          signed(AutoMovieEngineLoftChain.point(own.chain, s, (2 * Math.PI * j) / P)),
         ),
       );
       const I: number = own.stations.length;
@@ -511,8 +508,8 @@ namespace FamilyConicEarRound {
       const own = sample(tube, 0.5);
       const axis = AutoMovieHumanConicLoft.axis(tube);
       for (const s of own.stations) {
-        const top: number[] = AutoMovieLoftChain.point(own.chain, s, 0);
-        const bottom: number[] = AutoMovieLoftChain.point(
+        const top: number[] = AutoMovieEngineLoftChain.point(own.chain, s, 0);
+        const bottom: number[] = AutoMovieEngineLoftChain.point(
           own.chain,
           s,
           Math.PI,
@@ -521,7 +518,7 @@ namespace FamilyConicEarRound {
         const ring: number[] = Array.from(
           { length: 36 },
           (_: unknown, k: number): number =>
-            signed(AutoMovieLoftChain.point(own.chain, s, (k * Math.PI) / 18)),
+            signed(AutoMovieEngineLoftChain.point(own.chain, s, (k * Math.PI) / 18)),
         );
         const least: number = ring.indexOf(Math.min(...ring));
         const most: number = ring.indexOf(Math.max(...ring));
@@ -831,7 +828,7 @@ namespace FamilyConicEarRound {
 
     const declared = AutoMovieHumanF1.construction();
     const started: number = performance.now();
-    const real = realizeAutoMovieConstruction(
+    const real = AutoMovieEngineConstruction.realize(
       { name: "f1.body", root: declared.root, fills: declared.fills },
       { chord: 0.001, sources: declared.sources },
     );

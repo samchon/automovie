@@ -1,9 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  linearizePhysicalTargetRows,
-  solvePhysicalArticulationTargets,
-} from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieLinearizePhysicalTargetRows,
   IAutoMoviePhysicalSegment,
@@ -56,8 +51,8 @@ export function test_engine_physics_linearize_physical_target_rows(): void {
   );
   const original: string = JSON.stringify(targets);
   const published: { poses: Poses; before: string }[] = [];
-  const result: ReturnType<typeof solvePhysicalArticulationTargets> =
-    solvePhysicalArticulationTargets({
+  const result: ReturnType<typeof AutoMovieEnginePhysics.solvePhysicalArticulationTargets> =
+    AutoMovieEnginePhysics.solvePhysicalArticulationTargets({
       profile,
       targets,
       bones: ["carrier"],
@@ -91,16 +86,16 @@ export function test_engine_physics_linearize_physical_target_rows(): void {
       "later probes and rejected backtracks cannot mutate earlier published poses",
     );
   for (const joint of profile.joints) {
-    const first: IAutoMovieRigidTransform["position"] = Vector3.add(
+    const first: IAutoMovieRigidTransform["position"] = AutoMovieEngineVector3.add(
       result.targets[joint.parent]!.position,
-      Quaternion.rotateVector(
+      AutoMovieEngineQuaternion.rotateVector(
         result.targets[joint.parent]!.rotation,
         joint.parentFrame.position,
       ),
     );
-    const second: IAutoMovieRigidTransform["position"] = Vector3.add(
+    const second: IAutoMovieRigidTransform["position"] = AutoMovieEngineVector3.add(
       result.targets[joint.child]!.position,
-      Quaternion.rotateVector(
+      AutoMovieEngineQuaternion.rotateVector(
         result.targets[joint.child]!.rotation,
         joint.childFrame.position,
       ),
@@ -108,7 +103,7 @@ export function test_engine_physics_linearize_physical_target_rows(): void {
     TestValidator.predicate(
       "fixed joint anchor " + joint.id,
       nclose(
-        Vector3.length(Vector3.subtract(first, second)),
+        AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(first, second)),
         0,
         PhysicalTolerance.ROUNDING,
       ),
@@ -119,7 +114,7 @@ export function test_engine_physics_linearize_physical_target_rows(): void {
     a: targets.source!,
     b: targets.reference!,
   };
-  const angle: IAutoMovieRigidTransform["rotation"] = Quaternion.fromAxisAngle(
+  const angle: IAutoMovieRigidTransform["rotation"] = AutoMovieEngineQuaternion.fromAxisAngle(
     { x: 0, y: 0, z: 1 },
     90,
   );
@@ -131,8 +126,8 @@ export function test_engine_physics_linearize_physical_target_rows(): void {
       ] => [
         bone,
         {
-          position: Quaternion.rotateVector(angle, pose.position),
-          rotation: Quaternion.multiply(angle, pose.rotation),
+          position: AutoMovieEngineQuaternion.rotateVector(angle, pose.position),
+          rotation: AutoMovieEngineQuaternion.multiply(angle, pose.rotation),
         },
       ],
     ),
@@ -141,7 +136,7 @@ export function test_engine_physics_linearize_physical_target_rows(): void {
     ...accepted.a!.position,
   };
   const distance: (poses: Poses) => number[] = (poses: Poses): number[] => [
-    Vector3.length(Vector3.subtract(poses.a!.position, poses.b!.position)),
+    AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(poses.a!.position, poses.b!.position)),
   ];
   const world: (poses: Poses) => number[] = (poses: Poses): number[] => [
     poses.a!.position.y - poses.b!.position.y,
@@ -164,8 +159,8 @@ export function test_engine_physics_linearize_physical_target_rows(): void {
       linearize: (): typeof measure => measure,
     }),
   );
-  const model: ReturnType<typeof linearizePhysicalTargetRows> =
-    linearizePhysicalTargetRows(rows, accepted);
+  const model: ReturnType<typeof AutoMovieEnginePhysics.linearizePhysicalTargetRows> =
+    AutoMovieEnginePhysics.linearizePhysicalTargetRows(rows, accepted);
   compare(
     "common rigid motion only freezes intrinsic distance",
     model(probe, new Set(["a", "b"])),

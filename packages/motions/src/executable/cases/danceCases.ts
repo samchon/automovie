@@ -6,20 +6,17 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanChain } from "../../HumanChain";
-import { createHumanBody } from "../../body/createHumanBody";
-import { HumanPerformance } from "../../perform/HumanPerformance";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
-import { MotionBodies } from "../MotionBodies";
-import type { humanPolygonMan } from "../humanPolygonMan";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
+import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
+import { AutoMovieMotionHumanPerformance } from "../../perform/AutoMovieMotionHumanPerformance";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
+import { MotionBodies } from "../internal/MotionBodies";
+import type { humanPolygonMan } from "../internal/humanPolygonMan";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { TouchVerdicts } from "./TouchVerdicts";
-import { everydayVerdicts } from "./everydayVerdicts";
+import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/** The alternatives of `DanceCasesExtremesSign`'s site. */
-type DanceCasesExtremesSign = 1 | -1;
-
-/**
+/*
  * Capture cases of the solo dance steps, eight beats at 120 bpm from quiet
  * standing.
  *
@@ -33,9 +30,8 @@ type DanceCasesExtremesSign = 1 | -1;
  *   of where it comes to rest) within one frame of its beat, and a footfall on
  *   every beat;
  * - `dance-boxStep`: the same two readings of its footfalls.
- *
- * @param bodies The bodies; `m-average` when absent.
- * @returns The cases.
+ * Parameter bodies: The bodies; `m-average` when absent.
+ * Returns: The cases.
  */
 export function danceCases(
   bodies: readonly string[] = ["m-average"],
@@ -44,7 +40,7 @@ export function danceCases(
   const frame: number = 1 / 24;
   for (const id of bodies) {
     const man: humanPolygonMan.IPolygonMan = MotionBodies.population(id);
-    const body: IAutoMovieMotionHumanBody = createHumanBody(
+    const body: IAutoMovieMotionHumanBody = AutoMovieMotionHumanBody.create(
       man.body.skeleton,
       man.body.profile,
     );
@@ -60,7 +56,7 @@ export function danceCases(
 
       // Process boundary: a case that throws is reported as that case's refusal, and the remaining cases still run.
       try {
-        performance = new HumanPerformance({
+        performance = new AutoMovieMotionHumanPerformance({
           seed: "dance",
           performers: [
             {
@@ -71,7 +67,7 @@ export function danceCases(
               proficiency: { level: "trained" as const },
             },
           ],
-          composition: HumanChain.subject("a").act("dance", {
+          composition: AutoMovieMotionHumanChain.subject("a").act("dance", {
             kind,
             bpm: 120,
             count: 8,
@@ -202,3 +198,8 @@ export function danceCases(
   }
   return out;
 }
+
+/*
+ * The alternatives of `DanceCasesExtremesSign`'s site.
+ */
+type DanceCasesExtremesSign = 1 | -1;

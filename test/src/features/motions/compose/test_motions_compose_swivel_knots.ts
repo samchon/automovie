@@ -2,7 +2,9 @@ import type {
   AutoMovieHumanLimb,
   IAutoMovieSwivelSeed,
 } from "@automovie/interface";
-import { courseLimbSwivelKnots } from "@automovie/motions/internal";
+import {
+  courseLimbSwivelKnots
+} from "../../../../../packages/motions/src/compose/internal/courseLimbSwivelKnots";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

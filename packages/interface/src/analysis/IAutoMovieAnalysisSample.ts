@@ -6,7 +6,7 @@ import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * A sample may only carry a key that some metric of the same run measured, so
  * no heatmap can be drawn for a metric that produced no value.
  *
- * A run carries at most the engine's `AUTOMOVIE_ANALYSIS_MAX_SAMPLES` (4096)
+ * A run carries at most the engine's `AutoMovieEngineAnalysisMaxSamples` (4096)
  * samples; a larger field is refused, never truncated.
  */
 export interface IAutoMovieAnalysisSample {

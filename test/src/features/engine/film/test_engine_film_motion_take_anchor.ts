@@ -1,10 +1,4 @@
-import {
-  admitMotionTake,
-  cutSequence,
-  preparePlaybackTimeline,
-  resolveMotionTakeAnchor,
-  verifyMotionTake,
-} from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieCut,
   IAutoMovieMotionTake,
@@ -45,7 +39,7 @@ export function test_engine_film_motion_take_anchor(): void {
     objectMotions: [],
   };
   const incoming: IAutoMovieShot = { ...shot, id: "incoming" };
-  const cut: IAutoMovieCut = cutSequence(
+  const cut: IAutoMovieCut = AutoMovieEngineFilm.cutSequence(
     {
       sequence: { id: "sequence", name: "Sequence" },
       fps: 24,
@@ -74,8 +68,8 @@ export function test_engine_film_motion_take_anchor(): void {
   );
   if (!cut.success) throw new Error("the three-entry cut must pass");
   const layout: IAutoMoviePreparePlaybackTimeline.IResult =
-    preparePlaybackTimeline(cut.sequence, [shot, incoming]);
-  const before: IAutoMovieMotionTakeAnchor = resolveMotionTakeAnchor(
+    AutoMovieEngineFilm.preparePlaybackTimeline(cut.sequence, [shot, incoming]);
+  const before: IAutoMovieMotionTakeAnchor = AutoMovieEngineFilm.resolveMotionTakeAnchor(
     cut.sequence,
     layout,
     {
@@ -83,7 +77,7 @@ export function test_engine_film_motion_take_anchor(): void {
       side: "before",
     },
   );
-  const after: IAutoMovieMotionTakeAnchor = resolveMotionTakeAnchor(
+  const after: IAutoMovieMotionTakeAnchor = AutoMovieEngineFilm.resolveMotionTakeAnchor(
     cut.sequence,
     layout,
     {
@@ -100,16 +94,16 @@ export function test_engine_film_motion_take_anchor(): void {
 
   const overlapSeconds: number = 0.575;
   refuses("take-overlap", (): unknown =>
-    resolveMotionTakeAnchor(cut.sequence, layout, {
+    AutoMovieEngineFilm.resolveMotionTakeAnchor(cut.sequence, layout, {
       outputSeconds: overlapSeconds,
     }),
   );
-  const outgoingOverlap: IAutoMovieMotionTakeAnchor = resolveMotionTakeAnchor(
+  const outgoingOverlap: IAutoMovieMotionTakeAnchor = AutoMovieEngineFilm.resolveMotionTakeAnchor(
     cut.sequence,
     layout,
     { outputSeconds: overlapSeconds, entry: 1 },
   );
-  const incomingOverlap: IAutoMovieMotionTakeAnchor = resolveMotionTakeAnchor(
+  const incomingOverlap: IAutoMovieMotionTakeAnchor = AutoMovieEngineFilm.resolveMotionTakeAnchor(
     cut.sequence,
     layout,
     { outputSeconds: overlapSeconds, entry: 2 },
@@ -122,13 +116,13 @@ export function test_engine_film_motion_take_anchor(): void {
       nclose(incomingOverlap.sourceSeconds, 0.025),
   );
   refuses("take-entry", (): unknown =>
-    resolveMotionTakeAnchor(cut.sequence, layout, {
+    AutoMovieEngineFilm.resolveMotionTakeAnchor(cut.sequence, layout, {
       outputSeconds: overlapSeconds,
       entry: 0,
     }),
   );
 
-  const end: IAutoMovieMotionTakeAnchor = resolveMotionTakeAnchor(
+  const end: IAutoMovieMotionTakeAnchor = AutoMovieEngineFilm.resolveMotionTakeAnchor(
     cut.sequence,
     layout,
     { outputSeconds: cut.runtime, side: "before" },
@@ -138,20 +132,20 @@ export function test_engine_film_motion_take_anchor(): void {
     end.sourceSeconds === 2,
   );
   refuses("take-side", (): unknown =>
-    resolveMotionTakeAnchor(cut.sequence, layout, {
+    AutoMovieEngineFilm.resolveMotionTakeAnchor(cut.sequence, layout, {
       outputSeconds: 0,
       side: "before",
     }),
   );
   refuses("take-side", (): unknown =>
-    resolveMotionTakeAnchor(cut.sequence, layout, {
+    AutoMovieEngineFilm.resolveMotionTakeAnchor(cut.sequence, layout, {
       outputSeconds: cut.runtime,
     }),
   );
 
   const steady: IAutoMovieShot = { ...shot, duration: 1 };
   const tiny: IAutoMovieShot = { ...incoming, duration: Number.EPSILON / 4 };
-  const collapsed: IAutoMovieCut = cutSequence(
+  const collapsed: IAutoMovieCut = AutoMovieEngineFilm.cutSequence(
     {
       sequence: { id: "coincident", name: "Coincident" },
       fps: 24,
@@ -167,8 +161,8 @@ export function test_engine_film_motion_take_anchor(): void {
   );
   if (!collapsed.success) throw new Error("default-rate edit must pass");
   const collapsedLayout: IAutoMoviePreparePlaybackTimeline.IResult =
-    preparePlaybackTimeline(collapsed.sequence, [steady, tiny]);
-  const collapsedEnd: IAutoMovieMotionTakeAnchor = resolveMotionTakeAnchor(
+    AutoMovieEngineFilm.preparePlaybackTimeline(collapsed.sequence, [steady, tiny]);
+  const collapsedEnd: IAutoMovieMotionTakeAnchor = AutoMovieEngineFilm.resolveMotionTakeAnchor(
     collapsed.sequence,
     collapsedLayout,
     { outputSeconds: 1, side: "before" },
@@ -195,30 +189,30 @@ export function test_engine_film_motion_take_anchor(): void {
       seeds: [{ id: "performance", value: "seed" }],
     },
   };
-  const admitted: IAutoMovieMotionTake = admitMotionTake(
+  const admitted: IAutoMovieMotionTake = AutoMovieEngineFilm.admitMotionTake(
     JSON.parse(JSON.stringify(take)),
   );
-  verifyMotionTake(admitted, take);
+  AutoMovieEngineFilm.verifyMotionTake(admitted, take);
   refuses("take-version", (): unknown =>
-    admitMotionTake({ ...take, version: 2 }),
+    AutoMovieEngineFilm.admitMotionTake({ ...take, version: 2 }),
   );
   refuses("take-replay", (): unknown =>
-    admitMotionTake({ ...take, replay: "native" }),
+    AutoMovieEngineFilm.admitMotionTake({ ...take, replay: "native" }),
   );
   refuses("take-schema", (): unknown =>
-    admitMotionTake({ ...take, frames: [] }),
+    AutoMovieEngineFilm.admitMotionTake({ ...take, frames: [] }),
   );
   refuses("take-schema", (): unknown =>
-    admitMotionTake({
+    AutoMovieEngineFilm.admitMotionTake({
       ...take,
       source: { ...take.source, module: "src/COM1.ts" },
     }),
   );
   refuses("take-anchor", (): unknown =>
-    verifyMotionTake(admitted, { ...take, anchor: after }),
+    AutoMovieEngineFilm.verifyMotionTake(admitted, { ...take, anchor: after }),
   );
   refuses("take-provenance", (): unknown =>
-    verifyMotionTake(admitted, {
+    AutoMovieEngineFilm.verifyMotionTake(admitted, {
       ...take,
       provenance: {
         ...take.provenance,

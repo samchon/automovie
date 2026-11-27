@@ -31,7 +31,7 @@ export function test_human_skin_cut_loop(): void {
     const along: number = p[0] * axis[0] + p[1] * axis[1] + p[2] * axis[2];
     return Math.hypot(p[0] - along * axis[0], p[1] - along * axis[1], p[2] - along * axis[2]) - radius;
   };
-  const input = (centre: [number, number], reach: number): K.IInput => ({ point: (u: number, v: number): V3 => [u, v, 0], centre, semi: [20, 20], sense: 1, count: 64, side: cylinder(20), reach });
+  const input = (centre: [number, number], reach: number): K.IInput => ({ point: (u: number, v: number): V3 => [u, v, 0], centre: { u: centre[0], v: centre[1] }, semi: { u: 20, v: 20 }, sense: 1, count: 64, side: cylinder(20), reach });
   const closed = (clock: number, widen: number): number => widen / Math.sqrt(Math.cos(clock) ** 2 * Math.cos(tilt) ** 2 + Math.sin(clock) ** 2);
 
   // 1 and 2. The shares on the closed form, and off a wider cylinder's.

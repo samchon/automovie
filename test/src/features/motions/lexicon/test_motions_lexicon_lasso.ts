@@ -1,4 +1,6 @@
-import { humanLassoAdmit } from "@automovie/motions/internal";
+import {
+  humanLassoAdmit
+} from "../../../../../packages/motions/src/lexicon/internal/humanLassoAdmit";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

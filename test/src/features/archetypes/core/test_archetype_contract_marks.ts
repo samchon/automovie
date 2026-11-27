@@ -1,11 +1,5 @@
-import {
-  AutoMovieArchetypeFrame,
-  AutoMovieArchetypeMarks,
-  createDoor,
-  createSeat,
-  createStorage,
-} from "@automovie/archetypes";
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieArchetypeFrame, AutoMovieArchetypeMarks, AutoMovieArchetypeDoor, AutoMovieArchetypeSeat, AutoMovieArchetypeStorage } from "@automovie/archetypes";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMark,
@@ -68,15 +62,15 @@ function same(
  */
 export function test_archetype_contract_marks(): void {
   const findings: string[] = [];
-  const chair: ReturnType<typeof createSeat> = createSeat(
+  const chair: ReturnType<typeof AutoMovieArchetypeSeat.create> = AutoMovieArchetypeSeat.create(
     { kind: "dining" },
     4,
   );
-  const chest: ReturnType<typeof createStorage> = createStorage(
+  const chest: ReturnType<typeof AutoMovieArchetypeStorage.create> = AutoMovieArchetypeStorage.create(
     { kind: "chest" },
     4,
   );
-  const door: ReturnType<typeof createDoor> = createDoor({}, 4);
+  const door: ReturnType<typeof AutoMovieArchetypeDoor.create> = AutoMovieArchetypeDoor.create({}, 4);
   const drawer: IAutoMovieAffordance = chest.affordance("drawer2");
 
   // What each affordance must draw after its arrow: the outline's shape and its points, from the archetype's sites and articulation.
@@ -117,13 +111,13 @@ export function test_archetype_contract_marks(): void {
   ];
   const placement: IAutoMovieTransform = {
     translation: { x: 3, y: 0.5, z: -2 },
-    rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90),
+    rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90),
     scale: { x: 1, y: 1, z: 1 },
   };
   const placed = (p: IAutoMovieVector3): IAutoMovieVector3 =>
-    Vector3.add(
+    AutoMovieEngineVector3.add(
       placement.translation,
-      Quaternion.rotateVector(placement.rotation, p),
+      AutoMovieEngineQuaternion.rotateVector(placement.rotation, p),
     );
   for (const [name, affordance, outline, points] of cases) {
     const marks: IAutoMovieMark[] = AutoMovieArchetypeMarks.of(
@@ -138,9 +132,9 @@ export function test_archetype_contract_marks(): void {
       marks[0]!.shape.type !== "arrows" ||
       !same(places(marks[0]!), [
         origin,
-        Vector3.add(
+        AutoMovieEngineVector3.add(
           origin,
-          Vector3.scale(
+          AutoMovieEngineVector3.scale(
             AutoMovieArchetypeFrame.axis(affordance.frame, "y"),
             0.05,
           ),
@@ -191,7 +185,7 @@ export function test_archetype_contract_marks(): void {
   );
   if (
     Math.abs(
-      Vector3.length(Vector3.subtract(plain[1]!, plain[0]!)) -
+      AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(plain[1]!, plain[0]!)) -
         AutoMovieArchetypeMarks.ARROW,
     ) > 1e-9 ||
     !(AutoMovieArchetypeMarks.ARROW > 0)

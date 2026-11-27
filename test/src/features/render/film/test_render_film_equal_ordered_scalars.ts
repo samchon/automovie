@@ -1,4 +1,4 @@
-import { equalOrderedScalars } from "@automovie/render";
+import { AutoMovieRenderFilm } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -13,22 +13,22 @@ import { TestValidator } from "@nestia/e2e";
 export function test_render_film_equal_ordered_scalars(): void {
   TestValidator.predicate(
     "equal labels",
-    equalOrderedScalars(
+    AutoMovieRenderFilm.equalOrderedScalars(
       ["front-left", "front-right"],
       ["front-left", "front-right"],
     ),
   );
   TestValidator.predicate(
     "reordered labels",
-    !equalOrderedScalars(["a", "b"], ["b", "a"]),
+    !AutoMovieRenderFilm.equalOrderedScalars(["a", "b"], ["b", "a"]),
   );
   TestValidator.predicate(
     "a shorter list",
-    !equalOrderedScalars(["a", "b"], ["a"]),
+    !AutoMovieRenderFilm.equalOrderedScalars(["a", "b"], ["a"]),
   );
   TestValidator.predicate(
     "a number and its text",
-    !equalOrderedScalars([1], ["1"]),
+    !AutoMovieRenderFilm.equalOrderedScalars([1], ["1"]),
   );
-  TestValidator.predicate("signed zeros", !equalOrderedScalars([0], [-0]));
+  TestValidator.predicate("signed zeros", !AutoMovieRenderFilm.equalOrderedScalars([0], [-0]));
 }

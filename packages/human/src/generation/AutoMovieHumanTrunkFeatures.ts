@@ -1,4 +1,4 @@
-import { AutoMovieSplineCurve } from "@automovie/engine";
+import { AutoMovieEngineSplineCurve } from "@automovie/engine";
 import type {
   IAutoMovieHumanTrunkColumn,
   IAutoMovieHumanTrunkFeature,
@@ -40,12 +40,6 @@ import { AutoMovieHumanUmbilicus } from "./AutoMovieHumanUmbilicus";
  * body.
  */
 export namespace AutoMovieHumanTrunkFeatures {
-  /** Construction level of an additive piece (`construction-levels.md`, Levels). */
-  const ADDITIVE: number = 3;
-
-  /** Construction level of a subtractive piece. */
-  const SUBTRACTIVE: number = 4;
-
   /**
    * The phase of a side's section at a lateral place: the bisection of the
    * section's spline over the quadrant's phases.
@@ -66,7 +60,7 @@ export namespace AutoMovieHumanTrunkFeatures {
 
     for (let k: number = 0; k < 40; k++) {
       const mid: number = (lo + hi) / 2;
-      const zm: number = AutoMovieSplineCurve.evaluate(
+      const zm: number = AutoMovieEngineSplineCurve.evaluate(
         controls,
         AutoMovieHumanTrunkQuadrant.ORDER,
         mid,
@@ -97,7 +91,7 @@ export namespace AutoMovieHumanTrunkFeatures {
         controls = AutoMovieHumanTrunkRing.controls(col.at(y));
         rings.set(y, controls);
       }
-      const p: [number, number, number, number] = AutoMovieSplineCurve.evaluate(
+      const p: [number, number, number, number] = AutoMovieEngineSplineCurve.evaluate(
         controls,
         AutoMovieHumanTrunkQuadrant.ORDER,
         t,
@@ -108,10 +102,10 @@ export namespace AutoMovieHumanTrunkFeatures {
 
     // The windows stay inside the chart's two shared ends: over the crotch
     // ring the legs share, under the neck's ring a clearance below it.
-    const bounds: [number, number] = [
-      col.keys[0]!.y,
-      col.keys[col.keys.length - 1]!.y - AutoMovieHumanSternalNotch.CLEARANCE,
-    ];
+    const bounds: IAutoMovieHumanTrunkReliefNet.IStationBounds = {
+      minimum: col.keys[0]!.y,
+      maximum: col.keys[col.keys.length - 1]!.y - AutoMovieHumanSternalNotch.CLEARANCE,
+    };
 
     return Object.assign(at, { bounds });
   }
@@ -140,7 +134,7 @@ export namespace AutoMovieHumanTrunkFeatures {
       controls,
     );
     const j: [number, number, number, number, number, number] =
-      AutoMovieSplineCurve.jet(
+      AutoMovieEngineSplineCurve.jet(
         controls,
         AutoMovieHumanTrunkQuadrant.ORDER,
         phaseAt(controls, "front", lateral),
@@ -204,7 +198,7 @@ export namespace AutoMovieHumanTrunkFeatures {
       controls,
     );
     const j: [number, number, number, number, number, number] =
-      AutoMovieSplineCurve.jet(
+      AutoMovieEngineSplineCurve.jet(
         controls,
         AutoMovieHumanTrunkQuadrant.ORDER,
         phaseAt(controls, "back", lateral),
@@ -242,6 +236,7 @@ export namespace AutoMovieHumanTrunkFeatures {
         phaseAt(controls, "back", Math.min(0.97 * s.width, Math.max(0, z))),
     });
   }
+
   /**
    * The scapular masses standing on the back's envelope at the axilla's height.
    *
@@ -269,7 +264,7 @@ export namespace AutoMovieHumanTrunkFeatures {
       controls,
     );
     const j: [number, number, number, number, number, number] =
-      AutoMovieSplineCurve.jet(
+      AutoMovieEngineSplineCurve.jet(
         controls,
         AutoMovieHumanTrunkQuadrant.ORDER,
         phaseAt(controls, "back", lateral),
@@ -359,7 +354,6 @@ export namespace AutoMovieHumanTrunkFeatures {
       ),
     ];
   }
-
   /**
    * Every feature of the trunk. Each is an optional piece: one that cannot
    * keep its contract is left out, the base keeps its place there, and the
@@ -428,4 +422,14 @@ export namespace AutoMovieHumanTrunkFeatures {
       return [];
     }
   }
+
+  /*
+   * Construction level of an additive piece (`construction-levels.md`, Levels).
+   */
+  const ADDITIVE: number = 3;
+
+  /*
+   * Construction level of a subtractive piece.
+   */
+  const SUBTRACTIVE: number = 4;
 }

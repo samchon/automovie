@@ -1,4 +1,4 @@
-import { validateBuiltEnvironment } from "@automovie/engine";
+import { AutoMovieEngineArchitecture } from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieBuiltPopulation,
@@ -85,7 +85,7 @@ export function assertArchitectureBuiltPopulationRefusalsPart1(
       [
         "pointAccepted",
         (): boolean =>
-          validateBuiltEnvironment({
+          AutoMovieEngineArchitecture.validateBuiltEnvironment({
             environment: work([
               population({}, "place", {
                 min: { x: 0, y: 0, z: 0 },
@@ -98,7 +98,7 @@ export function assertArchitectureBuiltPopulationRefusalsPart1(
         "inverted",
         (): boolean =>
           hasViolation(
-            validateBuiltEnvironment({
+            AutoMovieEngineArchitecture.validateBuiltEnvironment({
               environment: work([
                 population({}, "place", {
                   min: { x: 2, y: 0, z: 0 },

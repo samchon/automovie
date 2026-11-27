@@ -4,7 +4,7 @@ How to change part of an accepted image and keep the rest.
 
 ## Instruction edits
 
-<!-- @source [FreqEdit](https://arxiv.org/abs/2512.01755) examines detail lost over successive image edits. -->
+<!-- @reference [FreqEdit](https://arxiv.org/abs/2512.01755) examines detail lost over successive image edits. -->
 
 Edit all findings from one inspection together. State corrections, defining traits and what to preserve. Check the whole result before the next round. Return to frozen canon references when detail drifts.
 

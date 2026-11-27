@@ -1,5 +1,5 @@
 import type { AutoMovieArchetype } from "@automovie/archetypes";
-import { physicalPrincipalAxes } from "@automovie/engine";
+import { AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalMaterial,
   IAutoMoviePhysicalProfile,
@@ -36,7 +36,7 @@ export function rigidProfile(
   material: IAutoMoviePhysicalMaterial,
 ): IAutoMoviePhysicalProfile {
   const inertia: RigidModel["properties"]["inertia"] = model.properties.inertia;
-  const axes: ReturnType<typeof physicalPrincipalAxes> = physicalPrincipalAxes([
+  const axes: ReturnType<typeof AutoMovieEnginePhysics.physicalPrincipalAxes> = AutoMovieEnginePhysics.physicalPrincipalAxes([
     [inertia.xx, inertia.xy, inertia.xz],
     [inertia.xy, inertia.yy, inertia.yz],
     [inertia.xz, inertia.yz, inertia.zz],

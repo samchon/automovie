@@ -1,15 +1,10 @@
 import type { IAutoMovieCapturePlanRequest } from "@automovie/interface";
-import {
-  formatAutoMovieCapturePlanRequest,
-  parseAutoMovieCapturePlanRequest,
-  readAutoMovieCaptureArguments,
-} from "@automovie/render";
+import { AutoMovieRenderCapture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import {
-  AUTOMOVIE_INSPECT_OPTIONS,
-  formatAutoMovieInspectUrl,
-  readAutoMovieCommandArguments,
-  readAutoMovieInspectHostOptions,
+  AutoMovieCliCommand,
+  AutoMovieCliInspect,
+  type AutoMovieCliInspectTypes,
 } from "automovie";
 
 /**
@@ -18,7 +13,7 @@ import {
  * Scenarios:
  *
  * 1. `inspect` keeps every token after it, in order, including none.
- * 2. The command's own options are taken out of the read options, with the port as a number and the props file as its path, and every other option, such as `at` and `views`, is left for the request reader; every name in `AUTOMOVIE_INSPECT_OPTIONS` is taken and an unlisted one is not.
+ * 2. The command's own options are taken out of the read options, with the port as a number and the props file as its path, and every other option, such as `at` and `views`, is left for the request reader; every name in `AutoMovieCliInspect.OPTIONS` is taken and an unlisted one is not.
  * 3. A missing `--module`, an empty `--module`, `--port` or `--props`, and a port of 0, 65536, 1.5 or text are refused naming the option.
  * 4. The request left by the command, read by the plan reader, written by its writer and joined into the address, reads back from the address's query to an equal request, special characters included; the request that asks for nothing is the base address alone.
  *
@@ -32,7 +27,7 @@ export function test_cli_inspect_arguments(): void {
   // 1. The command keeps its tokens.
   TestValidator.equals(
     "inspect keeps its tokens",
-    readAutoMovieCommandArguments([
+    AutoMovieCliCommand.readArguments([
       "inspect",
       "--module",
       "src/subjects.ts",
@@ -55,18 +50,18 @@ export function test_cli_inspect_arguments(): void {
   );
   TestValidator.equals(
     "inspect without tokens",
-    readAutoMovieCommandArguments(["inspect"]),
+    AutoMovieCliCommand.readArguments(["inspect"]),
     { command: "inspect", args: [] },
   );
 
   // 2. The command's own options.
   const read: (
     ...args: string[]
-  ) => ReturnType<typeof readAutoMovieInspectHostOptions> = (
+  ) => AutoMovieCliInspectTypes.HostOptions = (
     ...args: string[]
-  ): ReturnType<typeof readAutoMovieInspectHostOptions> =>
-    readAutoMovieInspectHostOptions(readAutoMovieCaptureArguments(args));
-  const options: ReturnType<typeof readAutoMovieInspectHostOptions> = read(
+  ): AutoMovieCliInspectTypes.HostOptions =>
+    AutoMovieCliInspect.readHostOptions(AutoMovieRenderCapture.readArguments(args));
+  const options: AutoMovieCliInspectTypes.HostOptions = read(
     "--module",
     "src/subjects.ts",
     "--port",
@@ -100,7 +95,7 @@ export function test_cli_inspect_arguments(): void {
     "case.json",
   );
   const every: Map<string, string> = new Map<string, string>([
-    ...AUTOMOVIE_INSPECT_OPTIONS.map((key: string): [string, string] => [
+    ...AutoMovieCliInspect.OPTIONS.map((key: string): [string, string] => [
       key,
       key === "port" ? "8080" : "value",
     ]),
@@ -108,7 +103,7 @@ export function test_cli_inspect_arguments(): void {
   ]);
   TestValidator.equals(
     "every listed option is taken",
-    [...readAutoMovieInspectHostOptions(every).request.keys()],
+    [...AutoMovieCliInspect.readHostOptions(every).request.keys()],
     ["subject"],
   );
 
@@ -147,7 +142,7 @@ export function test_cli_inspect_arguments(): void {
   // 4. The printed address reads back to the request.
   const base: string = "http://127.0.0.1:5174/";
   const requested: IAutoMovieCapturePlanRequest =
-    parseAutoMovieCapturePlanRequest(
+    AutoMovieRenderCapture.parsePlanRequest(
       read(
         "--module",
         "m.ts",
@@ -163,21 +158,21 @@ export function test_cli_inspect_arguments(): void {
         "0.5,1.25",
       ).request,
     );
-  const url: string = formatAutoMovieInspectUrl(
+  const url: string = AutoMovieCliInspect.formatUrl(
     base,
-    formatAutoMovieCapturePlanRequest(requested),
+    AutoMovieRenderCapture.formatPlanRequest(requested),
   );
   TestValidator.equals(
     "the address reads back",
-    parseAutoMovieCapturePlanRequest(new URL(url).searchParams),
+    AutoMovieRenderCapture.parsePlanRequest(new URL(url).searchParams),
     requested,
   );
   TestValidator.equals(
     "the empty request is the base address",
-    formatAutoMovieInspectUrl(
+    AutoMovieCliInspect.formatUrl(
       base,
-      formatAutoMovieCapturePlanRequest(
-        parseAutoMovieCapturePlanRequest(new Map()),
+      AutoMovieRenderCapture.formatPlanRequest(
+        AutoMovieRenderCapture.parsePlanRequest(new Map()),
       ),
     ),
     base,

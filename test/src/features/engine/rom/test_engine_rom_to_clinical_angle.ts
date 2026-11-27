@@ -1,4 +1,6 @@
-import { toClinicalAngle } from "@automovie/engine";
+import {
+  AutoMovieEngineKinematics,
+} from "@automovie/engine";
 import type { IAutoMovieAxisFrame } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -11,7 +13,7 @@ const ROUNDING: number = 1e-12;
 const FRAME: IAutoMovieAxisFrame = { sign: -1, neutral: 10 };
 
 /**
- * `toClinicalAngle` maps a rig angle to the clinical one: `sign * rig +
+ * `AutoMovieEngineKinematics.toClinicalAngle` maps a rig angle to the clinical one: `sign * rig +
  * neutral`, with null staying null and no frame meaning identity.
  *
  * Scenarios:
@@ -23,15 +25,15 @@ const FRAME: IAutoMovieAxisFrame = { sign: -1, neutral: 10 };
 export function test_engine_rom_to_clinical_angle(): void {
   TestValidator.predicate(
     "sign and neutral",
-    nclose(toClinicalAngle(30, FRAME) ?? NaN, -20, ROUNDING),
+    nclose(AutoMovieEngineKinematics.toClinicalAngle(30, FRAME) ?? NaN, -20, ROUNDING),
   );
   TestValidator.predicate(
     "identity and null",
-    toClinicalAngle(30, undefined) === 30 &&
-      toClinicalAngle(null, FRAME) === null,
+    AutoMovieEngineKinematics.toClinicalAngle(30, undefined) === 30 &&
+      AutoMovieEngineKinematics.toClinicalAngle(null, FRAME) === null,
   );
-  const read: ReturnType<typeof toClinicalAngle.prepare> =
-    toClinicalAngle.prepare();
+  const read: ReturnType<typeof AutoMovieEngineKinematics.prepareToClinicalAngle> =
+    AutoMovieEngineKinematics.prepareToClinicalAngle();
   TestValidator.predicate(
     "the prepared reader",
     nclose(read(30, FRAME) ?? NaN, -20, ROUNDING) &&

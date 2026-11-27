@@ -1,5 +1,5 @@
 import type { IAutoMovieMaterial, IAutoMovieModel, IAutoMoviePrimitiveShape } from "@automovie/interface";
-import { buildModel, collectAutoMovieOwnedResources } from "@automovie/render";
+import { AutoMovieRenderSceneLayout, AutoMovieRenderSceneResource } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { createModel, primitivePart } from "../../internal/fixtures";
@@ -29,7 +29,8 @@ export function test_render_scene_zero_alpha_proxy(): void {
     height: 1,
     depth: 1,
   };
-  const built: ReturnType<typeof buildModel> = buildModel({
+  const built: ReturnType<typeof AutoMovieRenderSceneLayout.buildModel> =
+    AutoMovieRenderSceneLayout.buildModel({
     ...base,
     materials: [solid, proxy],
     parts: [
@@ -49,7 +50,7 @@ export function test_render_scene_zero_alpha_proxy(): void {
       true,
     );
   } finally {
-    for (const resource of collectAutoMovieOwnedResources(built.object))
+    for (const resource of AutoMovieRenderSceneResource.collectOwnedResources(built.object))
       resource.dispose();
   }
 }

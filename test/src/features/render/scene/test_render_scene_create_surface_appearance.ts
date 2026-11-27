@@ -1,10 +1,9 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import {
-  AutoMovieSkinnedMesh,
-  applyDualQuaternionSkinning,
-  createAutoMovieSurfaceAppearance,
-  readAutoMovieBufferAttribute,
-  readMaterialShaderPatches,
+  AutoMovieRenderDualQuaternionSkinning,
+  AutoMovieRenderMaterial,
+  AutoMovieRenderSurfaceAppearance,
+  AutoMovieRenderSkinnedMesh,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
@@ -13,11 +12,11 @@ import * as THREE from "three";
 import { singleMaterial } from "../../internal/singleMaterial";
 
 /**
- * `createAutoMovieSurfaceAppearance` lays a sampled appearance on a surface.
- * Local appearance follows the actual posed DQ skin, inverts compression,
- * preserves shaders and restores on seek. Empty/sparse RGB, Float32 overflow
- * and duplicate resource ownership refuse; representable HDR multipliers remain
- * legal.
+ * `AutoMovieRenderSurfaceAppearance.create` lays a sampled appearance on a
+ * surface. Local appearance follows the actual posed DQ skin, inverts
+ * compression, preserves shaders and restores on seek. Empty/sparse RGB,
+ * Float32 overflow and duplicate resource ownership refuse; representable HDR
+ * multipliers remain legal.
  */
 export function test_render_scene_create_surface_appearance(): void {
   const geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
@@ -34,8 +33,8 @@ export function test_render_scene_create_surface_appearance(): void {
     new THREE.Float32BufferAttribute([1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0], 4),
   );
   const material: THREE.MeshStandardMaterial = new THREE.MeshStandardMaterial();
-  applyDualQuaternionSkinning(material);
-  const mesh: AutoMovieSkinnedMesh = new AutoMovieSkinnedMesh(
+  AutoMovieRenderDualQuaternionSkinning.apply(material);
+  const mesh: AutoMovieRenderSkinnedMesh = new AutoMovieRenderSkinnedMesh(
     geometry,
     material,
     "dual-quaternion",
@@ -49,8 +48,8 @@ export function test_render_scene_create_surface_appearance(): void {
   head.rotation.z = Math.PI / 2;
   mesh.updateMatrixWorld(true);
   mesh.skeleton.update();
-  const appearance: ReturnType<typeof createAutoMovieSurfaceAppearance> =
-    createAutoMovieSurfaceAppearance({
+  const appearance: AutoMovieRenderSurfaceAppearance.ISurfaceAppearanceResult =
+    AutoMovieRenderSurfaceAppearance.create({
       surfaces: [{ bone: "head", mesh }],
       space: "posed-mesh",
       sample: (
@@ -77,10 +76,9 @@ export function test_render_scene_create_surface_appearance(): void {
       findings.push(
         `compression in the displayed skin frame: ${posed.toArray()}`,
       );
-    const colors: THREE.BufferAttribute = readAutoMovieBufferAttribute(
-      mesh.geometry,
+    const colors: THREE.BufferAttribute = mesh.geometry.getAttribute(
       "color",
-    );
+    ) as THREE.BufferAttribute;
     if (Math.abs(colors.getX(0) - 0.4) > 1e-6 || colors.getX(1) !== 1)
       findings.push("localized posed-surface color");
     const ownedMaterial: THREE.Material = singleMaterial(mesh.material);
@@ -88,8 +86,8 @@ export function test_render_scene_create_surface_appearance(): void {
       ownedMaterial.onBeforeCompile !== material.onBeforeCompile ||
       ownedMaterial.customProgramCacheKey() !==
         material.customProgramCacheKey() ||
-      readMaterialShaderPatches(ownedMaterial).length !==
-        readMaterialShaderPatches(material).length
+      AutoMovieRenderMaterial.readShaderPatches(ownedMaterial).length !==
+        AutoMovieRenderMaterial.readShaderPatches(material).length
     )
       findings.push("dual-quaternion shader patch ownership");
     appearance.update(0);
@@ -106,8 +104,8 @@ export function test_render_scene_create_surface_appearance(): void {
   if (mesh.geometry !== geometry || mesh.material !== material)
     findings.push("original resource restoration");
   assert.throws(
-    (): ReturnType<typeof createAutoMovieSurfaceAppearance> =>
-      createAutoMovieSurfaceAppearance({
+    (): AutoMovieRenderSurfaceAppearance.ISurfaceAppearanceResult =>
+      AutoMovieRenderSurfaceAppearance.create({
         surfaces: [
           { bone: "head", mesh },
           { bone: "second", mesh },
@@ -135,8 +133,8 @@ export function test_render_scene_create_surface_appearance(): void {
     const isolated: THREE.Mesh = new THREE.Mesh(source, original);
     try {
       assert.throws(
-        (): ReturnType<typeof createAutoMovieSurfaceAppearance> =>
-          createAutoMovieSurfaceAppearance({
+        (): AutoMovieRenderSurfaceAppearance.ISurfaceAppearanceResult =>
+          AutoMovieRenderSurfaceAppearance.create({
             surfaces: [{ bone: "surface", mesh: isolated }],
             sample: (): {
               color: [number, number, number];
@@ -160,8 +158,8 @@ export function test_render_scene_create_surface_appearance(): void {
     { color: [1, 1, 1], displacement: { x: 1e308, y: 0, z: 0 } },
   ];
   for (const response of invalid) {
-    const rejected: ReturnType<typeof createAutoMovieSurfaceAppearance> =
-      createAutoMovieSurfaceAppearance({
+    const rejected: AutoMovieRenderSurfaceAppearance.ISurfaceAppearanceResult =
+      AutoMovieRenderSurfaceAppearance.create({
         surfaces: [{ bone: "head", mesh }],
         sample: (): {
           color: [number, number, number];
@@ -176,8 +174,8 @@ export function test_render_scene_create_surface_appearance(): void {
     assert.equal(mesh.geometry, geometry);
     assert.equal(mesh.material, material);
   }
-  const hdr: ReturnType<typeof createAutoMovieSurfaceAppearance> =
-    createAutoMovieSurfaceAppearance({
+  const hdr: AutoMovieRenderSurfaceAppearance.ISurfaceAppearanceResult =
+    AutoMovieRenderSurfaceAppearance.create({
       surfaces: [{ bone: "head", mesh }],
       sample: (): {
         color: [number, number, number];
@@ -187,7 +185,7 @@ export function test_render_scene_create_surface_appearance(): void {
   try {
     hdr.update(0);
     assert.equal(
-      readAutoMovieBufferAttribute(mesh.geometry, "color").getX(0),
+      (mesh.geometry.getAttribute("color") as THREE.BufferAttribute).getX(0),
       2,
     );
   } finally {

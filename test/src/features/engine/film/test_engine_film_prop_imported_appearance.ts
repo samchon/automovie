@@ -1,4 +1,4 @@
-import { forgeProp } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieConstraintViolation,
   IAutoMovieForgedProp,
@@ -32,7 +32,7 @@ function refuses(
 ): boolean {
   const spec: IAutoMoviePropSpec = createImportedPropSpec();
   mutate(spec);
-  const result: IAutoMovieForgedProp = forgeProp(spec);
+  const result: IAutoMovieForgedProp = AutoMovieEngineFilm.forgeProp(spec);
   return (
     result.success === false &&
     result.violations.some(
@@ -51,7 +51,7 @@ function refuses(
 function tolerated(mutate: (spec: IAutoMoviePropSpec) => void): boolean {
   const spec: IAutoMoviePropSpec = createImportedPropSpec();
   mutate(spec);
-  return forgeProp(spec).success;
+  return AutoMovieEngineFilm.forgeProp(spec).success;
 }
 
 /**
@@ -95,7 +95,7 @@ function tolerated(mutate: (spec: IAutoMoviePropSpec) => void): boolean {
  *    it, so the reference buys the pixels and not an exemption.
  */
 export function test_engine_film_prop_imported_appearance(): void {
-  const forged: IAutoMovieForgedProp = forgeProp(createImportedPropSpec());
+  const forged: IAutoMovieForgedProp = AutoMovieEngineFilm.forgeProp(createImportedPropSpec());
   TestValidator.predicate(
     "an imported chair forges",
     forged.success === true &&
@@ -113,14 +113,14 @@ export function test_engine_film_prop_imported_appearance(): void {
     namedFacts([
       [
         "generatedDoorStillForges",
-        (): boolean => forgeProp(createDoorPropSpec()).success,
+        (): boolean => AutoMovieEngineFilm.forgeProp(createDoorPropSpec()).success,
       ],
       [
         "importedWithoutReferenceIsRefusedVerbatim",
         (): boolean => {
           const spec: IAutoMoviePropSpec = createImportedPropSpec();
           delete spec.modelRef;
-          const result: IAutoMovieForgedProp = forgeProp(spec);
+          const result: IAutoMovieForgedProp = AutoMovieEngineFilm.forgeProp(spec);
           return (
             result.success === false &&
             result.violations.some(
@@ -137,7 +137,7 @@ export function test_engine_film_prop_imported_appearance(): void {
         (): boolean => {
           const spec: IAutoMoviePropSpec = createImportedPropSpec();
           spec.modelRef = null;
-          const result: IAutoMovieForgedProp = forgeProp(spec);
+          const result: IAutoMovieForgedProp = AutoMovieEngineFilm.forgeProp(spec);
           return (
             result.success === false &&
             result.violations.some(
@@ -153,7 +153,7 @@ export function test_engine_film_prop_imported_appearance(): void {
         "aGeneratedPropNamingNoReferenceIsNotJudgedAsImported",
         (): boolean => {
           const spec: IAutoMoviePropSpec = createDoorPropSpec();
-          const result: IAutoMovieForgedProp = forgeProp(spec);
+          const result: IAutoMovieForgedProp = AutoMovieEngineFilm.forgeProp(spec);
           return result.success === true && (spec.modelRef ?? null) === null;
         },
       ],
@@ -202,7 +202,7 @@ export function test_engine_film_prop_imported_appearance(): void {
         (): boolean => {
           const spec: IAutoMoviePropSpec = createImportedPropSpec();
           delete spec.model.imported;
-          const result: IAutoMovieForgedProp = forgeProp(spec);
+          const result: IAutoMovieForgedProp = AutoMovieEngineFilm.forgeProp(spec);
           return (
             result.success === false &&
             result.violations.every(
@@ -293,7 +293,7 @@ export function test_engine_film_prop_imported_appearance(): void {
           const spec: IAutoMoviePropSpec = createImportedPropSpec();
           spec.model.imported!.assets[0]!.path = "";
           spec.model.imported!.assets[1]!.path = "";
-          const result: IAutoMovieForgedProp = forgeProp(spec);
+          const result: IAutoMovieForgedProp = AutoMovieEngineFilm.forgeProp(spec);
           return (
             result.success === false &&
             result.violations.every(

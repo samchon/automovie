@@ -1,4 +1,4 @@
-import { HumanRefusal } from "@automovie/motions";
+import { AutoMovieMotionHumanRefusal } from "@automovie/motions";
 import { strict as assert } from "node:assert";
 
 import { PlaygroundPerformance } from "../src/playground/package/PlaygroundPerformance";
@@ -73,7 +73,7 @@ export function checkPlaygroundCues(): void {
   );
   assert.throws(
     (): number => built.performance.instant({ of: "missing", event: "charge" }),
-    (error: unknown): boolean => error instanceof HumanRefusal,
+    (error: unknown): boolean => error instanceof AutoMovieMotionHumanRefusal,
     "an unnamed track refuses",
   );
 }

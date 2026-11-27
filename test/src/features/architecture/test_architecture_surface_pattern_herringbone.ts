@@ -1,9 +1,4 @@
-import {
-  Quaternion,
-  autoMoviePatternInstanceTransforms,
-  compareCodeUnits,
-  generateAutoMovieSurfacePattern,
-} from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineText, AutoMovieEngineArchitecture, AutoMovieEngineSurfaceMaterial } from "@automovie/engine";
 import type {
   AutoMovieSurfacePatternGenerator,
   IAutoMovieExplicitInstanceTransform,
@@ -136,14 +131,14 @@ const floor: (
  * 7. The same declaration laid twice preserves record structure and exact
  *    numeric components.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls generateAutoMovieSurfacePattern and autoMoviePatternInstanceTransforms for authored herringbone boards, checking exact occurrence/cut identities, quantities, neighbour findings, minimum-piece boundaries, whole-piece slots, and replay.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls generateSurfacePattern and patternInstanceTransforms for authored herringbone boards, checking exact occurrence/cut identities, quantities, neighbour findings, minimum-piece boundaries, whole-piece slots, and replay.
  * @evidence contracts/development/testing.md#independent-expectations The 0.6-square room has area 0.36; six whole and four half boards consume 0.45 and waste 0.09 square metres. Twelve explicitly enumerated cross-grain contacts, fixed half-coverage thresholds, slot ids, positions, long axes, and dimensions independently anchor the layout and instancing results.
  * @evidence contracts/development/testing.md#distinguishing-cases Zero overlap/joint findings contrast with 90-degree grain findings, which disappear at 90-degree or null tolerance; half pieces switch to slivers above minimum 0.5, and whole versus cut pieces take distinct instancing paths. Repeated declarations retain their numerical records through existing test12ValuesClose.
  * @evidence contracts/development/testing.md#execution-ownership Uses existing local pattern/generator fixtures and synchronous numerical generation/instancing without rendering, resources, clocks, global replacement, or another test host. Quaternion-vector observations check selected axes; these assertions do not establish a rendered floor or universal herringbone coverage.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The ten pieces reaching the room are laid in lattice order under their own).
  */
 export function test_architecture_surface_pattern_herringbone(): void {
-  const laid: IAutoMovieSurfacePatternResult = generateAutoMovieSurfacePattern({
+  const laid: IAutoMovieSurfacePatternResult = AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
     pattern: floor(),
   });
 
@@ -234,7 +229,7 @@ export function test_architecture_surface_pattern_herringbone(): void {
   );
 
   const turning: IAutoMovieSurfacePatternResult =
-    generateAutoMovieSurfacePattern({
+    AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
       pattern: floor({ grainToleranceDeg: 5 }),
     });
   // Rectangle contacts independently enumerated from the ten authored pieces.
@@ -242,9 +237,11 @@ export function test_architecture_surface_pattern_herringbone(): void {
     "every cross-grain rectangle contact is reported exactly once",
     turning.findings
       .map((finding: IAutoMoviePatternFinding): string =>
-        [...finding.occurrences].sort(compareCodeUnits).join("|"),
+        [...finding.occurrences]
+          .sort(AutoMovieEngineText.compareCodeUnits)
+          .join("|"),
       )
-      .sort(compareCodeUnits),
+      .sort(AutoMovieEngineText.compareCodeUnits),
     [
       ["wood/v2@0,-1", "wood/h0@0,0"],
       ["wood/v2@0,-1", "wood/h1@0,0"],
@@ -259,8 +256,10 @@ export function test_architecture_surface_pattern_herringbone(): void {
       ["wood/h2@0,0", "wood/v2@0,0"],
       ["wood/v2@0,0", "wood/h3@0,0"],
     ]
-      .map((pair: string[]): string => pair.sort(compareCodeUnits).join("|"))
-      .sort(compareCodeUnits),
+      .map((pair: string[]): string =>
+        pair.sort(AutoMovieEngineText.compareCodeUnits).join("|"),
+      )
+      .sort(AutoMovieEngineText.compareCodeUnits),
   );
   TestValidator.equals(
     "the grain turns where a flat board meets one on end, and nowhere else",
@@ -294,7 +293,7 @@ export function test_architecture_surface_pattern_herringbone(): void {
       [
         "tolerated",
         (): boolean =>
-          generateAutoMovieSurfacePattern({
+          AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
             pattern: floor({ grainToleranceDeg: 90 }),
           }).findings.length === 0,
       ],
@@ -317,7 +316,7 @@ export function test_architecture_surface_pattern_herringbone(): void {
       [
         "above",
         (): boolean =>
-          generateAutoMovieSurfacePattern({
+          AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
             pattern: floor({ minimumPiece: 0.6 }),
           })
             .findings.map(
@@ -335,7 +334,7 @@ export function test_architecture_surface_pattern_herringbone(): void {
       [
         "below",
         (): boolean =>
-          generateAutoMovieSurfacePattern({
+          AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
             pattern: floor({ minimumPiece: 0.4 }),
           }).findings.length === 0,
       ],
@@ -344,7 +343,7 @@ export function test_architecture_surface_pattern_herringbone(): void {
   );
 
   const instanced: IAutoMoviePatternInstancing =
-    autoMoviePatternInstanceTransforms({
+    AutoMovieEngineArchitecture.patternInstanceTransforms({
       result: laid,
       frame: FLOOR,
       thickness: 0.018,
@@ -382,7 +381,7 @@ export function test_architecture_surface_pattern_herringbone(): void {
             z: 0.15,
           }) &&
           vclose(
-            Quaternion.rotateVector(instanced.transforms[1]!.rotation, {
+            AutoMovieEngineQuaternion.rotateVector(instanced.transforms[1]!.rotation, {
               x: 1,
               y: 0,
               z: 0,
@@ -399,7 +398,7 @@ export function test_architecture_surface_pattern_herringbone(): void {
             z: 0.075,
           }) &&
           vclose(
-            Quaternion.rotateVector(instanced.transforms[2]!.rotation, {
+            AutoMovieEngineQuaternion.rotateVector(instanced.transforms[2]!.rotation, {
               x: 1,
               y: 0,
               z: 0,
@@ -424,7 +423,7 @@ export function test_architecture_surface_pattern_herringbone(): void {
   TestValidator.predicate(
     "the same herringbone laid twice preserves structure and numeric components",
     test12ValuesClose(
-      generateAutoMovieSurfacePattern({ pattern: floor() }),
+      AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({ pattern: floor() }),
       laid,
     ),
   );

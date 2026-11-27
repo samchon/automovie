@@ -1,4 +1,8 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import {
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
+  AutoMovieEngineMotionSampling,
+} from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieQuaternion,
@@ -14,11 +18,8 @@ import {
 } from "../core";
 import type { AutoMovieArchetypeEquineStanceCue } from "./AutoMovieArchetypeEquineStanceCue";
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
-import { EquineBodyPose } from "./EquineBodyPose";
-import { EquineStanceRows } from "./EquineStanceRows";
-
-/** A named instant of a ride. */
-type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];
+import { EquineBodyPose } from "./equine/EquineBodyPose";
+import { EquineStanceRows } from "./equine/EquineStanceRows";
 
 /**
  * An equid's standing performance after its ride halts: authored whole-body
@@ -65,16 +66,16 @@ export namespace AutoMovieArchetypeEquineStance {
       ),
     );
     const trunk: IAutoMovieTransform = frameOf(parts.get("trunk")!);
-    const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+    const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       trunk.rotation,
-      Quaternion.inverse(body.trunk.rotation),
+      AutoMovieEngineQuaternion.inverse(body.trunk.rotation),
     );
     let state: EquineStanceRows.IState = {
       trunk: {
         rotation,
-        translation: Vector3.subtract(
+        translation: AutoMovieEngineVector3.subtract(
           trunk.translation,
-          Quaternion.rotateVector(rotation, body.trunk.translation),
+          AutoMovieEngineQuaternion.rotateVector(rotation, body.trunk.translation),
         ),
       },
       anchors: {
@@ -211,12 +212,12 @@ export namespace AutoMovieArchetypeEquineStance {
           return pose(plan.hold(seconds - held), seconds);
         const share: number =
           seconds < held
-            ? minimumJerk.share((seconds - cue.from) / cue.entry)
+            ? AutoMovieEngineMotionSampling.minimumJerkShare((seconds - cue.from) / cue.entry)
             : seconds < settle
               ? 1
               : plan.end === plan.start
-                ? minimumJerk.share((end - seconds) / cue.exit)
-                : 1 + minimumJerk.share((seconds - settle) / cue.exit);
+                ? AutoMovieEngineMotionSampling.minimumJerkShare((end - seconds) / cue.exit)
+                : 1 + AutoMovieEngineMotionSampling.minimumJerkShare((seconds - settle) / cue.exit);
         return pose(plan.goal(share), seconds);
       }
       if (current === rest) return ride.at(seconds);
@@ -268,7 +269,9 @@ export namespace AutoMovieArchetypeEquineStance {
     };
   }
 
-  /** A refusal of a response. */
+  /*
+   * A refusal of a response.
+   */
   function refuse(
     archetype: string,
     axis: string,
@@ -286,14 +289,16 @@ export namespace AutoMovieArchetypeEquineStance {
     });
   }
 
-  /** A bar's start frame, the origin its rig link uses. */
+  /*
+   * A bar's start frame, the origin its rig link uses.
+   */
   function frameOf(part: IAutoMovieModelPart): IAutoMovieTransform {
     const transform: IAutoMovieTransform = part.transform!;
     return {
       ...transform,
-      translation: Vector3.subtract(
+      translation: AutoMovieEngineVector3.subtract(
         transform.translation,
-        Quaternion.rotateVector(transform.rotation, {
+        AutoMovieEngineQuaternion.rotateVector(transform.rotation, {
           x: 0,
           y: height(part) / 2,
           z: 0,
@@ -302,7 +307,9 @@ export namespace AutoMovieArchetypeEquineStance {
     };
   }
 
-  /** A limb's terminal endpoint, the far end of its last bar. */
+  /*
+   * A limb's terminal endpoint, the far end of its last bar.
+   */
   function endpoint(
     parts: ReadonlyMap<string, IAutoMovieModelPart>,
     limb: AutoMovieArchetypeQuadrupedBody.Limb,
@@ -311,9 +318,9 @@ export namespace AutoMovieArchetypeEquineStance {
       AutoMovieArchetypeQuadrupedBody.BONES[limb][3]!,
     )!;
     const frame: IAutoMovieTransform = frameOf(pastern);
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       frame.translation,
-      Quaternion.rotateVector(frame.rotation, {
+      AutoMovieEngineQuaternion.rotateVector(frame.rotation, {
         x: 0,
         y: height(pastern),
         z: 0,
@@ -321,7 +328,9 @@ export namespace AutoMovieArchetypeEquineStance {
     );
   }
 
-  /** A bar part's length. */
+  /*
+   * A bar part's length.
+   */
   function height(part: IAutoMovieModelPart): number {
     return part.geometry.type === "primitive" &&
       (part.geometry.shape.type === "capsule" ||
@@ -330,3 +339,8 @@ export namespace AutoMovieArchetypeEquineStance {
       : NaN;
   }
 }
+
+/*
+ * A named instant of a ride.
+ */
+type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];

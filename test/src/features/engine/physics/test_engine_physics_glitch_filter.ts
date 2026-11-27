@@ -1,8 +1,8 @@
-import { physicalGlitchFilter } from "@automovie/engine";
+import { AutoMovieEnginePhysicalGlitchFilter } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `physicalGlitchFilter` takes a new value only after its input has held it for
+ * `AutoMovieEnginePhysicalGlitchFilter` takes a new value only after its input has held it for
  * a whole window of successive updates, as IHMC's `GlitchFilteredYoBoolean`
  * does.
  *
@@ -18,13 +18,13 @@ import { TestValidator } from "@nestia/e2e";
  */
 export function test_engine_physics_glitch_filter(): void {
   const step = (
-    state: physicalGlitchFilter.IState,
+    state: AutoMovieEnginePhysicalGlitchFilter.IState,
     value: boolean,
     window: number,
-  ): physicalGlitchFilter.IState =>
-    physicalGlitchFilter({ state, value, window });
-  const once: physicalGlitchFilter.IState = step(
-    physicalGlitchFilter.set(false),
+  ): AutoMovieEnginePhysicalGlitchFilter.IState =>
+    AutoMovieEnginePhysicalGlitchFilter.advance({ state, value, window });
+  const once: AutoMovieEnginePhysicalGlitchFilter.IState = step(
+    AutoMovieEnginePhysicalGlitchFilter.set(false),
     true,
     2,
   );
@@ -33,7 +33,7 @@ export function test_engine_physics_glitch_filter(): void {
     value: true,
     count: 0,
   });
-  let glitch: physicalGlitchFilter.IState = physicalGlitchFilter.set(false);
+  let glitch: AutoMovieEnginePhysicalGlitchFilter.IState = AutoMovieEnginePhysicalGlitchFilter.set(false);
   for (const value of [true, false, true, false, true])
     glitch = step(glitch, value, 2);
   TestValidator.equals("glitch", glitch.value, false);
@@ -44,10 +44,10 @@ export function test_engine_physics_glitch_filter(): void {
   for (const window of [0, 1])
     TestValidator.equals(
       `window ${window}`,
-      step(physicalGlitchFilter.set(false), true, window).value,
+      step(AutoMovieEnginePhysicalGlitchFilter.set(false), true, window).value,
       true,
     );
-  TestValidator.equals("new", physicalGlitchFilter.set(), {
+  TestValidator.equals("new", AutoMovieEnginePhysicalGlitchFilter.set(), {
     value: false,
     count: 0,
   });

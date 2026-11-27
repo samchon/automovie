@@ -1,13 +1,15 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBend,
   IAutoMovieMotionHumanBody,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanBendChain,
-  AutoMovieMotionHumanBendTurn,
-} from "@automovie/motions/internal";
+  motionHumanBendChain
+} from "../../../../../packages/motions/src/compose/internal/motionHumanBendChain";
+import {
+  motionHumanBendTurn
+} from "../../../../../packages/motions/src/compose/internal/motionHumanBendTurn";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -18,7 +20,7 @@ import { vclose } from "../../internal/vclose";
 const ROUNDING: number = 1e-12;
 
 /**
- * `AutoMovieMotionHumanBendTurn` turns an elbow hint about the shoulder-to-
+ * `motionHumanBendTurn` turns an elbow hint about the shoulder-to-
  * wrist line by Rodrigues' formula, right-handed about the line from the
  * shoulder to the wrist: its foot on the line and its radius kept; a hint on
  * the line is returned as it is.
@@ -38,7 +40,7 @@ export async function test_motions_compose_bend_turn(): Promise<void> {
     root: { x: 0, y: body.measure.hipHeight, z: 0 },
     yaw: 0,
   };
-  const shoulder: IAutoMovieVector3 = AutoMovieMotionHumanBendChain(
+  const shoulder: IAutoMovieVector3 = motionHumanBendChain(
     body,
     posture,
     "left",
@@ -47,21 +49,21 @@ export async function test_motions_compose_bend_turn(): Promise<void> {
     body,
     posture,
     side: "left",
-    point: Vector3.add(shoulder, { x: 0, y: 0, z: 0.5 }),
+    point: AutoMovieEngineVector3.add(shoulder, { x: 0, y: 0, z: 0.5 }),
   };
-  const middle: IAutoMovieVector3 = Vector3.add(shoulder, {
+  const middle: IAutoMovieVector3 = AutoMovieEngineVector3.add(shoulder, {
     x: 0,
     y: 0,
     z: 0.25,
   });
-  const hint: IAutoMovieVector3 = Vector3.add(middle, { x: 0, y: 0.2, z: 0 });
+  const hint: IAutoMovieVector3 = AutoMovieEngineVector3.add(middle, { x: 0, y: 0.2, z: 0 });
 
   // 1. A quarter turn: +Z × +Y is −X.
   TestValidator.predicate(
     "a quarter turn about the line",
     vclose(
-      AutoMovieMotionHumanBendTurn(props, hint, 90),
-      Vector3.add(middle, { x: -0.2, y: 0, z: 0 }),
+      motionHumanBendTurn(props, hint, 90),
+      AutoMovieEngineVector3.add(middle, { x: -0.2, y: 0, z: 0 }),
       ROUNDING,
     ),
   );
@@ -69,18 +71,18 @@ export async function test_motions_compose_bend_turn(): Promise<void> {
   // 2. Whole and opposite turns.
   TestValidator.predicate(
     "a whole turn and a turn undone",
-    vclose(AutoMovieMotionHumanBendTurn(props, hint, 360), hint, ROUNDING) &&
+    vclose(motionHumanBendTurn(props, hint, 360), hint, ROUNDING) &&
       vclose(
-        AutoMovieMotionHumanBendTurn(
+        motionHumanBendTurn(
           props,
-          AutoMovieMotionHumanBendTurn(props, hint, -30),
+          motionHumanBendTurn(props, hint, -30),
           30,
         ),
         hint,
         ROUNDING,
       ) &&
       nclose(
-        Vector3.distance(AutoMovieMotionHumanBendTurn(props, hint, 47), middle),
+        AutoMovieEngineVector3.distance(motionHumanBendTurn(props, hint, 47), middle),
         0.2,
         ROUNDING,
       ),
@@ -89,6 +91,6 @@ export async function test_motions_compose_bend_turn(): Promise<void> {
   // 3. On the line.
   TestValidator.predicate(
     "a hint on the line is kept",
-    AutoMovieMotionHumanBendTurn(props, middle, 40) === middle,
+    motionHumanBendTurn(props, middle, 40) === middle,
   );
 }

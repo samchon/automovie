@@ -1,4 +1,4 @@
-import { AutoMovieChain, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineChain, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
@@ -8,21 +8,21 @@ import type {
   IAutoMovieMotionHumanTouchForm,
 } from "@automovie/interface";
 
-import { HumanChain } from "../../HumanChain";
-import { createHumanBody } from "../../body/createHumanBody";
-import { AutoMovieMotionHumanTouchEffector } from "../../compose/AutoMovieMotionHumanTouchEffector";
-import { AutoMovieMotionHumanTouchForm } from "../../compose/AutoMovieMotionHumanTouchForm";
-import { HumanPerformance } from "../../perform/HumanPerformance";
-import { touch } from "../../touch/touch";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
-import { MotionBodies } from "../MotionBodies";
-import type { humanPolygonMan } from "../humanPolygonMan";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
+import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
+import { AutoMovieMotionHumanTouchEffector } from "../../compose/internal/AutoMovieMotionHumanTouchEffector";
+import { AutoMovieMotionHumanTouchForm } from "../../compose/internal/AutoMovieMotionHumanTouchForm";
+import { AutoMovieMotionHumanPerformance } from "../../perform/AutoMovieMotionHumanPerformance";
+import { touch } from "../../touch/internal/touch";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
+import { MotionBodies } from "../internal/MotionBodies";
+import type { humanPolygonMan } from "../internal/humanPolygonMan";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { TouchVerdicts } from "./TouchVerdicts";
-import { affectionCasePerformers } from "./affectionCasePerformers";
-import { everydayVerdicts } from "./everydayVerdicts";
+import { affectionCasePerformers } from "./internal/affectionCasePerformers";
+import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/**
+/*
  * Capture cases of affectionate and social touch between two polygon men of the
  * same body: `a` touches, `b` stands.
  *
@@ -39,9 +39,8 @@ import { everydayVerdicts } from "./everydayVerdicts";
  * down exactly `count` times, and `a`'s forearm never deeper than 10 mm into
  * `b`. A kiss case checks the lips within 10 mm of the region at `contact`; the
  * high five the two palms' skins within 15 mm at `meet`.
- *
- * @param bodies The bodies; `m-average` when absent.
- * @returns The cases.
+ * Parameter bodies: The bodies; `m-average` when absent.
+ * Returns: The cases.
  */
 export function affectionCases(
   bodies: readonly string[] = ["m-average"],
@@ -49,7 +48,7 @@ export function affectionCases(
   const out: IMotionCaptureCase[] = [];
   for (const id of bodies) {
     const man: humanPolygonMan.IPolygonMan = MotionBodies.population(id);
-    const body: IAutoMovieMotionHumanBody = createHumanBody(
+    const body: IAutoMovieMotionHumanBody = AutoMovieMotionHumanBody.create(
       man.body.skeleton,
       man.body.profile,
     );
@@ -104,8 +103,8 @@ export function affectionCases(
         pair(
           body,
           facing,
-          HumanChain.subject("a").act("touch", params),
-          HumanChain.subject("b").stand({ hold: 8 }),
+          AutoMovieMotionHumanChain.subject("a").act("touch", params),
+          AutoMovieMotionHumanChain.subject("b").stand({ hold: 8 }),
         );
       const performance: IAutoMovieMotionHumanPerformance | null =
         FamilyCaseKit.attempt(out, name, run);
@@ -240,8 +239,8 @@ export function affectionCases(
             pair(
               body,
               true,
-              HumanChain.subject("a").act("kiss", { partner: "b", region }),
-              HumanChain.subject("b").stand({ hold: 6 }),
+              AutoMovieMotionHumanChain.subject("a").act("kiss", { partner: "b", region }),
+              AutoMovieMotionHumanChain.subject("b").stand({ hold: 6 }),
               0.45,
             ),
         );
@@ -257,7 +256,7 @@ export function affectionCases(
         { subject: "b", body, region },
         contact,
       ).point;
-      const miss: number = Vector3.length(Vector3.subtract(lips, there));
+      const miss: number = AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(lips, there));
       out.push({
         name,
         times: TouchVerdicts.times(
@@ -289,15 +288,15 @@ export function affectionCases(
           out,
           name,
           (): IAutoMovieMotionHumanPerformance =>
-            new HumanPerformance({
+            new AutoMovieMotionHumanPerformance({
               seed: "affection",
               performers: affectionCasePerformers(body, true, 0.7),
-              composition: new AutoMovieChain({
-                kind: "parallel",
+              composition: new AutoMovieEngineChain({
+                type: "parallel",
                 parts: [
-                  HumanChain.subject("a").act("highFive", { partner: "b" })
+                  AutoMovieMotionHumanChain.subject("a").act("highFive", { partner: "b" })
                     .node,
-                  HumanChain.subject("b").act("highFive", { partner: "a" })
+                  AutoMovieMotionHumanChain.subject("b").act("highFive", { partner: "a" })
                     .node,
                 ],
               }).node,
@@ -322,7 +321,7 @@ export function affectionCases(
             palm,
           );
         const gap: number = Math.abs(
-          Vector3.length(Vector3.subtract(at("a"), at("b"))) - 2 * pad,
+          AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(at("a"), at("b"))) - 2 * pad,
         );
         out.push({
           name,
@@ -350,7 +349,9 @@ export function affectionCases(
   return out;
 }
 
-/** A performance of `b` standing and `a` acting, side by side in time. */
+/*
+ * A performance of `b` standing and `a` acting, side by side in time.
+ */
 function pair(
   body: IAutoMovieMotionHumanBody,
   facing: boolean,
@@ -358,11 +359,11 @@ function pair(
   b: IAutoMovieMotionHumanChain,
   gap: number = facing ? 0.55 : 0.45,
 ): IAutoMovieMotionHumanPerformance {
-  return new HumanPerformance({
+  return new AutoMovieMotionHumanPerformance({
     seed: "affection",
     performers: affectionCasePerformers(body, facing, gap),
-    composition: new AutoMovieChain({
-      kind: "parallel",
+    composition: new AutoMovieEngineChain({
+      type: "parallel",
       parts: [b.node, a.node],
     }).node,
   });

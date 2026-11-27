@@ -28,7 +28,7 @@ export function test_engine_geometry_split_fan_refusals(): void {
   };
   const t: number = F.T;
   refused(
-    F.split({ outer: [{ seam: [-t / 2, Math.PI - t] }] }),
+    F.split({ outer: [{ seam: { startPhaseRad: -t / 2, endPhaseRad: Math.PI - t } }] }),
     "an outer seam inside seam 0",
   );
   refused(
@@ -41,7 +41,7 @@ export function test_engine_geometry_split_fan_refusals(): void {
   refused(
     F.split({
       outer: F.OUTER,
-      profile: { knots: [[F.HALF / 1000, 0.004]], corner: 0.3, reach: 0 },
+      profile: { knots: [{ alongM: F.HALF / 1000, depthM: 0.004 }], corner: 0.3, reach: 0 },
     }),
     "a reach of 0",
   );

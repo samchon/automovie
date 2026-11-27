@@ -1,4 +1,4 @@
-import { formationSlotPosition } from "@automovie/engine";
+import { AutoMovieEnginePopulationFormation } from "@automovie/engine";
 import type {
   IAutoMovieFormationPlacement,
   IAutoMovieVector3,
@@ -79,16 +79,16 @@ export function test_engine_space_formation_slot_position(): void {
       y: 0,
       z: Math.floor(slot / 3) * 3,
     };
-    const point: IAutoMovieVector3 = formationSlotPosition(dressed, slot);
-    const laterally: IAutoMovieVector3 = formationSlotPosition(lateral, slot);
+    const point: IAutoMovieVector3 = AutoMovieEnginePopulationFormation.formationSlotPosition(dressed, slot);
+    const laterally: IAutoMovieVector3 = AutoMovieEnginePopulationFormation.formationSlotPosition(lateral, slot);
     TestValidator.predicate(
       `slot ${slot} keeps its lattice without dressing and varies only as authored`,
-      vclose(formationSlotPosition(formation, slot), lattice, 0) &&
-        vclose(formationSlotPosition(zero, slot), lattice, 0) &&
+      vclose(AutoMovieEnginePopulationFormation.formationSlotPosition(formation, slot), lattice, 0) &&
+        vclose(AutoMovieEnginePopulationFormation.formationSlotPosition(zero, slot), lattice, 0) &&
         !vclose(point, lattice, 1e-12) &&
         Math.abs(point.x - lattice.x) <= 0.25 &&
         Math.abs(point.z - lattice.z) <= 0.4 &&
-        vclose(point, formationSlotPosition(replayed, slot), 0) &&
+        vclose(point, AutoMovieEnginePopulationFormation.formationSlotPosition(replayed, slot), 0) &&
         nclose(laterally.z, lattice.z, 0) &&
         nclose(laterally.x, point.x, 0),
     );
@@ -96,8 +96,8 @@ export function test_engine_space_formation_slot_position(): void {
   TestValidator.predicate(
     "a different seed changes the same slot's dressing",
     !vclose(
-      formationSlotPosition(dressed, 0),
-      formationSlotPosition({ ...dressed, seed: 8 }, 0),
+      AutoMovieEnginePopulationFormation.formationSlotPosition(dressed, 0),
+      AutoMovieEnginePopulationFormation.formationSlotPosition({ ...dressed, seed: 8 }, 0),
       1e-12,
     ),
   );
@@ -128,22 +128,22 @@ export function test_engine_space_formation_slot_position(): void {
     TestValidator.predicate(
       `slot ${slot} uses its own slope height and retains any raised clearance`,
       vclose(
-        formationSlotPosition({ ...formation, ground: [ground] }, slot),
+        AutoMovieEnginePopulationFormation.formationSlotPosition({ ...formation, ground: [ground] }, slot),
         { x, y: 0, z },
         0,
       ) &&
         vclose(
-          formationSlotPosition({ ...formation, ground: [floor] }, slot),
+          AutoMovieEnginePopulationFormation.formationSlotPosition({ ...formation, ground: [floor] }, slot),
           { x, y: 0, z },
           0,
         ) &&
         vclose(
-          formationSlotPosition({ ...formation, ground: [slope] }, slot),
+          AutoMovieEnginePopulationFormation.formationSlotPosition({ ...formation, ground: [slope] }, slot),
           { x, y: z / 2, z },
           0,
         ) &&
         vclose(
-          formationSlotPosition(
+          AutoMovieEnginePopulationFormation.formationSlotPosition(
             {
               ...formation,
               ground: [slope],
@@ -163,10 +163,10 @@ export function test_engine_space_formation_slot_position(): void {
   };
   TestValidator.predicate(
     "the world Z half-slope affects a rotated rank but not an unturned one",
-    vclose(formationSlotPosition(turned, 0), { x: 0, y: 2, z: 4 }, 1e-12) &&
-      vclose(formationSlotPosition(turned, 1), { x: 0, y: 0, z: 0 }, 1e-12) &&
-      vclose(formationSlotPosition(turned, 2), { x: 0, y: -2, z: -4 }, 1e-12) &&
-      nclose(formationSlotPosition({ ...turned, facingDeg: 0 }, 0).y, 0, 0),
+    vclose(AutoMovieEnginePopulationFormation.formationSlotPosition(turned, 0), { x: 0, y: 2, z: 4 }, 1e-12) &&
+      vclose(AutoMovieEnginePopulationFormation.formationSlotPosition(turned, 1), { x: 0, y: 0, z: 0 }, 1e-12) &&
+      vclose(AutoMovieEnginePopulationFormation.formationSlotPosition(turned, 2), { x: 0, y: -2, z: -4 }, 1e-12) &&
+      nclose(AutoMovieEnginePopulationFormation.formationSlotPosition({ ...turned, facingDeg: 0 }, 0).y, 0, 0),
   );
 
   const ridge: IAutoMovieWorldSurface = {
@@ -196,16 +196,16 @@ export function test_engine_space_formation_slot_position(): void {
   };
   TestValidator.predicate(
     "the ridge peaks between symmetric lower files",
-    nclose(formationSlotPosition(crest, 0).y, 4.5, 0) &&
-      nclose(formationSlotPosition(crest, 1).y, 5, 0) &&
-      nclose(formationSlotPosition(crest, 2).y, 4.5, 0) &&
+    nclose(AutoMovieEnginePopulationFormation.formationSlotPosition(crest, 0).y, 4.5, 0) &&
+      nclose(AutoMovieEnginePopulationFormation.formationSlotPosition(crest, 1).y, 5, 0) &&
+      nclose(AutoMovieEnginePopulationFormation.formationSlotPosition(crest, 2).y, 4.5, 0) &&
       nclose(
-        formationSlotPosition({ ...crest, layout: rank.layout }, 2).y,
+        AutoMovieEnginePopulationFormation.formationSlotPosition({ ...crest, layout: rank.layout }, 2).y,
         4,
         0,
       ) &&
       nclose(
-        formationSlotPosition({ ...crest, layout: rank.layout }, 0).y,
+        AutoMovieEnginePopulationFormation.formationSlotPosition({ ...crest, layout: rank.layout }, 0).y,
         4,
         0,
       ),
@@ -232,17 +232,17 @@ export function test_engine_space_formation_slot_position(): void {
   TestValidator.predicate(
     "covered slots rise, while missing ground or a missing datum preserves staging",
     nclose(
-      formationSlotPosition({ ...formation, ground: [near] }, 3).y,
+      AutoMovieEnginePopulationFormation.formationSlotPosition({ ...formation, ground: [near] }, 3).y,
       1.5,
       0,
     ) &&
       nclose(
-        formationSlotPosition({ ...formation, ground: [near] }, 6).y,
+        AutoMovieEnginePopulationFormation.formationSlotPosition({ ...formation, ground: [near] }, 6).y,
         0,
         0,
       ) &&
       nclose(
-        formationSlotPosition(
+        AutoMovieEnginePopulationFormation.formationSlotPosition(
           {
             ...formation,
             ground: [distant],
@@ -254,7 +254,7 @@ export function test_engine_space_formation_slot_position(): void {
         0,
       ) &&
       nclose(
-        formationSlotPosition(
+        AutoMovieEnginePopulationFormation.formationSlotPosition(
           {
             ...formation,
             ground: [floor],

@@ -1,10 +1,12 @@
-import { getConstraint } from "@automovie/engine";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
   IAutoMovieMotionHumanBody,
 } from "@automovie/interface";
-import { humanSettledJoints } from "@automovie/motions/internal";
+import {
+  humanSettledJoints
+} from "../../../../../packages/motions/src/posture/internal/humanSettledJoints";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -50,7 +52,7 @@ export async function test_motions_posture_settled_joints(): Promise<void> {
     body.skeleton.bones
       .filter((bone: IAutoMovieBone): boolean => !WRITTEN.test(bone.bone))
       .every((bone: IAutoMovieBone): boolean => {
-        const range: ReturnType<typeof getConstraint> = getConstraint(
+        const range: ReturnType<typeof AutoMovieEngineKinematics.getConstraint> = AutoMovieEngineKinematics.getConstraint(
           bone.bone,
           bone.constraint ?? null,
         );

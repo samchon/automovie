@@ -14,7 +14,7 @@ In the scene's composition comment, name the required response, why it needs sim
 
 Initialize the engine's solver from the displayed entry state. Hand the resolved exit pose, velocity and retained contacts back to the composition.
 
-For Human standing on the floor, pass displayed segment frames and floor height to `fitHumanPhysicalStandingPose` from `@automovie/human`. Use its fitted targets and inspect foot bearing, hull clearance and both joins. Route an infeasible outcome under [refusals](compose/refusals.md).
+For Human standing on the floor, pass displayed segment frames and floor height to `AutoMovieHumanPhysicalStandingPose.fit` from `@automovie/human`. Use its fitted targets and inspect foot bearing, hull clearance and both joins. Route an infeasible outcome under [refusals](compose/refusals.md).
 
 Record the value and reason for any deliberately exaggerated impulse, gravity or compliance.
 

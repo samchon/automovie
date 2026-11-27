@@ -1,4 +1,4 @@
-import { sampleAutoMovieProceduralSurface } from "@automovie/engine";
+import { AutoMovieEngineMaterial } from "@automovie/engine";
 import type {
   IAutoMovieMaterial,
   IAutoMovieModel,
@@ -6,11 +6,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieThreeKind,
-  type IAutoMovieModelObject,
-  type IMaterialShaderSource,
-  buildModel,
-  readAutoMovieBufferAttribute,
+  AutoMovieRenderSceneLayout,
+  AutoMovieRenderThreeKind,
+  type IAutoMovieRenderModelObject,
+  type IAutoMovieRenderMaterialShaderSource,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
@@ -42,7 +41,7 @@ export function test_render_scene_build_model_procedural_skinned(): void {
       { r: 0.2, g: 0.2, b: 0.2, a: 1, hex: null },
       { r: 0.8, g: 0.8, b: 0.8, a: 1, hex: null },
     ],
-    roughness: [0.5, 0.9],
+    roughness: { atZero: 0.5, atOne: 0.9 },
     relief: 0,
   };
   const model: IAutoMovieModel = createSkinnedTubeModel();
@@ -52,15 +51,16 @@ export function test_render_scene_build_model_procedural_skinned(): void {
       procedural: surface,
     }),
   );
-  const built: IAutoMovieModelObject = buildModel(model);
+  const built: IAutoMovieRenderModelObject =
+    AutoMovieRenderSceneLayout.buildModel(model);
   let mesh: THREE.SkinnedMesh | null = null;
   built.object.traverse((object: THREE.Object3D): void => {
-    if (AutoMovieThreeKind.isSkinnedMesh(object)) mesh = object;
+    if (AutoMovieRenderThreeKind.isSkinnedMesh(object)) mesh = object;
   });
   const skinned: THREE.SkinnedMesh = mesh!;
 
   // 1. The sample point precedes deformation.
-  const shader: IMaterialShaderSource = compileMaterialShaderSource(
+  const shader: IAutoMovieRenderMaterialShaderSource = compileMaterialShaderSource(
     skinned.material,
   );
   const assigned: number = shader.vertexShader.indexOf(
@@ -74,10 +74,9 @@ export function test_render_scene_build_model_procedural_skinned(): void {
   );
 
   // 2. Bend 90° and compare.
-  const position: THREE.BufferAttribute = readAutoMovieBufferAttribute(
-    skinned.geometry,
+  const position: THREE.BufferAttribute = skinned.geometry.getAttribute(
     "position",
-  );
+  ) as THREE.BufferAttribute;
   const before: number[] = Array.from(position.array);
   const spine: THREE.Bone = skinned.skeleton.bones.find(
     (bone: THREE.Bone): boolean => bone.name === "spine",
@@ -110,8 +109,10 @@ export function test_render_scene_build_model_procedural_skinned(): void {
       z: before[3 * index + 2]!,
     };
     same =
-      sampleAutoMovieProceduralSurface({ surface, point }).value ===
-      sampleAutoMovieProceduralSurface({ surface, point: rest }).value;
+      AutoMovieEngineMaterial.sampleProceduralSurface({ surface, point })
+        .value ===
+      AutoMovieEngineMaterial.sampleProceduralSurface({ surface, point: rest })
+        .value;
   }
   TestValidator.predicate(
     `the bend moves the skin (${moved.toFixed(3)} m) but not the sampled bind pose`,

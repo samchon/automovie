@@ -1,10 +1,8 @@
-import {
-  materializeCompiledEffects,
-  sampleCompiledEffect,
-} from "@automovie/engine";
+import { AutoMovieEngineEffect } from "@automovie/engine";
 import type {
   IAutoMovieCompiledEffect,
   IAutoMovieEffectRecipe,
+  IAutoMovieEffectSample,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -41,7 +39,7 @@ export function test_engine_physics_materialize_compiled_effects(): void {
       budget: { maxParticles: 1, lodDistance: 100 },
       blend: "alpha",
     };
-    const effect: IAutoMovieCompiledEffect = materializeCompiledEffects({
+    const effect: IAutoMovieCompiledEffect = AutoMovieEngineEffect.materializeCompiledEffects({
       world: {
         effectRecipes: [recipe],
         effectZones: [
@@ -68,7 +66,7 @@ export function test_engine_physics_materialize_compiled_effects(): void {
         },
       ],
     })[0]!;
-    const late: ReturnType<typeof sampleCompiledEffect> = sampleCompiledEffect(
+    const late: IAutoMovieEffectSample = AutoMovieEngineEffect.sample(
       effect,
       8,
     );
@@ -85,19 +83,19 @@ export function test_engine_physics_materialize_compiled_effects(): void {
       );
     TestValidator.equals(
       "live airborne sample is present before expiry",
-      sampleCompiledEffect(effect, 0.1).particles.length,
+      AutoMovieEngineEffect.sample(effect, 0.1).particles.length,
       1,
     );
     if (!landedLive)
       TestValidator.equals(
         "expired airborne sample remains absent",
-        sampleCompiledEffect(effect, 2).particles.length,
+        AutoMovieEngineEffect.sample(effect, 2).particles.length,
         0,
       );
-    sampleCompiledEffect(effect, 0.5);
+    AutoMovieEngineEffect.sample(effect, 0.5);
     TestValidator.equals(
       "late lifecycle is seek-order independent",
-      JSON.stringify(sampleCompiledEffect(effect, 8)),
+      JSON.stringify(AutoMovieEngineEffect.sample(effect, 8)),
       JSON.stringify(late),
     );
   }

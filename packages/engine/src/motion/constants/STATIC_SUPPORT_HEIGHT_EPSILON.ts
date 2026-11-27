@@ -1,4 +1,4 @@
-/**
+/*
  * World metres allowed for round-off when reevaluating one fixed support target
  * across actor and world frames.
  */

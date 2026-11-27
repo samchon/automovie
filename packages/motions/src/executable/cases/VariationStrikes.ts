@@ -1,64 +1,41 @@
-import {
-  Vector3,
-  physicalShapeSegmentDistance,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidRegion,
-  IAutoMovieHumanoidSurfaces,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanChain,
-  IAutoMovieMotionHumanPerformance,
-  IAutoMovieMotionHumanSegment,
-  IAutoMovieMotionHumanSkill,
-  IAutoMovieMotionHumanStrikingRecord,
-  IAutoMovieMotionTarget,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineVector3, AutoMovieEnginePhysics, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSkill, IAutoMovieMotionHumanStrikingRecord, IAutoMovieMotionTarget, IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanChain } from "../../HumanChain";
-import { AutoMovieMotionHumanVariation } from "../../compose/AutoMovieMotionHumanVariation";
-import { HumanColliders } from "../../posture/HumanColliders";
-import { HumanSkill } from "../../skill/HumanSkill";
-import { StrikingBody } from "../../striking/StrikingBody";
-import { StrikingRecord } from "../../striking/StrikingRecord";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
+import { motionHumanVariation } from "../../compose/internal/motionHumanVariation";
+import { HumanColliders } from "../../posture/internal/HumanColliders";
+import { HumanSkill } from "../../skill/internal/HumanSkill";
+import { StrikingBody } from "../../striking/internal/StrikingBody";
+import { StrikingRecord } from "../../striking/internal/StrikingRecord";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { StrikingEventVerdicts } from "./StrikingEventVerdicts";
 import { StrikingLimb } from "./StrikingLimb";
 import { VariationSeries } from "./VariationSeries";
 import { strikingScenarios } from "./strikingScenarios";
 
-/** The record of `IReadResult`'s site. */
-type IReadResult = {
-  verdicts: IMotionCaptureCase.IVerdict[];
-  metrics: IReadMetricsResult;
-};
-
-/** The record of `IReadMetricsResult`'s site. */
-type IReadMetricsResult = { radius: number; wide: number; narrow: number };
-
-/**
+/*
  * The strike verdicts of the variation capture: the points a straight punch
  * aims at within the partner's abdomen over `VariationSeries.REPEATS` repeats
  * at `variation` 1, and one performed, varied punch with its defence.
  */
 export namespace VariationStrikes {
-  /** The least span of the strike points on each tangent axis, region radii. */
+  /*
+   * The least span of the strike points on each tangent axis, region radii.
+   */
   export const SPAN: number = 0.5;
 
-  /**
+  /*
    * The bound on a strike point's distance from the collider surface and from
    * the record's aim, metres.
    */
   export const ON: number = 0.001;
 
-  /**
+  /*
    * Read the strike verdicts of one striker and one struck body.
-   *
-   * @param body The striker.
-   * @param struck The partner.
-   * @returns The verdicts, and the region's radius with the two dispersions,
-   *   metres.
+   * Parameter body: The striker.
+   * Parameter struck: The partner.
+   * Returns: The verdicts, and the region's radius with the two dispersions,
+   * metres.
    */
   export function read(
     body: IAutoMovieMotionHumanBody,
@@ -102,7 +79,7 @@ export namespace VariationStrikes {
     }
     const offsets = (run: IStruck[]): IAutoMovieVector3[] =>
       run.map(
-        (s: IStruck): IAutoMovieVector3 => Vector3.subtract(s.point, s.centre),
+        (s: IStruck): IAutoMovieVector3 => AutoMovieEngineVector3.subtract(s.point, s.centre),
       );
     const wide: number = VariationSeries.dispersion(offsets(novice));
     const narrow: number = VariationSeries.dispersion(offsets(expert));
@@ -117,52 +94,83 @@ export namespace VariationStrikes {
   }
 }
 
-/** One repeat's strike point. */
+/*
+ * The record of `IReadResult`'s site.
+ */
+type IReadResult = {
+  verdicts: IMotionCaptureCase.IVerdict[];
+  metrics: IReadMetricsResult;
+};
+
+/*
+ * The record of `IReadMetricsResult`'s site.
+ */
+type IReadMetricsResult = { radius: number; wide: number; narrow: number };
+
+/*
+ * One repeat's strike point.
+ */
 interface IStruck {
-  /** The point aimed at on the struck body, world metres. */
+  /*
+   * The point aimed at on the struck body, world metres.
+   */
   point: IAutoMovieVector3;
 
-  /** The region's own point on the struck body, world metres. */
+  /*
+   * The region's own point on the struck body, world metres.
+   */
   centre: IAutoMovieVector3;
 
-  /** The point's signed distance from the struck body's colliders, metres. */
+  /*
+   * The point's signed distance from the struck body's colliders, metres.
+   */
   gap: number;
 
-  /** The region nearest to the point on the body at rest. */
+  /*
+   * The region nearest to the point on the body at rest.
+   */
   nearest: AutoMovieHumanoidRegion;
 }
 
-/** The target of the varied punch. */
+/*
+ * The target of the varied punch.
+ */
 const ABDOMEN: IAutoMovieMotionTarget = {
   kind: "person",
   subject: "b",
   region: "abdomen",
 };
 
-/** The partner's standing guard. */
+/*
+ * The partner's standing guard.
+ */
 function waits(seconds: number): IAutoMovieMotionHumanChain {
-  return HumanChain.subject("b").guard({
+  return AutoMovieMotionHumanChain.subject("b").guard({
     duration: seconds,
     facing: { kind: "person", subject: "a", region: "face" },
   });
 }
 
-/** The striker's guard before a punch. */
+/*
+ * The striker's guard before a punch.
+ */
 function ready(seconds: number = 0.8): IAutoMovieMotionHumanChain {
-  return HumanChain.subject("a").guard({
+  return AutoMovieMotionHumanChain.subject("a").guard({
     duration: seconds,
     facing: { kind: "person", subject: "b", region: "face" },
   });
 }
 
-/** The distance between the two, a jab's range of the striker. */
+/*
+ * The distance between the two, a jab's range of the striker.
+ */
 function range(body: IAutoMovieMotionHumanBody): number {
   return (
     strikingScenarios.JAB_RANGE * StrikingLimb.length(body, "leftHand", false)
   );
 }
 
-/**
+/*
  * The offset one repeat of a punch aims at within the abdomen: the owner's
  * strike offset on the series the performance gives the punch's repeat, so it
  * is the offset a performed punch carries on its plan (`defended` compares the
@@ -178,8 +186,8 @@ function aimed(
     { level: "trained" },
     "variation",
   );
-  return AutoMovieMotionHumanVariation.strike(
-    AutoMovieMotionHumanVariation(
+  return motionHumanVariation.strike(
+    motionHumanVariation(
       {
         skill,
         series: (channel: string) => ({
@@ -194,7 +202,7 @@ function aimed(
   );
 }
 
-/**
+/*
  * The strike points of the repeats of a punch at the partner's abdomen, on the
  * partner standing in their guard. A performed punch at a person costs its
  * whole contact search, so the repeats are read from the owner and one
@@ -219,7 +227,7 @@ function strikes(
   ).point;
   const rest = (region: AutoMovieHumanoidRegion): IAutoMovieVector3 => {
     const frame = struck.surfaces.regions[region];
-    return Vector3.add(struck.rest.get(frame.bone)!, frame.point);
+    return AutoMovieEngineVector3.add(struck.rest.get(frame.bone)!, frame.point);
   };
   const out: IStruck[] = [];
   for (let i: number = 0; i < VariationSeries.REPEATS; i++) {
@@ -240,17 +248,17 @@ function strikes(
       for (const shape of shapes)
         gap = Math.min(
           gap,
-          physicalShapeSegmentDistance(pose, shape, point, point),
+          AutoMovieEnginePhysics.physicalShapeSegmentDistance(pose, shape, point, point),
         );
     // At rest, where the region's radius is defined.
     const frame: IAutoMovieHumanoidSurfaces.IFrame =
-      resolveAutoMovieHumanoidSurfaces.offset(
+      AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfaceOffset(
         struck.skeleton,
         struck.profile,
         "abdomen",
         tangent,
       );
-    const still: IAutoMovieVector3 = Vector3.add(
+    const still: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       struck.rest.get(frame.bone)!,
       frame.point,
     );
@@ -259,7 +267,7 @@ function strikes(
     for (const region of Object.keys(
       struck.surfaces.regions,
     ) as AutoMovieHumanoidRegion[]) {
-      const d: number = Vector3.length(Vector3.subtract(rest(region), still));
+      const d: number = AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(rest(region), still));
       if (d < least) {
         least = d;
         nearest = region;
@@ -269,14 +277,16 @@ function strikes(
   }
   return out;
 }
-/** The record of `IDefendedReadResult`'s site. */
+/*
+ * The record of `IDefendedReadResult`'s site.
+ */
 type IDefendedReadResult = {
   carried: IAutoMovieHumanoidSurfaces.ITangent | undefined;
   audit: IAutoMovieVector3;
   point: IAutoMovieVector3;
 };
 
-/**
+/*
  * Two performed, varied punches at the abdomen. Against a partner standing in
  * their guard, the plan carries the owner's offset for that repeat, and the
  * record's aim (its planned point less its landing offset) moves from that of
@@ -311,7 +321,7 @@ function defended(
       throw new Error("A punch records its aim and has a contact");
     return {
       carried: punch.plan.aimed,
-      audit: Vector3.subtract(record.planned, record.offset),
+      audit: AutoMovieEngineVector3.subtract(record.planned, record.offset),
       point: StrikingBody.region(
         struck,
         standing.bones("b", punch.start + punch.plan.contact),
@@ -330,10 +340,10 @@ function defended(
   );
   const carried: IAutoMovieHumanoidSurfaces.ITangent | undefined =
     moved.carried;
-  const apart: number = Vector3.length(
-    Vector3.subtract(
-      Vector3.subtract(moved.audit, plain.audit),
-      Vector3.subtract(moved.point, plain.point),
+  const apart: number = AutoMovieEngineVector3.length(
+    AutoMovieEngineVector3.subtract(
+      AutoMovieEngineVector3.subtract(moved.audit, plain.audit),
+      AutoMovieEngineVector3.subtract(moved.point, plain.point),
     ),
   );
   const covered: IAutoMovieMotionHumanPerformance = VariationSeries.perform(

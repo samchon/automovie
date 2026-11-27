@@ -1,6 +1,6 @@
 import {
-  AutoMovieInspectorPlayhead,
-  handleAutoMovieInspectorKey,
+  AutoMovieViewerInspectorPlayhead,
+  AutoMovieViewerInspector,
 } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 
@@ -35,7 +35,7 @@ type Target = { closest(selectors: string): unknown } | null;
  *    stepping starts from the displayed frame.
  */
 export function test_viewer_inspector_handle_inspector_key(): void {
-  const playhead: AutoMovieInspectorPlayhead = new AutoMovieInspectorPlayhead();
+  const playhead: AutoMovieViewerInspectorPlayhead = new AutoMovieViewerInspectorPlayhead();
   playhead.setDuration(4);
 
   // A test element: `closest` matches a simple selector of the list, its tag,
@@ -67,12 +67,12 @@ export function test_viewer_inspector_handle_inspector_key(): void {
     key: string,
     fps?: number | null,
     more?: { modifier?: "ctrlKey" | "metaKey" | "altKey"; target?: Target },
-  ) => { handled: boolean; seconds: number | null } = (
+  ) => AutoMovieViewerInspector.IHandleKeyResult = (
     key: string,
     fps: number | null = 24,
     more: { modifier?: "ctrlKey" | "metaKey" | "altKey"; target?: Target } = {},
-  ): { handled: boolean; seconds: number | null } =>
-    handleAutoMovieInspectorKey(
+  ): AutoMovieViewerInspector.IHandleKeyResult =>
+    AutoMovieViewerInspector.handleKey(
       {
         key,
         ctrlKey: more.modifier === "ctrlKey",

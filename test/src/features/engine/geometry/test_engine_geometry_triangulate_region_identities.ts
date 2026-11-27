@@ -1,4 +1,4 @@
-import { triangulateAutoMovieRegion } from "@automovie/engine";
+import { AutoMovieEnginePlanarRegion } from "@automovie/engine";
 import type {
   IAutoMovieProfilePoint,
   IAutoMovieRegionTriangulation,
@@ -8,8 +8,8 @@ import { TestValidator } from "@nestia/e2e";
 import { throwsError } from "../../internal/predicates";
 
 /**
- * `triangulateAutoMovieRegion` canonicalizes ring winding (outer CCW, holes CW)
- * while keeping every authored corner's source index.
+ * `AutoMovieEnginePlanarRegion.triangulate` canonicalizes ring winding (outer
+ * CCW, holes CW) while keeping every authored corner's source index.
  *
  * Fixture: the CCW square [-4, 4]^2, a CCW triangular hole (-3,-1), (-1,-1),
  * (-2,1) and a CW rectangular hole [1, 3] x [-1, 1]; area 64 - 2 - 4 = 58.
@@ -27,20 +27,43 @@ import { throwsError } from "../../internal/predicates";
  */
 export function test_engine_geometry_triangulate_region_identities(): void {
   const p = (x: number, y: number): IAutoMovieProfilePoint => ({ x, y });
-  const outer: IAutoMovieProfilePoint[] = [p(-4, -4), p(4, -4), p(4, 4), p(-4, 4)];
+  const outer: IAutoMovieProfilePoint[] = [
+    p(-4, -4),
+    p(4, -4),
+    p(4, 4),
+    p(-4, 4),
+  ];
   const triangle: IAutoMovieProfilePoint[] = [p(-3, -1), p(-1, -1), p(-2, 1)];
-  const rectangle: IAutoMovieProfilePoint[] = [p(1, -1), p(1, 1), p(3, 1), p(3, -1)];
+  const rectangle: IAutoMovieProfilePoint[] = [
+    p(1, -1),
+    p(1, 1),
+    p(3, 1),
+    p(3, -1),
+  ];
   const rings: IAutoMovieProfilePoint[][] = [outer, triangle, rectangle];
   const before: string = JSON.stringify(rings);
-  const canonical: IAutoMovieProfilePoint[] = [...outer, ...[...triangle].reverse(), ...rectangle];
-  const normal: IAutoMovieRegionTriangulation = triangulateAutoMovieRegion({ outer, holes: [triangle, rectangle] });
+  const canonical: IAutoMovieProfilePoint[] = [
+    ...outer,
+    ...[...triangle].reverse(),
+    ...rectangle,
+  ];
+  const normal: IAutoMovieRegionTriangulation =
+    AutoMovieEnginePlanarRegion.triangulate({
+      outer,
+      holes: [triangle, rectangle],
+    });
 
   // 1.
   for (let mask: number = 0; mask < 8; ++mask) {
-    const input: IAutoMovieProfilePoint[][] = rings.map((ring: IAutoMovieProfilePoint[], at: number) =>
-      (mask & (1 << at)) === 0 ? [...ring] : [...ring].reverse(),
+    const input: IAutoMovieProfilePoint[][] = rings.map(
+      (ring: IAutoMovieProfilePoint[], at: number) =>
+        (mask & (1 << at)) === 0 ? [...ring] : [...ring].reverse(),
     );
-    const plan: IAutoMovieRegionTriangulation = triangulateAutoMovieRegion({ outer: input[0]!, holes: input.slice(1) });
+    const plan: IAutoMovieRegionTriangulation =
+      AutoMovieEnginePlanarRegion.triangulate({
+        outer: input[0]!,
+        holes: input.slice(1),
+      });
     TestValidator.equals(`${mask} permutation`, plan.sourceIndices, [
       ...((mask & 1) === 0 ? [0, 1, 2, 3] : [3, 2, 1, 0]),
       ...((mask & 2) === 0 ? [6, 5, 4] : [4, 5, 6]),
@@ -49,7 +72,9 @@ export function test_engine_geometry_triangulate_region_identities(): void {
     TestValidator.equals(`${mask} canonical`, plan.points, canonical);
     TestValidator.equals(
       `${mask} identities`,
-      plan.sourceIndices.map((id: number): IAutoMovieProfilePoint => input.flat()[id]!),
+      plan.sourceIndices.map(
+        (id: number): IAutoMovieProfilePoint => input.flat()[id]!,
+      ),
       canonical,
     );
     TestValidator.equals(`${mask} spans`, plan.rings, [
@@ -66,13 +91,42 @@ export function test_engine_geometry_triangulate_region_identities(): void {
   }
 
   // 2.
-  TestValidator.equals("fresh", triangulateAutoMovieRegion({ outer, holes: [triangle, rectangle] }), normal);
-  TestValidator.equals("omitted holes", triangulateAutoMovieRegion({ outer }).sourceIndices, [0, 1, 2, 3]);
-  TestValidator.equals("empty holes", triangulateAutoMovieRegion({ outer, holes: [] }).sourceIndices, [0, 1, 2, 3]);
-  const minimum: IAutoMovieRegionTriangulation = triangulateAutoMovieRegion({ outer: triangle });
-  TestValidator.equals("minimum", [minimum.sourceIndices, minimum.triangles], [[0, 1, 2], [0, 1, 2]]);
+  TestValidator.equals(
+    "fresh",
+    AutoMovieEnginePlanarRegion.triangulate({
+      outer,
+      holes: [triangle, rectangle],
+    }),
+    normal,
+  );
+  TestValidator.equals(
+    "omitted holes",
+    AutoMovieEnginePlanarRegion.triangulate({ outer }).sourceIndices,
+    [0, 1, 2, 3],
+  );
+  TestValidator.equals(
+    "empty holes",
+    AutoMovieEnginePlanarRegion.triangulate({ outer, holes: [] }).sourceIndices,
+    [0, 1, 2, 3],
+  );
+  const minimum: IAutoMovieRegionTriangulation =
+    AutoMovieEnginePlanarRegion.triangulate({ outer: triangle });
+  TestValidator.equals(
+    "minimum",
+    [minimum.sourceIndices, minimum.triangles],
+    [
+      [0, 1, 2],
+      [0, 1, 2],
+    ],
+  );
   TestValidator.predicate(
     "two points",
-    throwsError((): unknown => triangulateAutoMovieRegion({ outer: triangle.slice(0, 2) }), "needs at least three points"),
+    throwsError(
+      (): unknown =>
+        AutoMovieEnginePlanarRegion.triangulate({
+          outer: triangle.slice(0, 2),
+        }),
+      "needs at least three points",
+    ),
   );
 }

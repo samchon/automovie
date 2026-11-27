@@ -1,8 +1,4 @@
-import {
-  locateAutoMovieSurfaceVertices,
-  sampleAutoMovieSurfaceNetwork,
-  subdivideAutoMovieSurface,
-} from "@automovie/engine";
+import { AutoMovieEngineGeometry, AutoMovieEngineSweep } from "@automovie/engine";
 import type {
   AutoMovieSurfaceTier,
   IAutoMovieSubdivisionSurface,
@@ -29,17 +25,17 @@ export function sweepRowPerimeter(
   tier: AutoMovieSurfaceTier,
   rows: readonly number[],
 ): number[] {
-  const cage: IAutoMovieSurfaceCage = sampleAutoMovieSurfaceNetwork({
+  const cage: IAutoMovieSurfaceCage = AutoMovieEngineSweep.sampleSurfaceNetwork({
     network,
     tier,
   });
   function at(levels: number): number[] {
-    const surface: IAutoMovieSubdivisionSurface = subdivideAutoMovieSurface({
+    const surface: IAutoMovieSubdivisionSurface = AutoMovieEngineGeometry.subdivideSurface({
       cage: { positions: cage.cage.positions, faces: cage.cage.faces },
       levels,
     });
     const locations: IAutoMovieSurfaceLocation[] =
-      locateAutoMovieSurfaceVertices({
+      AutoMovieEngineSweep.locateSurfaceVertices({
         network,
         cage,
         parameters: surface.parameters,

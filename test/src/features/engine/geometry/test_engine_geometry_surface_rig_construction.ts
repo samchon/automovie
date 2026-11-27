@@ -1,4 +1,4 @@
-import { rigAutoMovieSurfaceNetwork } from "@automovie/engine";
+import { AutoMovieEngineSweep } from "@automovie/engine";
 import type {
   IAutoMovieResolvedBone,
   IAutoMovieSurfaceConstruction,
@@ -12,7 +12,7 @@ import { sweepBranchedSkeleton } from "../../internal/sweepBranchedSkeleton";
 
 /**
  * A surface rig's construction snapshot (`construction` sampling of
- * `rigAutoMovieSurfaceNetwork`) observes without changing the posed cage.
+ * `rigSurfaceNetwork`) observes without changing the posed cage.
  *
  * Fixture: the branched body at the medium tier without volume preservation,
  * posed with the upper arm turned 30 degrees, the forearm 90 and the shin 60;
@@ -38,7 +38,7 @@ export function test_engine_geometry_surface_rig_construction(): void {
     leftLowerLeg: { x: 0.5, y: 0, z: 0, w: Math.sqrt(3) / 2 },
   });
   const rig = (observe: boolean): IAutoMovieSurfaceRig =>
-    rigAutoMovieSurfaceNetwork({
+    AutoMovieEngineSweep.rigSurfaceNetwork({
       network,
       tier: "medium",
       bindings: skeleton.bindings,
@@ -75,11 +75,19 @@ export function test_engine_geometry_surface_rig_construction(): void {
 
   // 4.
   const count: IAutoMovieSurfaceNetwork.ICounts = { lowest: 4, low: 4, medium: 4, high: 4 };
-  const arm: Parameters<typeof rigAutoMovieSurfaceNetwork>[0] = {
+  const arm: Parameters<typeof AutoMovieEngineSweep.rigSurfaceNetwork>[0] = {
     network: {
       sweeps: { arm: network.sweeps.sideLeft! },
       patches: [
-        { type: "sweep", name: "arm", sweep: "arm", u: [0, 1], v: [0, 1], rows: count, columns: { ...count, medium: 8 } },
+        {
+          type: "sweep",
+          name: "arm",
+          sweep: "arm",
+          u: { start: 0, end: 1 },
+          v: { start: 0, end: 1 },
+          rows: count,
+          columns: { ...count, medium: 8 },
+        },
       ],
     },
     tier: "medium",
@@ -90,13 +98,13 @@ export function test_engine_geometry_surface_rig_construction(): void {
     leftUpperArm: { x: 0, y: 0, z: Math.sin(Math.PI / 12), w: Math.cos(Math.PI / 12) },
     leftLowerArm: { x: 0, y: 0, z: Math.SQRT1_2, w: Math.SQRT1_2 },
   });
-  const settled: IAutoMovieSurfaceRig = rigAutoMovieSurfaceNetwork({ ...arm, preserveVolume: true });
-  const observed: IAutoMovieSurfaceRig = rigAutoMovieSurfaceNetwork({
+  const settled: IAutoMovieSurfaceRig = AutoMovieEngineSweep.rigSurfaceNetwork({ ...arm, preserveVolume: true });
+  const observed: IAutoMovieSurfaceRig = AutoMovieEngineSweep.rigSurfaceNetwork({
     ...arm,
     preserveVolume: true,
     construction: { station: 16, line: 16, feature: 8, curve: 8 },
   });
-  const free: IAutoMovieSurfaceRig = rigAutoMovieSurfaceNetwork({ ...arm, preserveVolume: false });
+  const free: IAutoMovieSurfaceRig = AutoMovieEngineSweep.rigSurfaceNetwork({ ...arm, preserveVolume: false });
   const armRest: number[] = observed.construction.flatMap((e: IAutoMovieSurfaceConstruction): number[] => e.points);
   const write = (r: IAutoMovieSurfaceRig): [Float64Array, Float64Array] => {
     const p: Float64Array = new Float64Array(settled.cage.cage.positions.length);

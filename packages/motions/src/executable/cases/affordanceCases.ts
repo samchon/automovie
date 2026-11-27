@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanOperate,
   IAutoMovieMotionHumanOperateDrive,
@@ -7,21 +7,15 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanChain } from "../../HumanChain";
-import { operate } from "../../affordance/operate";
-import { HumanHand } from "../../posture/HumanHand";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
+import { operate } from "../../affordance/internal/operate";
+import { HumanHand } from "../../posture/internal/HumanHand";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
-import { everydayVerdicts } from "./everydayVerdicts";
-import { motionCaseSocket } from "./motionCaseSocket";
+import { everydayVerdicts } from "./internal/everydayVerdicts";
+import { motionCaseSocket } from "./internal/motionCaseSocket";
 
-/** The record of `IAffordanceCasesWorst`'s site. */
-type IAffordanceCasesWorst = { value: number; at: number };
-
-/** The record of `IAffordanceCasesMechanismsItem`'s site. */
-type IAffordanceCasesMechanismsItem = { kind: "insert" };
-
-/**
+/*
  * Capture cases of the articulated affordances family, each from quiet standing
  * with the right hand, every part within the 2010 ADA hardware band (865 to
  * 1220 mm, 404.2.7) or at a drawer's height:
@@ -42,9 +36,8 @@ type IAffordanceCasesMechanismsItem = { kind: "insert" };
  * knob's axis), and the button's tip travels along the button's axis within 2
  * degrees (the issue's press bound). The knob also reports the hand's roll
  * about its axis against the turn, within 10 degrees (provisional).
- *
- * @param bodies The sweep bodies; `m-average` when absent.
- * @returns The cases.
+ * Parameter bodies: The sweep bodies; `m-average` when absent.
+ * Returns: The cases.
  */
 export function affordanceCases(
   bodies: readonly string[] = ["m-average"],
@@ -89,7 +82,7 @@ export function affordanceCases(
         FamilyCaseKit.perform(
           "affordance",
           [{ subject: "a", body: who.body }],
-          HumanChain.subject("a").act("operate", { kind: mechanism }).node,
+          AutoMovieMotionHumanChain.subject("a").act("operate", { kind: mechanism }).node,
         );
       const ready: number = FamilyCaseKit.event(performance, "ready");
       const start: number = FamilyCaseKit.event(performance, "strokeStart");
@@ -129,8 +122,8 @@ export function affordanceCases(
           hinge,
           smooth(t),
         ).point;
-        const gap: number = Vector3.length(
-          Vector3.subtract(surfaceAt(t), want),
+        const gap: number = AutoMovieEngineVector3.length(
+          AutoMovieEngineVector3.subtract(surfaceAt(t), want),
         );
         if (gap > worst.value) worst = { value: gap, at: t };
       }
@@ -143,19 +136,19 @@ export function affordanceCases(
         },
       ];
       if (mechanism.kind === "button") {
-        const travel: IAutoMovieVector3 = Vector3.subtract(
+        const travel: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
           surfaceAt(end),
           surfaceAt(start),
         );
         const angle: number =
-          Vector3.length(travel) < 1e-6
+          AutoMovieEngineVector3.length(travel) < 1e-6
             ? 180
             : (Math.acos(
                 Math.max(
                   -1,
                   Math.min(
                     1,
-                    Vector3.dot(Vector3.normalize(travel), {
+                    AutoMovieEngineVector3.dot(AutoMovieEngineVector3.normalize(travel), {
                       x: 0,
                       y: 0,
                       z: 1,
@@ -180,16 +173,16 @@ export function affordanceCases(
         // The shorter of the two quaternions of one rotation (w >= 0), so a
         // turn reads within a half circle either way and not as its
         // complement past it.
-        const raw: IAutoMovieQuaternion = Quaternion.multiply(
+        const raw: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
           turn(end),
-          Quaternion.inverse(turn(start)),
+          AutoMovieEngineQuaternion.inverse(turn(start)),
         );
         const delta: IAutoMovieQuaternion =
           raw.w < 0 ? { x: -raw.x, y: -raw.y, z: -raw.z, w: -raw.w } : raw;
         const twist: number =
           (2 *
             Math.atan2(
-              Vector3.dot(
+              AutoMovieEngineVector3.dot(
                 { x: delta.x, y: delta.y, z: delta.z },
                 towardPerformer,
               ),
@@ -221,3 +214,13 @@ export function affordanceCases(
   }
   return out;
 }
+
+/*
+ * The record of `IAffordanceCasesWorst`'s site.
+ */
+type IAffordanceCasesWorst = { value: number; at: number };
+
+/*
+ * The record of `IAffordanceCasesMechanismsItem`'s site.
+ */
+type IAffordanceCasesMechanismsItem = { kind: "insert" };

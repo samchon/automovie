@@ -1,24 +1,63 @@
 import { TestValidator } from "@nestia/e2e";
-import { readAutoMovieNameOption } from "automovie";
+import { AutoMovieCliScaffold } from "automovie";
 
 /**
- * `readAutoMovieNameOption` admits the token after `--name` when it is present,
- * not blank and not an option.
+ * Create and add preserve a supplied package name exactly after admitting it.
  *
  * Scenarios:
  *
- * 1. "my-film" is returned as typed, including surrounding spaces.
- * 2. A missing token, " " and "--force" refuse.
+ * 1. Ordinary and surrounding-spaced names are returned as typed.
+ * 2. A missing token, a blank token and an option token refuse.
  */
 export function test_cli_root_read_name_option(): void {
-  TestValidator.equals("a name", readAutoMovieNameOption("my-film"), "my-film");
   TestValidator.equals(
-    "as typed",
-    readAutoMovieNameOption(" my-film "),
-    " my-film ",
+    "an ordinary create name",
+    AutoMovieCliScaffold.readCreateArguments(["project", "--name", "my-film"]),
+    {
+      command: "create",
+      directory: "project",
+      workspace: false,
+      force: false,
+      name: "my-film",
+    },
   );
-  for (const value of [undefined, "   ", "--force"])
-    TestValidator.error(`${value} refuses`, (): string =>
-      readAutoMovieNameOption(value),
+  TestValidator.equals(
+    "a create name with surrounding spaces stays as typed",
+    AutoMovieCliScaffold.readCreateArguments([
+      "project",
+      "--name",
+      " my-film ",
+    ]),
+    {
+      command: "create",
+      directory: "project",
+      workspace: false,
+      force: false,
+      name: " my-film ",
+    },
+  );
+  TestValidator.equals(
+    "an add name is admitted",
+    AutoMovieCliScaffold.readAddArguments([
+      "shorts/my-film",
+      "--name",
+      "my-film",
+    ]),
+    {
+      command: "add",
+      family: "shorts",
+      directory: "my-film",
+      force: false,
+      name: "my-film",
+    },
+  );
+  const invalid: readonly (readonly [string, readonly string[]])[] = [
+    ["missing", ["project", "--name"]],
+    ["blank", ["project", "--name", "   "]],
+    ["option token", ["project", "--name", "--force"]],
+  ];
+  for (const [label, args] of invalid)
+    TestValidator.error(label, (): unknown =>
+      AutoMovieCliScaffold.readCreateArguments(args),
     );
 }

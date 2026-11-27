@@ -1,4 +1,4 @@
-import { forgeProp, resolveFrame } from "@automovie/engine";
+import { AutoMovieEngineFilm, AutoMovieEngineResolve } from "@automovie/engine";
 import {
   IAutoMovieClip,
   type IAutoMovieForgedProp,
@@ -72,12 +72,12 @@ function basisX(m: number[]): [number, number, number] {
  *    violations tagged by the forged profile's id.
  */
 export function test_engine_film_forge_prop_door(): void {
-  const forged: IAutoMovieForgedProp = forgeProp(createDoorPropSpec());
+  const forged: IAutoMovieForgedProp = AutoMovieEngineFilm.forgeProp(createDoorPropSpec());
   TestValidator.equals("the door forges", forged.success, true);
   if (forged.success !== true) return;
 
   const articulation: IAutoMoviePropArticulation = forged.prop.articulation!;
-  const open: IAutoMovieResolveOutput = resolveFrame({
+  const open: IAutoMovieResolveOutput = AutoMovieEngineResolve.resolveFrame({
     nodes: articulation.nodes,
     clip: swing(90),
     limits: [],
@@ -95,7 +95,7 @@ export function test_engine_film_forge_prop_door(): void {
     (): boolean => nclose(mirrorX[0], 0) && nclose(mirrorX[2], -1),
   );
 
-  const slammed: IAutoMovieResolveOutput = resolveFrame({
+  const slammed: IAutoMovieResolveOutput = AutoMovieEngineResolve.resolveFrame({
     nodes: articulation.nodes,
     clip: swing(150),
     limits: [],

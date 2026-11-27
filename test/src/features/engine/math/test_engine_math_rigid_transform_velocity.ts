@@ -1,4 +1,4 @@
-import { Vector3, rigidTransformVelocity } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieTransform,
@@ -37,8 +37,8 @@ export function test_engine_math_rigid_transform_velocity(): void {
   const current: Pick<IAutoMovieTransform, "translation" | "rotation"> =
     analyticFrame(0.55);
   const saved: string = JSON.stringify([previous, current]);
-  const rate: ReturnType<typeof rigidTransformVelocity> =
-    rigidTransformVelocity(previous, current, 0.2);
+  const rate: ReturnType<typeof AutoMovieEngineMath.rigidTransformVelocity> =
+    AutoMovieEngineMath.rigidTransformVelocity(previous, current, 0.2);
   TestValidator.predicate(
     "WORLD translation secant",
     vclose(rate.linear, { x: 0.4, y: -0.2, z: 0.1 }, 1e-12),
@@ -56,16 +56,16 @@ export function test_engine_math_rigid_transform_velocity(): void {
         oldFrame.rotation[axis] *= oldSign;
         newFrame.rotation[axis] *= newSign;
       }
-      const signed: ReturnType<typeof rigidTransformVelocity> =
-        rigidTransformVelocity(oldFrame, newFrame, 0.2);
+      const signed: ReturnType<typeof AutoMovieEngineMath.rigidTransformVelocity> =
+        AutoMovieEngineMath.rigidTransformVelocity(oldFrame, newFrame, 0.2);
       TestValidator.predicate(
         `independent signs ${oldSign}/${newSign}`,
         vclose(signed.angular, { x: -1.25, y: 0, z: 0 }, 1e-12),
       );
     }
   }
-  const reversed: ReturnType<typeof rigidTransformVelocity> =
-    rigidTransformVelocity(current, previous, 0.2);
+  const reversed: ReturnType<typeof AutoMovieEngineMath.rigidTransformVelocity> =
+    AutoMovieEngineMath.rigidTransformVelocity(current, previous, 0.2);
   TestValidator.predicate(
     "positive interval with reversed endpoints reverses translation",
     vclose(reversed.linear, { x: -0.4, y: 0.2, z: -0.1 }, 1e-12),
@@ -85,16 +85,16 @@ export function test_engine_math_rigid_transform_velocity(): void {
     translation: { x: 0.3 * time, y: 0, z: -0.1 * time },
     rotation: { x: 0, y: Math.sin(angle / 2), z: 0, w: Math.cos(angle / 2) },
   };
-  const rotation: ReturnType<typeof rigidTransformVelocity> =
-    rigidTransformVelocity(rootBefore, rootNow, time);
+  const rotation: ReturnType<typeof AutoMovieEngineMath.rigidTransformVelocity> =
+    AutoMovieEngineMath.rigidTransformVelocity(rootBefore, rootNow, time);
   const lever: IAutoMovieVector3 = {
     x: Math.cos(angle),
     y: 0,
     z: -Math.sin(angle),
   };
-  const pointRate: IAutoMovieVector3 = Vector3.add(
+  const pointRate: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     rotation.linear,
-    Vector3.cross(rotation.angular, lever),
+    AutoMovieEngineVector3.cross(rotation.angular, lever),
   );
   const analytic: IAutoMovieVector3 = {
     x: 0.3 - 2 * Math.sin(angle),
@@ -125,8 +125,8 @@ export function test_engine_math_rigid_transform_velocity(): void {
       },
       rotation: rootNow.rotation,
     };
-    const chord: ReturnType<typeof rigidTransformVelocity> =
-      rigidTransformVelocity(oldPoint, newPoint, h);
+    const chord: ReturnType<typeof AutoMovieEngineMath.rigidTransformVelocity> =
+      AutoMovieEngineMath.rigidTransformVelocity(oldPoint, newPoint, h);
     TestValidator.predicate(
       `constant WORLD angular rate at h=${h}`,
       vclose(chord.angular, { x: 0, y: 2, z: 0 }, 1e-12),
@@ -146,8 +146,8 @@ export function test_engine_math_rigid_transform_velocity(): void {
     translation: { x: 0, y: 0, z: 0 },
     rotation: { x: 0, y: 0, z: 0, w: 1 },
   };
-  const still: ReturnType<typeof rigidTransformVelocity> =
-    rigidTransformVelocity(identity, identity, Number.MIN_VALUE);
+  const still: ReturnType<typeof AutoMovieEngineMath.rigidTransformVelocity> =
+    AutoMovieEngineMath.rigidTransformVelocity(identity, identity, Number.MIN_VALUE);
   TestValidator.predicate(
     "stationary subnormal interval",
     vclose(still.linear, { x: 0, y: 0, z: 0 }, 0) &&
@@ -159,7 +159,7 @@ export function test_engine_math_rigid_transform_velocity(): void {
   };
   TestValidator.predicate(
     "subnormal rotation remains observable",
-    nclose(rigidTransformVelocity(identity, tiny, 1e-320).angular.y, 2, 0.001),
+    nclose(AutoMovieEngineMath.rigidTransformVelocity(identity, tiny, 1e-320).angular.y, 2, 0.001),
   );
   const nearPi: typeof previous = {
     ...identity,
@@ -168,7 +168,7 @@ export function test_engine_math_rigid_transform_velocity(): void {
   TestValidator.predicate(
     "strictly smaller than pi has a branch",
     nclose(
-      rigidTransformVelocity(identity, nearPi, 1).angular.x,
+      AutoMovieEngineMath.rigidTransformVelocity(identity, nearPi, 1).angular.x,
       Math.PI - 2e-12,
       1e-14,
     ),
@@ -178,7 +178,7 @@ export function test_engine_math_rigid_transform_velocity(): void {
     TestValidator.predicate(
       `invalid interval ${seconds}`,
       throwsError(
-        (): unknown => rigidTransformVelocity(previous, current, seconds),
+        (): unknown => AutoMovieEngineMath.rigidTransformVelocity(previous, current, seconds),
         "positive finite seconds",
       ),
     );
@@ -190,7 +190,7 @@ export function test_engine_math_rigid_transform_velocity(): void {
     TestValidator.predicate(
       `exact pi ambiguity ${sign}`,
       throwsError(
-        (): unknown => rigidTransformVelocity(identity, halfTurn, 1),
+        (): unknown => AutoMovieEngineMath.rigidTransformVelocity(identity, halfTurn, 1),
         "half-turn",
       ),
     );
@@ -202,7 +202,7 @@ export function test_engine_math_rigid_transform_velocity(): void {
     TestValidator.predicate(
       "invalid rotation refuses",
       throwsError((): unknown =>
-        rigidTransformVelocity(
+        AutoMovieEngineMath.rigidTransformVelocity(
           identity,
           { ...identity, rotation: quaternion },
           1,
@@ -213,7 +213,7 @@ export function test_engine_math_rigid_transform_velocity(): void {
     "overflowing velocity refuses",
     throwsError(
       (): unknown =>
-        rigidTransformVelocity(previous, current, Number.MIN_VALUE),
+        AutoMovieEngineMath.rigidTransformVelocity(previous, current, Number.MIN_VALUE),
       "representable",
     ),
   );
@@ -221,7 +221,7 @@ export function test_engine_math_rigid_transform_velocity(): void {
     "overflowing displacement refuses",
     throwsError(
       (): unknown =>
-        rigidTransformVelocity(
+        AutoMovieEngineMath.rigidTransformVelocity(
           { ...identity, translation: { x: -Number.MAX_VALUE, y: 0, z: 0 } },
           { ...identity, translation: { x: Number.MAX_VALUE, y: 0, z: 0 } },
           1,

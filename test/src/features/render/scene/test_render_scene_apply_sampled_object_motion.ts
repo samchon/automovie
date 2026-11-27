@@ -1,5 +1,7 @@
 import type { IAutoMovieSampledChannel } from "@automovie/interface";
-import { applySampledObjectMotion } from "@automovie/render/internal";
+import {
+  applySampledObjectMotion
+} from "../../../../../packages/render/src/scene/internal/applySampledObjectMotion";
 import { TestValidator } from "@nestia/e2e";
 import {
   BufferAttribute,

@@ -1,4 +1,6 @@
-import { HumanFreedomChoice } from "@automovie/motions/internal";
+import {
+  HumanFreedomChoice
+} from "../../../../../packages/motions/src/posture/internal/HumanFreedomChoice";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";

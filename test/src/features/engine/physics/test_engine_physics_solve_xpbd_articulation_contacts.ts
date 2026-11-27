@@ -1,9 +1,8 @@
 import {
-  AutoMovieXpbdCollider,
-  AutoMovieXpbdWorld,
-  solveXpbdArticulationContacts,
-  solveXpbdContacts,
-  solveXpbdSupportCascade,
+  AutoMovieEngineXpbdCollider,
+  AutoMovieEngineXpbdWorld,
+  AutoMovieEngineXpbdArticulation,
+  AutoMovieEngineXpbdSupportRows,
 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -24,10 +23,10 @@ const ORIGIN: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 function patch(
   friction: number,
   given: number,
-): solveXpbdSupportCascade.IInput["set"] {
-  const world: AutoMovieXpbdWorld = new AutoMovieXpbdWorld(ORIGIN);
+): AutoMovieEngineXpbdSupportRows.IInput["set"] {
+  const world: AutoMovieEngineXpbdWorld = new AutoMovieEngineXpbdWorld(ORIGIN);
   const identity = { position: ORIGIN, rotation: { x: 0, y: 0, z: 0, w: 1 } };
-  const floor: AutoMovieXpbdCollider = world.createCollider(
+  const floor: AutoMovieEngineXpbdCollider = world.createCollider(
     world.createBody(false, identity),
     {
       id: "floor",
@@ -40,7 +39,7 @@ function patch(
     0,
     false,
   );
-  const contact: solveXpbdContacts.IContact = {
+  const contact: AutoMovieEngineXpbdWorld.IContact = {
     a: floor,
     b: floor,
     pair: 0,
@@ -61,7 +60,7 @@ function patch(
   const row = (
     direction: IAutoMovieVector3,
     lower?: number,
-  ): solveXpbdArticulationContacts.IRow => ({
+  ): AutoMovieEngineXpbdArticulation.IRow => ({
     state: 1,
     point: ORIGIN,
     direction,
@@ -88,7 +87,7 @@ function patch(
 }
 
 /**
- * `solveXpbdArticulationContacts` and the support cascade it feeds
+ * `AutoMovieEngineXpbdArticulation` and the support cascade it feeds
  * (`solveXpbdSupportCascade`): the room an entering foot's bound leaves, and
  * the cascade's levels, the wrench above the posture's motion, each kept
  * feasible as nearly as it can be.
@@ -115,7 +114,7 @@ export function test_engine_physics_solve_xpbd_articulation_contacts(): void {
     normal: number;
     tangent: number;
   }): number[] | null =>
-    solveXpbdSupportCascade({
+    AutoMovieEngineXpbdSupportRows.cascade({
       k: [
         [1, 0, 0, -1, 0, 0],
         [0, 1, 0, 0, -1, 0],
@@ -142,7 +141,7 @@ export function test_engine_physics_solve_xpbd_articulation_contacts(): void {
       bounds: [{ rows: [0], impulse: input.bound }],
       warm: { first: [], second: [] },
     });
-  const room: number = solveXpbdArticulationContacts.room({
+  const room: number = AutoMovieEngineXpbdArticulation.room({
     force: 100,
     h: 1 / 480,
     given: 3,
@@ -164,7 +163,7 @@ export function test_engine_physics_solve_xpbd_articulation_contacts(): void {
 
   // 3-4. The levels, two axes on one normal row.
   const shared = (gap: number, cap: number): number[] | null =>
-    solveXpbdSupportCascade({
+    AutoMovieEngineXpbdSupportRows.cascade({
       k: [
         [1, 0, 0, -1, -1],
         [0, 1, 0, 0, 0],

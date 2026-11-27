@@ -1,4 +1,4 @@
-import { createAutoMovieSignedMeshQuery } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieMesh,
   IAutoMovieSignedMeshQueryHit,
@@ -9,7 +9,7 @@ import { createSignedOctahedron } from "../../internal/createSignedMeshFixture";
 import { throwsError } from "../../internal/predicates";
 
 /**
- * `createAutoMovieSignedMeshQuery` refuses a surface it cannot measure, and a
+ * `createSignedMeshQuery` refuses a surface it cannot measure, and a
  * query that is not an xyz point, instead of returning a misleading distance.
  *
  * Scenarios:
@@ -54,11 +54,11 @@ export function test_engine_geometry_signed_mesh_refusals(): void {
   invalid.forEach((mesh: IAutoMovieMesh, index: number): void => {
     TestValidator.predicate(
       `surface ${index}`,
-      throwsError(() => createAutoMovieSignedMeshQuery(mesh), ["Signed"]),
+      throwsError(() => AutoMovieEngineGeometry.createSignedMeshQuery(mesh), ["Signed"]),
     );
   });
   const sample: (point: readonly number[]) => IAutoMovieSignedMeshQueryHit =
-    createAutoMovieSignedMeshQuery(source);
+    AutoMovieEngineGeometry.createSignedMeshQuery(source);
   const queries: number[][] = [[], [0, 0], [0, 0, 0, 0], [1e308, 0, 0]];
   queries.forEach((point: number[], index: number): void => {
     TestValidator.predicate(

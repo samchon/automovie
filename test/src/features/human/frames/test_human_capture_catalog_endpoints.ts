@@ -3,7 +3,7 @@ import {
 } from "../../../reference-conics/FamilyConicCaptureCatalog";
 import { ConstructionShapes } from "../../internal/construction/ConstructionShapes";
 import { nclose } from "../../internal/nclose";
-import { AutoMovieSolidChain, AutoMovieSplineCurve } from "@automovie/engine";
+import { AutoMovieEngineSolidChain, AutoMovieEngineSplineCurve } from "@automovie/engine";
 import type {
   IAutoMovieLoftChain,
   IAutoMovieSolidSurface,
@@ -31,7 +31,7 @@ export function test_human_capture_catalog_endpoints(): void {
   const intervals: readonly (readonly [number, number])[] = [[0, 3 / 7], [-3 / 7, 0], [0, 1]];
   for (const [lo, hi] of intervals) {
     const chain: IAutoMovieLoftChain = tube(lo, hi);
-    const surface: IAutoMovieSolidSurface | null = AutoMovieSolidChain.surface(chain);
+    const surface: IAutoMovieSolidSurface | null = AutoMovieEngineSolidChain.surface(chain);
     if (surface === null || surface.point === undefined || surface.domain === undefined)
       throw new Error("The regular engine tube did not publish its owned Point0 surface");
     const point: NonNullable<IAutoMovieSolidSurface["point"]> = surface.point;
@@ -79,7 +79,7 @@ export function test_human_capture_catalog_endpoints(): void {
 /** A regular constant section on a linear Y course; all derivatives are supplied as geometry input. */
 function tube(lo: number, hi: number): IAutoMovieLoftChain {
   const count: number = 16;
-  const coefficients: number[] = AutoMovieSplineCurve.interpolate(Array.from(
+  const coefficients: number[] = AutoMovieEngineSplineCurve.interpolate(Array.from(
     { length: count },
     (_: unknown, k: number): [number, number] => [Math.cos(2 * Math.PI * k / count), Math.sin(2 * Math.PI * k / count)],
   ));

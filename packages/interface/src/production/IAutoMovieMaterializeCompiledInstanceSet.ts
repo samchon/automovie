@@ -13,7 +13,7 @@ export namespace IAutoMovieMaterializeCompiledInstanceSet {
    *
    * The record keeps the placement and variation laws, the route snapshot a
    * route layout follows, one bounds and centroid per chunk of
-   * {@link AUTOMOVIE_INSTANCE_CHUNK_SIZE} slots, the representation tiers and
+   * {@link AutoMovieEngineInstanceChunkSize} slots, the representation tiers and
    * measured or fallback radius of the base model group and every declared
    * prototype, and a digest of every other field. A declared prototype table is
    * compiled with the base group's default first, which is the choice list

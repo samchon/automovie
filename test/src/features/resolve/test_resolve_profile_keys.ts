@@ -1,4 +1,4 @@
-import { profileSemanticKeys } from "@automovie/engine";
+import { AutoMovieEngineResolve } from "@automovie/engine";
 import { IAutoMovieDriver, IAutoMovieProfile } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -16,7 +16,8 @@ const profileWith: (
 });
 
 /**
- * Profile semantic keys enumerate node references from limits and drivers in first-reference order, removing duplicates for binding admission.
+ * Profile semantic keys enumerate node references from limits and drivers in
+ * first-reference order, removing duplicates for binding admission.
  *
  * Scenarios:
  *
@@ -36,7 +37,7 @@ const profileWith: (
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Limits contribute node-channel keys; pointer channels contribute nothing.).
  */
 export function test_resolve_profile_keys(): void {
-  const keys: string[] = profileSemanticKeys(
+  const keys: string[] = AutoMovieEngineResolve.profileSemanticKeys(
     profileWith(
       [
         {
@@ -78,8 +79,8 @@ export function test_resolve_profile_keys(): void {
           type: "driven",
           output: { kind: "node", node: "k", path: "rotation" },
           source: { kind: "pointer", pointer: "/x", valueType: "scalar" },
-          inRange: [0, 1],
-          outRange: [0, 1],
+          inRange: { from: 0, to: 1 },
+          outRange: { from: 0, to: 1 },
           clamp: false,
         },
         {
@@ -123,7 +124,7 @@ export function test_resolve_profile_keys(): void {
     "m",
   ]);
 
-  const nulls: string[] = profileSemanticKeys(
+  const nulls: string[] = AutoMovieEngineResolve.profileSemanticKeys(
     profileWith([
       {
         type: "ik",

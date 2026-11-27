@@ -1,5 +1,5 @@
 import type { IAutoMovieMesh } from "@automovie/interface";
-import { buildGeometry } from "@automovie/render";
+import { AutoMovieRenderSceneLayout } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import type { BufferGeometry } from "three";
 
@@ -53,7 +53,7 @@ export function test_render_scene_build_geometry_morph_attributes(): void {
       },
     ],
   };
-  const geometry: BufferGeometry = buildGeometry({ type: "mesh", mesh });
+  const geometry: BufferGeometry = AutoMovieRenderSceneLayout.buildGeometry({ type: "mesh", mesh });
   const positions: NonNullable<BufferGeometry["morphAttributes"]["position"]> =
     geometry.morphAttributes.position!;
   const normals: NonNullable<BufferGeometry["morphAttributes"]["normal"]> =
@@ -78,7 +78,7 @@ export function test_render_scene_build_geometry_morph_attributes(): void {
       deltasMatch(normals[1]!, [0, 0, 0, 0, 0, 0, 0, 0, 0]),
   );
 
-  const positionOnly: BufferGeometry = buildGeometry({
+  const positionOnly: BufferGeometry = AutoMovieRenderSceneLayout.buildGeometry({
     type: "mesh",
     mesh: { ...mesh, targets: [mesh.targets![1]!] },
   });

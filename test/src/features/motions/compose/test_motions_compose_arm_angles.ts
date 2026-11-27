@@ -2,7 +2,9 @@ import type {
   IAutoMovieMotionHumanArmAngles,
   IAutoMoviePose,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanArmAngles } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanArmAngles
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanArmAngles";
 import { TestValidator } from "@nestia/e2e";
 
 import { joint } from "../../internal/joint";

@@ -1,4 +1,4 @@
-import { Quaternion, meterAutoMovieIlluminance } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineExposure } from "@automovie/engine";
 import type {
   IAutoMovieColor,
   IAutoMovieLight,
@@ -56,17 +56,17 @@ const lux: (lights: IAutoMovieLight[], point?: IAutoMovieVector3) => number = (
   lights: IAutoMovieLight[],
   point: IAutoMovieVector3 = { x: 0, y: 0, z: 0 },
 ): number =>
-  meterAutoMovieIlluminance({ lights, point, normal: { x: 0, y: 1, z: 0 } })
+  AutoMovieEngineExposure.meterAutoMovieIlluminance({ lights, point, normal: { x: 0, y: 1, z: 0 } })
     .lux;
 
 /** Facing straight down, -Y. */
-const DOWN: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+const DOWN: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
   { x: 1, y: 0, z: 0 },
   -90,
 );
 
 /**
- * `meterAutoMovieIlluminance` sums the illuminance a set of lights puts on a
+ * `meterIlluminance` sums the illuminance a set of lights puts on a
  * surface: intensity times luminance (0.2126, 0.7152, 0.0722) times the
  * incidence (inverse square and cosine for a point or spot, cosine alone for a
  * directional light).
@@ -83,7 +83,7 @@ const DOWN: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
  * 5. Two lights sum, each reported under its id; a zero normal is refused.
  */
 export function test_engine_render_meter_illuminance(): void {
-  const identity: IAutoMovieQuaternion = Quaternion.identity();
+  const identity: IAutoMovieQuaternion = AutoMovieEngineQuaternion.identity();
   TestValidator.predicate(
     "a point light",
     nclose(
@@ -127,7 +127,7 @@ export function test_engine_render_meter_illuminance(): void {
     nclose(lux([spot]), 25, ROUNDING) &&
       lux([spot], { x: 5, y: 0, z: 0 }) === 0,
   );
-  const both: IAutoMovieMeterIlluminance.IResult = meterAutoMovieIlluminance({
+  const both: IAutoMovieMeterIlluminance.IResult = AutoMovieEngineExposure.meterAutoMovieIlluminance({
     lights: [
       light("point", 100, { x: 0, y: 2, z: 0 }, identity),
       light("directional", 80, { x: 0, y: 5, z: 0 }, DOWN),
@@ -147,7 +147,7 @@ export function test_engine_render_meter_illuminance(): void {
     "a zero normal",
     throwsError(
       (): unknown =>
-        meterAutoMovieIlluminance({
+        AutoMovieEngineExposure.meterAutoMovieIlluminance({
           lights: [],
           point: { x: 0, y: 0, z: 0 },
           normal: { x: 0, y: 0, z: 0 },

@@ -1,5 +1,6 @@
 import type { IAutoMovieBuiltEnvironment } from "../architecture/IAutoMovieBuiltEnvironment";
-import type { IAutoMovieViolationCollector } from "../validation/IAutoMovieViolationCollector";
+import type { IAutoMovieViolationAppendRangeTextSink } from "../validation/IAutoMovieViolationAppendRangeTextSink";
+import type { IAutoMovieViolationAppendSink } from "../validation/IAutoMovieViolationAppendSink";
 import type { IAutoMovieServiceNetwork } from "./IAutoMovieServiceNetwork";
 import type { IAutoMovieServiceSystem } from "./IAutoMovieServiceSystem";
 
@@ -56,7 +57,7 @@ export namespace IAutoMovieAppendServiceNetworkNodes {
      * Caller-owned synchronous diagnostic sink; findings may retain borrowed
      * authored values.
      */
-    out: IAutoMovieViolationCollector;
+    out: IAutoMovieViolationAppendRangeTextSink;
 
     /**
      * Finite-positive scalar gate for non-null port sections in square metres.
@@ -67,7 +68,7 @@ export namespace IAutoMovieAppendServiceNetworkNodes {
       value: number,
       path: string,
       label: string,
-      out: IAutoMovieViolationCollector,
+      out: IAutoMovieViolationAppendSink,
     ) => void;
 
     /**
@@ -79,7 +80,7 @@ export namespace IAutoMovieAppendServiceNetworkNodes {
       value: number,
       path: string,
       label: string,
-      out: IAutoMovieViolationCollector,
+      out: IAutoMovieViolationAppendSink,
     ) => void;
   };
 }

@@ -9,15 +9,29 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionClock,
-  HumanFoot,
-  climbStairs,
-  climbStairsPelvis,
-  climbStairsPlants,
-  climbStairsToes,
-  crutchStairsFlight,
-  humanFootOffset,
-} from "@automovie/motions/internal";
+  motionClock
+} from "../../../../../packages/motions/src/compose/internal/motionClock";
+import {
+  HumanFoot
+} from "../../../../../packages/motions/src/posture/internal/HumanFoot";
+import {
+  climbStairs
+} from "../../../../../packages/motions/src/terrain/internal/climbStairs";
+import {
+  climbStairsPelvis
+} from "../../../../../packages/motions/src/terrain/stairs/climbStairsPelvis";
+import {
+  climbStairsPlants
+} from "../../../../../packages/motions/src/terrain/stairs/climbStairsPlants";
+import {
+  climbStairsToes
+} from "../../../../../packages/motions/src/terrain/stairs/climbStairsToes";
+import {
+  crutchStairsFlight
+} from "../../../../../packages/motions/src/lexicon/internal/crutchStairsFlight";
+import {
+  humanFootOffset
+} from "../../../../../packages/motions/src/posture/internal/humanFootOffset";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixture } from "../../internal/fixtures/humanFixture";
@@ -54,7 +68,7 @@ namespace part_climb_stairs_pelvis {
     ];
     const root: (seconds: number) => IAutoMovieVector3 = climbStairsPelvis(
       stance,
-      AutoMovieMotionClock(3, [
+      motionClock(3, [
         { name: "toeOff1", seconds: 0.2 },
         { name: "treadContact1", seconds: 1 },
         { name: "toeOff2", seconds: 1.2 },
@@ -98,7 +112,7 @@ namespace part_climb_stairs_plants {
    * 3. On a prop named `deck` the right foot's second plant bears on it.
    */
   export function verify(): void {
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(2, [
+    const clock: IAutoMovieMotionClock = motionClock(2, [
       { name: "toeOff1", seconds: 0.2 },
       { name: "treadContact1", seconds: 1 },
     ]);
@@ -214,7 +228,7 @@ namespace part_climb_stairs_toes {
     const reads: number[] = [];
     const toes: ReturnType<typeof climbStairsToes> = climbStairsToes({
       duration: 2,
-      clock: AutoMovieMotionClock(2, [
+      clock: motionClock(2, [
         { name: "toeOff1", seconds: 0.2 },
         { name: "treadContact1", seconds: 1 },
       ]),

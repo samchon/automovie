@@ -1,4 +1,4 @@
-import type { IAutoMoviePoseKeypoint } from "../cinematics/IAutoMoviePoseKeypoint.js";
+import type { IAutoMoviePoseKeypoint } from "../cinematics/IAutoMoviePoseKeypoint";
 
 /**
  * One performing actor's projected joints in one output frame of the

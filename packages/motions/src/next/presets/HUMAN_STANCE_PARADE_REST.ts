@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanStance } from "@automovie/interface";
 
-/**
+/*
  * The paradeRest preset of `rest`: Parade rest: the hands clasped behind the
  * back, on the sacrum. Spread into `rest`'s parameters with the hold; the
  * `paradeRest` row of `HumanStance` fixes these places. Where each place lies

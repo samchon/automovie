@@ -5,11 +5,17 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanArmGeometry,
-  HumanArmSeedContinuation,
-  HumanArmTrajectoryContext,
-  HumanArmTrajectoryModel,
-} from "@automovie/motions/internal";
+  HumanArmGeometry
+} from "../../../../../packages/motions/src/posture/internal/HumanArmGeometry";
+import {
+  HumanArmSeedContinuation
+} from "../../../../../packages/motions/src/posture/internal/HumanArmSeedContinuation";
+import {
+  HumanArmTrajectoryContext
+} from "../../../../../packages/motions/src/posture/internal/HumanArmTrajectoryContext";
+import {
+  HumanArmTrajectoryModel
+} from "../../../../../packages/motions/src/posture/internal/HumanArmTrajectoryModel";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";

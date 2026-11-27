@@ -1,4 +1,6 @@
-import { AutoMovieMotionHumanAuditDifference } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanAuditDifference
+} from "../../../../../packages/motions/src/audit/internal/AutoMovieMotionHumanAuditDifference";
 import { TestValidator } from "@nestia/e2e";
 
 /**

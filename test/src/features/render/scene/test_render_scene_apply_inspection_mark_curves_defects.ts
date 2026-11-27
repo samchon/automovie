@@ -1,12 +1,11 @@
-import { markAutoMovieConstructionCurves } from "@automovie/engine";
+import { AutoMovieEngineConstruction } from "@automovie/engine";
 import type {
   IAutoMovieConstructionCurve,
   IAutoMovieMark,
 } from "@automovie/interface";
 import {
-  type IAutoMovieInspectionHandle,
-  applyAutoMovieInspection,
-  readAutoMovieBufferAttribute,
+  AutoMovieRenderInspection,
+  type IAutoMovieRenderInspectionHandle,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
@@ -21,7 +20,7 @@ import { readMarkPolyline } from "../../internal/readMarkPolyline";
  *
  * Scenarios:
  *
- * 1. `markAutoMovieConstructionCurves` turns a closed section ring, an open guide
+ * 1. `markConstructionCurves` turns a closed section ring, an open guide
  *    and a flagged axis of a form built into `panel` into marks of kinds
  *    `curve/section`, `curve/guide` and `curve/axis` at paths `panel/<id>`,
  *    anchored to `panel`, sharing the curves' points, flagged where the curve
@@ -74,10 +73,11 @@ export function test_render_scene_apply_inspection_mark_curves_defects(): void {
     [0, 0, -1, 0, 0, 1],
     true,
   );
-  const marks: IAutoMovieMark[] = markAutoMovieConstructionCurves(
-    [ring, guide, axis],
-    "panel",
-  );
+  const marks: IAutoMovieMark[] =
+    AutoMovieEngineConstruction.markConstructionCurves(
+      [ring, guide, axis],
+      "panel",
+    );
   TestValidator.equals(
     "each curve becomes one anchored polyline mark",
     marks.map((mark: IAutoMovieMark) => [
@@ -127,17 +127,16 @@ export function test_render_scene_apply_inspection_mark_curves_defects(): void {
   );
   TestValidator.equals(
     "a form at the root anchors to the empty path",
-    markAutoMovieConstructionCurves([guide], "").map((mark: IAutoMovieMark) => [
-      mark.path,
-      mark.anchor,
-    ]),
+    AutoMovieEngineConstruction.markConstructionCurves([guide], "").map(
+      (mark: IAutoMovieMark) => [mark.path, mark.anchor],
+    ),
     [["torso/guide/0", ""]],
   );
 
   // 2. Drawn curves.
   const panel: THREE.Mesh = InspectionScene.quad("panel", 3);
   const form: THREE.Scene = InspectionScene.scene(panel);
-  const curves: IAutoMovieInspectionHandle = applyAutoMovieInspection({
+  const curves: IAutoMovieRenderInspectionHandle = AutoMovieRenderInspection.apply({
     scene: form,
     request: InspectionScene.ask({ marks: ["curve"] }),
     marks,
@@ -167,7 +166,7 @@ export function test_render_scene_apply_inspection_mark_curves_defects(): void {
   // 3. Measured open edges.
   const open: THREE.Mesh = InspectionScene.quad("open");
   const torn: THREE.Scene = InspectionScene.scene(open);
-  const edges: IAutoMovieInspectionHandle = applyAutoMovieInspection({
+  const edges: IAutoMovieRenderInspectionHandle = AutoMovieRenderInspection.apply({
     scene: torn,
     request: InspectionScene.ask({ marks: ["defect/open"] }),
   });
@@ -210,10 +209,9 @@ export function test_render_scene_apply_inspection_mark_curves_defects(): void {
   );
 
   // 4. The marks follow a moved vertex.
-  const position: THREE.BufferAttribute = readAutoMovieBufferAttribute(
-    open.geometry,
+  const position: THREE.BufferAttribute = open.geometry.getAttribute(
     "position",
-  );
+  ) as THREE.BufferAttribute;
   const corner: number[] = [
     position.getX(0),
     position.getY(0),
@@ -232,7 +230,7 @@ export function test_render_scene_apply_inspection_mark_curves_defects(): void {
   edges.restore();
 
   // 5. Only asked kinds.
-  const absent: IAutoMovieInspectionHandle = applyAutoMovieInspection({
+  const absent: IAutoMovieRenderInspectionHandle = AutoMovieRenderInspection.apply({
     scene: torn,
     request: InspectionScene.ask({ marks: ["defect/degenerate"] }),
   });

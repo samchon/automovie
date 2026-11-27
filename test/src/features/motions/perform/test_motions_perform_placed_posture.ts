@@ -2,7 +2,9 @@ import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
-import { readPlacedHumanPosture } from "@automovie/motions/internal";
+import {
+  readPlacedHumanPosture
+} from "../../../../../packages/motions/src/perform/internal/readPlacedHumanPosture";
 import { TestValidator } from "@nestia/e2e";
 
 /**

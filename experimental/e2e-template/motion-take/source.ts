@@ -1,9 +1,9 @@
-import { createDoor } from "@automovie/archetypes";
+import { AutoMovieArchetypeDoor } from "@automovie/archetypes";
 import {
-  AutoMovieComposition,
-  Quaternion,
-  Transform,
-  Vector3,
+  AutoMovieEngineComposition,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineTransform,
+  AutoMovieEngineVector3,
 } from "@automovie/engine";
 import { AutoMovieHumanCanonicalBody } from "@automovie/human";
 import type {
@@ -22,11 +22,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanBody,
   AutoMovieMotionHumanStance,
   AutoMovieMotionHumanThrowCatch,
-  HumanChain,
-  HumanObject,
-  createHumanBody,
+  AutoMovieMotionHumanChain,
+  AutoMovieMotionHumanObject,
 } from "@automovie/motions";
 
 import type { IMotionTakeSource } from "../../src/executable/motionTake/IMotionTakeSource";
@@ -153,7 +153,7 @@ const release: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanStand.IParams
 function carrierMotion(seconds: number): IAutoMovieRigidTransform {
   return {
     position: { ...origin, z: 0.12 * seconds },
-    rotation: Quaternion.identity(),
+    rotation: AutoMovieEngineQuaternion.identity(),
   };
 }
 
@@ -165,7 +165,7 @@ function hingeTravel(seconds: number): number {
 /** Compare the prepared reader with full model posing across the source cut. */
 function verifyDoorSite(door: IAutoMovieMotionHumanProp): void {
   const site: IAutoMovieMotionHumanProp["articulateSite"] =
-    HumanObject.articulateSite(door);
+    AutoMovieMotionHumanObject.articulateSite(door);
   const articulate: IAutoMovieMotionHumanProp["articulate"] = door.articulate;
   if (site === undefined || articulate === undefined)
     throw new Error(
@@ -186,10 +186,10 @@ function verifyDoorSite(door: IAutoMovieMotionHumanProp): void {
       narrow === undefined ||
       full === undefined ||
       !(
-        Vector3.distance(narrow.frame.translation, full.frame.translation) <=
+        AutoMovieEngineVector3.distance(narrow.frame.translation, full.frame.translation) <=
         1e-6
       ) ||
-      !(Quaternion.angle(narrow.frame.rotation, full.frame.rotation) <= 1e-6)
+      !(AutoMovieEngineQuaternion.angle(narrow.frame.rotation, full.frame.rotation) <= 1e-6)
     )
       throw new Error(
         `the prepared door pull must match its full pose at ${seconds}s`,
@@ -211,7 +211,7 @@ export function createMotionTakeSource(): IMotionTakeSource {
       bodyFixture.params as IAutoMovieHumanParameters,
       { mass: bodyFixture.mass, id: "m-average" },
     );
-  const body: IAutoMovieMotionHumanBody = createHumanBody(
+  const body: IAutoMovieMotionHumanBody = AutoMovieMotionHumanBody.create(
     prepared.skeleton,
     prepared.profile,
   );
@@ -221,9 +221,12 @@ export function createMotionTakeSource(): IMotionTakeSource {
     180,
   ).root;
   const arm: number = body.measure.upperArm + body.measure.forearm;
-  const door: IAutoMovieMotionHumanProp = HumanObject.prop(
+  const door: IAutoMovieMotionHumanProp = AutoMovieMotionHumanObject.prop(
     "door",
-    createDoor({ hinge: "right", hardware: "lever" }, fixture.doorSeed),
+    AutoMovieArchetypeDoor.create(
+      { hinge: "right", hardware: "lever" },
+      fixture.doorSeed,
+    ),
     { at: origin, yaw: 0, fixed: false },
     undefined,
     undefined,
@@ -231,7 +234,7 @@ export function createMotionTakeSource(): IMotionTakeSource {
   );
   const frame: IAutoMovieRigidTransform = {
     position: origin,
-    rotation: Quaternion.identity(),
+    rotation: AutoMovieEngineQuaternion.identity(),
   };
   return {
     ...takeMetadata(),
@@ -277,7 +280,7 @@ export function createMotionTakeSource(): IMotionTakeSource {
                 id: "grip",
                 kind: "handle",
                 symmetry: "round",
-                frame: Transform.of(origin, frame.rotation),
+                frame: AutoMovieEngineTransform.of(origin, frame.rotation),
                 extent: null,
                 aperture: 0.15,
               },
@@ -297,7 +300,7 @@ export function createMotionTakeSource(): IMotionTakeSource {
               {
                 id: "rack",
                 kind: "socket",
-                frame: Transform.of(origin, frame.rotation),
+                frame: AutoMovieEngineTransform.of(origin, frame.rotation),
                 extent: null,
               },
             ],
@@ -308,20 +311,20 @@ export function createMotionTakeSource(): IMotionTakeSource {
             mounted: { prop: "carrier", point: "rack", offset: frame },
           },
         ],
-        composition: AutoMovieComposition.sequence(
-          AutoMovieComposition.parallel(
-            HumanChain.subject("emitter").registered(
+        composition: AutoMovieEngineComposition.sequence(
+          AutoMovieEngineComposition.parallel(
+            AutoMovieMotionHumanChain.subject("emitter").registered(
               "releaseFoamBall",
               { hold: 2 },
               "foam-release",
             ).node,
-            HumanChain.subject("catcher").registered("stageCatch", {
+            AutoMovieMotionHumanChain.subject("catcher").registered("stageCatch", {
               partner: "foam-release",
               ball: launch.prop,
               hands: "one",
             }).node,
           ),
-          HumanChain.subject("catcher").registered(
+          AutoMovieMotionHumanChain.subject("catcher").registered(
             "stand",
             { hold: 1, sway: 0 },
             "old-tail",

@@ -3,7 +3,12 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanEntryState,
 } from "@automovie/interface";
-import { HumanRefusal, crossAnkleEntry } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  crossAnkleEntry
+} from "../../../../../packages/motions/src/everyday/internal/crossAnkleEntry";
 import { strict as assert } from "node:assert";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -29,6 +34,6 @@ export async function test_motions_everyday_cross_ankle_over_knee(): Promise<voi
   assert.throws(
     () => crossAnkleEntry(standing, "right"),
     (error: unknown): boolean =>
-      error instanceof HumanRefusal && error.axis === "base",
+      error instanceof AutoMovieMotionHumanRefusal && error.axis === "base",
   );
 }

@@ -17,7 +17,7 @@
  * - `grammar-pacing` (advisory): filed once per non-empty sequence on its last
  *   shot, stating the edited durations and their average.
  *
- * `GRAMMAR_STYLE_SUPPRESSION` lets a declared style intent except exactly one
+ * `AutoMovieEngineGrammarStyleSuppression` lets a declared style intent except exactly one
  * of `grammar-axis-crossed`, `grammar-jump-cut`, `grammar-eyeline`,
  * `grammar-reestablish` and `grammar-pacing`; the shot-size and
  * screen-direction families have no suppressing intent.

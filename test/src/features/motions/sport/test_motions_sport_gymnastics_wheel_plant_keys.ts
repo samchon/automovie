@@ -1,4 +1,6 @@
-import { GymnasticsWheelPlants } from "@automovie/motions/internal";
+import {
+  GymnasticsWheelPlants
+} from "../../../../../packages/motions/src/sport/internal/GymnasticsWheelPlants";
 import { TestValidator } from "@nestia/e2e";
 
 /**

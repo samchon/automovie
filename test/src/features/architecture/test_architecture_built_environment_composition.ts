@@ -1,8 +1,4 @@
-import {
-  AutoMovieSubject,
-  AutoMovieSubjectGroup,
-  lowerBuiltEnvironment,
-} from "@automovie/engine";
+import { AutoMovieEngineSubject, AutoMovieEngineSubjectGroup, AutoMovieEngineBuiltEnvironmentWorkflow } from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieBuiltSpace,
@@ -57,7 +53,7 @@ const storeySpace: (index: number) => IAutoMovieBuiltSpace = (
  * index, which is what makes a thirty-storey tower the same source as a
  * three-storey one.
  */
-class LoopedWing extends AutoMovieSubject<IAutoMovieBuiltEnvironment> {
+class LoopedWing extends AutoMovieEngineSubject<IAutoMovieBuiltEnvironment> {
   /** Retain the authored namespace and storey count used by the existing cases. */
   public constructor(
     /** Namespace of this fixture's building and contribution ids. */
@@ -173,12 +169,12 @@ class LoopedWing extends AutoMovieSubject<IAutoMovieBuiltEnvironment> {
   public render(
     _context: IAutoMovieShotBuildContext,
   ): IAutoMovieSubjectContribution {
-    return lowerBuiltEnvironment(this.design());
+    return AutoMovieEngineBuiltEnvironmentWorkflow.lowerBuiltEnvironment(this.design());
   }
 }
 
 /** A group of wings, which is itself just another subject. */
-class Wings extends AutoMovieSubjectGroup<null, LoopedWing> {
+class Wings extends AutoMovieEngineSubjectGroup<null, LoopedWing> {
   /** Keep the namespace and borrowed leaf list in authored merge order. */
   public constructor(
     /** Group identity, unused by the inherited contribution merge. */
@@ -201,7 +197,7 @@ class Wings extends AutoMovieSubjectGroup<null, LoopedWing> {
 }
 
 /** A building that is a group of wing groups, composed with no new rules. */
-class Campus extends AutoMovieSubjectGroup<null, Wings> {
+class Campus extends AutoMovieEngineSubjectGroup<null, Wings> {
   /** Stable outer group identity, unused by the inherited merge. */
   public readonly id: string = "campus";
 
@@ -244,7 +240,7 @@ const alphabetical: (left: string, right: string) => number = (
  *    builtEnvironments/models/set/spaces keys; its fixture render ignores the
  *    supplied context.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls AutoMovieSubjectGroup.render through Wings/Campus and lowerBuiltEnvironment through LoopedWing.render, observing merged id order, complete nested-versus-flat plain data, ownership-prefix counts and the leaf's contribution keys. Omitted members, changed merge order or extra contribution domains change these observations; render here returns CPU records and invokes no image renderer.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls AutoMovieEngineSubjectGroup.render through Wings/Campus and lowerBuiltEnvironment through LoopedWing.render, observing merged id order, complete nested-versus-flat plain data, ownership-prefix counts and the leaf's contribution keys. Omitted members, changed merge order or extra contribution domains change these observations; render here returns CPU records and invokes no image renderer.
  * @evidence contracts/development/testing.md#independent-expectations Literal north/south/east storey counts 2/3/1 determine the explicit model/node/space lists. Nested and flat results must match through sameProductData with numeric tolerance zero, so this relational check proves grouping equivalence for these leaves while both sides share the same lowerer. The separately rendered three-storey leaf fixes the four-key expectation; duplicate ids, empty contributions and arbitrary context-dependent subjects are not exercised.
  * @evidence contracts/development/testing.md#distinguishing-cases Flat and nested groups, ownership prefixes and the exact contribution-key set expose reordering or extra domains; the fixture render ignores its supplied context, so this does not prove context independence for arbitrary subjects.
  * @evidence contracts/development/testing.md#execution-ownership Portable CPU unit test_architecture_built_environment_composition imports the actual engine/archetype operations and owns its locally enumerated cases; no dynamic registration, consumer installation, native artifact build, process, browser or GPU host is required.

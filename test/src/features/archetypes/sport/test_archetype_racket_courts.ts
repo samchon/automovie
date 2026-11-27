@@ -1,8 +1,4 @@
-import {
-  createPadelCourt,
-  createSquashCourt,
-  createTableTennisTable,
-} from "@automovie/archetypes";
+import { AutoMovieArchetypePadelCourt, AutoMovieArchetypeSquashCourt, AutoMovieArchetypeTableTennisTable } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -26,8 +22,8 @@ import { nclose } from "../../internal/nclose";
  * @evidence contracts/development/testing.md#execution-ownership Builds the models in memory.
  */
 export function test_archetype_racket_courts(): void {
-  const table: ReturnType<typeof createTableTennisTable> =
-    createTableTennisTable();
+  const table: ReturnType<typeof AutoMovieArchetypeTableTennisTable.create> =
+    AutoMovieArchetypeTableTennisTable.create();
   TestValidator.predicate(
     "the table's surface, net and end lines are the ITTF Laws'",
     nclose(table.affordance("surface").frame.translation.y, 0.76) &&
@@ -38,7 +34,7 @@ export function test_archetype_racket_courts(): void {
         2.74,
       ),
   );
-  const squash: ReturnType<typeof createSquashCourt> = createSquashCourt();
+  const squash: ReturnType<typeof AutoMovieArchetypeSquashCourt.create> = AutoMovieArchetypeSquashCourt.create();
   TestValidator.predicate(
     "the squash court's walls, tin and T are the WSF's",
     nclose(
@@ -53,7 +49,7 @@ export function test_archetype_racket_courts(): void {
         5.44,
       ),
   );
-  const padel: ReturnType<typeof createPadelCourt> = createPadelCourt();
+  const padel: ReturnType<typeof AutoMovieArchetypePadelCourt.create> = AutoMovieArchetypePadelCourt.create();
   TestValidator.predicate(
     "the padel court's net and back walls are the FIP's",
     nclose(padel.affordance("net").frame.translation.y, 0.88) &&

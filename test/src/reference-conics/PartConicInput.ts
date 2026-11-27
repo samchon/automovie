@@ -1,4 +1,4 @@
-import { AutoMovieMeshExtract as M } from "@automovie/engine";
+import { AutoMovieEngineMeshExtract as M } from "@automovie/engine";
 import type {
   IAutoMovieMeshSectionChain,
   IAutoMovieMeshSectionCut,

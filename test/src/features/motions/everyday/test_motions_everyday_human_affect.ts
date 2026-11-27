@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -9,11 +9,17 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanAffect,
-  HumanRefusal,
-  HumanTrunk,
-  affectHeldHands,
-} from "@automovie/motions/internal";
+  HumanAffect
+} from "../../../../../packages/motions/src/perform/expression/HumanAffect";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  HumanTrunk
+} from "../../../../../packages/motions/src/everyday/internal/HumanTrunk";
+import {
+  affectHeldHands
+} from "../../../../../packages/motions/src/perform/expression/affectHeldHands";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -73,7 +79,7 @@ namespace part_human_affect_angles {
     try {
       HumanAffect.angles("laugh", 0.5, 0);
     } catch (error: unknown) {
-      refused = error instanceof HumanRefusal && error.axis === "seconds";
+      refused = error instanceof AutoMovieMotionHumanRefusal && error.axis === "seconds";
     }
     TestValidator.predicate("no length", refused);
   }
@@ -210,7 +216,7 @@ namespace part_human_affect_crying {
     try {
       HumanAffect.layer([{ kind: "sneeze", at: 0, duration: 0.2 }]);
     } catch (error: unknown) {
-      if (error instanceof HumanRefusal) axis = error.axis;
+      if (error instanceof AutoMovieMotionHumanRefusal) axis = error.axis;
     }
     TestValidator.equals("a short sneeze", axis, "seconds");
   }
@@ -353,18 +359,18 @@ namespace part_affect_held_hands {
       goal: IAutoMovieMotionHumanPosture["limbs"]["leftArm"],
     ): IAutoMovieVector3 => {
       const head: IAutoMovieResolvedBone = read(posture).get("head")!;
-      return Quaternion.rotateVector(
-        Quaternion.inverse(head.worldRotation),
-        Vector3.subtract(goal!.point, head.worldPosition),
+      return AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.inverse(head.worldRotation),
+        AutoMovieEngineVector3.subtract(goal!.point, head.worldPosition),
       );
     };
     const turn = (
       posture: IAutoMovieMotionHumanPosture,
       goal: IAutoMovieMotionHumanPosture["limbs"]["leftArm"],
     ): IAutoMovieVector3 =>
-      Quaternion.rotateVector(
-        Quaternion.multiply(
-          Quaternion.inverse(read(posture).get("head")!.worldRotation),
+      AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.multiply(
+          AutoMovieEngineQuaternion.inverse(read(posture).get("head")!.worldRotation),
           goal!.rotation!,
         ),
         { x: 0, y: 0, z: 1 },

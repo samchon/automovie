@@ -1,0 +1,218 @@
+import {
+  type IAutoMovieColor,
+  IAutoMovieMaterial,
+  type IAutoMovieMaterialOverlay,
+} from "@automovie/interface";
+import * as THREE from "three";
+
+import { IAutoMovieRenderTextureResolver } from "../IAutoMovieRenderTextureResolver";
+import { constructOwnedResources } from "./constructOwnedResources";
+import { AutoMovieRenderDetailNormalShading } from "../AutoMovieRenderDetailNormalShading";
+import { AutoMovieRenderMaterialOverlayShading } from "../AutoMovieRenderMaterialOverlayShading";
+import { AutoMovieRenderProceduralShading } from "../AutoMovieRenderProceduralShading";
+import { resolveMaterialTexture } from "./resolveMaterialTexture";
+import { AutoMovieRenderSubsurfaceShading } from "../AutoMovieRenderSubsurfaceShading";
+
+/*
+ * Build a `three.js` physical PBR material from an automovie material, mapping
+ * each optional lobe to the `MeshPhysicalMaterial` property of the same glTF
+ * meaning and leaving an omitted lobe at its neutral value. It carries the
+ * material's name, or its id when unnamed, as the glTF export does, so a
+ * preview can recognise a finish by it. A procedural surface is evaluated per
+ * fragment by `applyProceduralSurface`. A fully transparent blended surface
+ * with no transmission skips color, depth and shadow draws. The producer owns
+ * its new material before resolving texture bindings. Setup failure retires
+ * that material and preserves cleanup causes; resolver textures and shared
+ * shader tables remain owned by their actual producers.
+ */
+export const buildMaterial: (
+  material: IAutoMovieMaterial,
+  resolveTexture?: IAutoMovieRenderTextureResolver,
+) => THREE.MeshPhysicalMaterial = (
+  material: IAutoMovieMaterial,
+  resolveTexture?: IAutoMovieRenderTextureResolver,
+): THREE.MeshPhysicalMaterial => {
+  return constructOwnedResources(
+    (
+      own: <Resource extends { dispose(): void }>(
+        resource: Resource,
+      ) => Resource,
+    ): THREE.MeshPhysicalMaterial => {
+      const c: IAutoMovieColor = material.baseColor;
+      const alphaMode: string =
+        material.alphaMode ?? (material.opacity < 1 ? "blend" : "opaque");
+      const std: THREE.MeshPhysicalMaterial = own(
+        new THREE.MeshPhysicalMaterial({
+          name: material.name ?? material.id,
+          color: new THREE.Color(c.r, c.g, c.b),
+          metalness: material.metallic,
+          roughness: material.roughness,
+          transparent: alphaMode === "blend",
+          depthWrite: alphaMode !== "blend",
+          opacity: material.opacity,
+          // Three's shadow materials copy alpha tests and maps, but do not copy opacity.
+          visible: !(
+            alphaMode === "blend" &&
+            material.opacity === 0 &&
+            (material.transmission ?? 0) === 0
+          ),
+          alphaTest: alphaMode === "mask" ? (material.alphaCutoff ?? 0.5) : 0,
+          side:
+            material.doubleSided === true ? THREE.DoubleSide : THREE.FrontSide,
+          transmission: material.transmission ?? 0,
+          ior: material.ior ?? 1.5,
+          thickness: material.thickness ?? 0,
+          clearcoat: material.clearcoat ?? 0,
+          specularIntensity: material.specularIntensity ?? 1,
+          anisotropy: material.anisotropy?.strength ?? 0,
+          anisotropyRotation:
+            ((material.anisotropy?.rotationDeg ?? 0) * Math.PI) / 180,
+          // glTF sheen has no intensity factor: a declared lobe is at full
+          // intensity and its colour scales it
+          sheen: material.sheen === undefined ? 0 : 1,
+          sheenRoughness: material.sheen?.roughness ?? 1,
+        }),
+      );
+      if (material.sheen !== undefined)
+        std.sheenColor.setRGB(
+          material.sheen.color.r,
+          material.sheen.color.g,
+          material.sheen.color.b,
+        );
+      if (material.subsurfaceRadius !== undefined)
+        AutoMovieRenderSubsurfaceShading.apply(std, material.subsurfaceRadius);
+      if (material.procedural !== undefined)
+        AutoMovieRenderProceduralShading.applySurface(std, material.procedural);
+      std.map = resolveMaterialTexture(
+        material.baseColorTexture,
+        "srgb",
+        resolveTexture,
+      );
+      const metallicRoughness: THREE.Texture<
+        unknown,
+        THREE.TextureEventMap
+      > | null = resolveMaterialTexture(
+        material.metallicRoughnessTexture,
+        "linear",
+        resolveTexture,
+      );
+      std.metalnessMap = metallicRoughness;
+      std.roughnessMap = metallicRoughness;
+      std.normalMap = resolveMaterialTexture(
+        material.normalTexture,
+        "linear",
+        resolveTexture,
+      );
+      if (material.normalScale !== undefined)
+        std.normalScale.setScalar(material.normalScale);
+      const detailNormal: THREE.Texture<unknown, THREE.TextureEventMap> | null =
+        resolveMaterialTexture(
+          material.detailNormalTexture,
+          "linear",
+          resolveTexture,
+        );
+      if (detailNormal !== null) {
+        if (std.normalMap !== null)
+          AutoMovieRenderDetailNormalShading.apply(std, detailNormal, material.detailNormalScale ?? 1);
+        else {
+          // a detail map alone stands in as the normal map
+          std.normalMap = detailNormal;
+          std.normalScale.setScalar(material.detailNormalScale ?? 1);
+        }
+      }
+      const overlays: {
+        color: THREE.Texture<unknown, THREE.TextureEventMap> | null;
+        blend: "multiply" | "replace";
+        colorFactor: { r: number; g: number; b: number };
+        roughness: number | null;
+        normal: THREE.Texture<unknown, THREE.TextureEventMap> | null;
+        normalScale: number;
+        strength: number;
+      }[] = (material.overlays ?? []).map(
+        (
+          overlay: IAutoMovieMaterialOverlay,
+        ): {
+          color: THREE.Texture<unknown, THREE.TextureEventMap> | null;
+          blend: "multiply" | "replace";
+          colorFactor: { r: number; g: number; b: number };
+          roughness: number | null;
+          normal: THREE.Texture<unknown, THREE.TextureEventMap> | null;
+          normalScale: number;
+          strength: number;
+        } => ({
+          color: resolveMaterialTexture(
+            overlay.baseColorTexture,
+            "srgb",
+            resolveTexture,
+          ),
+          blend: overlay.blend,
+          colorFactor: overlay.colorFactor ?? { r: 1, g: 1, b: 1 },
+          roughness: overlay.roughness ?? null,
+          normal: resolveMaterialTexture(
+            overlay.normalTexture,
+            "linear",
+            resolveTexture,
+          ),
+          normalScale: overlay.normalScale ?? 1,
+          strength: overlay.strength,
+        }),
+      );
+      // an overlay shows only through its colour image; without a resolver there
+      // is none, and the material shows alone
+      AutoMovieRenderMaterialOverlayShading.apply(
+        std,
+        overlays.flatMap(
+          (overlay: {
+            color: THREE.Texture<unknown, THREE.TextureEventMap> | null;
+            blend: "multiply" | "replace";
+            colorFactor: { r: number; g: number; b: number };
+            roughness: number | null;
+            normal: THREE.Texture<unknown, THREE.TextureEventMap> | null;
+            normalScale: number;
+            strength: number;
+          }): {
+            color: THREE.Texture<unknown, THREE.TextureEventMap>;
+            blend: "multiply" | "replace";
+            colorFactor: { r: number; g: number; b: number };
+            roughness: number | null;
+            normal: THREE.Texture<unknown, THREE.TextureEventMap> | null;
+            normalScale: number;
+            strength: number;
+          }[] =>
+            overlay.color === null
+              ? []
+              : [{ ...overlay, color: overlay.color }],
+        ),
+      );
+      std.thicknessMap = resolveMaterialTexture(
+        material.thicknessTexture,
+        "linear",
+        resolveTexture,
+      );
+      std.anisotropyMap = resolveMaterialTexture(
+        material.anisotropy?.texture,
+        "linear",
+        resolveTexture,
+      );
+      std.aoMap = resolveMaterialTexture(
+        material.occlusionTexture,
+        "linear",
+        resolveTexture,
+      );
+      std.aoMapIntensity = material.occlusionStrength ?? 1;
+      std.emissiveMap = resolveMaterialTexture(
+        material.emissiveTexture,
+        "srgb",
+        resolveTexture,
+      );
+      if (material.emissive !== null)
+        std.emissive = new THREE.Color(
+          material.emissive.r,
+          material.emissive.g,
+          material.emissive.b,
+        );
+      else if (std.emissiveMap !== null) std.emissive.setRGB(1, 1, 1);
+      return std;
+    },
+  );
+};

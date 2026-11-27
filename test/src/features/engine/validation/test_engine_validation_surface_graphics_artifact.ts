@@ -1,5 +1,7 @@
-import { ViolationCollector } from "@automovie/engine";
-import { appendSurfaceGraphicsArtifact } from "@automovie/engine/internal";
+import { AutoMovieEngineViolationCollector } from "@automovie/engine";
+import {
+  appendSurfaceGraphicsArtifact
+} from "../../../../../packages/engine/src/validation/internal/appendSurfaceGraphicsArtifact";
 import type {
   IAutoMovieAffordance,
   IAutoMovieSurfaceGraphic,
@@ -18,7 +20,7 @@ import { TestValidator } from "@nestia/e2e";
  *    particular key field that owns the error.
  */
 export function test_engine_validation_surface_graphics_artifact(): void {
-  const collector: ViolationCollector = new ViolationCollector();
+  const collector: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();
   const board: IAutoMovieAffordance = {
     id: "face",
     kind: "surface",

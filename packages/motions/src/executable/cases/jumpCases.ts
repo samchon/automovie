@@ -1,51 +1,15 @@
-import {
-  AutoMovieGravity,
-  resolveAutoMovieCenterOfMass,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanChain,
-  IAutoMovieMotionHumanFoot,
-  IAutoMovieMotionHumanPerformance,
-  IAutoMoviePose,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineGravity, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanPerformance, IAutoMoviePose, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanChain } from "../../HumanChain";
-import { createHumanBody } from "../../body/createHumanBody";
-import { HumanPerformance } from "../../perform/HumanPerformance";
-import { HumanFoot } from "../../posture/HumanFoot";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
-import { MotionBodies } from "../MotionBodies";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
+import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
+import { AutoMovieMotionHumanPerformance } from "../../perform/AutoMovieMotionHumanPerformance";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
+import { MotionBodies } from "../internal/MotionBodies";
 import { FootSlip } from "./FootSlip";
 
-/** The record of `IFitValueS`'s site. */
-type IFitValueS = { t: number; p: IAutoMovieVector3 };
-
-/** The record of `IJumpCasesSamplesItem`'s site. */
-type IJumpCasesSamplesItem = { t: number; p: IAutoMovieVector3 };
-
-/** The record of `IJumpCasesChannelBest`'s site. */
-type IJumpCasesChannelBest = { key: string; score: number };
-
-/** The record of `IJumpCasesSink`'s site. */
-type IJumpCasesSink = { value: number; where: string };
-
-/** The record of `IJumpCasesFlight`'s site. */
-type IJumpCasesFlight = { value: number; where: string };
-
-/** The record of `IJumpCasesPop`'s site. */
-type IJumpCasesPop = { value: number; where: string };
-
-/** The record of `IJumpCasesJumpRatio`'s site. */
-type IJumpCasesJumpRatio = { value: number; where: string };
-
-/** The record of `IJumpCasesSlip`'s site. */
-type IJumpCasesSlip = { value: number; where: string };
-
-/**
+/*
  * Experiment E1 on the polygon man (`jump-e1-<body>` for the smallest, the
  * average and the tallest sweep bodies): the body walks at a normal pace and is
  * cut into a jump that lands 0.9 m ahead of where it is, at 21 shares across
@@ -57,7 +21,7 @@ type IJumpCasesSlip = { value: number; where: string };
  *
  * - Every cut is legal, a stance foot being planted;
  * - The planted point of a foot, its lowest sole socket while within 1 cm of the
- *   floor, slides under 5 mm in both actions' plant windows ({@link FootSlip},
+ *   floor, slides under 5 mm in both actions' plant windows (FootSlip,
  *   the rule the walk captures measure by);
  * - The velocity jump at the cut, the largest change of any bone's velocity
  *   across the cut, is at most 5 % of the largest bone speed within 0.5 s of
@@ -71,12 +35,11 @@ type IJumpCasesSlip = { value: number; where: string };
  * - After touchdown no heel, ball or toe sinks more than 10 mm under the floor;
  * - At take-off the reaching ankle is under the body, within 0.25 hip heights of
  *   the hips horizontally and at least 0.2 hip heights up.
- *
- * @returns The case.
+ * Returns: The case.
  */
 export function jumpCases(who: string): IMotionCaptureCase[] {
   const man = MotionBodies.population(who);
-  const body: IAutoMovieMotionHumanBody = createHumanBody(
+  const body: IAutoMovieMotionHumanBody = AutoMovieMotionHumanBody.create(
     man.body.skeleton,
     man.body.profile,
   );
@@ -85,7 +48,7 @@ export function jumpCases(who: string): IMotionCaptureCase[] {
   const perform = (
     chain: IAutoMovieMotionHumanChain,
   ): IAutoMovieMotionHumanPerformance =>
-    new HumanPerformance({
+    new AutoMovieMotionHumanPerformance({
       seed: "jump",
       performers: [
         {
@@ -99,14 +62,14 @@ export function jumpCases(who: string): IMotionCaptureCase[] {
       composition: chain.node,
     });
   const walking: IAutoMovieMotionHumanPerformance = perform(
-    HumanChain.subject("a").walk({ to: goal }),
+    AutoMovieMotionHumanChain.subject("a").walk({ to: goal }),
   );
   const walk = walking.segments("a")[0]!;
   const share = (name: string): number =>
     walk.plan.events.find((e) => e.name === name)!.share;
   const s0: number = share("leftHeelStrike2");
   const s1: number = share("leftHeelStrike3");
-  const model = resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
+  const model = AutoMovieEngineKinematics.resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
   let illegal: string[] = [];
   let slip: IJumpCasesSlip = { value: 0, where: "none" };
   let jumpRatio: IJumpCasesJumpRatio = { value: 0, where: "none" };
@@ -141,9 +104,9 @@ export function jumpCases(who: string): IMotionCaptureCase[] {
     // Process boundary: a jump the law refuses at this k is recorded as illegal with its message, and the scan goes on to the next k.
     try {
       performance = perform(
-        HumanChain.subject("a")
+        AutoMovieMotionHumanChain.subject("a")
           .walk({ to: goal })
-          .until({ share: cut })
+          .until({ type: "share", share: cut })
           .jump({ to: { x: hips.x, y: 0, z: hips.z + 0.9 } }),
       );
     } catch (error) {
@@ -307,7 +270,7 @@ export function jumpCases(who: string): IMotionCaptureCase[] {
     )
       samples.push({
         t: t - takeoff,
-        p: resolveAutoMovieCenterOfMass.place(model, bones(t)),
+        p: AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(model, bones(t)),
       });
     const fit = (value: (s: IFitValueS) => number): ((t: number) => number) => {
       const n: number = samples.length;
@@ -323,12 +286,12 @@ export function jumpCases(who: string): IMotionCaptureCase[] {
       const fx = fit((s) => s.p.x);
       const fz = fit((s) => s.p.z);
       const fy = fit(
-        (s) => s.p.y + 0.5 * AutoMovieGravity.STANDARD * s.t * s.t,
+        (s) => s.p.y + 0.5 * AutoMovieEngineGravity.STANDARD * s.t * s.t,
       );
       for (const s of samples) {
         const e: number = Math.hypot(
           s.p.x - fx(s.t),
-          s.p.y - (fy(s.t) - 0.5 * AutoMovieGravity.STANDARD * s.t * s.t),
+          s.p.y - (fy(s.t) - 0.5 * AutoMovieEngineGravity.STANDARD * s.t * s.t),
           s.p.z - fz(s.t),
         );
         if (e > flight.value)
@@ -430,3 +393,43 @@ export function jumpCases(who: string): IMotionCaptureCase[] {
     },
   ];
 }
+
+/*
+ * The record of `IFitValueS`'s site.
+ */
+type IFitValueS = { t: number; p: IAutoMovieVector3 };
+
+/*
+ * The record of `IJumpCasesSamplesItem`'s site.
+ */
+type IJumpCasesSamplesItem = { t: number; p: IAutoMovieVector3 };
+
+/*
+ * The record of `IJumpCasesChannelBest`'s site.
+ */
+type IJumpCasesChannelBest = { key: string; score: number };
+
+/*
+ * The record of `IJumpCasesSink`'s site.
+ */
+type IJumpCasesSink = { value: number; where: string };
+
+/*
+ * The record of `IJumpCasesFlight`'s site.
+ */
+type IJumpCasesFlight = { value: number; where: string };
+
+/*
+ * The record of `IJumpCasesPop`'s site.
+ */
+type IJumpCasesPop = { value: number; where: string };
+
+/*
+ * The record of `IJumpCasesJumpRatio`'s site.
+ */
+type IJumpCasesJumpRatio = { value: number; where: string };
+
+/*
+ * The record of `IJumpCasesSlip`'s site.
+ */
+type IJumpCasesSlip = { value: number; where: string };

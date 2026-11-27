@@ -1,12 +1,14 @@
-import { projectileAt, projectileFirstContact } from "@automovie/engine";
+import { AutoMovieEnginePhysicalProjectile, AutoMovieEngineAir } from "@automovie/engine";
 import type {
   IAutoMovieBody,
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanPropOutcome,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanRefusal } from "@automovie/motions";
-import { HumanPropOutcome } from "@automovie/motions/internal";
+import { AutoMovieMotionHumanRefusal } from "@automovie/motions";
+import {
+  HumanPropOutcome
+} from "../../../../../packages/motions/src/perform/internal/HumanPropOutcome";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../../internal/vclose";
@@ -41,7 +43,7 @@ function scenario_test_motions_perform_prop_outcome_continuation(): void {
       },
     ],
   };
-  const plane = projectileFirstContact.plane("floor", zero, up);
+  const plane = AutoMovieEnginePhysicalProjectile.planeCollider("floor", zero, up);
   const meeting = (
     time: number,
     normal: IAutoMovieVector3 = up,
@@ -60,7 +62,7 @@ function scenario_test_motions_perform_prop_outcome_continuation(): void {
       struck: m.struck,
       point: m.hit.point,
       normal: m.hit.normal!,
-      velocity: projectileAt(p, m.hit.time).velocity,
+      velocity: AutoMovieEngineAir.projectileAt(p, m.hit.time).velocity,
       offset: frame,
       outcome: "bounce",
     }),
@@ -78,7 +80,7 @@ function scenario_test_motions_perform_prop_outcome_continuation(): void {
           "sweep excludes only the departing contact",
           ++queries <= 3 && leave === undefined && departing === plane.id,
         );
-        const hit = projectileFirstContact(
+        const hit = AutoMovieEnginePhysicalProjectile.firstContact(
           p,
           [plane],
           { from: 0, to: base.horizon - t },
@@ -137,7 +139,7 @@ function scenario_test_motions_perform_prop_outcome_continuation(): void {
       HumanPropOutcome.legs(input);
       return false;
     } catch (error) {
-      return error instanceof HumanRefusal && error.axis === axis;
+      return error instanceof AutoMovieMotionHumanRefusal && error.axis === axis;
     }
   };
   const wall = HumanPropOutcome.legs({
@@ -250,7 +252,7 @@ function scenario_test_motions_perform_prop_outcome_material(): void {
       decision({ ...material, restitution });
     } catch (error) {
       refused =
-        error instanceof HumanRefusal &&
+        error instanceof AutoMovieMotionHumanRefusal &&
         error.axis === "restitution" &&
         error.reason.includes("sphere");
     }

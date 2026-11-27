@@ -1,5 +1,5 @@
-import { Vector3 } from "@automovie/engine";
-import { HumanChain, HumanPerformance } from "@automovie/motions";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
+import { AutoMovieMotionHumanChain, AutoMovieMotionHumanPerformance } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -10,7 +10,7 @@ import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
  */
 export async function test_motions_actions_walk_reverse_reach(): Promise<void> {
   const body = await humanFixtureBody("m-average");
-  const performance = new HumanPerformance({
+  const performance = new AutoMovieMotionHumanPerformance({
     seed: "walk",
     performers: [
       {
@@ -21,7 +21,7 @@ export async function test_motions_actions_walk_reverse_reach(): Promise<void> {
         proficiency: { level: "trained" },
       },
     ],
-    composition: HumanChain.subject("w0").walk({
+    composition: AutoMovieMotionHumanChain.subject("w0").walk({
       to: { x: 0, y: 0, z: -4 },
       via: [{ x: 0, y: 0, z: -1.5 }],
       facing: { yaw: 0 },
@@ -42,7 +42,7 @@ export async function test_motions_actions_walk_reverse_reach(): Promise<void> {
       const ankle = performance
         .bones("w0", seconds)
         .get(`${side}Foot`)!.worldPosition;
-      const miss = Vector3.distance(goal.point, ankle);
+      const miss = AutoMovieEngineVector3.distance(goal.point, ankle);
       TestValidator.predicate(
         `${event.name} keeps the ankle within 2 mm at ${delay} s (miss ${miss} m)`,
         miss <= 0.002,

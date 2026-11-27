@@ -3,9 +3,9 @@ import type { IAutoMovieEffectParticle } from "./IAutoMovieEffectParticle";
 /**
  * One bounded deterministic effect sample.
  *
- * `sampleCompiledEffect` uses the requested time to decide membership in the
- * cue's `[start, end)` window. The active state uses its fixed-step clock with
- * a separate opening sample for cues that start between steps. Inactive samples
+ * The Engine sampler uses the requested time to decide membership in the cue's
+ * `[start, end)` window. The active state uses its fixed-step clock with a
+ * separate opening sample for cues that start between steps. Inactive samples
  * have zero intensity and no particles.
  */
 export interface IAutoMovieEffectSample {

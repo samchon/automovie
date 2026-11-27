@@ -1,6 +1,6 @@
 import type { IAutoMovieMaterial } from "../material/IAutoMovieMaterial";
 import type { IAutoMovieModelPart } from "../model/IAutoMovieModelPart";
-import type { IAutoMovieViolationCollector } from "./IAutoMovieViolationCollector";
+import type { IAutoMovieViolationAppendSurfaceItemsSink } from "./IAutoMovieViolationAppendSurfaceItemsSink";
 
 /**
  * Input of `validateMaterialProcedural`, the engine's admission of one
@@ -25,6 +25,6 @@ export namespace IAutoMovieValidateMaterialProcedural {
     partsPath: string;
 
     /** Collector receiving findings. */
-    collector: IAutoMovieViolationCollector;
+    collector: IAutoMovieViolationAppendSurfaceItemsSink;
   };
 }

@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -7,9 +7,9 @@ import {
   AutoMovieArchetypeUnits,
 } from "../core";
 import { AutoMovieArchetypeQuadrupedHead } from "./AutoMovieArchetypeQuadrupedHead";
-import { QuadrupedAttachments } from "./QuadrupedAttachments";
-import type { QuadrupedProportions } from "./QuadrupedProportions";
-import { QuadrupedScapula } from "./QuadrupedScapula";
+import { QuadrupedAttachments } from "./quadruped/QuadrupedAttachments";
+import type { QuadrupedProportions } from "./quadruped/QuadrupedProportions";
+import { QuadrupedScapula } from "./quadruped/QuadrupedScapula";
 
 /**
  * A four-legged animal's body as one bar per bone, built from its species'
@@ -102,6 +102,21 @@ export namespace AutoMovieArchetypeQuadrupedBody {
    */
   export type Dimension = "withersHeight" | "mass" | "girth" | "tempo";
 
+  /** Radii of each limb segment's bar, relative to withers height. */
+  export interface IBoneRadii {
+    /** Radius of the upper limb bar (humerus or femur), / withers height. */
+    readonly upperLimb: number;
+
+    /** Radius of the lower limb bar (radius or tibia), / withers height. */
+    readonly lowerLimb: number;
+
+    /** Radius of the cannon bar, / withers height. */
+    readonly cannon: number;
+
+    /** Radius of the pastern bar, / withers height. */
+    readonly pastern: number;
+  }
+
   /** A species' body: the proportions the rig and the bars are built from. */
   export interface IBody {
     /**
@@ -165,7 +180,7 @@ export namespace AutoMovieArchetypeQuadrupedBody {
      * Each limb bone's radius, from the top down, as a fraction of the height
      * at the withers.
      */
-    bones: readonly [number, number, number, number];
+    bones: Readonly<IBoneRadii>;
 
     /** How far each limb stands inside the barrel's side, metres. */
     inset: number;
@@ -267,7 +282,7 @@ export namespace AutoMovieArchetypeQuadrupedBody {
     const trunk: number = body.lengths.trunk * h;
     const back: number = body.back * h;
 
-    /**
+    /*
      * Initial provisional chain; body connection is resolved after the torso
      * landmarks exist.
      */
@@ -286,19 +301,19 @@ export namespace AutoMovieArchetypeQuadrupedBody {
       // Shared neutral construction later places the real terminal cylinder's sole on ground.
       let y: number = 0;
       let z: number = 0;
-      const up: IAutoMovieVector3[] = [Vector3.create(x, 0, 0)];
+      const up: IAutoMovieVector3[] = [AutoMovieEngineVector3.create(x, 0, 0)];
       for (let k: number = 3; k >= 0; k--) {
         const angle: number = angles[k]! * AutoMovieArchetypeUnits.DEGREE;
         y += lengths[k]! * h * Math.cos(angle);
         z -= lengths[k]! * h * Math.sin(angle);
-        up.push(Vector3.create(x, y, z));
+        up.push(AutoMovieEngineVector3.create(x, y, z));
       }
       const top: number = (fore ? 1 : -1) * (trunk / 2) - z;
       return up
         .reverse()
         .map(
           (p: IAutoMovieVector3): IAutoMovieVector3 =>
-            Vector3.create(p.x, p.y, p.z + top),
+            AutoMovieEngineVector3.create(p.x, p.y, p.z + top),
         );
     }
     const joints: Record<Limb, IAutoMovieVector3[]> = {
@@ -309,29 +324,29 @@ export namespace AutoMovieArchetypeQuadrupedBody {
     };
     const shoulder: IAutoMovieVector3 = joints.leftFore[0]!;
     const hip: IAutoMovieVector3 = joints.leftHind[0]!;
-    const buttock: IAutoMovieVector3 = Vector3.create(
+    const buttock: IAutoMovieVector3 = AutoMovieEngineVector3.create(
       0,
       hip.y,
       shoulder.z - body.buttock * h,
     );
-    const poll: IAutoMovieVector3 = Vector3.create(
+    const poll: IAutoMovieVector3 = AutoMovieEngineVector3.create(
       0,
       back + body.head.poll.rise * h,
       trunk / 2 + body.head.poll.ahead * h,
     );
-    const nose: IAutoMovieVector3 = Vector3.create(
+    const nose: IAutoMovieVector3 = AutoMovieEngineVector3.create(
       0,
       poll.y - body.head.nose.drop * h,
       poll.z + body.head.nose.ahead * h,
     );
 
     // The hindquarters' rear end is a ball of the barrel's radius whose rearmost point is the point of buttock.
-    const quarters: IAutoMovieVector3 = Vector3.create(
+    const quarters: IAutoMovieVector3 = AutoMovieEngineVector3.create(
       0,
       buttock.y,
       buttock.z + barrel,
     );
-    const neck: IAutoMovieVector3 = Vector3.create(
+    const neck: IAutoMovieVector3 = AutoMovieEngineVector3.create(
       0,
       back - body.neck.root * h,
       trunk / 2,
@@ -343,23 +358,23 @@ export namespace AutoMovieArchetypeQuadrupedBody {
       limbs: QuadrupedAttachments.conform(
         joints,
         QuadrupedAttachments.solids({ back, trunk, barrel, quarters }),
-        body.bones[3]! * h,
+        body.bones.pastern * h,
       ),
       buttock,
       neck,
       neckRadius,
-      crest: Vector3.create(0, neck.y + neckRadius, neck.z),
+      crest: AutoMovieEngineVector3.create(0, neck.y + neckRadius, neck.z),
       poll,
       headRadius: body.head.radius * h,
       nose,
-      mouth: Vector3.create(
+      mouth: AutoMovieEngineVector3.create(
         0,
         nose.y + body.head.mouth * h,
         nose.z - body.head.mouth * h,
       ),
       barrel,
       quarters,
-      dock: Vector3.create(
+      dock: AutoMovieEngineVector3.create(
         0,
         quarters.y + body.tail.dock * barrel,
         quarters.z - body.tail.dock * barrel,
@@ -382,7 +397,7 @@ export namespace AutoMovieArchetypeQuadrupedBody {
     withers: number,
     rig: IRig,
   ): void {
-    const v: typeof Vector3.create = Vector3.create;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
     const h: number = withers;
     const barrel: number = rig.barrel;
     const coat: string = body.colors.coat;
@@ -415,7 +430,7 @@ export namespace AutoMovieArchetypeQuadrupedBody {
       Math.PI * barrel * barrel * length + (4 / 3) * Math.PI * barrel ** 3;
     const trunkVolume: number = capsule(2 * half);
     const quartersVolume: number = capsule(
-      Vector3.length(Vector3.subtract(quarters, rear)),
+      AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(quarters, rear)),
     );
     builder.rod("trunk", barrel, rear, parents.trunk.to, {
       color: coat,
@@ -448,7 +463,7 @@ export namespace AutoMovieArchetypeQuadrupedBody {
       color: coat,
       share: share === undefined ? undefined : scale * share.neck,
     });
-    AutoMovieArchetypeQuadrupedHead(
+    AutoMovieArchetypeQuadrupedHead.lay(
       builder,
       rig,
       h,
@@ -468,6 +483,13 @@ export namespace AutoMovieArchetypeQuadrupedBody {
       },
     );
 
+    const boneRadii: readonly number[] = [
+      body.bones.upperLimb,
+      body.bones.lowerLimb,
+      body.bones.cannon,
+      body.bones.pastern,
+    ];
+
     // The limbs: one bar per bone, from each joint to the next.
     for (const limb of LIMBS) {
       const joints: readonly IAutoMovieVector3[] = rig.limbs[limb];
@@ -477,13 +499,13 @@ export namespace AutoMovieArchetypeQuadrupedBody {
       if (limb === "leftFore" || limb === "rightFore")
         builder.rod(
           QuadrupedScapula.BONES[limb],
-          body.bones[0]! * h,
+          body.bones.upperLimb * h,
           QuadrupedScapula.bar(joints[0]!, h).from,
           QuadrupedScapula.bar(joints[0]!, h).to,
           { color: coat, round: false, share: 0 },
         );
       BONES[limb].forEach((bone: Bone, k: number): void => {
-        builder.rod(bone, body.bones[k]! * h, joints[k]!, joints[k + 1]!, {
+        builder.rod(bone, boneRadii[k]! * h, joints[k]!, joints[k + 1]!, {
           color: coat,
           round: false,
           share: shares === undefined ? undefined : scale * shares[k]!,

@@ -1,4 +1,4 @@
-import { AutoMovieLoftChain } from "@automovie/engine";
+import { AutoMovieEngineLoftChain } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieLoftChain,
@@ -35,7 +35,7 @@ export namespace AutoMovieHumanSkeletonChain {
     chain: IAutoMovieLoftChain,
     s: number,
   ): AutoMovieVector3Tuple {
-    return AutoMovieLoftChain.axis(
+    return AutoMovieEngineLoftChain.axis(
       chain,
       Math.min(stop(chain), Math.max(start(chain), s)),
     );
@@ -51,7 +51,7 @@ export namespace AutoMovieHumanSkeletonChain {
 
   /** Girth radius, perimeter / 2pi, of the section at a station clamped into the chain. */
   export function girth(chain: IAutoMovieLoftChain, s: number): number {
-    const ring: AutoMovieVector3Tuple[] = AutoMovieLoftChain.ring(
+    const ring: AutoMovieVector3Tuple[] = AutoMovieEngineLoftChain.ring(
       chain,
       Math.min(stop(chain), Math.max(start(chain), s)),
       PHASES,

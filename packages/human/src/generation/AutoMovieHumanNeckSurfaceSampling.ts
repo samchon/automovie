@@ -1,4 +1,4 @@
-import { AutoMovieLoftChain, AutoMovieLoftParameter } from "@automovie/engine";
+import { AutoMovieEngineLoftChain, AutoMovieEngineLoftParameter } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanNeckSurface,
@@ -37,12 +37,12 @@ export namespace AutoMovieHumanNeckSurfaceSampling {
     phases: readonly number[],
     scale: number,
   ): IAutoMovieHumanNeckSurface.ISection {
-    const points: AutoMovieVector3Tuple[] = AutoMovieLoftChain.ring(
+    const points: AutoMovieVector3Tuple[] = AutoMovieEngineLoftChain.ring(
       chain,
       station,
       phases,
     );
-    const dense: AutoMovieVector3Tuple[] = AutoMovieLoftChain.ring(
+    const dense: AutoMovieVector3Tuple[] = AutoMovieEngineLoftChain.ring(
       chain,
       station,
       MEASURE_PHASES,
@@ -65,7 +65,7 @@ export namespace AutoMovieHumanNeckSurfaceSampling {
       minZ = Math.min(minZ, point[2]);
       maxZ = Math.max(maxZ, point[2]);
     }
-    const frame: IAutoMovieLoftSectionFrame = AutoMovieLoftChain.frame(
+    const frame: IAutoMovieLoftSectionFrame = AutoMovieEngineLoftChain.frame(
       chain,
       station,
     );
@@ -73,7 +73,7 @@ export namespace AutoMovieHumanNeckSurfaceSampling {
       chain: chain.name,
       stationMm: station,
       requestedHeight: requestedHeight * scale,
-      centre: scaled(AutoMovieLoftChain.axis(chain, station), scale),
+      centre: scaled(AutoMovieEngineLoftChain.axis(chain, station), scale),
       frame: {
         origin: scaled(frame.origin, scale),
         u: [...frame.u],
@@ -84,9 +84,9 @@ export namespace AutoMovieHumanNeckSurfaceSampling {
           scaled(point, scale),
       ),
       sourcePhases: [...phases],
-      displayCoordinates: AutoMovieLoftParameter.phases(
+      displayCoordinates: AutoMovieEngineLoftParameter.phases(
         "arclength",
-        AutoMovieLoftChain.local(chain, station, points),
+        AutoMovieEngineLoftChain.local(chain, station, points),
       ),
       circumference: circumference * scale,
       breadth: (maxZ - minZ) * scale,
@@ -113,16 +113,8 @@ export namespace AutoMovieHumanNeckSurfaceSampling {
   }
 }
 
-/**
+/*
  * Existing landmark/perimeter sampling density, independent of display LOD.
- *
- * @evidence contracts/common.md#principled-implementation Uniform phases over one full turn match the existing landmark measurement density.
- * @evidence contracts/common.md#clear-and-simple-design One module constant supplies dense measurement phases independently of the eight display phases.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts This fixed numerical sampling rule contains no person-specific geometry or target values.
- * @evidence contracts/common.md#meaningful-documentation The comment separates measurement density from polygon LOD.
- * @evidence contracts/performance.md#efficient-algorithms Module initialization allocates and evaluates exactly 256 phases once.
- * @evidence contracts/performance.md#reuse-equivalent-work Every section measurement reads the same unmodified phase array.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Module lifetime retains only 256 numbers; no body, input or request is retained.
  */
 const MEASURE_PHASES: number[] = Array.from(
   { length: 256 },

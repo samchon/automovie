@@ -1,6 +1,6 @@
 /**
  * One construction curve of a lofted chain, sampled as a polyline in metres by
- * `sampleAutoMovieConstructionCurves`, so an inspection can draw the lines a
+ * `sampleConstructionCurves`, so an inspection can draw the lines a
  * form was built from over its skin.
  *
  * A `section` is the closed ring of the surface at one principal layer station.
@@ -38,7 +38,7 @@ export interface IAutoMovieConstructionCurve {
 /** Data and callback contracts shared by the ConstructionCurve operations. */
 export namespace IAutoMovieConstructionCurve {
   /**
-   * The construction lines `sampleAutoMovieConstructionCurves` tells apart.
+   * The construction lines `sampleConstructionCurves` tells apart.
    *
    * `section` is a closed ring at one principal layer station, `guide` an open
    * rail along the stations at one of the four quarter phases, and `axis` the

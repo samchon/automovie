@@ -1,4 +1,4 @@
-import { growPlanting, plantingStateDigest } from "@automovie/engine";
+import { AutoMovieEnginePlanting } from "@automovie/engine";
 import {
   IAutoMoviePlantingBranch,
   IAutoMoviePlantingState,
@@ -14,7 +14,7 @@ const clipped: (
   pruning: IAutoMoviePruningEnvelope,
 ) => IAutoMoviePlantingState = (
   pruning: IAutoMoviePruningEnvelope,
-): IAutoMoviePlantingState => growPlanting(plantingRecipe({ pruning }));
+): IAutoMoviePlantingState => AutoMovieEnginePlanting.growPlanting(plantingRecipe({ pruning }));
 
 /** Verify analytic box/sphere pruning and child survival through emitted branch endpoints and ids.
  *
@@ -205,7 +205,7 @@ export function test_planting_pruning_envelope(): void {
       ],
       [
         "sameAsUnpruned",
-        (): boolean => plantingStateDigest(wide) === plantingStateDigest(free),
+        (): boolean => AutoMovieEnginePlanting.plantingStateDigest(wide) === AutoMovieEnginePlanting.plantingStateDigest(free),
       ],
     ]),
     {
@@ -223,18 +223,18 @@ export function test_planting_pruning_envelope(): void {
     namedFacts([
       [
         "differs",
-        (): boolean => plantingStateDigest(boxed) !== plantingStateDigest(free),
+        (): boolean => AutoMovieEnginePlanting.plantingStateDigest(boxed) !== AutoMovieEnginePlanting.plantingStateDigest(free),
       ],
       [
         "stable",
         (): boolean =>
-          plantingStateDigest(
+          AutoMovieEnginePlanting.plantingStateDigest(
             clipped({
               kind: "box",
               min: { x: -1, y: -1, z: -1 },
               max: { x: 1, y: 0.75, z: 1 },
             }),
-          ) === plantingStateDigest(boxed),
+          ) === AutoMovieEnginePlanting.plantingStateDigest(boxed),
       ],
     ]),
     { differs: true, stable: true },

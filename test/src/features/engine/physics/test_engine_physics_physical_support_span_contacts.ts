@@ -1,11 +1,11 @@
-import { physicalSupportSpanContacts as Contacts } from "@automovie/engine";
+import { AutoMovieEnginePhysicalSupportSpanContacts as Contacts } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
 
 /**
  * The support pieces hold for any number of planted contacts
- * (`physicalSupportSpanContacts`), with N = 2, 3, 4, 6 and 8 point contacts on
+ * (`AutoMovieEnginePhysicalSupportSpanContacts`), with N = 2, 3, 4, 6 and 8 point contacts on
  * a 0.3 m circle about the origin, the first at +x:
  *
  * 1. The hull has the N contacts as its vertices; with two, the segment.

@@ -1,5 +1,7 @@
 import type { IAutoMovieMotionHumanAttributeEffects } from "@automovie/interface";
-import { HumanAttribute } from "@automovie/motions/internal";
+import {
+  HumanAttribute
+} from "../../../../../packages/motions/src/ensemble/internal/HumanAttribute";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

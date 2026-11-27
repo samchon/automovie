@@ -14,7 +14,7 @@ import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * 1978, "Simulation of wrinkled surfaces", SIGGRAPH). Lattice values come from
  * the PCG3D integer hash of the seed and the cell (Jarzynski and Olano 2020,
  * "Hash functions for GPU rendering", JCGT 9(3)), so the engine's CPU reference
- * `sampleAutoMovieProceduralSurface` and the renderer's fragment shader compute
+ * `sampleProceduralSurfaceImplementation` and the renderer's fragment shader compute
  * the same values.
  *
  * Without {@link piece} the sample point is the object-space position in metres,
@@ -60,7 +60,7 @@ export interface IAutoMovieProceduralSurface {
   colors: [IAutoMovieColor, IAutoMovieColor];
 
   /** Roughness at pattern values zero and one, each within [0, 1]. */
-  roughness: [number, number];
+  roughness: IAutoMovieProceduralSurface.IRoughness;
 
   /** Bump height in metres at pattern value one, finite and at least zero. */
   relief: number;
@@ -79,7 +79,7 @@ export interface IAutoMovieProceduralSurface {
 
   /**
    * Present only on the material of one occurrence of a surface pattern laid by
-   * `generateAutoMovieSurfacePattern`: how that piece cuts the sheet. Absent,
+   * `generateSurfacePattern`: how that piece cuts the sheet. Absent,
    * the surface samples object space.
    */
   piece?: IAutoMovieProceduralSurface.IPiece;
@@ -87,6 +87,15 @@ export interface IAutoMovieProceduralSurface {
 
 /** A laid piece's place on the surface's sheet. */
 export namespace IAutoMovieProceduralSurface {
+  /** Roughness endpoints of the generated pattern. */
+  export interface IRoughness {
+    /** Roughness at pattern value zero. */
+    atZero: number;
+
+    /** Roughness at pattern value one. */
+    atOne: number;
+  }
+
   /**
    * One laid piece's place on the material's sheet.
    *
@@ -117,18 +126,21 @@ export namespace IAutoMovieProceduralSurface {
      * Metres one sheet turn covers along its own U and V, each finite and above
      * zero.
      */
-    tile: {
-      /** Metres per turn along sheet U. */
-      u: number;
-
-      /** Metres per turn along sheet V. */
-      v: number;
-    };
+    tile: IPieceTile;
 
     /**
-     * The transform `autoMoviePatternTextureTransforms` returned for this
+     * The transform `patternTextureTransforms` returned for this
      * occurrence, filled in exactly as an image binding's `transform` is.
      */
     transform: IAutoMoviePatternTextureTransform;
   }
+
+  /** The tile object of {@link IPiece}. */
+  export type IPieceTile = {
+    /** Metres per turn along sheet U. */
+    u: number;
+
+    /** Metres per turn along sheet V. */
+    v: number;
+  };
 }

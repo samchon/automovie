@@ -1,4 +1,4 @@
-import { formatLightPointer } from "@automovie/engine";
+import { AutoMovieEngineResolve } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -13,12 +13,12 @@ import { TestValidator } from "@nestia/e2e";
 export function test_engine_resolve_format_light_pointer(): void {
   TestValidator.equals(
     "a plain id",
-    formatLightPointer("candle", "intensity"),
+    AutoMovieEngineResolve.formatLightPointer("candle", "intensity"),
     "/lights/candle/intensity",
   );
   TestValidator.equals(
     "an id with a slash and a tilde",
-    formatLightPointer("a/b~c", "range"),
+    AutoMovieEngineResolve.formatLightPointer("a/b~c", "range"),
     "/lights/a~1b~0c/range",
   );
 }

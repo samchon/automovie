@@ -1,9 +1,7 @@
 import {
-  clampJointRom,
-  clampJointToSkeleton,
-  jointToQuaternionOnBasis,
-  normalizeJointAxes,
-  prepareJointRotationProjection,
+  AutoMovieEngineMotionJointProjection,
+  AutoMovieEngineKinematics,
+  AutoMovieEngineKinematicsJointRotation,
 } from "@automovie/engine";
 import type {
   IAutoMovieAngleRange,
@@ -58,7 +56,7 @@ export function test_engine_motion_prepare_joint_rotation_projection(): void {
     abduction: null,
     twist: null,
   };
-  const basis: IAutoMovieJointAxes = normalizeJointAxes(
+  const basis: IAutoMovieJointAxes = AutoMovieEngineKinematics.normalizeJointAxes(
     {
       flexion: { x: 1, y: 0, z: 0 },
       abduction: { x: 0, y: 1, z: 0 },
@@ -82,8 +80,8 @@ export function test_engine_motion_prepare_joint_rotation_projection(): void {
       },
     ],
   };
-  const actual: ReturnType<typeof clampJointToSkeleton.of> =
-    clampJointToSkeleton.of("spine", skeleton);
+  const actual: ReturnType<typeof AutoMovieEngineKinematics.clampJointToSkeletonOf> =
+    AutoMovieEngineKinematics.clampJointToSkeletonOf("spine", skeleton);
   for (const changing of [false, true])
     observe(actual, constraint, basis, changing);
   returnedScratch(actual, constraint, basis);
@@ -92,7 +90,7 @@ export function test_engine_motion_prepare_joint_rotation_projection(): void {
     ...skeleton,
     bones: [{ ...skeleton.bones[0]!, constraint: cone }],
   };
-  returnedScratch(clampJointToSkeleton.of("spine", general), cone, basis);
+  returnedScratch(AutoMovieEngineKinematics.clampJointToSkeletonOf("spine", general), cone, basis);
 }
 
 /**
@@ -100,7 +98,7 @@ export function test_engine_motion_prepare_joint_rotation_projection(): void {
  * foreign output alias.
  */
 function returnedScratch(
-  actual: ReturnType<typeof clampJointToSkeleton.of>,
+  actual: ReturnType<typeof AutoMovieEngineKinematics.clampJointToSkeletonOf>,
   constraint: IAutoMovieJointConstraint,
   basis: IAutoMovieJointAxes,
 ): void {
@@ -111,8 +109,8 @@ function returnedScratch(
     twist: 0,
   };
   const frame: IAutoMovieRestFrame = { flexion: { sign: 1, neutral: 10 } };
-  const project: prepareJointRotationProjection.IProjector =
-    prepareJointRotationProjection({
+  const project: AutoMovieEngineMotionJointProjection.IProjector =
+    AutoMovieEngineMotionJointProjection.prepare({
       domain: { bone: "spine", constraint },
       basis,
       frame,
@@ -126,14 +124,14 @@ function returnedScratch(
     [-15, -5, -15],
     [60, 30, 20],
   ] as const) {
-    const result: prepareJointRotationProjection.IProjection =
+    const result: AutoMovieEngineMotionJointProjection.IProjection =
       project.withQuaternion(turn(desired));
     TestValidator.predicate(
       `mutable foreign output retains its actual selected pair at cone=${constraint.swingDeg}, demand${desired}, clinical=${result.joint.flexion}`,
       nclose(result.joint.flexion!, clinical, 1e-6) &&
         qclose(result.quaternion, turn(shown), 1e-12) &&
         qclose(
-          jointToQuaternionOnBasis(result.joint, basis, frame),
+          AutoMovieEngineKinematicsJointRotation.jointToQuaternionOnBasis(result.joint, basis, frame),
           result.quaternion,
           1e-12,
         ),
@@ -146,7 +144,7 @@ function returnedScratch(
  * props receiver.
  */
 function observe(
-  actual: ReturnType<typeof clampJointToSkeleton.of>,
+  actual: ReturnType<typeof AutoMovieEngineKinematics.clampJointToSkeletonOf>,
   constraint: IAutoMovieJointConstraint,
   basis: IAutoMovieJointAxes,
   changing: boolean,
@@ -157,7 +155,7 @@ function observe(
     keys: string[];
   }[] = [];
   const marker: object = {};
-  const wrapped: Parameters<typeof prepareJointRotationProjection>[0]["clamp"] =
+  const wrapped: Parameters<typeof AutoMovieEngineMotionJointProjection.prepare>[0]["clamp"] =
     function (this: object, input: IAutoMovieJointPose): IAutoMovieJointPose {
       TestValidator.predicate(
         "an arbitrary clamp keeps its original public props receiver",
@@ -171,14 +169,14 @@ function observe(
       return actual(input);
     };
   let first: boolean = true;
-  const props: Parameters<typeof prepareJointRotationProjection>[0] & {
+  const props: Parameters<typeof AutoMovieEngineMotionJointProjection.prepare>[0] & {
     marker: object;
   } = {
     domain: { bone: "spine", constraint },
     basis,
     frame: { flexion: { sign: 1, neutral: 10 } },
     marker,
-    get clamp(): Parameters<typeof prepareJointRotationProjection>[0]["clamp"] {
+    get clamp(): Parameters<typeof AutoMovieEngineMotionJointProjection.prepare>[0]["clamp"] {
       if (changing && first) {
         first = false;
         return actual;
@@ -186,15 +184,15 @@ function observe(
       return wrapped;
     },
   };
-  const project: prepareJointRotationProjection.IProjector =
-    prepareJointRotationProjection(props);
-  let previous: prepareJointRotationProjection.IProjection | undefined;
+  const project: AutoMovieEngineMotionJointProjection.IProjector =
+    AutoMovieEngineMotionJointProjection.prepare(props);
+  let previous: AutoMovieEngineMotionJointProjection.IProjection | undefined;
   for (const [desired, clinical, shown] of [
     [60, 30, 20],
     [-60, -30, -40],
     [60, 30, 20],
   ] as const) {
-    const result: prepareJointRotationProjection.IProjection =
+    const result: AutoMovieEngineMotionJointProjection.IProjection =
       project.withQuaternion(turn(desired));
     TestValidator.predicate(
       "retaining clamp still projects to the independent physical endpoint",
@@ -287,7 +285,7 @@ function turn(degrees: number): IAutoMovieQuaternion {
  *    Conflating null with clinical0 must not trigger a false unchanged gate.
  */
 function nullAffineFrames(): void {
-  const basis: IAutoMovieJointAxes = normalizeJointAxes(
+  const basis: IAutoMovieJointAxes = AutoMovieEngineKinematics.normalizeJointAxes(
     {
       flexion: { x: 1, y: 0, z: 0 },
       abduction: { x: 0, y: 1, z: 0 },
@@ -305,29 +303,29 @@ function nullAffineFrames(): void {
   function projector(
     twist: IAutoMovieAngleRange | null,
     rest: boolean = false,
-  ): prepareJointRotationProjection.IProjector {
+  ): AutoMovieEngineMotionJointProjection.IProjector {
     const constraint: IAutoMovieJointConstraint = {
       flexion: { min: -120, max: 120 },
       abduction: null,
       twist,
     };
-    return prepareJointRotationProjection({
+    return AutoMovieEngineMotionJointProjection.prepare({
       domain: { bone: "spine", constraint },
       basis,
       frame,
       clamp: (joint: IAutoMovieJointPose): IAutoMovieJointPose => {
-        const admitted: IAutoMovieJointPose = clampJointRom(joint, constraint);
+        const admitted: IAutoMovieJointPose = AutoMovieEngineKinematics.clampJointRom(joint, constraint);
         return rest ? { ...admitted, abduction: null, twist: null } : admitted;
       },
     });
   }
-  const rest: prepareJointRotationProjection.IProjector = projector(null, true);
-  const ordinary: prepareJointRotationProjection.IProjector = projector(null);
-  const numeric: prepareJointRotationProjection.IProjector = projector({
+  const rest: AutoMovieEngineMotionJointProjection.IProjector = projector(null, true);
+  const ordinary: AutoMovieEngineMotionJointProjection.IProjector = projector(null);
+  const numeric: AutoMovieEngineMotionJointProjection.IProjector = projector({
     min: 0,
     max: 0,
   });
-  let earlier: prepareJointRotationProjection.IProjection | undefined;
+  let earlier: AutoMovieEngineMotionJointProjection.IProjection | undefined;
   const scenarios: readonly {
     target: IAutoMovieQuaternion;
     boundary: boolean;
@@ -364,7 +362,7 @@ function nullAffineFrames(): void {
           z: sign * scenario.target.z,
           w: sign * scenario.target.w,
         };
-        const result: prepareJointRotationProjection.IProjection =
+        const result: AutoMovieEngineMotionJointProjection.IProjection =
           project.withQuaternion(target);
         const angle: number | null = result.joint.flexion;
         TestValidator.predicate(
@@ -437,13 +435,13 @@ function generalFallback(basis: IAutoMovieJointAxes): void {
   const angularRoundoff: number =
     (8 * Math.sqrt(Number.EPSILON) * 180) / Math.PI;
   for (const rest of [true, false]) {
-    const project: prepareJointRotationProjection.IProjector =
-      prepareJointRotationProjection({
+    const project: AutoMovieEngineMotionJointProjection.IProjector =
+      AutoMovieEngineMotionJointProjection.prepare({
         domain: { bone: "spine", constraint },
         basis,
         frame,
         clamp: (joint: IAutoMovieJointPose): IAutoMovieJointPose => {
-          const admitted: IAutoMovieJointPose = clampJointRom(
+          const admitted: IAutoMovieJointPose = AutoMovieEngineKinematics.clampJointRom(
             joint,
             constraint,
           );
@@ -459,7 +457,7 @@ function generalFallback(basis: IAutoMovieJointAxes): void {
         z: sign * -0.5,
         w: sign * 0.5,
       };
-      const result: prepareJointRotationProjection.IProjection =
+      const result: AutoMovieEngineMotionJointProjection.IProjection =
         project.withQuaternion(target);
       const angle: number | null = result.joint.flexion;
       TestValidator.predicate(

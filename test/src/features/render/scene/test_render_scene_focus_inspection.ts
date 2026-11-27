@@ -1,10 +1,10 @@
 import type { IAutoMovieMark } from "@automovie/interface";
-import { focusAutoMovieInspection } from "@automovie/render";
+import { AutoMovieRenderInspection } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 /**
- * `focusAutoMovieInspection` bounds what an inspection focus names.
+ * `AutoMovieRenderInspection.focus` bounds what an inspection focus names.
  *
  * Scenarios:
  *
@@ -38,7 +38,7 @@ export function test_render_scene_focus_inspection(): void {
   const marks = [{ mark: flagged, anchor: null }];
   TestValidator.equals(
     "pattern",
-    focusAutoMovieInspection({
+    AutoMovieRenderInspection.focus({
       focus: { type: "pattern", pattern: "b" },
       objects,
       marks: [],
@@ -47,17 +47,17 @@ export function test_render_scene_focus_inspection(): void {
   );
   TestValidator.equals(
     "flagged",
-    focusAutoMovieInspection({ focus: { type: "flagged" }, objects, marks }),
+    AutoMovieRenderInspection.focus({ focus: { type: "flagged" }, objects, marks }),
     { min: { x: 0, y: 0, z: 0 }, max: { x: 2, y: 4, z: 6 } },
   );
   TestValidator.error("no match", (): void => {
-    focusAutoMovieInspection({
+    AutoMovieRenderInspection.focus({
       focus: { type: "pattern", pattern: "zzz" },
       objects,
       marks: [],
     });
   });
   TestValidator.error("nothing flagged", (): void => {
-    focusAutoMovieInspection({ focus: { type: "flagged" }, objects, marks: [] });
+    AutoMovieRenderInspection.focus({ focus: { type: "flagged" }, objects, marks: [] });
   });
 }

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -8,7 +8,9 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanHand } from "@automovie/motions/internal";
+import {
+  HumanHand
+} from "../../../../packages/motions/src/posture/internal/HumanHand";
 
 /**
  * A prop's frame in the hand bone's frame when the hand holds its handle as
@@ -36,28 +38,28 @@ export function motionGraspedHandle(
     "grip",
   );
   // The handle's +X runs along it; the working end lies one way or the other.
-  const toward: number = Vector3.dot(
-    Quaternion.rotateVector(handle.rotation, { x: 1, y: 0, z: 0 }),
-    Vector3.subtract(working, handle.translation),
+  const toward: number = AutoMovieEngineVector3.dot(
+    AutoMovieEngineQuaternion.rotateVector(handle.rotation, { x: 1, y: 0, z: 0 }),
+    AutoMovieEngineVector3.subtract(working, handle.translation),
   );
   const turn: number = toward < 0 ? 180 : 0;
   const grasped: IAutoMovieQuaternion = HumanHand.align(
     { normal: { x: 0, y: -1, z: 0 }, forward: { x: 1, y: 0, z: 0 } },
     { normal: socket.normal, forward: socket.forward },
   );
-  const rotation: IAutoMovieQuaternion = Quaternion.normalize(
-    Quaternion.multiply(
-      Quaternion.multiply(
+  const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
+    AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.multiply(
         grasped,
-        Quaternion.fromAxisAngle({ x: 0, y: -1, z: 0 }, turn),
+        AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: -1, z: 0 }, turn),
       ),
-      Quaternion.inverse(handle.rotation),
+      AutoMovieEngineQuaternion.inverse(handle.rotation),
     ),
   );
   return {
-    position: Vector3.subtract(
+    position: AutoMovieEngineVector3.subtract(
       socket.point,
-      Quaternion.rotateVector(rotation, handle.translation),
+      AutoMovieEngineQuaternion.rotateVector(rotation, handle.translation),
     ),
     rotation,
   };

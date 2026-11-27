@@ -19,7 +19,8 @@ Follow each decision to its source.
 - Settings establish world facts, appearance and baselines.
 - Treatments decide events, time, place and reveal order.
 - Scripts decide scene progression, draft exchanges and release boundaries.
-- The screenplay writes the final dialogue, staging, viewpoint, sound, transitions and experienced time.
+- The screenplay writes final dialogue, staging, viewpoint and sound.
+  - It also sets transitions and experienced time.
 
 On a short, the [brief](../../../story/layers/brief.md#what-it-holds) establishes subjects and the screenplay decides events. Trace language, audience, register, language switching, access and expressive form to their owners. Ground a character's voice in world facts and preserve the audience context of nonstandard forms. Repair inventions, duplicated authority and misplaced planning at their earliest owner and update consumers.
 

@@ -1,4 +1,4 @@
-import { physicalShapeBounds } from "@automovie/engine";
+import { AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
@@ -6,13 +6,13 @@ import type {
   IAutoMovieMotionTarget,
 } from "@automovie/interface";
 
-import { HumanChain } from "../../HumanChain";
-import { HumanPerformance } from "../../perform/HumanPerformance";
-import { HumanColliders } from "../../posture/HumanColliders";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
+import { AutoMovieMotionHumanPerformance } from "../../perform/AutoMovieMotionHumanPerformance";
+import { HumanColliders } from "../../posture/internal/HumanColliders";
 import { StrikingLimb } from "./StrikingLimb";
 import type { StrikingVerdicts } from "./StrikingVerdicts";
 
-/**
+/*
  * The striking scenarios of the capture, authored for two bodies: subject `a`
  * at the origin facing +Z and subject `b` a gap ahead, facing back.
  *
@@ -39,10 +39,9 @@ import type { StrikingVerdicts } from "./StrikingVerdicts";
  * body stands where its own limb works; the shares are provisional readings
  * that put the tall man where the fixed gaps of the first captures had him (1.1
  * and 1.0 m). The clinch range is the gap at which the two guards just touch.
- *
- * @param A Subject `a`'s body.
- * @param B Subject `b`'s body.
- * @returns Each scenario by its family name, built on demand.
+ * Parameter A: Subject `a`'s body.
+ * Parameter B: Subject `b`'s body.
+ * Returns: Each scenario by its family name, built on demand.
  */
 export function strikingScenarios(
   A: IAutoMovieMotionHumanBody,
@@ -59,9 +58,9 @@ export function strikingScenarios(
     region: "face",
   };
   const guardA = (): IAutoMovieMotionHumanChain =>
-    HumanChain.subject("a").act("guard", { duration: 0.8, facing: faceB });
+    AutoMovieMotionHumanChain.subject("a").act("guard", { duration: 0.8, facing: faceB });
   const guardB = (seconds: number = 0.8): IAutoMovieMotionHumanChain =>
-    HumanChain.subject("b").act("guard", { duration: seconds, facing: faceA });
+    AutoMovieMotionHumanChain.subject("b").act("guard", { duration: seconds, facing: faceA });
   const jab = (): IAutoMovieMotionHumanChain =>
     guardA().act("punch", { technique: "straight", at: faceB }, "jab");
   const arm = (body: IAutoMovieMotionHumanBody): number =>
@@ -79,7 +78,7 @@ export function strikingScenarios(
     );
   const redirect = (share: number): IAutoMovieMotionHumanChain =>
     middle()
-      .until({ share })
+      .until({ type: "share", share })
       .act(
         "kick",
         {
@@ -135,7 +134,7 @@ export function strikingScenarios(
         },
         "kickA",
       ),
-      b: HumanChain.subject("b")
+      b: AutoMovieMotionHumanChain.subject("b")
         .act("guard", { duration: 0.8, stance: "southpaw", facing: faceA })
         .act(
           "kick",
@@ -190,7 +189,7 @@ export function strikingScenarios(
       meets: { knee: ["trunk", "guard"] },
     }),
     "striking-air": (): strikingScenarios.IScenario => ({
-      a: HumanChain.subject("a")
+      a: AutoMovieMotionHumanChain.subject("a")
         .act("guard", { duration: 0.8 })
         .act("punch", {
           technique: "straight",
@@ -208,42 +207,56 @@ export function strikingScenarios(
     }),
   };
 }
-/**
- * Companion declarations of {@link strikingScenarios}: a scenario's record, the
+/*
+ * Companion declarations of strikingScenarios: a scenario's record, the
  * family names and the range shares.
  */
 export namespace strikingScenarios {
-  /** One scenario. */
+  /*
+   * One scenario.
+   */
   export interface IScenario {
-    /** Subject `a`'s chain. */
+    /*
+     * Subject `a`'s chain.
+     */
     a: IAutoMovieMotionHumanChain;
 
-    /** Subject `b`'s chain; undefined when `a` strikes at no one. */
+    /*
+     * Subject `b`'s chain; undefined when `a` strikes at no one.
+     */
     b: IAutoMovieMotionHumanChain | undefined;
 
-    /** The gap between the two roots along +Z, metres. */
+    /*
+     * The gap between the two roots along +Z, metres.
+     */
     gap: number;
 
-    /**
+    /*
      * A chain of `a` drawn as a translucent figure, the uninterrupted source of
      * a redirect.
      */
     ghost: IAutoMovieMotionHumanChain | undefined;
 
-    /** A chain of `a` whose planning must be refused as an illegal cut. */
+    /*
+     * A chain of `a` whose planning must be refused as an illegal cut.
+     */
     late: IAutoMovieMotionHumanChain | undefined;
 
-    /**
+    /*
      * The part classes each strike is declared to meet, by its segment id; a
      * strike not named may meet any.
      */
     meets: Record<string, readonly StrikingVerdicts.Class[]>;
 
-    /** The comparison seed and strike for an observed cover after contact. */
+    /*
+     * The comparison seed and strike for an observed cover after contact.
+     */
     coverAfterContact?: { seed: string; strike: string };
   }
 
-  /** Every family name, in capture order. */
+  /*
+   * Every family name, in capture order.
+   */
   export const FAMILIES: readonly string[] = [
     "striking-jab-cover",
     "striking-crosses",
@@ -255,34 +268,36 @@ export namespace strikingScenarios {
     "striking-observed-cover",
   ];
 
-  /**
+  /*
    * A jab's range as a share of the bare arm's length; provisional, the tall
    * man's 1.1 m.
    */
   export const JAB_RANGE: number = 1.3;
 
-  /**
+  /*
    * A rear straight's range as a share of the bare arm's length; provisional,
    * the tall man's 1.0 m.
    */
   export const CROSS_RANGE: number = 1.2;
 
-  /**
+  /*
    * A round kick's range as a share of the bare leg's length; provisional, the
    * tall man's 1.1 m.
    */
   export const KICK_RANGE: number = 0.9;
 
-  /**
+  /*
    * A redirected round kick's range as a share of the bare leg's length;
    * provisional, the tall man's 1.0 m.
    */
   export const REDIRECT_RANGE: number = 0.85;
 }
-/** The alternatives of `TouchingExtentSign`'s site. */
+/*
+ * The alternatives of `TouchingExtentSign`'s site.
+ */
 type TouchingExtentSign = 1 | -1;
 
-/**
+/*
  * The root gap at which two bodies, each holding its chain's last pose and
  * facing the other along +Z, just touch along that line: posed once two metres
  * apart, the attacker's foremost and the defender's hindmost collider extents
@@ -296,7 +311,7 @@ function touching(
   b: IAutoMovieMotionHumanChain,
 ): number {
   const apart: number = 2;
-  const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
+  const performance: IAutoMovieMotionHumanPerformance = new AutoMovieMotionHumanPerformance({
     seed: "touching",
     performers: [
       {
@@ -328,8 +343,8 @@ function touching(
       performance.bones(subject, seconds),
     ))
       for (const shape of shapes) {
-        const bounds: ReturnType<typeof physicalShapeBounds> =
-          physicalShapeBounds(pose, shape);
+        const bounds: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeBounds> =
+          AutoMovieEnginePhysics.physicalShapeBounds(pose, shape);
         most = Math.max(most, sign === 1 ? bounds.max.z : -bounds.min.z);
       }
     return most;

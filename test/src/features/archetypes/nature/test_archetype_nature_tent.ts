@@ -1,4 +1,4 @@
-import { createTent } from "@automovie/archetypes";
+import { AutoMovieArchetypeTent } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../../internal/archetypeBandSweep";
@@ -18,8 +18,8 @@ import { archetypeExtent } from "../../internal/archetypeExtent";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the two scenarios and what each pins.
  */
 export function test_archetype_nature_tent(): void {
-  const tent = (seed: number): ReturnType<typeof createTent> =>
-    createTent({ kind: "reliefFamily" }, seed);
+  const tent = (seed: number): ReturnType<typeof AutoMovieArchetypeTent.create> =>
+    AutoMovieArchetypeTent.create({ kind: "reliefFamily" }, seed);
   const row = (
     name: string,
     minimum: number,
@@ -48,7 +48,7 @@ export function test_archetype_nature_tent(): void {
     row("mass", 49, 53, (s: number): number => tent(s).body.mass),
   ]);
   for (const seed of [0, 1, 2]) {
-    const made: ReturnType<typeof createTent> = tent(seed);
+    const made: ReturnType<typeof AutoMovieArchetypeTent.create> = tent(seed);
     const top: number = archetypeExtent(made, "y").high;
     for (const [id, z, width, height] of [
       ["frontDoor", 3.3, 1.3, 1.4],
@@ -66,7 +66,7 @@ export function test_archetype_nature_tent(): void {
         findings.push(`tent@${seed}: ${id} is off its size or place`);
     }
     if (
-      Math.abs(top - 2.2) > 4 * createTent.SLAB ||
+      Math.abs(top - 2.2) > 4 * AutoMovieArchetypeTent.SLAB ||
       Math.abs(archetypeExtent(made, "y").low) > 1e-9
     )
       findings.push(`tent@${seed}: its ridge or footing is off`);

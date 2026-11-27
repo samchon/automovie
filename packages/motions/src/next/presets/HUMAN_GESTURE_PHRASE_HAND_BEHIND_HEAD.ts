@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanGesture } from "@automovie/interface";
 
-/**
+/*
  * The values the `handBehindHead` row of `HumanUpperRows` fixes on `armPhrase`,
  * spread into its parameters. A hand behind the head: the palm visits the back
  * of the head and stays.

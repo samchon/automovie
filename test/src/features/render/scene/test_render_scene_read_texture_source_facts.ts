@@ -1,5 +1,5 @@
 import type { IAutoMovieRenderTextureSource } from "@automovie/interface";
-import { readAutoMovieTextureSource } from "@automovie/render";
+import { AutoMovieRenderSceneTexture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import type * as ThreeTypes from "three";
 
@@ -36,12 +36,12 @@ export async function test_render_scene_read_texture_source_facts(): Promise<voi
     texture.type = type;
     TestValidator.equals(
       "actual component representation",
-      readAutoMovieTextureSource("image", texture).format,
+      AutoMovieRenderSceneTexture.readSource("image", texture).format,
       format,
     );
     TestValidator.equals(
       "RGBA background factory follows component type",
-      readAutoMovieTextureSource("image", texture).environmentBackgroundFormat,
+      AutoMovieRenderSceneTexture.readSource("image", texture).environmentBackgroundFormat,
       format,
     );
   }
@@ -54,14 +54,14 @@ export async function test_render_scene_read_texture_source_facts(): Promise<voi
     texture.internalFormat = internalFormat;
     TestValidator.equals(
       "explicit internal representation",
-      readAutoMovieTextureSource("image", texture).format,
+      AutoMovieRenderSceneTexture.readSource("image", texture).format,
       format,
     );
   }
   texture.internalFormat = "RGB16F";
   TestValidator.equals(
     "unsupported internal format",
-    readAutoMovieTextureSource("image", texture).format,
+    AutoMovieRenderSceneTexture.readSource("image", texture).format,
     undefined,
   );
   texture.internalFormat = null;
@@ -69,26 +69,26 @@ export async function test_render_scene_read_texture_source_facts(): Promise<voi
   texture.type = THREE.HalfFloatType;
   TestValidator.equals(
     "native single-channel half representation",
-    readAutoMovieTextureSource("image", texture).format,
+    AutoMovieRenderSceneTexture.readSource("image", texture).format,
     "r16f",
   );
   texture.internalFormat = "R16F";
   TestValidator.equals(
     "explicit single-channel half representation",
-    readAutoMovieTextureSource("image", texture).format,
+    AutoMovieRenderSceneTexture.readSource("image", texture).format,
     "r16f",
   );
   TestValidator.equals(
     "half component expands red into native RGBA background",
-    readAutoMovieTextureSource("image", texture).environmentBackgroundFormat,
+    AutoMovieRenderSceneTexture.readSource("image", texture).environmentBackgroundFormat,
     "rgba16f",
   );
   texture.type = THREE.FloatType;
   TestValidator.equals(
     "internal half storage does not replace float cube output",
     [
-      readAutoMovieTextureSource("image", texture).format,
-      readAutoMovieTextureSource("image", texture).environmentBackgroundFormat,
+      AutoMovieRenderSceneTexture.readSource("image", texture).format,
+      AutoMovieRenderSceneTexture.readSource("image", texture).environmentBackgroundFormat,
     ],
     ["r16f", "rgba32f"],
   );
@@ -97,25 +97,25 @@ export async function test_render_scene_read_texture_source_facts(): Promise<voi
   texture.format = THREE.RGFormat;
   TestValidator.equals(
     "unreported RG float representation",
-    readAutoMovieTextureSource("image", texture).format,
+    AutoMovieRenderSceneTexture.readSource("image", texture).format,
     undefined,
   );
   texture.format = THREE.RedFormat;
   TestValidator.equals(
     "unreported R float representation",
-    readAutoMovieTextureSource("image", texture).format,
+    AutoMovieRenderSceneTexture.readSource("image", texture).format,
     undefined,
   );
   texture.format = THREE.RGBAFormat;
   texture.type = THREE.IntType;
   TestValidator.equals(
     "unsupported component type",
-    readAutoMovieTextureSource("image", texture).format,
+    AutoMovieRenderSceneTexture.readSource("image", texture).format,
     undefined,
   );
   TestValidator.equals(
     "unsupported inherited cube component stays unknown",
-    readAutoMovieTextureSource("image", texture).environmentBackgroundFormat,
+    AutoMovieRenderSceneTexture.readSource("image", texture).environmentBackgroundFormat,
     undefined,
   );
   texture.type = THREE.UnsignedByteType;
@@ -127,25 +127,25 @@ export async function test_render_scene_read_texture_source_facts(): Promise<voi
     texture.colorSpace = colorSpace;
     TestValidator.equals(
       "the supplied color-space field projects its decoding policy",
-      readAutoMovieTextureSource("image", texture).colorSpace,
+      AutoMovieRenderSceneTexture.readSource("image", texture).colorSpace,
       expected,
     );
   }
   texture.colorSpace = "unsupported";
   TestValidator.equals(
     "unreported decoding",
-    readAutoMovieTextureSource("image", texture).colorSpace,
+    AutoMovieRenderSceneTexture.readSource("image", texture).colorSpace,
     undefined,
   );
   TestValidator.equals(
     "byte environment decoding",
-    readAutoMovieTextureSource("image", texture).environmentColorSpace,
+    AutoMovieRenderSceneTexture.readSource("image", texture).environmentColorSpace,
     "srgb",
   );
   texture.type = THREE.HalfFloatType;
   TestValidator.equals(
     "float environment decoding",
-    readAutoMovieTextureSource("image", texture).environmentColorSpace,
+    AutoMovieRenderSceneTexture.readSource("image", texture).environmentColorSpace,
     "linear-environment",
   );
   texture.type = THREE.UnsignedByteType;
@@ -174,7 +174,7 @@ export async function test_render_scene_read_texture_source_facts(): Promise<voi
         ] as const) {
           texture.magFilter = magFilter;
           const fact: IAutoMovieRenderTextureSource =
-            readAutoMovieTextureSource("image", texture);
+            AutoMovieRenderSceneTexture.readSource("image", texture);
           TestValidator.equals(
             "every inherited sampler field retains its own authored value",
             fact.sampler,
@@ -216,7 +216,7 @@ export async function test_render_scene_read_texture_source_facts(): Promise<voi
       texture.minFilter = filter;
       TestValidator.equals(
         "requested generation metadata is independent of filtering",
-        readAutoMovieTextureSource("image", texture).mipmapped,
+        AutoMovieRenderSceneTexture.readSource("image", texture).mipmapped,
         generate,
       );
     }
@@ -227,13 +227,13 @@ export async function test_render_scene_read_texture_source_facts(): Promise<voi
   ];
   TestValidator.equals(
     "explicit chain",
-    readAutoMovieTextureSource("image", texture).explicitMipmaps,
+    AutoMovieRenderSceneTexture.readSource("image", texture).explicitMipmaps,
     true,
   );
   texture.minFilter = THREE.NearestMipmapNearestFilter;
   TestValidator.equals(
     "unreported filter",
-    readAutoMovieTextureSource("image", texture).sampler,
+    AutoMovieRenderSceneTexture.readSource("image", texture).sampler,
     undefined,
   );
   texture.minFilter = THREE.NearestFilter;
@@ -249,7 +249,7 @@ export async function test_render_scene_read_texture_source_facts(): Promise<voi
       "invalid decoded extent",
       throwsError(
         (): IAutoMovieRenderTextureSource =>
-          readAutoMovieTextureSource("image", texture),
+          AutoMovieRenderSceneTexture.readSource("image", texture),
         "image",
       ),
     );

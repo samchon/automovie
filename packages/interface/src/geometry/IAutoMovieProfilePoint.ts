@@ -6,7 +6,7 @@
  * around local Y, and sweep and loft read `x` along the path frame's right and
  * `y` along its up. Each builder refuses a non-finite coordinate by the point's
  * label. The shape matches the interface's `IAutoMoviePlanarPoint`, so
- * `autoMoviePlanarRegionFailure` validates profile rings directly.
+ * `AutoMovieEnginePlanarRegion.failure` validates profile rings directly.
  */
 export interface IAutoMovieProfilePoint {
   /** First profile coordinate in metres, mapped by the consuming builder. */

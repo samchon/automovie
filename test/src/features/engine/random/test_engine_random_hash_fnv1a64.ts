@@ -1,8 +1,9 @@
-import { hashAutoMovieFnv1a64 } from "@automovie/engine";
+import { AutoMovieEngineRandom } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `hashAutoMovieFnv1a64` is the 64-bit FNV-1a hash (Fowler, Noll and Vo,
+ * `AutoMovieEngineRandom.hashFnv1a64` is the 64-bit FNV-1a hash (Fowler, Noll and Vo,
  * draft-eastlake-fnv): the empty input returns the offset basis and the
  * published test vectors hold.
  *
@@ -18,22 +19,22 @@ export function test_engine_random_hash_fnv1a64(): void {
     [...text].map((ch: string): number => ch.charCodeAt(0));
 
   // 1-3. The published vectors.
-  TestValidator.equals("empty", hashAutoMovieFnv1a64([]), "cbf29ce484222325");
+  TestValidator.equals("empty", AutoMovieEngineRandom.hashFnv1a64([]), "cbf29ce484222325");
   TestValidator.equals(
     "a",
-    hashAutoMovieFnv1a64(ascii("a")),
+    AutoMovieEngineRandom.hashFnv1a64(ascii("a")),
     "af63dc4c8601ec8c",
   );
   TestValidator.equals(
     "foobar",
-    hashAutoMovieFnv1a64(ascii("foobar")),
+    AutoMovieEngineRandom.hashFnv1a64(ascii("foobar")),
     "85944171f73967e8",
   );
 
   // 4. Only the low byte enters.
   TestValidator.equals(
     "a byte's low eight bits",
-    hashAutoMovieFnv1a64([0x161]),
-    hashAutoMovieFnv1a64([0x61]),
+    AutoMovieEngineRandom.hashFnv1a64([0x161]),
+    AutoMovieEngineRandom.hashFnv1a64([0x61]),
   );
 }

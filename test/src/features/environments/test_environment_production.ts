@@ -1,12 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  bakedTransformFromClipsAt,
-  heightAt,
-  sampleClipSequence,
-  sampleMotion,
-  worldGroundHeight,
-} from "@automovie/engine";
+import { AutoMovieEngineMotionSampling, AutoMovieEngineWorld, AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineFilm, AutoMovieEngineSequence, AutoMovieEngineSpace } from "@automovie/engine";
 import type {
   IAutoMovieMotion,
   IAutoMovieMotionHumanBody,
@@ -15,8 +7,13 @@ import type {
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { createHumanBody } from "@automovie/motions";
-import { HumanFoot, poseBones } from "@automovie/motions/internal";
+import { AutoMovieMotionHumanBody } from "@automovie/motions";
+import {
+  HumanFoot
+} from "../../../../packages/motions/src/posture/internal/HumanFoot";
+import {
+  poseBones
+} from "../../../../packages/motions/src/posture/internal/poseBones";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, vclose } from "../internal/predicates";
@@ -62,18 +59,21 @@ export function test_environment_production(): void {
     "sill, graded approach and floor meet at the declared station height",
     vclose(threshold, { x: 3, y: 1.3, z: 0 }, 0.001) &&
       [
-        worldGroundHeight(input.environment.runtime.world.surfaces, {
-          x: 3,
-          z: -2,
-        }),
-        heightAt(space, 3, -0.2),
-        heightAt(space, 3, 0),
-        heightAt(space, 3, 1.5),
+        AutoMovieEngineWorld.groundHeight(
+          input.environment.runtime.world.surfaces,
+          {
+            x: 3,
+            z: -2,
+          },
+        ),
+        AutoMovieEngineSpace.heightAt(space, 3, -0.2),
+        AutoMovieEngineSpace.heightAt(space, 3, 0),
+        AutoMovieEngineSpace.heightAt(space, 3, 1.5),
       ].every(
         (height: number | null): boolean =>
           height !== null && nclose(height, 1.3, 0.005),
       ) &&
-      nclose(heightAt(space, -8, -4)!, 0.2, 0.005),
+      nclose(AutoMovieEngineSpace.heightAt(space, -8, -4)!, 0.2, 0.005),
   );
   const visitor:
     | (typeof compiled.shot.continuity.closing.actors)[number]
@@ -116,8 +116,8 @@ export function test_environment_production(): void {
     compiled.shot.source.shot.objectMotions;
   const door: string = "hill/station/ground/entry";
   const channel: string = `node:${door}:rotation`;
-  const before: number[] = sampleClipSequence(motion, 0.65).get(channel)!.value;
-  const after: number[] = sampleClipSequence(motion, 6.65).get(channel)!.value;
+  const before: number[] = AutoMovieEngineSequence.sampleClipSequence(motion, 0.65).get(channel)!.value;
+  const after: number[] = AutoMovieEngineSequence.sampleClipSequence(motion, 6.65).get(channel)!.value;
   const alignment: number = Math.abs(
     before.reduce(
       (sum: number, component: number, index: number): number =>
@@ -132,7 +132,7 @@ export function test_environment_production(): void {
   const stagedLeaf: IAutoMovieTransform = compiled.shot.source.scene.nodes.find(
     (node) => node.id === door,
   )!.transform;
-  const body: IAutoMovieMotionHumanBody = createHumanBody(
+  const body: IAutoMovieMotionHumanBody = AutoMovieMotionHumanBody.create(
     compiled.body.skeleton,
     compiled.body.profile,
   );
@@ -144,25 +144,25 @@ export function test_environment_production(): void {
     (time: number): IAutoMovieVector3 => {
       const pose: IAutoMoviePose = actorPose(compiled, "opener", time);
       const wrist = readHand(pose).get("rightHand")!.worldPosition;
-      const turn = sampleClipSequence(motion, time).get(channel)!.value;
-      return Quaternion.rotateVector(
-        Quaternion.inverse({
+      const turn = AutoMovieEngineSequence.sampleClipSequence(motion, time).get(channel)!.value;
+      return AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.inverse({
           x: turn[0]!,
           y: turn[1]!,
           z: turn[2]!,
           w: turn[3]!,
         }),
-        Vector3.subtract(wrist, stagedLeaf.translation),
+        AutoMovieEngineVector3.subtract(wrist, stagedLeaf.translation),
       );
     },
   );
   TestValidator.predicate(
     "the compiled wrist holds within 5 mm of its first grip throughout the leaf's turn",
     nclose(alignment, Math.SQRT1_2, 0.001) &&
-      Vector3.length(Vector3.subtract(wrists[0]!, handle)) < 0.1 &&
+      AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(wrists[0]!, handle)) < 0.1 &&
       wrists.every(
         (wrist: IAutoMovieVector3): boolean =>
-          Vector3.length(Vector3.subtract(wrist, wrists[0]!)) < 0.005,
+          AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(wrist, wrists[0]!)) < 0.005,
       ),
   );
   const through: IAutoMoviePose = actorPose(compiled, "visitor", 9.8);
@@ -208,7 +208,7 @@ export function test_environment_production(): void {
     compileEnvironmentExample(trail);
   const trailSpace: NonNullable<typeof trailShot.shot.source.scene.space> =
     trailShot.shot.source.scene.space!;
-  const wetlands: ReturnType<typeof worldGroundHeight> = worldGroundHeight(
+  const wetlands: number | null = AutoMovieEngineWorld.groundHeight(
     trail.environment.runtime.world.surfaces,
     { x: 11, z: 10 },
   );
@@ -216,8 +216,8 @@ export function test_environment_production(): void {
     body,
     actorPose(trailShot, "walker", trail.seconds),
   );
-  const endpoint: IAutoMovieVector3 = Vector3.scale(
-    Vector3.add(
+  const endpoint: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+    AutoMovieEngineVector3.add(
       endFeet.get("leftFoot")!.worldPosition,
       endFeet.get("rightFoot")!.worldPosition,
     ),
@@ -226,8 +226,8 @@ export function test_environment_production(): void {
   TestValidator.predicate(
     "dry trail and pond retain distinct support through the compiled scene",
     wetlands === 0 &&
-      heightAt(trailSpace, 11, 10) === null &&
-      nclose(heightAt(trailSpace, 11, 5)!, 0, 0.001) &&
+      AutoMovieEngineSpace.heightAt(trailSpace, 11, 10) === null &&
+      nclose(AutoMovieEngineSpace.heightAt(trailSpace, 11, 5)!, 0, 0.001) &&
       nclose(endpoint.x, 17, 0.005) &&
       nclose(endpoint.z, 5, 0.005) &&
       (["left", "right"] as const).every((side): boolean =>
@@ -271,7 +271,7 @@ export function test_environment_production(): void {
   const getFloor = (node: string): IAutoMovieVector3 =>
     floors.find((actor) => actor.node === node)!.transform.translation;
   const cab = (time: number): IAutoMovieVector3 =>
-    bakedTransformFromClipsAt(
+    AutoMovieEngineFilm.bakedTransformFromClipsAt(
       bridge.shot.source.shot.objectMotions,
       "campus/lift/cab",
       time,
@@ -282,7 +282,7 @@ export function test_environment_production(): void {
       vclose(campus.actors[1]!.position, { x: 4, y: 3.4, z: 4 }, 0.001) &&
       vclose(getFloor("resident"), { x: 4, y: 0, z: 6 }, 0.03) &&
       vclose(getFloor("traveller"), { x: 15, y: 3.4, z: 4 }, 0.03) &&
-      nclose(heightAt(bridge.shot.source.scene.space!, 9.5, 4)!, 3.4, 0.001),
+      nclose(AutoMovieEngineSpace.heightAt(bridge.shot.source.scene.space!, 9.5, 4)!, 3.4, 0.001),
   );
   // The cab is docked at the upper stop from the schedule's first key there.
   const docked: number = environmentLiftSchedule.find(
@@ -300,7 +300,7 @@ export function test_environment_production(): void {
   const park: compileEnvironmentExample.IOutput =
     compileEnvironmentExample(parkInput);
   const coaster = (time: number): IAutoMovieVector3 =>
-    bakedTransformFromClipsAt(
+    AutoMovieEngineFilm.bakedTransformFromClipsAt(
       park.shot.source.shot.objectMotions,
       "park/coaster/carrier",
       time,
@@ -328,7 +328,7 @@ export function test_environment_production(): void {
     compileEnvironmentExample(trainInput);
   const rider: string = trainInput.actors[0]!.node;
   const coach = (time: number): IAutoMovieVector3 =>
-    bakedTransformFromClipsAt(
+    AutoMovieEngineFilm.bakedTransformFromClipsAt(
       train.shot.source.shot.objectMotions,
       "rail/shuttle/carrier",
       time,
@@ -366,7 +366,7 @@ function actorPose(
   const clip: IAutoMovieMotion = compiled.shot.source.motions.find(
     (motion) => motion.id === performance.motion,
   )!;
-  const pose: IAutoMoviePose = sampleMotion(
+  const pose: IAutoMoviePose = AutoMovieEngineMotionSampling.sampleMotion(
     clip,
     time - performance.startOffset,
   ).pose;
@@ -374,11 +374,11 @@ function actorPose(
   return {
     ...pose,
     root: {
-      translation: Vector3.add(
+      translation: AutoMovieEngineVector3.add(
         placement.translation,
-        Quaternion.rotateVector(placement.rotation, pose.root.translation),
+        AutoMovieEngineQuaternion.rotateVector(placement.rotation, pose.root.translation),
       ),
-      rotation: Quaternion.multiply(placement.rotation, pose.root.rotation),
+      rotation: AutoMovieEngineQuaternion.multiply(placement.rotation, pose.root.rotation),
       scale: pose.root.scale,
     },
   };

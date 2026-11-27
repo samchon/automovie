@@ -1,4 +1,4 @@
-import { autoMovieOpeningArc } from "@automovie/engine";
+import { AutoMovieEngineDrawing } from "@automovie/engine";
 import type { IAutoMovieOpeningArc } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -8,7 +8,7 @@ import { nclose } from "../../internal/nclose";
 const ROUNDING: number = 1e-12;
 
 /**
- * `autoMovieOpeningArc` is the circular arc a bulge puts on a chord: bulge is
+ * `openingArc` is the circular arc a bulge puts on a chord: bulge is
  * `tan(sweep / 4)`, so bulge 1 is a half circle.
  *
  * Scenarios:
@@ -19,11 +19,12 @@ const ROUNDING: number = 1e-12;
  * 3. A zero-length chord is null.
  */
 export function test_engine_drawing_opening_arc(): void {
-  const arc: IAutoMovieOpeningArc | null = autoMovieOpeningArc(
-    { x: 0, y: 0 },
-    { x: 2, y: 0 },
-    1,
-  );
+  const arc: IAutoMovieOpeningArc | null =
+    AutoMovieEngineDrawing.autoMovieOpeningArc(
+      { x: 0, y: 0 },
+      { x: 2, y: 0 },
+      1,
+    );
   TestValidator.predicate(
     "a half circle",
     arc !== null &&
@@ -35,12 +36,20 @@ export function test_engine_drawing_opening_arc(): void {
   );
   TestValidator.equals(
     "a straight edge",
-    autoMovieOpeningArc({ x: 0, y: 0 }, { x: 2, y: 0 }, 0),
+    AutoMovieEngineDrawing.autoMovieOpeningArc(
+      { x: 0, y: 0 },
+      { x: 2, y: 0 },
+      0,
+    ),
     null,
   );
   TestValidator.equals(
     "no chord",
-    autoMovieOpeningArc({ x: 1, y: 1 }, { x: 1, y: 1 }, 1),
+    AutoMovieEngineDrawing.autoMovieOpeningArc(
+      { x: 1, y: 1 },
+      { x: 1, y: 1 },
+      1,
+    ),
     null,
   );
 }

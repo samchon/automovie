@@ -9,7 +9,7 @@ Use this workflow when the user or a delivery mandate authorizes the action. A r
 
 ## Opening a pull request
 
-Create a `<type>/<scope>` branch from `master` in the current checkout. Stage only paths you own under the [shared checkout rules](../development/SKILL.md#several-agents-in-one-checkout). Commit as `<type>(<scope>): <imperative lowercase subject>`, push the branch and open the pull request against `master`.
+Create a `<type>/<scope>` branch from `master` in the current checkout. Stage only paths you own. Commit as `<type>(<scope>): <imperative lowercase subject>`, push the branch and open the pull request against `master`.
 
 ### Body
 

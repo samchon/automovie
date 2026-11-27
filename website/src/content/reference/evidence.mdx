@@ -11,15 +11,15 @@ This page is the evidence graph's configuration and formats. [Evidence graph](/d
 A production created by `automovie create` already has `evidence.config.ts`. With nothing else set, the engineering defaults apply: every exported source declaration and test answers the shared development checklists, and the narrative checks are off.
 
 ```ts
-import { createEvidenceConfig } from "@automovie/evidence";
+import { AutoMovieEvidenceConfig } from "@automovie/evidence";
 
-export default createEvidenceConfig({ location: import.meta.dirname });
+export default AutoMovieEvidenceConfig.create({ location: import.meta.dirname });
 ```
 
 A production that writes a screenplay adds `narrative`. `construction` turns each layer's check on with `"evidence"` and off with `"disabled"`:
 
 ```ts
-export default createEvidenceConfig({
+export default AutoMovieEvidenceConfig.create({
   location: import.meta.dirname,
   narrative: {
     mode: "short",
@@ -33,7 +33,7 @@ export default createEvidenceConfig({
 The code joins the graph through `development`, and the studies through `research`:
 
 ```ts
-export default createEvidenceConfig({
+export default AutoMovieEvidenceConfig.create({
   location: import.meta.dirname,
   research: "evidence",
   development: {

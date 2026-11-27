@@ -186,15 +186,14 @@ const addSdkConsumer = (directory, { parity = true } = {}) => {
   );
   fs.writeFileSync(
     path.join(directory, "src", "composition", "films", "starter.ts"),
-    `import { createBuilding, createEnvironment, createEnvironmentProp } from "@automovie/archetypes/environments";
-import { createBookcase, createSeat } from "@automovie/archetypes/furniture";
-import { compileDefinedShot, defineShot } from "@automovie/engine";
+    `import { AutoMovieArchetypeEnvironment, AutoMovieArchetypeEnvironmentFurnishing } from "@automovie/archetypes/environments";
+import { AutoMovieArchetypeBookcase, AutoMovieArchetypeSeat } from "@automovie/archetypes/furniture";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type { IAutoMovieCompiledDefinedShot, IAutoMovieEnvironment, IAutoMovieModel, IAutoMovieStage } from "@automovie/interface";
 import {
-  type IAutoMovieSceneObject,
-  buildModel,
-  buildScene,
-  collectAutoMovieOwnedResources,
+  type IAutoMovieRenderSceneObject,
+  AutoMovieRenderSceneLayout,
+  AutoMovieRenderSceneResource,
 } from "@automovie/render";
 
 import type { IFilm } from "../../IFilm";
@@ -203,7 +202,7 @@ import type { IFilmProduction } from "../../IFilmProduction";
 /**
  * A packed-SDK room exercised by the generated production's existing film.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Defines a shot from the installed room and furniture outputs. The compiler checks the authored camera and depth bound. A compiler refusal or missing walkable entrance threshold stops the mount before buildScene places the models that buildModel produces.
+ * @evidence contracts/development/implementation.md#principled-implementation Defines a shot from the installed room and furniture outputs. The compiler checks the authored camera and depth bound. A compiler refusal or missing walkable entrance threshold stops the mount before AutoMovieRenderSceneLayout.buildScene places the models built by AutoMovieRenderSceneLayout.buildModel.
  * @evidence contracts/development/implementation.md#efficient-algorithms The Viewer and capture share the same scene factory. Each mount compiles the room once, indexes models by id and builds a distinct object for each scene node. Each seek updates world matrices on the retained scene. Disposal collects and releases the scene's owned resources, then clears the scene.
  */
 export function starter(): IFilm {
@@ -213,16 +212,16 @@ export function starter(): IFilm {
     width: 640,
     height: 360,
     create: async (): Promise<IFilmProduction> => {
-      const room: IAutoMovieEnvironment = createEnvironment({
+      const room: IAutoMovieEnvironment = AutoMovieArchetypeEnvironment.create({
         id: "installed-room",
         items: {
-          hall: { use: createBuilding({ levels: [{
+          hall: { use: AutoMovieArchetypeEnvironment.building({ type: "levels", levels: [{
             id: "ground",
-            rooms: { studio: [0, 0, 6, 4] },
-            openings: [{ id: "entry", kind: "passage", between: ["studio", null], edge: [[0, 0], [6, 0]], width: 1.2, height: 2.1 }],
+            rooms: { studio: { type: "rectangle", value: { x: 0, z: 0, width: 6, depth: 4 } } },
+            openings: [{ id: "entry", kind: "passage", between: { from: "studio", to: null }, edge: { from: { x: 0, z: 0 }, to: { x: 6, z: 0 } }, width: 1.2, height: 2.1 }],
           }] }) },
-          bench: { use: createEnvironmentProp({ model: createSeat({ kind: "bench" }) }), at: { anchor: "hall/ground/studio" } },
-          bookcase: { use: createEnvironmentProp({ model: createBookcase() }), at: { x: 4.6, y: 0, z: 2.85 } },
+          bench: { use: AutoMovieArchetypeEnvironmentFurnishing.prop({ model: AutoMovieArchetypeSeat.create({ kind: "bench" }) }), at: { anchor: "hall/ground/studio" } },
+          bookcase: { use: AutoMovieArchetypeEnvironmentFurnishing.prop({ model: AutoMovieArchetypeBookcase.create() }), at: { x: 4.6, y: 0, z: 2.85 } },
         },
       });
       const id: string = "starter";
@@ -236,8 +235,8 @@ export function starter(): IFilm {
         cameras: [{ node: "camera", position: { x: 0.8, y: 1.65, z: 3.3 }, lookAt: target, fovDeg: 48, near: 0.1, far: 20, depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 0.03 } }],
         lights: [{ node: "key", role: "key", direction: { x: -1, y: -2, z: -1 }, intensity: 2.5 }],
       };
-      const compiled: IAutoMovieCompiledDefinedShot = compileDefinedShot({
-        shot: defineShot(id, {
+      const compiled: IAutoMovieCompiledDefinedShot = AutoMovieEngineFilm.compileDefinedShot({
+        shot: AutoMovieEngineFilm.defineShot(id, {
           scene: id,
           contract: { beat: id, durationSeconds: 2, participants: [], opening: [], closing: [], camera: { intent: description, requiredSubjects: ["installed-room/bench"], maxOcclusionRatio: 0.2 }, events: [], reviewFrames: [{ id: "room", time: 1, passes: ["beauty"] }] },
           build: () => ({
@@ -256,16 +255,19 @@ export function starter(): IFilm {
       if (!compiled.source.scene.space?.walkable.includes("installed-room/hall/ground/entry/threshold"))
         throw new Error("The named entry did not reach the compiled room");
       const models: Map<string, IAutoMovieModel> = new Map(room.runtime.models.map((model: IAutoMovieModel) => [model.id, model]));
-      const drawing: IAutoMovieSceneObject = buildScene(compiled.source.scene, (id: string) => {
-        const model: IAutoMovieModel | undefined = models.get(id);
-        return model === undefined ? undefined : buildModel(model);
+      const drawing: IAutoMovieRenderSceneObject = AutoMovieRenderSceneLayout.buildScene({
+        scene: compiled.source.scene,
+        getModelObject: (id: string) => {
+          const model: IAutoMovieModel | undefined = models.get(id);
+          return model === undefined ? undefined : AutoMovieRenderSceneLayout.buildModel(model);
+        },
       });
       return {
         scene: drawing.scene,
         camera: drawing.cameras[0]!,
         seek: (): void => drawing.scene.updateMatrixWorld(true),
         dispose: (): void => {
-          for (const resource of collectAutoMovieOwnedResources(drawing.scene)) resource.dispose();
+          for (const resource of AutoMovieRenderSceneResource.collectOwnedResources(drawing.scene)) resource.dispose();
           drawing.scene.clear();
         },
       };
@@ -276,12 +278,12 @@ export function starter(): IFilm {
   );
   fs.writeFileSync(
     path.join(directory, "src", "installedSdkSmoke.ts"),
-    `import { createRing } from "@automovie/archetypes";
-import { HumanChain } from "@automovie/motions";
+    `import { AutoMovieArchetypeRing } from "@automovie/archetypes/gym";
+import { AutoMovieMotionHumanChain } from "@automovie/motions";
 
 // E2E-only: execute published SDK imports in the inspector's browser graph.
-if (createRing({ id: "browser-sdk" }).parts.length === 0 ||
-    !HumanChain.subject("browser-sdk").stand({ hold: 1 }).node)
+if (AutoMovieArchetypeRing.create({ id: "browser-sdk" }).parts.length === 0 ||
+    !AutoMovieMotionHumanChain.subject("browser-sdk").stand({ hold: 1 }).node)
   throw new Error("Installed SDK returned an incomplete model or motion");
 document.documentElement.dataset.sdkSmoke = "ready";
 `,

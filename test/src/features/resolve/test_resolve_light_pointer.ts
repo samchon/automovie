@@ -1,9 +1,4 @@
-import {
-  LIGHT_CHANNEL_PROPERTIES,
-  formatLightPointer,
-  isLightProperty,
-  parseLightPointer,
-} from "@automovie/engine";
+import { AutoMovieEngineLightChannelProperties, AutoMovieEngineResolve } from "@automovie/engine";
 import type { IAutoMovieLightPointer } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -11,7 +6,7 @@ import { TestValidator } from "@nestia/e2e";
 const parsed: (pointer: string) => string | null = (
   pointer: string,
 ): string | null => {
-  const target: IAutoMovieLightPointer | null = parseLightPointer(pointer);
+  const target: IAutoMovieLightPointer | null = AutoMovieEngineResolve.parseLightPointer(pointer);
   return target === null ? null : `${target.light}|${target.property}`;
 };
 
@@ -65,7 +60,7 @@ export function test_resolve_light_pointer(): void {
   ] as const;
   TestValidator.equals(
     "the table admits exactly these properties",
-    Object.keys(LIGHT_CHANNEL_PROPERTIES),
+    Object.keys(AutoMovieEngineLightChannelProperties),
     [...PROPERTIES],
   );
   TestValidator.equals(
@@ -81,7 +76,7 @@ export function test_resolve_light_pointer(): void {
           | "position",
       ): (string | null)[] => [
         parsed(`/lights/candleGlow/${property}`),
-        formatLightPointer("candleGlow", property),
+        AutoMovieEngineResolve.formatLightPointer("candleGlow", property),
       ],
     ),
     PROPERTIES.map(
@@ -105,7 +100,7 @@ export function test_resolve_light_pointer(): void {
     "an escaped id decodes and re-encodes",
     [
       parsed("/lights/a~1b~0c/intensity"),
-      formatLightPointer("a/b~c", "intensity"),
+      AutoMovieEngineResolve.formatLightPointer("a/b~c", "intensity"),
     ],
     ["a/b~c|intensity", "/lights/a~1b~0c/intensity"],
   );
@@ -130,9 +125,9 @@ export function test_resolve_light_pointer(): void {
   TestValidator.equals(
     "an inherited object property is not a light property",
     [
-      isLightProperty("intensity"),
-      isLightProperty("constructor"),
-      isLightProperty("toString"),
+      AutoMovieEngineResolve.isLightProperty("intensity"),
+      AutoMovieEngineResolve.isLightProperty("constructor"),
+      AutoMovieEngineResolve.isLightProperty("toString"),
     ],
     [true, false, false],
   );

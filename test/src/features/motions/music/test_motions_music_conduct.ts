@@ -1,5 +1,10 @@
 import type { IAutoMovieBodyMeasure, IAutoMovieMotionHumanDanceBeats, IAutoMovieVector3 } from "@automovie/interface";
-import { conductFigure, conductTip } from "@automovie/motions/internal";
+import {
+  conductFigure
+} from "../../../../../packages/motions/src/music/internal/conductFigure";
+import {
+  conductTip
+} from "../../../../../packages/motions/src/music/internal/conductTip";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixture } from "../../internal/fixtures/humanFixture";

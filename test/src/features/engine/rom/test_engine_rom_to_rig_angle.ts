@@ -1,4 +1,6 @@
-import { toRigAngle } from "@automovie/engine";
+import {
+  AutoMovieEngineKinematics,
+} from "@automovie/engine";
 import type { IAutoMovieAxisFrame } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -11,7 +13,7 @@ const ROUNDING: number = 1e-12;
 const FRAME: IAutoMovieAxisFrame = { sign: -1, neutral: 10 };
 
 /**
- * `toRigAngle` is the inverse of the clinical map: `(clinical - neutral) /
+ * `AutoMovieEngineKinematics.toRigAngle` is the inverse of the clinical map: `(clinical - neutral) /
  * sign`.
  *
  * Scenarios:
@@ -23,13 +25,13 @@ const FRAME: IAutoMovieAxisFrame = { sign: -1, neutral: 10 };
 export function test_engine_rom_to_rig_angle(): void {
   TestValidator.predicate(
     "neutral and sign",
-    nclose(toRigAngle(-20, FRAME) ?? NaN, 30, ROUNDING),
+    nclose(AutoMovieEngineKinematics.toRigAngle(-20, FRAME) ?? NaN, 30, ROUNDING),
   );
   TestValidator.predicate(
     "identity and null",
-    toRigAngle(30, undefined) === 30 && toRigAngle(null, FRAME) === null,
+    AutoMovieEngineKinematics.toRigAngle(30, undefined) === 30 && AutoMovieEngineKinematics.toRigAngle(null, FRAME) === null,
   );
-  const read: ReturnType<typeof toRigAngle.prepare> = toRigAngle.prepare();
+  const read: ReturnType<typeof AutoMovieEngineKinematics.prepareToRigAngle> = AutoMovieEngineKinematics.prepareToRigAngle();
   TestValidator.predicate(
     "the prepared reader",
     nclose(read(-20, FRAME) ?? NaN, 30, ROUNDING) &&

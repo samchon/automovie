@@ -1,4 +1,4 @@
-import { auditPhysicalOutcomes as audit } from "@automovie/engine";
+import { AutoMovieEnginePhysicalSimulation } from "@automovie/engine";
 import type {
   IAutoMovieAuditPhysicalOutcomes,
   IAutoMovieContactReceipt as Receipt,
@@ -50,7 +50,7 @@ export function test_engine_physics_audit_physical_outcomes(): void {
   ) => IAutoMovieAuditPhysicalOutcomes.IFinding[] = (
     promise: IAutoMovieAuditPhysicalOutcomes.IAction,
   ): IAutoMovieAuditPhysicalOutcomes.IFinding[] =>
-    audit({
+    AutoMovieEnginePhysicalSimulation.auditOutcomes({
       actions: [promise],
       contacts: [receipt],
       falls: [],

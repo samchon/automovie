@@ -3,13 +3,13 @@ import type {
   IAutoMovieCubicBezierCurve64,
   IAutoMovieRecoveryEventCurvePiece,
 } from "@automovie/interface";
-import { readRecoveryEventCurveControls } from "@automovie/recovery";
+import { AutoMovieRecoveryEventCurve } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
 
 /**
- * `readRecoveryEventCurveControls` gives the four controls of the part of a
+ * `AutoMovieRecoveryEventCurve.controls` gives the four controls of the part of a
  * native cubic that an occurrence uses: the whole net for [0, 1], the
  * restriction for a sub-interval, and the reversed controls when it runs
  * backwards.
@@ -62,21 +62,21 @@ export function test_recovery_internal_read_event_curve_controls(): void {
     );
   TestValidator.predicate(
     "the whole curve",
-    close(xs(readRecoveryEventCurveControls(piece(0, 1))), [0, 1, 2, 3]),
+    close(xs(AutoMovieRecoveryEventCurve.controls(piece(0, 1))), [0, 1, 2, 3]),
   );
   TestValidator.predicate(
     "the upper half",
-    close(xs(readRecoveryEventCurveControls(piece(0.5, 1))), [
+    close(xs(AutoMovieRecoveryEventCurve.controls(piece(0.5, 1))), [
       1.5, 2, 2.5, 3,
     ]),
   );
   TestValidator.predicate(
     "the upper half reversed",
-    close(xs(readRecoveryEventCurveControls(piece(1, 0.5))), [
+    close(xs(AutoMovieRecoveryEventCurve.controls(piece(1, 0.5))), [
       3, 2.5, 2, 1.5,
     ]),
   );
   TestValidator.error("an empty interval", (): unknown =>
-    readRecoveryEventCurveControls(piece(0.5, 0.5)),
+    AutoMovieRecoveryEventCurve.controls(piece(0.5, 0.5)),
   );
 }

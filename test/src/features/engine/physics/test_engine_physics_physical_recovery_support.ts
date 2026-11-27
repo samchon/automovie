@@ -1,13 +1,4 @@
-import {
-  AutoMoviePhysicalJointChart,
-  Quaternion,
-  Vector3,
-  physicalRecoverySupportGoals,
-  physicalStanceBalance,
-  physicalSupportPoint,
-  physicalSwingReference,
-  samplePhysicalRecoveryGoal,
-} from "@automovie/engine";
+import { AutoMovieEnginePhysicalJointChart, AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysicalRecoverySupportGoals, AutoMovieEnginePhysicalStanceBalance, AutoMovieEnginePhysicalSwingReference, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieFootfallPattern,
   IAutoMoviePhysicalJoint,
@@ -63,7 +54,7 @@ export async function test_engine_physics_physical_recovery_support(): Promise<v
   };
   const identity: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
   const about = (degrees: number): IAutoMovieQuaternion =>
-    Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, degrees);
+    AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, degrees);
 
   // 1. A thigh hinged 0.1 m beside the pelvis and a shin 0.4 m below it.
   const joints: IAutoMoviePhysicalJoint[] = [
@@ -89,8 +80,8 @@ export async function test_engine_physics_physical_recovery_support(): Promise<v
     hip: number,
     knee: number,
   ): Record<string, IAutoMovieRigidTransform> => {
-    const thigh: IAutoMovieQuaternion = Quaternion.multiply(pelvis, about(hip));
-    const shin: IAutoMovieQuaternion = Quaternion.multiply(thigh, about(knee));
+    const thigh: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(pelvis, about(hip));
+    const shin: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(thigh, about(knee));
     return {
       pelvis: { position: { x: 0, y: 1, z: 0 }, rotation: pelvis },
       thigh: { position: { x: 0, y: 0, z: 0 }, rotation: thigh },
@@ -105,14 +96,14 @@ export async function test_engine_physics_physical_recovery_support(): Promise<v
   const fit: Record<string, IAutoMovieRigidTransform> = chain(identity, 5, 10);
   const base: IAutoMovieRigidTransform = {
     position: { x: 0.02, y: 0.98, z: 0.01 },
-    rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 10),
+    rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 10),
   };
   const angle = (
     parent: IAutoMovieQuaternion,
     child: IAutoMovieQuaternion,
   ): number => {
-    const turn: IAutoMovieQuaternion = Quaternion.multiply(
-      Quaternion.inverse(parent),
+    const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.inverse(parent),
       child,
     );
     const sign: number = turn.w < 0 ? -1 : 1;
@@ -124,7 +115,7 @@ export async function test_engine_physics_physical_recovery_support(): Promise<v
     [1, 5, 10],
   ] as const) {
     const out: Record<string, IAutoMovieRigidTransform> =
-      physicalSwingReference({ joints, base, actual, fit, share });
+      AutoMovieEnginePhysicalSwingReference.compute({ joints, base, actual, fit, share });
     near(`hip at ${share}`, angle(base.rotation, out.thigh!.rotation), hip);
     near(
       `knee at ${share}`,
@@ -135,17 +126,17 @@ export async function test_engine_physics_physical_recovery_support(): Promise<v
     for (const joint of joints) {
       const parent: IAutoMovieRigidTransform = out[joint.parent] ?? base;
       const child: IAutoMovieRigidTransform = out[joint.child]!;
-      const gap: IAutoMovieVector3 = Vector3.subtract(
-        Vector3.add(
+      const gap: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
+        AutoMovieEngineVector3.add(
           parent.position,
-          Quaternion.rotateVector(parent.rotation, joint.parentFrame.position),
+          AutoMovieEngineQuaternion.rotateVector(parent.rotation, joint.parentFrame.position),
         ),
-        Vector3.add(
+        AutoMovieEngineVector3.add(
           child.position,
-          Quaternion.rotateVector(child.rotation, joint.childFrame.position),
+          AutoMovieEngineQuaternion.rotateVector(child.rotation, joint.childFrame.position),
         ),
       );
-      near(`${joint.child} centre at ${share}`, Vector3.length(gap), 0);
+      near(`${joint.child} centre at ${share}`, AutoMovieEngineVector3.length(gap), 0);
     }
   }
 
@@ -192,7 +183,7 @@ export async function test_engine_physics_physical_recovery_support(): Promise<v
   };
   const path: { height: number; hang: number } = { height: 0.06, hang: 0.02 };
   for (const seconds of [0, 0.2, 0.4]) {
-    const goal: IAutoMovieVector3 = physicalRecoverySupportGoals(
+    const goal: IAutoMovieVector3 = AutoMovieEnginePhysicalRecoverySupportGoals.compute(
       body,
       target,
       body.balance!.pattern,
@@ -200,7 +191,7 @@ export async function test_engine_physics_physical_recovery_support(): Promise<v
       seconds,
       path,
     ).foot!;
-    const sampled: IAutoMovieVector3 = samplePhysicalRecoveryGoal({
+    const sampled: IAutoMovieVector3 = AutoMovieEnginePhysics.samplePhysicalRecoveryGoal({
       swing,
       point: { x: 0, y: 0.05, z: 0 },
       velocity: { x: 0, y: 0, z: 0 },
@@ -210,7 +201,7 @@ export async function test_engine_physics_physical_recovery_support(): Promise<v
     near(`goal height at ${seconds}`, goal.y, sampled.y + path.hang);
     near(`goal ahead at ${seconds}`, goal.z, sampled.z);
   }
-  const middle: IAutoMovieVector3 = physicalRecoverySupportGoals(
+  const middle: IAutoMovieVector3 = AutoMovieEnginePhysicalRecoverySupportGoals.compute(
     body,
     target,
     body.balance!.pattern,
@@ -219,7 +210,7 @@ export async function test_engine_physics_physical_recovery_support(): Promise<v
     path,
   ).foot!;
   near("mid-swing height", middle.y, 0.05 + 0.06 + 0.02);
-  const policy: IAutoMovieVector3 = physicalRecoverySupportGoals(
+  const policy: IAutoMovieVector3 = AutoMovieEnginePhysicalRecoverySupportGoals.compute(
     body,
     target,
     body.balance!.pattern,
@@ -233,11 +224,11 @@ export async function test_engine_physics_physical_recovery_support(): Promise<v
   const planned: IAutoMovieVector3 = { x: 0, y: 0.4, z: 0 };
   for (const [elapsed, share] of [
     [0, 0],
-    [physicalStanceBalance.FADE / 2, 0.5],
-    [physicalStanceBalance.FADE, 1],
-    [2 * physicalStanceBalance.FADE, 1],
+    [AutoMovieEnginePhysicalStanceBalance.FADE / 2, 0.5],
+    [AutoMovieEnginePhysicalStanceBalance.FADE, 1],
+    [2 * AutoMovieEnginePhysicalStanceBalance.FADE, 1],
   ] as const) {
-    const rate: IAutoMovieVector3 = physicalSwingReference.rate({
+    const rate: IAutoMovieVector3 = AutoMovieEnginePhysicalSwingReference.rate({
       actual: moving,
       path: planned,
       elapsed,
@@ -283,16 +274,16 @@ export async function test_engine_physics_physical_recovery_support(): Promise<v
   const lifted: IAutoMovieVector3 = { x: 0, y: 0.18, z: 0.05 };
   const pitch: IAutoMovieQuaternion = about(20);
   const pitched: IAutoMovieRigidTransform = {
-    position: Vector3.add(
+    position: AutoMovieEngineVector3.add(
       lifted,
-      Quaternion.rotateVector(pitch, { x: 0, y: -0.04, z: 0 }),
+      AutoMovieEngineQuaternion.rotateVector(pitch, { x: 0, y: -0.04, z: 0 }),
     ),
     rotation: pitch,
   };
   const hangAt = (
     planned: (bone: string) => IAutoMovieRigidTransform | undefined,
   ): number =>
-    physicalSwingReference.hang({
+    AutoMovieEnginePhysicalSwingReference.hang({
       profile: box,
       carriers: ["foot"],
       planned,
@@ -303,9 +294,9 @@ export async function test_engine_physics_physical_recovery_support(): Promise<v
   // Planned level and carried with the endpoint: the pitch leaves it unchanged.
   const level: number = hangAt(
     (): IAutoMovieRigidTransform => ({
-      position: Vector3.add(
+      position: AutoMovieEngineVector3.add(
         plantedFoot.position,
-        Vector3.subtract(lifted, rest),
+        AutoMovieEngineVector3.subtract(lifted, rest),
       ),
       rotation: identity,
     }),
@@ -344,7 +335,7 @@ export async function test_engine_physics_physical_recovery_support(): Promise<v
   const hip: IAutoMoviePhysicalJoint = human.profile.joints.find(
     (joint: IAutoMoviePhysicalJoint): boolean => joint.child === limb.chain[0],
   )!;
-  const standingPoint: IAutoMovieVector3 = physicalSupportPoint(
+  const standingPoint: IAutoMovieVector3 = AutoMovieEnginePhysics.physicalSupportPoint(
     human.targets[limb.bone]!,
     limb.localPoint,
   );
@@ -365,21 +356,21 @@ export async function test_engine_physics_physical_recovery_support(): Promise<v
       (candidate: IAutoMoviePhysicalJoint): boolean =>
         candidate.child === child,
     )!;
-    const turn: IAutoMovieQuaternion = Quaternion.multiply(
-      Quaternion.inverse(
-        Quaternion.multiply(
+    const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.inverse(
+        AutoMovieEngineQuaternion.multiply(
           poses[joint.parent]!.rotation,
           joint.parentFrame.rotation,
         ),
       ),
-      Quaternion.multiply(poses[child]!.rotation, joint.childFrame.rotation),
+      AutoMovieEngineQuaternion.multiply(poses[child]!.rotation, joint.childFrame.rotation),
     );
     return (2 * Math.acos(Math.min(1, Math.abs(turn.w))) * 180) / Math.PI;
   };
   let seed: Record<string, IAutoMovieRigidTransform> = { ...human.targets };
   let first: number[] | undefined;
   for (let frame: number = 0; frame < 10; frame++) {
-    const fitted = physicalSwingReference.pose({
+    const fitted = AutoMovieEnginePhysicalSwingReference.pose({
       profile: human.profile,
       chain: limb.chain,
       base: human.targets[hip.parent]!,
@@ -404,23 +395,23 @@ export async function test_engine_physics_physical_recovery_support(): Promise<v
     });
     // The ankle's free axes take the plan's rotation relative to the shank;
     // what remains turns about the axis it does not have.
-    const socket: IAutoMovieQuaternion = Quaternion.multiply(
+    const socket: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       seed[ankleJoint.parent]!.rotation,
       ankleJoint.parentFrame.rotation,
     );
-    const wanted: IAutoMovieQuaternion = Quaternion.multiply(
-      Quaternion.inverse(socket),
-      Quaternion.multiply(plannedFoot, ankleJoint.childFrame.rotation),
+    const wanted: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.inverse(socket),
+      AutoMovieEngineQuaternion.multiply(plannedFoot, ankleJoint.childFrame.rotation),
     );
-    const held: IAutoMovieQuaternion = Quaternion.multiply(
-      Quaternion.inverse(socket),
-      Quaternion.multiply(
+    const held: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.inverse(socket),
+      AutoMovieEngineQuaternion.multiply(
         seed[limb.bone]!.rotation,
         ankleJoint.childFrame.rotation,
       ),
     );
-    const left: IAutoMovieQuaternion = Quaternion.multiply(
-      Quaternion.inverse(held),
+    const left: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.inverse(held),
       wanted,
     );
     const sign: number = left.w < 0 ? -1 : 1;
@@ -432,7 +423,7 @@ export async function test_engine_physics_physical_recovery_support(): Promise<v
     // An axis the plan drives past its range stops at its limit.
     const coordinate = (axis: "x" | "y" | "z"): number => {
       if (ankleJoint.order !== undefined)
-        return AutoMoviePhysicalJointChart.angles(ankleJoint.order, held)[
+        return AutoMovieEnginePhysicalJointChart.angles(ankleJoint.order, held)[
           ankleJoint.order.indexOf(axis)
         ]!;
       const w: number = held.w < 0 ? -held.w : held.w;

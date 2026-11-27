@@ -1,4 +1,6 @@
-import { defend } from "@automovie/motions/internal";
+import {
+  defend
+} from "../../../../../packages/motions/src/striking/internal/defend";
 import { TestValidator } from "@nestia/e2e";
 
 /**

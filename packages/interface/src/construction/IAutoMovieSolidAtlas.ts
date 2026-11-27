@@ -8,12 +8,12 @@ import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
  *
  * Each face has its own chart and retained-region predicate. Boundaries may
  * come from trim cycles or original adjacent profile pieces; open boundaries
- * have no neighbor. The trace (`AutoMovieSolidIntersection`) solves on one face
+ * have no neighbor. The trace (`AutoMovieEngineSolidIntersection`) solves on one face
  * and, where its host point leaves the face's kept region, continues on the
- * neighbour from the mapped point; the host rail (`AutoMovieSolidRail`) does
+ * neighbour from the mapped point; the host rail (`AutoMovieEngineSolidRail`) does
  * the same where its offset leaves its face. A single surface is the atlas of
  * one face whose region is all of its chart
- * (`AutoMovieSolidIntersection.atlas`). Face indices must be valid for the
+ * (`AutoMovieEngineSolidIntersection.atlas`). Face indices must be valid for the
  * producing atlas. The interface adds no common index guard or exception
  * translation; callback failures propagate to the consuming operator's own
  * policy.

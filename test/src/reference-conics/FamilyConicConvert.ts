@@ -1,8 +1,4 @@
-import {
-  AutoMovieLoftChain,
-  AutoMovieViewChain as Q,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
+import { AutoMovieEngineLoftChain, AutoMovieEngineViewChain as Q, AutoMovieEngineConstruction } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft as H,
   AutoMovieHumanConicSection as S,
@@ -33,7 +29,7 @@ import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
  *
  * - Fair: each section's radius about its course point by the periodic smoothing spline (`FamilyConicFair`) at the region's own cutoff,
  *   the narrowest feature its source keeps (`cutoff`).
- * - Convert: the recovery converter (`approximateAutoMovieRecoveryConicsAhn`, contract `AutoMovieRecoveryConicApproximation`), unchanged,
+ * - Convert: the recovery converter (`approximateRecoveryConicsAhn`, contract `AutoMovieRecoveryConicApproximation`), unchanged,
  *   broken at the faired inflections and at an invented closure's ends.
  * - Layout: the grooves (maximal runs of inward skin arcs) per station, each tracked along the stations as a line; the source's own hollows
  *   under its hull deeper than the tolerance are each matched to a groove or named as dropped with their depth (`account`).
@@ -584,13 +580,13 @@ export namespace FamilyConicConvert {
 
   /** A region's course, as the Human package's family reads it (`AutoMovieHumanConicLoft.IFamily`), and its sections' stations on it. */
   export interface ICourse {
-    /** The course's first end, joints and last end, mm (`AutoMovieViewAxis.jointed`). */
+    /** The course's first end, joints and last end, mm (`AutoMovieEngineViewAxis.jointed`). */
     centres: AutoMovieVector3Tuple[];
 
-    /** Each joint's half turn arclength, mm (`AutoMovieViewAxis.jointed`). */
+    /** Each joint's half turn arclength, mm (`AutoMovieEngineViewAxis.jointed`). */
     halves: number[];
 
-    /** The chart's first axis at the first segment (`AutoMovieViewAxis.jointed`). */
+    /** The chart's first axis at the first segment (`AutoMovieEngineViewAxis.jointed`). */
     up: AutoMovieVector3Tuple;
 
     /** A section's station on this course, from its own `s`. */
@@ -1636,7 +1632,7 @@ export namespace FamilyConicConvert {
       | undefined;
     if (root !== null && shown.length > 1) {
       try {
-        const real = realizeAutoMovieConstruction(
+        const real = AutoMovieEngineConstruction.realize(
           { name: "convert." + name, root },
           { chord: 0.001, sources },
         );
@@ -1850,7 +1846,7 @@ export namespace FamilyConicConvert {
       : `${file} (${outside} line station(s) outside their run's extremes left out of the windows)`;
   }
 
-  /** A point of an engine section at a phase from the course, by its ray (`AutoMovieViewChain.radius`'s reading through the chain's samples). */
+  /** A point of an engine section at a phase from the course, by its ray (`AutoMovieEngineViewChain.radius`'s reading through the chain's samples). */
   function ringPoint(section: ReturnType<typeof S.chain>, phi: number): C.P {
     const r: number = Q.radius(section, phi);
     return [r * Math.cos(phi), r * Math.sin(phi)];
@@ -2055,7 +2051,7 @@ export namespace FamilyConicConvert {
         const closures: readonly (readonly [number, number])[] = closureAt(s);
         const ring: N.Point[] = [];
         for (let j: number = 0; j < about; ++j) {
-          const p = AutoMovieLoftChain.point(
+          const p = AutoMovieEngineLoftChain.point(
             chain,
             s,
             (2 * Math.PI * j) / about,

@@ -7,8 +7,8 @@ import type { IAutoMovieEnvelopeRequest } from "./IAutoMovieEnvelopeRequest";
  */
 export namespace IAutoMovieAnalyzeEnvelope {
   /**
-   * One borrowed envelope study for analyzeAutoMovieEnvelope.
-   * resolveAutoMovieEnvelopeRequest performs request admission before
+   * One borrowed envelope study for analyzeEnvelope.
+   * resolveEnvelopeRequest performs request admission before
    * arithmetic. Malformed requests and nonfinite computed metrics throw;
    * positive finite inputs alone do not exclude numeric overflow, underflow or
    * dew-point singularities.

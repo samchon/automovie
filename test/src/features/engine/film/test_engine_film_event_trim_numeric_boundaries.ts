@@ -1,10 +1,10 @@
-import { cutSequence, sequenceEventTimeline } from "@automovie/engine";
-import type {
-  IAutoMovieCut,
-  IAutoMovieEditPlan,
-  IAutoMovieInteractionEvent,
-  IAutoMoviePlaybackEvent,
-  IAutoMovieShot,
+import { AutoMovieEngineFilm } from "@automovie/engine";
+import {
+  type IAutoMovieCut,
+  type IAutoMovieEditPlan,
+  type IAutoMovieInteractionEvent,
+  type IAutoMoviePlaybackEvent,
+  type IAutoMovieShot,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -58,12 +58,12 @@ export function test_engine_film_event_trim_numeric_boundaries(): void {
     pacing: "Retain the handoff.",
     continuity: "Cut between setup and release.",
   };
-  const decimal: IAutoMovieCut = cutSequence(plan, [shot]);
+  const decimal: IAutoMovieCut = AutoMovieEngineFilm.cutSequence(plan, [shot]);
   if (!decimal.success) throw new Error("the decimal span must be admitted");
   expectEvent("rounded numeric end", decimal, shot, 0.05);
 
   const tiny: IAutoMovieShot = { ...shot, events: [{ ...anchor, time: 1 }] };
-  const collapsed: IAutoMovieCut = cutSequence(
+  const collapsed: IAutoMovieCut = AutoMovieEngineFilm.cutSequence(
     {
       ...plan,
       entries: [
@@ -90,10 +90,8 @@ export function test_engine_film_event_trim_numeric_boundaries(): void {
     source: IAutoMovieShot,
     time: number,
   ): void {
-    const events: IAutoMoviePlaybackEvent[] = sequenceEventTimeline(
-      result.sequence,
-      [source],
-    );
+    const events: IAutoMoviePlaybackEvent[] =
+      AutoMovieEngineFilm.sequenceEventTimeline(result.sequence, [source]);
     TestValidator.predicate(
       label,
       events.length === 1 &&

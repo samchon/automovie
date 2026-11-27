@@ -1,6 +1,6 @@
 import type { IAutoMovieTransform } from "@automovie/interface";
 
-/**
+/*
  * Compose a parent-local TRS over a child-local TRS into one local transform.
  *
  * Folding a skipped helper node into the bone beneath it needs this, so the
@@ -17,18 +17,14 @@ import type { IAutoMovieTransform } from "@automovie/interface";
  * The arithmetic order is fixed, so the same inputs produce bit-identical
  * output, which lets an external-motion source rig be compared with exact
  * equality against the inspected basis.
- *
- * @param parent Transform of the node nearer the root.
- * @param child Transform expressed in `parent`'s space.
- * @returns A new transform expressing `child` in the space `parent` lives in.
+ * Parameter parent: Transform of the node nearer the root.
+ * Parameter child: Transform expressed in `parent`'s space.
+ * Returns: A new transform expressing `child` in the space `parent` lives in.
  */
-export const composeLocalTransform: (
+export function composeLocalTransform(
   parent: IAutoMovieTransform,
   child: IAutoMovieTransform,
-) => IAutoMovieTransform = (
-  parent: IAutoMovieTransform,
-  child: IAutoMovieTransform,
-): IAutoMovieTransform => {
+): IAutoMovieTransform {
   const q: IAutoMovieTransform["rotation"] = parent.rotation;
   const vx: number = parent.scale.x * child.translation.x;
   const vy: number = parent.scale.y * child.translation.y;
@@ -56,4 +52,4 @@ export const composeLocalTransform: (
       z: parent.scale.z * child.scale.z,
     },
   };
-};
+}

@@ -1,0 +1,257 @@
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanStrikingHeld,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+import { StrikingHeld } from "../../striking/internal/StrikingHeld";
+import { StrikingRoll } from "../../striking/internal/StrikingRoll";
+
+/*
+ * Where a cut lands (`HumanSword.cut`): the hand frame that puts the blade's
+ * landing part on the target with the edge leading along the travel.
+ *
+ * The edge must lead, so the blade's lean back toward where the cut came from
+ * and its turn about the travel are the only freedoms: the blade lies square to
+ * the travel whichever way it is turned about it. Of the poses those give, the
+ * arm's fit chooses (`StrikingRoll.chosen`): the blade on the line to the
+ * target first, in the leans' order, then the turned ones least strained first
+ * (`StrikingRoll.strain`).
+ *
+ * What the row fixes: the blade leans back toward where the cut came from by
+ * 0.35, 0.7, 0.1 and 1 of the line to the target, tried in that order
+ * (`LEANS`), then turns about the travel by 15, -15, 30, -30, 45 and -45
+ * degrees (`TURNS`); the steps of the search are 0.25 of the line, 15, 30 and
+ * 10 degrees. All are provisional search resolutions. The row fixes no
+ * duration: a cut's duration is the sword timing model's, the edge at 6 to 10
+ * m/s by skill (`IAutoMovieMotionHumanSword`).
+ */
+export namespace HumanSwordLanding {
+  /*
+   * The leans of a cut's blade at contact that are tried, back toward where the
+   * cut came from as a share of the line to the target (provisional).
+   */
+  export const LEANS: readonly number[] = [0.35, 0.7, 0.1, 1];
+
+  /*
+   * The turns of a cut's blade about its travel at contact that are tried after
+   * none, degrees: a wrist that cannot hold the blade on the line to the target
+   * holds it turned (search resolution, provisional).
+   */
+  export const TURNS: readonly number[] = [15, -15, 30, -30, 45, -45];
+
+  /*
+   * The refinement step of a blade's lean, a share of the line to the target:
+   * the least gap between `LEANS`.
+   */
+  export const LEAN_STEP: number = 0.25;
+
+  /*
+   * The refinement step of a blade's turn about its travel, degrees: the gap
+   * between `TURNS`.
+   */
+  export const TURN_STEP: number = 15;
+
+  /*
+   * The refinement step of an edgeless tool's roll about its own line, degrees
+   * (search resolution, provisional): the turn grid of `StrikingRoll.hand`.
+   */
+  export const ROLL_STEP: number = 30;
+
+  /*
+   * The refinement step of the line's further lean inside the cone, degrees
+   * (search resolution, provisional): the cone grid of `StrikingRoll.hand`.
+   */
+  export const TILT_STEP: number = 10;
+
+  /*
+   * What a cut's contact is placed by.
+   */
+  export interface IProps {
+    /*
+     * The held blade.
+     */
+    tool: IAutoMovieMotionHumanStrikingHeld.ITool;
+
+    /*
+     * How far behind the working point the landing part lies, metres.
+     */
+    back: number;
+
+    /*
+     * Where the landing part goes, world metres.
+     */
+    target: IAutoMovieVector3;
+
+    /*
+     * Where the blade's line comes from toward the target, world metres.
+     */
+    reach: IAutoMovieVector3;
+
+    /*
+     * The unit direction the edge travels.
+     */
+    travel: IAutoMovieVector3;
+
+    /*
+     * How far the blade's line may lean further from the line to the target,
+     * degrees: a held thing leaves the hand at its own angle, so at its reach
+     * the hand may stand off that line.
+     */
+    cone: number;
+
+    /*
+     * The body as it stands at the decisive instant.
+     */
+    posture: IAutoMovieMotionHumanPosture;
+  }
+
+  /*
+   * The hand frame of a cut's contact.
+   * Parameter context: The action's context.
+   * Parameter props: The blade, the landing part, the target, the line, the travel
+   * and the body.
+   * Returns: The chosen hand frame.
+   */
+  export function frame(
+    context: Pick<IAutoMovieMotionHumanActionContext, "body">,
+    props: IProps,
+  ): IAutoMovieMotionHumanStrikingHeld.IHandFrame {
+    const { tool, back, target, reach, travel, posture }: IProps = props;
+    const leaning: (
+      lean: number,
+      turn: number,
+    ) => IAutoMovieMotionHumanStrikingHeld.IHandFrame = (
+      lean: number,
+      turn: number,
+    ): IAutoMovieMotionHumanStrikingHeld.IHandFrame =>
+      StrikingHeld.hand(
+        tool,
+        back,
+        target,
+        AutoMovieEngineQuaternion.rotateVector(
+          AutoMovieEngineQuaternion.fromAxisAngle(travel, turn),
+          AutoMovieEngineVector3.subtract(
+            AutoMovieEngineVector3.normalize(AutoMovieEngineVector3.subtract(target, reach)),
+            AutoMovieEngineVector3.scale(travel, lean),
+          ),
+        ),
+        travel,
+      );
+    const turned: [number, number][] = TURNS.flatMap(
+      (turn: number): [number, number][] =>
+        LEANS.map((lean: number): [number, number] => [lean, turn]),
+    )
+      .map((values: [number, number]): [[number, number], number] => [
+        values,
+        StrikingRoll.strain(
+          context,
+          tool,
+          leaning(values[0], values[1]),
+          posture,
+        ),
+      ])
+      .sort(
+        (
+          x: [[number, number], number],
+          y: [[number, number], number],
+        ): number => x[1] - y[1],
+      )
+      .map((c: [[number, number], number]): [number, number] => c[0]);
+    // The line leaned further, `tilt` degrees inside `cone`
+    // toward `around`, and an edgeless tool rolled `roll` degrees about it.
+    const free = (
+      values: readonly number[],
+    ): IAutoMovieMotionHumanStrikingHeld.IHandFrame => {
+      const [lean, turn, roll, tilt, around] = values as readonly [
+        number,
+        number,
+        number,
+        number,
+        number,
+      ];
+      const frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame = leaning(
+        lean,
+        turn,
+      );
+      if (roll === 0 && tilt === 0) return frame;
+      const run: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+        frame.rotation,
+        tool.axis,
+      );
+      const aside: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+        AutoMovieEngineVector3.cross(run, travel),
+      );
+      const leant: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.fromAxisAngle(run, around),
+        AutoMovieEngineQuaternion.rotateVector(AutoMovieEngineQuaternion.fromAxisAngle(aside, tilt), run),
+      );
+      return StrikingHeld.hand(
+        tool,
+        back,
+        target,
+        leant,
+        AutoMovieEngineQuaternion.rotateVector(AutoMovieEngineQuaternion.fromAxisAngle(leant, roll), travel),
+      );
+    };
+    // Off the line: the line leaned inside the cone and an edgeless tool
+    // rolled, the least strained first (`StrikingRoll.strain`), the
+    // `StrikingRoll.TRIED` best of them.
+    const off: number[][] = [];
+    for (const lean of LEANS)
+      for (
+        let tilt: number = TILT_STEP;
+        tilt <= props.cone + 1e-9;
+        tilt += TILT_STEP
+      )
+        for (let around: number = 0; around < 360; around += 45)
+          for (
+            let roll: number = 0;
+            roll < (tool.rolls ? 360 : 1);
+            roll += ROLL_STEP
+          )
+            off.push([lean, 0, roll, tilt, around]);
+    const ranked: number[][] = off
+      .map((values: number[]): [number[], number] => [
+        values,
+        StrikingRoll.strain(context, tool, free(values), posture),
+      ])
+      .sort(
+        (x: [number[], number], y: [number[], number]): number => x[1] - y[1],
+      )
+      .slice(0, StrikingRoll.TRIED)
+      .map((c: [number[], number]): number[] => c[0]);
+    return StrikingRoll.chosen(context, tool, {
+      frame: free,
+      tried: [
+        ...LEANS.map((lean: number): number[] => [lean, 0, 0, 0, 0]),
+        ...turned.map(([lean, turn]: [number, number]): number[] => [
+          lean,
+          turn,
+          0,
+          0,
+          0,
+        ]),
+        ...ranked,
+      ],
+      // The turn and the roll stay inside the half turn either way they are
+      // tried in; the direction of the lean goes the whole way round.
+      freedoms: [
+        { kind: "bounded", step: LEAN_STEP, least: 0, greatest: 1 },
+        { kind: "bounded", step: TURN_STEP, least: -180, greatest: 180 },
+        {
+          kind: "bounded",
+          step: tool.rolls ? ROLL_STEP : 0,
+          least: -180,
+          greatest: 180,
+        },
+        { kind: "bounded", step: TILT_STEP, least: 0, greatest: props.cone },
+        { kind: "wrapped", step: 45, period: 360 },
+      ],
+      back,
+      posture,
+    });
+  }
+}

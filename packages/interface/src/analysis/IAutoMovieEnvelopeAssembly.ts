@@ -9,7 +9,7 @@ import type { IAutoMovieEnvelopeLayer } from "./IAutoMovieEnvelopeLayer";
  * one-dimensional steady-state resistance network that turns them into a
  * transmittance is the capability it does.
  *
- * `analyzeAutoMovieEnvelope` turns it into `U = 1 / (Rsi + sum(t / lambda) +
+ * `analyzeEnvelope` turns it into `U = 1 / (Rsi + sum(t / lambda) +
  * Rse)` and an interior surface temperature. When the instant supplies an
  * outdoor air temperature, it reports one thermal sample at `position` under
  * the assembly's id, plus one moisture sample there when the indoor air has a

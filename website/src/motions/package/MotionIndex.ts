@@ -85,7 +85,7 @@ export namespace MotionIndex {
 
     /**
      * Its entry in the API reference, a path under the site such as
-     * `/api/classes/_automovie_motions.HumanChain.html#walk`.
+     * `/api/classes/_automovie_motions.AutoMovieMotionHumanChain.html#walk`.
      */
     api: string;
 
@@ -329,7 +329,7 @@ export namespace MotionIndex {
       api:
         row.namespace === null
           ? family.name === "actions"
-            ? `/api/classes/_automovie_motions.HumanChain.html#${row.name}`
+            ? `/api/classes/_automovie_motions.AutoMovieMotionHumanChain.html#${row.name}`
             : "/api/variables/_automovie_motions.HUMAN_LEXICON.html"
           : `/api/variables/_automovie_motions.${row.namespace}.${row.name}.html`,
       uses: uses.scenes,

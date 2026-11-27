@@ -1,4 +1,4 @@
-import { AutoMovieStepPlanner as Planner } from "@automovie/engine";
+import { AutoMovieEngineStepPlanner as Planner } from "@automovie/engine";
 import type { IAutoMovieStepPlanner } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

@@ -1,11 +1,28 @@
 import type { IAutoMovieConvexSupportLoft } from "../model/IAutoMovieConvexSupportLoft";
-import type { IAutoMovieEmitSupportLoft64 } from "./IAutoMovieEmitSupportLoft64";
+import type { IAutoMovieMesh } from "../model/IAutoMovieMesh";
+import type { IAutoMovieConstructionPolyline } from "../render/IAutoMovieConstructionPolyline";
 
 /**
  * Data and callback contracts shared by the RealizeConvexSupportLoft
  * operations.
  */
 export namespace IAutoMovieRealizeConvexSupportLoft {
+  /** Numeric limits shared by Engine realization and Recovery fitting. */
+  export interface IControls {
+    /** Finite positive ruled-face interpolation bound in metres. */
+    tolerance: number;
+    /** Positive safe-integer cap on support planes. */
+    maxPlanes: number;
+    /** Nonnegative safe-integer cap on interior events; zero is valid. */
+    maxEvents: number;
+    /** Positive safe-integer cap on planned cells. */
+    maxCells: number;
+    /** Positive safe-integer cap on emitted vertices. */
+    maxVertices: number;
+    /** Finite threshold strictly between zero and one. */
+    minimumDirectionSine: number;
+  }
+
   /**
    * Generate a new open lateral mesh from compact cubic support coefficients.
    * Sections intersect fixed oriented unit half-planes in XZ. Feasible
@@ -17,7 +34,7 @@ export namespace IAutoMovieRealizeConvexSupportLoft {
    * the numerical partition, separately from uncertified event isolation,
    * boundary roundoff and source fit.
    */
-  export type IInput = {
+  export interface IInput extends IControls {
     /**
      * Complete metre-valued cubic support recipe; the realizer admits unit XZ
      * normals, enclosing directions, adjacent station spans and exact shared
@@ -29,38 +46,7 @@ export namespace IAutoMovieRealizeConvexSupportLoft {
      * support-loft vertices.
      */
     topologyDomain: string;
-    /**
-     * Finite positive requested ruled-face interpolation bound in metres,
-     * conditional on the numerically constructed event partition.
-     */
-    tolerance: number;
-    /**
-     * Positive safe-integer cap on supplied support planes; at least three
-     * planes are required to enclose a section.
-     */
-    maxPlanes: number;
-    /**
-     * Nonnegative safe-integer cap on feasible interior numerical event
-     * stations; zero permits no added interior event station.
-     */
-    maxEvents: number;
-    /**
-     * Positive safe-integer bound on planned ruled-face strips across all
-     * spans; exhaustion throws before mesh allocation.
-     */
-    maxCells: number;
-    /**
-     * Positive safe-integer cap on emitted render vertices; exhaustion refuses
-     * the generation rather than publishing a partial successful mesh.
-     */
-    maxVertices: number;
-    /**
-     * Finite dimensionless threshold strictly between 0 and 1 for usable
-     * pairwise normal determinants; near-parallel support directions below it
-     * cannot define a curve.
-     */
-    minimumDirectionSine: number;
-  };
+  }
 
   /**
    * Generate a new open lateral mesh from compact cubic support coefficients.
@@ -73,7 +59,22 @@ export namespace IAutoMovieRealizeConvexSupportLoft {
    * the numerical partition, separately from uncertified event isolation,
    * boundary roundoff and source fit.
    */
-  export type IResult = IAutoMovieEmitSupportLoft64.IResult & {
+  export interface IResult {
+    /** Open lateral mesh in local metres with analytic unit normals. */
+    mesh: IAutoMovieMesh;
+
+    /** Sampled boundaries and sections, which can share tuples at stations. */
+    construction: IAutoMovieConstructionPolyline.IMutable[];
+
+    /**
+     * Largest disagreement, in metres, between repeated evaluations of a
+     * canonical boundary vertex. This measures numerical roundoff.
+     */
+    maximumBoundaryDefectMeters: number;
+
+    /** Proposed triangles omitted because two corners share a physical source. */
+    omittedCollapsedTriangles: number;
+
     /**
      * Number of retained feasible interior event stations in the algebraic
      * plan, excluding span endpoints.
@@ -91,5 +92,5 @@ export namespace IAutoMovieRealizeConvexSupportLoft {
      * construction, with no certified isolation claim.
      */
     eventQualification: "binary64-numerical-not-certified";
-  };
+  }
 }

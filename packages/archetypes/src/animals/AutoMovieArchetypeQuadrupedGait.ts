@@ -1,7 +1,7 @@
 import { AutoMovieArchetypeRefusal } from "../core";
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
-import type { QuadrupedChange } from "./QuadrupedChange";
-import type { createQuadruped } from "./createQuadruped";
+import type { QuadrupedChange } from "./quadruped/QuadrupedChange";
+import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
 /**
  * The timing of a quadruped's gaits: how long a stride lasts and how much of it
@@ -231,7 +231,7 @@ export namespace AutoMovieArchetypeQuadrupedGait {
 
   /** The species identity and gait table read by the clock and phase laws. */
   export type ClockSource = Pick<
-    createQuadruped.ISpecies,
+    AutoMovieArchetypeQuadruped.ISpecies,
     "archetype" | "table"
   >;
 
@@ -360,7 +360,9 @@ export namespace AutoMovieArchetypeQuadrupedGait {
     tempo: number = 0,
     withers: number = species.table.reference,
   ): ITiming {
-    /** Report a malformed timing coordinate with its dimensional range. */
+    /*
+     * Report a malformed timing coordinate with its dimensional range.
+     */
     function refuse(
       axis: string,
       value: number,
@@ -419,7 +421,9 @@ export namespace AutoMovieArchetypeQuadrupedGait {
     const high: IRow = rows.length === 1 ? low : rows[k + 1]!;
     const share: number =
       rows.length === 1 ? 0 : (similar - low.speed) / (high.speed - low.speed);
-    /** Interpolate one pair at the already admitted speed bracket. */
+    /*
+     * Interpolate one pair at the already admitted speed bracket.
+     */
     function mix(a: number, b: number): number {
       return a + (b - a) * share;
     }

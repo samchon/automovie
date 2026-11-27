@@ -1,4 +1,4 @@
-import { forgeProp } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import {
   IAutoMovieConstraintViolation,
   type IAutoMovieForgedProp,
@@ -21,8 +21,8 @@ import { hasViolation } from "../../internal/predicates";
  */
 function broken(
   mutate: (spec: IAutoMoviePropSpec) => IAutoMoviePropSpec,
-): ReturnType<typeof forgeProp> {
-  return forgeProp(mutate(createDoorPropSpec()));
+): ReturnType<typeof AutoMovieEngineFilm.forgeProp> {
+  return AutoMovieEngineFilm.forgeProp(mutate(createDoorPropSpec()));
 }
 
 /**
@@ -61,7 +61,7 @@ export function test_engine_film_forge_prop_gates(): void {
       },
     ];
     spec.articulation.binding.boneMap = {};
-    const inherited: IAutoMovieForgedProp = forgeProp(spec);
+    const inherited: IAutoMovieForgedProp = AutoMovieEngineFilm.forgeProp(spec);
     TestValidator.predicate(
       `inherited semantic key ${key} is not a binding`,
       inherited.success === false &&
@@ -75,7 +75,7 @@ export function test_engine_film_forge_prop_gates(): void {
     spec.articulation.binding.boneMap = { [key]: "hinge" };
     TestValidator.equals(
       `own semantic key ${key} maps the declared hinge`,
-      forgeProp(spec).success,
+      AutoMovieEngineFilm.forgeProp(spec).success,
       true,
     );
   }

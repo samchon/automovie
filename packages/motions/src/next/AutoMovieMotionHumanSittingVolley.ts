@@ -1,4 +1,4 @@
-import { HumanSittingVolley as HumanSittingVolleyLaw } from "../lexicon/HumanSittingVolley";
+import { HumanSittingVolley as HumanSittingVolleyLaw } from "../lexicon/internal/HumanSittingVolley";
 
 /**
  * Sitting volleyball, a rally played from the floor.

@@ -1,4 +1,4 @@
-import { autoMovieOpeningHasArc } from "@automovie/engine";
+import { AutoMovieEngineDrawing } from "@automovie/engine";
 import type { IAutoMoviePlanarPoint } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -10,7 +10,7 @@ const OUTLINE: IAutoMoviePlanarPoint[] = [
 ];
 
 /**
- * `autoMovieOpeningHasArc` says whether any edge of an opening profile bulges.
+ * `openingHasArc` says whether any edge of an opening profile bulges.
  *
  * Scenarios:
  *
@@ -20,11 +20,16 @@ const OUTLINE: IAutoMoviePlanarPoint[] = [
 export function test_engine_drawing_opening_has_arc(): void {
   TestValidator.predicate(
     "a bulge",
-    autoMovieOpeningHasArc({ outline: OUTLINE, bulges: [0, 0.5, 0] }),
+    AutoMovieEngineDrawing.autoMovieOpeningHasArc({
+      outline: OUTLINE,
+      bulges: [0, 0.5, 0],
+    }),
   );
   TestValidator.predicate(
     "straight edges",
-    !autoMovieOpeningHasArc({ outline: OUTLINE, bulges: [0, 0, 0] }) &&
-      !autoMovieOpeningHasArc({ outline: OUTLINE }),
+    !AutoMovieEngineDrawing.autoMovieOpeningHasArc({
+      outline: OUTLINE,
+      bulges: [0, 0, 0],
+    }) && !AutoMovieEngineDrawing.autoMovieOpeningHasArc({ outline: OUTLINE }),
   );
 }

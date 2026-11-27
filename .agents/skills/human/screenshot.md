@@ -10,13 +10,15 @@ The skin is one sewn piece, `f1/body`, and every construction curve has a path u
 | --- | --- |
 | The skin alone | `parts=f1/body` |
 | One family's curves | `parts=f1/arm` with `marks=curve/*` |
-| A family's curves with its reflected twin's | `parts=f1/arm*` with `marks=curve/*` |
+| Curves with their reflected twin | `parts=f1/arm*` with `marks=curve/*` |
 | One side's curves only | `hide=*.mirror` with `marks=curve/*` |
-| Fingers or toes | `parts=f1/finger.*` or `parts=f1/toe.*` with `marks=curve/*` |
+| Fingers or toes | `parts=f1/finger.*` or `parts=f1/toe.*` |
 | One section ring | `parts=f1/arm/section/3` with `marks=curve/*` |
-| One family's rails and axis | `parts=f1/arm/guide/*,f1/arm/axis` with `marks=curve/*` |
-| A family on the skin | `marks=curve/*` with a view such as `three-quarter@focus=f1/arm` |
-| Each family's curves alone and with its neighbours | `sweep=f1/*` with a `margin` in metres and `marks=curve/*` |
+| One family's rails and axis | `parts=f1/arm/guide/*,f1/arm/axis` |
+| Family on skin | `marks=curve/*`, e.g. `three-quarter@focus=f1/arm` |
+| Families alone and with neighbours | `sweep=f1/*` |
+
+Include `marks=curve/*` for finger or toe curves, rails and axis and family sweeps. Give a family sweep its `margin` in metres.
 
 The palm belongs to the arm and the foot to the leg. Use `label` to identify the selection, then remove labels that cover the shape.
 

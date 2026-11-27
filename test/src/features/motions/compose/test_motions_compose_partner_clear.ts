@@ -2,7 +2,9 @@ import type {
   IAutoMovieMotionHumanColliders,
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanPartnerClear } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanPartnerClear
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanPartnerClear";
 import { TestValidator } from "@nestia/e2e";
 
 /** A placed segment, by its bone only (the merge reads nothing else). */

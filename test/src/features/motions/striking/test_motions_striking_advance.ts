@@ -1,8 +1,10 @@
 import type { IAutoMovieMotionHumanContactWindow } from "@automovie/interface";
 import {
-  AutoMovieMotionClock,
-  StrikingAdvance,
-} from "@automovie/motions/internal";
+  motionClock
+} from "../../../../../packages/motions/src/compose/internal/motionClock";
+import {
+  StrikingAdvance
+} from "../../../../../packages/motions/src/striking/internal/StrikingAdvance";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -31,7 +33,7 @@ export function test_motions_striking_advance(): void {
       nclose(StrikingAdvance.travel(tall, "lunge"), 0.81, TRAVEL_ROUNDING_METRES) &&
       StrikingAdvance.travel(tall, "none") === 0,
   );
-  const clock = AutoMovieMotionClock.phrase({
+  const clock = motionClock.phrase({
     prepare: 0.2,
     attack: 0.3,
     hold: 0.1,

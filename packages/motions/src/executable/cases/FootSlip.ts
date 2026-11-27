@@ -3,7 +3,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * How far a planted foot slides, the one rule every capture case measures foot
  * slip by.
  *
@@ -20,11 +20,10 @@ import type {
  * place that puts them on displayed bones.
  */
 export namespace FootSlip {
-  /**
+  /*
    * The contact of a foot: its lowest sole socket.
-   *
-   * @param sole The foot's sockets, in tie order.
-   * @returns The lowest.
+   * Parameter sole: The foot's sockets, in tie order.
+   * Returns: The lowest.
    */
   export function contact(
     sole: IAutoMovieMotionHumanFoot.ISocket[],
@@ -34,14 +33,13 @@ export namespace FootSlip {
     return lowest;
   }
 
-  /**
+  /*
    * The slip of a contact within a plant window.
-   *
-   * @param anchors Where each socket first was the contact, per window; the
-   *   caller keeps one map per measurement and this fills it.
-   * @param window A key naming the foot and its plant window.
-   * @param at The contact now.
-   * @returns Its horizontal distance from its anchor, metres.
+   * Parameter anchors: Where each socket first was the contact, per window; the
+   * caller keeps one map per measurement and this fills it.
+   * Parameter window: A key naming the foot and its plant window.
+   * Parameter at: The contact now.
+   * Returns: Its horizontal distance from its anchor, metres.
    */
   export function drift(
     anchors: Map<string, IAutoMovieVector3>,

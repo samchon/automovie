@@ -1,4 +1,4 @@
-import { validateBuiltEnvironment } from "@automovie/engine";
+import { AutoMovieEngineArchitecture } from "@automovie/engine";
 import { IAutoMovieBuiltEnvironment } from "@automovie/interface";
 
 import { builtEnvironmentTestBuilding as building } from "./builtEnvironmentTestBuilding";
@@ -12,7 +12,7 @@ export const builtEnvironmentTestRefusalPaths = (
 ): string[] => {
   const value = building();
   mutate(value);
-  const validation = validateBuiltEnvironment({ environment: value });
+  const validation = AutoMovieEngineArchitecture.validateBuiltEnvironment({ environment: value });
   return validation.success === true
     ? []
     : validation.violations.map((violation) => violation.path);

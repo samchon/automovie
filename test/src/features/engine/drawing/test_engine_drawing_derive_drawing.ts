@@ -1,4 +1,4 @@
-import { deriveAutoMovieDrawing } from "@automovie/engine";
+import { AutoMovieEngineDrawing } from "@automovie/engine";
 import type {
   IAutoMovieDrawing,
   IAutoMovieDrawingGap,
@@ -11,7 +11,7 @@ import {
 } from "../../internal/drawingFixtures";
 
 /**
- * `deriveAutoMovieDrawing` derives one sheet from a built environment and a
+ * `deriveDrawing` derives one sheet from a built environment and a
  * view.
  *
  * Scenarios, on the authored atelier of a 10 x 6 m slab cut by a downward plan
@@ -24,10 +24,11 @@ import {
  *    `view-space-filter` gap, status `not-run`.
  */
 export function test_engine_drawing_derive_drawing(): void {
-  const sheet: IAutoMovieDrawing = deriveAutoMovieDrawing({
-    environment: drawingEnvironment(),
-    view: drawingView(),
-  });
+  const sheet: IAutoMovieDrawing =
+    AutoMovieEngineDrawing.deriveAutoMovieDrawing({
+      environment: drawingEnvironment(),
+      view: drawingView(),
+    });
   TestValidator.equals(
     "the echoed identity",
     [
@@ -46,7 +47,7 @@ export function test_engine_drawing_derive_drawing(): void {
   });
   TestValidator.equals(
     "a stable digest",
-    deriveAutoMovieDrawing({
+    AutoMovieEngineDrawing.deriveAutoMovieDrawing({
       environment: drawingEnvironment(),
       view: drawingView(),
     }).digest,
@@ -54,15 +55,16 @@ export function test_engine_drawing_derive_drawing(): void {
   );
   TestValidator.predicate(
     "a different scale, a different digest",
-    deriveAutoMovieDrawing({
+    AutoMovieEngineDrawing.deriveAutoMovieDrawing({
       environment: drawingEnvironment(),
       view: drawingView({ scale: 100 }),
     }).digest !== sheet.digest,
   );
-  const filtered: IAutoMovieDrawing = deriveAutoMovieDrawing({
-    environment: drawingEnvironment(),
-    view: drawingView({ spaces: ["ghost"] }),
-  });
+  const filtered: IAutoMovieDrawing =
+    AutoMovieEngineDrawing.deriveAutoMovieDrawing({
+      environment: drawingEnvironment(),
+      view: drawingView({ spaces: ["ghost"] }),
+    });
   TestValidator.equals(
     "a dangling space filter",
     filtered.gaps

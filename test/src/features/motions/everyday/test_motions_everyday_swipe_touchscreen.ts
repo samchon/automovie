@@ -1,13 +1,15 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanProp,
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 import {
-  HumanRefusal,
-  swipeTouchscreenScreen,
-} from "@automovie/motions/internal";
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  swipeTouchscreenScreen
+} from "../../../../../packages/motions/src/everyday/internal/swipeTouchscreenScreen";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../../internal/vclose";
@@ -44,7 +46,7 @@ export async function test_motions_everyday_swipe_touchscreen(): Promise<void> {
   };
   const placed: IAutoMovieRigidTransform = {
     position: { x: 0, y: 1, z: 0.5 },
-    rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90),
+    rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90),
   };
   const reader: (
     affordance: IAutoMovieAffordance,
@@ -93,7 +95,7 @@ export async function test_motions_everyday_swipe_touchscreen(): Promise<void> {
         0,
       );
     } catch (error: unknown) {
-      if (error instanceof HumanRefusal) return error.axis;
+      if (error instanceof AutoMovieMotionHumanRefusal) return error.axis;
     }
     return "admitted";
   };

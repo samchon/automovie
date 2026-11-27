@@ -2,7 +2,7 @@ import type {
   IAutoMovieHumanCanonicalBody,
   IAutoMovieMotionHumanPerformance,
 } from "@automovie/interface";
-import { HumanPerformance } from "@automovie/motions";
+import { AutoMovieMotionHumanPerformance } from "@automovie/motions";
 
 import type { IPlaygroundComposition } from "../structures/IPlaygroundComposition";
 import { PlaygroundBodies } from "./PlaygroundBodies";
@@ -10,7 +10,7 @@ import { PlaygroundChain } from "./PlaygroundChain";
 import { PlaygroundObjects } from "./PlaygroundObjects";
 
 /**
- * Builds the `HumanPerformance` of a composition, which `TakeCompute` calls
+ * Builds the `AutoMovieMotionHumanPerformance` of a composition, which `TakeCompute` calls
  * in the take worker for the playground and every scene alike, so a scene
  * is the performance the playground shows for the same composition.
  */
@@ -41,7 +41,7 @@ export namespace PlaygroundPerformance {
    *
    * @param composition The composition.
    * @returns The performance and its figures.
-   * @throws {HumanRefusal} When the package refuses the composition.
+   * @throws {AutoMovieMotionHumanRefusal} When the package refuses the composition.
    * @throws {Error} When the composition needs an operator, a row or a prop the installed packages lack.
    */
   export function build(composition: IPlaygroundComposition): IBuilt {
@@ -97,7 +97,7 @@ export namespace PlaygroundPerformance {
       ...(Object.keys(cues).length === 0 ? {} : { cues }),
     };
     return {
-      performance: new HumanPerformance(
+      performance: new AutoMovieMotionHumanPerformance(
         built.laws.length === 0
           ? full
           : ({

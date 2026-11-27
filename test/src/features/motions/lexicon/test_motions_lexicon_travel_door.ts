@@ -2,7 +2,9 @@ import type {
   IAutoMovieMotionHumanObstacle,
   IAutoMovieMotionObstacleAperture,
 } from "@automovie/interface";
-import { humanTravelDoorWay } from "@automovie/motions/internal";
+import {
+  humanTravelDoorWay
+} from "../../../../../packages/motions/src/lexicon/internal/humanTravelDoorWay";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";

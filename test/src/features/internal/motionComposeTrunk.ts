@@ -1,4 +1,4 @@
-import { Quaternion, resolveAutoMovieCenterOfMass } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionClock,
@@ -14,13 +14,23 @@ import {
   AutoMovieMotionHumanStance,
 } from "@automovie/motions";
 import {
-  AutoMovieMotionClock,
-  AutoMovieMotionHumanTrunk,
-  HumanBalance,
-  HumanFoot,
-  poseBones,
-  resolveHumanPosture,
-} from "@automovie/motions/internal";
+  motionClock
+} from "../../../../packages/motions/src/compose/internal/motionClock";
+import {
+  AutoMovieMotionHumanTrunk
+} from "../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanTrunk";
+import {
+  HumanBalance
+} from "../../../../packages/motions/src/everyday/internal/HumanBalance";
+import {
+  HumanFoot
+} from "../../../../packages/motions/src/posture/internal/HumanFoot";
+import {
+  poseBones
+} from "../../../../packages/motions/src/posture/internal/poseBones";
+import {
+  resolveHumanPosture
+} from "../../../../packages/motions/src/posture/internal/resolveHumanPosture";
 
 import type { motionComplaints } from "./motionComplaints";
 import { motionHumanBody } from "./motionHumanBody";
@@ -288,10 +298,14 @@ export namespace motionComposeTrunk {
         const pose: Bones = bones(written);
         const sunk: number = hips.y - pose.get("hips")!.worldPosition.y;
         const inclined: number = tipped(pose) - tipped(upright);
-        const margin: number = resolveAutoMovieCenterOfMass.margin(
-          resolveAutoMovieCenterOfMass.place(body.massModel, pose),
-          HumanFoot.base(body, pose),
-        );
+        const margin: number =
+          AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassMargin(
+            AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(
+              body.massModel,
+              pose,
+            ),
+            HumanFoot.base(body, pose),
+          );
         const at: string = `${cell} at ${seconds} s`;
         if (seconds === 0 || seconds === 1.25)
           all.check(
@@ -419,7 +433,7 @@ export namespace motionComposeTrunk {
   }
 
   /** The phrases' clock: `ready` at 0.25 s, `relax` at 1 s and `end` at 1.25 s. */
-  export const CLOCK: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
+  export const CLOCK: IAutoMovieMotionClock = motionClock.phrase({
     prepare: 0.25,
     wait: 0.125,
     attack: 0.25,
@@ -453,7 +467,7 @@ export namespace motionComposeTrunk {
     bone: AutoMovieHumanoidBone,
     v: IAutoMovieVector3,
   ): IAutoMovieVector3 {
-    return Quaternion.rotateVector(pose.get(bone)!.worldRotation, v);
+    return AutoMovieEngineQuaternion.rotateVector(pose.get(bone)!.worldRotation, v);
   }
 
   /** How far the farther ball of a foot is from its standing plant. */

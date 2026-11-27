@@ -1,0 +1,22 @@
+import type {
+  IAutoMoviePhysicalHullMass,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+import { AutoMovieEnginePhysicalHullFaces } from "../AutoMovieEnginePhysicalHullFaces";
+import { physicalHullFacesMass } from "./physicalHullFacesMass";
+
+/*
+ * The volume, centroid and principal inertia of the uniform solid convex hull
+ * of a point set, searching its hull afresh (see `physicalHullFacesMass`).
+ * Parameter points: Shape-local points, metres, spanning a volume.
+ * Returns: The volume in cubic metres, the centroid in the points' frame, and
+ * the principal moments per unit mass (square metres, ascending) with the
+ * rotation from the principal frame to the points' frame.
+ * When the points span no volume.
+ */
+export function physicalHullMass(
+  points: readonly IAutoMovieVector3[],
+): IAutoMoviePhysicalHullMass.IResult {
+  return physicalHullFacesMass(AutoMovieEnginePhysicalHullFaces.build(points));
+}

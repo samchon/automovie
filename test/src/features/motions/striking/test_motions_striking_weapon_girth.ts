@@ -1,4 +1,6 @@
-import { StrikingWeaponGirth } from "@automovie/motions/internal";
+import {
+  StrikingWeaponGirth
+} from "../../../../../packages/motions/src/striking/internal/StrikingWeaponGirth";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

@@ -1,11 +1,5 @@
-import {
-  type AutoMovieArchetypeEquine,
-  type AutoMovieArchetypeQuadrupedGait,
-  type AutoMovieArchetypeRide,
-  createQuadruped,
-  rideQuadruped,
-} from "@automovie/archetypes";
-import { Quaternion, validateModel } from "@automovie/engine";
+import { type AutoMovieArchetypeEquine, type AutoMovieArchetypeQuadrupedGait, type AutoMovieArchetypeRide, AutoMovieArchetypeQuadruped } from "@automovie/archetypes";
+import { AutoMovieEngineQuaternion, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieTransform,
@@ -25,7 +19,7 @@ import { nclose } from "./nclose";
  */
 export namespace EquineEarObservation {
   /** Actual producer output, without an alternate proxy skeleton. */
-  export type Model = ReturnType<typeof createQuadruped>;
+  export type Model = ReturnType<typeof AutoMovieArchetypeQuadruped.create>;
 
   /** Fixed independent donor ratios and existing body/mass figures. */
   export interface ICase {
@@ -64,7 +58,7 @@ export namespace EquineEarObservation {
     label: string,
     findings: string[],
   ): void {
-    if (!validateModel({ model }).success)
+    if (!AutoMovieEngineValidation.validateModel({ model }).success)
       findings.push(`${label}: actual equid model is invalid`);
     const height: number = model.dimensions.withersHeight!;
     const girth: number = model.dimensions.girth!;
@@ -134,7 +128,7 @@ export namespace EquineEarObservation {
         shape.depth,
         (height * row.width) / 10,
       );
-      const axis: IAutoMovieVector3 = Quaternion.rotateVector(
+      const axis: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
         frame(ear).rotation,
         { x: 0, y: 1, z: 0 },
       );
@@ -183,13 +177,13 @@ export namespace EquineEarObservation {
     findings: string[],
   ): void {
     const table: AutoMovieArchetypeQuadrupedGait.ITable = structuredClone(
-      createQuadruped.species(model).table,
+      AutoMovieArchetypeQuadruped.species(model).table,
     );
     table.gaits.walk!.nod = { range: 10, timing: "support" };
     const ride: AutoMovieArchetypeRide.IRide<
-      createQuadruped.Affordance,
-      createQuadruped.Dimension
-    > = rideQuadruped(
+      AutoMovieArchetypeQuadruped.Affordance,
+      AutoMovieArchetypeQuadruped.Dimension
+    > = AutoMovieArchetypeQuadruped.ride(
       model,
       {
         start: { x: 0, z: 0, heading: 0 },
@@ -249,7 +243,7 @@ export namespace EquineEarObservation {
     for (const y of ends)
       for (const x of [-1, 1])
         for (const z of [-1, 1]) {
-          const offset: IAutoMovieVector3 = Quaternion.rotateVector(
+          const offset: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
             frame(part).rotation,
             {
               x: (x * shape.width) / 2,
@@ -271,7 +265,7 @@ export namespace EquineEarObservation {
     at: IAutoMovieTransform,
     point: IAutoMovieVector3,
   ): IAutoMovieVector3 {
-    return Quaternion.rotateVector(Quaternion.inverse(at.rotation), {
+    return AutoMovieEngineQuaternion.rotateVector(AutoMovieEngineQuaternion.inverse(at.rotation), {
       x: point.x - at.translation.x,
       y: point.y - at.translation.y,
       z: point.z - at.translation.z,

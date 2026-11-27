@@ -1,12 +1,14 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieHumanPostureRotation,
   IAutoMovieQuaternion,
 } from "@automovie/interface";
 import {
-  HumanPerformanceFlightRotation,
-  HumanPerformanceStagedFlightRotation,
-} from "@automovie/motions/internal";
+  HumanPerformanceFlightRotation
+} from "../../../../../packages/motions/src/perform/internal/HumanPerformanceFlightRotation";
+import {
+  HumanPerformanceStagedFlightRotation
+} from "../../../../../packages/motions/src/perform/internal/HumanPerformanceStagedFlightRotation";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -62,11 +64,11 @@ export function test_motions_perform_flight_rotation(): void {
   const apex: IAutoMovieHumanPostureRotation = flight(1.5);
   TestValidator.predicate(
     "inverted at the apex",
-    same(apex.turn, Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 180)) &&
+    same(apex.turn, AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 180)) &&
       vclose(apex.about, { x: 0, y: 1.4, z: 0 }, 1e-12) &&
       same(
         flight(1.25).turn,
-        Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
+        AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
       ),
   );
   TestValidator.predicate(

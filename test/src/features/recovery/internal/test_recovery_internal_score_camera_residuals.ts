@@ -1,4 +1,5 @@
-import { scoreRecoveryCameraResiduals } from "@automovie/recovery";
+import { AutoMovieRecoveryCameraGeometry } from "@automovie/recovery";
+import type { IAutoMovieRecoveryCameraResidualsScoreOperation } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -16,8 +17,8 @@ import { nclose } from "../../internal/nclose";
  * 3. A threshold of 0 refuses.
  */
 export function test_recovery_internal_score_camera_residuals(): void {
-  const score: ReturnType<typeof scoreRecoveryCameraResiduals> =
-    scoreRecoveryCameraResiduals([0.5, -3, null, 1, -2, 4], 3);
+  const score: ReturnType<IAutoMovieRecoveryCameraResidualsScoreOperation.Operation> =
+    AutoMovieRecoveryCameraGeometry.scoreCameraResiduals([0.5, -3, null, 1, -2, 4], 3);
   TestValidator.predicate(
     "the supported residuals",
     JSON.stringify(score.indices) === "[0,1,3,4]" &&
@@ -26,10 +27,10 @@ export function test_recovery_internal_score_camera_residuals(): void {
   );
   TestValidator.equals(
     "no support",
-    scoreRecoveryCameraResiduals([5, null], 3),
+    AutoMovieRecoveryCameraGeometry.scoreCameraResiduals([5, null], 3),
     { indices: [], medianPx: null, p90Px: null },
   );
   TestValidator.error("a zero threshold", (): unknown =>
-    scoreRecoveryCameraResiduals([1], 0),
+    AutoMovieRecoveryCameraGeometry.scoreCameraResiduals([1], 0),
   );
 }

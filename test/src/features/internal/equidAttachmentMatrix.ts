@@ -1,11 +1,5 @@
-import {
-  type AutoMovieArchetypeEquine,
-  type AutoMovieArchetypeQuadrupedBody,
-  type AutoMovieArchetypeRide,
-  type createHorse,
-  rideQuadruped,
-} from "@automovie/archetypes";
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { type AutoMovieArchetypeEquine, type AutoMovieArchetypeQuadrupedBody, type AutoMovieArchetypeRide, AutoMovieArchetypeQuadruped, type AutoMovieArchetypeHorse } from "@automovie/archetypes";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieTransform,
@@ -19,7 +13,7 @@ import { nclose } from "./nclose";
 type Gait = "walk" | "trot" | "canter" | "gallop";
 
 /** The actual common equid source type returned by its public producers. */
-type Animal = ReturnType<typeof createHorse>;
+type Animal = ReturnType<typeof AutoMovieArchetypeHorse.create>;
 
 /** Complete public ride type; the shared law adds its body dimensions. */
 type Ride = AutoMovieArchetypeRide.IRide<
@@ -123,7 +117,7 @@ export function equidAttachmentMatrix(
           animalAttachmentScenario(
             animal,
             (): Ride => {
-              const result: Ride = rideQuadruped(
+              const result: Ride = AutoMovieArchetypeQuadruped.ride(
                 animal,
                 {
                   start: { x: 2, z: -3, heading: 29 },
@@ -177,14 +171,14 @@ export function equidAttachmentMatrix(
         contact.id as AutoMovieArchetypeEquine.Affordance,
         seconds,
       );
-      const expected: IAutoMovieTransform["translation"] = Vector3.add(
+      const expected: IAutoMovieTransform["translation"] = AutoMovieEngineVector3.add(
         sample.placement.translation,
-        Quaternion.rotateVector(
+        AutoMovieEngineQuaternion.rotateVector(
           sample.placement.rotation,
           contact.frame.translation,
         ),
       );
-      const rotation: IAutoMovieTransform["rotation"] = Quaternion.multiply(
+      const rotation: IAutoMovieTransform["rotation"] = AutoMovieEngineQuaternion.multiply(
         sample.placement.rotation,
         contact.frame.rotation,
       );

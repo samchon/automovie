@@ -1,4 +1,4 @@
-import { buildAutoMovieConvexHull, physicalHullMass } from "@automovie/engine";
+import { AutoMovieEnginePhysics, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieMeshGeometry,
   IAutoMovieQuaternion,
@@ -45,7 +45,7 @@ export namespace AutoMovieArchetypeConvexCell {
         return { ...point };
       },
     );
-    const mass: ReturnType<typeof physicalHullMass> = physicalHullMass(points);
+    const mass: ReturnType<typeof AutoMovieEnginePhysics.hullMass> = AutoMovieEnginePhysics.hullMass(points);
     if (
       !(mass.volume > 0) ||
       ![mass.inertia.x, mass.inertia.y, mass.inertia.z].every(
@@ -57,7 +57,7 @@ export namespace AutoMovieArchetypeConvexCell {
       );
     return {
       points,
-      geometry: { type: "mesh", mesh: buildAutoMovieConvexHull(points) },
+      geometry: { type: "mesh", mesh: AutoMovieEngineGeometry.buildConvexHull(points) },
       volume: mass.volume,
       centroid: mass.centerOfMass,
       unit: mass.inertia,

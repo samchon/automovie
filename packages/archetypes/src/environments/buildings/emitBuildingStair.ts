@@ -1,4 +1,4 @@
-import { Quaternion, Transform, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineTransform, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieEnvironmentContribution,
@@ -11,7 +11,9 @@ import type {
 import type { buildingPlans } from "./buildingPlans";
 import { createPassage } from "./createPassage";
 
-/** Add a planned interior stair to the building that owns its two cut slabs. */
+/*
+ * Add a planned interior stair to the building that owns its two cut slabs.
+ */
 export function emitBuildingStair(
   environment: IAutoMovieBuiltEnvironment,
   root: string,
@@ -29,9 +31,9 @@ export function emitBuildingStair(
   const localSpan: IAutoMovieEnvironmentContribution = makeStair({
     id: `${environment.id}/${key}`,
     seed: undefined,
-    frame: Transform.identity(),
+    frame: AutoMovieEngineTransform.identity(),
     anchor: (name: string): IAutoMovieTransform => ({
-      ...Transform.identity(),
+      ...AutoMovieEngineTransform.identity(),
       translation: stair.endpoints[name === "lower" ? 0 : 1],
     }),
   });
@@ -44,22 +46,22 @@ export function emitBuildingStair(
       id,
       kind: "stair",
       parent: root,
-      transform: Transform.of(
+      transform: AutoMovieEngineTransform.of(
         piece.position,
-        piece.rotation ?? Quaternion.identity(),
+        piece.rotation ?? AutoMovieEngineQuaternion.identity(),
       ),
       model: piece.model,
       space: stair.rooms[0],
     });
   }
-  /**
+  /*
    * Place a building-local tread or connector coordinate in the scene's fixed
    * frame.
    */
   const toWorld = (point: IAutoMovieVector3): IAutoMovieVector3 =>
-    Vector3.add(
+    AutoMovieEngineVector3.add(
       buildingFrame.translation,
-      Quaternion.rotateVector(buildingFrame.rotation, point),
+      AutoMovieEngineQuaternion.rotateVector(buildingFrame.rotation, point),
     );
   for (const space of localSpan.spaces ?? [])
     for (const surface of space.surfaces) {

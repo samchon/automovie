@@ -1,3 +1,4 @@
+import type { AutoMovieCameraFraming } from "../harness/AutoMovieCameraFraming";
 import type { IAutoMovieCameraAction } from "../harness/IAutoMovieCameraAction";
 import type { IAutoMovieNodeTarget } from "../harness/IAutoMovieNodeTarget";
 import type { IAutoMoviePointTarget } from "../harness/IAutoMoviePointTarget";
@@ -14,7 +15,7 @@ import type { IAutoMoviePointTarget } from "../harness/IAutoMoviePointTarget";
  */
 export interface IAutoMovieBlockingCamera {
   /** Shot size the compiled camera must deliver, in `frame` vocabulary. */
-  framing: IAutoMovieCameraAction["framing"];
+  framing: AutoMovieCameraFraming;
 
   /** Move family the compiled camera path takes, in `frame` vocabulary. */
   move: IAutoMovieCameraAction["move"];

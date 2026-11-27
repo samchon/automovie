@@ -1,13 +1,4 @@
-import {
-  footprintRing,
-  propAnchorFrame,
-  propBoundsOverlap,
-  propClearanceBounds,
-  propOccupancyBounds,
-  propSpaceContainsBounds,
-  propSupportFace,
-  validatePropPlacements,
-} from "@automovie/engine";
+import { AutoMovieEngineSpace, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMoviePropBox,
@@ -87,7 +78,7 @@ const patch: (props: IFilmPropPatchInput) => IAutoMoviePropSupportFace = (
   const centre: number = props.atX ?? 0;
   return {
     polygon: {
-      outer: footprintRing([
+      outer: AutoMovieEngineSpace.footprintRing([
         { x: centre - props.half, y: 0, z: -props.half },
         { x: centre + props.half, y: 0, z: -props.half },
         { x: centre + props.half, y: 0, z: props.half },
@@ -112,7 +103,7 @@ const tableTop: (
 ) => IAutoMoviePropSupportFace | null = (
   piece: IAutoMovieStageSetPiece = propSet()[0]!,
 ): IAutoMoviePropSupportFace | null =>
-  propSupportFace({
+  AutoMovieEngineFilm.propSupportFace({
     target: { kind: "prop-affordance", prop: "table", affordance: "top" },
     environments: [],
     props: propRegistry(),
@@ -148,7 +139,7 @@ const chairRing: (props: IFilmChairRingInput) => IFilmChairRing = (
   props: IFilmChairRingInput,
 ): IFilmChairRing => {
   const environment: IAutoMovieBuiltEnvironment = propEnvironment();
-  const anchor: IAutoMovieTransform = propAnchorFrame({
+  const anchor: IAutoMovieTransform = AutoMovieEngineFilm.propAnchorFrame({
     target: { kind: "surface", environment: "house", surface: "floor" },
     environments: [environment],
   })!;
@@ -231,7 +222,7 @@ export function test_engine_film_prop_placement_utility(): void {
           "derivedOccupancy",
           (): boolean =>
             boxClose(
-              propOccupancyBounds({
+              AutoMovieEngineFilm.propOccupancyBounds({
                 prop: table(),
                 piece: {
                   node: "table",
@@ -246,7 +237,7 @@ export function test_engine_film_prop_placement_utility(): void {
           "declaredFootprintWins",
           (): boolean =>
             boxClose(
-              propOccupancyBounds({
+              AutoMovieEngineFilm.propOccupancyBounds({
                 prop: {
                   ...table(),
                   placement: {
@@ -263,7 +254,7 @@ export function test_engine_film_prop_placement_utility(): void {
           "placementlessOccupancyIsDerived",
           (): boolean =>
             boxClose(
-              propOccupancyBounds({
+              AutoMovieEngineFilm.propOccupancyBounds({
                 prop: sculpture(),
                 piece: {
                   node: "sculpture",
@@ -280,7 +271,7 @@ export function test_engine_film_prop_placement_utility(): void {
           "verticeslessPropCollapsesToItsOrigin",
           (): boolean =>
             boxClose(
-              propOccupancyBounds({
+              AutoMovieEngineFilm.propOccupancyBounds({
                 prop: {
                   node: "empty",
                   model: { ...createModel(null), id: "empty", parts: [] },
@@ -295,7 +286,7 @@ export function test_engine_film_prop_placement_utility(): void {
           "facingDegDrivesTheSameTransform",
           (): boolean =>
             boxClose(
-              propOccupancyBounds({
+              AutoMovieEngineFilm.propOccupancyBounds({
                 prop: sculpture(),
                 piece: {
                   node: "sculpture",
@@ -311,11 +302,11 @@ export function test_engine_film_prop_placement_utility(): void {
         [
           "clearanceTransformsWithTheProp",
           (): boolean =>
-            propClearanceBounds({
+            AutoMovieEngineFilm.propClearanceBounds({
               prop: lamp(),
               piece: { ...UNIT, position: { x: 0, y: 0.9, z: 0 }, scale: 1.2 },
             }).length === 1 &&
-            propClearanceBounds({
+            AutoMovieEngineFilm.propClearanceBounds({
               prop: lamp(),
               piece: { ...UNIT, position: { x: 0, y: 0.9, z: 0 }, scale: 1.2 },
             }).every(
@@ -327,13 +318,13 @@ export function test_engine_film_prop_placement_utility(): void {
         [
           "placementlessPropDeclaresNoClearance",
           (): boolean =>
-            propClearanceBounds({ prop: sculpture(), piece: UNIT }).length ===
+            AutoMovieEngineFilm.propClearanceBounds({ prop: sculpture(), piece: UNIT }).length ===
             0,
         ],
         [
           "overlapIsTrueWhenVolumesIntersect",
           (): boolean =>
-            propBoundsOverlap(
+            AutoMovieEngineFilm.propBoundsOverlap(
               box(0, 0, 0, 1, 1, 1),
               box(0.5, 0.5, 0.5, 2, 2, 2),
             ),
@@ -350,13 +341,13 @@ export function test_engine_film_prop_placement_utility(): void {
               box(0, 0, -2, 1, 1, -1),
             ].every(
               (other: IAutoMoviePropBox): boolean =>
-                propBoundsOverlap(box(0, 0, 0, 1, 1, 1), other) === false,
+                AutoMovieEngineFilm.propBoundsOverlap(box(0, 0, 0, 1, 1, 1), other) === false,
             ),
         ],
         [
           "containedBoundsAreInside",
           (): boolean =>
-            propSpaceContainsBounds({
+            AutoMovieEngineFilm.propSpaceContainsBounds({
               environment,
               space: "room",
               bounds: box(-1, 0, -1, 1, 1, 1),
@@ -365,7 +356,7 @@ export function test_engine_film_prop_placement_utility(): void {
         [
           "oneCornerOutsideIsOutside",
           (): boolean =>
-            propSpaceContainsBounds({
+            AutoMovieEngineFilm.propSpaceContainsBounds({
               environment,
               space: "room",
               bounds: box(-1, 0, -1, 6, 1, 1),
@@ -374,7 +365,7 @@ export function test_engine_film_prop_placement_utility(): void {
         [
           "cellLessPartitionExcludesNothing",
           (): boolean =>
-            propSpaceContainsBounds({
+            AutoMovieEngineFilm.propSpaceContainsBounds({
               environment,
               space: "annex",
               bounds: box(900, 900, 900, 901, 901, 901),
@@ -385,7 +376,7 @@ export function test_engine_film_prop_placement_utility(): void {
           (): boolean =>
             throwsError(
               (): boolean =>
-                propSpaceContainsBounds({
+                AutoMovieEngineFilm.propSpaceContainsBounds({
                   environment,
                   space: "missing",
                   bounds: box(0, 0, 0, 1, 1, 1),
@@ -426,7 +417,7 @@ export function test_engine_film_prop_placement_utility(): void {
       [
         "theRingValidates",
         (): boolean =>
-          validatePropPlacements({
+          AutoMovieEngineFilm.validatePropPlacements({
             props: first.specs,
             set: first.set,
             builtEnvironments: [environment],
@@ -444,7 +435,7 @@ export function test_engine_film_prop_placement_utility(): void {
       [
         "theReseededRingAlsoValidates",
         (): boolean =>
-          validatePropPlacements({
+          AutoMovieEngineFilm.validatePropPlacements({
             props: reseeded.specs,
             set: reseeded.set,
             builtEnvironments: [environment],

@@ -12,7 +12,9 @@ import { lineEnding } from "./lineEnding";
 import { singleLineDeclaration } from "./singleLineDeclaration";
 import { withoutEnding } from "./withoutEnding";
 
-/** Removes only the declared metadata ownership and records source mappings. */
+/*
+ * Removes only the declared metadata ownership and records source mappings.
+ */
 export function project(
   markdown: string,
   original: Buffer,
@@ -28,26 +30,21 @@ export function project(
   let projectedStart: number = 0;
   let fence: { character: "`" | "~"; length: number } | undefined;
 
-  const protect: (fragment: string) => void = (fragment: string): void => {
+  function protect(fragment: string): void {
     if (fragment === "") return;
     const chunk: Buffer = Buffer.from(fragment, "utf8");
     chunks.push(chunk);
     segments.push({ originalStart, projectedStart, length: chunk.length });
     originalStart += chunk.length;
     projectedStart += chunk.length;
-  };
+  }
 
-  const projectDeclaration: (
+  function projectDeclaration(
     line: string,
     declaration: string,
     kind: EvidenceDeclarationKind,
     fingerprintOffset?: number,
-  ) => void = (
-    line: string,
-    declaration: string,
-    kind: EvidenceDeclarationKind,
-    fingerprintOffset?: number,
-  ): void => {
+  ): void {
     const content: string = withoutEnding(line);
     const declarationStart: number = content.indexOf(declaration);
     const owned: boolean =
@@ -77,7 +74,7 @@ export function project(
       return;
     }
     protect(line);
-  };
+  }
 
   for (let index: number = 0; index < lines.length; index += 1) {
     const line: string = lines[index];

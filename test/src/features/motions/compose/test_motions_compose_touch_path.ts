@@ -1,10 +1,12 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanTouchPath } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanTouchPath
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanTouchPath";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -49,7 +51,7 @@ export async function test_motions_compose_touch_path(): Promise<void> {
   const fallback: IAutoMovieVector3 = { x: 0, y: -1, z: 0 };
 
   // 1. Across the region.
-  const place: IAutoMovieVector3 = Vector3.add(elbow, {
+  const place: IAutoMovieVector3 = AutoMovieEngineVector3.add(elbow, {
     x: 0.2,
     y: 0.1,
     z: 0.3,
@@ -65,7 +67,7 @@ export async function test_motions_compose_touch_path(): Promise<void> {
         normal,
         fallback,
       ),
-      Vector3.normalize({ x: 0.2, y: 0.1, z: 0 }),
+      AutoMovieEngineVector3.normalize({ x: 0.2, y: 0.1, z: 0 }),
       ROUNDING,
     ),
   );
@@ -78,7 +80,7 @@ export async function test_motions_compose_touch_path(): Promise<void> {
         body,
         posture,
         "left",
-        Vector3.add(elbow, { x: 0, y: 0, z: 0.3 }),
+        AutoMovieEngineVector3.add(elbow, { x: 0, y: 0, z: 0.3 }),
         normal,
         fallback,
       ),
@@ -92,7 +94,7 @@ export async function test_motions_compose_touch_path(): Promise<void> {
     "reached end on, or straight up on the elbow",
     vclose(
       AutoMovieMotionHumanTouchPath.reach(body, posture, "left", place),
-      Vector3.normalize({ x: 0.2, y: 0.1, z: 0.3 }),
+      AutoMovieEngineVector3.normalize({ x: 0.2, y: 0.1, z: 0.3 }),
       ROUNDING,
     ) &&
       vclose(

@@ -1,13 +1,8 @@
-import {
-  addAutoMovieQuadraticProduct,
-  assembleAutoMovieQuadraticProgram,
-  createAutoMovieQuadraticConicProgram,
-  createAutoMovieQuadraticFactor,
-} from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `createAutoMovieQuadraticFactor` owns one sparse KKT factor of a conic
+ * `createQuadraticFactor` owns one sparse KKT factor of a conic
  * program: it solves only after an update, and each owner keeps its own.
  *
  * Fixture: minimize x0^2 + 4 x1^2 (diagonal 2, 8) subject to x0 + x1 = 3. Its
@@ -24,26 +19,26 @@ import { TestValidator } from "@nestia/e2e";
  *    recovers the first one.
  * 4. A 2048-variable chain x_i = x_{i+1}, each in [-10, 10], has a tree KKT
  *    graph, so its factor keeps at most 4 x 2048 nonzeros.
- * 5. `addAutoMovieQuadraticProduct` keeps exact sums: (1 + 2^-27)(1 - 2^-27) - 1
+ * 5. `addQuadraticProduct` keeps exact sums: (1 + 2^-27)(1 - 2^-27) - 1
  *    is -2^-54, 2^1000 x 2^-1000 is 1, and MIN_VALUE x 1 stays MIN_VALUE.
  */
 export function test_engine_geometry_quadratic_factor(): void {
-  const data: ReturnType<typeof createAutoMovieQuadraticConicProgram> =
-    createAutoMovieQuadraticConicProgram(
-      assembleAutoMovieQuadraticProgram({
+  const data: ReturnType<typeof AutoMovieEngineMath.createQuadraticConicProgram> =
+    AutoMovieEngineMath.createQuadraticConicProgram(
+      AutoMovieEngineMath.assembleQuadraticProgram({
         diagonal: [2, 8],
         linear: [0, 0],
         rows: [{ indices: [0, 1], weights: [1, 1], lower: 3, upper: 3 }],
       }),
     );
-  const first: ReturnType<typeof createAutoMovieQuadraticFactor> =
-    createAutoMovieQuadraticFactor(data);
-  const other: ReturnType<typeof createAutoMovieQuadraticFactor> =
-    createAutoMovieQuadraticFactor(data);
+  const first: ReturnType<typeof AutoMovieEngineMath.createQuadraticFactor> =
+    AutoMovieEngineMath.createQuadraticFactor(data);
+  const other: ReturnType<typeof AutoMovieEngineMath.createQuadraticFactor> =
+    AutoMovieEngineMath.createQuadraticFactor(data);
   const rhs: Float64Array = Float64Array.from([0, 0, 3]);
   const solves = (
     label: string,
-    owner: ReturnType<typeof createAutoMovieQuadraticFactor>,
+    owner: ReturnType<typeof AutoMovieEngineMath.createQuadraticFactor>,
     expected: number[],
   ): void => {
     const x: Float64Array | undefined = owner.solve(rhs);
@@ -77,9 +72,9 @@ export function test_engine_geometry_quadratic_factor(): void {
 
   // 4.
   const size: number = 2048;
-  const tree: ReturnType<typeof createAutoMovieQuadraticFactor> = createAutoMovieQuadraticFactor(
-    createAutoMovieQuadraticConicProgram(
-      assembleAutoMovieQuadraticProgram({
+  const tree: ReturnType<typeof AutoMovieEngineMath.createQuadraticFactor> = AutoMovieEngineMath.createQuadraticFactor(
+    AutoMovieEngineMath.createQuadraticConicProgram(
+      AutoMovieEngineMath.assembleQuadraticProgram({
         diagonal: new Array<number>(size).fill(1),
         linear: new Array<number>(size).fill(-2),
         rows: [
@@ -105,7 +100,7 @@ export function test_engine_geometry_quadratic_factor(): void {
   const sum: Float64Array = new Float64Array(2);
   const total = (pairs: [number, number][]): number => {
     sum.fill(0);
-    for (const [a, b] of pairs) addAutoMovieQuadraticProduct(sum, 0, a, b);
+    for (const [a, b] of pairs) AutoMovieEngineMath.addQuadraticProduct(sum, 0, a, b);
     return sum[0]! + sum[1]!;
   };
   TestValidator.equals(

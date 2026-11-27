@@ -6,7 +6,7 @@ import type { IAutoMoviePhysicalTargetInterval } from "./IAutoMoviePhysicalTarge
  * Engine controller state captured at one completed fixed step alongside the
  * separate native-world snapshot.
  *
- * `AutoMoviePhysicalSimulation.run` constructs this record from its contact
+ * `AutoMovieEnginePhysicalSimulation.run` constructs this record from its contact
  * ledger and fitted target plans. Restoring a checkpoint clones it after
  * `checkpointPhysicalSimulation` establishes an unchanged sampled-input prefix
  * and matching cache protocol. It contains no solver handles, callbacks or

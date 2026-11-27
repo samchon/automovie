@@ -1,11 +1,5 @@
-import {
-  deriveProductionSoundPlan,
-  joinAutoMovieDialogueVisemes,
-  productionPhonemesToVisemes,
-  productionSpeechEndFrame,
-  renderProductionSound,
-} from "@automovie/engine";
-import { decodeProductionAudioAsset } from "@automovie/ingest";
+import { AutoMovieEngineSound } from "@automovie/engine";
+import { AutoMovieIngestAudio } from "@automovie/ingest";
 import type {
   IAutoMovieDialogueVisemeTimeline,
   IAutoMovieFilmTimeline,
@@ -50,7 +44,7 @@ export function test_engine_sound_dialogue_own_length(): void {
   const decode: (samples: Float32Array) => Float32Array = (
     samples: Float32Array,
   ): Float32Array =>
-    decodeProductionAudioAsset({
+    AutoMovieIngestAudio.decodeAsset({
       path: "line.wav",
       bytes: createDialogueReceiptFixture({
         line: "line",
@@ -97,7 +91,7 @@ export function test_engine_sound_dialogue_own_length(): void {
         (1 - index / 96_000),
     ),
   );
-  const end: number = productionSpeechEndFrame(
+  const end: number = AutoMovieEngineSound.speechEndFrame(
     { fps: 24, sampleRate: 48_000 },
     0,
     worked.length,
@@ -107,7 +101,7 @@ export function test_engine_sound_dialogue_own_length(): void {
     worked.length === 96_000 && end === 48,
   );
 
-  const master: Float32Array = renderProductionSound({
+  const master: Float32Array = AutoMovieEngineSound.renderProductionSound({
     plan: plan(end),
     dialogue: new Map([["line", worked]]),
   }).pcm;
@@ -132,9 +126,13 @@ export function test_engine_sound_dialogue_own_length(): void {
         0.2 * Math.sin((2 * Math.PI * 440 * (index + 0.5)) / 24_000),
     ),
   );
-  const pitched: Float32Array = renderProductionSound({
+  const pitched: Float32Array = AutoMovieEngineSound.renderProductionSound({
     plan: plan(
-      productionSpeechEndFrame({ fps: 24, sampleRate: 48_000 }, 0, sine.length),
+      AutoMovieEngineSound.speechEndFrame(
+        { fps: 24, sampleRate: 48_000 },
+        0,
+        sine.length,
+      ),
     ),
     dialogue: new Map([["line", sine]]),
   }).pcm;
@@ -172,7 +170,7 @@ export function test_engine_sound_dialogue_own_length(): void {
   ) => IAutoMovieProductionSoundPlan = (
     captions: IAutoMovieFilmTimeline["tracks"]["captions"],
   ): IAutoMovieProductionSoundPlan =>
-    deriveProductionSoundPlan({
+    AutoMovieEngineSound.deriveProductionSoundPlan({
       timeline: timeline(captions),
       contracts: new Map(),
       compiled: new Map(),
@@ -207,7 +205,7 @@ export function test_engine_sound_dialogue_own_length(): void {
 
   // Ducking releases after the speech span, not after the caption.
   const music: Float32Array = new Float32Array(144_000).fill(0.05);
-  const ducked: Float32Array = renderProductionSound({
+  const ducked: Float32Array = AutoMovieEngineSound.renderProductionSound({
     plan: plan(48, {
       scoreDucking: { gain: 0.25, attackFrames: 2, releaseFrames: 6 },
       cues: [
@@ -238,11 +236,12 @@ export function test_engine_sound_dialogue_own_length(): void {
       nclose(ducked[60 * 2000 * 2]!, full, 1e-7),
   );
 
-  const visemes: IAutoMovieProductionViseme[] = productionPhonemesToVisemes({
-    chunks: [{ phonemes: "a", startSample: 24_000, endSample: 48_000 }],
-  });
+  const visemes: IAutoMovieProductionViseme[] =
+    AutoMovieEngineSound.phonemesToVisemes({
+      chunks: [{ phonemes: "a", startSample: 24_000, endSample: 48_000 }],
+    });
   const mouthTimeline: IAutoMovieDialogueVisemeTimeline | null =
-    joinAutoMovieDialogueVisemes({
+    AutoMovieEngineSound.joinDialogueVisemes({
       line: {
         id: "line",
         text: "line",

@@ -1,4 +1,5 @@
 import type { AutoMovieFurnishingWall } from "./AutoMovieFurnishingWall";
+import type { IAutoMovieFurnishingPoint } from "./IAutoMovieFurnishingPoint";
 
 /**
  * How a furnished piece is placed in its room: against a wall, facing an
@@ -101,7 +102,7 @@ export namespace IAutoMovieFurnishingRelation {
     readonly kind: "at";
 
     /** Room-frame X and Z in metres of the model origin. */
-    readonly at: readonly [x: number, z: number];
+    readonly at: IAutoMovieFurnishingPoint;
 
     /** Turn about +Y in degrees. The default is zero. */
     readonly heading?: number;

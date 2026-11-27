@@ -1,10 +1,4 @@
-import {
-  createAutoMovieMeshDeformer,
-  createMeshPhysicalPartitionMatcher,
-  mergeAutoMovieMeshes,
-  resolveAutoMovieMeshPhysicalVertices,
-  transformAutoMovieMesh,
-} from "@automovie/engine";
+import { AutoMovieEngineMath, AutoMovieEngineGeometry } from "@automovie/engine";
 import type { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -12,8 +6,8 @@ import { createPhysicalMesh } from "../../internal/createPhysicalMesh";
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * Placement (`transformAutoMovieMesh`) and deformation
- * (`createAutoMovieMeshDeformer`) keep each vertex's physical source and refuse
+ * Placement (`transformMesh`) and deformation
+ * (`createMeshDeformer`) keep each vertex's physical source and refuse
  * to separate declared aliases.
  *
  * Fixture: the unit right triangle plus a fourth vertex at the origin aliasing
@@ -41,8 +35,8 @@ export function test_engine_geometry_physical_vertices_deform(): void {
     [0, 1, 2, 0],
   );
   const vertices = (m: IAutoMovieMesh): number[] =>
-    resolveAutoMovieMeshPhysicalVertices(m).vertices;
-  const deform = createAutoMovieMeshDeformer([
+    AutoMovieEngineMath.resolveMeshPhysicalVertices(m).vertices;
+  const deform = AutoMovieEngineGeometry.createMeshDeformer([
     {
       center: { x: 0, y: 0, z: 0 },
       radius: { x: 2, y: 2, z: 2 },
@@ -74,7 +68,7 @@ export function test_engine_geometry_physical_vertices_deform(): void {
   };
 
   // 1.
-  const placed: IAutoMovieMesh = transformAutoMovieMesh(mesh, {
+  const placed: IAutoMovieMesh = AutoMovieEngineGeometry.transformMesh(mesh, {
     scale: { x: -1, y: 2, z: 1 },
   });
   TestValidator.equals(
@@ -96,7 +90,7 @@ export function test_engine_geometry_physical_vertices_deform(): void {
     "scale splits",
     throwsError(
       (): unknown =>
-        transformAutoMovieMesh(grid, { scale: { x: 10, y: 1, z: 1 } }),
+        AutoMovieEngineGeometry.transformMesh(grid, { scale: { x: 10, y: 1, z: 1 } }),
       ["physicalVertices", "aliases disagree"],
     ),
   );
@@ -106,7 +100,7 @@ export function test_engine_geometry_physical_vertices_deform(): void {
   TestValidator.equals("common field", vertices(deformed), [0, 1, 2, 0]);
   TestValidator.equals(
     "partition kept",
-    createMeshPhysicalPartitionMatcher(mesh)(deformed),
+    AutoMovieEngineMath.createMeshPhysicalPartitionMatcher(mesh)(deformed),
     true,
   );
   owned("deformation", deformed);
@@ -119,7 +113,7 @@ export function test_engine_geometry_physical_vertices_deform(): void {
   );
 
   // 4.
-  const mixed: IAutoMovieMesh = mergeAutoMovieMeshes([
+  const mixed: IAutoMovieMesh = AutoMovieEngineGeometry.mergeMeshes([
     mesh,
     createPhysicalMesh(mesh.positions, [0, 1, 2]),
   ]);
@@ -136,7 +130,7 @@ export function test_engine_geometry_physical_vertices_deform(): void {
   );
   TestValidator.equals(
     "partition changed",
-    createMeshPhysicalPartitionMatcher(mixed)(changed),
+    AutoMovieEngineMath.createMeshPhysicalPartitionMatcher(mixed)(changed),
     false,
   );
 
@@ -150,7 +144,7 @@ export function test_engine_geometry_physical_vertices_deform(): void {
   TestValidator.predicate(
     "placement refuses",
     throwsError(
-      (): unknown => transformAutoMovieMesh(invalid, {}),
+      (): unknown => AutoMovieEngineGeometry.transformMesh(invalid, {}),
       "physicalVertices",
     ),
   );

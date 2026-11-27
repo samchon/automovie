@@ -1,20 +1,12 @@
-import {
-  preparePhysicalGeometry,
-  validateClipArtifact,
-} from "@automovie/engine";
+import { AutoMovieEnginePhysicalGeometry, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieConstraintViolation,
   IAutoMovieInspectionDiagnostics,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanVerdicts,
 } from "@automovie/interface";
-import { HumanVerdicts } from "@automovie/motions";
-import {
-  type IAutoMovieDrawScene,
-  observeAutoMoviePlacedInspection,
-  reduceAutoMovieInspectionEpisodes,
-  selectAutoMoviePlacedChecks,
-} from "@automovie/render";
+import { AutoMovieMotionHumanVerdicts } from "@automovie/motions";
+import { type IAutoMovieRenderDrawScene, AutoMovieRenderInspection, AutoMovieRenderInspectionMarks, AutoMovieRenderDraw } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -22,12 +14,6 @@ import type { IFilmProduction } from "../../src/IFilmProduction";
 import { inspectFilmProduction } from "../../src/inspectFilmProduction";
 import { readFilmVerdicts } from "../../src/readFilmVerdicts";
 import { overlappingPerformance } from "../helpers/overlappingPerformance";
-
-/** Output frames per second of the inspected film. */
-const FPS: number = 10;
-
-/** Output frames of the inspected film. */
-const FRAMES: number = 6;
 
 /**
  * Drive the production's own inspection path, `inspectFilmProduction` behind a
@@ -75,7 +61,7 @@ export async function test_inspect_film_production(): Promise<void> {
   scene.add(deck, foot);
 
   const track: IAutoMovieConstraintViolation[] = [];
-  validateClipArtifact(
+  AutoMovieEngineValidation.validateClipArtifact(
     {
       id: "lantern-motion",
       name: null,
@@ -120,9 +106,9 @@ export async function test_inspect_film_production(): Promise<void> {
       scene.updateMatrixWorld(true);
     },
     inspectionChecks: (
-      sample: IAutoMovieDrawScene.IPlacedSample,
+      sample: IAutoMovieRenderDrawScene.IPlacedSample,
     ): ReturnType<NonNullable<IFilmProduction["inspectionChecks"]>> => [
-      ...selectAutoMoviePlacedChecks({
+      ...AutoMovieRenderInspection.selectPlacedChecks({
         scene: sample.scene,
         time: sample.time,
         fps: FPS,
@@ -156,12 +142,12 @@ export async function test_inspect_film_production(): Promise<void> {
       scene.clear();
     },
   };
-  const geometry: Awaited<ReturnType<typeof preparePhysicalGeometry>> =
-    await preparePhysicalGeometry();
+  const geometry: Awaited<ReturnType<typeof AutoMovieEnginePhysicalGeometry.prepare>> =
+    await AutoMovieEnginePhysicalGeometry.prepare();
   const verdicts: ReturnType<typeof readFilmVerdicts> =
     readFilmVerdicts(production);
   // Mounted as src/subjects.ts mounts a registered film.
-  const subject: IAutoMovieDrawScene = {
+  const subject: IAutoMovieRenderDrawScene = {
     scene,
     camera,
     durationSeconds: FRAMES / FPS,
@@ -170,7 +156,7 @@ export async function test_inspect_film_production(): Promise<void> {
     height: 720,
     markKinds: [],
     inspectPlaced: (
-      sample: IAutoMovieDrawScene.IPlacedSample,
+      sample: IAutoMovieRenderDrawScene.IPlacedSample,
     ): IAutoMovieInspectionDiagnostics =>
       inspectFilmProduction({
         name: "proof",
@@ -184,10 +170,10 @@ export async function test_inspect_film_production(): Promise<void> {
   };
   const observe = async (
     frame: number,
-    mode: IAutoMovieDrawScene.IPlacedSample["mode"],
+    mode: IAutoMovieRenderDrawScene.IPlacedSample["mode"],
   ): Promise<IAutoMovieInspectionDiagnostics> => {
     await subject.seek(frame / FPS);
-    return observeAutoMoviePlacedInspection(subject, frame / FPS, mode)!;
+    return AutoMovieRenderDraw.observeAutoMoviePlacedInspection(subject, frame / FPS, mode)!;
   };
   const gapOf = (
     packet: IAutoMovieInspectionDiagnostics,
@@ -250,7 +236,7 @@ export async function test_inspect_film_production(): Promise<void> {
       await observe(4, "capture"),
     ];
     const capture: IAutoMovieInspectionDiagnostics.IAudit =
-      reduceAutoMovieInspectionEpisodes(sampled);
+      AutoMovieRenderInspectionMarks.reduceEpisodes(sampled);
     const support: IAutoMovieInspectionDiagnostics.IEpisode | undefined =
       capture.episodes.find(
         (episode: IAutoMovieInspectionDiagnostics.IEpisode): boolean =>
@@ -262,7 +248,7 @@ export async function test_inspect_film_production(): Promise<void> {
     );
 
     const violation: IAutoMovieMotionHumanVerdicts.IFinding | undefined =
-      HumanVerdicts(performance).findings.find(
+      AutoMovieMotionHumanVerdicts.read(performance).findings.find(
         (finding: IAutoMovieMotionHumanVerdicts.IFinding): boolean =>
           finding.check === "partner",
       );
@@ -309,7 +295,7 @@ export async function test_inspect_film_production(): Promise<void> {
     for (let frame: number = 0; frame < FRAMES; ++frame)
       delivery.push(await observe(frame, "delivery"));
     const audit: IAutoMovieInspectionDiagnostics.IAudit =
-      reduceAutoMovieInspectionEpisodes(delivery, FRAMES);
+      AutoMovieRenderInspectionMarks.reduceEpisodes(delivery, FRAMES);
     TestValidator.predicate(
       "a delivery pass observes every frame and is blocked",
       audit.observedOutputFrames === FRAMES && audit.hasBlockingFinding,
@@ -323,3 +309,9 @@ export async function test_inspect_film_production(): Promise<void> {
     subject.dispose();
   }
 }
+
+/** Output frames per second of the inspected film. */
+const FPS: number = 10;
+
+/** Output frames of the inspected film. */
+const FRAMES: number = 6;

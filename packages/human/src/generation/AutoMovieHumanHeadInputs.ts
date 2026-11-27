@@ -48,7 +48,7 @@ export namespace AutoMovieHumanHeadInputs {
   }
 }
 
-/**
+/*
  * The neck length the head's seat is placed by: the length that stands the
  * head's seat (the neck chain's top, `ratios.neck` times the length under the
  * menton) at the person's cervicale height (ANSUR II cervicale height,
@@ -57,10 +57,9 @@ export namespace AutoMovieHumanHeadInputs {
  * parameter inverts the seat equation; published C7-to-tragion and anterior
  * neck lengths have different endpoints and are not this parameter.
  * The same already-resolved head/body inputs replace duplicate resolutions.
- *
- * @param headHeight Resolved head height, world mm.
- * @param anatomy Same resolved public/default body measures, world mm.
- * @returns The internal neck length, world mm.
+ * Parameter headHeight: Resolved head height, world mm.
+ * Parameter anatomy: Same resolved public/default body measures, world mm.
+ * Returns: The internal neck length, world mm.
  */
 function neckLength(
   headHeight: number,

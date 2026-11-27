@@ -1,0 +1,162 @@
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieAffordance,
+  IAutoMovieMotionHumanHeld,
+  IAutoMovieMotionHumanStrikingHeld,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+import { motionHumanHeld } from "../../compose/internal/motionHumanHeld";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
+
+/*
+ * The working points and axes read from a held prop's rigid frame. A two-point
+ * working line is distinct from a surface normal, and the point's own frame
+ * supplies the roll reference, so reading commutes with a rigid scene change.
+ */
+export namespace StrikingHeldFrame {
+  /*
+   * The tool a held prop is, in the hand's grip frame: what `of` reads at an
+   * action's entry, and what a grasp not yet taken would hold (a pick-up's
+   * candidate grip, its prop's frame in that grip).
+   * Parameter held: The prop in the hand's grip frame.
+   * Parameter points: The working point, optional working-line origin and edge; a
+   * blade's `point` and `edge` when absent.
+   * Returns: The tool in the hand's frame.
+   * When a named affordance is absent, listing the ones
+   * it has, or named working-line endpoints coincide.
+   */
+  export function read(
+    held: IAutoMovieMotionHumanHeld.IHeld,
+    points: IAutoMovieMotionHumanStrikingHeld.IPoints = {
+      tip: "point",
+      edge: "edge",
+    },
+  ): IAutoMovieMotionHumanStrikingHeld.ITool {
+    const prop: string = held.prop;
+    const side: AutoMovieHumanSide = held.side;
+    const tip: IReadTip = motionHumanHeld.point(held, points.tip);
+    // An explicit origin defines the working line separately from the
+    // point's normal. Without one, a working
+    // affordance whose +Y the archetype declares along the tool (a muzzle, a
+    // sword's point) gives it; one whose +Y is a face's normal (a club's
+    // strike) gives only the point, and the line is the grip's to it.
+    const pointed: IAutoMovieAffordance = held.affordances.find(
+      (a: IAutoMovieAffordance): boolean => a.id === points.tip,
+    )!;
+    const runFrom: IAutoMovieVector3 | undefined =
+      points.from === undefined
+        ? undefined
+        : AutoMovieEngineVector3.subtract(
+            tip.point,
+            motionHumanHeld.point(held, points.from).point,
+          );
+    if (runFrom !== undefined && AutoMovieEngineVector3.length(runFrom) === 0)
+      throw new AutoMovieMotionHumanRefusal({
+        kind: "parameter",
+        axis: "from",
+        value: points.from,
+        reason: `${prop}.${points.from} and ${points.tip} coincide, so they define no working line`,
+        fix: "name distinct affordance points for the working line",
+      });
+    const axis: IAutoMovieVector3 =
+      runFrom !== undefined
+        ? AutoMovieEngineVector3.normalize(runFrom)
+        : pointed.direction === "normal"
+          ? AutoMovieEngineVector3.normalize(tip.point)
+          : AutoMovieEngineVector3.normalize(tip.direction);
+    const pointFrame: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
+      held.frame.rotation,
+      pointed.frame.rotation,
+    );
+    const roll: readonly [IAutoMovieVector3, IAutoMovieVector3] = [
+      AutoMovieEngineQuaternion.rotateVector(pointFrame, { x: 0, y: 0, z: 1 }),
+      AutoMovieEngineQuaternion.rotateVector(pointFrame, { x: 1, y: 0, z: 0 }),
+    ];
+    const edged: IReadEdged | undefined =
+      points.edge !== undefined &&
+      held.affordances.some(
+        (a: IAutoMovieAffordance): boolean => a.id === points.edge,
+      )
+        ? motionHumanHeld.point(held, points.edge)
+        : undefined;
+    const run: number | undefined = held.affordances.find(
+      (a: IAutoMovieAffordance): boolean => a.id === points.edge,
+    )?.length;
+    const length: number =
+      runFrom === undefined
+        ? Math.max(0, AutoMovieEngineVector3.dot(tip.point, axis))
+        : AutoMovieEngineVector3.length(runFrom);
+    return {
+      prop,
+      side,
+      tip: tip.point,
+      axis,
+      edge: square(axis, edged?.direction ?? roll[0], roll),
+      rolls: edged === undefined,
+      length,
+      span:
+        edged === undefined || run === undefined
+          ? null
+          : [
+              AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(tip.point, edged.point), axis) -
+                run / 2,
+              AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(tip.point, edged.point), axis) +
+                run / 2,
+            ],
+      held,
+      wields: {
+        prop,
+        side,
+        tip: points.tip,
+        ...(points.from === undefined ? {} : { from: points.from }),
+        ...(edged !== undefined && points.edge !== undefined
+          ? { edge: points.edge }
+          : {}),
+      },
+    };
+  }
+
+  /*
+   * The unit part of a direction perpendicular to an axis; source-frame
+   * alternatives resolve a parallel direction without changing its roll under a
+   * rigid scene transform.
+   * Parameter axis: The unit working axis.
+   * Parameter direction: The preferred edge direction.
+   * Parameter fallback: Alternative directions, the canonical hand axes when
+   * absent.
+   * Returns: A perpendicular unit vector.
+   */
+  export const square = (
+    axis: IAutoMovieVector3,
+    direction: IAutoMovieVector3,
+    fallback?: readonly IAutoMovieVector3[],
+  ): IAutoMovieVector3 => {
+    for (const candidate of [
+      direction,
+      ...(fallback ?? [
+        { x: 0, y: 1, z: 0 },
+        { x: 0, y: 0, z: 1 },
+      ]),
+    ]) {
+      const across: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
+        candidate,
+        AutoMovieEngineVector3.scale(axis, AutoMovieEngineVector3.dot(candidate, axis)),
+      );
+      if (AutoMovieEngineVector3.length(across) > 1e-6) return AutoMovieEngineVector3.normalize(across);
+    }
+    return { x: 1, y: 0, z: 0 };
+  };
+}
+
+/*
+ * The record of `IReadEdged`'s site.
+ */
+type IReadEdged = { point: IAutoMovieVector3; direction: IAutoMovieVector3 };
+
+/*
+ * The record of `IReadTip`'s site.
+ */
+type IReadTip = { point: IAutoMovieVector3; direction: IAutoMovieVector3 };

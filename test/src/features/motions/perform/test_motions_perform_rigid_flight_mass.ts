@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -6,7 +6,12 @@ import type {
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { poseBones, prepareRigidFlightMass } from "@automovie/motions/internal";
+import {
+  poseBones
+} from "../../../../../packages/motions/src/posture/internal/poseBones";
+import {
+  prepareRigidFlightMass
+} from "../../../../../packages/motions/src/perform/internal/prepareRigidFlightMass";
 import { TestValidator } from "@nestia/e2e";
 
 import { standingPerformanceState } from "../../internal/fixtures/standingPerformanceState";
@@ -66,20 +71,20 @@ export async function test_motions_perform_rigid_flight_mass(): Promise<void> {
   let weighted: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   for (const segment of body.massModel.segments) {
     const frame: IAutoMovieResolvedBone = frames.get(segment.bone)!;
-    weighted = Vector3.add(
+    weighted = AutoMovieEngineVector3.add(
       weighted,
-      Vector3.scale(
-        Vector3.add(
+      AutoMovieEngineVector3.scale(
+        AutoMovieEngineVector3.add(
           frame.worldPosition,
-          Quaternion.rotateVector(frame.worldRotation, segment.point),
+          AutoMovieEngineQuaternion.rotateVector(frame.worldRotation, segment.point),
         ),
         segment.mass,
       ),
     );
   }
-  const centre: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.inverse(carrier.worldRotation),
-    Vector3.subtract(Vector3.scale(weighted, 1 / total), carrier.worldPosition),
+  const centre: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.inverse(carrier.worldRotation),
+    AutoMovieEngineVector3.subtract(AutoMovieEngineVector3.scale(weighted, 1 / total), carrier.worldPosition),
   );
   const only = hips.model.segments[0]!;
   TestValidator.predicate(
@@ -88,7 +93,7 @@ export async function test_motions_perform_rigid_flight_mass(): Promise<void> {
       only.bone === "hips" &&
       Math.abs(only.mass - total) <= SUM &&
       Math.abs(hips.model.mass - total) <= SUM &&
-      Vector3.distance(only.point, centre) <= SUM,
+      AutoMovieEngineVector3.distance(only.point, centre) <= SUM,
   );
 
   // 3. The left hand folds into the forearm.

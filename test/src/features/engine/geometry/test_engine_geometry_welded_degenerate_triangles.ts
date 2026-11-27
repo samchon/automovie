@@ -1,4 +1,4 @@
-import { weldedDegenerateTriangles } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -28,13 +28,13 @@ export function test_engine_geometry_welded_degenerate_triangles(): void {
   };
 
   // 1.
-  TestValidator.equals("degenerate", weldedDegenerateTriangles(mesh), [1, 2]);
+  TestValidator.equals("degenerate", AutoMovieEngineGeometry.weldedDegenerateTriangles(mesh), [1, 2]);
 
   // 2.
   TestValidator.predicate(
     "index",
     throwsError(
-      (): unknown => weldedDegenerateTriangles({ ...mesh, indices: [0, 1, 4] }),
+      (): unknown => AutoMovieEngineGeometry.weldedDegenerateTriangles({ ...mesh, indices: [0, 1, 4] }),
       "does not carry",
     ),
   );

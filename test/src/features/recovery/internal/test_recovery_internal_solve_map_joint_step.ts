@@ -1,5 +1,5 @@
-import { decomposeAutoMovieSingularMatrix } from "@automovie/engine";
-import { solveRecoveryMapJointStep } from "@automovie/recovery";
+import { AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieRecoveryCameraMap } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { createRecoverySceneNumericalFixture } from "../../internal/createRecoverySceneNumericalFixture";
@@ -26,9 +26,9 @@ export function test_recovery_internal_solve_map_joint_step(): void {
     return state / 0x100000000 - 0.5;
   };
   const cameraWidth: number = 17;
-  const blocks: Parameters<typeof solveRecoveryMapJointStep>[0] = Array.from(
+  const blocks: Parameters<typeof AutoMovieRecoveryCameraMap.solveMapJointStep>[0] = Array.from(
     { length: 8 },
-    (): Parameters<typeof solveRecoveryMapJointStep>[0][number] => ({
+    (): Parameters<typeof AutoMovieRecoveryCameraMap.solveMapJointStep>[0][number] => ({
       pointRows: Array.from({ length: 8 }, (): number[] =>
         Array.from({ length: 3 }, random),
       ),
@@ -39,8 +39,8 @@ export function test_recovery_internal_solve_map_joint_step(): void {
     }),
   );
   for (const damping of [0, 0.03]) {
-    const actual: ReturnType<typeof solveRecoveryMapJointStep> =
-      solveRecoveryMapJointStep(blocks, 1e-8, damping, budget);
+    const actual: ReturnType<typeof AutoMovieRecoveryCameraMap.solveMapJointStep> =
+      AutoMovieRecoveryCameraMap.solveMapJointStep(blocks, 1e-8, damping, budget);
     const width: number = cameraWidth + 3 * blocks.length;
     const rows: number[][] = [],
       right: number[] = [];
@@ -76,8 +76,8 @@ export function test_recovery_internal_solve_map_joint_step(): void {
         );
         right.push(0);
       }
-    const factors: ReturnType<typeof decomposeAutoMovieSingularMatrix> =
-      decomposeAutoMovieSingularMatrix(normalized, {
+    const factors: ReturnType<typeof AutoMovieEngineMath.decomposeSingularMatrix> =
+      AutoMovieEngineMath.decomposeSingularMatrix(normalized, {
         maxEntries: budget.maxLinearEntries,
         maxSweeps: 128,
         orthogonalityTolerance: 1e-12,
@@ -106,7 +106,7 @@ export function test_recovery_internal_solve_map_joint_step(): void {
       ),
     );
   }
-  const missing: Parameters<typeof solveRecoveryMapJointStep>[0] = blocks.map(
+  const missing: Parameters<typeof AutoMovieRecoveryCameraMap.solveMapJointStep>[0] = blocks.map(
     (block: (typeof blocks)[number]): (typeof blocks)[number] => ({
       ...block,
       cameraRows: block.cameraRows.map((row: number[]): number[] =>
@@ -117,9 +117,9 @@ export function test_recovery_internal_solve_map_joint_step(): void {
     }),
   );
   for (const action of [
-    (): unknown => solveRecoveryMapJointStep(missing, 1e-8, 1, budget),
+    (): unknown => AutoMovieRecoveryCameraMap.solveMapJointStep(missing, 1e-8, 1, budget),
     (): unknown =>
-      solveRecoveryMapJointStep(blocks, 1e-8, 1, {
+      AutoMovieRecoveryCameraMap.solveMapJointStep(blocks, 1e-8, 1, {
         ...budget,
         maxLinearEntries: 1000,
       }),

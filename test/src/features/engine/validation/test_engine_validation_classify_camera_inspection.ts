@@ -1,4 +1,4 @@
-import { classifyAutoMovieCameraInspection } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type { IAutoMovieCameraInspection } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -34,7 +34,7 @@ export function test_engine_validation_classify_camera_inspection(): void {
       (
         framing: IAutoMovieCameraInspection.Framing,
       ): IAutoMovieCameraInspection.IResult =>
-        classifyAutoMovieCameraInspection({ framing, pixels, witnesses }),
+        AutoMovieEngineValidation.classifyAutoMovieCameraInspection({ framing, pixels, witnesses }),
     ),
     exclusions.map(
       (
@@ -47,7 +47,7 @@ export function test_engine_validation_classify_camera_inspection(): void {
   );
   TestValidator.equals(
     "valid pixels take precedence over witnesses without an admitted limit",
-    classifyAutoMovieCameraInspection({
+    AutoMovieEngineValidation.classifyAutoMovieCameraInspection({
       framing: "crosses-side",
       pixels,
       witnesses,
@@ -60,17 +60,17 @@ export function test_engine_validation_classify_camera_inspection(): void {
   TestValidator.equals(
     "a blocked-only and a clear-only witness can each describe sparse evidence",
     [
-      classifyAutoMovieCameraInspection({
+      AutoMovieEngineValidation.classifyAutoMovieCameraInspection({
         framing: "possible",
         pixels: { isolated: 8, visible: -1 },
         witnesses,
       }),
-      classifyAutoMovieCameraInspection({
+      AutoMovieEngineValidation.classifyAutoMovieCameraInspection({
         framing: "possible",
         pixels: { isolated: 8, visible: 9 },
         witnesses: { blocked: 1, clear: 0 },
       }),
-      classifyAutoMovieCameraInspection({
+      AutoMovieEngineValidation.classifyAutoMovieCameraInspection({
         framing: "possible",
         witnesses: { blocked: 0, clear: 0 },
       }),

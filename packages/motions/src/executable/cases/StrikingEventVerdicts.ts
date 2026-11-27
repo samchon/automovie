@@ -1,26 +1,22 @@
 import type { IAutoMovieMotionHumanSegment } from "@automovie/interface";
 
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { StrikingVerdicts } from "./StrikingVerdicts";
 
-/** The record of `IDefenceParams`'s site. */
-type IDefenceParams = { outcome?: string };
-
-/**
+/*
  * The striking capture's verdicts read off a plan's events rather than off a
  * strike's displayed limb: whether a defence's events class as its declared
  * outcome, and whether a late kick redirect is refused.
  */
 export namespace StrikingEventVerdicts {
-  /**
+  /*
    * Whether a defence's own events class as its declared outcome: in time when
    * the guard is set by the contact, late when it is set within half its
    * movement after it, and failed otherwise.
-   *
-   * @param id The defender's subject id.
-   * @param segment The defence's segment.
-   * @returns The defence verdict; a plan missing its read, set or contact event
-   *   fails.
+   * Parameter id: The defender's subject id.
+   * Parameter segment: The defence's segment.
+   * Returns: The defence verdict; a plan missing its read, set or contact event
+   * fails.
    */
   export function defence(
     id: string,
@@ -53,12 +49,11 @@ export namespace StrikingEventVerdicts {
     };
   }
 
-  /**
+  /*
    * Whether a redirect after the chamber key is refused as an illegal cut into
    * a kick; any other error, or none, fails.
-   *
-   * @param attempt Builds the late redirect.
-   * @returns The refusal verdict.
+   * Parameter attempt: Builds the late redirect.
+   * Returns: The refusal verdict.
    */
   export function refusal(attempt: () => unknown): IMotionCaptureCase.IVerdict {
     let message: string | undefined;
@@ -77,3 +72,8 @@ export namespace StrikingEventVerdicts {
     };
   }
 }
+
+/*
+ * The record of `IDefenceParams`'s site.
+ */
+type IDefenceParams = { outcome?: string };

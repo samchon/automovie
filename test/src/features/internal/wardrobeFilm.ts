@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieAffordance,
@@ -15,7 +15,7 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanDress,
-  HumanPerformance,
+  AutoMovieMotionHumanPerformance,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -34,7 +34,7 @@ export namespace wardrobeFilm {
    * Compile the installed wardrobe law on one authored actor.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the performer and the registered law.
-   * @evidence contracts/development/implementation.md#principled-implementation Builds the SDK's HumanPerformance with one trained performer at the origin facing +Z.
+   * @evidence contracts/development/implementation.md#principled-implementation Builds the SDK's AutoMovieMotionHumanPerformance with one trained performer at the origin facing +Z.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Construction only; the callers read and assert.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The wardrobe law is widened to the registry's law type only where the performance input requires it; refusals propagate.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Delegates all planning to the performance.
@@ -45,8 +45,8 @@ export namespace wardrobeFilm {
     body: IAutoMovieMotionHumanBody,
     props: IAutoMovieMotionHumanProp[],
     composition: IAutoMovieMotionHumanChain["node"],
-  ): HumanPerformance {
-    return new HumanPerformance({
+  ): AutoMovieMotionHumanPerformance {
+    return new AutoMovieMotionHumanPerformance({
       seed: "native-wardrobe",
       laws: [
         AutoMovieMotionHumanDress.wardrobe as IAutoMovieMotionHumanActionLaw,
@@ -57,7 +57,7 @@ export namespace wardrobeFilm {
         {
           subject: "actor",
           body,
-          at: Vector3.create(0, 0, 0),
+          at: AutoMovieEngineVector3.create(0, 0, 0),
           yaw: 0,
           proficiency: { level: "trained" },
         },
@@ -82,7 +82,7 @@ export namespace wardrobeFilm {
     z: number,
   ): IAutoMovieRigidTransform {
     return {
-      position: Vector3.create(x, y, z),
+      position: AutoMovieEngineVector3.create(x, y, z),
       rotation: { x: 0, y: 0, z: 0, w: 1 },
     };
   }
@@ -103,12 +103,12 @@ export namespace wardrobeFilm {
     site: IAutoMovieAffordance,
     p: IAutoMovieVector3,
   ): IAutoMovieVector3 {
-    return Quaternion.rotateVector(
-      Quaternion.inverse(site.frame.rotation),
-      Vector3.subtract(
-        Quaternion.rotateVector(
-          Quaternion.inverse(prop.rotation),
-          Vector3.subtract(p, prop.position),
+    return AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.inverse(site.frame.rotation),
+      AutoMovieEngineVector3.subtract(
+        AutoMovieEngineQuaternion.rotateVector(
+          AutoMovieEngineQuaternion.inverse(prop.rotation),
+          AutoMovieEngineVector3.subtract(p, prop.position),
         ),
         site.frame.translation,
       ),
@@ -127,22 +127,22 @@ export namespace wardrobeFilm {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function relative(
-    film: HumanPerformance,
+    film: AutoMovieMotionHumanPerformance,
     prop: string,
     bone: AutoMovieHumanoidBone,
     time: number,
   ): IAutoMovieRigidTransform {
     const frame: IAutoMovieResolvedBone = film.bones("actor", time).get(bone)!;
     const source: IAutoMovieRigidTransform = film.prop(prop, time);
-    const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+    const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
       frame.worldRotation,
     );
     return {
-      position: Quaternion.rotateVector(
+      position: AutoMovieEngineQuaternion.rotateVector(
         inverse,
-        Vector3.subtract(source.position, frame.worldPosition),
+        AutoMovieEngineVector3.subtract(source.position, frame.worldPosition),
       ),
-      rotation: Quaternion.multiply(inverse, source.rotation),
+      rotation: AutoMovieEngineQuaternion.multiply(inverse, source.rotation),
     };
   }
 
@@ -205,7 +205,7 @@ export namespace wardrobeFilm {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function setDown(
-    film: HumanPerformance,
+    film: AutoMovieMotionHumanPerformance,
     prop: string,
     destination: IAutoMovieVector3,
   ): void {
@@ -218,15 +218,15 @@ export namespace wardrobeFilm {
       mark(span, "release") + 0.005,
     );
     const final: IAutoMovieRigidTransform = film.prop(prop, film.duration);
-    const miss: number = Vector3.distance(final.position, destination);
+    const miss: number = AutoMovieEngineVector3.distance(final.position, destination);
     TestValidator.predicate(
       prop +
         " stays at the staged release frame (placement error " +
         miss +
         " m)",
       miss < 0.075 &&
-        Vector3.distance(final.position, released.position) < 0.001 &&
-        Quaternion.angle(final.rotation, released.rotation) < 1e-4,
+        AutoMovieEngineVector3.distance(final.position, released.position) < 0.001 &&
+        AutoMovieEngineQuaternion.angle(final.rotation, released.rotation) < 1e-4,
     );
   }
 }

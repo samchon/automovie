@@ -1,67 +1,51 @@
-export * from "./AutoMovieEnvelope";
-export * from "./MotionTrajectoryFailure";
-export * from "./arrangeMotion";
-export * from "./assemblePlantedFeet";
-export * from "./basisOf";
-export * from "./bindProfileGaits";
-export * from "./carriedAcceleration";
-export * from "./carriedRate";
-export * from "./classifyLocomoteGroundDisplacement";
-export * from "./constants";
-export * from "./contactMask";
-export * from "./cubicBezierEasing";
-export * from "./dampedSpring";
-export * from "./ease";
-export * from "./fitChainToTarget";
-export * from "./fitHingedChainAt";
-export * from "./fitSeededChainToTarget";
-export * from "./readHingedChainSeed";
-export * from "./fitHingedChainCandidate";
-export * from "./fitHingedRotationError";
-export * from "./followPathMotion";
-export * from "./gaitLimbFlexion";
-export * from "./gaitMotion";
-export * from "./gestureMotion";
-export * from "./holdMotion";
-export * from "./importedNodeClipToAutoMovieMotion";
-export * from "./inertializeOffset";
-export * from "./AirborneTakeoffQuadrature";
-export * from "./integrateAirborneRotation";
-export * from "./integrateMotionTrajectory";
-export * from "./resolveHydrodynamicForce";
-export * from "./solveAirborneTakeoff";
-export * from "./inertializePose";
-export * from "./locomoteMotion";
-export * from "./minimumJerk";
-export * from "./motionToClip";
-export * from "./orientChainEffector";
-export * from "./pinStanceTargets";
-export * from "./plantStanceFeet";
-export * from "./prepareChainPlant";
-export * from "./prepareChainConstants";
-export * from "./prepareChainRigConstants";
-export * from "./placeChainPlant";
-export * from "./prepareJointRotationProjection";
-export * from "./preserveRetargetContacts";
-export * from "./reactMotion";
-export * from "./rekeyPlantedFeet";
-export * from "./resolveBoneMap";
-export * from "./resolvePreparedChainEffector";
-export * from "./retargetHumanoidMotion";
-export * from "./sampleMotion";
-export * from "./samplePoseVelocity";
-export * from "./sampleTimes";
-export * from "./seededSmoothNoise";
-export * from "./sequenceMotion";
-export * from "./smoothMinimum";
-export * from "./solvePreparedChainPlant";
-export * from "./solveDistalTwist";
-export * from "./speedProfile";
-export * from "./splitDistalTwist";
-export * from "./steerAutoMovieCrowd";
-export * from "./superposeMinimumJerk";
-export * from "./timeScaleMotion";
-export * from "./travelMotion";
-export * from "./validateRetargetContacts";
-export * from "./warpRoot";
-export * from "./windowSampleTimes";
+export * from "./AutoMovieEngineEnvelope";
+export * from "./AutoMovieEngineMotionTrajectoryFailure";
+
+export * from "./AutoMovieEngineMotionPlanting";
+
+
+
+
+
+export * from "./AutoMovieEngineMotionKinematics";
+
+
+
+
+
+
+export * from "./AutoMovieEngineMotionAirborneRotation";
+export * from "./AutoMovieEngineMotionAirborneTakeoff";
+export * from "./AutoMovieEngineMotionCrowd";
+export * from "./AutoMovieEngineMotionHydrodynamics";
+
+
+
+// The chain preparation and planting operations are exported by their owner.
+export * from "./AutoMovieEngineMotionJointProjection";
+
+
+// Prepared chain effector resolution is part of the Planting owner.
+
+
+
+
+// Prepared chain solving is part of the Planting owner.
+export * from "./AutoMovieEngineMotionDistalTwist";
+export * from "./AutoMovieEngineMotionChainTwist";
+
+
+
+
+
+
+export * from "./AutoMovieEngineMotionSampling";
+
+export * from "./AutoMovieEngineMotionClip";
+
+export * from "./AutoMovieEngineMotionRetargeting";
+
+export * from "./AutoMovieEngineMotionTrajectory";
+export * from "./AutoMovieEngineHumanoidLegChains";
+export * from "./AutoMovieEngineLocomoteGroundEpsilon";
+export * from "./AutoMovieEnginePlantResidualEpsilon";

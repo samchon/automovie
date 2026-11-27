@@ -1,11 +1,11 @@
-import { HumanStageFight as HumanStageFightSource } from "../lexicon/HumanStageFight";
-import { HumanStagePiste as HumanStagePisteSource } from "../lexicon/HumanStagePiste";
-import { HumanStageProp as HumanStagePropSource } from "../lexicon/HumanStageProp";
-import { composeHumanBladeExchange as composeHumanBladeExchangeLaw } from "../lexicon/composeHumanBladeExchange";
-import { composeHumanStageProp as composeHumanStagePropLaw } from "../lexicon/composeHumanStageProp";
-import { readHumanBladeExchangeCues as readHumanBladeExchangeCuesLaw } from "../lexicon/readHumanBladeExchangeCues";
-import { stageBladeFootwork as stageBladeFootworkLaw } from "../lexicon/stageBladeFootwork";
-import { withHumanStagePropLink as withHumanStagePropLinkLaw } from "../lexicon/withHumanStagePropLink";
+import { HumanStageFight as HumanStageFightSource } from "../lexicon/internal/HumanStageFight";
+import { HumanStagePiste as HumanStagePisteSource } from "../lexicon/internal/HumanStagePiste";
+import { HumanStageProp as HumanStagePropSource } from "../lexicon/internal/HumanStageProp";
+import { composeHumanBladeExchange as composeHumanBladeExchangeLaw } from "../lexicon/internal/composeHumanBladeExchange";
+import { composeHumanStageProp as composeHumanStagePropLaw } from "../lexicon/internal/composeHumanStageProp";
+import { readHumanBladeExchangeCues as readHumanBladeExchangeCuesLaw } from "../lexicon/internal/readHumanBladeExchangeCues";
+import { stageBladeFootwork as stageBladeFootworkLaw } from "../lexicon/internal/stageBladeFootwork";
+import { withHumanStagePropLink as withHumanStagePropLinkLaw } from "../lexicon/internal/withHumanStagePropLink";
 import { HUMAN_STAGE_FIGHT_BACKHAND } from "./presets/HUMAN_STAGE_FIGHT_BACKHAND";
 import { HUMAN_STAGE_FIGHT_CHOKE } from "./presets/HUMAN_STAGE_FIGHT_CHOKE";
 import { HUMAN_STAGE_FIGHT_DIVE_FOR_COVER } from "./presets/HUMAN_STAGE_FIGHT_DIVE_FOR_COVER";
@@ -207,7 +207,7 @@ export namespace AutoMovieMotionHumanStageFight {
   /**
    * Compose a blocked opening and an optional reply for a staged blade
    * exchange. Register the cut and parry rows of HumanBlade with
-   * HumanPerformance, and bind, riposte, taken and enGarde when the exchange
+   * AutoMovieMotionHumanPerformance, and bind, riposte, taken and enGarde when the exchange
    * has a reply. Each chain prepares its performer and prop. The block starts
    * at the authored lead before the opening's decisive cue, and a reply starts
    * when the block ends. The block's stroke cue comes from the resolved action

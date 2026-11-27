@@ -1,4 +1,4 @@
-import { AutoMovieLoftChain } from "@automovie/engine";
+import { AutoMovieEngineLoftChain } from "@automovie/engine";
 import type {
   IAutoMovieHumanLoftMesh,
   IAutoMovieHumanSurfaceBoundary,
@@ -9,22 +9,23 @@ import type {
 
 import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
 import { AutoMovieHumanBodyRoots } from "./AutoMovieHumanBodyRoots";
-import { AutoMovieHumanBodySurfaceRead } from "./AutoMovieHumanBodySurfaceRead";
+import "./AutoMovieHumanBodySurfaceRead";
+import { AutoMovieHumanBodySurfacePolesData } from "./internal/AutoMovieHumanBodySurfacePolesData";
 
-const { endHeight, capHeight }: typeof AutoMovieHumanBodySurfaceRead =
-  AutoMovieHumanBodySurfaceRead;
-
-/** A chain's closed ends: the pole caps and domes, their base rings, and the cells and boundaries a chain's grid closes on. */
+/**
+ * A chain's closed ends: the pole caps and domes, their base rings, and the
+ * cells and boundaries a chain's grid closes on.
+ */
 export namespace AutoMovieHumanBodySurfacePoles {
   /**
    * Close a chain end with a fan to its pole.
    *
-   * A calibrated pole is the recovered critical point (crown, fingertip) or
-   * a provisional closure point; without one the end closes at its axis.
-   * Both declared endpoint points take precedence over a calibrated fallback
-   * or the regular-end axis. A retained cap has already been sampled by the
-   * loft owner; its final tiny ring closes at this true tip station. A
-   * legacy straight fan alone does not replay an original cap interval.
+   * A calibrated pole is the recovered critical point (crown, fingertip) or a
+   * provisional closure point; without one the end closes at its axis. Both
+   * declared endpoint points take precedence over a calibrated fallback or the
+   * regular-end axis. A retained cap has already been sampled by the loft
+   * owner; its final tiny ring closes at this true tip station. A legacy
+   * straight fan alone does not replay an original cap interval.
    *
    * @evidence contracts/common.md#principled-implementation Both pole and opposite are consumed as explicit endpoint point data before calibrated or axis fallbacks.
    * @evidence contracts/common.md#clear-and-simple-design One endpoint owner selects the point and keeps the existing fan/dome emission path.
@@ -40,15 +41,15 @@ export namespace AutoMovieHumanBodySurfacePoles {
     end: "top" | "bottom",
     ring: number[],
   ): void {
-    const tip: number | null = capHeight(target, end);
-    const y: number = tip ?? endHeight(target, end);
+    const tip: number | null = AutoMovieHumanBodySurfacePolesData.capHeight(target, end);
+    const y: number = tip ?? AutoMovieHumanBodySurfacePolesData.endHeight(target, end);
     const calibrated: IAutoMovieHumanSurfacePole | undefined =
       context.poles.get(target.name + ":" + end);
     const point: [number, number, number] =
       (target.pole?.end === end ? target.pole.point : undefined) ??
       (target.opposite?.end === end ? target.opposite.point : undefined) ??
       calibrated?.point ??
-      AutoMovieLoftChain.axis(target, y);
+      AutoMovieEngineLoftChain.axis(target, y);
 
     AutoMovieHumanLoftMesh.group(
       context.mesh,
@@ -178,24 +179,23 @@ export namespace AutoMovieHumanBodySurfacePoles {
   /**
    * Station where a rounded pole's dome starts, or null to close at the end.
    *
-   * The fitter ends a digit chain with a layer of a few tenths of a
-   * millimetre round its recovered tip, the next layer 3 to 6 mm inward
-   * holding the digit's full section (f1: index finger 0.1 then 5.0 mm
-   * radius over 5.4 mm, ring finger 0.7, 1.2 then 5.0 mm). The Hermite
-   * interval between them narrows linearly, so the tip lofts as a cone that
-   * no dome on its point-sized end ring can round. The dome therefore starts
-   * at the first layer from the end whose mean radius reaches
-   * {@link FLOOR} of the chain's median layer radius, skipping the point
-   * rings. A base whose apex lies closer than {@link ASPECT} of its radius
-   * would flatten the end (the crown's last layers are wide and shallow),
-   * so such an end keeps its fitted layers.
+   * The fitter ends a digit chain with a layer of a few tenths of a millimetre
+   * round its recovered tip, the next layer 3 to 6 mm inward holding the
+   * digit's full section (f1: index finger 0.1 then 5.0 mm radius over 5.4 mm,
+   * ring finger 0.7, 1.2 then 5.0 mm). The Hermite interval between them
+   * narrows linearly, so the tip lofts as a cone that no dome on its
+   * point-sized end ring can round. The dome therefore starts at the first
+   * layer from the end whose mean radius reaches {@link FLOOR} of the chain's
+   * median layer radius, skipping the point rings. A base whose apex lies
+   * closer than {@link ASPECT} of its radius would flatten the end (the crown's
+   * last layers are wide and shallow), so such an end keeps its fitted layers.
    */
   export function domeBase(
     context: IAutoMovieHumanSurfaceContext,
     target: IAutoMovieLoftChain,
     end: "top" | "bottom",
   ): number | null {
-    if (capHeight(target, end) !== null) return null;
+    if (AutoMovieHumanBodySurfacePolesData.capHeight(target, end) !== null) return null;
     const calibrated: IAutoMovieHumanSurfacePole | undefined =
       context.poles.get(target.name + ":" + end);
     if (calibrated?.critical !== true) return null;
@@ -204,10 +204,8 @@ export namespace AutoMovieHumanBodySurfacePoles {
       { length: 32 },
       (_: unknown, i: number): number => (2 * Math.PI * i) / 32,
     );
-    const measure: (y: number) => [number, [number, number, number]] = (
-      y: number,
-    ): [number, [number, number, number]] => {
-      const ring: [number, number, number][] = AutoMovieLoftChain.ring(
+    function measure(y: number): [number, [number, number, number]] {
+      const ring: [number, number, number][] = AutoMovieEngineLoftChain.ring(
         target,
         y,
         probes,
@@ -226,7 +224,7 @@ export namespace AutoMovieHumanBodySurfacePoles {
           0,
         ) / ring.length;
       return [radius, c];
-    };
+    }
     const radii: number[] = layers.map(
       (l: IAutoMovieLoftChain.ILayer): number => measure(l.y)[0],
     );
@@ -251,7 +249,10 @@ export namespace AutoMovieHumanBodySurfacePoles {
     return apex >= ASPECT * radius ? layers[k]!.y : null;
   }
 
-  /** Fewest rings of the rounded dome closing a chain at a critical point, plus one. */
+  /**
+   * Fewest rings of the rounded dome closing a chain at a critical point, plus
+   * one.
+   */
   export const DOME: number = 4;
 
   /** Most rings of such a dome, plus one. */
@@ -266,7 +267,10 @@ export namespace AutoMovieHumanBodySurfacePoles {
     Map<number, [number, number, number]>
   > = new WeakMap();
 
-  /** Normals with the domes' own in place of the faceted mesh's, facing the same way. */
+  /**
+   * Normals with the domes' own in place of the faceted mesh's, facing the same
+   * way.
+   */
   export function domed(
     mesh: IAutoMovieHumanLoftMesh.IContext,
     normals: number[],
@@ -288,7 +292,10 @@ export namespace AutoMovieHumanBodySurfacePoles {
     return out;
   }
 
-  /** Share of a chain's median layer radius below which an end layer is a point ring. */
+  /**
+   * Share of a chain's median layer radius below which an end layer is a point
+   * ring.
+   */
   export const FLOOR: number = 0.35;
 
   /** Least apex height of a dome as a share of its base radius. */
@@ -342,11 +349,10 @@ export namespace AutoMovieHumanBodySurfacePoles {
 
   /**
    * Zipper between two rings of different phase sets (a child's band next to
-   * the ring it inherits), leaving out every triangle with a corner inside
-   * one of the chain's root loops, as {@link cells} does for a band. A trim
-   * that spans the ring two chains share reaches into this band, so the
-   * opening's hole runs on across the ring without a strip of skin left in
-   * it.
+   * the ring it inherits), leaving out every triangle with a corner inside one
+   * of the chain's root loops, as {@link cells} does for a band. A trim that
+   * spans the ring two chains share reaches into this band, so the opening's
+   * hole runs on across the ring without a strip of skin left in it.
    */
   export function zipped(
     context: IAutoMovieHumanSurfaceContext,
@@ -401,7 +407,27 @@ export namespace AutoMovieHumanBodySurfacePoles {
     }
   }
 
-  /**
+  /** Resolved boundary of a chain end; ends without an event are poles. */
+  export function boundary(
+    context: IAutoMovieHumanSurfaceContext,
+    target: IAutoMovieLoftChain,
+    end: "bottom" | "top",
+  ): IAutoMovieHumanSurfaceBoundary {
+    const resolved: IAutoMovieHumanSurfaceBoundary | undefined =
+      context.boundaries.get(target.name + ":" + end);
+    if (resolved !== undefined) return resolved;
+    for (const roots of context.roots.values())
+      if (
+        roots.some(
+          (r): boolean =>
+            r.appendage?.chain === target.name && r.appendage.end === end,
+        )
+      )
+        return { kind: "root" };
+    return { kind: "pole" };
+  }
+
+  /*
    * The test that sorts a chain's cells: the key of the hole a cell with a
    * corner inside one of the chain's root loops belongs to (the chain's name,
    * or the span key of an opening spanning two chains), null for skin; null
@@ -430,7 +456,10 @@ export namespace AutoMovieHumanBodySurfacePoles {
     };
   }
 
-  /** Record a left-out cell in its hole, with its corners' chart points and chain. */
+  /*
+   * Record a left-out cell in its hole, with its corners' chart points and
+   * chain.
+   */
   function leave(
     context: IAutoMovieHumanSurfaceContext,
     target: IAutoMovieLoftChain,
@@ -448,25 +477,5 @@ export namespace AutoMovieHumanBodySurfacePoles {
       hole!.charts.set(x, corners[c]!);
       hole!.owners.set(x, target.name);
     });
-  }
-
-  /** Resolved boundary of a chain end; ends without an event are poles. */
-  export function boundary(
-    context: IAutoMovieHumanSurfaceContext,
-    target: IAutoMovieLoftChain,
-    end: "bottom" | "top",
-  ): IAutoMovieHumanSurfaceBoundary {
-    const resolved: IAutoMovieHumanSurfaceBoundary | undefined =
-      context.boundaries.get(target.name + ":" + end);
-    if (resolved !== undefined) return resolved;
-    for (const roots of context.roots.values())
-      if (
-        roots.some(
-          (r): boolean =>
-            r.appendage?.chain === target.name && r.appendage.end === end,
-        )
-      )
-        return { kind: "root" };
-    return { kind: "pole" };
   }
 }

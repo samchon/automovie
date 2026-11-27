@@ -1,7 +1,4 @@
-import {
-  decaySubdivisionSharpness,
-  subdivisionEdgeSmoothness,
-} from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -19,14 +16,14 @@ export function test_engine_geometry_subdivision_sharpness(): void {
   // 1.
   TestValidator.equals(
     "decay",
-    [0, 0.5, 2.5, 10, 12].map(decaySubdivisionSharpness),
+    [0, 0.5, 2.5, 10, 12].map(AutoMovieEngineGeometry.decaySubdivisionSharpness),
     [0, 0, 1.5, 10, 10],
   );
 
   // 2.
   TestValidator.equals(
     "smoothness",
-    [0, 0.25, 1, 3, 10].map(subdivisionEdgeSmoothness),
+    [0, 0.25, 1, 3, 10].map(AutoMovieEngineGeometry.subdivisionEdgeSmoothness),
     [1, 0.75, 0, 0, 0],
   );
 }

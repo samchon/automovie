@@ -1,16 +1,16 @@
-import { kickBall as kickBallLaw } from "../ballStrike/kickBall";
-import { juggle as juggleLaw } from "../exercise/juggle";
-import { HumanSportThrow as HumanSportThrowSource } from "../lexicon/HumanSportThrow";
-import { HumanBallPlay as HumanBallPlaySource } from "../sport/HumanBallPlay";
-import { ballSport as ballSportLaw } from "../sport/ballSport";
-import { fieldThrow as fieldThrowLaw } from "../sport/fieldThrow";
-import { stickBall as stickBallLaw } from "../sport/stickBall";
-import { catchObject as catchObjectLaw } from "../throwing/catchObject";
-import { readThrowObjectLaunch as readThrowObjectLaunchReader } from "../throwing/readThrowObjectLaunch";
-import { release as releaseLaw } from "../throwing/release";
-import { stageCatch as stageCatchLaw } from "../throwing/stageCatch";
-import { stageDeflect as stageDeflectLaw } from "../throwing/stageDeflect";
-import { throwObject as throwObjectLaw } from "../throwing/throwObject";
+import { kickBall as kickBallLaw } from "../ballStrike/internal/kickBall";
+import { juggle as juggleLaw } from "../exercise/internal/juggle";
+import { HumanSportThrow as HumanSportThrowSource } from "../lexicon/internal/HumanSportThrow";
+import { HumanBallPlay as HumanBallPlaySource } from "../sport/internal/HumanBallPlay";
+import { ballSport as ballSportLaw } from "../sport/internal/ballSport";
+import { fieldThrow as fieldThrowLaw } from "../sport/internal/fieldThrow";
+import { stickBall as stickBallLaw } from "../sport/internal/stickBall";
+import { catchObject as catchObjectLaw } from "../throwing/internal/catchObject";
+import { readThrowObjectLaunch as readThrowObjectLaunchReader } from "../throwing/internal/readThrowObjectLaunch";
+import { release as releaseLaw } from "../throwing/internal/release";
+import { stageCatch as stageCatchLaw } from "../throwing/internal/stageCatch";
+import { stageDeflect as stageDeflectLaw } from "../throwing/internal/stageDeflect";
+import { throwObject as throwObjectLaw } from "../throwing/internal/throwObject";
 import { HUMAN_THROWCATCH_CRICKET_BOWL } from "./presets/HUMAN_THROWCATCH_CRICKET_BOWL";
 import { HUMAN_THROWCATCH_GLOVE_CATCH } from "./presets/HUMAN_THROWCATCH_GLOVE_CATCH";
 import { HUMAN_THROWCATCH_GRIDIRON_PASS } from "./presets/HUMAN_THROWCATCH_GRIDIRON_PASS";
@@ -160,7 +160,7 @@ export namespace AutoMovieMotionHumanThrowCatch {
    * (`AutoMovieMotionHumanBend.strain`), so the wrist's range decides it. The
    * ball's size is the ball's own (`ball`, `HumanBall`). The hands travel there
    * on minimum-jerk progress over the aimed movement time to an object of its
-   * size (McIntosh et al. 2018, `AutoMovieMotionHumanTiming.aimed`), arriving
+   * size (McIntosh et al. 2018, `motionHumanTiming.aimed`), arriving
    * at contact; the anticipatory `prepare` instant is 100 ms before impact
    * (Lacquaniti and Maioli 1989, J Neurosci 9:134). After contact the hands
    * give `GIVE` along the object's velocity over `GIVE_TIME` (the issue's 0.05
@@ -184,11 +184,11 @@ export namespace AutoMovieMotionHumanThrowCatch {
    * The hand stays where the hold kept it on the trunk (its grip frame at the
    * entry, read in the chest's frame and carried with the chest the carrier
    * shows), and opens at `open`, the decisive instant, a brief pause
-   * (`AutoMovieMotionHumanTiming.PAUSES.brief`, provisional) after the entry.
+   * (`motionHumanTiming.PAUSES.brief`, provisional) after the entry.
    * Until then its grip window on the prop takes the hand over from the hold;
    * at `open` the prop is launched (`IHumanActionPlan.launches`) with the
    * hand's velocity there, the central difference of the carried grip point at
-   * the engine's plan-time step (`integrateMotionTrajectory.STEP`), so a drop
+   * the engine's plan-time step (`AutoMovieEngineMotionTrajectory.integrateMotionTrajectoryStep()`), so a drop
    * from a still hand falls and one from a moving carrier carries its speed.
    *
    * A prop that rests on something the hand held back (an arrow on a drawn

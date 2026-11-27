@@ -3,7 +3,9 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanPropFrame } from "@automovie/motions/internal";
+import {
+  HumanPropFrame
+} from "../../../../../packages/motions/src/perform/internal/HumanPropFrame";
 import { TestValidator } from "@nestia/e2e";
 
 /**

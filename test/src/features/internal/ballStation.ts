@@ -1,11 +1,11 @@
-﻿import { Vector3 } from "@automovie/engine";
+﻿import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBallPlay,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanThrowCatch,
-  HumanPerformance,
+  AutoMovieMotionHumanPerformance,
 } from "@automovie/motions";
 
 import type { IBallStation } from "./IBallStation";
@@ -33,13 +33,13 @@ import type { IBallStation } from "./IBallStation";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh record.
  */
 export function ballStation(
-  film: HumanPerformance,
+  film: AutoMovieMotionHumanPerformance,
   ball: string,
   launch: IAutoMovieMotionHumanBallPlay.ILaunch,
   through: IAutoMovieVector3,
   centre: IAutoMovieVector3,
 ): IBallStation {
-  const away: IAutoMovieVector3 = Vector3.normalize({
+  const away: IAutoMovieVector3 = AutoMovieEngineVector3.normalize({
     ...launch.velocity,
     y: 0,
   });
@@ -62,7 +62,7 @@ export function ballStation(
   if (crossing === undefined)
     throw new Error(`The ${launch.subject} launch never reaches its receiver`);
   return {
-    at: { ...Vector3.add(crossing.point, Vector3.scale(away, 0.46)), y: 0 },
+    at: { ...AutoMovieEngineVector3.add(crossing.point, AutoMovieEngineVector3.scale(away, 0.46)), y: 0 },
     yaw: (Math.atan2(-away.x, -away.z) * 180) / Math.PI,
     intercept: crossing.seconds - launch.seconds,
     crossing,

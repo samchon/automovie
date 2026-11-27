@@ -1,4 +1,5 @@
-import { realizeAutoMovieConstruction } from "@automovie/engine";
+
+import { AutoMovieEngineConstruction } from "@automovie/engine";
 import type {
   IAutoMovieConstructionNode,
   IAutoMovieConstructionRealization,
@@ -55,8 +56,8 @@ export function test_engine_geometry_construction_rollback(): void {
       {
         partFace: "post",
         hostFace: "beam",
-        part: [0.031, Math.PI / 2],
-        host: [0.115, 0.01],
+        part: { station: 0.031, phase: Math.PI / 2 },
+        host: { station: 0.115, phase: 0.01 },
       },
       {
         part: { type: "chord", value: 0.005 },
@@ -66,7 +67,7 @@ export function test_engine_geometry_construction_rollback(): void {
   const realize = (
     root: IAutoMovieConstructionNode,
   ): IAutoMovieConstructionRealization.IRealization =>
-    realizeAutoMovieConstruction({ name: "made", root }, { chord: 1e-4 });
+    AutoMovieEngineConstruction.realize({ name: "made", root }, { chord: 1e-4 });
   const alone: IAutoMovieConstructionRealization.IRealization = realize(beam());
 
   // 1.

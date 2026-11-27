@@ -1,10 +1,10 @@
 import * as THREE from "three";
 
-import { AUTOMOVIE_FILM_RESPONSE_SHADERS } from "./AUTOMOVIE_FILM_RESPONSE_SHADERS.js";
-import type { IAutoMovieFilmResponseRenderer } from "./IAutoMovieFilmResponseRenderer.js";
-import { collectAutoMovieFilmOverlays } from "./collectAutoMovieFilmOverlays.js";
+import { AutoMovieRenderFilmResponseShaders } from "../AutoMovieRenderFilmResponseShaders";
+import type { IAutoMovieRenderFilmResponseRenderer } from "../IAutoMovieRenderFilmResponseRenderer";
+import { collectFilmOverlays } from "./internal/collectFilmOverlays";
 
-/**
+/*
  * The running sum of one second's sub-frame samples, which the film response
  * stage averages for a shutter's motion blur and a lens's depth of field.
  *
@@ -22,16 +22,20 @@ import { collectAutoMovieFilmOverlays } from "./collectAutoMovieFilmOverlays.js"
  * allocates them.
  */
 export class AutoMovieFilmSampleSum {
-  /** The two sum targets, or null before the first `add` at this raster. */
+  /*
+   * The two sum targets, or null before the first `add` at this raster.
+   */
   private sums_: [THREE.WebGLRenderTarget, THREE.WebGLRenderTarget] | null =
     null;
 
-  /** The accumulation program. */
+  /*
+   * The accumulation program.
+   */
   private readonly material_: THREE.RawShaderMaterial =
     new THREE.RawShaderMaterial({
       glslVersion: THREE.GLSL3,
-      vertexShader: AUTOMOVIE_FILM_RESPONSE_SHADERS.vertex,
-      fragmentShader: AUTOMOVIE_FILM_RESPONSE_SHADERS.accumulate,
+      vertexShader: AutoMovieRenderFilmResponseShaders.vertex,
+      fragmentShader: AutoMovieRenderFilmResponseShaders.accumulate,
       uniforms: {
         tSum: { value: null },
         tSample: { value: null },
@@ -42,26 +46,34 @@ export class AutoMovieFilmSampleSum {
       depthWrite: false,
     });
 
-  /** The full-frame quad the program draws. */
+  /*
+   * The full-frame quad the program draws.
+   */
   private readonly quad_: THREE.Mesh<
     THREE.PlaneGeometry,
     THREE.RawShaderMaterial
   > = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), this.material_);
 
-  /** The scene holding only the quad. */
+  /*
+   * The scene holding only the quad.
+   */
   private readonly frame_: THREE.Scene = new THREE.Scene();
 
-  /** A camera the quad's clip-space vertices ignore; `render` needs one. */
+  /*
+   * A camera the quad's clip-space vertices ignore; `render` needs one.
+   */
   private readonly camera_: THREE.OrthographicCamera =
     new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
 
-  /** Put the quad in its scene; no GPU resource is allocated yet. */
+  /*
+   * Put the quad in its scene; no GPU resource is allocated yet.
+   */
   public constructor() {
     this.quad_.frustumCulled = false;
     this.frame_.add(this.quad_);
   }
 
-  /**
+  /*
    * Render sample `index` of `count` into `linear` and add it to the sum; after
    * the last sample, write the average over `linear`'s colour.
    *
@@ -72,25 +84,37 @@ export class AutoMovieFilmSampleSum {
    * or throwing.
    */
   public add(props: {
-    /** The renderer. */
-    renderer: IAutoMovieFilmResponseRenderer;
+    /*
+     * The renderer.
+     */
+    renderer: IAutoMovieRenderFilmResponseRenderer;
 
-    /** The scene, placed at this sample's second. */
+    /*
+     * The scene, placed at this sample's second.
+     */
     scene: THREE.Scene;
 
-    /** The camera of this sample. */
+    /*
+     * The camera of this sample.
+     */
     camera: THREE.Camera;
 
-    /** The stage's linear half-float target with its depth. */
+    /*
+     * The stage's linear half-float target with its depth.
+     */
     linear: THREE.WebGLRenderTarget;
 
-    /** This sample's index, from 0. */
+    /*
+     * This sample's index, from 0.
+     */
     index: number;
 
-    /** The number of samples of the second, at least 2. */
+    /*
+     * The number of samples of the second, at least 2.
+     */
     count: number;
 
-    /**
+    /*
      * Work on the sample's linear light before it is added, such as the
      * medium's march; absent adds the scene's light as drawn.
      */
@@ -110,7 +134,7 @@ export class AutoMovieFilmSampleSum {
       exposure: renderer.toneMappingExposure,
       autoClear: renderer.autoClear,
     };
-    const overlays: Map<THREE.Object3D, number> = collectAutoMovieFilmOverlays(
+    const overlays: Map<THREE.Object3D, number> = collectFilmOverlays(
       props.scene,
     );
     const uniforms: Record<string, THREE.IUniform> = this.material_.uniforms;
@@ -149,14 +173,18 @@ export class AutoMovieFilmSampleSum {
     }
   }
 
-  /** Release the sum targets, the program and the quad. */
+  /*
+   * Release the sum targets, the program and the quad.
+   */
   public dispose(): void {
     this.release();
     this.material_.dispose();
     this.quad_.geometry.dispose();
   }
 
-  /** The sum targets at a raster, made or remade as needed. */
+  /*
+   * The sum targets at a raster, made or remade as needed.
+   */
   private prepare(
     width: number,
     height: number,
@@ -183,7 +211,9 @@ export class AutoMovieFilmSampleSum {
     return this.sums_;
   }
 
-  /** Release the sum targets. */
+  /*
+   * Release the sum targets.
+   */
   private release(): void {
     if (this.sums_ === null) return;
     for (const target of this.sums_) target.dispose();

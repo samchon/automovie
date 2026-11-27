@@ -3,9 +3,11 @@ import type {
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanBase,
-  HumanSegmentEntry,
-} from "@automovie/motions/internal";
+  AutoMovieMotionHumanBase
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanBase";
+import {
+  HumanSegmentEntry
+} from "../../../../../packages/motions/src/perform/internal/HumanSegmentEntry";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

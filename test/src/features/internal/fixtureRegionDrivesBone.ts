@@ -1,4 +1,4 @@
-import { actionRegion, bodyRegionBones } from "@automovie/engine";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
 import { IAutoMovieActionCall } from "@automovie/interface";
 
 import { FIXTURE_BONE } from "./FIXTURE_BONE";
@@ -9,6 +9,6 @@ import { FIXTURE_BONE } from "./FIXTURE_BONE";
 export function fixtureRegionDrivesBone(action: IAutoMovieActionCall): boolean {
   return (
     action.verb !== "locomote" &&
-    bodyRegionBones(actionRegion(action)).includes(FIXTURE_BONE)
+    AutoMovieEngineKinematics.bodyRegionBones(AutoMovieEngineKinematics.actionRegion(action)).includes(FIXTURE_BONE)
   );
 }

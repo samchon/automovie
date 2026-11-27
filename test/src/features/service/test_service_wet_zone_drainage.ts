@@ -1,4 +1,4 @@
-import { validateWetZones } from "@automovie/engine";
+import { AutoMovieEngineService } from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieConstraintViolation,
@@ -25,7 +25,7 @@ import {
 const environment: IAutoMovieBuiltEnvironment = serviceEnvironment();
 const refuse: (network?: IAutoMovieServiceNetwork) => IAutoMovieValidation = (
   network: IAutoMovieServiceNetwork = serviceNetwork(),
-): IAutoMovieValidation => validateWetZones({ network, environment });
+): IAutoMovieValidation => AutoMovieEngineService.validateWetZones({ network, environment });
 
 /** A lattice over the bath floor: four columns of `x`, five rows of `z`. */
 const bathFloor: (

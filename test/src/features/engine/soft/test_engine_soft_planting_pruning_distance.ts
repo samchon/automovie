@@ -1,4 +1,4 @@
-import { plantingPruningDistance } from "@automovie/engine";
+import { AutoMovieEnginePlanting } from "@automovie/engine";
 import type {
   IAutoMoviePruningEnvelope,
   IAutoMovieVector3,
@@ -30,7 +30,7 @@ export function test_engine_soft_planting_pruning_distance(): void {
   TestValidator.predicate(
     "the box exit",
     nclose(
-      plantingPruningDistance(box, { x: 0.5, y: 0.2, z: 0.5 }, up, 2) ?? -1,
+      AutoMovieEnginePlanting.plantingPruningDistance(box, { x: 0.5, y: 0.2, z: 0.5 }, up, 2) ?? -1,
       0.8,
       1e-15,
     ),
@@ -42,7 +42,7 @@ export function test_engine_soft_planting_pruning_distance(): void {
   };
   TestValidator.equals(
     "the sphere exit",
-    plantingPruningDistance(
+    AutoMovieEnginePlanting.plantingPruningDistance(
       sphere,
       { x: 0, y: 0, z: 0 },
       { x: 1, y: 0, z: 0 },
@@ -52,12 +52,12 @@ export function test_engine_soft_planting_pruning_distance(): void {
   );
   TestValidator.equals(
     "a segment ending inside",
-    plantingPruningDistance(box, { x: 0.5, y: 0.2, z: 0.5 }, up, 0.5),
+    AutoMovieEnginePlanting.plantingPruningDistance(box, { x: 0.5, y: 0.2, z: 0.5 }, up, 0.5),
     null,
   );
   TestValidator.equals(
     "no envelope",
-    plantingPruningDistance({ kind: "none" }, { x: 0, y: 0, z: 0 }, up, 2),
+    AutoMovieEnginePlanting.plantingPruningDistance({ kind: "none" }, { x: 0, y: 0, z: 0 }, up, 2),
     null,
   );
 }

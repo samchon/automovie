@@ -7,37 +7,20 @@ import type {
 import { AutoMovieHumanEyeGlobe } from "./AutoMovieHumanEyeGlobe";
 import { AutoMovieHumanEyelid } from "./AutoMovieHumanEyelid";
 
-/** Transverse eyelid profiles constrained by their generating skin boundary jets. */
+/**
+ * Transverse eyelid profiles constrained by their generating skin boundary
+ * jets.
+ */
 export namespace AutoMovieHumanEyelidProfile {
   /**
-   * Depth of the lid's tuck inside the globe's surface behind the posterior
-   * edge, mm. The tuck stands for the conjunctiva lining the lid; any line of
-   * sight past the posterior edge meets the globe first, so the tuck only has
-   * to reach inside it.
-   */
-  const TUCK: number = 1.5;
-
-  /**
-   * Anterior-surface rows of the lid band, as fractions of the way from
-   * the band's outer edge to the start of the rim's rounding.
-   */
-  const ROWS: readonly number[] = [0.18, 0.36, 0.52, 0.66, 0.78, 0.88, 1];
-
-  /**
-   * Radius of the anterior edge's rounding as a fraction of the margin
-   * depth: a rounded lid edge, not a knife cut.
-   */
-  const ROUNDING: number = 0.4;
-
-  /**
-   * One column of the lid band, outer edge excluded: anterior surface,
-   * rounded anterior edge, margin face, posterior edge and tuck.
+   * One column of the lid band, outer edge excluded: anterior surface, rounded
+   * anterior edge, margin face, posterior edge and tuck.
    *
    * @param s Lid sample
    * @param g Seated globe
    * @param band Band width, mm
-   * @param skin Skin depth relative to the globe centre at the band's
-   *   outer edge, and its slope per mm outward
+   * @param skin Skin depth relative to the globe centre at the band's outer
+   *   edge, and its slope per mm outward
    * @param drift Tangential offset of the cut vertex from the sample's smooth
    *   outward line, which the anterior surface loses toward the margin
    * @returns Row points in mm
@@ -54,18 +37,21 @@ export namespace AutoMovieHumanEyelidProfile {
 
     // Points of the column's plane: `u` outward from the contact point in
     // projection, `x` depth from the globe centre.
-    /** Lift the regular profile coordinates into the globe's physical frame. */
-    const place: (u: number, x: number) => AutoMovieVector3Tuple = (
-      u: number,
-      x: number,
-    ): AutoMovieVector3Tuple =>
-      E.add(
+    /*
+     * Lift the regular profile coordinates into the globe's physical frame.
+     */
+    function place(u: number, x: number): AutoMovieVector3Tuple {
+      return E.add(
         E.add(s.contact, E.scale(s.outward, u)),
         E.scale(g.forward, x - contact),
       );
-    /** Globe depth at the same physical transverse position, in millimetres. */
-    const globe: (u: number) => number = (u: number): number =>
-      E.surface(g, E.add(s.contact, E.scale(s.outward, u)));
+    }
+    /*
+     * Globe depth at the same physical transverse position, in millimetres.
+     */
+    function globe(u: number): number {
+      return E.surface(g, E.add(s.contact, E.scale(s.outward, u)));
+    }
 
     // Anterior edge, and the start of its rounding on the anterior surface.
     const edgeU: number = E.rule.offset;
@@ -184,11 +170,31 @@ export namespace AutoMovieHumanEyelidProfile {
     return points;
   }
 
-  /**
-   * C1 nonnegative obstacle correction, exactly zero on a clear profile.
-   * Unlike an everywhere-positive smooth maximum it leaves a clear outer
-   * boundary and its transverse jet unchanged. Its compact quadratic blend
-   * majorizes max(0,x), so the correction also preserves the clearance.
+  /*
+   * Depth of the lid's tuck inside the globe's surface behind the posterior
+   * edge, mm. The tuck stands for the conjunctiva lining the lid; any line of
+   * sight past the posterior edge meets the globe first, so the tuck only has
+   * to reach inside it.
+   */
+  const TUCK: number = 1.5;
+
+  /*
+   * Anterior-surface rows of the lid band, as fractions of the way from the
+   * band's outer edge to the start of the rim's rounding.
+   */
+  const ROWS: readonly number[] = [0.18, 0.36, 0.52, 0.66, 0.78, 0.88, 1];
+
+  /*
+   * Radius of the anterior edge's rounding as a fraction of the margin depth: a
+   * rounded lid edge, not a knife cut.
+   */
+  const ROUNDING: number = 0.4;
+
+  /*
+   * C1 nonnegative obstacle correction, exactly zero on a clear profile. Unlike
+   * an everywhere-positive smooth maximum it leaves a clear outer boundary and
+   * its transverse jet unchanged. Its compact quadratic blend majorizes
+   * max(0,x), so the correction also preserves the clearance.
    */
   function positive(x: number, width: number): number {
     if (x <= -width) return 0;

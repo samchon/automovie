@@ -1,4 +1,4 @@
-import { Quaternion, lookRotation } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -35,12 +35,12 @@ export function test_engine_film_look_rotation(): void {
     { x: -0.5, y: 0.8, z: -0.5 },
   ];
   for (const direction of level) {
-    const q: IAutoMovieQuaternion = lookRotation(direction);
+    const q: IAutoMovieQuaternion = AutoMovieEngineFilm.lookRotation(direction);
     const length: number = Math.hypot(direction.x, direction.y, direction.z);
     TestValidator.predicate(`unit ${JSON.stringify(direction)}`, qunit(q));
     TestValidator.predicate(
       `forward ${JSON.stringify(direction)}`,
-      vclose(Quaternion.rotateVector(q, forward), {
+      vclose(AutoMovieEngineQuaternion.rotateVector(q, forward), {
         x: direction.x / length,
         y: direction.y / length,
         z: direction.z / length,
@@ -48,12 +48,12 @@ export function test_engine_film_look_rotation(): void {
     );
     TestValidator.predicate(
       `level ${JSON.stringify(direction)}`,
-      nclose(Quaternion.rotateVector(q, right).y, 0, 1e-9),
+      nclose(AutoMovieEngineQuaternion.rotateVector(q, right).y, 0, 1e-9),
     );
   }
   TestValidator.predicate(
     "identity",
-    nclose(lookRotation({ x: 0, y: 0, z: -1 }).w, 1, 1e-12),
+    nclose(AutoMovieEngineFilm.lookRotation({ x: 0, y: 0, z: -1 }).w, 1, 1e-12),
   );
   for (const direction of [
     { x: 0, y: -1, z: 0 },
@@ -62,12 +62,12 @@ export function test_engine_film_look_rotation(): void {
     TestValidator.predicate(
       `vertical ${JSON.stringify(direction)}`,
       vclose(
-        Quaternion.rotateVector(lookRotation(direction), forward),
+        AutoMovieEngineQuaternion.rotateVector(AutoMovieEngineFilm.lookRotation(direction), forward),
         direction,
       ),
     );
   TestValidator.predicate(
     "zero direction",
-    qclose(lookRotation({ x: 0, y: 0, z: 0 }), { x: 0, y: 0, z: 0, w: 1 }),
+    qclose(AutoMovieEngineFilm.lookRotation({ x: 0, y: 0, z: 0 }), { x: 0, y: 0, z: 0, w: 1 }),
   );
 }

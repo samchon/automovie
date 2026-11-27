@@ -1,4 +1,4 @@
-import { selectInstancePrototype } from "@automovie/engine";
+import { AutoMovieEnginePopulationRuntime } from "@automovie/engine";
 import type {
   IAutoMovieCompiledInstancePrototype,
   IAutoMovieSelectInstancePrototype,
@@ -36,7 +36,7 @@ export function test_engine_prototype_empty_table(): void {
       if (
         !throwsError(
           (): unknown =>
-            selectInstancePrototype(
+            AutoMovieEnginePopulationRuntime.selectInstancePrototype(
               { ...base, prototypes: [] },
               slot,
               explicit,
@@ -48,7 +48,7 @@ export function test_engine_prototype_empty_table(): void {
 
     for (const explicit of [undefined, "default"]) {
       try {
-        const selected: typeof entry = selectInstancePrototype(
+        const selected: typeof entry = AutoMovieEnginePopulationRuntime.selectInstancePrototype(
           base,
           slot,
           explicit,
@@ -67,7 +67,7 @@ export function test_engine_prototype_empty_table(): void {
     for (const explicit of [undefined, "only"]) {
       try {
         if (
-          selectInstancePrototype(
+          AutoMovieEnginePopulationRuntime.selectInstancePrototype(
             { ...base, prototypes: [entry] },
             slot,
             explicit,

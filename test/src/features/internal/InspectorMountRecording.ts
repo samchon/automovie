@@ -3,12 +3,12 @@ import type {
   IAutoMovieInspectionLegendEntry,
 } from "@automovie/interface";
 import type {
-  IAutoMovieDrawScene,
-  IAutoMovieDrawSubject,
+  IAutoMovieRenderDrawScene,
+  IAutoMovieRenderDrawSubject,
 } from "@automovie/render";
 import type {
-  IAutoMovieInspectorScene,
-  IAutoMovieInspectorSceneHost,
+  IAutoMovieViewerInspectorScene,
+  IAutoMovieViewerInspectorSceneHost,
 } from "@automovie/viewer";
 import * as THREE from "three";
 
@@ -28,7 +28,7 @@ import { InspectionScene } from "./InspectionScene";
  */
 export namespace InspectorMountRecording {
   /** A renderer that counts what it is asked to do. */
-  export class Renderer implements IAutoMovieInspectorSceneHost.IRenderer {
+  export class Renderer implements IAutoMovieViewerInspectorSceneHost.IRenderer {
     /** Whether clipping planes apply, as the mount sets it. */
     public localClippingEnabled: boolean = false;
 
@@ -86,7 +86,7 @@ export namespace InspectorMountRecording {
   }
 
   /** A host whose frames run when the test says, with a settable size. */
-  export class Host implements IAutoMovieInspectorSceneHost {
+  export class Host implements IAutoMovieViewerInspectorSceneHost {
     /** Every renderer created, in order. */
     public readonly renderers: Renderer[] = [];
 
@@ -100,7 +100,7 @@ export namespace InspectorMountRecording {
     private next_: number = 1;
 
     /** Create and keep a recording renderer. */
-    public createRenderer(): IAutoMovieInspectorSceneHost.ICreated {
+    public createRenderer(): IAutoMovieViewerInspectorSceneHost.ICreated {
       const renderer: Renderer = new Renderer();
       this.renderers.push(renderer);
       return { renderer, compositor: null };
@@ -118,7 +118,7 @@ export namespace InspectorMountRecording {
     }
 
     /** The settable width by 360 pixels at a pixel ratio of 1. */
-    public size(): IAutoMovieInspectorSceneHost.ISize {
+    public size(): IAutoMovieViewerInspectorSceneHost.ISize {
       return { width: this.width, height: 360, pixelRatio: 1 };
     }
 
@@ -135,7 +135,7 @@ export namespace InspectorMountRecording {
   }
 
   /** Two named quads, a permanent axis and a contact with a half-open lifetime. */
-  export class Instance implements IAutoMovieDrawScene {
+  export class Instance implements IAutoMovieRenderDrawScene {
     /** The scene of the two quads, `hero` and `prop`. */
     public readonly scene: THREE.Scene = InspectionScene.scene(
       InspectionScene.quad("hero", -2),
@@ -186,7 +186,7 @@ export namespace InspectorMountRecording {
     /** The axis at every second, and the contact on [1, 1.25) seconds. */
     public marks = (
       seconds: number,
-    ): ReturnType<NonNullable<IAutoMovieDrawScene["marks"]>> => [
+    ): ReturnType<NonNullable<IAutoMovieRenderDrawScene["marks"]>> => [
       InspectionScene.mark("hero/axis", "curve/axis", 0x00a0ff, {
         type: "polyline",
         points: [-2, -1, 0, -2, 1, 0],
@@ -227,7 +227,7 @@ export namespace InspectorMountRecording {
   }
 
   /** A subject whose creation the test settles. */
-  export class Subject implements IAutoMovieDrawSubject {
+  export class Subject implements IAutoMovieRenderDrawSubject {
     /** How many of its instances were disposed. */
     public disposed: number = 0;
 
@@ -271,9 +271,9 @@ export namespace InspectorMountRecording {
   }
 
   /** A report that keeps every event. */
-  export class Report implements IAutoMovieInspectorScene.IReport {
+  export class Report implements IAutoMovieViewerInspectorScene.IReport {
     /** Every ready report's facts, in order. */
-    public readonly facts: IAutoMovieInspectorScene.IFacts[] = [];
+    public readonly facts: IAutoMovieViewerInspectorScene.IFacts[] = [];
 
     /** Every legend reported, in order. */
     public readonly legends: IAutoMovieInspectionLegendEntry[][] = [];
@@ -285,7 +285,7 @@ export namespace InspectorMountRecording {
     public readonly refusals: [IAutoMovieCapturePlanRequest, string][] = [];
 
     /** Keep the facts. */
-    public ready(facts: IAutoMovieInspectorScene.IFacts): void {
+    public ready(facts: IAutoMovieViewerInspectorScene.IFacts): void {
       this.facts.push(facts);
     }
 

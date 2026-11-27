@@ -1,14 +1,11 @@
-import {
-  inspectAutoMovieMeshTopology,
-  revolveAutoMovieProfile,
-} from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/predicates";
 
 /**
- * `revolveAutoMovieProfile` turns a radius profile about the y axis into a
+ * `revolveProfile` turns a radius profile about the y axis into a
  * closed-seam ring mesh.
  *
  * Fixture: the profile (0,-1), (1,-1), (1,1), (0,1) at 8 segments.
@@ -30,17 +27,17 @@ export function test_engine_geometry_revolve_profile(): void {
   ];
 
   // 1.
-  const revolved: IAutoMovieMesh = revolveAutoMovieProfile({ profile, segments: 8 });
+  const revolved: IAutoMovieMesh = AutoMovieEngineGeometry.revolveProfile({ profile, segments: 8 });
   TestValidator.equals(
     "counts",
     [
       revolved.positions.length,
       revolved.indices!.length,
-      inspectAutoMovieMeshTopology(revolved).degenerate,
+      AutoMovieEngineGeometry.inspectMeshTopology(revolved).degenerate,
     ],
     [9 * 4 * 3, 8 * 3 * 2 * 3, 8 * 2],
   );
-  TestValidator.equals("deterministic", revolveAutoMovieProfile({ profile, segments: 8 }), revolved);
+  TestValidator.equals("deterministic", AutoMovieEngineGeometry.revolveProfile({ profile, segments: 8 }), revolved);
 
   // 2.
   for (const [label, input, message] of [
@@ -51,6 +48,6 @@ export function test_engine_geometry_revolve_profile(): void {
       { profile: [{ x: -1, y: 0 }, { x: 1, y: 1 }], segments: 8 },
       "revolve profile[0] radius must be >= 0",
     ],
-  ] satisfies [string, Parameters<typeof revolveAutoMovieProfile>[0], string][])
-    TestValidator.predicate(label, throwsError((): unknown => revolveAutoMovieProfile(input), message));
+  ] satisfies [string, Parameters<typeof AutoMovieEngineGeometry.revolveProfile>[0], string][])
+    TestValidator.predicate(label, throwsError((): unknown => AutoMovieEngineGeometry.revolveProfile(input), message));
 }

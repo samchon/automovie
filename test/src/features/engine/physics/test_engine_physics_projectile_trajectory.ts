@@ -1,9 +1,4 @@
-import {
-  Quaternion,
-  projectileTrajectory,
-  sampleClip,
-  solveBallisticLaunch,
-} from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineSequence, AutoMovieEngineAir } from "@automovie/engine";
 import type {
   IAutoMovieProjectile,
   IAutoMovieTrack,
@@ -48,7 +43,7 @@ export function test_engine_physics_projectile_trajectory(): void {
     velocity: { x: 5, y: 8, z: 2 },
     gravity: { x: 0, y: -9.81, z: 0 },
   };
-  const clip = projectileTrajectory("arrow", p, 1, 30);
+  const clip = AutoMovieEngineAir.projectileTrajectory("arrow", p, 1, 30);
   TestValidator.equals(
     "the tracks",
     [
@@ -61,7 +56,7 @@ export function test_engine_physics_projectile_trajectory(): void {
   );
   let keyed: boolean = nclose(clip.tracks[0]!.times[30]!, 1);
   for (const t of [0, 0.3, 20 / 30, 1]) {
-    const sampled: number[] = sampleClip(clip, t).get(
+    const sampled: number[] = AutoMovieEngineSequence.sampleClip(clip, t).get(
       "node:arrow:translation",
     )!.value;
     keyed &&= vclose(
@@ -72,8 +67,8 @@ export function test_engine_physics_projectile_trajectory(): void {
   }
   TestValidator.predicate("the keys", keyed);
   const nose = (t: number): IAutoMovieVector3 => {
-    const v: number[] = sampleClip(clip, t).get("node:arrow:rotation")!.value;
-    return Quaternion.rotateVector(
+    const v: number[] = AutoMovieEngineSequence.sampleClip(clip, t).get("node:arrow:rotation")!.value;
+    return AutoMovieEngineQuaternion.rotateVector(
       { x: v[0]!, y: v[1]!, z: v[2]!, w: v[3]! },
       { x: 0, y: 0, z: 1 },
     );
@@ -84,8 +79,8 @@ export function test_engine_physics_projectile_trajectory(): void {
   );
   const origin: IAutoMovieVector3 = { x: 0, y: 1.6, z: 0 };
   const target: IAutoMovieVector3 = { x: 12, y: 1.2, z: 4 };
-  const launch = solveBallisticLaunch(origin, target, 16)!;
-  const last: number[] = projectileTrajectory(
+  const launch = AutoMovieEngineAir.solveBallisticLaunch(origin, target, 16)!;
+  const last: number[] = AutoMovieEngineAir.projectileTrajectory(
     "bolt",
     { origin, velocity: launch.velocity, gravity: p.gravity },
     launch.hitTime,
@@ -106,8 +101,8 @@ export function test_engine_physics_projectile_trajectory(): void {
   TestValidator.equals(
     "refusals",
     [
-      throwsError(() => projectileTrajectory("arrow", p, 0, 30)),
-      throwsError(() => projectileTrajectory("arrow", p, 1, 0)),
+      throwsError(() => AutoMovieEngineAir.projectileTrajectory("arrow", p, 0, 30)),
+      throwsError(() => AutoMovieEngineAir.projectileTrajectory("arrow", p, 1, 0)),
     ],
     [true, true],
   );

@@ -1,10 +1,12 @@
-import type { IAutoMovieRecoveryCameraMapInput } from "@automovie/interface";
-import { estimateAutoMovieRecoveryCameraMap } from "@automovie/recovery";
+import type {
+  IAutoMovieRecoveryCameraMapFiles,
+  IAutoMovieRecoveryCameraMapInput,
+} from "@automovie/interface";
+import { AutoMovieRecoveryObservation } from "@automovie/recovery";
 import { createHash } from "node:crypto";
 
-import { writeAutoMovieRecoveryArtifact } from "../artifact/writeAutoMovieRecoveryArtifact";
-import { type IAutoMovieRecoveryCameraMapFiles } from "../index";
-import { readAutoMovieRecoveryBoundedFile } from "./readAutoMovieRecoveryBoundedFile";
+import { writeRecoveryArtifact } from "../artifact/writeRecoveryArtifact";
+import { readRecoveryBoundedFile } from "./readRecoveryBoundedFile";
 import { readRecoveryCameraImages } from "./readRecoveryCameraImages";
 
 /**
@@ -30,7 +32,7 @@ export function recoveryCameraMap(args: string[], sourceEpoch: string): void {
     throw new Error(
       "Usage: cameras map input.json new-output.json maxInputBytes",
     );
-  const bytes: Buffer = readAutoMovieRecoveryBoundedFile(
+  const bytes: Buffer = readRecoveryBoundedFile(
     inputPath,
     maxInputBytes,
   );
@@ -88,10 +90,10 @@ export function recoveryCameraMap(args: string[], sourceEpoch: string): void {
       spec.capture.budget.maxPixels,
       spec.maxHeaderBytes,
     );
-  const outcome: ReturnType<typeof estimateAutoMovieRecoveryCameraMap> =
-    estimateAutoMovieRecoveryCameraMap({ ...spec.capture, views });
+  const outcome: ReturnType<typeof AutoMovieRecoveryObservation.estimateCameraMap> =
+    AutoMovieRecoveryObservation.estimateCameraMap({ ...spec.capture, views });
   if (!("value" in outcome)) throw new Error(outcome.diagnostics.join("; "));
-  writeAutoMovieRecoveryArtifact(outputPath, {
+  writeRecoveryArtifact(outputPath, {
     schema: "automovie-recovery-camera-map-artifact-v1",
     command,
     sourceEpoch,

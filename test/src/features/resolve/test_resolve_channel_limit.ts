@@ -1,4 +1,4 @@
-import { applyChannelLimit } from "@automovie/engine";
+import { AutoMovieEngineResolve } from "@automovie/engine";
 import {
   IAutoMovieChannel,
   IAutoMovieChannelLimit,
@@ -60,7 +60,7 @@ const limit: (
  */
 export function test_resolve_channel_limit(): void {
   // 1. both sides null → untouched
-  const free: IAutoMovieClampOutcome = applyChannelLimit(
+  const free: IAutoMovieClampOutcome = AutoMovieEngineResolve.applyChannelLimit(
     [1, 2, 3],
     limit(null, null),
   );
@@ -75,7 +75,7 @@ export function test_resolve_channel_limit(): void {
   );
 
   // 2. mixed under/over/free
-  const mixed: IAutoMovieClampOutcome = applyChannelLimit(
+  const mixed: IAutoMovieClampOutcome = AutoMovieEngineResolve.applyChannelLimit(
     [-3, 99, 100],
     limit([0, null, -5], [10, null, 50]),
   );
@@ -119,7 +119,7 @@ export function test_resolve_channel_limit(): void {
   );
 
   // 3. within range → untouched, both comparisons take the "not crossed" side
-  const inside: IAutoMovieClampOutcome = applyChannelLimit(
+  const inside: IAutoMovieClampOutcome = AutoMovieEngineResolve.applyChannelLimit(
     [5, 5, 5],
     limit([0, 0, 0], [10, 10, 10]),
   );
@@ -137,7 +137,7 @@ export function test_resolve_channel_limit(): void {
     "inverted component range rejects",
     throwsError(
       (): IAutoMovieClampOutcome =>
-        applyChannelLimit([7, 2, 3], limit([10, null, null], [5, null, null])),
+        AutoMovieEngineResolve.applyChannelLimit([7, 2, 3], limit([10, null, null], [5, null, null])),
       ["node:n:translation", "min[0]", "10", "max[0]", "5"],
     ),
   );
@@ -146,7 +146,7 @@ export function test_resolve_channel_limit(): void {
     "extra min component rejects",
     throwsError(
       (): IAutoMovieClampOutcome =>
-        applyChannelLimit([5], limit([0, 10], null)),
+        AutoMovieEngineResolve.applyChannelLimit([5], limit([0, 10], null)),
       ["node:n:translation", "min[1]", "value width", "1", "10"],
     ),
   );
@@ -155,7 +155,7 @@ export function test_resolve_channel_limit(): void {
     "extra max component rejects",
     throwsError(
       (): IAutoMovieClampOutcome =>
-        applyChannelLimit([5], limit(null, [10, 20])),
+        AutoMovieEngineResolve.applyChannelLimit([5], limit(null, [10, 20])),
       ["node:n:translation", "max[1]", "value width", "1", "20"],
     ),
   );

@@ -5,7 +5,7 @@
 export interface IAutoMovieRenderAdapters {
   /**
    * Render the scene at clip-local `timeSeconds` and write frame `index` into
-   * `dir` under its {@link frameName}. Returns the written path.
+   * `dir` under its {@link AutoMovieRenderMedia.frameName}. Returns the written path.
    */
   captureFrame: (
     timeSeconds: number,

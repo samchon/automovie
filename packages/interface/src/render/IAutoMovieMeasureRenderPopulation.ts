@@ -23,7 +23,7 @@ export namespace IAutoMovieMeasureRenderPopulation {
     nodeIndex: Map<string, IAutoMovieSemanticMaskEntry>;
     /**
      * Resolve a model id synchronously; cited is diagnostic owner text. Errors
-     * propagate. measureAutoMovieRenderInventory supplies model resolution;
+     * propagate. measureRenderInventory supplies model resolution;
      * measureRenderPopulation calls it synchronously with model identity and
      * diagnostic citation, and propagates failures.
      */

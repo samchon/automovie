@@ -1,9 +1,9 @@
-import { estimateAutoMovieRecoveryCameraScene } from "@automovie/recovery";
+import type { IAutoMovieRecoveryCameraSceneFiles } from "@automovie/interface";
+import { AutoMovieRecoveryObservation } from "@automovie/recovery";
 import { createHash } from "node:crypto";
 
-import { writeAutoMovieRecoveryArtifact } from "../artifact/writeAutoMovieRecoveryArtifact";
-import { type IAutoMovieRecoveryCameraSceneFiles } from "../index";
-import { readAutoMovieRecoveryBoundedFile } from "./readAutoMovieRecoveryBoundedFile";
+import { writeRecoveryArtifact } from "../artifact/writeRecoveryArtifact";
+import { readRecoveryBoundedFile } from "./readRecoveryBoundedFile";
 import { readRecoveryCameraImages } from "./readRecoveryCameraImages";
 
 /**
@@ -29,7 +29,7 @@ export function recoveryCameraScene(args: string[], sourceEpoch: string): void {
     throw new Error(
       "Usage: cameras scene input.json new-output.json maxInputBytes",
     );
-  const bytes: Buffer = readAutoMovieRecoveryBoundedFile(
+  const bytes: Buffer = readRecoveryBoundedFile(
     inputPath,
     maxInputBytes,
   );
@@ -81,8 +81,8 @@ export function recoveryCameraScene(args: string[], sourceEpoch: string): void {
       "A closed bounded camera-scene manifest with explicit view/pixel/header limits is required",
     );
   const started: number = performance.now();
-  const outcome: ReturnType<typeof estimateAutoMovieRecoveryCameraScene> =
-    estimateAutoMovieRecoveryCameraScene({
+  const outcome: ReturnType<typeof AutoMovieRecoveryObservation.estimateCameraScene> =
+    AutoMovieRecoveryObservation.estimateCameraScene({
       ...spec.capture,
       views: readRecoveryCameraImages(
         spec.views,
@@ -93,7 +93,7 @@ export function recoveryCameraScene(args: string[], sourceEpoch: string): void {
       ),
     });
   if (!("value" in outcome)) throw new Error(outcome.diagnostics.join("; "));
-  writeAutoMovieRecoveryArtifact(outputPath, {
+  writeRecoveryArtifact(outputPath, {
     schema: "automovie-recovery-camera-scene-artifact-v1",
     command,
     sourceEpoch,

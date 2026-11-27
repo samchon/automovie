@@ -1,0 +1,76 @@
+import { IAutoMoviePlanarPoint } from "@automovie/interface";
+
+import { pointInPolygon } from "./pointInPolygon";
+import { pointOnSegment } from "./pointOnSegment";
+import { segmentsCross } from "./segmentsCross";
+
+/*
+ * Whether an inner polygon stays within an outer one, flush edges allowed.
+ *
+ * Boundary contact is allowed, so a void whose sill lies exactly on the wall's
+ * own bottom edge is contained, while a void whose corner pokes through the
+ * wall's side is not. Every inner corner must be inside or on the outer ring by
+ * pointInPolygon, and no inner edge may properly cross an outer edge by
+ * segmentsCross or leave through its vertices.
+ *
+ * Both polygons are closed rings in one planar frame and are assumed simple.
+ * Outer vertices on an inner edge split it into intervals. Testing each
+ * interval's midpoint also detects exits through vertices of a concave outer
+ * ring, where neither boundary properly crosses the other.
+ * Parameter inner: Ring that must stay inside, such as an opening's void hull.
+ * Parameter outer: Ring that must contain it, such as the host face outline.
+ * Returns: True when `inner` stays within `outer` by the rule above.
+ */
+export function polygonInside(
+  inner: readonly IAutoMoviePlanarPoint[],
+  outer: readonly IAutoMoviePlanarPoint[],
+): boolean {
+  if (
+    inner.some(
+      (point: IAutoMoviePlanarPoint): boolean =>
+        pointInPolygon(point, outer) === false,
+    )
+  )
+    return false;
+  for (let index: number = 0; index < inner.length; ++index) {
+    const from: IAutoMoviePlanarPoint = inner[index]!;
+    const to: IAutoMoviePlanarPoint = inner[(index + 1) % inner.length]!;
+    const axis: "x" | "y" =
+      Math.abs(to.x - from.x) >= Math.abs(to.y - from.y) ? "x" : "y";
+    const delta: number = to[axis] - from[axis];
+    const contacts: number[] = [0, 1];
+    for (let other: number = 0; other < outer.length; ++other) {
+      if (
+        segmentsCross(
+          from,
+          to,
+          outer[other]!,
+          outer[(other + 1) % outer.length]!,
+        )
+      )
+        return false;
+      const point: IAutoMoviePlanarPoint = outer[other]!;
+      if (delta !== 0 && pointOnSegment(point, from, to)) {
+        const parameter: number = (point[axis] - from[axis]) / delta;
+        if (parameter > 0 && parameter < 1) contacts.push(parameter);
+      }
+    }
+    contacts.sort((left: number, right: number): number => left - right);
+    for (let contact: number = 1; contact < contacts.length; ++contact) {
+      if (contacts[contact] === contacts[contact - 1]) continue;
+      const parameter: number =
+        (contacts[contact]! + contacts[contact - 1]!) / 2;
+      if (
+        !pointInPolygon(
+          {
+            x: from.x + parameter * (to.x - from.x),
+            y: from.y + parameter * (to.y - from.y),
+          },
+          outer,
+        )
+      )
+        return false;
+    }
+  }
+  return true;
+}

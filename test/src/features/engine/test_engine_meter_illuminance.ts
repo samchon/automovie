@@ -1,7 +1,4 @@
-import {
-  autoMovieIncidentEv100,
-  meterAutoMovieIlluminance,
-} from "@automovie/engine";
+import { AutoMovieEngineExposure } from "@automovie/engine";
 import type {
   IAutoMovieLight,
   IAutoMovieMeterIlluminance,
@@ -33,7 +30,7 @@ import { throwsError } from "../internal/throwsError";
  *    total.
  * 5. An environment with an image lists `environmentImage` as unmetered with no
  *    value; one with `image: null`, or none, lists nothing.
- * 6. `autoMovieIncidentEv100(100000)` is log2(40000) = 15.288; zero lux is
+ * 6. `incidentEv100(100000)` is log2(40000) = 15.288; zero lux is
  *    refused; a zero normal is refused.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the exported meter and EV100 function on explicit lights and reads totals, per-light contributions and unmetered entries; a wrong cosine sign, a missing range window, a cone measured from the wrong axis, an ignored colour or a dropped image entry changes a value.
@@ -52,7 +49,7 @@ export function test_engine_meter_illuminance(): void {
     lights: IAutoMovieLight[],
     environment?: IAutoMovieSceneEnvironment | null,
   ): IAutoMovieMeterIlluminance.IResult =>
-    meterAutoMovieIlluminance({
+    AutoMovieEngineExposure.meterAutoMovieIlluminance({
       lights,
       point: origin,
       normal: up,
@@ -193,16 +190,16 @@ export function test_engine_meter_illuminance(): void {
   // 6. EV100 and refusals.
   TestValidator.predicate(
     "100000 lux sets EV100 log2(40000)",
-    nclose(autoMovieIncidentEv100(100000), Math.log2(40000), 1e-12) &&
-      nclose(autoMovieIncidentEv100(100000), 15.288, 1e-3),
+    nclose(AutoMovieEngineExposure.autoMovieIncidentEv100(100000), Math.log2(40000), 1e-12) &&
+      nclose(AutoMovieEngineExposure.autoMovieIncidentEv100(100000), 15.288, 1e-3),
   );
   TestValidator.equals(
     "no light and no normal are refused",
     [
-      throwsError((): number => autoMovieIncidentEv100(0), "lux"),
+      throwsError((): number => AutoMovieEngineExposure.autoMovieIncidentEv100(0), "lux"),
       throwsError(
         (): IAutoMovieMeterIlluminance.IResult =>
-          meterAutoMovieIlluminance({
+          AutoMovieEngineExposure.meterAutoMovieIlluminance({
             lights: [sun],
             point: origin,
             normal: { x: 0, y: 0, z: 0 },

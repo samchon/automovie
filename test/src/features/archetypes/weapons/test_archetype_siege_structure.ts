@@ -1,8 +1,5 @@
-import {
-  AutoMovieArchetypeRefusal,
-  createSiegeEngine,
-} from "@automovie/archetypes";
-import { Quaternion, Vector3, validateModel } from "@automovie/engine";
+import { AutoMovieArchetypeRefusal, AutoMovieArchetypeSiegeEngine } from "@automovie/archetypes";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieTransform,
@@ -17,7 +14,7 @@ import { siegeStructureFloor } from "../../internal/siegeStructureFloor";
 import { siegeStructureMass } from "../../internal/siegeStructureMass";
 
 /** Actual public lever-arm source and posed output. */
-type Engine = ReturnType<typeof createSiegeEngine>;
+type Engine = ReturnType<typeof AutoMovieArchetypeSiegeEngine.create>;
 
 /**
  * Actual siege fittings remain joined to their declared controls through a
@@ -61,7 +58,7 @@ export function test_archetype_siege_structure(): void {
     for (const seed of [0, 3, 7, 12]) {
       const label: string = `${kind}/${seed}`;
       try {
-        const engine: Engine = createSiegeEngine({ kind }, seed);
+        const engine: Engine = AutoMovieArchetypeSiegeEngine.create({ kind }, seed);
         const original: string = JSON.stringify(engine);
         const d: Engine["dimensions"] = engine.dimensions;
         const long: number =
@@ -102,7 +99,7 @@ export function test_archetype_siege_structure(): void {
           snapshots.set(angle, JSON.stringify(posed));
           truth(
             `${label}/${angle} complete model admitted`,
-            validateModel({ model: posed }).success,
+            AutoMovieEngineValidation.validateModel({ model: posed }).success,
           );
           const radians: number = (angle * Math.PI) / 180;
           const pivot: IAutoMovieVector3 = { x: 0, y: height, z: 0 };
@@ -138,7 +135,7 @@ export function test_archetype_siege_structure(): void {
           );
           point(
             `${label}/${angle} actual shaft pivot`,
-            Vector3.scale(Vector3.add(shaft[0], shaft[1]), 0.5),
+            AutoMovieEngineVector3.scale(AutoMovieEngineVector3.add(shaft[0], shaft[1]), 0.5),
             pivot,
           );
           near(
@@ -197,9 +194,9 @@ export function test_archetype_siege_structure(): void {
               wall.geometry.shape.type !== "box"
             )
               throw new Error("Actual cradle wall must remain a box");
-            const bottom: IAutoMovieVector3 = Vector3.add(
+            const bottom: IAutoMovieVector3 = AutoMovieEngineVector3.add(
               wall.transform!.translation,
-              Quaternion.rotateVector(wall.transform!.rotation, {
+              AutoMovieEngineQuaternion.rotateVector(wall.transform!.rotation, {
                 x: 0,
                 y: -wall.geometry.shape.height / 2,
                 z: 0,
@@ -225,9 +222,9 @@ export function test_archetype_siege_structure(): void {
             floor.geometry.shape.type !== "box"
           )
             throw new Error("Actual cradle floor must remain a box");
-          const top: IAutoMovieVector3 = Vector3.add(
+          const top: IAutoMovieVector3 = AutoMovieEngineVector3.add(
             floor.transform!.translation,
-            Quaternion.rotateVector(floor.transform!.rotation, {
+            AutoMovieEngineQuaternion.rotateVector(floor.transform!.rotation, {
               x: 0,
               y: floor.geometry.shape.height / 2,
               z: 0,
@@ -244,21 +241,21 @@ export function test_archetype_siege_structure(): void {
             back.geometry.shape.type !== "box"
           )
             throw new Error("Actual cradle back must remain a box");
-          const backBottom: IAutoMovieVector3 = Vector3.add(
+          const backBottom: IAutoMovieVector3 = AutoMovieEngineVector3.add(
             back.transform!.translation,
-            Quaternion.rotateVector(back.transform!.rotation, {
+            AutoMovieEngineQuaternion.rotateVector(back.transform!.rotation, {
               x: 0,
               y: -back.geometry.shape.height / 2,
               z: 0,
             }),
           );
-          const normal: IAutoMovieVector3 = Quaternion.rotateVector(
+          const normal: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
             floor.transform!.rotation,
             { x: 0, y: 1, z: 0 },
           );
           near(
             `${label}/${angle} actual back joins floor plane`,
-            Vector3.dot(Vector3.subtract(backBottom, socket), normal),
+            AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(backBottom, socket), normal),
             0,
           );
           truth(
@@ -270,20 +267,20 @@ export function test_archetype_siege_structure(): void {
             const box: IAutoMovieModelPart = part(posed, "counterweight");
             point(
               `${label}/${angle} real counterweight pin follows short endpoint`,
-              Vector3.scale(
-                Vector3.add(...ends(posed, "counterweight-axle")),
+              AutoMovieEngineVector3.scale(
+                AutoMovieEngineVector3.add(...ends(posed, "counterweight-axle")),
                 0.5,
               ),
               butt,
             );
             point(
               `${label}/${angle} plumb box remains on actual pin`,
-              Vector3.add(box.transform!.translation, { x: 0, y: 0.5, z: 0 }),
+              AutoMovieEngineVector3.add(box.transform!.translation, { x: 0, y: 0.5, z: 0 }),
               butt,
             );
             point(
               `${label}/${angle} actual box stays plumb`,
-              Quaternion.rotateVector(box.transform!.rotation, {
+              AutoMovieEngineQuaternion.rotateVector(box.transform!.rotation, {
                 x: 0,
                 y: 1,
                 z: 0,
@@ -307,7 +304,7 @@ export function test_archetype_siege_structure(): void {
             JSON.stringify(engine.articulate({ arm: angle })) ===
               snapshots.get(angle),
           );
-        const shot: createSiegeEngine.IThrow = createSiegeEngine.throwAt(
+        const shot: AutoMovieArchetypeSiegeEngine.IThrow = AutoMovieArchetypeSiegeEngine.throwAt(
           engine,
           0.5,
         );

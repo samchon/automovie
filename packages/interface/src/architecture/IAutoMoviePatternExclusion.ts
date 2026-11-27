@@ -3,7 +3,7 @@ import type { IAutoMoviePatternPoint } from "./IAutoMoviePatternPoint";
 /**
  * One convex face-local area a pattern must leave uncovered.
  *
- * It applies to every zone of the pattern. `generateAutoMovieSurfacePattern`
+ * It applies to every zone of the pattern. `generateSurfacePattern`
  * throws when the id is blank or repeated, when the polygon's convex hull does
  * not keep every authored point (a reflex corner, an interior, repeated or
  * collinear point), and when two exclusions overlap by more than `1e-12` m². A

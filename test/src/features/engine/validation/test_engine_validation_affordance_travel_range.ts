@@ -1,4 +1,4 @@
-import { affordanceTravelRange } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   AutoMovieAffordanceKind,
   IAutoMovieAffordance,
@@ -37,12 +37,12 @@ export function test_engine_validation_affordance_travel_range(): void {
   TestValidator.equals(
     "each kind's travel range",
     [
-      affordanceTravelRange(affordance("crank")),
-      affordanceTravelRange(affordance("wheel", { travel: 3 })),
-      affordanceTravelRange(affordance("hinge", { travel: 90, reverse: 30 })),
-      affordanceTravelRange(affordance("slider", { travel: 0.25 })),
-      affordanceTravelRange(affordance("button", { travel: 0.01, reverse: 1 })),
-      affordanceTravelRange(affordance("pedal")),
+      AutoMovieEngineValidation.affordanceTravelRange(affordance("crank")),
+      AutoMovieEngineValidation.affordanceTravelRange(affordance("wheel", { travel: 3 })),
+      AutoMovieEngineValidation.affordanceTravelRange(affordance("hinge", { travel: 90, reverse: 30 })),
+      AutoMovieEngineValidation.affordanceTravelRange(affordance("slider", { travel: 0.25 })),
+      AutoMovieEngineValidation.affordanceTravelRange(affordance("button", { travel: 0.01, reverse: 1 })),
+      AutoMovieEngineValidation.affordanceTravelRange(affordance("pedal")),
     ],
     [
       { minimum: null, maximum: null },

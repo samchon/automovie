@@ -1,10 +1,16 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import {
-  staggerCaptureDistance,
-  staggerNearest,
-  staggerShift,
-  staggerSwingBow,
-} from "@automovie/motions/internal";
+  staggerCaptureDistance
+} from "../../../../../packages/motions/src/reaction/internal/staggerCaptureDistance";
+import {
+  staggerNearest
+} from "../../../../../packages/motions/src/reaction/internal/staggerNearest";
+import {
+  staggerShift
+} from "../../../../../packages/motions/src/reaction/internal/staggerShift";
+import {
+  staggerSwingBow
+} from "../../../../../packages/motions/src/reaction/internal/staggerSwingBow";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

@@ -1,5 +1,13 @@
 import type { IAutoMovieMotionClock, IAutoMovieMotionManner } from "@automovie/interface";
-import { AutoMovieMotionManner, racketClock, racketStanceTransfer } from "@automovie/motions/internal";
+import {
+  motionManner
+} from "../../../../../packages/motions/src/compose/internal/motionManner";
+import {
+  racketClock
+} from "../../../../../packages/motions/src/sport/internal/racketClock";
+import {
+  racketStanceTransfer
+} from "../../../../../packages/motions/src/sport/internal/racketStanceTransfer";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -22,7 +30,7 @@ import { nclose } from "../../internal/nclose";
  */
 export function test_motions_sport_racket(): void {
   const manner: IAutoMovieMotionManner.IModifiers = {
-    ...AutoMovieMotionManner.NEUTRAL,
+    ...motionManner.NEUTRAL,
     tempo: 2,
     hold: 3,
   };

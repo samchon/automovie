@@ -1,4 +1,4 @@
-import { samplePracticalSurfaceMaterial } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type { IAutoMoviePracticalSurfaceTrack } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -21,22 +21,22 @@ export function test_engine_film_sample_practical_surface_material(): void {
       { time: 0.5, material: "lit" },
     ],
   };
-  const shot: Parameters<typeof samplePracticalSurfaceMaterial>[0] = {
+  const shot: Parameters<typeof AutoMovieEngineFilm.samplePracticalSurfaceMaterial>[0] = {
     duration: 1,
     practicalSurfaces: [track],
   };
   TestValidator.equals(
     "right-owned key boundaries support reverse seeks",
     [0, 0.25, 0.5, 0.75, 0.25, 1].map((t: number) =>
-      samplePracticalSurfaceMaterial(shot, "speaker", "lamp", t),
+      AutoMovieEngineFilm.samplePracticalSurfaceMaterial(shot, "speaker", "lamp", t),
     ),
     ["dark", "dark", "lit", "lit", "dark", undefined],
   );
   TestValidator.equals(
     "track names both an instance and a part",
     [
-      samplePracticalSurfaceMaterial(shot, "spare", "lamp", 0.5),
-      samplePracticalSurfaceMaterial(shot, "speaker", "case", 0.5),
+      AutoMovieEngineFilm.samplePracticalSurfaceMaterial(shot, "spare", "lamp", 0.5),
+      AutoMovieEngineFilm.samplePracticalSurfaceMaterial(shot, "speaker", "case", 0.5),
     ],
     [undefined, undefined],
   );

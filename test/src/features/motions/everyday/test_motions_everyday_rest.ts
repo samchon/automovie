@@ -1,4 +1,4 @@
-import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -7,14 +7,26 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanBend,
-  poseBones,
-  resolveHumanPosture,
-  restCrossedArms,
-  restElbowSupport,
-  restGoals,
-  stand,
-} from "@automovie/motions/internal";
+  AutoMovieMotionHumanBend
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanBend";
+import {
+  poseBones
+} from "../../../../../packages/motions/src/posture/internal/poseBones";
+import {
+  resolveHumanPosture
+} from "../../../../../packages/motions/src/posture/internal/resolveHumanPosture";
+import {
+  restCrossedArms
+} from "../../../../../packages/motions/src/everyday/internal/restCrossedArms";
+import {
+  restElbowSupport
+} from "../../../../../packages/motions/src/everyday/internal/restElbowSupport";
+import {
+  restGoals
+} from "../../../../../packages/motions/src/everyday/internal/restGoals";
+import {
+  stand
+} from "../../../../../packages/motions/src/actions/internal/stand";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -72,16 +84,17 @@ export async function test_motions_everyday_rest(): Promise<void> {
     up: number,
   ): boolean => {
     const frame = body.surfaces.regions[region];
-    const surface = resolveAutoMovieHumanoidSurfaces.pointNormal(
-      frame,
-      bones.get(frame.bone)!,
-    );
-    const off: IAutoMovieVector3 = Vector3.subtract(
+    const surface =
+      AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePointNormal(
+        frame,
+        bones.get(frame.bone)!,
+      );
+    const off: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       goal.point,
-      Vector3.add(surface.point, { x: 0, y: up, z: 0 }),
+      AutoMovieEngineVector3.add(surface.point, { x: 0, y: up, z: 0 }),
     );
     return (
-      Vector3.length(Vector3.cross(off, Vector3.normalize(surface.normal))) <
+      AutoMovieEngineVector3.length(AutoMovieEngineVector3.cross(off, AutoMovieEngineVector3.normalize(surface.normal))) <
       ROUNDING
     );
   };

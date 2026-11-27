@@ -1,5 +1,5 @@
 import { nclose } from "../../internal/predicates";
-import { AutoMovieViewOutline } from "@automovie/engine";
+import { AutoMovieEngineViewOutline } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft as H,
   AutoMovieHumanConicSection as S,
@@ -37,8 +37,8 @@ export function test_human_native_family_scope(): void {
   shift[24] = 0.25;
   const net: IAutoMovieLoftRelief = {
     name: "made",
-    stations: [1, 2],
-    phases: [0, 2 * Math.PI],
+    stations: { start: 1, end: 2 },
+    phases: { start: 0, end: 2 * Math.PI },
     rows: 7,
     columns: 7,
     heights,
@@ -87,7 +87,7 @@ export function test_human_native_family_scope(): void {
     axis,
     scale: (): AutoMovieVector2Tuple => [radial, radial],
     station: (s: number): number => s * along,
-    features: AutoMovieHumanNativeFeatureLaw(
+    features: AutoMovieHumanNativeFeatureLaw.resolve(
       prior.reliefs ?? [],
       bone.reliefs ?? [],
       (): AutoMovieVector2Tuple => [radial, radial],
@@ -107,7 +107,7 @@ export function test_human_native_family_scope(): void {
   }
   const placed: IAutoMovieHumanConicLoft.IFamily = {
     ...prior,
-    reliefs: [{ ...net, stations: [2, 4] }],
+    reliefs: [{ ...net, stations: { start: 2, end: 4 } }],
   };
   const along: IAutoMovieHumanConicLoft.IFamily = Native.create(spec(1, 2, placed));
   for (const family of [along, H.mirror(along, "made.mirror")]) {
@@ -115,8 +115,8 @@ export function test_human_native_family_scope(): void {
     const feature: IAutoMovieLoftRelief | undefined = part.reliefs?.[0];
     if (
       feature === undefined ||
-      !nclose(feature.stations[0], 2, 1e-12) ||
-      !nclose(feature.stations[1], 4, 1e-12)
+      !nclose(feature.stations.start, 2, 1e-12) ||
+      !nclose(feature.stations.end, 4, 1e-12)
     )
       failures.push("material window was applied twice on " + family.name);
     if (!nclose(feature?.shift?.[24] ?? NaN, 0.5, 1e-12))
@@ -127,11 +127,11 @@ export function test_human_native_family_scope(): void {
   const unchanged: IAutoMovieHumanConicLoft.IFamily = Native.create(spec(1, 1));
   const cap: IAutoMovieHumanConicLoft.ITip = prior.tips![1]!;
   const read = (part: IAutoMovieViewPart): number => {
-    const curve = AutoMovieViewOutline.create(part.front.positive, {
+    const curve = AutoMovieEngineViewOutline.create(part.front.positive, {
       top: part.stations.at(-1)!,
     });
     if ("contract" in curve) throw new Error(curve.detail);
-    const value = AutoMovieViewOutline.at(curve, 5);
+    const value = AutoMovieEngineViewOutline.at(curve, 5);
     if (typeof value === "string") throw new Error(value);
     return value.value;
   };
@@ -228,18 +228,18 @@ export function test_human_native_family_scope(): void {
   )
     failures.push("actual grooved native source has no original pieces");
   else {
-    const a = AutoMovieViewOutline.create(
+    const a = AutoMovieEngineViewOutline.create(
       groovePart.fullness.pieces[0][0]!.angle,
     );
-    const b = AutoMovieViewOutline.create(
+    const b = AutoMovieEngineViewOutline.create(
       newGroovePart.fullness.pieces[0][0]!.angle,
     );
     if ("contract" in a || "contract" in b)
       failures.push("groove original angle-source admission failed");
     else
       for (const s of [0.5, 1, 1.5, 2.5, 3, 3.5]) {
-        const x = AutoMovieViewOutline.at(a, s);
-        const y = AutoMovieViewOutline.at(b, s);
+        const x = AutoMovieEngineViewOutline.at(a, s);
+        const y = AutoMovieEngineViewOutline.at(b, s);
         if (
           typeof x === "string" ||
           typeof y === "string" ||

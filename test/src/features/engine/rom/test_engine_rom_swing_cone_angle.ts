@@ -1,4 +1,4 @@
-import { swingConeAngle } from "@automovie/engine";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -14,10 +14,10 @@ import { nclose } from "../../internal/nclose";
  * 3. No swing: 0°.
  */
 export function test_engine_rom_swing_cone_angle(): void {
-  TestValidator.predicate("one axis", nclose(swingConeAngle(90, 0), 90, 1e-12));
+  TestValidator.predicate("one axis", nclose(AutoMovieEngineKinematics.swingConeAngle(90, 0), 90, 1e-12));
   TestValidator.predicate(
     "both axes",
-    nclose(swingConeAngle(90, 90), 120, 1e-12),
+    nclose(AutoMovieEngineKinematics.swingConeAngle(90, 90), 120, 1e-12),
   );
-  TestValidator.equals("no swing", swingConeAngle(0, 0), 0);
+  TestValidator.equals("no swing", AutoMovieEngineKinematics.swingConeAngle(0, 0), 0);
 }

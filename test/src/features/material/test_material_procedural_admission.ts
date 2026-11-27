@@ -1,4 +1,4 @@
-import { validateModel } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieColor,
   IAutoMovieMaterial,
@@ -42,7 +42,7 @@ export function test_material_procedural_admission(): void {
     procedural: unknown,
     extra: Partial<IAutoMovieMaterial> = {},
   ): IAutoMovieValidation =>
-    validateModel({
+    AutoMovieEngineValidation.validateModel({
       model: boxModel({
         id: "card",
         materials: [
@@ -114,9 +114,9 @@ export function test_material_procedural_admission(): void {
   TestValidator.predicate(
     "a roughness of 1.5 is refused",
     hasViolation(
-      check({ ...stone(), roughness: [0.2, 1.5] }),
+      check({ ...stone(), roughness: { atZero: 0.2, atOne: 1.5 } }),
       "range",
-      ".procedural.roughness[1]",
+      ".procedural.roughness.atOne",
     ),
   );
 
@@ -145,7 +145,11 @@ export function test_material_procedural_admission(): void {
   });
   TestValidator.predicate(
     "a piece material on a primitive without UV0 is refused at the part",
-    hasViolation(validateModel({ model }), "type", "$input.parts[0].geometry"),
+    hasViolation(
+      AutoMovieEngineValidation.validateModel({ model }),
+      "type",
+      "$input.parts[0].geometry",
+    ),
   );
 }
 
@@ -170,7 +174,7 @@ function stone(): IAutoMovieProceduralSurface {
     seed: 1,
     scale: 0.1,
     colors: [color(0.2), color(0.6)],
-    roughness: [0.6, 0.9],
+    roughness: { atZero: 0.6, atOne: 0.9 },
     relief: 0.002,
   };
 }

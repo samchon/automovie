@@ -5,10 +5,10 @@ Use these model settings where available:
 | Ask for | Otherwise expect |
 | --- | --- |
 | One subject per generation | Several subjects fused into one surface |
-| A rest pose | Limbs fused to the body or to each other, and a failed automatic rig |
+| Rest pose | Fused limbs or failed automatic rigging |
 | Parts generated apart | Moving parts fused into one surface |
 | The final triangle count | Far more triangles than any view needs |
-| Separate material channels and a base color with the light removed | Light and shadow baked into the texture |
+| Separate material channels and unlit base color | Baked light or shadows |
 | A real-world size and an origin at the base | An arbitrary scale and origin |
 
 Set deforming bodies' [rest pose](image-hints.md#pose). Separate moving parts by generation or segmentation. Use [Conditioning](../conditioning.md#reduction) for the final triangle budget.

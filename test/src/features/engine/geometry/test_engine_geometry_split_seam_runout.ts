@@ -1,6 +1,7 @@
-import { AutoMovieConstructionSplitSeam } from "@automovie/engine";
+import { AutoMovieEngineConstructionSplitSeam } from "@automovie/engine";
 import type {
   IAutoMovieConstructionRealization,
+  IAutoMovieConstructionSplit,
   IAutoMovieConstructionSplitSeam,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -31,9 +32,9 @@ import { ConstructionSplitSeam as S } from "../../internal/construction/Construc
  *    mm along the chord while it stands more than 2.5 mm out.
  */
 export function test_engine_geometry_split_seam_runout(): void {
-  const knots: [number, number][] = [
-    [0, 0.004],
-    [0.006, 0.007],
+  const knots: IAutoMovieConstructionSplit.IProfileKnot[] = [
+    { alongM: 0, depthM: 0.004 },
+    { alongM: 0.006, depthM: 0.007 },
     S.KNOTS[1]!,
     S.KNOTS[2]!,
   ];
@@ -49,16 +50,16 @@ export function test_engine_geometry_split_seam_runout(): void {
     2,
   );
   const ran: IAutoMovieConstructionSplitSeam.ISeam | string =
-    AutoMovieConstructionSplitSeam.create({
+    AutoMovieEngineConstructionSplitSeam.create({
       host: ConstructionRead.surface(out, "trunk"),
       station: 30,
       into: 1,
-      seam: [0, Math.PI],
+      seam: { startPhaseRad: 0, endPhaseRad: Math.PI },
       normal: [0, 0, -1],
-      knots: knots.map(([a, d]: [number, number]): [number, number] => [
-        a * 1000,
-        d * 1000,
-      ]),
+      knots: knots.map(({ alongM, depthM }): IAutoMovieConstructionSplitSeam.IProfileKnotMm => ({
+        alongMm: alongM * 1000,
+        depthMm: depthM * 1000,
+      })),
     });
   if (typeof ran === "string") throw new Error(`run-out seam refused: ${ran}`);
   let nearest: number = Infinity;

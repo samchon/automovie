@@ -3,7 +3,7 @@ import type { IAutoMovieRegionRing } from "./IAutoMovieRegionRing";
 
 /**
  * A free-form planar region resolved into counter-clockwise triangles, as
- * `triangulateAutoMovieRegion` returns it.
+ * `AutoMovieEnginePlanarRegion.triangulate` returns it.
  *
  * Canonical coordinates and topology are accompanied by their original input
  * identities, so callers can retain attached data without a coordinate lookup.

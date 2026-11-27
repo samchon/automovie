@@ -5,8 +5,10 @@ import type {
   IAutoMovieMotionHumanSegment,
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
-import { HumanObject } from "@automovie/motions";
-import { HumanPerformanceGrips } from "@automovie/motions/internal";
+import { AutoMovieMotionHumanObject } from "@automovie/motions";
+import {
+  HumanPerformanceGrips
+} from "../../../../../packages/motions/src/perform/internal/HumanPerformanceGrips";
 import { TestValidator } from "@nestia/e2e";
 
 import { standingPerformanceState } from "../../internal/fixtures/standingPerformanceState";
@@ -42,13 +44,13 @@ const AT: IAutoMovieRigidTransform = {
  * 3. Prepared spans are returned as prepared.
  */
 export async function test_motions_perform_grips(): Promise<void> {
-  const rack: IAutoMovieMotionHumanProp = HumanObject.prop(
+  const rack: IAutoMovieMotionHumanProp = AutoMovieMotionHumanObject.prop(
     "rack",
     { affordances: [testAffordance("peg", "hook", { x: 0, y: 1, z: 0 })] },
     { at: { x: 3, y: 0, z: 0 }, yaw: 0 },
   );
   const plain = (subject: string): IAutoMovieMotionHumanProp =>
-    HumanObject.prop(subject, { affordances: [] }, {
+    AutoMovieMotionHumanObject.prop(subject, { affordances: [] }, {
       at: { x: 0, y: 0, z: 0 },
       yaw: 0,
     });

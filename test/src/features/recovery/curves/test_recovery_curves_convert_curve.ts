@@ -4,13 +4,13 @@ import type {
   IAutoMovieRecoveryHermiteSpan,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { convertAutoMovieRecoveryCurve } from "@automovie/recovery";
+import { AutoMovieRecoveryCurveConversion } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../../internal/vclose";
 
 /**
- * `convertAutoMovieRecoveryCurve` changes a cubic's basis over each span's
+ * `AutoMovieRecoveryCurveConversion.convertCurve` changes a cubic's basis over each span's
  * phase width h: the Hermite derivatives are 3(B1 − B0)/h and 3(B3 − B2)/h.
  *
  * The oracle is the polynomial p(s) = (s², s³, 2s) on s ∈ [0, 2], one span of
@@ -48,10 +48,8 @@ export function test_recovery_curves_convert_curve(): void {
     y: p[1]!,
     z: p[2]!,
   });
-  const hermite: IAutoMovieRecoveryHermiteCurve = convertAutoMovieRecoveryCurve(
-    bezier,
-    "hermite",
-  );
+  const hermite: IAutoMovieRecoveryHermiteCurve =
+    AutoMovieRecoveryCurveConversion.convertCurve(bezier, "hermite");
   const span: IAutoMovieRecoveryHermiteSpan = hermite.spans[0]!;
   TestValidator.predicate(
     "the polynomial's ends and derivatives",
@@ -62,10 +60,8 @@ export function test_recovery_curves_convert_curve(): void {
       vclose(v(span.startDerivative), v([0, 0, 2]), 1e-12) &&
       vclose(v(span.endDerivative), v([4, 12, 2]), 1e-12),
   );
-  const back: IAutoMovieCubicBezierCurve64 = convertAutoMovieRecoveryCurve(
-    hermite,
-    "bezier",
-  );
+  const back: IAutoMovieCubicBezierCurve64 =
+    AutoMovieRecoveryCurveConversion.convertCurve(hermite, "bezier");
   TestValidator.predicate(
     "the original controls",
     back.spans[0]!.every((control: readonly number[], k: number): boolean =>
@@ -73,12 +69,15 @@ export function test_recovery_curves_convert_curve(): void {
     ),
   );
   TestValidator.error("a zero phase width", (): unknown =>
-    convertAutoMovieRecoveryCurve(
+    AutoMovieRecoveryCurveConversion.convertCurve(
       { ...bezier, phaseIntervals: [0] },
       "hermite",
     ),
   );
   TestValidator.error("a missing phase width", (): unknown =>
-    convertAutoMovieRecoveryCurve({ ...bezier, phaseIntervals: [] }, "hermite"),
+    AutoMovieRecoveryCurveConversion.convertCurve(
+      { ...bezier, phaseIntervals: [] },
+      "hermite",
+    ),
   );
 }

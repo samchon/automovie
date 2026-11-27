@@ -18,7 +18,7 @@ export namespace IAutoMovieMeasureMeshDefects {
    * changed. Vertices weld by position: each coordinate is multiplied by
    * `options.weld`, the number of lattice cells per unit of length, and rounded
    * to the nearest whole cell, and vertices in the same cell on all three axes
-   * are one corner. The default is `MESH_WELD_GRID`, a nanometre grid when the
+   * are one corner. The default is `AutoMovieEngineMeshWeldGrid`, a nanometre grid when the
    * unit is the metre. Welding by cell is not welding by distance: two points
    * closer than a cell that fall on either side of a rounding boundary stay
    * apart.
@@ -73,13 +73,13 @@ export namespace IAutoMovieMeasureMeshDefects {
    * divided by its altitude.
    *
    * Options are borrowed for one synchronous call; their numeric ranges are
-   * checked by measureAutoMovieMeshDefects before inspection. Omission uses the
+   * checked by measureMeshDefects before inspection. Omission uses the
    * documented lattice default and disables only sliver classification.
    */
   export type IOptions = {
     /**
      * Positive finite lattice cells per position unit; omitted uses
-     * MESH_WELD_GRID = 1e9, a nanometre grid for metre input. Rounding cells
+     * AutoMovieEngineMeshWeldGrid = 1e9, a nanometre grid for metre input. Rounding cells
      * defines identity, not pairwise distance.
      */
     weld?: number;

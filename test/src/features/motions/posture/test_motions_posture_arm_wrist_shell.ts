@@ -1,5 +1,7 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { HumanArmWristShell } from "@automovie/motions/internal";
+import {
+  HumanArmWristShell
+} from "../../../../../packages/motions/src/posture/internal/HumanArmWristShell";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

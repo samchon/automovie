@@ -1,7 +1,4 @@
-import {
-  addAutoMovieQuadraticProduct,
-  AutoMovieViewAxisJet as AxisJet,
-} from "@automovie/engine";
+import { AutoMovieEngineViewAxisJet as AxisJet, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieConstructionOutlineParameter,
@@ -11,25 +8,28 @@ import type {
   IAutoMovieViewAxisJet,
 } from "@automovie/interface";
 
-/** Original world positions in mm, or component derivatives in their named coordinate. */
-type V = AutoMovieVector3Tuple;
-
-/**
+/*
  * Original target arithmetic, affine course origins and qualified chart priors.
  * Target compensation changes evaluation of the same P, never its geometry.
  * Coordinate priors remain distinct from full relieved-source inversion.
  */
 export namespace AutoMovieHumanF1NativeRootControl {
-  /** Constant caliper course map with the original section directions and derivative law. */
+  /*
+   * Constant caliper course map with the original section directions and
+   * derivative law.
+   */
   export interface IAffine {
-    /** Transform only the course origin and its actual derivatives; keep original section bases. */
+    /*
+     * Transform only the course origin and its actual derivatives; keep
+     * original section bases.
+     */
     axis(
       prior: IAutoMovieViewAxis.IAxis,
       translation: V,
     ): IAutoMovieViewAxis.IAxis;
   }
 
-  /**
+  /*
    * Carry both original targets by the complete wall response at their clock.
    *
    * Every changed child coordinate sums child, wall, -parent and the same
@@ -37,15 +37,17 @@ export namespace AutoMovieHumanF1NativeRootControl {
    * correction after collapsing high/low would lose its cancellation error.
    * Literal parent and held-child identities retain their original values.
    *
-   * The accumulator follows Ogita, Rump and Oishi (2005), algorithms 3.1,
-   * 3.3 and 5.3, through the engine's existing numeric owner:
-   * https://www.tuhh.de/ti3/paper/rump/OgRuOi05.pdf
-   * Its product-underflow accuracy limitation remains; finite inputs do not
-   * guarantee finite intermediate arithmetic. Nonfinite intermediate or final
-   * accumulation refuses explicitly, with no magnitude cutoff or retry.
-   * This is not a claim of correctly rounded sums over all finite inputs.
+   * The accumulator follows Ogita, Rump and Oishi (2005), algorithms 3.1, 3.3
+   * and 5.3, through the engine's existing numeric owner:
+   * https://www.tuhh.de/ti3/paper/rump/OgRuOi05.pdf Its product-underflow
+   * accuracy limitation remains; finite inputs do not guarantee finite
+   * intermediate arithmetic. Nonfinite intermediate or final accumulation
+   * refuses explicitly, with no magnitude cutoff or retry. This is not a claim
+   * of correctly rounded sums over all finite inputs.
    */
-  export function targets(input: IAutoMovieHumanF1NativeRoot.ITargets): IAutoMovieHumanF1NativeRoot.ICurves {
+  export function targets(
+    input: IAutoMovieHumanF1NativeRoot.ITargets,
+  ): IAutoMovieHumanF1NativeRoot.ICurves {
     if (
       input.parent.length === 0 ||
       input.parent.length !== input.child.length ||
@@ -69,8 +71,10 @@ export namespace AutoMovieHumanF1NativeRootControl {
       );
     const anchor: V = input.parent[0]!;
 
-    /** Existing directional caliper correction in the original fixed basis. */
-    const correction: (point: V) => V = (point: V): V => {
+    /*
+     * Existing directional caliper correction in the original fixed basis.
+     */
+    function correction(point: V): V {
       if (input.scale[0] === 1 && input.scale[1] === 1) return [0, 0, 0];
       const q: V = subtract(point, anchor);
       const a: number = (input.scale[0] - 1) * dot(q, input.basis.u);
@@ -78,7 +82,7 @@ export namespace AutoMovieHumanF1NativeRootControl {
       return [0, 1, 2].map(
         (k: number): number => a * input.basis.u[k]! + b * input.basis.v[k]!,
       ) as V;
-    };
+    }
     const parent: V[] = input.parent.map((point: V, clock: number): V => {
       const extra: V = correction(point);
       const base: V = input.wall[clock]!;
@@ -99,7 +103,10 @@ export namespace AutoMovieHumanF1NativeRootControl {
     return { parent, child };
   }
 
-  /** Preserve the original address residual and unwrapped phase under the same raw-coordinate increment. */
+  /*
+   * Preserve the original address residual and unwrapped phase under the same
+   * raw-coordinate increment.
+   */
   export function address(
     original: readonly [number, number],
     target: readonly [number, number],
@@ -114,7 +121,7 @@ export namespace AutoMovieHumanF1NativeRootControl {
     ];
   }
 
-  /**
+  /*
    * Keep the existing constant affine candidate course policy and physical2.
    * The caller admits its finite basis, anchor and positive scales before
    * acquiring the source. Translation is constant along each returned axis.
@@ -126,11 +133,10 @@ export namespace AutoMovieHumanF1NativeRootControl {
     scale: readonly [number, number],
     anchor: V,
   ): IAffine {
-    /** Existing anchored point map; translation and coordinates use world mm. */
-    const affine: (point: V, translation: V) => V = (
-      point: V,
-      translation: V,
-    ): V => {
+    /*
+     * Existing anchored point map; translation and coordinates use world mm.
+     */
+    function affine(point: V, translation: V): V {
       const q: V = subtract(point, anchor);
       const a: number = (scale[0] - 1) * dot(q, basis.u);
       const b: number = (scale[1] - 1) * dot(q, basis.v);
@@ -138,26 +144,28 @@ export namespace AutoMovieHumanF1NativeRootControl {
         (value: number, k: number): number =>
           value + translation[k]! + a * basis.u[k]! + b * basis.v[k]!,
       ) as V;
-    };
+    }
 
-    /** The same constant linear part differentiates the origin once and twice. */
-    const linear: (point: V) => V = (point: V): V => {
+    /*
+     * The same constant linear part differentiates the origin once and twice.
+     */
+    function linear(point: V): V {
       const a: number = (scale[0] - 1) * dot(point, basis.u);
       const b: number = (scale[1] - 1) * dot(point, basis.v);
       return point.map(
         (value: number, k: number): number =>
           value + a * basis.u[k]! + b * basis.v[k]!,
       ) as V;
-    };
+    }
 
-    /** Preserve original u/v and their derivatives while transforming the course origin. */
-    const axis: (
+    /*
+     * Preserve original u/v and their derivatives while transforming the course
+     * origin.
+     */
+    function axis(
       prior: IAutoMovieViewAxis.IAxis,
       translation: V,
-    ) => IAutoMovieViewAxis.IAxis = (
-      prior: IAutoMovieViewAxis.IAxis,
-      translation: V,
-    ): IAutoMovieViewAxis.IAxis => {
+    ): IAutoMovieViewAxis.IAxis {
       if (
         scale[0] === 1 &&
         scale[1] === 1 &&
@@ -165,15 +173,17 @@ export namespace AutoMovieHumanF1NativeRootControl {
       )
         return prior;
 
-      /** The actual original frame with only its origin transformed. */
-      const frame: (
+      /*
+       * The actual original frame with only its origin transformed.
+       */
+      function frame(
         value: IAutoMovieLoftSectionFrame,
-      ) => IAutoMovieLoftSectionFrame = (
-        value: IAutoMovieLoftSectionFrame,
-      ): IAutoMovieLoftSectionFrame => ({
-        ...value,
-        origin: affine(value.origin, translation),
-      });
+      ): IAutoMovieLoftSectionFrame {
+        return {
+          ...value,
+          origin: affine(value.origin, translation),
+        };
+      }
       return {
         at: (s: number): IAutoMovieLoftSectionFrame => frame(prior.at(s)),
         jet: (
@@ -198,11 +208,14 @@ export namespace AutoMovieHumanF1NativeRootControl {
               );
         },
       };
-    };
+    }
     return { axis };
   }
 
-  /** Straight-parent bare-coordinate prior, in mm/radians; not a relieved-skin inverse. */
+  /*
+   * Straight-parent bare-coordinate prior, in mm/radians; not a relieved-skin
+   * inverse.
+   */
   export function rawParent(
     axis: IAutoMovieViewAxis.IAxis,
     point: V,
@@ -224,7 +237,10 @@ export namespace AutoMovieHumanF1NativeRootControl {
     ];
   }
 
-  /** Same local source-native prior at the original material station, in mm/radians. */
+  /*
+   * Same local source-native prior at the original material station, in
+   * mm/radians.
+   */
   export function rawChild(
     axis: IAutoMovieViewAxis.IAxis,
     point: V,
@@ -246,7 +262,10 @@ export namespace AutoMovieHumanF1NativeRootControl {
     return [station + dot(q, normal) / speed, Math.atan2(v, u)];
   }
 
-  /** The original caliper-frame construction clock, with no anatomical interpretation. */
+  /*
+   * The original caliper-frame construction clock, with no anatomical
+   * interpretation.
+   */
   export function polarAt(frame: IAutoMovieLoftSectionFrame, point: V): number {
     const q: V = subtract(point, frame.origin);
     const u: number = dot(q, frame.u);
@@ -256,7 +275,7 @@ export namespace AutoMovieHumanF1NativeRootControl {
     return Math.atan2(v, u);
   }
 
-  /**
+  /*
    * Accumulate at most four unchanged target terms with the engine's twofold
    * owner. Inputs and every intermediate high/low must remain finite; even a
    * finite exact final sum can exceed this nonoverflowing evaluation domain.
@@ -271,7 +290,7 @@ export namespace AutoMovieHumanF1NativeRootControl {
     for (const value of values) {
       if (!Number.isFinite(value))
         throw new Error("native root target accumulation has a nonfinite term");
-      addAutoMovieQuadraticProduct(accumulator, 0, value, 1);
+      AutoMovieEngineMath.addQuadraticProduct(accumulator, 0, value, 1);
       if (!(Number.isFinite(accumulator[0]) && Number.isFinite(accumulator[1])))
         throw new Error("native root target twofold accumulation overflowed");
     }
@@ -281,17 +300,23 @@ export namespace AutoMovieHumanF1NativeRootControl {
     return value;
   }
 
-  /** Fresh component subtraction with unchanged arithmetic. */
+  /*
+   * Fresh component subtraction with unchanged arithmetic.
+   */
   function subtract(a: V, b: V): V {
     return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
   }
 
-  /** Existing projection onto an original frame direction. */
+  /*
+   * Existing projection onto an original frame direction.
+   */
   function dot(a: V, b: V): number {
     return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
   }
 
-  /** Original frame normal in the engine's v-cross-u convention. */
+  /*
+   * Original frame normal in the engine's v-cross-u convention.
+   */
   function cross(a: V, b: V): V {
     return [
       a[1] * b[2] - a[2] * b[1],
@@ -300,3 +325,9 @@ export namespace AutoMovieHumanF1NativeRootControl {
     ];
   }
 }
+
+/*
+ * Original world positions in mm, or component derivatives in their named
+ * coordinate.
+ */
+type V = AutoMovieVector3Tuple;

@@ -1,7 +1,4 @@
-import {
-  compileAutoMovieSweep,
-  sampleAutoMovieSurfaceNetwork,
-} from "@automovie/engine";
+import { AutoMovieEngineSweep } from "@automovie/engine";
 import type {
   IAutoMovieSurfaceNetwork,
   IAutoMovieSweepSurface,
@@ -16,7 +13,7 @@ import { throwsError } from "../../internal/throwsError";
 
 /**
  * Without a declared perimeter the subdivided limit falls short of a ring's
- * girth, and `sampleAutoMovieSurfaceNetwork` refuses a perimeter on a ring that
+ * girth, and `sampleSurfaceNetwork` refuses a perimeter on a ring that
  * cannot hold it.
  *
  * Fixture: the elliptic girth tube (exponent 2); its middle ring's section
@@ -33,7 +30,7 @@ import { throwsError } from "../../internal/throwsError";
  *    and two rings at one u ("share one u") are refused at the medium tier.
  */
 export function test_engine_geometry_sweep_girth_refusals(): void {
-  const sweep: IAutoMovieSweepSurface = compileAutoMovieSweep(
+  const sweep: IAutoMovieSweepSurface = AutoMovieEngineSweep.compileSweep(
     sweepGirthTube({ exponent: 2 }).sweeps.tube!,
   );
   let perimeter: number = 0;
@@ -163,7 +160,7 @@ export function test_engine_geometry_sweep_girth_refusals(): void {
       label,
       throwsError(
         (): unknown =>
-          sampleAutoMovieSurfaceNetwork({ network, tier: "medium" }),
+          AutoMovieEngineSweep.sampleSurfaceNetwork({ network, tier: "medium" }),
         message,
       ),
     );

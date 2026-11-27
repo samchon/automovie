@@ -1,21 +1,10 @@
-import {
-  AutoMovieArchetypeCourse,
-  AutoMovieArchetypeFrame,
-  AutoMovieArchetypeRefusal,
-  AutoMovieArchetypeRide,
-  createBicycle,
-  createCar,
-  createWheelchair,
-  driveCar,
-  rideBicycle,
-  rideWheelchair,
-} from "@automovie/archetypes";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieArchetypeBicycle, AutoMovieArchetypeCar, AutoMovieArchetypeCourse, AutoMovieArchetypeFrame, AutoMovieArchetypeRefusal, AutoMovieArchetypeRide, AutoMovieArchetypeWheelchair } from "@automovie/archetypes";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieTransform,
 } from "@automovie/interface";
-import { HumanObject } from "@automovie/motions";
+import { AutoMovieMotionHumanObject } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { qclose } from "../../internal/qclose";
@@ -39,21 +28,25 @@ export function test_archetypes_vehicles_prepared_ride_frames(): void {
     endSpeed: 2,
     legs: [{ kind: "turn", angle: 32, radius: 14 }],
   } as const;
-  const car: ReturnType<typeof createCar> = createCar({ kind: "hatchback" });
-  const bike: ReturnType<typeof createBicycle> = createBicycle();
-  const chair: ReturnType<typeof createWheelchair> = createWheelchair({
+  const car: ReturnType<typeof AutoMovieArchetypeCar.create> =
+    AutoMovieArchetypeCar.create({
+      kind: "hatchback",
+    });
+  const bike: ReturnType<typeof AutoMovieArchetypeBicycle.create> =
+    AutoMovieArchetypeBicycle.create();
+  const chair: ReturnType<typeof AutoMovieArchetypeWheelchair.create> = AutoMovieArchetypeWheelchair.create({
     kind: "selfPropelled",
   });
-  const drive: ReturnType<typeof driveCar> = driveCar(car, course);
+  const drive: ReturnType<typeof AutoMovieArchetypeCar.drive> = AutoMovieArchetypeCar.drive(car, course);
   compare(drive, ["wheel", "frontRightSpin"]);
-  const bicycle: ReturnType<typeof rideBicycle> = rideBicycle(bike, course);
+  const bicycle: ReturnType<typeof AutoMovieArchetypeBicycle.ride> = AutoMovieArchetypeBicycle.ride(bike, course);
   compare(bicycle, ["saddle", "leftGrip", "leftPedal"]);
-  compare(rideWheelchair(chair, course), ["seat", "leftRim", "rightRim"]);
+  compare(AutoMovieArchetypeWheelchair.ride(chair, course), ["seat", "leftRim", "rightRim"]);
   let full: number = 0;
   const supplied: ReturnType<
     typeof AutoMovieArchetypeRide.along<
-      createCar.Affordance,
-      createCar.Dimension
+      AutoMovieArchetypeCar.Affordance,
+      AutoMovieArchetypeCar.Dimension
     >
   > = AutoMovieArchetypeRide.along(car, course, (state) => ({
     get archetype(): typeof car {
@@ -61,7 +54,9 @@ export function test_archetypes_vehicles_prepared_ride_frames(): void {
       return car.articulate({ wheel: 45 });
     },
     placement: state.placement,
-    frame: (id: createCar.Affordance): IAutoMovieTransform | undefined =>
+    frame: (
+      id: AutoMovieArchetypeCar.Affordance,
+    ): IAutoMovieTransform | undefined =>
       id === "wheel" ? car.affordance("wheel").frame : undefined,
   }));
   supplied.frame("wheel", 1);
@@ -75,7 +70,7 @@ export function test_archetypes_vehicles_prepared_ride_frames(): void {
 
   let fault: unknown;
   try {
-    drive.frame("unknown" as createCar.Affordance, 1);
+    drive.frame("unknown" as AutoMovieArchetypeCar.Affordance, 1);
   } catch (error) {
     fault = error;
   }
@@ -84,7 +79,7 @@ export function test_archetypes_vehicles_prepared_ride_frames(): void {
     fault instanceof AutoMovieArchetypeRefusal,
   );
 
-  const prop: ReturnType<typeof HumanObject.prop> = HumanObject.prop(
+  const prop: ReturnType<typeof AutoMovieMotionHumanObject.prop> = AutoMovieMotionHumanObject.prop(
     "car",
     car,
     {
@@ -97,7 +92,7 @@ export function test_archetypes_vehicles_prepared_ride_frames(): void {
     Object.hasOwn(prop, "articulateSite"),
     false,
   );
-  const site: IAutoMovieAffordance | undefined = HumanObject.articulateSite({
+  const site: IAutoMovieAffordance | undefined = AutoMovieMotionHumanObject.articulateSite({
     ...prop,
   })?.("wheel", { wheel: 45 });
   TestValidator.predicate(
@@ -112,12 +107,12 @@ export function test_archetypes_vehicles_prepared_ride_frames(): void {
   const external: NonNullable<typeof prop.articulateSite> = () => undefined;
   TestValidator.equals(
     "an explicit callback supersedes the model projection",
-    HumanObject.articulateSite({ ...prop, articulateSite: external }),
+    AutoMovieMotionHumanObject.articulateSite({ ...prop, articulateSite: external }),
     external,
   );
   TestValidator.equals(
     "replacing the full provider drops the old projection",
-    HumanObject.articulateSite({
+    AutoMovieMotionHumanObject.articulateSite({
       ...prop,
       articulate: (state) => prop.articulate!(state),
     }),
@@ -141,7 +136,7 @@ export function test_archetypes_vehicles_prepared_ride_frames(): void {
       return timed.at(seconds);
     },
   };
-  const timedRide: ReturnType<typeof driveCar> = driveCar(car, tracked);
+  const timedRide: ReturnType<typeof AutoMovieArchetypeCar.drive> = AutoMovieArchetypeCar.drive(car, tracked);
   const preparation: number = states;
   const offsets: readonly number[] = [2.87, 0.15, 1.64, 2.72];
   for (const seconds of offsets) timedRide.frame("driverSeat", seconds);
@@ -164,8 +159,8 @@ export function test_archetypes_vehicles_prepared_ride_frames(): void {
   const forward: ReturnType<typeof AutoMovieArchetypeFrame.axis> =
     AutoMovieArchetypeFrame.axis(bicycle.at(second).placement, "z");
   const centreVelocity = (id: "frontSpin" | "rearSpin"): typeof forward =>
-    Vector3.scale(
-      Vector3.subtract(
+    AutoMovieEngineVector3.scale(
+      AutoMovieEngineVector3.subtract(
         bicycle.frame(id, second + step).translation,
         bicycle.frame(id, second - step).translation,
       ),
@@ -175,8 +170,8 @@ export function test_archetypes_vehicles_prepared_ride_frames(): void {
   const rear: typeof forward = centreVelocity("rearSpin");
   TestValidator.predicate(
     "a fixed bicycle fork shares longitudinal wheel travel through distinct centre arcs",
-    Math.abs(Vector3.length(front) - Vector3.length(rear)) > 1e-6 &&
-      Math.abs(Vector3.dot(Vector3.subtract(front, rear), forward)) < 1e-9,
+    Math.abs(AutoMovieEngineVector3.length(front) - AutoMovieEngineVector3.length(rear)) > 1e-6 &&
+      Math.abs(AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(front, rear), forward)) < 1e-9,
   );
 }
 

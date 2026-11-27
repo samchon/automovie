@@ -1,11 +1,11 @@
-import { balletPositions as balletPositionsLaw } from "../exercise/balletPositions";
-import { balletStep as balletStepLaw } from "../exercise/balletStep";
-import { dance as danceLaw } from "../exercise/dance";
-import { groupDance as groupDanceLaw } from "../exercise/groupDance";
-import { streetDance as streetDanceLaw } from "../exercise/streetDance";
-import { tapDance as tapDanceLaw } from "../exercise/tapDance";
-import { HumanDanceStyles as HumanDanceStylesSource } from "../lexicon/HumanDanceStyles";
-import { composeHumanSlowDanceSway as composeHumanSlowDanceSwayLaw } from "../touch/composeHumanSlowDanceSway";
+import { balletPositions as balletPositionsLaw } from "../exercise/internal/balletPositions";
+import { balletStep as balletStepLaw } from "../exercise/internal/balletStep";
+import { dance as danceLaw } from "../exercise/internal/dance";
+import { groupDance as groupDanceLaw } from "../exercise/internal/groupDance";
+import { streetDance as streetDanceLaw } from "../exercise/internal/streetDance";
+import { tapDance as tapDanceLaw } from "../exercise/internal/tapDance";
+import { HumanDanceStyles as HumanDanceStylesSource } from "../lexicon/internal/HumanDanceStyles";
+import { composeHumanSlowDanceSway as composeHumanSlowDanceSwayLaw } from "../touch/internal/composeHumanSlowDanceSway";
 
 /**
  * Footwork and body movement on a beat: social, ballet, tap, street and group
@@ -177,7 +177,7 @@ export namespace AutoMovieMotionHumanDance {
    * @param chain The swaying performer's chain.
    * @param params How far the pelvis goes, the beat and how many sways.
    * @returns The same kind of chain with the shifts appended.
-   * @throws {HumanRefusal} When the count is not a whole number of one or more.
+   * @throws {AutoMovieMotionHumanRefusal} When the count is not a whole number of one or more.
    */
   export const slowDanceSway: typeof composeHumanSlowDanceSwayLaw =
     composeHumanSlowDanceSwayLaw;

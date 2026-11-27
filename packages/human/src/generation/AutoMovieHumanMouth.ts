@@ -239,6 +239,19 @@ export namespace AutoMovieHumanMouth {
   }
 
   /**
+   * Station spacing the skin takes near an opening, mm: the finest station
+   * pitch any head chain takes (`AutoMovieHumanHeadStationDensity`).
+   */
+  export const PITCH: number = 0.5;
+
+  /**
+   * Distance each side of the closed rim keeps from the contact line, mm:
+   * far under any skin edge, and over the float32 resolution of a head's
+   * coordinates, so the two sides stay apart in every consumer.
+   */
+  export const CLOSED: number = 0.02;
+
+  /*
    * The slit as a Fourier margin facing forward: a stadium about the contact
    * line, as tall as the slit from end to end and closed by half circles at
    * the cheilia, walked by its length. An ellipse thinned toward the cheilia
@@ -316,25 +329,18 @@ export namespace AutoMovieHumanMouth {
     };
   }
 
-  /** Samples of the contact line across the half width. */
+  /*
+   * Samples of the contact line across the half width.
+   */
   const SAMPLES: number = 16;
 
-  /**
-   * Station spacing the skin takes near an opening, mm: the finest station
-   * pitch any head chain takes (`AutoMovieHumanHeadStationDensity`).
+  /*
+   * Highest harmonic of the slit's margin.
    */
-  export const PITCH: number = 0.5;
-
-  /** Highest harmonic of the slit's margin. */
   const ORDER: number = 128;
 
-  /**
-   * Distance each side of the closed rim keeps from the contact line, mm:
-   * far under any skin edge, and over the float32 resolution of a head's
-   * coordinates, so the two sides stay apart in every consumer.
+  /*
+   * Depth tolerance of the slit's inside test, mm.
    */
-  export const CLOSED: number = 0.02;
-
-  /** Depth tolerance of the slit's inside test, mm. */
   const DEPTH: number = 3;
 }

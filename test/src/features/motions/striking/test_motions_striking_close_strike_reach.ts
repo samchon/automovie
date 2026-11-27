@@ -1,4 +1,6 @@
-import { CloseStrikeReach } from "@automovie/motions/internal";
+import {
+  CloseStrikeReach
+} from "../../../../../packages/motions/src/striking/internal/CloseStrikeReach";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

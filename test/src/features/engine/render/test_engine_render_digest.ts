@@ -1,8 +1,8 @@
-import { autoMovieRenderDigest } from "@automovie/engine";
+import { AutoMovieEngineRenderTarget } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `autoMovieRenderDigest` is the `sha256:` digest of the UTF-8 text.
+ * `renderDigest` is the `sha256:` digest of the UTF-8 text.
  *
  * Scenarios, from the FIPS 180-4 examples:
  *
@@ -14,7 +14,7 @@ import { TestValidator } from "@nestia/e2e";
 export function test_engine_render_digest(): void {
   TestValidator.equals(
     "FIPS vectors",
-    [autoMovieRenderDigest(""), autoMovieRenderDigest("abc")],
+    [AutoMovieEngineRenderTarget.autoMovieRenderDigest(""), AutoMovieEngineRenderTarget.autoMovieRenderDigest("abc")],
     [
       "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "sha256:ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",

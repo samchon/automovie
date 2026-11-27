@@ -12,13 +12,19 @@ Write only the facets the planned scenes and arcs use, leaving an unused facet o
 
 | Domain | Facets the scenes may need |
 | --- | --- |
-| `world` | Rules of the world and of any practice shown; time of day, weather and season defaults; tone |
+| `world` | Rules of the world and any practice shown, defaults and tone |
 | `cast` | The cast facets listed below |
 | `crowds` | Makeup, arrangement and what the crowd does and reacts to |
-| `props` | Form, material and markings; how people hold, use or ride it; state changes; vehicles and animals included |
-| `sets` | Shape, zones and landmarks; routes, entrances and levels; dressing; how people use the space; state changes |
-| `cinematography` | Framing grammar and camera movement style, and the film's look |
+| `props` | Form, material, markings, handling and state changes |
+| `sets` | Shape, routes, levels, landmarks, dressing, use and state changes |
+| `cinematography` | Framing grammar, camera movement and look |
 | `sound` | Ambience and music palettes; voices belong to the cast |
+
+`world` records time of day, weather and season defaults.
+
+`props` includes vehicles and animals and how people hold, use or ride them.
+
+`sets` records zones, entrances and how people use the space.
 
 A practice shown is, for example, a sport or a ceremony. The film's look is its medium or rendering style, lighting style, lens character and grade.
 

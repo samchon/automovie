@@ -1,4 +1,4 @@
-import { resolveBeatEnd } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import {
   type IAutoMovieBeatEndActorState,
   IAutoMovieBeatEndFootPlant,
@@ -124,7 +124,7 @@ const plant: (
  *     velocity window: zero, not NaN.
  */
 export function test_engine_film_beat_end_sim_state(): void {
-  const flight: IAutoMovieBeatEndActorState = resolveBeatEnd({
+  const flight: IAutoMovieBeatEndActorState = AutoMovieEngineFilm.resolveBeatEnd({
     beat: "beat-1",
     scene,
     shot: shotOf(0.5),
@@ -136,7 +136,7 @@ export function test_engine_film_beat_end_sim_state(): void {
     vclose(flight.rootVelocity!, { x: 2, y: 0, z: 0 }, 1e-9),
   );
 
-  const atCut: IAutoMovieBeatEndActorState = resolveBeatEnd({
+  const atCut: IAutoMovieBeatEndActorState = AutoMovieEngineFilm.resolveBeatEnd({
     beat: "beat-1",
     scene,
     shot: shotOf(1),
@@ -147,7 +147,7 @@ export function test_engine_film_beat_end_sim_state(): void {
     vclose(atCut.rootVelocity!, { x: 2, y: 0, z: 0 }, 1e-9),
   );
 
-  const ended: IAutoMovieBeatEndActorState = resolveBeatEnd({
+  const ended: IAutoMovieBeatEndActorState = AutoMovieEngineFilm.resolveBeatEnd({
     beat: "beat-1",
     scene,
     shot: shotOf(2),
@@ -159,7 +159,7 @@ export function test_engine_film_beat_end_sim_state(): void {
     vclose(ended.rootVelocity!, { x: 0, y: 0, z: 0 }),
   );
 
-  const withData: IAutoMovieBeatEndState = resolveBeatEnd({
+  const withData: IAutoMovieBeatEndState = AutoMovieEngineFilm.resolveBeatEnd({
     beat: "beat-1",
     scene,
     shot: shotOf(2),
@@ -218,7 +218,7 @@ export function test_engine_film_beat_end_sim_state(): void {
     bone: "spine",
   });
 
-  const noData: IAutoMovieBeatEndActorState = resolveBeatEnd({
+  const noData: IAutoMovieBeatEndActorState = AutoMovieEngineFilm.resolveBeatEnd({
     beat: "beat-1",
     scene,
     shot: shotOf(2),
@@ -227,7 +227,7 @@ export function test_engine_film_beat_end_sim_state(): void {
   TestValidator.equals("no plant data yields null", noData.footPlants, null);
   TestValidator.equals("no mount data yields null", noData.mount, null);
 
-  const inactive: IAutoMovieBeatEndActorState = resolveBeatEnd({
+  const inactive: IAutoMovieBeatEndActorState = AutoMovieEngineFilm.resolveBeatEnd({
     beat: "beat-1",
     scene,
     shot: shotOf(2),
@@ -249,7 +249,7 @@ export function test_engine_film_beat_end_sim_state(): void {
     "duplicated plant node throws",
     throwsError(
       (): IAutoMovieBeatEndState =>
-        resolveBeatEnd({
+        AutoMovieEngineFilm.resolveBeatEnd({
           beat: "beat-1",
           scene,
           shot: shotOf(2),
@@ -266,7 +266,7 @@ export function test_engine_film_beat_end_sim_state(): void {
     "duplicated mount node throws",
     throwsError(
       (): IAutoMovieBeatEndState =>
-        resolveBeatEnd({
+        AutoMovieEngineFilm.resolveBeatEnd({
           beat: "beat-1",
           scene,
           shot: shotOf(2),
@@ -284,7 +284,7 @@ export function test_engine_film_beat_end_sim_state(): void {
     ...makeMotion([keyframe(0, makePose([]))], 0, true),
     id: "dash",
   };
-  const degenerate: IAutoMovieBeatEndActorState = resolveBeatEnd({
+  const degenerate: IAutoMovieBeatEndActorState = AutoMovieEngineFilm.resolveBeatEnd({
     beat: "beat-1",
     scene,
     shot: shotOf(2),
@@ -300,7 +300,7 @@ export function test_engine_film_beat_end_sim_state(): void {
     vclose(degenerate.rootVelocity!, { x: 0, y: 0, z: 0 }),
   );
 
-  const unstarted: IAutoMovieBeatEndActorState = resolveBeatEnd({
+  const unstarted: IAutoMovieBeatEndActorState = AutoMovieEngineFilm.resolveBeatEnd({
     beat: "beat-1",
     scene,
     shot: {

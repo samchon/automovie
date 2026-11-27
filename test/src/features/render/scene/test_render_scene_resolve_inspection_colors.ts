@@ -1,9 +1,9 @@
 import type { IAutoMovieMark } from "@automovie/interface";
-import { resolveAutoMovieInspectionColors } from "@automovie/render";
+import { AutoMovieRenderInspectionMaterial } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `resolveAutoMovieInspectionColors` settles the legend entry of each mark
+ * `resolveInspectionColors` settles the legend entry of each mark
  * kind.
  *
  * Scenarios:
@@ -24,7 +24,7 @@ export function test_render_scene_resolve_inspection_colors(): void {
     anchor: null,
   });
   const resolved: Map<string, { label: string; color: number }> =
-    resolveAutoMovieInspectionColors({
+    AutoMovieRenderInspectionMaterial.resolveColors({
       marks: [mark("curve", "Curve", 0x00ff00), mark("joint", "Joint", 0x0000ff)],
       reserved: [{ use: "the flag", color: 0xff00ff }],
       recolor: [
@@ -37,14 +37,14 @@ export function test_render_scene_resolve_inspection_colors(): void {
     ["joint", { label: "Joint", color: 0x0000ff }],
   ]);
   TestValidator.error("two entries", (): void => {
-    resolveAutoMovieInspectionColors({
+    AutoMovieRenderInspectionMaterial.resolveColors({
       marks: [mark("curve", "Curve", 0x00ff00), mark("curve", "Bend", 0x00ff00)],
       reserved: [],
       recolor: [],
     });
   });
   TestValidator.error("reserved colour", (): void => {
-    resolveAutoMovieInspectionColors({
+    AutoMovieRenderInspectionMaterial.resolveColors({
       marks: [mark("curve", "Curve", 0xff00ff)],
       reserved: [{ use: "the flag", color: 0xff00ff }],
       recolor: [],

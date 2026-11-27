@@ -1,4 +1,6 @@
-import { HumanKnot } from "@automovie/motions/internal";
+import {
+  HumanKnot
+} from "../../../../../packages/motions/src/posture/internal/HumanKnot";
 import { TestValidator } from "@nestia/e2e";
 
 /**

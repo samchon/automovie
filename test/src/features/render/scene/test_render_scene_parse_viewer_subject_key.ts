@@ -1,8 +1,8 @@
-import { parseAutoMovieViewerSubjectKey } from "@automovie/render";
+import { AutoMovieRenderSubjectViewpoint } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `parseAutoMovieViewerSubjectKey` reads "<kind>:<id>[@<revision>]", where the
+ * `parseViewerSubjectKey` reads "<kind>:<id>[@<revision>]", where the
  * last `@` starts the revision.
  *
  * Scenarios:
@@ -16,7 +16,7 @@ export function test_render_scene_parse_viewer_subject_key(): void {
   TestValidator.equals(
     "keys",
     ["model:hero@r2", "part:a@b@c", "mesh:x"].map(
-      parseAutoMovieViewerSubjectKey,
+      AutoMovieRenderSubjectViewpoint.parseAutoMovieViewerSubjectKey,
     ),
     [
       { kind: "model", id: "hero", revision: "r2" },
@@ -34,7 +34,7 @@ export function test_render_scene_parse_viewer_subject_key(): void {
       key,
       ((): string => {
         try {
-          parseAutoMovieViewerSubjectKey(key);
+          AutoMovieRenderSubjectViewpoint.parseAutoMovieViewerSubjectKey(key);
           return "";
         } catch (error) {
           return error instanceof Error && error.message.includes(message)

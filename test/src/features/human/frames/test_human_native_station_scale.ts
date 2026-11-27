@@ -1,4 +1,4 @@
-import { AutoMovieViewOutline } from "@automovie/engine";
+import { AutoMovieEngineViewOutline } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft as H,
   AutoMovieHumanConicSection as S,
@@ -83,7 +83,7 @@ export function test_human_native_station_scale(): void {
   const originals: Map<string, IAutoMovieViewPart> = new Map([[prior.name, original]]);
   const axis: IAutoMovieViewAxis.IAxis = H.axis(prior);
   const bound = (station: number, ratio: AutoMovieVector2Tuple): Native.ISpec["protection"][number] => ({
-    sources: new Map([[prior.name, AutoMovieHumanNativeSourceLaw(original, axis, ratio, [])]]),
+    sources: new Map([[prior.name, AutoMovieHumanNativeSourceLaw.create(original, axis, ratio, [])]]),
     requirement: { type: "junction", station },
   });
   const build = (
@@ -105,9 +105,9 @@ export function test_human_native_station_scale(): void {
       }),
     );
   const read = (outline: IAutoMovieViewPart.IOutline, s: number, ends: IAutoMovieViewOutline.IEnds = {}): [number, number, number] => {
-    const curve = AutoMovieViewOutline.create(outline, ends);
+    const curve = AutoMovieEngineViewOutline.create(outline, ends);
     if ("contract" in curve) throw new Error(curve.detail);
-    const reading = AutoMovieViewOutline.at(curve, s);
+    const reading = AutoMovieEngineViewOutline.at(curve, s);
     if (typeof reading === "string" || reading.stationJet === null) throw new Error("unreadable source at " + s);
     return [reading.value, reading.stationJet[0], reading.stationJet[1]];
   };
@@ -325,7 +325,7 @@ export function test_human_native_station_scale(): void {
   const scopedOriginal: IAutoMovieViewPart = H.part({ ...scoped, tips: [null, null] }, stations);
   const scopedAxis: IAutoMovieViewAxis.IAxis = H.axis(scoped);
   const scopedBound = (station: number, ratio: AutoMovieVector2Tuple): Native.ISpec["protection"][number] => ({
-    sources: new Map([[scoped.name, AutoMovieHumanNativeSourceLaw(scopedOriginal, scopedAxis, ratio, [])]]),
+    sources: new Map([[scoped.name, AutoMovieHumanNativeSourceLaw.create(scopedOriginal, scopedAxis, ratio, [])]]),
     requirement: { type: "junction", station },
   });
   let scopedPart: IAutoMovieViewPart | undefined;

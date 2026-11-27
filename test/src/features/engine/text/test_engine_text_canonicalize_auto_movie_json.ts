@@ -1,11 +1,11 @@
 import {
-  AutoMovieCanonicalJsonError,
-  canonicalizeAutoMovieJson,
+  AutoMovieEngineCanonicalJsonError,
+  AutoMovieEngineCanonicalJson,
 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `canonicalizeAutoMovieJson` encodes a value as JSON with members in code-unit
+ * `canonicalizeJson` encodes a value as JSON with members in code-unit
  * order and absent members left out.
  *
  * Scenarios:
@@ -19,27 +19,35 @@ import { TestValidator } from "@nestia/e2e";
 export function test_engine_text_canonicalize_auto_movie_json(): void {
   TestValidator.equals(
     "members sort by code unit",
-    canonicalizeAutoMovieJson({ b: 1, a: 2 }),
+    AutoMovieEngineCanonicalJson.canonicalize({ b: 1, a: 2 }),
     '{"a":2,"b":1}',
   );
   TestValidator.equals(
     "an undefined member is omitted and an undefined slot is null",
-    canonicalizeAutoMovieJson({ skip: undefined, list: [1, undefined] }),
+    AutoMovieEngineCanonicalJson.canonicalize({
+      skip: undefined,
+      list: [1, undefined],
+    }),
     '{"list":[1,null]}',
   );
   TestValidator.equals(
     "scalars and nesting encode as JSON",
-    canonicalizeAutoMovieJson({ t: true, n: null, s: "x", o: { k: [0.5] } }),
+    AutoMovieEngineCanonicalJson.canonicalize({
+      t: true,
+      n: null,
+      s: "x",
+      o: { k: [0.5] },
+    }),
     '{"n":null,"o":{"k":[0.5]},"s":"x","t":true}',
   );
   const refusal: (value: unknown) => string | null = (
     value: unknown,
   ): string | null => {
     try {
-      canonicalizeAutoMovieJson(value);
+      AutoMovieEngineCanonicalJson.canonicalize(value);
       return null;
     } catch (error) {
-      return error instanceof AutoMovieCanonicalJsonError
+      return error instanceof AutoMovieEngineCanonicalJsonError
         ? `${error.code}|${error.name}|${error.category}|${error.message.startsWith(`AutoMovie canonical JSON refused ${error.category}: `)}`
         : "other";
     }

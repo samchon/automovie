@@ -1,4 +1,4 @@
-import { linearColorToSrgbHex, srgbHexToLinearColor } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import type { IAutoMovieColor } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -38,8 +38,8 @@ import { nclose, throwsError } from "../../internal/predicates";
  *    rounded into a string that reads like a swatch.
  */
 export function test_engine_math_srgb_hex(): void {
-  const black: IAutoMovieColor = srgbHexToLinearColor("#000000");
-  const white: IAutoMovieColor = srgbHexToLinearColor("#ffffff");
+  const black: IAutoMovieColor = AutoMovieEngineMath.srgbHexToLinearColor("#000000");
+  const white: IAutoMovieColor = AutoMovieEngineMath.srgbHexToLinearColor("#ffffff");
   TestValidator.predicate(
     "black decodes to the linear origin",
     equalGeometryTestValues(
@@ -56,12 +56,12 @@ export function test_engine_math_srgb_hex(): void {
   );
   TestValidator.equals(
     "the gamut ends re-encode to themselves",
-    [linearColorToSrgbHex(black), linearColorToSrgbHex(white)],
+    [AutoMovieEngineMath.linearColorToSrgbHex(black), AutoMovieEngineMath.linearColorToSrgbHex(white)],
     ["#000000", "#ffffff"],
   );
 
   // ((0x7d / 255 + 0.055) / 1.055) ** 2.4 and its two siblings, by hand.
-  const slate: IAutoMovieColor = srgbHexToLinearColor("#7d828c");
+  const slate: IAutoMovieColor = AutoMovieEngineMath.srgbHexToLinearColor("#7d828c");
   TestValidator.predicate(
     "the roof swatch decodes to the standard's linear triple",
     nclose(slate.r, 0.20507874, 1e-8) &&
@@ -75,19 +75,19 @@ export function test_engine_math_srgb_hex(): void {
   );
   TestValidator.predicate(
     "mid grey is linear 0.2159, not 0.5020",
-    nclose(srgbHexToLinearColor("#808080").r, 0.2158605, 1e-8),
+    nclose(AutoMovieEngineMath.srgbHexToLinearColor("#808080").r, 0.2158605, 1e-8),
   );
 
   // 10 / 255 = 0.0392157 is below the 0.04045 breakpoint, 11 / 255 = 0.0431373
   // is above it, so one byte apart takes the two different segments.
   TestValidator.predicate(
     "the byte below the breakpoint takes the linear segment",
-    nclose(srgbHexToLinearColor("#0a0a0a").r, 10 / 255 / 12.92, 1e-15),
+    nclose(AutoMovieEngineMath.srgbHexToLinearColor("#0a0a0a").r, 10 / 255 / 12.92, 1e-15),
   );
   TestValidator.predicate(
     "the byte above the breakpoint takes the power segment",
     nclose(
-      srgbHexToLinearColor("#0b0b0b").r,
+      AutoMovieEngineMath.srgbHexToLinearColor("#0b0b0b").r,
       Math.pow((11 / 255 + 0.055) / 1.055, 2.4),
       1e-15,
     ),
@@ -109,14 +109,14 @@ export function test_engine_math_srgb_hex(): void {
   // 188.
   TestValidator.equals(
     "the encode segments produce their hand-computed bytes",
-    [linearColorToSrgbHex(grey(0.001)), linearColorToSrgbHex(grey(0.5))],
+    [AutoMovieEngineMath.linearColorToSrgbHex(grey(0.001)), AutoMovieEngineMath.linearColorToSrgbHex(grey(0.5))],
     ["#030303", "#bcbcbc"],
   );
   TestValidator.equals(
     "the two encode segments meet at the breakpoint",
     [
-      linearColorToSrgbHex(grey(0.0031308)),
-      linearColorToSrgbHex(grey(0.0031309)),
+      AutoMovieEngineMath.linearColorToSrgbHex(grey(0.0031308)),
+      AutoMovieEngineMath.linearColorToSrgbHex(grey(0.0031309)),
     ],
     ["#0a0a0a", "#0a0a0a"],
   );
@@ -130,12 +130,12 @@ export function test_engine_math_srgb_hex(): void {
       byte(value),
     ).filter((pair: string): boolean => {
       const swatch: string = `#${pair}${pair}${pair}`;
-      return linearColorToSrgbHex(srgbHexToLinearColor(swatch)) !== swatch;
+      return AutoMovieEngineMath.linearColorToSrgbHex(AutoMovieEngineMath.srgbHexToLinearColor(swatch)) !== swatch;
     }),
     [],
   );
 
-  const mixed: IAutoMovieColor = srgbHexToLinearColor("#7D828C");
+  const mixed: IAutoMovieColor = AutoMovieEngineMath.srgbHexToLinearColor("#7D828C");
   TestValidator.equals(
     "the label is re-derived from the triple and normalized",
     mixed.hex,
@@ -145,7 +145,7 @@ export function test_engine_math_srgb_hex(): void {
 
   TestValidator.equals(
     "components outside the gamut clamp to its ends",
-    linearColorToSrgbHex({ r: 2, g: -1, b: 0.5 }),
+    AutoMovieEngineMath.linearColorToSrgbHex({ r: 2, g: -1, b: 0.5 }),
     "#ff00bc",
   );
 
@@ -154,7 +154,7 @@ export function test_engine_math_srgb_hex(): void {
     ["7d828c", "#7d828", "#7d828cff", "#gg0000", ""].filter(
       (swatch: string): boolean =>
         throwsError(
-          (): IAutoMovieColor => srgbHexToLinearColor(swatch),
+          (): IAutoMovieColor => AutoMovieEngineMath.srgbHexToLinearColor(swatch),
           ["is not one opaque six-digit #RRGGBB swatch"],
         ) === false,
     ),

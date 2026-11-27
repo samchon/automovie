@@ -1,15 +1,12 @@
-import {
-  markAutoMovieBalance,
-  markAutoMovieRomOvershoot,
-} from "@automovie/engine";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
 import type { IAutoMovieMark } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * Kinematic inspection marks: `markAutoMovieRomOvershoot(entries)` flags each
- * joint past its range at `<path>/rom`; `markAutoMovieBalance(props)` draws the
+ * Kinematic inspection marks: `markRomOvershoot(entries)` flags each
+ * joint past its range at `<path>/rom`; `markBalance(props)` draws the
  * centre at `<path>/com`, flagged when it lies outside the base of support, and
  * that base, the XZ convex hull of the support points, at `<path>/support`.
  *
@@ -27,7 +24,7 @@ export function test_engine_kinematics_inspection_marks(): void {
   const at = { x: 1, y: 2, z: 3 };
 
   // 1.
-  const marks: IAutoMovieMark[] = markAutoMovieRomOvershoot([
+  const marks: IAutoMovieMark[] = AutoMovieEngineKinematics.markAutoMovieRomOvershoot([
     { path: "a", at, overshoot: 0 },
     { path: "b", at, overshoot: 5 },
     { path: "c", at, overshoot: Infinity },
@@ -53,7 +50,7 @@ export function test_engine_kinematics_inspection_marks(): void {
       `${overshoot}`,
       throwsError(
         (): unknown =>
-          markAutoMovieRomOvershoot([{ path: "a", at, overshoot }]),
+          AutoMovieEngineKinematics.markAutoMovieRomOvershoot([{ path: "a", at, overshoot }]),
         "markAutoMovieRomOvershoot",
       ),
     );
@@ -65,7 +62,7 @@ export function test_engine_kinematics_inspection_marks(): void {
     { x: 0, y: 0, z: 1 },
     { x: 0.1, y: 0, z: 0.1 },
   ];
-  const inside: IAutoMovieMark[] = markAutoMovieBalance({
+  const inside: IAutoMovieMark[] = AutoMovieEngineKinematics.markAutoMovieBalance({
     path: "body",
     centre: { x: 0.2, y: 1, z: 0.2 },
     support,
@@ -85,7 +82,7 @@ export function test_engine_kinematics_inspection_marks(): void {
   );
   TestValidator.equals(
     "outside",
-    markAutoMovieBalance({
+    AutoMovieEngineKinematics.markAutoMovieBalance({
       path: "body",
       centre: { x: 2, y: 1, z: 2 },
       support,
@@ -97,12 +94,12 @@ export function test_engine_kinematics_inspection_marks(): void {
   TestValidator.equals(
     "one and two",
     [
-      markAutoMovieBalance({
+      AutoMovieEngineKinematics.markAutoMovieBalance({
         path: "b",
         centre: at,
         support: support.slice(0, 1),
       })[1]!.shape.type,
-      markAutoMovieBalance({
+      AutoMovieEngineKinematics.markAutoMovieBalance({
         path: "b",
         centre: at,
         support: support.slice(0, 2),
@@ -114,7 +111,7 @@ export function test_engine_kinematics_inspection_marks(): void {
     "none",
     throwsError(
       (): unknown =>
-        markAutoMovieBalance({ path: "b", centre: at, support: [] }),
+        AutoMovieEngineKinematics.markAutoMovieBalance({ path: "b", centre: at, support: [] }),
       "no support point",
     ),
   );

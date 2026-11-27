@@ -4,11 +4,9 @@ import type {
   IAutoMovieHumanTrunkSolve,
 } from "@automovie/interface";
 
-import { AutoMovieHumanArmPrior } from "./AutoMovieHumanArmPrior";
+import "./AutoMovieHumanArmPrior";
 import { AutoMovieHumanTrunkSolve } from "./AutoMovieHumanTrunkSolve";
-
-/** The arm prior's bind humerus direction, left frame. */
-const HUMERUS: readonly number[] = AutoMovieHumanArmPrior.PRIOR.arm.upper;
+import { AutoMovieHumanShoulderCapData } from "./internal/AutoMovieHumanShoulderCapData";
 
 /**
  * The shoulder's cap: the corner of the frontal outline between the
@@ -31,10 +29,10 @@ export namespace AutoMovieHumanShoulderCap {
    * PRIOR.arm.upper`), the same bone the arm's tube is built about, so the
    * shoulders' ellipse and the arm's tube stand on one axis.
    */
-  export const ABDUCTION: number = Math.atan2(HUMERUS[2]!, -HUMERUS[1]!);
+  export const ABDUCTION: number = Math.atan2(AutoMovieHumanShoulderCapData.HUMERUS[2]!, -AutoMovieHumanShoulderCapData.HUMERUS[1]!);
 
   /** Forward drift of the arm's axis per millimetre of descent: the humerus direction's forward over its downward component. */
-  export const FORWARD: number = HUMERUS[0]! / -HUMERUS[1]!;
+  export const FORWARD: number = AutoMovieHumanShoulderCapData.HUMERUS[0]! / -AutoMovieHumanShoulderCapData.HUMERUS[1]!;
 
   /**
    * Stretch of the arm's horizontal cut over its girth radius: a cylinder whose
@@ -43,7 +41,7 @@ export namespace AutoMovieHumanShoulderCap {
    * the lean, which lies almost in the frontal plane.
    */
   export const STRETCH: number =
-    Math.hypot(HUMERUS[0]!, HUMERUS[1]!, HUMERUS[2]!) / -HUMERUS[1]!;
+    Math.hypot(AutoMovieHumanShoulderCapData.HUMERUS[0]!, AutoMovieHumanShoulderCapData.HUMERUS[1]!, AutoMovieHumanShoulderCapData.HUMERUS[2]!) / -AutoMovieHumanShoulderCapData.HUMERUS[1]!;
 
   /**
    * The lateral extreme of the arm's horizontal ellipse at the centre's

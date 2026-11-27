@@ -1,4 +1,4 @@
-import { primitiveCentroid, primitiveVolume } from "@automovie/engine";
+import { AutoMovieEnginePhysics } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/predicates";
@@ -22,45 +22,45 @@ export function test_engine_physics_primitive_volume(): void {
   const close = (a: number, b: number): boolean => nclose(a, b, 1e-12);
   TestValidator.equals(
     "box",
-    primitiveVolume({ type: "box", width: 2, height: 3, depth: 4 }),
+    AutoMovieEnginePhysics.primitiveVolume({ type: "box", width: 2, height: 3, depth: 4 }),
     24,
   );
   TestValidator.predicate(
     "sphere",
-    close(primitiveVolume({ type: "sphere", radius: 1 }), (4 * Math.PI) / 3),
+    close(AutoMovieEnginePhysics.primitiveVolume({ type: "sphere", radius: 1 }), (4 * Math.PI) / 3),
   );
   TestValidator.predicate(
     "cylinder",
     close(
-      primitiveVolume({ type: "cylinder", radius: 1, height: 3 }),
+      AutoMovieEnginePhysics.primitiveVolume({ type: "cylinder", radius: 1, height: 3 }),
       3 * Math.PI,
     ),
   );
   TestValidator.predicate(
     "cone",
-    close(primitiveVolume({ type: "cone", radius: 3, height: 2 }), 6 * Math.PI),
+    close(AutoMovieEnginePhysics.primitiveVolume({ type: "cone", radius: 3, height: 2 }), 6 * Math.PI),
   );
   TestValidator.predicate(
     "capsule",
     close(
-      primitiveVolume({ type: "capsule", radius: 1, height: 2 }),
+      AutoMovieEnginePhysics.primitiveVolume({ type: "capsule", radius: 1, height: 2 }),
       2 * Math.PI + (4 * Math.PI) / 3,
     ),
   );
   TestValidator.equals(
     "cone centroid",
-    primitiveCentroid({ type: "cone", radius: 1, height: 8 }),
+    AutoMovieEnginePhysics.primitiveCentroid({ type: "cone", radius: 1, height: 8 }),
     { x: 0, y: 2, z: 0 },
   );
   TestValidator.equals(
     "box centroid",
-    primitiveCentroid({ type: "box", width: 1, height: 1, depth: 1 }),
+    AutoMovieEnginePhysics.primitiveCentroid({ type: "box", width: 1, height: 1, depth: 1 }),
     { x: 0, y: 0, z: 0 },
   );
   TestValidator.predicate(
     "sphere r2",
     nclose(
-      primitiveVolume({ type: "sphere", radius: 2 }),
+      AutoMovieEnginePhysics.primitiveVolume({ type: "sphere", radius: 2 }),
       (4 / 3) * Math.PI * 8,
       1e-12,
     ),
@@ -68,7 +68,7 @@ export function test_engine_physics_primitive_volume(): void {
   TestValidator.predicate(
     "cylinder r2",
     nclose(
-      primitiveVolume({ type: "cylinder", radius: 2, height: 3 }),
+      AutoMovieEnginePhysics.primitiveVolume({ type: "cylinder", radius: 2, height: 3 }),
       Math.PI * 4 * 3,
       1e-12,
     ),
@@ -76,7 +76,7 @@ export function test_engine_physics_primitive_volume(): void {
   TestValidator.predicate(
     "cone r2",
     nclose(
-      primitiveVolume({ type: "cone", radius: 2, height: 3 }),
+      AutoMovieEnginePhysics.primitiveVolume({ type: "cone", radius: 2, height: 3 }),
       (1 / 3) * Math.PI * 4 * 3,
       1e-12,
     ),
@@ -84,24 +84,24 @@ export function test_engine_physics_primitive_volume(): void {
   TestValidator.predicate(
     "capsule r2",
     nclose(
-      primitiveVolume({ type: "capsule", radius: 2, height: 3 }),
+      AutoMovieEnginePhysics.primitiveVolume({ type: "capsule", radius: 2, height: 3 }),
       Math.PI * 4 * 3 + (4 / 3) * Math.PI * 8,
       1e-12,
     ),
   );
   TestValidator.equals(
     "plane",
-    primitiveVolume({ type: "plane", width: 2, depth: 3 }),
+    AutoMovieEnginePhysics.primitiveVolume({ type: "plane", width: 2, depth: 3 }),
     0,
   );
   TestValidator.equals(
     "cone centroid quarter",
-    primitiveCentroid({ type: "cone", radius: 2, height: 4 }),
+    AutoMovieEnginePhysics.primitiveCentroid({ type: "cone", radius: 2, height: 4 }),
     { x: 0, y: 1, z: 0 },
   );
   TestValidator.equals(
     "sphere centroid",
-    primitiveCentroid({ type: "sphere", radius: 2 }),
+    AutoMovieEnginePhysics.primitiveCentroid({ type: "sphere", radius: 2 }),
     { x: 0, y: 0, z: 0 },
   );
 }

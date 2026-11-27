@@ -1,7 +1,7 @@
 import {
-  measureAutoMovieGeometry,
-  reachPose,
-  validatePose,
+  AutoMovieEngineGeometryObservation,
+  AutoMovieEngineKinematics,
+  AutoMovieEngineValidation,
 } from "@automovie/engine";
 import type {
   IAutoMovieBone,
@@ -177,8 +177,8 @@ const measure: (
     target: { kind: "point", position: target },
     ...(time === undefined ? {} : { time }),
   };
-  const result: ReturnType<typeof measureAutoMovieGeometry> =
-    measureAutoMovieGeometry({
+  const result: ReturnType<typeof AutoMovieEngineGeometryObservation.measure> =
+    AutoMovieEngineGeometryObservation.measure({
       request,
       design: {
         production: null,
@@ -235,12 +235,14 @@ export function test_engine_geometry_query_reach(): void {
   const expectedLeftRom: (target: IAutoMovieVector3) => boolean = (
     target: IAutoMovieVector3,
   ): boolean => {
-    const pose: ReturnType<typeof reachPose> = reachPose(
+    const pose: ReturnType<typeof AutoMovieEngineKinematics.reachPose> = AutoMovieEngineKinematics.reachPose(
       skeleton,
       "left",
       target,
     );
-    return pose !== null && validatePose({ pose, skeleton }).items.length === 0;
+    if (pose === null) return false;
+    const validation = AutoMovieEngineValidation.validatePoseResult(pose, skeleton);
+    return validation.success && (validation.warnings?.length ?? 0) === 0;
   };
 
   const reachable: ReturnType<typeof measure> = measure("hero", near);
@@ -281,10 +283,10 @@ export function test_engine_geometry_query_reach(): void {
   };
   const affineAsk: (
     request: IAutoMovieGeometryQuery,
-  ) => ReturnType<typeof measureAutoMovieGeometry> = (
+  ) => ReturnType<typeof AutoMovieEngineGeometryObservation.measure> = (
     request: IAutoMovieGeometryQuery,
-  ): ReturnType<typeof measureAutoMovieGeometry> =>
-    measureAutoMovieGeometry({
+  ): ReturnType<typeof AutoMovieEngineGeometryObservation.measure> =>
+    AutoMovieEngineGeometryObservation.measure({
       request,
       design: {
         production: null,

@@ -1,12 +1,17 @@
 import {
-  createBuilding,
-  createCafeKit,
-  createEnvironment,
-  createEnvironmentProp,
-  createTerrain,
-} from "@automovie/archetypes/environments";
-import { createDrinkware } from "@automovie/archetypes/props";
-import { Quaternion, Vector3, sampleClipSequence } from "@automovie/engine";
+  AutoMovieArchetypeEnvironment
+} from "../../../../packages/archetypes/src/environments/AutoMovieArchetypeEnvironment";
+import {
+  AutoMovieArchetypeEnvironmentFurnishing
+} from "../../../../packages/archetypes/src/environments/AutoMovieArchetypeEnvironmentFurnishing";
+import {
+  AutoMovieArchetypeDrinkware
+} from "@automovie/archetypes";
+import {
+  AutoMovieEngineSequence,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
+} from "@automovie/engine";
 import type {
   IAutoMovieEnvironment,
   IAutoMovieEnvironmentModule,
@@ -20,11 +25,11 @@ import type {
   IAutoMovieStageSetPiece,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanBody,
   AutoMovieMotionHumanRide,
-  HumanChain,
-  HumanObject,
-  HumanPerformance,
-  createHumanBody,
+  AutoMovieMotionHumanChain,
+  AutoMovieMotionHumanObject,
+  AutoMovieMotionHumanPerformance,
 } from "@automovie/motions";
 
 import { bakeEnvironmentPerformance } from "./bakeEnvironmentPerformance";
@@ -36,39 +41,42 @@ export function hillsideStop(): compileEnvironmentExample.IInput {
   const seconds: number = 12;
   const enterAt: number = 7.5;
   const swing: NonNullable<
-    Extract<createBuilding.Opening, { kind: "door" }>["swing"]
+    Extract<
+      AutoMovieArchetypeEnvironment.IBuildingOpening,
+      { kind: "door" }
+    >["swing"]
   > = {
     from: 0.65,
     to: 6.65,
     degrees: 90,
   };
   const hallWidth: number = 6;
-  const cafeSize: readonly [number, number] = [8, 6];
-  const totalWidth: number = hallWidth + cafeSize[0];
+  const cafeSize: { width: number; depth: number } = { width: 8, depth: 6 };
+  const totalWidth: number = hallWidth + cafeSize.width;
   const wallThickness: number = 0.15;
-  const cafeRoom: readonly [number, number] = [
-    cafeSize[0] - wallThickness,
-    cafeSize[1] - wallThickness,
-  ];
+  const cafeRoom: { width: number; depth: number } = {
+    width: cafeSize.width - wallThickness,
+    depth: cafeSize.depth - wallThickness,
+  };
   const entryWidth: number = 1.2;
   const grade: number = 1.3;
-  const environment: IAutoMovieEnvironment = createEnvironment({
+  const environment: IAutoMovieEnvironment = AutoMovieArchetypeEnvironment.create({
     id: "hill",
     seed: 1037,
     items: {
       terrain: {
         at: { x: -10, y: 0, z: -10 },
-        use: createTerrain({
-          size: [30, 24],
-          relief: { kind: "plane", slope: [0.1, 0] },
+        use: AutoMovieArchetypeEnvironment.terrain({
+          size: { width: 30, depth: 24 },
+          relief: { kind: "plane", slope: { risePerX: 0.1, risePerZ: 0 } },
           pads: {
             station: {
               at: "station",
               outline: [
-                [0, 0],
-                [totalWidth, 0],
-                [totalWidth, cafeSize[1]],
-                [0, cafeSize[1]],
+                { x: 0, z: 0 },
+                { x: totalWidth, z: 0 },
+                { x: totalWidth, z: cafeSize.depth },
+                { x: 0, z: cafeSize.depth },
               ],
               cut: true,
               height: { anchor: "station/ground/entry" },
@@ -77,38 +85,55 @@ export function hillsideStop(): compileEnvironmentExample.IInput {
           paths: {
             approach: {
               width: 2.4,
-              points: [[13, 7], { anchor: "station/ground/entry" }],
+              points: [{ x: 13, z: 7 }, { anchor: "station/ground/entry" }],
             },
           },
         }),
       },
       station: {
         at: { x: 0, y: grade, z: 0 },
-        use: createBuilding({
+        use: AutoMovieArchetypeEnvironment.building({
+          type: "levels",
           wallThickness,
           levels: [
             {
               id: "ground",
               rooms: {
-                hall: [0, 0, hallWidth, cafeSize[1]],
-                cafe: [hallWidth, 0, ...cafeSize],
+                hall: {
+                  type: "rectangle",
+                  value: {
+                    x: 0,
+                    z: 0,
+                    width: hallWidth,
+                    depth: cafeSize.depth,
+                  },
+                },
+                cafe: {
+                  type: "rectangle",
+                  value: {
+                    x: hallWidth,
+                    z: 0,
+                    width: cafeSize.width,
+                    depth: cafeSize.depth,
+                  },
+                },
               },
               openings: [
                 {
                   id: "entry",
                   kind: "door",
-                  between: ["hall", null],
-                  edge: [
-                    [0, 0],
-                    [hallWidth, 0],
-                  ],
+                  between: { from: "hall", to: null },
+                  edge: {
+                    from: { x: 0, z: 0 },
+                    to: { x: hallWidth, z: 0 },
+                  },
                   door: { hinge: "right", hardware: "plate" },
                   swing,
                 },
                 {
                   id: "inside",
                   kind: "passage",
-                  between: ["hall", "cafe"],
+                  between: { from: "hall", to: "cafe" },
                   width: entryWidth,
                   height: 2.1,
                 },
@@ -121,23 +146,28 @@ export function hillsideStop(): compileEnvironmentExample.IInput {
         at: { anchor: "station/ground/cafe" },
         use: (ctx: IAutoMovieEnvironmentModule.IContext) => {
           const entry = ctx.anchor("station/ground/inside").translation;
-          return createCafeKit({
+          return AutoMovieArchetypeEnvironmentFurnishing.cafeKit({
             room: cafeRoom,
             tables: 1,
             keepClear: {
-              entry: [
-                Math.max(entry.x - ctx.frame.translation.x, -cafeRoom[0] / 2),
-                entry.z - ctx.frame.translation.z - entryWidth / 2,
-                1,
-                entryWidth,
-              ],
+              entry: {
+                x: Math.max(
+                  entry.x - ctx.frame.translation.x,
+                  -cafeRoom.width / 2,
+                ),
+                z: entry.z - ctx.frame.translation.z - entryWidth / 2,
+                width: 1,
+                depth: entryWidth,
+              },
             },
           })(ctx);
         },
       },
       cup: {
         at: { anchor: "cafe/table-1/stack" },
-        use: createEnvironmentProp({ model: createDrinkware({ kind: "cup" }) }),
+        use: AutoMovieArchetypeEnvironmentFurnishing.prop({
+          model: AutoMovieArchetypeDrinkware.create({ kind: "cup" }),
+        }),
       },
     },
   });
@@ -150,12 +180,12 @@ export function hillsideStop(): compileEnvironmentExample.IInput {
       (piece: IAutoMovieStageSetPiece): boolean => piece.node === chairId,
     );
   if (chair === undefined || placement === undefined)
-    throw new Error("The café's named chair was not staged");
-  const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(
+    throw new Error("The caf챕's named chair was not staged");
+  const seat: IAutoMovieMotionHumanSeated.ISeat = AutoMovieMotionHumanObject.seat(
     chair.model,
     {
       position: placement.position,
-      rotation: placement.rotation ?? Quaternion.identity(),
+      rotation: placement.rotation ?? AutoMovieEngineQuaternion.identity(),
     },
     "seat",
   );
@@ -171,7 +201,7 @@ export function hillsideStop(): compileEnvironmentExample.IInput {
   };
   const model: ReturnType<typeof environmentExampleBody> =
     environmentExampleBody();
-  const person: IAutoMovieMotionHumanBody = createHumanBody(
+  const person: IAutoMovieMotionHumanBody = AutoMovieMotionHumanBody.create(
     model.skeleton,
     model.profile,
   );
@@ -181,7 +211,7 @@ export function hillsideStop(): compileEnvironmentExample.IInput {
   )!.model;
   const leaf = environment.stage.set!.find((piece) => piece.node === doorId)!;
   const doorAt = (time: number): IAutoMovieMotionHumanObject.Placement => {
-    const value = sampleClipSequence(
+    const value = AutoMovieEngineSequence.sampleClipSequence(
       environment.runtime.objectMotions,
       time,
     ).get(`node:${doorId}:rotation`)?.value;
@@ -199,25 +229,25 @@ export function hillsideStop(): compileEnvironmentExample.IInput {
     (affordance) => affordance.id === "pull",
   )!;
   const rotation: IAutoMovieQuaternion = leaf.rotation!;
-  const position = Vector3.add(
+  const position = AutoMovieEngineVector3.add(
     leaf.position,
-    Quaternion.rotateVector(rotation, {
+    AutoMovieEngineQuaternion.rotateVector(rotation, {
       x: pull.frame.translation.x - 0.31,
       y: 0,
       z: 0.38,
     }),
   );
-  const forward = Quaternion.rotateVector(rotation, { x: 0, y: 0, z: -1 });
+  const forward = AutoMovieEngineQuaternion.rotateVector(rotation, { x: 0, y: 0, z: -1 });
   const opener: IAutoMovieStageActor = {
     node: "opener",
     position: { ...position, y: grade },
     facingDeg: (Math.atan2(forward.x, forward.z) * 180) / Math.PI,
   };
   const opening: IAutoMovieMotion = bakeEnvironmentPerformance(
-    new HumanPerformance({
+    new AutoMovieMotionHumanPerformance({
       seed: "hillside-door",
       laws: [AutoMovieMotionHumanRide.travelLeaf.openDoor],
-      props: [HumanObject.prop(doorId, door, doorAt(0), doorAt)],
+      props: [AutoMovieMotionHumanObject.prop(doorId, door, doorAt(0), doorAt)],
       performers: [
         {
           subject: opener.node,
@@ -227,7 +257,7 @@ export function hillsideStop(): compileEnvironmentExample.IInput {
           proficiency: { level: "trained" },
         },
       ],
-      composition: HumanChain.subject(opener.node).registered("openDoor", {
+      composition: AutoMovieMotionHumanChain.subject(opener.node).registered("openDoor", {
         door: doorId,
         handle: "pull",
         duration: swing.to + 0.2,
@@ -237,7 +267,7 @@ export function hillsideStop(): compileEnvironmentExample.IInput {
     seconds,
   );
   const sitting: IAutoMovieMotion = bakeEnvironmentPerformance(
-    new HumanPerformance({
+    new AutoMovieMotionHumanPerformance({
       seed: "hillside-sit",
       laws: [],
       performers: [
@@ -249,7 +279,7 @@ export function hillsideStop(): compileEnvironmentExample.IInput {
           proficiency: { level: "trained" },
         },
       ],
-      composition: HumanChain.subject(patron.node).sit({ seat }).node,
+      composition: AutoMovieMotionHumanChain.subject(patron.node).sit({ seat }).node,
     }),
     patron,
     seconds,
@@ -257,7 +287,7 @@ export function hillsideStop(): compileEnvironmentExample.IInput {
   return {
     id: "hillside-stop",
     summary:
-      "The host pulls the door, a visitor steps inside and a patron takes a café seat.",
+      "The host pulls the door, a visitor steps inside and a patron takes a caf챕 seat.",
     seconds,
     environment,
     visible: ["visitor", doorId],

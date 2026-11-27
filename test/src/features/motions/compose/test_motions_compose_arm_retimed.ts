@@ -2,7 +2,9 @@ import type {
   IAutoMovieMotionHumanArmPlanned,
   IAutoMovieMotionHumanArmTrajectory,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanArmRetimed } from "@automovie/motions/internal";
+import {
+  motionHumanArmRetimed
+} from "../../../../../packages/motions/src/compose/internal/motionHumanArmRetimed";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -16,7 +18,7 @@ function state(times: number[]): IAutoMovieMotionHumanArmTrajectory.IState {
 }
 
 /**
- * `AutoMovieMotionHumanArmRetimed` carries an earlier plan's solution onto a
+ * `motionHumanArmRetimed` carries an earlier plan's solution onto a
  * new span (Hollerbach 1984, dynamic scaling): each knot keeps its share of its
  * own phrase, the reach `[start, ready]`, the hold `[ready, relax]` or the
  * return `[relax, end]`, the solution's values and penalty as they are; a
@@ -38,7 +40,7 @@ export function test_motions_compose_arm_retimed(): void {
 
   // 1. Phrase by phrase.
   const carried: IAutoMovieMotionHumanArmTrajectory.IState | undefined =
-    AutoMovieMotionHumanArmRetimed(earlier, {
+    motionHumanArmRetimed(earlier, {
       start: 1,
       ready: 3,
       relax: 4,
@@ -57,7 +59,7 @@ export function test_motions_compose_arm_retimed(): void {
   // 2. A hold of no length.
   TestValidator.equals(
     "a collapsed hold is refused",
-    AutoMovieMotionHumanArmRetimed(earlier, {
+    motionHumanArmRetimed(earlier, {
       start: 0,
       ready: 1,
       relax: 1,

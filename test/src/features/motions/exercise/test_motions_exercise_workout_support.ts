@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanProp,
@@ -6,7 +6,9 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { WorkoutSupport } from "@automovie/motions/internal";
+import {
+  WorkoutSupport
+} from "../../../../../packages/motions/src/exercise/workout/WorkoutSupport";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";
@@ -50,7 +52,7 @@ function affordance(
 export function test_motions_exercise_workout_support(): void {
   const frame: IAutoMovieRigidTransform = {
     position: { x: 1, y: 0, z: 2 },
-    rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90),
+    rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90),
   };
   const prop: IAutoMovieMotionHumanProp = {
     subject: "bench",

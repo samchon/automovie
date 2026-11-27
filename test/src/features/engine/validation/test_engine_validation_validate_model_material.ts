@@ -1,4 +1,4 @@
-import { validateModel } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   AutoMovieViolationKind,
   IAutoMovieColor,
@@ -51,7 +51,8 @@ export function test_engine_validation_validate_model_material(): void {
     kinds: AutoMovieViolationKind[],
     path: string,
   ): void => {
-    const result: IAutoMovieValidation = validateModel({ model });
+    const result: IAutoMovieValidation =
+      AutoMovieEngineValidation.validateModel({ model });
     if (
       !kinds.some((kind: AutoMovieViolationKind): boolean =>
         hasViolation(result, kind, path),
@@ -90,7 +91,8 @@ export function test_engine_validation_validate_model_material(): void {
   // 1.
   TestValidator.equals(
     "lobes",
-    validateModel({ model: material(lobes, sheet) }).success,
+    AutoMovieEngineValidation.validateModel({ model: material(lobes, sheet) })
+      .success,
     true,
   );
 
@@ -215,7 +217,7 @@ export function test_engine_validation_validate_model_material(): void {
         seed: -1,
         scale: 1,
         colors: [color({}), color({})],
-        roughness: [0.5, 0.5],
+        roughness: { atZero: 0.5, atOne: 0.5 },
         relief: 0,
       },
     }),

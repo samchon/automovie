@@ -6,7 +6,7 @@ export interface IAutoMovieTerrainRecipe {
    * Width along positive X and depth along positive Z in metres from the module
    * origin. Both are strictly positive.
    */
-  size: IAutoMovieTerrainRecipe.Point;
+  size: IAutoMovieTerrainRecipe.ISize;
 
   /** Base relief, defaulting to level at the module origin's height. */
   relief?: IAutoMovieTerrainRecipe.Relief;
@@ -18,7 +18,7 @@ export interface IAutoMovieTerrainRecipe {
    * Strictly interior, disjoint void rings. The parcel contributes neither
    * surface nor support inside a void.
    */
-  holes?: readonly (readonly IAutoMovieTerrainRecipe.Point[])[];
+  holes?: readonly (readonly IAutoMovieTerrainRecipe.IXzPoint[])[];
 
   /**
    * Maximum ground-to-triangle vertical error in metres for sampled ground. The
@@ -61,15 +61,41 @@ export interface IAutoMovieTerrainRecipe {
    * Named local points at which to place another item's frame on the finished
    * walkable ground.
    */
-  amenities?: Readonly<Record<string, IAutoMovieTerrainRecipe.Point>>;
+  amenities?: Readonly<Record<string, IAutoMovieTerrainRecipe.IXzPoint>>;
 }
 
 export namespace IAutoMovieTerrainRecipe {
   /**
-   * Local X and Z in metres before the terrain's translation to world
-   * coordinates.
+   * Positive parcel dimensions along world X and Z, in metres.
    */
-  export type Point = readonly [number, number];
+  export interface ISize {
+    /** Width along positive X. */
+    readonly width: number;
+    /** Depth along positive Z. */
+    readonly depth: number;
+  }
+
+  /** Rise per metre along each positive plan axis. */
+  export interface ISlope {
+    /** Vertical rise per horizontal metre along positive X. */
+    readonly risePerX: number;
+    /** Vertical rise per horizontal metre along positive Z. */
+    readonly risePerZ: number;
+  }
+
+  /** Local X and Z in metres before the terrain's translation to world coordinates. */
+  export interface IXzPoint {
+    /** Local coordinate along positive X. */
+    readonly x: number;
+    /** Local coordinate along positive Z. */
+    readonly z: number;
+  }
+
+  /** A reference to a named environment frame. */
+  export interface IAnchorPoint {
+    /** Environment-relative frame name. */
+    readonly anchor: string;
+  }
 
   /** The base height function before localized grade constraints. */
   export type Relief =
@@ -88,7 +114,7 @@ export namespace IAutoMovieTerrainRecipe {
         /** Vertical offset in metres at the module origin. The default is zero. */
         height?: number;
         /** Rise per metre in positive X and Z, respectively. */
-        slope: Point;
+        slope: ISlope;
       }
     | {
         /** Bounded seeded waves around a mean height. */
@@ -142,14 +168,14 @@ export namespace IAutoMovieTerrainRecipe {
      * Simple local XZ outline about the terrain origin or the named frame. The
      * first vertex is not repeated at the end.
      */
-    outline: readonly Point[];
+    outline: readonly IXzPoint[];
     /** Optional environment-relative frame placing and turning the pad in plan. */
     at?: string;
     /**
      * Plateau level as a terrain-local metre offset or an anchor's world Y.
      * Defaults to the placement frame's Y.
      */
-    height?: number | { anchor: string };
+    height?: number | IAnchorPoint;
     /** Grading shoulder width in metres. Defaults to one metre. */
     shoulder?: number;
     /**
@@ -165,7 +191,7 @@ export namespace IAutoMovieTerrainRecipe {
      * At least two successive distinct local plan points or
      * environment-relative named anchors.
      */
-    points: readonly (Point | { anchor: string })[];
+    points: readonly (IXzPoint | IAnchorPoint)[];
     /**
      * Full supported corridor width in metres, strictly positive. A terminal
      * cross-section may meet an adjacent landing.
@@ -186,7 +212,7 @@ export namespace IAutoMovieTerrainRecipe {
      * Strictly interior local XZ outline. The adjoining parcel uses this same
      * ring.
      */
-    outline: readonly Point[];
+    outline: readonly IXzPoint[];
     /** Opaque linear RGB applied to the inlay's tessellation. */
     color: IAutoMovieColor;
   }
@@ -194,7 +220,7 @@ export namespace IAutoMovieTerrainRecipe {
   /** A still, bounded water feature with a level shore. */
   export interface IWater {
     /** Strictly interior local XZ outline. */
-    outline: readonly Point[];
+    outline: readonly IXzPoint[];
     /** Water level in metres above the module origin. */
     height: number;
     /** Opaque linear RGB, defaulting to a muted blue swatch. */
@@ -206,7 +232,7 @@ export namespace IAutoMovieTerrainRecipe {
   /** One bounded, terrain-following disk of repeated tree decoration. */
   export interface ITrees {
     /** Local XZ disk center. */
-    center: Point;
+    center: IXzPoint;
     /** Strictly positive disk radius in metres. */
     radius: number;
     /** Integer count from one to 100,000. */
@@ -230,7 +256,7 @@ export namespace IAutoMovieTerrainRecipe {
      * Simple local XZ ring strictly inside the parcel. The first vertex is not
      * repeated at the end.
      */
-    outline: readonly Point[];
+    outline: readonly IXzPoint[];
 
     /** Least trunk-to-trunk distance in metres, strictly positive. */
     spacing: number;

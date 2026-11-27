@@ -6,7 +6,7 @@ import type { IAutoMovieViewAxis } from "./IAutoMovieViewAxis";
 
 /**
  * A part as its views draw it, the input of the view-to-section operator
- * (`AutoMovieViewLoft`).
+ * (`AutoMovieEngineViewLoft`).
  *
  * At each station the declared axis supplies the section's origin and plane, in
  * the chart `(x, z)` of that plane's axes `(u, v)`. The axis may follow a
@@ -29,7 +29,7 @@ import type { IAutoMovieViewAxis } from "./IAutoMovieViewAxis";
  *
  * Ownership (fairing by ownership): the outlines own the extremes, the girth or
  * the fullness law owns the quarters' fullness, and the diagonals are
- * observations only (`AutoMovieViewSection.ISection.diagonals`).
+ * observations only (`AutoMovieEngineViewSection.ISection.diagonals`).
  */
 export interface IAutoMovieViewPart {
   /** Chain name of the lofted part, such as `trunk`, `leg.left` or `nose`. */
@@ -225,7 +225,7 @@ export namespace IAutoMovieViewPart {
 
   /**
    * A sourced fullness law per station, as the conic shoulder value `rho`
-   * (`AutoMovieViewSection`): the share along a quarter's corner diagonal from
+   * (`AutoMovieEngineViewSection`): the share along a quarter's corner diagonal from
    * its chord to the box's corner. `sqrt(2) - 1` is the conic ellipse reference
    * for a centred symmetric box; it does not certify that the shared-guide
    * construction on every asymmetric box is an exact ellipse.
@@ -273,7 +273,7 @@ export namespace IAutoMovieViewPart {
      * (#3158): quarter q runs from guide q to split q with shoulder
      * `shoulders[q]` and from split q to guide q + 1 with `splits[q].shoulder`,
      * each piece a rational quadratic on its two end points and tangent lines
-     * (`AutoMovieViewChain`). Absent: one conic per quarter.
+     * (`AutoMovieEngineViewChain`). Absent: one conic per quarter.
      */
     splits?: IAutoMovieViewPart.IQuarters<IAutoMovieViewPart.ISplit>;
 
@@ -283,7 +283,7 @@ export namespace IAutoMovieViewPart {
      * `pieces[q][0]`, `pieces[q][1]`, ... to guide q + 1, its first piece with
      * shoulder `shoulders[q]` and each later piece with the shoulder of the
      * point that starts it, each a rational quadratic on its two end points and
-     * tangent lines (`AutoMovieViewChain`). An empty list leaves the quarter
+     * tangent lines (`AutoMovieEngineViewChain`). An empty list leaves the quarter
      * one conic. Absent: one conic per quarter.
      */
     pieces?: IAutoMovieViewPart.IQuarters<IAutoMovieViewPart.ISplit[]>;

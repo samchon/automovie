@@ -2,7 +2,7 @@ import type { IAutoMovieEnvironmentContext } from "./IAutoMovieEnvironmentContex
 import type { IAutoMovieSunPosition } from "./IAutoMovieSunPosition";
 
 /**
- * Data contracts of `autoMovieSunDirection`, which turns a solved sun position
+ * Data contracts of `sunDirection`, which turns a solved sun position
  * into a world direction.
  */
 export namespace IAutoMovieSunDirection {
@@ -15,12 +15,12 @@ export namespace IAutoMovieSunDirection {
   export type IProps = {
     /**
      * World north and ground up of the site. Both finite and non-zero, as
-     * `validateAutoMovieEnvironmentContext` admits them; `north` must not be
+     * `validateEnvironmentContext` admits them; `north` must not be
      * parallel to `ground.up`.
      */
     context: Pick<IAutoMovieEnvironmentContext, "north" | "ground">;
 
-    /** The sun's place in the sky, from `solveAutoMovieSunPosition`. */
+    /** The sun's place in the sky, from `solveSunPosition`. */
     position: IAutoMovieSunPosition;
   };
 }

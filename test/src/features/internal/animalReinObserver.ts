@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieModelPart,
@@ -50,21 +50,21 @@ export function animalReinObserver(
   );
   truth("held run fits actual rod", held <= height + 1e-9);
   near("actual grip diameter", aperture, 2 * radius);
-  const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+  const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
     part.transform.rotation,
   );
-  const axis: IAutoMovieVector3 = Quaternion.rotateVector(
+  const axis: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     part.transform.rotation,
     { x: 0, y: 1, z: 0 },
   );
-  const along: IAutoMovieVector3 = Quaternion.rotateVector(
+  const along: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     contact.frame.rotation,
     { x: 1, y: 0, z: 0 },
   );
-  near("contact X follows actual rod Y", Math.abs(Vector3.dot(axis, along)), 1);
-  const middle: IAutoMovieVector3 = Quaternion.rotateVector(
+  near("contact X follows actual rod Y", Math.abs(AutoMovieEngineVector3.dot(axis, along)), 1);
+  const middle: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     inverse,
-    Vector3.subtract(contact.frame.translation, part.transform.translation),
+    AutoMovieEngineVector3.subtract(contact.frame.translation, part.transform.translation),
   );
   near("held midpoint X lies on actual rod", middle.x, 0);
   near("held midpoint Z lies on actual rod", middle.z, 0);
@@ -74,13 +74,13 @@ export function animalReinObserver(
     (held - height) / 2,
   );
   for (const side of [-1, 1] as const) {
-    const endpoint: IAutoMovieVector3 = Vector3.add(
+    const endpoint: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       contact.frame.translation,
-      Vector3.scale(along, (side * held) / 2),
+      AutoMovieEngineVector3.scale(along, (side * held) / 2),
     );
-    const local: IAutoMovieVector3 = Quaternion.rotateVector(
+    const local: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       inverse,
-      Vector3.subtract(endpoint, part.transform.translation),
+      AutoMovieEngineVector3.subtract(endpoint, part.transform.translation),
     );
     near(`held endpoint ${side} lies on actual rod X`, local.x, 0);
     near(`held endpoint ${side} lies on actual rod Z`, local.z, 0);

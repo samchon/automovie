@@ -1,8 +1,9 @@
 import type {
   IAutoMovieRecoveryCameraMapInput,
   IAutoMovieRecoveryMapPose,
+  IAutoMovieRecoveryImageFeaturesExtractionOperation,
 } from "@automovie/interface";
-import type { extractRecoveryImageFeatures } from "@automovie/recovery";
+
 
 /** Independently prescribed nonplanar coordinates, scalar pinhole projections and artificial uniquely separated feature identities for numerical seams, not detector or photographic truth. */
 export function createRecoveryMapNumericalFixture(): {
@@ -10,7 +11,7 @@ export function createRecoveryMapNumericalFixture(): {
   points: [number, number, number][];
   poses: IAutoMovieRecoveryMapPose[];
   pixels: [number, number][][];
-  features: ReturnType<typeof extractRecoveryImageFeatures>[];
+  features: ReturnType<IAutoMovieRecoveryImageFeaturesExtractionOperation.Operation>[];
 } {
   const poses: IAutoMovieRecoveryMapPose[] = [0, 0.04, -0.08].map(
     (angle: number, at: number): IAutoMovieRecoveryMapPose => ({
@@ -152,11 +153,11 @@ export function createRecoveryMapNumericalFixture(): {
         ];
       }),
   );
-  const features: ReturnType<typeof extractRecoveryImageFeatures>[] =
+  const features: ReturnType<IAutoMovieRecoveryImageFeaturesExtractionOperation.Operation>[] =
     pixels.map(
       (
         image: [number, number][],
-      ): ReturnType<typeof extractRecoveryImageFeatures> => ({
+      ): ReturnType<IAutoMovieRecoveryImageFeaturesExtractionOperation.Operation> => ({
         rawCorners: 40,
         validCandidates: 40,
         selectedBeforeDescriptor: 40,
@@ -167,7 +168,7 @@ export function createRecoveryMapNumericalFixture(): {
             point: [number, number],
             at: number,
           ): ReturnType<
-            typeof extractRecoveryImageFeatures
+            IAutoMovieRecoveryImageFeaturesExtractionOperation.Operation
           >["points"][number] => {
             const descriptor: Float64Array = new Float64Array(128);
             descriptor[at] = 1;

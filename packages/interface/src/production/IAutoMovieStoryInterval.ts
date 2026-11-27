@@ -21,7 +21,7 @@ export namespace IAutoMovieStoryInterval {
   /**
    * New caller-owned story-clock endpoint pair in seconds. Positive finite rate
    * preserves order when mapped arithmetic remains finite; invalid values are
-   * not refused or reordered by autoMovieStoryInterval.
+   * not refused or reordered by storyInterval.
    */
   export type IResult = {
     /**

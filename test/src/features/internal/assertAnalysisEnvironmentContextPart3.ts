@@ -1,9 +1,4 @@
-import {
-  autoMovieHemisphereDirections,
-  autoMovieRayObstructed,
-  autoMovieSkyward,
-  autoMovieSolidBlocks,
-} from "@automovie/engine";
+import { AutoMovieEngineEnvironment } from "@automovie/engine";
 import type {
   IAutoMovieEnvironmentContext,
   IAutoMovieHalfSpacePlane,
@@ -31,7 +26,7 @@ export function assertAnalysisEnvironmentContextPart3(
   rising: IAutoMovieVector3,
 ): void {
   const slab: (scale: number) => boolean = (scale: number): boolean =>
-    autoMovieSolidBlocks({
+    AutoMovieEngineEnvironment.solidBlocks({
       origin: { x: 0, y: 0, z: 0 },
       direction: rising,
       planes: [
@@ -52,19 +47,19 @@ export function assertAnalysisEnvironmentContextPart3(
   TestValidator.equals(
     "a ray is obstructed when any one solid stops it",
     {
-      none: autoMovieRayObstructed({
+      none: AutoMovieEngineEnvironment.rayObstructed({
         origin: { x: -1, y: 0.5, z: 0.5 },
         direction: { x: -1, y: 0, z: 0 },
         solids: [cube, neighbour],
         maxDistance: Infinity,
       }),
-      one: autoMovieRayObstructed({
+      one: AutoMovieEngineEnvironment.rayObstructed({
         origin: { x: -1, y: 0.5, z: 0.5 },
         direction: { x: 1, y: 0, z: 0 },
         solids: [cube, neighbour],
         maxDistance: Infinity,
       }),
-      empty: autoMovieRayObstructed({
+      empty: AutoMovieEngineEnvironment.rayObstructed({
         origin: { x: 0, y: 0, z: 0 },
         direction: { x: 0, y: 1, z: 0 },
         solids: [],
@@ -76,9 +71,9 @@ export function assertAnalysisEnvironmentContextPart3(
   TestValidator.equals(
     "the reference ground decides which directions are sky",
     {
-      up: autoMovieSkyward({ x: 0, y: 1, z: 0 }, context.ground),
-      down: autoMovieSkyward({ x: 0, y: -1, z: 0 }, context.ground),
-      grazing: autoMovieSkyward({ x: 1, y: 0, z: 0 }, context.ground),
+      up: AutoMovieEngineEnvironment.skyward({ x: 0, y: 1, z: 0 }, context.ground),
+      down: AutoMovieEngineEnvironment.skyward({ x: 0, y: -1, z: 0 }, context.ground),
+      grazing: AutoMovieEngineEnvironment.skyward({ x: 1, y: 0, z: 0 }, context.ground),
     },
     { up: true, down: false, grazing: false },
   );
@@ -87,7 +82,7 @@ export function assertAnalysisEnvironmentContextPart3(
     normal: IAutoMovieVector3,
     count: number,
   ): boolean => {
-    const directions: IAutoMovieVector3[] = autoMovieHemisphereDirections({
+    const directions: IAutoMovieVector3[] = AutoMovieEngineEnvironment.hemisphereDirections({
       normal,
       count,
     });
@@ -113,11 +108,11 @@ export function assertAnalysisEnvironmentContextPart3(
       [
         "deterministic",
         (): boolean => {
-          const first: IAutoMovieVector3[] = autoMovieHemisphereDirections({
+          const first: IAutoMovieVector3[] = AutoMovieEngineEnvironment.hemisphereDirections({
             normal: { x: 0, y: 1, z: 0 },
             count: 8,
           });
-          const second: IAutoMovieVector3[] = autoMovieHemisphereDirections({
+          const second: IAutoMovieVector3[] = AutoMovieEngineEnvironment.hemisphereDirections({
             normal: { x: 0, y: 1, z: 0 },
             count: 8,
           });
@@ -129,7 +124,7 @@ export function assertAnalysisEnvironmentContextPart3(
         (): boolean =>
           throwsError(
             (): IAutoMovieVector3[] =>
-              autoMovieHemisphereDirections({
+              AutoMovieEngineEnvironment.hemisphereDirections({
                 normal: { x: 0, y: 1, z: 0 },
                 count: 1.5,
               }),
@@ -141,7 +136,7 @@ export function assertAnalysisEnvironmentContextPart3(
         (): boolean =>
           throwsError(
             (): IAutoMovieVector3[] =>
-              autoMovieHemisphereDirections({
+              AutoMovieEngineEnvironment.hemisphereDirections({
                 normal: { x: 0, y: 1, z: 0 },
                 count: 0,
               }),
@@ -153,7 +148,7 @@ export function assertAnalysisEnvironmentContextPart3(
         (): boolean =>
           throwsError(
             (): IAutoMovieVector3[] =>
-              autoMovieHemisphereDirections({
+              AutoMovieEngineEnvironment.hemisphereDirections({
                 normal: { x: 0, y: 0, z: 0 },
                 count: 4,
               }),

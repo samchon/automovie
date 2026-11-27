@@ -1,5 +1,7 @@
 import type { IAutoMovieMotionClock } from "@automovie/interface";
-import { give } from "@automovie/motions/internal";
+import {
+  give
+} from "../../../../../packages/motions/src/reaction/internal/give";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

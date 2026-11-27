@@ -9,26 +9,20 @@ import { HumanPopulationAnchors } from "./HumanPopulationAnchors";
 import { HumanPopulationConditional } from "./HumanPopulationConditional";
 import { HumanPopulationEnds } from "./HumanPopulationEnds";
 import { HumanPopulationSurvey } from "./HumanPopulationSurvey";
-import { f1, m1 } from "./human-parameters/index";
+import { f1 } from "./human-parameters/internal/f1";
+import { m1 } from "./human-parameters/internal/m1";
 
-type P = IAutoMovieHumanParameters;
-type Sex = HumanPopulationSurvey.Sex;
-type Variable = HumanPopulationSurvey.Variable;
-/** The alternatives of `BodyK`'s site. */
-type BodyK = 0 | 1;
-
-/**
+/*
  * A population end as a full public input set, written from the end's surveyed
  * measures and never from a generated figure.
  */
 export namespace HumanPopulationBuild {
-  /**
+  /*
    * An end's public inputs: body measures, head, hands and feet. Inputs the
    * survey does not measure keep the sex's first reference person's value
    * (appearance, pose) or are anchored to a surveyed carrier.
-   *
-   * @param end The end.
-   * @returns The end's inputs.
+   * Parameter end: The end.
+   * Returns: The end's inputs.
    */
   export function params(end: HumanPopulationEnds.IEnd): P {
     const sex: Sex = end.sex;
@@ -46,16 +40,15 @@ export namespace HumanPopulationBuild {
     return base;
   }
 
-  /**
+  /*
    * Write the body measures: the sex, the measured fields from their surveyed
    * measure, the rest from their anchors, and the fat percentage the end's body
    * mass index implies by Deurenberg et al.'s relation (1991: percent fat = 1.2
    * BMI + 0.23 age - 10.8 male - 5.4) at ANSUR 1988's mean age of the sex.
-   *
-   * @param anatomy The record to write.
-   * @param sex The surveyed sex.
-   * @param x The end's surveyed measures.
-   * @param anchor Value of an anchored course.
+   * Parameter anatomy: The record to write.
+   * Parameter sex: The surveyed sex.
+   * Parameter x: The end's surveyed measures.
+   * Parameter anchor: Value of an anchored course.
    */
   function body(
     anatomy: IAutoMovieHumanBodyAnatomy,
@@ -75,15 +68,14 @@ export namespace HumanPopulationBuild {
       anatomy[key] = anchor(HumanPopulationAnchors.ANCHORS[key]);
   }
 
-  /**
+  /*
    * Write the head and face: the survey's head and ear measures, and the face's
    * FaceBase means scaled with the survey's face breadth (widths) or face
    * height (heights and the nasal protrusion).
-   *
-   * @param base The person to write.
-   * @param sex The surveyed sex.
-   * @param x The end's surveyed measures.
-   * @param anchor Value of an anchored course.
+   * Parameter base: The person to write.
+   * Parameter sex: The surveyed sex.
+   * Parameter x: The end's surveyed measures.
+   * Parameter anchor: Value of an anchored course.
    */
   function head(
     base: P,
@@ -145,13 +137,12 @@ export namespace HumanPopulationBuild {
     }
   }
 
-  /**
+  /*
    * Write both hands and both feet, which share their sex's surveyed values.
-   *
-   * @param base The person to write.
-   * @param sex The surveyed sex.
-   * @param x The end's surveyed measures.
-   * @param anchor Value of an anchored course.
+   * Parameter base: The person to write.
+   * Parameter sex: The surveyed sex.
+   * Parameter x: The end's surveyed measures.
+   * Parameter anchor: Value of an anchored course.
    */
   function extremities(
     base: P,
@@ -177,3 +168,11 @@ export namespace HumanPopulationBuild {
     };
   }
 }
+type P = IAutoMovieHumanParameters;
+type Sex = HumanPopulationSurvey.Sex;
+type Variable = HumanPopulationSurvey.Variable;
+
+/*
+ * The alternatives of `BodyK`'s site.
+ */
+type BodyK = 0 | 1;

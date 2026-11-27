@@ -1,9 +1,4 @@
-import {
-  Quaternion,
-  Transform,
-  Vector3,
-  bakedTransformFromClipsAt,
-} from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineTransform, AutoMovieEngineVector3, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieEnvironment,
   IAutoMovieModel,
@@ -18,9 +13,9 @@ import type {
 import {
   AutoMovieMotionHumanStance,
   AutoMovieMotionHumanSupport,
-  HumanChain,
-  HumanObject,
-  HumanPerformance,
+  AutoMovieMotionHumanChain,
+  AutoMovieMotionHumanObject,
+  AutoMovieMotionHumanPerformance,
 } from "@automovie/motions";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -29,13 +24,13 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function railShuttlePassenger(
   environment: IAutoMovieEnvironment,
   exitFrom: number,
-): { film: HumanPerformance; actor: IAutoMovieStageActor } {
+): { film: AutoMovieMotionHumanPerformance; actor: IAutoMovieStageActor } {
   const carrier: string = "rail/shuttle/carrier";
   const car: IAutoMovieModel = environment.runtime.props.find(
     (prop) => prop.node === carrier,
   )!.model;
   const placement = (time: number): IAutoMovieRigidTransform => {
-    const frame: IAutoMovieTransform = bakedTransformFromClipsAt(
+    const frame: IAutoMovieTransform = AutoMovieEngineFilm.bakedTransformFromClipsAt(
       environment.runtime.objectMotions,
       carrier,
       Math.max(0, time),
@@ -51,9 +46,9 @@ export function railShuttlePassenger(
       (item) => item.id === contact,
     )!.frame.translation;
     const frame = placement(time);
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       frame.position,
-      Quaternion.rotateVector(frame.rotation, { ...local, x: local.x + x }),
+      AutoMovieEngineQuaternion.rotateVector(frame.rotation, { ...local, x: local.x + x }),
     );
   };
   const origin = platform(environment, "origin");
@@ -84,12 +79,12 @@ export function railShuttlePassenger(
       }),
   };
   const threshold = { prop: carrier, surface: "threshold" };
-  const film: HumanPerformance = new HumanPerformance({
+  const film: AutoMovieMotionHumanPerformance = new AutoMovieMotionHumanPerformance({
     seed: "rail-passenger",
     props: [
       origin.prop,
       destination.prop,
-      HumanObject.prop(carrier, car, placement(0), placement),
+      AutoMovieMotionHumanObject.prop(carrier, car, placement(0), placement),
     ],
     laws: [crossing, wait],
     performers: [
@@ -101,7 +96,7 @@ export function railShuttlePassenger(
         proficiency: { level: "trained" },
       },
     ],
-    composition: HumanChain.subject(actor.node)
+    composition: AutoMovieMotionHumanChain.subject(actor.node)
       .stand({ hold: 0.8, sway: 0, on: { prop: origin.prop.subject } })
       .registered(crossing.name, {
         from: { prop: origin.prop.subject, surface: "floor" },
@@ -166,21 +161,21 @@ function platform(
     y: patch.height.value,
     z: (minZ + maxZ) / 2,
   };
-  const prop: IAutoMovieMotionHumanProp = HumanObject.prop(
+  const prop: IAutoMovieMotionHumanProp = AutoMovieMotionHumanObject.prop(
     id,
     {
       affordances: [
         {
           id: "floor",
           kind: "surface",
-          frame: Transform.identity(),
+          frame: AutoMovieEngineTransform.identity(),
           extent: null,
           width: maxX - minX,
           depth: maxZ - minZ,
         },
       ],
     },
-    { position: center, rotation: Quaternion.identity(), fixed: true },
+    { position: center, rotation: AutoMovieEngineQuaternion.identity(), fixed: true },
   );
   return { center, innerEdge: minX, prop };
 }

@@ -1,7 +1,4 @@
-import {
-  stepSubdivisionRing,
-  subdivisionRingEigenbasis,
-} from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type { IAutoMovieSubdivisionRing } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -35,7 +32,7 @@ export function test_engine_geometry_subdivision_ring(): void {
   });
 
   // 1.
-  const child: IAutoMovieSubdivisionRing = stepSubdivisionRing(
+  const child: IAutoMovieSubdivisionRing = AutoMovieEngineGeometry.stepSubdivisionRing(
     ring([0, 0, 0, 0]),
   );
   TestValidator.equals(
@@ -47,19 +44,19 @@ export function test_engine_geometry_subdivision_ring(): void {
   TestValidator.equals("centre", child.centre, [0, 0, 0.5625]);
   TestValidator.equals(
     "decay",
-    stepSubdivisionRing(ring([2, 0, 2, 0])).sharpness,
+    AutoMovieEngineGeometry.stepSubdivisionRing(ring([2, 0, 2, 0])).sharpness,
     [1, 0, 1, 0],
   );
 
   // 2.
-  const creased: IAutoMovieSubdivisionRing = stepSubdivisionRing(
+  const creased: IAutoMovieSubdivisionRing = AutoMovieEngineGeometry.stepSubdivisionRing(
     ring([10, 0, 10, 0]),
   );
   TestValidator.equals("crease edge", creased.edges.slice(0, 3), [0.5, 0, 0.5]);
   TestValidator.equals("crease centre", creased.centre, [0, 0, 0.75]);
 
   // 3.
-  const basis = subdivisionRingEigenbasis(ring([0, 0, 0, 0]));
+  const basis = AutoMovieEngineGeometry.subdivisionRingEigenbasis(ring([0, 0, 0, 0]));
   TestValidator.predicate(
     "limit",
     Math.abs(basis.limit[0]!) <= 1e-12 &&

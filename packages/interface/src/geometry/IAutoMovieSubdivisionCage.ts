@@ -1,7 +1,7 @@
 import type { IAutoMovieSubdivisionCrease } from "./IAutoMovieSubdivisionCrease";
 
 /**
- * The control polygon mesh that `subdivideAutoMovieSurface` refines.
+ * The control polygon mesh that `subdivideSurface` refines.
  *
  * A cage is quad-dominant but may carry any polygon of three or more corners.
  * It must be a manifold with consistent winding: every edge belongs to one face

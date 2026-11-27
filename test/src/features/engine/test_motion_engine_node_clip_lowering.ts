@@ -1,4 +1,4 @@
-import { importedNodeClipToAutoMovieMotion } from "@automovie/engine";
+import { AutoMovieEngineMotionClip } from "@automovie/engine";
 import type {
   IAutoMovieClip,
   IAutoMovieJointPose,
@@ -14,12 +14,12 @@ import { importedNodeMotionTestSkeleton as skeleton } from "../internal/imported
 import { nclose, throwsError } from "../internal/predicates";
 import { test12ValuesClose } from "../internal/test12ValuesClose";
 
-type LoweringInput = Parameters<typeof importedNodeClipToAutoMovieMotion>[0];
+type LoweringInput = Parameters<typeof AutoMovieEngineMotionClip.importedNodeClipToAutoMovieMotion>[0];
 
 function lower(
   change: Partial<LoweringInput>,
-): ReturnType<typeof importedNodeClipToAutoMovieMotion> {
-  return importedNodeClipToAutoMovieMotion({
+): ReturnType<typeof AutoMovieEngineMotionClip.importedNodeClipToAutoMovieMotion> {
+  return AutoMovieEngineMotionClip.importedNodeClipToAutoMovieMotion({
     clip: clip(),
     sourceSkeleton: skeleton(),
     mapping,
@@ -28,7 +28,7 @@ function lower(
   });
 }
 const mapping: Parameters<
-  typeof importedNodeClipToAutoMovieMotion
+  typeof AutoMovieEngineMotionClip.importedNodeClipToAutoMovieMotion
 >[0]["mapping"] = [
   { node: "spine-node", bone: "spine" as const },
   { node: "pelvis-node", bone: "hips" as const },
@@ -55,7 +55,7 @@ const mapping: Parameters<
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A mapped clip lowers the authored key-time union, root translation, joint).
  */
 export function test_motion_engine_node_clip_lowering(): void {
-  const motion: ReturnType<typeof importedNodeClipToAutoMovieMotion> = lower(
+  const motion: ReturnType<typeof AutoMovieEngineMotionClip.importedNodeClipToAutoMovieMotion> = lower(
     {},
   );
   TestValidator.predicate(
@@ -90,7 +90,7 @@ export function test_motion_engine_node_clip_lowering(): void {
     ),
   );
 
-  const reordered: ReturnType<typeof importedNodeClipToAutoMovieMotion> = lower(
+  const reordered: ReturnType<typeof AutoMovieEngineMotionClip.importedNodeClipToAutoMovieMotion> = lower(
     { mapping: [...mapping].reverse() },
   );
   TestValidator.predicate(
@@ -102,7 +102,7 @@ export function test_motion_engine_node_clip_lowering(): void {
     "missing, duplicate, and unmapped channels are refused",
     {
       missing: throwsError(
-        (): ReturnType<typeof importedNodeClipToAutoMovieMotion> =>
+        (): ReturnType<typeof AutoMovieEngineMotionClip.importedNodeClipToAutoMovieMotion> =>
           lower({
             clip: { ...clip(), tracks: clip().tracks.slice(0, 2) },
           }),
@@ -116,7 +116,7 @@ export function test_motion_engine_node_clip_lowering(): void {
         });
       }, "repeats channel"),
       unmapped: throwsError(
-        (): ReturnType<typeof importedNodeClipToAutoMovieMotion> =>
+        (): ReturnType<typeof AutoMovieEngineMotionClip.importedNodeClipToAutoMovieMotion> =>
           lower({ mapping: mapping.slice(1) }),
         "no explicit bone mapping",
       ),
@@ -159,7 +159,7 @@ export function test_motion_engine_node_clip_lowering(): void {
     "ambiguous mapping and unsupported non-root translation are refused",
     {
       repeatedBone: throwsError(
-        (): ReturnType<typeof importedNodeClipToAutoMovieMotion> =>
+        (): ReturnType<typeof AutoMovieEngineMotionClip.importedNodeClipToAutoMovieMotion> =>
           lower({
             mapping: [...mapping, { node: "other-node", bone: "spine" }],
           }),
@@ -182,7 +182,7 @@ export function test_motion_engine_node_clip_lowering(): void {
         });
       }, "must map to hips"),
       oneTime: throwsError(
-        (): ReturnType<typeof importedNodeClipToAutoMovieMotion> =>
+        (): ReturnType<typeof AutoMovieEngineMotionClip.importedNodeClipToAutoMovieMotion> =>
           lower({
             clip: {
               ...clip(),
@@ -202,7 +202,7 @@ export function test_motion_engine_node_clip_lowering(): void {
     "skeleton, mapping, channel-kind, and scale boundaries refuse ambiguity",
     {
       emptyMapping: throwsError(
-        (): ReturnType<typeof importedNodeClipToAutoMovieMotion> =>
+        (): ReturnType<typeof AutoMovieEngineMotionClip.importedNodeClipToAutoMovieMotion> =>
           lower({ mapping: [] }),
         "explicit node-to-bone mapping",
       ),
@@ -217,14 +217,14 @@ export function test_motion_engine_node_clip_lowering(): void {
         lower({ sourceSkeleton });
       }, "rest"),
       repeatedNode: throwsError(
-        (): ReturnType<typeof importedNodeClipToAutoMovieMotion> =>
+        (): ReturnType<typeof AutoMovieEngineMotionClip.importedNodeClipToAutoMovieMotion> =>
           lower({
             mapping: [...mapping, { node: "spine-node", bone: "head" }],
           }),
         "repeats node",
       ),
       absentBone: throwsError(
-        (): ReturnType<typeof importedNodeClipToAutoMovieMotion> =>
+        (): ReturnType<typeof AutoMovieEngineMotionClip.importedNodeClipToAutoMovieMotion> =>
           lower({ mapping: [{ node: "head-node", bone: "head" }] }),
         "absent from source skeleton",
       ),
@@ -267,7 +267,7 @@ export function test_motion_engine_node_clip_lowering(): void {
         });
       }, "cannot be represented"),
       noChannels: throwsError(
-        (): ReturnType<typeof importedNodeClipToAutoMovieMotion> =>
+        (): ReturnType<typeof AutoMovieEngineMotionClip.importedNodeClipToAutoMovieMotion> =>
           lower({
             clip: { ...clip(), tracks: [] },
           }),
@@ -319,8 +319,8 @@ export function test_motion_engine_node_clip_lowering(): void {
     { rotationOnlyRoot: null, noHipsRoot: null, characterized: 3 },
   );
 
-  const neutral: ReturnType<typeof importedNodeClipToAutoMovieMotion> =
-    importedNodeClipToAutoMovieMotion(
+  const neutral: ReturnType<typeof AutoMovieEngineMotionClip.importedNodeClipToAutoMovieMotion> =
+    AutoMovieEngineMotionClip.importedNodeClipToAutoMovieMotion(
       importedNodeMotionTestRestRelativeInput(mapping),
     );
   TestValidator.predicate(

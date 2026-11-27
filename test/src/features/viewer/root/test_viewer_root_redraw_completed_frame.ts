@@ -1,8 +1,4 @@
-import {
-  type IAutoMovieViewerCompletedFrame,
-  createViewerDisplayClock,
-  redrawViewerCompletedFrame,
-} from "@automovie/viewer";
+import { AutoMovieViewerDisplay } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
 import * as THREE from "three";
@@ -22,21 +18,21 @@ import * as THREE from "three";
 export function test_viewer_root_redraw_completed_frame(): void {
   const scene: THREE.Scene = new THREE.Scene();
   const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera();
-  const clock: ReturnType<typeof createViewerDisplayClock> =
-    createViewerDisplayClock();
+  const clock: AutoMovieViewerDisplay.IClock =
+    AutoMovieViewerDisplay.createClock();
   clock.complete(3.4);
   let count: number = 1;
-  let current: Omit<IAutoMovieViewerCompletedFrame, "control"> | undefined = {
+  let current: Omit<AutoMovieViewerDisplay.ICompletedFrame, "control"> | undefined = {
     scene,
     camera,
     pass: "beauty",
     elapsedSeconds: 3.4,
   };
   const publish: (
-    frame: Omit<IAutoMovieViewerCompletedFrame, "control">,
+    frame: Omit<AutoMovieViewerDisplay.ICompletedFrame, "control">,
     seconds: number,
   ) => void = (
-    _frame: Omit<IAutoMovieViewerCompletedFrame, "control">,
+    _frame: Omit<AutoMovieViewerDisplay.ICompletedFrame, "control">,
     seconds: number,
   ): void => {
     ++count;
@@ -46,12 +42,15 @@ export function test_viewer_root_redraw_completed_frame(): void {
     seconds: number,
     produce: (seconds: number) => void,
   ) => void = (seconds: number, produce: (seconds: number) => void): void =>
-    redrawViewerCompletedFrame(seconds, {
-      completedCount: (): number => count,
-      completedSeconds: (): number => clock.current(),
-      readFrame: (): typeof current => current,
-      produce,
-      publish,
+    AutoMovieViewerDisplay.redrawCompletedFrame({
+      seconds,
+      options: {
+        completedCount: (): number => count,
+        completedSeconds: (): number => clock.current(),
+        readFrame: (): typeof current => current,
+        produce,
+        publish,
+      },
     });
   assert.throws((): void => redraw(0, (): void => {}));
   TestValidator.equals("stale frame was not published", count, 1);
@@ -124,14 +123,17 @@ export function test_viewer_root_redraw_completed_frame(): void {
     }),
   );
   assert.throws((): void =>
-    redrawViewerCompletedFrame(9, {
-      completedCount: (): number => count,
-      completedSeconds: (): number => clock.current(),
-      readFrame: (): typeof current => current,
-      produce: (): void => {
-        current = { scene, camera, pass: "beauty", elapsedSeconds: 9 };
+    AutoMovieViewerDisplay.redrawCompletedFrame({
+      seconds: 9,
+      options: {
+        completedCount: (): number => count,
+        completedSeconds: (): number => clock.current(),
+        readFrame: (): typeof current => current,
+        produce: (): void => {
+          current = { scene, camera, pass: "beauty", elapsedSeconds: 9 };
+        },
+        publish: (): void => {},
       },
-      publish: (): void => {},
     }),
   );
 }

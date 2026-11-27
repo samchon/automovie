@@ -13,14 +13,17 @@ import type {
 import { AutoMovieHumanArmPrior } from "./AutoMovieHumanArmPrior";
 import { AutoMovieHumanBodyFrame } from "./AutoMovieHumanBodyFrame";
 import { AutoMovieHumanFootPrior } from "./AutoMovieHumanFootPrior";
-import { AutoMovieHumanArmBones } from "./arm/AutoMovieHumanArmBones";
-import { AutoMovieHumanFootBones } from "./foot/AutoMovieHumanFootBones";
-import { AutoMovieHumanHandBones } from "./hand/AutoMovieHumanHandBones";
-import { AutoMovieHumanLegBones } from "./leg/AutoMovieHumanLegBones";
+import { AutoMovieHumanArmBones } from "./AutoMovieHumanArmBones";
+import { AutoMovieHumanFootBones } from "./AutoMovieHumanFootBones";
+import { AutoMovieHumanHandBones } from "./AutoMovieHumanHandBones";
+import { AutoMovieHumanLegBones } from "./AutoMovieHumanLegBones";
 
 /** Pure sided rest definitions shared by source authors and the full skeleton. */
 export namespace AutoMovieHumanLimbRest {
-  /** Own one invocation's actual sided numerical rest records, without a whole skeleton. */
+  /**
+   * Own one invocation's actual sided numerical rest records, without a whole
+   * skeleton.
+   */
   export function create(
     input: IAutoMovieHumanLimbRest.IInput,
   ): IAutoMovieHumanLimbRest.IOutput {
@@ -60,9 +63,9 @@ export namespace AutoMovieHumanLimbRest {
             ),
             sign,
           );
-        const reflect: (p: AutoMovieVector3Tuple) => AutoMovieVector3Tuple = (
-          p: AutoMovieVector3Tuple,
-        ): AutoMovieVector3Tuple => [p[0], p[1], sign * p[2]];
+        function reflect(p: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
+          return [p[0], p[1], sign * p[2]];
+        }
         const actual: IAutoMovieHumanLimbRest.IArm = {
           bones: {
             shoulder: reflect(original.shoulder),
@@ -104,7 +107,9 @@ export namespace AutoMovieHumanLimbRest {
   }
 }
 
-/** Place one leg from public dimensions and its common frame datum. */
+/*
+ * Place one leg from public dimensions and its common frame datum.
+ */
 function leg(
   stature: number,
   inputs: IAutoMovieHumanLegConstruction.IInputs,
@@ -126,9 +131,9 @@ function leg(
     hipForward,
     ankleForward,
   });
-  const reflect: (point: AutoMovieVector3Tuple) => AutoMovieVector3Tuple = (
-    point: AutoMovieVector3Tuple,
-  ): AutoMovieVector3Tuple => [point[0], point[1], sign * point[2]];
+  function reflect(point: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
+    return [point[0], point[1], sign * point[2]];
+  }
   return {
     hip: reflect(joints.hip),
     knee: reflect(joints.knee),
@@ -137,7 +142,9 @@ function leg(
   };
 }
 
-/** Normalize the original observed bind directions. */
+/*
+ * Normalize the original observed bind directions.
+ */
 function unit(direction: readonly number[]): AutoMovieVector3Tuple {
   const length: number = Math.hypot(...direction);
   if (!(length > 0))

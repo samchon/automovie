@@ -1,4 +1,6 @@
-import { affectionCasePerformers } from "@automovie/motions/executable/internal";
+import {
+  affectionCasePerformers
+} from "../../../../../packages/motions/src/executable/cases/internal/affectionCasePerformers";
 import { TestValidator } from "@nestia/e2e";
 
 /**

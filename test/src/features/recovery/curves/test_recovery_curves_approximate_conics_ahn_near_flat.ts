@@ -4,7 +4,7 @@ import type {
   IAutoMoviePlanarCurveSource,
   IAutoMovieRegisteredConicArc,
 } from "@automovie/interface";
-import { approximateAutoMovieRecoveryConicsAhn as approximate } from "@automovie/recovery";
+import { AutoMovieRecoveryConicApproximation } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { RecoveryConicSources } from "../../internal/RecoveryConicSources";
@@ -35,7 +35,7 @@ export function test_recovery_curves_approximate_conics_ahn_near_flat(): void {
   const c: number = 1,
     d: number = 1e-3;
   const shallow: IAutoMoviePlanarCurveSource = {
-    domain: [-0.5, 0.5],
+    domain: { start: -0.5, end: 0.5 },
     breaks: [-d, d],
     closed: false,
     evaluate: (t: number): Readonly<AutoMovieVector2Tuple> => [
@@ -56,12 +56,12 @@ export function test_recovery_curves_approximate_conics_ahn_near_flat(): void {
               ? [0, 2 * c]
               : [0, 0],
   };
-  const flat: IAutoMovieConicApproximation.IResult = approximate(
+  const flat: IAutoMovieConicApproximation.IResult = AutoMovieRecoveryConicApproximation.approximateAhn(
     shallow,
     options,
   );
   TestValidator.equals("near-flat stretch complete", flat.status, "complete");
-  let reached: number = shallow.domain[0];
+  let reached: number = shallow.domain.start;
   for (const arc of flat.arcs) {
     TestValidator.predicate(
       "near-flat no source gap",
@@ -85,7 +85,7 @@ export function test_recovery_curves_approximate_conics_ahn_near_flat(): void {
   }
   TestValidator.predicate(
     "near-flat reaches final endpoint",
-    nclose(reached, shallow.domain[1], 0),
+    nclose(reached, shallow.domain.end, 0),
   );
   const middle: IAutoMovieRegisteredConicArc | undefined = flat.arcs.find(
     (arc: IAutoMovieRegisteredConicArc): boolean => arc.domain[0] === -d,
@@ -96,7 +96,7 @@ export function test_recovery_curves_approximate_conics_ahn_near_flat(): void {
   );
   // A curved stretch whose chord leaves its samples farther than the tolerance is still subdivided, not drawn straight: the same chart
   // at a tolerance under its middle's sagitta measured at unit scale.
-  const unshifted: IAutoMovieConicApproximation.IResult = approximate(
+  const unshifted: IAutoMovieConicApproximation.IResult = AutoMovieRecoveryConicApproximation.approximateAhn(
     {
       ...shallow,
       evaluate: (t: number): Readonly<AutoMovieVector2Tuple> => [

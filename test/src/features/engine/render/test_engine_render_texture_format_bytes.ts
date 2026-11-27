@@ -1,8 +1,8 @@
-import { autoMovieTextureFormatBytes } from "@automovie/engine";
+import { AutoMovieEngineRenderTexture } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `autoMovieTextureFormatBytes` is the bytes per texel of a render texture
+ * `textureFormatBytes` is the bytes per texel of a render texture
  * format.
  *
  * Scenarios:
@@ -15,11 +15,11 @@ export function test_engine_render_texture_format_bytes(): void {
   TestValidator.equals(
     "bytes per texel",
     [
-      autoMovieTextureFormatBytes("r16f"),
-      autoMovieTextureFormatBytes("rgba8"),
-      autoMovieTextureFormatBytes("rg16f"),
-      autoMovieTextureFormatBytes("rgba16f"),
-      autoMovieTextureFormatBytes("rgba32f"),
+      AutoMovieEngineRenderTexture.autoMovieTextureFormatBytes("r16f"),
+      AutoMovieEngineRenderTexture.autoMovieTextureFormatBytes("rgba8"),
+      AutoMovieEngineRenderTexture.autoMovieTextureFormatBytes("rg16f"),
+      AutoMovieEngineRenderTexture.autoMovieTextureFormatBytes("rgba16f"),
+      AutoMovieEngineRenderTexture.autoMovieTextureFormatBytes("rgba32f"),
     ],
     [2, 4, 4, 8, 16],
   );

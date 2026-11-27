@@ -1,7 +1,4 @@
-import {
-  autoMovieDrawingToSvg,
-  deriveAutoMovieDrawing,
-} from "@automovie/engine";
+import { AutoMovieEngineDrawing } from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieDrawing,
@@ -128,11 +125,15 @@ export function test_drawing_svg_sidecar(): void {
       },
     ],
   });
-  const drawing: IAutoMovieDrawing = deriveAutoMovieDrawing({
-    environment,
+  const drawing: IAutoMovieDrawing =
+    AutoMovieEngineDrawing.deriveAutoMovieDrawing({
+      environment,
+      view,
+    });
+  const svg: string = AutoMovieEngineDrawing.autoMovieDrawingToSvg({
+    drawing,
     view,
   });
-  const svg: string = autoMovieDrawingToSvg({ drawing, view });
   const lines: string[] = svg.split("\n");
 
   // 1. The sheet is the drawing at its own scale.
@@ -357,8 +358,8 @@ export function test_drawing_svg_sidecar(): void {
   // 8. Determinism.
   TestValidator.equals(
     "the same drawing serializes to the same bytes twice",
-    autoMovieDrawingToSvg({
-      drawing: deriveAutoMovieDrawing({
+    AutoMovieEngineDrawing.autoMovieDrawingToSvg({
+      drawing: AutoMovieEngineDrawing.deriveAutoMovieDrawing({
         environment: drawingEnvironment(),
         view,
       }),
@@ -376,7 +377,7 @@ export function test_drawing_svg_sidecar(): void {
         (): boolean =>
           throwsError(
             (): string =>
-              autoMovieDrawingToSvg({
+              AutoMovieEngineDrawing.autoMovieDrawingToSvg({
                 drawing,
                 view: drawingView({ id: "some-other-view" }),
               }),
@@ -388,7 +389,7 @@ export function test_drawing_svg_sidecar(): void {
         (): boolean =>
           throwsError(
             (): string =>
-              autoMovieDrawingToSvg({
+              AutoMovieEngineDrawing.autoMovieDrawingToSvg({
                 drawing,
                 view: withStyle(view, {
                   ...drawingStyle(),
@@ -403,7 +404,7 @@ export function test_drawing_svg_sidecar(): void {
         (): boolean =>
           throwsError(
             (): string =>
-              autoMovieDrawingToSvg({
+              AutoMovieEngineDrawing.autoMovieDrawingToSvg({
                 drawing,
                 view: withStyle(view, {
                   ...drawingStyle(),
@@ -418,7 +419,7 @@ export function test_drawing_svg_sidecar(): void {
         (): boolean =>
           throwsError(
             (): string =>
-              autoMovieDrawingToSvg({
+              AutoMovieEngineDrawing.autoMovieDrawingToSvg({
                 drawing,
                 view: withStyle(view, { ...drawingStyle(), textHeight: 0 }),
               }),
@@ -428,7 +429,7 @@ export function test_drawing_svg_sidecar(): void {
       [
         "a solid pen with no dash at all is accepted",
         (): boolean =>
-          autoMovieDrawingToSvg({
+          AutoMovieEngineDrawing.autoMovieDrawingToSvg({
             drawing,
             view: withStyle(view, {
               ...drawingStyle(),

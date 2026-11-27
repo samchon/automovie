@@ -5,15 +5,7 @@ import type {
   IAutoMovieGuidePassOutput,
   IAutoMovieRasterImage,
 } from "@automovie/interface";
-import {
-  AutoMovieCaptureFolder,
-  decodeAutoMovieRasterPng,
-  encodeAutoMovieRasterPng,
-  parseAutoMovieCapturePlanRequest,
-  planAutoMovieCapture,
-  planGuidePassOutputs,
-  runAutoMovieCapture,
-} from "@automovie/render";
+import { AutoMovieRenderCaptureFolder, AutoMovieRenderPicture, AutoMovieRenderCapture, AutoMovieRenderMedia } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { createCaptureMemory } from "./createCaptureMemory";
@@ -39,7 +31,7 @@ import { createCaptureMemory } from "./createCaptureMemory";
  * @evidence contracts/development/testing.md#execution-ownership In-memory planning, capture storage and PNG bytes; no browser.
  */
 export async function test_capture_graphics_plate_png(): Promise<void> {
-  const outputs: IAutoMovieGuidePassOutput[] = planGuidePassOutputs({
+  const outputs: IAutoMovieGuidePassOutput[] = AutoMovieRenderMedia.planGuidePassOutputs({
     frameDir: "frames",
     frameCount: 2,
     passes: ["beauty", "graphics"],
@@ -57,11 +49,15 @@ export async function test_capture_graphics_plate_png(): Promise<void> {
     height: 1,
     pixels: new Uint8ClampedArray([255, 0, 0, 255, 0, 0, 0, 0]),
   };
-  const bytes: Uint8Array = await encodeAutoMovieRasterPng(plate, {
-    alpha: true,
-  });
+  const bytes: Uint8Array = await AutoMovieRenderPicture.encodeRasterPng(
+    plate,
+    {
+      alpha: true,
+    },
+  );
   TestValidator.equals("PNG colour type 6", bytes[25], 6);
-  const decoded: IAutoMovieRasterImage = await decodeAutoMovieRasterPng(bytes);
+  const decoded: IAutoMovieRasterImage =
+    await AutoMovieRenderPicture.decodeRasterPng(bytes);
   TestValidator.equals(
     "straight alpha kept",
     Array.from(decoded.pixels),
@@ -80,21 +76,21 @@ export async function test_capture_graphics_plate_png(): Promise<void> {
     drawables: [],
     marks: [],
   };
-  const plan: IAutoMovieCapturePlan = planAutoMovieCapture({
-    request: parseAutoMovieCapturePlanRequest(
+  const plan: IAutoMovieCapturePlan = AutoMovieRenderCapture.plan({
+    request: AutoMovieRenderCapture.parsePlanRequest(
       new URLSearchParams("at=0&passes=beauty,graphics"),
     ),
     subject,
     cuts: [],
   });
-  await runAutoMovieCapture({
+  await AutoMovieRenderCapture.run({
     plan,
     draw: async (): Promise<IAutoMovieCaptureDrawing> => ({
       picture: { ...plate, pixels: plate.pixels.slice() },
       labels: [],
       backend: "cpu",
     }),
-    folder: await AutoMovieCaptureFolder.open({
+    folder: await AutoMovieRenderCaptureFolder.open({
       storage: memory.storage,
       root: "out",
       round: plan.request.round,
@@ -111,7 +107,10 @@ export async function test_capture_graphics_plate_png(): Promise<void> {
     "the graphics still keeps its alpha and the beauty still is RGB",
     [
       still("graphics")[25],
-      Array.from((await decodeAutoMovieRasterPng(still("graphics"))).pixels),
+      Array.from(
+        (await AutoMovieRenderPicture.decodeRasterPng(still("graphics")))
+          .pixels,
+      ),
       still("beauty")[25],
     ],
     [6, [255, 0, 0, 255, 0, 0, 0, 0], 2],

@@ -1,6 +1,7 @@
 import type {
   IAutoMovieConstructionKnot,
   IAutoMovieConstructionNode,
+  IAutoMovieConstructionChartPoint,
   IAutoMovieConstructionOutline,
   IAutoMovieConstructionParameter,
   IAutoMovieConstructionView,
@@ -11,7 +12,7 @@ import type {
 /**
  * Analytic solids written as construction trees, for the construction
  * spec tests: each view part is a closed form whose sections, girths and
- * meetings have exact answers ({@link ConstructionShapes.Oracle}), in
+ * meetings have exact answers, such as {@link ConstructionShapes.oraclePerimeter}, in
  * metres in the construction's frame.
  *
  * Every part's outline knots stand at its stations and carry the closed
@@ -151,8 +152,8 @@ export namespace ConstructionShapes {
     seed: {
       partFace: string;
       hostFace: string;
-      part: [number, number];
-      host: [number, number];
+      part: IAutoMovieConstructionChartPoint;
+      host: IAutoMovieConstructionChartPoint;
     },
     widths: {
       part: IAutoMovieConstructionWidth;
@@ -249,22 +250,29 @@ export namespace ConstructionShapes {
 
     // Seeds: the post's phase pi / 2 point (r, 0, R) on the beam; the finger's phase 0 point (0.005, sqrt(0.015^2 - 0.005^2), 0.06) on the post; the nail's phase 0 point (0, 0.032, 0.065) on the finger.
     const lean: number = Math.sqrt(0.015 ** 2 - 0.005 ** 2);
-    const seeds: {
-      post: [string, [number, number], [number, number]];
-      finger: [string, [number, number], [number, number]];
-      nail: [string, [number, number], [number, number]];
-    } = {
-      post: [
-        "beam",
-        [(0.03 + 0.001) * k, Math.PI / 2],
-        [(0.1 + 0.015) * k, 0.01],
-      ],
-      finger: [
-        "post",
-        [(lean + 0.001) * k, 0],
-        [0.06 * k, Math.atan2(0.005, lean) + 0.01],
-      ],
-      nail: ["finger", [0.006 * k, 0], [0.032 * k, Math.PI / 2 + 0.01]],
+    const seeds: Record<
+      "post" | "finger" | "nail",
+      {
+        face: string;
+        part: IAutoMovieConstructionChartPoint;
+        host: IAutoMovieConstructionChartPoint;
+      }
+    > = {
+      post: {
+        face: "beam",
+        part: { station: (0.03 + 0.001) * k, phase: Math.PI / 2 },
+        host: { station: (0.1 + 0.015) * k, phase: 0.01 },
+      },
+      finger: {
+        face: "post",
+        part: { station: (lean + 0.001) * k, phase: 0 },
+        host: { station: 0.06 * k, phase: Math.atan2(0.005, lean) + 0.01 },
+      },
+      nail: {
+        face: "finger",
+        part: { station: 0.006 * k, phase: 0 },
+        host: { station: 0.032 * k, phase: Math.PI / 2 + 0.01 },
+      },
     };
     const merge: (
       name: string,
@@ -286,9 +294,9 @@ export namespace ConstructionShapes {
         part,
         {
           partFace: face,
-          hostFace: seeds[face][0],
-          part: seeds[face][1],
-          host: seeds[face][2],
+          hostFace: seeds[face].face,
+          part: seeds[face].part,
+          host: seeds[face].host,
         },
         chord(r),
       );
@@ -328,54 +336,50 @@ export namespace ConstructionShapes {
       (_: unknown, i: number): number => a + ((b - a) * i) / (count - 1),
     );
   }
-
-  /** Closed forms the spec tests compare with. */
-  export namespace Oracle {
-    /**
-     * The ellipse's perimeter, exact to rounding by the arithmetic-geometric
-     * mean: `2 pi (a^2 - sum_n 2^(n-1) c_n^2) / AGM(a, b)` with `c_0^2 = a^2 - b^2`
-     * and `c_(n+1) = (a_n - b_n) / 2`; a circle gives `2 pi a`.
-     */
-    export function perimeter(a: number, b: number): number {
-      let an: number = Math.max(a, b);
-      let bn: number = Math.min(a, b);
-      let sum: number = 0.5 * (an * an - bn * bn);
-      let power: number = 0.5;
-      for (let i: number = 0; i < 40 && Math.abs(an - bn) > 1e-15 * an; i++) {
-        const c: number = (an - bn) / 2;
-        const next: number = (an + bn) / 2;
-        bn = Math.sqrt(an * bn);
-        an = next;
-        power *= 2;
-        sum += power * c * c;
-      }
-      return (2 * Math.PI * (Math.max(a, b) ** 2 - sum)) / an;
+  /**
+   * The ellipse's perimeter, exact to rounding by the arithmetic-geometric
+   * mean: `2 pi (a^2 - sum_n 2^(n-1) c_n^2) / AGM(a, b)` with `c_0^2 = a^2 - b^2`
+   * and `c_(n+1) = (a_n - b_n) / 2`; a circle gives `2 pi a`.
+   */
+  export function oraclePerimeter(a: number, b: number): number {
+    let an: number = Math.max(a, b);
+    let bn: number = Math.min(a, b);
+    let sum: number = 0.5 * (an * an - bn * bn);
+    let power: number = 0.5;
+    for (let i: number = 0; i < 40 && Math.abs(an - bn) > 1e-15 * an; i++) {
+      const c: number = (an - bn) / 2;
+      const next: number = (an + bn) / 2;
+      bn = Math.sqrt(an * bn);
+      an = next;
+      power *= 2;
+      sum += power * c * c;
     }
+    return (2 * Math.PI * (Math.max(a, b) ** 2 - sum)) / an;
+  }
 
-    /**
-     * The Steinmetz curve where a cylinder of radius `r` along `z` meets a
-     * cylinder of radius `R >= r` along `x`, both through the origin, on the
-     * side `z > 0`: `(r cos t, r sin t, sqrt(R^2 - r^2 sin^2 t))`.
-     */
-    export function steinmetz(
-      r: number,
-      R: number,
-      t: number,
-    ): IAutoMovieVector3 {
-      return {
-        x: r * Math.cos(t),
-        y: r * Math.sin(t),
-        z: Math.sqrt(R * R - r * r * Math.sin(t) ** 2),
-      };
-    }
+  /**
+   * The Steinmetz curve where a cylinder of radius `r` along `z` meets a
+   * cylinder of radius `R >= r` along `x`, both through the origin, on the
+   * side `z > 0`: `(r cos t, r sin t, sqrt(R^2 - r^2 sin^2 t))`.
+   */
+  export function oracleSteinmetz(
+    r: number,
+    R: number,
+    t: number,
+  ): IAutoMovieVector3 {
+    return {
+      x: r * Math.cos(t),
+      y: r * Math.sin(t),
+      z: Math.sqrt(R * R - r * r * Math.sin(t) ** 2),
+    };
+  }
 
-    /** Signed distance of a point from a sphere's surface, metres: positive outside. */
-    export function sphere(
-      p: IAutoMovieVector3,
-      centre: IAutoMovieVector3,
-      R: number,
-    ): number {
-      return Math.hypot(p.x - centre.x, p.y - centre.y, p.z - centre.z) - R;
-    }
+  /** Signed distance of a point from a sphere's surface, metres: positive outside. */
+  export function oracleSphere(
+    p: IAutoMovieVector3,
+    centre: IAutoMovieVector3,
+    R: number,
+  ): number {
+    return Math.hypot(p.x - centre.x, p.y - centre.y, p.z - centre.z) - R;
   }
 }

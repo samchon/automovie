@@ -5,8 +5,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { ArchetypeFractureEnergy } from "./ArchetypeFractureEnergy";
-import { ArchetypeMassArithmetic } from "./ArchetypeMassArithmetic";
+import { ArchetypeFractureEnergy } from "./internal/ArchetypeFractureEnergy";
+import { ArchetypeMassArithmetic } from "./internal/ArchetypeMassArithmetic";
 import type { AutoMovieArchetype } from "./AutoMovieArchetype";
 import type { AutoMovieArchetypeConvexCell } from "./AutoMovieArchetypeConvexCell";
 import type { AutoMovieArchetypeFriction } from "./AutoMovieArchetypeFriction";
@@ -265,7 +265,9 @@ export namespace AutoMovieArchetypeFracture {
     const broken: Set<string> = new Set(
       rest.fractures.flatMap((s: ISet): readonly string[] => s.parts),
     );
-    /** One declared fragment's identity and independently built rest record. */
+    /*
+     * One declared fragment's identity and independently built rest record.
+     */
     type FragmentRecord = {
       id: string;
       props: AutoMovieArchetype.IProps<Id, Dimension>;
@@ -360,7 +362,9 @@ export namespace AutoMovieArchetypeFracture {
     };
   }
 
-  /** Refuse unsupported mass before the shared mass-property arithmetic sees it. */
+  /*
+   * Refuse unsupported mass before the shared mass-property arithmetic sees it.
+   */
   function massRefusal(
     archetype: string,
     value: number | undefined,
@@ -377,14 +381,13 @@ export namespace AutoMovieArchetypeFracture {
     });
   }
 
-  /**
+  /*
    * Contacts not transferred to fragments, retaining only surviving part
    * bindings and detaching ride/follow references outside the remainder.
-   *
-   * @param rest The archetype's rest record.
-   * @param kept The remainder's parts.
-   * @param departed The contacts already owned by a fragment.
-   * @returns The kept contacts, in the rest record's order.
+   * Parameter rest: The archetype's rest record.
+   * Parameter kept: The remainder's parts.
+   * Parameter departed: The contacts already owned by a fragment.
+   * Returns: The kept contacts, in the rest record's order.
    */
   function remaining<Id extends string, Dimension extends string>(
     rest: AutoMovieArchetype.IProps<Id, Dimension>,
@@ -422,7 +425,7 @@ export namespace AutoMovieArchetypeFracture {
       );
   }
 
-  /**
+  /*
    * Keep declared static contacts and wholly departing articulations, then
    * their riding contacts.
    */

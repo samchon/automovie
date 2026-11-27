@@ -13,12 +13,6 @@ import { readMotionTakeInstalledLock } from "./readMotionTakeInstalledLock";
 import { readMotionTakePackageVersion } from "./readMotionTakePackageVersion";
 import { resolveMotionTakePath } from "./resolveMotionTakePath";
 
-/** File digests associated with source modules already loaded by this process. */
-const LOADED_FILES: Map<string, string> = new Map();
-
-/** Installed dependency identities already used under each production root. */
-const LOADED_INSTALL: Map<string, string> = new Map();
-
 /**
  * Measure and rebuild the source explicitly selected by the production author.
  * A saved manifest can verify input bytes before the source is evaluated.
@@ -163,3 +157,9 @@ export async function readMotionTakeSource(
     },
   };
 }
+
+/** File digests associated with source modules already loaded by this process. */
+const LOADED_FILES: Map<string, string> = new Map();
+
+/** Installed dependency identities already used under each production root. */
+const LOADED_INSTALL: Map<string, string> = new Map();

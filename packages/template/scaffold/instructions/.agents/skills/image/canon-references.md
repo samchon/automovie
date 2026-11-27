@@ -4,7 +4,7 @@ A canon reference fixes a subject's look for later images and video. Make the vi
 
 ## Views
 
-<!-- @source [Runway’s Gen-4 reference guide](https://help.runwayml.com/hc/en-us/articles/40042718905875-Gen-4-Image-References-Guide) recommends even lighting and a neutral expression. -->
+<!-- @reference [Runway’s Gen-4 reference guide](https://help.runwayml.com/hc/en-us/articles/40042718905875-Gen-4-Image-References-Guide) recommends even lighting and a neutral expression. -->
 
 Model-neutral casting photographs can precede video model selection. Embed each candidate view in its [subject record](../story/document-layout.md#canon-records) and mark it pending until the user accepts it.
 

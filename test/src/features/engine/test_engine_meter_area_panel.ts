@@ -1,4 +1,4 @@
-import { meterAutoMovieIlluminance } from "@automovie/engine";
+import { AutoMovieEngineExposure } from "@automovie/engine";
 import type {
   IAutoMovieLight,
   IAutoMovieQuaternion,
@@ -55,7 +55,7 @@ export function test_engine_meter_area_panel(): void {
     light: IAutoMovieLight,
     normal: IAutoMovieVector3,
   ): number =>
-    meterAutoMovieIlluminance({ lights: [light], point, normal }).lux;
+    AutoMovieEngineExposure.meterAutoMovieIlluminance({ lights: [light], point, normal }).lux;
 
   // 1. Centred square.
   const k: number = 0.5 / Math.sqrt(1 + 0.25);

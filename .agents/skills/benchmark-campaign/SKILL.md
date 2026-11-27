@@ -26,7 +26,7 @@ pnpm automovie create $unusedDirectory --workspace --name automovie-examples
 pnpm automovie create $unusedProduction --name scaffold-comparison
 ```
 
-Merge the generated `AGENTS.md`, `CLAUDE.md` and `.agents/skills/` into `examples/`, preserving local changes. Compare the generated dependency catalogs with examples. Update incompatible shared pins while preserving local catalog choices and the relative links to the target SDK and CLI adapter. Verify [distribution](../scaffold-prompting/verification.md#distribution).
+Merge the generated `AGENTS.md`, `CLAUDE.md` and `.agents/skills/` into `examples/`, preserving local changes. Compare the generated dependency catalogs with examples. Update incompatible shared pins while preserving local catalog choices and the relative links to the target SDK and CLI adapter. Verify [scaffold distribution](../development/validation.md#scaffold-distribution).
 
 Merge relevant changes to `vite.config.ts`, `package.json` scripts and `src/executable/check.ts`. Preserve authored source and settings.
 

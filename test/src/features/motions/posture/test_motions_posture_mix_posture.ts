@@ -1,10 +1,12 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
 } from "@automovie/interface";
-import { mixHumanPosture } from "@automovie/motions/internal";
+import {
+  mixHumanPosture
+} from "../../../../../packages/motions/src/posture/internal/mixHumanPosture";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -42,7 +44,7 @@ const TO: IAutoMovieMotionHumanPosture = {
   limbs: { leftArm: goal(1, false), rightArm: goal(-1, false) },
   rotation: {
     about: { x: 0, y: 1, z: 0 },
-    turn: Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
+    turn: AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
   },
 };
 

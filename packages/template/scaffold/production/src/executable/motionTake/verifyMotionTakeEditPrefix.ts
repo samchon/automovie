@@ -1,4 +1,4 @@
-import { sequenceEventTimeline } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMoviePlaybackEntry,
   IAutoMoviePlaybackEvent,
@@ -107,7 +107,7 @@ export function verifyMotionTakeEditPrefix(
 
   /** Project the event plays that the audience has reached at the join. */
   const events = (cut: typeof original): IAutoMoviePlaybackEvent[] =>
-    sequenceEventTimeline(cut.sequence, [...cut.shots]).filter(
+    AutoMovieEngineFilm.sequenceEventTimeline(cut.sequence, [...cut.shots]).filter(
       (event: IAutoMoviePlaybackEvent): boolean => event.globalTime <= seam,
     );
   if (!isDeepStrictEqual(events(original), events(branch)))

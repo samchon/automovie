@@ -7,15 +7,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanTarget } from "../../compose/AutoMovieMotionHumanTarget";
-import { AutoMovieMotionHumanTargetGrid } from "../../compose/AutoMovieMotionHumanTargetGrid";
-import { HumanFrame } from "../../posture/HumanFrame";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
+import { AutoMovieMotionHumanTarget } from "../../compose/internal/AutoMovieMotionHumanTarget";
+import { AutoMovieMotionHumanTargetGrid } from "../../compose/internal/AutoMovieMotionHumanTargetGrid";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 
-/** The alternatives of `AtPosture`'s site. */
-type AtPosture = "root" | "yaw";
-
-/**
+/*
  * Checks that a captured point is at the place a law names.
  *
  * A law states a hand's place by three names. This verdict reads the place back
@@ -25,17 +22,16 @@ type AtPosture = "root" | "yaw";
  * here, on that body.
  */
 export namespace MotionPlaceVerdicts {
-  /**
+  /*
    * The verdict that a point is at a named place.
-   *
-   * @param name The verdict's name.
-   * @param body The body.
-   * @param posture The root and the heading of the displayed pose.
-   * @param side The acting hand.
-   * @param point The captured point, world metres.
-   * @param expected The names the law wrote.
-   * @returns The verdict; its detail gives the names found and the point's
-   *   offset from the named place (out, up, forward) in arm lengths.
+   * Parameter name: The verdict's name.
+   * Parameter body: The body.
+   * Parameter posture: The root and the heading of the displayed pose.
+   * Parameter side: The acting hand.
+   * Parameter point: The captured point, world metres.
+   * Parameter expected: The names the law wrote.
+   * Returns: The verdict; its detail gives the names found and the point's
+   * offset from the named place (out, up, forward) in arm lengths.
    */
   export function at(
     name: string,
@@ -79,3 +75,8 @@ export namespace MotionPlaceVerdicts {
     };
   }
 }
+
+/*
+ * The alternatives of `AtPosture`'s site.
+ */
+type AtPosture = "root" | "yaw";

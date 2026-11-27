@@ -1,8 +1,4 @@
-import {
-  boundAutoMovieTriangleAttachmentContact,
-  createAutoMovieMeshSeparationQuery,
-  interpolateAutoMovieTrianglePoint,
-} from "@automovie/engine";
+import { AutoMovieEngineMath, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieMesh,
   IAutoMovieMeshSeparationQuery,
@@ -16,7 +12,7 @@ import { vclose } from "../../internal/vclose";
 
 /**
  * An attachment fan's seat on a non-axis-aligned triangle differs once both are
- * rounded; the contact cap (`boundAutoMovieTriangleAttachmentContact`, read
+ * rounded; the contact cap (`boundTriangleAttachmentContact`, read
  * through a float32 separation query) bounds that registration travel.
  *
  * Fixture: the support (0.1, 0.2, 0.7), (0.6, 0.3, 0.1), (0.2, 0.7, 0.1) on the
@@ -24,7 +20,7 @@ import { vclose } from "../../internal/vclose";
  *
  * Scenarios:
  *
- * 1. The binary64 seat (`interpolateAutoMovieTrianglePoint`) is (0.375, 0.375,
+ * 1. The binary64 seat (`interpolateTrianglePoint`) is (0.375, 0.375,
  *    0.25) within 1e-15.
  * 2. The Float32-rounded support's affine height over the seat's (x, y) stands
  *    above the seat.
@@ -48,7 +44,7 @@ export function test_engine_geometry_triangle_attachment_contact(): void {
   });
 
   // 1.
-  const seat: IAutoMovieVector3 = interpolateAutoMovieTrianglePoint(
+  const seat: IAutoMovieVector3 = AutoMovieEngineMath.interpolateTrianglePoint(
     support,
     weights,
   );
@@ -85,7 +81,7 @@ export function test_engine_geometry_triangle_attachment_contact(): void {
     skin: null,
   };
   const query: IAutoMovieMeshSeparationQuery =
-    createAutoMovieMeshSeparationQuery(mesh, "float32");
+    AutoMovieEngineGeometry.createMeshSeparationQuery(mesh, "float32");
   const attachment = { triangle: 0, weights, supports: [0] };
   const caps: number[] = [];
   for (const rise of [0.01, 1e-6]) {
@@ -135,7 +131,7 @@ export function test_engine_geometry_triangle_attachment_contact(): void {
     TestValidator.predicate(
       label,
       throwsError(
-        (): unknown => boundAutoMovieTriangleAttachmentContact(f, s),
+        (): unknown => AutoMovieEngineGeometry.boundTriangleAttachmentContact(f, s),
         "complete fan",
       ),
     );
@@ -143,7 +139,7 @@ export function test_engine_geometry_triangle_attachment_contact(): void {
     "overflow",
     throwsError(
       (): unknown =>
-        boundAutoMovieTriangleAttachmentContact(fan, [
+        AutoMovieEngineGeometry.boundTriangleAttachmentContact(fan, [
           { x: -Number.MAX_VALUE, y: 0, z: 0 },
           { x: Number.MAX_VALUE, y: 0, z: 0 },
           { x: 0, y: 1, z: 0 },

@@ -1,10 +1,10 @@
-import { advanceAutoMovieGrid } from "@automovie/engine";
+import { AutoMovieEngineSchedule } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/predicates";
 
 /**
- * `advanceAutoMovieGrid` returns the first grid index after a read one that a
+ * `advanceGrid` returns the first grid index after a read one that a
  * movement bound does not certify.
  *
  * Bound: travel(at, j) = j - at, so with margin 5 the indices 1..4 are
@@ -23,32 +23,32 @@ export function test_engine_composition_advance_grid(): void {
   const linear = (from: number, to: number): number => to - from;
   TestValidator.equals(
     "first uncertified",
-    advanceAutoMovieGrid(0, 10, 5, linear),
+    AutoMovieEngineSchedule.advanceGrid(0, 10, 5, linear),
     5,
   );
   TestValidator.equals(
     "all certified",
-    advanceAutoMovieGrid(0, 10, 100, linear),
+    AutoMovieEngineSchedule.advanceGrid(0, 10, 100, linear),
     11,
   );
-  TestValidator.equals("no margin", advanceAutoMovieGrid(0, 10, 0, linear), 1);
+  TestValidator.equals("no margin", AutoMovieEngineSchedule.advanceGrid(0, 10, 0, linear), 1);
   TestValidator.equals(
     "at the end",
-    advanceAutoMovieGrid(10, 10, 5, linear),
+    AutoMovieEngineSchedule.advanceGrid(10, 10, 5, linear),
     11,
   );
   TestValidator.equals(
     "no bound",
-    advanceAutoMovieGrid(3, 10, 5, () => undefined),
+    AutoMovieEngineSchedule.advanceGrid(3, 10, 5, () => undefined),
     4,
   );
   TestValidator.equals(
     "from the middle",
-    advanceAutoMovieGrid(4, 10, 2.5, linear),
+    AutoMovieEngineSchedule.advanceGrid(4, 10, 2.5, linear),
     7,
   );
   TestValidator.predicate(
     "negative",
-    throwsError(() => advanceAutoMovieGrid(0, 10, 5, () => -1)),
+    throwsError(() => AutoMovieEngineSchedule.advanceGrid(0, 10, 5, () => -1)),
   );
 }

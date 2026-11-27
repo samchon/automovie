@@ -1,4 +1,4 @@
-import { AutoMovieViewSection } from "@automovie/engine";
+import { AutoMovieEngineViewSection } from "@automovie/engine";
 import type {
   AutoMovieHumanSexPair,
   IAutoMovieHumanBodyMeasures,
@@ -78,8 +78,8 @@ export namespace AutoMovieHumanChestWall {
       throw new Error(
         "Chest-wall template needs positive finite tape and compressed-caliper predictions",
       );
-    const ellipse: number = AutoMovieViewSection.ELLIPSE;
-    const perimeter: number = AutoMovieViewSection.of(
+    const ellipse: number = AutoMovieEngineViewSection.ELLIPSE;
+    const perimeter: number = AutoMovieEngineViewSection.of(
       { extents: [depth / 2, breadth / 2, depth / 2, breadth / 2] },
       [ellipse, ellipse, ellipse, ellipse],
     ).girth;

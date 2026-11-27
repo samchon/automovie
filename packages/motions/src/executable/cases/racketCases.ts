@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -7,19 +7,19 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanChain } from "../../HumanChain";
-import { createHumanBody } from "../../body/createHumanBody";
-import { HumanPerformance } from "../../perform/HumanPerformance";
-import { HumanColliders } from "../../posture/HumanColliders";
-import { HumanFoot } from "../../posture/HumanFoot";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
-import { MotionBodies } from "../MotionBodies";
-import type { humanPolygonMan } from "../humanPolygonMan";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
+import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
+import { AutoMovieMotionHumanPerformance } from "../../perform/AutoMovieMotionHumanPerformance";
+import { HumanColliders } from "../../posture/internal/HumanColliders";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
+import { MotionBodies } from "../internal/MotionBodies";
+import type { humanPolygonMan } from "../internal/humanPolygonMan";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { TouchVerdicts } from "./TouchVerdicts";
-import { everydayVerdicts } from "./everydayVerdicts";
+import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/**
+/*
  * Capture cases of the racket and golf positions from quiet standing.
  *
  * Every case reports foot slip at most 5 mm (the issue's planted-foot bound,
@@ -36,9 +36,8 @@ import { everydayVerdicts } from "./everydayVerdicts";
  *   the vertical (provisional band around the law's 35), the hands within 10 cm
  *   horizontally of the shoulders' midpoint (hanging arms), and two waggles
  *   counted as forward extremes of the hands.
- *
- * @param bodies The bodies; `m-average` when absent.
- * @returns The cases.
+ * Parameter bodies: The bodies; `m-average` when absent.
+ * Returns: The cases.
  */
 export function racketCases(
   bodies: readonly string[] = ["m-average"],
@@ -46,7 +45,7 @@ export function racketCases(
   const out: IMotionCaptureCase[] = [];
   for (const id of bodies) {
     const man: humanPolygonMan.IPolygonMan = MotionBodies.population(id);
-    const body: IAutoMovieMotionHumanBody = createHumanBody(
+    const body: IAutoMovieMotionHumanBody = AutoMovieMotionHumanBody.create(
       man.body.skeleton,
       man.body.profile,
     );
@@ -62,7 +61,7 @@ export function racketCases(
 
       // Process boundary: a case that throws is reported as that case's refusal, and the remaining cases still run.
       try {
-        performance = new HumanPerformance({
+        performance = new AutoMovieMotionHumanPerformance({
           seed: "racket",
           performers: [
             {
@@ -73,7 +72,7 @@ export function racketCases(
               proficiency: { level: "trained" as const },
             },
           ],
-          composition: HumanChain.subject("a").act("racket", { kind }).node,
+          composition: AutoMovieMotionHumanChain.subject("a").act("racket", { kind }).node,
         });
       } catch (error) {
         out.push(FamilyCaseKit.refused(name, error));
@@ -105,8 +104,8 @@ export function racketCases(
           verdicts.push(
             everydayVerdicts.within(
               "fists apart on the handle",
-              Vector3.length(
-                Vector3.subtract(at(mid, "leftHand"), at(mid, "rightHand")),
+              AutoMovieEngineVector3.length(
+                AutoMovieEngineVector3.subtract(at(mid, "leftHand"), at(mid, "rightHand")),
               ),
               1.5 * m.hand,
               "mm",
@@ -155,23 +154,23 @@ export function racketCases(
         }
         case "golfAddress": {
           const mid: number = ready;
-          const trunk: IAutoMovieVector3 = Vector3.subtract(
+          const trunk: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
             at(mid, "neck"),
             at(mid, "hips"),
           );
           const lean: number =
-            (Math.acos(trunk.y / Vector3.length(trunk)) * 180) / Math.PI;
+            (Math.acos(trunk.y / AutoMovieEngineVector3.length(trunk)) * 180) / Math.PI;
           verdicts.push({
             name: "trunk 25 to 45 deg from the vertical",
             passed: lean >= 25 && lean <= 45,
             detail: `${lean.toFixed(1)} deg`,
           });
-          const shoulders: IAutoMovieVector3 = Vector3.scale(
-            Vector3.add(at(mid, "leftUpperArm"), at(mid, "rightUpperArm")),
+          const shoulders: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+            AutoMovieEngineVector3.add(at(mid, "leftUpperArm"), at(mid, "rightUpperArm")),
             0.5,
           );
-          const hands: IAutoMovieVector3 = Vector3.scale(
-            Vector3.add(at(mid, "leftHand"), at(mid, "rightHand")),
+          const hands: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+            AutoMovieEngineVector3.add(at(mid, "leftHand"), at(mid, "rightHand")),
             0.5,
           );
           verdicts.push(

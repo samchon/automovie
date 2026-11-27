@@ -1,9 +1,9 @@
-import { listAutoMovieCameraSubjectMeshes } from "@automovie/render";
+import { AutoMovieRenderInspectionCamera } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 /**
- * `listAutoMovieCameraSubjectMeshes` lists the meshes a camera-edge measurement
+ * `listCameraSubjectMeshes` lists the meshes a camera-edge measurement
  * can read exactly, or reports that it cannot.
  *
  * Scenarios:
@@ -28,7 +28,7 @@ export function test_render_scene_list_camera_subject_meshes(): void {
   const nested: THREE.Group = new THREE.Group();
   nested.add(second);
   root.add(nested);
-  const listed: THREE.Mesh[] | undefined = listAutoMovieCameraSubjectMeshes(root, camera);
+  const listed: THREE.Mesh[] | undefined = AutoMovieRenderInspectionCamera.listSubjectMeshes(root, camera);
   TestValidator.predicate(
     "listed",
     listed !== undefined &&
@@ -40,7 +40,7 @@ export function test_render_scene_list_camera_subject_meshes(): void {
   const unsupported = (object: THREE.Object3D): boolean => {
     const group: THREE.Group = new THREE.Group();
     group.add(object);
-    return listAutoMovieCameraSubjectMeshes(group, camera) === undefined;
+    return AutoMovieRenderInspectionCamera.listSubjectMeshes(group, camera) === undefined;
   };
   TestValidator.equals("line", unsupported(new THREE.Line()), true);
   TestValidator.equals("shader", unsupported(mesh(new THREE.ShaderMaterial())), true);

@@ -1,7 +1,9 @@
 import {
-  HumanArmSeed,
-  HumanArmTrajectoryStep,
-} from "@automovie/motions/internal";
+  HumanArmSeed
+} from "../../../../../packages/motions/src/posture/internal/HumanArmSeed";
+import {
+  HumanArmTrajectoryStep
+} from "../../../../../packages/motions/src/posture/internal/HumanArmTrajectoryStep";
 import { TestValidator } from "@nestia/e2e";
 
 /**

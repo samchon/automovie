@@ -9,21 +9,17 @@ import type {
   IAutoMovieInspectionDiagnostics,
   IAutoMovieRasterImage,
 } from "@automovie/interface";
-import {
-  AutoMovieCaptureFolder,
-  decodeAutoMovieRasterPng,
-  hashAutoMovieRasterImage,
-  parseAutoMovieCapturePlanRequest,
-  planAutoMovieCapture,
-  runAutoMovieCapture,
-} from "@automovie/render";
+import { AutoMovieRenderCaptureFolder, AutoMovieRenderPicture, AutoMovieRenderCapture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as fs from "node:fs/promises";
 
 import { nclose } from "../internal/nclose";
 import { createCaptureMemory } from "./createCaptureMemory";
 
-/** A Node host passes `node:fs/promises` as the storage with no adapter; this line fails compilation if it cannot. */
+/**
+ * A Node host passes `node:fs/promises` as the storage with no adapter; this
+ * line fails compilation if it cannot.
+ */
 const NODE: IAutoMovieCaptureStorage = fs;
 
 /** A subject of three seconds at 10 fps, drawn 64 by 36. */
@@ -46,21 +42,36 @@ const SUBJECT: IAutoMovieCaptureSubject = {
 };
 
 /**
- * A whole capture against an in-memory storage and a recording draw function writes every planned file, in the order the folder states, and nothing outside its root.
+ * A whole capture against an in-memory storage and a recording draw function
+ * writes every planned file, in the order the folder states, and nothing
+ * outside its root.
  *
  * Scenarios:
  *
- * 1. Two seconds through one view draw two cells in plan order; the storage sees: create and list the folder, the `running` record, both stills, the sheet, the `complete` record, and no other call.
+ * 1. Two seconds through one view draw two cells in plan order; the storage sees:
+ *    create and list the folder, the `running` record, both stills, the sheet,
+ *    the `complete` record, and no other call.
  * 2. Every path touched lies under the root.
- * 3. The record lists the subject, the revision, the request as text, one drawn row per cell with its file, sheet position, backend, camera, the view text that repeats it and the pattern resolutions the draw stated, the sheet, and every file written including itself.
- * 4. Each row's hash is the hash of the still decoded from its file; the label the draw anchored at (40, 20) is stamped there, and the one anchored at (62, 34), whose 7 by 9 box would leave the 64 by 36 still, is moved inside it to (57, 27).
- * 5. A second capture into the same root replaces the first's stills, leaving only its own files and the record.
- * 6. A folder opened for another round than the plan's is refused before anything is written.
- * 7. `node:fs/promises` is assignable to the storage type, checked at compile time.
- * 8. A capture without diagnostics omits the audit. A sweep groups repeated diagnostic samples in film order, retains the off-grid clock and makes no claim about the full delivery schedule.
+ * 3. The record lists the subject, the revision, the request as text, one drawn
+ *    row per cell with its file, sheet position, backend, camera, the view text
+ *    that repeats it and the pattern resolutions the draw stated, the sheet,
+ *    and every file written including itself.
+ * 4. Each row's hash is the hash of the still decoded from its file; the label the
+ *    draw anchored at (40, 20) is stamped there, and the one anchored at (62,
+ *    34), whose 7 by 9 box would leave the 64 by 36 still, is moved inside it
+ *    to (57, 27).
+ * 5. A second capture into the same root replaces the first's stills, leaving only
+ *    its own files and the record.
+ * 6. A folder opened for another round than the plan's is refused before anything
+ *    is written.
+ * 7. `node:fs/promises` is assignable to the storage type, checked at compile
+ *    time.
+ * 8. A capture without diagnostics omits the audit. A sweep groups repeated
+ *    diagnostic samples in film order, retains the off-grid clock and makes no
+ *    claim about the full delivery schedule.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs the public planner, folder and run against a Map-backed storage and reads the calls, the files and the record; a run that wrote a still before claiming it, wrote the record before the stills, touched a path outside its root, or recorded a hash of other bytes fails.
- * @evidence contracts/development/testing.md#independent-expectations The expected call order is the order `AutoMovieCaptureFolder` documents, the names follow the plan's documented form, and the hash is recomputed from the file's own decoded pixels; the drawn colours are written by this test.
+ * @evidence contracts/development/testing.md#independent-expectations The expected call order is the order `AutoMovieRenderCaptureFolder` documents, the names follow the plan's documented form, and the hash is recomputed from the file's own decoded pixels; the drawn colours are written by this test.
  * @evidence contracts/development/testing.md#distinguishing-cases A fresh folder against one holding a previous capture, a matching folder against one opened for another round. Foreign files are owned by `test_capture_folder_ownership`, failed cells by `test_capture_run_failed_cell`.
  * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_capture_run_order`; `node:fs/promises` is only assigned, never called, and no file, browser or process is touched.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 8 numbered scenarios it runs, each naming the input and the behavior it pins.
@@ -70,8 +81,8 @@ export async function test_capture_run_order(): Promise<void> {
   const plan: (text: string) => IAutoMovieCapturePlan = (
     text: string,
   ): IAutoMovieCapturePlan =>
-    planAutoMovieCapture({
-      request: parseAutoMovieCapturePlanRequest(new URLSearchParams(text)),
+    AutoMovieRenderCapture.plan({
+      request: AutoMovieRenderCapture.parsePlanRequest(new URLSearchParams(text)),
       subject: SUBJECT,
       cuts: [],
     });
@@ -107,10 +118,10 @@ export async function test_capture_run_order(): Promise<void> {
     drawCell: typeof draw = draw,
   ): Promise<Extract<IAutoMovieCaptureRecord, { state: "complete" }>> => {
     const planned: IAutoMovieCapturePlan = plan(text);
-    return runAutoMovieCapture({
+    return AutoMovieRenderCapture.run({
       plan: planned,
       draw: drawCell,
-      folder: await AutoMovieCaptureFolder.open({
+      folder: await AutoMovieRenderCaptureFolder.open({
         storage: memory.storage,
         root: "out/duel",
         round: planned.request.round,
@@ -223,13 +234,14 @@ export async function test_capture_run_order(): Promise<void> {
   // 4. Hashes and labels.
   for (const row of record.rows) {
     if (row.state !== "drawn") continue;
-    const still: IAutoMovieRasterImage = await decodeAutoMovieRasterPng(
-      memory.files.get(`out/duel/${row.file}`)!,
-    );
+    const still: IAutoMovieRasterImage =
+      await AutoMovieRenderPicture.decodeRasterPng(
+        memory.files.get(`out/duel/${row.file}`)!,
+      );
     TestValidator.equals(
       `${row.name} hash`,
       row.hash,
-      hashAutoMovieRasterImage(still),
+      AutoMovieRenderPicture.hashRasterImage(still),
     );
     const at: (x: number, y: number) => number[] = (
       x: number,
@@ -261,10 +273,10 @@ export async function test_capture_run_order(): Promise<void> {
   const before: number = memory.log.length;
   let refused: boolean = false;
   try {
-    await runAutoMovieCapture({
+    await AutoMovieRenderCapture.run({
       plan: plan("at=1&round=r2"),
       draw,
-      folder: await AutoMovieCaptureFolder.open({
+      folder: await AutoMovieRenderCaptureFolder.open({
         storage: memory.storage,
         root: "out/duel",
         round: null,

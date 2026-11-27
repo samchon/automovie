@@ -1,15 +1,15 @@
-import { HumanEnvironmentRecovery as HumanEnvironmentRecoverySource } from "../lexicon/HumanEnvironmentRecovery";
-import { HumanFloorFall as HumanFloorFallSource } from "../lexicon/HumanFloorFall";
-import { HumanStuntFall as HumanStuntFallSource } from "../lexicon/HumanStuntFall";
-import { HumanVehicleHit as HumanVehicleHitLaw } from "../lexicon/HumanVehicleHit";
-import { CollapseFold as CollapseFoldSource } from "../reaction/CollapseFold";
-import { collapse as collapseLaw } from "../reaction/collapse";
-import { knockdown as knockdownLaw } from "../reaction/knockdown";
-import { perturb as perturbLaw } from "../reaction/perturb";
-import { stagger as staggerLaw } from "../reaction/stagger";
-import { thrown as thrownLaw } from "../reaction/thrown";
-import { wireArrest as wireArrestLaw } from "../reaction/wireArrest";
-import { wireFlight as wireFlightLaw } from "../reaction/wireFlight";
+import { HumanEnvironmentRecovery as HumanEnvironmentRecoverySource } from "../lexicon/internal/HumanEnvironmentRecovery";
+import { HumanFloorFall as HumanFloorFallSource } from "../lexicon/internal/HumanFloorFall";
+import { HumanStuntFall as HumanStuntFallSource } from "../lexicon/internal/HumanStuntFall";
+import { HumanVehicleHit as HumanVehicleHitLaw } from "../lexicon/internal/HumanVehicleHit";
+import { CollapseFold as CollapseFoldSource } from "../reaction/internal/CollapseFold";
+import { collapse as collapseLaw } from "../reaction/internal/collapse";
+import { knockdown as knockdownLaw } from "../reaction/internal/knockdown";
+import { perturb as perturbLaw } from "../reaction/internal/perturb";
+import { stagger as staggerLaw } from "../reaction/internal/stagger";
+import { thrown as thrownLaw } from "../reaction/internal/thrown";
+import { wireArrest as wireArrestLaw } from "../reaction/internal/wireArrest";
+import { wireFlight as wireFlightLaw } from "../reaction/internal/wireFlight";
 import { HUMAN_FALL_GOALKEEPER_DIVE_LEFT } from "./presets/HUMAN_FALL_GOALKEEPER_DIVE_LEFT";
 import { HUMAN_FALL_GOALKEEPER_DIVE_RIGHT } from "./presets/HUMAN_FALL_GOALKEEPER_DIVE_RIGHT";
 
@@ -39,7 +39,7 @@ import { HUMAN_FALL_GOALKEEPER_DIVE_RIGHT } from "./presets/HUMAN_FALL_GOALKEEPE
  *   performer: the body absorbs an impulse within its base, catches it with
  *   capture steps, or falls, as the engine's balance outcome decides from the
  *   impulse, the body's mass and its support
- *   (`resolveAutoMovieBalanceOutcome`), or as the author fixes the outcome.
+ *   (`resolveBalanceOutcome`), or as the author fixes the outcome.
  * - `wireFlight`: A wire flight along an authored path
  *   (`IAutoMovieMotionHumanWireFlight`).
  * - `vehicleHit`: A pedestrian and a moving car: struck and thrown along one of
@@ -230,7 +230,7 @@ export namespace AutoMovieMotionHumanFall {
    * performer: the body absorbs an impulse within its base, catches it with
    * capture steps, or falls, as the engine's balance outcome decides from the
    * impulse, the body's mass and its support
-   * (`resolveAutoMovieBalanceOutcome`), or as the author fixes the outcome.
+   * (`resolveBalanceOutcome`), or as the author fixes the outcome.
    *
    * The impulse is the sum of the impulses on the performer
    * (`IHumanActionContext.forces`) from one pendulum time constant `1 / ω0`

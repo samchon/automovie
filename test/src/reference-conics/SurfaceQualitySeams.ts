@@ -118,7 +118,7 @@ export async function SurfaceQualitySeams(): Promise<void> {
         loop,
         source,
         pieces: fit.get(row.key)!.result!.pieces,
-        period: source.curve.domain[1],
+        period: source.curve.domain.end,
         anchor: row.supportPhaseFraction,
       });
     }

@@ -1,4 +1,4 @@
-import { solvePhysicalTargetStep } from "@automovie/engine";
+import { AutoMovieEnginePhysics } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -23,7 +23,7 @@ export function test_engine_physics_solve_physical_target_step(): void {
     minimum: number,
     maximum: number,
   ): number[] =>
-    solvePhysicalTargetStep({
+    AutoMovieEnginePhysics.solvePhysicalTargetStep({
       columns: [[1], [1]],
       errors: [error],
       coordinates: [
@@ -49,7 +49,7 @@ export function test_engine_physics_solve_physical_target_step(): void {
   );
   TestValidator.equals(
     "a fixed-only system has no search direction",
-    solvePhysicalTargetStep({
+    AutoMovieEnginePhysics.solvePhysicalTargetStep({
       columns: [[1]],
       errors: [1],
       coordinates: [{ value: 0, minimum: 0, maximum: 0 }],
@@ -57,7 +57,7 @@ export function test_engine_physics_solve_physical_target_step(): void {
     }),
     [0],
   );
-  const sparse: number[] = solvePhysicalTargetStep({
+  const sparse: number[] = AutoMovieEnginePhysics.solvePhysicalTargetStep({
     columns: [
       [1, 0, 0],
       [1, 0, 0],

@@ -1,9 +1,9 @@
-import { AutoMovieStationHermite } from "@automovie/engine";
+import { AutoMovieEngineStationHermite } from "@automovie/engine";
 import type { IAutoMovieStationHermite } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `AutoMovieStationHermite.weights(u, H, order, quintic)` are the Hermite
+ * `AutoMovieEngineStationHermite.weights(u, H, order, quintic)` are the Hermite
  * weights of [f_a, f'_a, f''_a, f''_b, f'_b, f_b] for the value or a station
  * derivative at u of an interval of width H; `combine` applies them.
  *
@@ -36,20 +36,20 @@ export function test_engine_geometry_station_hermite(): void {
   // 1.
   TestValidator.equals(
     "start",
-    AutoMovieStationHermite.weights(0, 2, 0, true),
+    AutoMovieEngineStationHermite.weights(0, 2, 0, true),
     [1, 0, 0, 0, 0, 0],
   );
   TestValidator.equals(
     "finish",
-    AutoMovieStationHermite.weights(1, 2, 0, true),
+    AutoMovieEngineStationHermite.weights(1, 2, 0, true),
     [0, 0, 0, 0, 0, 1],
   );
   TestValidator.equals(
     "slope",
-    AutoMovieStationHermite.weights(0, 2, 1, false),
+    AutoMovieEngineStationHermite.weights(0, 2, 1, false),
     [0, 1, 0, 0, 0, 0],
   );
-  const cubic: number[] = AutoMovieStationHermite.weights(0.3, 2, 0, false);
+  const cubic: number[] = AutoMovieEngineStationHermite.weights(0.3, 2, 0, false);
   TestValidator.equals("no curvature", [cubic[2], cubic[3]], [0, 0]);
 
   // 2. and 3.
@@ -59,10 +59,10 @@ export function test_engine_geometry_station_hermite(): void {
   ] satisfies [string, (s: number) => number[], boolean][]) {
     const want: number[] = f(1.6);
     for (const order of [0, 1, 2] satisfies (0 | 1 | 2)[]) {
-      const got: number = AutoMovieStationHermite.combine(
+      const got: number = AutoMovieEngineStationHermite.combine(
         end(f, 1),
         end(f, 3),
-        AutoMovieStationHermite.weights(0.3, 2, order, quintic),
+        AutoMovieEngineStationHermite.weights(0.3, 2, order, quintic),
       )[0]!;
       TestValidator.predicate(
         `${label} ${order}`,

@@ -1,7 +1,4 @@
-import {
-  type IAutoMovieInspectionHandle,
-  applyAutoMovieInspection,
-} from "@automovie/render";
+import { type IAutoMovieRenderInspectionHandle, AutoMovieRenderInspection } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -29,7 +26,7 @@ export function test_render_scene_apply_inspection_mark_anchor(): void {
   // 1. Drawn in the anchor's frame.
   const panel: THREE.Mesh = InspectionScene.quad("panel", 3);
   const stage: THREE.Scene = InspectionScene.scene(panel);
-  const handle: IAutoMovieInspectionHandle = applyAutoMovieInspection({
+  const handle: IAutoMovieRenderInspectionHandle = AutoMovieRenderInspection.apply({
     scene: stage,
     request: InspectionScene.ask({ marks: ["probe"] }),
     marks: [
@@ -71,7 +68,7 @@ export function test_render_scene_apply_inspection_mark_anchor(): void {
   );
   root.position.set(0, 5, 0);
   root.updateMatrixWorld(true);
-  const world: IAutoMovieInspectionHandle = applyAutoMovieInspection({
+  const world: IAutoMovieRenderInspectionHandle = AutoMovieRenderInspection.apply({
     scene: root,
     request: InspectionScene.ask({ marks: ["probe"] }),
     marks: [
@@ -92,7 +89,7 @@ export function test_render_scene_apply_inspection_mark_anchor(): void {
   const swap: THREE.Scene = InspectionScene.scene(
     InspectionScene.quad("panel"),
   );
-  const replaced: IAutoMovieInspectionHandle = applyAutoMovieInspection({
+  const replaced: IAutoMovieRenderInspectionHandle = AutoMovieRenderInspection.apply({
     scene: swap,
     request: InspectionScene.ask({ marks: ["probe"] }),
     marks: [
@@ -136,7 +133,7 @@ export function test_render_scene_apply_inspection_mark_anchor(): void {
   );
   replaced.restore();
   try {
-    applyAutoMovieInspection({
+    AutoMovieRenderInspection.apply({
       scene: swap,
       request: InspectionScene.ask({ marks: ["probe"] }),
       marks: [

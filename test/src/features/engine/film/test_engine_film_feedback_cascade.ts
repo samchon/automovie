@@ -1,8 +1,4 @@
-import {
-  detectSupportToppling,
-  locateOnBeat,
-  scriptAncestors,
-} from "@automovie/engine";
+import { AutoMovieEngineFilm, AutoMovieEngineValidation } from "@automovie/engine";
 import {
   IAutoMovieConstraintViolation,
   IAutoMovieScriptNode,
@@ -34,7 +30,7 @@ export function test_engine_film_feedback_cascade(): void {
     { x: 0.1, y: 0, z: 0.1 },
     { x: -0.1, y: 0, z: 0.1 },
   ];
-  const result: IAutoMovieSupportResult = detectSupportToppling({
+  const result: IAutoMovieSupportResult = AutoMovieEngineValidation.detectSupportToppling({
     node: "crate",
     centerOfMass: { x: 0.5, y: 0.4, z: 0 },
     support,
@@ -53,7 +49,7 @@ export function test_engine_film_feedback_cascade(): void {
     "warning",
   );
 
-  const located: IAutoMovieConstraintViolation[] = locateOnBeat(
+  const located: IAutoMovieConstraintViolation[] = AutoMovieEngineFilm.locateOnBeat(
     warnings,
     tree,
     "beat-1",
@@ -64,7 +60,7 @@ export function test_engine_film_feedback_cascade(): void {
     "b1",
   );
 
-  const chain: string[] = scriptAncestors(tree, located[0]!.node!);
+  const chain: string[] = AutoMovieEngineFilm.scriptAncestors(tree, located[0]!.node!);
   TestValidator.equals("the warning cascades up the screenplay", chain, [
     "grp",
     "scene1",
@@ -72,7 +68,7 @@ export function test_engine_film_feedback_cascade(): void {
     "root",
   ]);
 
-  const unlocated: IAutoMovieConstraintViolation[] = locateOnBeat(
+  const unlocated: IAutoMovieConstraintViolation[] = AutoMovieEngineFilm.locateOnBeat(
     warnings,
     null,
     "beat-1",

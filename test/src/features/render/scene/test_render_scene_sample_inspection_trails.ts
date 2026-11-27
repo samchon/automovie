@@ -1,5 +1,5 @@
 import type { IAutoMovieInspectionTrail } from "@automovie/interface";
-import { sampleAutoMovieInspectionTrails } from "@automovie/render";
+import { AutoMovieRenderInspection } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -42,7 +42,7 @@ export async function test_render_scene_sample_inspection_trails(): Promise<void
 
   // 1. Positions at the asked seconds.
   const [trail]: IAutoMovieInspectionTrail[] =
-    await sampleAutoMovieInspectionTrails({
+    await AutoMovieRenderInspection.sampleTrails({
       scene: stage,
       pattern: "mover",
       times: [2, 0, 3, 1],
@@ -79,7 +79,7 @@ export async function test_render_scene_sample_inspection_trails(): Promise<void
     if (seconds === 1) throw new Error("no pose at 1 s");
     mover.position.set(seconds, 0, 0);
   };
-  const message: string = await sampleAutoMovieInspectionTrails({
+  const message: string = await AutoMovieRenderInspection.sampleTrails({
     scene: stage,
     pattern: "mover",
     times: [0, 1, 2],

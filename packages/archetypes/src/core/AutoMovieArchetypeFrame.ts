@@ -1,10 +1,7 @@
-import {
-  Quaternion,
-  Vector3,
-  quaternionFromAutoMovieBasis,
-} from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMath, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
+  IAutoMovieSweepFrame,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -58,30 +55,41 @@ export namespace AutoMovieArchetypeFrame {
   }
 
   /**
-   * A frame at a point whose `+Y` and `+X` point along two given directions.
+   * A frame at a finite point whose `+Y` and `+X` follow two directions.
    *
    * @param at The frame's origin, metres.
    * @param out The direction of `+Y`, out of the contact; any length.
    * @param along The direction of `+X`, the contact's line; any length, made
    *   perpendicular to `out`. Absent, a perpendicular is chosen: the world
-   *   `+X`, or the world `+Z` when `out` runs along the world X axis.
+   *   `+X`, or the world `+Z` when the unit `out` axis has `|x| > 0.9`.
    * @returns The frame, with unit scale.
+   * @throws Error for nonfinite coordinates or zero or represented-parallel
+   *   directions.
    */
   export function facing(
     at: IAutoMovieVector3,
     out: IAutoMovieVector3,
     along?: IAutoMovieVector3,
   ): IAutoMovieTransform {
-    const y: IAutoMovieVector3 = Vector3.normalize(out);
     const hint: IAutoMovieVector3 =
       along ??
-      (Math.abs(y.x) > 0.9 ? { x: 0, y: 0, z: 1 } : { x: 1, y: 0, z: 0 });
-    const x: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(hint, Vector3.scale(y, Vector3.dot(hint, y))),
-    );
+      (Math.abs(AutoMovieEngineVector3.normalize(out).x) > 0.9
+        ? { x: 0, y: 0, z: 1 }
+        : { x: 1, y: 0, z: 0 });
+    const basis: IAutoMovieSweepFrame = AutoMovieEngineGeometry.normalizeSurfaceFrame({
+      origin: at,
+      forward: hint,
+      normal: out,
+    });
+
+    // Archetype +Y is the normal, so the surface side points along -Z.
     return {
-      translation: { ...at },
-      rotation: quaternionFromAutoMovieBasis(x, y, Vector3.cross(x, y)),
+      translation: basis.origin,
+      rotation: AutoMovieEngineMath.quaternionFromBasis(
+        basis.x,
+        basis.normal,
+        AutoMovieEngineVector3.scale(basis.y, -1),
+      ),
       scale: { ...UNIT },
     };
   }
@@ -111,7 +119,7 @@ export namespace AutoMovieArchetypeFrame {
     frame: IAutoMovieTransform,
     axis: "x" | "y" | "z",
   ): IAutoMovieVector3 {
-    return Quaternion.rotateVector(frame.rotation, {
+    return AutoMovieEngineQuaternion.rotateVector(frame.rotation, {
       x: axis === "x" ? 1 : 0,
       y: axis === "y" ? 1 : 0,
       z: axis === "z" ? 1 : 0,
@@ -129,9 +137,9 @@ export namespace AutoMovieArchetypeFrame {
     frame: IAutoMovieTransform,
     local: IAutoMovieVector3,
   ): IAutoMovieVector3 {
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       frame.translation,
-      Quaternion.rotateVector(frame.rotation, local),
+      AutoMovieEngineQuaternion.rotateVector(frame.rotation, local),
     );
   }
 
@@ -147,12 +155,12 @@ export namespace AutoMovieArchetypeFrame {
     frame: IAutoMovieTransform,
   ): IAutoMovieTransform {
     return {
-      translation: Vector3.add(
-        Quaternion.rotateVector(motion.rotation, frame.translation),
+      translation: AutoMovieEngineVector3.add(
+        AutoMovieEngineQuaternion.rotateVector(motion.rotation, frame.translation),
         motion.translation,
       ),
-      rotation: Quaternion.normalize(
-        Quaternion.multiply(motion.rotation, frame.rotation),
+      rotation: AutoMovieEngineQuaternion.normalize(
+        AutoMovieEngineQuaternion.multiply(motion.rotation, frame.rotation),
       ),
       scale: { ...frame.scale },
     };
@@ -186,11 +194,11 @@ export namespace AutoMovieArchetypeFrame {
    */
   export function chain(after: IMotion, before: IMotion): IMotion {
     return {
-      rotation: Quaternion.normalize(
-        Quaternion.multiply(after.rotation, before.rotation),
+      rotation: AutoMovieEngineQuaternion.normalize(
+        AutoMovieEngineQuaternion.multiply(after.rotation, before.rotation),
       ),
-      translation: Vector3.add(
-        Quaternion.rotateVector(after.rotation, before.translation),
+      translation: AutoMovieEngineVector3.add(
+        AutoMovieEngineQuaternion.rotateVector(after.rotation, before.translation),
         after.translation,
       ),
     };
@@ -210,15 +218,15 @@ export namespace AutoMovieArchetypeFrame {
     direction: IAutoMovieVector3,
     degrees: number,
   ): IMotion {
-    const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
       direction,
       degrees,
     );
     return {
       rotation,
-      translation: Vector3.subtract(
+      translation: AutoMovieEngineVector3.subtract(
         through,
-        Quaternion.rotateVector(rotation, through),
+        AutoMovieEngineQuaternion.rotateVector(rotation, through),
       ),
     };
   }

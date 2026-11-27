@@ -2,11 +2,11 @@ import type {
   IAutoMovieRecoveryCameraSceneBudget,
   IAutoMovieRecoverySceneWork,
 } from "@automovie/interface";
-import { spendRecoverySceneWork } from "@automovie/recovery";
+import { AutoMovieRecoveryCameraMap } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `spendRecoverySceneWork` adds work of one kind while it stays within that
+ * `AutoMovieRecoveryCameraMap.spendSceneWork` adds work of one kind while it stays within that
  * kind's budget, and otherwise throws a `RecoverySceneBudget` error without
  * spending.
  *
@@ -54,19 +54,19 @@ export function test_recovery_internal_spend_scene_work(): void {
     amount: number,
   ): string | null => {
     try {
-      spendRecoverySceneWork(work, budget, kind, amount);
+      AutoMovieRecoveryCameraMap.spendSceneWork(work, budget, kind, amount);
       return null;
     } catch (error) {
       return error instanceof Error ? error.name : null;
     }
   };
-  spendRecoverySceneWork(work, budget, "cameraAttempts", 2);
+  AutoMovieRecoveryCameraMap.spendSceneWork(work, budget, "cameraAttempts", 2);
   TestValidator.equals(
     "past the camera limit",
     [refused("cameraAttempts", 1), work.cameraAttempts],
     ["RecoverySceneBudget", 2],
   );
-  spendRecoverySceneWork(work, budget, "jointIterationAttempts", 12);
+  AutoMovieRecoveryCameraMap.spendSceneWork(work, budget, "jointIterationAttempts", 12);
   TestValidator.equals(
     "past the iteration limit",
     [refused("jointIterationAttempts", 1), work.jointIterationAttempts],

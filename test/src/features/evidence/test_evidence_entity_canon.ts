@@ -1,4 +1,4 @@
-import { createEvidenceConfig } from "@automovie/evidence";
+import { AutoMovieEvidenceConfig } from "@automovie/evidence";
 import {
   EvidenceChecker,
   type IEvidenceCheckReport,
@@ -15,9 +15,10 @@ import { ProductionWorkflowFixture } from "../internal/ProductionWorkflowFixture
  * Checks the link from a production entity to its brief or settings record.
  *
  * Scenarios:
+ *
  * 1. One class citation covers a whole subject file in either story route.
- * 2. Submitting the film also checks the citation. Prose alone and a stale
- *    file reference both fail.
+ * 2. Submitting the film also checks the citation. Prose alone and a stale file
+ *    reference both fail.
  * 3. Work without submitted entities or film has no subject citation duty.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs the public config's subject claim through native Evidence on disk, then removes the tag and moves its target.
@@ -42,7 +43,7 @@ export async function test_evidence_entity_canon(): Promise<void> {
       write(`docs/body/${layer}/world/rules.md`, "# Rules\n");
       const name: string = `production entities cite ${layer} subjects`;
       const select = (stage?: "entities" | "composition"): IEvidenceClaim[] =>
-        createEvidenceConfig({
+        AutoMovieEvidenceConfig.create({
           location: root,
           narrative: { mode },
           development: stage && { [stage]: "evidence" },

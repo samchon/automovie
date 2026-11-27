@@ -1,8 +1,8 @@
-import { restoreAutoMovieRenderModeOnce } from "@automovie/render";
+import { AutoMovieRenderSceneRenderMode } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `restoreAutoMovieRenderModeOnce` runs a restore on its first call only; a
+ * `restoreRenderModeOnce` runs a restore on its first call only; a
  * restore that failed throws the same error on every later call.
  *
  * Scenarios:
@@ -12,7 +12,7 @@ import { TestValidator } from "@nestia/e2e";
  */
 export function test_render_scene_restore_render_mode_once(): void {
   let runs: number = 0;
-  const restore: () => void = restoreAutoMovieRenderModeOnce((): void => {
+  const restore: () => void = AutoMovieRenderSceneRenderMode.restoreOnce((): void => {
     runs++;
   });
   restore();
@@ -20,7 +20,7 @@ export function test_render_scene_restore_render_mode_once(): void {
   TestValidator.equals("runs once", runs, 1);
   const failure: Error = new Error("restore failed");
   let failing: number = 0;
-  const broken: () => void = restoreAutoMovieRenderModeOnce((): void => {
+  const broken: () => void = AutoMovieRenderSceneRenderMode.restoreOnce((): void => {
     failing++;
     throw failure;
   });

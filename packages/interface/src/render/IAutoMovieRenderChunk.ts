@@ -1,5 +1,5 @@
-import type { IAutoMovieGuidePassOutput } from "./IAutoMovieGuidePassOutput.js";
-import type { IAutoMovieSequenceRenderFrame } from "./IAutoMovieSequenceRenderFrame.js";
+import type { IAutoMovieGuidePassOutput } from "./IAutoMovieGuidePassOutput";
+import type { IAutoMovieSequenceRenderFrame } from "./IAutoMovieSequenceRenderFrame";
 
 /**
  * One independently renderable slice of a sequence render: a contiguous range

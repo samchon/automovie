@@ -1,4 +1,4 @@
-import { normalizeRecoveryImagePoints } from "@automovie/recovery";
+import { AutoMovieRecoveryCameraGeometry } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -16,8 +16,8 @@ import { nclose } from "../../internal/nclose";
  * 2. Coincident points and no point refuse.
  */
 export function test_recovery_internal_normalize_image_points(): void {
-  const result: ReturnType<typeof normalizeRecoveryImagePoints> =
-    normalizeRecoveryImagePoints([
+  const result: ReturnType<typeof AutoMovieRecoveryCameraGeometry.normalizeImagePoints> =
+    AutoMovieRecoveryCameraGeometry.normalizeImagePoints([
       [0, 0],
       [2, 0],
       [2, 2],
@@ -35,12 +35,12 @@ export function test_recovery_internal_normalize_image_points(): void {
       ),
   );
   TestValidator.error("coincident points", (): unknown =>
-    normalizeRecoveryImagePoints([
+    AutoMovieRecoveryCameraGeometry.normalizeImagePoints([
       [3, 3],
       [3, 3],
     ]),
   );
   TestValidator.error("no point", (): unknown =>
-    normalizeRecoveryImagePoints([]),
+    AutoMovieRecoveryCameraGeometry.normalizeImagePoints([]),
   );
 }

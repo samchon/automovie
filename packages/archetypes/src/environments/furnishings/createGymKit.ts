@@ -1,17 +1,15 @@
+import type { AutoMovieArchetypeEnvironmentFurnishing } from "../AutoMovieArchetypeEnvironmentFurnishing";
 import type {
   IAutoMovieEnvironmentContribution,
   IAutoMovieEnvironmentModule,
-  IAutoMovieFurnishingLayout,
   IAutoMovieModel,
   IAutoMoviePropBox,
 } from "@automovie/interface";
-
-import { deriveArchetypeSeed } from "../../core/deriveArchetypeSeed";
-import { createBench } from "../../gym/createBench";
-import { createDumbbell } from "../../gym/createDumbbell";
+import { AutoMovieArchetypeBench, AutoMovieArchetypeDumbbell } from "../../gym";
+import { deriveArchetypeSeed } from "../../core/internal/deriveArchetypeSeed";
 import { furnishRoom } from "./furnishRoom";
 
-/**
+/*
  * Furnish a room with bench and free-weight stations.
  *
  * Each station has one bench and one dumbbell on each side, resting on the
@@ -19,23 +17,22 @@ import { furnishRoom } from "./furnishRoom";
  * sitting contact and `bench-1/dumbbell-left/grip` to aim at a weight. Left
  * means +X for a person facing local +Z. The room layout is measured from the
  * floor centre and follows the kit's placement frame.
- *
- * @param params The useful room layout and positive number of stations.
- * @returns The placed-room module, with stage nodes and operative prop records.
- * @throws When the requested stations or their clearances do not fit.
+ * Parameter params: The useful room layout and positive number of stations.
+ * Returns: The placed-room module, with stage nodes and operative prop records.
+ * When the requested stations or their clearances do not fit.
  */
 export function createGymKit(
-  params: createGymKit.IParams,
+  params: AutoMovieArchetypeEnvironmentFurnishing.IGymKitParams,
 ): IAutoMovieEnvironmentModule {
   return (
     context: IAutoMovieEnvironmentModule.IContext,
   ): IAutoMovieEnvironmentContribution => {
     const seed: number | undefined = context.seed;
-    const bench: IAutoMovieModel = createBench(
+    const bench: IAutoMovieModel = AutoMovieArchetypeBench.create(
       { kind: "flat" },
       seed === undefined ? undefined : deriveArchetypeSeed(seed, "bench"),
     );
-    const dumbbell: IAutoMovieModel = createDumbbell(
+    const dumbbell: IAutoMovieModel = AutoMovieArchetypeDumbbell.create(
       {},
       seed === undefined ? undefined : deriveArchetypeSeed(seed, "dumbbell"),
     );
@@ -69,13 +66,4 @@ export function createGymKit(
       },
     });
   };
-}
-
-/** Types of the gym kit producer. */
-export namespace createGymKit {
-  /** The room layout and the positive integer count of the kit's repeated group. */
-  export interface IParams extends IAutoMovieFurnishingLayout {
-    /** Positive integer count of free-weight stations. */
-    readonly stations: number;
-  }
 }

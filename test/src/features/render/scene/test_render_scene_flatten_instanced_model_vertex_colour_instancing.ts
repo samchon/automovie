@@ -1,4 +1,4 @@
-import { flattenInstancedModel } from "@automovie/render";
+import { AutoMovieRenderFormationGeometry } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -36,8 +36,8 @@ export function test_render_scene_flatten_instanced_model_vertex_colour_instanci
     model.parts[0]!.geometry;
   const secondGeometry: (typeof model.parts)[number]["geometry"] =
     model.parts[1]!.geometry;
-  const mixed: ReturnType<typeof flattenInstancedModel> =
-    flattenInstancedModel(model);
+  const mixed: ReturnType<typeof AutoMovieRenderFormationGeometry.flattenInstancedModel> =
+    AutoMovieRenderFormationGeometry.flattenInstancedModel(model);
   const expectedMixed: number[] = [
     ...colored.colors!,
     ...new Array<number>(9).fill(1),
@@ -73,7 +73,7 @@ export function test_render_scene_flatten_instanced_model_vertex_colour_instanci
       secondGeometry.type === "mesh" &&
       secondGeometry.mesh === bare,
   );
-  const all: ReturnType<typeof flattenInstancedModel> = flattenInstancedModel(
+  const all: ReturnType<typeof AutoMovieRenderFormationGeometry.flattenInstancedModel> = AutoMovieRenderFormationGeometry.flattenInstancedModel(
     vertexColourModel([colored, colored]),
   );
   const expectedAll: number[] = [...colored.colors!, ...colored.colors!];
@@ -85,7 +85,7 @@ export function test_render_scene_flatten_instanced_model_vertex_colour_instanci
         nclose(value, expectedAll[index]!, 0),
       ),
   );
-  const empty: ReturnType<typeof flattenInstancedModel> = flattenInstancedModel(
+  const empty: ReturnType<typeof AutoMovieRenderFormationGeometry.flattenInstancedModel> = AutoMovieRenderFormationGeometry.flattenInstancedModel(
     vertexColourModel([bare, bare]),
   );
   TestValidator.equals(

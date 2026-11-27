@@ -1,14 +1,14 @@
 import type { IAutoMovieRasterImage } from "@automovie/interface";
-import {
-  decodeAutoMovieRasterPng,
-  encodeAutoMovieRasterPng,
-} from "@automovie/render";
+import { AutoMovieRenderPicture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import zlib from "node:zlib";
 
 import { rejectsError } from "../internal/rejectsError";
 
-/** A PNG file built with Node's own zlib from header fields and filtered rows, as an independent encoder. */
+/**
+ * A PNG file built with Node's own zlib from header fields and filtered rows,
+ * as an independent encoder.
+ */
 function png(
   header: {
     width: number;
@@ -59,14 +59,23 @@ function png(
 }
 
 /**
- * PNG stills are written and read by the render package alone, through `CompressionStream` and `DecompressionStream`: a picture it encodes decodes to the same pixels, and it reads the colour types, depths and row filters other encoders such as FFmpeg write.
+ * PNG stills are written and read by the render package alone, through
+ * `CompressionStream` and `DecompressionStream`: a picture it encodes decodes
+ * to the same pixels, and it reads the colour types, depths and row filters
+ * other encoders such as FFmpeg write.
  *
  * Scenarios:
  *
- * 1. A 7 by 5 picture of distinct colours encodes and decodes to the same RGB with opaque alpha, and its file starts with the PNG signature and decodes with Node's zlib to filter-0 rows.
- * 2. A 3 by 2 RGB file using filters Sub, Up, Average and Paeth across its rows, and split over two IDAT chunks, decodes to the authored pixels.
- * 3. A 1-bit grey file, a 2-bit palette file, a 16-bit RGBA file and an 8-bit grey-alpha file decode to the authored 8-bit RGBA.
- * 4. A file without the signature, a chunk with a wrong CRC, an interlaced file and a picture whose buffer disagrees with its size are refused with the reason.
+ * 1. A 7 by 5 picture of distinct colours encodes and decodes to the same RGB with
+ *    opaque alpha, and its file starts with the PNG signature and decodes with
+ *    Node's zlib to filter-0 rows.
+ * 2. A 3 by 2 RGB file using filters Sub, Up, Average and Paeth across its rows,
+ *    and split over two IDAT chunks, decodes to the authored pixels.
+ * 3. A 1-bit grey file, a 2-bit palette file, a 16-bit RGBA file and an 8-bit
+ *    grey-alpha file decode to the authored 8-bit RGBA.
+ * 4. A file without the signature, a chunk with a wrong CRC, an interlaced file
+ *    and a picture whose buffer disagrees with its size are refused with the
+ *    reason.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Encodes and decodes through the public functions and compares pixels; a codec that dropped a row, mishandled a filter, scaled a sub-byte sample wrongly or accepted a corrupt chunk fails.
  * @evidence contracts/development/testing.md#independent-expectations Files for scenarios 2 to 4 are built here with Node's zlib from rows filtered by hand per the PNG specification, and scenario 1's file is inflated with Node's zlib, so neither side relies on the code under test.
@@ -87,10 +96,11 @@ export async function test_capture_png_codec(): Promise<void> {
       index * 4,
     );
   const picture: IAutoMovieRasterImage = { width: 7, height: 5, pixels };
-  const file: Uint8Array = await encodeAutoMovieRasterPng(picture);
+  const file: Uint8Array =
+    await AutoMovieRenderPicture.encodeRasterPng(picture);
   TestValidator.equals(
     "the picture reads back",
-    rgba(await decodeAutoMovieRasterPng(file)),
+    rgba(await AutoMovieRenderPicture.decodeRasterPng(file)),
     Array.from(pixels),
   );
   const idat: number = Buffer.from(file).indexOf("IDAT");
@@ -109,19 +119,20 @@ export async function test_capture_png_codec(): Promise<void> {
   );
 
   // 2. Every row filter, over two IDAT chunks. Raw rows: [10,20,30, 40,50,60, 70,80,90] and [15,25,35, 45,55,65, 75,85,95].
-  const filtered: IAutoMovieRasterImage = await decodeAutoMovieRasterPng(
-    png(
-      { width: 3, height: 2, depth: 8, colour: 2 },
-      [
-        // Sub: each byte minus the byte three before it.
-        [1, 10, 20, 30, 30, 30, 30, 30, 30, 30],
-        // Paeth: each byte's predictor is whichever of left, up and corner lies nearest left + up - corner, here always up.
-        [4, 5, 5, 5, 5, 5, 5, 5, 5, 5],
-      ],
-      [],
-      2,
-    ),
-  );
+  const filtered: IAutoMovieRasterImage =
+    await AutoMovieRenderPicture.decodeRasterPng(
+      png(
+        { width: 3, height: 2, depth: 8, colour: 2 },
+        [
+          // Sub: each byte minus the byte three before it.
+          [1, 10, 20, 30, 30, 30, 30, 30, 30, 30],
+          // Paeth: each byte's predictor is whichever of left, up and corner lies nearest left + up - corner, here always up.
+          [4, 5, 5, 5, 5, 5, 5, 5, 5, 5],
+        ],
+        [],
+        2,
+      ),
+    );
   TestValidator.equals(
     "Sub and Paeth rows decode",
     rgba(filtered),
@@ -130,13 +141,14 @@ export async function test_capture_png_codec(): Promise<void> {
       55, 65, 255, 75, 85, 95, 255,
     ],
   );
-  const averaged: IAutoMovieRasterImage = await decodeAutoMovieRasterPng(
-    png({ width: 2, height: 2, depth: 8, colour: 2 }, [
-      [0, 100, 100, 100, 200, 200, 200],
-      // Average: each byte's predictor is floor((left + up) / 2).
-      [3, 10, 20, 30, 85, 80, 75],
-    ]),
-  );
+  const averaged: IAutoMovieRasterImage =
+    await AutoMovieRenderPicture.decodeRasterPng(
+      png({ width: 2, height: 2, depth: 8, colour: 2 }, [
+        [0, 100, 100, 100, 200, 200, 200],
+        // Average: each byte's predictor is floor((left + up) / 2).
+        [3, 10, 20, 30, 85, 80, 75],
+      ]),
+    );
   TestValidator.equals(
     "Average rows decode",
     rgba(averaged),
@@ -145,12 +157,13 @@ export async function test_capture_png_codec(): Promise<void> {
       255,
     ],
   );
-  const upped: IAutoMovieRasterImage = await decodeAutoMovieRasterPng(
-    png({ width: 1, height: 2, depth: 8, colour: 2 }, [
-      [0, 1, 2, 3],
-      [2, 4, 4, 4],
-    ]),
-  );
+  const upped: IAutoMovieRasterImage =
+    await AutoMovieRenderPicture.decodeRasterPng(
+      png({ width: 1, height: 2, depth: 8, colour: 2 }, [
+        [0, 1, 2, 3],
+        [2, 4, 4, 4],
+      ]),
+    );
   TestValidator.equals(
     "Up rows decode",
     rgba(upped),
@@ -161,7 +174,7 @@ export async function test_capture_png_codec(): Promise<void> {
   TestValidator.equals(
     "1-bit grey",
     rgba(
-      await decodeAutoMovieRasterPng(
+      await AutoMovieRenderPicture.decodeRasterPng(
         png({ width: 3, height: 1, depth: 1, colour: 0 }, [[0, 0b10100000]]),
       ),
     ),
@@ -170,7 +183,7 @@ export async function test_capture_png_codec(): Promise<void> {
   TestValidator.equals(
     "2-bit palette",
     rgba(
-      await decodeAutoMovieRasterPng(
+      await AutoMovieRenderPicture.decodeRasterPng(
         png(
           { width: 2, height: 1, depth: 2, colour: 3 },
           [[0, 0b10010000]],
@@ -183,7 +196,7 @@ export async function test_capture_png_codec(): Promise<void> {
   TestValidator.equals(
     "16-bit RGBA keeps the high byte",
     rgba(
-      await decodeAutoMovieRasterPng(
+      await AutoMovieRenderPicture.decodeRasterPng(
         png({ width: 1, height: 1, depth: 16, colour: 6 }, [
           [0, 0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc, 0xde, 0xf0],
         ]),
@@ -194,7 +207,7 @@ export async function test_capture_png_codec(): Promise<void> {
   TestValidator.equals(
     "grey with alpha",
     rgba(
-      await decodeAutoMovieRasterPng(
+      await AutoMovieRenderPicture.decodeRasterPng(
         png({ width: 1, height: 1, depth: 8, colour: 4 }, [[0, 77, 128]]),
       ),
     ),
@@ -221,7 +234,7 @@ export async function test_capture_png_codec(): Promise<void> {
     TestValidator.predicate(
       `${title} is refused`,
       await rejectsError(
-        (): Promise<unknown> => decodeAutoMovieRasterPng(bytes),
+        (): Promise<unknown> => AutoMovieRenderPicture.decodeRasterPng(bytes),
         fragment,
       ),
     );
@@ -229,7 +242,7 @@ export async function test_capture_png_codec(): Promise<void> {
     "a buffer that disagrees with its size is refused",
     await rejectsError(
       (): Promise<unknown> =>
-        encodeAutoMovieRasterPng({
+        AutoMovieRenderPicture.encodeRasterPng({
           width: 2,
           height: 2,
           pixels: new Uint8ClampedArray(12),

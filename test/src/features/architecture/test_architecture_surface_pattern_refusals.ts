@@ -1,4 +1,4 @@
-import { generateAutoMovieSurfacePattern } from "@automovie/engine";
+import { AutoMovieEngineSurfaceMaterial } from "@automovie/engine";
 import type {
   IAutoMovieSurfacePattern,
   IAutoMovieSurfacePatternResult,
@@ -18,7 +18,7 @@ const refuses: (
 ): boolean =>
   throwsError(
     (): IAutoMovieSurfacePatternResult =>
-      generateAutoMovieSurfacePattern({ pattern: pattern(overrides) }),
+      AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({ pattern: pattern(overrides) }),
     message,
   );
 
@@ -49,7 +49,7 @@ const refuses: (
  *    declared.
  * 7. A lattice larger than the cell limit is refused before it is walked.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls generateAutoMovieSurfacePattern on malformed scalar, zone, polygon, exclusion, generated-candidate, reach, and lattice declarations, requiring specific Error fragments and checking admitted scalar/touching controls.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls generateSurfacePattern on malformed scalar, zone, polygon, exclusion, generated-candidate, reach, and lattice declarations, requiring specific Error fragments and checking admitted scalar/touching controls.
  * @evidence contracts/development/testing.md#independent-expectations Authored invalid fields determine the named refusal causes; a two-by-one metre region with half-metre square modules independently yields eight surviving placements. Explicit overlapping versus edge-touching rectangles distinguish positive shared area from contact, and the existing generated-candidate helper overrides authored inputs rather than laid output.
  * @evidence contracts/development/testing.md#distinguishing-cases Individual scalar failures share one otherwise valid pattern, while boundary scalars and touching zones/exclusions remain accepted. Blank/duplicate ids, nonfinite coordinates, collinear/reflex outlines, seven candidate-field overrides, reach overflow, and an oversized lattice require their own located messages.
  * @evidence contracts/development/testing.md#execution-ownership Uses synchronous local pattern records and authored generator callbacks through the product seam, with existing Error and named-fact predicates; no renderer, resources, clocks, global replacement, or separate test host is involved. The cell-cap case observes its refusal message without profiling enumeration or memory use.
@@ -120,7 +120,7 @@ export function test_architecture_surface_pattern_refusals(): void {
       [
         "boundaryValues",
         (): boolean =>
-          generateAutoMovieSurfacePattern({
+          AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
             pattern: pattern({
               joint: 0,
               jointTolerance: 0,
@@ -263,7 +263,7 @@ export function test_architecture_surface_pattern_refusals(): void {
       [
         "touching",
         (): boolean =>
-          generateAutoMovieSurfacePattern({
+          AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
             pattern: pattern({
               zones: [
                 zone({ id: "a", region: rectangle(0, 0, 1, 1) }),
@@ -333,7 +333,7 @@ export function test_architecture_surface_pattern_refusals(): void {
       [
         "touching",
         (): boolean =>
-          generateAutoMovieSurfacePattern({
+          AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
             pattern: pattern({
               exclusions: [
                 { id: "left", polygon: rectangle(0.1, 0.1, 0.3, 0.4) },

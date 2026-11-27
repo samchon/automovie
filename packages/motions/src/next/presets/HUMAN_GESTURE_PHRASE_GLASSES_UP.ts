@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanGesture } from "@automovie/interface";
 
-/**
+/*
  * The values the `glassesUp` row of `HumanUpperRows` fixes on `armPhrase`,
  * spread into its parameters. Pushing up one's glasses: the forefinger's tip
  * visits the bridge of the nose.

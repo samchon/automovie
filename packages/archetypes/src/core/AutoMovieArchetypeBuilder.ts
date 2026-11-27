@@ -1,4 +1,4 @@
-import { Vector3, rotationBetween } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieBodyContact,
@@ -11,8 +11,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { ArchetypeBuilderParts } from "./ArchetypeBuilderParts";
-import type { ArchetypeBuilderTypes } from "./ArchetypeBuilderTypes";
+import { ArchetypeBuilderParts } from "./internal/ArchetypeBuilderParts";
+import type { ArchetypeBuilderTypes } from "./internal/ArchetypeBuilderTypes";
 import type { AutoMovieArchetype } from "./AutoMovieArchetype";
 import { AutoMovieArchetypeConvexCell } from "./AutoMovieArchetypeConvexCell";
 import type { AutoMovieArchetypeFracture } from "./AutoMovieArchetypeFracture";
@@ -20,8 +20,8 @@ import { AutoMovieArchetypeFriction } from "./AutoMovieArchetypeFriction";
 import { AutoMovieArchetypeMass } from "./AutoMovieArchetypeMass";
 import { AutoMovieArchetypeMaterial } from "./AutoMovieArchetypeMaterial";
 import { AutoMovieArchetypeSpan } from "./AutoMovieArchetypeSpan";
-import { archetypeSpanAnchor } from "./archetypeSpanAnchor";
-import { buildNativeArchetype } from "./buildNativeArchetype";
+import { archetypeSpanAnchor } from "./internal/archetypeSpanAnchor";
+import { buildNativeArchetype } from "./internal/buildNativeArchetype";
 
 /**
  * What every producer assembles an archetype with: dimensioned primitives,
@@ -118,16 +118,16 @@ export class AutoMovieArchetypeBuilder<
     to: IAutoMovieVector3,
     options?: AutoMovieArchetypeBuilder.IOptions & { round?: boolean },
   ): this {
-    const span: IAutoMovieVector3 = Vector3.subtract(to, from);
+    const span: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(to, from);
     return this.#add(
       id,
       {
         type: options?.round === true ? "capsule" : "cylinder",
         radius,
-        height: Vector3.length(span),
+        height: AutoMovieEngineVector3.length(span),
       },
-      Vector3.scale(Vector3.add(from, to), 0.5),
-      rotationBetween({ x: 0, y: 1, z: 0 }, span),
+      AutoMovieEngineVector3.scale(AutoMovieEngineVector3.add(from, to), 0.5),
+      AutoMovieEngineMath.rotationBetween({ x: 0, y: 1, z: 0 }, span),
       options,
     );
   }
@@ -213,8 +213,8 @@ export class AutoMovieArchetypeBuilder<
    */
   public span(
     id: string,
-    from: AutoMovieArchetypeSpan.End,
-    to: AutoMovieArchetypeSpan.End,
+    from: AutoMovieArchetypeSpan.IEnd,
+    to: AutoMovieArchetypeSpan.IEnd,
     radius: number,
     options?: AutoMovieArchetypeBuilder.IOptions,
     length?: number,
@@ -245,7 +245,7 @@ export class AutoMovieArchetypeBuilder<
   public anchor(
     id: string,
     point: IAutoMovieVector3,
-  ): AutoMovieArchetypeSpan.End {
+  ): AutoMovieArchetypeSpan.IPartEnd {
     return archetypeSpanAnchor(
       this.#props.draw.archetype,
       this.#inventory.parts,
@@ -394,11 +394,24 @@ export class AutoMovieArchetypeBuilder<
         this.#inventory.cells,
       ),
       friction:
-        pair === null ? null : AutoMovieArchetypeFriction.value(pair.static),
+        pair === null
+          ? null
+          : AutoMovieArchetypeFriction.value(
+              typeof pair.static === "number"
+                ? pair.static
+                : { minimum: pair.static[0], maximum: pair.static[1] },
+            ),
       kineticFriction:
         pair === null || pair.kinetic === null
           ? null
-          : AutoMovieArchetypeFriction.value(pair.kinetic),
+          : AutoMovieArchetypeFriction.value(
+              typeof pair.kinetic === "number"
+                ? pair.kinetic
+                : {
+                    minimum: pair.kinetic[0],
+                    maximum: pair.kinetic[1],
+                  },
+            ),
       surfaces: this.#inventory.surfaces,
       material,
       restitution,

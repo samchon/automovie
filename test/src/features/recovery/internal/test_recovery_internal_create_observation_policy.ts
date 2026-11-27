@@ -1,5 +1,5 @@
 import type { IAutoMovieRecoveryInput } from "@automovie/interface";
-import { createRecoveryObservationPolicy } from "@automovie/recovery";
+import { AutoMovieRecoveryObservation } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -34,7 +34,7 @@ export function test_recovery_internal_create_observation_policy(): void {
   }: IAutoMovieRecoveryInput = input;
   TestValidator.equals(
     "with a critical policy",
-    createRecoveryObservationPolicy(input),
+    AutoMovieRecoveryObservation.createObservationPolicy(input),
     policy,
   );
   const { criticalPolicy: _critical, ...plain }: IAutoMovieRecoveryInput =
@@ -42,10 +42,10 @@ export function test_recovery_internal_create_observation_policy(): void {
   const {
     criticalPolicy: _policy,
     ...plainPolicy
-  }: ReturnType<typeof createRecoveryObservationPolicy> = policy;
+  }: ReturnType<typeof AutoMovieRecoveryObservation.createObservationPolicy> = policy;
   TestValidator.equals(
     "without one",
-    createRecoveryObservationPolicy(plain),
+    AutoMovieRecoveryObservation.createObservationPolicy(plain),
     plainPolicy,
   );
 }

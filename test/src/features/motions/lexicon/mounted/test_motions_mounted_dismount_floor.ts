@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
@@ -9,11 +9,17 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanFoot,
-  poseBones,
-  prepareMountOffFloor,
-  resolveHumanPosture,
-} from "@automovie/motions/internal";
+  HumanFoot
+} from "../../../../../../packages/motions/src/posture/internal/HumanFoot";
+import {
+  poseBones
+} from "../../../../../../packages/motions/src/posture/internal/poseBones";
+import {
+  prepareMountOffFloor
+} from "../../../../../../packages/motions/src/lexicon/internal/prepareMountOffFloor";
+import {
+  resolveHumanPosture
+} from "../../../../../../packages/motions/src/posture/internal/resolveHumanPosture";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
@@ -57,18 +63,18 @@ export async function test_motions_mounted_dismount_floor(): Promise<void> {
     planted: true,
     contact,
   };
-  const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+  const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
     { x: 1, y: 0, z: 0 },
     12,
   );
   const touchdown: IAutoMovieHumanLimbGoal = {
     ...landing,
-    point: Vector3.add(landing.point, { x: 0.045, y: 0, z: 0 }),
-    rotation: Quaternion.multiply(turn, foot.worldRotation),
+    point: AutoMovieEngineVector3.add(landing.point, { x: 0.045, y: 0, z: 0 }),
+    rotation: AutoMovieEngineQuaternion.multiply(turn, foot.worldRotation),
   };
-  const anchor: IAutoMovieVector3 = Vector3.add(
+  const anchor: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     landing.point,
-    Quaternion.rotateVector(foot.worldRotation, contact),
+    AutoMovieEngineQuaternion.rotateVector(foot.worldRotation, contact),
   );
   const first: number = 2;
   const last: number = first + 1 / 64;
@@ -92,7 +98,7 @@ export async function test_motions_mounted_dismount_floor(): Promise<void> {
       goal?.seed !== undefined &&
         goal.rotation !== undefined &&
         vclose(
-          Vector3.add(goal.point, Quaternion.rotateVector(goal.rotation, contact)),
+          AutoMovieEngineVector3.add(goal.point, AutoMovieEngineQuaternion.rotateVector(goal.rotation, contact)),
           anchor,
           1e-9,
         ),
@@ -111,10 +117,10 @@ export async function test_motions_mounted_dismount_floor(): Promise<void> {
     const actual: IAutoMovieResolvedBone = displayed.get("rightFoot")!;
     TestValidator.predicate(
       "the reconstructed foot stays on the contact within 1 mm",
-      Vector3.distance(
-        Vector3.add(
+      AutoMovieEngineVector3.distance(
+        AutoMovieEngineVector3.add(
           actual.worldPosition,
-          Quaternion.rotateVector(actual.worldRotation, contact),
+          AutoMovieEngineQuaternion.rotateVector(actual.worldRotation, contact),
         ),
         anchor,
       ) < 0.001,
@@ -123,9 +129,9 @@ export async function test_motions_mounted_dismount_floor(): Promise<void> {
   const toe: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
   TestValidator.predicate(
     "touchdown and standing have distinct foot turns",
-    Vector3.distance(
-      Quaternion.rotateVector(rotations[0]!, toe),
-      Quaternion.rotateVector(rotations[2]!, toe),
+    AutoMovieEngineVector3.distance(
+      AutoMovieEngineQuaternion.rotateVector(rotations[0]!, toe),
+      AutoMovieEngineQuaternion.rotateVector(rotations[2]!, toe),
     ) > 0.05,
   );
 }

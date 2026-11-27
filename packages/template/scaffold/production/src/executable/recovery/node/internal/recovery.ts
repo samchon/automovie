@@ -6,16 +6,15 @@ import type {
   IAutoMovieRecoveryResult,
 } from "@automovie/interface";
 import {
-  convertAutoMovieRecoveryCurves,
-  observeAutoMovieRecovery,
-  prepareAutoMovieRecoveryInput,
-  reconstructAutoMovieRecoveryModel,
+  AutoMovieRecoveryCurveConversion,
+  AutoMovieRecoveryReconstruction,
+  AutoMovieRecoveryObservation,
 } from "@automovie/recovery";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
-import { writeAutoMovieRecoveryArtifact } from "../artifact/writeAutoMovieRecoveryArtifact";
+import { writeRecoveryArtifact } from "../artifact/writeRecoveryArtifact";
 
 /**
  * Generic command seam for fixed meshes to saved cubics and saved cubics to
@@ -115,8 +114,8 @@ export function recovery(
       triangles,
     };
     if (spec.registration !== undefined) {
-      const admitted: ReturnType<typeof prepareAutoMovieRecoveryInput> =
-        prepareAutoMovieRecoveryInput({
+      const admitted: ReturnType<typeof AutoMovieRecoveryObservation.prepareInput> =
+        AutoMovieRecoveryObservation.prepareInput({
           registration: spec.registration,
           verticesMm,
           triangles,
@@ -135,7 +134,7 @@ export function recovery(
       admittedInput = admitted.value.observation;
     }
     const observed: IAutoMovieRecoveryResult<IAutoMovieRecoveryMeshSections> =
-      observeAutoMovieRecovery(admittedInput, {
+      AutoMovieRecoveryObservation.observeMesh(admittedInput, {
         sectionLimit,
         onProgress: (phase: string, completed: number, total: number): void => {
           console.error(
@@ -187,8 +186,11 @@ export function recovery(
     const bundle: IAutoMovieRecoveryMeshSections = JSON.parse(
       bytes.toString("utf8"),
     );
-    const reconstructed: ReturnType<typeof reconstructAutoMovieRecoveryModel> =
-      reconstructAutoMovieRecoveryModel(bundle, { observeWork: true });
+    const reconstructed: ReturnType<
+      typeof AutoMovieRecoveryReconstruction.reconstructModel
+    > = AutoMovieRecoveryReconstruction.reconstructModel(bundle, {
+      observeWork: true,
+    });
     if (!("value" in reconstructed))
       throw new Error(reconstructed.diagnostics.join("; "));
     const result: typeof reconstructed.value = reconstructed.value;
@@ -232,7 +234,7 @@ export function recovery(
         observeWork: true,
         engineOperators: [
           "tessellateAutoMovieContourLoft64",
-          "AutoMovieContourLoftCurves64.tessellate",
+          "AutoMovieEngineContourLoftCurves64.tessellate",
           "tessellateAutoMovieContourStrip64",
         ],
         generatedAt: new Date().toISOString(),
@@ -251,11 +253,11 @@ export function recovery(
       }),
     );
   }
-  const publication: ReturnType<typeof writeAutoMovieRecoveryArtifact> =
-    writeAutoMovieRecoveryArtifact(
+  const publication: ReturnType<typeof writeRecoveryArtifact> =
+    writeRecoveryArtifact(
       outputPath,
       curveFormat === "hermite"
-        ? convertAutoMovieRecoveryCurves(artifact, curveFormat)
+        ? AutoMovieRecoveryCurveConversion.convertBundle(artifact, curveFormat)
         : artifact,
     );
   console.log(

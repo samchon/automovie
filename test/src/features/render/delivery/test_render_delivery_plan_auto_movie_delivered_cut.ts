@@ -1,8 +1,10 @@
-import { planAutoMovieDeliveredCut } from "@automovie/render/internal";
+import {
+  planDeliveredCut
+} from "../../../../../packages/render/src/delivery/internal/planDeliveredCut";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `planAutoMovieDeliveredCut` maps timeline entries onto the frames drawn.
+ * `planDeliveredCut` maps timeline entries onto the frames drawn.
  *
  * Scenarios:
  *
@@ -32,7 +34,7 @@ export function test_render_delivery_plan_auto_movie_delivered_cut(): void {
   const times: number[] = [0, 0.5, 1, 1.5];
   TestValidator.equals(
     "two entries",
-    planAutoMovieDeliveredCut({
+    planDeliveredCut({
       timeline: { entries: [entry(0, 0), entry(1, 1)], runtime: 2 },
       times,
     }).map((row: { liveFrames: [number, number] }): [number, number] => row.liveFrames),
@@ -43,7 +45,7 @@ export function test_render_delivery_plan_auto_movie_delivered_cut(): void {
   );
   TestValidator.equals(
     "passed over",
-    planAutoMovieDeliveredCut({
+    planDeliveredCut({
       timeline: {
         entries: [entry(0, 0), entry(1, 0.7), entry(2, 0.8)],
         runtime: 2,
@@ -57,6 +59,6 @@ export function test_render_delivery_plan_auto_movie_delivered_cut(): void {
     ],
   );
   TestValidator.error("no entries", (): void => {
-    planAutoMovieDeliveredCut({ timeline: { entries: [], runtime: 0 }, times });
+    planDeliveredCut({ timeline: { entries: [], runtime: 0 }, times });
   });
 }

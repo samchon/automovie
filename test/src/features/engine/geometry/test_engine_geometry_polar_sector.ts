@@ -1,11 +1,11 @@
-import { AutoMoviePolarSector } from "@automovie/engine";
+import { AutoMovieEnginePolarSector } from "@automovie/engine";
 import type { IAutoMoviePolarSector } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * `AutoMoviePolarSector.radius(guides, fullness, phi)` is a closed section's
+ * `AutoMovieEnginePolarSector.radius(guides, fullness, phi)` is a closed section's
  * radius jet: between guides the quintic Hermite of both guides' (rho, rho',
  * rho'') plus the sector's fullness times 64 xi^3 (1 - xi)^3; `fullnessAt`
  * inverts the rule at a sector's middle and `point` lifts a jet to the (x, z)
@@ -45,7 +45,7 @@ export function test_engine_geometry_polar_sector(): void {
   );
   const fullness: number[] = [0.1, 0, -0.2, 0.05];
   const jet = (phi: number): IAutoMoviePolarSector.Jet =>
-    AutoMoviePolarSector.radius(guides, fullness, phi);
+    AutoMovieEnginePolarSector.radius(guides, fullness, phi);
   const near = (
     a: readonly number[],
     b: readonly number[],
@@ -77,7 +77,7 @@ export function test_engine_geometry_polar_sector(): void {
 
   // 4.
   const middle: number = Math.PI / 4;
-  const bare: number = AutoMoviePolarSector.radius(
+  const bare: number = AutoMovieEnginePolarSector.radius(
     guides,
     [0, 0, -0.2, 0.05],
     middle,
@@ -86,7 +86,7 @@ export function test_engine_geometry_polar_sector(): void {
     "fullness",
     Math.abs(jet(middle)[0] - bare - 0.1) <= 1e-12,
   );
-  const f: number = AutoMoviePolarSector.fullnessAt(
+  const f: number = AutoMovieEnginePolarSector.fullnessAt(
     guides[0]!,
     guides[1]!,
     Math.PI / 2,
@@ -95,7 +95,7 @@ export function test_engine_geometry_polar_sector(): void {
   TestValidator.predicate(
     "fullness at",
     Math.abs(
-      AutoMoviePolarSector.radius(guides, [f, 0, -0.2, 0.05], middle)[0] - 1.9,
+      AutoMovieEnginePolarSector.radius(guides, [f, 0, -0.2, 0.05], middle)[0] - 1.9,
     ) <= 1e-12,
   );
 
@@ -110,7 +110,7 @@ export function test_engine_geometry_polar_sector(): void {
     "circle",
     [0.3, 1.9, 4.4].every((phi: number): boolean =>
       near(
-        AutoMoviePolarSector.radius(round, [0, 0, 0, 0], phi),
+        AutoMovieEnginePolarSector.radius(round, [0, 0, 0, 0], phi),
         [1, 0, 0],
         1e-12,
       ),
@@ -121,14 +121,14 @@ export function test_engine_geometry_polar_sector(): void {
   TestValidator.predicate(
     "negative angle selects the midpoint of the closing sector",
     Math.abs(
-      AutoMoviePolarSector.radius(round, [0, 0, 0, 0.5], -Math.PI / 4)[0] - 1.5,
+      AutoMovieEnginePolarSector.radius(round, [0, 0, 0, 0.5], -Math.PI / 4)[0] - 1.5,
     ) <= midpointRoundoff,
   );
 
   // 6.
   TestValidator.predicate(
     "point",
-    AutoMoviePolarSector.point([2, 0, 0], Math.PI / 2).every(
+    AutoMovieEnginePolarSector.point([2, 0, 0], Math.PI / 2).every(
       (v: number[], k: number): boolean =>
         near(
           v,
@@ -144,7 +144,7 @@ export function test_engine_geometry_polar_sector(): void {
 
   TestValidator.equals(
     "radius-two circle accelerates toward the center at zero",
-    AutoMoviePolarSector.point([2, 0, 0], 0)[2][0],
+    AutoMovieEnginePolarSector.point([2, 0, 0], 0)[2][0],
     -2,
   );
 
@@ -152,7 +152,7 @@ export function test_engine_geometry_polar_sector(): void {
   TestValidator.predicate(
     "one guide",
     throwsError(
-      (): unknown => AutoMoviePolarSector.radius(guides.slice(0, 1), [0], 0),
+      (): unknown => AutoMovieEnginePolarSector.radius(guides.slice(0, 1), [0], 0),
       "needs two guides",
     ),
   );
@@ -160,7 +160,7 @@ export function test_engine_geometry_polar_sector(): void {
     "no angle",
     throwsError(
       (): unknown =>
-        AutoMoviePolarSector.radius(
+        AutoMovieEnginePolarSector.radius(
           [guides[0]!, { ...guides[1]!, angle: NaN }],
           [0, 0],
           1,

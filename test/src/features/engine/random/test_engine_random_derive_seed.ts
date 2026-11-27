@@ -1,8 +1,9 @@
-import { deriveAutoMovieSeed, hashAutoMovieFnv1a64 } from "@automovie/engine";
+import { AutoMovieEngineRandom } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `deriveAutoMovieSeed` hashes the UTF-8 bytes of the film seed and each id,
+ * `AutoMovieEngineRandom.deriveSeed` hashes the UTF-8 bytes of the film seed and each id,
  * each followed by a 0xff separator, with 64-bit FNV-1a.
  *
  * Scenarios:
@@ -16,26 +17,26 @@ export function test_engine_random_derive_seed(): void {
   // 1. The bytes it hashes.
   TestValidator.equals(
     "a seed with no id",
-    deriveAutoMovieSeed("s"),
-    hashAutoMovieFnv1a64([0x73, 0xff]),
+    AutoMovieEngineRandom.deriveSeed("s"),
+    AutoMovieEngineRandom.hashFnv1a64([0x73, 0xff]),
   );
 
   // 2. Id boundaries.
   TestValidator.notEquals(
     "boundaries between ids count",
-    deriveAutoMovieSeed("film", "ab", "c"),
-    deriveAutoMovieSeed("film", "a", "bc"),
+    AutoMovieEngineRandom.deriveSeed("film", "ab", "c"),
+    AutoMovieEngineRandom.deriveSeed("film", "a", "bc"),
   );
 
   // 3. Reproducible identity.
   TestValidator.equals(
     "the same inputs",
-    deriveAutoMovieSeed("film", "hero"),
-    deriveAutoMovieSeed("film", "hero"),
+    AutoMovieEngineRandom.deriveSeed("film", "hero"),
+    AutoMovieEngineRandom.deriveSeed("film", "hero"),
   );
   TestValidator.notEquals(
     "another film seed",
-    deriveAutoMovieSeed("film", "hero"),
-    deriveAutoMovieSeed("other", "hero"),
+    AutoMovieEngineRandom.deriveSeed("film", "hero"),
+    AutoMovieEngineRandom.deriveSeed("other", "hero"),
   );
 }

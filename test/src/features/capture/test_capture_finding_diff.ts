@@ -7,12 +7,7 @@ import type {
   IAutoMovieCaptureSubject,
   IAutoMovieInspectionDiagnostics,
 } from "@automovie/interface";
-import {
-  AutoMovieCaptureFolder,
-  parseAutoMovieCapturePlanRequest,
-  planAutoMovieCapture,
-  runAutoMovieCapture,
-} from "@automovie/render";
+import { AutoMovieRenderCaptureFolder, AutoMovieRenderCapture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { createCaptureMemory } from "./createCaptureMemory";
@@ -98,13 +93,13 @@ export async function test_capture_finding_diff(): Promise<void> {
     fps: number = SUBJECT.fps,
     shotSeconds?: (seconds: number) => number,
   ): Promise<IAutoMovieCaptureFindingDiff | undefined> => {
-    const plan: IAutoMovieCapturePlan = planAutoMovieCapture({
-      request: parseAutoMovieCapturePlanRequest(new URLSearchParams(text)),
+    const plan: IAutoMovieCapturePlan = AutoMovieRenderCapture.plan({
+      request: AutoMovieRenderCapture.parsePlanRequest(new URLSearchParams(text)),
       subject: { ...SUBJECT, fps },
       cuts: [],
     });
     const record: Extract<IAutoMovieCaptureRecord, { state: "complete" }> =
-      await runAutoMovieCapture({
+      await AutoMovieRenderCapture.run({
         plan,
         draw: async (
           cell: IAutoMovieCaptureCell,
@@ -132,7 +127,7 @@ export async function test_capture_finding_diff(): Promise<void> {
                 },
               }),
         }),
-        folder: await AutoMovieCaptureFolder.open({
+        folder: await AutoMovieRenderCaptureFolder.open({
           storage: memory.storage,
           root: "out",
           round: plan.request.round,

@@ -6,7 +6,7 @@ import type {
   IAutoMovieTransform,
 } from "@automovie/interface";
 
-import { ArchetypeMassArithmetic } from "./ArchetypeMassArithmetic";
+import { ArchetypeMassArithmetic } from "./internal/ArchetypeMassArithmetic";
 import { AutoMovieArchetype } from "./AutoMovieArchetype";
 import { AutoMovieArchetypeArticulation } from "./AutoMovieArchetypeArticulation";
 import type { AutoMovieArchetypeConvexCell } from "./AutoMovieArchetypeConvexCell";
@@ -16,7 +16,7 @@ import { AutoMovieArchetypeMass } from "./AutoMovieArchetypeMass";
 import type { AutoMovieArchetypeMaterial } from "./AutoMovieArchetypeMaterial";
 import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
 import { AutoMovieArchetypeSpan } from "./AutoMovieArchetypeSpan";
-import { ownArchetypeRecordKeys } from "./ownArchetypeRecordKeys";
+import { ownArchetypeRecordKeys } from "./internal/ownArchetypeRecordKeys";
 
 /**
  * Several archetypes as one placed and ridden object: a chariot of a platform,
@@ -53,14 +53,13 @@ export class AutoMovieArchetypeAssembly<
     never
   >;
 
-  /**
+  /*
    * An assembly at an articulation state.
-   *
-   * @param members The members by key.
-   * @param props The merged model at rest.
-   * @param state The travel of each leader articulation, by prefixed id.
-   * @throws {AutoMovieArchetypeRefusal} As `AutoMovieArchetype`'s constructor
-   *   does.
+   * Parameter members: The members by key.
+   * Parameter props: The merged model at rest.
+   * Parameter state: The travel of each leader articulation, by prefixed id.
+   * As `AutoMovieArchetype`'s constructor
+   * does.
    */
   private constructor(
     members: M,
@@ -152,11 +151,11 @@ export class AutoMovieArchetypeAssembly<
       const prefix = <Own extends string>(own: Own): `${K}/${Own}` =>
         `${key}/${own}`;
       const end = (
-        e: AutoMovieArchetypeSpan.End,
-      ): AutoMovieArchetypeSpan.End =>
+        e: AutoMovieArchetypeSpan.IEnd,
+      ): AutoMovieArchetypeSpan.IEnd =>
         e.affordance !== undefined
-          ? { affordance: prefix(e.affordance) }
-          : { part: prefix(e.part), at: e.at };
+          ? { type: "affordance", affordance: prefix(e.affordance) }
+          : { type: "part", part: prefix(e.part), at: e.at };
       for (const part of rest.parts) {
         const cell: AutoMovieArchetypeConvexCell.ICell | undefined =
           memberCells.get(part.id);

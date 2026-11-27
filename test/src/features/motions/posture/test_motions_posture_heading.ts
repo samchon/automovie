@@ -1,5 +1,7 @@
-import { Quaternion } from "@automovie/engine";
-import { humanPostureHeading } from "@automovie/motions/internal";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
+import {
+  humanPostureHeading
+} from "../../../../../packages/motions/src/posture/internal/humanPostureHeading";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -31,12 +33,12 @@ export function test_motions_posture_heading(): void {
   TestValidator.predicate(
     "yaw turns forward about world up",
     vclose(
-      Quaternion.rotateVector(yawed, { x: 0, y: 0, z: 1 }),
+      AutoMovieEngineQuaternion.rotateVector(yawed, { x: 0, y: 0, z: 1 }),
       { x: 1, y: 0, z: 0 },
       1e-12,
     ) &&
       vclose(
-        Quaternion.rotateVector(yawed, { x: 0, y: 1, z: 0 }),
+        AutoMovieEngineQuaternion.rotateVector(yawed, { x: 0, y: 1, z: 0 }),
         { x: 0, y: 1, z: 0 },
         1e-12,
       ),
@@ -46,7 +48,7 @@ export function test_motions_posture_heading(): void {
   TestValidator.predicate(
     "pitch tips forward down",
     vclose(
-      Quaternion.rotateVector(
+      AutoMovieEngineQuaternion.rotateVector(
         humanPostureHeading({ yaw: 0, pitch: 30, roll: 0 }),
         {
           x: 0,

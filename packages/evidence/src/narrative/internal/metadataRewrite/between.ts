@@ -1,4 +1,6 @@
-/** Tests an optional byte against an inclusive range. */
+/*
+ * Tests an optional byte against an inclusive range.
+ */
 export function between(
   byte: number | undefined,
   minimum: number,

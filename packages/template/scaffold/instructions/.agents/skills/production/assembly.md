@@ -10,7 +10,7 @@ The render, capture and inspector use the film's `playback` transitions. `crossD
 
 ## Render
 
-<!-- @source The [FFmpeg codec options](https://github.com/FFmpeg/FFmpeg/blob/master/doc/codecs.texi) define color_range. -->
+<!-- @reference The [FFmpeg codec options](https://github.com/FFmpeg/FFmpeg/blob/master/doc/codecs.texi) define color_range. -->
 
 For a new host or changed export, decode a shot through a join before scaling. Compare matched frames with the delivery renderer or graded take and on both sides of any conversion or lossy intermediate. Verify darks, highlights and colors under the declared color range.
 
@@ -22,10 +22,11 @@ Include only commissioned [sound](../audio/film-sound.md) and [captions](caption
 
 Follow [delivery repairs](../review/delivery-review.md#repairs) for a failed cut. Hand off the candidate with:
 
-- its revision, media identities, fixed inputs, source, dependencies and reproduction commands;
+- revision, media IDs, fixed inputs, source, dependencies and rerun commands
 - checks, observers and outstanding limits;
 - for a hint, shot names, frame ranges, cameras and lenses;
 - rights, attribution, generation requests and the derivatives they produced;
-- takes with content credentials, required disclosures and any required music cue sheet from the locked cut.
+- takes with content credentials and the locked cut's required disclosures
+  - Include a cue sheet if required.
 
 Take frame ranges from `cut` in the [verified render report](media-records.md#render-reports). Keep secrets out of the handoff.

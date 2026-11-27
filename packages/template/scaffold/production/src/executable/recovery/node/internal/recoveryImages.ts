@@ -1,22 +1,29 @@
-import { decodeAutoMoviePpmImage } from "@automovie/ingest";
+import { AutoMovieIngestPpmImage } from "@automovie/ingest";
 import type {
+  IAutoMovieRecoveryImageFit,
+  IAutoMovieRecoveryImageFitPolicy,
+  IAutoMovieRecoveryImageFiles,
   IAutoMovieRecoveryImageInput,
+  IAutoMovieRecoveryImageLoftBudget,
   IAutoMovieRecoveryImageObservation,
+  IAutoMovieRecoveryImageRealization,
   IAutoMovieRecoveryImageRecipe,
+  IAutoMovieRecoveryResult,
+  IAutoMovieRecoverySupportFit,
+  IAutoMovieRecoverySupportFitPolicy,
+  IAutoMovieRecoverySupportLoftBudget,
+  IAutoMovieRecoverySupportRealization,
 } from "@automovie/interface";
 import {
-  compileAutoMovieRecoveryImageLoft,
-  compileAutoMovieRecoverySupportLoft,
-  fitAutoMovieRecoveryImageLoft,
-  fitAutoMovieRecoveryImageSupportLoft,
-  observeAutoMovieRecoveryImages,
+  AutoMovieRecoveryCompilation,
+  AutoMovieRecoveryFitting,
+  AutoMovieRecoveryObservation,
 } from "@automovie/recovery";
 import { createHash } from "node:crypto";
 import path from "node:path";
 
-import { writeAutoMovieRecoveryArtifact } from "../artifact/writeAutoMovieRecoveryArtifact";
-import { type IAutoMovieRecoveryImageFiles } from "../index";
-import { readAutoMovieRecoveryBoundedFile } from "./readAutoMovieRecoveryBoundedFile";
+import { writeRecoveryArtifact } from "../artifact/writeRecoveryArtifact";
+import { readRecoveryBoundedFile } from "./readRecoveryBoundedFile";
 
 /**
  * Run fixed-image observation, qualified fitting or recipe-only compilation.
@@ -43,7 +50,7 @@ export function recoveryImages(args: string[], sourceEpoch: string): void {
     throw new Error(
       "Usage: images observe|fit|realize input.json new-output.json maxInputBytes",
     );
-  const bytes: Buffer = readAutoMovieRecoveryBoundedFile(
+  const bytes: Buffer = readRecoveryBoundedFile(
     inputPath,
     maxInputBytes,
   );
@@ -51,11 +58,11 @@ export function recoveryImages(args: string[], sourceEpoch: string): void {
   const document: unknown = JSON.parse(bytes.toString("utf8"));
   const started: number = performance.now();
   let outcome:
-    | ReturnType<typeof observeAutoMovieRecoveryImages>
-    | ReturnType<typeof fitAutoMovieRecoveryImageLoft>
-    | ReturnType<typeof compileAutoMovieRecoveryImageLoft>
-    | ReturnType<typeof fitAutoMovieRecoveryImageSupportLoft>
-    | ReturnType<typeof compileAutoMovieRecoverySupportLoft>;
+    | ReturnType<typeof AutoMovieRecoveryObservation.observeImages>
+    | IAutoMovieRecoveryResult<IAutoMovieRecoveryImageFit>
+    | IAutoMovieRecoveryResult<IAutoMovieRecoveryImageRealization>
+    | IAutoMovieRecoveryResult<IAutoMovieRecoverySupportFit>
+    | IAutoMovieRecoveryResult<IAutoMovieRecoverySupportRealization>;
   if (command === "observe") {
     const spec: IAutoMovieRecoveryImageFiles =
       document as IAutoMovieRecoveryImageFiles;
@@ -86,7 +93,7 @@ export function recoveryImages(args: string[], sourceEpoch: string): void {
         !/^[a-f0-9]{64}$/i.test(view.sha256)
       )
         throw new Error("Every image needs an explicit path and SHA-256");
-      const image: Buffer = readAutoMovieRecoveryBoundedFile(
+      const image: Buffer = readRecoveryBoundedFile(
         path.resolve(path.dirname(inputPath), view.path),
         maxInputBytes,
       );
@@ -95,8 +102,8 @@ export function recoveryImages(args: string[], sourceEpoch: string): void {
         view.sha256.toLowerCase()
       )
         throw new Error(`Fixed image hash mismatch: ${view.id}`);
-      const decoded: ReturnType<typeof decodeAutoMoviePpmImage> =
-        decodeAutoMoviePpmImage(image, {
+      const decoded: ReturnType<typeof AutoMovieIngestPpmImage.decode> =
+        AutoMovieIngestPpmImage.decode(image, {
           maxPixels: spec.capture.budget.maxPixels - pixels,
           maxHeaderBytes: spec.maxHeaderBytes,
           transfer: "srgb",
@@ -113,47 +120,48 @@ export function recoveryImages(args: string[], sourceEpoch: string): void {
         camera: view.camera,
       });
     }
-    outcome = observeAutoMovieRecoveryImages({ ...spec.capture, views });
+    outcome = AutoMovieRecoveryObservation.observeImages({ ...spec.capture, views });
   } else if (command === "fit") {
     const spec: {
       observation: IAutoMovieRecoveryImageObservation;
       policy:
-        | Parameters<typeof fitAutoMovieRecoveryImageLoft>[1]
-        | Parameters<typeof fitAutoMovieRecoveryImageSupportLoft>[1];
+        | IAutoMovieRecoveryImageFitPolicy
+        | IAutoMovieRecoverySupportFitPolicy;
     } = document as {
       observation: IAutoMovieRecoveryImageObservation;
       policy:
-        | Parameters<typeof fitAutoMovieRecoveryImageLoft>[1]
-        | Parameters<typeof fitAutoMovieRecoveryImageSupportLoft>[1];
+        | IAutoMovieRecoveryImageFitPolicy
+        | IAutoMovieRecoverySupportFitPolicy;
     };
     outcome =
       spec?.policy?.family === "finite-view-convex-support"
-        ? fitAutoMovieRecoveryImageSupportLoft(spec.observation, spec.policy)
-        : fitAutoMovieRecoveryImageLoft(spec?.observation, spec?.policy);
+        ? AutoMovieRecoveryFitting.fitSupportLoft(spec.observation, spec.policy)
+        : AutoMovieRecoveryFitting.fitImageLoft(spec?.observation, spec?.policy);
   } else {
     const spec: {
       recipe: IAutoMovieRecoveryImageRecipe;
       budget:
-        | Parameters<typeof compileAutoMovieRecoveryImageLoft>[1]
-        | Parameters<typeof compileAutoMovieRecoverySupportLoft>[1];
+        | IAutoMovieRecoveryImageLoftBudget
+        | IAutoMovieRecoverySupportLoftBudget;
     } = document as {
       recipe: IAutoMovieRecoveryImageRecipe;
       budget:
-        | Parameters<typeof compileAutoMovieRecoveryImageLoft>[1]
-        | Parameters<typeof compileAutoMovieRecoverySupportLoft>[1];
+        | IAutoMovieRecoveryImageLoftBudget
+        | IAutoMovieRecoverySupportLoftBudget;
     };
     outcome =
       spec?.recipe?.family === "finite-view-convex-support"
-        ? compileAutoMovieRecoverySupportLoft(
+        ? AutoMovieRecoveryCompilation.compileSupportLoft(
             spec.recipe,
-            spec.budget as Parameters<
-              typeof compileAutoMovieRecoverySupportLoft
-            >[1],
+            spec.budget as IAutoMovieRecoverySupportLoftBudget,
           )
-        : compileAutoMovieRecoveryImageLoft(spec?.recipe, spec?.budget);
+        : AutoMovieRecoveryCompilation.compileImageLoft(
+            spec?.recipe,
+            spec?.budget,
+          );
   }
   if (!("value" in outcome)) throw new Error(outcome.diagnostics.join("; "));
-  writeAutoMovieRecoveryArtifact(outputPath, {
+  writeRecoveryArtifact(outputPath, {
     command,
     sourceEpoch,
     inputSha256,

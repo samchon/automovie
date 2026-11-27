@@ -3,7 +3,7 @@ import type { IAutoMovieColor } from "../color/IAutoMovieColor";
 /**
  * How a used object's surface has worn: paint chipped off its convex edges and
  * grime gathered in its concave creases, placed per fragment by the distance to
- * the mesh's feature edges (`measureAutoMovieFeatureEdges`), so a face
+ * the mesh's feature edges (`measureFeatureEdges`), so a face
  * subdivided into many triangles wears like one quad.
  *
  * Each layer's weight at a fragment is `smoothstep(1 − amount, 1, clamp(1 − d /

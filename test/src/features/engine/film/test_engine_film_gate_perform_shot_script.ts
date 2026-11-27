@@ -1,5 +1,7 @@
-import { ViolationCollector } from "@automovie/engine";
-import { gatePerformShotScript } from "@automovie/engine/internal";
+import { AutoMovieEngineViolationCollector } from "@automovie/engine";
+import {
+  gatePerformShotScript
+} from "../../../../../packages/engine/src/film/internal/gatePerformShotScript";
 import type { IAutoMovieScript } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -14,7 +16,7 @@ import { TestValidator } from "@nestia/e2e";
  *    duplicate diagnostic.
  */
 export function test_engine_film_gate_perform_shot_script(): void {
-  const out: ViolationCollector = new ViolationCollector();
+  const out: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();
   const beat: IAutoMovieScript["beats"][number] = {
     id: "bridge",
     name: "crossing",
@@ -57,7 +59,7 @@ export function test_engine_film_gate_perform_shot_script(): void {
     ],
   );
 
-  const clean: ViolationCollector = new ViolationCollector();
+  const clean: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();
   TestValidator.predicate(
     "a missing beat leaves the choice to the caller",
     gatePerformShotScript(

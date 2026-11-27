@@ -6,15 +6,15 @@ export namespace IAutoMovieMeasureModelCrossings {
    *
    * Each mesh part is first carried into the model frame by its own transform
    * and, when attached to a bone the rest pose resolves, by that bone's rest
-   * placement, the placement `autoMovieModelPartMatrices` owns; a part with
+   * placement, the placement `modelPartMatrices` owns; a part with
    * neither keeps its coordinates exactly. Bicubic recipes use the canonical
    * engine's retained finite mesh, including declared partial output;
    * primitives and unrecognized geometry remain outside this mesh crossing
    * query. A pair appears once, in model part order, only when at least one
    * triangle on either side is crossed, with each side's crossed triangle count
    * and their combined coplanar count. Touching is not crossing: the underlying
-   * `measureAutoMovieMeshCrossings` test is strict, so shells meeting along a
-   * seam do not report.
+   * `AutoMovieEngineMeshCrossingQuery.measure` test is strict, so shells
+   * meeting along a seam do not report.
    *
    * An empty result does not mean a healthy model, nor a full one a broken one.
    * A layered character rests with shells inside each other on purpose: the

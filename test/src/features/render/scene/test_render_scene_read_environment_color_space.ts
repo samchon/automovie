@@ -1,9 +1,11 @@
-import { readAutoMovieEnvironmentColorSpace } from "@automovie/render/internal";
+import {
+  readEnvironmentColorSpace
+} from "../../../../../packages/render/src/scene/internal/readEnvironmentColorSpace";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 /**
- * `readAutoMovieEnvironmentColorSpace` tells byte environments from float ones.
+ * `readEnvironmentColorSpace` tells byte environments from float ones.
  *
  * Scenarios:
  *
@@ -13,10 +15,10 @@ import * as THREE from "three";
 export function test_render_scene_read_environment_color_space(): void {
   const read = (
     type: THREE.TextureDataType,
-  ): ReturnType<typeof readAutoMovieEnvironmentColorSpace> => {
+  ): ReturnType<typeof readEnvironmentColorSpace> => {
     const texture: THREE.Texture = new THREE.Texture();
     texture.type = type;
-    return readAutoMovieEnvironmentColorSpace(texture);
+    return readEnvironmentColorSpace(texture);
   };
   TestValidator.equals("bytes", read(THREE.UnsignedByteType), "srgb");
   TestValidator.equals("half", read(THREE.HalfFloatType), "linear-environment");

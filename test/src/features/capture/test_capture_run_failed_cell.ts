@@ -6,25 +6,27 @@ import type {
   IAutoMovieCaptureRecord,
   IAutoMovieRasterImage,
 } from "@automovie/interface";
-import {
-  AutoMovieCaptureFolder,
-  decodeAutoMovieRasterPng,
-  parseAutoMovieCapturePlanRequest,
-  planAutoMovieCapture,
-  runAutoMovieCapture,
-} from "@automovie/render";
+import { AutoMovieRenderCaptureFolder, AutoMovieRenderPicture, AutoMovieRenderCapture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { createCaptureMemory } from "./createCaptureMemory";
 
 /**
- * A cell the host cannot draw stays in the capture: its record row gives the cause, the sheet shows a marked cell in its place, and the run goes on to the next cell.
+ * A cell the host cannot draw stays in the capture: its record row gives the
+ * cause, the sheet shows a marked cell in its place, and the run goes on to the
+ * next cell.
  *
  * Scenarios:
  *
- * 1. Of three cells, the second's draw throws and the third's returns 32 by 18 pixels for a 64 by 36 subject; the first and the run's sheet and record are written, and the other two have no still.
- * 2. The rows are drawn, failed with the thrown message, and failed with a cause naming both rasters, in plan order and on their sheet positions.
- * 3. The sheet, three 64 by 36 cells with a two-line 15 px caption strip under each, since a caption with " not drawn" wraps at 15 characters, is 192 by 51; its second and third cells are the marked colour (96, 16, 16) and its first is the drawn still.
+ * 1. Of three cells, the second's draw throws and the third's returns 32 by 18
+ *    pixels for a 64 by 36 subject; the first and the run's sheet and record
+ *    are written, and the other two have no still.
+ * 2. The rows are drawn, failed with the thrown message, and failed with a cause
+ *    naming both rasters, in plan order and on their sheet positions.
+ * 3. The sheet, three 64 by 36 cells with a two-line 15 px caption strip under
+ *    each, since a caption with " not drawn" wraps at 15 characters, is 192 by
+ *    51; its second and third cells are the marked colour (96, 16, 16) and its
+ *    first is the drawn still.
  * 4. The record's file list holds only files that exist.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs the public run with a draw function that fails and one that draws the wrong raster, then reads the record and the decoded sheet; a run that stopped at the failure, dropped the cell, wrote a blank still or resized the wrong raster fails.
@@ -35,8 +37,8 @@ import { createCaptureMemory } from "./createCaptureMemory";
  */
 export async function test_capture_run_failed_cell(): Promise<void> {
   const memory: createCaptureMemory.IMemory = createCaptureMemory();
-  const plan: IAutoMovieCapturePlan = planAutoMovieCapture({
-    request: parseAutoMovieCapturePlanRequest(
+  const plan: IAutoMovieCapturePlan = AutoMovieRenderCapture.plan({
+    request: AutoMovieRenderCapture.parsePlanRequest(
       new URLSearchParams("at=0.5,1,1.5"),
     ),
     subject: {
@@ -74,10 +76,10 @@ export async function test_capture_run_failed_cell(): Promise<void> {
 
   // 1. The run continues past both failures.
   const record: Extract<IAutoMovieCaptureRecord, { state: "complete" }> =
-    await runAutoMovieCapture({
+    await AutoMovieRenderCapture.run({
       plan,
       draw,
-      folder: await AutoMovieCaptureFolder.open({
+      folder: await AutoMovieRenderCaptureFolder.open({
         storage: memory.storage,
         root: "out",
         round: null,
@@ -116,9 +118,10 @@ export async function test_capture_run_failed_cell(): Promise<void> {
   );
 
   // 3. Marked cells on the sheet.
-  const sheet: IAutoMovieRasterImage = await decodeAutoMovieRasterPng(
-    memory.files.get("out/sheet-001.png")!,
-  );
+  const sheet: IAutoMovieRasterImage =
+    await AutoMovieRenderPicture.decodeRasterPng(
+      memory.files.get("out/sheet-001.png")!,
+    );
   const at: (x: number, y: number) => number[] = (
     x: number,
     y: number,

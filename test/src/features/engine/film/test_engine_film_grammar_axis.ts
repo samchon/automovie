@@ -1,4 +1,4 @@
-import { readFilmGrammar } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieGrammarDiagnostic,
   IAutoMovieGrammarReading,
@@ -155,7 +155,7 @@ export function test_engine_film_grammar_axis(): void {
     }),
   );
 
-  const crossing: IAutoMovieGrammarReading = readFilmGrammar({
+  const crossing: IAutoMovieGrammarReading = AutoMovieEngineFilm.readFilmGrammar({
     shots: [positive, negative],
   });
   TestValidator.predicate(
@@ -166,7 +166,7 @@ export function test_engine_film_grammar_axis(): void {
         diagnostic.recovery.includes("mark axis-cross"),
     ),
   );
-  const marked: IAutoMovieGrammarReading = readFilmGrammar({
+  const marked: IAutoMovieGrammarReading = AutoMovieEngineFilm.readFilmGrammar({
     shots: [positive, { ...negative, styleIntent: ["axis-cross"] }],
   });
   TestValidator.predicate(

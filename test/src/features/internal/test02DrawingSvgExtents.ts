@@ -1,7 +1,4 @@
-import {
-  autoMovieDrawingToSvg,
-  deriveAutoMovieDrawing,
-} from "@automovie/engine";
+import { AutoMovieEngineDrawing } from "@automovie/engine";
 import type {
   IAutoMovieBuiltElement,
   IAutoMovieBuiltEnvironment,
@@ -28,8 +25,11 @@ export function test02DrawingSvgExtents(
     elementKinds: ["nothing-of-this-kind"],
     spaces: ["roof-deck"],
   });
-  const blank: string = autoMovieDrawingToSvg({
-    drawing: deriveAutoMovieDrawing({ environment, view: blankView }),
+  const blank: string = AutoMovieEngineDrawing.autoMovieDrawingToSvg({
+    drawing: AutoMovieEngineDrawing.deriveAutoMovieDrawing({
+      environment,
+      view: blankView,
+    }),
     view: blankView,
   });
   TestValidator.equals(
@@ -97,8 +97,8 @@ export function test02DrawingSvgExtents(
   const noteOnlySheet: (element: string) => string[] = (
     element: string,
   ): string[] =>
-    autoMovieDrawingToSvg({
-      drawing: deriveAutoMovieDrawing({
+    AutoMovieEngineDrawing.autoMovieDrawingToSvg({
+      drawing: AutoMovieEngineDrawing.deriveAutoMovieDrawing({
         environment,
         view: noteOnly(element),
       }),
@@ -168,8 +168,8 @@ export function test02DrawingSvgExtents(
             direction: { x: 0, y: 1, z: 0 },
             up: { x: 0, y: 0, z: -1 },
           });
-          return autoMovieDrawingToSvg({
-            drawing: deriveAutoMovieDrawing({
+          return AutoMovieEngineDrawing.autoMovieDrawingToSvg({
+            drawing: AutoMovieEngineDrawing.deriveAutoMovieDrawing({
               environment,
               view: ceilingView,
             }),
@@ -183,8 +183,8 @@ export function test02DrawingSvgExtents(
         "a line whose element belongs to no space carries an empty space",
         (): boolean => {
           const plainView: IAutoMovieDrawingView = drawingView({ id: "plain" });
-          return autoMovieDrawingToSvg({
-            drawing: deriveAutoMovieDrawing({
+          return AutoMovieEngineDrawing.autoMovieDrawingToSvg({
+            drawing: AutoMovieEngineDrawing.deriveAutoMovieDrawing({
               environment: {
                 ...environment,
                 elements: environment.elements.map(
@@ -215,7 +215,7 @@ export function test02DrawingSvgExtents(
       [
         "a hand-built stale dimension and note serialize without a reason",
         (): boolean => {
-          const emitted: string = autoMovieDrawingToSvg({
+          const emitted: string = AutoMovieEngineDrawing.autoMovieDrawingToSvg({
             drawing: {
               ...drawing,
               dimensions: [

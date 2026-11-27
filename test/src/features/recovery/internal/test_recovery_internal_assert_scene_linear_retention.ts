@@ -1,5 +1,5 @@
 import type { IAutoMovieRecoveryCameraSceneBudget } from "@automovie/interface";
-import { assertRecoverySceneLinearRetention } from "@automovie/recovery";
+import { AutoMovieRecoveryCameraMap } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -51,19 +51,19 @@ export function test_recovery_internal_assert_scene_linear_retention(): void {
     "the slots",
     [
       refusal((): void =>
-        assertRecoverySceneLinearRetention(budget(716), 2, 1, 1),
+        AutoMovieRecoveryCameraMap.assertSceneLinearRetention(budget(716), 2, 1, 1),
       ),
       refusal((): void =>
-        assertRecoverySceneLinearRetention(budget(715), 2, 1, 1),
+        AutoMovieRecoveryCameraMap.assertSceneLinearRetention(budget(715), 2, 1, 1),
       ),
       refusal((): void =>
-        assertRecoverySceneLinearRetention(budget(726), 2, 1, 1, 10),
+        AutoMovieRecoveryCameraMap.assertSceneLinearRetention(budget(726), 2, 1, 1, 10),
       ),
       refusal((): void =>
-        assertRecoverySceneLinearRetention(budget(725), 2, 1, 1, 10),
+        AutoMovieRecoveryCameraMap.assertSceneLinearRetention(budget(725), 2, 1, 1, 10),
       ),
       refusal((): void =>
-        assertRecoverySceneLinearRetention(budget(1_000_000), 1, 1, 1),
+        AutoMovieRecoveryCameraMap.assertSceneLinearRetention(budget(1_000_000), 1, 1, 1),
       ),
     ],
     [

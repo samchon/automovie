@@ -32,7 +32,7 @@ const finding: (
   )!;
 
 /**
- * `evaluateAutoMovieRenderBudget` sets a measured inventory against a budget's
+ * `evaluateRenderBudget` sets a measured inventory against a budget's
  * limits, one finding for each metric.
  *
  * Scenarios, on the staged tower (five boxes, twelve instanced windows, one

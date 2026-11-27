@@ -1,11 +1,4 @@
-import {
-  AutoMovieArchetypeQuadrupedBody as Body,
-  AutoMovieArchetypeQuadrupedGait as Gait,
-  AutoMovieArchetypeQuadrupedLocomotion,
-  AutoMovieArchetypeQuadrupedMotion,
-  createDog,
-  createQuadruped,
-} from "@automovie/archetypes";
+import { AutoMovieArchetypeQuadrupedBody as Body, AutoMovieArchetypeQuadrupedGait as Gait, AutoMovieArchetypeQuadrupedLocomotion, AutoMovieArchetypeQuadrupedMotion, AutoMovieArchetypeDog, AutoMovieArchetypeQuadruped } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -28,7 +21,7 @@ const CLOCK_ROUNDOFF: number = 32 * Number.EPSILON;
 export function test_archetypes_animals_canine_attachment_clock(): void {
   const findings: string[] = [];
   for (const cohort of ["pet", "show", "sled"] as const) {
-    const dog: ReturnType<typeof createDog> = createDog(
+    const dog: ReturnType<typeof AutoMovieArchetypeDog.create> = AutoMovieArchetypeDog.create(
       {
         mass: 22,
         cohort,
@@ -37,7 +30,7 @@ export function test_archetypes_animals_canine_attachment_clock(): void {
       },
       43,
     );
-    const species: createQuadruped.ISpecies = createQuadruped.species(dog);
+    const species: AutoMovieArchetypeQuadruped.ISpecies = AutoMovieArchetypeQuadruped.species(dog);
     // Light (2010) walk and Choi (2021), Table 1, faster timings. The gallop
     // phases here describe the declared transverse construction, not dog ROM.
     for (const [gait, speed, period, fore, hind, left, right] of [

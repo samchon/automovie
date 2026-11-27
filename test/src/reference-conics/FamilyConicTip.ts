@@ -1,4 +1,4 @@
-import { AutoMovieLoftChain, AutoMovieViewLoft } from "@automovie/engine";
+import { AutoMovieEngineLoftChain, AutoMovieEngineViewLoft } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft,
   AutoMovieHumanConicSection,
@@ -95,7 +95,7 @@ namespace FamilyConicTip {
         { ...family, tips: undefined },
         coarse,
       );
-      const engine: string[] = AutoMovieViewLoft.create({
+      const engine: string[] = AutoMovieEngineViewLoft.create({
         ...part,
         stations: [...new Set([...fine, ...part.stations])].sort(
           (p: number, q: number): number => p - q,
@@ -155,7 +155,7 @@ namespace FamilyConicTip {
     for (const s of layers)
       for (let j: number = 0; j < phases; ++j)
         positions.push(
-          ...AutoMovieLoftChain.point(chain, s, (2 * Math.PI * j) / phases).map(
+          ...AutoMovieEngineLoftChain.point(chain, s, (2 * Math.PI * j) / phases).map(
             (x: number): number => x / 1000,
           ),
         );

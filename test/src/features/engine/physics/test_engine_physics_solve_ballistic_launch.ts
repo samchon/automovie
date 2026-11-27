@@ -1,4 +1,4 @@
-import { projectileAt, solveBallisticLaunch } from "@automovie/engine";
+import { AutoMovieEngineAir } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -18,7 +18,7 @@ const LANDING: number = 1e-3;
 const ROOT: number = 1e-4;
 
 /** A solved launch. */
-type Launch = NonNullable<ReturnType<typeof solveBallisticLaunch>>;
+type Launch = NonNullable<ReturnType<typeof AutoMovieEngineAir.solveBallisticLaunch>>;
 
 /** Whether the solved flight is on its target at its hit time. */
 function landsOn(
@@ -29,7 +29,7 @@ function landsOn(
   bound: number = LANDING,
 ): boolean {
   return vclose(
-    projectileAt({ origin, velocity: launch.velocity, gravity }, launch.hitTime)
+    AutoMovieEngineAir.projectileAt({ origin, velocity: launch.velocity, gravity }, launch.hitTime)
       .position,
     target,
     bound,
@@ -64,8 +64,8 @@ export function test_engine_physics_solve_ballistic_launch(): void {
   // 1. A general target.
   const raised: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
   const level: IAutoMovieVector3 = { x: 8, y: 1, z: 3 };
-  const direct: Launch = solveBallisticLaunch(raised, level, 14)!;
-  const high: Launch = solveBallisticLaunch(
+  const direct: Launch = AutoMovieEngineAir.solveBallisticLaunch(raised, level, 14)!;
+  const high: Launch = AutoMovieEngineAir.solveBallisticLaunch(
     raised,
     level,
     14,
@@ -84,8 +84,8 @@ export function test_engine_physics_solve_ballistic_launch(): void {
       ) &&
       landsOn(raised, high, level) &&
       high.hitTime > direct.hitTime &&
-      landsOn(raised, solveBallisticLaunch(raised, up, 14)!, up) &&
-      landsOn(raised, solveBallisticLaunch(raised, down, 14)!, down),
+      landsOn(raised, AutoMovieEngineAir.solveBallisticLaunch(raised, up, 14)!, up) &&
+      landsOn(raised, AutoMovieEngineAir.solveBallisticLaunch(raised, down, 14)!, down),
   );
 
   // 2. No gravity, and the unreachable.
@@ -94,7 +94,7 @@ export function test_engine_physics_solve_ballistic_launch(): void {
     "the sightline",
     landsOn(
       raised,
-      solveBallisticLaunch(raised, sightline, 10, NONE)!,
+      AutoMovieEngineAir.solveBallisticLaunch(raised, sightline, 10, NONE)!,
       sightline,
       NONE,
       PhysicalTolerance.CONVERGED,
@@ -103,9 +103,9 @@ export function test_engine_physics_solve_ballistic_launch(): void {
   TestValidator.equals(
     "unreachable",
     [
-      solveBallisticLaunch(raised, raised, 10, NONE),
-      solveBallisticLaunch(raised, sightline, 0, NONE),
-      solveBallisticLaunch(raised, { x: 100, y: 1, z: 0 }, 8),
+      AutoMovieEngineAir.solveBallisticLaunch(raised, raised, 10, NONE),
+      AutoMovieEngineAir.solveBallisticLaunch(raised, sightline, 0, NONE),
+      AutoMovieEngineAir.solveBallisticLaunch(raised, { x: 100, y: 1, z: 0 }, 8),
     ],
     [null, null, null],
   );
@@ -114,8 +114,8 @@ export function test_engine_physics_solve_ballistic_launch(): void {
   const origin: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   const overhead: IAutoMovieVector3 = { x: 0, y: 10, z: 0 };
   const above: number = Math.sqrt(400 - 2 * 9.81 * 10);
-  const rising: Launch = solveBallisticLaunch(origin, overhead, 20)!;
-  const falling: Launch = solveBallisticLaunch(
+  const rising: Launch = AutoMovieEngineAir.solveBallisticLaunch(origin, overhead, 20)!;
+  const falling: Launch = AutoMovieEngineAir.solveBallisticLaunch(
     origin,
     overhead,
     20,
@@ -142,8 +142,8 @@ export function test_engine_physics_solve_ballistic_launch(): void {
   TestValidator.equals(
     "beyond the apex",
     [
-      solveBallisticLaunch(origin, { x: 0, y: 6, z: 0 }, 10, GRAVITY, "direct"),
-      solveBallisticLaunch(origin, { x: 0, y: 6, z: 0 }, 10, GRAVITY, "high"),
+      AutoMovieEngineAir.solveBallisticLaunch(origin, { x: 0, y: 6, z: 0 }, 10, GRAVITY, "direct"),
+      AutoMovieEngineAir.solveBallisticLaunch(origin, { x: 0, y: 6, z: 0 }, 10, GRAVITY, "high"),
     ],
     [null, null],
   );
@@ -151,16 +151,16 @@ export function test_engine_physics_solve_ballistic_launch(): void {
   // 4. Straight below.
   const below: IAutoMovieVector3 = { x: 0, y: -20, z: 0 };
   const deep: number = Math.sqrt(400 + 2 * 9.81 * 20);
-  const drop: Launch = solveBallisticLaunch(
+  const drop: Launch = AutoMovieEngineAir.solveBallisticLaunch(
     origin,
     below,
     20,
     GRAVITY,
     "direct",
   )!;
-  const lob: Launch = solveBallisticLaunch(origin, below, 20, GRAVITY, "high")!;
+  const lob: Launch = AutoMovieEngineAir.solveBallisticLaunch(origin, below, 20, GRAVITY, "high")!;
   const pit: IAutoMovieVector3 = { x: 0, y: -4, z: 0 };
-  const short: Launch = solveBallisticLaunch(origin, pit, 6)!;
+  const short: Launch = AutoMovieEngineAir.solveBallisticLaunch(origin, pit, 6)!;
   TestValidator.predicate(
     "straight below",
     vclose(

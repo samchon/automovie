@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPosture,
@@ -9,7 +9,9 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { sitCarried } from "@automovie/motions/internal";
+import {
+  sitCarried
+} from "../../../../../packages/motions/src/everyday/internal/sitCarried";
 import { TestValidator } from "@nestia/e2e";
 
 import { qclose } from "../../internal/qclose";
@@ -58,7 +60,7 @@ function point(
     return {
       point: { x: x - 1, y: 1 + t / 2, z: 3 },
       normal: UP,
-      rotation: Quaternion.fromAxisAngle(
+      rotation: AutoMovieEngineQuaternion.fromAxisAngle(
         UP,
         45 * Math.max(0, Math.min(2, t - 1)),
       ),

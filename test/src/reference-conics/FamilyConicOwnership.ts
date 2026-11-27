@@ -1,9 +1,5 @@
 import { FamilyConicOwnershipPaths } from "./FamilyConicOwnershipPaths";
-import {
-  AutoMovieConstructionNativeProfile,
-  AutoMovieLoftViewSource,
-  AutoMovieLoftViewWorldJet,
-} from "@automovie/engine";
+import { AutoMovieEngineLoftViewSource, AutoMovieEngineConstruction } from "@automovie/engine";
 import { AutoMovieHumanF1 } from "@automovie/human";
 import type {
   IAutoMovieConstructionProfileSource,
@@ -101,12 +97,12 @@ namespace FamilyConicOwnership {
   /** Read one exact old material address through the existing original evaluators. */
   function original(part: IAutoMovieViewPart, address: Address): unknown {
     const prepared: IAutoMovieLoftViewSource.IResult | null =
-      AutoMovieLoftViewSource.create(part);
+      AutoMovieEngineLoftViewSource.create(part);
     const source: IAutoMovieLoftViewSource.ISource | null =
       prepared?.source ?? null;
     let profile: IAutoMovieConstructionProfileSource | undefined;
     const admission: unknown = read((): unknown => {
-      profile = AutoMovieConstructionNativeProfile(part, {
+      profile = AutoMovieEngineConstruction.constructionNativeProfile(part, {
         material: part.name,
         binding: part.name,
         revisions: {
@@ -159,7 +155,7 @@ namespace FamilyConicOwnership {
           world2: read((): unknown =>
             source === null
               ? { unavailable: "direct scalar source unavailable" }
-              : AutoMovieLoftViewWorldJet(source, part.axis, station, phase),
+              : AutoMovieEngineConstruction.loftViewWorldJet(source, part.axis, station, phase),
           ),
         })),
       })),

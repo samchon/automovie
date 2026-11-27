@@ -1,13 +1,9 @@
 import type { IAutoMovieMark } from "@automovie/interface";
-import {
-  AutoMovieThreeKind,
-  type IAutoMovieInspectionHandle,
-  applyAutoMovieInspection,
-} from "@automovie/render";
+import { AutoMovieRenderThreeKind, type IAutoMovieRenderInspectionHandle, AutoMovieRenderInspection } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
-import type { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
-import type { LineSegments2 } from "three/examples/jsm/lines/LineSegments2.js";
+import type { LineMaterial } from "#three-addon/lines/LineMaterial";
+import type { LineSegments2 } from "#three-addon/lines/LineSegments2";
 
 import { InspectionScene } from "../../internal/InspectionScene";
 import { compileMaterialShaderSource } from "../../internal/compileMaterialShaderSource";
@@ -65,7 +61,7 @@ export function test_render_scene_apply_inspection_mark_shapes(): void {
   const stage: THREE.Scene = InspectionScene.scene(
     InspectionScene.quad("panel"),
   );
-  const handle: IAutoMovieInspectionHandle = applyAutoMovieInspection({
+  const handle: IAutoMovieRenderInspectionHandle = AutoMovieRenderInspection.apply({
     scene: stage,
     request: InspectionScene.ask({
       marks: ["trace", "ring", "pieces", "push", "places"],
@@ -121,7 +117,7 @@ export function test_render_scene_apply_inspection_mark_shapes(): void {
     ],
   );
   const dot: THREE.Material = singleMaterial(places[0]!.material);
-  if (!AutoMovieThreeKind.isPointsMaterial(dot))
+  if (!AutoMovieRenderThreeKind.isPointsMaterial(dot))
     throw new Error("Expected a points material");
   TestValidator.equals(
     "a point is three strokes across and not attenuated",
@@ -144,7 +140,7 @@ export function test_render_scene_apply_inspection_mark_shapes(): void {
   for (const [title, shape] of malformed) {
     const before: number = stage.children.length;
     try {
-      applyAutoMovieInspection({
+      AutoMovieRenderInspection.apply({
         scene: stage,
         request: InspectionScene.ask({ marks: ["bad"] }),
         marks: [InspectionScene.mark(`odd/${title}`, "bad", 0x123456, shape)],
@@ -166,7 +162,7 @@ export function test_render_scene_apply_inspection_mark_shapes(): void {
   // 3. Depth lead.
   const compiled: (xray: boolean) => string[] = (xray: boolean): string[] => {
     const scene: THREE.Scene = InspectionScene.scene();
-    const applied: IAutoMovieInspectionHandle = applyAutoMovieInspection({
+    const applied: IAutoMovieRenderInspectionHandle = AutoMovieRenderInspection.apply({
       scene,
       request: InspectionScene.ask({ marks: ["**"], xray }),
       marks: [marks[0]!, marks[4]!],

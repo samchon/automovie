@@ -1,5 +1,10 @@
 import type { IAutoMovieMotionHumanTurnOver } from "@automovie/interface";
-import { HumanRefusal, sleep } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  sleep
+} from "../../../../../packages/motions/src/floor/internal/sleep";
 import { TestValidator } from "@nestia/e2e";
 
 /** Rounding of a few sums, seconds. */
@@ -59,7 +64,7 @@ export function test_motions_floor_sleep(): void {
     try {
       sleep(recorded(), { duration, changes, seed: 7 });
     } catch (error: unknown) {
-      if (error instanceof HumanRefusal) return error.axis;
+      if (error instanceof AutoMovieMotionHumanRefusal) return error.axis;
     }
     return "admitted";
   };

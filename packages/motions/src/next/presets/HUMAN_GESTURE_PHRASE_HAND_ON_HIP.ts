@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanGesture } from "@automovie/interface";
 
-/**
+/*
  * The values the `handOnHip` row of `HumanUpperRows` fixes on `armPhrase`,
  * spread into its parameters. Hand on the hip: the palm visits the near hip and
  * stays.

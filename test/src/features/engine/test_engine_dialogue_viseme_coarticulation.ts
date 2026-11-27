@@ -1,8 +1,4 @@
-import {
-  joinAutoMovieDialogueVisemes,
-  productionPhonemesToVisemes,
-  sampleAutoMovieDialogueVisemeWeights,
-} from "@automovie/engine";
+import { AutoMovieEngineSound } from "@automovie/engine";
 import type {
   IAutoMovieDialogueVisemeTimeline,
   IAutoMovieHumanVisemeWeights,
@@ -37,7 +33,7 @@ import { TestValidator } from "@nestia/e2e";
  *    the vowel.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the chunks, rates, frames and the bound each case checks.
- * @evidence contracts/development/testing.md#behavioral-verification Times phonemes with `productionPhonemesToVisemes`, binds them with `joinAutoMovieDialogueVisemes` and samples `sampleAutoMovieDialogueVisemeWeights`. A per-chunk instead of per-phoneme timing, a mouth that ignores the bilabial, or a sampler that snaps between ranges (a step of 1) fails.
+ * @evidence contracts/development/testing.md#behavioral-verification Times phonemes with `productionPhonemesToVisemes`, binds them with `joinDialogueVisemes` and samples `sampleDialogueVisemeWeights`. A per-chunk instead of per-phoneme timing, a mouth that ignores the bilabial, or a sampler that snaps between ranges (a step of 1) fails.
  * @evidence contracts/development/testing.md#independent-expectations Shares are 24 000 / 3; frames are samples × 24 / 48 000; the centred frames follow from them; the 0.5 step bound and the dominance ordering are the requirements of #4054, and a vowel showing on its own frames between bilabials is the supervisor's decision on their reach; none is computed by the sampler under test.
  * @evidence contracts/development/testing.md#distinguishing-cases Pairs a stressed and an unstressed chunk, a consonant and a vowel frame, a line that includes the silence on both sides, a bilabial against a labiodental, and a short vowel between bilabials; the IPA table belongs to `test_engine_dialogue_viseme_mpeg4_map` and speaker binding outcomes to `test_engine_dialogue_viseme_join`.
  * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through `test_engine_dialogue_viseme_coarticulation`; it starts no process.
@@ -50,11 +46,12 @@ export function test_engine_dialogue_viseme_coarticulation(): void {
     chunks: IAutoMovieProductionPhonemeChunk[],
     samples: number,
   ): IAutoMovieDialogueVisemeTimeline => {
-    const visemes: IAutoMovieProductionViseme[] = productionPhonemesToVisemes({
-      chunks,
-    });
-    const joined: ReturnType<typeof joinAutoMovieDialogueVisemes> =
-      joinAutoMovieDialogueVisemes({
+    const visemes: IAutoMovieProductionViseme[] =
+      AutoMovieEngineSound.phonemesToVisemes({
+        chunks,
+      });
+    const joined: ReturnType<typeof AutoMovieEngineSound.joinDialogueVisemes> =
+      AutoMovieEngineSound.joinDialogueVisemes({
         line: {
           id: "line",
           text: "line",
@@ -80,12 +77,14 @@ export function test_engine_dialogue_viseme_coarticulation(): void {
       ["", -1],
     )[0];
 
-  const plain: IAutoMovieProductionViseme[] = productionPhonemesToVisemes({
-    chunks: [{ phonemes: "ama", startSample: 0, endSample: 24_000 }],
-  });
-  const stressed: IAutoMovieProductionViseme[] = productionPhonemesToVisemes({
-    chunks: [{ phonemes: "ˈama", startSample: 0, endSample: 24_000 }],
-  });
+  const plain: IAutoMovieProductionViseme[] =
+    AutoMovieEngineSound.phonemesToVisemes({
+      chunks: [{ phonemes: "ama", startSample: 0, endSample: 24_000 }],
+    });
+  const stressed: IAutoMovieProductionViseme[] =
+    AutoMovieEngineSound.phonemesToVisemes({
+      chunks: [{ phonemes: "ˈama", startSample: 0, endSample: 24_000 }],
+    });
   const shares: (visemes: IAutoMovieProductionViseme[]) => number[][] = (
     visemes: IAutoMovieProductionViseme[],
   ): number[][] =>
@@ -117,7 +116,11 @@ export function test_engine_dialogue_viseme_coarticulation(): void {
   const sample: (frame: number) => IAutoMovieHumanVisemeWeights = (
     frame: number,
   ): IAutoMovieHumanVisemeWeights =>
-    sampleAutoMovieDialogueVisemeWeights({ timeline: ama, frame, fps: 24 });
+    AutoMovieEngineSound.sampleDialogueVisemeWeights({
+      timeline: ama,
+      frame,
+      fps: 24,
+    });
   const onM: IAutoMovieHumanVisemeWeights = sample(6);
   const onA: IAutoMovieHumanVisemeWeights = sample(2);
   const total: number = Object.values(onM).reduce(
@@ -148,7 +151,11 @@ export function test_engine_dialogue_viseme_coarticulation(): void {
   let previous: IAutoMovieHumanVisemeWeights | undefined;
   for (let frame: number = -6; frame <= symbols.length * 3 + 6; ++frame) {
     const current: IAutoMovieHumanVisemeWeights =
-      sampleAutoMovieDialogueVisemeWeights({ timeline: line, frame, fps: 24 });
+      AutoMovieEngineSound.sampleDialogueVisemeWeights({
+        timeline: line,
+        frame,
+        fps: 24,
+      });
     if (previous !== undefined)
       for (const key of new Set([
         ...Object.keys(current),
@@ -196,7 +203,7 @@ export function test_engine_dialogue_viseme_coarticulation(): void {
     [4, 5].every(
       (frame: number): boolean =>
         heaviest(
-          sampleAutoMovieDialogueVisemeWeights({
+          AutoMovieEngineSound.sampleDialogueVisemeWeights({
             timeline: mam,
             frame,
             fps: 24,
@@ -216,7 +223,11 @@ function largestStep(
   let previous: IAutoMovieHumanVisemeWeights | undefined;
   for (let frame: number = from; frame <= to; ++frame) {
     const current: IAutoMovieHumanVisemeWeights =
-      sampleAutoMovieDialogueVisemeWeights({ timeline, frame, fps: 24 });
+      AutoMovieEngineSound.sampleDialogueVisemeWeights({
+        timeline,
+        frame,
+        fps: 24,
+      });
     if (previous !== undefined)
       for (const key of new Set([
         ...Object.keys(current),

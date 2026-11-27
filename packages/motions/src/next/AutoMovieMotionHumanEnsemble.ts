@@ -1,16 +1,16 @@
-import { HUMAN_ATTRIBUTE_EFFECTS as HUMAN_ATTRIBUTE_EFFECTSSource } from "../ensemble/HUMAN_ATTRIBUTE_EFFECTS";
-import { HUMAN_ENSEMBLE_PRESETS as HUMAN_ENSEMBLE_PRESETSSource } from "../ensemble/HUMAN_ENSEMBLE_PRESETS";
-import { HUMAN_MANOEUVRES as HUMAN_MANOEUVRESSource } from "../ensemble/HUMAN_MANOEUVRES";
-import { HumanAttribute as HumanAttributeSource } from "../ensemble/HumanAttribute";
-import { HumanCrowd as HumanCrowdSource } from "../ensemble/HumanCrowd";
-import { HumanEnsemble as HumanEnsembleSource } from "../ensemble/HumanEnsemble";
-import { HumanFormation as HumanFormationSource } from "../ensemble/HumanFormation";
-import { HumanManoeuvre as HumanManoeuvreSource } from "../ensemble/HumanManoeuvre";
-import { HumanPopulation as HumanPopulationSource } from "../ensemble/HumanPopulation";
-import { humanCrowdGroupFormation as humanCrowdGroupFormationLaw } from "../ensemble/humanCrowdGroupFormation";
-import { humanQueueAdvance as humanQueueAdvanceLaw } from "../ensemble/humanQueueAdvance";
-import { instance as instanceLaw } from "../ensemble/instance";
-import { manoeuvreWheel as manoeuvreWheelLaw } from "../ensemble/manoeuvreWheel";
+import { HUMAN_ATTRIBUTE_EFFECTS as HUMAN_ATTRIBUTE_EFFECTSSource } from "../ensemble/internal/HUMAN_ATTRIBUTE_EFFECTS";
+import { HUMAN_ENSEMBLE_PRESETS as HUMAN_ENSEMBLE_PRESETSSource } from "../ensemble/internal/HUMAN_ENSEMBLE_PRESETS";
+import { HUMAN_MANOEUVRES as HUMAN_MANOEUVRESSource } from "../ensemble/internal/HUMAN_MANOEUVRES";
+import { HumanAttribute as HumanAttributeSource } from "../ensemble/internal/HumanAttribute";
+import { HumanCrowd as HumanCrowdSource } from "../ensemble/internal/HumanCrowd";
+import { HumanEnsemble as HumanEnsembleSource } from "../ensemble/internal/HumanEnsemble";
+import { HumanFormation as HumanFormationSource } from "../ensemble/internal/HumanFormation";
+import { HumanManoeuvre as HumanManoeuvreSource } from "../ensemble/internal/HumanManoeuvre";
+import { HumanPopulation as HumanPopulationSource } from "../ensemble/internal/HumanPopulation";
+import { humanCrowdGroupFormation as humanCrowdGroupFormationLaw } from "../ensemble/internal/humanCrowdGroupFormation";
+import { humanQueueAdvance as humanQueueAdvanceLaw } from "../ensemble/internal/humanQueueAdvance";
+import { instance as instanceLaw } from "../ensemble/internal/instance";
+import { manoeuvreWheel as manoeuvreWheelLaw } from "../ensemble/internal/manoeuvreWheel";
 
 /**
  * Groups of people: a formation, a crowd and a manoeuvre.
@@ -56,7 +56,7 @@ import { manoeuvreWheel as manoeuvreWheelLaw } from "../ensemble/manoeuvreWheel"
  * - `HumanCrowd`: A crowd that keeps no formation, steered: each member (or each
  *   walking group, as one agent) heads for its goals at its own drawn speed and
  *   avoids the others and the obstacles, by one plan-time pass of the engine's
- *   `steerAutoMovieCrowd`.
+ *   `steerCrowd`.
  *
  * A member here is the shipped law, preset or row itself, bound to its owner by
  * `typeof` and never wrapped, so its parameters, units, frames and refusals are
@@ -121,7 +121,7 @@ export namespace AutoMovieMotionHumanEnsemble {
    *   (`HumanCrowd.steer`) and on the speed of a walk-family gait that draws
    *   its own tempo (`walk.locomote`; a cadenced march keeps its count), from
    *   fresh to the `weary` manner preset's pace
-   *   (`AutoMovieMotionManner.PRESETS.weary`, itself provisional), so one table
+   *   (`motionManner.PRESETS.weary`, itself provisional), so one table
    *   owns weariness.
    * - `morale.latency`: the factor on a response latency's mean (hesitation,
    *   `HumanResponse.latency`); provisional.
@@ -221,7 +221,7 @@ export namespace AutoMovieMotionHumanEnsemble {
    * @param density Authored pedestrian density in people per square metre,
    *   finite and nonnegative.
    * @returns Formation blocks in member order for station keeping.
-   * @throws {HumanRefusal} When the member count, half breadths or density are
+   * @throws {AutoMovieMotionHumanRefusal} When the member count, half breadths or density are
    *   invalid.
    */
   export const humanCrowdGroupFormation: typeof humanCrowdGroupFormationLaw =
@@ -320,7 +320,7 @@ export namespace AutoMovieMotionHumanEnsemble {
    * @param ensemble Fully performed queue members in head-to-tail order.
    * @param request The release cue, head's exit and optional follower wait.
    * @returns A parallel composition whose walk dependencies run head first.
-   * @throws {HumanRefusal} If the exit or wait is invalid, a rank lacks a fully
+   * @throws {AutoMovieMotionHumanRefusal} If the exit or wait is invalid, a rank lacks a fully
    *   performed body, or the marks fail line, order or shoulder-disc clearance
    *   checks.
    */
@@ -356,7 +356,7 @@ export namespace AutoMovieMotionHumanEnsemble {
    * @param ends Each one's slot in `to`.
    * @param speeds Each one's travel speed, m/s.
    * @returns Each member's way and station; no stations when nothing turns.
-   * @throws {HumanRefusal} When `to` is not `from` turned about the pivot,
+   * @throws {AutoMovieMotionHumanRefusal} When `to` is not `from` turned about the pivot,
    *   naming the member whose slot lies elsewhere and how far.
    */
   export const manoeuvreWheel: typeof manoeuvreWheelLaw = manoeuvreWheelLaw;
@@ -365,7 +365,7 @@ export namespace AutoMovieMotionHumanEnsemble {
    * A crowd that keeps no formation, steered: each member (or each walking
    * group, as one agent) heads for its goals at its own drawn speed and avoids
    * the others and the obstacles, by one plan-time pass of the engine's
-   * `steerAutoMovieCrowd`. The pass gives each member a course; the member's
+   * `steerCrowd`. The pass gives each member a course; the member's
    * own walk or run then keeps station on it (`walkStation`), so its feet are
    * still whole steps.
    *

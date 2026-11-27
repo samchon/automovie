@@ -1,4 +1,4 @@
-import { ingestDocument } from "@automovie/ingest";
+import { AutoMovieIngestDocument } from "@automovie/ingest";
 import {
   type IAutoMovieIngestResult,
   IAutoMovieNode,
@@ -169,7 +169,7 @@ export function test_ingest_document(): void {
     .addChannel(cS);
   doc.createAnimation(); // unnamed, empty
 
-  const { nodes, clips }: IAutoMovieIngestResult = ingestDocument(doc);
+  const { nodes, clips }: IAutoMovieIngestResult = AutoMovieIngestDocument.ingestDocument(doc);
 
   // 1. node count + parent references
   TestValidator.predicate("node count", test12ValuesClose(nodes.length, 6));
@@ -294,7 +294,7 @@ export function test_ingest_document(): void {
     .setTargetPath("weights")
     .setSampler(weightsDoc.sampler);
   const weightsClip: import("@automovie/interface").IAutoMovieClip =
-    ingestDocument(weightsDoc.doc).clips[0]!;
+    AutoMovieIngestDocument.ingestDocument(weightsDoc.doc).clips[0]!;
   TestValidator.predicate(
     "weights track count",
     test12ValuesClose(weightsClip.tracks.length, 1),
@@ -325,7 +325,7 @@ export function test_ingest_document(): void {
   TestValidator.predicate(
     "animation channel without target rejects",
     throwsError(
-      (): IAutoMovieIngestResult => ingestDocument(missingTarget.doc),
+      (): IAutoMovieIngestResult => AutoMovieIngestDocument.ingestDocument(missingTarget.doc),
       "animation channel must target a node",
     ),
   );
@@ -335,7 +335,7 @@ export function test_ingest_document(): void {
   TestValidator.predicate(
     "animation channel without sampler rejects",
     throwsError(
-      (): IAutoMovieIngestResult => ingestDocument(missingSampler.doc),
+      (): IAutoMovieIngestResult => AutoMovieIngestDocument.ingestDocument(missingSampler.doc),
       'animation channel for node "node_0" must have a sampler',
     ),
   );
@@ -348,7 +348,7 @@ export function test_ingest_document(): void {
   TestValidator.predicate(
     "animation sampler without input rejects",
     throwsError(
-      (): IAutoMovieIngestResult => ingestDocument(missingInput.doc),
+      (): IAutoMovieIngestResult => AutoMovieIngestDocument.ingestDocument(missingInput.doc),
       'animation channel for node "node_0" must have input times',
     ),
   );
@@ -361,7 +361,7 @@ export function test_ingest_document(): void {
   TestValidator.predicate(
     "animation sampler without output rejects",
     throwsError(
-      (): IAutoMovieIngestResult => ingestDocument(missingOutput.doc),
+      (): IAutoMovieIngestResult => AutoMovieIngestDocument.ingestDocument(missingOutput.doc),
       'animation channel for node "node_0" must have output values',
     ),
   );
@@ -376,7 +376,7 @@ export function test_ingest_document(): void {
   TestValidator.predicate(
     "animation input accessor without data rejects",
     throwsError(
-      (): IAutoMovieIngestResult => ingestDocument(emptyInput.doc),
+      (): IAutoMovieIngestResult => AutoMovieIngestDocument.ingestDocument(emptyInput.doc),
       'animation channel for node "node_0" input times must have data',
     ),
   );
@@ -391,7 +391,7 @@ export function test_ingest_document(): void {
   TestValidator.predicate(
     "animation output accessor without data rejects",
     throwsError(
-      (): IAutoMovieIngestResult => ingestDocument(emptyOutput.doc),
+      (): IAutoMovieIngestResult => AutoMovieIngestDocument.ingestDocument(emptyOutput.doc),
       'animation channel for node "node_0" output values must have data',
     ),
   );
@@ -411,7 +411,7 @@ export function test_ingest_document(): void {
   TestValidator.predicate(
     "animation input accessor with empty data rejects",
     throwsError(
-      (): IAutoMovieIngestResult => ingestDocument(emptyInputArray.doc),
+      (): IAutoMovieIngestResult => AutoMovieIngestDocument.ingestDocument(emptyInputArray.doc),
       'animation channel for node "node_0" input times must not be empty',
     ),
   );
@@ -432,7 +432,7 @@ export function test_ingest_document(): void {
   TestValidator.predicate(
     "animation output accessor with empty data rejects",
     throwsError(
-      (): IAutoMovieIngestResult => ingestDocument(emptyOutputArray.doc),
+      (): IAutoMovieIngestResult => AutoMovieIngestDocument.ingestDocument(emptyOutputArray.doc),
       'animation channel for node "node_0" output values must not be empty',
     ),
   );
@@ -453,7 +453,7 @@ export function test_ingest_document(): void {
   TestValidator.predicate(
     "translation output arity rejects",
     throwsError(
-      (): IAutoMovieIngestResult => ingestDocument(shortTranslationOutput.doc),
+      (): IAutoMovieIngestResult => AutoMovieIngestDocument.ingestDocument(shortTranslationOutput.doc),
       ["translation output values length", "6", "5"],
     ),
   );
@@ -476,7 +476,7 @@ export function test_ingest_document(): void {
   TestValidator.predicate(
     "cubic output arity rejects",
     throwsError(
-      (): IAutoMovieIngestResult => ingestDocument(shortCubicOutput.doc),
+      (): IAutoMovieIngestResult => AutoMovieIngestDocument.ingestDocument(shortCubicOutput.doc),
       ["scale output values length", "18", "6"],
     ),
   );
@@ -496,7 +496,7 @@ export function test_ingest_document(): void {
   TestValidator.predicate(
     "weights output arity rejects",
     throwsError(
-      (): IAutoMovieIngestResult => ingestDocument(unevenWeightsOutput.doc),
+      (): IAutoMovieIngestResult => AutoMovieIngestDocument.ingestDocument(unevenWeightsOutput.doc),
       ["weights output values length", "multiple of 2", "3"],
     ),
   );
@@ -515,7 +515,7 @@ export function test_ingest_document(): void {
   TestValidator.predicate(
     "keyframe times that do not increase reject",
     throwsError(
-      (): IAutoMovieIngestResult => ingestDocument(backwardTimes.doc),
+      (): IAutoMovieIngestResult => AutoMovieIngestDocument.ingestDocument(backwardTimes.doc),
       "input times must be finite, non-negative and strictly increasing, but key 1 is 0",
     ),
   );
@@ -532,7 +532,7 @@ export function test_ingest_document(): void {
   TestValidator.predicate(
     "normalized rotation output decodes to unit quaternions",
     test12ValuesClose(
-      ingestDocument(quantized.doc).clips[0]!.tracks[0]!.values,
+      AutoMovieIngestDocument.ingestDocument(quantized.doc).clips[0]!.tracks[0]!.values,
       [0, 0, 0, 1, 0, 1, 0, 0],
     ),
   );

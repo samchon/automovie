@@ -1,7 +1,7 @@
 import { nclose } from "../../internal/nclose";
 import {
-  AutoMovieLoftViewFullSource as Full,
-  AutoMovieViewAxis,
+  AutoMovieEngineLoftViewFullSource as Full,
+  AutoMovieEngineViewAxis,
 } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft as H,
@@ -50,7 +50,7 @@ export function test_human_native_projection_identity(): void {
   const rail: number = 10;
   const length: number = 17;
   const pole: number = rail + length;
-  const originalAxis: IAutoMovieViewAxis.IAxis = AutoMovieViewAxis.straight(
+  const originalAxis: IAutoMovieViewAxis.IAxis = AutoMovieEngineViewAxis.straight(
     [1000, 1000, 0], [0.8, -0.6, 0], [0, 0, 1],
   );
   const original: IAutoMovieViewPart = circle(originalAxis);
@@ -72,7 +72,7 @@ export function test_human_native_projection_identity(): void {
   } catch (error: unknown) {
     failures.push("original owner preparation: " + (error instanceof Error ? error.message : String(error)));
   }
-  const translated: IAutoMovieViewAxis.IAxis = AutoMovieViewAxis.straight(
+  const translated: IAutoMovieViewAxis.IAxis = AutoMovieEngineViewAxis.straight(
     [2000, 2000, 0], [0.8, -0.6, 0], [0, 0, 1],
   );
   const cases: readonly (readonly [string, IAutoMovieViewAxis.IAxis])[] = [

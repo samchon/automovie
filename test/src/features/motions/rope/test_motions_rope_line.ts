@@ -4,7 +4,9 @@ import type {
   IAutoMovieMotionTarget,
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
-import { ropeLine } from "@automovie/motions/internal";
+import {
+  ropeLine
+} from "../../../../../packages/motions/src/rope/internal/ropeLine";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

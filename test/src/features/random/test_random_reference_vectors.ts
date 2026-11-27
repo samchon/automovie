@@ -1,9 +1,5 @@
-import {
-  createAutoMovieRandom,
-  deriveAutoMovieSeed,
-  hashAutoMovieFnv1a64,
-  philoxAutoMovie4x32,
-} from "@automovie/engine";
+import { AutoMovieEngineRandom } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -20,7 +16,7 @@ import { TestValidator } from "@nestia/e2e";
  * 4. Derived seeds are stable for stable ids, separate ids by a terminator, and
  *    change with any id; streams keyed by different ids differ.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Runs `createAutoMovieRandom`, `deriveAutoMovieSeed`, `hashAutoMovieFnv1a64`, `philoxAutoMovie4x32` on in-memory inputs and asserts the returned observations through 6x TestValidator.equals, 3x TestValidator.predicate; 4 numbered scenarios (first: Philox4x32-10 reproduces the Random123 known-answer vectors for zero, all-ones and pi-digit counters and keys.; last: Derived seeds are stable for stable ids, separate ids by a terminator, and change with any id; streams keyed by different ids differ.). A wrong result for any of those inputs fails an assertion, while results the scenarios allow do not.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs `AutoMovieEngineRandom.createRandom`, `AutoMovieEngineRandom.deriveSeed`, `AutoMovieEngineRandom.hashFnv1a64`, `AutoMovieEngineRandom.philox4x32` on in-memory inputs and asserts the returned observations through 6x TestValidator.equals, 3x TestValidator.predicate; 4 numbered scenarios (first: Philox4x32-10 reproduces the Random123 known-answer vectors for zero, all-ones and pi-digit counters and keys.; last: Derived seeds are stable for stable ids, separate ids by a terminator, and change with any id; streams keyed by different ids differ.). A wrong result for any of those inputs fails an assertion, while results the scenarios allow do not.
  * @evidence contracts/development/testing.md#independent-expectations Expected values come from the literals and relations written in the test itself (6 assertion sites compare against numeric literals) and from the scenario sentences above, not from a snapshot of the implementation's output; where an expectation is computed by another production function the oracle is not independent, and this answer does not establish a reference beyond the scenario text.
  * @evidence contracts/development/testing.md#distinguishing-cases Contributes 4 numbered scenarios (first: Philox4x32-10 reproduces the Random123 known-answer vectors for zero, all-ones and pi-digit counters and keys.; last: Derived seeds are stable for stable ids, separate ids by a terminator, and change with any id; streams keyed by different ids differ.), including the boundary cases those sentences name; cases the sentences do not name are not claimed here and are owned by other tests or are uncovered.
  * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through the discoverable function `test_random_reference_vectors`, which owns every case it runs; it registers no dynamic cases and starts no process, browser, viewer, render or GPU host.
@@ -31,13 +27,13 @@ export function test_random_reference_vectors(): void {
     words.map((w: number): string => w.toString(16).padStart(8, "0"));
   TestValidator.equals(
     "Philox4x32-10 zero vector",
-    hex(philoxAutoMovie4x32([0, 0, 0, 0], [0, 0])),
+    hex(AutoMovieEngineRandom.philox4x32([0, 0, 0, 0], [0, 0])),
     ["6627e8d5", "e169c58d", "bc57ac4c", "9b00dbd8"],
   );
   TestValidator.equals(
     "Philox4x32-10 all-ones vector",
     hex(
-      philoxAutoMovie4x32(
+      AutoMovieEngineRandom.philox4x32(
         [0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff],
         [0xffffffff, 0xffffffff],
       ),
@@ -47,7 +43,7 @@ export function test_random_reference_vectors(): void {
   TestValidator.equals(
     "Philox4x32-10 pi vector",
     hex(
-      philoxAutoMovie4x32(
+      AutoMovieEngineRandom.philox4x32(
         [0x243f6a88, 0x85a308d3, 0x13198a2e, 0x03707344],
         [0xa4093822, 0x299f31d0],
       ),
@@ -58,13 +54,13 @@ export function test_random_reference_vectors(): void {
   TestValidator.equals(
     "FNV-1a 64 reference hashes",
     ["", "a", "foobar"].map((t: string): string =>
-      hashAutoMovieFnv1a64(bytes(t)),
+      AutoMovieEngineRandom.hashFnv1a64(bytes(t)),
     ),
     ["cbf29ce484222325", "af63dc4c8601ec8c", "85944171f73967e8"],
   );
 
   // Purity and seeking.
-  const random = createAutoMovieRandom(deriveAutoMovieSeed("film", "noise"));
+  const random = AutoMovieEngineRandom.createRandom(AutoMovieEngineRandom.deriveSeed("film", "noise"));
   const forward: number[] = [0, 1, 2, 3, 4, 2 ** 32, 2 ** 40].map(random.float);
   const backward: number[] = [2 ** 40, 2 ** 32, 4, 3, 2, 1, 0]
     .map(random.float)
@@ -79,16 +75,16 @@ export function test_random_reference_vectors(): void {
   // Seeds and stream independence.
   TestValidator.equals(
     "stable derived seed",
-    deriveAutoMovieSeed("film", "a", "b"),
-    deriveAutoMovieSeed("film", "a", "b"),
+    AutoMovieEngineRandom.deriveSeed("film", "a", "b"),
+    AutoMovieEngineRandom.deriveSeed("film", "a", "b"),
   );
   TestValidator.predicate(
     "id boundaries and every id matter",
     new Set([
-      deriveAutoMovieSeed("film", "ab", "c"),
-      deriveAutoMovieSeed("film", "a", "bc"),
-      deriveAutoMovieSeed("film", "a", "b"),
-      deriveAutoMovieSeed("other", "a", "b"),
+      AutoMovieEngineRandom.deriveSeed("film", "ab", "c"),
+      AutoMovieEngineRandom.deriveSeed("film", "a", "bc"),
+      AutoMovieEngineRandom.deriveSeed("film", "a", "b"),
+      AutoMovieEngineRandom.deriveSeed("other", "a", "b"),
     ]).size === 4,
   );
   const left = random.stream("left");

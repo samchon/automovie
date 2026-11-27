@@ -1,8 +1,4 @@
-import {
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
-  resolvePose,
-} from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineHumanoidJointAxes, AutoMovieEngineHumanoidRestFrame } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotion,
@@ -22,11 +18,11 @@ export const keyframeWorld: (
   index: number,
   slot: AutoMovieHumanoidBone,
 ): IAutoMovieVector3 =>
-  resolvePose(
+  AutoMovieEngineKinematics.resolvePose(
     motion.keyframes[index]!.pose,
     skeleton,
-    HUMANOID_JOINT_AXES,
-    HUMANOID_REST_FRAME,
+    AutoMovieEngineHumanoidJointAxes,
+    AutoMovieEngineHumanoidRestFrame,
   ).find(
-    (b: ReturnType<typeof resolvePose>[number]): boolean => b.bone === slot,
+    (b: ReturnType<typeof AutoMovieEngineKinematics.resolvePose>[number]): boolean => b.bone === slot,
   )!.worldPosition;

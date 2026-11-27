@@ -1,9 +1,4 @@
-import {
-  Matrix4,
-  childrenIndex,
-  composeScene,
-  resolveWorldDrivers,
-} from "@automovie/engine";
+import { AutoMovieEngineMatrix4, AutoMovieEngineResolve } from "@automovie/engine";
 import type {
   IAutoMovieDriver,
   IAutoMovieNode,
@@ -37,14 +32,14 @@ const prepare: () => {
 } => {
   const nodes: IAutoMovieNode[] = resolveScene();
   return {
-    world: composeScene(nodes, new Map()),
+    world: AutoMovieEngineResolve.composeScene(nodes, new Map()),
     local: new Map(
       nodes.map((node: IAutoMovieNode): [string, IAutoMovieTransform] => [
         node.id,
         node.transform,
       ]),
     ),
-    children: childrenIndex(nodes),
+    children: AutoMovieEngineResolve.childrenIndex(nodes),
   };
 };
 
@@ -52,7 +47,7 @@ const prepare: () => {
 const at: (world: Map<string, number[]>, id: string) => IAutoMovieVector3 = (
   world: Map<string, number[]>,
   id: string,
-): IAutoMovieVector3 => Matrix4.position(world.get(id)!);
+): IAutoMovieVector3 => AutoMovieEngineMatrix4.position(world.get(id)!);
 
 /** Root aims its +X axis at the goal, keeping +Z as its up. */
 const AIM: IAutoMovieDriver = {
@@ -85,7 +80,7 @@ const AIM: IAutoMovieDriver = {
  */
 export function test_engine_resolve_resolve_world_drivers(): void {
   const aimed = prepare();
-  resolveWorldDrivers([AIM], aimed.world, aimed.local, aimed.children);
+  AutoMovieEngineResolve.resolveWorldDrivers([AIM], aimed.world, aimed.local, aimed.children);
   TestValidator.predicate(
     "an aim at the goal",
     vclose(at(aimed.world, "mid"), { x: 0, y: 1, z: 0 }, ROUNDING) &&
@@ -93,7 +88,7 @@ export function test_engine_resolve_resolve_world_drivers(): void {
       vclose(at(aimed.world, "ball"), { x: 0, y: 0, z: 3 }, ROUNDING),
   );
   const parented = prepare();
-  resolveWorldDrivers(
+  AutoMovieEngineResolve.resolveWorldDrivers(
     [
       {
         type: "parent",
@@ -113,7 +108,7 @@ export function test_engine_resolve_resolve_world_drivers(): void {
     vclose(at(parented.world, "ball"), { x: 0, y: 2, z: 0 }, ROUNDING),
   );
   const bent = prepare();
-  resolveWorldDrivers(
+  AutoMovieEngineResolve.resolveWorldDrivers(
     [
       {
         type: "ik",
@@ -151,7 +146,7 @@ export function test_engine_resolve_resolve_world_drivers(): void {
   const scene = prepare();
   TestValidator.predicate(
     "the spring is returned",
-    resolveWorldDrivers(
+    AutoMovieEngineResolve.resolveWorldDrivers(
       [spring],
       scene.world,
       scene.local,
@@ -162,7 +157,7 @@ export function test_engine_resolve_resolve_world_drivers(): void {
     "refusals",
     throwsError(
       (): unknown =>
-        resolveWorldDrivers(
+        AutoMovieEngineResolve.resolveWorldDrivers(
           [{ ...AIM, influence: 2 } as IAutoMovieDriver],
           scene.world,
           scene.local,
@@ -172,7 +167,7 @@ export function test_engine_resolve_resolve_world_drivers(): void {
     ) &&
       throwsError(
         (): unknown =>
-          resolveWorldDrivers(
+          AutoMovieEngineResolve.resolveWorldDrivers(
             [
               {
                 type: "ik",

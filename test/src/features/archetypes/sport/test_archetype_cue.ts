@@ -1,4 +1,4 @@
-import { AutoMovieArchetypeUnits, createCue } from "@automovie/archetypes";
+import { AutoMovieArchetypeUnits, AutoMovieArchetypeCue } from "@automovie/archetypes";
 import type { IAutoMovieAffordance } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -29,7 +29,8 @@ export function test_archetype_cue(): void {
     if (!(Math.abs(got - wanted) <= MM))
       findings.push(`${what}: ${got}, ${wanted} expected`);
   };
-  const cue: ReturnType<typeof createCue> = createCue({}, 4);
+  const cue: ReturnType<typeof AutoMovieArchetypeCue.create> =
+    AutoMovieArchetypeCue.create({}, 4);
   near(
     "the cue's length",
     archetypeExtent(cue, "x").size,
@@ -50,7 +51,8 @@ export function test_archetype_cue(): void {
       {
         name: "cue butt and tip",
         measure: (seed: number): readonly number[] => {
-          const drawn: ReturnType<typeof createCue> = createCue({}, seed);
+          const drawn: ReturnType<typeof AutoMovieArchetypeCue.create> =
+            AutoMovieArchetypeCue.create({}, seed);
           const butt: number = archetypeExtent(drawn, "y", ["butt"]).size;
           const front: number = archetypeExtent(drawn, "y", [
             "shaft-front",
@@ -69,7 +71,7 @@ export function test_archetype_cue(): void {
     ...archetypeBandSweep([
       {
         name: "cue mass",
-        measure: (seed: number): number => createCue({}, seed).body.mass,
+        measure: (seed: number): number => AutoMovieArchetypeCue.create({}, seed).body.mass,
         minimum: 18 * AutoMovieArchetypeUnits.OUNCE,
         maximum: 21 * AutoMovieArchetypeUnits.OUNCE,
         source: "Viking and McDermott",

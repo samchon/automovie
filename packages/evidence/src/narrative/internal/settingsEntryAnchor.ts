@@ -1,4 +1,4 @@
-/**
+/*
  * Encodes a relative canon path as a stable outline H3 anchor without losing
  * folder identity.
  */

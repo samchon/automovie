@@ -16,7 +16,7 @@ const TARGET: number = 1e-3;
 const ROUNDING: number = 1e-9;
 
 /**
- * `AutoMoviePhysicalBalance.assess` triggers, places and times a biped's
+ * `AutoMovieEnginePhysicalBalance.assess` triggers, places and times a biped's
  * recovery step by the capture-point rules, checked against their closed
  * forms:
  *

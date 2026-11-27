@@ -1,8 +1,4 @@
-import {
-  propSupportFace,
-  propSupportGap,
-  surfaceHeightAt,
-} from "@automovie/engine";
+import { AutoMovieEngineFilm, AutoMovieEngineSpace } from "@automovie/engine";
 import type {
   IAutoMovieBuiltSurface,
   IAutoMoviePropBox,
@@ -42,7 +38,7 @@ export function assertFilmPropSupportFaces(
         [
           "aPatchIsItsOwnPolygonAndHeight",
           (): boolean => {
-            const face: IAutoMoviePropSupportFace | null = propSupportFace({
+            const face: IAutoMoviePropSupportFace | null = AutoMovieEngineFilm.propSupportFace({
               target: {
                 kind: "surface",
                 environment: "house",
@@ -54,14 +50,14 @@ export function assertFilmPropSupportFaces(
               face !== null &&
               face.polygon.outer.points.length === 4 &&
               face.polygon.holes.length === 0 &&
-              nclose(surfaceHeightAt(face.height, 3, -2), 0, 0)
+              nclose(AutoMovieEngineSpace.surfaceHeightAt(face.height, 3, -2), 0, 0)
             );
           },
         ],
         [
           "aRuledPatchAnswersFromItsRule",
           (): boolean => {
-            const face: IAutoMoviePropSupportFace | null = propSupportFace({
+            const face: IAutoMoviePropSupportFace | null = AutoMovieEngineFilm.propSupportFace({
               target: {
                 kind: "surface",
                 environment: "house",
@@ -71,7 +67,7 @@ export function assertFilmPropSupportFaces(
             });
             return (
               face !== null &&
-              nclose(surfaceHeightAt(face.height, 7, 1), 0.5, 0)
+              nclose(AutoMovieEngineSpace.surfaceHeightAt(face.height, 7, 1), 0.5, 0)
             );
           },
         ],
@@ -81,9 +77,9 @@ export function assertFilmPropSupportFaces(
             const face: IAutoMoviePropSupportFace | null = tableTop();
             return (
               face !== null &&
-              nclose(surfaceHeightAt(face.height, 0, 0), 0.6, 0) &&
+              nclose(AutoMovieEngineSpace.surfaceHeightAt(face.height, 0, 0), 0.6, 0) &&
               exactGap(
-                propSupportGap({
+                AutoMovieEngineFilm.propSupportGap({
                   face,
                   bounds: box(-0.1, 0.6, -0.1, 0.1, 1, 0.1),
                 }),
@@ -101,15 +97,15 @@ export function assertFilmPropSupportFaces(
             });
             return (
               face !== null &&
-              nclose(surfaceHeightAt(face.height, 0, 0), 0.9) &&
+              nclose(AutoMovieEngineSpace.surfaceHeightAt(face.height, 0, 0), 0.9) &&
               bearing(
-                propSupportGap({
+                AutoMovieEngineFilm.propSupportGap({
                   face,
                   bounds: box(0.8, 0.9, -0.1, 0.95, 1.2, 0.1),
                 }),
                 0,
               ) &&
-              propSupportGap({
+              AutoMovieEngineFilm.propSupportGap({
                 face,
                 bounds: box(1.4, 0.9, -0.1, 1.6, 1.2, 0.1),
               }) === null
@@ -126,15 +122,15 @@ export function assertFilmPropSupportFaces(
             const drop: number = 0.3 * Math.SQRT1_2;
             return (
               face !== null &&
-              nclose(surfaceHeightAt(face.height, 0, drop), 0.3 + drop) &&
+              nclose(AutoMovieEngineSpace.surfaceHeightAt(face.height, 0, drop), 0.3 + drop) &&
               nclose(
-                surfaceHeightAt(face.height, 0, 0) -
-                  surfaceHeightAt(face.height, 0, 1),
+                AutoMovieEngineSpace.surfaceHeightAt(face.height, 0, 0) -
+                  AutoMovieEngineSpace.surfaceHeightAt(face.height, 0, 1),
                 1,
               ) &&
               nclose(
-                surfaceHeightAt(face.height, 1, 0),
-                surfaceHeightAt(face.height, -1, 0),
+                AutoMovieEngineSpace.surfaceHeightAt(face.height, 1, 0),
+                AutoMovieEngineSpace.surfaceHeightAt(face.height, -1, 0),
               )
             );
           },
@@ -147,7 +143,7 @@ export function assertFilmPropSupportFaces(
         [
           "aStackTopWithoutAnExtentStatesNoFace",
           (): boolean =>
-            propSupportFace({
+            AutoMovieEngineFilm.propSupportFace({
               target: {
                 kind: "prop-affordance",
                 prop: "shelf",
@@ -178,7 +174,7 @@ export function assertFilmPropSupportFaces(
         [
           "anEmptyPatchPolygonStatesNoFace",
           (): boolean =>
-            propSupportFace({
+            AutoMovieEngineFilm.propSupportFace({
               target: {
                 kind: "surface",
                 environment: "house",
@@ -244,7 +240,7 @@ export function assertFilmPropSupportFaces(
                       readonly affordance: "plug";
                     },
               ): boolean =>
-                propSupportFace({
+                AutoMovieEngineFilm.propSupportFace({
                   target,
                   environments: [environment],
                   props: propRegistry(),
@@ -255,7 +251,7 @@ export function assertFilmPropSupportFaces(
         [
           "anUnstagedOrUnregisteredHostStatesNoFace",
           (): boolean =>
-            propSupportFace({
+            AutoMovieEngineFilm.propSupportFace({
               target: {
                 kind: "prop-affordance",
                 prop: "table",
@@ -264,7 +260,7 @@ export function assertFilmPropSupportFaces(
               environments: [],
               props: propRegistry(),
             }) === null &&
-            propSupportFace({
+            AutoMovieEngineFilm.propSupportFace({
               target: {
                 kind: "prop-affordance",
                 prop: "table",
@@ -278,7 +274,7 @@ export function assertFilmPropSupportFaces(
           "restingIsExactlyZero",
           (): boolean =>
             exactGap(
-              propSupportGap({
+              AutoMovieEngineFilm.propSupportGap({
                 face: patch({ half: 2, originHeight: 0 }),
                 bounds: box(-1, 0, -1, 1, 2, 1),
               }),
@@ -289,7 +285,7 @@ export function assertFilmPropSupportFaces(
           "floatingIsPositive",
           (): boolean =>
             exactGap(
-              propSupportGap({
+              AutoMovieEngineFilm.propSupportGap({
                 face: patch({ half: 2, originHeight: 0 }),
                 bounds: box(-1, 0.25, -1, 1, 2, 1),
               }),
@@ -300,7 +296,7 @@ export function assertFilmPropSupportFaces(
           "sinkingIsNegative",
           (): boolean =>
             exactGap(
-              propSupportGap({
+              AutoMovieEngineFilm.propSupportGap({
                 face: patch({ half: 2, originHeight: 0 }),
                 bounds: box(-1, -0.25, -1, 1, 2, 1),
               }),
@@ -310,7 +306,7 @@ export function assertFilmPropSupportFaces(
         [
           "standingOffTheFaceIsNull",
           (): boolean =>
-            propSupportGap({
+            AutoMovieEngineFilm.propSupportGap({
               face: patch({ half: 2, originHeight: 0 }),
               bounds: box(5, 0, -1, 6, 2, 1),
             }) === null,
@@ -319,14 +315,14 @@ export function assertFilmPropSupportFaces(
           "aRampBearsAtItsHighestProbe",
           (): boolean =>
             exactGap(
-              propSupportGap({
+              AutoMovieEngineFilm.propSupportGap({
                 face: patch({ half: 2, originHeight: 0, slopeZ: 1 }),
                 bounds: box(-1, 1, -1, 1, 2, 1),
               }),
               0,
             ) &&
             exactGap(
-              propSupportGap({
+              AutoMovieEngineFilm.propSupportGap({
                 face: patch({ half: 2, originHeight: 0, slopeZ: 1 }),
                 bounds: box(-1, 0.5, -1, 1, 2, 1),
               }),
@@ -337,7 +333,7 @@ export function assertFilmPropSupportFaces(
           "aFaceSmallerThanTheFootprintIsFoundByItsCentre",
           (): boolean =>
             exactGap(
-              propSupportGap({
+              AutoMovieEngineFilm.propSupportGap({
                 face: patch({ half: 0.1, originHeight: 0 }),
                 bounds: box(-1, 0, -1, 1, 2, 1),
               }),
@@ -348,7 +344,7 @@ export function assertFilmPropSupportFaces(
           "aFaceOffTheFootprintsCentreIsFoundByItsOwnCorners",
           (): boolean =>
             exactGap(
-              propSupportGap({
+              AutoMovieEngineFilm.propSupportGap({
                 face: patch({ half: 0.1, originHeight: 0, atX: 0.3 }),
                 bounds: box(-3, 0, -0.5, 3, 2, 0.5),
               }),
@@ -365,7 +361,7 @@ export function assertFilmPropSupportFaces(
               ] as const
             ).every(
               (bounds: IAutoMoviePropBox): boolean =>
-                propSupportGap({
+                AutoMovieEngineFilm.propSupportGap({
                   face: patch({ half: 0.1, originHeight: 0 }),
                   bounds,
                 }) === null,

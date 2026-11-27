@@ -18,7 +18,7 @@ import { nclose } from "../../internal/predicates";
  */
 export function test_human_projection_constraint(): void {
   const failures: string[] = [];
-  const linear = solve(2, 18, 1e-8, (p: number) => ({
+  const linear = solve.solve(2, 18, 1e-8, (p: number) => ({
     bust: 10 + 2 * p,
     bareBust: 10,
   }));
@@ -28,7 +28,7 @@ export function test_human_projection_constraint(): void {
     !nclose(linear.projection, 4, 1e-6)
   )
     failures.push("independent fixed-plane root4 was not resolved");
-  const moving = solve(1, 92, 1e-8, (p: number) => ({
+  const moving = solve.solve(1, 92, 1e-8, (p: number) => ({
     bust: 80 + 20 * p,
     bareBust: 75 + 20 * p,
   }));
@@ -40,7 +40,7 @@ export function test_human_projection_constraint(): void {
     failures.push(
       "a candidate-local bare95 rejected the attainable moving-plane target92",
     );
-  const flat = solve(2, 18, 1e-8, () => ({ bust: 18, bareBust: 10 }));
+  const flat = solve.solve(2, 18, 1e-8, () => ({ bust: 18, bareBust: 10 }));
   if (flat.status === "resolved")
     failures.push(
       "a flat tape arbitrarily selected an unidentifiable projection",
@@ -48,7 +48,7 @@ export function test_human_projection_constraint(): void {
   for (const bad of [0, -1, NaN, Infinity]) {
     let refused = false;
     try {
-      solve(bad, 18, 1e-8, () => ({ bust: 18, bareBust: 10 }));
+      solve.solve(bad, 18, 1e-8, () => ({ bust: 18, bareBust: 10 }));
     } catch {
       refused = true;
     }

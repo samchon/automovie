@@ -1,5 +1,7 @@
 import type { IAutoMovieMotionHumanContactWindow } from "@automovie/interface";
-import { step } from "@automovie/motions/internal";
+import {
+  step
+} from "../../../../../packages/motions/src/striking/internal/step";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

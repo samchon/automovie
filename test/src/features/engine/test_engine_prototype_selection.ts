@@ -1,4 +1,4 @@
-import { selectInstancePrototype } from "@automovie/engine";
+import { AutoMovieEnginePopulationRuntime } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose, throwsError } from "../internal/predicates";
@@ -53,7 +53,7 @@ const draws: (source: ReturnType<typeof grove>, count?: number) => IChoice[] = (
   Array.from(
     { length: count },
     (_: unknown, slot: number): IChoice =>
-      selectInstancePrototype(source, slot, undefined),
+      AutoMovieEnginePopulationRuntime.selectInstancePrototype(source, slot, undefined),
   );
 
 /** Observe one prototype's frequency without predicting any individual draw. */
@@ -231,24 +231,24 @@ export function test_engine_prototype_selection(): void {
     namedFacts([
       [
         "namedZeroWeight",
-        (): boolean => selectInstancePrototype(named, 3, "sleeper") === sleeper,
+        (): boolean => AutoMovieEnginePopulationRuntime.selectInstancePrototype(named, 3, "sleeper") === sleeper,
       ],
       [
         "namedDefault",
         (): boolean =>
-          selectInstancePrototype(grove(), 3, "default").id === "default",
+          AutoMovieEnginePopulationRuntime.selectInstancePrototype(grove(), 3, "default").id === "default",
       ],
       [
         "missingRefuses",
         (): boolean =>
           throwsError(
-            (): IChoice => selectInstancePrototype(named, 3, "ghost"),
+            (): IChoice => AutoMovieEnginePopulationRuntime.selectInstancePrototype(named, 3, "ghost"),
             'Instance set "grove" slot 3 references missing prototype "ghost".',
           ),
       ],
       [
         "presentTwinAnswered",
-        (): boolean => selectInstancePrototype(named, 3, "a").id === "a",
+        (): boolean => AutoMovieEnginePopulationRuntime.selectInstancePrototype(named, 3, "a").id === "a",
       ],
     ]),
     {

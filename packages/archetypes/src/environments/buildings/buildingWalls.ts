@@ -1,10 +1,11 @@
-import { pointOnSegment } from "@automovie/engine";
+import { AutoMovieEnginePlanarGeometry } from "@automovie/engine";
 import type { IAutoMovieProfilePoint } from "@automovie/interface";
 
+import type { AutoMovieArchetypeEnvironment } from "../AutoMovieArchetypeEnvironment";
+import type { IAutoMovieArchetypeEnvironmentBuildingPoint } from "../IAutoMovieArchetypeEnvironmentBuildingPoint";
 import type { buildingPlans } from "./buildingPlans";
-import type { createBuilding } from "./createBuilding";
 
-/**
+/*
  * Split room edges at incident endpoints, identify shared walls, and bind each
  * opening.
  *
@@ -28,7 +29,7 @@ export function buildingWalls(
         const forward: boolean = compare(a, b) < 0;
         const cuts: IAutoMovieProfilePoint[] = [...points.values()]
           .filter((point: IAutoMovieProfilePoint): boolean =>
-            pointOnSegment(point, a, b),
+            AutoMovieEnginePlanarGeometry.pointOnSegment(point, a, b),
           )
           .sort(compare);
         for (let cut: number = 1; cut < cuts.length; ++cut) {
@@ -50,16 +51,16 @@ export function buildingWalls(
       }
   const wallsInOrder: buildingWalls.IWall[] = [...walls.values()];
   for (const opening of level.openings) {
-    const [from, to] = opening.between;
+    const { from, to } = opening.between;
     const candidates: buildingWalls.IWall[] = wallsInOrder.filter(
       (wall: buildingWalls.IWall): boolean =>
         ((from === wall.left && to === wall.right) ||
           (from === wall.right && to === wall.left)) &&
         (opening.edge === undefined ||
-          (matches(wall.from, opening.edge[0]) &&
-            matches(wall.to, opening.edge[1])) ||
-          (matches(wall.from, opening.edge[1]) &&
-            matches(wall.to, opening.edge[0]))),
+          (matches(wall.from, opening.edge.from) &&
+            matches(wall.to, opening.edge.to)) ||
+          (matches(wall.from, opening.edge.to) &&
+            matches(wall.to, opening.edge.from))),
     );
     if (candidates.length !== 1)
       throw new Error(
@@ -71,40 +72,62 @@ export function buildingWalls(
   return wallsInOrder;
 }
 
-/** Normalized plan segments and their authored aperture bindings. */
+/*
+ * Normalized plan segments and their authored aperture bindings.
+ */
 export namespace buildingWalls {
-  /** One positive-length wall in a local XZ storey. */
+  /*
+   * One positive-length wall in a local XZ storey.
+   */
   export interface IWall {
-    /** Deterministic coordinate key within the level. */
+    /*
+     * Deterministic coordinate key within the level.
+     */
     readonly key: string;
 
-    /** Canonical segment start. */
+    /*
+     * Canonical segment start.
+     */
     readonly from: IAutoMovieProfilePoint;
 
-    /** Canonical segment end. */
+    /*
+     * Canonical segment end.
+     */
     readonly to: IAutoMovieProfilePoint;
 
-    /** Room id on the local +Z side, or null outside. */
+    /*
+     * Room id on the local +Z side, or null outside.
+     */
     left: string | null;
 
-    /** Room id on the local -Z side, or null outside. */
+    /*
+     * Room id on the local -Z side, or null outside.
+     */
     right: string | null;
 
-    /** Apertures in this wall in declared order. */
+    /*
+     * Apertures in this wall in declared order.
+     */
     readonly openings: IBinding[];
   }
 
-  /** An authored aperture with its orientation in the chosen wall. */
+  /*
+   * An authored aperture with its orientation in the chosen wall.
+   */
   export interface IBinding {
-    /** Opening in the original metre plan. */
-    readonly opening: createBuilding.Opening;
+    /*
+     * Opening in the original metre plan.
+     */
+    readonly opening: AutoMovieArchetypeEnvironment.IBuildingOpening;
 
-    /** Whether a half-turn carries wall +Z into the requested opening direction. */
+    /*
+     * Whether a half-turn carries wall +Z into the requested opening direction.
+     */
     readonly turn: boolean;
   }
 }
 
-/**
+/*
  * Order a straight segment by X then Z, preserving exact authored point
  * identities.
  */
@@ -112,18 +135,20 @@ function compare(a: IAutoMovieProfilePoint, b: IAutoMovieProfilePoint): number {
   return a.x - b.x || a.y - b.y;
 }
 
-/** Make the normalized key; JSON numeric spellings collapse negative zero. */
+/*
+ * Make the normalized key; JSON numeric spellings collapse negative zero.
+ */
 function pointKey(point: IAutoMovieProfilePoint): string {
   return `${point.x},${point.y}`;
 }
 
-/**
+/*
  * Check whether an authored endpoint exactly names the already-admitted wall
  * endpoint.
  */
 function matches(
   point: IAutoMovieProfilePoint,
-  pair: createBuilding.Point,
+  pair: IAutoMovieArchetypeEnvironmentBuildingPoint,
 ): boolean {
-  return point.x === pair[0] && point.y === pair[1];
+  return point.x === pair.x && point.y === pair.z;
 }

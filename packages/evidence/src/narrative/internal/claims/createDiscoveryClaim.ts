@@ -7,7 +7,7 @@ import { productionLayers } from "../productionLayers";
 import { createDiscoveryReferences } from "../references/createDiscoveryReferences";
 import { createContractRoot } from "../utilities/createContractRoot";
 
-/**
+/*
  * Creates the open-world discovery claim for one layer.
  *
  * Discovery asks what this work needs that no shared contract states, so the

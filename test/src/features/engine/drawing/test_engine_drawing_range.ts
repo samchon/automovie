@@ -1,8 +1,8 @@
-import { autoMovieDrawingRange } from "@automovie/engine";
+import { AutoMovieEngineDrawing } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `autoMovieDrawingRange` is the least and greatest of a sequence of values.
+ * `drawingRange` is the least and greatest of a sequence of values.
  *
  * Scenarios:
  *
@@ -12,11 +12,15 @@ import { TestValidator } from "@nestia/e2e";
 export function test_engine_drawing_range(): void {
   TestValidator.equals(
     "minimum and maximum",
-    autoMovieDrawingRange([2, -1, 5]),
+    AutoMovieEngineDrawing.autoMovieDrawingRange([2, -1, 5]),
     { min: -1, max: 5 },
   );
-  TestValidator.equals("an empty sequence", autoMovieDrawingRange([]), {
-    min: Infinity,
-    max: -Infinity,
-  });
+  TestValidator.equals(
+    "an empty sequence",
+    AutoMovieEngineDrawing.autoMovieDrawingRange([]),
+    {
+      min: Infinity,
+      max: -Infinity,
+    },
+  );
 }

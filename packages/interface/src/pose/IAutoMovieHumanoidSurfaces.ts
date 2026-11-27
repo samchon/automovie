@@ -5,7 +5,7 @@ import type { AutoMovieHumanoidSocket } from "../skeleton/AutoMovieHumanoidSocke
 
 /**
  * Body contact frames produced from skeleton and physical-profile geometry and
- * placed by resolveAutoMovieHumanoidSurfaces. Frames are mutable records;
+ * placed by AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfaces. Frames are mutable records;
  * callers preserve unit directions and matching bone identity when reusing
  * them.
  */
@@ -26,7 +26,7 @@ export namespace IAutoMovieHumanoidSurfaces {
 
     /**
      * A region's extent, metres: the radius about its point that is still the
-     * region (`AutoMovieHumanoidSurfaceExtents`); absent for a socket and for a
+     * region (`humanoidSurfaceExtents`); absent for a socket and for a
      * point beside a region (`offset`).
      */
     radius?: number;

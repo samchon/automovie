@@ -1,4 +1,4 @@
-import { Quaternion, locomoteMotion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineMotionTrajectory } from "@automovie/engine";
 import type { IAutoMovieMotion, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -39,7 +39,7 @@ export function test_engine_motion_locomote_motion(): void {
   TestValidator.predicate(
     "whole cycles closed at the travel's end, heading along it",
     cases.every(([distance, seconds]: readonly [number, number]): boolean => {
-      const clip: IAutoMovieMotion = locomoteMotion(
+      const clip: IAutoMovieMotion = AutoMovieEngineMotionTrajectory.locomoteMotion(
         "walk",
         gait,
         distance,
@@ -58,7 +58,7 @@ export function test_engine_motion_locomote_motion(): void {
           y: 0,
           z: 0.8 * distance,
         }) &&
-        vclose(Quaternion.rotateVector(end.rotation, { x: 0, y: 0, z: 1 }), {
+        vclose(AutoMovieEngineQuaternion.rotateVector(end.rotation, { x: 0, y: 0, z: 1 }), {
           x: 0.6,
           y: 0,
           z: 0.8,
@@ -70,7 +70,7 @@ export function test_engine_motion_locomote_motion(): void {
   // 2. Not facing the travel.
   TestValidator.equals(
     "the rest rotation without facing",
-    locomoteMotion("walk", gait, 1, 1, DIRECTION).keyframes.at(-1)!.pose.root!
+    AutoMovieEngineMotionTrajectory.locomoteMotion("walk", gait, 1, 1, DIRECTION).keyframes.at(-1)!.pose.root!
       .rotation,
     { x: 0, y: 0, z: 0, w: 1 },
   );
@@ -81,7 +81,7 @@ export function test_engine_motion_locomote_motion(): void {
     speed: number,
     direction: IAutoMovieVector3,
   ): IAutoMovieMotion =>
-    locomoteMotion("walk", gait, distance, speed, direction);
+    AutoMovieEngineMotionTrajectory.locomoteMotion("walk", gait, distance, speed, direction);
   TestValidator.predicate(
     "non-positive sizes and a zero direction are refused",
     [0, -1].every(
@@ -90,7 +90,7 @@ export function test_engine_motion_locomote_motion(): void {
         throwsError((): IAutoMovieMotion => walk(1, value, DIRECTION)) &&
         throwsError(
           (): IAutoMovieMotion =>
-            locomoteMotion(
+            AutoMovieEngineMotionTrajectory.locomoteMotion(
               "walk",
               { ...gait, duration: value },
               1,

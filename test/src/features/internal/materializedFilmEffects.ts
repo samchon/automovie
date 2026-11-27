@@ -1,4 +1,4 @@
-import { materializeProductionFilmEffects } from "@automovie/engine";
+import { AutoMovieEngineEffect } from "@automovie/engine";
 import {
   IAutoMovieCompiledFilmEffect,
   IAutoMovieFilmTimeline,
@@ -13,7 +13,7 @@ export const materializedFilmEffects: (
 ) => IAutoMovieCompiledFilmEffect[] = (
   timeline: IAutoMovieFilmTimeline,
 ): IAutoMovieCompiledFilmEffect[] =>
-  materializeProductionFilmEffects({
+  AutoMovieEngineEffect.materializeProductionFilmEffects({
     identity: filmEffectIdentity(timeline),
     frameRate: 24,
     world: filmEffectWorld(),

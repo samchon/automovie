@@ -12,11 +12,11 @@ import type { IAutoMovieProductionTtsReceipt } from "./IAutoMovieProductionTtsRe
 import type { IAutoMovieProductionVisualDeliveryLane } from "./IAutoMovieProductionVisualDeliveryLane";
 import type { IAutoMovieSoundPropagationProfile } from "./IAutoMovieSoundPropagationProfile";
 import type { IAutoMovieStoryClock } from "./IAutoMovieStoryClock";
-import type { IAutoMovieRepaintExecutionPolicy } from "./capture/IAutoMovieRepaintExecutionPolicy";
-import type { IAutoMovieRepaintGeneratorAdoption } from "./capture/IAutoMovieRepaintGeneratorAdoption";
-import type { IAutoMovieRepaintParameters } from "./capture/IAutoMovieRepaintParameters";
-import type { IAutoMovieRepaintReferenceInput } from "./capture/IAutoMovieRepaintReferenceInput";
-import type { IAutoMovieRepaintRequestEvidence } from "./capture/IAutoMovieRepaintRequestEvidence";
+import type { IAutoMovieRepaintExecutionPolicy } from "./IAutoMovieRepaintExecutionPolicy";
+import type { IAutoMovieRepaintGeneratorAdoption } from "./IAutoMovieRepaintGeneratorAdoption";
+import type { IAutoMovieRepaintParameters } from "./IAutoMovieRepaintParameters";
+import type { IAutoMovieRepaintReferenceInput } from "./IAutoMovieRepaintReferenceInput";
+import type { IAutoMovieRepaintRequestEvidence } from "./IAutoMovieRepaintRequestEvidence";
 
 /**
  * Authored frame, story, appearance, sound and delivery decisions shared by

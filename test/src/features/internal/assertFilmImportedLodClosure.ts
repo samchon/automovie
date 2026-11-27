@@ -1,4 +1,4 @@
-import { forgeProp } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieConstraintViolation,
   IAutoMovieForgedProp,
@@ -70,7 +70,7 @@ export function assertFilmImportedLodClosure(
         (): boolean => {
           const spec: IAutoMoviePropSpec = createImportedPropSpec();
           spec.model.imported!.lod[0]!.digest = "sha256:";
-          const result: IAutoMovieForgedProp = forgeProp(spec);
+          const result: IAutoMovieForgedProp = AutoMovieEngineFilm.forgeProp(spec);
           return (
             result.success === false &&
             result.violations.every(
@@ -131,7 +131,7 @@ export function assertFilmImportedLodClosure(
         (): boolean => {
           const spec: IAutoMoviePropSpec = createImportedPropSpec();
           spec.model.asset = null;
-          const result: IAutoMovieForgedProp = forgeProp(spec);
+          const result: IAutoMovieForgedProp = AutoMovieEngineFilm.forgeProp(spec);
           return (
             result.success === false &&
             result.violations.every(

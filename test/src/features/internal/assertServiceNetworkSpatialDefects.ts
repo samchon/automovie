@@ -1,4 +1,4 @@
-import { serviceSystemLoad } from "@automovie/engine";
+import { AutoMovieEngineService } from "@automovie/engine";
 import type {
   IAutoMovieConstraintViolation,
   IAutoMovieServiceNetwork,
@@ -36,7 +36,7 @@ export function assertServiceNetworkSpatialDefects(
         "supplyReadsItsInlets",
         () =>
           nclose(
-            serviceSystemLoad({ network: clean, system: clean.systems[0]! }),
+            AutoMovieEngineService.serviceSystemLoad({ network: clean, system: clean.systems[0]! }),
             0.0002,
             1e-15,
           ),
@@ -45,7 +45,7 @@ export function assertServiceNetworkSpatialDefects(
         "stackReadsItsOutlets",
         () =>
           nclose(
-            serviceSystemLoad({ network: clean, system: clean.systems[2]! }),
+            AutoMovieEngineService.serviceSystemLoad({ network: clean, system: clean.systems[2]! }),
             0.001,
             1e-15,
           ),

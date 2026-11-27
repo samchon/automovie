@@ -1,7 +1,4 @@
-import {
-  placeAutoMovieSurfaceFrame,
-  prepareAutoMovieSurfaceFrame,
-} from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMoviePreparedSurfaceFrame,
   IAutoMovieVector3,
@@ -11,8 +8,8 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose, throwsError, vclose } from "../../internal/predicates";
 
 /**
- * `prepareAutoMovieSurfaceFrame` reads a triangle's own frame about its
- * centroid and `placeAutoMovieSurfaceFrame` lays it into a target frame
+ * `prepareSurfaceFrame` reads a triangle's own frame about its
+ * centroid and `placeSurfaceFrame` lays it into a target frame
  * (origin, forward, normal), keeping an explicit outward sign and tiny real
  * samples.
  *
@@ -38,6 +35,7 @@ import { nclose, throwsError, vclose } from "../../internal/predicates";
  *    in-plane reference normal; placement refuses a zero forward or normal, a
  *    forward along the normal and a destination that overflows; the prepared
  *    triangle still places at a valid frame afterwards.
+ * 8. A nonfinite optional reference normal cannot choose a normal sign.
  */
 export function test_engine_geometry_surface_frame_place(): void {
   const level = {
@@ -53,21 +51,21 @@ export function test_engine_geometry_surface_frame_place(): void {
     { x: -1, y: 0, z: 2 },
   ];
   for (const sign of [-1, 1]) {
-    const prepared: IAutoMoviePreparedSurfaceFrame = prepareAutoMovieSurfaceFrame(source, {
+    const prepared: IAutoMoviePreparedSurfaceFrame = AutoMovieEngineGeometry.prepareSurfaceFrame(source, {
       x: 0,
       y: sign,
       z: 0,
     });
     TestValidator.predicate(`normal ${sign}`, vclose(prepared.frame.normal, { x: 0, y: sign, z: 0 }));
-    const placed: IAutoMovieVector3[] = placeAutoMovieSurfaceFrame(prepared, level);
+    const placed: IAutoMovieVector3[] = AutoMovieEngineGeometry.placeSurfaceFrame(prepared, level);
     source.forEach((p: IAutoMovieVector3, i: number): void =>
       TestValidator.predicate(`point ${sign}/${i}`, vclose(placed[i]!, { ...p, z: sign * p.z })),
     );
   }
 
   // 2.
-  const flat: IAutoMovieVector3[] = placeAutoMovieSurfaceFrame(
-    prepareAutoMovieSurfaceFrame([
+  const flat: IAutoMovieVector3[] = AutoMovieEngineGeometry.placeSurfaceFrame(
+    AutoMovieEngineGeometry.prepareSurfaceFrame([
       { x: 0, y: 0, z: 0 },
       { x: 0, y: 3, z: 0 },
       { x: 0, y: 0, z: 3 },
@@ -84,8 +82,8 @@ export function test_engine_geometry_surface_frame_place(): void {
 
   // 3.
   const s: number = 1e-180;
-  const tiny: IAutoMovieVector3[] = placeAutoMovieSurfaceFrame(
-    prepareAutoMovieSurfaceFrame([
+  const tiny: IAutoMovieVector3[] = AutoMovieEngineGeometry.placeSurfaceFrame(
+    AutoMovieEngineGeometry.prepareSurfaceFrame([
       { x: 0, y: 0, z: 0 },
       { x: s, y: 0, z: 0 },
       { x: 0, y: s, z: 0 },
@@ -106,7 +104,7 @@ export function test_engine_geometry_surface_frame_place(): void {
   );
 
   // 4.
-  const prepared: IAutoMoviePreparedSurfaceFrame = prepareAutoMovieSurfaceFrame(source, {
+  const prepared: IAutoMoviePreparedSurfaceFrame = AutoMovieEngineGeometry.prepareSurfaceFrame(source, {
     x: 0,
     y: 1,
     z: 0,
@@ -121,7 +119,7 @@ export function test_engine_geometry_surface_frame_place(): void {
     { x: 9, y: 22, z: 30 },
     { x: 12, y: 19, z: 30 },
   ];
-  const placed: IAutoMovieVector3[] = placeAutoMovieSurfaceFrame(prepared, target);
+  const placed: IAutoMovieVector3[] = AutoMovieEngineGeometry.placeSurfaceFrame(prepared, target);
   expected.forEach((p: IAutoMovieVector3, i: number): void =>
     TestValidator.predicate(`placed ${i}`, vclose(placed[i]!, p)),
   );
@@ -146,7 +144,7 @@ export function test_engine_geometry_surface_frame_place(): void {
   );
 
   // 5.
-  const restored: IAutoMovieVector3[] = placeAutoMovieSurfaceFrame(prepared, prepared.frame);
+  const restored: IAutoMovieVector3[] = AutoMovieEngineGeometry.placeSurfaceFrame(prepared, prepared.frame);
   source.forEach((p: IAutoMovieVector3, i: number): void =>
     TestValidator.predicate(`round trip ${i}`, vclose(restored[i]!, p)),
   );
@@ -154,7 +152,7 @@ export function test_engine_geometry_surface_frame_place(): void {
   // 6.
   source[0]!.x = 999;
   placed[0]!.x = -999;
-  const repeated: IAutoMovieVector3[] = placeAutoMovieSurfaceFrame(prepared, target);
+  const repeated: IAutoMovieVector3[] = AutoMovieEngineGeometry.placeSurfaceFrame(prepared, target);
   expected.forEach((p: IAutoMovieVector3, i: number): void =>
     TestValidator.predicate(`repeat ${i}`, vclose(repeated[i]!, p)),
   );
@@ -184,7 +182,7 @@ export function test_engine_geometry_surface_frame_place(): void {
   ])
     TestValidator.predicate(
       `prepare refuses ${points.length} points`,
-      throwsError((): unknown => prepareAutoMovieSurfaceFrame(points)),
+      throwsError((): unknown => AutoMovieEngineGeometry.prepareSurfaceFrame(points)),
     );
   for (const reference of [
     { x: 0, y: 0, z: 0 },
@@ -192,9 +190,9 @@ export function test_engine_geometry_surface_frame_place(): void {
   ])
     TestValidator.predicate(
       "reference refused",
-      throwsError((): unknown => prepareAutoMovieSurfaceFrame(plane, reference)),
+      throwsError((): unknown => AutoMovieEngineGeometry.prepareSurfaceFrame(plane, reference)),
     );
-  const ready: IAutoMoviePreparedSurfaceFrame = prepareAutoMovieSurfaceFrame(plane);
+  const ready: IAutoMoviePreparedSurfaceFrame = AutoMovieEngineGeometry.prepareSurfaceFrame(plane);
   const up = { origin: { x: 0, y: 0, z: 0 }, forward: { x: 1, y: 0, z: 0 }, normal: { x: 0, y: 0, z: 1 } };
   for (const frame of [
     { ...up, forward: { x: 0, y: 0, z: 0 } },
@@ -203,19 +201,30 @@ export function test_engine_geometry_surface_frame_place(): void {
   ])
     TestValidator.predicate(
       "frame refused",
-      throwsError((): unknown => placeAutoMovieSurfaceFrame(ready, frame)),
+      throwsError((): unknown => AutoMovieEngineGeometry.placeSurfaceFrame(ready, frame)),
     );
-  const huge: IAutoMoviePreparedSurfaceFrame = prepareAutoMovieSurfaceFrame([
+  const huge: IAutoMoviePreparedSurfaceFrame = AutoMovieEngineGeometry.prepareSurfaceFrame([
     { x: -M / 2, y: 0, z: 0 },
     { x: M / 2, y: 0, z: 0 },
     { x: 0, y: 1, z: 0 },
   ]);
   TestValidator.predicate(
     "overflowing destination refused",
-    throwsError((): unknown => placeAutoMovieSurfaceFrame(huge, { ...up, origin: { x: M, y: 0, z: 0 } })),
+    throwsError((): unknown => AutoMovieEngineGeometry.placeSurfaceFrame(huge, { ...up, origin: { x: M, y: 0, z: 0 } })),
   );
-  const recovered: IAutoMovieVector3[] = placeAutoMovieSurfaceFrame(ready, up);
+  const recovered: IAutoMovieVector3[] = AutoMovieEngineGeometry.placeSurfaceFrame(ready, up);
   plane.forEach((p: IAutoMovieVector3, i: number): void =>
     TestValidator.predicate(`recovered ${i}`, vclose(recovered[i]!, p)),
   );
+
+  // 8.
+  const admitted: string[] = [];
+  for (const z of [Number.NaN, Number.POSITIVE_INFINITY])
+    if (
+      !throwsError((): IAutoMoviePreparedSurfaceFrame =>
+        AutoMovieEngineGeometry.prepareSurfaceFrame(plane, { x: 0, y: 0, z }),
+      )
+    )
+      admitted.push(String(z));
+  TestValidator.equals("nonfinite reference refused", admitted, []);
 }

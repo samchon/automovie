@@ -1,13 +1,13 @@
-import { coverFace as coverFaceLaw } from "../daily/coverFace";
-import { handToFace as handToFaceLaw } from "../daily/handToFace";
-import { handToFaceArm as handToFaceArmLaw } from "../daily/handToFaceArm";
-import { handToFaceSheet as handToFaceSheetLaw } from "../daily/handToFaceSheet";
-import { wipeTears as wipeTearsLaw } from "../daily/wipeTears";
-import { headTilt as headTiltLaw } from "../everyday/headTilt";
-import { HumanHandToFaceRows as HumanHandToFaceRowsSource } from "../lexicon/HumanHandToFaceRows";
-import { HumanSelfActionRows as HumanSelfActionRowsSource } from "../lexicon/HumanSelfActionRows";
-import { tuckHair as tuckHairLaw } from "../lexicon/tuckHair";
-import { selfAction as selfActionLaw } from "../touch/selfAction";
+import { coverFace as coverFaceLaw } from "../daily/internal/coverFace";
+import { handToFace as handToFaceLaw } from "../daily/internal/handToFace";
+import { handToFaceArm as handToFaceArmLaw } from "../daily/internal/handToFaceArm";
+import { handToFaceSheet as handToFaceSheetLaw } from "../daily/internal/handToFaceSheet";
+import { wipeTears as wipeTearsLaw } from "../daily/internal/wipeTears";
+import { headTilt as headTiltLaw } from "../everyday/internal/headTilt";
+import { HumanHandToFaceRows as HumanHandToFaceRowsSource } from "../lexicon/internal/HumanHandToFaceRows";
+import { HumanSelfActionRows as HumanSelfActionRowsSource } from "../lexicon/internal/HumanSelfActionRows";
+import { tuckHair as tuckHairLaw } from "../lexicon/internal/tuckHair";
+import { selfAction as selfActionLaw } from "../touch/internal/selfAction";
 import { HUMAN_HAND_TO_BODY_COVER_FACE } from "./presets/HUMAN_HAND_TO_BODY_COVER_FACE";
 import { HUMAN_HAND_TO_BODY_TUCK_HAIR } from "./presets/HUMAN_HAND_TO_BODY_TUCK_HAIR";
 import { HUMAN_HAND_TO_BODY_WIPE_TEARS } from "./presets/HUMAN_HAND_TO_BODY_WIPE_TEARS";
@@ -119,7 +119,7 @@ export namespace AutoMovieMotionHumanHandToBody {
    * scratches, covers, pain holds) are rows of the `touch` law.
    *
    * Each action is a phrase: the parts rise to their place over the free-space
-   * transport of the hand's travel (`AutoMovieMotionHumanTiming.transport`),
+   * transport of the hand's travel (`motionHumanTiming.transport`),
    * and at least as long as each raised arm's path needs to keep within the
    * audit's travel bound (`AutoMovieMotionHumanArmPlanned.reaching`), or 0.4 s
    * for the head and the shoulders, perform the stroke, hold and return in the
@@ -184,7 +184,7 @@ export namespace AutoMovieMotionHumanHandToBody {
 
   /**
    * The relaxed index fingertip sweeps from in front of the same-side ear to
-   * behind it and retracts. Register the row with `HumanPerformance` and author
+   * behind it and retracts. Register the row with `AutoMovieMotionHumanPerformance` and author
    * it by name, optionally selecting `side` or `manner`.
    *
    * The grooming action is described in

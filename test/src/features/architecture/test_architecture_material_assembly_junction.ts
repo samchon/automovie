@@ -1,8 +1,4 @@
-import {
-  autoMovieAssemblyOpeningReveal,
-  matchAutoMovieAssemblyJunction,
-  resolveAutoMovieMaterialAssembly,
-} from "@automovie/engine";
+import { AutoMovieEngineArchitectureAssembly } from "@automovie/engine";
 import type {
   IAutoMovieAssemblyBreak,
   IAutoMovieAssemblyContinuity,
@@ -21,7 +17,7 @@ const resolve: (
 ) => IAutoMovieResolvedAssembly = (
   one: IAutoMovieMaterialAssembly,
 ): IAutoMovieResolvedAssembly =>
-  resolveAutoMovieMaterialAssembly({ assembly: one });
+  AutoMovieEngineArchitectureAssembly.resolveAutoMovieMaterialAssembly({ assembly: one });
 
 const wet: (
   overrides?: Partial<IAutoMovieMaterialAssembly>,
@@ -83,7 +79,7 @@ const wet: (
  */
 export function test_architecture_material_assembly_junction(): void {
   const resolved: IAutoMovieResolvedAssembly = resolve(wet());
-  const reveal: IAutoMovieAssemblyReveal = autoMovieAssemblyOpeningReveal({
+  const reveal: IAutoMovieAssemblyReveal = AutoMovieEngineArchitectureAssembly.AssemblyOpeningReveal({
     resolved,
     width: 1.2,
     height: 2.1,
@@ -113,7 +109,7 @@ export function test_architecture_material_assembly_junction(): void {
     ["render", "board"],
   );
 
-  const bare: IAutoMovieAssemblyReveal = autoMovieAssemblyOpeningReveal({
+  const bare: IAutoMovieAssemblyReveal = AutoMovieEngineArchitectureAssembly.AssemblyOpeningReveal({
     resolved: resolve(
       assembly(
         [
@@ -149,7 +145,7 @@ export function test_architecture_material_assembly_junction(): void {
     },
   );
 
-  const solo: IAutoMovieAssemblyReveal = autoMovieAssemblyOpeningReveal({
+  const solo: IAutoMovieAssemblyReveal = AutoMovieEngineArchitectureAssembly.AssemblyOpeningReveal({
     resolved: resolve(
       assembly([layer("slab", 0.2, { finish: true, wrapsOpening: true })], {
         id: "solo",
@@ -177,7 +173,7 @@ export function test_architecture_material_assembly_junction(): void {
     },
   );
 
-  const buriedWrap: IAutoMovieAssemblyReveal = autoMovieAssemblyOpeningReveal({
+  const buriedWrap: IAutoMovieAssemblyReveal = AutoMovieEngineArchitectureAssembly.AssemblyOpeningReveal({
     resolved: {
       id: "hand-built",
       axis: "z",
@@ -214,7 +210,7 @@ export function test_architecture_material_assembly_junction(): void {
         (): boolean =>
           throwsError(
             (): IAutoMovieAssemblyReveal =>
-              autoMovieAssemblyOpeningReveal({
+              AutoMovieEngineArchitectureAssembly.AssemblyOpeningReveal({
                 resolved,
                 width: 0,
                 height: 2.1,
@@ -227,7 +223,7 @@ export function test_architecture_material_assembly_junction(): void {
         (): boolean =>
           throwsError(
             (): IAutoMovieAssemblyReveal =>
-              autoMovieAssemblyOpeningReveal({
+              AutoMovieEngineArchitectureAssembly.AssemblyOpeningReveal({
                 resolved,
                 width: 0.06,
                 height: 2.1,
@@ -240,7 +236,7 @@ export function test_architecture_material_assembly_junction(): void {
         (): boolean =>
           throwsError(
             (): IAutoMovieAssemblyReveal =>
-              autoMovieAssemblyOpeningReveal({
+              AutoMovieEngineArchitectureAssembly.AssemblyOpeningReveal({
                 resolved,
                 width: 1.2,
                 height: 0.06,
@@ -272,7 +268,7 @@ export function test_architecture_material_assembly_junction(): void {
       },
     ),
   );
-  const junction: IAutoMovieAssemblyJunction = matchAutoMovieAssemblyJunction({
+  const junction: IAutoMovieAssemblyJunction = AutoMovieEngineArchitectureAssembly.matchAutoMovieAssemblyJunction({
     left: resolved,
     right: neighbour,
     tolerance: 0.001,
@@ -372,7 +368,7 @@ export function test_architecture_material_assembly_junction(): void {
       id: "single-insulation",
     }),
   );
-  const spanned: IAutoMovieAssemblyJunction = matchAutoMovieAssemblyJunction({
+  const spanned: IAutoMovieAssemblyJunction = AutoMovieEngineArchitectureAssembly.matchAutoMovieAssemblyJunction({
     left: split,
     right: single,
     tolerance: 0,
@@ -402,7 +398,7 @@ export function test_architecture_material_assembly_junction(): void {
         "summedRole",
         (): boolean =>
           nclose(
-            matchAutoMovieAssemblyJunction({
+            AutoMovieEngineArchitectureAssembly.matchAutoMovieAssemblyJunction({
               left: split,
               right: resolved,
               tolerance: 0,
@@ -441,7 +437,7 @@ export function test_architecture_material_assembly_junction(): void {
         (): boolean =>
           throwsError(
             (): IAutoMovieAssemblyJunction =>
-              matchAutoMovieAssemblyJunction({
+              AutoMovieEngineArchitectureAssembly.matchAutoMovieAssemblyJunction({
                 left: split,
                 right: single,
                 tolerance: -1e-9,

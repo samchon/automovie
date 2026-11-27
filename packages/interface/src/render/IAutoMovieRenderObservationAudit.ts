@@ -1,9 +1,9 @@
-import type { AutoMovieRenderMetric } from "./AutoMovieRenderMetric.js";
-import type { IAutoMovieRenderObservationBreach } from "./IAutoMovieRenderObservationBreach.js";
+import type { AutoMovieRenderMetric } from "./AutoMovieRenderMetric";
+import type { IAutoMovieRenderObservationBreach } from "./IAutoMovieRenderObservationBreach";
 
 /**
  * Comparison of submitted-work observations with a declared report.
- * auditAutoMovieRenderObservation returns agreement only when all observable
+ * AutoMovieRenderBudgetPreflight.auditObservation returns agreement only when all observable
  * metrics have numeric bounds and none exceeds them; unchecked names expose
  * missing, invalid or duplicated bounds and unavailable/invalid observations.
  */

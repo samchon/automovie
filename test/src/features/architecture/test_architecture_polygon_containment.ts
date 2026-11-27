@@ -1,11 +1,4 @@
-import {
-  ViolationCollector,
-  appendBuiltRegionDefects,
-  builtOutlineIsClosed,
-  outlineHull,
-  pointInPolygon,
-  polygonInside,
-} from "@automovie/engine";
+import { AutoMovieEngineViolationCollector, AutoMovieEngineBuiltEnvironmentWorkflow, AutoMovieEngineBuiltEnvironment, AutoMovieEnginePlanarGeometry } from "@automovie/engine";
 import {
   IAutoMovieOpeningProfile,
   IAutoMoviePlanarPoint,
@@ -59,7 +52,7 @@ export function test_architecture_polygon_containment(): void {
     for (const outer of [host, [...host].reverse()])
       TestValidator.equals(
         "vertex-only notch exit is refused",
-        polygonInside(inner, outer),
+        AutoMovieEnginePlanarGeometry.polygonInside(inner, outer),
         false,
       );
   const endpoints: IAutoMoviePlanarPoint[] = [
@@ -70,7 +63,7 @@ export function test_architecture_polygon_containment(): void {
   ];
   TestValidator.equals(
     "notch vertices at inner endpoints still refuse",
-    polygonInside(endpoints, host),
+    AutoMovieEnginePlanarGeometry.polygonInside(endpoints, host),
     false,
   );
   const flush: IAutoMoviePlanarPoint[] = [
@@ -81,12 +74,12 @@ export function test_architecture_polygon_containment(): void {
   ];
   TestValidator.equals(
     "notch-floor contact is contained",
-    polygonInside(flush, host),
+    AutoMovieEnginePlanarGeometry.polygonInside(flush, host),
     true,
   );
   TestValidator.equals(
     "identical concave rings are contained",
-    polygonInside(host, host),
+    AutoMovieEnginePlanarGeometry.polygonInside(host, host),
     true,
   );
   const square: IAutoMoviePlanarPoint[] = [
@@ -97,7 +90,7 @@ export function test_architecture_polygon_containment(): void {
   ];
   TestValidator.equals(
     "convex boundary contact is contained",
-    polygonInside(spanning, square),
+    AutoMovieEnginePlanarGeometry.polygonInside(spanning, square),
     true,
   );
   const exterior: IAutoMoviePlanarPoint[] = [
@@ -106,7 +99,7 @@ export function test_architecture_polygon_containment(): void {
   ];
   TestValidator.equals(
     "outside corner is refused",
-    polygonInside(exterior, host),
+    AutoMovieEnginePlanarGeometry.polygonInside(exterior, host),
     false,
   );
   const crossing: IAutoMoviePlanarPoint[] = spanning.map(
@@ -117,17 +110,17 @@ export function test_architecture_polygon_containment(): void {
   );
   TestValidator.equals(
     "proper notch crossing is refused",
-    polygonInside(crossing, host),
+    AutoMovieEnginePlanarGeometry.polygonInside(crossing, host),
     false,
   );
   TestValidator.equals(
     "empty inner ring has no exterior point",
-    polygonInside([], host),
+    AutoMovieEnginePlanarGeometry.polygonInside([], host),
     true,
   );
   TestValidator.equals(
     "empty host cannot contain a nonempty ring",
-    polygonInside(flush, []),
+    AutoMovieEnginePlanarGeometry.polygonInside(flush, []),
     false,
   );
   const profile: IAutoMovieOpeningProfile = {
@@ -141,16 +134,16 @@ export function test_architecture_polygon_containment(): void {
     ],
     bulges: [0.5, 0, 0, 0, 0, 0],
   };
-  const hull: IAutoMoviePlanarPoint[] = outlineHull(profile);
-  const admitted: IAutoMovieViolationCollector = new ViolationCollector();
-  builtOutlineIsClosed(
+  const hull: IAutoMoviePlanarPoint[] = AutoMovieEnginePlanarGeometry.outlineHull(profile);
+  const admitted: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
+  AutoMovieEngineBuiltEnvironment.outlineIsClosed(
     profile.outline,
     2,
     "$input.outline",
     "opening outline",
     admitted,
   );
-  appendBuiltRegionDefects(hull, "$input.outline", "opening outline", admitted);
+  AutoMovieEngineBuiltEnvironmentWorkflow.appendRegionDefects(hull, "$input.outline", "opening outline", admitted);
   TestValidator.equals(
     "finite distinct profile and its simple hull pass region admission",
     admitted.items.length,
@@ -162,12 +155,12 @@ export function test_architecture_polygon_containment(): void {
   };
   TestValidator.equals(
     "conservative hull contains the actual inward arc",
-    pointInPolygon(arcPoint, hull),
+    AutoMovieEnginePlanarGeometry.pointInPolygon(arcPoint, hull),
     true,
   );
   TestValidator.equals(
     "conservative hull contains void above the inward arc",
-    pointInPolygon({ x: 0.1, y: 0.2 }, hull),
+    AutoMovieEnginePlanarGeometry.pointInPolygon({ x: 0.1, y: 0.2 }, hull),
     true,
   );
   const reversed: IAutoMovieOpeningProfile = {
@@ -176,7 +169,7 @@ export function test_architecture_polygon_containment(): void {
   };
   TestValidator.equals(
     "inward arc remains enclosed after winding and bulge reversal",
-    pointInPolygon(arcPoint, outlineHull(reversed)),
+    AutoMovieEnginePlanarGeometry.pointInPolygon(arcPoint, AutoMovieEnginePlanarGeometry.outlineHull(reversed)),
     true,
   );
   const outward: IAutoMovieOpeningProfile = {
@@ -185,7 +178,7 @@ export function test_architecture_polygon_containment(): void {
   };
   TestValidator.equals(
     "outward arc still uses an expanded conservative bound",
-    pointInPolygon({ x: arcPoint.x, y: -arcPoint.y }, outlineHull(outward)),
+    AutoMovieEnginePlanarGeometry.pointInPolygon({ x: arcPoint.x, y: -arcPoint.y }, AutoMovieEnginePlanarGeometry.outlineHull(outward)),
     true,
   );
   const circle: IAutoMovieOpeningProfile = {
@@ -195,11 +188,11 @@ export function test_architecture_polygon_containment(): void {
     ],
     bulges: [1, 1],
   };
-  const circleHull: IAutoMoviePlanarPoint[] = outlineHull(circle);
+  const circleHull: IAutoMoviePlanarPoint[] = AutoMovieEnginePlanarGeometry.outlineHull(circle);
   TestValidator.equals(
     "two half-turn arcs retain both radius-one extrema",
-    pointInPolygon({ x: 0, y: 1 }, circleHull) &&
-      pointInPolygon({ x: 0, y: -1 }, circleHull),
+    AutoMovieEnginePlanarGeometry.pointInPolygon({ x: 0, y: 1 }, circleHull) &&
+      AutoMovieEnginePlanarGeometry.pointInPolygon({ x: 0, y: -1 }, circleHull),
     true,
   );
 }

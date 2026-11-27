@@ -1,4 +1,4 @@
-import { measureAutoMovieModelCrossings } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieModel,
   IAutoMovieModelCrossing,
@@ -7,7 +7,7 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `measureAutoMovieModelCrossings` lists the pairs of a model's parts that pass
+ * `measureModelCrossings` lists the pairs of a model's parts that pass
  * through each other, where their transforms place them, and with `withinParts`
  * also a part crossing itself; touching is not crossing.
  *
@@ -65,7 +65,7 @@ export function test_engine_geometry_model_crossings(): void {
     coplanar,
   });
   const pairs = (m: IAutoMovieModel, withinParts: boolean = false): string[][] =>
-    measureAutoMovieModelCrossings(m, { withinParts }).map((e: IAutoMovieModelCrossing): string[] => [e.part, e.other]);
+    AutoMovieEngineGeometry.measureModelCrossings(m, { withinParts }).map((e: IAutoMovieModelCrossing): string[] => [e.part, e.other]);
   const floor: number[][] = [
     [0, 0, 0],
     [1, 0, 0],
@@ -85,10 +85,10 @@ export function test_engine_geometry_model_crossings(): void {
   // 1.
   TestValidator.equals(
     "pair",
-    measureAutoMovieModelCrossings(model([part("floor", [floor]), part("blade", [blade])])),
+    AutoMovieEngineGeometry.measureModelCrossings(model([part("floor", [floor]), part("blade", [blade])])),
     [entry("floor", "blade")],
   );
-  TestValidator.equals("clear", measureAutoMovieModelCrossings(model([part("floor", [floor]), part("above", [above])])), []);
+  TestValidator.equals("clear", AutoMovieEngineGeometry.measureModelCrossings(model([part("floor", [floor]), part("above", [above])])), []);
   TestValidator.equals(
     "three parts",
     pairs(model([part("floor", [floor]), part("above", [above]), part("blade", [blade])])),
@@ -96,7 +96,7 @@ export function test_engine_geometry_model_crossings(): void {
   );
   TestValidator.equals(
     "bounds only",
-    measureAutoMovieModelCrossings(
+    AutoMovieEngineGeometry.measureModelCrossings(
       model([
         part("floor", [floor]),
         part("corner", [
@@ -121,13 +121,13 @@ export function test_engine_geometry_model_crossings(): void {
     pairs(model([part("floor", [floor]), sphere, part("blade", [blade])])),
     [["floor", "blade"]],
   );
-  TestValidator.equals("one part", measureAutoMovieModelCrossings(model([part("floor", [floor])])), []);
-  TestValidator.equals("empty", measureAutoMovieModelCrossings(model([])), []);
+  TestValidator.equals("one part", AutoMovieEngineGeometry.measureModelCrossings(model([part("floor", [floor])])), []);
+  TestValidator.equals("empty", AutoMovieEngineGeometry.measureModelCrossings(model([])), []);
 
   // 3.
   TestValidator.equals(
     "coplanar",
-    measureAutoMovieModelCrossings(
+    AutoMovieEngineGeometry.measureModelCrossings(
       model([
         part("floor", [floor]),
         part("flat", [
@@ -153,15 +153,15 @@ export function test_engine_geometry_model_crossings(): void {
   });
   TestValidator.equals(
     "lowered",
-    measureAutoMovieModelCrossings(model([part("floor", [floor]), moved("lowered", above, -1.5)])),
+    AutoMovieEngineGeometry.measureModelCrossings(model([part("floor", [floor]), moved("lowered", above, -1.5)])),
     [entry("floor", "lowered")],
   );
-  TestValidator.equals("raised", measureAutoMovieModelCrossings(model([part("floor", [floor]), moved("raised", blade, 5)])), []);
+  TestValidator.equals("raised", AutoMovieEngineGeometry.measureModelCrossings(model([part("floor", [floor]), moved("raised", blade, 5)])), []);
 
   // 5.
   const skin: IAutoMovieModel = model([part("skin", [floor, blade])]);
-  TestValidator.equals("self", measureAutoMovieModelCrossings(skin, { withinParts: true }), [entry("skin", "skin", 0, 2)]);
-  TestValidator.equals("self silent by default", measureAutoMovieModelCrossings(skin), []);
+  TestValidator.equals("self", AutoMovieEngineGeometry.measureModelCrossings(skin, { withinParts: true }), [entry("skin", "skin", 0, 2)]);
+  TestValidator.equals("self silent by default", AutoMovieEngineGeometry.measureModelCrossings(skin), []);
   const hinge: number[][] = [
     [0, 0, 0],
     [1, 0, 0],
@@ -174,7 +174,7 @@ export function test_engine_geometry_model_crossings(): void {
   ];
   TestValidator.equals(
     "touching",
-    measureAutoMovieModelCrossings(model([part("skin", [floor, hinge, fan])]), { withinParts: true }),
+    AutoMovieEngineGeometry.measureModelCrossings(model([part("skin", [floor, hinge, fan])]), { withinParts: true }),
     [],
   );
   const overlap: number[][] = [
@@ -184,7 +184,7 @@ export function test_engine_geometry_model_crossings(): void {
   ];
   TestValidator.equals(
     "self coplanar",
-    measureAutoMovieModelCrossings(model([part("skin", [floor, overlap])]), { withinParts: true }),
+    AutoMovieEngineGeometry.measureModelCrossings(model([part("skin", [floor, overlap])]), { withinParts: true }),
     [entry("skin", "skin", 2, 2)],
   );
   TestValidator.equals(
@@ -197,7 +197,7 @@ export function test_engine_geometry_model_crossings(): void {
   );
   TestValidator.equals(
     "single triangle",
-    measureAutoMovieModelCrossings(model([part("one", [floor])]), { withinParts: true }),
+    AutoMovieEngineGeometry.measureModelCrossings(model([part("one", [floor])]), { withinParts: true }),
     [],
   );
 }

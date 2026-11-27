@@ -1,5 +1,7 @@
 import type { IAutoMovieMotionHumanContactWindow } from "@automovie/interface";
-import { punchFootwork } from "@automovie/motions/internal";
+import {
+  punchFootwork
+} from "../../../../../packages/motions/src/striking/internal/punchFootwork";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

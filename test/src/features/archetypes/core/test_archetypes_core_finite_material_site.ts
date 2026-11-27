@@ -1,10 +1,5 @@
-import {
-  AutoMovieArchetypeBuilder,
-  AutoMovieArchetypeDrawSession,
-  AutoMovieArchetypeFrame,
-  createHorse,
-} from "@automovie/archetypes";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame, AutoMovieArchetypeHorse } from "@automovie/archetypes";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieTransform,
@@ -24,7 +19,7 @@ import { vclose } from "../../internal/vclose";
  * 3. A depthless stirrup stays on its centreline.
  */
 export function test_archetypes_core_finite_material_site(): void {
-  const horse: ReturnType<typeof createHorse> = createHorse({ tack: "saddle" });
+  const horse: ReturnType<typeof AutoMovieArchetypeHorse.create> = AutoMovieArchetypeHorse.create({ tack: "saddle" });
   TestValidator.equals(
     "the left material part comes from the producer",
     horse.affordance("leftStirrup").materialPart,
@@ -33,7 +28,7 @@ export function test_archetypes_core_finite_material_site(): void {
   TestValidator.predicate(
     "a real tread extends by 50 mm",
     nclose(
-      Vector3.distance(
+      AutoMovieEngineVector3.distance(
         horse.site("leftStirrup", 0.5, 0).translation,
         horse.site("leftStirrup", 0.5, 1).translation,
       ),

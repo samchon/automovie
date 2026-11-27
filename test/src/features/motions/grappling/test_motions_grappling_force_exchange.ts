@@ -1,6 +1,11 @@
-import { integrateMotionTrajectory } from "@automovie/engine";
+import { AutoMovieEngineMotionTrajectory } from "@automovie/engine";
 import type { IAutoMovieMotionHumanForceExchange, IAutoMovieMotionHumanSustainedForce, IAutoMovieVector3 } from "@automovie/interface";
-import { HumanForceDrawn, HumanForceExchange } from "@automovie/motions/internal";
+import {
+  HumanForceDrawn
+} from "../../../../../packages/motions/src/grappling/internal/HumanForceDrawn";
+import {
+  HumanForceExchange
+} from "../../../../../packages/motions/src/grappling/internal/HumanForceExchange";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -15,11 +20,11 @@ const SQUARE: IAutoMovieVector3[] = [
 
 /**
  * The release's bracket, seconds: the swing bisects for the release to
- * `integrateMotionTrajectory.STEP²` and returns the bracket's end past it
+ * `AutoMovieEngineMotionTrajectory.integrateMotionTrajectoryStep()²` and returns the bracket's end past it
  * (`bracketedBisection`), so the read release lies at most this long after the
  * true one.
  */
-const BRACKET: number = integrateMotionTrajectory.STEP ** 2;
+const BRACKET: number = AutoMovieEngineMotionTrajectory.integrateMotionTrajectoryStep() ** 2;
 
 /** The swing's stiffness `M g r / I`, per second squared. */
 const K: number = (70 * 10 * 1) / 80;
@@ -30,7 +35,7 @@ const K: number = (70 * 10 * 1) / 80;
  * at the step `h` (Hairer, Nørsett and Wanner, Solving Ordinary Differential
  * Equations I, 2nd ed., 1993, §II.3).
  */
-const RK4: number = (Math.sqrt(K) * integrateMotionTrajectory.STEP) ** 4;
+const RK4: number = (Math.sqrt(K) * AutoMovieEngineMotionTrajectory.integrateMotionTrajectoryStep()) ** 4;
 
 /**
  * The grappling force exchange: a partner drawn off balance by a constant pull

@@ -1,4 +1,4 @@
-import { measureAutoMovieSchedule } from "@automovie/engine";
+import { AutoMovieEngineSchedule } from "@automovie/engine";
 import type {
   IAutoMovieMeasureSchedule,
   IAutoMovieSchedule,
@@ -7,7 +7,7 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `measureAutoMovieSchedule` reads pacing from a schedule: actions per minute,
+ * `measureSchedule` reads pacing from a schedule: actions per minute,
  * the share of actions that follow the same subject's previous action within
  * the combination gap, each subject's lateral displacement share and idle time
  * over its presence, the share of the runtime with the camera moving (overlaps
@@ -94,12 +94,12 @@ export function test_engine_composition_measure_schedule(): void {
   };
   TestValidator.equals(
     "the pacing of the schedule",
-    measureAutoMovieSchedule(schedule, classify),
+    AutoMovieEngineSchedule.measure(schedule, classify),
     expected,
   );
   TestValidator.equals(
     "an empty schedule measures zero",
-    measureAutoMovieSchedule({ entries: [], duration: 0 }, classify),
+    AutoMovieEngineSchedule.measure({ entries: [], duration: 0 }, classify),
     {
       actionsPerMinute: 0,
       combinationShare: 0,

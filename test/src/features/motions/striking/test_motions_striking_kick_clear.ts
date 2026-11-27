@@ -1,4 +1,6 @@
-import { KickClear } from "@automovie/motions/internal";
+import {
+  KickClear
+} from "../../../../../packages/motions/src/striking/internal/KickClear";
 import { TestValidator } from "@nestia/e2e";
 
 /** A plan by its step, short beyond a step back. */

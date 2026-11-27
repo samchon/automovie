@@ -10,7 +10,7 @@
  * compile or edit identity mismatch. `film-effect-zone-missing` means a cue
  * names an absent world zone.
  *
- * These values classify the engine's AutoMovieFilmEffectRuntimeError without
+ * These values classify the engine's AutoMovieEngineFilmEffectRuntimeError without
  * parsing its message. Production building reports materialization failures
  * under its separate `film-effect-cue-invalid` diagnostic code, so consumers
  * must not assume that diagnostic preserves this finer classification.

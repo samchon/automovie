@@ -1,15 +1,18 @@
-import { deriveProductionSoundPlan } from "@automovie/engine";
+import { AutoMovieEngineSound } from "@automovie/engine";
 import type { IAutoMovieCompiledShotSource } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { createSoundPropagationTestInputs } from "../internal/audio/createSoundPropagationTestInputs";
 
 /**
- * Event planning retains equal sort keys and resolves a static formation aggregate without inventing a motion list.
+ * Event planning retains equal sort keys and resolves a static formation
+ * aggregate without inventing a motion list.
  *
  * Scenarios:
+ *
  * 1. Two event samples with identical sort keys remain present.
- * 2. A static two-member formation remains a resolved aggregate when no formation-motion list exists.
+ * 2. A static two-member formation remains a resolved aggregate when no
+ *    formation-motion list exists.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Executes the actual planner after duplicating one event sample and after replacing the individual subject with a static two-member formation whose motion list is absent, observing retained event count and resolved aggregate member count.
  * @evidence contracts/development/testing.md#independent-expectations Two authored samples and the literal formation count of two determine independent integer expectations. Equal-key retention alone does not prove ordering among distinct keys or stable identity ordering of identical events, and aggregate resolution does not inspect actual slots or acoustic pressure.
@@ -36,7 +39,7 @@ export function test_engine_sound_plan_member_ordering(): void {
   TestValidator.equals(
     "equal sort keys retain both authored event samples",
     {
-      equalSortKeysRetained: deriveProductionSoundPlan({
+      equalSortKeysRetained: AutoMovieEngineSound.deriveProductionSoundPlan({
         timeline: minimalTimeline(),
         contracts: new Map([["shot", minimalContract()]]),
         compiled: new Map([["shot", duplicatedSampleCompiled]]),
@@ -73,7 +76,7 @@ export function test_engine_sound_plan_member_ordering(): void {
 
   TestValidator.equals(
     "a static formation remains a resolved aggregate when no motion list exists",
-    deriveProductionSoundPlan({
+    AutoMovieEngineSound.deriveProductionSoundPlan({
       timeline: minimalTimeline(),
       contracts: new Map([["shot", crowdContract]]),
       compiled: new Map([["shot", crowdCompiled]]),

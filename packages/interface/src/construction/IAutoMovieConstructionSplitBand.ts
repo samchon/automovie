@@ -64,16 +64,7 @@ export namespace IAutoMovieConstructionSplitBand {
      * radians of clock (`IAutoMovieConstructionSplit.IProfile`), or absent for
      * the straight chord.
      */
-    seam?: {
-      /**
-       * Prepared shared seam used by both adjoining bands, read by arc-length
-       * share with millimetre positions.
-       */
-      curve: IAutoMovieConstructionSplitSeam.ISeam;
-
-      /** Ribbon-turn window at each fork, in radians of the band's loop clock. */
-      corner: number;
-    };
+    seam?: IInputSeam;
 
     /**
      * How the child's rail is matched to the loop
@@ -81,6 +72,18 @@ export namespace IAutoMovieConstructionSplitBand {
      */
     correspondence?: "angle" | "length";
   }
+
+  /** The seam object of {@link IInput}. */
+  export type IInputSeam = {
+    /**
+     * Prepared shared seam used by both adjoining bands, read by arc-length
+     * share with millimetre positions.
+     */
+    curve: IAutoMovieConstructionSplitSeam.ISeam;
+
+    /** Ribbon-turn window at each fork, in radians of the band's loop clock. */
+    corner: number;
+  };
 
   /** One built band. */
   export interface IBand extends IAutoMovieConstructionSplitBand.IStrip {
@@ -117,32 +120,12 @@ export namespace IAutoMovieConstructionSplitBand {
      * internally then downsample loop/childPhases without downsampling this
      * report.
      */
-    scale: {
-      /**
-       * Minimum applied dimensionless ribbon scale; common mode uses it
-       * everywhere, while column mode has a varying smoothed field.
-       */
-      applied: number;
-
-      /**
-       * Initial monotone factors at or below 1, in forward construction-column
-       * order with backward columns omitted. Empty when every column is
-       * backward; not the applied scale field.
-       */
-      columns: number[];
-
-      /**
-       * Zero-based construction-column ordinals failing either positive
-       * endpoint tangent/chord dot product; these columns remain in the strip
-       * without a monotonicity guarantee.
-       */
-      backward: number[];
-    };
+    scale: IStripScale;
 
     /**
      * The factor each column's ribbons were scaled by: the common one, or each
      * column's own (`ribbons: "column"`). A port's exact band joins them round
-     * the loop (`AutoMovieConstructionPortBand`).
+     * the loop (`AutoMovieEngineConstructionPortBand`).
      */
     field: number[];
 
@@ -158,6 +141,29 @@ export namespace IAutoMovieConstructionSplitBand {
      */
     outward: AutoMovieVector3Tuple;
   }
+
+  /** The scale object of {@link IStrip}. */
+  export type IStripScale = {
+    /**
+     * Minimum applied dimensionless ribbon scale; common mode uses it
+     * everywhere, while column mode has a varying smoothed field.
+     */
+    applied: number;
+
+    /**
+     * Initial monotone factors at or below 1, in forward construction-column
+     * order with backward columns omitted. Empty when every column is
+     * backward; not the applied scale field.
+     */
+    columns: number[];
+
+    /**
+     * Zero-based construction-column ordinals failing either positive
+     * endpoint tangent/chord dot product; these columns remain in the strip
+     * without a monotonicity guarantee.
+     */
+    backward: number[];
+  };
 
   /**
    * One stretch of a band's loop in a split into more than two: a host arc, or

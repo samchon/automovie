@@ -12,8 +12,9 @@ import type { IAutoMovieActionTarget } from "./IAutoMovieActionTarget";
  * gait lists, and a destination that resolves but leaves an actor no horizontal
  * travel, since a gait cannot climb straight up.
  *
- * The reference synthesizer (`makeActorSynthesizer`) carries whole gait cycles
- * to the destination, including its height change, at the actor's ground speed.
+ * The reference synthesizer (`AutoMovieEngineFilm.makeActorSynthesizer`) carries
+ * whole gait cycles to the destination at the actor's ground speed, including
+ * the destination's height change.
  * A numeric `duration` time-scales that walk to the stated span, and `"auto"`
  * keeps the engine's sizing. A relative target, `direction` or `offscreen`, has
  * no point yet, so the actor steps in place; so does an actor already at the

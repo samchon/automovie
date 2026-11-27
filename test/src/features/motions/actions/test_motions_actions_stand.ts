@@ -1,5 +1,7 @@
 import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSupportCarry, IAutoMovieVector3 } from "@automovie/interface";
-import { standFeet } from "@automovie/motions/internal";
+import {
+  standFeet
+} from "../../../../../packages/motions/src/actions/internal/standFeet";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";

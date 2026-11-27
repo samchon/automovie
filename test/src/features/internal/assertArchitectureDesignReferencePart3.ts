@@ -1,4 +1,4 @@
-import { validateDesignReference } from "@automovie/engine";
+import { AutoMovieEngineArchitecture } from "@automovie/engine";
 import type { IAutoMovieDesignReference } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -52,7 +52,7 @@ export function assertArchitectureDesignReferencePart3(
     "one malformed field produces exactly one refusal",
     ((): boolean => {
       const observed: number = violationCount(
-        validateDesignReference({
+        AutoMovieEngineArchitecture.validateDesignReference({
           reference: { ...observation(), digest: "sha256:malformed" },
         }),
       );

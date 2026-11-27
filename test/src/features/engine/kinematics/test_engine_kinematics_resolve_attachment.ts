@@ -1,10 +1,4 @@
-import {
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
-  Quaternion,
-  resolveAttachment,
-  resolvePose,
-} from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineHumanoidJointAxes, AutoMovieEngineHumanoidRestFrame, AutoMovieEngineQuaternion, AutoMovieEngineSkeletonPose } from "@automovie/engine";
 import {
   IAutoMovieAttachment,
   IAutoMoviePose,
@@ -24,7 +18,7 @@ import { throwsError } from "../../internal/throwsError";
 import { vclose } from "../../internal/vclose";
 
 /**
- * `resolveAttachment`: the cross-skeleton joint that fixes a child model's root
+ * `AutoMovieEngineSkeletonPose.resolveAttachment`: the cross-skeleton joint that fixes a child model's root
  * into a bone of a posed parent (a rider in a horse's saddle). It runs FK on
  * the parent, reads the attachment bone's world position + orientation, and
  * composes the offset into that frame.
@@ -58,7 +52,7 @@ export function test_engine_kinematics_resolve_attachment(): void {
     scale: { x: 2, y: 2, z: 2 },
   };
   const att1: IAutoMovieAttachment = { parentBone: "chest", offset: idOffset };
-  const r1: IAutoMovieTransform = resolveAttachment(restPose, skeleton, att1);
+  const r1: IAutoMovieTransform = AutoMovieEngineSkeletonPose.resolveAttachment(restPose, skeleton, att1);
   TestValidator.equals(
     "child sits on chest world pos (0,1.4,0)",
     namedFacts([
@@ -92,7 +86,7 @@ export function test_engine_kinematics_resolve_attachment(): void {
       scale: { x: 1, y: 1, z: 1 },
     },
   };
-  const r2: IAutoMovieTransform = resolveAttachment(restPose, skeleton, att2);
+  const r2: IAutoMovieTransform = AutoMovieEngineSkeletonPose.resolveAttachment(restPose, skeleton, att2);
   TestValidator.equals(
     "seat offset added to chest pos",
     namedFacts([
@@ -104,7 +98,7 @@ export function test_engine_kinematics_resolve_attachment(): void {
 
   // 3. yaw the whole rig via the pose root: child inherits the bone's world
   //    rotation and the offset is carried into that frame
-  const yaw: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+  const yaw: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
     { x: 0, y: 1, z: 0 },
     90,
   );
@@ -113,7 +107,7 @@ export function test_engine_kinematics_resolve_attachment(): void {
     rotation: yaw,
     scale: { x: 1, y: 1, z: 1 },
   });
-  const r3: IAutoMovieTransform = resolveAttachment(yawed, skeleton, att2);
+  const r3: IAutoMovieTransform = AutoMovieEngineSkeletonPose.resolveAttachment(yawed, skeleton, att2);
 
   // A +Y quarter-turn maps +Z to +X and leaves Y unchanged.
   TestValidator.predicate(
@@ -139,7 +133,7 @@ export function test_engine_kinematics_resolve_attachment(): void {
     "attaching to a missing bone throws",
     throwsError(
       (): IAutoMovieTransform =>
-        resolveAttachment(
+        AutoMovieEngineSkeletonPose.resolveAttachment(
           restPose,
           skeleton,
           { parentBone: "rightFoot", offset: idOffset },
@@ -152,30 +146,30 @@ export function test_engine_kinematics_resolve_attachment(): void {
   // a referenced bone the fixture DOES have, with a non-rest articulation, also
   // resolves (exercises the jointAxes-less articulation path through FK)
   const posed: IAutoMoviePose = makePose([joint("spine", { flexion: 20 })]);
-  resolveAttachment(posed, skeleton, att1);
+  AutoMovieEngineSkeletonPose.resolveAttachment(posed, skeleton, att1);
 
   // 5. clinical parent pose → same FK path as the renderer/player
   const raised: IAutoMoviePose = makePose([
     joint("leftUpperArm", { abduction: 180 }),
   ]);
-  const framed: IAutoMovieTransform = resolveAttachment(
+  const framed: IAutoMovieTransform = AutoMovieEngineSkeletonPose.resolveAttachment(
     raised,
     skeleton,
     { parentBone: "leftHand", offset: idOffset },
-    HUMANOID_JOINT_AXES,
-    HUMANOID_REST_FRAME,
+    AutoMovieEngineHumanoidJointAxes,
+    AutoMovieEngineHumanoidRestFrame,
   );
-  const raw: IAutoMovieTransform = resolveAttachment(
+  const raw: IAutoMovieTransform = AutoMovieEngineSkeletonPose.resolveAttachment(
     raised,
     skeleton,
     { parentBone: "leftHand", offset: idOffset },
-    HUMANOID_JOINT_AXES,
+    AutoMovieEngineHumanoidJointAxes,
   );
-  const visibleHand: IAutoMovieResolvedBone = resolvePose(
+  const visibleHand: IAutoMovieResolvedBone = AutoMovieEngineKinematics.resolvePose(
     raised,
     skeleton,
-    HUMANOID_JOINT_AXES,
-    HUMANOID_REST_FRAME,
+    AutoMovieEngineHumanoidJointAxes,
+    AutoMovieEngineHumanoidRestFrame,
   ).find((r: IAutoMovieResolvedBone): boolean => r.bone === "leftHand")!;
   TestValidator.predicate(
     "rest-framed attachment matches the numerical framed hand",

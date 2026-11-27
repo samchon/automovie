@@ -40,7 +40,7 @@ import type { IAutoMovieWorldSurface } from "./IAutoMovieWorldSurface";
  * cues that the engine expands from count, layout, anchor, facing, and seed
  * rather than into per-member nodes.
  *
- * `mergeAutoMovieSubjectContributions` concatenates each field across subjects
+ * `mergeSubjectContributions` concatenates each field across subjects
  * in the order given and drops empty arrays. Its field list is typed as a
  * complete record of these keys, so a field added here fails to compile until
  * the merge names it too.

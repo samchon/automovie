@@ -14,11 +14,12 @@ import type {
   IAutoMovieRenderSoftPropFrame,
 } from "@automovie/interface";
 import type {
-  IAutoMovieDrawScene,
-  IObserveAutoMoviePlacedScene,
-  ISelectAutoMoviePlacedChecks,
-  observeAutoMoviePlacedCamera,
-  observeAutoMovieSceneCollision,
+  IAutoMovieRenderDrawScene,
+  IAutoMovieRenderDrawView,
+  IAutoMovieRenderObservePlacedSceneCheck,
+  IAutoMovieRenderSelectPlacedChecksContinuity,
+  AutoMovieRenderInspectionCamera,
+  AutoMovieRenderInspection,
 } from "@automovie/render";
 import type * as THREE from "three";
 
@@ -58,7 +59,7 @@ export interface IFilmProduction {
    * Additional authored diagnostics for the settled film as last placed, read
    * before inspection masks or review cameras.
    */
-  inspectPlaced?: IAutoMovieDrawScene["inspectPlaced"];
+  inspectPlaced?: IAutoMovieRenderDrawScene["inspectPlaced"];
 
   /**
    * Optional source-owned shot layers, exemptions and motion cells for the
@@ -71,8 +72,8 @@ export interface IFilmProduction {
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The film owns the layer producer; this signature has no body. The signature chooses no traversal or allocation strategy. The film owns any reuse of its shot layers. The signature acquires no resources; the film and the inspection own their lifetimes.
    */
   inspectionLayers?: (
-    sample: IAutoMovieDrawScene.IPlacedSample,
-  ) => Parameters<typeof observeAutoMovieSceneCollision>[0]["layers"];
+    sample: IAutoMovieRenderDrawScene.IPlacedSample,
+  ) => AutoMovieRenderInspection.IPlacedSceneCollisionProps["layers"];
 
   /**
    * Independent support, grip, custody and continuity expectations for the
@@ -83,8 +84,8 @@ export interface IFilmProduction {
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The film owns the expectation producer; this signature has no body. The signature chooses no traversal or allocation strategy. The film owns any reuse of its expectations. The signature acquires no resources; the film and the inspection own their lifetimes.
    */
   inspectionChecks?: (
-    sample: IAutoMovieDrawScene.IPlacedSample,
-  ) => readonly IObserveAutoMoviePlacedScene.ICheck[];
+    sample: IAutoMovieRenderDrawScene.IPlacedSample,
+  ) => readonly IAutoMovieRenderObservePlacedSceneCheck[];
 
   /**
    * Subjects the shot last placed requires the delivery camera to show at its
@@ -105,8 +106,8 @@ export interface IFilmProduction {
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The film owns the requirement producer; this signature has no body. The signature chooses no traversal or allocation strategy. The film owns any reuse of its requirements. The signature acquires no resources; the film and the inspection own their lifetimes.
    */
   inspectionCamera?: (
-    sample: IAutoMovieDrawScene.IPlacedSample,
-  ) => Parameters<typeof observeAutoMoviePlacedCamera>[0]["targets"];
+    sample: IAutoMovieRenderDrawScene.IPlacedSample,
+  ) => Parameters<typeof AutoMovieRenderInspectionCamera.observePlaced>[0]["targets"];
 
   /**
    * The film's human performance and the entity path of each performer, so a
@@ -158,7 +159,7 @@ export interface IFilmProduction {
    * right after each placement, a transition shot's and a sub-frame sample's
    * included, before each picture of the Viewer, a capture or the delivered
    * video: draw the placed shot's surface feeds with `renderFeeds` of the
-   * surface graphics `prepareAutoMovieSurfaceGraphics` returned, resolving each
+   * surface graphics `prepareSurfaceGraphics` returned, resolving each
    * feed camera by id and passing the film's `optics` for the same placement,
    * so a screen shows an exposed picture rather than raw scene light. It must
    * leave the renderer's render target as it found it. Absent, no feed is drawn
@@ -204,7 +205,7 @@ export interface IFilmProduction {
    * start. Absent treats the whole film as one continuous shot.
    */
   playback?: Pick<
-    ISelectAutoMoviePlacedChecks.IContinuity,
+    IAutoMovieRenderSelectPlacedChecksContinuity,
     "sequence" | "timeline" | "discontinuities"
   >;
 
@@ -265,19 +266,14 @@ export interface IFilmProduction {
   views?: Readonly<
     Record<
       string,
-      (seconds: number) => {
-        /** Camera position in world metres. */
-        position: readonly [number, number, number];
-        /** Point the camera looks at, in world metres. */
-        target: readonly [number, number, number];
-      }
+      (seconds: number) => IAutoMovieRenderDrawView
     >
   >;
 
   /**
    * Optional inspection marks of the film at an exact second: what its owners
    * locate, such as the construction curves of its built forms from
-   * `markAutoMovieConstructionCurves`. They are drawn only when an inspection's
+   * `markConstructionCurves`. They are drawn only when an inspection's
    * `marks` parameter names their kinds, in the Viewer and in a capture alike,
    * and are asked for right after the drawn second's last placement, the shot
    * the picture shows most of, so they describe that shot.

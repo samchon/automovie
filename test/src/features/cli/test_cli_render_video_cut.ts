@@ -1,18 +1,15 @@
+import { AutoMovieEngineSound } from "@automovie/engine";
 import type {
   IAutoMovieDeliveredCutEntry,
   IAutoMoviePlaybackTimeline,
 } from "@automovie/interface";
 import {
-  AUTOMOVIE_MP4_SRGB_COLOUR,
-  assertProductionAacProfile,
-  assertProductionVideoProfile,
-  auditAutoMovieDeliveryContent,
-  createAutoMovieLoudnessMeter,
-  renderAutoMovieDrawnVideo,
-  resolveProductionVideoProfile,
+  AutoMovieRenderMp4SrgbColour,
+  AutoMovieRenderDelivery,
+  AutoMovieRenderVideo,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
-import { renderAutoMovieVideo } from "automovie";
+import { AutoMovieCliRender } from "automovie";
 import { createHash } from "node:crypto";
 import * as fs from "node:fs/promises";
 import * as os from "node:os";
@@ -59,16 +56,13 @@ export async function test_cli_render_video_cut(): Promise<void> {
     path.join(os.tmpdir(), "automovie-cut-"),
   );
   let cut: IAutoMoviePlaybackTimeline | undefined = CUT;
-  const fixture: Parameters<typeof renderAutoMovieVideo>[0] = {
+  const fixture: Parameters<typeof AutoMovieCliRender.renderVideo>[0] = {
     host: {
       render: {
-        renderAutoMovieDrawnVideo,
-        auditAutoMovieDeliveryContent,
-        createAutoMovieLoudnessMeter,
-        AUTOMOVIE_MP4_SRGB_COLOUR,
-        assertProductionAacProfile,
-        assertProductionVideoProfile,
-        resolveProductionVideoProfile,
+        AutoMovieRenderVideo,
+        createAutoMovieLoudnessMeter: AutoMovieEngineSound.createLoudnessMeter,
+        AutoMovieRenderMp4SrgbColour,
+        AutoMovieRenderDelivery,
       },
       session: async () => ({
         backend: "fixture",
@@ -122,7 +116,7 @@ export async function test_cli_render_video_cut(): Promise<void> {
   const sha256: (bytes: Buffer) => string = (bytes: Buffer): string =>
     createHash("sha256").update(bytes).digest("hex");
   let encoded: Buffer = header(true);
-  const run: NonNullable<Parameters<typeof renderAutoMovieVideo>[1]> = async (
+  const run: NonNullable<Parameters<typeof AutoMovieCliRender.renderVideo>[1]> = async (
     _binary,
     args,
   ) => {
@@ -135,7 +129,7 @@ export async function test_cli_render_video_cut(): Promise<void> {
 
   try {
     // 1. A published cut beside the audited digest.
-    await renderAutoMovieVideo(fixture, run);
+    await AutoMovieCliRender.renderVideo(fixture, run);
     const published: any = JSON.parse(await fs.readFile(report, "utf8"));
     TestValidator.equals(
       "the published report keeps the cut and the film's digest",
@@ -170,7 +164,7 @@ export async function test_cli_render_video_cut(): Promise<void> {
 
     // 2. No cut, no field.
     cut = undefined;
-    await renderAutoMovieVideo(fixture, run);
+    await AutoMovieCliRender.renderVideo(fixture, run);
     TestValidator.equals(
       "a subject without a cut leaves no cut field",
       "cut" in JSON.parse(await fs.readFile(report, "utf8")),
@@ -181,7 +175,7 @@ export async function test_cli_render_video_cut(): Promise<void> {
     cut = CUT;
     const kept: Buffer = await fs.readFile(video);
     encoded = header(false);
-    const leaked: boolean = await renderAutoMovieVideo(fixture, run)
+    const leaked: boolean = await AutoMovieCliRender.renderVideo(fixture, run)
       .then((): boolean => true)
       .catch((): boolean => false);
     if (leaked) throw new Error("A limited-range file was published");

@@ -1,9 +1,6 @@
-import { markAutoMovieConstructionCurves } from "@automovie/engine";
+import { AutoMovieEngineConstruction } from "@automovie/engine";
 import type { IAutoMovieMark } from "@automovie/interface";
-import {
-  type IAutoMovieInspectionHandle,
-  applyAutoMovieInspection,
-} from "@automovie/render";
+import { type IAutoMovieRenderInspectionHandle, AutoMovieRenderInspection } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -34,13 +31,13 @@ export function test_render_scene_apply_inspection_select(): void {
     points: [0, 0, z, 1, 0, z, 0, 1, z],
     flagged: false,
   });
-  const marks: IAutoMovieMark[] = markAutoMovieConstructionCurves(
+  const marks: IAutoMovieMark[] = AutoMovieEngineConstruction.markConstructionCurves(
     [ring(0, 0), ring(1, 1), ring(2, 2)],
     "hero",
   );
 
   // 1. One curve.
-  const one: IAutoMovieInspectionHandle = applyAutoMovieInspection({
+  const one: IAutoMovieRenderInspectionHandle = AutoMovieRenderInspection.apply({
     scene: stage,
     request: InspectionScene.ask({
       parts: ["hero/torso/section/1"],
@@ -62,7 +59,7 @@ export function test_render_scene_apply_inspection_select(): void {
   one.restore();
 
   // 2. The object and its marks.
-  const whole: IAutoMovieInspectionHandle = applyAutoMovieInspection({
+  const whole: IAutoMovieRenderInspectionHandle = AutoMovieRenderInspection.apply({
     scene: stage,
     request: InspectionScene.ask({ parts: ["hero"], marks: ["curve"] }),
     marks,
@@ -95,7 +92,7 @@ export function test_render_scene_apply_inspection_select(): void {
     { color: [{ pattern: "villain", color: 0x123456 }] },
   ])
     TestValidator.error(`${JSON.stringify(changes)} is refused`, (): void => {
-      applyAutoMovieInspection({
+      AutoMovieRenderInspection.apply({
         scene: stage,
         request: InspectionScene.ask({ marks: ["curve"], ...changes }),
         marks,

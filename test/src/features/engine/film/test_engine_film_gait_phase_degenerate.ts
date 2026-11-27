@@ -1,4 +1,4 @@
-import { resolveBeatEnd } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import {
   IAutoMovieBeatEndActorState,
   IAutoMovieGaitCycle,
@@ -65,7 +65,7 @@ const phaseOf: (
   gaitCycle: IAutoMovieGaitCycle,
   duration: number = shot.duration,
 ): number | null =>
-  resolveBeatEnd({
+  AutoMovieEngineFilm.resolveBeatEnd({
     beat: "beat-1",
     scene,
     shot: { ...shot, duration },

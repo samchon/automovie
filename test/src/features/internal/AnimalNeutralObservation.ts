@@ -1,8 +1,5 @@
-import {
-  AutoMovieArchetypeQuadrupedJoints,
-  type createQuadruped,
-} from "@automovie/archetypes";
-import { Quaternion, validateModel } from "@automovie/engine";
+import { AutoMovieArchetypeQuadrupedJoints, type AutoMovieArchetypeQuadruped } from "@automovie/archetypes";
+import { AutoMovieEngineQuaternion, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieTransform,
@@ -25,7 +22,7 @@ import { nclose } from "./nclose";
  */
 export namespace AnimalNeutralObservation {
   /** Actual public eight-kind model; no proxy body is substituted. */
-  export type Model = ReturnType<typeof createQuadruped>;
+  export type Model = ReturnType<typeof AutoMovieArchetypeQuadruped.create>;
 
   /** Actual public query returned for subsequent output-isolation checks. */
   export type Query = ReturnType<typeof AutoMovieArchetypeQuadrupedJoints.read>;
@@ -50,7 +47,7 @@ export namespace AnimalNeutralObservation {
     label: string,
     findings: string[],
   ): Query {
-    if (!validateModel({ model }).success)
+    if (!AutoMovieEngineValidation.validateModel({ model }).success)
       findings.push(`${label}: actual model admission failed`);
     const parts: Map<string, IAutoMovieModelPart> = new Map(
       model.parts.map(
@@ -136,8 +133,8 @@ export namespace AnimalNeutralObservation {
         : "hindquarters";
       const parent: IAutoMovieModelPart = need(parts, parentId);
       const proximal: IAutoMovieVector3 = endpoint(need(parts, ids[0]!), -1);
-      const local: IAutoMovieVector3 = Quaternion.rotateVector(
-        Quaternion.inverse(frame(parent).rotation),
+      const local: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+        AutoMovieEngineQuaternion.inverse(frame(parent).rotation),
         {
           x: proximal.x - frame(parent).translation.x,
           y: proximal.y - frame(parent).translation.y,
@@ -172,7 +169,7 @@ export namespace AnimalNeutralObservation {
         near(`${limb} actual terminal solid sole`, foot.soleY, 0, 1e-9);
         const terminal: IAutoMovieModelPart = need(parts, ids[3]!);
         const terminalShape: { height: number; radius: number } = bar(terminal);
-        const axis: IAutoMovieVector3 = Quaternion.rotateVector(
+        const axis: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
           frame(terminal).rotation,
           { x: 0, y: 1, z: 0 },
         );
@@ -235,7 +232,7 @@ export namespace AnimalNeutralObservation {
     part: IAutoMovieModelPart,
     sign: -1 | 1,
   ): IAutoMovieVector3 {
-    const offset: IAutoMovieVector3 = Quaternion.rotateVector(
+    const offset: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       frame(part).rotation,
       { x: 0, y: (sign * bar(part).height) / 2, z: 0 },
     );
@@ -255,7 +252,7 @@ export namespace AnimalNeutralObservation {
       throw new Error(`Neutral part ${part.id} must be an actual primitive`);
     const shape: typeof part.geometry.shape = part.geometry.shape;
     const at: IAutoMovieTransform = frame(part);
-    const axisY: IAutoMovieVector3 = Quaternion.rotateVector(at.rotation, {
+    const axisY: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(at.rotation, {
       x: 0,
       y: 1,
       z: 0,
@@ -281,12 +278,12 @@ export namespace AnimalNeutralObservation {
         )
       );
     if (shape.type === "box") {
-      const axisX: IAutoMovieVector3 = Quaternion.rotateVector(at.rotation, {
+      const axisX: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(at.rotation, {
         x: 1,
         y: 0,
         z: 0,
       });
-      const axisZ: IAutoMovieVector3 = Quaternion.rotateVector(at.rotation, {
+      const axisZ: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(at.rotation, {
         x: 0,
         y: 0,
         z: 1,

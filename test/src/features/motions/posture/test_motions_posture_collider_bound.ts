@@ -2,7 +2,9 @@ import type {
   IAutoMovieMotionHumanColliders,
   IAutoMoviePhysicalShape,
 } from "@automovie/interface";
-import { HumanColliders } from "@automovie/motions/internal";
+import {
+  HumanColliders
+} from "../../../../../packages/motions/src/posture/internal/HumanColliders";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

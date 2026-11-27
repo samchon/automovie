@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanStageFight } from "@automovie/interface";
 
-/**
+/*
  * The pushed preset: the trunk giving way from a push at half intensity. The
  * `pushed` row of `HumanStageFight` reads it, so the row and the preset share
  * one value.

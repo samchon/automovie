@@ -1,4 +1,4 @@
-import { AutoMovieLoftRelief, AutoMovieViewChain } from "@automovie/engine";
+import { AutoMovieEngineLoftRelief, AutoMovieEngineViewChain } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft,
   AutoMovieHumanConicRelief,
@@ -112,7 +112,7 @@ namespace FamilyConicCoarse {
   /** Whether the body's reflection maps the net's window and directions onto themselves (`FamilyConicCompact`'s rule). */
   function reflective(relief: IAutoMovieLoftRelief): boolean {
     const middle: number =
-      relief.phases[0] + AutoMovieLoftRelief.width(relief) / 2;
+      relief.phases.start + AutoMovieEngineLoftRelief.width(relief) / 2;
     return (
       Math.abs(Math.sin(middle)) < 1e-4 &&
       Math.abs(relief.axis[2]) < 1e-9 &&
@@ -137,7 +137,7 @@ namespace FamilyConicCoarse {
           s,
           (section = AutoMovieHumanConicSection.chain(read(s), family.layout)),
         );
-      const r: number = AutoMovieViewChain.radius(section, phase);
+      const r: number = AutoMovieEngineViewChain.radius(section, phase);
       return Number.isFinite(r) ? r : 1;
     };
   }
@@ -146,7 +146,8 @@ namespace FamilyConicCoarse {
   function moduleOf(root: string, family: string): string {
     return path.join(
       root,
-      "packages/human/src/generation/f1/AutoMovieHumanF1" +
+      "packages/human/src/generation/f1",
+      "AutoMovieHumanF1" +
         family
           .split(".")
           .map((word: string): string => word[0]!.toUpperCase() + word.slice(1))

@@ -1,5 +1,7 @@
 import type { IAutoMovieMotionClock } from "@automovie/interface";
-import { AutoMovieMotionManner } from "@automovie/motions/internal";
+import {
+  motionManner
+} from "../../../../../packages/motions/src/compose/internal/motionManner";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -10,7 +12,7 @@ import { throwsError } from "../../internal/throwsError";
 const ROUNDING: number = 1e-12;
 
 /**
- * `AutoMovieMotionManner.time` performs a clock in a manner: each span, named
+ * `motionManner.time` performs a clock in a manner: each span, named
  * by the instant that opens it, is stretched by the hold factor when it is a
  * hold, left as it is when it is fixed and stretched by the tempo otherwise.
  *
@@ -35,7 +37,7 @@ export function test_motions_compose_motion_manner_time(): void {
     { name: "hold", seconds: 2 },
     { name: "recover", seconds: 4 },
   ]);
-  const timed: IAutoMovieMotionClock = AutoMovieMotionManner.time(
+  const timed: IAutoMovieMotionClock = motionManner.time(
     phrase,
     { tempo: 0.5, hold: 2 },
     { holds: ["hold"], fixed: ["recover"] },
@@ -53,7 +55,7 @@ export function test_motions_compose_motion_manner_time(): void {
     { name: "ready", seconds: 1 },
     { name: "strokeEnd", seconds: 3 },
   ]);
-  const held: IAutoMovieMotionClock = AutoMovieMotionManner.time(gesture, {
+  const held: IAutoMovieMotionClock = motionManner.time(gesture, {
     tempo: 2,
     hold: 3,
   });
@@ -67,14 +69,14 @@ export function test_motions_compose_motion_manner_time(): void {
   // 3. No change.
   TestValidator.predicate(
     "unit factors return the clock itself",
-    AutoMovieMotionManner.time(phrase, { tempo: 1, hold: 1 }) === phrase,
+    motionManner.time(phrase, { tempo: 1, hold: 1 }) === phrase,
   );
 
   // 4. An unknown hold.
   TestValidator.predicate(
     "a hold the clock lacks is refused",
     throwsError(() =>
-      AutoMovieMotionManner.time(
+      motionManner.time(
         phrase,
         { tempo: 0.5, hold: 2 },
         { holds: ["pause"] },

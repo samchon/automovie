@@ -1,0 +1,63 @@
+import { AutoMovieEngineVector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanSurface,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+/*
+ * Measure a displayed glide in the equipment's midpoint heading and the
+ * surface's plane. A straight glide or a circular glide with tangent equipment
+ * can advance while leaving transverse displacement near zero. An intended skid
+ * can use the same reading with a different expected transverse displacement.
+ * The stationary plant audit keeps its original world-position check.
+ * Parameter before: The first displayed equipment contact, from a pose or prop.
+ * Parameter after: The next displayed contact of the same equipment.
+ * Parameter surface: The plane both samples are staged against.
+ * Returns: The longitudinal and transverse displacements and last normal gap.
+ * If the plane has no normal or a usable gliding direction
+ * cannot be recovered from the two samples.
+ */
+export function measureSurfaceGlide(
+  before: IAutoMovieMotionHumanSurface.IGlideSample,
+  after: IAutoMovieMotionHumanSurface.IGlideSample,
+  surface: IAutoMovieMotionHumanSurface.IGlidePlane,
+): IAutoMovieMotionHumanSurface.IGlideMeasure {
+  const normalLength: number = AutoMovieEngineVector3.length(surface.normal);
+  if (normalLength === 0)
+    throw new RangeError("a glide measurement requires a surface normal");
+  const normal: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+    surface.normal,
+    1 / normalLength,
+  );
+  const tangent = (forward: IAutoMovieVector3): IAutoMovieVector3 => {
+    const projected: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
+      forward,
+      AutoMovieEngineVector3.scale(normal, AutoMovieEngineVector3.dot(forward, normal)),
+    );
+    const length: number = AutoMovieEngineVector3.length(projected);
+    if (!(length > 1e-9))
+      throw new RangeError("the equipment must point along the glide plane");
+    return AutoMovieEngineVector3.scale(projected, 1 / length);
+  };
+  const bisector: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+    tangent(before.forward),
+    tangent(after.forward),
+  );
+  const bisectorLength: number = AutoMovieEngineVector3.length(bisector);
+  if (bisectorLength <= 1e-9)
+    throw new RangeError("glide samples must be closer than half a turn");
+  const forward: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+    bisector,
+    1 / bisectorLength,
+  );
+  const right: IAutoMovieVector3 = AutoMovieEngineVector3.cross(normal, forward);
+  const displacement: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
+    after.point,
+    before.point,
+  );
+  return {
+    along: AutoMovieEngineVector3.dot(displacement, forward),
+    across: AutoMovieEngineVector3.dot(displacement, right),
+    gap: AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(after.point, surface.point), normal),
+  };
+}

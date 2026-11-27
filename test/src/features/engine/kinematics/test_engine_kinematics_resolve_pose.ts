@@ -1,4 +1,4 @@
-import { HUMANOID_JOINT_AXES, resolvePose } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineHumanoidJointAxes } from "@automovie/engine";
 import type {
   IAutoMovieBone,
   IAutoMoviePose,
@@ -83,7 +83,7 @@ const pose: (
  *    0) to (0, 0, -0.2), so the arm sits at (0, 1.5, -0.2).
  */
 export function test_engine_kinematics_resolve_pose(): void {
-  const rest: IAutoMovieResolvedBone[] = resolvePose(pose(null, []), SKELETON);
+  const rest: IAutoMovieResolvedBone[] = AutoMovieEngineKinematics.resolvePose(pose(null, []), SKELETON);
   TestValidator.predicate(
     "rest offsets add",
     vclose(position(rest, "hips"), { x: 0, y: 1, z: 0 }, ROUNDING) &&
@@ -94,7 +94,7 @@ export function test_engine_kinematics_resolve_pose(): void {
         ROUNDING,
       ),
   );
-  const shifted: IAutoMovieResolvedBone[] = resolvePose(
+  const shifted: IAutoMovieResolvedBone[] = AutoMovieEngineKinematics.resolvePose(
     pose(
       {
         translation: { x: 1, y: 0, z: 0 },
@@ -114,7 +114,7 @@ export function test_engine_kinematics_resolve_pose(): void {
         ROUNDING,
       ),
   );
-  const twisted: IAutoMovieResolvedBone[] = resolvePose(
+  const twisted: IAutoMovieResolvedBone[] = AutoMovieEngineKinematics.resolvePose(
     pose(null, [{ bone: "spine", flexion: null, abduction: null, twist: 90 }]),
     SKELETON,
   );
@@ -129,14 +129,14 @@ export function test_engine_kinematics_resolve_pose(): void {
   TestValidator.equals(
     "an orphan and a rootless skeleton",
     [
-      resolvePose(pose(null, []), {
+      AutoMovieEngineKinematics.resolvePose(pose(null, []), {
         id: "orphan",
         bones: [
           bone("hips", null, restAt(0, 0, 0)),
           bone("leftHand", "leftLowerArm", restAt(0, 0, 0)),
         ],
       }).map((entry: IAutoMovieResolvedBone): string => entry.bone),
-      resolvePose(pose(null, []), {
+      AutoMovieEngineKinematics.resolvePose(pose(null, []), {
         id: "rootless",
         bones: [bone("spine", "hips", restAt(0, 0, 0))],
       }).length,
@@ -147,17 +147,17 @@ export function test_engine_kinematics_resolve_pose(): void {
     { bone: "leftUpperArm", flexion: 40, abduction: null, twist: null },
   ]);
   const localOf: (
-    axes: typeof HUMANOID_JOINT_AXES | undefined,
+    axes: typeof AutoMovieEngineHumanoidJointAxes | undefined,
   ) => IAutoMovieResolvedBone["localRotation"] = (
-    axes: typeof HUMANOID_JOINT_AXES | undefined,
+    axes: typeof AutoMovieEngineHumanoidJointAxes | undefined,
   ): IAutoMovieResolvedBone["localRotation"] =>
-    resolvePose(arm, SKELETON, axes).find(
+    AutoMovieEngineKinematics.resolvePose(arm, SKELETON, axes).find(
       (entry: IAutoMovieResolvedBone): boolean => entry.bone === "leftUpperArm",
     )!.localRotation;
   TestValidator.predicate(
     "axes about Y with the table, about X without",
     qclose(
-      localOf(HUMANOID_JOINT_AXES),
+      localOf(AutoMovieEngineHumanoidJointAxes),
       { x: 0, y: Math.sin(Math.PI / 9), z: 0, w: Math.cos(Math.PI / 9) },
       ROUNDING,
     ) &&

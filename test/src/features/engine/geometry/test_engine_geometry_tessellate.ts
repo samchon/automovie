@@ -1,4 +1,4 @@
-import { tessellate, tessellateToMesh } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieMesh,
   IAutoMoviePrimitiveShape,
@@ -26,7 +26,7 @@ import { nclose } from "../../internal/predicates";
  *    null skin.
  */
 export function test_engine_geometry_tessellate(): void {
-  const box: IAutoMovieTessellation = tessellate({
+  const box: IAutoMovieTessellation = AutoMovieEngineGeometry.tessellate({
     type: "box",
     width: 0.4,
     height: 0.6,
@@ -49,7 +49,7 @@ export function test_engine_geometry_tessellate(): void {
     );
   }
 
-  const sphere: IAutoMovieTessellation = tessellate({
+  const sphere: IAutoMovieTessellation = AutoMovieEngineGeometry.tessellate({
     type: "sphere",
     radius: 0.5,
   });
@@ -95,7 +95,7 @@ export function test_engine_geometry_tessellate(): void {
     { type: "capsule", radius: 0.2, height: 1 },
   ];
   for (const shape of shapes) {
-    const t: IAutoMovieTessellation = tessellate(shape);
+    const t: IAutoMovieTessellation = AutoMovieEngineGeometry.tessellate(shape);
     const vertexCount: number = t.positions.length / 3;
     TestValidator.equals(`${shape.type} triples`, t.positions.length % 3, 0);
     TestValidator.equals(
@@ -117,7 +117,7 @@ export function test_engine_geometry_tessellate(): void {
     );
   }
 
-  const mesh: IAutoMovieMesh = tessellateToMesh({
+  const mesh: IAutoMovieMesh = AutoMovieEngineGeometry.tessellateToMesh({
     type: "box",
     width: 1,
     height: 1,

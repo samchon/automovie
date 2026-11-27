@@ -1,11 +1,11 @@
-import { realizeAutoMovieBicubicAtlas64 as realize } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type { IAutoMovieBicubicAtlasGeometry as Atlas } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { createBicubicPlaneRecipe } from "../../internal/createBicubicPlaneRecipe";
 
 /**
- * `realizeAutoMovieBicubicAtlas64(atlas, { retainTriangleParameters })` keeps
+ * `realizeBicubicAtlas64(atlas, { retainTriangleParameters })` keeps
  * each triangle corner's own chart parameters, through shared vertices and
  * local omissions.
  *
@@ -38,7 +38,7 @@ export function test_engine_geometry_bicubic_atlas_parameters(): void {
   recipe.patches.push({ id: "second", controlIds: second });
 
   // 1.
-  const output: ReturnType<typeof realize> = realize(recipe, { retainTriangleParameters: true });
+  const output: ReturnType<typeof AutoMovieEngineGeometry.realizeBicubicAtlas64> = AutoMovieEngineGeometry.realizeBicubicAtlas64(recipe, { retainTriangleParameters: true });
   const uv: number[] = output.triangleParameters!;
   const ix: number[] = output.mesh.indices!;
   TestValidator.equals("complete", output.complete, true);
@@ -72,7 +72,7 @@ export function test_engine_geometry_bicubic_atlas_parameters(): void {
   );
 
   // 2.
-  const plain: ReturnType<typeof realize> = realize(recipe);
+  const plain: ReturnType<typeof AutoMovieEngineGeometry.realizeBicubicAtlas64> = AutoMovieEngineGeometry.realizeBicubicAtlas64(recipe);
   TestValidator.equals("no parameters", plain.triangleParameters, undefined);
   TestValidator.equals(
     "same mesh",
@@ -82,13 +82,13 @@ export function test_engine_geometry_bicubic_atlas_parameters(): void {
 
   // 3.
   recipe.maxVertices = 5;
-  const partial: ReturnType<typeof realize> = realize(recipe, { retainTriangleParameters: true });
+  const partial: ReturnType<typeof AutoMovieEngineGeometry.realizeBicubicAtlas64> = AutoMovieEngineGeometry.realizeBicubicAtlas64(recipe, { retainTriangleParameters: true });
   TestValidator.equals("partial", partial.complete, false);
   TestValidator.equals("partial pairs", partial.triangleParameters!.length, partial.mesh.indices!.length * 2);
   const empty: Atlas = { ...createBicubicPlaneRecipe(), patches: [] };
-  TestValidator.equals("empty", realize(empty, { retainTriangleParameters: true }).triangleParameters!.length, 0);
+  TestValidator.equals("empty", AutoMovieEngineGeometry.realizeBicubicAtlas64(empty, { retainTriangleParameters: true }).triangleParameters!.length, 0);
   const plane: Atlas = createBicubicPlaneRecipe();
-  const collapsed: ReturnType<typeof realize> = realize(
+  const collapsed: ReturnType<typeof AutoMovieEngineGeometry.realizeBicubicAtlas64> = AutoMovieEngineGeometry.realizeBicubicAtlas64(
     { ...plane, controls: plane.controls.map(() => ({ x: 0, y: 0, z: 0 })) },
     { retainTriangleParameters: true },
   );

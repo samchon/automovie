@@ -1,4 +1,4 @@
-import { computeRestHeight } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
@@ -40,17 +40,17 @@ export function test_engine_film_rest_height(): void {
   });
   TestValidator.predicate(
     "fixture",
-    nclose(computeRestHeight(createSkeleton()), 1.2, 1e-12),
+    nclose(AutoMovieEngineFilm.computeRestHeight(createSkeleton()), 1.2, 1e-12),
   );
   TestValidator.equals(
     "boneless",
-    computeRestHeight({ id: "empty", bones: [] }),
+    AutoMovieEngineFilm.computeRestHeight({ id: "empty", bones: [] }),
     0,
   );
   TestValidator.predicate(
     "duplicate",
     throwsError(
-      () => computeRestHeight(rig([bone("hips", null), bone("hips", null)])),
+      () => AutoMovieEngineFilm.computeRestHeight(rig([bone("hips", null), bone("hips", null)])),
       [
         'skeleton "bad-skeleton" bone "hips" is duplicated at bones[1].bone; first declared at bones[0].bone',
       ],
@@ -59,7 +59,7 @@ export function test_engine_film_rest_height(): void {
   TestValidator.predicate(
     "missing parent",
     throwsError(
-      () => computeRestHeight(rig([bone("spine", "hips")])),
+      () => AutoMovieEngineFilm.computeRestHeight(rig([bone("spine", "hips")])),
       ['skeleton "bad-skeleton" bone "hips" was not provided'],
     ),
   );
@@ -67,7 +67,7 @@ export function test_engine_film_rest_height(): void {
     "cycle",
     throwsError(
       () =>
-        computeRestHeight(rig([bone("hips", "spine"), bone("spine", "hips")])),
+        AutoMovieEngineFilm.computeRestHeight(rig([bone("hips", "spine"), bone("spine", "hips")])),
       ['skeleton "bad-skeleton" bone parent cycle includes "hips"'],
     ),
   );

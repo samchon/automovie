@@ -1,19 +1,5 @@
-import {
-  Quaternion,
-  Vector3,
-  integrateAirborneRotation,
-  resolveAutoMovieCenterOfMass,
-  solveAirborneTakeoff,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieIntegrateAirborneRotation,
-  IAutoMovieQuaternion,
-  IAutoMovieResolveCenterOfMass,
-  IAutoMovieResolvedBone,
-  IAutoMovieSolveAirborneTakeoff,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionAirborneRotation, AutoMovieEngineKinematics, AutoMovieEngineMotionAirborneTakeoff } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, IAutoMovieIntegrateAirborneRotation, IAutoMovieQuaternion, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieSolveAirborneTakeoff, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { AIRBORNE_CORE } from "../../internal/AIRBORNE_CORE";
@@ -80,7 +66,7 @@ export async function test_engine_motion_solve_airborne_takeoff(): Promise<void>
 
 /** Isotropic feasibility, published residual and exact-point work bound. */
 function isotropic(complaints: string[]): void {
-  const identity: IAutoMovieQuaternion = Quaternion.identity();
+  const identity: IAutoMovieQuaternion = AutoMovieEngineQuaternion.identity();
   const origin: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   for (const maximum of [Infinity, 2 * Math.PI, 0]) {
     let starts: number = 0;
@@ -94,7 +80,7 @@ function isotropic(complaints: string[]): void {
       };
     };
     const result: IAutoMovieSolveAirborneTakeoff.ISolution =
-      solveAirborneTakeoff({
+      AutoMovieEngineMotionAirborneTakeoff.solve({
         history,
         t0: 0,
         t1: 1,
@@ -107,13 +93,13 @@ function isotropic(complaints: string[]): void {
     const work: number = starts;
     if (result.met !== (maximum === Infinity))
       complaints.push(`ceiling ${maximum}: met ${result.met}`);
-    if (!(Vector3.length(result.momentum) <= maximum))
+    if (!(AutoMovieEngineVector3.length(result.momentum) <= maximum))
       complaints.push(`ceiling ${maximum}: momentum escaped its ball`);
     if (
       maximum === Infinity &&
       !(
         Math.abs(result.momentum.x - 4 * Math.PI) <=
-        2 * solveAirborneTakeoff.TOLERANCE
+        2 * AutoMovieEngineMotionAirborneTakeoff.TOLERANCE
       )
     )
       complaints.push(`one somersault needs 4 pi, got ${result.momentum.x}`);
@@ -123,11 +109,11 @@ function isotropic(complaints: string[]): void {
       );
     for (let k: number = 0; k <= 10; k++) {
       const t: number = k / 10;
-      const expected: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+      const expected: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
         { x: 1, y: 0, z: 0 },
         (result.momentum.x * t * 90) / Math.PI,
       );
-      if (!(Quaternion.angle(result.flight.orientation(t), expected) <= 1e-6))
+      if (!(AutoMovieEngineQuaternion.angle(result.flight.orientation(t), expected) <= 1e-6))
         complaints.push(
           `ceiling ${maximum}: actual attitude off its isotropic closed form at ${t}`,
         );
@@ -136,7 +122,7 @@ function isotropic(complaints: string[]): void {
     if (
       !(
         Math.abs(result.residual.somersault - fullMiss) <=
-        solveAirborneTakeoff.TOLERANCE / (2 * Math.PI)
+        AutoMovieEngineMotionAirborneTakeoff.TOLERANCE / (2 * Math.PI)
       )
     )
       complaints.push(
@@ -144,7 +130,7 @@ function isotropic(complaints: string[]): void {
       );
     if (maximum === 0) {
       const stages: number = Math.ceil(
-        Math.log2((2 * Math.PI) / solveAirborneTakeoff.TOLERANCE),
+        Math.log2((2 * Math.PI) / AutoMovieEngineMotionAirborneTakeoff.TOLERANCE),
       );
       if (!(work > 0 && work <= stages + 1))
         complaints.push(
@@ -163,14 +149,14 @@ function isotropic(complaints: string[]): void {
  * ellipse encloses the origin because 20° is below 45°.
  */
 function tilted(complaints: string[]): void {
-  const identity: IAutoMovieQuaternion = Quaternion.identity();
+  const identity: IAutoMovieQuaternion = AutoMovieEngineQuaternion.identity();
   const origin: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   const moments: IAutoMovieVector3 = { x: 1, y: 2, z: 3 };
-  const principal: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+  const principal: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
     { x: 0, y: 0, z: 1 },
     20,
   );
-  const axis: IAutoMovieVector3 = Quaternion.rotateVector(principal, {
+  const axis: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(principal, {
     x: 1,
     y: 0,
     z: 0,
@@ -192,8 +178,8 @@ function tilted(complaints: string[]): void {
       },
     ],
   };
-  const native: integrateAirborneRotation.ICachedHistory =
-    integrateAirborneRotation.history(
+  const native: AutoMovieEngineMotionAirborneRotation.ICachedHistory =
+    AutoMovieEngineMotionAirborneRotation.history(
       model,
       (): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
         new Map([
@@ -215,25 +201,25 @@ function tilted(complaints: string[]): void {
   try {
     for (const q0 of [
       identity,
-      Quaternion.fromAxisAngle({ x: 1, y: 2, z: 3 }, 97),
+      AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 2, z: 3 }, 97),
     ])
       for (const adaptive of [false, true]) {
         const selected: IAutoMovieIntegrateAirborneRotation.IHistory =
           adaptive && q0 === identity ? native : history;
         const known: IAutoMovieIntegrateAirborneRotation.IFlight =
-          integrateAirborneRotation({
+          AutoMovieEngineMotionAirborneRotation.integrate({
             history: selected,
             t0: 0,
             t1: 1,
             q0,
-            momentum: Quaternion.rotateVector(
+            momentum: AutoMovieEngineQuaternion.rotateVector(
               q0,
-              Vector3.scale(axis, 2 * Math.PI),
+              AutoMovieEngineVector3.scale(axis, 2 * Math.PI),
             ),
             ...(adaptive ? { tolerance: precision } : {}),
           });
         const solved: IAutoMovieSolveAirborneTakeoff.ISolution =
-          solveAirborneTakeoff({
+          AutoMovieEngineMotionAirborneTakeoff.solve({
             history: selected,
             t0: 0,
             t1: 1,
@@ -249,8 +235,8 @@ function tilted(complaints: string[]): void {
           ["solved", solved.flight],
         ] as const) {
           const winding: number = airborneWinding(flight, q0);
-          const landing: number = Quaternion.angle(q0, flight.orientation(1));
-          const tolerance: number = solveAirborneTakeoff.TOLERANCE;
+          const landing: number = AutoMovieEngineQuaternion.angle(q0, flight.orientation(1));
+          const tolerance: number = AutoMovieEngineMotionAirborneTakeoff.TOLERANCE;
           if (
             !(
               Math.abs(winding - 2 * Math.PI) <= tolerance &&
@@ -273,7 +259,7 @@ function tilted(complaints: string[]): void {
 
 /** Refusals, and the bounded end of a request that no stage can meet. */
 function admissions(complaints: string[]): void {
-  const identity: IAutoMovieQuaternion = Quaternion.identity();
+  const identity: IAutoMovieQuaternion = AutoMovieEngineQuaternion.identity();
   const origin: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   let starts: number = 0;
   const history: IAutoMovieIntegrateAirborneRotation.IHistory = (
@@ -290,7 +276,7 @@ function admissions(complaints: string[]): void {
   ) => IAutoMovieSolveAirborneTakeoff.ISolution = (
     change: Partial<IAutoMovieSolveAirborneTakeoff.IProps>,
   ): IAutoMovieSolveAirborneTakeoff.ISolution =>
-    solveAirborneTakeoff({
+    AutoMovieEngineMotionAirborneTakeoff.solve({
       history,
       t0: 0,
       t1: 1,
@@ -317,7 +303,7 @@ function admissions(complaints: string[]): void {
 
 /** The ring pair of scenario 5: I = 4 and a constant relative momentum X. */
 function ringPair(complaints: string[]): void {
-  const identity: IAutoMovieQuaternion = Quaternion.identity();
+  const identity: IAutoMovieQuaternion = AutoMovieEngineQuaternion.identity();
   const history: IAutoMovieIntegrateAirborneRotation.IHistory =
     (): IAutoMovieIntegrateAirborneRotation.IInstant => ({
       inertia: { moments: { x: 4, y: 4, z: 4 }, rotation: identity },
@@ -328,7 +314,7 @@ function ringPair(complaints: string[]): void {
     absolute: 0,
   };
   const solution: IAutoMovieSolveAirborneTakeoff.ISolution =
-    solveAirborneTakeoff({
+    AutoMovieEngineMotionAirborneTakeoff.solve({
       history,
       t0: 0,
       t1: 1,
@@ -341,7 +327,7 @@ function ringPair(complaints: string[]): void {
     !solution.met ||
     !(
       Math.abs(solution.momentum.x - (8 * Math.PI + 1)) <=
-      4 * solveAirborneTakeoff.TOLERANCE
+      4 * AutoMovieEngineMotionAirborneTakeoff.TOLERANCE
     ) ||
     !(Math.hypot(solution.momentum.y, solution.momentum.z) <= 1e-9)
   )
@@ -355,9 +341,9 @@ function ringPair(complaints: string[]): void {
     const actual: IAutoMovieQuaternion = solution.flight.orientation(t);
     if (
       !(
-        Quaternion.angle(
+        AutoMovieEngineQuaternion.angle(
           actual,
-          Quaternion.fromAxisAngle(
+          AutoMovieEngineQuaternion.fromAxisAngle(
             { x: 1, y: 0, z: 0 },
             ((solution.momentum.x - 1) * t * 45) / Math.PI,
           ),
@@ -365,7 +351,7 @@ function ringPair(complaints: string[]): void {
       )
     )
       complaints.push(`the ring attitude misses its closed form at ${t}`);
-    const up: IAutoMovieVector3 = Quaternion.rotateVector(actual, {
+    const up: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(actual, {
       x: 0,
       y: 1,
       z: 0,
@@ -378,7 +364,7 @@ function ringPair(complaints: string[]): void {
       );
     previous = angle;
   }
-  if (!(Math.abs(winding - 2 * Math.PI) <= solveAirborneTakeoff.TOLERANCE))
+  if (!(Math.abs(winding - 2 * Math.PI) <= AutoMovieEngineMotionAirborneTakeoff.TOLERANCE))
     complaints.push(`the ring flight winds ${winding / (2 * Math.PI)} turns`);
   const miss: number = (solution.momentum.x - 1) / (8 * Math.PI) - 1;
   if (!(Math.abs(solution.residual.somersault - miss) <= 1e-6 / (2 * Math.PI)))
@@ -401,9 +387,9 @@ function tuckBetweenEnds(complaints: string[]): void {
   for (let index: number = 0; index < 20000; ++index)
     inverse += 0.66 / 20000 / inertia((0.66 * (index + 0.5)) / 20000);
   const planar: number = (2 * Math.PI) / inverse;
-  const tucked: IAutoMovieSolveAirborneTakeoff.ISolution = solveAirborneTakeoff(
+  const tucked: IAutoMovieSolveAirborneTakeoff.ISolution = AutoMovieEngineMotionAirborneTakeoff.solve(
     {
-      history: integrateAirborneRotation.history(
+      history: AutoMovieEngineMotionAirborneRotation.history(
         AIRBORNE_CORE,
         (
           t: number,
@@ -416,14 +402,14 @@ function tuckBetweenEnds(complaints: string[]): void {
       ),
       t0: 0,
       t1: 0.66,
-      q0: Quaternion.identity(),
+      q0: AutoMovieEngineQuaternion.identity(),
       somersault: 1,
       twist: 0,
     },
   );
   // The somersault angle is L times the integral, linear in L, so a residual
   // within the solver's tolerance bounds L's relative error by that many turns.
-  const within: number = solveAirborneTakeoff.TOLERANCE / (2 * Math.PI);
+  const within: number = AutoMovieEngineMotionAirborneTakeoff.TOLERANCE / (2 * Math.PI);
   if (
     !tucked.met ||
     !(Math.abs(tucked.momentum.x - planar) <= within * planar) ||
@@ -438,11 +424,11 @@ function tuckBetweenEnds(complaints: string[]): void {
 async function layout(complaints: string[]): Promise<void> {
   const person: IHumanFixture = await humanFixture("m-average");
   const model: IAutoMovieResolveCenterOfMass.IModel =
-    resolveAutoMovieCenterOfMass(person.skeleton, person.profile);
+    AutoMovieEngineKinematics.resolveAutoMovieCenterOfMass(person.skeleton, person.profile);
   const shape: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
     airborneHumanLayout(person)(0, 0);
   const history: IAutoMovieIntegrateAirborneRotation.IHistory =
-    integrateAirborneRotation.history(model, () => shape);
+    AutoMovieEngineMotionAirborneRotation.history(model, () => shape);
   const request: (
     flight: number,
     twist: number,
@@ -452,11 +438,11 @@ async function layout(complaints: string[]): Promise<void> {
     twist: number,
     maximum?: number,
   ): IAutoMovieSolveAirborneTakeoff.ISolution =>
-    solveAirborneTakeoff({
+    AutoMovieEngineMotionAirborneTakeoff.solve({
       history,
       t0: 0,
       t1: flight,
-      q0: Quaternion.identity(),
+      q0: AutoMovieEngineQuaternion.identity(),
       somersault: 1,
       twist,
       ...(maximum === undefined ? {} : { maximum }),
@@ -464,7 +450,7 @@ async function layout(complaints: string[]): Promise<void> {
   let plain: number = 0;
   for (const twist of [0, 1, 2]) {
     const solved: IAutoMovieSolveAirborneTakeoff.ISolution = request(1, twist);
-    if (twist === 0) plain = Vector3.length(solved.momentum);
+    if (twist === 0) plain = AutoMovieEngineVector3.length(solved.momentum);
     const worst: number = Math.max(
       Math.abs(solved.residual.somersault),
       Math.abs(solved.residual.tilt),

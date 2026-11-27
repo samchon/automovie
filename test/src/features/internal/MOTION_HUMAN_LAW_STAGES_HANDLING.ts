@@ -1,10 +1,5 @@
-import {
-  createBall,
-  createTool,
-  createVessel,
-  createWearable,
-} from "@automovie/archetypes";
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieArchetypeWearable, AutoMovieArchetypeBall, AutoMovieArchetypeTool, AutoMovieArchetypeVessel } from "@automovie/archetypes";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanBody,
@@ -14,10 +9,12 @@ import type {
 import {
   AutoMovieMotionHumanHandover,
   AutoMovieMotionHumanThrowCatch,
-  HumanChain,
-  HumanObject,
+  AutoMovieMotionHumanChain,
+  AutoMovieMotionHumanObject,
 } from "@automovie/motions";
-import { HumanFoot } from "@automovie/motions/internal";
+import {
+  HumanFoot
+} from "../../../../packages/motions/src/posture/internal/HumanFoot";
 
 import { motionHumanLawSweep } from "./motionHumanLawSweep";
 
@@ -29,13 +26,13 @@ const grip = (id: string, y: number, toward: number): IAutoMovieAffordance => ({
   kind: "handle",
   frame: {
     translation: { x: 0, y, z: 0 },
-    rotation: Quaternion.normalize(
-      Quaternion.multiply(
-        Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, toward > 0 ? 180 : 0),
-        Quaternion.normalize(
-          Quaternion.multiply(
-            Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90),
-            Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -90),
+    rotation: AutoMovieEngineQuaternion.normalize(
+      AutoMovieEngineQuaternion.multiply(
+        AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, toward > 0 ? 180 : 0),
+        AutoMovieEngineQuaternion.normalize(
+          AutoMovieEngineQuaternion.multiply(
+            AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90),
+            AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -90),
           ),
         ),
       ),
@@ -50,7 +47,7 @@ const grip = (id: string, y: number, toward: number): IAutoMovieAffordance => ({
 /** An upright 70 by 190 mm bottle standing at a point. */
 const bottle = (at: IAutoMovieVector3): IAutoMovieMotionHumanProp => ({
   subject: "bottle",
-  frame: { position: at, rotation: Quaternion.identity() },
+  frame: { position: at, rotation: AutoMovieEngineQuaternion.identity() },
   points: {},
   shapes: [
     {
@@ -58,7 +55,7 @@ const bottle = (at: IAutoMovieVector3): IAutoMovieMotionHumanProp => ({
       material: "glass",
       transform: {
         position: { x: 0, y: 0.095, z: 0 },
-        rotation: Quaternion.identity(),
+        rotation: AutoMovieEngineQuaternion.identity(),
       },
       kind: "capsule",
       radius: 0.035,
@@ -117,7 +114,7 @@ const handing = (
     a,
     b,
     meeting(a, b),
-    HumanChain.pair(
+    AutoMovieMotionHumanChain.pair(
       S.chain()
         .act("stand", { hold: 0.3, sway: 0 })
         .act("pickUp", { prop: "bottle", handle: "low", hand }),
@@ -144,7 +141,7 @@ const throwing = (
 ): motionHumanLawSweep.IScene => {
   const distance: number =
     style === "overarm" ? 6 : style === "underarm" ? 4 : 2.5;
-  const ball: ReturnType<typeof createBall> = createBall({ kind: "handball" });
+  const ball: ReturnType<typeof AutoMovieArchetypeBall.create> = AutoMovieArchetypeBall.create({ kind: "handball" });
   return S.duo(
     a,
     b,
@@ -172,7 +169,7 @@ const throwing = (
       }),
     ],
     [
-      HumanObject.prop("ball", ball, {
+      AutoMovieMotionHumanObject.prop("ball", ball, {
         at: { x: 0, y: 0, z: 0.3 },
         yaw: 0,
       }),
@@ -271,7 +268,7 @@ export const MOTION_HUMAN_LAW_STAGES_HANDLING: Readonly<
       a,
       b,
       meeting(a, b),
-      HumanChain.pair(
+      AutoMovieMotionHumanChain.pair(
         S.chain().act("stand", { hold: 0.4, sway: 0 }),
         S.chain("b").act("stand", { hold: 0.4, sway: 0 }),
       ).handshake(S.set(pick, "hand") as object).node,
@@ -321,7 +318,7 @@ export const MOTION_HUMAN_LAW_STAGES_HANDLING: Readonly<
   ): motionHumanLawSweep.IScene => {
     const foot: "left" | "right" = pick("foot") === "left" ? "left" : "right";
     const ankle: IAutoMovieVector3 = a.rest.get(`${foot}Foot`)!;
-    const football: ReturnType<typeof createBall> = createBall({
+    const football: ReturnType<typeof AutoMovieArchetypeBall.create> = AutoMovieArchetypeBall.create({
       kind: "football",
     });
     const radius: number = football.affordance("grip").aperture! / 2;
@@ -332,7 +329,7 @@ export const MOTION_HUMAN_LAW_STAGES_HANDLING: Readonly<
         ...S.set(pick, "foot"),
       }),
       [
-        HumanObject.prop("ball", football, {
+        AutoMovieMotionHumanObject.prop("ball", football, {
           at: {
             x: ankle.x,
             y: 0,
@@ -351,10 +348,10 @@ export const MOTION_HUMAN_LAW_STAGES_HANDLING: Readonly<
     const tool: string = pick("tool") ?? "hammer";
     const bench: number = a.measure.shoulderHeight - a.measure.upperArm - 0.15;
     const props: IAutoMovieMotionHumanProp[] = [
-      HumanObject.prop(
+      AutoMovieMotionHumanObject.prop(
         "tool",
-        createTool({
-          kind: tool === "stir" ? "spoon" : (tool as createTool.Kind),
+        AutoMovieArchetypeTool.create({
+          kind: tool === "stir" ? "spoon" : (tool as AutoMovieArchetypeTool.Kind),
         }),
         {
           position: {
@@ -363,13 +360,13 @@ export const MOTION_HUMAN_LAW_STAGES_HANDLING: Readonly<
             y: bench,
             z: 0.3,
           },
-          rotation: Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
+          rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
         },
       ),
     ];
     if (tool === "stir")
       props.push(
-        HumanObject.prop("pot", createVessel({ kind: "saucepan" }), {
+        AutoMovieMotionHumanObject.prop("pot", AutoMovieArchetypeVessel.create({ kind: "saucepan" }), {
           at: { x: 0, y: bench, z: 0.4 },
           yaw: 0,
         }),
@@ -443,9 +440,9 @@ export const MOTION_HUMAN_LAW_STAGES_HANDLING: Readonly<
         })
         .act("dress", { item, prop: "item", hand: "right" }),
       [
-        HumanObject.prop(
+        AutoMovieMotionHumanObject.prop(
           "item",
-          createWearable({ kind: item === "hat" ? "hat" : "spectacles" }),
+          AutoMovieArchetypeWearable.create({ kind: item === "hat" ? "hat" : "spectacles" }),
           {
             at: { x: -0.2, y: a.measure.hipHeight, z: 0.35 },
             yaw: item === "hat" ? 0 : 180,

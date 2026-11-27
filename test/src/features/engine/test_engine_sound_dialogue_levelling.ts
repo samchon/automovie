@@ -1,7 +1,4 @@
-import {
-  createAutoMovieLoudnessMeter,
-  renderProductionSound,
-} from "@automovie/engine";
+import { AutoMovieEngineSound } from "@automovie/engine";
 import type {
   IAutoMovieLoudnessMeter,
   IAutoMovieProductionSoundPlan,
@@ -69,12 +66,16 @@ export function test_engine_sound_dialogue_levelling(): void {
   });
   const mix: (
     line: Float32Array,
-    loudness?: Parameters<typeof renderProductionSound>[0]["loudness"],
+    loudness?: Parameters<
+      typeof AutoMovieEngineSound.renderProductionSound
+    >[0]["loudness"],
   ) => IAutoMovieRenderedProductionSound = (
     line: Float32Array,
-    loudness?: Parameters<typeof renderProductionSound>[0]["loudness"],
+    loudness?: Parameters<
+      typeof AutoMovieEngineSound.renderProductionSound
+    >[0]["loudness"],
   ): IAutoMovieRenderedProductionSound =>
-    renderProductionSound({
+    AutoMovieEngineSound.renderProductionSound({
       plan: plan(line.length),
       dialogue: new Map([["line", line]]),
       ...(loudness === undefined ? {} : { loudness }),
@@ -82,7 +83,7 @@ export function test_engine_sound_dialogue_levelling(): void {
   const placedLoudness: (pcm: Float32Array) => number | null = (
     pcm: Float32Array,
   ): number | null => {
-    const meter: IAutoMovieLoudnessMeter = createAutoMovieLoudnessMeter(2);
+    const meter: IAutoMovieLoudnessMeter = AutoMovieEngineSound.createLoudnessMeter(2);
     meter.push(pcm);
     return meter.measure().integratedLufs;
   };
@@ -106,7 +107,7 @@ export function test_engine_sound_dialogue_levelling(): void {
   );
 
   const mono: Float32Array = tone(3, -34 + 10 * Math.log10(2));
-  const monoMeter: IAutoMovieLoudnessMeter = createAutoMovieLoudnessMeter(1);
+  const monoMeter: IAutoMovieLoudnessMeter = AutoMovieEngineSound.createLoudnessMeter(1);
   monoMeter.push(mono);
   const monoLufs: number | null = monoMeter.measure().integratedLufs;
   const dual: IAutoMovieRenderedProductionSound = mix(mono);

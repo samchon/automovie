@@ -1,29 +1,25 @@
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import {
-  compileDefinedShot,
-  defineShot,
-  makeActorSynthesizer,
-} from "@automovie/engine";
-import type {
-  IAutoMovieActionCall,
-  IAutoMovieActorContext,
-  IAutoMovieBeatEndState,
-  IAutoMovieCompiledDefinedShot,
-  IAutoMovieEnvironment,
-  IAutoMovieGait,
-  IAutoMovieHumanCanonicalBody,
-  IAutoMovieMotion,
-  IAutoMoviePose,
-  IAutoMovieShotProgram,
-  IAutoMovieSkeleton,
-  IAutoMovieStage,
-  IAutoMovieStageActor,
-  IAutoMovieVector3,
+  type IAutoMovieActionCall,
+  type IAutoMovieActorContext,
+  type IAutoMovieBeatEndState,
+  type IAutoMovieCompiledDefinedShot,
+  type IAutoMovieEnvironment,
+  type IAutoMovieGait,
+  type IAutoMovieHumanCanonicalBody,
+  type IAutoMovieMotion,
+  type IAutoMoviePose,
+  type IAutoMovieShotProgram,
+  type IAutoMovieSkeleton,
+  type IAutoMovieStage,
+  type IAutoMovieStageActor,
+  type IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanBody,
   AutoMovieMotionHumanGait,
-  HumanChain,
-  HumanPerformance,
-  createHumanBody,
+  AutoMovieMotionHumanChain,
+  AutoMovieMotionHumanPerformance,
 } from "@automovie/motions";
 
 import { environmentExampleBody } from "./environmentExampleBody";
@@ -49,19 +45,19 @@ export function compileEnvironmentExample(
     )
   ) {
     const subject: string = "neutral-stance";
-    const stand: HumanPerformance = new HumanPerformance({
+    const stand: AutoMovieMotionHumanPerformance = new AutoMovieMotionHumanPerformance({
       seed: "environment-stance",
       laws: [],
       performers: [
         {
           subject,
-          body: createHumanBody(rig, body.profile),
+          body: AutoMovieMotionHumanBody.create(rig, body.profile),
           at: { x: 0, y: 0, z: 0 },
           yaw: 0,
           proficiency: { level: "trained" },
         },
       ],
-      composition: HumanChain.subject(subject).stand({ hold: 1, sway: 0 }).node,
+      composition: AutoMovieMotionHumanChain.subject(subject).stand({ hold: 1, sway: 0 }).node,
     });
     restPose = { ...stand.pose(subject, 0), root: null };
     // The schematic gait supplies arm swing. Carry the standing pose's
@@ -128,10 +124,10 @@ export function compileEnvironmentExample(
   }
   for (const piece of stage.set ?? [])
     placements.set(piece.node, piece.position);
-  const synthesize: ReturnType<typeof makeActorSynthesizer> =
-    makeActorSynthesizer(contexts, placements);
-  const shot: IAutoMovieCompiledDefinedShot = compileDefinedShot({
-    shot: defineShot(input.id, {
+  const synthesize: ReturnType<typeof AutoMovieEngineFilm.makeActorSynthesizer> =
+    AutoMovieEngineFilm.makeActorSynthesizer(contexts, placements);
+  const shot: IAutoMovieCompiledDefinedShot = AutoMovieEngineFilm.compileDefinedShot({
+    shot: AutoMovieEngineFilm.defineShot(input.id, {
       scene: stage.scene.id,
       contract: {
         beat: input.id,

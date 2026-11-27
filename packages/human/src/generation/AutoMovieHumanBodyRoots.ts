@@ -1,4 +1,4 @@
-import { AutoMovieLoftChain, AutoMovieSplineCurve } from "@automovie/engine";
+import { AutoMovieEngineLoftChain, AutoMovieEngineSplineCurve } from "@automovie/engine";
 import type {
   IAutoMovieHumanBodyRoots,
   IAutoMovieHumanLoftApertureConstruction,
@@ -32,7 +32,7 @@ export namespace AutoMovieHumanBodyRoots {
     u: number,
     winding: number = 0,
   ): IAutoMovieHumanBodyRoots.PointResult {
-    const [s, t, ds, dt] = AutoMovieSplineCurve.evaluate(
+    const [s, t, ds, dt] = AutoMovieEngineSplineCurve.evaluate(
       root,
       root.length / 2,
       u,
@@ -246,9 +246,6 @@ export namespace AutoMovieHumanBodyRoots {
     );
   }
 
-  /** Rings of the strip between its edges, plus one. */
-  const STEPS: number = 8;
-
   /**
    * Chart points of a chain whose surface points project along an
    * opening's forward axis onto each point of its projected outline: the
@@ -341,6 +338,11 @@ export namespace AutoMovieHumanBodyRoots {
 
   /** Outward first and second derivatives of a chain across a loop, by arc length. */
   export const across = AutoMovieHumanBodyStrip.across;
+
+  /*
+   * Rings of the strip between its edges, plus one.
+   */
+  const STEPS: number = 8;
 }
 
 const dot = (a: V, b: readonly number[]): number =>
@@ -348,37 +350,55 @@ const dot = (a: V, b: readonly number[]): number =>
 
 type V = [number, number, number];
 
-/** Station step of the numerical derivatives, mm. */
+/*
+ * Station step of the numerical derivatives, mm.
+ */
 const H: number = 0.05;
 
 const sub = (a: V, b: V): V => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
 
-/** A loop's mean phase and station range. */
+/*
+ * A loop's mean phase and station range.
+ */
 interface IShape {
-  /** Mean phase, radians. */
+  /*
+   * Mean phase, radians.
+   */
   centre: number;
 
-  /** Least station, mm. */
+  /*
+   * Least station, mm.
+   */
   low: number;
 
-  /** Greatest station, mm. */
+  /*
+   * Greatest station, mm.
+   */
   high: number;
 }
 
-/** Each loop's mean phase and station range, read once. */
+/*
+ * Each loop's mean phase and station range, read once.
+ */
 const SHAPES: WeakMap<readonly [number, number][], IShape> = new WeakMap();
 
-/** Each loop's samples as `[phase, station]` ordered by phase, read once. */
+/*
+ * Each loop's samples as `[phase, station]` ordered by phase, read once.
+ */
 const SORTED: WeakMap<readonly [number, number][], [number, number][]> =
   new WeakMap();
 
-/** Phase reduced to `[0, 2 pi)`. */
+/*
+ * Phase reduced to `[0, 2 pi)`.
+ */
 function wrap(t: number): number {
   const r: number = t % (2 * Math.PI);
   return r < 0 ? r + 2 * Math.PI : r;
 }
 
-/** Signed area of a closed polygon `[x, y]`, positive counter-clockwise. */
+/*
+ * Signed area of a closed polygon `[x, y]`, positive counter-clockwise.
+ */
 function polygonArea(loop: readonly [number, number][]): number {
   let a: number = 0;
   for (let i: number = 0; i < loop.length; i++) {
@@ -389,11 +409,15 @@ function polygonArea(loop: readonly [number, number][]): number {
   return a / 2;
 }
 
-/** Surface point of a chain at a chart point, the station clamped into it. */
+/*
+ * Surface point of a chain at a chart point, the station clamped into it.
+ */
 const at: (chain: IAutoMovieLoftChain, s: number, t: number) => V =
   AutoMovieHumanBodyStrip.surface;
 
-/** Unit outward surface normal of a chain at a chart point: away from its axis. */
+/*
+ * Unit outward surface normal of a chain at a chart point: away from its axis.
+ */
 function normal(chain: IAutoMovieLoftChain, s: number, t: number): V {
   const ds: V = sub(at(chain, s + H, t), at(chain, s - H, t));
   const dt: V = sub(at(chain, s, t + 1e-3), at(chain, s, t - 1e-3));
@@ -406,7 +430,7 @@ function normal(chain: IAutoMovieLoftChain, s: number, t: number): V {
   const p: V = at(chain, s, t);
   const y0: number = chain.layers[0]!.y;
   const y1: number = chain.layers[chain.layers.length - 1]!.y;
-  const c: V = AutoMovieLoftChain.axis(chain, Math.min(y1, Math.max(y0, s)));
+  const c: V = AutoMovieEngineLoftChain.axis(chain, Math.min(y1, Math.max(y0, s)));
   const sign: number =
     (p[0] - c[0]) * n[0] + (p[1] - c[1]) * n[1] + (p[2] - c[2]) * n[2] < 0
       ? -1
@@ -414,7 +438,7 @@ function normal(chain: IAutoMovieLoftChain, s: number, t: number): V {
   return [(sign * n[0]) / l, (sign * n[1]) / l, (sign * n[2]) / l];
 }
 
-/**
+/*
  * Emit triangles, then reverse the new ones if their mean normal faces
  * away from the reference outward normal.
  */
@@ -445,7 +469,7 @@ function oriented(
   }
 }
 
-/**
+/*
  * Zipper between two closed vertex loops in one chart: the root loop and
  * the hole's edge round it. Both are put in the same orientation and
  * started at their nearest pair, then merged by the share of their chart
@@ -537,7 +561,7 @@ function seam(
   }
 }
 
-/**
+/*
  * Zipper between two loops winding once round a cap pole: both put in
  * rising phase, the outer started at the vertex nearest the inner's first
  * in phase, then merged by the phase each has turned since its start.

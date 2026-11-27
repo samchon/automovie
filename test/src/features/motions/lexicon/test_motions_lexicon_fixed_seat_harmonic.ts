@@ -1,4 +1,6 @@
-import { fixedSeatHarmonic } from "@automovie/motions/internal";
+import {
+  fixedSeatHarmonic
+} from "../../../../../packages/motions/src/lexicon/internal/fixedSeatHarmonic";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

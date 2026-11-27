@@ -1,4 +1,4 @@
-import { deriveAutoMovieDrawing } from "@automovie/engine";
+import { AutoMovieEngineDrawing } from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieBuiltOpening,
@@ -30,7 +30,7 @@ export function test02DrawingSheetOperation(
     travel: number,
   ): { min: number; max: number } =>
     facadeSpan(
-      deriveAutoMovieDrawing({
+      AutoMovieEngineDrawing.deriveAutoMovieDrawing({
         environment: slidingDoor(environment, travel),
         view: elevation,
       }),
@@ -53,10 +53,11 @@ export function test02DrawingSheetOperation(
   );
 
   // 8. A stroke's identity cannot be confused by text inside its fields.
-  const ambiguous: IAutoMovieDrawing = deriveAutoMovieDrawing({
-    environment: withAmbiguousOwners(environment),
-    view: views[0]![1],
-  });
+  const ambiguous: IAutoMovieDrawing =
+    AutoMovieEngineDrawing.deriveAutoMovieDrawing({
+      environment: withAmbiguousOwners(environment),
+      view: views[0]![1],
+    });
   TestValidator.equals(
     "owners whose names share a separator keep their own strokes",
     ["y", "x|y"].map(

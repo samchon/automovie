@@ -125,11 +125,11 @@
     { "layer": "compose", "symbol": "AutoMovieMotionHumanReach.POLICIES", "tests": ["test_human_motion_core_closed_unions"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTargetGrid.DISTANCE_NAMES", "tests": ["test_human_motion_core_closed_unions"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTargetGrid.LATERAL_NAMES", "tests": ["test_human_motion_core_closed_unions"] },
-    { "layer": "compose", "symbol": "AutoMovieMotionHumanTiming.PAUSE_NAMES", "tests": ["test_human_motion_core_closed_unions"] },
+    { "layer": "compose", "symbol": "motionHumanTiming.PAUSE_NAMES", "tests": ["test_human_motion_core_closed_unions"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTouch.AutoMovieMotionHumanTouchEffector.AXES", "tests": ["test_human_motion_core_closed_unions"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTouch.AutoMovieMotionHumanTouchForm.KINDS", "tests": ["test_human_motion_core_closed_unions"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTouch.AutoMovieMotionHumanTouchForm.TANGENTS", "tests": ["test_human_motion_core_closed_unions"] },
-    { "layer": "compose", "symbol": "AutoMovieMotionManner.PRESET_NAMES", "tests": ["test_human_motion_core_closed_unions"] },
+    { "layer": "compose", "symbol": "motionManner.PRESET_NAMES", "tests": ["test_human_motion_core_closed_unions"] },
     { "layer": "posture", "symbol": "HumanFoot.SOCKETS", "tests": ["test_human_motion_core_closed_unions"] },
     { "layer": "posture", "symbol": "HumanHand.AXES", "tests": ["test_human_motion_core_closed_unions"] },
     { "layer": "posture", "symbol": "HumanHand.SHAPES", "tests": ["test_human_motion_core_closed_unions"] },
@@ -137,21 +137,21 @@
     { "layer": "posture", "symbol": "HumanHand.SURFACES", "tests": ["test_human_motion_core_closed_unions"] },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionClock.START",
+      "symbol": "motionClock.START",
       "tests": [
         "test_motion_compose_clock_spans"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionClock.END",
+      "symbol": "motionClock.END",
       "tests": [
         "test_motion_compose_clock_spans"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionClock.of",
+      "symbol": "motionClock.of",
       "tests": [
         "test_motion_clock",
         "test_motion_compose_action",
@@ -161,7 +161,7 @@
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionClock.sequence",
+      "symbol": "motionClock.sequence",
       "tests": [
         "test_motion_clock",
         "test_motion_compose_clock_spans"
@@ -169,14 +169,14 @@
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionClock.PHRASE",
+      "symbol": "motionClock.PHRASE",
       "tests": [
         "test_motion_compose_clock_spans"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionClock.phrase",
+      "symbol": "motionClock.phrase",
       "tests": [
         "test_human_motion_compose_gaze",
         "test_human_motion_compose_lean_into_m_average",
@@ -192,42 +192,42 @@
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionClock.repeat",
+      "symbol": "motionClock.repeat",
       "tests": [
         "test_motion_compose_clock_spans"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionClock.through",
+      "symbol": "motionClock.through",
       "tests": [
         "test_motion_compose_phrase"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionClock.wave",
+      "symbol": "motionClock.wave",
       "tests": [
         "test_motion_compose_phrase"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionClock.stretch",
+      "symbol": "motionClock.stretch",
       "tests": [
         "test_motion_compose_clock_spans"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionClock.scale",
+      "symbol": "motionClock.scale",
       "tests": [
         "test_motion_compose_manner"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionClock.align",
+      "symbol": "motionClock.align",
       "tests": [
         "test_motion_compose_meeting"
       ]
@@ -408,7 +408,7 @@
         "test_human_motion_overlay_channels_f_small"
       ]
     },
-    { "layer": "compose", "symbol": "AutoMovieMotionHumanHeld.of", "tests": ["test_human_motion_core_held_frame"] }, { "layer": "compose", "symbol": "AutoMovieMotionHumanHeld.grasped", "tests": ["test_human_motion_firearm_shot"] }, { "layer": "compose", "symbol": "AutoMovieMotionHumanHeld.point", "tests": ["test_human_motion_core_held_frame"] }, { "layer": "compose", "symbol": "AutoMovieMotionHumanHeld.grip", "tests": ["test_human_motion_core_held_frame"] }, { "layer": "compose", "symbol": "AutoMovieMotionHumanHeld.hold", "tests": ["test_human_motion_core_held_frame"] },
+    { "layer": "compose", "symbol": "motionHumanHeld.of", "tests": ["test_human_motion_core_held_frame"] }, { "layer": "compose", "symbol": "motionHumanHeld.grasped", "tests": ["test_human_motion_firearm_shot"] }, { "layer": "compose", "symbol": "motionHumanHeld.point", "tests": ["test_human_motion_core_held_frame"] }, { "layer": "compose", "symbol": "motionHumanHeld.grip", "tests": ["test_human_motion_core_held_frame"] }, { "layer": "compose", "symbol": "motionHumanHeld.hold", "tests": ["test_human_motion_core_held_frame"] },
     {
       "layer": "compose",
       "symbol": "AutoMovieMotionHumanBend.ARM",
@@ -478,14 +478,14 @@
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanChannel.ORDER",
+      "symbol": "motionHumanChannel.ORDER",
       "tests": [
         "test_human_motion_compose_channel_order"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanChannel.of",
+      "symbol": "motionHumanChannel.of",
       "tests": [
         "test_human_motion_compose_channel_order",
         "test_motion_compose_channel"
@@ -493,7 +493,7 @@
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanChannel.merge",
+      "symbol": "motionHumanChannel.merge",
       "tests": [
         "test_motion_compose_channel"
       ]
@@ -1174,49 +1174,49 @@
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanTiming.BASE",
+      "symbol": "motionHumanTiming.BASE",
       "tests": [
         "test_motion_compose_tables"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanTiming.RATE",
+      "symbol": "motionHumanTiming.RATE",
       "tests": [
         "test_motion_compose_tables"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanTiming.INTERCEPT",
+      "symbol": "motionHumanTiming.INTERCEPT",
       "tests": [
         "test_motion_compose_tables"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanTiming.AMPLITUDE",
+      "symbol": "motionHumanTiming.AMPLITUDE",
       "tests": [
         "test_motion_compose_tables"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanTiming.WIDTH",
+      "symbol": "motionHumanTiming.WIDTH",
       "tests": [
         "test_motion_compose_tables"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanTiming.SHORTEST",
+      "symbol": "motionHumanTiming.SHORTEST",
       "tests": [
         "test_motion_compose_tables"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanTiming.transport",
+      "symbol": "motionHumanTiming.transport",
       "tests": [
         "test_motion_compose_tables",
         "test_motion_compose_timing"
@@ -1224,7 +1224,7 @@
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanTiming.aimed",
+      "symbol": "motionHumanTiming.aimed",
       "tests": [
         "test_motion_compose_tables",
         "test_motion_compose_timing"
@@ -1232,28 +1232,28 @@
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanTiming.of",
+      "symbol": "motionHumanTiming.of",
       "tests": [
         "test_motion_compose_timing"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanTiming.PAUSES",
+      "symbol": "motionHumanTiming.PAUSES",
       "tests": [
         "test_motion_compose_tables"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanTiming.seconds",
+      "symbol": "motionHumanTiming.seconds",
       "tests": [
         "test_motion_compose_roles"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanTiming.phrase",
+      "symbol": "motionHumanTiming.phrase",
       "tests": [
         "test_motion_compose_roles"
       ]
@@ -1518,14 +1518,14 @@
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanVariation.ACROSS",
+      "symbol": "motionHumanVariation.ACROSS",
       "tests": [
         "test_motion_compose_tables"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanVariation.SPREADS",
+      "symbol": "motionHumanVariation.SPREADS",
       "tests": [
         "test_motion_compose_tables",
         "test_motion_compose_variation_draw"
@@ -1533,14 +1533,14 @@
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanVariation.BOUNDS",
+      "symbol": "motionHumanVariation.BOUNDS",
       "tests": [
         "test_motion_compose_tables"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanVariation.of",
+      "symbol": "motionHumanVariation.of",
       "tests": [
         "test_motion_compose_variation_existing",
         "test_motion_compose_variation_identity"
@@ -1548,14 +1548,14 @@
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanVariation.CENTRE",
+      "symbol": "motionHumanVariation.CENTRE",
       "tests": [
         "test_motion_compose_variation_identity"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanVariation.strike",
+      "symbol": "motionHumanVariation.strike",
       "tests": [
         "test_motion_compose_variation_bounded",
         "test_motion_compose_variation_identity",
@@ -1564,7 +1564,7 @@
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanVariation.direction",
+      "symbol": "motionHumanVariation.direction",
       "tests": [
         "test_motion_compose_variation_bounded",
         "test_motion_compose_variation_identity",
@@ -1573,7 +1573,7 @@
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanVariation.duration",
+      "symbol": "motionHumanVariation.duration",
       "tests": [
         "test_motion_compose_variation_bounded",
         "test_motion_compose_variation_existing",
@@ -1583,7 +1583,7 @@
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanVariation.pause",
+      "symbol": "motionHumanVariation.pause",
       "tests": [
         "test_motion_compose_variation_bounded",
         "test_motion_compose_variation_existing",
@@ -1713,35 +1713,35 @@
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionManner.NEUTRAL",
+      "symbol": "motionManner.NEUTRAL",
       "tests": [
         "test_motion_compose_manner"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionManner.HOLD",
+      "symbol": "motionManner.HOLD",
       "tests": [
         "test_motion_compose_tables"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionManner.BOUNDS",
+      "symbol": "motionManner.BOUNDS",
       "tests": [
         "test_motion_compose_tables"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionManner.PRESETS",
+      "symbol": "motionManner.PRESETS",
       "tests": [
         "test_human_motion_base_manner_presets"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionManner.resolve",
+      "symbol": "motionManner.resolve",
       "tests": [
         "test_motion_compose_manner",
         "test_motion_compose_tables"
@@ -1749,7 +1749,7 @@
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionManner.of",
+      "symbol": "motionManner.of",
       "tests": [
         "test_motion_compose_manner",
         "test_motion_compose_variation_existing"
@@ -1757,35 +1757,35 @@
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionManner.time",
+      "symbol": "motionManner.time",
       "tests": [
         "test_motion_compose_manner"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionMeeting.of",
+      "symbol": "motionMeeting.of",
       "tests": [
         "test_motion_compose_meeting"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionMeeting.place",
+      "symbol": "motionMeeting.place",
       "tests": [
         "test_motion_compose_meeting"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionMeeting.local",
+      "symbol": "motionMeeting.local",
       "tests": [
         "test_motion_compose_meeting"
       ]
     },
     {
       "layer": "compose",
-      "symbol": "composeAutoMovieMotionHumanAction",
+      "symbol": "composeMotionHumanAction",
       "tests": [
         "test_motion_compose_action"
       ]
@@ -2200,19 +2200,19 @@
         "test_motion_posture_resolve_helpers"
       ]
     },
-    { "layer": "compose", "symbol": "AutoMovieMotionClock.prepare", "tests": [] },
-    { "layer": "compose", "symbol": "AutoMovieMotionClock.prepareEnvelope", "tests": [] },
-    { "layer": "compose", "symbol": "AutoMovieMotionClock.prepareWave", "tests": [] },
+    { "layer": "compose", "symbol": "motionClock.prepare", "tests": [] },
+    { "layer": "compose", "symbol": "motionClock.prepareEnvelope", "tests": [] },
+    { "layer": "compose", "symbol": "motionClock.prepareWave", "tests": [] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanArm.prepareGoal", "tests": [] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanBend.hanging", "tests": ["test_motion_compose_swivel"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanBend.prepare", "tests": [] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanBend.prepareBoth", "tests": [] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanBend.prepareKnee", "tests": [] },
-    { "layer": "compose", "symbol": "AutoMovieMotionHumanChannel.claims", "tests": [] },
-    { "layer": "compose", "symbol": "AutoMovieMotionHumanChannel.covers", "tests": ["test_human_motion_channel_trunk_turn"] },
-    { "layer": "compose", "symbol": "AutoMovieMotionHumanChannel.digit", "tests": [] },
-    { "layer": "compose", "symbol": "AutoMovieMotionHumanChannel.prepareMerge", "tests": [] },
-    { "layer": "compose", "symbol": "AutoMovieMotionHumanChannel.TURN", "tests": [] },
+    { "layer": "compose", "symbol": "motionHumanChannel.claims", "tests": [] },
+    { "layer": "compose", "symbol": "motionHumanChannel.covers", "tests": ["test_human_motion_channel_trunk_turn"] },
+    { "layer": "compose", "symbol": "motionHumanChannel.digit", "tests": [] },
+    { "layer": "compose", "symbol": "motionHumanChannel.prepareMerge", "tests": [] },
+    { "layer": "compose", "symbol": "motionHumanChannel.TURN", "tests": [] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanDrinkingArm.prepareRead", "tests": [] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanDrinkingSwivel.ranged", "tests": [] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanHand.prepareFingers", "tests": [] },

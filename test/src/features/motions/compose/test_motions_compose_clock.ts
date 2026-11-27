@@ -1,12 +1,12 @@
-import { sampleMotion } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotion,
   IAutoMovieMotionClock,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionClock,
-  AutoMovieMotionClock as C,
-} from "@automovie/motions/internal";
+  motionClock,
+  motionClock as C
+} from "../../../../../packages/motions/src/compose/internal/motionClock";
 import { TestValidator } from "@nestia/e2e";
 
 import {
@@ -45,14 +45,14 @@ function scenario_test_motions_compose_clock_sample_keys(): void {
     [1, false, 60],
     [-1, true, 20],
   ] as const) {
-    const sample = sampleMotion({ ...clip, loop }, seconds).pose;
+    const sample = AutoMovieEngineMotionSampling.sampleMotion({ ...clip, loop }, seconds).pose;
     TestValidator.equals("target skeleton", sample.skeleton, clip.skeleton);
     TestValidator.predicate(
       `elbow at ${seconds}s, loop=${loop}`,
       nclose(sample.joints[0]?.flexion ?? NaN, expected, 1e-9),
     );
   }
-  const zero = sampleMotion({ ...clip, duration: 0, loop: true }, 5);
+  const zero = AutoMovieEngineMotionSampling.sampleMotion({ ...clip, duration: 0, loop: true }, 5);
   TestValidator.predicate(
     "a zero-duration clip holds its entry",
     nclose(zero.pose.joints[0]?.flexion ?? NaN, 0, 0),
@@ -106,11 +106,11 @@ function nativeReplacements(): void {
 function scenario_test_motions_compose_clock_time_law(): void {
   const open: number = 2;
   const close: number = 6;
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock(8, [
+  const clock: IAutoMovieMotionClock = motionClock(8, [
     { name: "open", seconds: open },
     { name: "close", seconds: close },
   ]);
-  const window = AutoMovieMotionClock.prepare(clock, "open", "close");
+  const window = motionClock.prepare(clock, "open", "close");
   for (const t of [5, 1, 6, 3, 4, 8, 2, 3]) {
     const u: number = Math.min(1, Math.max(0, (t - open) / (close - open)));
     const progress: number = u ** 3 * (10 - 15 * u + 6 * u * u);
@@ -128,7 +128,7 @@ function scenario_test_motions_compose_clock_time_law(): void {
       nclose(slope, (30 * u * u * (1 - u) ** 2) / (close - open), 1e-8),
     );
   }
-  const point = AutoMovieMotionClock.prepare(clock, "open", "open");
+  const point = motionClock.prepare(clock, "open", "open");
   TestValidator.equals(
     "zero interval closes on its instant",
     [point.linear(open - 1), point.linear(open), point.linear(open + 1)],
@@ -137,7 +137,7 @@ function scenario_test_motions_compose_clock_time_law(): void {
 }
 
 /**
- * `AutoMovieMotionClock.prepare` and `prepareEnvelope` resolve a window's
+ * `motionClock.prepare` and `prepareEnvelope` resolve a window's
  * instants once: the uniform share across the window, its minimum-jerk
  * progress, and an envelope that rises over one window and falls over another.
  *
@@ -151,14 +151,14 @@ function scenario_test_motions_compose_clock_time_law(): void {
  *    at 0 s, 1 at 1 s and one half at 1.75 s.
  */
 function scenario_test_motions_compose_motion_clock_window(): void {
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock(2, [
+  const clock: IAutoMovieMotionClock = motionClock(2, [
     { name: "a", seconds: 0.5 },
     { name: "b", seconds: 1.5 },
   ]);
 
   // 1. The window.
-  const window: ReturnType<typeof AutoMovieMotionClock.prepare> =
-    AutoMovieMotionClock.prepare(clock, "a", "b");
+  const window: ReturnType<typeof motionClock.prepare> =
+    motionClock.prepare(clock, "a", "b");
   TestValidator.predicate(
     "the window's share and progress",
     window.linear(0.2) === 0 &&
@@ -169,7 +169,7 @@ function scenario_test_motions_compose_motion_clock_window(): void {
 
   // 2. The envelope.
   const envelope: (seconds: number) => number =
-    AutoMovieMotionClock.prepareEnvelope(clock, ["start", "a"], ["b", "end"]);
+    motionClock.prepareEnvelope(clock, ["start", "a"], ["b", "end"]);
   TestValidator.predicate(
     "the envelope rises, holds and falls",
     envelope(0) === 0 &&
@@ -179,7 +179,7 @@ function scenario_test_motions_compose_motion_clock_window(): void {
 }
 
 /**
- * AutoMovieMotionClock, the time law a channel reads: its sample keys, its time
+ * motionClock, the time law a channel reads: its sample keys, its time
  * law and its window, each scenario below.
  */
 export function test_motions_compose_clock(): void {

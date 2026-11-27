@@ -1,4 +1,5 @@
-import { realizeAutoMovieConstruction } from "@automovie/engine";
+
+import { AutoMovieEngineConstruction } from "@automovie/engine";
 import { AutoMovieHumanConicLoft as H } from "@automovie/human";
 import type {
   AutoMovieVector3Tuple,
@@ -50,7 +51,7 @@ export namespace FamilyConicLoft {
         first + ((last - first) * i) / (count - 1),
     );
     try {
-      const real = realizeAutoMovieConstruction(
+      const real = AutoMovieEngineConstruction.realize(
         {
           name: "probe." + stored.name,
           root: { type: "source", name: stored.name, source: stored.name },

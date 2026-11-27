@@ -1,6 +1,6 @@
 import {
-  physicalPlanarPolygon as Polygon,
-  physicalOneStepCaptureRegion as Region,
+  AutoMovieEnginePhysicalPlanarPolygon as Polygon,
+  AutoMovieEnginePhysicalOneStepCaptureRegion as Region,
 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
@@ -38,7 +38,7 @@ export function test_engine_physics_physical_one_step_capture_region(): void {
     capture: Polygon.IPoint,
     remaining: number,
   ): Polygon.IPoint[] =>
-    Region({
+    Region.compute({
       support: "left",
       remaining,
       capture,

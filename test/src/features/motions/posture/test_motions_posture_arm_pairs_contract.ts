@@ -1,13 +1,17 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanArmGeometry,
   IAutoMovieMotionHumanBody,
 } from "@automovie/interface";
 import {
-  HumanArmGeometry,
-  HumanArmTrajectoryModel,
-  HumanArmTrajectoryPairs,
-} from "@automovie/motions/internal";
+  HumanArmGeometry
+} from "../../../../../packages/motions/src/posture/internal/HumanArmGeometry";
+import {
+  HumanArmTrajectoryModel
+} from "../../../../../packages/motions/src/posture/internal/HumanArmTrajectoryModel";
+import {
+  HumanArmTrajectoryPairs
+} from "../../../../../packages/motions/src/posture/internal/HumanArmTrajectoryPairs";
 import { TestValidator } from "@nestia/e2e";
 
 import { armTrajectoryReading as fixture } from "../../internal/armTrajectoryReading";
@@ -57,7 +61,7 @@ export async function test_motions_posture_arm_pairs_contract(): Promise<void> {
     {
       bone: "fixture:external",
       part: external,
-      pose: { position: fixture.point(0), rotation: Quaternion.identity() },
+      pose: { position: fixture.point(0), rotation: AutoMovieEngineQuaternion.identity() },
       shape: fixture.sphere(1 / 32),
       centre: fixture.point(0),
       radius: 1 / 32,
@@ -65,7 +69,7 @@ export async function test_motions_posture_arm_pairs_contract(): Promise<void> {
     {
       bone: "leftLowerArm",
       part: related,
-      pose: { position: fixture.point(0), rotation: Quaternion.identity() },
+      pose: { position: fixture.point(0), rotation: AutoMovieEngineQuaternion.identity() },
       shape: fixture.sphere(1 / 32),
       centre: fixture.point(0),
       radius: 1 / 32,

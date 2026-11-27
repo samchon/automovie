@@ -1,4 +1,5 @@
-import { realizeAutoMovieConstruction } from "@automovie/engine";
+
+import { AutoMovieEngineConstruction } from "@automovie/engine";
 import type {
   IAutoMovieConstructionRealization,
   IAutoMovieConstructionView,
@@ -38,7 +39,7 @@ export function test_engine_geometry_construction_view_pole(): void {
     c,
   );
   const real: IAutoMovieConstructionRealization.IRealization =
-    realizeAutoMovieConstruction({ name: "made", root: egg }, { chord: 1e-4 });
+    AutoMovieEngineConstruction.realize({ name: "made", root: egg }, { chord: 1e-4 });
   const positions: readonly number[] = real.mesh.positions;
   const points: V3[] = Array.from(
     { length: positions.length / 3 },

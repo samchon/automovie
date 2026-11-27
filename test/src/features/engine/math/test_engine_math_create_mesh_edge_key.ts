@@ -1,4 +1,4 @@
-import { createMeshEdgeKey } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/predicates";
@@ -22,16 +22,16 @@ import { throwsError } from "../../internal/predicates";
  *    with "nonnegative safe vertex count".
  */
 export function test_engine_math_create_mesh_edge_key(): void {
-  const small = createMeshEdgeKey(10);
+  const small = AutoMovieEngineMath.createMeshEdgeKey(10);
   TestValidator.equals("pair", small(2, 3), 23);
   TestValidator.equals("reverse differs", small(3, 2), 32);
   TestValidator.equals("zero", small(0, 0), 0);
-  TestValidator.equals("large", createMeshEdgeKey(2 ** 27)(1, 2), "1/2");
+  TestValidator.equals("large", AutoMovieEngineMath.createMeshEdgeKey(2 ** 27)(1, 2), "1/2");
   TestValidator.predicate(
     "negative",
-    throwsError(() => createMeshEdgeKey(-1)),
+    throwsError(() => AutoMovieEngineMath.createMeshEdgeKey(-1)),
   );
-  const seven = createMeshEdgeKey(7);
+  const seven = AutoMovieEngineMath.createMeshEdgeKey(7);
   const keys: Set<number | string> = new Set<number | string>();
   for (let low: number = 0; low < 7; ++low)
     for (let high: number = 0; high < 7; ++high) {
@@ -42,7 +42,7 @@ export function test_engine_math_create_mesh_edge_key(): void {
   const limit: number = Math.floor(Math.sqrt(Number.MAX_SAFE_INTEGER));
   TestValidator.equals(
     "numeric boundary",
-    createMeshEdgeKey(limit)(limit - 2, limit - 1),
+    AutoMovieEngineMath.createMeshEdgeKey(limit)(limit - 2, limit - 1),
     Number(BigInt(limit - 2) * BigInt(limit) + BigInt(limit - 1)),
   );
   const population: number = 2 ** 27;
@@ -55,13 +55,13 @@ export function test_engine_math_create_mesh_edge_key(): void {
     "doubles would collapse",
     exactFirst !== exactSecond && Number(exactFirst) === Number(exactSecond),
   );
-  const wide = createMeshEdgeKey(population);
+  const wide = AutoMovieEngineMath.createMeshEdgeKey(population);
   TestValidator.predicate(
     "keys stay distinct",
     wide(low, population - 4) !== wide(low, population - 3),
   );
   const large: number = limit + 1;
-  const fallback = createMeshEdgeKey(large);
+  const fallback = AutoMovieEngineMath.createMeshEdgeKey(large);
   TestValidator.equals(
     "delimited",
     [fallback(large - 3, large - 2), fallback(large - 3, large - 1)],
@@ -71,10 +71,10 @@ export function test_engine_math_create_mesh_edge_key(): void {
     "directed",
     fallback(large - 3, large - 1) !== fallback(large - 1, large - 3),
   );
-  createMeshEdgeKey(0);
-  TestValidator.equals("one identity", createMeshEdgeKey(1)(0, 0), 0);
+  AutoMovieEngineMath.createMeshEdgeKey(0);
+  TestValidator.equals("one identity", AutoMovieEngineMath.createMeshEdgeKey(1)(0, 0), 0);
   const maximum: number = Number.MAX_SAFE_INTEGER;
-  const widest = createMeshEdgeKey(maximum);
+  const widest = AutoMovieEngineMath.createMeshEdgeKey(maximum);
   TestValidator.equals(
     "maximum",
     [widest(0, maximum - 1), widest(maximum - 1, 0)],
@@ -84,7 +84,7 @@ export function test_engine_math_create_mesh_edge_key(): void {
     TestValidator.predicate(
       "invalid count",
       throwsError(
-        () => createMeshEdgeKey(count),
+        () => AutoMovieEngineMath.createMeshEdgeKey(count),
         ["nonnegative safe vertex count"],
       ),
     );

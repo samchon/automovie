@@ -1,9 +1,10 @@
-import { observeAutoMovieRecoveryAtlas as O } from "@automovie/recovery";
+import { AutoMovieRecoveryObservation } from "@automovie/recovery";
+import type { IAutoMovieRecoveryScalarWindow } from "@automovie/interface";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
-import { writeAutoMovieRecoveryArtifact } from "../artifact/writeAutoMovieRecoveryArtifact";
+import { writeRecoveryArtifact } from "../artifact/writeRecoveryArtifact";
 import { readRecoveryFixedReference as read } from "./readRecoveryFixedReference";
 
 /**
@@ -43,7 +44,7 @@ export function observeRecoveryAtlas(
       barycentric: [number, number, number];
     }[];
     stationSpacingMm?: number;
-    scalarWindowMm?: [number, number];
+    scalarWindowMm?: IAutoMovieRecoveryScalarWindow | [number, number];
     inventoryOnly?: boolean;
     physicalGradientLengthMm?: number;
     work: {
@@ -54,7 +55,7 @@ export function observeRecoveryAtlas(
       maxObservationRowsPerChart?: number;
       maxRefinementsPerChart?: number;
     };
-    tessellation: Parameters<typeof O>[0]["tessellation"];
+    tessellation: Parameters<typeof AutoMovieRecoveryObservation.observeAtlas>[0]["tessellation"];
   } = JSON.parse(bytes.toString("utf8"));
   if (
     input.schema !== "automovie-recovery-atlas-observation-v1" ||
@@ -64,6 +65,19 @@ export function observeRecoveryAtlas(
     throw new Error(
       "A versioned atlas observation specification and explicit work budgets are required",
     );
+  const scalarWindowMm: IAutoMovieRecoveryScalarWindow | undefined =
+    Array.isArray(input.scalarWindowMm)
+      ? input.scalarWindowMm.length === 2
+        ? {
+            lowerMm: input.scalarWindowMm[0],
+            upperMm: input.scalarWindowMm[1],
+          }
+        : (() => {
+            throw new Error(
+              "A legacy scalar window must contain exactly two endpoints",
+            );
+          })()
+      : input.scalarWindowMm;
   const sourceBytes: ReturnType<typeof read> = read(input.source, base);
   const source: {
     units: string;
@@ -300,7 +314,7 @@ export function observeRecoveryAtlas(
       memory: process.memoryUsage(),
     }),
   );
-  const result: ReturnType<typeof O> = O(
+  const result: ReturnType<typeof AutoMovieRecoveryObservation.observeAtlas> = AutoMovieRecoveryObservation.observeAtlas(
     {
       verticesMm,
       triangles,
@@ -314,7 +328,7 @@ export function observeRecoveryAtlas(
       ...input.work,
       inventoryOnly: input.inventoryOnly,
       physicalGradientLengthMm: input.physicalGradientLengthMm,
-      scalarWindowMm: input.scalarWindowMm,
+      scalarWindowMm,
       priorityFaces: witnessFaces,
       topologyDomain: `observed-atlas.${inputSha256}`,
       tessellation: input.tessellation,
@@ -367,8 +381,8 @@ export function observeRecoveryAtlas(
         privateFitWitnesses.push({ chartId: chart.id, maximumWitness });
       return { ...chart, joint };
     });
-  const witnessPublication: ReturnType<typeof writeAutoMovieRecoveryArtifact> =
-    writeAutoMovieRecoveryArtifact(
+  const witnessPublication: ReturnType<typeof writeRecoveryArtifact> =
+    writeRecoveryArtifact(
       path.join(output, "private-fit-witnesses.json"),
       {
         schema: "automovie-recovery-private-fit-witnesses-v1",
@@ -377,8 +391,8 @@ export function observeRecoveryAtlas(
       },
     );
   const publicFile: string = path.join(output, "atlas.json");
-  const publication: ReturnType<typeof writeAutoMovieRecoveryArtifact> =
-    writeAutoMovieRecoveryArtifact(publicFile, {
+  const publication: ReturnType<typeof writeRecoveryArtifact> =
+    writeRecoveryArtifact(publicFile, {
       schema: "automovie-recovery-atlas-v1",
       geometry: result.geometry,
       charts: publicCharts,
@@ -443,8 +457,8 @@ export function observeRecoveryAtlas(
       };
     },
   );
-  const ledger: ReturnType<typeof writeAutoMovieRecoveryArtifact> =
-    writeAutoMovieRecoveryArtifact(
+  const ledger: ReturnType<typeof writeRecoveryArtifact> =
+    writeRecoveryArtifact(
       path.join(output, "private-source-ledger.json"),
       {
         schema: "automovie-recovery-private-cell-ledger-v1",
@@ -455,7 +469,7 @@ export function observeRecoveryAtlas(
         intervals: result.privateLedger,
       },
     );
-  writeAutoMovieRecoveryArtifact(path.join(output, "observation.json"), {
+  writeRecoveryArtifact(path.join(output, "observation.json"), {
     schema: "automovie-recovery-atlas-observation-result-v1",
     provenance,
     coverage: result.coverage,

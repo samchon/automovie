@@ -1,7 +1,7 @@
 import {
-  AutoMovieLoftSectionNative,
-  AutoMovieViewOutline,
-  AutoMovieViewSection,
+  AutoMovieEngineLoftSectionNative,
+  AutoMovieEngineViewOutline,
+  AutoMovieEngineViewSection,
 } from "@automovie/engine";
 import type {
   IAutoMovieHumanHeadNeckCurves,
@@ -42,13 +42,13 @@ export namespace AutoMovieHumanNeckBoundary {
           ],
         ) as IAutoMovieHumanTrunkConnection.IDefinition["field"]["inputs"]["extents"],
         shoulders: [
-          [AutoMovieViewSection.ELLIPSE, 0, 0],
-          [AutoMovieViewSection.ELLIPSE, 0, 0],
-          [AutoMovieViewSection.ELLIPSE, 0, 0],
-          [AutoMovieViewSection.ELLIPSE, 0, 0],
+          [AutoMovieEngineViewSection.ELLIPSE, 0, 0],
+          [AutoMovieEngineViewSection.ELLIPSE, 0, 0],
+          [AutoMovieEngineViewSection.ELLIPSE, 0, 0],
+          [AutoMovieEngineViewSection.ELLIPSE, 0, 0],
         ],
       };
-    AutoMovieLoftSectionNative.jet(inputs)(0);
+    AutoMovieEngineLoftSectionNative.jet(inputs)(0);
     const connection: IAutoMovieHumanTrunkConnection.IDefinition = {
       boundary: {
         y: station,
@@ -94,23 +94,27 @@ export namespace AutoMovieHumanNeckBoundary {
   }
 }
 
-/** Admit the actual numeric scalar in its original parameter. */
+/*
+ * Admit the actual numeric scalar in its original parameter.
+ */
 function prepare(
   outline: IAutoMovieViewPart.IOutline,
 ): IAutoMovieViewOutline.IOutline {
-  const result: ReturnType<typeof AutoMovieViewOutline.create> =
-    AutoMovieViewOutline.create(outline);
+  const result: ReturnType<typeof AutoMovieEngineViewOutline.create> =
+    AutoMovieEngineViewOutline.create(outline);
   if ("detail" in result) throw new Error(result.detail);
   return result;
 }
 
-/** Physical station derivatives of the original law, never fitted boundary jets. */
+/*
+ * Physical station derivatives of the original law, never fitted boundary jets.
+ */
 function read(
   outline: IAutoMovieViewOutline.IOutline,
   station: number,
 ): IAutoMovieViewOutline.IReading {
-  const result: ReturnType<typeof AutoMovieViewOutline.at> =
-    AutoMovieViewOutline.at(outline, station);
+  const result: ReturnType<typeof AutoMovieEngineViewOutline.at> =
+    AutoMovieEngineViewOutline.at(outline, station);
   if (typeof result === "string") throw new Error(result);
   if (result.stationJet === null)
     throw new Error("Original neck boundary has no qualified physical2");

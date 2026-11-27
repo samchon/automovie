@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanTouch } from "@automovie/interface";
 
-/**
+/*
  * The values the `blownKissSend` row of `HumanEmblem` fixes on `touch`, spread
  * into its parameters. The blown kiss's send, performed after `blownKiss`: the
  * open hand, palm up, swept forward from the lips and held a moment at the

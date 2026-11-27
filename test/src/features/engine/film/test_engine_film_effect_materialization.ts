@@ -1,7 +1,4 @@
-import {
-  materializeProductionFilmEffects,
-  verifyProductionFilmEffectPopulation,
-} from "@automovie/engine";
+import { AutoMovieEngineEffect } from "@automovie/engine";
 import {
   IAutoMovieCompiledFilmEffect,
   type IAutoMovieFilmEffectCurrentIdentity,
@@ -62,11 +59,11 @@ export function test_engine_film_effect_materialization(): void {
   const identity: IAutoMovieFilmEffectCurrentIdentity =
     filmEffectIdentity(timeline);
   const materialize: (
-    overrides: Partial<Parameters<typeof materializeProductionFilmEffects>[0]>,
+    overrides: Partial<Parameters<typeof AutoMovieEngineEffect.materializeProductionFilmEffects>[0]>,
   ) => IAutoMovieCompiledFilmEffect[] = (
-    overrides: Partial<Parameters<typeof materializeProductionFilmEffects>[0]>,
+    overrides: Partial<Parameters<typeof AutoMovieEngineEffect.materializeProductionFilmEffects>[0]>,
   ): IAutoMovieCompiledFilmEffect[] =>
-    materializeProductionFilmEffects({
+    AutoMovieEngineEffect.materializeProductionFilmEffects({
       identity,
       frameRate: 24,
       world: filmEffectWorld(),
@@ -174,7 +171,7 @@ export function test_engine_film_effect_materialization(): void {
   TestValidator.equals(
     "the written population verifies against its timeline",
     filmEffectRefusal((): void =>
-      verifyProductionFilmEffectPopulation({ timeline, effects: output }),
+      AutoMovieEngineEffect.verifyProductionFilmEffectPopulation({ timeline, effects: output }),
     ),
     "accepted",
   );
@@ -214,9 +211,9 @@ export function test_engine_film_effect_materialization(): void {
   );
 
   const refuse: (
-    overrides: Partial<Parameters<typeof materializeProductionFilmEffects>[0]>,
+    overrides: Partial<Parameters<typeof AutoMovieEngineEffect.materializeProductionFilmEffects>[0]>,
   ) => string = (
-    overrides: Partial<Parameters<typeof materializeProductionFilmEffects>[0]>,
+    overrides: Partial<Parameters<typeof AutoMovieEngineEffect.materializeProductionFilmEffects>[0]>,
   ): string =>
     filmEffectRefusal((): IAutoMovieCompiledFilmEffect[] =>
       materialize(overrides),

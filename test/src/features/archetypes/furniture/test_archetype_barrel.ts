@@ -1,5 +1,5 @@
-import { AutoMovieArchetypeUnits, createBarrel } from "@automovie/archetypes";
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieArchetypeUnits, AutoMovieArchetypeBarrel } from "@automovie/archetypes";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieTransform,
@@ -31,7 +31,7 @@ export function test_archetype_barrel(): void {
 
   // 1. The sizes.
   const sweep = (
-    kind: createBarrel.Kind,
+    kind: AutoMovieArchetypeBarrel.Kind,
     axis: "x" | "y",
     minimum: number,
     maximum: number,
@@ -39,7 +39,7 @@ export function test_archetype_barrel(): void {
   ): archetypeBandSweep.IRow => ({
     name: `${kind} ${axis === "x" ? "diameter" : "height"}`,
     measure: (seed: number): number =>
-      archetypeExtent(createBarrel({ kind }, seed), axis).size,
+      archetypeExtent(AutoMovieArchetypeBarrel.create({ kind }, seed), axis).size,
     minimum,
     maximum,
     source,
@@ -60,7 +60,7 @@ export function test_archetype_barrel(): void {
       {
         name: "steel drum height and mass",
         measure: (seed: number): readonly number[] => {
-          const drum: ReturnType<typeof createBarrel> = createBarrel(
+          const drum: ReturnType<typeof AutoMovieArchetypeBarrel.create> = AutoMovieArchetypeBarrel.create(
             { kind: "steelDrum" },
             seed,
           );
@@ -82,9 +82,9 @@ export function test_archetype_barrel(): void {
   );
 
   // 2. The hands and the top.
-  for (const kind of createBarrel.KINDS)
+  for (const kind of AutoMovieArchetypeBarrel.KINDS)
     for (const seed of [0, 9]) {
-      const barrel: ReturnType<typeof createBarrel> = createBarrel(
+      const barrel: ReturnType<typeof AutoMovieArchetypeBarrel.create> = AutoMovieArchetypeBarrel.create(
         { kind },
         seed,
       );
@@ -104,7 +104,7 @@ export function test_archetype_barrel(): void {
         )
           findings.push(`${kind} ${seed}: ${id} is off the top rim`);
         const outward: number =
-          Quaternion.rotateVector(frame.rotation, Vector3.create(0, 1, 0)).x *
+          AutoMovieEngineQuaternion.rotateVector(frame.rotation, AutoMovieEngineVector3.create(0, 1, 0)).x *
           out;
         if (!(outward > 1 - 1e-6))
           findings.push(`${kind} ${seed}: ${id} does not face out`);

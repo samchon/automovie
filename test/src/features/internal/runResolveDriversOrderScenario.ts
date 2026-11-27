@@ -1,4 +1,4 @@
-import { resolveDrivers } from "@automovie/engine";
+import { AutoMovieEngineResolve } from "@automovie/engine";
 import type {
   IAutoMovieAimDriver,
   IAutoMovieDrivenDriver,
@@ -12,24 +12,28 @@ import { createDriverPointer as ptr } from "./createDriverPointer";
 import { createDriverSamples as seed } from "./createDriverSamples";
 import { nclose } from "./nclose";
 
-/** Execute the existing reverse-order chain, shared dependency, and deferred aim cases with literal linear-map expectations. Output values cannot prove how many times a dependency was evaluated. */
+/**
+ * Execute the existing reverse-order chain, shared dependency, and deferred aim
+ * cases with literal linear-map expectations. Output values cannot prove how
+ * many times a dependency was evaluated.
+ */
 export function runResolveDriversOrderScenario(): void {
   const a: IAutoMovieDrivenDriver = driven({
     source: ptr("/x"),
     output: ptr("/y"),
-    inRange: [0, 1],
-    outRange: [0, 2],
+    inRange: { from: 0, to: 1 },
+    outRange: { from: 0, to: 2 },
   });
   const b: IAutoMovieDrivenDriver = driven({
     source: ptr("/y"),
     output: ptr("/z"),
-    inRange: [0, 2],
-    outRange: [0, 4],
+    inRange: { from: 0, to: 2 },
+    outRange: { from: 0, to: 4 },
   });
   const sampled: Map<string, IAutoMovieSampledChannel> = seed([
     ["ptr:/x", ptr("/x"), [1]],
   ]);
-  resolveDrivers([b, a], sampled, new Map());
+  AutoMovieEngineResolve.resolveDrivers([b, a], sampled, new Map());
   TestValidator.predicate(
     "chain resolves A before B",
     sameValues(sampled.get("ptr:/z")!.value, [4]),
@@ -42,20 +46,20 @@ export function runResolveDriversOrderScenario(): void {
   const sa: IAutoMovieDrivenDriver = driven({
     source: ptr("/x"),
     output: ptr("/y"),
-    inRange: [0, 1],
-    outRange: [0, 5],
+    inRange: { from: 0, to: 1 },
+    outRange: { from: 0, to: 5 },
   });
   const sb: IAutoMovieDrivenDriver = driven({
     source: ptr("/y"),
     output: ptr("/p"),
-    inRange: [0, 5],
-    outRange: [0, 1],
+    inRange: { from: 0, to: 5 },
+    outRange: { from: 0, to: 1 },
   });
   const sc: IAutoMovieDrivenDriver = driven({
     source: ptr("/y"),
     output: ptr("/q"),
-    inRange: [0, 5],
-    outRange: [0, 2],
+    inRange: { from: 0, to: 5 },
+    outRange: { from: 0, to: 2 },
   });
   const sampled2: Map<string, IAutoMovieSampledChannel> = seed([
     ["ptr:/x", ptr("/x"), [1]],
@@ -69,7 +73,7 @@ export function runResolveDriversOrderScenario(): void {
     worldUp: { x: 0, y: 1, z: 0 },
     influence: 1,
   };
-  const deferred: IAutoMovieDriver[] = resolveDrivers(
+  const deferred: IAutoMovieDriver[] = AutoMovieEngineResolve.resolveDrivers(
     [sb, sc, sa, aim],
     sampled2,
     new Map(),
@@ -89,7 +93,6 @@ export function runResolveDriversOrderScenario(): void {
     "aim",
   );
 }
-
 
 /** Compare scalar-array width and each component with zero numeric tolerance. */
 function sameValues(actual: number[], expected: number[]): boolean {

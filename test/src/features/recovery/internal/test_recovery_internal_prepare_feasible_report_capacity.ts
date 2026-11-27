@@ -1,7 +1,4 @@
-import {
-  RecoveryFeasibleCapacityError,
-  prepareRecoveryFeasibleReportCapacity,
-} from "@automovie/recovery";
+import { AutoMovieRecoveryFeasibleCapacityError, AutoMovieRecoveryCameraMap } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -19,22 +16,22 @@ import { TestValidator } from "@nestia/e2e";
 export function test_recovery_internal_prepare_feasible_report_capacity(): void {
   TestValidator.equals(
     "the fit's own limit",
-    prepareRecoveryFeasibleReportCapacity(4096, 2048, 1),
+    AutoMovieRecoveryCameraMap.prepareFeasibleReportCapacity(4096, 2048, 1),
     { sceneEntries: 3072, fitEntries: 1536, reservedEntries: 1024 },
   );
   TestValidator.equals(
     "the scene's remainder",
-    prepareRecoveryFeasibleReportCapacity(1600, 4096, 0),
+    AutoMovieRecoveryCameraMap.prepareFeasibleReportCapacity(1600, 4096, 0),
     { sceneEntries: 1088, fitEntries: 1088, reservedEntries: 512 },
   );
   let reason: string | null = null;
   try {
-    prepareRecoveryFeasibleReportCapacity(2048, 2048, 3);
+    AutoMovieRecoveryCameraMap.prepareFeasibleReportCapacity(2048, 2048, 3);
   } catch (error) {
-    if (error instanceof RecoveryFeasibleCapacityError) reason = error.reason;
+    if (error instanceof AutoMovieRecoveryFeasibleCapacityError) reason = error.reason;
   }
   TestValidator.equals("everything reserved", reason, "resident");
   TestValidator.error("a zero scene", (): unknown =>
-    prepareRecoveryFeasibleReportCapacity(0, 2048, 0),
+    AutoMovieRecoveryCameraMap.prepareFeasibleReportCapacity(0, 2048, 0),
   );
 }

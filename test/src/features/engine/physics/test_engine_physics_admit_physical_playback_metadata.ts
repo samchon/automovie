@@ -1,13 +1,17 @@
-import { admitPhysicalPlaybackMetadata } from "@automovie/engine";
+import { AutoMovieEnginePhysics, AutoMovieEnginePhysicalPlayback } from "@automovie/engine";
 import type {
+  IAutoMovieContactReceipt,
   IAutoMoviePhysicalPlayback,
   IAutoMoviePhysicalSupportWrench,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { nclose } from "../../internal/predicates";
+import { throwsError } from "../../internal/throwsError";
+
 /**
  * Replayed virtual support predictions keep requested minus allocated equal to
- * their residual, independent of an archive's integrity trailer.
+ * their residual. Archived and live contact readers share causal time checks.
  *
  * Scenarios:
  *
@@ -18,6 +22,11 @@ import { TestValidator } from "@nestia/e2e";
  *    inconsistent.
  * 4. A negative witness count, and two predictions at one instant, are refused as
  *    malformed.
+ * 5. A valid episode is admitted in the bounded archive and its completed steps
+ *    appear by inspection time, with the default live read including all
+ *    steps.
+ * 6. Both readers refuse a nonfinite episode start or a nonfinite completed step
+ *    followed by an event dated before its episode.
  *
  * The allocation law itself belongs to `test_physical_support_wrench`, and
  * binary transport to `test_physical_playback_archive`.
@@ -70,7 +79,7 @@ export function test_engine_physics_admit_physical_playback_metadata(): void {
   for (const [label, supportWrenches, expected] of verdicts) {
     let refusal: string | null = null;
     try {
-      admitPhysicalPlaybackMetadata({ ...header(), supportWrenches });
+      AutoMovieEnginePhysicalPlayback.admitMetadata({ ...header(), supportWrenches });
     } catch (error: unknown) {
       refusal = error instanceof Error ? error.message : String(error);
     }
@@ -78,6 +87,79 @@ export function test_engine_physics_admit_physical_playback_metadata(): void {
       failures.push(`${label}: ${refusal ?? "admitted"}`);
   }
   TestValidator.equals("support-wrench replay admission", failures, []);
+
+  const contact: IAutoMovieContactReceipt = {
+    id: "floor-contact",
+    source: "solver",
+    seconds: 0.25,
+    endSeconds: 1,
+    a: { body: "body", bone: "root", shape: "sole", material: "rubber" },
+    b: { body: "floor", bone: "floor", shape: "floor", material: "wood" },
+    point: { x: 0, y: 0, z: 0 },
+    normal: { x: 0, y: -1, z: 0 },
+    impulse: 2,
+    separation: 0,
+    compression: 0,
+  };
+  const completed: NonNullable<IAutoMovieContactReceipt["samples"]>[number] = {
+    seconds: 0.25,
+    duration: 1 / 120,
+    impulse: 1,
+    point: contact.point,
+    normal: contact.normal,
+    separation: 0,
+    compression: 0,
+  };
+  const valid: IAutoMovieContactReceipt = {
+    ...contact,
+    samples: [completed, { ...completed, seconds: 1 }],
+  };
+  AutoMovieEnginePhysicalPlayback.admitMetadata({ ...header(), contacts: [valid] });
+  const earlier: IAutoMovieContactReceipt[] = AutoMovieEnginePhysics.samplePhysicalContactEvents(
+    valid,
+    0.5,
+  );
+  const all: IAutoMovieContactReceipt[] = AutoMovieEnginePhysics.samplePhysicalContactEvents(valid);
+  TestValidator.predicate(
+    "live contact events never read a later completed step",
+    earlier.length === 1 &&
+      nclose(earlier[0]!.seconds, 0.25) &&
+      all.length === 2 &&
+      nclose(all[1]!.seconds, 1),
+  );
+
+  const nonfiniteEpisode: IAutoMovieContactReceipt = {
+    ...contact,
+    seconds: NaN,
+  };
+  const noncausalSamples: IAutoMovieContactReceipt = {
+    ...contact,
+    samples: [
+      { ...completed, seconds: NaN },
+      { ...completed, seconds: -1 },
+    ],
+  };
+  const contactFailures: string[] = [];
+  for (const [label, receipt, archiveError, liveError] of [
+    ["episode clock", nonfiniteEpisode, "episode", "causal contact event"],
+    ["completed clock", noncausalSamples, "sample", "completed contact sample"],
+  ] as const) {
+    if (
+      !throwsError(
+        () =>
+          AutoMovieEnginePhysicalPlayback.admitMetadata({ ...header(), contacts: [receipt] }),
+        `Malformed physical playback contact ${archiveError}`,
+      )
+    )
+      contactFailures.push(`archive ${label}`);
+    if (!throwsError(() => AutoMovieEnginePhysics.samplePhysicalContactEvents(receipt), liveError))
+      contactFailures.push(`live ${label}`);
+  }
+  TestValidator.equals(
+    "contact readers refuse noncausal clocks",
+    contactFailures,
+    [],
+  );
 }
 
 /**

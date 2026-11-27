@@ -1,4 +1,4 @@
-import { AutoMovieLoftChain } from "@automovie/engine";
+import { AutoMovieEngineLoftChain } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanEventJoinRing,
@@ -7,13 +7,11 @@ import type {
 
 import { AutoMovieHumanEventJoinVector } from "./AutoMovieHumanEventJoinVector";
 
-const { add, dot, norm, scale, smooth, sub } = AutoMovieHumanEventJoinVector;
-
 /**
- * The parent's ring at an event as the event join reads it: sampled densely
- * by phase with its length along the ring, the weight of each phase on the
- * child's arcs (fading to zero over {@link TAPER} mm before each pinch), and
- * the nearest point of the ring to any point.
+ * The parent's ring at an event as the event join reads it: sampled densely by
+ * phase with its length along the ring, the weight of each phase on the child's
+ * arcs (fading to zero over {@link TAPER} mm before each pinch), and the nearest
+ * point of the ring to any point.
  */
 export namespace AutoMovieHumanEventJoinRing {
   /** Fade length before a pinch, mm. */
@@ -22,7 +20,10 @@ export namespace AutoMovieHumanEventJoinRing {
   /** Samples of the dense parent ring. */
   export const RING: number = 2048;
 
-  /** The parent's ring at an event and the weight of its phases on the child's arcs. */
+  /**
+   * The parent's ring at an event and the weight of its phases on the child's
+   * arcs.
+   */
   export function parentRing(
     parent: IAutoMovieLoftChain,
     direction: "down" | "up",
@@ -32,7 +33,7 @@ export namespace AutoMovieHumanEventJoinRing {
     const sp: number =
       direction === "down" ? parent.layers[0]!.y : parent.layers[last]!.y;
     const n: number = RING;
-    const ring: AutoMovieVector3Tuple[] = AutoMovieLoftChain.ring(
+    const ring: AutoMovieVector3Tuple[] = AutoMovieEngineLoftChain.ring(
       parent,
       sp,
       Array.from(
@@ -43,16 +44,16 @@ export namespace AutoMovieHumanEventJoinRing {
     const length: number[] = [0];
     for (let i: number = 1; i <= n; i++)
       length.push(length[i - 1]! + norm(sub(ring[i % n]!, ring[i - 1]!)));
-    const at: (t: number) => number = (t: number): number => {
+    function at(t: number): number {
       const u: number = ((((t / (2 * Math.PI)) % 1) + 1) % 1) * n;
       const i: number = Math.floor(u);
       return length[i]! + (u - i) * (length[i + 1]! - length[i]!);
-    };
+    }
     const perimeter: number = length[n]!;
     const whole: boolean = arcs.some(
       ([a, b]: [number, number]): boolean => b - a >= 2 * Math.PI - 1e-9,
     );
-    const weight: (t: number) => number = (t: number): number => {
+    function weight(t: number): number {
       if (whole) return 1;
       let best: number = 0;
       for (const [a, b] of arcs) {
@@ -64,16 +65,16 @@ export namespace AutoMovieHumanEventJoinRing {
         best = Math.max(best, smooth(edge / TAPER));
       }
       return best;
-    };
+    }
     return { sp, points: ring, length, weight };
   }
 
   /**
    * Nearest point of a dense ring to p: its phase, the point on the closer
-   * neighbouring segment, the distance, and the nearest sample's index.
-   * A caller walking a ring in order passes the sample it found last as
-   * `guess`: its distance bounds the scan from the first step, so the arc
-   * length bound passes over almost every sample.
+   * neighbouring segment, the distance, and the nearest sample's index. A
+   * caller walking a ring in order passes the sample it found last as `guess`:
+   * its distance bounds the scan from the first step, so the arc length bound
+   * passes over almost every sample.
    */
   export function nearest(
     ring: IAutoMovieHumanEventJoinRing.IRing,
@@ -141,3 +142,5 @@ export namespace AutoMovieHumanEventJoinRing {
     return [(2 * Math.PI * best) / n, point, distance, best];
   }
 }
+
+const { add, dot, norm, scale, smooth, sub } = AutoMovieHumanEventJoinVector;

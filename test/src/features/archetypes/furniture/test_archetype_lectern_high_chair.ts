@@ -1,9 +1,5 @@
-import {
-  AutoMovieArchetypeUnits,
-  createHighChair,
-  createLectern,
-} from "@automovie/archetypes";
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieArchetypeUnits, AutoMovieArchetypeHighChair, AutoMovieArchetypeLectern } from "@automovie/archetypes";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieAffordance } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -33,13 +29,13 @@ export function test_archetype_lectern_high_chair(): void {
   };
 
   // 1. The lectern.
-  const lectern: ReturnType<typeof createLectern> = createLectern({}, 3);
+  const lectern: ReturnType<typeof AutoMovieArchetypeLectern.create> = AutoMovieArchetypeLectern.create({}, 3);
   const top: IAutoMovieAffordance = lectern.affordance("top");
   near("the surface's width", top.width!, 23 * AutoMovieArchetypeUnits.INCH);
   near("the surface's depth", top.depth!, 15.75 * AutoMovieArchetypeUnits.INCH);
-  const normal: ReturnType<typeof Vector3.create> = Quaternion.rotateVector(
+  const normal: ReturnType<typeof AutoMovieEngineVector3.create> = AutoMovieEngineQuaternion.rotateVector(
     top.frame.rotation,
-    Vector3.create(0, 1, 0),
+    AutoMovieEngineVector3.create(0, 1, 0),
   );
   near(
     "the surface's slope",
@@ -59,7 +55,7 @@ export function test_archetype_lectern_high_chair(): void {
   );
 
   // 2. The high chair.
-  const chair: ReturnType<typeof createHighChair> = createHighChair({}, 3);
+  const chair: ReturnType<typeof AutoMovieArchetypeHighChair.create> = AutoMovieArchetypeHighChair.create({}, 3);
   near("the chair's width", archetypeExtent(chair, "x").size, 0.56);
   near("the chair's depth", archetypeExtent(chair, "z").size, 0.59);
   near("the chair's height", archetypeExtent(chair, "y").high, 0.9);

@@ -1,4 +1,6 @@
-import { HumanArmTrajectoryPace } from "@automovie/motions/internal";
+import {
+  HumanArmTrajectoryPace
+} from "../../../../../packages/motions/src/posture/internal/HumanArmTrajectoryPace";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

@@ -4,7 +4,7 @@ import type {
   IAutoMovieRecoverySourceLineage,
 } from "@automovie/interface";
 
-import { extractRecoveryMeshSections } from "../internal/extractRecoveryMeshSections";
+import { extractRecoveryMeshSections } from "../geometry/internal/extractRecoveryMeshSections";
 
 /** Automatic section extraction and source-independent cubic publication. */
 export namespace AutoMovieRecoveryMeshSections {

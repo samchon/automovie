@@ -3,9 +3,11 @@ import type {
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 import {
-  HumanSegmentSelection,
-  HumanSegmentStill,
-} from "@automovie/motions/internal";
+  HumanSegmentSelection
+} from "../../../../../packages/motions/src/perform/internal/HumanSegmentSelection";
+import {
+  HumanSegmentStill
+} from "../../../../../packages/motions/src/perform/internal/HumanSegmentStill";
 import { TestValidator } from "@nestia/e2e";
 
 import { syntheticHumanPlan } from "../../internal/synthetic/syntheticHumanPlan";

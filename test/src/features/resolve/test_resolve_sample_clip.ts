@@ -1,4 +1,4 @@
-import { sampleClip } from "@automovie/engine";
+import { AutoMovieEngineSequence } from "@automovie/engine";
 import {
   IAutoMovieChannel,
   IAutoMovieClip,
@@ -51,7 +51,7 @@ const val: (c: IAutoMovieClip, t: number, key: string) => number[] = (
   t: number,
   key: string,
 ): number[] => {
-  const hit: IAutoMovieSampledChannel | undefined = sampleClip(c, t).get(key);
+  const hit: IAutoMovieSampledChannel | undefined = AutoMovieEngineSequence.sampleClip(c, t).get(key);
   if (hit === undefined) throw new Error(`${key} missing`);
   return hit.value;
 };
@@ -118,7 +118,7 @@ export function test_resolve_sample_clip(): void {
     close(val(lin, 0.5, "node:n:translation"), [5, 10, 15]),
   );
 
-  const multi: Map<string, IAutoMovieSampledChannel> = sampleClip(
+  const multi: Map<string, IAutoMovieSampledChannel> = AutoMovieEngineSequence.sampleClip(
     clip(
       [
         track(PTR, [0, 1], [0, 1], "linear"),
@@ -336,7 +336,7 @@ export function test_resolve_sample_clip(): void {
     "empty track keyframes reject sampling",
     throwsError(
       (): Map<string, IAutoMovieSampledChannel> =>
-        sampleClip(clip([track(PTR, [], [], "linear")], 1), 0),
+        AutoMovieEngineSequence.sampleClip(clip([track(PTR, [], [], "linear")], 1), 0),
       'track "ptr:/x" must have keyframes to sample',
     ),
   );
@@ -345,7 +345,7 @@ export function test_resolve_sample_clip(): void {
     "negative clip duration rejects",
     throwsError(
       (): Map<string, IAutoMovieSampledChannel> =>
-        sampleClip({ ...lin, duration: -1 }, 0),
+        AutoMovieEngineSequence.sampleClip({ ...lin, duration: -1 }, 0),
       ["clip duration", "non-negative", "-1"],
     ),
   );
@@ -354,7 +354,7 @@ export function test_resolve_sample_clip(): void {
     "track keyframe times reject negative start",
     throwsError(
       (): Map<string, IAutoMovieSampledChannel> =>
-        sampleClip(clip([track(PTR, [-0.5, 0.5], [0, 1], "linear")], 1), 0),
+        AutoMovieEngineSequence.sampleClip(clip([track(PTR, [-0.5, 0.5], [0, 1], "linear")], 1), 0),
       ['track "ptr:/x"', "keyframe times", "non-negative", "-0.5"],
     ),
   );
@@ -363,7 +363,7 @@ export function test_resolve_sample_clip(): void {
     "track keyframe times reject past clip duration",
     throwsError(
       (): Map<string, IAutoMovieSampledChannel> =>
-        sampleClip(clip([track(PTR, [0, 2], [0, 1], "linear")], 1), 0),
+        AutoMovieEngineSequence.sampleClip(clip([track(PTR, [0, 2], [0, 1], "linear")], 1), 0),
       ['track "ptr:/x"', "clip duration", "1", "2"],
     ),
   );
@@ -372,7 +372,7 @@ export function test_resolve_sample_clip(): void {
     "duplicate track channels reject sampling",
     throwsError(
       (): Map<string, IAutoMovieSampledChannel> =>
-        sampleClip(
+        AutoMovieEngineSequence.sampleClip(
           clip(
             [
               track(PTR, [0, 1], [0, 1], "linear"),
@@ -390,7 +390,7 @@ export function test_resolve_sample_clip(): void {
     "track keyframe times reject duplicates",
     throwsError(
       (): Map<string, IAutoMovieSampledChannel> =>
-        sampleClip(clip([track(PTR, [0, 0], [0, 1], "linear")], 1), 0),
+        AutoMovieEngineSequence.sampleClip(clip([track(PTR, [0, 0], [0, 1], "linear")], 1), 0),
       ['track "ptr:/x"', "strictly increasing"],
     ),
   );
@@ -399,7 +399,7 @@ export function test_resolve_sample_clip(): void {
     "track values reject empty payload",
     throwsError(
       (): Map<string, IAutoMovieSampledChannel> =>
-        sampleClip(clip([track(PTR, [0], [], "linear")], 1), 0),
+        AutoMovieEngineSequence.sampleClip(clip([track(PTR, [0], [], "linear")], 1), 0),
       ['track "ptr:/x"', "values", "must not be empty"],
     ),
   );
@@ -408,7 +408,7 @@ export function test_resolve_sample_clip(): void {
     "track values reject uneven keyframe stride",
     throwsError(
       (): Map<string, IAutoMovieSampledChannel> =>
-        sampleClip(clip([track(PTR, [0, 1], [0, 1, 2], "linear")], 1), 0),
+        AutoMovieEngineSequence.sampleClip(clip([track(PTR, [0, 1], [0, 1, 2], "linear")], 1), 0),
       ['track "ptr:/x"', "values length", "divide evenly"],
     ),
   );
@@ -417,7 +417,7 @@ export function test_resolve_sample_clip(): void {
     "cubicspline values reject non-triplet stride",
     throwsError(
       (): Map<string, IAutoMovieSampledChannel> =>
-        sampleClip(clip([track(PTR, [0], [0, 1], "cubicspline")], 1), 0),
+        AutoMovieEngineSequence.sampleClip(clip([track(PTR, [0], [0, 1], "cubicspline")], 1), 0),
       ['track "ptr:/x"', "cubicspline", "divisible by 3"],
     ),
   );
@@ -426,7 +426,7 @@ export function test_resolve_sample_clip(): void {
     "scalar channel rejects vec2-width values",
     throwsError(
       (): Map<string, IAutoMovieSampledChannel> =>
-        sampleClip(clip([track(PTR, [0, 1], [0, 0, 1, 1], "linear")], 1), 0),
+        AutoMovieEngineSequence.sampleClip(clip([track(PTR, [0, 1], [0, 0, 1, 1], "linear")], 1), 0),
       ['track "ptr:/x"', "value width", "1", "2"],
     ),
   );
@@ -435,7 +435,7 @@ export function test_resolve_sample_clip(): void {
     "rotation channel rejects vec3-width values",
     throwsError(
       (): Map<string, IAutoMovieSampledChannel> =>
-        sampleClip(
+        AutoMovieEngineSequence.sampleClip(
           clip(
             [track(NODE("rotation"), [0, 1], [0, 0, 1, 0, 0, 1], "linear")],
             1,

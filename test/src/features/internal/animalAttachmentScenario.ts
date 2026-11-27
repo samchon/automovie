@@ -3,7 +3,7 @@ import type {
   AutoMovieArchetypeQuadrupedBody,
   AutoMovieArchetypeRide,
 } from "@automovie/archetypes";
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieTransform,
@@ -135,13 +135,13 @@ export function animalAttachmentScenario<Id extends string, D extends string>(
         const held: IAutoMovieTransform = sample.archetype.affordances.find(
           (posed: { id: string }): boolean => posed.id === contact.id,
         )!.frame;
-        const expected: IAutoMovieTransform["translation"] = Vector3.add(
+        const expected: IAutoMovieTransform["translation"] = AutoMovieEngineVector3.add(
           sample.placement.translation,
-          Quaternion.rotateVector(sample.placement.rotation, held.translation),
+          AutoMovieEngineQuaternion.rotateVector(sample.placement.rotation, held.translation),
         );
         near(
           `${time} public lead frame meets actual physical held run`,
-          Vector3.length(Vector3.subtract(actual.translation, expected)),
+          AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(actual.translation, expected)),
           0,
           1e-9,
         );

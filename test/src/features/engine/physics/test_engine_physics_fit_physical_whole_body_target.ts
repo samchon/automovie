@@ -1,10 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  fitPhysicalWholeBodyTarget,
-  measurePhysicalJointLimits,
-  rerootPhysicalProfile,
-} from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysics, AutoMovieEnginePhysicalSimulation } from "@automovie/engine";
 import type {
   IAutoMovieFitPhysicalWholeBodyTarget,
   IAutoMoviePhysicalJoint,
@@ -50,7 +44,7 @@ export function test_engine_physics_fit_physical_whole_body_target(): void {
   );
 
   // Rerooting on the left shank inverts its knee and hip only.
-  const rerooted: P = rerootPhysicalProfile(profile, "leftLowerLeg");
+  const rerooted: P = AutoMovieEnginePhysics.rerootPhysicalProfile(profile, "leftLowerLeg");
   const changed: string[] = rerooted.joints
     .filter(
       (joint: IAutoMoviePhysicalJoint, k: number): boolean =>
@@ -80,7 +74,7 @@ export function test_engine_physics_fit_physical_whole_body_target(): void {
   );
 
   const ankle: IAutoMovieVector3 = { x: 0, y: -0.396, z: 0 };
-  const contact: IAutoMovieVector3 = Vector3.add(
+  const contact: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     neutral.leftLowerLeg!.position,
     ankle,
   );
@@ -88,10 +82,10 @@ export function test_engine_physics_fit_physical_whole_body_target(): void {
   const fit = (
     bones: string[],
     approach?: NonNullable<
-      Parameters<typeof fitPhysicalWholeBodyTarget>[0]["goal"]["approach"]
+      Parameters<typeof AutoMovieEnginePhysicalSimulation.fitWholeBodyTarget>[0]["goal"]["approach"]
     >,
   ): IAutoMovieFitPhysicalWholeBodyTarget.IResult =>
-    fitPhysicalWholeBodyTarget({
+    AutoMovieEnginePhysicalSimulation.fitWholeBodyTarget({
       profile,
       targets: neutral,
       support: {
@@ -133,7 +127,7 @@ export function test_engine_physics_fit_physical_whole_body_target(): void {
   inspect(whole.targets);
 
   // A declared shin direction, turned forward and up, pulls the fit toward it.
-  const direction: IAutoMovieVector3 = Vector3.normalize({
+  const direction: IAutoMovieVector3 = AutoMovieEngineVector3.normalize({
     x: 0,
     y: 0.5,
     z: -1,
@@ -143,8 +137,8 @@ export function test_engine_physics_fit_physical_whole_body_target(): void {
     { localDirection: { x: 0, y: -1, z: 0 }, direction, weight: 0.02 },
   );
   const shin = (targets: Record<string, IAutoMovieRigidTransform>): number =>
-    Vector3.dot(
-      Quaternion.rotateVector(targets.rightLowerLeg!.rotation, {
+    AutoMovieEngineVector3.dot(
+      AutoMovieEngineQuaternion.rotateVector(targets.rightLowerLeg!.rotation, {
         x: 0,
         y: -1,
         z: 0,
@@ -167,33 +161,33 @@ export function test_engine_physics_fit_physical_whole_body_target(): void {
     for (const joint of profile.joints) {
       const parent: IAutoMovieRigidTransform = targets[joint.parent]!;
       const child: IAutoMovieRigidTransform = targets[joint.child]!;
-      const a: IAutoMovieVector3 = Vector3.add(
+      const a: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         parent.position,
-        Quaternion.rotateVector(parent.rotation, joint.parentFrame.position),
+        AutoMovieEngineQuaternion.rotateVector(parent.rotation, joint.parentFrame.position),
       );
-      const b: IAutoMovieVector3 = Vector3.add(
+      const b: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         child.position,
-        Quaternion.rotateVector(child.rotation, joint.childFrame.position),
+        AutoMovieEngineQuaternion.rotateVector(child.rotation, joint.childFrame.position),
       );
       if (
-        Vector3.length(Vector3.subtract(a, b)) > PhysicalTolerance.ACCUMULATED
+        AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(a, b)) > PhysicalTolerance.ACCUMULATED
       )
         failures.push(`${joint.id}: anchor`);
       if (
-        measurePhysicalJointLimits(joint, parent, child).some(
+        AutoMovieEnginePhysics.measurePhysicalJointLimits(joint, parent, child).some(
           (
-            coordinate: ReturnType<typeof measurePhysicalJointLimits>[number],
+            coordinate: ReturnType<typeof AutoMovieEnginePhysics.measurePhysicalJointLimits>[number],
           ): boolean => coordinate.violation > PhysicalTolerance.ACCUMULATED,
         )
       )
         failures.push(`${joint.id}: ROM`);
     }
     const held: IAutoMovieRigidTransform = targets.leftLowerLeg!;
-    const moved: number = Vector3.length(
-      Vector3.subtract(
-        Vector3.add(
+    const moved: number = AutoMovieEngineVector3.length(
+      AutoMovieEngineVector3.subtract(
+        AutoMovieEngineVector3.add(
           held.position,
-          Quaternion.rotateVector(held.rotation, ankle),
+          AutoMovieEngineQuaternion.rotateVector(held.rotation, ankle),
         ),
         contact,
       ),

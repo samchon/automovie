@@ -1,4 +1,4 @@
-import { skeletonJointAxes } from "@automovie/engine";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   IAutoMovieBone,
   IAutoMovieJointAxes,
@@ -53,7 +53,7 @@ export function test_engine_kinematics_skeleton_joint_axes(): void {
   // 1.
   TestValidator.predicate(
     "host table",
-    skeletonJointAxes(skeleton([bone("hips"), bone("spine")]), host) === host,
+    AutoMovieEngineKinematics.skeletonJointAxes(skeleton([bone("hips"), bone("spine")]), host) === host,
   );
   // The JSON forms are compared whole: an equality that walks one side's keys
   // would not see a key missing from that side.
@@ -61,11 +61,11 @@ export function test_engine_kinematics_skeleton_joint_axes(): void {
     JSON.stringify(x) === JSON.stringify(y);
   TestValidator.predicate(
     "empty",
-    same(skeletonJointAxes(skeleton([bone("hips"), bone("spine")])), {}),
+    same(AutoMovieEngineKinematics.skeletonJointAxes(skeleton([bone("hips"), bone("spine")])), {}),
   );
 
   // 2.
-  const merged = skeletonJointAxes(
+  const merged = AutoMovieEngineKinematics.skeletonJointAxes(
     skeleton([bone("hips", B), bone("spine")]),
     host,
   );
@@ -75,7 +75,7 @@ export function test_engine_kinematics_skeleton_joint_axes(): void {
   // 3.
   TestValidator.equals(
     "declared wins",
-    skeletonJointAxes(skeleton([bone("hips"), bone("spine", B)]), host).spine,
+    AutoMovieEngineKinematics.skeletonJointAxes(skeleton([bone("hips"), bone("spine", B)]), host).spine,
     B,
   );
 }

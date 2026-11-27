@@ -1,4 +1,6 @@
-import { prepareHumanSampledCourse } from "@automovie/motions/internal";
+import {
+  prepareHumanSampledCourse
+} from "../../../../../packages/motions/src/posture/internal/prepareHumanSampledCourse";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

@@ -3,6 +3,9 @@
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "lib",
+    "paths": {
+      "#production-check-entry": ["./src/production/internal/importProductionCheckEntry.mts"]
+    },
     "types": ["node"]
   },
   "include": ["src"]

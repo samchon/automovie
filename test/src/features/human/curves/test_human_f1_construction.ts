@@ -1,4 +1,4 @@
-import { AutoMovieLoftChain, AutoMovieViewLoft } from "@automovie/engine";
+import { AutoMovieEngineLoftChain, AutoMovieEngineViewLoft } from "@automovie/engine";
 import { AutoMovieHumanF1 } from "@automovie/human";
 import type {
   IAutoMovieConstructionNode,
@@ -111,10 +111,10 @@ export function test_human_f1_construction(): void {
     // Each loop is read off its own side's family, the twin's through the mirrored family and its reversed rails, so the two agree to
     // rounding, not bit for bit: the arm's curved rail left their phase semi-axes 6e-17 rad apart.
     const apart: number = Math.max(
-      Math.abs(left.centre[0] - right.centre[0]),
-      Math.abs(left.centre[1] + right.centre[1]),
-      Math.abs(left.semi[0] - right.semi[0]),
-      Math.abs(left.semi[1] - right.semi[1]),
+      Math.abs(left.centre.station - right.centre.station),
+      Math.abs(left.centre.phase + right.centre.phase),
+      Math.abs(left.semi.stationMetres - right.semi.stationMetres),
+      Math.abs(left.semi.phaseRadians - right.semi.phaseRadians),
     );
     if (!(apart <= 1e-12))
       failures.push(
@@ -314,15 +314,18 @@ export function test_human_f1_construction(): void {
   const trunk = declared.sources.get("trunk");
   for (const node of nodes)
     if (node.type === "port") {
-      const station: number = node.loop.centre[0] * 1000;
+      const station: number = node.loop.centre.station * 1000;
       if (
         trunk === undefined ||
         node.hostFace !== "trunk" ||
         !(station > trunk.stations[0]! && station < trunk.stations.at(-1)!) ||
-        !(node.loop.semi[1] > 0 && node.loop.semi[1] < Math.PI)
+        !(
+          node.loop.semi.phaseRadians > 0 &&
+          node.loop.semi.phaseRadians < Math.PI
+        )
       )
         failures.push(
-          `${node.name} does not stand on the trunk: station ${station} mm, phase semi-axis ${node.loop.semi[1]}`,
+          `${node.name} does not stand on the trunk: station ${station} mm, phase semi-axis ${node.loop.semi.phaseRadians}`,
         );
     }
 
@@ -332,7 +335,7 @@ export function test_human_f1_construction(): void {
     const chain =
       part === undefined
         ? null
-        : AutoMovieViewLoft.create({ ...part, reliefs: undefined }).chain;
+        : AutoMovieEngineViewLoft.create({ ...part, reliefs: undefined }).chain;
     if (part === undefined || chain === null) {
       failures.push(`the ${name} does not loft`);
       continue;
@@ -349,7 +352,7 @@ export function test_human_f1_construction(): void {
         part.axis.at(stations[i]!),
       ];
       for (let j: number = 0; j < 96; ++j) {
-        const p: number[] = AutoMovieLoftChain.point(
+        const p: number[] = AutoMovieEngineLoftChain.point(
           chain,
           stations[i - 1]!,
           (2 * Math.PI * j) / 96,

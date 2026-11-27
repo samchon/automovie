@@ -15,7 +15,7 @@ export namespace IAutoMovieMeasureQuantities {
    * openings by kind and model occurrences by model. Nothing is looked up,
    * defaulted or carried over from a previous revision.
    *
-   * Every subject in {@link AUTOMOVIE_QUANTITY_SUBJECTS} gets one finding, so an
+   * Every subject in {@link AutoMovieEngineQuantitySubjects} gets one finding, so an
    * absent quantity is a stated zero rather than a missing row. A finding names
    * its largest owners up to the bound, counts and sums the rest, and says
    * whether its total is exact; the space-volume total is approximate because

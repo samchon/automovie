@@ -1,5 +1,7 @@
 import type { AutoMovieHumanSide } from "@automovie/interface";
-import { humanCaneSweepTouches } from "@automovie/motions/internal";
+import {
+  humanCaneSweepTouches
+} from "../../../../../packages/motions/src/lexicon/internal/humanCaneSweepTouches";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

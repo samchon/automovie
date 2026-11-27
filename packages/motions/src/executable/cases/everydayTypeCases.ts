@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanPerformance,
@@ -8,31 +8,20 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanChain } from "../../HumanChain";
-import { seated } from "../../everyday/seated";
-import { typeText } from "../../everyday/typeText";
-import { HumanHand } from "../../posture/HumanHand";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
-import { everydayCaseKit } from "./everydayCaseKit";
-import { everydayTypeCaseBoard } from "./everydayTypeCaseBoard";
-import { everydayVerdicts } from "./everydayVerdicts";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
+import { seated } from "../../everyday/internal/seated";
+import { typeText } from "../../everyday/internal/typeText";
+import { HumanHand } from "../../posture/internal/HumanHand";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
+import { everydayCaseKit } from "./internal/everydayCaseKit";
+import { everydayTypeCaseBoard } from "./internal/everydayTypeCaseBoard";
+import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/** The record of `IEverydayTypeCasesBoxesItem`'s site. */
-type IEverydayTypeCasesBoxesItem = {
-  centre: IAutoMovieVector3;
-  half: IAutoMovieVector3;
-  color: number;
-};
-
-/** The record of `IEverydayTypeCasesWorst`'s site. */
-type IEverydayTypeCasesWorst = { miss: number; letter: string };
-
-/**
+/*
  * The typing cases of `everydayCases` (`everyday-type-seated` and
  * `everyday-type-standing`), with the verdicts `everydayCases` lists.
- *
- * @param c The body's case context.
- * @returns The cases.
+ * Parameter c: The body's case context.
+ * Returns: The cases.
  */
 export function everydayTypeCases(
   c: everydayCaseKit.IContext,
@@ -58,14 +47,14 @@ export function everydayTypeCases(
     depth: 0.45,
   };
   const sitting: IAutoMovieMotionHumanPerformance = one(
-    HumanChain.subject("a").sit({ seat, hold: 0.2 }),
+    AutoMovieMotionHumanChain.subject("a").sit({ seat, hold: 0.2 }),
   );
   const held = sitting.posture("a", sitting.duration);
   const reach: number = body.measure.forearm + 0.5 * body.measure.hand;
   const setups: [string, IAutoMovieMotionHumanChain, IAutoMovieVector3][] = [
     [
       "seated",
-      HumanChain.subject("a").sit({ seat, hold: 0.2 }),
+      AutoMovieMotionHumanChain.subject("a").sit({ seat, hold: 0.2 }),
       {
         x: 0,
         y: held.root.y + body.measure.shoulderHeight - body.measure.upperArm,
@@ -74,7 +63,7 @@ export function everydayTypeCases(
     ],
     [
       "standing",
-      HumanChain.subject("a"),
+      AutoMovieMotionHumanChain.subject("a"),
       {
         x: 0,
         y: body.measure.shoulderHeight - body.measure.upperArm - 0.005,
@@ -113,7 +102,7 @@ export function everydayTypeCases(
         y: keyboard.at.y - typeText.TRAVEL,
         z: keyboard.at.z + k.at.z,
       };
-      const miss: number = Vector3.length(Vector3.subtract(tip, target));
+      const miss: number = AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(tip, target));
       if (miss > worst.miss) worst = { miss, letter };
       dips.push(keyboard.at.y - tip.y);
     });
@@ -163,3 +152,17 @@ export function everydayTypeCases(
   }
   return out;
 }
+
+/*
+ * The record of `IEverydayTypeCasesBoxesItem`'s site.
+ */
+type IEverydayTypeCasesBoxesItem = {
+  centre: IAutoMovieVector3;
+  half: IAutoMovieVector3;
+  color: number;
+};
+
+/*
+ * The record of `IEverydayTypeCasesWorst`'s site.
+ */
+type IEverydayTypeCasesWorst = { miss: number; letter: string };

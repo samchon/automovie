@@ -1,4 +1,4 @@
-import { dot } from "@automovie/recovery";
+import { AutoMovieRecoveryGeometry } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -12,7 +12,7 @@ import { TestValidator } from "@nestia/e2e";
 export function test_recovery_internal_dot(): void {
   TestValidator.equals(
     "products",
-    [dot([1, 2, 3], [4, 5, 6]), dot([1, 0, 0], [0, 0, 1])],
+    [AutoMovieRecoveryGeometry.dot([1, 2, 3], [4, 5, 6]), AutoMovieRecoveryGeometry.dot([1, 0, 0], [0, 0, 1])],
     [32, 0],
   );
 }

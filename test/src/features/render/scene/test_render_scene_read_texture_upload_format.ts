@@ -1,9 +1,11 @@
-import { readAutoMovieTextureUploadFormat } from "@automovie/render/internal";
+import {
+  readTextureUploadFormat
+} from "../../../../../packages/render/src/scene/internal/readTextureUploadFormat";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 /**
- * `readAutoMovieTextureUploadFormat` names the storage a texture uploads as.
+ * `readTextureUploadFormat` names the storage a texture uploads as.
  *
  * Scenarios:
  *
@@ -17,10 +19,10 @@ import * as THREE from "three";
 export function test_render_scene_read_texture_upload_format(): void {
   const declared = (
     internalFormat: THREE.PixelFormatGPU | null,
-  ): ReturnType<typeof readAutoMovieTextureUploadFormat> => {
+  ): ReturnType<typeof readTextureUploadFormat> => {
     const texture: THREE.Texture = new THREE.Texture();
     texture.internalFormat = internalFormat;
-    return readAutoMovieTextureUploadFormat(texture);
+    return readTextureUploadFormat(texture);
   };
   TestValidator.equals("32f", declared("RGBA32F"), "rgba32f");
   TestValidator.equals("16f", declared("RGBA16F"), "rgba16f");
@@ -33,11 +35,11 @@ export function test_render_scene_read_texture_upload_format(): void {
   const inferred = (
     format: THREE.AnyPixelFormat,
     type: THREE.TextureDataType,
-  ): ReturnType<typeof readAutoMovieTextureUploadFormat> => {
+  ): ReturnType<typeof readTextureUploadFormat> => {
     const texture: THREE.Texture = new THREE.Texture();
     texture.format = format;
     texture.type = type;
-    return readAutoMovieTextureUploadFormat(texture);
+    return readTextureUploadFormat(texture);
   };
   TestValidator.equals("red half", inferred(THREE.RedFormat, THREE.HalfFloatType), "r16f");
   TestValidator.equals("rg half", inferred(THREE.RGFormat, THREE.HalfFloatType), "rg16f");

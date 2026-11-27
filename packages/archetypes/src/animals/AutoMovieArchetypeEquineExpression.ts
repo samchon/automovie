@@ -1,21 +1,21 @@
-import { Quaternion, Vector3, minimumJerk, prepareArticulatedRig } from "@automovie/engine";
+import {
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
+  AutoMovieEngineKinematics,
+  AutoMovieEngineMotionSampling,
+} from "@automovie/engine";
 import type { IAutoMovieAffordance, IAutoMovieModelPart, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame, AutoMovieArchetypeRefusal, type AutoMovieArchetypeRide } from "../core";
 import type { AutoMovieArchetypeEquineExpressionCue } from "./AutoMovieArchetypeEquineExpressionCue";
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { AutoMovieArchetypeQuadrupedSkeleton } from "./AutoMovieArchetypeQuadrupedSkeleton";
-import { EquineExpressionAdmission } from "./EquineExpressionAdmission";
-import { EquineExpressionPose } from "./EquineExpressionPose";
-import { EquineHeadClearance } from "./EquineHeadClearance";
-import { EquineHeadCourse } from "./EquineHeadCourse";
-import { EquineHeadReach } from "./EquineHeadReach";
-import { createQuadruped } from "./createQuadruped";
-import { EquineExpressionConstants } from "./EquineExpressionConstants";
-
-const { CHEW_HZ, CHEW_DEGREES, OPEN_DEGREES, YAWN_DEGREES, SLACK_DEGREES, CURL_DEGREES, SHAKE, CARRIAGES, SWISH, EARS, TAILS } = EquineExpressionConstants;
-type Held = EquineExpressionConstants.Held;
-type Heading = EquineExpressionConstants.Heading;
-type Instant = EquineExpressionConstants.Instant;
+import { EquineExpressionAdmission } from "./equine/EquineExpressionAdmission";
+import { EquineExpressionPose } from "./equine/EquineExpressionPose";
+import { EquineHeadClearance } from "./equine/EquineHeadClearance";
+import { EquineHeadCourse } from "./equine/EquineHeadCourse";
+import { EquineHeadReach } from "./equine/EquineHeadReach";
+import { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
+import { EquineExpressionConstants } from "./equine/EquineExpressionConstants";
 
 /**
  * An equid's expression layer over any of its rides: attention, muzzle reaches
@@ -77,8 +77,8 @@ export namespace AutoMovieArchetypeEquineExpression {
     ride: AutoMovieArchetypeRide.IRide<Id, D>,
     cues: readonly AutoMovieArchetypeEquineExpressionCue.Cue[],
   ): IRide<Id, D> {
-    const species: createQuadruped.ISpecies = createQuadruped.species(animal);
-    if (species.nodding !== createQuadruped.BRIDLED)
+    const species: AutoMovieArchetypeQuadruped.ISpecies = AutoMovieArchetypeQuadruped.species(animal);
+    if (species.nodding !== AutoMovieArchetypeQuadruped.BRIDLED)
       throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype: animal.archetype,
@@ -95,7 +95,7 @@ export namespace AutoMovieArchetypeEquineExpression {
     const rest: ReadonlyMap<
       AutoMovieArchetypeQuadrupedBody.Bone,
       IAutoMovieTransform
-    > = prepareArticulatedRig(
+    > = AutoMovieEngineKinematics.prepareArticulatedRig(
       AutoMovieArchetypeQuadrupedSkeleton.of(animal),
     ).read();
     const nodding: ReadonlySet<string> = new Set(species.nodding);
@@ -159,7 +159,9 @@ export namespace AutoMovieArchetypeEquineExpression {
       )
       .sort((p: Heading, q: Heading): number => p.from - q.from);
 
-    /** The layered sample at a film second. */
+    /*
+     * The layered sample at a film second.
+     */
     const at = (seconds: number): AutoMovieArchetypeRide.ISample<Id, D> => {
       const base: AutoMovieArchetypeRide.ISample<Id, D> = ride.at(seconds);
       const channels: EquineExpressionPose.IChannels = {
@@ -228,7 +230,7 @@ export namespace AutoMovieArchetypeEquineExpression {
       const current: ReadonlyMap<
         AutoMovieArchetypeQuadrupedBody.Bone,
         IAutoMovieTransform
-      > = prepareArticulatedRig(
+      > = AutoMovieEngineKinematics.prepareArticulatedRig(
         AutoMovieArchetypeQuadrupedSkeleton.of(base.archetype),
       ).read();
       if (turning !== undefined)
@@ -250,7 +252,7 @@ export namespace AutoMovieArchetypeEquineExpression {
       return { ...posed, course: base.course };
     };
 
-    /**
+    /*
      * The head channel's turns at a second: the active cue's full turns, eased
      * in along a course from rest, or from an adjacent cue's turns that it
      * takes over, and eased out to rest unless an adjacent cue takes over; a
@@ -280,7 +282,7 @@ export namespace AutoMovieArchetypeEquineExpression {
         rising < falling && before !== undefined && before.to === cue.from
           ? turn(base, current, before, seconds)
           : EquineHeadCourse.rest();
-      const share: number = minimumJerk.share(
+      const share: number = AutoMovieEngineMotionSampling.minimumJerkShare(
         Math.max(0, Math.min(1, rising, falling)),
       );
       const path: EquineHeadCourse.IPath =
@@ -296,7 +298,9 @@ export namespace AutoMovieArchetypeEquineExpression {
       return EquineHeadCourse.shown(path, start, goal, share);
     }
 
-    /** The current neck and head bars. */
+    /*
+     * The current neck and head bars.
+     */
     function barsOf(
       current: ReadonlyMap<
         AutoMovieArchetypeQuadrupedBody.Bone,
@@ -311,14 +315,16 @@ export namespace AutoMovieArchetypeEquineExpression {
         poll: poll.translation,
         head: poll.rotation,
         muzzle,
-        body: Quaternion.multiply(
+        body: AutoMovieEngineQuaternion.multiply(
           current.get("trunk")!.rotation,
-          Quaternion.inverse(prepared.trunk),
+          AutoMovieEngineQuaternion.inverse(prepared.trunk),
         ),
       };
     }
 
-    /** Another body's bars in this sample's model space. */
+    /*
+     * Another body's bars in this sample's model space.
+     */
     function obstacles(
       base: AutoMovieArchetypeRide.ISample<Id, D>,
       other: AutoMovieArchetypeRide.IPose<string, string>,
@@ -334,7 +340,7 @@ export namespace AutoMovieArchetypeEquineExpression {
               geometry.shape.type !== "cylinder")
           )
             return [];
-          const half: IAutoMovieVector3 = Quaternion.rotateVector(
+          const half: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
             part.transform.rotation,
             { x: 0, y: geometry.shape.height / 2, z: 0 },
           );
@@ -343,7 +349,7 @@ export namespace AutoMovieArchetypeEquineExpression {
               base,
               AutoMovieArchetypeFrame.point(
                 other.placement,
-                Vector3.addScaled(part.transform!.translation, half, sign),
+                AutoMovieEngineVector3.addScaled(part.transform!.translation, half, sign),
               ),
             );
           return [
@@ -358,7 +364,9 @@ export namespace AutoMovieArchetypeEquineExpression {
       );
     }
 
-    /** The full turns of a head-channel cue at a second. */
+    /*
+     * The full turns of a head-channel cue at a second.
+     */
     function turn(
       base: AutoMovieArchetypeRide.ISample<Id, D>,
       current: ReadonlyMap<
@@ -451,3 +459,9 @@ export namespace AutoMovieArchetypeEquineExpression {
     };
   }
 }
+
+const { CHEW_HZ, CHEW_DEGREES, OPEN_DEGREES, YAWN_DEGREES, SLACK_DEGREES, CURL_DEGREES, SHAKE, CARRIAGES, SWISH, EARS, TAILS } = EquineExpressionConstants;
+type Held = EquineExpressionConstants.Held;
+type Heading = EquineExpressionConstants.Heading;
+
+type Instant = EquineExpressionConstants.Instant;

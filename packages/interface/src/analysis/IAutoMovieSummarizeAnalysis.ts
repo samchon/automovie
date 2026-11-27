@@ -42,7 +42,7 @@ export namespace IAutoMovieSummarizeAnalysis {
 
     /**
      * Positive safe-integer bound on listed gaps; defaults to
-     * `AUTOMOVIE_ANALYSIS_REPORT_MAX_GAPS`.
+     * `AutoMovieEngineAnalysisReportMaxGaps`.
      */
     maxGaps?: number;
   };

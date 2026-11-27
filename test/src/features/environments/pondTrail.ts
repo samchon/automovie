@@ -1,15 +1,13 @@
 import {
-  createEnvironment,
-  createEnvironmentProp,
-  createTerrain,
-  environmentModel,
-} from "@automovie/archetypes/environments";
-import { createSeat } from "@automovie/archetypes/furniture";
+  AutoMovieArchetypeEnvironment
+} from "../../../../packages/archetypes/src/environments/AutoMovieArchetypeEnvironment";
 import {
-  Quaternion,
-  Transform,
-  extrudeAutoMovieProfile,
-} from "@automovie/engine";
+  AutoMovieArchetypeEnvironmentFurnishing
+} from "../../../../packages/archetypes/src/environments/AutoMovieArchetypeEnvironmentFurnishing";
+import {
+  AutoMovieArchetypeSeat
+} from "@automovie/archetypes";
+import { AutoMovieEngineQuaternion, AutoMovieEngineTransform, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieEnvironment,
   IAutoMovieModel,
@@ -17,9 +15,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanChain,
-  HumanPerformance,
-  createHumanBody,
+  AutoMovieMotionHumanBody,
+  AutoMovieMotionHumanChain,
+  AutoMovieMotionHumanPerformance,
 } from "@automovie/motions";
 
 import { createModel } from "../internal/createModel";
@@ -39,7 +37,7 @@ export function pondTrail(): compileEnvironmentExample.IInput {
         ...base.parts[0]!,
         geometry: {
           type: "mesh",
-          mesh: extrudeAutoMovieProfile({
+          mesh: AutoMovieEngineGeometry.extrudeProfile({
             profile: [
               { x: -0.4, y: 0 },
               { x: 0.4, y: 0 },
@@ -52,20 +50,20 @@ export function pondTrail(): compileEnvironmentExample.IInput {
       },
     ],
   };
-  const environment: IAutoMovieEnvironment = createEnvironment({
+  const environment: IAutoMovieEnvironment = AutoMovieArchetypeEnvironment.create({
     id: "pond",
     seed: 24,
     items: {
       terrain: {
-        use: createTerrain({
-          size: [24, 20],
+        use: AutoMovieArchetypeEnvironment.terrain({
+          size: { width: 24, depth: 20 },
           water: {
             pond: {
               outline: [
-                [9, 8],
-                [14, 8],
-                [14, 12],
-                [9, 12],
+                { x: 9, z: 8 },
+                { x: 14, z: 8 },
+                { x: 14, z: 12 },
+                { x: 9, z: 12 },
               ],
               height: 0,
             },
@@ -73,27 +71,27 @@ export function pondTrail(): compileEnvironmentExample.IInput {
           paths: {
             circuit: {
               points: [
-                [3, 5],
-                [18, 5],
+                { x: 3, z: 5 },
+                { x: 18, z: 5 },
               ],
               width: 2,
             },
           },
           trees: {
-            grove: { center: [19, 14], radius: 2, count: 24, scale: 0.2 },
+            grove: { center: { x: 19, z: 14 }, radius: 2, count: 24, scale: 0.2 },
           },
-          amenities: { bench: [15, 6] },
+          amenities: { bench: { x: 15, z: 6 } },
         }),
       },
       bench: {
-        use: createEnvironmentProp({ model: createSeat({ kind: "bench" }) }),
+        use: AutoMovieArchetypeEnvironmentFurnishing.prop({ model: AutoMovieArchetypeSeat.create({ kind: "bench" }) }),
         at: { anchor: "terrain/amenities/bench" },
       },
       marker: {
-        use: environmentModel({
+        use: AutoMovieArchetypeEnvironment.model({
           model: marker,
           anchors: {
-            summit: Transform.of({ x: 0, y: 1.3, z: 0 }, Quaternion.identity()),
+            summit: AutoMovieEngineTransform.of({ x: 0, y: 1.3, z: 0 }, AutoMovieEngineQuaternion.identity()),
           },
         }),
         at: { anchor: "terrain/paths/circuit/end" },
@@ -109,19 +107,19 @@ export function pondTrail(): compileEnvironmentExample.IInput {
   const destination: IAutoMovieVector3 = { x: 17, y: 0, z: 5 };
   const model: ReturnType<typeof environmentExampleBody> =
     environmentExampleBody();
-  const walk: HumanPerformance = new HumanPerformance({
+  const walk: AutoMovieMotionHumanPerformance = new AutoMovieMotionHumanPerformance({
     seed: "pond-walk",
     laws: [],
     performers: [
       {
         subject: walker.node,
-        body: createHumanBody(model.skeleton, model.profile),
+        body: AutoMovieMotionHumanBody.create(model.skeleton, model.profile),
         at: walker.position,
         yaw: walker.facingDeg,
         proficiency: { level: "trained" },
       },
     ],
-    composition: HumanChain.subject(walker.node).walk({
+    composition: AutoMovieMotionHumanChain.subject(walker.node).walk({
       to: destination,
       pace: "normal",
     }).node,

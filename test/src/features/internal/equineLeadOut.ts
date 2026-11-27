@@ -1,18 +1,11 @@
-import {
-  AutoMovieArchetypeEquine,
-  AutoMovieArchetypeQuadrupedDatumRide,
-  type AutoMovieArchetypeQuadrupedFooting,
-  type AutoMovieArchetypeRide,
-  createHorse,
-  rideHorse,
-} from "@automovie/archetypes";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieArchetypeEquine, AutoMovieArchetypeQuadrupedDatumRide, type AutoMovieArchetypeQuadrupedFooting, type AutoMovieArchetypeRide, AutoMovieArchetypeHorseRide, AutoMovieArchetypeHorse } from "@automovie/archetypes";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanSegment,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import type { HumanPerformance } from "@automovie/motions";
+import type { AutoMovieMotionHumanPerformance } from "@automovie/motions";
 
 import { equineFordRider } from "./equineFordRider";
 
@@ -148,8 +141,8 @@ export namespace equineLeadOut {
     const rest: IAutoMovieMotionHumanBody["rest"] = body.rest;
     const shoulder: IAutoMovieVector3 = rest.get("rightUpperArm")!;
     const arm: number =
-      Vector3.distance(shoulder, rest.get("rightLowerArm")!) +
-      Vector3.distance(rest.get("rightLowerArm")!, rest.get("rightHand")!);
+      AutoMovieEngineVector3.distance(shoulder, rest.get("rightLowerArm")!) +
+      AutoMovieEngineVector3.distance(rest.get("rightLowerArm")!, rest.get("rightHand")!);
     const reach: number = REACH * arm;
     const drop: number = shoulder.y - rope;
     return {
@@ -170,7 +163,7 @@ export namespace equineLeadOut {
    */
   export interface ILed {
     /** The led ride, from the halt. */
-    ride: ReturnType<typeof rideHorse>;
+    ride: ReturnType<typeof AutoMovieArchetypeHorseRide.ride>;
 
     /** The film second it starts. */
     start: number;
@@ -203,7 +196,7 @@ export namespace equineLeadOut {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The mount holds its rides for the caller.
    */
   export function stage(led?: ILed): equineFordRider.IMount {
-    const horse: equineFordRider.Horse = createHorse(
+    const horse: equineFordRider.Horse = AutoMovieArchetypeHorse.create(
       { withersHeight: 1.65, stirrupDrop: 0.575, tempo: 0 },
       8,
     );
@@ -224,7 +217,7 @@ export namespace equineLeadOut {
     const ride: AutoMovieArchetypeRide.IRide<
       AutoMovieArchetypeEquine.Affordance,
       AutoMovieArchetypeEquine.Dimension
-    > = AutoMovieArchetypeQuadrupedDatumRide(
+    > = AutoMovieArchetypeQuadrupedDatumRide.ride(
       horse,
       {
         start: { x: 0, z: 0, heading: 0 },
@@ -281,7 +274,7 @@ export namespace equineLeadOut {
    */
   export function led(
     staged: equineFordRider.IMount,
-    rehearsal: HumanPerformance,
+    rehearsal: AutoMovieMotionHumanPerformance,
     walking: IAutoMovieMotionHumanSegment,
   ): ILed {
     const step: number = (walking.end - walking.start) / SAMPLES;
@@ -296,7 +289,7 @@ export namespace equineLeadOut {
     const halt: IAutoMovieVector3 = staged.place(staged.halt).position;
     return {
       start: walking.start,
-      ride: rideHorse(
+      ride: AutoMovieArchetypeHorseRide.ride(
         staged.horse,
         {
           start: { x: halt.x, z: halt.z, heading: 0 },

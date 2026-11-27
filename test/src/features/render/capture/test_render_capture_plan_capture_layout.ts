@@ -1,9 +1,9 @@
 import type { IAutoMovieCaptureLayout } from "@automovie/interface";
-import { planAutoMovieCaptureLayout } from "@automovie/render";
+import { AutoMovieRenderCapture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `planAutoMovieCaptureLayout` lays captured stills into contact sheets within
+ * `planCaptureLayout` lays captured stills into contact sheets within
  * a longest-edge budget.
  *
  * Scenarios:
@@ -15,7 +15,7 @@ import { TestValidator } from "@nestia/e2e";
  * 3. A count of zero is refused.
  */
 export function test_render_capture_plan_capture_layout(): void {
-  const single: IAutoMovieCaptureLayout = planAutoMovieCaptureLayout({
+  const single: IAutoMovieCaptureLayout = AutoMovieRenderCapture.planLayout({
     width: 100,
     height: 50,
     count: 1,
@@ -29,7 +29,7 @@ export function test_render_capture_plan_capture_layout(): void {
     [{ width: 100, height: 50 }, 1, 1, 1, 1],
   );
 
-  const many: IAutoMovieCaptureLayout = planAutoMovieCaptureLayout({
+  const many: IAutoMovieCaptureLayout = AutoMovieRenderCapture.planLayout({
     width: 100,
     height: 50,
     count: 8,
@@ -52,7 +52,7 @@ export function test_render_capture_plan_capture_layout(): void {
   );
   TestValidator.equals("reduction carried", many.reduction, "nearest");
   TestValidator.error("no stills", (): void => {
-    planAutoMovieCaptureLayout({
+    AutoMovieRenderCapture.planLayout({
       width: 100,
       height: 50,
       count: 0,

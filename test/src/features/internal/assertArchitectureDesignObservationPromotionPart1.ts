@@ -1,8 +1,4 @@
-import {
-  designFrameScale,
-  designReferenceWorldPoint,
-  promoteDesignObservations,
-} from "@automovie/engine";
+import { AutoMovieEngineDesignLineage } from "@automovie/engine";
 import type {
   IAutoMovieDesignPromotion,
   IAutoMovieDesignReference,
@@ -130,10 +126,10 @@ export function assertArchitectureDesignObservationPromotionPart1(
 
   // 7. Determinism and non-mutation.
   const source: IAutoMovieDesignReference = observation();
-  const first: IAutoMovieDesignPromotion = promoteDesignObservations({
+  const first: IAutoMovieDesignPromotion = AutoMovieEngineDesignLineage.promoteDesignObservations({
     reference: source,
   });
-  const second: IAutoMovieDesignPromotion = promoteDesignObservations({
+  const second: IAutoMovieDesignPromotion = AutoMovieEngineDesignLineage.promoteDesignObservations({
     reference: source,
   });
   TestValidator.predicate(
@@ -178,7 +174,7 @@ export function assertArchitectureDesignObservationPromotionPart1(
   // 8. The sheet-to-world mapping.
   TestValidator.predicate(
     "a point left and above the anchor maps to negative metres",
-    vclose(designReferenceWorldPoint(planFrame(), { x: -50, y: -100 }), {
+    vclose(AutoMovieEngineDesignLineage.designReferenceWorldPoint(planFrame(), { x: -50, y: -100 }), {
       x: -0.5,
       y: 0,
       z: -1,
@@ -187,7 +183,7 @@ export function assertArchitectureDesignObservationPromotionPart1(
   TestValidator.predicate(
     "an unnormalized axis states a direction rather than a magnitude",
     vclose(
-      designReferenceWorldPoint(
+      AutoMovieEngineDesignLineage.designReferenceWorldPoint(
         { ...planFrame(), axisX: { x: 3, y: 0, z: 0 } },
         { x: 200, y: 0 },
       ),
@@ -197,7 +193,7 @@ export function assertArchitectureDesignObservationPromotionPart1(
   TestValidator.predicate(
     "the frame placement transform scales, rotates, then translates the mapping",
     vclose(
-      designReferenceWorldPoint(
+      AutoMovieEngineDesignLineage.designReferenceWorldPoint(
         {
           ...planFrame(),
           transform: {
@@ -214,7 +210,7 @@ export function assertArchitectureDesignObservationPromotionPart1(
   TestValidator.predicate(
     "a degenerate axis maps without dividing by zero",
     vclose(
-      designReferenceWorldPoint(
+      AutoMovieEngineDesignLineage.designReferenceWorldPoint(
         { ...planFrame(), axisX: { x: 0, y: 0, z: 0 } },
         { x: 500, y: 400 },
       ),
@@ -225,7 +221,7 @@ export function assertArchitectureDesignObservationPromotionPart1(
     "an unsettled scale refuses to produce a world position at all",
     throwsError(
       (): IAutoMovieVector3 =>
-        designReferenceWorldPoint(sectionFrame(), { x: 1, y: 1 }),
+        AutoMovieEngineDesignLineage.designReferenceWorldPoint(sectionFrame(), { x: 1, y: 1 }),
       ["section-1", "no settled scale"],
     ),
   );
@@ -233,9 +229,9 @@ export function assertArchitectureDesignObservationPromotionPart1(
     "a settled frame reports its metres per unit and an unsettled one reports none",
     ((): boolean => {
       const observed: (number | null)[] = [
-        designFrameScale(planFrame()),
-        designFrameScale(sectionFrame()),
-        designFrameScale({ ...sectionFrame(), scale: "ghost" }),
+        AutoMovieEngineDesignLineage.designFrameScale(planFrame()),
+        AutoMovieEngineDesignLineage.designFrameScale(sectionFrame()),
+        AutoMovieEngineDesignLineage.designFrameScale({ ...sectionFrame(), scale: "ghost" }),
       ];
       return (
         Array.isArray(observed) &&
@@ -254,7 +250,7 @@ export function assertArchitectureDesignObservationPromotionPart1(
     throwsError((): void => {
       const value: IAutoMovieDesignReference = observation();
       value.candidates[0]!.primitives[0] = "ghost";
-      promoteDesignObservations({ reference: value });
+      AutoMovieEngineDesignLineage.promoteDesignObservations({ reference: value });
     }, ["pavilion-plan", "$input.candidates[0].primitives[0]"]),
   );
   [-0.1, 1.5].forEach((floor: number): void =>
@@ -262,7 +258,7 @@ export function assertArchitectureDesignObservationPromotionPart1(
       `a confidence floor of ${floor} is refused`,
       throwsError(
         (): IAutoMovieDesignPromotion =>
-          promoteDesignObservations({
+          AutoMovieEngineDesignLineage.promoteDesignObservations({
             reference: observation(),
             minimumConfidence: floor,
           }),

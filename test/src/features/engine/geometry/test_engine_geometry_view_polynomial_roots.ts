@@ -1,14 +1,11 @@
-import {
-  rootsAutoMovieViewPolynomial,
-  rootsAutoMovieViewSinPolynomial,
-} from "@automovie/engine";
+import { AutoMovieEngineConstruction } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * `rootsAutoMovieViewPolynomial(coefficients)` lists the roots inside (0, 1) of
- * a polynomial of degree at most nine, and `rootsAutoMovieViewSinPolynomial`
+ * `rootsViewPolynomial(coefficients)` lists the roots inside (0, 1) of
+ * a polynomial of degree at most nine, and `rootsViewSinPolynomial`
  * those of P(t) + a sin(offset + span t) on a subinterval.
  *
  * Scenarios:
@@ -37,27 +34,27 @@ export function test_engine_geometry_view_polynomial_roots(): void {
   TestValidator.predicate(
     "cubic",
     near(
-      rootsAutoMovieViewPolynomial([-0.09, 0.73, -1.6, 1]),
+      AutoMovieEngineConstruction.rootsViewPolynomial([-0.09, 0.73, -1.6, 1]),
       [0.2, 0.5, 0.9],
       1e-12,
     ),
   );
   TestValidator.predicate(
     "linear",
-    near(rootsAutoMovieViewPolynomial([-1, 2]), [0.5], 1e-15),
+    near(AutoMovieEngineConstruction.rootsViewPolynomial([-1, 2]), [0.5], 1e-15),
   );
   TestValidator.equals(
     "none",
     [
-      rootsAutoMovieViewPolynomial([-2, 1]),
-      rootsAutoMovieViewPolynomial([3]),
-      rootsAutoMovieViewPolynomial([0, 0]),
+      AutoMovieEngineConstruction.rootsViewPolynomial([-2, 1]),
+      AutoMovieEngineConstruction.rootsViewPolynomial([3]),
+      AutoMovieEngineConstruction.rootsViewPolynomial([0, 0]),
     ],
     [[], [], []],
   );
 
   // 2.
-  const double: number[] = rootsAutoMovieViewPolynomial([0.16, -0.8, 1]);
+  const double: number[] = AutoMovieEngineConstruction.rootsViewPolynomial([0.16, -0.8, 1]);
   TestValidator.predicate(
     "double",
     double.length >= 1 &&
@@ -69,30 +66,30 @@ export function test_engine_geometry_view_polynomial_roots(): void {
     "eleven",
     throwsError(
       (): unknown =>
-        rootsAutoMovieViewPolynomial(new Array<number>(11).fill(1)),
+        AutoMovieEngineConstruction.rootsViewPolynomial(new Array<number>(11).fill(1)),
       "at most ten finite coefficients",
     ),
   );
 
   // 4.
-  const whole = rootsAutoMovieViewSinPolynomial([-0.5], 0, Math.PI, 1);
+  const whole = AutoMovieEngineConstruction.rootsViewSinPolynomial([-0.5], 0, Math.PI, 1);
   TestValidator.predicate(
     "sine",
     typeof whole !== "string" && near(whole, [1 / 6, 5 / 6], 1e-12),
   );
-  const half = rootsAutoMovieViewSinPolynomial([-0.5], 0, Math.PI, 1, [0, 0.5]);
+  const half = AutoMovieEngineConstruction.rootsViewSinPolynomial([-0.5], 0, Math.PI, 1, [0, 0.5]);
   TestValidator.predicate(
     "subinterval",
     typeof half !== "string" && near(half, [1 / 6], 1e-12),
   );
   TestValidator.equals(
     "tangent sine maximum",
-    rootsAutoMovieViewSinPolynomial([-1], 0, Math.PI, 1),
+    AutoMovieEngineConstruction.rootsViewSinPolynomial([-1], 0, Math.PI, 1),
     [0.5],
   );
 
   // 5.
-  const plain = rootsAutoMovieViewSinPolynomial(
+  const plain = AutoMovieEngineConstruction.rootsViewSinPolynomial(
     [-0.09, 0.73, -1.6, 1],
     0,
     1,
@@ -104,8 +101,8 @@ export function test_engine_geometry_view_polynomial_roots(): void {
     typeof plain !== "string" && near(plain, [0.5, 0.9], 1e-12),
   );
   for (const bad of [
-    rootsAutoMovieViewSinPolynomial([1], 1, 3, 1),
-    rootsAutoMovieViewSinPolynomial([1], 0, 1, 1, [0.6, 0.2]),
+    AutoMovieEngineConstruction.rootsViewSinPolynomial([1], 1, 3, 1),
+    AutoMovieEngineConstruction.rootsViewSinPolynomial([1], 0, 1, 1, [0.6, 0.2]),
   ])
     TestValidator.predicate(
       "premise",

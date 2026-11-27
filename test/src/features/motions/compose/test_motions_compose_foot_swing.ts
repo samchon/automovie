@@ -1,12 +1,14 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanFootSwing,
-  HumanFoot,
-} from "@automovie/motions/internal";
+  motionHumanFootSwing
+} from "../../../../../packages/motions/src/compose/internal/motionHumanFootSwing";
+import {
+  HumanFoot
+} from "../../../../../packages/motions/src/posture/internal/HumanFoot";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -20,7 +22,7 @@ const ROUNDING: number = 1e-9;
 const CLEARANCE: number = 0.05;
 
 /**
- * `AutoMovieMotionHumanFootSwing` places a stepping foot through its swing: it
+ * `motionHumanFootSwing` places a stepping foot through its swing: it
  * travels and turns on the minimum-jerk share of the swing's time, and its
  * sole's lowest point rises `clearance sin(πu)` above the line joining that
  * point's heights at the ends, the ankle raised further by however far the
@@ -51,7 +53,7 @@ export async function test_motions_compose_foot_swing(): Promise<void> {
     end: IAutoMovieMotionHumanFoot.IPlacement,
     u: number,
   ): IAutoMovieMotionHumanFoot.IPlacement =>
-    AutoMovieMotionHumanFootSwing(body, "left", from, end, CLEARANCE, u);
+    motionHumanFootSwing(body, "left", from, end, CLEARANCE, u);
 
   // 1. The ends.
   TestValidator.predicate(
@@ -73,7 +75,7 @@ export async function test_motions_compose_foot_swing(): Promise<void> {
   // 3. A turning foot's sole.
   const tipped: IAutoMovieMotionHumanFoot.IPlacement = {
     ...to,
-    rotation: Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -30),
+    rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -30),
   };
   const low0: number = HumanFoot.lowest(body, "left", from);
   const low1: number = HumanFoot.lowest(body, "left", tipped);
@@ -91,6 +93,6 @@ export async function test_motions_compose_foot_swing(): Promise<void> {
             ROUNDING
         );
       },
-    ) && nclose(Vector3.distance(at(tipped, 1).ankle, to.ankle), 0, ROUNDING),
+    ) && nclose(AutoMovieEngineVector3.distance(at(tipped, 1).ankle, to.ankle), 0, ROUNDING),
   );
 }

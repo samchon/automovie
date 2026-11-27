@@ -4,7 +4,12 @@ import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanRefusal, launchPropProjectile } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  launchPropProjectile
+} from "../../../../../packages/motions/src/perform/internal/launchPropProjectile";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -175,6 +180,6 @@ function refused(task: () => unknown, axis: string): boolean {
     task();
     return false;
   } catch (error) {
-    return error instanceof HumanRefusal && error.axis === axis;
+    return error instanceof AutoMovieMotionHumanRefusal && error.axis === axis;
   }
 }

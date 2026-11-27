@@ -1,8 +1,10 @@
-import { ViolationCollector } from "@automovie/engine";
+import { AutoMovieEngineViolationCollector } from "@automovie/engine";
 import {
-  lowerCameraClearanceEnvelope,
-  validateCameraClearanceEnvelope,
-} from "@automovie/engine/internal";
+  lowerCameraClearanceEnvelope
+} from "../../../../../packages/engine/src/film/staging/internal/lowerCameraClearanceEnvelope";
+import {
+  validateCameraClearanceEnvelope
+} from "../../../../../packages/engine/src/film/staging/internal/validateCameraClearanceEnvelope";
 import type { IAutoMovieCameraClearanceEnvelope } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -18,7 +20,7 @@ import { TestValidator } from "@nestia/e2e";
  *    parent stays absent and the same valid body still lowers.
  */
 export function test_engine_film_camera_clearance_envelope(): void {
-  const out: ViolationCollector = new ViolationCollector();
+  const out: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();
   const authored: IAutoMovieCameraClearanceEnvelope = {
     body: { center: { x: 0, y: 1, z: 0 }, radius: 0.5 },
     parentRig: { center: { x: 0, y: 0, z: 1 }, radius: 0.25 },

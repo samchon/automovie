@@ -1,6 +1,6 @@
 /**
  * One triangle of the first mesh that a triangle of the second mesh crosses, as
- * reported by `measureAutoMovieMeshCrossings`.
+ * reported by `AutoMovieEngineMeshCrossingQuery.measure`.
  *
  * Ordinals are positions in each mesh's own `indices`, before any spatial
  * indexing, so a caller can map a report straight back to the buffer it owns.

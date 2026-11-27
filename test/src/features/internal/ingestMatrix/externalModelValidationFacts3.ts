@@ -1,4 +1,4 @@
-import { inspectAutoMovieExternalModelBytes } from "@automovie/ingest";
+import { AutoMovieIngestExternalModel } from "@automovie/ingest";
 import type { IAutoMovieExternalModelInspection } from "@automovie/interface";
 
 import { throwsError } from "../predicates";
@@ -145,7 +145,7 @@ export function externalModelValidationFacts3(): [string, () => boolean][] {
       (): boolean =>
         throwsError(
           (): IAutoMovieExternalModelInspection =>
-            inspectAutoMovieExternalModelBytes({
+            AutoMovieIngestExternalModel.inspectBytes({
               path: "public/models/matrix",
               bytes: Buffer.from(JSON.stringify(baseDocument()), "utf8"),
               profile: "gltf-static-v1",

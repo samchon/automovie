@@ -1,4 +1,4 @@
-import { ease } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -21,21 +21,21 @@ const ROUNDING: number = 1e-12;
 export function test_engine_motion_ease(): void {
   TestValidator.predicate(
     "linear, in and out at the middle",
-    nclose(ease("linear", 0.5), 0.5, ROUNDING) &&
-      nclose(ease("easeIn", 0.5), 0.25, ROUNDING) &&
-      nclose(ease("easeOut", 0.5), 0.75, ROUNDING),
+    nclose(AutoMovieEngineMotionSampling.ease("linear", 0.5), 0.5, ROUNDING) &&
+      nclose(AutoMovieEngineMotionSampling.ease("easeIn", 0.5), 0.25, ROUNDING) &&
+      nclose(AutoMovieEngineMotionSampling.ease("easeOut", 0.5), 0.75, ROUNDING),
   );
   TestValidator.predicate(
     "in and out",
-    nclose(ease("easeInOut", 0.25), 0.125, ROUNDING) &&
-      nclose(ease("easeInOut", 0.75), 0.875, ROUNDING),
+    nclose(AutoMovieEngineMotionSampling.ease("easeInOut", 0.25), 0.125, ROUNDING) &&
+      nclose(AutoMovieEngineMotionSampling.ease("easeInOut", 0.75), 0.875, ROUNDING),
   );
   TestValidator.predicate(
     "step",
-    ease("step", 0.99) === 0 && ease("step", 1) === 1,
+    AutoMovieEngineMotionSampling.ease("step", 0.99) === 0 && AutoMovieEngineMotionSampling.ease("step", 1) === 1,
   );
   TestValidator.predicate(
     "clamped",
-    ease("linear", -2) === 0 && ease("linear", 2) === 1,
+    AutoMovieEngineMotionSampling.ease("linear", -2) === 0 && AutoMovieEngineMotionSampling.ease("linear", 2) === 1,
   );
 }

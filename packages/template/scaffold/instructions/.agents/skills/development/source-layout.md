@@ -7,14 +7,14 @@ Pair each source module with the document it realizes by path. Apply the shared 
 | Location | Owns |
 | --- | --- |
 | `src/entities/<kind>/<subject>/` | One subject |
-| `src/composition/scenes/<film>/<scene>/` | One screenplay scene file's composition |
-| `src/composition/scenes/catalog/<module>/` | One module's case when using a separate review catalog |
+| `src/composition/scenes/<film>/<scene>/` | One scene file's composition |
+| `src/composition/scenes/catalog/<module>/` | Module case for review catalog |
 | `src/composition/films/<film>.ts` | One delivered video |
 | `src/composition/films/catalog.ts` | The review catalog, never delivered |
 | `src/laws/<discipline>/` | Registered rows and laws, when a film needs one |
-| `src/interactions/<discipline>/` | A relation several scenes share, when a film has one |
+| `src/interactions/<discipline>/` | A relation shared by several film scenes |
 | `src/consequences/` | Commissioned effects and sound cues |
-| `src/*.ts` | The page entries, `subjects.ts` listing what capture draws, and the film selector |
+| `src/*.ts` | Page entries, capture subject list and film selector |
 | `src/executable/` | The Node commands the README documents |
 | `src/integrations/<provider>/` | Code for an adopted provider or local tool |
 | `test/features/<source path>/` | Unit tests of the source at the same path |
@@ -86,8 +86,8 @@ Each source file exports one declaration named as the file. Split a file by resp
 
 Start from the document the code realizes.
 
-- Build a new subject from its settings or brief record, then write its entity and tests.
-- Build a new scene from its screenplay file and beats, then place its composition in the film.
+- Use the subject's settings or brief to write its entity and tests.
+- Compose a scene from its screenplay file and beats. Place it in the film.
 
 Select installed actions before adding production laws.
 

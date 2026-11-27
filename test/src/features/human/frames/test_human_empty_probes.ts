@@ -1,6 +1,5 @@
 import {
   AutoMovieHumanF1,
-  AutoMovieHumanF1EmptyProbes,
   AutoMovieHumanEmptyProbes as P,
   AutoMovieHumanConicSection as S,
 } from "@automovie/human";
@@ -117,7 +116,7 @@ export function test_human_empty_probes(): void {
   at("cutter", P.middle("cutter", made("cutter", 2, 1)), [1, 20, 2]);
 
   // 4. f1's listing.
-  const probes: P.IProbe[] = P.list(AutoMovieHumanF1EmptyProbes);
+  const probes: P.IProbe[] = P.list(AutoMovieHumanF1.EMPTY_PROBES);
   const names: string[] = probes.map((probe: P.IProbe): string => probe.name);
   const fingers: string[] = [
     "finger.index-middle",

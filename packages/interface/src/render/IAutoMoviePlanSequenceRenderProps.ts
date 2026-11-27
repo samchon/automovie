@@ -1,6 +1,6 @@
-import type { IAutoMovieRenderSpec } from "../cinematics/IAutoMovieRenderSpec.js";
-import type { IAutoMovieSequence } from "../cinematics/IAutoMovieSequence.js";
-import type { IAutoMovieShot } from "../cinematics/IAutoMovieShot.js";
+import type { IAutoMovieRenderSpec } from "../cinematics/IAutoMovieRenderSpec";
+import type { IAutoMovieSequence } from "../cinematics/IAutoMovieSequence";
+import type { IAutoMovieShot } from "../cinematics/IAutoMovieShot";
 
 /**
  * Committed editorial sequence plus output rendering clock and paths.

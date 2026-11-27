@@ -26,7 +26,7 @@ export interface IAutoMovieSurfacePatternZone {
 
   /**
    * Lattice pitch in metres; the generator runs once per cell, over at most
-   * `AUTOMOVIE_MAX_PATTERN_CELLS` cells.
+   * `AutoMovieEngineMaxPatternCells` cells.
    */
   period: {
     /** Cell pitch along U, strictly above zero. */

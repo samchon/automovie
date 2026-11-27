@@ -1,9 +1,4 @@
-import {
-  applyFormationCycleCadence,
-  formationCycleCadence,
-  formationCycleOf,
-  sampleFormationCycleMatrix,
-} from "@automovie/render";
+import { AutoMovieRenderFormationCycle } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -32,7 +27,7 @@ const MATRIX_TOLERANCE: number = 1e-6;
 export function test_render_scene_formation_cycle(): void {
   const cycle = createFormationCycleFixture();
   const shift = (position: number): number =>
-    sampleFormationCycleMatrix(cycle, 0, position, cycle.takes.get("walk")).elements[12]!;
+    AutoMovieRenderFormationCycle.sampleFormationCycleMatrix(cycle, 0, position, cycle.takes.get("walk")).elements[12]!;
   for (const [position, expected] of [
     [0.25, 5],
     [1.25, 5],
@@ -44,10 +39,10 @@ export function test_render_scene_formation_cycle(): void {
       Math.abs(shift(position) - expected) < MATRIX_TOLERANCE,
     );
   TestValidator.error("part out of range", (): void => {
-    sampleFormationCycleMatrix(cycle, 1, 0);
+    AutoMovieRenderFormationCycle.sampleFormationCycleMatrix(cycle, 1, 0);
   });
 
-  const cadence = formationCycleCadence(cycle, [
+  const cadence = AutoMovieRenderFormationCycle.formationCycleCadence(cycle, [
     { gait: "walk", seconds: 2, distance: 4, turn: 1 },
     { gait: null, seconds: 2, distance: 0, turn: 0 },
   ]);
@@ -56,7 +51,7 @@ export function test_render_scene_formation_cycle(): void {
     [cadence.take.gait, cadence.advance, cadence.turn],
     ["idle", 2.5, 0.5],
   );
-  const applied = applyFormationCycleCadence(cycle, [
+  const applied = AutoMovieRenderFormationCycle.applyFormationCycleCadence(cycle, [
     { gait: "walk", seconds: 2, distance: 4, turn: 1 },
   ]);
   TestValidator.equals(
@@ -71,7 +66,7 @@ export function test_render_scene_formation_cycle(): void {
   );
 
   const object: THREE.Object3D = new THREE.Object3D();
-  TestValidator.equals("none", formationCycleOf(object), null);
+  TestValidator.equals("none", AutoMovieRenderFormationCycle.formationCycleOf(object), null);
   object.userData.automovieFormationCycle = cycle;
-  TestValidator.predicate("carried", formationCycleOf(object) === cycle);
+  TestValidator.predicate("carried", AutoMovieRenderFormationCycle.formationCycleOf(object) === cycle);
 }

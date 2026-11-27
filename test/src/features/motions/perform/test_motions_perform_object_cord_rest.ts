@@ -1,4 +1,6 @@
-import { HumanObjectCord } from "@automovie/motions/internal";
+import {
+  HumanObjectCord
+} from "../../../../../packages/motions/src/perform/internal/HumanObjectCord";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

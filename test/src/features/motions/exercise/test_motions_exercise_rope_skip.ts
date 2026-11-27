@@ -1,5 +1,7 @@
-import { AutoMovieGravity } from "@automovie/engine";
-import { ropeSkipHop } from "@automovie/motions/internal";
+import { AutoMovieEngineGravity } from "@automovie/engine";
+import {
+  ropeSkipHop
+} from "../../../../../packages/motions/src/exercise/internal/ropeSkipHop";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -29,7 +31,7 @@ export function test_motions_exercise_rope_skip(): void {
       nclose(hop.landed, takeoff + 0.26, 1e-12) &&
       nclose(
         hop.lift(hop.under),
-        (AutoMovieGravity.STANDARD * 0.13 ** 2) / 2,
+        (AutoMovieEngineGravity.STANDARD * 0.13 ** 2) / 2,
         1e-12,
       ) &&
       nclose(hop.lift(0), 0, 1e-12) &&

@@ -1,4 +1,4 @@
-import { solveDenseActiveSet } from "@automovie/engine";
+import { AutoMovieEnginePhysics } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
@@ -53,9 +53,9 @@ export function test_engine_physics_solve_dense_active_set(): void {
       (): number => random() * 4,
     );
     const x0: number[] = Array.from({ length: n }, (): number => random());
-    const rows: solveDenseActiveSet.IRow[] = Array.from(
+    const rows: AutoMovieEnginePhysics.ISolveDenseActiveSetRow[] = Array.from(
       { length: 6 },
-      (): solveDenseActiveSet.IRow => {
+      (): AutoMovieEnginePhysics.ISolveDenseActiveSetRow => {
         const a: number[] = Array.from(
           { length: n },
           (): number => random() * 2,
@@ -73,7 +73,7 @@ export function test_engine_physics_solve_dense_active_set(): void {
         };
       },
     );
-    const solved: number[] | null = solveDenseActiveSet({
+    const solved: number[] | null = AutoMovieEnginePhysics.solveDenseActiveSet({
       quadratic: h,
       linear,
       rows,
@@ -96,7 +96,7 @@ export function test_engine_physics_solve_dense_active_set(): void {
   ];
   TestValidator.equals(
     "infeasible",
-    solveDenseActiveSet({
+    AutoMovieEnginePhysics.solveDenseActiveSet({
       quadratic: identity,
       linear: [0, 0],
       rows: [
@@ -110,7 +110,7 @@ export function test_engine_physics_solve_dense_active_set(): void {
   // 3. An indefinite matrix.
   TestValidator.equals(
     "indefinite",
-    solveDenseActiveSet({
+    AutoMovieEnginePhysics.solveDenseActiveSet({
       quadratic: [
         [1, 0],
         [0, -1],
@@ -130,13 +130,13 @@ export function test_engine_physics_solve_dense_active_set(): void {
 function enumerate(
   h: readonly (readonly number[])[],
   linear: readonly number[],
-  rows: readonly solveDenseActiveSet.IRow[],
+  rows: readonly AutoMovieEnginePhysics.ISolveDenseActiveSetRow[],
 ): number[] {
   const n: number = linear.length;
   let best: { x: number[]; cost: number } | undefined;
   for (let mask: number = 0; mask < 1 << rows.length; mask++) {
-    const active: solveDenseActiveSet.IRow[] = rows.filter(
-      (_: solveDenseActiveSet.IRow, i: number): boolean =>
+    const active: AutoMovieEnginePhysics.ISolveDenseActiveSetRow[] = rows.filter(
+      (_: AutoMovieEnginePhysics.ISolveDenseActiveSetRow, i: number): boolean =>
         ((mask >> i) & 1) === 1,
     );
     if (active.length > n) continue;
@@ -146,13 +146,13 @@ function enumerate(
     );
     for (let i: number = 0; i < n; i++) {
       for (let j: number = 0; j < n; j++) kkt[i]![j] = h[i]![j]!;
-      active.forEach((row: solveDenseActiveSet.IRow, k: number): void => {
+      active.forEach((row: AutoMovieEnginePhysics.ISolveDenseActiveSetRow, k: number): void => {
         kkt[i]![n + k] = row.a[i]!;
         kkt[n + k]![i] = row.a[i]!;
       });
       kkt[i]![size] = linear[i]!;
     }
-    active.forEach((row: solveDenseActiveSet.IRow, k: number): void => {
+    active.forEach((row: AutoMovieEnginePhysics.ISolveDenseActiveSetRow, k: number): void => {
       kkt[n + k]![size] = row.b;
     });
     const solution: number[] | undefined = gauss(kkt);
@@ -160,7 +160,7 @@ function enumerate(
     const x: number[] = solution.slice(0, n);
     const mu: number[] = solution.slice(n);
     const feasible: boolean = rows.every(
-      (row: solveDenseActiveSet.IRow): boolean =>
+      (row: AutoMovieEnginePhysics.ISolveDenseActiveSetRow): boolean =>
         row.a.reduce(
           (sum: number, value: number, k: number): number =>
             sum + value * x[k]!,

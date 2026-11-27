@@ -1,4 +1,4 @@
-import { createWheelchair } from "@automovie/archetypes";
+import { AutoMovieArchetypeWheelchair } from "@automovie/archetypes";
 import type { IAutoMovieMotionHumanBody } from "@automovie/interface";
 
 import { everydayTake } from "./everydayTake";
@@ -17,24 +17,24 @@ import { everydayTake } from "./everydayTake";
  */
 export function catalogueWheelchair(
   body: IAutoMovieMotionHumanBody,
-  kind: createWheelchair.Kind,
+  kind: AutoMovieArchetypeWheelchair.Kind,
   seed: number,
-): ReturnType<typeof createWheelchair> {
+): ReturnType<typeof AutoMovieArchetypeWheelchair.create> {
   const hips: number =
     2 * (body.measure.hipHalfWidth + body.measure.thighRadius) +
     everydayTake.BREADTH * body.measure.hand;
   let best: catalogueWheelchair.IFit | undefined;
   let widest: catalogueWheelchair.IFit | undefined;
-  for (const [name, figures] of Object.entries(createWheelchair.MODELS[kind])) {
+  for (const [name, figures] of Object.entries(AutoMovieArchetypeWheelchair.MODELS[kind])) {
     const fit: catalogueWheelchair.IFit = {
-      model: name as createWheelchair.Model,
+      model: name as AutoMovieArchetypeWheelchair.Model,
       width: figures.seatWidth ?? 0,
     };
     if (widest === undefined || fit.width > widest.width) widest = fit;
     if (fit.width >= hips && (best === undefined || fit.width < best.width))
       best = fit;
   }
-  return createWheelchair({ kind, model: (best ?? widest)!.model }, seed);
+  return AutoMovieArchetypeWheelchair.create({ kind, model: (best ?? widest)!.model }, seed);
 }
 
 /**
@@ -44,7 +44,7 @@ export namespace catalogueWheelchair {
   /** A model and its seat's width. */
   export interface IFit {
     /** The model's name. */
-    model: createWheelchair.Model;
+    model: AutoMovieArchetypeWheelchair.Model;
 
     /** Its seat's width, metres. */
     width: number;

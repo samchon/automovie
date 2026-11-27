@@ -1,7 +1,4 @@
-import {
-  frameAutoMovieSweepSpine,
-  transportAutoMovieSweepSpine,
-} from "@automovie/engine";
+import { AutoMovieEngineSweep } from "@automovie/engine";
 import type {
   IAutoMovieSweepTransport,
   IAutoMovieVector3,
@@ -11,11 +8,11 @@ import { TestValidator } from "@nestia/e2e";
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * `transportAutoMovieSweepSpine(count, frames)` compiles a spine into the
+ * `transportSweepSpine(count, frames)` compiles a spine into the
  * centripetal Catmull-Rom curve through its points (Yuksel, Schaefer and Keyser
  * 2011), parameterized by chord-length share, and transports its first axis by
  * double reflection (Wang, Juttler, Zheng and Liu 2008);
- * `frameAutoMovieSweepSpine` does the same for an authored spine.
+ * `frameSweepSpine` does the same for an authored spine.
  *
  * Frames are written [origin, first axis, second axis, tangent], the second
  * axis tangent x first.
@@ -41,7 +38,7 @@ export function test_engine_geometry_sweep_spine_transport(): void {
     normal: number[],
     frames: boolean = true,
   ): IAutoMovieSweepTransport => {
-    const t: IAutoMovieSweepTransport = transportAutoMovieSweepSpine(
+    const t: IAutoMovieSweepTransport = AutoMovieEngineSweep.transportSweepSpine(
       points.length,
       frames,
     );
@@ -189,7 +186,7 @@ export function test_engine_geometry_sweep_spine_transport(): void {
     ],
     [
       "one point",
-      () => transportAutoMovieSweepSpine(1, true),
+      () => AutoMovieEngineSweep.transportSweepSpine(1, true),
       "sweep spine needs at least two points",
     ],
     [
@@ -218,7 +215,7 @@ export function test_engine_geometry_sweep_spine_transport(): void {
     ),
     normal: { x: 0, y: 0, z: 1 },
   };
-  const path = frameAutoMovieSweepSpine(spine);
+  const path = AutoMovieEngineSweep.frameSweepSpine(spine);
   TestValidator.equals("authored length", path.length, planar.length());
   TestValidator.predicate(
     "authored frame",

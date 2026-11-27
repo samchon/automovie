@@ -1,4 +1,6 @@
-import { climbStairsPrints } from "@automovie/motions/internal";
+import {
+  climbStairsPrints
+} from "../../../../../packages/motions/src/terrain/stairs/climbStairsPrints";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

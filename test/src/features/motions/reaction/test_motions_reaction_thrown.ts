@@ -1,4 +1,6 @@
-import { thrown } from "@automovie/motions/internal";
+import {
+  thrown
+} from "../../../../../packages/motions/src/reaction/internal/thrown";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";

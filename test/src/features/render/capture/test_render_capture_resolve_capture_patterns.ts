@@ -1,8 +1,8 @@
-import { parseAutoMovieInspectionRequest, resolveAutoMovieCapturePatterns } from "@automovie/render";
+import { AutoMovieRenderInspectionRequest, AutoMovieRenderCapture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `resolveAutoMovieCapturePatterns` resolves every pattern a request and view
+ * `resolveCapturePatterns` resolves every pattern a request and view
  * carry against the paths a scene holds.
  *
  * Scenarios:
@@ -17,12 +17,12 @@ export function test_render_capture_resolve_capture_patterns(): void {
     ["color", "lamp=ff0000"],
     ["label", "ghost"],
   ]);
-  const request = parseAutoMovieInspectionRequest((key: string): string | undefined =>
+  const request = AutoMovieRenderInspectionRequest.parseRequest((key: string): string | undefined =>
     values.get(key),
   );
   TestValidator.equals(
     "resolved",
-    resolveAutoMovieCapturePatterns({
+    AutoMovieRenderCapture.resolvePatterns({
       paths: ["hero", "hero/arm", "lamp", "lamp"],
       request,
       view: "front@focus=hero",

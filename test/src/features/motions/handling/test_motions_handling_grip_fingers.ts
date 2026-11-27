@@ -1,5 +1,7 @@
 import type { IAutoMoviePose } from "@automovie/interface";
-import { HumanGrip } from "@automovie/motions/internal";
+import {
+  HumanGrip
+} from "../../../../../packages/motions/src/handling/internal/HumanGrip";
 import { TestValidator } from "@nestia/e2e";
 
 /**

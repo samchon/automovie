@@ -1,8 +1,8 @@
-import { AutoMovieLoftParameter } from "@automovie/engine";
+import { AutoMovieEngineLoftParameter } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `AutoMovieLoftParameter.phases(rule, polygon)` gives a cyclic polygon's
+ * `AutoMovieEngineLoftParameter.phases(rule, polygon)` gives a cyclic polygon's
  * corners phases in [0, 2 pi), the closing edge's crossing allowed to round to
  * the closing knot.
  *
@@ -31,7 +31,7 @@ export function test_engine_geometry_loft_parameter_phases(): void {
             (i: number): [number, number] => [...base[(i + start) % 4]!],
           );
           const before: string = JSON.stringify(polygon);
-          const phases: number[] = AutoMovieLoftParameter.phases(rule, polygon);
+          const phases: number[] = AutoMovieEngineLoftParameter.phases(rule, polygon);
           const label: string = `${rule}/${scale}/${sign}/${start}`;
           TestValidator.equals(`${label} count`, phases.length, 4);
           TestValidator.predicate(

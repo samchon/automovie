@@ -1,7 +1,4 @@
-import {
-  preparePhysicalDisturbanceSpan as Span,
-  recordPhysicalSpanContacts,
-} from "@automovie/engine";
+import { AutoMovieEnginePhysicalSpanContacts, AutoMovieEnginePhysicalBalance, type AutoMovieEnginePhysicalBalanceTypes } from "@automovie/engine";
 import type {
   IAutoMovieContactReceipt,
   IAutoMoviePhysicalRecoveryState,
@@ -19,7 +16,7 @@ const SUBSTEPS: number = 32;
 
 /**
  * While a push response plays, the floor's reaction is recorded from its curves
- * (`recordPhysicalSpanContacts`) as the linear inverted pendulum's: the record
+ * (`AutoMovieEnginePhysicalSpanContacts`) as the linear inverted pendulum's: the record
  * the momentum audit reads holds the weight and only the planted feet carry
  * it.
  *
@@ -72,12 +69,12 @@ export function test_engine_physics_record_physical_span_contacts(): void {
     reactionSeconds: 0.1,
     floor: 0,
   };
-  const span: Span.ISpan = Span(input);
+  const span: AutoMovieEnginePhysicalBalanceTypes.IPrepareDisturbanceSpanResult = AutoMovieEnginePhysicalBalance.prepareDisturbanceSpan(input);
   const trigger = span.branches.find((branch) => branch.kind === "trigger");
   const touchdown = span.branches.find((branch) => branch.kind === "touchdown");
   TestValidator.predicate("the push steps", !!trigger && !!touchdown);
   if (!trigger || !touchdown) return;
-  type Recorded = Parameters<typeof recordPhysicalSpanContacts>[0];
+  type Recorded = AutoMovieEnginePhysicalSpanContacts.IInput;
   const collider = (
     body: string,
     bone: string,
@@ -114,7 +111,7 @@ export function test_engine_physics_record_physical_span_contacts(): void {
   for (let step: number = first; step <= last; step++) {
     const found: Set<string> = new Set();
     for (let substep: number = 1; substep <= SUBSTEPS; substep++)
-      recordPhysicalSpanContacts({
+      AutoMovieEnginePhysicalSpanContacts.record({
         settings: { rate: RATE, substeps: SUBSTEPS, bodies: [body] },
         bound,
         recovery: {

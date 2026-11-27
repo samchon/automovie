@@ -2,7 +2,9 @@ import type {
   IAutoMovieScript,
   IAutoMovieScriptNode,
 } from "@automovie/interface";
-import { beatCaptions } from "@automovie/render/internal";
+import {
+  beatCaptions
+} from "../../../../../packages/render/src/caption/internal/beatCaptions";
 import { TestValidator } from "@nestia/e2e";
 
 /**

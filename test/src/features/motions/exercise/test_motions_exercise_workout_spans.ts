@@ -1,5 +1,7 @@
 import type { IAutoMovieMotionHumanExerciseKey } from "@automovie/interface";
-import { workoutSpans } from "@automovie/motions/internal";
+import {
+  workoutSpans
+} from "../../../../../packages/motions/src/exercise/workout/workoutSpans";
 import { TestValidator } from "@nestia/e2e";
 
 /** A key told apart by its pitch. */

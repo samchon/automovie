@@ -4,7 +4,7 @@ Render control channels from the performance. Use the chosen model's documentati
 
 ## Channels to render
 
-<!-- @source [DiffusionRenderer](https://arxiv.org/abs/2501.18590) uses geometry and material buffers as rendering inputs. -->
+<!-- @reference [DiffusionRenderer](https://arxiv.org/abs/2501.18590) uses geometry and material buffers as rendering inputs. -->
 
 Render only the receiver's required channels. Use outlines for edge inputs and scene-projected points for exact tracks.
 
@@ -18,7 +18,7 @@ Render from the scene any control mask a video request asks for, never estimate 
 
 ## Dense channels
 
-<!-- @source [LooseControl](https://arxiv.org/html/2312.03079v1) studies coarse depth constraints. [Cosmos-Transfer1](https://arxiv.org/abs/2503.14492) demonstrates control weights that vary across space and time. -->
+<!-- @reference [LooseControl](https://arxiv.org/html/2312.03079v1) studies coarse depth constraints. [Cosmos-Transfer1](https://arxiv.org/abs/2503.14492) demonstrates control weights that vary across space and time. -->
 
 Dense conditioning carries both placement and shape. Higher adherence preserves more coarse geometry.
 

@@ -1,4 +1,4 @@
-import { jointToQuaternion } from "@automovie/engine";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { qclose } from "../../internal/qclose";
@@ -29,7 +29,7 @@ export function test_engine_kinematics_joint_to_quaternion(): void {
     flexion: number | null,
     abduction: number | null,
     twist: number | null,
-  ): Parameters<typeof jointToQuaternion>[0] => ({
+  ): Parameters<typeof AutoMovieEngineKinematics.jointToQuaternion>[0] => ({
     flexion,
     abduction,
     twist,
@@ -37,7 +37,7 @@ export function test_engine_kinematics_joint_to_quaternion(): void {
   TestValidator.predicate(
     "flexion",
     qclose(
-      jointToQuaternion(pose(90, null, null)),
+      AutoMovieEngineKinematics.jointToQuaternion(pose(90, null, null)),
       { x: HALF_ROOT_TWO, y: 0, z: 0, w: HALF_ROOT_TWO },
       ROUNDING,
     ),
@@ -45,7 +45,7 @@ export function test_engine_kinematics_joint_to_quaternion(): void {
   TestValidator.predicate(
     "twist",
     qclose(
-      jointToQuaternion(pose(null, null, 90)),
+      AutoMovieEngineKinematics.jointToQuaternion(pose(null, null, 90)),
       { x: 0, y: HALF_ROOT_TWO, z: 0, w: HALF_ROOT_TWO },
       ROUNDING,
     ),
@@ -53,7 +53,7 @@ export function test_engine_kinematics_joint_to_quaternion(): void {
   TestValidator.predicate(
     "abduction",
     qclose(
-      jointToQuaternion(pose(null, 90, null)),
+      AutoMovieEngineKinematics.jointToQuaternion(pose(null, 90, null)),
       { x: 0, y: 0, z: HALF_ROOT_TWO, w: HALF_ROOT_TWO },
       ROUNDING,
     ),
@@ -61,7 +61,7 @@ export function test_engine_kinematics_joint_to_quaternion(): void {
   TestValidator.predicate(
     "the identity",
     qclose(
-      jointToQuaternion(pose(null, null, null)),
+      AutoMovieEngineKinematics.jointToQuaternion(pose(null, null, null)),
       { x: 0, y: 0, z: 0, w: 1 },
       ROUNDING,
     ),
@@ -69,7 +69,7 @@ export function test_engine_kinematics_joint_to_quaternion(): void {
   TestValidator.predicate(
     "twist composed onto flexion",
     qclose(
-      jointToQuaternion(pose(90, null, 90)),
+      AutoMovieEngineKinematics.jointToQuaternion(pose(90, null, 90)),
       { x: 0.5, y: 0.5, z: -0.5, w: 0.5 },
       ROUNDING,
     ),
@@ -77,7 +77,7 @@ export function test_engine_kinematics_joint_to_quaternion(): void {
   TestValidator.predicate(
     "normalized custom axes",
     qclose(
-      jointToQuaternion(pose(30, null, null), {
+      AutoMovieEngineKinematics.jointToQuaternion(pose(30, null, null), {
         flexion: { x: 0, y: 2, z: 0 },
         abduction: { x: 0, y: 0, z: 3 },
         twist: { x: 4, y: 0, z: 0 },

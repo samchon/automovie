@@ -1,13 +1,11 @@
-import {
-  computeModelRestExtent,
-  materializeCompiledInstanceSetInventory,
-  productionRuntimeModelId,
-  sampleMotion,
-} from "@automovie/engine";
+import { AutoMovieEngineMotionSampling, AutoMovieEngineFilm, AutoMovieEnginePopulationRuntime } from "@automovie/engine";
 import { AutoMovieHumanCanonicalBody } from "@automovie/human";
 import type {
   IAutoMovieCamera,
+  IAutoMovieCompiledFormationLod,
+  IAutoMovieCompiledInstancePrototype,
   IAutoMovieCompiledInstanceSet,
+  IAutoMovieComputeModelRestExtent,
   IAutoMovieEnvironment,
   IAutoMovieModel,
   IAutoMovieMotion,
@@ -15,35 +13,33 @@ import type {
   IAutoMovieSceneNode,
 } from "@automovie/interface";
 import {
-  type AutoMovieHumanPolygon,
-  type IAutoMovieBuiltPropArticulation,
-  type IAutoMovieDrawScene,
-  type IAutoMovieInstanceSetViewerObject,
-  type IAutoMovieModelObject,
-  type IAutoMovieSceneObject,
-  applyObjectMotion,
-  applyObjectMotions,
-  applyTransform,
-  buildHumanPolygon,
-  buildInstancedInstanceSet,
-  buildModel,
-  buildPropArticulation,
-  buildScene,
-  collectAutoMovieOwnedResources,
+  AutoMovieRenderHumanPolygon,
+  AutoMovieRenderSceneLayout,
+  AutoMovieRenderSceneResource,
+  AutoMovieRenderSceneMotion,
+  AutoMovieRenderInstanceSet,
+  type IAutoMovieRenderBuiltPropArticulation,
+  type IAutoMovieRenderDrawScene,
+  type IAutoMovieRenderDrawView,
+  type IAutoMovieRenderInstanceSetViewerObject,
+  type IAutoMovieRenderModelObject,
+  type IAutoMovieRenderSceneObject,
 } from "@automovie/render";
 import * as THREE from "three";
 
 import { compileEnvironmentExample } from "./compileEnvironmentExample";
 
 /**
- * Mount a compiled production example at exact shot seconds. The normal
- * capture host reads the actual stage, authored object clips and compiled
- * canonical actor poses used by the integration test.
+ * Mount a compiled production example at exact shot seconds. The normal capture
+ * host reads the actual stage, authored object clips and compiled canonical
+ * actor poses used by the integration test.
  */
 export function drawEnvironmentExample(
   input: compileEnvironmentExample.IInput,
-  views?: IAutoMovieDrawScene["views"],
-): IAutoMovieDrawScene {
+  views?: Readonly<
+    Record<string, (seconds: number) => IAutoMovieRenderDrawView>
+  >,
+): IAutoMovieRenderDrawScene {
   const { shot, body }: compileEnvironmentExample.IOutput =
     compileEnvironmentExample(input);
   const modelTable: Map<string, IAutoMovieModel> = new Map(
@@ -51,23 +47,23 @@ export function drawEnvironmentExample(
       (model: IAutoMovieModel): [string, IAutoMovieModel] => [model.id, model],
     ),
   );
-  const modelObjects: Map<string, IAutoMovieModelObject> = new Map();
-  const figures: Map<string, AutoMovieHumanPolygon.IDrawing> = new Map();
-  const prepared: IAutoMovieSceneObject = buildScene(
-    shot.source.scene,
-    (modelId: string): IAutoMovieModelObject | undefined => {
+  const modelObjects: Map<string, IAutoMovieRenderModelObject> = new Map();
+  const figures: Map<string, AutoMovieRenderHumanPolygon.IDrawing> = new Map();
+  const prepared: IAutoMovieRenderSceneObject = AutoMovieRenderSceneLayout.buildScene({
+    scene: shot.source.scene,
+    getModelObject: (modelId: string): IAutoMovieRenderModelObject | undefined => {
       const node: IAutoMovieSceneNode | undefined =
         shot.source.scene.nodes[modelObjects.size];
       if (node === undefined) return undefined;
       if (modelId === body.skeleton.id) {
-        const drawing: AutoMovieHumanPolygon.IDrawing = buildHumanPolygon(
+        const drawing: AutoMovieRenderHumanPolygon.IDrawing = AutoMovieRenderHumanPolygon.build(
           AutoMovieHumanCanonicalBody.display(body),
         );
         const object: THREE.Group = new THREE.Group();
         object.matrixAutoUpdate = false;
         object.matrix.fromArray([...AutoMovieHumanCanonicalBody.REFLECTION]);
         object.add(drawing.object);
-        const actor: IAutoMovieModelObject = {
+        const actor: IAutoMovieRenderModelObject = {
           object,
           bones: new Map(),
           parts: new Map(),
@@ -78,11 +74,11 @@ export function drawEnvironmentExample(
       }
       const model: IAutoMovieModel | undefined = modelTable.get(modelId);
       if (model === undefined) return undefined;
-      const object: IAutoMovieModelObject = buildModel(model);
+      const object: IAutoMovieRenderModelObject = AutoMovieRenderSceneLayout.buildModel(model);
       modelObjects.set(node.id, object);
       return object;
-    },
-  );
+    }
+  });
   prepared.scene.background = new THREE.Color("#e2e8ee");
   const cameraIndex: number = shot.source.scene.cameras.findIndex(
     (camera: IAutoMovieCamera): boolean =>
@@ -108,7 +104,7 @@ export function drawEnvironmentExample(
   }
   const props: IAutoMovieEnvironment["runtime"]["props"] =
     input.environment.runtime.props;
-  const articulation: IAutoMovieBuiltPropArticulation = buildPropArticulation({
+  const articulation: IAutoMovieRenderBuiltPropArticulation = AutoMovieRenderSceneLayout.buildPropArticulation({
     props: props ?? [],
     scene: shot.source.scene,
     modelObjects,
@@ -125,13 +121,11 @@ export function drawEnvironmentExample(
   const world: IAutoMovieEnvironment["runtime"]["world"] =
     input.environment.runtime.world;
   const projectionRadii: Map<string, number> = new Map();
-  const runtimeModels: Map<string, IAutoMovieModel> = new Map();
   for (const set of world.instanceSets ?? []) {
     const model: IAutoMovieModel | undefined = modelTable.get(set.model);
     if (model === undefined || projectionRadii.has(model.id)) continue;
-    const extent: ReturnType<typeof computeModelRestExtent> =
-      computeModelRestExtent(model);
-    runtimeModels.set(productionRuntimeModelId(set.model), model);
+    const extent: IAutoMovieComputeModelRestExtent.IResult =
+      AutoMovieEngineFilm.computeModelRestExtent(model);
     if (extent !== null)
       projectionRadii.set(
         model.id,
@@ -142,8 +136,8 @@ export function drawEnvironmentExample(
         ),
       );
   }
-  const instances: IAutoMovieInstanceSetViewerObject[] = Object.values(
-    materializeCompiledInstanceSetInventory({
+  const instances: IAutoMovieRenderInstanceSetViewerObject[] = Object.values(
+    AutoMovieEnginePopulationRuntime.materializeCompiledInstanceSetInventory({
       world,
       models: modelTable,
       projectionRadii,
@@ -151,8 +145,20 @@ export function drawEnvironmentExample(
   ).map(
     (
       instanceSet: IAutoMovieCompiledInstanceSet,
-    ): IAutoMovieInstanceSetViewerObject =>
-      buildInstancedInstanceSet({ instanceSet, models: runtimeModels }),
+    ): IAutoMovieRenderInstanceSetViewerObject => {
+      const tiers: readonly IAutoMovieCompiledFormationLod[] =
+        instanceSet.prototypes?.flatMap(
+          (
+            prototype: IAutoMovieCompiledInstancePrototype,
+          ): IAutoMovieCompiledFormationLod[] => prototype.lod,
+        ) ?? instanceSet.lod;
+      const runtimeModels: Map<string, IAutoMovieModel> = new Map();
+      for (const tier of tiers) {
+        const model: IAutoMovieModel | undefined = modelTable.get(tier.model);
+        if (model !== undefined) runtimeModels.set(tier.runtimeModel, model);
+      }
+      return AutoMovieRenderInstanceSet.buildInstancedInstanceSet({ instanceSet, models: runtimeModels });
+    },
   );
   for (const population of instances) prepared.scene.add(population.object);
   return {
@@ -165,19 +171,19 @@ export function drawEnvironmentExample(
     views,
     seek: async (seconds: number): Promise<void> => {
       for (const node of shot.source.scene.nodes)
-        applyTransform(nodeObjects.get(node.id)!, node.transform);
-      applyTransform(camera, stagedCamera.transform);
+        AutoMovieRenderSceneMotion.applyTransform(nodeObjects.get(node.id)!, node.transform);
+      AutoMovieRenderSceneMotion.applyTransform(camera, stagedCamera.transform);
       articulation.restore();
-      applyObjectMotions(
+      AutoMovieRenderSceneMotion.applyObjectMotions(
         shot.source.shot.objectMotions,
         seconds,
         (id: string): THREE.Object3D | undefined =>
           nodeObjects.get(id) ?? articulation.joints.get(id),
       );
       if (shot.source.shot.cameraMotion !== null)
-        applyObjectMotion(shot.source.shot.cameraMotion, seconds, () => camera);
+        AutoMovieRenderSceneMotion.applyObjectMotion(shot.source.shot.cameraMotion, seconds, () => camera);
       for (const performance of shot.source.shot.performances) {
-        const figure: AutoMovieHumanPolygon.IDrawing | undefined = figures.get(
+        const figure: AutoMovieRenderHumanPolygon.IDrawing | undefined = figures.get(
           performance.node,
         );
         const motion: IAutoMovieMotion | undefined =
@@ -185,7 +191,7 @@ export function drawEnvironmentExample(
             ? undefined
             : motionTable.get(performance.motion);
         if (figure === undefined || motion === undefined) continue;
-        const pose: IAutoMoviePose = sampleMotion(
+        const pose: IAutoMoviePose = AutoMovieEngineMotionSampling.sampleMotion(
           motion,
           Math.max(0, seconds - performance.startOffset),
         ).pose;
@@ -203,7 +209,7 @@ export function drawEnvironmentExample(
         figure.object.removeFromParent();
         figure.dispose();
       }
-      for (const resource of collectAutoMovieOwnedResources(prepared.scene))
+      for (const resource of AutoMovieRenderSceneResource.collectOwnedResources(prepared.scene))
         resource.dispose();
       prepared.scene.clear();
     },

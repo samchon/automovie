@@ -1,4 +1,4 @@
-import { evaluateAutoMovieSchedule } from "@automovie/engine";
+import { AutoMovieEngineSchedule } from "@automovie/engine";
 import type {
   IAutoMovieEvaluateSchedule,
   IAutoMovieSchedule,
@@ -7,7 +7,7 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `evaluateAutoMovieSchedule` reads one instant: the entries running at it,
+ * `evaluateSchedule` reads one instant: the entries running at it,
  * each with its local time and phase over the half-open span [start, end), and
  * each subject's state from its latest ended entry, where of two ending
  * together the later-indexed one wins.
@@ -64,7 +64,7 @@ export function test_engine_composition_evaluate_schedule(): void {
 
   TestValidator.equals(
     "at an end the next entry begins",
-    evaluateAutoMovieSchedule(schedule, 1),
+    AutoMovieEngineSchedule.evaluate(schedule, 1),
     expected(1, [{ entry: turn, local: 0, phase: 0 }], {
       a: "reach",
       b: "dodge",
@@ -72,7 +72,7 @@ export function test_engine_composition_evaluate_schedule(): void {
   );
   TestValidator.equals(
     "halfway through the turn the nod starts",
-    evaluateAutoMovieSchedule(schedule, 1.25),
+    AutoMovieEngineSchedule.evaluate(schedule, 1.25),
     expected(
       1.25,
       [
@@ -84,7 +84,7 @@ export function test_engine_composition_evaluate_schedule(): void {
   );
   TestValidator.equals(
     "after everything the later index wins a shared end",
-    evaluateAutoMovieSchedule(schedule, 2),
+    AutoMovieEngineSchedule.evaluate(schedule, 2),
     expected(2, [], { a: "nod", b: "dodge" }),
   );
 }

@@ -1,82 +1,17 @@
-import { classifyAutoMoviePlaybackBoundary } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieInspectionDiagnostics,
   IAutoMoviePreparePhysicalGeometry,
 } from "@automovie/interface";
 import {
-  type IAutoMovieDrawScene,
-  observeAutoMovieCollisionMotion,
-  observeAutoMoviePlacedCamera,
-  observeAutoMoviePlacedScene,
-  observeAutoMovieSceneCollision,
+  type IAutoMovieRenderDrawScene,
+
+  AutoMovieRenderInspectionCamera,
+  AutoMovieRenderInspection,
 } from "@automovie/render";
 
 import type { IFilmProduction } from "./IFilmProduction";
 import type { FilmVerdictPacket } from "./readFilmVerdicts";
-
-/** Work a capture or delivery may spend: never a reason to defer a check. */
-const SETTLED: Parameters<typeof observeAutoMovieSceneCollision>[0]["limits"] =
-  {
-    comparisons: Number.MAX_SAFE_INTEGER,
-    posedVertices: Number.MAX_SAFE_INTEGER,
-    surfaceTriangles: Number.MAX_SAFE_INTEGER,
-    sweptCells: Number.MAX_SAFE_INTEGER,
-  };
-
-/**
- * Collision work per placed sample. Interactive playback may defer a pair it
- * cannot finish within a frame; a capture or delivery settles the same scene
- * without a work limit.
- *
- * The viewer limits give collision at most about 7.5 ms of a 60 Hz frame,
- * leaving room for motion checks and the render: 2.5 ms collecting parts, 2 ms
- * of comparisons at 2.4 µs each, and 1.5 ms each of surface triangles at 0.24
- * µs and posed vertices at up to 0.49 µs, measured with unlimited work on a
- * 1,024-member formation crossed by a growing barrier and on overlapping closed
- * meshes of growing density. A real formation, wall, bed and rope film peaks at
- * 384 comparisons, 221 posed vertices and no surface triangles. No measured
- * scene spends swept cells.
- */
-const COLLISION_LIMITS: Record<
-  IAutoMovieDrawScene.IPlacedSample["mode"],
-  Parameters<typeof observeAutoMovieSceneCollision>[0]["limits"]
-> = {
-  viewer: {
-    comparisons: 850,
-    posedVertices: 3_000,
-    surfaceTriangles: 6_300,
-    sweptCells: 256,
-    // Collecting a part costs about 6.4 µs (6.4 ms per 1,024 formation members),
-    // which no other limit bounds; 400 parts keep collection near 2.5 ms.
-    parts: 400,
-  },
-  capture: SETTLED,
-  delivery: SETTLED,
-};
-
-/**
- * Motion work per placed sample. Interactive playback places a few extra
- * instants and defers a crossing it cannot settle; a capture or delivery
- * subdivides until every moving pair is resolved, within a depth that resolves
- * a frame into about a billion steps.
- */
-const MOTION_LIMITS: Record<
-  IAutoMovieDrawScene.IPlacedSample["mode"],
-  Parameters<typeof observeAutoMovieCollisionMotion>[0]["limits"]
-> = {
-  viewer: {
-    // Each extra instant costs a placement plus a collection; the work limits
-    // follow the collision measurements above, at about a third of its share.
-    placements: 4,
-    depth: 6,
-    comparisons: 300,
-    posedVertices: 1_000,
-    surfaceTriangles: 2_000,
-    parts: 400,
-  },
-  capture: { ...SETTLED, placements: Number.MAX_SAFE_INTEGER, depth: 30 },
-  delivery: { ...SETTLED, placements: Number.MAX_SAFE_INTEGER, depth: 30 },
-};
 
 /**
  * Collect stock review checks from the same world that will be drawn.
@@ -120,12 +55,12 @@ export function inspectFilmProduction(props: {
    * or delivery sample.
    */
   verdicts?: () => FilmVerdictPacket;
-  sample: IAutoMovieDrawScene.IPlacedSample;
+  sample: IAutoMovieRenderDrawScene.IPlacedSample;
 }): IAutoMovieInspectionDiagnostics {
   const { name, production, geometry, sample } = props;
   const layersAt = (
     seconds: number,
-  ): Parameters<typeof observeAutoMovieSceneCollision>[0]["layers"] =>
+  ): AutoMovieRenderInspection.IPlacedSceneCollisionProps["layers"] =>
     (
       production.inspectionLayers?.({
         ...sample,
@@ -140,10 +75,10 @@ export function inspectFilmProduction(props: {
     );
   const authored: IAutoMovieInspectionDiagnostics | undefined =
     production.inspectPlaced?.(sample);
-  const layers: Parameters<typeof observeAutoMovieSceneCollision>[0]["layers"] =
+  const layers: AutoMovieRenderInspection.IPlacedSceneCollisionProps["layers"] =
     layersAt(sample.time.filmSeconds);
   const native: Pick<IAutoMovieInspectionDiagnostics, "findings" | "coverage"> =
-    observeAutoMoviePlacedScene({
+    AutoMovieRenderInspection.observePlacedScene({
       scene: sample.scene,
       camera: sample.camera,
       time: sample.time,
@@ -153,7 +88,7 @@ export function inspectFilmProduction(props: {
   const collision: Pick<
     IAutoMovieInspectionDiagnostics,
     "findings" | "coverage"
-  > = observeAutoMovieSceneCollision({
+  > = AutoMovieRenderInspection.observePlacedSceneCollisions({
     time: sample.time,
     layers,
     geometry,
@@ -164,10 +99,10 @@ export function inspectFilmProduction(props: {
   });
   const motion: Pick<IAutoMovieInspectionDiagnostics, "findings" | "coverage"> =
     observeMotion(props, layersAt);
-  const targets: Parameters<typeof observeAutoMoviePlacedCamera>[0]["targets"] =
+  const targets: Parameters<typeof AutoMovieRenderInspectionCamera.observePlaced>[0]["targets"] =
     production.inspectionCamera?.(sample) ?? [];
   const camera: Pick<IAutoMovieInspectionDiagnostics, "findings" | "coverage"> =
-    observeAutoMoviePlacedCamera({ sample, targets });
+    AutoMovieRenderInspectionCamera.observePlaced({ sample, targets });
   const human: FilmVerdictPacket =
     sample.mode === "viewer" || props.verdicts === undefined
       ? { findings: [], coverage: [] }
@@ -206,6 +141,70 @@ export function inspectFilmProduction(props: {
   };
 }
 
+/** Work a capture or delivery may spend: never a reason to defer a check. */
+const SETTLED: AutoMovieRenderInspection.IPlacedSceneCollisionLimits =
+  {
+    comparisons: Number.MAX_SAFE_INTEGER,
+    posedVertices: Number.MAX_SAFE_INTEGER,
+    surfaceTriangles: Number.MAX_SAFE_INTEGER,
+    sweptCells: Number.MAX_SAFE_INTEGER,
+  };
+
+/**
+ * Collision work per placed sample. Interactive playback may defer a pair it
+ * cannot finish within a frame; a capture or delivery settles the same scene
+ * without a work limit.
+ *
+ * The viewer limits give collision at most about 7.5 ms of a 60 Hz frame,
+ * leaving room for motion checks and the render: 2.5 ms collecting parts, 2 ms
+ * of comparisons at 2.4 µs each, and 1.5 ms each of surface triangles at 0.24
+ * µs and posed vertices at up to 0.49 µs, measured with unlimited work on a
+ * 1,024-member formation crossed by a growing barrier and on overlapping closed
+ * meshes of growing density. A real formation, wall, bed and rope film peaks at
+ * 384 comparisons, 221 posed vertices and no surface triangles. No measured
+ * scene spends swept cells.
+ */
+const COLLISION_LIMITS: Record<
+  IAutoMovieRenderDrawScene.IPlacedSample["mode"],
+  AutoMovieRenderInspection.IPlacedSceneCollisionLimits
+> = {
+  viewer: {
+    comparisons: 850,
+    posedVertices: 3_000,
+    surfaceTriangles: 6_300,
+    sweptCells: 256,
+    // Collecting a part costs about 6.4 µs (6.4 ms per 1,024 formation members),
+    // which no other limit bounds; 400 parts keep collection near 2.5 ms.
+    parts: 400,
+  },
+  capture: SETTLED,
+  delivery: SETTLED,
+};
+
+/**
+ * Motion work per placed sample. Interactive playback places a few extra
+ * instants and defers a crossing it cannot settle; a capture or delivery
+ * subdivides until every moving pair is resolved, within a depth that resolves
+ * a frame into about a billion steps.
+ */
+const MOTION_LIMITS: Record<
+  IAutoMovieRenderDrawScene.IPlacedSample["mode"],
+  AutoMovieRenderInspection.IPlacedSceneCollisionMotionLimits
+> = {
+  viewer: {
+    // Each extra instant costs a placement plus a collection; the work limits
+    // follow the collision measurements above, at about a third of its share.
+    placements: 4,
+    depth: 6,
+    comparisons: 300,
+    posedVertices: 1_000,
+    surfaceTriangles: 2_000,
+    parts: 400,
+  },
+  capture: { ...SETTLED, placements: Number.MAX_SAFE_INTEGER, depth: 30 },
+  delivery: { ...SETTLED, placements: Number.MAX_SAFE_INTEGER, depth: 30 },
+};
+
 /**
  * Subdivide the motion since the preceding output instant when the subject
  * places synchronously; otherwise disclose that motion between frames stays
@@ -216,7 +215,7 @@ function observeMotion(
   props: Parameters<typeof inspectFilmProduction>[0],
   layersAt: (
     seconds: number,
-  ) => Parameters<typeof observeAutoMovieSceneCollision>[0]["layers"],
+  ) => AutoMovieRenderInspection.IPlacedSceneCollisionProps["layers"],
 ): Pick<IAutoMovieInspectionDiagnostics, "findings" | "coverage"> {
   const { production, geometry, sample, fps } = props;
   if (sample.place === undefined || fps === undefined || !(fps > 0))
@@ -231,7 +230,7 @@ function observeMotion(
   const relation: string =
     playback === undefined || !(from >= 0)
       ? "continuous"
-      : classifyAutoMoviePlaybackBoundary({
+      : AutoMovieEngineFilm.classifyAutoMoviePlaybackBoundary({
           sequence: playback.sequence,
           timeline: playback.timeline,
           before: from,
@@ -240,7 +239,7 @@ function observeMotion(
             ? {}
             : { discontinuities: playback.discontinuities }),
         }).boundary;
-  return observeAutoMovieCollisionMotion({
+  return AutoMovieRenderInspection.observePlacedSceneCollisionMotion({
     time: sample.time,
     fromSeconds: Math.max(0, from),
     continuous: relation !== "cut" && relation !== "discontinuity",

@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieQuaternion,
@@ -17,7 +17,7 @@ import type {
  */
 export function resolvedBones(
   points: readonly (readonly [AutoMovieHumanoidBone, IAutoMovieVector3])[],
-  rotation: IAutoMovieQuaternion = Quaternion.identity(),
+  rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.identity(),
 ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
   return new Map(
     points.map(

@@ -1,8 +1,4 @@
-import {
-  playbackLayersAt,
-  playbackShownLayer,
-  sequenceTimeline,
-} from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieCaptionSidecar,
   IAutoMoviePlaybackLayer,
@@ -10,7 +6,7 @@ import type {
   IAutoMovieSequence,
   IAutoMovieShot,
 } from "@automovie/interface";
-import { planCaptionSidecar } from "@automovie/render";
+import { AutoMovieRenderCaption } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { TREE_SCRIPT } from "../../internal/TREE_SCRIPT";
@@ -73,15 +69,15 @@ const SEQUENCE: IAutoMovieSequence = {
  * 7. No layers is refused.
  */
 export function test_engine_film_playback_shown_layer(): void {
-  const timeline: IAutoMoviePlaybackTimeline = sequenceTimeline(
+  const timeline: IAutoMoviePlaybackTimeline = AutoMovieEngineFilm.sequenceTimeline(
     SEQUENCE,
     SHOTS,
   );
   const shown: (seconds: number) => [number, string] = (
     seconds: number,
   ): [number, string] => {
-    const layer: IAutoMoviePlaybackLayer = playbackShownLayer(
-      playbackLayersAt(SEQUENCE, timeline, seconds),
+    const layer: IAutoMoviePlaybackLayer = AutoMovieEngineFilm.playbackShownLayer(
+      AutoMovieEngineFilm.playbackLayersAt(SEQUENCE, timeline, seconds),
     );
     return [layer.entry, layer.shot];
   };
@@ -110,7 +106,7 @@ export function test_engine_film_playback_shown_layer(): void {
   ]);
 
   // 6. The caption sidecar follows the same rule.
-  const sidecar: IAutoMovieCaptionSidecar = planCaptionSidecar({
+  const sidecar: IAutoMovieCaptionSidecar = AutoMovieRenderCaption.planSidecar({
     script: TREE_SCRIPT,
     sequence: SEQUENCE,
     shots: SHOTS,
@@ -132,6 +128,6 @@ export function test_engine_film_playback_shown_layer(): void {
   // 7. Nothing to show.
   TestValidator.predicate(
     "no layers is refused",
-    throwsError((): IAutoMoviePlaybackLayer => playbackShownLayer([])),
+    throwsError((): IAutoMoviePlaybackLayer => AutoMovieEngineFilm.playbackShownLayer([])),
   );
 }

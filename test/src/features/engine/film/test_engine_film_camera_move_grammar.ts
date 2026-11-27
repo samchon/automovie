@@ -1,4 +1,4 @@
-import { Quaternion, compileCameraMove } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineFilm } from "@automovie/engine";
 import {
   IAutoMovieCamera,
   IAutoMovieCameraAction,
@@ -77,7 +77,7 @@ const SUBJECT: IAutoMovieFramedSubject = {
  *    quaternion to the aim.
  */
 export function test_engine_film_camera_move_grammar(): void {
-  const still: ReturnType<typeof compileCameraMove> = compileCameraMove({
+  const still: ReturnType<typeof AutoMovieEngineFilm.compileCameraMove> = AutoMovieEngineFilm.compileCameraMove({
     clipId: "clip",
     camera: camera(),
     entries: [{ action: frame("static", "medium"), subject: SUBJECT }],
@@ -125,8 +125,8 @@ export function test_engine_film_camera_move_grammar(): void {
       ),
   );
 
-  const dolly: NonNullable<ReturnType<typeof compileCameraMove>> =
-    compileCameraMove({
+  const dolly: NonNullable<ReturnType<typeof AutoMovieEngineFilm.compileCameraMove>> =
+    AutoMovieEngineFilm.compileCameraMove({
       clipId: "clip",
       camera: camera(),
       entries: [{ action: frame("push-in", "medium"), subject: SUBJECT }],
@@ -174,8 +174,8 @@ export function test_engine_film_camera_move_grammar(): void {
     z: 0,
     w: Math.SQRT1_2,
   });
-  const whip: NonNullable<ReturnType<typeof compileCameraMove>> =
-    compileCameraMove({
+  const whip: NonNullable<ReturnType<typeof AutoMovieEngineFilm.compileCameraMove>> =
+    AutoMovieEngineFilm.compileCameraMove({
       clipId: "clip",
       camera: yawed,
       entries: [{ action: frame("whip", "medium"), subject: SUBJECT }],
@@ -233,7 +233,7 @@ export function test_engine_film_camera_move_grammar(): void {
   };
   TestValidator.predicate(
     "whip lands with −Z on the aim",
-    vclose(Quaternion.rotateVector(landing, { x: 0, y: 0, z: -1 }), {
+    vclose(AutoMovieEngineQuaternion.rotateVector(landing, { x: 0, y: 0, z: -1 }), {
       x: 0,
       y: 0,
       z: -1,

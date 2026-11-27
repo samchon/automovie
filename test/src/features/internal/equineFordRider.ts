@@ -1,12 +1,5 @@
-import {
-  type AutoMovieArchetype,
-  AutoMovieArchetypeEquineFord,
-  type AutoMovieArchetypeEquineFordPlan,
-  AutoMovieArchetypeFrame,
-  type AutoMovieArchetypeQuadrupedFooting,
-  createHorse,
-} from "@automovie/archetypes";
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { type AutoMovieArchetype, AutoMovieArchetypeEquineFord, type AutoMovieArchetypeEquineFordPlan, AutoMovieArchetypeFrame, type AutoMovieArchetypeQuadrupedFooting, AutoMovieArchetypeHorse } from "@automovie/archetypes";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanBody,
@@ -20,11 +13,13 @@ import type {
 import {
   AutoMovieMotionHumanMount,
   AutoMovieMotionHumanSwim,
-  HumanChain,
-  HumanObject,
-  HumanPerformance,
+  AutoMovieMotionHumanChain,
+  AutoMovieMotionHumanObject,
+  AutoMovieMotionHumanPerformance,
 } from "@automovie/motions";
-import { HumanFrame } from "@automovie/motions/internal";
+import {
+  HumanFrame
+} from "../../../../packages/motions/src/posture/internal/HumanFrame";
 
 import { equineFordScene } from "./equineFordScene";
 
@@ -71,7 +66,7 @@ export namespace equineFordRider {
   const RECENT: number = 64;
 
   /** The horse producer's model. */
-  export type Horse = ReturnType<typeof createHorse>;
+  export type Horse = ReturnType<typeof AutoMovieArchetypeHorse.create>;
 
   /**
    * A horse clip's displayed instant: its placement and its posed model.
@@ -102,7 +97,7 @@ export namespace equineFordRider {
     horse: Horse;
 
     /** The horse prop. */
-    prop: ReturnType<typeof HumanObject.prop>;
+    prop: ReturnType<typeof AutoMovieMotionHumanObject.prop>;
 
     /** The horse's placement at a film second. */
     place: (at: number) => IAutoMovieRigidTransform;
@@ -184,11 +179,11 @@ export namespace equineFordRider {
     };
     return {
       horse,
-      prop: HumanObject.prop("horse", at(0).archetype, place(0), place, part),
+      prop: AutoMovieMotionHumanObject.prop("horse", at(0).archetype, place(0), place, part),
       place,
       part,
       // The saddle is the horse's, so a sit that is still settling as the horse sets off is carried with it.
-      seat: HumanObject.seat(at(0).archetype, place(0), undefined, "horse"),
+      seat: AutoMovieMotionHumanObject.seat(at(0).archetype, place(0), undefined, "horse"),
       floor,
       halt: WAIT + duration,
     };
@@ -208,7 +203,7 @@ export namespace equineFordRider {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The stage holds its crossing for the caller.
    */
   export function stage(): IStage {
-    const horse: Horse = createHorse(
+    const horse: Horse = AutoMovieArchetypeHorse.create(
       { withersHeight: 1.65, stirrupDrop: 0.575, tempo: 0 },
       8,
     );
@@ -234,7 +229,7 @@ export namespace equineFordRider {
     const authored: AutoMovieArchetypeEquineFordPlan.IParams =
       equineFordScene.params(shelf);
     const crossing: AutoMovieArchetypeEquineFordPlan.IClip<string, string> =
-      AutoMovieArchetypeEquineFord(horse, {
+      AutoMovieArchetypeEquineFord.create(horse, {
         ...authored,
         water: WATER,
         footing: {
@@ -298,7 +293,7 @@ export namespace equineFordRider {
 
   /** The sit and the settling ride before the mounted figures. */
   const settle = (staged: IMount): IAutoMovieMotionHumanChain =>
-    HumanChain.subject("rider")
+    AutoMovieMotionHumanChain.subject("rider")
       .sit({ seat: staged.seat, hold: SAT })
       .registered("ride", {
         on: "horse",
@@ -364,8 +359,8 @@ export namespace equineFordRider {
     staged: IMount,
     body: IAutoMovieMotionHumanBody,
     chain: IAutoMovieMotionHumanChain,
-  ): HumanPerformance {
-    return new HumanPerformance({
+  ): AutoMovieMotionHumanPerformance {
+    return new AutoMovieMotionHumanPerformance({
       seed: "equine-ford-rider",
       props: [staged.prop],
       laws: [
@@ -436,9 +431,9 @@ export namespace equineFordRider {
     at: number,
   ): IAutoMovieVector3 {
     const frame: IAutoMovieRigidTransform = staged.place(at);
-    return Quaternion.rotateVector(
-      Quaternion.inverse(frame.rotation),
-      Vector3.subtract(point, frame.position),
+    return AutoMovieEngineQuaternion.rotateVector(
+      AutoMovieEngineQuaternion.inverse(frame.rotation),
+      AutoMovieEngineVector3.subtract(point, frame.position),
     );
   }
 }

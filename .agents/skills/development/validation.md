@@ -30,6 +30,14 @@ Use `pnpm test` for tests that rely on the source file's `__dirname` or a comput
 
 Verify a render, viewer or capture change under [visual debugging](../visual-debugging/SKILL.md).
 
+## Scaffold distribution
+
+Check the files, substitutions and shared skills a new project receives. The installer includes untracked scaffold files.
+
+For installation changes, verify the installed entry point and run `lint`, `evidence` and `test` in a generated project when the task permits.
+
+Preserve local choices, contracts and repairs when updating an existing production.
+
 ## Formatting
 
 Before merging, run `pnpm exec prettier --write <changed-files>` once on your changed files that match the repository's `format` patterns.

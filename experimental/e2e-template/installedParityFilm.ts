@@ -1,10 +1,4 @@
-import {
-  cutSequence,
-  playbackEntryAt,
-  playbackEntryTime,
-  playbackLayersAt,
-  sequenceTimeline,
-} from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieEditPlan,
   IAutoMovieFilmOptics,
@@ -12,7 +6,7 @@ import type {
   IAutoMoviePlaybackEntry,
   IAutoMovieShot,
 } from "@automovie/interface";
-import type { IAutoMovieDrawScene } from "@automovie/render";
+import type { IAutoMovieRenderDrawScene } from "@automovie/render";
 import * as THREE from "three";
 
 import type { IFilm } from "../../IFilm";
@@ -52,9 +46,9 @@ const EDIT: IAutoMovieEditPlan = {
  */
 export function installedParityFilm(): IFilm {
   const shots: IAutoMovieShot[] = [shot("slide"), shot("hold")];
-  const cut: ReturnType<typeof cutSequence> = cutSequence(EDIT, shots);
+  const cut: ReturnType<typeof AutoMovieEngineFilm.cutSequence> = AutoMovieEngineFilm.cutSequence(EDIT, shots);
   if (!cut.success) throw new Error(JSON.stringify(cut.violations));
-  const timeline: ReturnType<typeof sequenceTimeline> = sequenceTimeline(
+  const timeline: ReturnType<typeof AutoMovieEngineFilm.sequenceTimeline> = AutoMovieEngineFilm.sequenceTimeline(
     cut.sequence,
     shots,
   );
@@ -112,14 +106,14 @@ export function installedParityFilm(): IFilm {
         camera,
         playback: { sequence: cut.sequence, timeline },
         seek: (seconds: number): void => {
-          const entry: IAutoMoviePlaybackEntry = playbackEntryAt(
+          const entry: IAutoMoviePlaybackEntry = AutoMovieEngineFilm.playbackEntryAt(
             timeline.entries,
             seconds,
           );
-          place(entry.shot, playbackEntryTime(entry, seconds), entry.entry);
+          place(entry.shot, AutoMovieEngineFilm.playbackEntryTime(entry, seconds), entry.entry);
         },
         seekShot: (name: string, local: number, seconds: number): void => {
-          const layers: ReturnType<typeof playbackLayersAt> = playbackLayersAt(
+          const layers: ReturnType<typeof AutoMovieEngineFilm.playbackLayersAt> = AutoMovieEngineFilm.playbackLayersAt(
             cut.sequence,
             timeline,
             seconds,
@@ -137,7 +131,7 @@ export function installedParityFilm(): IFilm {
           shutter: { angle: 180 },
         }),
         inspectPlaced: (
-          sample: IAutoMovieDrawScene.IPlacedSample,
+          sample: IAutoMovieRenderDrawScene.IPlacedSample,
         ): IAutoMovieInspectionDiagnostics => {
           const { shot, local, entry } = placed;
           const path: string = [shot, entry ?? "handle"].join("/");

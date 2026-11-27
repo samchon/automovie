@@ -1,4 +1,4 @@
-import { validateGroundContact } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieConstraintViolation,
   IAutoMovieKeyframe,
@@ -34,7 +34,9 @@ import {
  * 2. A 0.02 dip inside tolerance 0.03 succeeds.
  * 3. A still clip over ground raised to 0.1, at 1 Hz with path `$motion`, warns at
  *    both samples under `$motion.samples[0]...`.
- * 4. Sample rate 0 fails with a range finding at `.sampleRate`.
+ * 4. A zero or nonfinite sample rate produces a range finding at `.sampleRate`.
+ * 5. A nonfinite tolerance produces a range finding at `.tolerance`, even when it
+ *    would hide the dip in the sampled clip.
  */
 export function test_engine_validation_validate_ground_contact(): void {
   const at = (x: number, y: number, z: number): IAutoMovieTransform => ({
@@ -79,7 +81,7 @@ export function test_engine_validation_validate_ground_contact(): void {
   );
 
   // 1.
-  const dipped: IAutoMovieValidation = validateGroundContact({
+  const dipped: IAutoMovieValidation = AutoMovieEngineValidation.validateGroundContact({
     motion: dipping,
     skeleton,
     sampleRate: 4,
@@ -110,7 +112,7 @@ export function test_engine_validation_validate_ground_contact(): void {
     "intent",
     validationHasNoWarnings(
       "intent",
-      validateGroundContact({
+      AutoMovieEngineValidation.validateGroundContact({
         motion: dipping,
         skeleton,
         sampleRate: 4,
@@ -122,7 +124,7 @@ export function test_engine_validation_validate_ground_contact(): void {
   // 2.
   TestValidator.equals(
     "graze",
-    validateGroundContact({
+    AutoMovieEngineValidation.validateGroundContact({
       motion: makeMotion([key(0, 0), key(0.5, -0.02), key(1, 0)], 1),
       skeleton,
       footBones: ["leftFoot"],
@@ -132,7 +134,7 @@ export function test_engine_validation_validate_ground_contact(): void {
   );
 
   // 3.
-  const raised: IAutoMovieValidation = validateGroundContact({
+  const raised: IAutoMovieValidation = AutoMovieEngineValidation.validateGroundContact({
     motion: makeMotion([key(0, 0), key(1, 0)], 1),
     skeleton,
     footBones: ["leftFoot"],
@@ -151,7 +153,7 @@ export function test_engine_validation_validate_ground_contact(): void {
   );
 
   // 4.
-  const zero: IAutoMovieValidation = validateGroundContact({
+  const zero: IAutoMovieValidation = AutoMovieEngineValidation.validateGroundContact({
     motion: dipping,
     skeleton,
     sampleRate: 0,
@@ -159,5 +161,28 @@ export function test_engine_validation_validate_ground_contact(): void {
   TestValidator.predicate(
     "rate 0",
     zero.success === false && hasViolation(zero, "range", ".sampleRate"),
+  );
+
+  const settingsFailures: string[] = [];
+  for (const field of ["sampleRate", "tolerance"] as const) {
+    for (const value of [NaN, Infinity]) {
+      try {
+        const result: IAutoMovieValidation = AutoMovieEngineValidation.validateGroundContact({
+          motion: dipping,
+          skeleton,
+          sampleRate: 4,
+          [field]: value,
+        });
+        if (!hasViolation(result, "range", `.${field}`))
+          settingsFailures.push(`${field} ${value} did not return its finding`);
+      } catch (error: unknown) {
+        settingsFailures.push(`${field} ${value} threw ${String(error)}`);
+      }
+    }
+  }
+  TestValidator.equals(
+    "nonfinite settings return range findings",
+    settingsFailures,
+    [],
   );
 }

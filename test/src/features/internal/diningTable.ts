@@ -1,4 +1,4 @@
-import { createSeat, createTable } from "@automovie/archetypes";
+import { AutoMovieArchetypeSeat, AutoMovieArchetypeTable } from "@automovie/archetypes";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -9,8 +9,10 @@ import type {
   IAutoMovieMotionHumanSegment,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanObject, HumanPerformance } from "@automovie/motions";
-import { HUMAN_LEXICON } from "@automovie/motions/internal";
+import { AutoMovieMotionHumanObject, AutoMovieMotionHumanPerformance } from "@automovie/motions";
+import {
+  HUMAN_LEXICON
+} from "../../../../packages/motions/src/lexicon/internal/HUMAN_LEXICON";
 
 import { everydayTake } from "./everydayTake";
 import { motionComplaints } from "./motionComplaints";
@@ -34,16 +36,16 @@ export namespace diningTable {
 
   /** The seated scene at a table. */
   export function stage(): IStage {
-    const chair = createSeat({ id: "chair", kind: "dining" });
+    const chair = AutoMovieArchetypeSeat.create({ id: "chair", kind: "dining" });
     const placement = { at: CHAIR, yaw: 0, fixed: true } as const;
-    const table = createTable({ id: "table", kind: "dining" });
+    const table = AutoMovieArchetypeTable.create({ id: "table", kind: "dining" });
     const top: IAutoMovieAffordance = table.affordances!.find(
       (a: IAutoMovieAffordance): boolean => a.id === "top",
     )!;
     return {
-      seat: HumanObject.seat(chair, placement),
+      seat: AutoMovieMotionHumanObject.seat(chair, placement),
       props: [
-        HumanObject.prop("chair", chair, placement),
+        AutoMovieMotionHumanObject.prop("chair", chair, placement),
         everydayTake.prop(
           "table",
           table,
@@ -68,8 +70,8 @@ export namespace diningTable {
     body: IAutoMovieMotionHumanBody,
     props: readonly IAutoMovieMotionHumanProp[],
     chain: IAutoMovieMotionHumanChain,
-  ): HumanPerformance {
-    const take: HumanPerformance = everydayTake.perform(
+  ): AutoMovieMotionHumanPerformance {
+    const take: AutoMovieMotionHumanPerformance = everydayTake.perform(
       `dining-${label}`,
       body,
       props,
@@ -82,7 +84,7 @@ export namespace diningTable {
 
   /** The segments of one law, in order. */
   export function named(
-    take: HumanPerformance,
+    take: AutoMovieMotionHumanPerformance,
     law: string,
   ): IAutoMovieMotionHumanSegment[] {
     return take
@@ -91,7 +93,7 @@ export namespace diningTable {
   }
 
   /** The mouth: the head bone's point carried a head's half depth forward. */
-  export function mouth(take: HumanPerformance, t: number): IAutoMovieVector3 {
+  export function mouth(take: AutoMovieMotionHumanPerformance, t: number): IAutoMovieVector3 {
     return take.bones("actor", t).get("head")!.worldPosition;
   }
 

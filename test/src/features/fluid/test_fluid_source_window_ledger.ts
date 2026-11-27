@@ -1,4 +1,6 @@
-import { simulateFluidDomain } from "@automovie/engine";
+import {
+  AutoMovieEngineFluid,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { FOUNTAIN_LEDGER_SOURCE as SOURCE } from "../internal/FOUNTAIN_LEDGER_SOURCE";
@@ -24,15 +26,15 @@ export function test_fluid_source_window_ledger(): void {
   const windowed: ReturnType<typeof fountain> = fountain({
     sources: [{ ...SOURCE, end: 1 }],
   });
-  const atClose: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(
+  const atClose: ReturnType<typeof AutoMovieEngineFluid.simulateFluidDomain> = AutoMovieEngineFluid.simulateFluidDomain(
     windowed,
     Math.round(1 / dt),
   );
-  const later: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(
+  const later: ReturnType<typeof AutoMovieEngineFluid.simulateFluidDomain> = AutoMovieEngineFluid.simulateFluidDomain(
     windowed,
     steps,
   );
-  const notYet: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(
+  const notYet: ReturnType<typeof AutoMovieEngineFluid.simulateFluidDomain> = AutoMovieEngineFluid.simulateFluidDomain(
     fountain({ sources: [{ ...SOURCE, start: 1_000 }] }),
     steps,
   );

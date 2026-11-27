@@ -1,4 +1,4 @@
-import { compileAutoMovieSweep } from "@automovie/engine";
+import { AutoMovieEngineSweep } from "@automovie/engine";
 import type {
   AutoMovieSurfaceTier,
   IAutoMovieSurfaceNetwork,
@@ -40,7 +40,7 @@ export function test_engine_geometry_sweep_girth(): void {
   };
   const tiers: AutoMovieSurfaceTier[] = ["lowest", "low", "medium"];
   for (const exponent of [2, 4]) {
-    const sweep: IAutoMovieSweepSurface = compileAutoMovieSweep(
+    const sweep: IAutoMovieSweepSurface = AutoMovieEngineSweep.compileSweep(
       sweepGirthTube({ exponent }).sweeps.tube!,
     );
     const perimeter: number = section(sweep, 0.5);
@@ -56,7 +56,7 @@ export function test_engine_geometry_sweep_girth(): void {
         ) <= held,
       );
   }
-  const sweep: IAutoMovieSweepSurface = compileAutoMovieSweep(
+  const sweep: IAutoMovieSweepSurface = AutoMovieEngineSweep.compileSweep(
     sweepGirthTube({ exponent: 2 }).sweeps.tube!,
   );
   const declared: [number, number][] = [

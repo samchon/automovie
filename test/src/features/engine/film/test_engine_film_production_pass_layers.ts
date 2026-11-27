@@ -1,4 +1,4 @@
-import { productionRenderLayersForPass } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   AutoMovieGuidePass,
   IAutoMovieProductionRenderFrame,
@@ -38,12 +38,12 @@ export function test_engine_film_production_pass_layers(): void {
     { shot: "b", sourceFrame: 3, weight: 0.25 },
   ]);
   const beauty: IAutoMovieProductionRenderLayer[] =
-    productionRenderLayersForPass(outgoingHeavy, "beauty");
+    AutoMovieEngineFilm.productionRenderLayersForPass(outgoingHeavy, "beauty");
   beauty[0]!.weight = 0;
   TestValidator.predicate(
     "beauty keeps the sampled blend and returns a copy",
     sameFilmProductionRenderLayers(
-      productionRenderLayersForPass(outgoingHeavy, "beauty"),
+      AutoMovieEngineFilm.productionRenderLayersForPass(outgoingHeavy, "beauty"),
       [
         { shot: "a", sourceFrame: 20, weight: 0.75 },
         { shot: "b", sourceFrame: 3, weight: 0.25 },
@@ -67,11 +67,11 @@ export function test_engine_film_production_pass_layers(): void {
     structural.every(
       (pass: AutoMovieGuidePass): boolean =>
         sameFilmProductionRenderLayers(
-          productionRenderLayersForPass(outgoingHeavy, pass),
+          AutoMovieEngineFilm.productionRenderLayersForPass(outgoingHeavy, pass),
           [{ shot: "a", sourceFrame: 20, weight: 1 }],
         ) &&
         sameFilmProductionRenderLayers(
-          productionRenderLayersForPass(incomingHeavy, pass),
+          AutoMovieEngineFilm.productionRenderLayersForPass(incomingHeavy, pass),
           [{ shot: "b", sourceFrame: 4, weight: 1 }],
         ),
     ),
@@ -79,7 +79,7 @@ export function test_engine_film_production_pass_layers(): void {
   TestValidator.predicate(
     "an exact tie selects the incoming layer",
     sameFilmProductionRenderLayers(
-      productionRenderLayersForPass(
+      AutoMovieEngineFilm.productionRenderLayersForPass(
         frame([
           { shot: "a", sourceFrame: 20, weight: 0.5 },
           { shot: "b", sourceFrame: 3, weight: 0.5 },
@@ -95,11 +95,11 @@ export function test_engine_film_production_pass_layers(): void {
   TestValidator.predicate(
     "a fading layer is full weight for structure and faded for beauty",
     sameFilmProductionRenderLayers(
-      productionRenderLayersForPass(fading, "depth"),
+      AutoMovieEngineFilm.productionRenderLayersForPass(fading, "depth"),
       [{ shot: "f", sourceFrame: 9, weight: 1 }],
     ) &&
       sameFilmProductionRenderLayers(
-        productionRenderLayersForPass(fading, "beauty"),
+        AutoMovieEngineFilm.productionRenderLayersForPass(fading, "beauty"),
         [{ shot: "f", sourceFrame: 9, weight: 0.25 }],
       ),
   );

@@ -1,4 +1,8 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import {
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
+  AutoMovieEngineMotionSampling,
+} from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieQuaternion,
@@ -11,8 +15,8 @@ import {
   AutoMovieArchetypeRefusal,
 } from "../core";
 import type { AutoMovieArchetypeQuadrupedFooting } from "./AutoMovieArchetypeQuadrupedFooting";
-import type { QuadrupedRidePose } from "./QuadrupedRidePose";
-import type { rideQuadruped } from "./rideQuadruped";
+import type { QuadrupedRidePose } from "./quadruped/QuadrupedRidePose";
+import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
 /**
  * A horse's slide down a steep bank on a supported route: on a face too steep
@@ -136,7 +140,7 @@ export namespace AutoMovieArchetypeEquineBank {
   export function admit(
     archetype: string,
     index: number,
-    leg: rideQuadruped.ILeg,
+    leg: AutoMovieArchetypeQuadruped.IRideLeg,
     technique: ISlide,
     legs: number,
     plan: AutoMovieArchetypeCourse.IPlan,
@@ -209,7 +213,7 @@ export namespace AutoMovieArchetypeEquineBank {
   export function share(windows: readonly IWindow[], seconds: number): number {
     for (const window of windows) {
       if (seconds <= window.from || seconds >= window.to) continue;
-      return minimumJerk.share(
+      return AutoMovieEngineMotionSampling.minimumJerkShare(
         Math.min(
           1,
           (seconds - window.from) / window.entry,
@@ -254,12 +258,12 @@ export namespace AutoMovieArchetypeEquineBank {
       (geometry.shape.type !== "capsule" && geometry.shape.type !== "cylinder")
     )
       throw new RangeError("A bank slide needs the model's tail bar");
-    const half: IAutoMovieVector3 = Quaternion.rotateVector(
+    const half: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       bar.transform.rotation,
       { x: 0, y: geometry.shape.height / 2, z: 0 },
     );
-    const top: IAutoMovieVector3 = Vector3.add(bar.transform.translation, half);
-    const bottom: IAutoMovieVector3 = Vector3.subtract(
+    const top: IAutoMovieVector3 = AutoMovieEngineVector3.add(bar.transform.translation, half);
+    const bottom: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       bar.transform.translation,
       half,
     );
@@ -300,14 +304,14 @@ export namespace AutoMovieArchetypeEquineBank {
     const z: number =
       goal.z +
       (neutral.z + TUCK * (attachment.y - neutral.y) - goal.z) * amount;
-    const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+    const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
       placement.rotation,
     );
     const landing: AutoMovieArchetypeQuadrupedFooting.ILanding =
       footing.landing(
-        Vector3.add(
+        AutoMovieEngineVector3.add(
           placement.translation,
-          Quaternion.rotateVector(placement.rotation, { x, y: neutral.y, z }),
+          AutoMovieEngineQuaternion.rotateVector(placement.rotation, { x, y: neutral.y, z }),
         ),
         placement.rotation,
       );
@@ -315,17 +319,17 @@ export namespace AutoMovieArchetypeEquineBank {
       ...goal,
       x,
       z,
-      orientation: Quaternion.slerp(
-        goal.orientation ?? Quaternion.identity(),
-        Quaternion.multiply(inverse, landing.rotation),
+      orientation: AutoMovieEngineQuaternion.slerp(
+        goal.orientation ?? AutoMovieEngineQuaternion.identity(),
+        AutoMovieEngineQuaternion.multiply(inverse, landing.rotation),
         amount,
       ),
       surface: {
-        point: Quaternion.rotateVector(
+        point: AutoMovieEngineQuaternion.rotateVector(
           inverse,
-          Vector3.subtract(landing.point, placement.translation),
+          AutoMovieEngineVector3.subtract(landing.point, placement.translation),
         ),
-        normal: Quaternion.rotateVector(inverse, landing.normal),
+        normal: AutoMovieEngineQuaternion.rotateVector(inverse, landing.normal),
       },
       lift: (1 - amount) * goal.lift,
       fold: (1 - amount) * goal.fold + amount * HOCK,

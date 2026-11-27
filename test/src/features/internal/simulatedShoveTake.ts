@@ -6,7 +6,7 @@ import type {
   IAutoMovieMotionHumanSimulationWindow,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanChain, HumanPerformance } from "@automovie/motions";
+import { AutoMovieMotionHumanChain, AutoMovieMotionHumanPerformance } from "@automovie/motions";
 
 /**
  * One performer standing, then struck at a site and answering the impulse
@@ -26,8 +26,8 @@ export function simulatedShoveTake(
   impulse: IAutoMovieVector3,
   outcome: IAutoMovieMotionHumanPerturb.IParams["outcome"],
   props: IAutoMovieMotionHumanProp[],
-): HumanPerformance {
-  return new HumanPerformance({
+): AutoMovieMotionHumanPerformance {
+  return new AutoMovieMotionHumanPerformance({
     seed: "simulated-window",
     performers: [
       {
@@ -48,7 +48,7 @@ export function simulatedShoveTake(
         impulse,
       },
     ],
-    composition: HumanChain.subject("a")
+    composition: AutoMovieMotionHumanChain.subject("a")
       .stand({ hold: simulatedShoveTake.STRUCK, sway: 0 })
       .perturb({ outcome }).node,
   });
@@ -72,7 +72,7 @@ export namespace simulatedShoveTake {
    * @param body The performer's body.
    * @returns The performance.
    */
-  export function shove(body: IAutoMovieMotionHumanBody): HumanPerformance {
+  export function shove(body: IAutoMovieMotionHumanBody): AutoMovieMotionHumanPerformance {
     return simulatedShoveTake(
       body,
       { bone: "head", point: { x: 0, y: 0.1, z: 0 } },

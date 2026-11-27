@@ -1,4 +1,4 @@
-import { Quaternion, physicalShapeSupport } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -6,12 +6,16 @@ import type {
   IAutoMovieMotionHumanProp,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanChain, HumanPerformance } from "@automovie/motions";
+import { AutoMovieMotionHumanChain, AutoMovieMotionHumanPerformance } from "@automovie/motions";
 import {
-  HumanColliders,
-  workout,
-  workoutWallSit,
-} from "@automovie/motions/internal";
+  HumanColliders
+} from "../../../../../packages/motions/src/posture/internal/HumanColliders";
+import {
+  workout
+} from "../../../../../packages/motions/src/exercise/internal/workout";
+import {
+  workoutWallSit
+} from "../../../../../packages/motions/src/exercise/workout/workoutWallSit";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -42,9 +46,9 @@ export async function test_motions_exercise_wall_sit(): Promise<void> {
   );
 
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
-  const chain = HumanChain.extend({ workout });
-  const build = (prop?: IAutoMovieMotionHumanProp): HumanPerformance =>
-    new HumanPerformance({
+  const chain = AutoMovieMotionHumanChain.extend({ workout });
+  const build = (prop?: IAutoMovieMotionHumanProp): AutoMovieMotionHumanPerformance =>
+    new AutoMovieMotionHumanPerformance({
       seed: "wall sit",
       performers: [
         {
@@ -66,7 +70,7 @@ export async function test_motions_exercise_wall_sit(): Promise<void> {
           : { on: { prop: "wall", affordance: "face" } }),
       }).node,
     });
-  const unloaded: HumanPerformance = build();
+  const unloaded: AutoMovieMotionHumanPerformance = build();
   const sample: number = 1.6;
   const rear: IAutoMovieVector3 = { x: 0, y: 0, z: -1 };
   const torso: ReadonlySet<AutoMovieHumanoidBone> = new Set([
@@ -74,26 +78,26 @@ export async function test_motions_exercise_wall_sit(): Promise<void> {
     "spine",
     "chest",
   ]);
-  const outside = (film: HumanPerformance): number =>
+  const outside = (film: AutoMovieMotionHumanPerformance): number =>
     Math.min(
       ...HumanColliders.placed(body, film.bones("actor", sample))
         .filter(({ bone }): boolean => torso.has(bone))
         .flatMap(({ pose, shapes }) =>
           shapes.map(
-            (shape): number => physicalShapeSupport(pose, shape, rear).z,
+            (shape): number => AutoMovieEnginePhysics.physicalShapeSupport(pose, shape, rear).z,
           ),
         ),
     );
   const surface: number = outside(unloaded) - 0.005;
   const panel = (turn: number): IAutoMovieMotionHumanProp => {
     const translation: IAutoMovieVector3 = { x: 0, y: 1, z: surface };
-    const rotation = Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, turn);
+    const rotation = AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, turn);
     return {
       subject: "wall",
       fixed: true,
       frame: {
         position: { x: 0, y: 0, z: 0 },
-        rotation: Quaternion.identity(),
+        rotation: AutoMovieEngineQuaternion.identity(),
       },
       points: {
         face: {
@@ -113,7 +117,7 @@ export async function test_motions_exercise_wall_sit(): Promise<void> {
       ],
     };
   };
-  const loaded: HumanPerformance = build(panel(90));
+  const loaded: AutoMovieMotionHumanPerformance = build(panel(90));
   const contact: IAutoMovieMotionHumanContactWindow | undefined = loaded
     .segments("actor")[0]!
     .plan.contacts.find((item): boolean => item.part === "back");

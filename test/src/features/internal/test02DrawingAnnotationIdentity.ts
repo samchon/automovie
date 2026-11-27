@@ -1,4 +1,4 @@
-import { deriveAutoMovieDrawing } from "@automovie/engine";
+import { AutoMovieEngineDrawing } from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieDrawing,
@@ -20,10 +20,10 @@ export function test02DrawingAnnotationIdentity(
   // 9. Selected endpoint and text-boundary changes distinguish these digests.
   const facade: (
     overrides: Partial<Parameters<typeof drawingView>[0]>,
-  ) => ReturnType<typeof deriveAutoMovieDrawing> = (
+  ) => ReturnType<typeof AutoMovieEngineDrawing.deriveAutoMovieDrawing> = (
     overrides: Partial<Parameters<typeof drawingView>[0]>,
-  ): ReturnType<typeof deriveAutoMovieDrawing> =>
-    deriveAutoMovieDrawing({
+  ): ReturnType<typeof AutoMovieEngineDrawing.deriveAutoMovieDrawing> =>
+    AutoMovieEngineDrawing.deriveAutoMovieDrawing({
       environment,
       view: drawingView({
         id: "facade",
@@ -91,7 +91,7 @@ export function test02DrawingAnnotationIdentity(
   ) => () => unknown =
     (overrides: Partial<Parameters<typeof drawingView>[0]>): (() => unknown) =>
     (): IAutoMovieDrawing =>
-      deriveAutoMovieDrawing({
+      AutoMovieEngineDrawing.deriveAutoMovieDrawing({
         environment,
         view: drawingView({ id: "twice", ...overrides }),
       });

@@ -1,4 +1,7 @@
-import { ViolationCollector, toValidation, violation } from "@automovie/engine";
+import { AutoMovieEngineViolationCollector } from "@automovie/engine";
+import {
+  violation
+} from "../../../../../packages/engine/src/validation/internal/violation";
 import type {
   IAutoMovieConstraintViolation,
   IAutoMovieValidation,
@@ -7,7 +10,7 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `ViolationCollector` is the sink every validator pushes into: `range` records
+ * `AutoMovieEngineViolationCollector` is the sink every validator pushes into: `range` records
  * a violation only outside its bound, `warn` records advisory feedback, and
  * `toValidation` fails only when an error is present.
  *
@@ -20,14 +23,14 @@ import { TestValidator } from "@nestia/e2e";
  * 3. An error beside a warning fails and keeps both violations.
  * 4. A default `push` is an "error" and fails on its own.
  * 5. `violation` defaults to "error", stamps "warning" when asked and keeps the
- *    overshoot 3; an empty list is a clean success.
+ *    overshoot 3; an empty collector is a clean success.
  */
 export function test_engine_validation_collector(): void {
-  const empty: IAutoMovieViolationCollector = new ViolationCollector();
+  const empty: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   empty.range("$input.a", 0.5, 0, 1);
   TestValidator.equals("in range", empty.items.length, 0);
   TestValidator.equals("empty succeeds", empty.toValidation().success, true);
-  const failing: IAutoMovieViolationCollector = new ViolationCollector();
+  const failing: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   failing.range("$input.b", 2, 0, 1);
   TestValidator.equals("out of range", failing.items.length, 1);
   TestValidator.equals(
@@ -36,7 +39,7 @@ export function test_engine_validation_collector(): void {
     false,
   );
 
-  const warnOnly: IAutoMovieViolationCollector = new ViolationCollector();
+  const warnOnly: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   warnOnly.warn("physics", "$input.a", "would topple", 1);
   TestValidator.equals("warn severity", warnOnly.items[0]!.severity, "warning");
   const advisory: IAutoMovieValidation = warnOnly.toValidation();
@@ -47,7 +50,7 @@ export function test_engine_validation_collector(): void {
     1,
   );
 
-  const mixed: IAutoMovieViolationCollector = new ViolationCollector();
+  const mixed: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   mixed.warn("physics", "$input.b", "would topple", 1);
   mixed.push("type", "$input.c", "must be an id", null);
   const failed: IAutoMovieValidation = mixed.toValidation();
@@ -58,7 +61,7 @@ export function test_engine_validation_collector(): void {
     2,
   );
 
-  const err: IAutoMovieViolationCollector = new ViolationCollector();
+  const err: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   err.push("type", "$input.d", "must be an id", null);
   TestValidator.equals("push severity", err.items[0]!.severity, "error");
   TestValidator.equals("error-only fails", err.toValidation().success, false);
@@ -78,5 +81,5 @@ export function test_engine_validation_collector(): void {
   );
   TestValidator.equals("builder warning", warned.severity, "warning");
   TestValidator.equals("builder overshoot", warned.overshoot, 3);
-  TestValidator.equals("empty list", toValidation([]).success, true);
+  TestValidator.equals("empty collector", new AutoMovieEngineViolationCollector().toValidation().success, true);
 }

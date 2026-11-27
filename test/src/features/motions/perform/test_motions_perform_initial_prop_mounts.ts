@@ -2,11 +2,14 @@ import type {
   IAutoMovieMotionHumanProp,
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
-import { HumanObject } from "@automovie/motions";
 import {
-  HumanRefusal,
-  validateInitialPropMounts,
-} from "@automovie/motions/internal";
+  AutoMovieMotionHumanObject,
+  AutoMovieMotionHumanRefusal,
+} from "@automovie/motions";
+
+import {
+  validateInitialPropMounts
+} from "../../../../../packages/motions/src/perform/internal/validateInitialPropMounts";
 import { TestValidator } from "@nestia/e2e";
 
 import { testAffordance } from "../../internal/fixtures/testAffordance";
@@ -37,7 +40,7 @@ const AT: IAutoMovieRigidTransform = {
  */
 export function test_motions_perform_initial_prop_mounts(): void {
   const origin = { at: { x: 0, y: 0, z: 0 }, yaw: 0 };
-  const rack: IAutoMovieMotionHumanProp = HumanObject.prop(
+  const rack: IAutoMovieMotionHumanProp = AutoMovieMotionHumanObject.prop(
     "rack",
     {
       affordances: [
@@ -51,7 +54,7 @@ export function test_motions_perform_initial_prop_mounts(): void {
     subject: string,
     mounted?: IAutoMovieMotionHumanProp.IMounted,
   ): IAutoMovieMotionHumanProp => ({
-    ...HumanObject.prop(
+    ...AutoMovieMotionHumanObject.prop(
       subject,
       { affordances: [testAffordance("rim", "socket", { x: 0, y: 0.1, z: 0 })] },
       origin,
@@ -163,7 +166,7 @@ function refused(
     return false;
   } catch (error) {
     return (
-      error instanceof HumanRefusal && error.axis === axis && value(error.value)
+      error instanceof AutoMovieMotionHumanRefusal && error.axis === axis && value(error.value)
     );
   }
 }

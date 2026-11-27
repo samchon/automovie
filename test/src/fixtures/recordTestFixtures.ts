@@ -1,4 +1,5 @@
-import { measureAutoMovieHumanoidBody } from "@automovie/engine";
+
+import { AutoMovieEngineKinematics } from "@automovie/engine";
 import { AutoMovieHumanCanonicalBody } from "@automovie/human";
 import type { IAutoMovieHumanCanonicalBody } from "@automovie/interface";
 import fs from "node:fs";
@@ -22,7 +23,7 @@ type IDerived = Pick<IHumanFixture, "measure" | "surfaces">;
  * For each person of `humanFixture.NAMES`, the typed Human parameters and mass
  * (`MOTION_HUMAN_PEOPLE`) are prepared by the public
  * `AutoMovieHumanCanonicalBody.prepare`, and the rig, the profile and their
- * measure and surfaces (`measureAutoMovieHumanoidBody.withSurfaces`) are
+ * measure and surfaces (`AutoMovieEngineKinematics.measureAutoMovieHumanoidBodyWithSurfaces`) are
  * written to `humans/<name>.json`. Each file is one line of JSON, which the
  * formatter leaves alone, and is replaced whole. The run prints each file's
  * size, the time each person took to prepare and the time `humanFixtureBody`
@@ -37,7 +38,7 @@ async function main(): Promise<void> {
         mass: person.mass,
         id: name,
       });
-    const derived: IDerived = measureAutoMovieHumanoidBody.withSurfaces(
+    const derived: IDerived = AutoMovieEngineKinematics.measureAutoMovieHumanoidBodyWithSurfaces(
       prepared.skeleton,
       prepared.profile,
     );

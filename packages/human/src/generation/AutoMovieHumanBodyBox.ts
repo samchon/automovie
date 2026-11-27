@@ -199,14 +199,13 @@ export namespace AutoMovieHumanBodyBox {
     return { breadth: w, depth: d, girth: g };
   }
 
-  /**
+  /*
    * A default side of a box held so that a girth lies in the box with the
    * other, supplied side; unchanged when no side can (the supplied side is
    * more than half the girth).
-   *
-   * @param value The default side, mm.
-   * @param girth The girth, mm.
-   * @param other The supplied side, mm.
+   * Parameter value: The default side, mm.
+   * Parameter girth: The girth, mm.
+   * Parameter other: The supplied side, mm.
    */
   function within(value: number, girth: number, other: number): number {
     const half: number = girth / 2;

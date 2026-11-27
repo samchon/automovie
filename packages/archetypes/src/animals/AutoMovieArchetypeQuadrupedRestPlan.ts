@@ -5,7 +5,7 @@ import type {
 
 import type { AutoMovieArchetype } from "../core";
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
-import type { QuadrupedPosePlan } from "./QuadrupedPosePlan";
+import type { QuadrupedPosePlan } from "./quadruped/QuadrupedPosePlan";
 
 /**
  * Authored inputs and independently evaluated results of a sternal rest cycle.
@@ -18,8 +18,23 @@ import type { QuadrupedPosePlan } from "./QuadrupedPosePlan";
  * dynamics.
  */
 export namespace AutoMovieArchetypeQuadrupedRestPlan {
-  /** A minimum-jerk movement's start and end, as shares of a transition. */
-  export type Window = readonly [number, number];
+  /** A positive movement interval expressed as shares of its transition in [0, 1]. */
+  export interface IWindow {
+    /** The first transition share at which the movement starts, in [0, 1]. */
+    readonly startShare: number;
+
+    /** The last transition share at which the movement ends, in [0, 1]. */
+    readonly endShare: number;
+  }
+
+  /** World directions of the two distal limb bars in a resting pose. */
+  export interface IFoldedDirections {
+    /** Third bar direction from straight down toward +Z, in [-180, 180] degrees. */
+    readonly thirdDegrees: number;
+
+    /** Fourth distal bar direction from down toward +Z, in (-90, 90) degrees. */
+    readonly fourthDegrees: number;
+  }
 
   /** Generic-rig degree rotations, with null meaning neutral. */
   export type Rotation = QuadrupedPosePlan.Rotation;
@@ -57,18 +72,18 @@ export namespace AutoMovieArchetypeQuadrupedRestPlan {
     tailDirection: number;
 
     /**
-     * Authored world directions of the third and fourth bars when resting,
-     * degrees from straight down toward +Z. A distal fourth bar must point
-     * downward; left/right share carriage, while their lengths differ.
+     * Authored world directions from straight down toward +Z, in degrees: the
+     * third bar is within [-180, 180] and the distal fourth within (-90, 90),
+     * so it points down. Left/right share carriage; their lengths differ.
      */
-    folded: Readonly<Record<"fore" | "hind", readonly [number, number]>>;
+    folded: Readonly<Record<"fore" | "hind", IFoldedDirections>>;
 
     /**
      * Authored windows during rising. The body is lifted within body; the
      * distal two bars return within fore/hind. Lowering reverses this same
      * geometric path. A window sequence is not a measured clinical trajectory.
      */
-    windows: Readonly<Record<"body" | "fore" | "hind", Window>>;
+    windows: Readonly<Record<"body" | "fore" | "hind", IWindow>>;
 
     /** Explicit carrier of every non-bone part, including tack and ears. */
     parts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>;

@@ -1,11 +1,13 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanAuditMeasure,
   IAutoMovieMotionHumanAuditMotion,
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanAuditContinuity } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanAuditContinuity
+} from "../../../../../packages/motions/src/audit/internal/AutoMovieMotionHumanAuditContinuity";
 import { TestValidator } from "@nestia/e2e";
 
 /** The step's size, metres. */
@@ -40,9 +42,9 @@ export function test_motions_audit_auto_movie_motion_human_audit_continuity_reso
           "head",
           {
             bone: "head",
-            localRotation: Quaternion.identity(),
+            localRotation: AutoMovieEngineQuaternion.identity(),
             worldPosition: { x: 0, y: 1.6, z: t + (t >= 1.03 ? step : 0) },
-            worldRotation: Quaternion.identity(),
+            worldRotation: AutoMovieEngineQuaternion.identity(),
           },
         ],
       ]),

@@ -1,8 +1,4 @@
-import {
-  autoMovieProceduralCells,
-  autoMovieProceduralHash,
-  sampleAutoMovieProceduralSurface,
-} from "@automovie/engine";
+import { AutoMovieEngineMaterial } from "@automovie/engine";
 import type {
   IAutoMovieColor,
   IAutoMovieProceduralSurface,
@@ -34,7 +30,7 @@ import { nclose } from "../internal/nclose";
  *    sample's colour lies on the segment between the two colours at the value
  *    it reports, and its height is the value times relief.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Runs `sampleAutoMovieProceduralSurface` and the cellular distances on fixed inputs; a hash that read a clock or a random state, a seed that did not enter the lattice, a ring spacing off by a factor, feature points outside their cubes or a colour not interpolated by the value fails.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs `sampleProceduralSurfaceImplementation` and the cellular distances on fixed inputs; a hash that read a clock or a random state, a seed that did not enter the lattice, a ring spacing off by a factor, feature points outside their cubes or a colour not interpolated by the value fails.
  * @evidence contracts/development/testing.md#independent-expectations Determinism and seed sensitivity follow from the contract; 100 rings is the segment length over the ring spacing; the feature point is recomputed here from the hash words and the cube corner as the contract defines it, and the midpoint's zero follows from the geometry of two equidistant points; interpolation is checked against the stated linear rule.
  * @evidence contracts/development/testing.md#distinguishing-cases Every kind is sampled; the midpoint case is kept only where a brute-force check confirms no third feature point is nearer, so it tests the definition rather than a crowded configuration. Admission is owned by `test_material_procedural_admission`, piece sheets by `test_material_procedural_pattern_sheet` and value statistics by `test_material_procedural_statistics`.
  * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_material_procedural_sample`, with in-memory inputs and no renderer.
@@ -56,9 +52,9 @@ export function test_material_procedural_sample(): void {
     let equal: boolean = true;
     for (const point of points) {
       const a: IAutoMovieSampleProceduralSurface.IResult =
-        sampleAutoMovieProceduralSurface({ surface, point });
+        AutoMovieEngineMaterial.sampleProceduralSurface({ surface, point });
       const b: IAutoMovieSampleProceduralSurface.IResult =
-        sampleAutoMovieProceduralSurface({ surface, point });
+        AutoMovieEngineMaterial.sampleProceduralSurface({ surface, point });
       equal &&=
         a.color.r === b.color.r &&
         a.color.g === b.color.g &&
@@ -66,7 +62,10 @@ export function test_material_procedural_sample(): void {
         a.roughness === b.roughness &&
         a.height === b.height;
       const c: IAutoMovieSampleProceduralSurface.IResult =
-        sampleAutoMovieProceduralSurface({ surface: reseeded, point });
+        AutoMovieEngineMaterial.sampleProceduralSurface({
+          surface: reseeded,
+          point,
+        });
       if (c.color.r !== a.color.r || c.color.g !== a.color.g) ++changed;
     }
     TestValidator.predicate(`${kind} samples are bitwise repeatable`, equal);
@@ -81,7 +80,7 @@ export function test_material_procedural_sample(): void {
   let rings: number = 0;
   let low: boolean = true;
   for (let step: number = 0; step <= 100000; ++step) {
-    const value: number = sampleAutoMovieProceduralSurface({
+    const value: number = AutoMovieEngineMaterial.sampleProceduralSurface({
       surface: wood,
       point: { x: step / 100000, y: 0.37, z: 0 },
     }).value;
@@ -106,7 +105,7 @@ export function test_material_procedural_sample(): void {
     j: number,
     k: number,
   ): [number, number, number] => {
-    const h: [number, number, number] = autoMovieProceduralHash(
+    const h: [number, number, number] = AutoMovieEngineMaterial.proceduralHash(
       seed,
       16,
       i,
@@ -126,7 +125,8 @@ export function test_material_procedural_sample(): void {
   for (let i: number = -3; i <= 3; ++i)
     for (let j: number = -3; j <= 3; ++j) {
       const p: [number, number, number] = feature(i, j, 0);
-      zeroAtFeatures &&= autoMovieProceduralCells(seed, ...p)[0] < 1e-12;
+      zeroAtFeatures &&=
+        AutoMovieEngineMaterial.proceduralCells(seed, ...p)[0] < 1e-12;
       const q: [number, number, number] = feature(i + 1, j, 0);
       const m: [number, number, number] = [
         (p[0] + q[0]) / 2,
@@ -152,7 +152,8 @@ export function test_material_procedural_sample(): void {
       if (crowded || half > 1) continue;
       ++midpoints;
       pair ??= [p, q];
-      const [f1, f2]: [number, number] = autoMovieProceduralCells(seed, ...m);
+      const [f1, f2]: [number, number] =
+        AutoMovieEngineMaterial.proceduralCells(seed, ...m);
       zeroAtMidpoints &&= nclose(f2 - f1, 0, 1e-9);
     }
   TestValidator.predicate("F1 is zero at every feature point", zeroAtFeatures);
@@ -164,7 +165,7 @@ export function test_material_procedural_sample(): void {
   // two feature points is a joint, whose cellular term is zero.
   const stone: IAutoMovieProceduralSurface = make("stone", 0.1, seed);
   const [a, b]: [[number, number, number], [number, number, number]] = pair!;
-  const joint: number = sampleAutoMovieProceduralSurface({
+  const joint: number = AutoMovieEngineMaterial.sampleProceduralSurface({
     surface: stone,
     point: {
       x: ((a[0] + b[0]) / 2) * 0.1,
@@ -180,7 +181,10 @@ export function test_material_procedural_sample(): void {
   // 5. Interpolation by the reported value.
   const clay: IAutoMovieProceduralSurface = make("clay", 0.2, 9);
   const sample: IAutoMovieSampleProceduralSurface.IResult =
-    sampleAutoMovieProceduralSurface({ surface: clay, point: points[7]! });
+    AutoMovieEngineMaterial.sampleProceduralSurface({
+      surface: clay,
+      point: points[7]!,
+    });
   const [c0, c1]: [IAutoMovieColor, IAutoMovieColor] = clay.colors;
   TestValidator.predicate(
     "colour, roughness and height follow the value",
@@ -223,7 +227,7 @@ function make(
     seed,
     scale,
     colors: [color(0.1, 0.05, 0.02), color(0.6, 0.4, 0.25)],
-    roughness: [0.4, 0.8],
+    roughness: { atZero: 0.4, atOne: 0.8 },
     relief: 0.002,
     ...(kind === "wood" || kind === "fabric" || kind === "brushedMetal"
       ? { axis: { x: 0, y: 1, z: 0 } }

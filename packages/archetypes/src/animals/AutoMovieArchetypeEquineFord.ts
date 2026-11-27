@@ -1,30 +1,54 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieModelPart, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
 import { type AutoMovieArchetype, type AutoMovieArchetypeCourse, AutoMovieArchetypeFrame, AutoMovieArchetypeRefusal, type AutoMovieArchetypeRide } from "../core";
 import { AutoMovieArchetypeEquineFordPlan } from "./AutoMovieArchetypeEquineFordPlan";
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { AutoMovieArchetypeQuadrupedDatumRide } from "./AutoMovieArchetypeQuadrupedDatumRide";
 import { AutoMovieArchetypeQuadrupedFooting } from "./AutoMovieArchetypeQuadrupedFooting";
-import { EquineSwimPose } from "./EquineSwimPose";
-import { QuadrupedCarriage } from "./QuadrupedCarriage";
-import { QuadrupedFootingClearance } from "./QuadrupedFootingClearance";
-import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
-import { QuadrupedWorldPose } from "./QuadrupedWorldPose";
-import { createQuadruped } from "./createQuadruped";
-import { EquineFordConstants } from "./EquineFordConstants";
-import { EquineFordBarReads } from "./EquineFordBarReads";
+import { EquineSwimPose } from "./equine/EquineSwimPose";
+import { QuadrupedCarriage } from "./quadruped/QuadrupedCarriage";
+import { QuadrupedFootingClearance } from "./quadruped/QuadrupedFootingClearance";
+import { QuadrupedRestFloor } from "./quadruped/QuadrupedRestFloor";
+import { QuadrupedWorldPose } from "./quadruped/QuadrupedWorldPose";
+import { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
+import { EquineFordConstants } from "./equine/EquineFordConstants";
+import { EquineFordBarReads } from "./equine/EquineFordBarReads";
+
+/** Operations for an equid crossing authored water and banks. */
+export namespace AutoMovieArchetypeEquineFord {
+  /**
+   * Build the wading, swimming and climbing take on one film clock.
+   *
+   * @param animal The equid, in its neutral pose.
+   * @param params The water, footing, three courses and authored swim.
+   * @returns The crossing, sampled by film second.
+   * @throws {AutoMovieArchetypeRefusal} For invalid water or swim conditions, unreachable banks, collision with the bed or water, and refusals from the grounded rides.
+   */
+  export function create<Id extends string, D extends string>(
+    animal: AutoMovieArchetype<
+      Id,
+      D | AutoMovieArchetypeQuadrupedBody.Dimension
+    >,
+    params: AutoMovieArchetypeEquineFordPlan.IParams,
+  ): AutoMovieArchetypeEquineFordPlan.IClip<
+    Id,
+    D | AutoMovieArchetypeQuadrupedBody.Dimension
+  > {
+    return equineFord(animal, params);
+  }
+}
 
 const { STEP, SWEEP } = EquineFordConstants;
-const { part, top, shape } = EquineFordBarReads;
 
-/**
+const { part, top, shape } = EquineFordBarReads;
+/*
  * An equid crossing water on one film clock: it wades down a ford on its own
  * legs, floats free and swims with its measured fore and hind strokes, then
  * lands on the far bank and climbs out on its legs again.
  *
  * The water is a horizontal plane at `water`, and every bed and bank is an
  * authored world plane of `footing` (`AutoMovieArchetypeQuadrupedFooting`). The
- * wading and climbing are the grounded ride (`rideQuadruped`) on that footing,
+ * wading and climbing are the grounded ride (`AutoMovieArchetypeQuadruped.ride`) on that footing,
  * the wading course ending, and the climbing course starting, at the swim's
  * speed. Between them the animal floats with its back `immersion` below the
  * water, its trunk level on the wading course's final heading, travelling
@@ -59,18 +83,17 @@ const { part, top, shape } = EquineFordBarReads;
  * solid entering a bed, and every second of the established stroke against the
  * water for the head; over the entry cut the head rises out of the grounded
  * ride's carriage.
- *
- * @param animal The equid, in its neutral pose.
- * @param params The water, the footing, the three courses and the authored
- *   swim.
- * @returns The crossing, sampled by film second.
- * @throws {AutoMovieArchetypeRefusal} For malformed swim or water values, water
- *   too shallow to float at the end of the wading, a far bank beyond reach or
- *   inside the stroke, a head below the water, a swim shorter than its
- *   transition or a bed met while swimming; and as the grounded ride refuses
- *   its courses and footing.
+ * Parameter animal: The equid, in its neutral pose.
+ * Parameter params: The water, the footing, the three courses and the authored
+ * swim.
+ * Returns: The crossing, sampled by film second.
+ * For malformed swim or water values, water
+ * too shallow to float at the end of the wading, a far bank beyond reach or
+ * inside the stroke, a head below the water, a swim shorter than its
+ * transition or a bed met while swimming; and as the grounded ride refuses
+ * its courses and footing.
  */
-export function AutoMovieArchetypeEquineFord<
+function equineFord<
   Id extends string,
   D extends string,
 >(
@@ -127,7 +150,7 @@ export function AutoMovieArchetypeEquineFord<
   const land: number = float + swim.length / swim.speed;
   const end: IAutoMovieTransform = entry.plan.at(float).placement;
   const ahead: IAutoMovieVector3 = AutoMovieArchetypeFrame.axis(end, "z");
-  const forward: IAutoMovieVector3 = Vector3.normalize({
+  const forward: IAutoMovieVector3 = AutoMovieEngineVector3.normalize({
     x: ahead.x,
     y: 0,
     z: ahead.z,
@@ -137,14 +160,14 @@ export function AutoMovieArchetypeEquineFord<
   // The floating carriage: the neutral back `immersion` below the water.
   const trunk: IAutoMovieModelPart = part(animal, "trunk");
   const level: number = water - swim.immersion - top(trunk);
-  const yaw: IAutoMovieTransform["rotation"] = Quaternion.fromAxisAngle(
+  const yaw: IAutoMovieTransform["rotation"] = AutoMovieEngineQuaternion.fromAxisAngle(
     { x: 0, y: 1, z: 0 },
     heading,
   );
   const carriage = (seconds: number): IAutoMovieTransform => ({
-    translation: Vector3.add(
+    translation: AutoMovieEngineVector3.add(
       { x: end.translation.x, y: level, z: end.translation.z },
-      Vector3.scale(forward, swim.speed * (seconds - float)),
+      AutoMovieEngineVector3.scale(forward, swim.speed * (seconds - float)),
     ),
     rotation: { ...yaw },
     scale: { ...AutoMovieArchetypeFrame.UNIT },
@@ -160,7 +183,7 @@ export function AutoMovieArchetypeEquineFord<
     params.recovery.speed ?? 0,
   );
 
-  const species: createQuadruped.ISpecies = createQuadruped.species(animal);
+  const species: AutoMovieArchetypeQuadruped.ISpecies = AutoMovieArchetypeQuadruped.species(animal);
   const world: QuadrupedWorldPose.IPrepared<Id, Dimension> = QuadrupedWorldPose(
     animal,
     QuadrupedCarriage.of(animal, species),
@@ -307,7 +330,9 @@ export function AutoMovieArchetypeEquineFord<
     sample,
   };
 
-  /** One stateless displayed second of the crossing. */
+  /*
+   * One stateless displayed second of the crossing.
+   */
   function sample(
     seconds: number,
   ): AutoMovieArchetypeEquineFordPlan.ISample<Id, Dimension> {
@@ -335,9 +360,9 @@ export function AutoMovieArchetypeEquineFord<
       const bridged: IAutoMovieTransform = QuadrupedWorldPose.bridge(
         {
           ...left,
-          translation: Vector3.add(
+          translation: AutoMovieEngineVector3.add(
             left.translation,
-            Vector3.scale(forward, swim.speed * elapsed),
+            AutoMovieEngineVector3.scale(forward, swim.speed * elapsed),
           ),
         },
         placement,
@@ -377,7 +402,7 @@ export function AutoMovieArchetypeEquineFord<
     };
   }
 
-  /**
+  /*
    * Emit a blended cut pose, lifted by the depth of any solid in a bed, then
    * verified.
    */
@@ -401,7 +426,7 @@ export function AutoMovieArchetypeEquineFord<
             {
               root: {
                 ...pose.root,
-                translation: Vector3.add(pose.root.translation, {
+                translation: AutoMovieEngineVector3.add(pose.root.translation, {
                   x: 0,
                   y: lift,
                   z: 0,
@@ -415,7 +440,7 @@ export function AutoMovieArchetypeEquineFord<
     return archetype;
   }
 
-  /**
+  /*
    * A grounded segment at the ground's datum under its start
    * (`AutoMovieArchetypeQuadrupedDatumRide`).
    */
@@ -425,7 +450,7 @@ export function AutoMovieArchetypeEquineFord<
     startSpeed: number,
     endSpeed: number,
   ): AutoMovieArchetypeRide.IRide<Id, Dimension> {
-    return AutoMovieArchetypeQuadrupedDatumRide(
+    return AutoMovieArchetypeQuadrupedDatumRide.ride(
       animal,
       {
         start,
@@ -441,7 +466,9 @@ export function AutoMovieArchetypeEquineFord<
     );
   }
 
-  /** Each limb's stroke phase: the diagonal pairs half a cycle apart. */
+  /*
+   * Each limb's stroke phase: the diagonal pairs half a cycle apart.
+   */
   function phases(
     cycles: number,
   ): Record<AutoMovieArchetypeQuadrupedBody.Limb, number> {
@@ -453,7 +480,7 @@ export function AutoMovieArchetypeEquineFord<
     };
   }
 
-  /**
+  /*
    * The authored bed height under each hoof of a grounded sample, planted or
    * swinging.
    */
@@ -469,13 +496,15 @@ export function AutoMovieArchetypeEquineFord<
         return footing.landing(
           AutoMovieArchetypeFrame.compose(grounded.placement, hoof.transform!)
             .translation,
-          Quaternion.identity(),
+          AutoMovieEngineQuaternion.identity(),
         ).point.y;
       },
     );
   }
 
-  /** Refuse a head whose solid meets the water. */
+  /*
+   * Refuse a head whose solid meets the water.
+   */
   function head(
     model: AutoMovieArchetype<Id, Dimension>,
     placement: IAutoMovieTransform,

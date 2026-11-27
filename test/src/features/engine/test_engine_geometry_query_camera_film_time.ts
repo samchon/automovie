@@ -1,6 +1,7 @@
-import { measureAutoMovieGeometry } from "@automovie/engine";
+import { AutoMovieEngineGeometryObservation } from "@automovie/engine";
 import type {
   IAutoMovieCompiledShotSource,
+  IAutoMovieFilmTime,
   IAutoMovieFilmTimeline,
   IAutoMovieFilmTimelineSegment,
   IAutoMovieGeometryQuery,
@@ -155,8 +156,8 @@ function measure(props: {
     "id" | "fps" | "totalFrames" | "segments"
   > | null;
 }): Record<string, number | string | boolean> {
-  const result: ReturnType<typeof measureAutoMovieGeometry> =
-    measureAutoMovieGeometry({
+  const result: ReturnType<typeof AutoMovieEngineGeometryObservation.measure> =
+    AutoMovieEngineGeometryObservation.measure({
       request: props.request,
       design: {
         production:
@@ -191,11 +192,7 @@ const camera: (
   subjects,
 });
 
-const at: (
-  value: { frame: number } | { seconds: number },
-) => IAutoMovieGeometryQuery = (
-  value: { frame: number } | { seconds: number },
-): IAutoMovieGeometryQuery => ({
+const at = (value: IAutoMovieFilmTime): IAutoMovieGeometryQuery => ({
   query: "film-time",
   at: value,
 });
@@ -217,15 +214,17 @@ const at: (
  *    range, one of those inside the frame, and a least margin of -0.5 from the
  *    wide root; occlusion is reported as not measured.
  * 2. Only absent subjects resolve no roots and report a margin of -1.
- * 3. A camera query refuses an absent shot, an absent contract, a time outside
- *    the shot, an empty or repeated subject list, an absent camera, and a
+ * 3. A camera query refuses an absent shot, an absent contract, a time outside the
+ *    shot, an empty or repeated subject list, an absent camera, and a
  *    production without a frame format.
  * 4. Frame 20, inside the dissolve, belongs to shot b at source frame 14; half a
  *    second is frame 12 of shot a; frame 47 is shot b's source frame 41.
- * 5. A film time off the frame grid, before the first frame, at or past the
- *    last, too large to be an exact frame, or not finite is refused; a frame no
+ * 5. A film time off the frame grid, before the first frame, at or past the last,
+ *    too large to be an exact frame, or not finite is refused; a frame no
  *    segment covers is refused; and a film-time query without a timeline is
  *    refused.
+ * 6. A film time with both frame 20 and half a second is refused. Each selector
+ *    alone identifies a different valid frame.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the actual geometry dispatcher over authored compiled roots/camera and timeline segments, observing projection counts/margins, explicit unmeasured occlusion, latest overlap ownership and correction-bearing query refusals.
  * @evidence contracts/development/testing.md#independent-expectations A 90-degree vertical pinhole lens, aspect two and literal root positions determine the projection oracle; literal half-open segment intervals and source offsets determine film/source frames independently of the query. Existing tolerances cover derived projection/seconds, while directly carried floating fields retain zero-tolerance comparisons.
@@ -382,13 +381,13 @@ export function test_engine_geometry_query_camera_film_time(): void {
   );
 
   const dissolve: ReturnType<typeof measure> = measure({
-    request: at({ frame: 20 }),
+    request: at({ type: "frame", frame: 20 }),
   });
   const halfSecond: ReturnType<typeof measure> = measure({
-    request: at({ seconds: 0.5 }),
+    request: at({ type: "seconds", seconds: 0.5 }),
   });
   const last: ReturnType<typeof measure> = measure({
-    request: at({ frame: 47 }),
+    request: at({ type: "frame", frame: 47 }),
   });
   TestValidator.equals(
     "a film time resolves to the segment that owns its frame",
@@ -452,7 +451,7 @@ export function test_engine_geometry_query_camera_film_time(): void {
         (): boolean =>
           throwsError(
             (): ReturnType<typeof measure> =>
-              measure({ request: at({ frame: 1.5 }) }),
+              measure({ request: at({ type: "frame", frame: 1.5 }) }),
             unresolved,
           ),
       ],
@@ -461,7 +460,7 @@ export function test_engine_geometry_query_camera_film_time(): void {
         (): boolean =>
           throwsError(
             (): ReturnType<typeof measure> =>
-              measure({ request: at({ seconds: 1 / 48 }) }),
+              measure({ request: at({ type: "seconds", seconds: 1 / 48 }) }),
             unresolved,
           ),
       ],
@@ -470,7 +469,7 @@ export function test_engine_geometry_query_camera_film_time(): void {
         (): boolean =>
           throwsError(
             (): ReturnType<typeof measure> =>
-              measure({ request: at({ frame: -1 }) }),
+              measure({ request: at({ type: "frame", frame: -1 }) }),
             unresolved,
           ),
       ],
@@ -479,7 +478,7 @@ export function test_engine_geometry_query_camera_film_time(): void {
         (): boolean =>
           throwsError(
             (): ReturnType<typeof measure> =>
-              measure({ request: at({ frame: 48 }) }),
+              measure({ request: at({ type: "frame", frame: 48 }) }),
             unresolved,
           ),
       ],
@@ -488,7 +487,7 @@ export function test_engine_geometry_query_camera_film_time(): void {
         (): boolean =>
           throwsError(
             (): ReturnType<typeof measure> =>
-              measure({ request: at({ frame: 2 ** 60 }) }),
+              measure({ request: at({ type: "frame", frame: 2 ** 60 }) }),
             unresolved,
           ),
       ],
@@ -497,7 +496,12 @@ export function test_engine_geometry_query_camera_film_time(): void {
         (): boolean =>
           throwsError(
             (): ReturnType<typeof measure> =>
-              measure({ request: at({ seconds: Number.POSITIVE_INFINITY }) }),
+              measure({
+                request: at({
+                  type: "seconds",
+                  seconds: Number.POSITIVE_INFINITY,
+                }),
+              }),
             unresolved,
           ),
       ],
@@ -507,7 +511,7 @@ export function test_engine_geometry_query_camera_film_time(): void {
           throwsError(
             (): ReturnType<typeof measure> =>
               measure({
-                request: at({ frame: 30 }),
+                request: at({ type: "frame", frame: 30 }),
                 timeline: timeline([OPENING]),
               }),
             "Film-global frame 30 has no owning video segment",
@@ -518,7 +522,10 @@ export function test_engine_geometry_query_camera_film_time(): void {
         (): boolean =>
           throwsError(
             (): ReturnType<typeof measure> =>
-              measure({ request: at({ frame: 0 }), timeline: null }),
+              measure({
+                request: at({ type: "frame", frame: 0 }),
+                timeline: null,
+              }),
             "Film-time measurement requires the canonical film timeline of the current compile",
           ),
       ],
@@ -534,4 +541,20 @@ export function test_engine_geometry_query_camera_film_time(): void {
       noTimeline: true,
     },
   );
+
+  const legacy: unknown = { seconds: 0.5 };
+  TestValidator.equals(
+    "an old second selector resolves the same frame",
+    measure({ request: at(legacy as IAutoMovieFilmTime) }).globalFrame,
+    12,
+  );
+  for (const conflicting of [
+    { frame: 20, seconds: 0.5 },
+    { type: "frame", frame: 20, seconds: 0.5 },
+  ])
+    TestValidator.error(
+      "a film time cannot select both a frame and a second",
+      (): ReturnType<typeof measure> =>
+        measure({ request: at(conflicting as unknown as IAutoMovieFilmTime) }),
+    );
 }

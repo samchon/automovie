@@ -1,11 +1,4 @@
-import {
-  AutoMovieArchetypeCourse,
-  AutoMovieArchetypeFrame,
-  createCar,
-  createWheelchair,
-  driveCar,
-  rideWheelchair,
-} from "@automovie/archetypes";
+import { AutoMovieArchetypeCar, AutoMovieArchetypeCourse, AutoMovieArchetypeFrame, AutoMovieArchetypeWheelchair } from "@automovie/archetypes";
 import type { IAutoMovieModelPart } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -22,7 +15,8 @@ import { qclose } from "../../internal/qclose";
  * 3. A timed wheelchair's differential travel through its heading sweep.
  */
 export function test_archetypes_vehicles_car_wheel_material(): void {
-  const car: ReturnType<typeof createCar> = createCar({ kind: "hatchback" }, 3);
+  const car: ReturnType<typeof AutoMovieArchetypeCar.create> =
+    AutoMovieArchetypeCar.create({ kind: "hatchback" }, 3);
   const circumference: number = Math.PI * car.dimensions.wheelDiameter!;
   const length: number = car.dimensions.wheelbase!;
   const radius: number = 12;
@@ -41,7 +35,7 @@ export function test_archetypes_vehicles_car_wheel_material(): void {
   ];
   for (const reverse of [false, true])
     for (const sign of [-1, 1]) {
-      const ride: ReturnType<typeof driveCar> = driveCar(car, {
+      const ride: ReturnType<typeof AutoMovieArchetypeCar.drive> = AutoMovieArchetypeCar.drive(car, {
         start: { x: 0, z: 0, heading: 0 },
         cruise: 2,
         startSpeed: 2,
@@ -108,7 +102,7 @@ export function test_archetypes_vehicles_car_wheel_material(): void {
       }
     }
 
-  const chair: ReturnType<typeof createWheelchair> = createWheelchair({
+  const chair: ReturnType<typeof AutoMovieArchetypeWheelchair.create> = AutoMovieArchetypeWheelchair.create({
     kind: "selfPropelled",
   });
   const plan: AutoMovieArchetypeCourse.IPlan = AutoMovieArchetypeCourse.timed(
@@ -120,7 +114,7 @@ export function test_archetypes_vehicles_car_wheel_material(): void {
       { seconds: 3, x: 1.35, z: 3 },
     ],
   );
-  const moving: ReturnType<typeof rideWheelchair> = rideWheelchair(chair, plan);
+  const moving: ReturnType<typeof AutoMovieArchetypeWheelchair.ride> = AutoMovieArchetypeWheelchair.ride(chair, plan);
   const track: number =
     chair.affordance("leftSpin").frame.translation.x -
     chair.affordance("rightSpin").frame.translation.x;

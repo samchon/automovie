@@ -2,7 +2,9 @@ import type {
   IAutoMovieBodyMeasure,
   IAutoMovieMotionHumanEntryState,
 } from "@automovie/interface";
-import { stageBladeFootworkSchedule } from "@automovie/motions/internal";
+import {
+  stageBladeFootworkSchedule
+} from "../../../../../packages/motions/src/lexicon/internal/stageBladeFootworkSchedule";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

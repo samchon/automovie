@@ -1,4 +1,4 @@
-import type { IAutoMovieTransition } from "../cinematics/IAutoMovieTransition.js";
+import type { IAutoMovieTransition } from "../cinematics/IAutoMovieTransition";
 
 /** Incoming transition span on the output clock. */
 export interface IAutoMovieSequenceRenderTransitionSpan {

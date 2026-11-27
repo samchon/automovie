@@ -1,13 +1,4 @@
-import {
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
-  Vector3,
-  armChainFault,
-  prepareSkeletonPoseResolution,
-  reachPose,
-  resolvePose,
-  skeletonJointAxes,
-} from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineHumanoidJointAxes, AutoMovieEngineHumanoidRestFrame, AutoMovieEngineVector3, AutoMovieEngineSkeletonPose } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
@@ -24,7 +15,7 @@ import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
 /**
  * `reachPose(skeleton, side, target)` poses an arm so the hand lands on the
  * target, the elbow turning only about its flexion axis, and extends the arm
- * toward an unreachable target; `prepareSkeletonPoseResolution` is the prepared
+ * toward an unreachable target; `AutoMovieEngineSkeletonPose.prepareSkeletonPoseResolution` is the prepared
  * forward kinematics the pose is read back through.
  *
  * Fixture: the average adult body (`humanFixtureBody`), resolved with the
@@ -44,9 +35,9 @@ import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
 export async function test_engine_kinematics_reach_pose(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
   const skeleton: IAutoMovieSkeleton = body.skeleton;
-  const axes = skeletonJointAxes(skeleton, HUMANOID_JOINT_AXES);
+  const axes = AutoMovieEngineKinematics.skeletonJointAxes(skeleton, AutoMovieEngineHumanoidJointAxes);
   const resolve = (pose: IAutoMoviePose): IAutoMovieResolvedBone[] =>
-    resolvePose(pose, skeleton, axes, HUMANOID_REST_FRAME);
+    AutoMovieEngineKinematics.resolvePose(pose, skeleton, axes, AutoMovieEngineHumanoidRestFrame);
   const at = (
     bones: IAutoMovieResolvedBone[],
     name: AutoMovieHumanoidBone,
@@ -60,7 +51,7 @@ export async function test_engine_kinematics_reach_pose(): Promise<void> {
   });
   const S: IAutoMovieVector3 = at(rest, "leftUpperArm");
   const offset = (name: AutoMovieHumanoidBone): number =>
-    Vector3.length(
+    AutoMovieEngineVector3.length(
       skeleton.bones.find((b: IAutoMovieBone): boolean => b.bone === name)!.rest
         .translation,
     );
@@ -69,16 +60,16 @@ export async function test_engine_kinematics_reach_pose(): Promise<void> {
   // 1.
   TestValidator.equals(
     "no fault",
-    [armChainFault(skeleton, "left"), armChainFault(skeleton, "right")],
+    [AutoMovieEngineKinematics.armChainFault(skeleton, "left"), AutoMovieEngineKinematics.armChainFault(skeleton, "right")],
     [null, null],
   );
 
   // 2.
-  const target: IAutoMovieVector3 = Vector3.add(S, { x: 0, y: -0.3, z: 0.3 });
-  const pose: IAutoMoviePose = reachPose(skeleton, "left", target)!;
+  const target: IAutoMovieVector3 = AutoMovieEngineVector3.add(S, { x: 0, y: -0.3, z: 0.3 });
+  const pose: IAutoMoviePose = AutoMovieEngineKinematics.reachPose(skeleton, "left", target)!;
   TestValidator.predicate(
     "lands",
-    Vector3.distance(at(resolve(pose), "leftHand"), target) <= 1e-6,
+    AutoMovieEngineVector3.distance(at(resolve(pose), "leftHand"), target) <= 1e-6,
   );
   const elbow = pose.joints.find((j): boolean => j.bone === "leftLowerArm")!;
   TestValidator.predicate(
@@ -87,23 +78,23 @@ export async function test_engine_kinematics_reach_pose(): Promise<void> {
   );
 
   // 3.
-  const far: IAutoMoviePose = reachPose(
+  const far: IAutoMoviePose = AutoMovieEngineKinematics.reachPose(
     skeleton,
     "left",
-    Vector3.add(S, { x: 0, y: 0, z: 5 }),
+    AutoMovieEngineVector3.add(S, { x: 0, y: 0, z: 5 }),
   )!;
   TestValidator.predicate(
     "shell",
-    Vector3.distance(
+    AutoMovieEngineVector3.distance(
       at(resolve(far), "leftHand"),
-      Vector3.add(S, { x: 0, y: 0, z: L }),
+      AutoMovieEngineVector3.add(S, { x: 0, y: 0, z: L }),
     ) <= 1e-6,
   );
 
   // 4.
   TestValidator.equals(
     "missing hand",
-    reachPose(
+    AutoMovieEngineKinematics.reachPose(
       {
         ...skeleton,
         bones: skeleton.bones.filter(
@@ -117,15 +108,15 @@ export async function test_engine_kinematics_reach_pose(): Promise<void> {
   );
 
   // 5.
-  const rig = prepareSkeletonPoseResolution(
+  const rig = AutoMovieEngineSkeletonPose.prepareSkeletonPoseResolution(
     skeleton,
     axes,
-    HUMANOID_REST_FRAME,
+    AutoMovieEngineHumanoidRestFrame,
   );
   TestValidator.equals("prepared pose", rig.resolve(pose), resolve(pose));
   TestValidator.equals(
     "prepared rest",
-    prepareSkeletonPoseResolution.rest(rig),
+    AutoMovieEngineSkeletonPose.preparedSkeletonRest(rig),
     rest,
   );
 }

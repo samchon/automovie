@@ -1,6 +1,6 @@
 import {
-  AutoMoviePhysicalPlayback,
-  AutoMoviePhysicalSimulation,
+  AutoMovieEnginePhysicalPlayback,
+  AutoMovieEnginePhysicalSimulation,
 } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalSimulation,
@@ -27,8 +27,8 @@ async function main(): Promise<void> {
   const input: IAutoMoviePhysicalSimulationInput.IInput =
     await producer.createPhysicalInput();
   const run: IAutoMoviePhysicalSimulation =
-    await AutoMoviePhysicalSimulation.compute(input);
-  const bytes: Uint8Array = await AutoMoviePhysicalPlayback.encode(
+    await AutoMovieEnginePhysicalSimulation.compute(input);
+  const bytes: Uint8Array = await AutoMovieEnginePhysicalPlayback.encode(
     run.cache,
     Number(byteLimit ?? 268435456),
   );

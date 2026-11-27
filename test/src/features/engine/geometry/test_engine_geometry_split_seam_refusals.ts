@@ -28,8 +28,8 @@ export function test_engine_geometry_split_seam_refusals(): void {
     [
       {
         knots: [
-          [0.01, 0.005],
-          [0.01, 0.005],
+          { alongM: 0.01, depthM: 0.005 },
+          { alongM: 0.01, depthM: 0.005 },
         ],
         corner: S.CORNER,
       },
@@ -46,7 +46,7 @@ export function test_engine_geometry_split_seam_refusals(): void {
     TestValidator.predicate(`a bad ${word}`, message.includes(word));
   }
   const beyond: IAutoMovieConstructionRealization.IRealization = S.realize(
-    S.split({ knots: [[0.05, 0.005]], corner: S.CORNER }),
+    S.split({ knots: [{ alongM: 0.05, depthM: 0.005 }], corner: S.CORNER }),
   );
   const kept: string = beyond.body.faces
     .map((f: { chain: string }): string => f.chain)

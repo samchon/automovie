@@ -1,5 +1,5 @@
 import type { IAutoMovieMark } from "@automovie/interface";
-import { applyAutoMovieInspection } from "@automovie/render";
+import { AutoMovieRenderInspection } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -51,7 +51,7 @@ export function test_render_scene_apply_inspection_mark_color_law(): void {
     named: string[],
   ): void => {
     try {
-      applyAutoMovieInspection({
+      AutoMovieRenderInspection.apply({
         scene: stage,
         request: InspectionScene.ask(changes),
         marks,
@@ -73,7 +73,7 @@ export function test_render_scene_apply_inspection_mark_color_law(): void {
     marks: IAutoMovieMark[],
     changes: Parameters<typeof InspectionScene.ask>[0],
   ): void => {
-    applyAutoMovieInspection({
+    AutoMovieRenderInspection.apply({
       scene: stage,
       request: InspectionScene.ask(changes),
       marks,

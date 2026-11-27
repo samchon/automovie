@@ -1,8 +1,4 @@
-import {
-  builtEnvironmentElementBounds,
-  builtEnvironmentSpaceContentBounds,
-  validateBuiltEnvironment,
-} from "@automovie/engine";
+import { AutoMovieEngineBuiltEnvironment, AutoMovieEngineArchitecture } from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieModel,
@@ -159,11 +155,11 @@ export function test_architecture_built_environment_element_bounds(): void {
   const closed: IAutoMovieBuiltEnvironment = work();
   TestValidator.equals(
     "the record validates",
-    validateBuiltEnvironment({ environment: closed }).success,
+    AutoMovieEngineArchitecture.validateBuiltEnvironment({ environment: closed }).success,
     true,
   );
 
-  const chest: IAutoMovieSubjectBox | null = builtEnvironmentElementBounds(
+  const chest: IAutoMovieSubjectBox | null = AutoMovieEngineBuiltEnvironment.environmentElementBounds(
     closed,
     "chest",
   );
@@ -188,13 +184,13 @@ export function test_architecture_built_environment_element_bounds(): void {
   TestValidator.equals(
     "what draws nothing and what was never declared both answer null",
     {
-      groupingNode: builtEnvironmentElementBounds(closed, "wing"),
-      undeclared: builtEnvironmentElementBounds(closed, "cellar-hatch"),
+      groupingNode: AutoMovieEngineBuiltEnvironment.environmentElementBounds(closed, "wing"),
+      undeclared: AutoMovieEngineBuiltEnvironment.environmentElementBounds(closed, "cellar-hatch"),
     },
     { groupingNode: null, undeclared: null },
   );
 
-  const vault: IAutoMovieSubjectBox | null = builtEnvironmentElementBounds(
+  const vault: IAutoMovieSubjectBox | null = AutoMovieEngineBuiltEnvironment.environmentElementBounds(
     closed,
     "vault",
   );
@@ -216,11 +212,11 @@ export function test_architecture_built_environment_element_bounds(): void {
     { measured: true, min: true, max: true },
   );
 
-  const shut: IAutoMovieSubjectBox | null = builtEnvironmentElementBounds(
+  const shut: IAutoMovieSubjectBox | null = AutoMovieEngineBuiltEnvironment.environmentElementBounds(
     closed,
     "leaf",
   );
-  const opened: IAutoMovieSubjectBox | null = builtEnvironmentElementBounds(
+  const opened: IAutoMovieSubjectBox | null = AutoMovieEngineBuiltEnvironment.environmentElementBounds(
     work("open"),
     "leaf",
   );
@@ -254,7 +250,7 @@ export function test_architecture_built_environment_element_bounds(): void {
     },
   );
 
-  const space: IAutoMovieSubjectBox | null = builtEnvironmentSpaceContentBounds(
+  const space: IAutoMovieSubjectBox | null = AutoMovieEngineBuiltEnvironment.environmentSpaceContentBounds(
     closed,
     "place",
   );

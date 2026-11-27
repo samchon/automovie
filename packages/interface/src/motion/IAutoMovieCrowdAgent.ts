@@ -1,14 +1,14 @@
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
 /**
- * One agent of a plan-time crowd steering pass (`steerAutoMovieCrowd`): a disc
+ * One agent of a plan-time crowd steering pass (`AutoMovieEngineMotionCrowd.steer`): a disc
  * on the floor that heads for its goals at its own desired speed and avoids the
  * others and the obstacles.
  *
  * Positions are world metres on the floor plan (`y` is not read), speeds metres
  * per second, times film seconds. Nothing in it names a person: a walker, a
  * horse or a cart is an agent with its own radius and speed.
- * steerAutoMovieCrowd checks positive finite radius and speed, finite start and
+ * AutoMovieEngineMotionCrowd.steer checks positive finite radius and speed, finite start and
  * a nonempty goal list. Finite point coordinates, maximum >= speed and herding
  * in [0, 1] are caller premises, not additional admission checks.
  */

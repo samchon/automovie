@@ -1,4 +1,4 @@
-import { AutoMovieArchetypeRefusal, createGoal } from "@automovie/archetypes";
+import { AutoMovieArchetypeRefusal, AutoMovieArchetypeGoal } from "@automovie/archetypes";
 import type { IAutoMovieAffordance } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -32,7 +32,7 @@ export function test_archetype_goals(): void {
   };
 
   // 1. The football goal.
-  const goal: ReturnType<typeof createGoal> = createGoal(
+  const goal: ReturnType<typeof AutoMovieArchetypeGoal.create> = AutoMovieArchetypeGoal.create(
     { kind: "footballGoal" },
     2,
   );
@@ -62,7 +62,7 @@ export function test_archetype_goals(): void {
       {
         name: "basketball ring inside diameter",
         measure: (seed: number): number => {
-          const hoop: ReturnType<typeof createGoal> = createGoal(
+          const hoop: ReturnType<typeof AutoMovieArchetypeGoal.create> = AutoMovieArchetypeGoal.create(
             { kind: "basketballHoop" },
             seed,
           );
@@ -80,7 +80,7 @@ export function test_archetype_goals(): void {
     ]),
   );
   for (const seed of [0, 7]) {
-    const hoop: ReturnType<typeof createGoal> = createGoal(
+    const hoop: ReturnType<typeof AutoMovieArchetypeGoal.create> = AutoMovieArchetypeGoal.create(
       { kind: "basketballHoop" },
       seed,
     );
@@ -108,7 +108,7 @@ export function test_archetype_goals(): void {
       {
         name: "volleyball net top",
         measure: (seed: number): readonly number[] => [
-          createGoal({ kind: "volleyballNet" }, seed).affordance("top").frame
+          AutoMovieArchetypeGoal.create({ kind: "volleyballNet" }, seed).affordance("top").frame
             .translation.y,
         ],
         models: [[2.43], [2.24]],
@@ -119,7 +119,7 @@ export function test_archetype_goals(): void {
       {
         name: "volleyball post outside the side line",
         measure: (seed: number): number =>
-          createGoal({ kind: "volleyballNet" }, seed).affordance("leftPost")
+          AutoMovieArchetypeGoal.create({ kind: "volleyballNet" }, seed).affordance("leftPost")
             .frame.translation.x - 4.5,
         minimum: 0.5,
         maximum: 1,
@@ -128,7 +128,7 @@ export function test_archetype_goals(): void {
     ]),
   );
   try {
-    createGoal({ kind: "volleyballNet", height: 2.3 }, 2);
+    AutoMovieArchetypeGoal.create({ kind: "volleyballNet", height: 2.3 }, 2);
     findings.push("a fixed volleyball net height was accepted");
   } catch (error) {
     if (
@@ -138,7 +138,7 @@ export function test_archetype_goals(): void {
     )
       findings.push("a fixed volleyball net height was not refused on height");
   }
-  const volley: ReturnType<typeof createGoal> = createGoal(
+  const volley: ReturnType<typeof AutoMovieArchetypeGoal.create> = AutoMovieArchetypeGoal.create(
     { kind: "volleyballNet" },
     2,
   );
@@ -149,7 +149,7 @@ export function test_archetype_goals(): void {
   );
 
   // 4. The tennis net.
-  const tennis: ReturnType<typeof createGoal> = createGoal(
+  const tennis: ReturnType<typeof AutoMovieArchetypeGoal.create> = AutoMovieArchetypeGoal.create(
     { kind: "tennisNet" },
     2,
   );

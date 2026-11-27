@@ -1,4 +1,4 @@
-import { createViewerDisplayClock } from "@automovie/viewer";
+import { AutoMovieViewerDisplay } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/predicates";
@@ -13,8 +13,8 @@ import { nclose } from "../../internal/predicates";
  * 4. Invalid seconds refuse before production/state mutation; zero is valid.
  */
 export function test_viewer_root_create_display_clock(): void {
-  const clock: ReturnType<typeof createViewerDisplayClock> =
-    createViewerDisplayClock();
+  const clock: AutoMovieViewerDisplay.IClock =
+    AutoMovieViewerDisplay.createClock();
   const refused: (title: string, work: () => void, expected?: Error) => void = (
     title: string,
     work: () => void,

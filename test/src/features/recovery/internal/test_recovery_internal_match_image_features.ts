@@ -1,4 +1,4 @@
-import { matchRecoveryImageFeatures } from "@automovie/recovery";
+import { AutoMovieRecoveryTrackLineage } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -21,7 +21,7 @@ export function test_recovery_internal_match_image_features(): void {
     channel: number,
     x: number,
     y: number,
-  ): Parameters<typeof matchRecoveryImageFeatures>[0][number] => {
+  ): Parameters<typeof AutoMovieRecoveryTrackLineage.matchImageFeatures>[0][number] => {
     const descriptor: Float64Array = new Float64Array(128);
     descriptor[channel] = 1;
     return {
@@ -34,8 +34,8 @@ export function test_recovery_internal_match_image_features(): void {
   };
   const first = [feature(0, 10, 20), feature(1, 30, 40)];
   const second = [feature(1, 31, 41), feature(0, 11, 21)];
-  const matches: ReturnType<typeof matchRecoveryImageFeatures> =
-    matchRecoveryImageFeatures(first, second, 0.8, 100);
+  const matches: ReturnType<typeof AutoMovieRecoveryTrackLineage.matchImageFeatures> =
+    AutoMovieRecoveryTrackLineage.matchImageFeatures(first, second, 0.8, 100);
   TestValidator.equals("two matches", matches.length, 2);
   TestValidator.equals("first crosses to second", [
     matches[0]!.firstIndex,
@@ -51,7 +51,7 @@ export function test_recovery_internal_match_image_features(): void {
   );
   TestValidator.equals(
     "repeated descriptors match nothing",
-    matchRecoveryImageFeatures(
+    AutoMovieRecoveryTrackLineage.matchImageFeatures(
       first,
       [feature(0, 11, 21), feature(0, 12, 22)],
       0.8,
@@ -60,6 +60,6 @@ export function test_recovery_internal_match_image_features(): void {
     0,
   );
   TestValidator.error("an exhausted pair budget", (): unknown =>
-    matchRecoveryImageFeatures(first, second, 0.8, 3),
+    AutoMovieRecoveryTrackLineage.matchImageFeatures(first, second, 0.8, 3),
   );
 }

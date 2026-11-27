@@ -1,9 +1,12 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import {
+  AutoMovieEngineVector3,
+  AutoMovieEngineMotionSampling,
+} from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { AutoMovieArchetypeRide } from "../core";
 import type { AutoMovieArchetypeEquineLunge } from "./AutoMovieArchetypeEquineLunge";
-import { EquineLine } from "./EquineLine";
+import { EquineLine } from "./equine/EquineLine";
 
 /**
  * The lunge line of a lunged equid (`AutoMovieArchetypeEquineLunge`): its own
@@ -74,9 +77,9 @@ export namespace AutoMovieArchetypeEquineLungeLine {
       if (change === undefined) return sign;
       const local: number = (seconds - change.from) / change.phase;
       if (local <= 0) return sign;
-      if (local < 1) return sign * (1 - minimumJerk.share(local));
+      if (local < 1) return sign * (1 - AutoMovieEngineMotionSampling.minimumJerkShare(local));
       if (local < 2) return 0;
-      return -sign * minimumJerk.share(Math.min(1, local - 2));
+      return -sign * AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, local - 2));
     };
     return EquineLine.layer(
       ride,
@@ -86,7 +89,7 @@ export namespace AutoMovieArchetypeEquineLungeLine {
         sample: AutoMovieArchetypeRide.ISample<Id, D>,
       ): IAutoMovieVector3 => {
         const root: IAutoMovieVector3 = sample.placement.translation;
-        const out: IAutoMovieVector3 = Vector3.normalize({
+        const out: IAutoMovieVector3 = AutoMovieEngineVector3.normalize({
           x: root.x - centre.x,
           y: 0,
           z: root.z - centre.z,

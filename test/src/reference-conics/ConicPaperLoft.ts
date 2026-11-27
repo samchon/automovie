@@ -1,4 +1,4 @@
-import { tessellateAutoMovieContourStrip64 } from "@automovie/engine";
+import { AutoMovieEngineCurve } from "@automovie/engine";
 import type { AutoMovieVector2Tuple } from "@automovie/interface";
 import { AutoMovieRecoveryConicApproximation as C } from "@automovie/recovery";
 
@@ -177,7 +177,7 @@ export namespace ConicPaperLoft {
         continue;
       }
       try {
-        tessellateAutoMovieContourStrip64(
+        AutoMovieEngineCurve.tessellateContourStrip64(
           a,
           b,
           emit,

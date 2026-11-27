@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -7,20 +7,20 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanChain } from "../../HumanChain";
-import { createHumanBody } from "../../body/createHumanBody";
-import { AutoMovieMotionHumanRange } from "../../compose/AutoMovieMotionHumanRange";
-import { AutoMovieMotionHumanTouchEffector } from "../../compose/AutoMovieMotionHumanTouchEffector";
-import { HumanPerformance } from "../../perform/HumanPerformance";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
-import { MotionBodies } from "../MotionBodies";
-import type { humanPolygonMan } from "../humanPolygonMan";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
+import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
+import { AutoMovieMotionHumanRange } from "../../compose/internal/AutoMovieMotionHumanRange";
+import { AutoMovieMotionHumanTouchEffector } from "../../compose/internal/AutoMovieMotionHumanTouchEffector";
+import { AutoMovieMotionHumanPerformance } from "../../perform/AutoMovieMotionHumanPerformance";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
+import { MotionBodies } from "../internal/MotionBodies";
+import type { humanPolygonMan } from "../internal/humanPolygonMan";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { StanceVerdicts } from "./StanceVerdicts";
 import { TouchVerdicts } from "./TouchVerdicts";
-import { everydayVerdicts } from "./everydayVerdicts";
+import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/**
+/*
  * Capture cases of the standing stretches and yoga poses, each held 3 s on the
  * right side at moderate intensity from quiet standing.
  *
@@ -40,9 +40,8 @@ import { everydayVerdicts } from "./everydayVerdicts";
  * - `stretch-tree`: the raised ankle at least half a shank above the standing
  *   ankle, the palms' skins within 10 mm of each other, and the extrapolated
  *   centre of mass (Hof 2005) over the standing foot.
- *
- * @param bodies The bodies; `m-average` when absent.
- * @returns The cases.
+ * Parameter bodies: The bodies; `m-average` when absent.
+ * Returns: The cases.
  */
 export function stretchCases(
   bodies: readonly string[] = ["m-average"],
@@ -50,7 +49,7 @@ export function stretchCases(
   const out: IMotionCaptureCase[] = [];
   for (const id of bodies) {
     const man: humanPolygonMan.IPolygonMan = MotionBodies.population(id);
-    const body: IAutoMovieMotionHumanBody = createHumanBody(
+    const body: IAutoMovieMotionHumanBody = AutoMovieMotionHumanBody.create(
       man.body.skeleton,
       man.body.profile,
     );
@@ -67,7 +66,7 @@ export function stretchCases(
 
       // Process boundary: a case that throws is reported as that case's refusal, and the remaining cases still run.
       try {
-        performance = new HumanPerformance({
+        performance = new AutoMovieMotionHumanPerformance({
           seed: "stretch",
           performers: [
             {
@@ -78,7 +77,7 @@ export function stretchCases(
               proficiency: { level: "trained" as const },
             },
           ],
-          composition: HumanChain.subject("a").act("stretch", {
+          composition: AutoMovieMotionHumanChain.subject("a").act("stretch", {
             kind,
             hold: 3,
           }).node,
@@ -157,8 +156,8 @@ export function stretchCases(
           break;
         }
         case "quadriceps": {
-          const grip: number = Vector3.length(
-            Vector3.subtract(
+          const grip: number = AutoMovieEngineVector3.length(
+            AutoMovieEngineVector3.subtract(
               AutoMovieMotionHumanTouchEffector.point(body, bones, "right", {
                 surface: "grip",
                 shape: "fist",
@@ -192,8 +191,8 @@ export function stretchCases(
           });
           const palm = { surface: "palm", shape: "flat" } as const;
           const gap: number =
-            Vector3.length(
-              Vector3.subtract(
+            AutoMovieEngineVector3.length(
+              AutoMovieEngineVector3.subtract(
                 AutoMovieMotionHumanTouchEffector.point(
                   body,
                   bones,

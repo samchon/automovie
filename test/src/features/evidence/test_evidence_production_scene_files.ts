@@ -1,7 +1,9 @@
 import {
-  createNarrativeUnitFiles,
-  createSettingsFiles,
-} from "@automovie/evidence/internal";
+  createNarrativeUnitFiles
+} from "../../../../packages/evidence/src/narrative/internal/createNarrativeUnitFiles";
+import {
+  createSettingsFiles
+} from "../../../../packages/evidence/src/narrative/internal/createSettingsFiles";
 import {
   EvidenceMarkdownAdapter,
   EvidenceSourceLoader,

@@ -1,10 +1,4 @@
-import {
-  type IAutoMovieScenePassRenderer,
-  type IAutoMovieShadowTextureHost,
-  readAutoMovieShadowTextureTargets,
-  renderAutoMovieScenePass,
-  resetAutoMovieSceneShadowTargets,
-} from "@automovie/render";
+import { type IAutoMovieRenderScenePassRenderer, type IAutoMovieRenderShadowTextureHost, AutoMovieRenderScenePass, AutoMovieRenderSceneShadow } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -30,7 +24,7 @@ const readShadowSlots: (shadow: THREE.LightShadow) => {
 
 /** Reuse the existing inline orchestration facts with an owned draw callback. */
 /** A scene-pass renderer that also reports its texture size limit. */
-type Renderer = IAutoMovieScenePassRenderer & IAutoMovieShadowTextureHost;
+type Renderer = IAutoMovieRenderScenePassRenderer & IAutoMovieRenderShadowTextureHost;
 
 function rendererFacts(draw: () => void): Renderer {
   return {
@@ -63,7 +57,7 @@ export function test_render_scene_render_scene_pass_shadow_target_lifecycle(): v
   });
   const empty: THREE.Scene = new THREE.Scene();
   empty.add(new THREE.Group(), new THREE.AmbientLight());
-  resetAutoMovieSceneShadowTargets(empty, renderer);
+  AutoMovieRenderSceneShadow.resetTargets(empty, renderer);
   const scene: THREE.Scene = new THREE.Scene(),
     directional: THREE.DirectionalLight = new THREE.DirectionalLight(),
     spot: THREE.SpotLight = new THREE.SpotLight();
@@ -86,7 +80,7 @@ export function test_render_scene_render_scene_pass_shadow_target_lifecycle(): v
   distribution.addEventListener("dispose", (): void => {
     disposed[2]++;
   });
-  resetAutoMovieSceneShadowTargets(scene, renderer);
+  AutoMovieRenderSceneShadow.resetTargets(scene, renderer);
   TestValidator.equals(
     "shared and hidden products release once",
     disposed,
@@ -103,7 +97,7 @@ export function test_render_scene_render_scene_pass_shadow_target_lifecycle(): v
     ],
     [null, null, null, true, true],
   );
-  resetAutoMovieSceneShadowTargets(scene, renderer);
+  AutoMovieRenderSceneShadow.resetTargets(scene, renderer);
   TestValidator.equals(
     "empty retained slots do not dispose twice",
     disposed,
@@ -126,7 +120,7 @@ export function test_render_scene_render_scene_pass_shadow_target_lifecycle(): v
   });
   let caught: unknown;
   try {
-    resetAutoMovieSceneShadowTargets(scene, renderer);
+    AutoMovieRenderSceneShadow.resetTargets(scene, renderer);
   } catch (error) {
     caught = error;
   }
@@ -142,10 +136,10 @@ export function test_render_scene_render_scene_pass_shadow_target_lifecycle(): v
     [null, null],
   );
   const repeated: ReturnType<typeof caughtFailure> = caughtFailure((): void =>
-    resetAutoMovieSceneShadowTargets(scene, renderer),
+    AutoMovieRenderSceneShadow.resetTargets(scene, renderer),
   );
   const refused: ReturnType<typeof caughtFailure> = caughtFailure((): void =>
-    renderAutoMovieScenePass(
+    AutoMovieRenderScenePass.render(
       renderer,
       scene,
       new THREE.Camera(),
@@ -161,8 +155,8 @@ export function test_render_scene_render_scene_pass_shadow_target_lifecycle(): v
       refused.error === caught,
   );
   const budget: ReturnType<typeof caughtFailure> = caughtFailure(
-    (): ReturnType<typeof readAutoMovieShadowTextureTargets> =>
-      readAutoMovieShadowTextureTargets("failed", renderer, new Map()),
+    (): ReturnType<typeof AutoMovieRenderSceneShadow.readTextureTargets> =>
+      AutoMovieRenderSceneShadow.readTextureTargets("failed", renderer, new Map()),
   );
   TestValidator.predicate(
     "cleared public slots cannot certify a released budget after failure",
@@ -182,7 +176,7 @@ export function test_render_scene_render_scene_pass_shadow_target_lifecycle(): v
     ++draws;
     directional.shadow.map = new THREE.WebGLRenderTarget(4, 4);
   });
-  renderAutoMovieScenePass(
+  AutoMovieRenderScenePass.render(
     healthyRenderer,
     scene,
     new THREE.Camera(),
@@ -219,7 +213,7 @@ export function test_render_scene_render_scene_pass_shadow_target_lifecycle(): v
   });
   let restoreFailure: unknown;
   try {
-    renderAutoMovieScenePass(
+    AutoMovieRenderScenePass.render(
       postRenderer,
       scene,
       new THREE.Camera(),
@@ -250,7 +244,7 @@ export function test_render_scene_render_scene_pass_shadow_target_lifecycle(): v
     [true, null],
   );
   const postRepeat: ReturnType<typeof caughtFailure> = caughtFailure((): void =>
-    renderAutoMovieScenePass(
+    AutoMovieRenderScenePass.render(
       postRenderer,
       empty,
       new THREE.Camera(),

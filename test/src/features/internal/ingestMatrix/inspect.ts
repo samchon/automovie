@@ -1,4 +1,4 @@
-import { inspectAutoMovieExternalModelBytes } from "@automovie/ingest";
+import { AutoMovieIngestExternalModel } from "@automovie/ingest";
 import type { IAutoMovieExternalModelInspection } from "@automovie/interface";
 
 import { resolveOnlyBuffer } from "./resolveOnlyBuffer";
@@ -15,7 +15,7 @@ export const inspect: (
   profile: string = "gltf-static-v1",
   resolver: (uri: string) => Uint8Array | null = resolveOnlyBuffer,
 ): IAutoMovieExternalModelInspection =>
-  inspectAutoMovieExternalModelBytes({
+  AutoMovieIngestExternalModel.inspectBytes({
     path: "public/models/matrix.gltf",
     bytes: Buffer.from(JSON.stringify(document), "utf8"),
     profile,

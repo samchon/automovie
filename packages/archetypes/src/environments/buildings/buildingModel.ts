@@ -1,15 +1,14 @@
-import { srgbHexToLinearColor } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import type { IAutoMovieGeometry, IAutoMovieModel } from "@automovie/interface";
 
-/**
+/*
  * Wrap an existing geometric solid as one generated scenic model.
- *
- * @param id Instance-scoped model identity.
- * @param name Human-readable element name.
- * @param geometry Model-local geometry in metres.
- * @param color SRGB surface swatch.
- * @returns A standard model with one owned neutral material and no dynamic
- *   body.
+ * Parameter id: Instance-scoped model identity.
+ * Parameter name: Human-readable element name.
+ * Parameter geometry: Model-local geometry in metres.
+ * Parameter color: SRGB surface swatch.
+ * Returns: A standard model with one owned neutral material and no dynamic
+ * body.
  */
 export function buildingModel(
   id: string,
@@ -38,7 +37,7 @@ export function buildingModel(
       {
         id: "finish",
         name: null,
-        baseColor: srgbHexToLinearColor(color),
+        baseColor: AutoMovieEngineMath.srgbHexToLinearColor(color),
         metallic: 0,
         roughness: 1,
         emissive: null,

@@ -1,4 +1,4 @@
-import { adoptAutoMovieExternalMotion } from "@automovie/ingest";
+import { AutoMovieIngestExternalModel } from "@automovie/ingest";
 import type {
   IAutoMovieExternalMotionAdoptionDecision,
   IAutoMovieExternalMotionAdoptionReceipt,
@@ -61,7 +61,7 @@ export function test12MotionAdoptionRefusalFacts2(
       (): boolean =>
         throwsError(
           (): IAutoMovieExternalMotionAdoptionReceipt =>
-            adoptAutoMovieExternalMotion({
+            AutoMovieIngestExternalModel.adoptMotion({
               inspection: { ...inspection, motion: undefined },
               source,
               decision: nativeDecision,
@@ -74,7 +74,7 @@ export function test12MotionAdoptionRefusalFacts2(
       (): boolean =>
         throwsError(
           (): IAutoMovieExternalMotionAdoptionReceipt =>
-            adoptAutoMovieExternalMotion({
+            AutoMovieIngestExternalModel.adoptMotion({
               inspection: { ...inspection, profile: "gltf-static-v1" },
               source,
               decision: nativeDecision,
@@ -87,7 +87,7 @@ export function test12MotionAdoptionRefusalFacts2(
       (): boolean =>
         throwsError(
           (): IAutoMovieExternalMotionAdoptionReceipt =>
-            adoptAutoMovieExternalMotion({
+            AutoMovieIngestExternalModel.adoptMotion({
               inspection: {
                 ...inspection,
                 motion: {

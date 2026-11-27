@@ -1,4 +1,4 @@
-import { sequenceEditorialMarkerTimeline } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieEditorialMarker,
   IAutoMoviePlaybackEditorialMarker,
@@ -63,7 +63,7 @@ export function test_engine_film_sequence_editorial_marker_timeline(): void {
     { id: "touch", label: "After trim", startSeconds: 1.5, endSeconds: 2 },
   ];
   const markers: IAutoMoviePlaybackEditorialMarker[] =
-    sequenceEditorialMarkerTimeline(
+    AutoMovieEngineFilm.sequenceEditorialMarkerTimeline(
       { shots: reel },
       {
         timeline: { entries },
@@ -110,7 +110,7 @@ export function test_engine_film_sequence_editorial_marker_timeline(): void {
 
   const sourceStart: number = 2 ** 54;
   const collapsed: IAutoMoviePlaybackEditorialMarker[] =
-    sequenceEditorialMarkerTimeline(
+    AutoMovieEngineFilm.sequenceEditorialMarkerTimeline(
       {
         shots: [
           {

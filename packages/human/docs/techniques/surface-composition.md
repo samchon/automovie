@@ -48,7 +48,7 @@ The smooth union of implicit surfaces (convolution surfaces along a skeleton) is
 
 ## Seams
 
-Every join between pieces goes through the shared seam module in `src/lofting/`: `IAutoMovieHumanSeam` (the declaration), `AutoMovieHumanSeam` (curve and surface jets, ribbons, reflection, measurement), `AutoMovieHumanSeamKnot` (knot jets and sector assembly) and `AutoMovieHumanSeamStation` (the station rule and the copy of a shared layer). The JSDoc there holds the formulas.
+Every join between pieces uses the shared [`IAutoMovieHumanSeam` contract](../../../interface/src/human/lofting/IAutoMovieHumanSeam.ts). The Human implementation in `src/lofting/` holds the formulas in `AutoMovieHumanSeam` (curve and surface jets, ribbons, reflection, measurement), `AutoMovieHumanSeamKnot` (knot jets and sector assembly) and `AutoMovieHumanSeamStation` (the station rule and the copy of a shared layer).
 
 A seam is data, `{ name, owner, neighbour, curve, continuity }` with continuity G0, G1 or G2. The owner evaluates the shared curve and publishes its jet; the neighbour converts the jet to its own parameter and copies it; a piece never invents its own side of a seam or fades a mismatch.
 

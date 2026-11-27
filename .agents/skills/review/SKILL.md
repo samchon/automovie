@@ -9,7 +9,7 @@ description: Runs automovie's self-review of a change.
 
 Read the declared scope as a whole in the current checkout each round. Trace it through consumers, tests, generated output, CI and supported platforms.
 
-Fix defects introduced, worsened or already present within the scope. Report defects outside it. For a finding based on [Writing](../documentation/writing.md), name the misreading it causes. Discard unsupported preferences.
+Fix defects introduced, worsened or already present within the scope. Report defects outside it. For a finding based on the [writing rules](../documentation/SKILL.md), name the misreading it causes. Discard unsupported preferences.
 
 Review Evidence-covered code once under [contracts](../contracts/SKILL.md). Check that each answer is true and complete. Verify the fix at the cause.
 
@@ -21,7 +21,7 @@ When findings recur, check the design and simplify or revert it.
 
 Review the base-to-head diff and uncommitted work. Report:
 
-- the single pass over Evidence-covered code, and the clean round over everything else;
+- the single Evidence pass and the clean round for other work
 - every check that could not run;
 - every claim fixed in code but not yet proven on a real host.
 

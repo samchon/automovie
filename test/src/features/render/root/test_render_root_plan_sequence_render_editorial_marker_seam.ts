@@ -1,10 +1,10 @@
-import { cutSequence } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieEditorialMarker,
   IAutoMoviePlaybackEditorialMarker,
   IAutoMovieShot,
 } from "@automovie/interface";
-import { planSequenceRender } from "@automovie/render";
+import { AutoMovieRenderSequence } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/predicates";
@@ -46,12 +46,12 @@ export function test_render_root_plan_sequence_render_editorial_marker_seam(): v
   };
   const renderSequence: (
     source: IAutoMovieShot,
-    entries: Parameters<typeof cutSequence>[0]["entries"],
-  ) => ReturnType<typeof planSequenceRender> = (
+    entries: Parameters<typeof AutoMovieEngineFilm.cutSequence>[0]["entries"],
+  ) => ReturnType<typeof AutoMovieRenderSequence.plan> = (
     source: IAutoMovieShot,
-    entries: Parameters<typeof cutSequence>[0]["entries"],
-  ): ReturnType<typeof planSequenceRender> => {
-    const cut: ReturnType<typeof cutSequence> = cutSequence(
+    entries: Parameters<typeof AutoMovieEngineFilm.cutSequence>[0]["entries"],
+  ): ReturnType<typeof AutoMovieRenderSequence.plan> => {
+    const cut: ReturnType<typeof AutoMovieEngineFilm.cutSequence> = AutoMovieEngineFilm.cutSequence(
       {
         sequence: { id: "marker-playback", name: "Marker playback" },
         fps: 24,
@@ -62,7 +62,7 @@ export function test_render_root_plan_sequence_render_editorial_marker_seam(): v
       [source],
     );
     if (!cut.success) throw new Error("The marker sequence must admit the cut");
-    return planSequenceRender({
+    return AutoMovieRenderSequence.plan({
       sequence: cut.sequence,
       shots: [source],
       spec: {
@@ -76,12 +76,12 @@ export function test_render_root_plan_sequence_render_editorial_marker_seam(): v
     });
   };
 
-  const incoming: Parameters<typeof cutSequence>[0]["entries"][number] = {
+  const incoming: Parameters<typeof AutoMovieEngineFilm.cutSequence>[0]["entries"][number] = {
     shot: shot.id,
     trim: { start: seam, duration: 0.25 },
     transition: null,
   };
-  const render: ReturnType<typeof planSequenceRender> = renderSequence(shot, [
+  const render: ReturnType<typeof AutoMovieRenderSequence.plan> = renderSequence(shot, [
     { ...incoming, trim: { start: 0.1, duration: 0.2 } },
     incoming,
     { ...incoming },
@@ -125,7 +125,7 @@ export function test_render_root_plan_sequence_render_editorial_marker_seam(): v
       { id: "tail", label: "Tail", startSeconds: tail, endSeconds: tail },
     ],
   };
-  const replayPlan: ReturnType<typeof planSequenceRender> = renderSequence(
+  const replayPlan: ReturnType<typeof AutoMovieRenderSequence.plan> = renderSequence(
     tailShot,
     [
       { ...incoming, trim: null, playbackRate: 4 },
@@ -156,7 +156,7 @@ export function test_render_root_plan_sequence_render_editorial_marker_seam(): v
     endSeconds: 1,
   };
   const followingSourceStart: number = 1 + Number.EPSILON;
-  const collapsed: ReturnType<typeof planSequenceRender> = renderSequence(
+  const collapsed: ReturnType<typeof AutoMovieRenderSequence.plan> = renderSequence(
     {
       ...shot,
       duration: 2,

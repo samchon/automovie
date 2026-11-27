@@ -28,7 +28,7 @@ import type {
  *   the plane normal to the seam's tangent ({@link measure}).
  *
  * Knot jets and sector assembly (J2) live in `AutoMovieHumanSeamKnot`, and
- * the station rule along a chain (J3) in `AutoMovieSeamStation`.
+ * the station rule along a chain (J3) in `AutoMovieEngineSeamStation`.
  * Vectors are plain arrays of any dimension unless a function says 3.
  */
 export namespace AutoMovieHumanSeam {
@@ -368,7 +368,9 @@ export namespace AutoMovieHumanSeam {
   }
 }
 
-/** Unit normal `along x across` of a surface jet, 3D. */
+/*
+ * Unit normal `along x across` of a surface jet, 3D.
+ */
 function normalOf(jet: IAutoMovieHumanSeam.ISurfaceJet): number[] {
   const a: readonly number[] = jet.along;
   const c: readonly number[] = jet.across;
@@ -380,7 +382,7 @@ function normalOf(jet: IAutoMovieHumanSeam.ISurfaceJet): number[] {
   return scale(n, 1 / (norm(n) || 1));
 }
 
-/**
+/*
  * Normal curvature of a surface jet in the unit tangent direction across its
  * seam, `w = (across - (across . T) T) / |...|`, read against normal n.
  */
@@ -403,7 +405,9 @@ function across(
   );
 }
 
-/** Angle between two directions, accurate near 0 and pi. */
+/*
+ * Angle between two directions, accurate near 0 and pi.
+ */
 function angle(a: readonly number[], b: readonly number[]): number {
   const u: number[] = scale(a, 1 / (norm(a) || 1));
   const v: number[] = scale(b, 1 / (norm(b) || 1));
@@ -416,24 +420,32 @@ function angle(a: readonly number[], b: readonly number[]): number {
   );
 }
 
-/** Dot product, summed from the first term in index order. */
+/*
+ * Dot product, summed from the first term in index order.
+ */
 function dot(a: readonly number[], b: readonly number[]): number {
   let s: number = a[0]! * b[0]!;
   for (let k: number = 1; k < a.length; k++) s += a[k]! * b[k]!;
   return s;
 }
 
-/** Difference. */
+/*
+ * Difference.
+ */
 function sub(a: readonly number[], b: readonly number[]): number[] {
   return a.map((v: number, k: number): number => v - b[k]!);
 }
 
-/** Scalar multiple. */
+/*
+ * Scalar multiple.
+ */
 function scale(a: readonly number[], s: number): number[] {
   return a.map((v: number): number => v * s);
 }
 
-/** Euclidean length. */
+/*
+ * Euclidean length.
+ */
 function norm(a: readonly number[]): number {
   return Math.hypot(...a);
 }

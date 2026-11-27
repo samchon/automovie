@@ -1,12 +1,4 @@
-import {
-  Matrix4,
-  motionToClip,
-  resolveFrame,
-  resolvePose,
-  sampleMotion,
-  sceneToNodes,
-  stageScene,
-} from "@automovie/engine";
+import { AutoMovieEngineMotionSampling, AutoMovieEngineKinematics, AutoMovieEngineMatrix4, AutoMovieEngineMotionClip, AutoMovieEngineResolve, AutoMovieEngineFilm } from "@automovie/engine";
 import type { IAutoMovieClip, IAutoMovieMotion } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -32,11 +24,11 @@ import { qclose, vclose } from "../internal/predicates";
  * @evidence contracts/development/common.md#meaningful-documentation Describes agreement and its duration boundary.
  */
 export function test_resolve_motion_clip_frames(): void {
-  const staged = stageScene(makeScriptWrite(), makeStagingWrite());
+  const staged = AutoMovieEngineFilm.stageScene(makeScriptWrite(), makeStagingWrite());
   if (!staged.success) throw new Error("stage admission failed");
   const skeleton = createSkeleton(),
     model = createModel(skeleton);
-  const nodes = sceneToNodes({
+  const nodes = AutoMovieEngineResolve.sceneToNodes({
     scene: staged.scene,
     models: {
       stickman: { ...model, id: "stickman" },
@@ -62,30 +54,30 @@ export function test_resolve_motion_clip_frames(): void {
     loop: false,
     tracks: players.flatMap(
       ([actor, motion]) =>
-        motionToClip({ motion, skeleton, nodePrefix: actor + "/" }).clip.tracks,
+        AutoMovieEngineMotionClip.motionToClip({ motion, skeleton, nodePrefix: actor + "/" }).clip.tracks,
     ),
   };
   const times = bakeTimes(clip.duration);
   TestValidator.equals("endpoint included", times.at(-1), 2);
   for (const seconds of times) {
-    const world = resolveFrame({ nodes, clip, limits: [], seconds }).world;
+    const world = AutoMovieEngineResolve.resolveFrame({ nodes, clip, limits: [], seconds }).world;
     for (const [actor, motion] of players) {
       const placement = staged.scene.nodes.find(
         (node) => node.id === actor,
       )!.transform;
-      const root = Matrix4.compose(
+      const root = AutoMovieEngineMatrix4.compose(
         placement.translation,
         placement.rotation,
         placement.scale,
       );
-      for (const joint of resolvePose(
-        sampleMotion(motion, seconds).pose,
+      for (const joint of AutoMovieEngineKinematics.resolvePose(
+        AutoMovieEngineMotionSampling.sampleMotion(motion, seconds).pose,
         skeleton,
       )) {
         const actual = world.get(actor + "/" + joint.bone)!;
-        const expected = Matrix4.multiply(
+        const expected = AutoMovieEngineMatrix4.multiply(
           root,
-          Matrix4.compose(joint.worldPosition, joint.worldRotation, {
+          AutoMovieEngineMatrix4.compose(joint.worldPosition, joint.worldRotation, {
             x: 1,
             y: 1,
             z: 1,
@@ -93,10 +85,10 @@ export function test_resolve_motion_clip_frames(): void {
         );
         TestValidator.predicate(
           "bone frame " + actor + "/" + joint.bone,
-          vclose(Matrix4.position(actual), Matrix4.position(expected), 1e-6) &&
+          vclose(AutoMovieEngineMatrix4.position(actual), AutoMovieEngineMatrix4.position(expected), 1e-6) &&
             qclose(
-              Matrix4.decompose(actual).rotation,
-              Matrix4.decompose(expected).rotation,
+              AutoMovieEngineMatrix4.decompose(actual).rotation,
+              AutoMovieEngineMatrix4.decompose(expected).rotation,
               1e-6,
             ),
         );
@@ -105,8 +97,8 @@ export function test_resolve_motion_clip_frames(): void {
     TestValidator.predicate(
       "distinct actor prefixes",
       !vclose(
-        Matrix4.position(world.get("knightA/hips")!),
-        Matrix4.position(world.get("knightB/hips")!),
+        AutoMovieEngineMatrix4.position(world.get("knightA/hips")!),
+        AutoMovieEngineMatrix4.position(world.get("knightB/hips")!),
         1e-6,
       ),
     );

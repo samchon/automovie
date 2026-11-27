@@ -1,4 +1,4 @@
-import { isRecoveryCameraNumericalRefusal } from "@automovie/recovery";
+import { AutoMovieRecoveryCameraMap } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -21,12 +21,12 @@ export function test_recovery_internal_is_camera_numerical_refusal(): void {
       "singular-matrix: rank 2",
       "matrix3: zero",
     ].every((message: string): boolean =>
-      isRecoveryCameraNumericalRefusal(new Error(message)),
+      AutoMovieRecoveryCameraMap.isCameraNumericalRefusal(new Error(message)),
     ),
   );
   TestValidator.predicate(
     "other failures",
-    !isRecoveryCameraNumericalRefusal(new RangeError("camera-pose: x")) &&
-      !isRecoveryCameraNumericalRefusal(new Error("unexpected")),
+    !AutoMovieRecoveryCameraMap.isCameraNumericalRefusal(new RangeError("camera-pose: x")) &&
+      !AutoMovieRecoveryCameraMap.isCameraNumericalRefusal(new Error("unexpected")),
   );
 }

@@ -3,61 +3,26 @@ import type {
   IAutoMovieCapturePlanRequest,
   IAutoMovieCaptureRecord,
 } from "@automovie/interface";
+import { AutoMovieRenderCapture } from "@automovie/render";
 import {
-  parseAutoMovieCapturePlanRequest,
-  readAutoMovieCaptureArguments,
-} from "@automovie/render";
-import {
-  AutoMovieCaptureHost,
-  loadAutoMovieProductionModule,
-  renderAutoMovieVideo,
-  resolveAutoMovieFfmpeg,
+  AutoMovieCliCaptureHost,
+  AutoMovieCliProduction,
+  AutoMovieCliRender,
+  AutoMovieCliFfmpeg,
 } from "automovie";
 import path from "node:path";
 
-import { markMotionCaptureCase } from "../capture/markMotionCaptureCase";
-import type { IMotionCaptureCase } from "./IMotionCaptureCase";
-import type { IMotionCaptureProps } from "./IMotionCaptureProps";
-import { buildMotionCaptureCases } from "./buildMotionCaptureCases";
+import { markMotionCaptureCase } from "../capture/internal/markMotionCaptureCase";
+import type { IMotionCaptureCase } from "./internal/IMotionCaptureCase";
+import type { IMotionCaptureProps } from "./internal/IMotionCaptureProps";
+import { buildMotionCaptureCases } from "./internal/buildMotionCaptureCases";
 import { MOTION_CAPTURE_CASES } from "./cases/MOTION_CAPTURE_CASES";
-import { planMotionCaptureProps } from "./planMotionCaptureProps";
+import { planMotionCaptureProps } from "./internal/planMotionCaptureProps";
 
-/** The motions package, whose `media/capture/<case>/` holds each case's capture. */
-const ROOT: string = path.join(__dirname, "..", "..");
-
-/** The subject module the draw page is built from. */
-const MODULE: string = "src/executable/subjects.ts";
-
-/**
- * The harness's default views by its own names, as view texts of the shared
- * grammar: orthographic, fitted to everything a case draws over all its
- * instants, so lengths read true to scale and every cell of a view shares one
- * camera.
- */
-const VIEWS: Readonly<Record<string, string>> = {
-  front: "front@ortho",
-  side: "right@ortho",
-  top: "top@ortho",
-  threeQuarter: "three-quarter@ortho",
-};
-/** The record of `IRASTER`'s site. */
-type IRASTER = { width: number; height: number };
-
-/**
- * Pixels on each side of every still: square, so the four views share one cell
- * shape.
- */
-const RASTER: IRASTER = { width: 720, height: 720 };
-/** The record of `IMotionCaptureRecord`'s site. */
-type IMotionCaptureRecord = { state: "complete" };
-
-/** The record of `IMotionCaptureRequestInstant`'s site. */
-type IMotionCaptureRequestInstant = { seconds: number };
-
-/**
+/*
  * Draw motion cases through the shared capture host and report their verdicts.
  *
- * `pnpm --dir packages/motions node:capture -- --case <name>[,<name>…]` builds
+ * `pnpm --dir packages/motions node:capture -- --case <name>[,<name>??` builds
  * each named case of `MOTION_CAPTURE_CASES` (`--list` prints them) and captures
  * it with `automovie capture`'s host: the page built from `subjects` draws the
  * case's instants (`at`) through its views into
@@ -78,7 +43,7 @@ type IMotionCaptureRequestInstant = { seconds: number };
  * `at` are the case's. Without `--marks`, every mark of the case is drawn.
  */
 export async function motionCapture(): Promise<void> {
-  const options: Map<string, string> = readAutoMovieCaptureArguments(
+  const options: Map<string, string> = AutoMovieRenderCapture.readArguments(
     process.argv
       .slice(2)
       .filter((argument: string): boolean => argument !== "--"),
@@ -126,13 +91,13 @@ export async function motionCapture(): Promise<void> {
   }
   // FFmpeg is found before the page is built, so a missing encoder costs no drawing.
   const ffmpeg: string | null = video
-    ? resolveAutoMovieFfmpeg({
+    ? AutoMovieCliFfmpeg.resolve({
         env: process.env,
         load: (id: "ffmpeg-static"): string | null =>
-          loadAutoMovieProductionModule<string | null>(ROOT, id),
+          AutoMovieCliProduction.loadModule<string | null>(ROOT, id),
       })
     : null;
-  const host: AutoMovieCaptureHost = await AutoMovieCaptureHost.open({
+  const host: AutoMovieCliCaptureHost = await AutoMovieCliCaptureHost.open({
     root: ROOT,
     module: MODULE,
     backend,
@@ -149,7 +114,7 @@ export async function motionCapture(): Promise<void> {
       const marked: boolean = markMotionCaptureCase(props).length !== 0;
 
       const request: IAutoMovieCapturePlanRequest =
-        parseAutoMovieCapturePlanRequest(
+        AutoMovieRenderCapture.parsePlanRequest(
           new Map<string, string>([
             ...options,
             ["subject", capture.name],
@@ -207,8 +172,8 @@ export async function motionCapture(): Promise<void> {
 
       // The case's whole clock as a video, drawn by the same page.
       if (ffmpeg !== null) {
-        const written: Awaited<ReturnType<typeof renderAutoMovieVideo>> =
-          await renderAutoMovieVideo({
+        const written: Awaited<ReturnType<typeof AutoMovieCliRender.renderVideo>> =
+          await AutoMovieCliRender.renderVideo({
             host,
             root: ROOT,
             subject: capture.name,
@@ -225,7 +190,51 @@ export async function motionCapture(): Promise<void> {
   if (failed !== 0) process.exitCode = 1;
 }
 
-/** Print one case's verdicts; returns the number that failed. */
+/*
+ * The motions package, whose `media/capture/<case>/` holds each case's capture.
+ */
+const ROOT: string = path.join(__dirname, "..", "..");
+
+/*
+ * The subject module the draw page is built from.
+ */
+const MODULE: string = "src/executable/subjects.ts";
+/*
+ * The harness's default views by its own names, as view texts of the shared
+ * grammar: orthographic, fitted to everything a case draws over all its
+ * instants, so lengths read true to scale and every cell of a view shares one
+ * camera.
+ */
+const VIEWS: Readonly<Record<string, string>> = {
+  front: "front@ortho",
+  side: "right@ortho",
+  top: "top@ortho",
+  threeQuarter: "three-quarter@ortho",
+};
+
+/*
+ * The record of `IRASTER`'s site.
+ */
+type IRASTER = { width: number; height: number };
+/*
+ * Pixels on each side of every still: square, so the four views share one cell
+ * shape.
+ */
+const RASTER: IRASTER = { width: 720, height: 720 };
+
+/*
+ * The record of `IMotionCaptureRecord`'s site.
+ */
+type IMotionCaptureRecord = { state: "complete" };
+
+/*
+ * The record of `IMotionCaptureRequestInstant`'s site.
+ */
+type IMotionCaptureRequestInstant = { seconds: number };
+
+/*
+ * Print one case's verdicts; returns the number that failed.
+ */
 function report(capture: IMotionCaptureCase): number {
   const verdicts: IMotionCaptureCase.IVerdict[] = capture.verdicts ?? [];
   console.log(`${capture.name}: ${capture.times.length} instants`);

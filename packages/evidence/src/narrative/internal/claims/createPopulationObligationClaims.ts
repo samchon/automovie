@@ -13,7 +13,7 @@ import { BODY_ROOT } from "../utilities/BODY_ROOT";
 import { createUnitFiles } from "../utilities/createUnitFiles";
 import { hasStoryContract } from "../utilities/hasStoryContract";
 
-/**
+/*
  * Creates the population obligation claims for a complete layer.
  *
  * An obligation asks one question about the whole layer, so the layer's own
@@ -32,9 +32,12 @@ export function createPopulationObligationClaims(
   const disabled: boolean = constructionStage(props, layer) === "disabled";
 
   // Older trees can omit supplements and earlier layers' own obligations.
-  const optional: (file: string) => boolean = (file: string): boolean =>
-    file === "realized.md" ||
-    (layer !== "screenplay" && file === `${layer}.md`);
+  function optional(file: string): boolean {
+    return (
+      file === "realized.md" ||
+      (layer !== "screenplay" && file === `${layer}.md`)
+    );
+  }
   const shared: IEvidenceClaim[] = layerFiles(layer)
     .filter(
       (file: string): boolean =>
@@ -74,7 +77,9 @@ export function createPopulationObligationClaims(
   return [...shared, ...language];
 }
 
-/** Creates one claim whose layer documents answer each item exactly once. */
+/*
+ * Creates one claim whose layer documents answer each item exactly once.
+ */
 function claim(props: {
   disabled: boolean;
   layer: AuthoredLayer;

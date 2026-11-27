@@ -1,7 +1,4 @@
-import {
-  inspectAutoMovieMeshTopology,
-  meshAutoMovieSweep,
-} from "@automovie/engine";
+import { AutoMovieEngineGeometry, AutoMovieEngineSweep } from "@automovie/engine";
 import type {
   IAutoMovieMesh,
   IAutoMovieProfilePoint,
@@ -13,7 +10,7 @@ import { PROCEDURAL_TEST_SQUARE as square } from "../../internal/PROCEDURAL_TEST
 import { throwsError } from "../../internal/predicates";
 
 /**
- * `meshAutoMovieSweep` sweeps one constant polygon section along a path, one
+ * `meshSweep` sweeps one constant polygon section along a path, one
  * smooth ring per path point, capped.
  *
  * Fixture: the 2 m procedural test square, and the same square scaled by 0.1.
@@ -33,7 +30,7 @@ export function test_engine_geometry_mesh_sweep(): void {
     path: IAutoMovieVector3[],
     normal: IAutoMovieVector3,
   ): IAutoMovieMesh =>
-    meshAutoMovieSweep({
+    AutoMovieEngineSweep.meshSweep({
       sweep: {
         spine: { points: path, normal },
         stations: [{ at: 0, section: { type: "polygon", points: [...profile] } }],
@@ -64,7 +61,7 @@ export function test_engine_geometry_mesh_sweep(): void {
   );
   TestValidator.predicate(
     "vertical volume",
-    Math.abs(inspectAutoMovieMeshTopology(vertical).volume - 8) <= 1e-12,
+    Math.abs(AutoMovieEngineGeometry.inspectMeshTopology(vertical).volume - 8) <= 1e-12,
   );
 
   // 2.

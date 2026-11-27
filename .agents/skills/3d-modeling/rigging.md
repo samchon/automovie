@@ -9,7 +9,7 @@ Read the required use, retained source and package contracts for import, model, 
 | The asset | Rig |
 | --- | --- |
 | Rigid parts on pivots | One node per part on its real pivot |
-| A humanoid | A skin bound to the humanoid joint set the installed packages' motion performs on |
+| A humanoid | Skin bound to the installed motions' humanoid joints |
 | Other deforming body | Skin bound to the joints its motion drives |
 
 Add no joint that nothing drives.
@@ -62,9 +62,9 @@ Choose coverage, such as shoulder and hip bends, twisting, hands and face, attac
 
 | Seen | Usual cause |
 | --- | --- |
-| The mesh displaced or scattered at rest | A bind pose not matching the skeleton, or a unit or axis converted twice |
-| One limb dragging another, or the torso following an arm | Weights that crossed between surfaces touching at bind |
-| A joint pinching flat when it twists or bends far | The limit of linear blending, not a binding error |
+| Rest mesh displaced or scattered | Wrong bind or doubled unit or axis map |
+| One limb drags another or the torso follows its arm | Crossed bind weights |
+| Joint pinches when twisting or bending | Linear blending's limit |
 | A piece left behind or torn off | A loose piece with no weights |
 
 Attach a loose piece to one joint. For a joint that pinches flat, add a twist joint or compare the other skinning method.

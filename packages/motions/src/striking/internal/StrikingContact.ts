@@ -1,0 +1,123 @@
+import { AutoMovieEngineVector3, AutoMovieEngineMath, AutoMovieEnginePhysics } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanStrikingContact,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+/*
+ * When and where a moving weapon first touches a surface of another body.
+ *
+ * The weapon is a point on its striking surface (the fist's knuckles, the
+ * shin's front, the knee, the sole) moving along the strike's path; the other
+ * body is its own collision shapes (the shapes of its physical profile, posed
+ * with its bones), so a strike meets whatever the other body has on its line at
+ * that instant: the region it aimed at, a blocking forearm, a covering glove, a
+ * checking shin, or an arm crossing the line in a simultaneous exchange.
+ * Contact is the first instant the weapon point's distance to any shape falls
+ * to zero, the continuous-collision test of a moving point against moving
+ * convex shapes (Ericson, Real-Time Collision Detection, 2005, ch. 5); it is
+ * found by scanning a fixed time step and bisecting the first crossing a fixed
+ * number of times, so the result is deterministic and resolved to the step over
+ * 2^24.
+ *
+ * The striking laws' own weapons are now limb capsules resolved jointly by the
+ * performance against `HumanColliders`; these point queries and the scan serve
+ * a stroke that scans for itself, the floor rest's shape list and the capture
+ * verdicts.
+ */
+export namespace StrikingContact {
+  /*
+   * The closest point of a segment to a point.
+   * Parameter p: The point.
+   * Parameter a: The segment's start.
+   * Parameter b: The segment's end.
+   * Returns: The closest point of the segment.
+   */
+  export function closest(
+    p: IAutoMovieVector3,
+    a: IAutoMovieVector3,
+    b: IAutoMovieVector3,
+  ): IAutoMovieVector3 {
+    const ab: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(b, a);
+    const len2: number = AutoMovieEngineVector3.dot(ab, ab);
+    if (len2 < 1e-18) return a;
+    const t: number = Math.min(
+      1,
+      Math.max(0, AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(p, a), ab) / len2),
+    );
+    return AutoMovieEngineVector3.add(a, AutoMovieEngineVector3.scale(ab, t));
+  }
+
+  /*
+   * The signed distance from a point to a shape's surface: positive outside,
+   * zero on it, negative inside by the depth to the nearest face.
+   * Parameter p: The point, world metres.
+   * Parameter shape: The shape.
+   * Returns: Metres.
+   */
+  export function distance(
+    p: IAutoMovieVector3,
+    shape: IAutoMovieMotionHumanStrikingContact.ICollider,
+  ): number {
+    return AutoMovieEnginePhysics.physicalShapeNearest(shape.pose, shape.shape, p, p).distance;
+  }
+
+  /*
+   * The nearest shape to a point and its signed distance.
+   * Parameter p: The point.
+   * Parameter shapes: The shapes.
+   * Returns: The nearest shape's name and distance, or undefined without
+   * shapes.
+   */
+  export function nearest(
+    p: IAutoMovieVector3,
+    shapes: readonly IAutoMovieMotionHumanStrikingContact.ICollider[],
+  ): IAutoMovieMotionHumanStrikingContact.INearestResult {
+    let best: INearestBest | undefined;
+    for (const s of shapes) {
+      const d: number = distance(p, s);
+      if (best === undefined || d < best.distance)
+        best = { name: s.name, distance: d };
+    }
+    return best;
+  }
+
+  /*
+   * The first instant in a span at which a gap function reaches zero: scanned
+   * at `step`, the first bracketed crossing bisected 24 times.
+   * Parameter gap: Signed gap at a second; non-positive in contact.
+   * Parameter from: Span start, seconds.
+   * Parameter to: Span end, seconds.
+   * Parameter step: Scan step, seconds; positive.
+   * Returns: The first contact second, or undefined when the gap stays
+   * positive.
+   * When the step is not positive.
+   */
+  export function first(
+    gap: (seconds: number) => number,
+    from: number,
+    to: number,
+    step: number,
+  ): number | undefined {
+    if (!(step > 0)) throw new Error("A contact scan step is positive");
+    if (gap(from) <= 0) return from;
+    let previous: number = from;
+    for (let k: number = 1; ; k++) {
+      const t: number = Math.min(to, from + k * step);
+      if (gap(t) <= 0)
+        return AutoMovieEngineMath.bracketedBisection(
+          (seconds: number): boolean => gap(seconds) > 0,
+          previous,
+          t,
+          (t - previous) / 2 ** 24,
+        );
+      if (t >= to) return undefined;
+      previous = t;
+    }
+  }
+}
+
+/*
+ * The record of `INearestBest`'s site.
+ */
+type INearestBest = { name: string; distance: number };

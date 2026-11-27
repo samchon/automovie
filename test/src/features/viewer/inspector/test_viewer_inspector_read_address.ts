@@ -1,8 +1,8 @@
-import { readAutoMovieInspectorAddress } from "@automovie/viewer";
+import { AutoMovieViewerInspector } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `readAutoMovieInspectorAddress` reads an address's query text, with or
+ * `AutoMovieViewerInspector.readAddress` reads an address's query text, with or
  * without its leading `?`, and refuses a key it does not know.
  *
  * Scenarios:
@@ -13,8 +13,8 @@ import { TestValidator } from "@nestia/e2e";
 export function test_viewer_inspector_read_address(): void {
   TestValidator.equals(
     "a leading ?",
-    readAutoMovieInspectorAddress("?at=1"),
-    readAutoMovieInspectorAddress("at=1"),
+    AutoMovieViewerInspector.readAddress("?at=1"),
+    AutoMovieViewerInspector.readAddress("at=1"),
   );
   for (const [text, key] of [
     ["colour=1", "colour"],
@@ -22,7 +22,7 @@ export function test_viewer_inspector_read_address(): void {
   ] as const)
     TestValidator.error(`${text} is refused`, (): unknown => {
       try {
-        return readAutoMovieInspectorAddress(text);
+        return AutoMovieViewerInspector.readAddress(text);
       } catch (error) {
         if (error instanceof Error && error.message.includes(key)) throw error;
         return undefined;

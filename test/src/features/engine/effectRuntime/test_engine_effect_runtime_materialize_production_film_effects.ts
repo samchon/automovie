@@ -1,7 +1,4 @@
-import {
-  AutoMovieFilmEffectRuntimeError,
-  materializeProductionFilmEffects,
-} from "@automovie/engine";
+import { AutoMovieEngineFilmEffectRuntimeError, AutoMovieEngineEffect } from "@automovie/engine";
 import type {
   IAutoMovieCompiledFilmEffect,
   IAutoMovieFilmTimeline,
@@ -18,7 +15,7 @@ const refusal: (timeline: IAutoMovieFilmTimeline) => string | null = (
   timeline: IAutoMovieFilmTimeline,
 ): string | null => {
   try {
-    materializeProductionFilmEffects({
+    AutoMovieEngineEffect.materializeProductionFilmEffects({
       identity: filmEffectIdentity(timeline),
       frameRate: 24,
       world: filmEffectWorld(),
@@ -26,7 +23,7 @@ const refusal: (timeline: IAutoMovieFilmTimeline) => string | null = (
     });
     return null;
   } catch (error) {
-    return error instanceof AutoMovieFilmEffectRuntimeError ? error.code : null;
+    return error instanceof AutoMovieEngineFilmEffectRuntimeError ? error.code : null;
   }
 };
 
@@ -47,7 +44,7 @@ const refusal: (timeline: IAutoMovieFilmTimeline) => string | null = (
 export function test_engine_effect_runtime_materialize_production_film_effects(): void {
   const timeline: IAutoMovieFilmTimeline = filmEffectTimeline();
   const runtimes: IAutoMovieCompiledFilmEffect[] =
-    materializeProductionFilmEffects({
+    AutoMovieEngineEffect.materializeProductionFilmEffects({
       identity: filmEffectIdentity(timeline),
       frameRate: 24,
       world: filmEffectWorld(),

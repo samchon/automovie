@@ -1,8 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  resolveAutoMovieRelationalGoal,
-} from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineCompositionPose } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalSegment,
   IAutoMovieResolveRelationalGoal,
@@ -17,7 +13,7 @@ import { PhysicalModelFixtures } from "../../internal/PhysicalModelFixtures";
 const REACH: number = 0.01;
 
 /**
- * `resolveAutoMovieRelationalGoal` resolves a goal on another subject's named
+ * `resolveRelationalGoal` resolves a goal on another subject's named
  * region, never on a scene coordinate: within its window the performer's
  * surface is reached onto the target, read at the window's start under `freeze`
  * and at the instant under `track`; outside the window the prior pose returns
@@ -42,7 +38,7 @@ export function test_engine_composition_resolve_relational_goal(): void {
         (s: IAutoMoviePhysicalSegment): [string, IAutoMovieRigidTransform] => [
           s.bone,
           {
-            position: Vector3.add(s.neutral.position, offset),
+            position: AutoMovieEngineVector3.add(s.neutral.position, offset),
             rotation: { ...s.neutral.rotation },
           },
         ],
@@ -82,7 +78,7 @@ export function test_engine_composition_resolve_relational_goal(): void {
     lock: "freeze" | "track",
     seconds: number,
   ): IAutoMovieResolveRelationalGoal.IResult =>
-    resolveAutoMovieRelationalGoal({
+    AutoMovieEngineCompositionPose.relationalGoal({
       performer: "a",
       goal: {
         surface: { bone: "rightHand", localPoint: { x: -0.05, y: 0, z: 0 } },
@@ -97,9 +93,9 @@ export function test_engine_composition_resolve_relational_goal(): void {
     result: IAutoMovieResolveRelationalGoal.IResult,
   ): IAutoMovieVector3 => {
     const pose: IAutoMovieRigidTransform = result.targets.rightHand!;
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       pose.position,
-      Quaternion.rotateVector(pose.rotation, { x: -0.05, y: 0, z: 0 }),
+      AutoMovieEngineQuaternion.rotateVector(pose.rotation, { x: -0.05, y: 0, z: 0 }),
     );
   };
   const frozen = reach("freeze", 1.5);
@@ -111,7 +107,7 @@ export function test_engine_composition_resolve_relational_goal(): void {
       Math.abs(tracked.point!.z - (-0.4 - 0.1 * 1.5)) < 1e-12 &&
       frozen.position < REACH &&
       tracked.position < REACH &&
-      Vector3.length(Vector3.subtract(hand(frozen), frozen.point!)) < REACH,
+      AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(hand(frozen), frozen.point!)) < REACH,
   );
   const outside = reach("track", 2.5);
   TestValidator.predicate(

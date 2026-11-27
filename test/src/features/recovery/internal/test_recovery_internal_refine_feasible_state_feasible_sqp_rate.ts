@@ -2,7 +2,7 @@ import type {
   IAutoMovieRecoveryFeasibleFit,
   IAutoMovieRecoveryFeasibleProblem,
 } from "@automovie/interface";
-import { refineRecoveryFeasibleState } from "@automovie/recovery";
+import { AutoMovieRecoveryCameraMap } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -80,7 +80,7 @@ export function test_recovery_internal_refine_feasible_state_feasible_sqp_rate()
         },
       };
       const fit: IAutoMovieRecoveryFeasibleFit<number> =
-        refineRecoveryFeasibleState(
+        AutoMovieRecoveryCameraMap.refineFeasibleState(
           problem,
           100,
           1e-8,

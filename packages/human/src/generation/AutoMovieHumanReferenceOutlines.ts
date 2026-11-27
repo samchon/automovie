@@ -13,13 +13,13 @@ import type {
  * shapes. Each table names the reading that produced it under
  * `test/src/features/human/estimate/`, its normalization, and its consumer;
  * each row is a station share and the mean of each column over the people the
- * station read on, with its SD over them. A cell is kept when read on at
- * least two people with an SD of at most 0.25 of its normalizing measure (the
+ * station read on, with its SD over them. A cell is kept when read on at least
+ * two people with an SD of at most 0.25 of its normalizing measure (the
  * per-stature mass tables: at most its mean's magnitude); a station whose
- * reading fell apart across the people, as where the pack's arcs miss a
- * side, leaves that cell out and the column reads through from its
- * neighbours. A table whose rows are empty would wait for its reading's run,
- * and its reader reports that rather than inventing a shape.
+ * reading fell apart across the people, as where the pack's arcs miss a side,
+ * leaves that cell out and the column reads through from its neighbours. A
+ * table whose rows are empty would wait for its reading's run, and its reader
+ * reports that rather than inventing a shape.
  *
  * Scaling: the private tables contain shares of the person's own measures;
  * stations are shares between landmarks. SHIN_UPPER_LID instead retains its
@@ -35,19 +35,19 @@ import type {
  */
 export namespace AutoMovieHumanReferenceOutlines {
   /**
-   * Shin et al. 2025, PLOS One e0316714, S3 Appendix's executed cubic
-   * matrices P2 (female) and P1 (male), not its inconsistent example prose.
-   * Points are [temporal-to-nasal, superior] in photo-scale mm about the pupil;
-   * a 12 mm corneal diameter supplies scale. Endpoints span the medial
-   * commissure to lateral canthus, not an unoccluded 3D en-ex measurement.
-   * Sex assignment is inferred by matching the published widths and peaks.
+   * Shin et al. 2025, PLOS One e0316714, S3 Appendix's executed cubic matrices
+   * P2 (female) and P1 (male), not its inconsistent example prose. Points are
+   * [temporal-to-nasal, superior] in photo-scale mm about the pupil; a 12 mm
+   * corneal diameter supplies scale. Endpoints span the medial commissure to
+   * lateral canthus, not an unoccluded 3D en-ex measurement. Sex assignment is
+   * inferred by matching the published widths and peaks.
    * `head/AutoMovieHumanHeadEyeParts` maps the chord and its residual to the
    * supplied 3D endpoint chord and pupil-aligned margin separation; this is
-   * upper margin only, not an absolute pupil-elevation measurement.
-   * Its normalized source parameter is Bezier t: mapped values and first/
-   * second jets declare that same cubic, not a sparse natural-spline refit.
-   * Final loft interpolation and the separate AP/lower courses remain distinct.
-   * Source and limitations: `docs/sources/shin-2025-upper-eyelid-contour.md`.
+   * upper margin only, not an absolute pupil-elevation measurement. Its
+   * normalized source parameter is Bezier t: mapped values and first/ second
+   * jets declare that same cubic, not a sparse natural-spline refit. Final loft
+   * interpolation and the separate AP/lower courses remain distinct. Source and
+   * limitations: `docs/sources/shin-2025-upper-eyelid-contour.md`.
    */
   export const SHIN_UPPER_LID: Readonly<
     Record<
@@ -1830,7 +1830,10 @@ export namespace AutoMovieHumanReferenceOutlines {
     ],
   };
 
-  /** The breast's profile about the bust point, -1 down or medial to 1 up or lateral. */
+  /**
+   * The breast's profile about the bust point, -1 down or medial to 1 up or
+   * lateral.
+   */
   export const BREAST: IAutoMovieHumanReferenceOutlineTypes.ITable = {
     reading: "test_human_estimate_masses",
     normalization:
@@ -2167,7 +2170,10 @@ export namespace AutoMovieHumanReferenceOutlines {
     ],
   };
 
-  /** The thigh's lateral share about the femur's line, knee 0 toward the crotch 1. */
+  /**
+   * The thigh's lateral share about the femur's line, knee 0 toward the crotch
+   * 1.
+   */
   export const THIGH_SPLIT: IAutoMovieHumanReferenceOutlineTypes.ITable = {
     reading: "test_human_estimate_thigh_split",
     normalization:
@@ -2221,10 +2227,10 @@ export namespace AutoMovieHumanReferenceOutlines {
 
   /**
    * The gluteal mass's footprint about the buttock's most posterior point,
-   * women and men apart, as {@link BREAST_FOOTPRINT}: the wall's line runs
-   * from the gluteal fold to the back hull's first vertex toward iliocristale,
-   * the medial edge toward the cleft. The down edge's spread is near its
-   * mean in women (the fold reads at varying depth on the leg's sections).
+   * women and men apart, as {@link BREAST_FOOTPRINT}: the wall's line runs from
+   * the gluteal fold to the back hull's first vertex toward iliocristale, the
+   * medial edge toward the cleft. The down edge's spread is near its mean in
+   * women (the fold reads at varying depth on the leg's sections).
    */
   export const GLUTEAL_FOOTPRINT: IAutoMovieHumanReferenceOutlines.IGlutealFootprint =
     {
@@ -2285,10 +2291,11 @@ export namespace AutoMovieHumanReferenceOutlines {
    *
    * @param table The table.
    * @param column One of its columns.
-   * @param share Finite station share; values outside the retained range are held at its endpoints.
+   * @param share Finite station share; values outside the retained range are
+   *   held at its endpoints.
    * @returns The value at the share.
-   * @throws When the table's rows wait for their reading's run, the column is not the table's, or no row keeps it.
-   *
+   * @throws When the table's rows wait for their reading's run, the column is
+   *   not the table's, or no row keeps it.
    * @evidence contracts/common.md#principled-implementation Filters retained cells, holds the first/last value outside their range and uses affine interpolation between finite, strictly ordered station rows.
    * @evidence contracts/common.md#clear-and-simple-design One scalar reader serves all tables and reports absent tables, undeclared columns and columns with no observations.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Fills no source cell and has no person, fixture, curve-fit or expected-output branch; interpolation remains a derived value.
@@ -2319,9 +2326,9 @@ export namespace AutoMovieHumanReferenceOutlines {
       throw new Error(
         `AutoMovieHumanReferenceOutlines: ${table.reading} kept no station of column ${column}`,
       );
-    const read: (r: IAutoMovieHumanReferenceOutlineTypes.IRow) => number = (
-      r: IAutoMovieHumanReferenceOutlineTypes.IRow,
-    ): number => r.values[column]!;
+    function read(r: IAutoMovieHumanReferenceOutlineTypes.IRow): number {
+      return r.values[column]!;
+    }
     if (share <= rows[0]!.share) return read(rows[0]!);
     for (let i: number = 0; i + 1 < rows.length; i++) {
       const a: IAutoMovieHumanReferenceOutlineTypes.IRow = rows[i]!;

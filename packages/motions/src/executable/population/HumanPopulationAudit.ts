@@ -9,61 +9,77 @@ import { HumanPopulationAccess } from "./HumanPopulationAccess";
 import { HumanPopulationConditional } from "./HumanPopulationConditional";
 import { HumanPopulationSurvey } from "./HumanPopulationSurvey";
 
-type P = IAutoMovieHumanParameters;
-type Sex = HumanPopulationSurvey.Sex;
-type Variable = HumanPopulationSurvey.Variable;
-type Key = IAutoMovieHumanBodyAnthropometry.TapeControl | "height";
-type Field = Exclude<keyof IAutoMovieHumanBodyAnatomy, "sex">;
-
-/**
+/*
  * The consistency check of a person's inputs against the declared domain and
  * the published population: each input inside its range and each relation
  * between inputs inside its sex's band.
  */
 export namespace HumanPopulationAudit {
-  /** One check of a person's inputs. */
+  /*
+   * One check of a person's inputs.
+   */
   export interface IRow {
-    /** Person. */
+    /*
+     * Person.
+     */
     person: string;
 
-    /** What was read. */
+    /*
+     * What was read.
+     */
     site: string;
 
-    /** Value read; NaN when the input is absent. */
+    /*
+     * Value read; NaN when the input is absent.
+     */
     value: number;
 
-    /** Least value that passes. */
+    /*
+     * Least value that passes.
+     */
     low: number;
 
-    /** Largest value that passes. */
+    /*
+     * Largest value that passes.
+     */
     high: number;
 
-    /** Unit. */
+    /*
+     * Unit.
+     */
     unit: string;
   }
 
-  /** A relation between a person's inputs that the population bounds. */
+  /*
+   * A relation between a person's inputs that the population bounds.
+   */
   export interface IRelation {
-    /** What it relates. */
+    /*
+     * What it relates.
+     */
     label: string;
 
-    /** Where its band comes from. */
+    /*
+     * Where its band comes from.
+     */
     source: string;
 
-    /**
+    /*
      * The relation's values on a person's inputs, one per side where the input
      * is paired.
      */
     read: (p: P) => number[];
 
-    /** Band per sex. */
+    /*
+     * Band per sex.
+     */
     band: Record<Sex, readonly [number, number]>;
   }
 
-  /**
+  /*
    * Relations between inputs measured by the survey's own definitions, each
    * band its sex's per-subject mean plus and minus
-   * {@link HumanPopulationSurvey.BAND} SD in ANSUR 1988
+   * HumanPopulationSurvey.BAND SD in ANSUR 1988
    * (`ansur-1988-boundary-people.md`); the cephalic index's band also takes in
    * Du et al. 2008's Chinese workers (`du-2008-chinese-workers.md`), since head
    * shape varies by ancestry more than within one Army. The cephalic index per
@@ -271,7 +287,7 @@ export namespace HumanPopulationAudit {
     },
   ];
 
-  /**
+  /*
    * Survey-defined inputs whose value must lie within what some surveyed adult
    * of the person's sex has.
    */
@@ -378,15 +394,14 @@ export namespace HumanPopulationAudit {
     ],
   ];
 
-  /**
+  /*
    * Every check of one person's inputs: each body measure inside its declared
    * domain, the declared sex the person's own, each survey measure inside its
    * sex's surveyed range, and each population relation inside its band.
-   *
-   * @param person Name in findings.
-   * @param sex The sex whose statistics the inputs must satisfy.
-   * @param p The person's inputs.
-   * @returns Every row, passing or not.
+   * Parameter person: Name in findings.
+   * Parameter sex: The sex whose statistics the inputs must satisfy.
+   * Parameter p: The person's inputs.
+   * Returns: Every row, passing or not.
    */
   export function audit(person: string, sex: Sex, p: P): IRow[] {
     const rows: IRow[] = [];
@@ -440,22 +455,20 @@ export namespace HumanPopulationAudit {
     return rows;
   }
 
-  /**
+  /*
    * Whether a row passes.
-   *
-   * @param row The row.
-   * @returns Whether its value lies in its bounds.
+   * Parameter row: The row.
+   * Returns: Whether its value lies in its bounds.
    */
   export function passes(row: IRow): boolean {
     return row.value >= row.low && row.value <= row.high;
   }
 
-  /**
+  /*
    * A body measure's resolved value on a person, by its reading name.
-   *
-   * @param p The person's inputs.
-   * @param key The measure.
-   * @returns Its value.
+   * Parameter p: The person's inputs.
+   * Parameter key: The measure.
+   * Returns: Its value.
    */
   function v(p: P, key: Key): number {
     const m: ReturnType<typeof HumanPopulationAccess.measures> =
@@ -465,15 +478,14 @@ export namespace HumanPopulationAudit {
       : m[AutoMovieHumanBodyAnatomy.TAPE_FIELD[key]];
   }
 
-  /**
+  /*
    * A relation whose band is its sex's ANSUR 1988 per-subject mean plus and
-   * minus {@link HumanPopulationSurvey.BAND} SD.
-   *
-   * @param label What it relates.
-   * @param read The relation's values on a person.
-   * @param female Women's mean and SD.
-   * @param male Men's mean and SD.
-   * @returns The relation.
+   * minus HumanPopulationSurvey.BAND SD.
+   * Parameter label: What it relates.
+   * Parameter read: The relation's values on a person.
+   * Parameter female: Women's mean and SD.
+   * Parameter male: Men's mean and SD.
+   * Returns: The relation.
    */
   function survey(
     label: string,
@@ -496,3 +508,9 @@ export namespace HumanPopulationAudit {
     };
   }
 }
+type P = IAutoMovieHumanParameters;
+type Sex = HumanPopulationSurvey.Sex;
+type Variable = HumanPopulationSurvey.Variable;
+type Key = IAutoMovieHumanBodyAnthropometry.TapeControl | "height";
+
+type Field = Exclude<keyof IAutoMovieHumanBodyAnatomy, "sex">;

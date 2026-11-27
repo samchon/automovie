@@ -3,8 +3,10 @@ import type {
   IAutoMovieMotionHumanProp,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanObject } from "@automovie/motions";
-import { HumanPropDynamics } from "@automovie/motions/internal";
+import { AutoMovieMotionHumanObject } from "@automovie/motions";
+import {
+  HumanPropDynamics
+} from "../../../../../packages/motions/src/perform/internal/HumanPropDynamics";
 import { TestValidator } from "@nestia/e2e";
 
 import { testAffordance } from "../../internal/fixtures/testAffordance";
@@ -50,7 +52,7 @@ export function test_motions_perform_prop_dynamics_drives(): void {
     ],
   };
   const door: IAutoMovieMotionHumanProp = {
-    ...HumanObject.prop("door", model, { at: { x: 0, y: 0, z: 0 }, yaw: 0 }),
+    ...AutoMovieMotionHumanObject.prop("door", model, { at: { x: 0, y: 0, z: 0 }, yaw: 0 }),
     articulate: () => ({ affordances: model.affordances ?? [] }),
     tracks: [
       {
@@ -107,7 +109,7 @@ export function test_motions_perform_prop_dynamics_drives(): void {
 
   // 3. A slide.
   const crate: IAutoMovieMotionHumanProp = {
-    ...HumanObject.prop(
+    ...AutoMovieMotionHumanObject.prop(
       "crate",
       { affordances: [] },
       { at: { x: 1, y: 0, z: 2 }, yaw: 0 },

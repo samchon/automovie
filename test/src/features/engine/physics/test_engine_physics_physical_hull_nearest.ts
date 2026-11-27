@@ -1,10 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  physicalHullFaces,
-  physicalHullNearest,
-  physicalShapeNearest,
-} from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysicalHullFaces, AutoMovieEnginePhysicalHull, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalHullFaces,
   IAutoMoviePhysicalShape,
@@ -44,7 +38,7 @@ const SEGMENT_END: number = 1e-8;
 export function test_engine_physics_physical_hull_nearest(): void {
   const still: IAutoMovieRigidTransform = {
     position: { x: 0, y: 0, z: 0 },
-    rotation: Quaternion.identity(),
+    rotation: AutoMovieEngineQuaternion.identity(),
   };
   const hullOf = (points: IAutoMovieVector3[]): IAutoMoviePhysicalShape => ({
     id: "hull",
@@ -58,7 +52,7 @@ export function test_engine_physics_physical_hull_nearest(): void {
     a: IAutoMovieVector3,
     b: IAutoMovieVector3,
   ): IAutoMoviePhysicalShapeNearest.IResult =>
-    physicalShapeNearest(still, shape, a, b);
+    AutoMovieEnginePhysics.physicalShapeNearest(still, shape, a, b);
 
   // 1. Hand cases on a box hull.
   const half: IAutoMovieVector3 = { x: 0.5, y: 0.2, z: 0.1 };
@@ -97,7 +91,7 @@ export function test_engine_physics_physical_hull_nearest(): void {
       Math.abs(through.at.x) <= 0.4 + PhysicalTolerance.ROUNDING &&
       Math.abs(skew.distance - 0.5) < PhysicalTolerance.ROUNDING &&
       Math.abs(skew.at.z) < PhysicalTolerance.ACCUMULATED &&
-      Vector3.length(Vector3.subtract(skew.normal, { x: 0.6, y: 0.8, z: 0 })) <
+      AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(skew.normal, { x: 0.6, y: 0.8, z: 0 })) <
         PhysicalTolerance.ACCUMULATED,
   );
 
@@ -120,16 +114,16 @@ export function test_engine_physics_physical_hull_nearest(): void {
   ): number => {
     const planes: number[] = hull.faces.map(
       (face: IAutoMoviePhysicalHullFaces.IFace): number =>
-        Vector3.dot(face.normal, p) - face.offset,
+        AutoMovieEngineVector3.dot(face.normal, p) - face.offset,
     );
     const depth: number = Math.max(...planes);
     if (depth <= 0) return depth;
     let least: number = Infinity;
     hull.faces.forEach(
       (face: IAutoMoviePhysicalHullFaces.IFace, f: number): void => {
-        const q: IAutoMovieVector3 = Vector3.subtract(
+        const q: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
           p,
-          Vector3.scale(face.normal, planes[f]!),
+          AutoMovieEngineVector3.scale(face.normal, planes[f]!),
         );
         const edges: [IAutoMovieVector3, IAutoMovieVector3][] = face.loop.map(
           (
@@ -142,29 +136,29 @@ export function test_engine_physics_physical_hull_nearest(): void {
         );
         const within: boolean = edges.every(
           ([from, to]: [IAutoMovieVector3, IAutoMovieVector3]): boolean =>
-            Vector3.dot(
+            AutoMovieEngineVector3.dot(
               face.normal,
-              Vector3.cross(
-                Vector3.subtract(to, from),
-                Vector3.subtract(q, from),
+              AutoMovieEngineVector3.cross(
+                AutoMovieEngineVector3.subtract(to, from),
+                AutoMovieEngineVector3.subtract(q, from),
               ),
             ) >= 0,
         );
         if (within) least = Math.min(least, Math.abs(planes[f]!));
         else
           for (const [from, to] of edges) {
-            const e: IAutoMovieVector3 = Vector3.subtract(to, from);
+            const e: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(to, from);
             const t: number = Math.min(
               1,
               Math.max(
                 0,
-                Vector3.dot(Vector3.subtract(p, from), e) / Vector3.dot(e, e),
+                AutoMovieEngineVector3.dot(AutoMovieEngineVector3.subtract(p, from), e) / AutoMovieEngineVector3.dot(e, e),
               ),
             );
             least = Math.min(
               least,
-              Vector3.length(
-                Vector3.subtract(p, Vector3.add(from, Vector3.scale(e, t))),
+              AutoMovieEngineVector3.length(
+                AutoMovieEngineVector3.subtract(p, AutoMovieEngineVector3.add(from, AutoMovieEngineVector3.scale(e, t))),
               ),
             );
           }
@@ -178,7 +172,7 @@ export function test_engine_physics_physical_hull_nearest(): void {
     b: IAutoMovieVector3,
   ): number => {
     const gap = (t: number): number =>
-      brute(hull, Vector3.add(a, Vector3.scale(Vector3.subtract(b, a), t)));
+      brute(hull, AutoMovieEngineVector3.add(a, AutoMovieEngineVector3.scale(AutoMovieEngineVector3.subtract(b, a), t)));
     const ratio: number = (Math.sqrt(5) - 1) / 2;
     let lo: number = 0;
     let hi: number = 1;
@@ -213,15 +207,15 @@ export function test_engine_physics_physical_hull_nearest(): void {
       { length: 4 + (h % 27) },
       (): IAutoMovieVector3 => scatter(scale),
     );
-    const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(points);
+    const hull: IAutoMoviePhysicalHullFaces.IHull = AutoMovieEnginePhysicalHullFaces.build(points);
     if (!hull.faces.length) continue;
     const shape: IAutoMoviePhysicalShape = hullOf(points);
     const inner = (): IAutoMovieVector3 => {
       const vertex: IAutoMovieVector3 =
         hull.vertices[Math.floor(random() * hull.vertices.length)]!;
-      return Vector3.add(
+      return AutoMovieEngineVector3.add(
         hull.centre,
-        Vector3.scale(Vector3.subtract(vertex, hull.centre), random()),
+        AutoMovieEngineVector3.scale(AutoMovieEngineVector3.subtract(vertex, hull.centre), random()),
       );
     };
     const onFace = (
@@ -238,7 +232,7 @@ export function test_engine_physics_physical_hull_nearest(): void {
           p: IAutoMovieVector3,
           i: number,
         ): IAutoMovieVector3 =>
-          Vector3.add(sum, Vector3.scale(p, weights[i]! / total)),
+          AutoMovieEngineVector3.add(sum, AutoMovieEngineVector3.scale(p, weights[i]! / total)),
         { x: 0, y: 0, z: 0 },
       );
     };
@@ -250,7 +244,7 @@ export function test_engine_physics_physical_hull_nearest(): void {
         kind === 0
           ? [scatter(3 * scale), scatter(3 * scale)]
           : kind === 1
-            ? [inner(), Vector3.add(hull.centre, scatter(4 * scale))]
+            ? [inner(), AutoMovieEngineVector3.add(hull.centre, scatter(4 * scale))]
             : kind === 2
               ? [inner(), inner()]
               : kind === 3
@@ -267,17 +261,17 @@ export function test_engine_physics_physical_hull_nearest(): void {
       read = Math.max(
         read,
         Math.abs(
-          physicalHullNearest(points, reading.at).distance - reading.distance,
+          AutoMovieEnginePhysicalHull.nearest(points, reading.at).distance - reading.distance,
         ),
       );
       for (const p of [a, b]) {
-        const near: ReturnType<typeof physicalHullNearest> =
-          physicalHullNearest(points, p);
+        const near: ReturnType<typeof AutoMovieEnginePhysicalHull.nearest> =
+          AutoMovieEnginePhysicalHull.nearest(points, p);
         // The point is on the surface and as far from the query as read.
         const surface: number = Math.max(
           ...hull.faces.map(
             (face: IAutoMoviePhysicalHullFaces.IFace): number =>
-              Vector3.dot(face.normal, near.point) - face.offset,
+              AutoMovieEngineVector3.dot(face.normal, near.point) - face.offset,
           ),
         );
         off = Math.max(
@@ -285,7 +279,7 @@ export function test_engine_physics_physical_hull_nearest(): void {
           Math.abs(near.distance - brute(hull, p)),
           Math.abs(surface),
           Math.abs(
-            Vector3.length(Vector3.subtract(p, near.point)) -
+            AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(p, near.point)) -
               Math.abs(near.distance),
           ),
         );

@@ -1,26 +1,28 @@
 import type { IAutoMovieMotionHumanInterruptRow } from "@automovie/interface";
-import { HumanSegmentCut } from "@automovie/motions/internal";
+import {
+  HumanSegmentCut
+} from "../../../../../packages/motions/src/perform/internal/HumanSegmentCut";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";
 
 /** A redirect into a run, from a quarter of the walk to its contact event. */
 const REDIRECT: IAutoMovieMotionHumanInterruptRow = {
-  window: [0.25, "contact"],
+  window: { start: 0.25, end: "contact" },
   kind: "redirect",
   entry: 0,
 };
 
 /** An inertialized cut into anything over the walk's last tenth. */
 const ANY: IAutoMovieMotionHumanInterruptRow = {
-  window: [0.9, 1],
+  window: { start: 0.9, end: 1 },
   kind: "inertialize",
   entry: 0,
 };
 
 /** A phase cut the entered action accepts from a walk at any share. */
 const PHASE: IAutoMovieMotionHumanInterruptRow = {
-  window: [0, 1],
+  window: { start: 0, end: 1 },
   kind: "phase",
   entry: 0,
 };

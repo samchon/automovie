@@ -6,10 +6,11 @@ Hints bring the composed performance to a motion model as keys, joint paths or a
 
 Bring the performance into the model's frame rate, skeleton and body in this order:
 
-1. Sample the composed performance at the model's frame rate, from the installed vocabulary's own evaluation.
-2. Map the polygon man's joints onto the model's skeleton through a stated joint table.
-3. Express them in the model's units, up axis and facing, with the start placed as the model expects.
-4. Scale onto the model's canonical body, or fit its body to the cast member's, since most models assume one proportion.
+1. Sample the installed vocabulary's performance at the model's frame rate.
+2. Map the polygon man's joints to the model's via a declared joint table.
+3. Use the model's units, up axis, facing and start placement.
+4. Scale to the model's body or fit its body to the cast member.
+   - Most models assume one set of proportions.
 
 ## Techniques
 

@@ -33,7 +33,7 @@ export function test_human_chain_topology(): void {
     (joint: IAutoMovieHumanSegmentJoint): IAutoMovieHumanSegmentJoint => ({ ...joint, offset: [2, 3, 4] }),
   );
   const failures: string[] = [];
-  if (AutoMovieHumanChainTopology(reference, candidate) !== candidate)
+  if (AutoMovieHumanChainTopology.admit(reference, candidate) !== candidate)
     failures.push("valid graph did not retain its candidate");
   const cases: { name: string; chain: IAutoMovieHumanSegmentJoint[]; message: string }[] = [
     { name: "missing", chain: candidate.slice(0, 2), message: "missing child" },
@@ -60,7 +60,7 @@ export function test_human_chain_topology(): void {
   for (const input of cases) {
     let message: string | undefined;
     try {
-      AutoMovieHumanChainTopology(reference, input.chain);
+      AutoMovieHumanChainTopology.admit(reference, input.chain);
     } catch (error: unknown) {
       message = error instanceof Error ? error.message : String(error);
     }

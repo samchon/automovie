@@ -1,9 +1,13 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import {
-  HumanRefusal,
-  KneeGeometry,
-  type KneeReach,
-} from "@automovie/motions/internal";
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  KneeGeometry
+} from "../../../../../packages/motions/src/striking/internal/KneeGeometry";
+import type {
+  KneeReach
+} from "../../../../../packages/motions/src/striking/internal/KneeReach";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";
@@ -30,8 +34,8 @@ const reach = (hip: IAutoMovieVector3): KneeReach.ISolution => ({
  * 2. One doubling it never settles and is refused.
  */
 export function test_motions_striking_knee_geometry(): void {
-  const refuse = (change: number): HumanRefusal =>
-    new HumanRefusal({
+  const refuse = (change: number): AutoMovieMotionHumanRefusal =>
+    new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "target",
       value: change,

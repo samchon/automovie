@@ -1,10 +1,10 @@
 import type { IAutoMovieMark } from "@automovie/interface";
-import { chooseAutoMovieInspectionMarks } from "@automovie/render";
+import { AutoMovieRenderInspectionMarks } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 /**
- * `chooseAutoMovieInspectionMarks` keeps the marks an inspection asks for.
+ * `AutoMovieRenderInspectionMarks.choose` keeps the marks an inspection asks for.
  *
  * Scenarios:
  *
@@ -38,7 +38,7 @@ export function test_render_scene_choose_inspection_marks(): void {
   };
   const world: IAutoMovieMark = mark("a", "curve", null);
   const followed: IAutoMovieMark = mark("b", "curve", "hero/arm");
-  const chosen = chooseAutoMovieInspectionMarks({
+  const chosen = AutoMovieRenderInspectionMarks.choose({
     ...props,
     marks: [
       world,
@@ -55,7 +55,7 @@ export function test_render_scene_choose_inspection_marks(): void {
   );
   TestValidator.equals(
     "hidden anchor",
-    chooseAutoMovieInspectionMarks({
+    AutoMovieRenderInspectionMarks.choose({
       ...props,
       anchors: new Map([["hero/hidden", arm]]),
       marks: [mark("e", "curve", "hero/hidden")],
@@ -63,7 +63,7 @@ export function test_render_scene_choose_inspection_marks(): void {
     [],
   );
   TestValidator.error("unknown anchor", (): void => {
-    chooseAutoMovieInspectionMarks({
+    AutoMovieRenderInspectionMarks.choose({
       ...props,
       marks: [mark("f", "curve", "nowhere")],
     });

@@ -1,4 +1,4 @@
-import { projectProductionShotEffectFilmIntervals } from "@automovie/engine";
+import { AutoMovieEngineEffect } from "@automovie/engine";
 import type { IAutoMovieShotEffectFilmInterval } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -19,7 +19,7 @@ import { filmEffectTimeline } from "../../internal/filmEffectTimeline";
  */
 export function test_engine_effect_runtime_project_production_shot_effect_film_intervals(): void {
   const intervals: IAutoMovieShotEffectFilmInterval[] =
-    projectProductionShotEffectFilmIntervals({
+    AutoMovieEngineEffect.projectProductionShotEffectFilmIntervals({
       timeline: filmEffectTimeline(),
       shots: new Map([
         [

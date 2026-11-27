@@ -3,7 +3,7 @@ import type {
   IAutoMovieSolidSurface,
 } from "@automovie/interface";
 
-/**
+/*
  * Bounded observations of already executed trace guards, with no geometry
  * queries.
  */
@@ -168,7 +168,9 @@ export namespace AutoMovieSolidTraceObservation {
     solve: IFailure | null;
   }
 
-  /** Retain one actually rejected host trial and return its unchanged null. */
+  /*
+   * Retain one actually rejected host trial and return its unchanged null.
+   */
   export function reject(
     state: IState | undefined,
     reason: Reason,
@@ -178,7 +180,7 @@ export namespace AutoMovieSolidTraceObservation {
     if (state !== undefined) state.trial = { reason, chart: [...chart], face };
     return null;
   }
-  /**
+  /*
    * Borrow current already evaluated meeting data until a terminal guard
    * detaches it.
    */
@@ -193,7 +195,7 @@ export namespace AutoMovieSolidTraceObservation {
     if (state !== undefined)
       state.meeting = { gap, residual, jacobian: null, part, host, budget };
   }
-  /**
+  /*
    * Detach the actual current failure and return the original null guard
    * result.
    */
@@ -231,7 +233,9 @@ export namespace AutoMovieSolidTraceObservation {
     return null;
   }
 
-  /** Add bounded direction evidence after the original failure text. */
+  /*
+   * Add bounded direction evidence after the original failure text.
+   */
   export function format(
     detail: string,
     directions: readonly IDirection[],
@@ -247,7 +251,7 @@ export namespace AutoMovieSolidTraceObservation {
   }
 }
 
-/**
+/*
  * Copy actual already-read vectors so reverse continuation cannot mutate the
  * failure record.
  */

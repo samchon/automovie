@@ -1,4 +1,4 @@
-import { resolveFrame } from "@automovie/engine";
+import { AutoMovieEngineResolve } from "@automovie/engine";
 import {
   IAutoMovieChannel,
   IAutoMovieClip,
@@ -97,7 +97,7 @@ const tx: (m: number[]) => number = (m: number[]): number => m[12]!;
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An overshooting sample (x=100) against the profile's bound limit ([0, 50])).
  */
 export function test_resolve_frame_profile_limits(): void {
-  const clamped: IAutoMovieResolveOutput = resolveFrame({
+  const clamped: IAutoMovieResolveOutput = AutoMovieEngineResolve.resolveFrame({
     nodes: [node("slider")],
     clip: clipTo(100),
     limits: [],
@@ -115,7 +115,7 @@ export function test_resolve_frame_profile_limits(): void {
     nclose(tx(clamped.world.get("slider")!), 50),
   );
 
-  const inRange: IAutoMovieResolveOutput = resolveFrame({
+  const inRange: IAutoMovieResolveOutput = AutoMovieEngineResolve.resolveFrame({
     nodes: [node("slider")],
     clip: clipTo(25),
     limits: [],
@@ -128,7 +128,7 @@ export function test_resolve_frame_profile_limits(): void {
     nclose(tx(inRange.world.get("slider")!), 25),
   );
 
-  const layered: IAutoMovieResolveOutput = resolveFrame({
+  const layered: IAutoMovieResolveOutput = AutoMovieEngineResolve.resolveFrame({
     nodes: [node("slider")],
     clip: clipTo(100),
     limits: [
@@ -157,14 +157,14 @@ export function test_resolve_frame_profile_limits(): void {
     nclose(tx(layered.world.get("slider")!), 30),
   );
 
-  const explicit: IAutoMovieResolveOutput = resolveFrame({
+  const explicit: IAutoMovieResolveOutput = AutoMovieEngineResolve.resolveFrame({
     nodes: [node("slider")],
     clip: clipTo(100),
     limits: [],
     profiles: [],
     seconds: 0,
   });
-  const omitted: IAutoMovieResolveOutput = resolveFrame({
+  const omitted: IAutoMovieResolveOutput = AutoMovieEngineResolve.resolveFrame({
     nodes: [node("slider")],
     clip: clipTo(100),
     limits: [],

@@ -1,10 +1,4 @@
-import {
-  Quaternion,
-  AutoMoviePhysicalSimulation as Simulation,
-  Vector3,
-  measurePhysicalJointLimits,
-  physicalSupportPoint,
-} from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEnginePhysicalSimulation as Simulation, AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieFootfallPattern,
   IAutoMovieMotionHumanBody,
@@ -337,14 +331,14 @@ function quietMetrics(
         frame.bodies[body.id]![joint.child]!;
       anchor = Math.max(
         anchor,
-        Vector3.length(
-          Vector3.subtract(
-            physicalSupportPoint(parent, joint.parentFrame.position),
-            physicalSupportPoint(child, joint.childFrame.position),
+        AutoMovieEngineVector3.length(
+          AutoMovieEngineVector3.subtract(
+            AutoMovieEnginePhysics.physicalSupportPoint(parent, joint.parentFrame.position),
+            AutoMovieEnginePhysics.physicalSupportPoint(child, joint.childFrame.position),
           ),
         ),
       );
-      for (const coordinate of measurePhysicalJointLimits(joint, parent, child))
+      for (const coordinate of AutoMovieEnginePhysics.measurePhysicalJointLimits(joint, parent, child))
         limit = Math.max(limit, coordinate.violation);
     }
   }
@@ -378,9 +372,9 @@ function quietMetrics(
         if (!contacts.has(frame.seconds)) ++missing;
         for (const bone of bones) {
           const relative: IAutoMovieRigidTransform["rotation"] =
-            Quaternion.multiply(
+            AutoMovieEngineQuaternion.multiply(
               poses[bone]!.rotation,
-              Quaternion.inverse(first.bodies[body.id]![bone]!.rotation),
+              AutoMovieEngineQuaternion.inverse(first.bodies[body.id]![bone]!.rotation),
             );
           angle = Math.max(
             angle,
@@ -396,7 +390,7 @@ function quietMetrics(
 
       /** Evaluate the declared endpoint in the measured native pose. */
       function endpoint(frame: Frame): IAutoMovieVector3 {
-        return physicalSupportPoint(
+        return AutoMovieEnginePhysics.physicalSupportPoint(
           frame.bodies[body.id]![limb.bone]!,
           limb.localPoint,
         );
@@ -430,19 +424,19 @@ function quietMetrics(
     for (const segment of profile.segments) {
       const pose: Frame["bodies"][string][string] =
         frame.bodies[body.id]![segment.bone]!;
-      const arm: IAutoMovieVector3 = Quaternion.rotateVector(
+      const arm: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
         pose.rotation,
         segment.centerOfMass,
       );
       const fraction: number = segment.mass / profile.mass;
-      position = Vector3.add(
+      position = AutoMovieEngineVector3.add(
         position,
-        Vector3.scale(Vector3.add(pose.position, arm), fraction),
+        AutoMovieEngineVector3.scale(AutoMovieEngineVector3.add(pose.position, arm), fraction),
       );
-      velocity = Vector3.add(
+      velocity = AutoMovieEngineVector3.add(
         velocity,
-        Vector3.scale(
-          Vector3.add(pose.velocity, Vector3.cross(pose.angularVelocity, arm)),
+        AutoMovieEngineVector3.scale(
+          AutoMovieEngineVector3.add(pose.velocity, AutoMovieEngineVector3.cross(pose.angularVelocity, arm)),
           fraction,
         ),
       );

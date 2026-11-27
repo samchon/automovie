@@ -1,11 +1,8 @@
-﻿import {
-  isAutoMoviePlainBeautyRequest,
-  parseAutoMovieInspectionRequest,
-} from "@automovie/render";
+import { AutoMovieRenderInspectionRequest, AutoMovieRenderDraw } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `isAutoMoviePlainBeautyRequest` is true when an inspection request leaves the
+ * `isPlainBeautyRequest` is true when an inspection request leaves the
  * beauty picture as it is.
  *
  * Scenarios:
@@ -18,20 +15,20 @@ import { TestValidator } from "@nestia/e2e";
 export function test_render_draw_is_plain_beauty_request(): void {
   const request = (
     entries: [string, string][],
-  ): ReturnType<typeof parseAutoMovieInspectionRequest> => {
+  ): ReturnType<typeof AutoMovieRenderInspectionRequest.parseRequest> => {
     const values: Map<string, string> = new Map<string, string>(entries);
-    return parseAutoMovieInspectionRequest((key: string): string | undefined =>
+    return AutoMovieRenderInspectionRequest.parseRequest((key: string): string | undefined =>
       values.get(key),
     );
   };
-  TestValidator.equals("absent", isAutoMoviePlainBeautyRequest(request([])), true);
+  TestValidator.equals("absent", AutoMovieRenderDraw.isAutoMoviePlainBeautyRequest(request([])), true);
   for (const entries of [
     [["stroke", "5"]],
     [["reach", "2"]],
   ] satisfies [string, string][][])
     TestValidator.equals(
       JSON.stringify(entries),
-      isAutoMoviePlainBeautyRequest(request(entries)),
+      AutoMovieRenderDraw.isAutoMoviePlainBeautyRequest(request(entries)),
       true,
     );
   for (const entries of [
@@ -47,7 +44,7 @@ export function test_render_draw_is_plain_beauty_request(): void {
   ] satisfies [string, string][][])
     TestValidator.equals(
       JSON.stringify(entries),
-      isAutoMoviePlainBeautyRequest(request(entries)),
+      AutoMovieRenderDraw.isAutoMoviePlainBeautyRequest(request(entries)),
       false,
     );
 }

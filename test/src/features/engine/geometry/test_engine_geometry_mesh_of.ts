@@ -1,4 +1,4 @@
-import { meshOf } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -26,7 +26,7 @@ export function test_engine_geometry_mesh_of(): void {
 
   // 1.
   const own: number[] = positions();
-  const plain: IAutoMovieMesh = meshOf(own, indices);
+  const plain: IAutoMovieMesh = AutoMovieEngineGeometry.meshOf(own, indices);
   TestValidator.equals(
     "normals",
     plain.normals,
@@ -39,7 +39,7 @@ export function test_engine_geometry_mesh_of(): void {
   TestValidator.equals("attributes", [plain.uvs, plain.skin], [null, null]);
 
   // 2.
-  const pooled: number[] = meshOf(positions(), indices, null, [
+  const pooled: number[] = AutoMovieEngineGeometry.meshOf(positions(), indices, null, [
     [0, 5],
   ]).normals!;
   const n: number = Math.sqrt(17);

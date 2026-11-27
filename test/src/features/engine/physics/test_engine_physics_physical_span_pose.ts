@@ -1,9 +1,4 @@
-import {
-  preparePhysicalDisturbanceSpan as Span,
-  Vector3,
-  physicalSpanPose,
-  physicalSupportPoint,
-} from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEnginePhysicalSpanPose, AutoMovieEnginePhysics, AutoMovieEnginePhysicalBalance, type AutoMovieEnginePhysicalBalanceTypes } from "@automovie/engine";
 import type {
   IAutoMovieSamplePhysicalTarget,
   IAutoMovieVector3,
@@ -20,7 +15,7 @@ import { PhysicalModelFixtures } from "../../internal/PhysicalModelFixtures";
 const PLACE: number = 1e-3;
 
 /**
- * A body's pose synthesized from its push response (`physicalSpanPose`) is one
+ * A body's pose synthesized from its push response (`AutoMovieEnginePhysicalSpanPose`) is one
  * rigid body chain standing on the response's feet: the four-support primitive
  * standing on two diagonal supports, its 0.24 x 0.2 m boxes, pushed forward at
  * 2 m/s, the capture point past their front edge, the response prepared from
@@ -57,7 +52,7 @@ export function test_engine_physics_physical_span_pose(): void {
     poses: Record<string, IAutoMovieSamplePhysicalTarget.IResult>,
     bone: string,
   ): IAutoMovieVector3 =>
-    physicalSupportPoint(
+    AutoMovieEnginePhysics.physicalSupportPoint(
       poses[bone]!.pose,
       limbs.find((limb) => limb.bone === bone)!.localPoint,
     );
@@ -68,7 +63,7 @@ export function test_engine_physics_physical_span_pose(): void {
   const omega: number = PhysicalDisturbance.omegaOf(subject);
   const placed = limbs.map((limb) => endpoint(goals, limb.bone));
   const middle: number = (placed[0]!.x + placed[1]!.x) / 2;
-  const span: Span.ISpan = Span({
+  const span: AutoMovieEnginePhysicalBalanceTypes.IPrepareDisturbanceSpanResult = AutoMovieEnginePhysicalBalance.prepareDisturbanceSpan({
     seconds: 0.2,
     center,
     velocity: { x: 0, y: 0, z: 2 },
@@ -76,7 +71,7 @@ export function test_engine_physics_physical_span_pose(): void {
     mass: subject.profile.mass,
     gravity: 9.81,
     feet: limbs.map(
-      (limb, i: number): Span.IFoot => ({
+      (limb, i: number): AutoMovieEnginePhysicalBalanceTypes.IPrepareDisturbanceSpanFoot => ({
         bone: limb.bone,
         side: placed[i]!.x > middle ? "left" : "right",
         frame: {
@@ -109,16 +104,16 @@ export function test_engine_physics_physical_span_pose(): void {
   for (const share of [0.1, 0.4, 0.7, 0.95]) {
     const t: number =
       trigger.seconds + share * (touchdown.seconds - trigger.seconds);
-    const sample: Span.ISample = span.sample(t);
-    const pose = physicalSpanPose({ body, goals, sample });
+    const sample: AutoMovieEnginePhysicalBalanceTypes.IPrepareDisturbanceSpanSample = span.sample(t);
+    const pose = AutoMovieEnginePhysicalSpanPose.pose({ body, goals, sample });
     for (const joint of subject.profile.joints) {
       const parent = pose[joint.parent];
       const child = pose[joint.child];
       if (!parent || !child) continue;
-      const gap: number = Vector3.length(
-        Vector3.subtract(
-          physicalSupportPoint(parent.pose, joint.parentFrame.position),
-          physicalSupportPoint(child.pose, joint.childFrame.position),
+      const gap: number = AutoMovieEngineVector3.length(
+        AutoMovieEngineVector3.subtract(
+          AutoMovieEnginePhysics.physicalSupportPoint(parent.pose, joint.parentFrame.position),
+          AutoMovieEnginePhysics.physicalSupportPoint(child.pose, joint.childFrame.position),
         ),
       );
       if (gap > PLACE)
@@ -136,7 +131,7 @@ export function test_engine_physics_physical_span_pose(): void {
         );
     }
     const foot: IAutoMovieVector3 = endpoint(pose, stance);
-    if (planted && Vector3.length(Vector3.subtract(foot, planted)) > PLACE)
+    if (planted && AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(foot, planted)) > PLACE)
       failures.push(`${t.toFixed(3)} s: the stance foot ${stance} moved`);
     planted ??= foot;
   }

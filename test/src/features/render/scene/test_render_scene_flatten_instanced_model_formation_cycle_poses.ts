@@ -4,9 +4,9 @@ import type {
   IAutoMoviePose,
 } from "@automovie/interface";
 import {
-  type IAutoMovieFormationCycle,
-  type IAutoMovieFormationCycleTake,
-  flattenInstancedModel,
+  type IAutoMovieRenderFormationCycle,
+  type IAutoMovieRenderFormationCycleTake,
+  AutoMovieRenderFormationGeometry,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
@@ -67,15 +67,15 @@ export function test_render_scene_flatten_instanced_model_formation_cycle_poses(
   });
 
   // 1 and 2. One take.
-  const one: ReturnType<typeof flattenInstancedModel> = flattenInstancedModel(
+  const one: ReturnType<typeof AutoMovieRenderFormationGeometry.flattenInstancedModel> = AutoMovieRenderFormationGeometry.flattenInstancedModel(
     model,
     "poses",
     { takes: [take("march", 8, 0.1)] },
   );
-  const cycle: IAutoMovieFormationCycle | null = one.cycle;
+  const cycle: IAutoMovieRenderFormationCycle | null = one.cycle;
   if (cycle === null) findings.push("the pose table baked nothing");
   else {
-    const baked: IAutoMovieFormationCycleTake | undefined =
+    const baked: IAutoMovieRenderFormationCycleTake | undefined =
       cycle.takes.get("march");
     if (baked === undefined) findings.push("the take is not named march");
     else {
@@ -100,7 +100,7 @@ export function test_render_scene_flatten_instanced_model_formation_cycle_poses(
   }
 
   // 3. Two takes.
-  const two: ReturnType<typeof flattenInstancedModel> = flattenInstancedModel(
+  const two: ReturnType<typeof AutoMovieRenderFormationGeometry.flattenInstancedModel> = AutoMovieRenderFormationGeometry.flattenInstancedModel(
     model,
     "poses",
     { takes: [take("march", 8, 0.1), take("stand", 8, 0)] },
@@ -114,7 +114,7 @@ export function test_render_scene_flatten_instanced_model_formation_cycle_poses(
 
   // 4. Uneven takes.
   try {
-    flattenInstancedModel(model, "poses", {
+    AutoMovieRenderFormationGeometry.flattenInstancedModel(model, "poses", {
       takes: [take("march", 8, 0.1), take("stand", 6, 0)],
     });
     findings.push("takes of 8 and 6 poses were baked");
@@ -123,7 +123,7 @@ export function test_render_scene_flatten_instanced_model_formation_cycle_poses(
   }
 
   // 5. No takes, no gaits.
-  const none: ReturnType<typeof flattenInstancedModel> = flattenInstancedModel(
+  const none: ReturnType<typeof AutoMovieRenderFormationGeometry.flattenInstancedModel> = AutoMovieRenderFormationGeometry.flattenInstancedModel(
     model,
     "poses",
     {},

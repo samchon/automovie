@@ -6,10 +6,10 @@ import type {
   IAutoMovieHumanWebSurface,
 } from "@automovie/interface";
 
-import { AutoMovieHumanWebColumns } from "./web/AutoMovieHumanWebColumns";
-import { AutoMovieHumanWebCrest } from "./web/AutoMovieHumanWebCrest";
-import { AutoMovieHumanWebMesh } from "./web/AutoMovieHumanWebMesh";
-import { AutoMovieHumanWebSurface } from "./web/AutoMovieHumanWebSurface";
+import { AutoMovieHumanWebColumns } from "./AutoMovieHumanWebColumns";
+import { AutoMovieHumanWebCrest } from "./AutoMovieHumanWebCrest";
+import { AutoMovieHumanWebMesh } from "./AutoMovieHumanWebMesh";
+import { AutoMovieHumanWebSurface } from "./AutoMovieHumanWebSurface";
 
 /**
  * The skin between a parent's ring and children that start apart from it: the

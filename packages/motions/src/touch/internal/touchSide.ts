@@ -1,0 +1,172 @@
+import { AutoMovieEngineRomTolerance, AutoMovieEngineKinematics } from "@automovie/engine";
+import type {
+  AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
+  IAutoMovieAngleRange,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieJointConstraint,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanBend,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanTouch,
+  IAutoMovieMotionHumanTouchEffector,
+  IAutoMovieMotionTarget,
+} from "@automovie/interface";
+
+import { readHumanBone } from "../../body/internal/readHumanBone";
+import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
+import { AutoMovieMotionHumanTouchLaid } from "../../compose/internal/AutoMovieMotionHumanTouchLaid";
+import { poseBones } from "../../posture/internal/poseBones";
+import { touchHold } from "./touchHold";
+import { touchRegion } from "./touchRegion";
+
+/*
+ * The touching hand.
+ * Parameter context: The action's context.
+ * Parameter effector: The part of the hand that touches.
+ * Returns: The hand that takes `target`; `params.side` when the author names
+ * it.
+ */
+export function touchSide(
+  context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTouch.IParams>,
+  effector: IAutoMovieMotionHumanTouchEffector.IEffector,
+): AutoMovieHumanSide {
+  const p: IAutoMovieMotionHumanTouch.IParams = context.params;
+  if (p.hand !== undefined) return p.hand;
+  if (p.prop !== undefined)
+    return context.entry.holds.left === p.prop &&
+      context.entry.holds.right !== p.prop
+      ? "left"
+      : "right";
+  const body: IAutoMovieMotionHumanBody = context.body;
+  const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
+  const bones: ReturnType<typeof poseBones> = poseBones(
+    body,
+    context.entry.pose,
+  );
+  const other = (side: AutoMovieHumanSide): AutoMovieHumanSide =>
+    side === "right" ? "left" : "right";
+
+  // Whether a hand would lay on its own arm: a region of the arm it ends.
+  const own = (
+    side: AutoMovieHumanSide,
+    target: IAutoMovieMotionTarget | undefined,
+  ): boolean => {
+    if (target === undefined || target.kind !== "self") return false;
+    const bone: string = body.surfaces.regions[target.region].bone;
+    return (
+      bone === `${side}UpperArm` ||
+      bone === `${side}LowerArm` ||
+      bone === `${side}Hand`
+    );
+  };
+  // A hand that would touch its own arm is never chosen, whatever the other
+  // hand's strain: an arm cannot lay its hand on itself.
+  const barred = (side: AutoMovieHumanSide): boolean =>
+    own(side, p.target) || own(other(side), p.other);
+  if (barred("left") !== barred("right"))
+    return barred("right") ? "left" : "right";
+
+  // The strain of one hand laid on one region, as the plan lays it.
+  const strain = (
+    side: AutoMovieHumanSide,
+    target: IAutoMovieMotionTarget,
+  ): number => {
+    if (own(side, target)) return Infinity;
+    const placed: ReturnType<typeof touchRegion.reader> = touchRegion.reader(
+      context,
+      bones,
+      side,
+      p.target,
+      p.site,
+    );
+    const laid: touchHold.ILaid = touchHold.lay(
+      context,
+      bones,
+      effector,
+      placed,
+    )(side, target);
+    const goal: IAutoMovieHumanLimbGoal = AutoMovieMotionHumanTouchLaid.rest(
+      body,
+      entry,
+      side,
+      effector,
+      placed(target, false)(entry, 0),
+      laid.tangent,
+      AutoMovieMotionHumanBend.hang(body, entry, side),
+      "arm",
+    );
+    const solve: IAutoMovieMotionHumanBend.ISolve = {
+      body,
+      posture: entry,
+      side,
+      point: goal.point,
+      ...(goal.rotation === undefined ? {} : { rotation: goal.rotation }),
+    };
+    return AutoMovieMotionHumanBend.strain(
+      solve,
+      AutoMovieMotionHumanBend.solve({ ...solve, fallback: "hang" }),
+    );
+  };
+  const cost = (side: AutoMovieHumanSide): number =>
+    strain(side, p.target) +
+    (p.other === undefined ? 0 : strain(other(side), p.other));
+  const left: number = cost("left");
+  const right: number = cost("right");
+  // Feasibility first: a hand whose goal no elbow place allows loses to
+  // one whose goal is held, whatever the other's strain. Its resolution is
+  // infinite, so the tie below would keep it.
+  if ((left === Infinity) !== (right === Infinity))
+    return right === Infinity ? "left" : "right";
+  return right - left >
+    resolution(body, "left", left) + resolution(body, "right", right)
+    ? "left"
+    : "right";
+}
+
+/*
+ * How far a strain can move while every angle it reads moves within
+ * `AutoMovieEngineRomTolerance`, the resolution to which the elbow search and the fits
+ * resolve a joint's angle, so two strains closer than the sum of theirs are one
+ * strain. Each of the strain's `n` terms is `(d / H)^2`, `d` an angle's
+ * distance from the hanging arm's and `H` its axis's half range
+ * (`AutoMovieMotionHumanBend.solve`): a change `e` in `d` moves a term by at
+ * most `2 |d| e / H^2 + e^2 / H^2`, and the whole strain `S`, by Cauchy-Schwarz
+ * over the terms with the least half range `h`, by at most `2 sqrt(n S) e / h +
+ * n (e / h)^2`. The terms are the shoulder's three axes, the forearm's twist
+ * and the wrist's flexion, their ranges read from the rig (`getConstraint`) as
+ * the elbow search reads them.
+ * Parameter body: The body.
+ * Parameter side: The arm.
+ * Parameter strain: The strain, unitless.
+ * Returns: The bound, unitless; `Infinity` for an infinite strain.
+ */
+function resolution(
+  body: IAutoMovieMotionHumanBody,
+  side: AutoMovieHumanSide,
+  strain: number,
+): number {
+  if (strain === Infinity) return Infinity;
+  const range = (
+    bone: AutoMovieHumanoidBone,
+  ): IAutoMovieJointConstraint | null =>
+    AutoMovieEngineKinematics.getConstraint(bone, readHumanBone(body, bone)?.constraint ?? null);
+  const shoulder: IAutoMovieJointConstraint | null = range(`${side}UpperArm`);
+  const halves: number[] = [
+    shoulder?.flexion,
+    shoulder?.abduction,
+    shoulder?.twist,
+    range(`${side}LowerArm`)?.twist,
+    range(`${side}Hand`)?.flexion,
+  ]
+    .filter(
+      (r: IAutoMovieAngleRange | null | undefined): r is IAutoMovieAngleRange =>
+        r !== null && r !== undefined && r.max > r.min,
+    )
+    .map((r: IAutoMovieAngleRange): number => (r.max - r.min) / 2);
+  if (halves.length === 0) return 0;
+  const e: number = AutoMovieEngineRomTolerance / Math.min(...halves);
+  const n: number = halves.length;
+  return 2 * Math.sqrt(n * strain) * e + n * e * e;
+}

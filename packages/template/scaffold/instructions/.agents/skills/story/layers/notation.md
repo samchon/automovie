@@ -18,14 +18,17 @@ A script episode has an H1 for the episode and H2s for scenes. A screenplay scen
 
 Never reuse or renumber an anchor in any layer, or a scene file's number. Number scene files with room for insertions, such as `010-` and `020-`, and record removals and insertions this way:
 
-- a removed script scene, or screenplay section or beat, keeps its heading over the single line `OMITTED`;
-- a removed screenplay scene file keeps only its H1 over `OMITTED`, retiring its section and beat anchors;
-- an inserted script scene, or screenplay section or beat, takes a new anchor, such as `{#s03-b04a}`;
-- an inserted screenplay scene file takes an unused number between its neighbors.
+- Retain the heading of a removed script scene, screenplay section or beat.
+  - Under it, keep only the line `OMITTED`.
+- Keep only H1 and `OMITTED` in a removed screenplay scene file.
+  - This retires its section and beat anchors.
+- Give an inserted script scene, screenplay section or beat a new anchor.
+  - Use a suffix such as `{#s03-b04a}`.
+- Give an inserted screenplay scene file an unused number between neighbors.
 
 ## Records
 
-<!-- @source [ScreenSkills](https://www.screenskills.com/job-profiles/browse/film-and-tv-drama/technical/script-supervisor-film-and-tv-drama/) describes how script supervisors track action, eyelines and props across takes. -->
+<!-- @reference [ScreenSkills](https://www.screenskills.com/job-profiles/browse/film-and-tv-drama/technical/script-supervisor-film-and-tv-drama/) describes how script supervisors track action, eyelines and props across takes. -->
 
 Inside the first section, before its scene heading and action, establish the scene elements, their starting relationships, routes and sightlines. Note expected entrances there and record changes of state as they occur. Preserve the intended reveal order.
 

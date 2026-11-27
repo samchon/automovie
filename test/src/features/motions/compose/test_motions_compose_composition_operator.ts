@@ -4,9 +4,11 @@ import type {
   IAutoMovieMotionHumanPrimitive,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionClock,
-  composeAutoMovieMotionHumanAction,
-} from "@automovie/motions/internal";
+  motionClock
+} from "../../../../../packages/motions/src/compose/internal/motionClock";
+import {
+  composeMotionHumanAction
+} from "../../../../../packages/motions/src/compose/internal/composeMotionHumanAction";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -140,9 +142,9 @@ export function test_motions_compose_composition_operator(): void {
     },
   };
   const plan: IAutoMovieMotionHumanActionPlan =
-    composeAutoMovieMotionHumanAction({
+    composeMotionHumanAction({
       base,
-      clock: AutoMovieMotionClock(1, []),
+      clock: motionClock(1, []),
       primitives: [head, trunk],
     });
   check("prepare queries own separate exact-time work", reads.get(t) === 4);
@@ -210,9 +212,9 @@ export function test_motions_compose_composition_operator(): void {
   reset();
   caught = undefined;
   try {
-    composeAutoMovieMotionHumanAction({
+    composeMotionHumanAction({
       base,
-      clock: AutoMovieMotionClock(1, []),
+      clock: motionClock(1, []),
       primitives: [
         {
           channels: ["head"],

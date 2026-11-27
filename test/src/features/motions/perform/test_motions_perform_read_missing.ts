@@ -1,7 +1,9 @@
 import {
-  HumanPerformanceReadMissing,
-  HumanRefusal,
-} from "@automovie/motions/internal";
+  HumanPerformanceReadMissing
+} from "../../../../../packages/motions/src/perform/internal/HumanPerformanceReadMissing";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -22,7 +24,7 @@ export function test_motions_perform_read_missing(): void {
   ]);
   TestValidator.predicate(
     "a missing performer",
-    performer instanceof HumanRefusal &&
+    performer instanceof AutoMovieMotionHumanRefusal &&
       performer.kind === "participant" &&
       performer.axis === "performer" &&
       performer.value === "ghost" &&
@@ -32,7 +34,7 @@ export function test_motions_perform_read_missing(): void {
   const prop = HumanPerformanceReadMissing("prop", "cup", ["mug"]);
   TestValidator.predicate(
     "a missing prop",
-    prop instanceof HumanRefusal &&
+    prop instanceof AutoMovieMotionHumanRefusal &&
       prop.kind === "affordance" &&
       prop.axis === "prop" &&
       prop.value === "cup" &&
@@ -47,7 +49,7 @@ export function test_motions_perform_read_missing(): void {
   );
   TestValidator.predicate(
     "a given axis",
-    axis instanceof HumanRefusal &&
+    axis instanceof AutoMovieMotionHumanRefusal &&
       axis.axis === "target.subject" &&
       axis.kind === "affordance",
   );

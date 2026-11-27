@@ -1,4 +1,4 @@
-import { adoptAutoMovieExternalMotion } from "@automovie/ingest";
+import { AutoMovieIngestExternalModel } from "@automovie/ingest";
 import type { IAutoMovieExternalMotionAdoptionDecision } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -54,7 +54,7 @@ export function test_ingest_motion_adoption_receipt(): void {
             target: "actor/main",
           };
     const adopt = () =>
-      adoptAutoMovieExternalMotion({ inspection, source, decision });
+      AutoMovieIngestExternalModel.adoptMotion({ inspection, source, decision });
     const receipt = adopt(),
       copied = receipt.handoff.sourceRig.bones[1]!;
     TestValidator.equals(
@@ -99,7 +99,7 @@ export function test_ingest_motion_adoption_receipt(): void {
       "receipt requires the inspected byte length",
       throwsError(
         () =>
-          adoptAutoMovieExternalMotion({
+          AutoMovieIngestExternalModel.adoptMotion({
             inspection,
             source: { ...source, byteLength: source.byteLength + 1 },
             decision,
@@ -110,7 +110,7 @@ export function test_ingest_motion_adoption_receipt(): void {
     TestValidator.predicate(
       "missing animated node refuses",
       throwsError(() =>
-        adoptAutoMovieExternalMotion({
+        AutoMovieIngestExternalModel.adoptMotion({
           inspection,
           source,
           decision: { ...decision, mapping: [] },

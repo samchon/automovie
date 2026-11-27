@@ -1,4 +1,4 @@
-import { AutoMovieArchetypeUnits, createBall } from "@automovie/archetypes";
+import { AutoMovieArchetypeUnits, AutoMovieArchetypeBall } from "@automovie/archetypes";
 import type { IAutoMovieAffordance } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -26,7 +26,7 @@ const MM: number = 1e-3;
 export function test_archetype_ball_kinds(): void {
   const findings: string[] = [];
   const size = (
-    kind: createBall.Kind,
+    kind: AutoMovieArchetypeBall.Kind,
     axis: "x" | "y" | "z",
     minimum: number,
     maximum: number,
@@ -34,7 +34,7 @@ export function test_archetype_ball_kinds(): void {
   ): archetypeBandSweep.IRow => ({
     name: `${kind} along ${axis}`,
     measure: (seed: number): number =>
-      archetypeExtent(createBall({ kind }, seed), axis).size,
+      archetypeExtent(AutoMovieArchetypeBall.create({ kind }, seed), axis).size,
     minimum,
     maximum,
     source,
@@ -69,7 +69,7 @@ export function test_archetype_ball_kinds(): void {
       ),
     ]),
   );
-  const puck: ReturnType<typeof createBall> = createBall({ kind: "puck" }, 3);
+  const puck: ReturnType<typeof AutoMovieArchetypeBall.create> = AutoMovieArchetypeBall.create({ kind: "puck" }, 3);
   if (!(Math.abs(archetypeExtent(puck, "x").size - 0.076) <= MM))
     findings.push("the puck is not 7.6 cm across");
   if (!(Math.abs(archetypeExtent(puck, "y").size - 0.025) <= MM))
@@ -84,7 +84,7 @@ export function test_archetype_ball_kinds(): void {
     "puck",
   ] as const)
     for (const seed of [0, 12]) {
-      const ball: ReturnType<typeof createBall> = createBall({ kind }, seed);
+      const ball: ReturnType<typeof AutoMovieArchetypeBall.create> = AutoMovieArchetypeBall.create({ kind }, seed);
       const y: { low: number; high: number; size: number } = archetypeExtent(
         ball,
         "y",

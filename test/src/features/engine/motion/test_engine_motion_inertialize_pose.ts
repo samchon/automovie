@@ -1,4 +1,4 @@
-import { inertializePose } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieJointPose,
   IAutoMoviePose,
@@ -106,7 +106,7 @@ export function test_engine_motion_inertialize_pose(): void {
   ): IAutoMovieVector3 => shown.root!.translation;
 
   // 1. The knee's rotation offset.
-  const knees: Blend = inertializePose(state(40, 0, 0), state(10, 0, 0), DECAY);
+  const knees: Blend = AutoMovieEngineMotionSampling.inertializePose(state(40, 0, 0), state(10, 0, 0), DECAY);
   TestValidator.predicate(
     "the cut shows the source",
     bent(knees(0, pose(10, 0)), 40),
@@ -128,13 +128,13 @@ export function test_engine_motion_inertialize_pose(): void {
   TestValidator.equals(
     "equal joints show the target at once",
     knee(
-      inertializePose(state(10, 0, 0), state(10, 0, 0), DECAY)(0, pose(25, 0)),
+      AutoMovieEngineMotionSampling.inertializePose(state(10, 0, 0), state(10, 0, 0), DECAY)(0, pose(25, 0)),
     ),
     [25, 0, 0],
   );
 
   // 3. The root moving away from its target.
-  const away: Blend = inertializePose(
+  const away: Blend = AutoMovieEngineMotionSampling.inertializePose(
     state(10, 0.2, 1.5),
     state(10, 0, 0),
     DECAY,
@@ -157,7 +157,7 @@ export function test_engine_motion_inertialize_pose(): void {
   // 4. The root closing on its target.
   const closing: (through: boolean) => number = (through: boolean): number =>
     root(
-      inertializePose(
+      AutoMovieEngineMotionSampling.inertializePose(
         state(10, 0.01, -24),
         state(10, 0, 0),
         DECAY,

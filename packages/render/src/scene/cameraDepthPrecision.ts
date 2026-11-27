@@ -1,3 +1,2 @@
-export type { IAutoMovieViewerCameraDepthPrecisionReport } from "./IAutoMovieViewerCameraDepthPrecisionReport.js";
-export { evaluateAutoMovieViewerCameraDepthPrecision } from "./evaluateAutoMovieViewerCameraDepthPrecision.js";
-export { assertAutoMovieViewerCameraDepthPrecision } from "./assertAutoMovieViewerCameraDepthPrecision.js";
+export { AutoMovieRenderViewerCameraDepthPrecision } from "./AutoMovieRenderViewerCameraDepthPrecision";
+export type { IAutoMovieRenderViewerCameraDepthPrecisionReport } from "./IAutoMovieRenderViewerCameraDepthPrecisionReport";

@@ -1,4 +1,4 @@
-import { generateAutoMovieSurfacePattern } from "@automovie/engine";
+import { AutoMovieEngineSurfaceMaterial } from "@automovie/engine";
 import type {
   IAutoMoviePatternPlacement,
   IAutoMoviePatternPoint,
@@ -40,7 +40,7 @@ import { test12ValuesClose } from "../internal/test12ValuesClose";
  */
 export function test_architecture_surface_pattern_courses(): void {
   const field: IAutoMovieSurfacePattern = pattern();
-  const laid: IAutoMovieSurfacePatternResult = generateAutoMovieSurfacePattern({
+  const laid: IAutoMovieSurfacePatternResult = AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
     pattern: field,
   });
 
@@ -178,13 +178,13 @@ export function test_architecture_surface_pattern_courses(): void {
   TestValidator.predicate(
     "the same declaration laid twice preserves structure and numeric components",
     test12ValuesClose(
-      generateAutoMovieSurfacePattern({ pattern: field }),
+      AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({ pattern: field }),
       laid,
     ),
   );
 
   const narrow: IAutoMovieSurfacePatternResult =
-    generateAutoMovieSurfacePattern({
+    AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
       pattern: pattern({
         zones: [zone({ region: rectangle(0, 0, 1.75, 1) })],
         minimumPiece: 0.4,
@@ -259,7 +259,7 @@ export function test_architecture_surface_pattern_courses(): void {
   );
 
   const barren: IAutoMovieSurfacePatternResult =
-    generateAutoMovieSurfacePattern({
+    AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
       pattern: pattern({ zones: [zone({ generate: (): never[] => [] })] }),
     });
   TestValidator.equals(

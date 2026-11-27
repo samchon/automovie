@@ -1,9 +1,9 @@
 import {
-  AutoMovieConicArcField,
-  AutoMovieConicFieldJet,
-  AutoMovieConicHermite,
-  AutoMovieConicHermiteField,
-  AutoMovieViewSectionField,
+  AutoMovieEngineConicArcField,
+  AutoMovieEngineConicFieldJet,
+  AutoMovieEngineConicHermite,
+  AutoMovieEngineConicHermiteField,
+  AutoMovieEngineViewSectionField,
 } from "@automovie/engine";
 import type {
   IAutoMovieConicArc,
@@ -104,7 +104,7 @@ export namespace ConstructionConicFieldBoundary {
           : numeric.start;
         if (patch === null || primal === null) continue;
         const selected: IAutoMovieConicArc.IRay | null =
-          AutoMovieConicHermite.locate(primal, primal.angle);
+          AutoMovieEngineConicHermite.locate(primal, primal.angle);
         if (
           selected === null ||
           selected.position !== "last" ||
@@ -126,7 +126,7 @@ export namespace ConstructionConicFieldBoundary {
           : selected;
         const cubic:
           | IAutoMovieConicArcField.IReading
-          | IAutoMovieConicArcField.IFailure = AutoMovieConicHermiteField.read(
+          | IAutoMovieConicArcField.IFailure = AutoMovieEngineConicHermiteField.read(
           patch,
           ray,
         );
@@ -134,12 +134,12 @@ export namespace ConstructionConicFieldBoundary {
         const a: IAutoMovieConicFieldJet.IJet = arc.extents[end ? 1 : 0];
         const b: IAutoMovieConicFieldJet.IJet = arc.extents[end ? 0 : 1];
         const raw: IAutoMovieConicArcField.IGeometry<IAutoMovieConicFieldJet.IJet> =
-          AutoMovieConicArcField.evaluate(
-            AutoMovieConicFieldJet.AD,
+          AutoMovieEngineConicArcField.evaluate(
+            AutoMovieEngineConicFieldJet.AD,
             a,
             b,
-            AutoMovieConicArcField.weight(
-              AutoMovieConicFieldJet.AD,
+            AutoMovieEngineConicArcField.weight(
+              AutoMovieEngineConicFieldJet.AD,
               arc.shoulder,
             ),
             patch.native,
@@ -175,7 +175,7 @@ function prepared(
   shoulders: readonly Scalar[],
 ): Prepared {
   const value: Prepared | IAutoMovieConicArcField.IFailure =
-    AutoMovieViewSectionField.prepare(extents, shoulders);
+    AutoMovieEngineViewSectionField.prepare(extents, shoulders);
   if (value.kind === "failure") throw new Error(value.detail);
   return value;
 }
@@ -185,8 +185,8 @@ function radial(
   at: Prepared,
   phi: number,
 ): IAutoMovieViewSectionField.IRadialJet {
-  const value: ReturnType<typeof AutoMovieViewSectionField.read> =
-    AutoMovieViewSectionField.read(at, phi);
+  const value: ReturnType<typeof AutoMovieEngineViewSectionField.read> =
+    AutoMovieEngineViewSectionField.read(at, phi);
   if ("kind" in value) throw new Error(value.detail);
   return value;
 }

@@ -1,7 +1,4 @@
-import {
-  AutoMovieComposition,
-  resolveAutoMovieSchedule,
-} from "@automovie/engine";
+import { AutoMovieEngineComposition, AutoMovieEngineScheduleCut, AutoMovieEngineSchedule } from "@automovie/engine";
 import type {
   IAutoMovieIntent,
   IAutoMovieIntentTiming,
@@ -17,14 +14,15 @@ import { TestValidator } from "@nestia/e2e";
  *
  * Scenarios:
  *
- * 1. A 2 s kick cut at share 0.4 ends at 0.8 s; the 1 s step after it starts at
- *    0.8 s and the kick's entry names it in `interruptedBy`.
+ * 1. A 2 s kick cut at the tagged share 0.4 ends at 0.8 s; the 1 s step after it
+ *    starts at 0.8 s and the kick's entry names it in `interruptedBy`.
  * 2. Cut at its `chamber` event (share 0.3), the kick ends at 0.6 s and the entry
  *    records the event's name.
  * 3. Metamorphic: moving the cut later moves the next start later by the share
  *    times the duration, and the contact (1.0 s) survives only a cut after it.
  * 4. A cut at an unknown event throws a message listing the action's events; a
- *    share outside [0, 1] throws.
+ *    share outside [0, 1] throws; exact legacy inputs normalize, while mixed or
+ *    incorrectly tagged inputs are rejected.
  * 5. An uncut sequence and a cut last part record no interrupter.
  * 6. A cut at another subject's event: a 2 s guard of subject b, placed in
  *    parallel with a's kick anchored "k", cut `{ of: "k", event: "impact" }`
@@ -38,6 +36,9 @@ import { TestValidator } from "@nestia/e2e";
  *    0.5 s before a's kick contact (1.0 s), plays 0.5 to 1.5 s and the stand
  *    after it starts at 1.5 s, not at the guard's uncut 2 s; a part of another
  *    subject synced the same way leaves the cursor at 2 s.
+ * 9. A saved proximity cut is tagged for the timing, cut, alignment, outcome
+ *    and state laws. Repeated references share the same normalized intent,
+ *    preserving synced resume and interruption.
  */
 export function test_engine_composition_resolve_schedule_cut(): void {
   const laws: IAutoMovieScheduleLaws = {
@@ -62,10 +63,13 @@ export function test_engine_composition_resolve_schedule_cut(): void {
   });
   const step: IAutoMovieIntent = { subject: "a", capability: "step" };
   const run = (...parts: IAutoMovieIntent[]): IAutoMovieSchedule =>
-    resolveAutoMovieSchedule(AutoMovieComposition.sequence(...parts), laws);
+    AutoMovieEngineSchedule.resolve(AutoMovieEngineComposition.sequence(...parts), laws);
   const close = (a: number, b: number): boolean => Math.abs(a - b) < 1e-12;
 
-  const shared: IAutoMovieSchedule = run(kick({ share: 0.4 }), step);
+  const shared: IAutoMovieSchedule = run(
+    kick({ type: "share", share: 0.4 }),
+    step,
+  );
   const [k, s] = shared.entries;
   TestValidator.predicate(
     "cut at share",
@@ -79,7 +83,10 @@ export function test_engine_composition_resolve_schedule_cut(): void {
     k!.contact === undefined,
   );
 
-  const evented: IAutoMovieSchedule = run(kick({ event: "chamber" }), step);
+  const evented: IAutoMovieSchedule = run(
+    kick({ type: "event", event: "chamber" }),
+    step,
+  );
   TestValidator.predicate(
     "cut at event",
     close(evented.entries[0]!.end, 0.6) &&
@@ -88,7 +95,7 @@ export function test_engine_composition_resolve_schedule_cut(): void {
 
   let previous: number = -Infinity;
   for (const share of [0.1, 0.3, 0.5, 0.7, 0.9]) {
-    const e: IAutoMovieSchedule = run(kick({ share }), step);
+    const e: IAutoMovieSchedule = run(kick({ type: "share", share }), step);
     TestValidator.predicate(
       `next start moves with the cut (${share})`,
       close(e.entries[1]!.start, 2 * share) && e.entries[1]!.start > previous,
@@ -104,7 +111,7 @@ export function test_engine_composition_resolve_schedule_cut(): void {
     "unknown event lists the events",
     ((): boolean => {
       try {
-        run(kick({ event: "recoil" }), step);
+        run(kick({ type: "event", event: "recoil" }), step);
         return false;
       } catch (error) {
         return (
@@ -114,10 +121,13 @@ export function test_engine_composition_resolve_schedule_cut(): void {
     })(),
   );
   TestValidator.error("share outside [0, 1]", (): unknown =>
-    run(kick({ share: 1.5 }), step),
+    run(kick({ type: "share", share: 1.5 }), step),
   );
   const plain: IAutoMovieSchedule = run(kick(), step);
-  const last: IAutoMovieSchedule = run(step, kick({ share: 0.5 }));
+  const last: IAutoMovieSchedule = run(
+    step,
+    kick({ type: "share", share: 0.5 }),
+  );
   TestValidator.predicate(
     "no interrupter without a cut or a follower",
     plain.entries[0]!.interruptedBy === undefined &&
@@ -134,27 +144,32 @@ export function test_engine_composition_resolve_schedule_cut(): void {
     until: IAutoMovieIntent["until"],
     l: IAutoMovieScheduleLaws = laws,
   ): IAutoMovieSchedule =>
-    resolveAutoMovieSchedule(
-      AutoMovieComposition.parallel(
+    AutoMovieEngineSchedule.resolve(
+      AutoMovieEngineComposition.parallel(
         { ...kick(), anchor: "k" },
-        AutoMovieComposition.sequence(guard(until), step),
+        AutoMovieEngineComposition.sequence(guard(until), step),
       ),
       l,
     );
-  const crossed: IAutoMovieSchedule = both({ of: "k", event: "impact" });
+  const crossed: IAutoMovieSchedule = both({
+    type: "anchor-event",
+    of: "k",
+    event: "impact",
+  });
   const g = crossed.entries.find((e) => e.intent.capability === "guard")!;
   TestValidator.predicate(
     "cut at another subject's event",
     close(g.end, 1) && g.cut?.event === "k.impact",
   );
   TestValidator.error("unknown anchor", (): unknown =>
-    both({ of: "x", event: "impact" }),
+    both({ type: "anchor-event", of: "x", event: "impact" }),
   );
   TestValidator.error("unknown event of the anchor", (): unknown =>
-    both({ of: "k", event: "recoil" }),
+    both({ type: "anchor-event", of: "k", event: "recoil" }),
   );
   const near = both(
     {
+      type: "proximity",
       proximity: {
         effector: "palmLeft",
         target: { kind: "none" },
@@ -169,6 +184,7 @@ export function test_engine_composition_resolve_schedule_cut(): void {
   );
   const never: IAutoMovieSchedule = both(
     {
+      type: "proximity",
       proximity: {
         effector: "palmLeft",
         target: { kind: "none" },
@@ -192,6 +208,7 @@ export function test_engine_composition_resolve_schedule_cut(): void {
   );
   TestValidator.error("proximity without an until law", (): unknown =>
     both({
+      type: "proximity",
       proximity: {
         effector: "palmLeft",
         target: { kind: "none" },
@@ -200,13 +217,151 @@ export function test_engine_composition_resolve_schedule_cut(): void {
     }),
   );
 
+  const legacy = (value: unknown): IAutoMovieIntent["until"] =>
+    value as IAutoMovieIntent["until"];
+  const canonical: IAutoMovieIntent.IUntil = {
+    type: "share",
+    share: 0.2,
+  };
+  TestValidator.predicate(
+    "canonical variant is preserved",
+    AutoMovieEngineScheduleCut.normalize(canonical) === canonical,
+  );
+  TestValidator.predicate(
+    "legacy exact share shape is normalized",
+    close(run(kick(legacy({ share: 0.25 }))).entries[0]!.end, 0.5),
+  );
+  TestValidator.predicate(
+    "legacy exact own-event shape is normalized",
+    run(kick(legacy({ event: "chamber" }))).entries[0]!.cut?.event ===
+      "chamber",
+  );
+  TestValidator.predicate(
+    "legacy exact anchored-event shape is normalized",
+    both(legacy({ of: "k", event: "impact" })).entries.some(
+      (entry: IAutoMovieScheduleEntry): boolean =>
+        entry.intent.capability === "guard" && entry.cut?.event === "k.impact",
+    ),
+  );
+  const taggedUndefinedIndex: IAutoMovieSchedule = both(
+    legacy({
+      type: "anchor-event",
+      of: "k",
+      event: "impact",
+      index: undefined,
+    }),
+  );
+  TestValidator.predicate(
+    "explicit undefined anchored-event index uses the default occurrence",
+    taggedUndefinedIndex.entries.some(
+      (entry: IAutoMovieScheduleEntry): boolean =>
+        entry.intent.capability === "guard" &&
+        close(entry.end, 1) &&
+        entry.cut?.event === "k.impact",
+    ),
+  );
+  const savedCut: string =
+    '{"proximity":{"effector":"palmLeft","target":{"kind":"none"},"distance":0.1}}';
+  const savedStep: IAutoMovieIntent = {
+    ...step,
+    until: legacy(JSON.parse(savedCut) as unknown),
+  };
+  const anchor: IAutoMovieIntent = { ...kick(), anchor: "saved-kick" };
+  const stand: IAutoMovieIntent = {
+    subject: "a",
+    capability: "stand",
+    until: { type: "share", share: 1 },
+  };
+  const seen: IAutoMovieIntent[] = [];
+  const record = (intent: IAutoMovieIntent): void => {
+    if (intent.capability === "step") seen.push(intent);
+  };
+  const restored: IAutoMovieSchedule = AutoMovieEngineSchedule.resolve(
+    AutoMovieEngineComposition.sequence(
+      anchor,
+      AutoMovieEngineComposition.at("saved-kick", savedStep, -0.5, {
+        align: "start",
+      }),
+      savedStep,
+      stand,
+    ),
+    {
+      timing: (intent, context): IAutoMovieIntentTiming => {
+        record(intent);
+        return laws.timing(intent, context);
+      },
+      align: (intent, _instant, target): number => {
+        record(intent);
+        return target;
+      },
+      until: (intent): number | undefined => {
+        record(intent);
+        return intent.until?.type === "proximity" ? 0.25 : undefined;
+      },
+      outcome: (entry): undefined => {
+        record(entry.intent);
+        return undefined;
+      },
+      state: (entry): void => record(entry.intent),
+    },
+  );
+  const [placedAnchor, alignedStep, nextStep, placedStand] = restored.entries;
+  TestValidator.predicate(
+    "saved cut has one tagged intent across laws and entries",
+    seen.length === 9 &&
+      seen.every((intent) => intent === alignedStep!.intent) &&
+      alignedStep!.intent === nextStep!.intent &&
+      alignedStep!.intent.until?.type === "proximity" &&
+      JSON.stringify(savedStep.until) === savedCut &&
+      placedAnchor!.intent === anchor &&
+      placedStand!.intent === stand,
+  );
+  TestValidator.predicate(
+    "saved cut preserves aligned resume and the next interruption",
+    close(alignedStep!.start, 0.5) &&
+      close(alignedStep!.end, 0.75) &&
+      close(nextStep!.start, 0.75) &&
+      close(nextStep!.end, 1) &&
+      close(placedStand!.start, 1) &&
+      nextStep!.interruptedBy === placedStand!.index,
+  );
+  const undefinedTargetOptions: IAutoMovieSchedule = both(
+    legacy({
+      type: "proximity",
+      proximity: {
+        effector: "palmLeft",
+        target: { kind: "none", line: undefined, range: undefined },
+        distance: 0.1,
+      },
+    }),
+    { ...laws, until: (): number => 0.25 },
+  );
+  TestValidator.predicate(
+    "explicit undefined none-target options are accepted",
+    close(
+      undefinedTargetOptions.entries.find(
+        (entry) => entry.intent.capability === "guard",
+      )!.end,
+      0.5,
+    ),
+  );
+  TestValidator.error("legacy mixed share and event is rejected", (): unknown =>
+    run(kick(legacy({ share: 0.25, event: "chamber" }))),
+  );
+  TestValidator.error("wrong tagged variant fields are rejected", (): unknown =>
+    run(kick(legacy({ type: "share", share: 0.25, event: "chamber" }))),
+  );
+  TestValidator.error("unknown tagged variant is rejected", (): unknown =>
+    run(kick(legacy({ type: "mystery", share: 0.25 }))),
+  );
+
   const synced = (subject: string): IAutoMovieSchedule =>
-    resolveAutoMovieSchedule(
-      AutoMovieComposition.parallel(
+    AutoMovieEngineSchedule.resolve(
+      AutoMovieEngineComposition.parallel(
         { ...kick(), anchor: "k" },
-        AutoMovieComposition.sequence(
+        AutoMovieEngineComposition.sequence(
           { subject: "b", capability: "guard" },
-          AutoMovieComposition.at("k", { subject, capability: "step" }, -0.5),
+          AutoMovieEngineComposition.at("k", { subject, capability: "step" }, -0.5),
           { subject: "b", capability: "stand" },
         ),
       ),

@@ -1,5 +1,22 @@
 import type { IAutoMovieMotionHumanFormation, IAutoMovieVector3 } from "@automovie/interface";
-import { HUMAN_ATTRIBUTE_EFFECTS, HumanCrowd, HumanFormation, humanCrowdGroupFormation, run, walk } from "@automovie/motions/internal";
+import {
+  HUMAN_ATTRIBUTE_EFFECTS
+} from "../../../../../packages/motions/src/ensemble/internal/HUMAN_ATTRIBUTE_EFFECTS";
+import {
+  HumanCrowd
+} from "../../../../../packages/motions/src/ensemble/internal/HumanCrowd";
+import {
+  HumanFormation
+} from "../../../../../packages/motions/src/ensemble/internal/HumanFormation";
+import {
+  humanCrowdGroupFormation
+} from "../../../../../packages/motions/src/ensemble/internal/humanCrowdGroupFormation";
+import {
+  run
+} from "../../../../../packages/motions/src/gait/internal/run";
+import {
+  walk
+} from "../../../../../packages/motions/src/gait/internal/walk";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

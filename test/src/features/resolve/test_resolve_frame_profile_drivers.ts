@@ -1,4 +1,4 @@
-import { resolveFrame } from "@automovie/engine";
+import { AutoMovieEngineResolve } from "@automovie/engine";
 import {
   IAutoMovieClip,
   IAutoMovieNode,
@@ -125,7 +125,7 @@ export function test_resolve_frame_profile_drivers(): void {
     node("actor/hinge", { x: 0, y: 1, z: 0 }),
     node("actor/handle"),
   ];
-  const driven: IAutoMovieResolveOutput = resolveFrame({
+  const driven: IAutoMovieResolveOutput = AutoMovieEngineResolve.resolveFrame({
     nodes,
     clip: HINGE_CLIP,
     limits: [],
@@ -159,7 +159,7 @@ export function test_resolve_frame_profile_drivers(): void {
     { ncloseHandleX: true, ncloseHandleX2: true, ncloseHandleX3: true },
   );
 
-  const bare: IAutoMovieResolveOutput = resolveFrame({
+  const bare: IAutoMovieResolveOutput = AutoMovieEngineResolve.resolveFrame({
     nodes,
     clip: HINGE_CLIP,
     limits: [],
@@ -182,7 +182,7 @@ export function test_resolve_frame_profile_drivers(): void {
     node("posX", { x: 1, y: 0, z: 0 }),
     node("negX", { x: -1, y: 0, z: 0 }),
   ];
-  const contested: IAutoMovieResolveOutput = resolveFrame({
+  const contested: IAutoMovieResolveOutput = AutoMovieEngineResolve.resolveFrame({
     nodes: gazeNodes,
     clip: null,
     limits: [],
@@ -212,7 +212,7 @@ export function test_resolve_frame_profile_drivers(): void {
     { ncloseContestedX0: true, ncloseContestedX2: true },
   );
 
-  const profileOnly: IAutoMovieResolveOutput = resolveFrame({
+  const profileOnly: IAutoMovieResolveOutput = AutoMovieEngineResolve.resolveFrame({
     nodes: gazeNodes,
     clip: null,
     limits: [],

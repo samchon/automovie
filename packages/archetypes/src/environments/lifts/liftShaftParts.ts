@@ -1,4 +1,4 @@
-import { Vector3, buildAutoMovieWall } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieBuildWall,
   IAutoMovieModelPart,
@@ -7,7 +7,7 @@ import type {
 
 import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
 
-/**
+/*
  * Form the side, back and slotted front walls of an upright lift shaft.
  * Openings are measured in the front wall's own metre plane. The side walls run
  * between the front and rear plates without entering the cab clearance.
@@ -23,12 +23,12 @@ export function liftShaftParts(
       name: null,
       geometry: {
         type: "mesh",
-        mesh: buildAutoMovieWall({ width, height, depth: thickness, openings }),
+        mesh: AutoMovieEngineGeometry.buildWall({ width, height, depth: thickness, openings }),
       },
       material,
       attachedBone: null,
       transform: AutoMovieArchetypeFrame.upright(
-        Vector3.create(0, centerY, front - thickness / 2),
+        AutoMovieEngineVector3.create(0, centerY, front - thickness / 2),
       ),
     },
     liftShaftParts.box(
@@ -37,7 +37,7 @@ export function liftShaftParts(
       width,
       height,
       thickness,
-      Vector3.create(0, centerY, back + thickness / 2),
+      AutoMovieEngineVector3.create(0, centerY, back + thickness / 2),
     ),
     ...[-1, 1].map(
       (side: number): IAutoMovieModelPart =>
@@ -47,7 +47,7 @@ export function liftShaftParts(
           thickness,
           height,
           front - back - 2 * thickness,
-          Vector3.create(
+          AutoMovieEngineVector3.create(
             (side * (width - thickness)) / 2,
             centerY,
             (front + back) / 2,
@@ -57,31 +57,45 @@ export function liftShaftParts(
   ];
 }
 
-/** Shaft inputs and its shared rigid box producer. */
+/*
+ * Shaft inputs and its shared rigid box producer.
+ */
 export namespace liftShaftParts {
-  /**
+  /*
    * The local bounds and cut data of a shaft, all in metres. The four walls
    * share a rectangular plan and one wall thickness. Each door cut uses the
    * wall kernel's face-opening coordinates.
    */
   export interface IProps extends Omit<IAutoMovieBuildWall.IProps, "depth"> {
-    /** Thickness of each sheet, along its local normal. */
+    /*
+     * Thickness of each sheet, along its local normal.
+     */
     thickness: number;
 
-    /** Common centre elevation in shaft-local metres. */
+    /*
+     * Common centre elevation in shaft-local metres.
+     */
     centerY: number;
 
-    /** Forward outer face of the shaft, local +Z. */
+    /*
+     * Forward outer face of the shaft, local +Z.
+     */
     front: number;
 
-    /** Rear outer face of the shaft, local −Z. */
+    /*
+     * Rear outer face of the shaft, local −Z.
+     */
     back: number;
 
-    /** Model-local material id shared by the shaft parts. */
+    /*
+     * Model-local material id shared by the shaft parts.
+     */
     material: string | null;
   }
 
-  /** Build an unrotated box from its centre and dimensions in lift-local metres. */
+  /*
+   * Build an unrotated box from its centre and dimensions in lift-local metres.
+   */
   export function box(
     id: string,
     material: string | null,

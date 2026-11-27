@@ -1,4 +1,4 @@
-import { maskColor } from "@automovie/render";
+import { AutoMovieRenderSemanticMask } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -6,7 +6,7 @@ import * as THREE from "three";
 const HUE_TOLERANCE: number = 1e-6;
 
 /**
- * `maskColor` gives each mask index a fully saturated colour whose hue steps
+ * `AutoMovieRenderSemanticMask.colorForIndex` gives each mask index a fully saturated colour whose hue steps
  * 137.508 degrees, so neighbouring indices differ.
  *
  * Scenarios:
@@ -18,11 +18,11 @@ const HUE_TOLERANCE: number = 1e-6;
 export function test_render_scene_mask_color(): void {
   TestValidator.equals(
     "red",
-    maskColor(0).toArray(),
+    AutoMovieRenderSemanticMask.colorForIndex(0).toArray(),
     [1, 0, 0],
   );
   const hsl: THREE.HSL = { h: 0, s: 0, l: 0 };
-  maskColor(1).getHSL(hsl, THREE.LinearSRGBColorSpace);
+  AutoMovieRenderSemanticMask.colorForIndex(1).getHSL(hsl, THREE.LinearSRGBColorSpace);
   TestValidator.predicate(
     "step",
     Math.abs(hsl.h - 137.508 / 360) < HUE_TOLERANCE &&
@@ -33,7 +33,7 @@ export function test_render_scene_mask_color(): void {
     "distinct",
     new Set(
       Array.from({ length: 12 }, (_: unknown, index: number): string =>
-        maskColor(index).getHexString(),
+        AutoMovieRenderSemanticMask.colorForIndex(index).getHexString(),
       ),
     ).size,
     12,

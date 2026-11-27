@@ -1,4 +1,4 @@
-import { integrateAirborneRotation } from "@automovie/engine";
+import { AutoMovieEngineMotionAirborneRotation } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieResolveCenterOfMass,
@@ -16,10 +16,10 @@ import { airbornePlaced } from "./airbornePlaced";
  */
 export const airborneStillHistory: (
   body: IAutoMovieResolveCenterOfMass.IModel,
-) => integrateAirborneRotation.ICachedHistory = (
+) => AutoMovieEngineMotionAirborneRotation.ICachedHistory = (
   body: IAutoMovieResolveCenterOfMass.IModel,
-): integrateAirborneRotation.ICachedHistory =>
-  integrateAirborneRotation.history(
+): AutoMovieEngineMotionAirborneRotation.ICachedHistory =>
+  AutoMovieEngineMotionAirborneRotation.history(
     body,
     (): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
       airbornePlaced({ hips: { x: 0, y: 0, z: 0 } }),

@@ -1,15 +1,4 @@
-import {
-  AutoMovieXpbdBody,
-  AutoMovieXpbdWorld,
-  AutoMoviePhysicalPlayback as Playback,
-  Quaternion,
-  AutoMoviePhysicalSimulation as Simulation,
-  Vector3,
-  advancePhysicalOwnership,
-  bindPhysicalWorld,
-  physicalSupportPoint,
-  samplePhysicalTarget,
-} from "@automovie/engine";
+import { AutoMovieEngineXpbdBody, AutoMovieEngineXpbdWorld, AutoMovieEnginePhysicalPlayback as Playback, AutoMovieEngineQuaternion, AutoMovieEnginePhysicalSimulation as Simulation, AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalPlayback,
   IAutoMoviePhysicalSegment,
@@ -51,7 +40,7 @@ const TURN_RATE: number = 0.01;
 
 /**
  * The handoff between the authored pose and the native solver
- * (`advancePhysicalOwnership`, through `AutoMoviePhysicalSimulation`): a child
+ * (`advancePhysicalOwnership`, through `AutoMovieEnginePhysicalSimulation`): a child
  * simulates under a moving authored parent, returns to its authored pose
  * continuously and reactivates, the join keeping the solver's actual state.
  *
@@ -107,12 +96,12 @@ export async function test_engine_physics_physical_playback_handoff(): Promise<v
     "the pivot holds",
     cache.frames.every(
       (frame): boolean =>
-        Vector3.distance(
-          physicalSupportPoint(
+        AutoMovieEngineVector3.distance(
+          AutoMovieEnginePhysics.physicalSupportPoint(
             frame.bodies[body.id]!.root!,
             joint.parentFrame.position,
           ),
-          physicalSupportPoint(
+          AutoMovieEnginePhysics.physicalSupportPoint(
             frame.bodies[body.id]!.child!,
             joint.childFrame.position,
           ),
@@ -124,8 +113,8 @@ export async function test_engine_physics_physical_playback_handoff(): Promise<v
   const authored = cache.at(0.4).bodies[body.id]!.root!;
   TestValidator.predicate(
     "a continuous join",
-    Vector3.distance(entering.velocity, returning.velocity) < LINEAR_JUMP &&
-      Vector3.distance(entering.angularVelocity, returning.angularVelocity) <
+    AutoMovieEngineVector3.distance(entering.velocity, returning.velocity) < LINEAR_JUMP &&
+      AutoMovieEngineVector3.distance(entering.angularVelocity, returning.angularVelocity) <
         ANGULAR_JUMP &&
       vclose(
         authored.position,
@@ -147,22 +136,22 @@ export async function test_engine_physics_physical_playback_handoff(): Promise<v
   );
 
   // 2. The solver's state at the join.
-  const restored = (): AutoMovieXpbdBody =>
-    bindPhysicalWorld(
-      AutoMovieXpbdWorld.restoreSnapshot(cache.checkpoints.get(48)!),
+  const restored = (): AutoMovieEngineXpbdBody =>
+    Simulation.bindWorld(
+      AutoMovieEngineXpbdWorld.restoreSnapshot(cache.checkpoints.get(48)!),
       baseline.input,
       true,
     ).bodies.get(`${body.id}/child`)!;
-  const actual: AutoMovieXpbdBody = restored();
+  const actual: AutoMovieEngineXpbdBody = restored();
   const displayed = cache.at(0.4).bodies[body.id]!.child!;
   const previous = cache.at(47 / 120).bodies[body.id]!.child!;
   const next = cache.at(49 / 120).bodies[body.id]!.child!;
   const com = body.profile.segments.find(
     (segment: IAutoMoviePhysicalSegment): boolean => segment.bone === "child",
   )!.centerOfMass;
-  const delta = Quaternion.multiply(
+  const delta = AutoMovieEngineQuaternion.multiply(
     next.rotation,
-    Quaternion.inverse(previous.rotation),
+    AutoMovieEngineQuaternion.inverse(previous.rotation),
   );
   const norm: number = Math.hypot(delta.x, delta.y, delta.z);
   const scale: number =
@@ -171,28 +160,28 @@ export async function test_engine_physics_physical_playback_handoff(): Promise<v
     "the solver at the join",
     vclose(actual.translation(), displayed.position) &&
       qclose(actual.rotation(), displayed.rotation) &&
-      Vector3.distance(
+      AutoMovieEngineVector3.distance(
         actual.linvel(),
-        Vector3.scale(
-          Vector3.subtract(
-            physicalSupportPoint(next, com),
-            physicalSupportPoint(previous, com),
+        AutoMovieEngineVector3.scale(
+          AutoMovieEngineVector3.subtract(
+            AutoMovieEnginePhysics.physicalSupportPoint(next, com),
+            AutoMovieEnginePhysics.physicalSupportPoint(previous, com),
           ),
           60,
         ),
       ) < COM_RATE &&
-      Vector3.distance(actual.angvel(), {
+      AutoMovieEngineVector3.distance(actual.angvel(), {
         x: delta.x * scale,
         y: delta.y * scale,
         z: delta.z * scale,
       }) < TURN_RATE,
   );
-  const bound = bindPhysicalWorld(
-    AutoMovieXpbdWorld.restoreSnapshot(cache.checkpoints.get(48)!),
+  const bound = Simulation.bindWorld(
+    AutoMovieEngineXpbdWorld.restoreSnapshot(cache.checkpoints.get(48)!),
     baseline.input,
     true,
   );
-  const child: AutoMovieXpbdBody = bound.bodies.get(`${body.id}/child`)!;
+  const child: AutoMovieEngineXpbdBody = bound.bodies.get(`${body.id}/child`)!;
   const before = {
     position: child.translation(),
     rotation: child.rotation(),
@@ -203,15 +192,15 @@ export async function test_engine_physics_physical_playback_handoff(): Promise<v
     ...baseline.input.bodies[0]!.targets[49]!,
     dynamicSegments: ["child"],
   };
-  const goals: Parameters<typeof advancePhysicalOwnership>[0]["goals"] = {};
+  const goals: Parameters<typeof AutoMovieEnginePhysics.advancePhysicalOwnership>[0]["goals"] = {};
   for (const [bone, pose] of Object.entries(target.segments))
-    goals[bone] = samplePhysicalTarget(
+    goals[bone] = Simulation.sampleTarget(
       baseline.input.bodies[0]!.targets[48]!.segments[bone]!,
       pose,
       1,
       120,
     );
-  advancePhysicalOwnership({
+  AutoMovieEnginePhysics.advancePhysicalOwnership({
     body: baseline.input.bodies[0]!,
     target,
     bound,

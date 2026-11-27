@@ -1,19 +1,16 @@
+import { AutoMovieEngineSound } from "@automovie/engine";
 import type {
   AutoMovieInspectionShade,
   IAutoMovieDrawCall,
   IAutoMovieDrawnPass,
 } from "@automovie/interface";
 import {
-  AUTOMOVIE_MP4_SRGB_COLOUR,
-  assertProductionAacProfile,
-  assertProductionVideoProfile,
-  auditAutoMovieDeliveryContent,
-  createAutoMovieLoudnessMeter,
-  renderAutoMovieDrawnVideo,
-  resolveProductionVideoProfile,
+  AutoMovieRenderMp4SrgbColour,
+  AutoMovieRenderDelivery,
+  AutoMovieRenderVideo,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
-import { renderAutoMovieVideo } from "automovie";
+import { AutoMovieCliRender } from "automovie";
 import { createHash } from "node:crypto";
 import * as fs from "node:fs/promises";
 import * as os from "node:os";
@@ -52,16 +49,13 @@ export async function test_cli_render_alpha_delivery(): Promise<void> {
   );
   const backgrounds: (IAutoMovieDrawCall["background"] | undefined)[] = [];
   let corrupt: boolean = false;
-  const fixture: Parameters<typeof renderAutoMovieVideo>[0] = {
+  const fixture: Parameters<typeof AutoMovieCliRender.renderVideo>[0] = {
     host: {
       render: {
-        renderAutoMovieDrawnVideo,
-        auditAutoMovieDeliveryContent,
-        createAutoMovieLoudnessMeter,
-        AUTOMOVIE_MP4_SRGB_COLOUR,
-        assertProductionAacProfile,
-        assertProductionVideoProfile,
-        resolveProductionVideoProfile,
+        AutoMovieRenderVideo,
+        createAutoMovieLoudnessMeter: AutoMovieEngineSound.createLoudnessMeter,
+        AutoMovieRenderMp4SrgbColour,
+        AutoMovieRenderDelivery,
       },
       session: async () => ({
         backend: "fixture",
@@ -123,7 +117,7 @@ export async function test_cli_render_alpha_delivery(): Promise<void> {
     ffmpeg: "fixture-ffmpeg",
     background: "transparent",
   };
-  const run: NonNullable<Parameters<typeof renderAutoMovieVideo>[1]> = async (
+  const run: NonNullable<Parameters<typeof AutoMovieCliRender.renderVideo>[1]> = async (
     _binary,
     args,
   ) => {
@@ -154,8 +148,8 @@ export async function test_cli_render_alpha_delivery(): Promise<void> {
     );
 
     // 1 to 3. A published layer.
-    const written: Awaited<ReturnType<typeof renderAutoMovieVideo>> =
-      await renderAutoMovieVideo(fixture, run);
+    const written: Awaited<ReturnType<typeof AutoMovieCliRender.renderVideo>> =
+      await AutoMovieCliRender.renderVideo(fixture, run);
     const layer: string = path.join(folder, "transparent");
     const report: any = JSON.parse(
       await fs.readFile(path.join(layer, "render-report.json"), "utf8"),
@@ -200,7 +194,7 @@ export async function test_cli_render_alpha_delivery(): Promise<void> {
 
     // 4. A sample that differs blocks and keeps the layer.
     corrupt = true;
-    const published: boolean = await renderAutoMovieVideo(fixture, run)
+    const published: boolean = await AutoMovieCliRender.renderVideo(fixture, run)
       .then((): boolean => true)
       .catch((): boolean => false);
     if (published)

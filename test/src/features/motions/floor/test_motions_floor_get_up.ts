@@ -2,7 +2,9 @@ import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanLieDown,
 } from "@automovie/interface";
-import { getUp } from "@automovie/motions/internal";
+import {
+  getUp
+} from "../../../../../packages/motions/src/floor/internal/getUp";
 import { TestValidator } from "@nestia/e2e";
 
 /**

@@ -7,8 +7,8 @@ import type {
   IAutoMovieMotionHumanVerdicts,
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
-import { HumanRefusal, HumanVerdicts } from "@automovie/motions";
-import { AutoMovieFrameGrid } from "@automovie/render";
+import { AutoMovieMotionHumanRefusal, AutoMovieMotionHumanVerdicts } from "@automovie/motions";
+import { AutoMovieRenderFrameGrid } from "@automovie/render";
 
 import { PlaygroundPerformance } from "../../playground/package/PlaygroundPerformance";
 import type { IPlaygroundComposition } from "../../playground/structures/IPlaygroundComposition";
@@ -139,9 +139,9 @@ export namespace TakeCompute {
       const duration: number = built.performance.duration;
       const readers: ((seconds: number) => SceneTrack.IPlacement[])[] =
         objects.map(propReader(built.performance));
-      const lastFrame: number = AutoMovieFrameGrid.last(duration, fps);
+      const lastFrame: number = AutoMovieRenderFrameGrid.last(duration, fps);
       for (let k: number = 0; k <= lastFrame; k++) {
-        const seconds: number = AutoMovieFrameGrid.time(k, duration, fps);
+        const seconds: number = AutoMovieRenderFrameGrid.time(k, duration, fps);
         frames.push([
           ...built.figures.map(
             (figure: PlaygroundPerformance.IFigure): SceneTrack.IPlacement[] =>
@@ -294,7 +294,7 @@ export namespace TakeCompute {
    *
    * @param composition The composition, built again unless it was built last.
    * @returns The report.
-   * @throws {HumanRefusal} When the packages refuse the composition.
+   * @throws {AutoMovieMotionHumanRefusal} When the packages refuse the composition.
    */
   export function verdicts(
     composition: IPlaygroundComposition,
@@ -306,10 +306,10 @@ export namespace TakeCompute {
         : PlaygroundPerformance.build(composition).performance;
     last = { key, performance };
     const report: IAutoMovieMotionHumanVerdicts.IReport =
-      HumanVerdicts(performance);
+      AutoMovieMotionHumanVerdicts.read(performance);
     return {
       clean: report.clean,
-      text: HumanVerdicts.describe(report),
+      text: AutoMovieMotionHumanVerdicts.describe(report),
       findings: report.findings.map(
         (
           finding: IAutoMovieMotionHumanVerdicts.IFinding,
@@ -340,11 +340,11 @@ export namespace TakeCompute {
   }
 
   /**
-   * A thrown value as the playground's refusal: a `HumanRefusal` field for
+   * A thrown value as the playground's refusal: a `AutoMovieMotionHumanRefusal` field for
    * field, anything else as an error with its message.
    */
   function refusal(error: unknown): IPlaygroundRefusal {
-    if (error instanceof HumanRefusal)
+    if (error instanceof AutoMovieMotionHumanRefusal)
       return {
         kind: error.kind,
         message: error.message,
@@ -356,7 +356,7 @@ export namespace TakeCompute {
         feasible:
           error.feasible === null
             ? null
-            : HumanRefusal.describe(error.feasible),
+            : AutoMovieMotionHumanRefusal.describe(error.feasible),
         alternatives:
           error.feasible !== null && error.feasible.kind === "alternatives"
             ? [...error.feasible.values]

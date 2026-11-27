@@ -18,7 +18,7 @@ Check the provider's content policy, including refusal billing and account limit
 
 ### Inspection and choice
 
-<!-- @source [fal’s clay-render case study](https://blog.fal.ai/from-clay-3d-render-to-a-real-action-short-a-3d-to-ai-pipeline-with-total-control/) describes correcting the framing in the source camera. -->
+<!-- @reference [fal’s clay-render case study](https://blog.fal.ai/from-clay-3d-render-to-a-real-action-short-a-3d-to-ai-pipeline-with-total-control/) describes correcting the framing in the source camera. -->
 
 Generate and compare the recorded number of takes before changing the prompt. If the model supports drafts, choose one and follow its documented path to a final take.
 
@@ -28,7 +28,7 @@ Repair a take by its cause:
 
 | Flaw | Repair |
 | --- | --- |
-| Lost action, identity or causality | Repair the source, the request or the selection |
+| Lost action, identity or causality | Fix source, request or selection |
 | A local flaw in an otherwise right take | Repair it under [partial repair](finishing.md#partial-repair) |
 | A framing the takes keep losing | Change the hint's camera under [staging](../motion/staging.md) |
 | Drifting motion or camera | Set a stricter adherence or shorten the request |
@@ -37,7 +37,7 @@ Preserve action, identity and causality through cuts. Repair framing in the hint
 
 ### Placement in time
 
-<!-- @source The [FFmpeg filter guide](https://ffmpeg.org/ffmpeg-filters.html) covers trim, setpts and fps. -->
+<!-- @reference The [FFmpeg filter guide](https://ffmpeg.org/ffmpeg-filters.html) covers trim, setpts and fps. -->
 
 Place takes by decoded timestamps and time base. Keep trims, retimes and rebases distinct. Preserve required material when aligning streams. Avoid truncation or silent padding that hides loss.
 

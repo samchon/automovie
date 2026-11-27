@@ -1,25 +1,10 @@
-import {
-  type AutoMovieArchetype,
-  createAtm,
-  createBoard,
-  createCamera,
-  createClipboard,
-  createLaptop,
-  createMachine,
-  createPaper,
-  createPhone,
-  createScenicParadeBanner,
-  createScenicStandard,
-  createSignPost,
-  createTablet,
-  createWatch,
-} from "@automovie/archetypes";
+import { type AutoMovieArchetype, AutoMovieArchetypeBoard, AutoMovieArchetypeCamera, AutoMovieArchetypeClipboard, AutoMovieArchetypeLaptop, AutoMovieArchetypePaper, AutoMovieArchetypePhone, AutoMovieArchetypeTablet, AutoMovieArchetypeAtm, AutoMovieArchetypeSignPost, AutoMovieArchetypeWatch, AutoMovieArchetypeScenicParadeBanner, AutoMovieArchetypeScenicStandard, AutoMovieArchetypeMachine } from "@automovie/archetypes";
 import type {
   IAutoMovieAffordance,
   IAutoMovieModel,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { buildModel } from "@automovie/render";
+import { AutoMovieRenderSceneLayout } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -81,7 +66,7 @@ const LISTED: readonly IListed[] = [
     name: "createPhone",
     surface: "screen",
     top: "upright",
-    builds: () => seeded((seed) => createPhone({}, seed)),
+    builds: () => seeded((seed) => AutoMovieArchetypePhone.create({}, seed)),
   },
   {
     name: "createTablet",
@@ -89,7 +74,7 @@ const LISTED: readonly IListed[] = [
     top: "upright",
     builds: () =>
       (["wifi", "cellular"] as const).flatMap((model) =>
-        seeded((seed) => createTablet({ model }, seed)),
+        seeded((seed) => AutoMovieArchetypeTablet.create({ model }, seed)),
       ),
   },
   {
@@ -98,7 +83,7 @@ const LISTED: readonly IListed[] = [
     top: "upright",
     builds: () =>
       (["air13", "air15"] as const).flatMap((model) =>
-        seeded((seed) => createLaptop({ model }, seed)),
+        seeded((seed) => AutoMovieArchetypeLaptop.create({ model }, seed)),
       ),
   },
   {
@@ -107,22 +92,22 @@ const LISTED: readonly IListed[] = [
     top: "upright",
     builds: () =>
       (["grIII", "x100vi"] as const).flatMap((model) =>
-        seeded((seed) => createCamera({ model }, seed)),
+        seeded((seed) => AutoMovieArchetypeCamera.create({ model }, seed)),
       ),
   },
   {
     name: "createWatch",
     surface: "face",
     top: BACK,
-    builds: () => seeded((seed) => createWatch({}, seed)),
+    builds: () => seeded((seed) => AutoMovieArchetypeWatch.create({}, seed)),
   },
   {
     name: "createAtm",
     surface: "screen",
     top: "upright",
     builds: () => [
-      ...seeded((seed) => createAtm({}, seed)),
-      ...seeded((seed) => createMachine({ kind: "atm" }, seed)),
+      ...seeded((seed) => AutoMovieArchetypeAtm.create({}, seed)),
+      ...seeded((seed) => AutoMovieArchetypeMachine.create({ kind: "atm" }, seed)),
     ],
   },
   {
@@ -130,9 +115,9 @@ const LISTED: readonly IListed[] = [
     surface: "face",
     top: "upright",
     builds: () =>
-      createBoard.KINDS.flatMap((kind) =>
-        (Object.keys(createBoard.SIZES[kind]) as createBoard.Size[]).flatMap(
-          (size) => seeded((seed) => createBoard({ kind, size }, seed)),
+      AutoMovieArchetypeBoard.KINDS.flatMap((kind) =>
+        (Object.keys(AutoMovieArchetypeBoard.SIZES[kind]) as AutoMovieArchetypeBoard.Size[]).flatMap(
+          (size) => seeded((seed) => AutoMovieArchetypeBoard.create({ kind, size }, seed)),
         ),
       ),
   },
@@ -141,15 +126,15 @@ const LISTED: readonly IListed[] = [
     surface: "face",
     top: "upright",
     builds: () =>
-      createScenicStandard.KINDS.flatMap((kind) =>
-        seeded((seed) => createScenicStandard({ kind }, seed)),
+      AutoMovieArchetypeScenicStandard.KINDS.flatMap((kind) =>
+        seeded((seed) => AutoMovieArchetypeScenicStandard.create({ kind }, seed)),
       ),
   },
   {
     name: "createScenicParadeBanner",
     surface: "face",
     top: "upright",
-    builds: () => seeded((seed) => createScenicParadeBanner({}, seed)),
+    builds: () => seeded((seed) => AutoMovieArchetypeScenicParadeBanner.create({}, seed)),
   },
   {
     name: "createClipboard",
@@ -157,14 +142,14 @@ const LISTED: readonly IListed[] = [
     top: BACK,
     builds: () =>
       (["56055", "604037"] as const).flatMap((model) =>
-        seeded((seed) => createClipboard({ model }, seed)),
+        seeded((seed) => AutoMovieArchetypeClipboard.create({ model }, seed)),
       ),
   },
   {
     name: "createPaper",
     surface: "face",
     top: BACK,
-    builds: () => seeded((seed) => createPaper({ format: "sheet" }, seed)),
+    builds: () => seeded((seed) => AutoMovieArchetypePaper.create({ format: "sheet" }, seed)),
   },
   {
     name: "createSignPost",
@@ -172,7 +157,7 @@ const LISTED: readonly IListed[] = [
     top: "upright",
     builds: () =>
       (["STOP 30 in", "STOP 36 in"] as const).flatMap((model) =>
-        seeded((seed) => createSignPost({ model }, seed)),
+        seeded((seed) => AutoMovieArchetypeSignPost.create({ model }, seed)),
       ),
   },
 ];
@@ -192,8 +177,8 @@ const LISTED: readonly IListed[] = [
  *    the measured face plane for an upright face or a laptop lid, and model
  *    `-Z` for a watch dial, a clipboard and a flat sheet as their producers
  *    document.
- * 4. The ATM's screen splits its 381 mm diagonal (width² + depth² = 381² mm²
- *    within 0.5 mm²) and lies on the cabinet's front face, z = 0.400 m.
+ * 4. The ATM's screen splits its 381 mm diagonal (width짼 + depth짼 = 381짼 mm짼
+ *    within 0.5 mm짼) and lies on the cabinet's front face, z = 0.400 m.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the producers, the three geometric checks and the ATM's measured diagonal and face.
  * @evidence contracts/development/testing.md#behavioral-verification Builds each producer through its public entry and casts rays at the drawn render model, reading the surface it meets.
@@ -223,7 +208,7 @@ export function test_archetype_surface_extents(): void {
     [],
   );
 
-  const atm: IAutoMovieAffordance = createAtm({}, 1).affordance("screen");
+  const atm: IAutoMovieAffordance = AutoMovieArchetypeAtm.create({}, 1).affordance("screen");
   const width: number = atm.width! * 1000;
   const depth: number = atm.depth! * 1000;
   TestValidator.predicate(
@@ -262,7 +247,7 @@ function inspect(
     .transformDirection(frame)
     .normalize();
 
-  const built: ReturnType<typeof buildModel> = buildModel(model);
+  const built: ReturnType<typeof AutoMovieRenderSceneLayout.buildModel> = AutoMovieRenderSceneLayout.buildModel(model);
   const meshes: THREE.Mesh[] = [...built.parts.values()].filter(
     (part: THREE.Object3D): part is THREE.Mesh => part instanceof THREE.Mesh,
   );

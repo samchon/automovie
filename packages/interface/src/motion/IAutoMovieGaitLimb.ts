@@ -1,5 +1,6 @@
 import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 import type { AutoMovieEasing } from "./AutoMovieEasing";
+import type { IAutoMovieCubicBezierControlPoints } from "./IAutoMovieCubicBezierControlPoints";
 
 /**
  * One limb's part in a gait cycle ({@link IAutoMovieGait}). The limbs differ
@@ -45,12 +46,11 @@ export interface IAutoMovieGaitLimb {
   stanceEasing?: AutoMovieEasing;
 
   /**
-   * Cubic stance controls `[x1, y1, x2, y2]`; callers must supply x values in
-   * `[0, 1]` and finite values throughout. Direct gait evaluation checks used
-   * controls for finiteness but does not check their x range. Missing controls
-   * make cubicBezier use linear ease; finite y controls may overshoot.
+   * Named cubic stance controls. Supply x values in `[0, 1]` and finite values
+   * throughout; finite y controls may overshoot. Missing controls make
+   * cubicBezier use linear ease.
    */
-  stanceBezier?: [number, number, number, number] | null;
+  stanceBezier?: Readonly<IAutoMovieCubicBezierControlPoints> | null;
 
   /**
    * Easing used during the nominal swing interval. Omitted means `"linear"`,
@@ -59,12 +59,11 @@ export interface IAutoMovieGaitLimb {
   swingEasing?: AutoMovieEasing;
 
   /**
-   * Cubic swing controls `[x1, y1, x2, y2]`; callers must supply x values in
-   * `[0, 1]` and finite values throughout. Direct gait evaluation checks used
-   * controls for finiteness but does not check their x range. Missing controls
-   * make cubicBezier use linear ease; finite y controls may overshoot.
+   * Named cubic swing controls. Supply x values in `[0, 1]` and finite values
+   * throughout; finite y controls may overshoot. Missing controls make
+   * cubicBezier use linear ease.
    */
-  swingBezier?: [number, number, number, number] | null;
+  swingBezier?: Readonly<IAutoMovieCubicBezierControlPoints> | null;
 
   /**
    * Center the swing oscillates around (degrees), default `0`. With bounded

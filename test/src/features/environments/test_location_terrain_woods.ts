@@ -1,12 +1,7 @@
 import {
-  createEnvironment,
-  createTerrain,
-} from "@automovie/archetypes/environments";
-import {
-  instanceSlot,
-  materializeCompiledInstanceSetInventory,
-  surfaceHeightAt,
-} from "@automovie/engine";
+  AutoMovieArchetypeEnvironment
+} from "../../../../packages/archetypes/src/environments/AutoMovieArchetypeEnvironment";
+import { AutoMovieEnginePopulationRuntime, AutoMovieEngineSpace } from "@automovie/engine";
 import type {
   IAutoMovieEnvironment,
   IAutoMovieExplicitInstanceTransform,
@@ -24,18 +19,18 @@ import { namedFacts, nclose, throwsError } from "../internal/predicates";
 const ORIGIN: { x: number; y: number; z: number } = { x: -5, y: 1, z: 2 };
 
 /** The 30 m by 20 m wood of every scenario, in local plan metres. */
-const OUTLINE: readonly IAutoMovieTerrainRecipe.Point[] = [
-  [5, 5],
-  [35, 5],
-  [35, 25],
-  [5, 25],
+const OUTLINE: readonly IAutoMovieTerrainRecipe.IXzPoint[] = [
+  { x: 5, z: 5 },
+  { x: 35, z: 5 },
+  { x: 35, z: 25 },
+  { x: 5, z: 25 },
 ];
 
 /** The 2 m path across the wood along local z = 15. */
 const PATH: IAutoMovieTerrainRecipe.IPath = {
   points: [
-    [2, 15],
-    [38, 15],
+    { x: 2, z: 15 },
+    { x: 38, z: 15 },
   ],
   width: 2,
 };
@@ -78,14 +73,14 @@ export function test_location_terrain_woods(): void {
     woods: Partial<IAutoMovieTerrainRecipe.IWoods> = {},
     path: boolean = true,
   ): IAutoMovieEnvironment =>
-    createEnvironment({
+    AutoMovieArchetypeEnvironment.create({
       id: "forest",
       seed,
       items: {
         land: {
           at: ORIGIN,
-          use: createTerrain({
-            size: [40, 30],
+          use: AutoMovieArchetypeEnvironment.terrain({
+            size: { width: 40, depth: 30 },
             relief: { kind: "noise", amplitude: 1, wavelength: 30, octaves: 2 },
             ...(path ? { paths: { trail: PATH } } : {}),
             woods: { stand: { outline: OUTLINE, spacing: 4, ...woods } },
@@ -147,8 +142,8 @@ export function test_location_terrain_woods(): void {
   });
   const rule: IAutoMovieHeightRule = trail.stage.space!.surfaces[0]!.height!;
   const anchor: IAutoMovieInstanceSetDesign["anchor"] = woodsOf(trail).anchor;
-  const compiled: ReturnType<typeof materializeCompiledInstanceSetInventory> =
-    materializeCompiledInstanceSetInventory({ world: trail.runtime.world });
+  const compiled: ReturnType<typeof AutoMovieEnginePopulationRuntime.materializeCompiledInstanceSetInventory> =
+    AutoMovieEnginePopulationRuntime.materializeCompiledInstanceSetInventory({ world: trail.runtime.world });
   const facts: Record<string, boolean> = namedFacts([
     [
       "the wood plants trees with every trunk pair at least the spacing apart",
@@ -256,14 +251,14 @@ export function test_location_terrain_woods(): void {
         anchor.y === 0 &&
         planted.every(
           (t: IAutoMovieExplicitInstanceTransform, slot: number): boolean => {
-            const position: { x: number; y: number; z: number } = instanceSlot(
+            const position: { x: number; y: number; z: number } = AutoMovieEnginePopulationRuntime.instanceSlot(
               compiled["forest/land/woods/stand"]!,
               slot,
             ).position;
             return (
               nclose(
                 t.translation.y,
-                surfaceHeightAt(
+                AutoMovieEngineSpace.surfaceHeightAt(
                   { height: rule },
                   anchor.x + t.translation.x,
                   anchor.z + t.translation.z,
@@ -272,7 +267,7 @@ export function test_location_terrain_woods(): void {
               ) &&
               nclose(
                 position.y,
-                surfaceHeightAt({ height: rule }, position.x, position.z),
+                AutoMovieEngineSpace.surfaceHeightAt({ height: rule }, position.x, position.z),
                 1e-12,
               )
             );
@@ -308,10 +303,10 @@ export function test_location_terrain_woods(): void {
           (): IAutoMovieEnvironment =>
             build(1, {
               outline: [
-                [0, 5],
-                [35, 5],
-                [35, 25],
-                [0, 25],
+                { x: 0, z: 5 },
+                { x: 35, z: 5 },
+                { x: 35, z: 25 },
+                { x: 0, z: 25 },
               ],
             }),
           ["forest/land/woods/stand", "strictly inside the parcel"],

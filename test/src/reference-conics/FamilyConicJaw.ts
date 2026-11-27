@@ -1,4 +1,4 @@
-import { AutoMovieMeshExtract as M } from "@automovie/engine";
+import { AutoMovieEngineMeshExtract as M } from "@automovie/engine";
 import { AutoMovieHumanConicLoft } from "@automovie/human";
 import type { IAutoMovieMeshSectionCut } from "@automovie/interface";
 import fs from "node:fs/promises";

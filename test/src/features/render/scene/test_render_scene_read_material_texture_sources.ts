@@ -1,9 +1,9 @@
-import { measureAutoMovieRenderTextureClosure } from "@automovie/engine";
+import { AutoMovieEngineRenderTexture } from "@automovie/engine";
 import type {
   AutoMovieBuiltinTexturePurpose,
   IAutoMovieRenderTextureSource,
 } from "@automovie/interface";
-import { readAutoMovieMaterialTextureSources } from "@automovie/render";
+import { AutoMovieRenderMaterial } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import type * as ThreeTypes from "three";
 
@@ -68,32 +68,32 @@ export async function test_render_scene_read_material_texture_sources(): Promise
   > = new THREE.Mesh(geometry, c);
   scene.add(meshA, meshB);
   const read: (
-    retained?: ReturnType<typeof readAutoMovieMaterialTextureSources>,
+    retained?: ReturnType<typeof AutoMovieRenderMaterial.readMaterialTextureSources>,
   ) => {
     owner: string;
     texture: Omit<IAutoMovieRenderTextureSource, "asset">;
     purpose?: AutoMovieBuiltinTexturePurpose;
     residents?: readonly string[];
   }[] = (
-    retained: ReturnType<typeof readAutoMovieMaterialTextureSources> = [],
+    retained: ReturnType<typeof AutoMovieRenderMaterial.readMaterialTextureSources> = [],
   ): {
     owner: string;
     texture: Omit<IAutoMovieRenderTextureSource, "asset">;
     purpose?: AutoMovieBuiltinTexturePurpose;
     residents?: readonly string[];
   }[] =>
-    readAutoMovieMaterialTextureSources({
+    AutoMovieRenderMaterial.readMaterialTextureSources({
       scope: "shot",
       scene,
       renderer: { extensions: { has: (): boolean => false } },
       retained,
     });
   const cost: (
-    rows: ReturnType<typeof readAutoMovieMaterialTextureSources>,
-  ) => ReturnType<typeof measureAutoMovieRenderTextureClosure>[number][] = (
-    rows: ReturnType<typeof readAutoMovieMaterialTextureSources>,
-  ): ReturnType<typeof measureAutoMovieRenderTextureClosure>[number][] =>
-    measureAutoMovieRenderTextureClosure({
+    rows: ReturnType<typeof AutoMovieRenderMaterial.readMaterialTextureSources>,
+  ) => ReturnType<typeof AutoMovieEngineRenderTexture.measureAutoMovieRenderTextureClosure>[number][] = (
+    rows: ReturnType<typeof AutoMovieRenderMaterial.readMaterialTextureSources>,
+  ): ReturnType<typeof AutoMovieEngineRenderTexture.measureAutoMovieRenderTextureClosure>[number][] =>
+    AutoMovieEngineRenderTexture.measureAutoMovieRenderTextureClosure({
       materials: [],
       sources: [],
       environment: null,
@@ -106,13 +106,13 @@ export async function test_render_scene_read_material_texture_sources(): Promise
       },
     });
   const bytes: (
-    rows: ReturnType<typeof readAutoMovieMaterialTextureSources>,
+    rows: ReturnType<typeof AutoMovieRenderMaterial.readMaterialTextureSources>,
   ) => (number | null)[] = (
-    rows: ReturnType<typeof readAutoMovieMaterialTextureSources>,
+    rows: ReturnType<typeof AutoMovieRenderMaterial.readMaterialTextureSources>,
   ): (number | null)[] =>
     cost(rows).map(
       (
-        row: ReturnType<typeof measureAutoMovieRenderTextureClosure>[number],
+        row: ReturnType<typeof AutoMovieEngineRenderTexture.measureAutoMovieRenderTextureClosure>[number],
       ): number | null => row.bytes,
     );
   TestValidator.predicate(

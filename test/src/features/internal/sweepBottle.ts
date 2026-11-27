@@ -1,4 +1,4 @@
-import { compileAutoMovieSweep } from "@automovie/engine";
+import { AutoMovieEngineSweep } from "@automovie/engine";
 import type {
   IAutoMovieSurfaceNetwork,
   IAutoMovieSweep,
@@ -45,7 +45,12 @@ const rounded = (
   up: y,
   left: x,
   down: y,
-  exponents: [exponent, exponent, exponent, exponent],
+  exponents: {
+    upperRight: exponent,
+    upperLeft: exponent,
+    lowerLeft: exponent,
+    lowerRight: exponent,
+  },
 });
 
 /**
@@ -108,22 +113,22 @@ export function sweepBottle(
       }),
     ),
   };
-  const quarters: Array<[number, number]> = [
-    [0, 0.25],
-    [0.25, 0.5],
-    [0.5, 0.75],
-    [0.75, 1],
+  const quarters: IAutoMovieSurfaceNetwork.IParameterRange[] = [
+    { start: 0, end: 0.25 },
+    { start: 0.25, end: 0.5 },
+    { start: 0.5, end: 0.75 },
+    { start: 0.75, end: 1 },
   ];
   const patches: IAutoMovieSurfaceNetwork.IPatch[] = quarters.map(
     (
-      [v0, v1]: [number, number],
+      v: IAutoMovieSurfaceNetwork.IParameterRange,
       k: number,
     ): IAutoMovieSurfaceNetwork.IPatch => ({
       type: "sweep",
       name: `wall.${k}`,
       sweep: "bottle",
-      u: [0, 1],
-      v: [v0, v1],
+      u: { start: 0, end: 1 },
+      v,
       rows: ROWS,
       columns: QUARTER,
     }),
@@ -141,7 +146,7 @@ export function sweepBottle(
   // the base as a heel band of four patches round an inner patch, so every rim vertex has valence four
   const nodes: Record<string, IAutoMovieSurfaceNetwork.INode> = {};
   const curves: Record<string, IAutoMovieSurfaceNetwork.ICurve> = {};
-  const surface: IAutoMovieSweepSurface = compileAutoMovieSweep(bottle);
+  const surface: IAutoMovieSweepSurface = AutoMovieEngineSweep.compileSweep(bottle);
   const rim = (v: number): IAutoMovieVector3 => surface.point(0, v);
   // the wall continued below the rim, a unit vector down its u lines
   const down = (v: number): IAutoMovieVector3 => {
@@ -233,14 +238,13 @@ export function sweepBottle(
       {
         name: "mouth",
         edges: quarters.map(
-          ([v0, v1]: [
-            number,
-            number,
-          ]): IAutoMovieSurfaceNetwork.ISweepEdge => ({
+          (
+            range: IAutoMovieSurfaceNetwork.IParameterRange,
+          ): IAutoMovieSurfaceNetwork.ISweepEdge => ({
             type: "sweep",
             sweep: "bottle",
-            from: { u: 1, v: v0 },
-            to: { u: 1, v: v1 },
+            from: { u: 1, v: range.start },
+            to: { u: 1, v: range.end },
             segments: QUARTER,
           }),
         ),

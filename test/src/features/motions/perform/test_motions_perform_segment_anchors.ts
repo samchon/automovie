@@ -3,7 +3,9 @@ import type {
   IAutoMovieMotionHumanSegment,
   IAutoMovieSwivelSeed,
 } from "@automovie/interface";
-import { readHumanSegmentAnchors } from "@automovie/motions/internal";
+import {
+  readHumanSegmentAnchors
+} from "../../../../../packages/motions/src/perform/internal/readHumanSegmentAnchors";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

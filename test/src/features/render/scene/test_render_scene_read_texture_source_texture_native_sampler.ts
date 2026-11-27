@@ -1,9 +1,6 @@
-import {
-  autoMovieRenderTextureDigest,
-  measureAutoMovieRenderTextureClosure,
-} from "@automovie/engine";
+import { AutoMovieEngineRenderTexture } from "@automovie/engine";
 import type { IAutoMovieRenderTextureSource } from "@automovie/interface";
-import { readAutoMovieTextureSource } from "@automovie/render";
+import { AutoMovieRenderSceneTexture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import type { DataTexture } from "three";
 
@@ -27,11 +24,11 @@ export async function test_render_scene_read_texture_source_texture_native_sampl
   a.minFilter = THREE.NearestMipmapNearestFilter;
   const b: DataTexture = a.clone();
   b.minFilter = THREE.LinearMipmapNearestFilter;
-  const first: IAutoMovieRenderTextureSource = readAutoMovieTextureSource(
+  const first: IAutoMovieRenderTextureSource = AutoMovieRenderSceneTexture.readSource(
     "a",
     a,
   );
-  const second: IAutoMovieRenderTextureSource = readAutoMovieTextureSource(
+  const second: IAutoMovieRenderTextureSource = AutoMovieRenderSceneTexture.readSource(
     "b",
     b,
   );
@@ -46,16 +43,16 @@ export async function test_render_scene_read_texture_source_texture_native_sampl
   );
   const close: (
     source?: IAutoMovieRenderTextureSource,
-  ) => ReturnType<typeof measureAutoMovieRenderTextureClosure> = (
+  ) => ReturnType<typeof AutoMovieEngineRenderTexture.measureAutoMovieRenderTextureClosure> = (
     source: IAutoMovieRenderTextureSource = second,
-  ): ReturnType<typeof measureAutoMovieRenderTextureClosure> =>
-    measureAutoMovieRenderTextureClosure({
+  ): ReturnType<typeof AutoMovieEngineRenderTexture.measureAutoMovieRenderTextureClosure> =>
+    AutoMovieEngineRenderTexture.measureAutoMovieRenderTextureClosure({
       materials: [material("first", "a"), material("second", "b")],
       sources: [first, source],
       environment: null,
     }).filter(
       (
-        row: ReturnType<typeof measureAutoMovieRenderTextureClosure>[number],
+        row: ReturnType<typeof AutoMovieEngineRenderTexture.measureAutoMovieRenderTextureClosure>[number],
       ): boolean => row.asset !== null,
     );
   TestValidator.equals(
@@ -72,17 +69,17 @@ export async function test_render_scene_read_texture_source_texture_native_sampl
     ),
     [84],
   );
-  const digest: string = autoMovieRenderTextureDigest([second]);
+  const digest: string = AutoMovieEngineRenderTexture.autoMovieRenderTextureDigest([second]);
   TestValidator.predicate(
     "native filter changes freshness",
-    autoMovieRenderTextureDigest([{ ...first, asset: "b" }]) !== digest,
+    AutoMovieEngineRenderTexture.autoMovieRenderTextureDigest([{ ...first, asset: "b" }]) !== digest,
   );
   const fixed: [DataTexture, DataTexture] = [a.clone(), a.clone()];
   fixed[0].anisotropy = 2;
   fixed[1].anisotropy = 4;
   const fixedFacts: IAutoMovieRenderTextureSource[] = fixed.map(
     (texture: DataTexture, index: number): IAutoMovieRenderTextureSource =>
-      readAutoMovieTextureSource(`fixed-${index}`, texture),
+      AutoMovieRenderSceneTexture.readSource(`fixed-${index}`, texture),
   );
   TestValidator.predicate(
     "distinct native anisotropy keys remain distinct",
@@ -90,7 +87,7 @@ export async function test_render_scene_read_texture_source_texture_native_sampl
   );
   TestValidator.equals(
     "fixed native variants retain two bounds",
-    measureAutoMovieRenderTextureClosure({
+    AutoMovieEngineRenderTexture.measureAutoMovieRenderTextureClosure({
       materials: fixedFacts.map(
         (
           source: IAutoMovieRenderTextureSource,
@@ -111,8 +108,8 @@ export async function test_render_scene_read_texture_source_texture_native_sampl
   Object.assign(fixed[1], { wrapR: 0, anisotropy: 1 });
   TestValidator.equals(
     "native falsy wrapR keys are equivalent",
-    readAutoMovieTextureSource("same", fixed[0]).uploadState,
-    readAutoMovieTextureSource("same", fixed[1]).uploadState,
+    AutoMovieRenderSceneTexture.readSource("same", fixed[0]).uploadState,
+    AutoMovieRenderSceneTexture.readSource("same", fixed[1]).uploadState,
   );
   for (const texture of fixed) texture.dispose();
   a.dispose();

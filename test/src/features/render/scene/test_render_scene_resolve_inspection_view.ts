@@ -1,8 +1,4 @@
-import {
-  AutoMovieThreeKind,
-  parseAutoMovieInspectionView,
-  resolveAutoMovieInspectionView,
-} from "@automovie/render";
+import { AutoMovieRenderThreeKind, AutoMovieRenderInspectionCamera, AutoMovieRenderInspectionRequest } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -10,7 +6,7 @@ import * as THREE from "three";
 const CAMERA_TOLERANCE: number = 1e-9;
 
 /**
- * `resolveAutoMovieInspectionView` turns a view into the camera that draws it
+ * `AutoMovieRenderInspectionCamera.resolveView` turns a view into the camera that draws it
  * and the record of that camera.
  *
  * Scenarios:
@@ -28,10 +24,10 @@ export function test_render_scene_resolve_inspection_view(): void {
   const film: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(40, 2, 0.1, 100);
   const resolve = (
     text: string,
-    patch: Partial<Parameters<typeof resolveAutoMovieInspectionView>[0]> = {},
-  ): ReturnType<typeof resolveAutoMovieInspectionView> =>
-    resolveAutoMovieInspectionView({
-      view: parseAutoMovieInspectionView(text),
+    patch: Partial<AutoMovieRenderInspectionCamera.IResolveViewProps> = {},
+  ): AutoMovieRenderInspectionCamera.IResolveViewResult =>
+    AutoMovieRenderInspectionCamera.resolveView({
+      view: AutoMovieRenderInspectionRequest.parseView(text),
       text,
       bounds: null,
       camera: film,
@@ -54,15 +50,15 @@ export function test_render_scene_resolve_inspection_view(): void {
     "ortho scale",
     ortho.record.metresPerPixel !== null &&
       Math.abs(ortho.record.metresPerPixel - 0.1) < CAMERA_TOLERANCE &&
-      AutoMovieThreeKind.isOrthographicCamera(ortho.camera) &&
+      AutoMovieRenderThreeKind.isOrthographicCamera(ortho.camera) &&
       Math.abs(ortho.camera.top - 2.5) < CAMERA_TOLERANCE,
   );
 
   const own = resolve("walk", {
     views: {
       walk: (seconds: number) => ({
-        position: [seconds, 0, 5],
-        target: [seconds, 0, 0],
+        position: { x: seconds, y: 0, z: 5 },
+        target: { x: seconds, y: 0, z: 0 },
       }),
     },
     seconds: 3,
@@ -70,7 +66,12 @@ export function test_render_scene_resolve_inspection_view(): void {
   TestValidator.equals("own view", own.record.position, { x: 3, y: 0, z: 5 });
   TestValidator.error("own view with a switch", (): void => {
     resolve("walk@follow", {
-      views: { walk: () => ({ position: [0, 0, 5], target: [0, 0, 0] }) },
+      views: {
+        walk: () => ({
+          position: { x: 0, y: 0, z: 5 },
+          target: { x: 0, y: 0, z: 0 },
+        }),
+      },
     });
   });
   TestValidator.error("nothing to frame", (): void => {

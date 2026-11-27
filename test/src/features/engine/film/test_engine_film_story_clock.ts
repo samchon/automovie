@@ -1,10 +1,7 @@
-import {
-  autoMovieStoryInterval,
-  autoMovieStoryTime,
-  evaluateAutoMovieStorySync,
-} from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieShotStoryTime,
+  IAutoMovieStoryInterval,
   IAutoMovieStorySyncPoint,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -46,15 +43,15 @@ const sync: (
     pin?: (shot: string) => IAutoMovieShotStoryTime | null;
     realized?: (shot: string, event: string) => number | null;
   },
-) => ReturnType<typeof evaluateAutoMovieStorySync> = (
+) => ReturnType<typeof AutoMovieEngineFilm.evaluateAutoMovieStorySync> = (
   events: ReadonlyArray<{ shot: string; event: string }>,
   toleranceSeconds: number,
   overrides: {
     pin?: (shot: string) => IAutoMovieShotStoryTime | null;
     realized?: (shot: string, event: string) => number | null;
   } = {},
-): ReturnType<typeof evaluateAutoMovieStorySync> =>
-  evaluateAutoMovieStorySync({
+): ReturnType<typeof AutoMovieEngineFilm.evaluateAutoMovieStorySync> =>
+  AutoMovieEngineFilm.evaluateAutoMovieStorySync({
     events,
     toleranceSeconds,
     pin:
@@ -85,16 +82,16 @@ const sync: (
  *    refused because it addresses no event.
  */
 export function test_engine_film_story_clock(): void {
-  const defaultTime: number = autoMovieStoryTime({ originSeconds: 10 }, 4);
-  const explicitTime: number = autoMovieStoryTime(
+  const defaultTime: number = AutoMovieEngineFilm.autoMovieStoryTime({ originSeconds: 10 }, 4);
+  const explicitTime: number = AutoMovieEngineFilm.autoMovieStoryTime(
     { originSeconds: 10, rate: 0.5 },
     4,
   );
   const pin: IAutoMovieShotStoryTime = { originSeconds: 10, rate: 0.5 };
-  const whole: ReturnType<typeof autoMovieStoryInterval> =
-    autoMovieStoryInterval(pin, { from: 0, to: 6 });
-  const event: ReturnType<typeof autoMovieStoryInterval> =
-    autoMovieStoryInterval(pin, { from: 2, to: 6 });
+  const whole: IAutoMovieStoryInterval.IResult =
+    AutoMovieEngineFilm.autoMovieStoryInterval(pin, { from: 0, to: 6 });
+  const event: IAutoMovieStoryInterval.IResult =
+    AutoMovieEngineFilm.autoMovieStoryInterval(pin, { from: 2, to: 6 });
   TestValidator.predicate(
     "a pin maps shot-local time onto the story clock",
     (): boolean =>

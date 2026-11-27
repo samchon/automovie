@@ -1,8 +1,7 @@
+import { AutoMovieEngineViolationCollector, AutoMovieEngineValidation } from "@automovie/engine";
 import {
-  ViolationCollector,
-  collectDeclaredIds,
-  validateDeclaredReferences,
-} from "@automovie/engine";
+  collectDeclaredIds
+} from "../../../../../packages/engine/src/validation/internal/collectDeclaredIds";
 import type { IAutoMovieConstraintViolation } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -19,12 +18,12 @@ import { TestValidator } from "@nestia/e2e";
  *    second `a` duplicated at `[2]`.
  */
 export function test_engine_validation_declared_ids(): void {
-  const read = (collector: ViolationCollector): string[][] =>
+  const read = (collector: AutoMovieEngineViolationCollector): string[][] =>
     collector.items.map((item: IAutoMovieConstraintViolation): string[] => [
       item.path,
       item.expected,
     ]);
-  const declared: ViolationCollector = new ViolationCollector();
+  const declared: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();
   const ids: Set<string> = collectDeclaredIds(
     [{ id: "a" }, { id: "b" }, { id: "a" }],
     "$input.rooms",
@@ -39,8 +38,8 @@ export function test_engine_validation_declared_ids(): void {
       findings: [["$input.rooms[2].id", 'room id "a" must be unique']],
     },
   );
-  const referred: ViolationCollector = new ViolationCollector();
-  validateDeclaredReferences(
+  const referred: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();
+  AutoMovieEngineValidation.validateDeclaredReferences(
     ["a", "x", "a"],
     ids,
     "$input.links",

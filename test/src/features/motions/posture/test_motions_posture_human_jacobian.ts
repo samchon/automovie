@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -9,10 +9,14 @@ import type {
 } from "@automovie/interface";
 import { AutoMovieMotionHumanStance } from "@automovie/motions";
 import {
-  HumanJacobian,
-  poseBones,
-  resolveHumanPosture,
-} from "@automovie/motions/internal";
+  HumanJacobian
+} from "../../../../../packages/motions/src/posture/internal/HumanJacobian";
+import {
+  poseBones
+} from "../../../../../packages/motions/src/posture/internal/poseBones";
+import {
+  resolveHumanPosture
+} from "../../../../../packages/motions/src/posture/internal/resolveHumanPosture";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -74,8 +78,8 @@ export async function test_motions_posture_human_jacobian(): Promise<void> {
       angles[1] + (axis === 1 ? d : 0),
       angles[2] + (axis === 2 ? d : 0),
     ];
-    return Vector3.scale(
-      Vector3.subtract(
+    return AutoMovieEngineVector3.scale(
+      AutoMovieEngineVector3.subtract(
         read(posed(bone, shift(H))),
         read(posed(bone, shift(-H))),
       ),
@@ -110,7 +114,7 @@ export async function test_motions_posture_human_jacobian(): Promise<void> {
     vclose(turn.linear, { x: 0, y: 0, z: 0 }, DIFFERENCE) &&
       vclose(
         moved,
-        Vector3.cross(turn.angular, Vector3.subtract(hand, elbow)),
+        AutoMovieEngineVector3.cross(turn.angular, AutoMovieEngineVector3.subtract(hand, elbow)),
         DIFFERENCE,
       ) &&
       vclose(
@@ -135,9 +139,9 @@ export async function test_motions_posture_human_jacobian(): Promise<void> {
   const hipShown: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
     bones(hipped);
   const point = (bone: IAutoMovieResolvedBone): IAutoMovieVector3 =>
-    Vector3.add(
+    AutoMovieEngineVector3.add(
       bone.worldPosition,
-      Quaternion.rotateVector(bone.worldRotation, LOCAL),
+      AutoMovieEngineQuaternion.rotateVector(bone.worldRotation, LOCAL),
     );
   const motions: IAutoMovieMotionHumanJacobian.IMotion[] = HumanJacobian(
     body,

@@ -1,8 +1,4 @@
-import {
-  type IAutoMovieFormationCycle,
-  applyFormationCycleMaterial,
-  readMaterialShaderPatches,
-} from "@automovie/render";
+import { type IAutoMovieRenderFormationCycle, AutoMovieRenderMaterial, AutoMovieRenderFormationCycle } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -22,18 +18,18 @@ import { createFormationCycleLiteral } from "../../internal/createFormationCycle
  *    unchanged and the compiled source declares the uniforms once.
  */
 export function test_render_scene_apply_formation_cycle_material(): void {
-  const cycle: IAutoMovieFormationCycle = createFormationCycleLiteral();
+  const cycle: IAutoMovieRenderFormationCycle = createFormationCycleLiteral();
   const material: THREE.MeshBasicMaterial = new THREE.MeshBasicMaterial();
   const declarations: () => number = (): number =>
     compileMaterialShaderSource(
       material,
       THREE.ShaderLib.basic,
     ).vertexShader.split("uniform float automovieCycleTurn;").length - 1;
-  applyFormationCycleMaterial(material, cycle);
+  AutoMovieRenderFormationCycle.applyFormationCycleMaterial(material, cycle);
   TestValidator.equals(
     "applied once",
     [
-      readMaterialShaderPatches(material).length,
+      AutoMovieRenderMaterial.readShaderPatches(material).length,
       material.customProgramCacheKey(),
       declarations(),
       compileMaterialShaderSource(material, THREE.ShaderLib.basic).uniforms
@@ -41,11 +37,11 @@ export function test_render_scene_apply_formation_cycle_material(): void {
     ],
     [1, "automovie-formation-cycle", 1, true],
   );
-  applyFormationCycleMaterial(material, cycle);
+  AutoMovieRenderFormationCycle.applyFormationCycleMaterial(material, cycle);
   TestValidator.equals(
     "applied twice, injected once",
     [
-      readMaterialShaderPatches(material).length,
+      AutoMovieRenderMaterial.readShaderPatches(material).length,
       material.customProgramCacheKey(),
       declarations(),
     ],

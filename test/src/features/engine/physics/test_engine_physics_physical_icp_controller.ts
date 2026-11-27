@@ -1,4 +1,4 @@
-import { physicalIcpController } from "@automovie/engine";
+import { AutoMovieEnginePhysicalIcpController } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
@@ -50,7 +50,7 @@ function close(title: string, actual: number, expected: number): void {
 }
 
 /**
- * `physicalIcpController` follows IHMC's ICP feedback program
+ * `AutoMovieEnginePhysicalIcpController` follows IHMC's ICP feedback program
  * (`ICPControllerHelper`, `ICPControllerQPSolver`, `ICPController`,
  * `AngularMomentumIntegrator`), with Zulu's weights.
  *
@@ -76,17 +76,17 @@ function close(title: string, actual: number, expected: number): void {
  *    and gathers `K_i dt e`; a moving plan clears the integral.
  */
 export function test_engine_physics_physical_icp_controller(): void {
-  const zulu = physicalIcpController.ZULU;
+  const zulu = AutoMovieEnginePhysicalIcpController.ZULU;
   const run = (props: {
     error: IPlane;
     desiredVelocity?: IPlane;
     support?: IPlane[];
-    state?: physicalIcpController.IState;
-    parameters?: Partial<physicalIcpController.IParameters>;
+    state?: AutoMovieEnginePhysicalIcpController.IState;
+    parameters?: Partial<AutoMovieEnginePhysicalIcpController.IParameters>;
     center?: IPlane;
-  }): physicalIcpController.IResult =>
-    physicalIcpController({
-      state: props.state ?? physicalIcpController.create(),
+  }): AutoMovieEnginePhysicalIcpController.IResult =>
+    AutoMovieEnginePhysicalIcpController.update({
+      state: props.state ?? AutoMovieEnginePhysicalIcpController.create(),
       support: props.support ?? square(1),
       desired: { x: 0, y: 0 },
       desiredVelocity: props.desiredVelocity ?? { x: 0, y: 0 },
@@ -139,7 +139,7 @@ export function test_engine_physics_physical_icp_controller(): void {
     error: { x: 0.01, y: 0 },
     desiredVelocity: along,
     state: {
-      ...physicalIcpController.create(),
+      ...AutoMovieEnginePhysicalIcpController.create(),
       copDelta: { x: 0.02, y: 0 },
       cmpDelta: { x: 0.01, y: 0 },
     },

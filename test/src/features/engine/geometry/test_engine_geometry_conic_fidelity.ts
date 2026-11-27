@@ -1,4 +1,4 @@
-import { AutoMovieViewSection } from "@automovie/engine";
+import { AutoMovieEngineViewSection } from "@automovie/engine";
 import type {
   IAutoMoviePolarSector,
   IAutoMovieViewSection,
@@ -8,7 +8,7 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../../internal/predicates";
 
 /**
- * `AutoMovieViewSection` keeps a generic thin ellipse's source section: the
+ * `AutoMovieEngineViewSection` keeps a generic thin ellipse's source section: the
  * ellipse shoulder (the circle's, sqrt 2 - 1) does not turn concave in a fixed
  * polar approximation.
  *
@@ -43,7 +43,7 @@ export function test_engine_geometry_conic_fidelity(): void {
         const a: number = scale * (swap ? aspect : 1);
         const b: number = scale * (swap ? 1 : aspect);
         const label: string = `aspect ${aspect} swap ${swap} scale ${scale}`;
-        const section: IAutoMovieViewSection.ISection = AutoMovieViewSection.of(
+        const section: IAutoMovieViewSection.ISection = AutoMovieEngineViewSection.of(
           { extents: [a, b, a, b] },
           shoulder,
         );
@@ -53,7 +53,7 @@ export function test_engine_geometry_conic_fidelity(): void {
         let nonfinite: number = 0;
         for (let i: number = 0; i < 512; i++) {
           const phi: number = (2 * Math.PI * (i + 0.37)) / 512;
-          const jet: IAutoMoviePolarSector.Jet = AutoMovieViewSection.radius(
+          const jet: IAutoMoviePolarSector.Jet = AutoMovieEngineViewSection.radius(
             section,
             phi,
           );
@@ -92,7 +92,7 @@ export function test_engine_geometry_conic_fidelity(): void {
         );
         TestValidator.equals(`${label} inward`, inverted, 0);
         for (let g: number = 0; g < 4; g++) {
-          const radius: number = AutoMovieViewSection.radius(
+          const radius: number = AutoMovieEngineViewSection.radius(
             section,
             (g * Math.PI) / 2,
           )[0];
@@ -118,13 +118,13 @@ export function test_engine_geometry_conic_fidelity(): void {
 
   const angle: number = Math.PI / 16;
   const correctionAt = (station: number): number => {
-    const section: IAutoMovieViewSection.ISection = AutoMovieViewSection.bare(
+    const section: IAutoMovieViewSection.ISection = AutoMovieEngineViewSection.bare(
       { extents: [1, 1 + station, 1, 1] },
       shoulder,
     );
     TestValidator.equals(`admission ${station}`, section.conics.failure, null);
     return (
-      AutoMovieViewSection.radius(section, angle)[0] -
+      AutoMovieEngineViewSection.radius(section, angle)[0] -
       1 / Math.hypot(Math.cos(angle), Math.sin(angle) / (1 + station))
     );
   };
@@ -143,7 +143,7 @@ export function test_engine_geometry_conic_fidelity(): void {
     );
   }
 
-  const asymmetric: IAutoMovieViewSection.ISection = AutoMovieViewSection.bare(
+  const asymmetric: IAutoMovieViewSection.ISection = AutoMovieEngineViewSection.bare(
     { extents: [20, 20, 20, 20] },
     [0.55, 0.4, 0.35, 0.25],
   );
@@ -153,7 +153,7 @@ export function test_engine_geometry_conic_fidelity(): void {
   );
   const limit: IAutoMoviePolarSector.Jet = [20, 0, 20 - 400 * kappa];
   for (const step of [1e-20, 1e-30, 1e-100]) {
-    const actual: IAutoMoviePolarSector.Jet = AutoMovieViewSection.radius(
+    const actual: IAutoMoviePolarSector.Jet = AutoMovieEngineViewSection.radius(
       asymmetric,
       -step,
     );

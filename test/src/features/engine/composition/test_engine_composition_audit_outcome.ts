@@ -1,9 +1,9 @@
-import { auditAutoMovieOutcome } from "@automovie/engine";
+import { AutoMovieEngineCompositionOutcome } from "@automovie/engine";
 import type { IAutoMovieAuditOutcome } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `auditAutoMovieOutcome` reports every required contact that was not measured
+ * `auditOutcome` reports every required contact that was not measured
  * or carried too little impulse, and every forbidden contact that was, without
  * rewriting either list.
  *
@@ -45,22 +45,22 @@ export function test_engine_composition_audit_outcome(): void {
 
   TestValidator.equals(
     "a reversed contact at the window's end satisfies it",
-    auditAutoMovieOutcome(required, [contact(0.5, 2)]),
+    AutoMovieEngineCompositionOutcome.audit(required, [contact(0.5, 2)]),
     [],
   );
   TestValidator.equals(
     "a contact after the window is missing",
-    auditAutoMovieOutcome(required, [contact(0.6, 2)]),
+    AutoMovieEngineCompositionOutcome.audit(required, [contact(0.6, 2)]),
     [`lands: no measured contact ${name}`],
   );
   TestValidator.equals(
     "the strongest of two weak contacts is reported",
-    auditAutoMovieOutcome(required, [contact(0.3, 0.25), contact(0.4, 0.5)]),
+    AutoMovieEngineCompositionOutcome.audit(required, [contact(0.3, 0.25), contact(0.4, 0.5)]),
     [`lands: contact ${name} carries 0.5 N s, below 1`],
   );
   TestValidator.equals(
     "an expectation naming no regions and no minimum takes any touch",
-    auditAutoMovieOutcome(
+    AutoMovieEngineCompositionOutcome.audit(
       {
         id: "meets",
         required: [
@@ -83,8 +83,8 @@ export function test_engine_composition_audit_outcome(): void {
   TestValidator.equals(
     "a forbidden contact is reported and another region is not",
     [
-      auditAutoMovieOutcome(forbidden, [contact(0.4, 2)]),
-      auditAutoMovieOutcome(forbidden, [contact(0.4, 2, "foot")]),
+      AutoMovieEngineCompositionOutcome.audit(forbidden, [contact(0.4, 2)]),
+      AutoMovieEngineCompositionOutcome.audit(forbidden, [contact(0.4, 2, "foot")]),
     ],
     [[`misses: forbidden contact ${name}`], []],
   );

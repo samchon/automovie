@@ -11,7 +11,7 @@ The inspector and capture share a renderer request. Use the production README fo
 
 | Read | To |
 | --- | --- |
-| [Capture](capture.md) | Restore the instrument, or plan a capture's subject, views, times and stills |
+| [Capture](capture.md) | Restore it or plan subjects, views, times and stills |
 | [Passes](passes.md) | Choose what each still draws, and mark what a measurement found |
 | [Comparison](comparison.md) | Set two captures against each other |
 | [Correction rounds](correction-rounds.md) | Correct what a capture shows |

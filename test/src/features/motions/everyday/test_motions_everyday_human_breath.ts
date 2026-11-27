@@ -1,11 +1,14 @@
-import { createAutoMovieRandom, deriveAutoMovieSeed } from "@automovie/engine";
+import { AutoMovieEngineRandom } from "@automovie/engine";
+
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBreath,
   IAutoMovieMotionHumanPosture,
   IAutoMovieRandom,
 } from "@automovie/interface";
-import { HumanBreath } from "@automovie/motions/internal";
+import {
+  HumanBreath
+} from "../../../../../packages/motions/src/perform/expression/HumanBreath";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -116,7 +119,7 @@ namespace part_human_breath_state {
     const stream: (k: string) => IAutoMovieRandom = (
       k: string,
     ): IAutoMovieRandom =>
-      createAutoMovieRandom(deriveAutoMovieSeed("breath", k));
+      AutoMovieEngineRandom.createRandom(AutoMovieEngineRandom.deriveSeed("breath", k));
     const rates: number[] = Array.from(
       { length: 200 },
       (_: unknown, i: number): number =>

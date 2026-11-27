@@ -1,13 +1,19 @@
 import type { IAutoMovieHumanCanonicalBody, IAutoMovieMark, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IMotionCaptureCase
+} from "../../../../../packages/motions/src/executable/internal/IMotionCaptureCase";
+import type {
+  IMotionCaptureProps
+} from "../../../../../packages/motions/src/executable/internal/IMotionCaptureProps";
 import {
-  type IMotionCaptureCase,
-  type IMotionCaptureProps,
-  planMotionCaptureProps,
-} from "@automovie/motions/executable/internal";
+  planMotionCaptureProps
+} from "../../../../../packages/motions/src/executable/internal/planMotionCaptureProps";
 import {
-  markMotionCaptureCase,
-  planMotionCaptureInstants,
-} from "@automovie/motions/internal";
+  markMotionCaptureCase
+} from "../../../../../packages/motions/src/capture/internal/markMotionCaptureCase";
+import {
+  planMotionCaptureInstants
+} from "../../../../../packages/motions/src/capture/internal/planMotionCaptureInstants";
 import { TestValidator } from "@nestia/e2e";
 
 import type { IHumanFixture } from "../../internal/fixtures/IHumanFixture";

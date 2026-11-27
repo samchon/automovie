@@ -19,7 +19,7 @@ import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
  * `W` and `W(1 - s)` are the quintic Hermite value weights, a partition of
  * unity flat to second order at both ends, and `W sigma` is the Hermite weight
  * of the first derivative, so at a column the band leaves each seam with the
- * same ribbons as the column strip (`AutoMovieSolidBlendChain.strip`). `A(t, c)
+ * same ribbons as the column strip (`AutoMovieEngineSolidBlendChain.strip`). `A(t, c)
  * = H(x(c) + t e(c))` is the host itself, read from the port curve `x(c)` along
  * the band's inward chart direction `e(c) = g(c) d(c)`, inside the curve where
  * the host's surface runs on under the band. `B(t, c)` continues the part
@@ -32,7 +32,7 @@ import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
  * two surfaces by a weight flat to order n meets each Gn (E. Hartmann,
  * "Parametric Gn blending of curves and surfaces", The Visual Computer 17,
  * 2001); here the whole 2-jet of `S` at `s = 0` is that of `H(x(c) + s e(c))`,
- * the ribbon composition `AutoMovieSolidRibbon` shows G2 to the host for any
+ * the ribbon composition `AutoMovieEngineSolidRibbon` shows G2 to the host for any
  * smooth direction field, and likewise at `s = 1`. Every derivative of `S` is
  * the chain rule on the two sides' own 2-jets and on the clock fields, so no
  * side's third derivative is needed and none is invented.
@@ -48,7 +48,7 @@ import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
  * kept side.
  *
  * The clock fields join per-column values by the periodic cubic
- * (`AutoMovieConstructionPortField.periodic`): the port curve's share (in
+ * (`AutoMovieEngineConstructionPortField.periodic`): the port curve's share (in
  * `PortCurve.ICurve`), each side's cross speed `g` (the column's ribbon factor
  * times its chord over the side's speed along the direction, exactly the column
  * strip's ribbon at each column), the part's phase `chi(c) = sense c +

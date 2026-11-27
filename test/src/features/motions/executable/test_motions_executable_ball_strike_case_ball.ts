@@ -2,8 +2,12 @@ import type {
   IAutoMovieMotionHumanProp,
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
-import { ballStrikeCaseBall } from "@automovie/motions/executable/internal";
-import { HumanBall } from "@automovie/motions/internal";
+import {
+  ballStrikeCaseBall
+} from "../../../../../packages/motions/src/executable/cases/internal/ballStrikeCaseBall";
+import {
+  HumanBall
+} from "../../../../../packages/motions/src/ballStrike/internal/HumanBall";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../../internal/vclose";

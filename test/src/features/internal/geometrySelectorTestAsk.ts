@@ -1,4 +1,4 @@
-import { measureAutoMovieGeometry } from "@automovie/engine";
+import { AutoMovieEngineGeometryObservation } from "@automovie/engine";
 import {
   IAutoMovieCamera,
   IAutoMovieClip,
@@ -213,7 +213,7 @@ export const geometrySelectorTestAsk = (
     "landmarks" | "surfaces" | "routes"
   > | null = WORLD,
 ): IAutoMovieGeometryResult =>
-  measureAutoMovieGeometry({
+  AutoMovieEngineGeometryObservation.measure({
     request,
     design: {
       production: null,

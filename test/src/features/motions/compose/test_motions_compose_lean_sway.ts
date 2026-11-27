@@ -9,10 +9,14 @@ import type {
 } from "@automovie/interface";
 import { AutoMovieMotionHumanStance } from "@automovie/motions";
 import {
-  AutoMovieMotionHumanLean,
-  poseBones,
-  resolveHumanPosture,
-} from "@automovie/motions/internal";
+  AutoMovieMotionHumanLean
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanLean";
+import {
+  poseBones
+} from "../../../../../packages/motions/src/posture/internal/poseBones";
+import {
+  resolveHumanPosture
+} from "../../../../../packages/motions/src/posture/internal/resolveHumanPosture";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";

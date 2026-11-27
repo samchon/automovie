@@ -1,4 +1,9 @@
-import { HumanSabreForm, humanSabreCharge } from "@automovie/motions/internal";
+import {
+  HumanSabreForm
+} from "../../../../../packages/motions/src/lexicon/internal/HumanSabreForm";
+import {
+  humanSabreCharge
+} from "../../../../../packages/motions/src/lexicon/internal/humanSabreCharge";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";

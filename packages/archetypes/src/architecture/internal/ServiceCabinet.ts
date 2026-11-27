@@ -1,0 +1,228 @@
+import { AutoMovieEngineVector3 } from "@automovie/engine";
+
+import {
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
+} from "../../core";
+import { FixtureDraw } from "./FixtureDraw";
+import type { AutoMovieArchetypeMachine } from "../AutoMovieArchetypeMachine";
+import { ServiceCabinetData } from "./ServiceCabinetData";
+
+/*
+ * The shared measured rectangular cabinet and its two exterior contact frames.
+ */
+export namespace ServiceCabinet {
+  /*
+   * Each kind's models with the width each gives, metres, the default first: a
+   * vending machine's Merchant 4 and Merchant 6; the other kinds have one read
+   * model.
+   */
+  export const MODELS: Readonly<
+    Partial<
+      Record<
+        AutoMovieArchetypeMachine.Kind,
+        Readonly<
+          Partial<
+            Record<
+              AutoMovieArchetypeMachine.Model,
+              Readonly<Partial<Record<AutoMovieArchetypeMachine.Dimension, number>>>
+            >
+          >
+        >
+      >
+    >
+  > = {
+    vendingMachine: {
+      "Merchant 4": { width: 0.895 },
+      "Merchant 6": { width: 1.18 },
+    },
+  };
+
+  /*
+   * The band of each free dimension, by kind.
+   */
+  export const BANDS: Readonly<
+    Record<
+      AutoMovieArchetypeMachine.Kind,
+      Readonly<
+        Partial<Record<AutoMovieArchetypeMachine.Dimension, IAutoMovieArchetypeBand>>
+      >
+    >
+  > = {
+    vendingMachine: {
+      height: AutoMovieArchetypeBand.metres(1.83, 1.83, ServiceCabinetData.MERCHANT),
+      depth: AutoMovieArchetypeBand.metres(0.813, 0.813, ServiceCabinetData.MERCHANT),
+      mass: AutoMovieArchetypeBand.of(
+        "kg",
+        250,
+        350,
+        AutoMovieArchetypeBand.TYPICAL_MASS,
+        true,
+      ),
+    },
+    atm: {
+      width: AutoMovieArchetypeBand.metres(0.77, 0.77, `${ServiceCabinetData.NCR}: the fascia`),
+      height: AutoMovieArchetypeBand.metres(1.575, 1.575, ServiceCabinetData.NCR),
+      depth: AutoMovieArchetypeBand.metres(0.8, 0.8, ServiceCabinetData.NCR),
+      mass: AutoMovieArchetypeBand.of(
+        "kg",
+        250,
+        400,
+        AutoMovieArchetypeBand.TYPICAL_MASS,
+        true,
+      ),
+    },
+    payStation: {
+      width: AutoMovieArchetypeBand.metres(0.29, 0.29, `${ServiceCabinetData.STRADA}: the body`),
+      height: AutoMovieArchetypeBand.metres(
+        1.488,
+        1.488,
+        `${ServiceCabinetData.STRADA}: the body`,
+      ),
+      depth: AutoMovieArchetypeBand.metres(0.328, 0.328, `${ServiceCabinetData.STRADA}: the body`),
+      mass: AutoMovieArchetypeBand.of(
+        "kg",
+        60,
+        90,
+        AutoMovieArchetypeBand.TYPICAL_MASS,
+        true,
+      ),
+    },
+  };
+
+  /*
+   * The built cabinet with its drawn outside dimensions and mass.
+   */
+  export interface ICabinet<Id extends string> {
+    /*
+     * Builder carrying the exterior cabinet.
+     */
+    builder: AutoMovieArchetypeBuilder<Id, AutoMovieArchetypeMachine.Dimension>;
+
+    /*
+     * Cabinet width along X, metres.
+     */
+    width: number;
+
+    /*
+     * Cabinet height above the floor, metres.
+     */
+    height: number;
+
+    /*
+     * Cabinet depth along Z, metres.
+     */
+    depth: number;
+
+    /*
+     * Total build mass, kilograms.
+     */
+    mass: number;
+  }
+
+  /*
+   * Draw the measurements and place the cabinet on the floor.
+   * Parameter kind: The fixed profile and model table to draw.
+   * Parameter name: Display name before the optional model name.
+   * Parameter color: The cabinet finish.
+   * Parameter params: The scene identifier, possibly a model choice, and fixed
+   * dimensions.
+   * Parameter seed: The seed for the unresolved draws.
+   * Returns: The cabinet's builder, mass and external dimensions.
+   * When a model or dimension does not fit
+   * the given profile.
+   */
+  export function begin<Id extends string>(
+    kind: AutoMovieArchetypeMachine.Kind,
+    name: string,
+    color: string,
+    params: Omit<AutoMovieArchetypeMachine.IParams, "kind">,
+    seed?: number,
+  ): ICabinet<Id> {
+    const draw: AutoMovieArchetypeDrawSession<AutoMovieArchetypeMachine.Dimension> =
+      new AutoMovieArchetypeDrawSession(
+        "machine",
+        FixtureDraw.machine,
+        seed,
+        params,
+      );
+    const model: AutoMovieArchetypeDrawSession.IModel<
+      AutoMovieArchetypeMachine.Model,
+      AutoMovieArchetypeMachine.Dimension
+    > = draw.model("model", params.model, MODELS[kind]);
+    const d: Partial<Record<AutoMovieArchetypeMachine.Dimension, number>> = {
+      ...draw.dimensions(BANDS[kind], BANDS),
+      ...model.figures,
+    };
+    const builder: AutoMovieArchetypeBuilder<Id, AutoMovieArchetypeMachine.Dimension> =
+      new AutoMovieArchetypeBuilder({
+        material: "composite",
+        id: params.id,
+        name: model.name === undefined ? name : `${name} ${model.name}`,
+        draw,
+      });
+    const width: number = d.width!;
+    const height: number = d.height!;
+    const depth: number = d.depth!;
+    builder.box(
+      "cabinet",
+      AutoMovieEngineVector3.create(width, height, depth),
+      AutoMovieEngineVector3.create(0, height / 2, 0),
+      {
+        color,
+        density: 0.4,
+      },
+    );
+    return { builder, width, height, depth, mass: d.mass! };
+  }
+
+  /*
+   * The contact ids faces builds or reads.
+   */
+  export type FacesContact = "front" | "side";
+
+  /*
+   * The values faces accepts at this place in its signature.
+   */
+  export type FacesChoice = "width" | "height" | "depth";
+
+  /*
+   * Put the stand and push contacts on the cabinet's front and right side.
+   * Parameter cabinet: The already built cabinet and its dimensions.
+   */
+  export function faces(
+    cabinet: Pick<ICabinet<FacesContact>, FacesChoice> & {
+      builder: FixtureDraw.IContactWriter<FacesContact>;
+    },
+  ): void {
+    const { builder, width, height, depth }: typeof cabinet = cabinet;
+    const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
+    builder.affordance({
+      id: "front",
+      kind: "surface",
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, height / 2, depth / 2),
+        v(0, 0, 1),
+        v(1, 0, 0),
+      ),
+      extent: null,
+      width,
+      depth: height,
+    });
+    builder.affordance({
+      id: "side",
+      kind: "surface",
+      frame: AutoMovieArchetypeFrame.facing(
+        v(width / 2, height / 2, 0),
+        v(1, 0, 0),
+        v(0, 0, -1),
+      ),
+      extent: null,
+      width: depth,
+      depth: height,
+    });
+  }
+}

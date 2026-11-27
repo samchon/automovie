@@ -1,4 +1,4 @@
-import { createAutoMovieSignedMeshQuery } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieMesh,
   IAutoMovieSignedMeshQueryHit,
@@ -12,7 +12,7 @@ import {
 import { nclose } from "../../internal/predicates";
 
 /**
- * `createAutoMovieSignedMeshQuery` reads the nearest face, edge or vertex of the
+ * `createSignedMeshQuery` reads the nearest face, edge or vertex of the
  * actual solid, its closest point, unit pseudonormal and oriented distance.
  *
  * Fixtures: the unit octahedron |x| + |y| + |z| = 1; the L of three unit voxels
@@ -33,7 +33,7 @@ import { nclose } from "../../internal/predicates";
  */
 export function test_engine_geometry_signed_mesh_features(): void {
   const source: IAutoMovieMesh = createSignedOctahedron();
-  const sample = createAutoMovieSignedMeshQuery(source);
+  const sample = AutoMovieEngineGeometry.createSignedMeshQuery(source);
   const s3: number = Math.sqrt(3);
 
   // 1.
@@ -61,7 +61,7 @@ export function test_engine_geometry_signed_mesh_features(): void {
     TestValidator.predicate(`${p} on the surface`, nclose(sample(p).distance, 0));
 
   // 3.
-  const voxels = createAutoMovieSignedMeshQuery(
+  const voxels = AutoMovieEngineGeometry.createSignedMeshQuery(
     createSignedVoxelUnion([
       [0, 0, 0],
       [1, 0, 0],
@@ -77,7 +77,7 @@ export function test_engine_geometry_signed_mesh_features(): void {
   const reversed: IAutoMovieMesh = createSignedOctahedron();
   const ix: number[] = reversed.indices!;
   for (let at: number = 0; at < ix.length; at += 3) [ix[at], ix[at + 1]] = [ix[at + 1]!, ix[at]!];
-  TestValidator.predicate("inside out", nclose(createAutoMovieSignedMeshQuery(reversed)([2, 0, 0]).signedDistance, -1));
+  TestValidator.predicate("inside out", nclose(AutoMovieEngineGeometry.createSignedMeshQuery(reversed)([2, 0, 0]).signedDistance, -1));
 
   // 5.
   source.positions.fill(400);

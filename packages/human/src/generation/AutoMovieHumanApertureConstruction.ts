@@ -4,12 +4,15 @@ import type {
   IAutoMovieHumanLoftMesh,
 } from "@automovie/interface";
 
-/** Construction paths read from the actual aperture columns, without another fit. */
+/**
+ * Construction paths read from the actual aperture columns, without another
+ * fit.
+ */
 export namespace AutoMovieHumanApertureConstruction {
   /**
    * Preserve cut order for transverse rings and sample up to 24 longitudinal
-   * profiles for legibility. Selection changes only the drawing density;
-   * every drawn point is an existing skin vertex in the same generation.
+   * profiles for legibility. Selection changes only the drawing density; every
+   * drawn point is an existing skin vertex in the same generation.
    *
    * @param mesh Generated skin in registered millimetres.
    * @param name Calibrated aperture identity.
@@ -44,14 +47,17 @@ export namespace AutoMovieHumanApertureConstruction {
     if (order.length !== edges.length)
       throw new Error(`Aperture has disconnected boundaries: ${name}`);
 
-    /** Resolve the existing vertex; no projection or endpoint adjustment is applied. */
-    const point: (index: number) => [number, number, number] = (
-      index: number,
-    ): [number, number, number] => [
-      mesh.positions[3 * index]!,
-      mesh.positions[3 * index + 1]!,
-      mesh.positions[3 * index + 2]!,
-    ];
+    /*
+     * Resolve the existing vertex; no projection or endpoint adjustment is
+     * applied.
+     */
+    function point(index: number): [number, number, number] {
+      return [
+        mesh.positions[3 * index]!,
+        mesh.positions[3 * index + 1]!,
+        mesh.positions[3 * index + 2]!,
+      ];
+    }
     const out: IAutoMovieHumanConstructionPath[] = [];
     const stem: string = name.replaceAll(".", "_");
     const owners: Map<number, string> = new Map(

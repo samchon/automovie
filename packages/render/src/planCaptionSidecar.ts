@@ -1,8 +1,4 @@
-import {
-  playbackLayersAt,
-  playbackShownLayer,
-  sequenceTimeline,
-} from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieBeatCaption,
   IAutoMovieCaptionEntry,
@@ -14,11 +10,11 @@ import type {
   IAutoMovieShot,
 } from "@automovie/interface";
 
-import { beatCaptions } from "./caption/beatCaptions.js";
-import { frameTimes } from "./frameTimes.js";
-import { shotBeat } from "./shotBeat.js";
+import { beatCaptions } from "./caption/internal/beatCaptions";
+import { frameTimes } from "./internal/frameTimes";
+import { shotBeat } from "./shotBeat";
 
-/**
+/*
  * Plan the caption sidecar of one sequence render: which beat's shot is live at
  * every output frame, grouped into spans, each joined to its beat's caption and
  * enclosing scene slug.
@@ -50,7 +46,7 @@ export const planCaptionSidecar: (
   if (fps <= 0)
     throw new Error(`fps must be a finite number > 0, but was ${fps}`);
 
-  const timeline: IAutoMoviePlaybackTimeline = sequenceTimeline(
+  const timeline: IAutoMoviePlaybackTimeline = AutoMovieEngineFilm.sequenceTimeline(
     sequence,
     shots,
   );
@@ -63,7 +59,7 @@ export const planCaptionSidecar: (
   const entries: IAutoMovieCaptionEntry[] = [];
   times.forEach((time: number, frame: number): void => {
     const beat: string = shotBeat(
-      playbackShownLayer(playbackLayersAt(sequence, timeline, time)).shot,
+      AutoMovieEngineFilm.playbackShownLayer(AutoMovieEngineFilm.playbackLayersAt(sequence, timeline, time)).shot,
     );
     const last: IAutoMovieCaptionEntry | undefined =
       entries[entries.length - 1];

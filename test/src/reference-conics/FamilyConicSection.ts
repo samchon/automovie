@@ -4,7 +4,7 @@ import type {
   IAutoMovieHumanConicSection,
   IAutoMovieViewChain,
 } from "@automovie/interface";
-import { approximateAutoMovieRecoveryConicsAhn } from "@automovie/recovery";
+import { AutoMovieRecoveryConicApproximation } from "@automovie/recovery";
 
 import { FamilyConicExcursion as X } from "./FamilyConicExcursion";
 import { FamilyConicFair as F } from "./FamilyConicFair";
@@ -333,7 +333,7 @@ export namespace FamilyConicSection {
 
   /**
    * A section's conic conversion: its radius faired as the periodic smoothing spline of curvature penalty in phase, its half-power
-   * wavelength `FAIR_MM` of girth, converted by Ahn's conic approximation (`approximateAutoMovieRecoveryConicsAhn`), and the ends of its
+   * wavelength `FAIR_MM` of girth, converted by Ahn's conic approximation (`approximateRecoveryConicsAhn`), and the ends of its
    * arcs with their tangents.
    *
    * @param fairMm The fairing cutoff, mm: `FAIR_MM`, the trunk's, unless a region gives its own (`FamilyConicConvert.cutoff`).
@@ -344,7 +344,7 @@ export namespace FamilyConicSection {
   ): { ends: IEnd[]; at: (phi: number) => { point: P; tangent: P } } {
     // The faired section with its inflections as breaks (`FamilyConicFair.curve`, which states the fairing law, the seam and the breaks).
     const curve = F.curve(points, { fairMm });
-    const result = approximateAutoMovieRecoveryConicsAhn(curve, CONVERT);
+    const result = AutoMovieRecoveryConicApproximation.approximateAhn(curve, CONVERT);
     const arcs = [...result.arcs].sort(
       (p, q): number => p.domain[0] - q.domain[0],
     );
@@ -354,13 +354,13 @@ export namespace FamilyConicSection {
     // leaves wider stretches unconverted and they number more. Then the chain read across them is not the section (f1's ripple at a 6 mm
     // fairing: at station 28 the chain stopped at 107 degrees and the ray at phase 0 met nothing), so it is refused rather than drawn.
     const sliver: number =
-      (curve.domain[1] - curve.domain[0]) / 2 ** CONVERT.maximumDepth;
+      (curve.domain.end - curve.domain.start) / 2 ** CONVERT.maximumDepth;
     const covered: number = arcs.reduce(
       (sum: number, arc): number => sum + (arc.domain[1] - arc.domain[0]),
       0,
     );
     const slivers: number =
-      (curve.domain[1] - curve.domain[0] - covered) / sliver;
+      (curve.domain.end - curve.domain.start - covered) / sliver;
     if (arcs.length + slivers > CONVERT.maximumArcs + 0.5) {
       // The widest unconverted stretches, where they lie, how far the faired curve turns across each, and the breaks beside them.
       const heading = (phi: number): number => {
@@ -374,7 +374,7 @@ export namespace FamilyConicSection {
           next: number =
             i + 1 < arcs.length
               ? arcs[i + 1]!.domain[0]
-              : arcs[0]!.domain[0] + (curve.domain[1] - curve.domain[0]);
+              : arcs[0]!.domain[0] + (curve.domain.end - curve.domain.start);
         if (next - end > sliver * 1.5) gaps.push([end, next]);
       }
       const named: string = gaps

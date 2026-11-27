@@ -1,4 +1,4 @@
-import { canonicalizeAutoMovieJson } from "@automovie/engine";
+import { AutoMovieEngineCanonicalJson } from "@automovie/engine";
 import type {
   IAutoMovieProductionPhonemeChunk,
   IAutoMovieProductionTtsReceipt,
@@ -75,7 +75,7 @@ export function createDialogueReceiptFixture(props: {
     line: props.line,
     ...request,
     cacheKey: sha256(
-      canonicalizeAutoMovieJson([
+      AutoMovieEngineCanonicalJson.canonicalize([
         request.text,
         request.model,
         request.modelRevision,

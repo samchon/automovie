@@ -26,8 +26,8 @@ export namespace IAutoMovieCreateSupportSectionQuery {
    *
    * These are admitted inputs, not a runtime validator: preparation copies
    * directions but does not check their unit length or boundedness.
-   * realizeAutoMovieConvexSupportLoft owns those checks on the loft path;
-   * direct and recovery callers must establish equivalent premises.
+   * AutoMovieEngineConvexSupportLoft.realize owns those checks on the loft
+   * path; direct and recovery callers must establish equivalent premises.
    */
   export type IInput = {
     /**

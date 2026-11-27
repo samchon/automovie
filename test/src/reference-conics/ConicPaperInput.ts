@@ -296,7 +296,7 @@ export namespace ConicPaperInput {
           " critical roots unrepresentable in its ordinal chart; no epsilon move or merge was applied.",
       );
     return {
-      domain: [ordinal, ordinal + 1],
+      domain: { start: ordinal, end: ordinal + 1 },
       breaks: mapped,
       closed: false,
       evaluate: (t: number): Readonly<AutoMovieVector2Tuple> => {

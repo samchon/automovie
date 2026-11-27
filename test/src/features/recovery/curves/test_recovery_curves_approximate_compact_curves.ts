@@ -3,15 +3,11 @@ import type {
   IAutoMovieCompactCurveApproximation,
   IAutoMoviePiecewisePlanarCurveSource,
 } from "@automovie/interface";
-import {
-  AutoMovieRecoveryCompactApproximation as C,
-  AutoMovieRecoveryConicApproximation as Q,
-  approximateAutoMovieRecoveryCompactCurves as approximate,
-} from "@automovie/recovery";
+import { AutoMovieRecoveryCompactApproximation as C, AutoMovieRecoveryConicApproximation as Q } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `approximateAutoMovieRecoveryCompactCurves` merges source pieces into the
+ * `approximateRecoveryCompactCurves` merges source pieces into the
  * fewest polynomial pieces that meet the tolerance.
  *
  * Scenarios:
@@ -21,6 +17,7 @@ import { TestValidator } from "@nestia/e2e";
  *    1e-9 at 138 nodes.
  * 2. The quintic (t, t^5) fits one complete quintic piece at degree five, and a
  *    cubic held to one piece cannot meet the tolerance, so it is refused.
+ * 3. An invalid query budget or nonfinite knot is refused before sampling.
  */
 export function test_recovery_curves_approximate_compact_curves(): void {
   const options: IAutoMovieCompactCurveApproximation.IOptions = {
@@ -35,7 +32,7 @@ export function test_recovery_curves_approximate_compact_curves(): void {
     (_v: unknown, i: number): number => (i + 1) / 16,
   );
   const cubic: IAutoMoviePiecewisePlanarCurveSource = {
-    domain: [0, 1],
+    domain: { start: 0, end: 1 },
     knots,
     breaks: [],
     closed: false,
@@ -61,9 +58,27 @@ export function test_recovery_curves_approximate_compact_curves(): void {
       ];
     },
   };
-  const fitted: IAutoMovieCompactCurveApproximation.IResult = approximate(
+  const fitted: IAutoMovieCompactCurveApproximation.IResult = C.approximate(
     cubic,
     options,
+  );
+  for (const maximumQueries of [NaN, Infinity, 1.5]) {
+    const refusal: IAutoMovieCompactCurveApproximation.IResult = C.approximate(
+      cubic,
+      { ...options, maximumQueries },
+    );
+    TestValidator.predicate(
+      `invalid query budget ${maximumQueries} refuses before sampling`,
+      refusal.status === "refused" && refusal.queries === 0,
+    );
+  }
+  const invalidKnot: IAutoMovieCompactCurveApproximation.IResult = C.approximate(
+    { ...cubic, knots: [NaN] },
+    options,
+  );
+  TestValidator.predicate(
+    "a nonfinite source knot refuses before sampling",
+    invalidKnot.status === "refused" && invalidKnot.queries === 0,
   );
   TestValidator.equals("cubic complete", fitted.status, "complete");
   TestValidator.equals("sixteen pieces become one", fitted.pieces.length, 1);
@@ -75,7 +90,7 @@ export function test_recovery_curves_approximate_compact_curves(): void {
     );
 
   const quintic: IAutoMoviePiecewisePlanarCurveSource = {
-    domain: [0, 1],
+    domain: { start: 0, end: 1 },
     knots,
     breaks: [],
     closed: false,
@@ -88,7 +103,7 @@ export function test_recovery_curves_approximate_compact_curves(): void {
       [0, 5, 20, 60, 120, 120][order]! * t ** (5 - order),
     ],
   };
-  const high: IAutoMovieCompactCurveApproximation.IResult = approximate(
+  const high: IAutoMovieCompactCurveApproximation.IResult = C.approximate(
     quintic,
     { ...options, degree: 5 },
   );
@@ -96,7 +111,7 @@ export function test_recovery_curves_approximate_compact_curves(): void {
   TestValidator.equals("quintic complete", high.status, "complete");
   TestValidator.equals(
     "a one-piece cubic cannot meet the tolerance",
-    approximate(quintic, { ...options, maximumPieces: 1 }).status,
+    C.approximate(quintic, { ...options, maximumPieces: 1 }).status,
     "refused",
   );
 }

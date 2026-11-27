@@ -1,7 +1,7 @@
 import { FamilyConicLandmarkKnots as Knots } from "./FamilyConicLandmarkKnots";
 import type { FamilyConicSection as C } from "./FamilyConicSection";
 import { FamilyConicSource as R } from "./FamilyConicSource";
-import { AutoMovieLoftViewFullSource, AutoMovieViewChain } from "@automovie/engine";
+import { AutoMovieEngineLoftViewFullSource, AutoMovieEngineViewChain } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft as H,
   AutoMovieHumanConicRelief,
@@ -191,7 +191,7 @@ namespace FamilyConicBodyParts {
 
   /** Prepare one family's readers. */
   function reading(part: IPart, source: R.ISource): IReading {
-    return { family: part.family, axis: H.axis(part.family), read: H.reader(part.family), skin: AutoMovieLoftViewFullSource.create(H.source(part.family)), mesh: source[part.mesh] };
+    return { family: part.family, axis: H.axis(part.family), read: H.reader(part.family), skin: AutoMovieEngineLoftViewFullSource.create(H.source(part.family)), mesh: source[part.mesh] };
   }
 
   /** Read one station of a family. */
@@ -203,7 +203,7 @@ namespace FamilyConicBodyParts {
 
     // The wall: the conic chain of the stored fields, where the fields own the section.
     const section: IAutoMovieViewChain.ISection | null = s <= wallTo && s >= family.knots[0]! ? S.chain(of.read(s), family.layout) : null;
-    const wall: ((theta: number) => number) | null = section === null || section.fault !== null ? null : (theta: number): number => AutoMovieViewChain.radius(section, theta);
+    const wall: ((theta: number) => number) | null = section === null || section.fault !== null ? null : (theta: number): number => AutoMovieEngineViewChain.radius(section, theta);
     const wallPolygon: P[] | null =
       wall === null
         ? null
@@ -334,8 +334,8 @@ namespace FamilyConicBodyParts {
         [
           family.name,
           net.name,
-          "stations " + net.stations[0] + ".." + net.stations[1],
-          "phases " + fixed(net.phases[0], 3) + ".." + fixed(net.phases[1], 3),
+          "stations " + net.stations.start + ".." + net.stations.end,
+          "phases " + fixed(net.phases.start, 3) + ".." + fixed(net.phases.end, 3),
           net.rows + " x " + net.columns,
           "stored " + AutoMovieHumanConicRelief.stored(net),
           "nonzero " + live.length,

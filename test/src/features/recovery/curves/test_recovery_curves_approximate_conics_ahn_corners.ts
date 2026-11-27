@@ -3,7 +3,7 @@ import type {
   IAutoMovieConicApproximation,
   IAutoMoviePlanarCurveSource,
 } from "@automovie/interface";
-import { approximateAutoMovieRecoveryConicsAhn as approximate } from "@automovie/recovery";
+import { AutoMovieRecoveryConicApproximation } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { RecoveryConicSources } from "../../internal/RecoveryConicSources";
@@ -24,10 +24,10 @@ export function test_recovery_curves_approximate_conics_ahn_corners(): void {
     RecoveryConicSources.options();
 
   const line: IAutoMoviePlanarCurveSource = RecoveryConicSources.line;
-  const translated: IAutoMovieConicApproximation.IResult = approximate(
+  const translated: IAutoMovieConicApproximation.IResult = AutoMovieRecoveryConicApproximation.approximateAhn(
     {
       ...line,
-      domain: [0, 1],
+      domain: { start: 0, end: 1 },
       evaluate: (t: number): Readonly<AutoMovieVector2Tuple> => [
         1e6 + 2 * t,
         -1e6 + 3 * t,
@@ -56,7 +56,7 @@ export function test_recovery_curves_approximate_conics_ahn_corners(): void {
   );
   const leftSecondJets: string[] = [];
   const corner: IAutoMoviePlanarCurveSource = {
-    domain: [-1, 1],
+    domain: { start: -1, end: 1 },
     breaks: [0],
     closed: false,
     evaluate: (t: number): Readonly<AutoMovieVector2Tuple> =>
@@ -77,7 +77,7 @@ export function test_recovery_curves_approximate_conics_ahn_corners(): void {
           : [0, 0];
     },
   };
-  const cornered: IAutoMovieConicApproximation.IResult = approximate(
+  const cornered: IAutoMovieConicApproximation.IResult = AutoMovieRecoveryConicApproximation.approximateAhn(
     corner,
     options,
   );

@@ -27,7 +27,7 @@ Generate at the model's frame rate, and conform each take to the delivery profil
 
 | Method | Cost |
 | --- | --- |
-| Interpolation | It invents the frames at a contact, so check consecutive frames there |
+| Interpolation | Invents contact frames. Check consecutive frames there |
 | Speed change | It changes the running time and the pitch of generated sound |
 | Duplicated or dropped frames | Motion judders |
 

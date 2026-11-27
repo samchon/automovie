@@ -1,8 +1,4 @@
-import {
-  AutoMovieViewHermite as Hermite,
-  AutoMovieNaturalSpline as Natural,
-  AutoMovieViewHermiteDerivativeRange as derivativeRange,
-} from "@automovie/engine";
+import { AutoMovieEngineViewHermite as Hermite, AutoMovieEngineNaturalSpline as Natural, AutoMovieEngineConstruction } from "@automovie/engine";
 import type {
   IAutoMovieNaturalCubicSpline,
   IAutoMovieViewHermite,
@@ -43,7 +39,7 @@ interface ICase {
 }
 
 /**
- * `AutoMovieViewHermiteDerivativeRange` bounds the derivative of a prepared
+ * `viewHermiteDerivativeRange` bounds the derivative of a prepared
  * Hermite curve from its actual coefficients and tells positive, negative and
  * mixed speed apart.
  *
@@ -205,7 +201,7 @@ export function test_engine_geometry_hermite_derivative_range(): void {
         ),
       );
     const result: readonly [number, number] | string =
-      derivativeRange(prepared);
+      AutoMovieEngineConstruction.viewHermiteDerivativeRange(prepared);
     TestValidator.equals(
       `${entry.name} leaves the curve`,
       JSON.stringify(prepared),

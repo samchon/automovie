@@ -17,8 +17,8 @@ export interface IAutoMovieBeatPayload {
   beat: string;
 
   /**
-   * Stage direction: what happens, in non-empty prose. `renderScreenplay`
-   * prints it under the beat heading.
+   * Stage direction: what happens, in non-empty prose.
+   * `AutoMovieRenderScreenplay.render` prints it under the beat heading.
    */
   direction: string;
 
@@ -27,8 +27,9 @@ export interface IAutoMovieBeatPayload {
 
   /**
    * How this shot should read, for the human reviewer and the diffusion pass,
-   * or `null` for no caption. `planCaptionSidecar` exports it through
-   * `beatCaptions`, and `renderScreenplay` prints it as a `[Shot: ...]` line.
+   * or `null` for no caption. `AutoMovieRenderCaption.planSidecar` exports it through
+   * `AutoMovieRenderCaption.beatCaptions`, and `AutoMovieRenderScreenplay.render` prints it as a
+   * `[Shot: ...]` line.
    */
   caption: string | null;
 }

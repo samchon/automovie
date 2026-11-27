@@ -1,9 +1,5 @@
 import {
-  fluidCourantNumber,
-  fluidDomainBudget,
-  fluidStateDigest,
-  simulateFluidDomain,
-  validateWaterFeatures,
+  AutoMovieEngineFluid,
 } from "@automovie/engine";
 import type {
   IAutoMovieFluidSpray,
@@ -74,8 +70,8 @@ export function test_fluid_budget_report(): void {
       sprays: [emitter("mist", 128), emitter("veil", 64)],
     },
   });
-  const budget: ReturnType<typeof fluidDomainBudget> =
-    fluidDomainBudget(domain);
+  const budget: ReturnType<typeof AutoMovieEngineFluid.fluidDomainBudget> =
+    AutoMovieEngineFluid.fluidDomainBudget(domain);
   TestValidator.equals(
     "the lattice states its own bounded cost",
     namedFacts([
@@ -109,15 +105,15 @@ export function test_fluid_budget_report(): void {
       1 / (domain.grid.cellX * domain.grid.cellX) +
         1 / (domain.grid.cellZ * domain.grid.cellZ),
     );
-  const bare: ReturnType<typeof fluidDomainBudget> =
-    fluidDomainBudget(fluidDomain());
+  const bare: ReturnType<typeof AutoMovieEngineFluid.fluidDomainBudget> =
+    AutoMovieEngineFluid.fluidDomainBudget(fluidDomain());
   TestValidator.predicate(
     "budget reports the derived Courant number",
     nclose(budget.courant, expectedCourant, 0),
   );
   TestValidator.predicate(
     "Courant function evaluates the same contract",
-    nclose(fluidCourantNumber(domain), expectedCourant, 0),
+    nclose(AutoMovieEngineFluid.fluidCourantNumber(domain), expectedCourant, 0),
   );
   TestValidator.predicate(
     "authored clock remains within the Courant bound",
@@ -129,7 +125,7 @@ export function test_fluid_budget_report(): void {
     { sprayParticleCap: 0, cells: 2 },
   );
 
-  const state: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(
+  const state: ReturnType<typeof AutoMovieEngineFluid.simulateFluidDomain> = AutoMovieEngineFluid.simulateFluidDomain(
     domain,
     12,
   );
@@ -142,23 +138,23 @@ export function test_fluid_budget_report(): void {
   TestValidator.equals(
     "the digest is sensitive evidence, not decoration",
     namedFacts([
-      ["length", (): boolean => fluidStateDigest(state).length === 8],
-      ["hex", (): boolean => /^[0-9a-f]{8}$/.test(fluidStateDigest(state))],
+      ["length", (): boolean => AutoMovieEngineFluid.fluidStateDigest(state).length === 8],
+      ["hex", (): boolean => /^[0-9a-f]{8}$/.test(AutoMovieEngineFluid.fluidStateDigest(state))],
       [
         "stable",
         (): boolean =>
-          fluidStateDigest(state) ===
-          fluidStateDigest(simulateFluidDomain(domain, 12)),
+          AutoMovieEngineFluid.fluidStateDigest(state) ===
+          AutoMovieEngineFluid.fluidStateDigest(AutoMovieEngineFluid.simulateFluidDomain(domain, 12)),
       ],
       [
         "sensitive",
-        (): boolean => fluidStateDigest(state) !== fluidStateDigest(nudged),
+        (): boolean => AutoMovieEngineFluid.fluidStateDigest(state) !== AutoMovieEngineFluid.fluidStateDigest(nudged),
       ],
       [
         "stepSensitive",
         (): boolean =>
-          fluidStateDigest(state) !==
-          fluidStateDigest(simulateFluidDomain(domain, 13)),
+          AutoMovieEngineFluid.fluidStateDigest(state) !==
+          AutoMovieEngineFluid.fluidStateDigest(AutoMovieEngineFluid.simulateFluidDomain(domain, 13)),
       ],
     ]),
     {
@@ -170,7 +166,7 @@ export function test_fluid_budget_report(): void {
     },
   );
 
-  const dry: ReturnType<typeof validateWaterFeatures> = validateWaterFeatures({
+  const dry: ReturnType<typeof AutoMovieEngineFluid.validateWaterFeatures> = AutoMovieEngineFluid.validateWaterFeatures({
     environment: basinEnvironment(),
     features: [],
     domains: [],

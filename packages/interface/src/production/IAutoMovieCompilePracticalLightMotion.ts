@@ -1,4 +1,5 @@
 import type { IAutoMovieClip } from "../core/IAutoMovieClip";
+import type { IAutoMovieFlameCue } from "../cinematics/IAutoMovieFlameCue";
 import type { IAutoMovieAffordance } from "../model/IAutoMovieAffordance";
 import type { IAutoMoviePointLight } from "../scene/IAutoMoviePointLight";
 import type { IAutoMovieSceneNode } from "../scene/IAutoMovieSceneNode";
@@ -43,13 +44,13 @@ export interface IAutoMovieCompilePracticalLightMotion {
   sampleTimes?: readonly number[];
 
   /**
-   * Shot-local [start, end) interval in seconds, 0 <= start < end <= duration.
+   * Shot-local half-open interval in seconds, 0 <= start < end <= duration.
    * Omit to preserve staged intensity across the shot, including its endpoint.
    */
-  on?: readonly [start: number, end: number];
+  on?: IAutoMovieFlameCue.IOnInterval;
 
   /**
-   * The flame this light's source shows, from `compileAutoMovieFlameFlicker`:
+   * The flame this light's source shows, from `compileFlameFlicker`:
    * key times, the silhouette area at each, which keys lie inside `on`, and the
    * mean area over those keys. Present, the light always gets a `step`
    * intensity track on exactly these keys, holding `intensity · area / mean`

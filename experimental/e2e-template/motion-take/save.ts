@@ -1,4 +1,4 @@
-import { HumanPerformance } from "@automovie/motions";
+import { AutoMovieMotionHumanPerformance } from "@automovie/motions";
 import assert from "node:assert/strict";
 import { readFile, writeFile } from "node:fs/promises";
 
@@ -20,7 +20,7 @@ import { createMotionTakeSource, fixture } from "./source";
 async function save(): Promise<void> {
   const recipe: ReturnType<typeof createMotionTakeSource> =
     createMotionTakeSource();
-  const uninterrupted: HumanPerformance = new HumanPerformance(
+  const uninterrupted: AutoMovieMotionHumanPerformance = new AutoMovieMotionHumanPerformance(
     recipe.human["staged-catch"]!,
   );
   const reference: ReturnType<typeof observe>[] = sampleTimes.map(

@@ -1,7 +1,4 @@
-import {
-  AutoMovieArchetypeUnits,
-  createProjectile,
-} from "@automovie/archetypes";
+import { AutoMovieArchetypeUnits, AutoMovieArchetypeProjectile } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../../internal/archetypeBandSweep";
@@ -39,14 +36,14 @@ export function test_archetype_weapon_projectile_bands(): void {
     source: "the cited records",
     measure,
   });
-  const ball: (seed: number) => ReturnType<typeof createProjectile> = (
+  const ball: (seed: number) => ReturnType<typeof AutoMovieArchetypeProjectile.create> = (
     seed: number,
-  ): ReturnType<typeof createProjectile> =>
-    createProjectile({ kind: "ball" }, seed);
-  const arrow: (seed: number) => ReturnType<typeof createProjectile> = (
+  ): ReturnType<typeof AutoMovieArchetypeProjectile.create> =>
+    AutoMovieArchetypeProjectile.create({ kind: "ball" }, seed);
+  const arrow: (seed: number) => ReturnType<typeof AutoMovieArchetypeProjectile.create> = (
     seed: number,
-  ): ReturnType<typeof createProjectile> =>
-    createProjectile({ kind: "arrow" }, seed);
+  ): ReturnType<typeof AutoMovieArchetypeProjectile.create> =>
+    AutoMovieArchetypeProjectile.create({ kind: "arrow" }, seed);
   const findings: string[] = archetypeBandSweep([
     row(
       "ball diameter",
@@ -84,48 +81,48 @@ export function test_archetype_weapon_projectile_bands(): void {
       0.36,
       0.437,
       (s: number): number =>
-        archetypeExtent(createProjectile({ kind: "bolt" }, s), "y").size,
+        archetypeExtent(AutoMovieArchetypeProjectile.create({ kind: "bolt" }, s), "y").size,
     ),
     row(
       "bolt shaft",
       0.0136,
       0.0136,
       (s: number): number =>
-        createProjectile({ kind: "bolt" }, s).affordance("shaft").aperture!,
+        AutoMovieArchetypeProjectile.create({ kind: "bolt" }, s).affordance("shaft").aperture!,
     ),
     row(
       "bolt mass",
       Math.PI * 0.0068 * 0.0068 * (0.36 - 0.077) * 680 +
         ((0.0136 * 0.0136 * 0.077) / 3) * 7850,
       0.074,
-      (s: number): number => createProjectile({ kind: "bolt" }, s).body.mass,
+      (s: number): number => AutoMovieArchetypeProjectile.create({ kind: "bolt" }, s).body.mass,
     ),
     row(
       "grenade body",
       2.5 * AutoMovieArchetypeUnits.INCH,
       2.5 * AutoMovieArchetypeUnits.INCH,
       (s: number): number =>
-        archetypeExtent(createProjectile({ kind: "grenade" }, s), "x").size,
+        archetypeExtent(AutoMovieArchetypeProjectile.create({ kind: "grenade" }, s), "x").size,
     ),
     row(
       "grenade length",
       3.53 * AutoMovieArchetypeUnits.INCH,
       3.53 * AutoMovieArchetypeUnits.INCH,
       (s: number): number =>
-        archetypeExtent(createProjectile({ kind: "grenade" }, s), "y").size,
+        archetypeExtent(AutoMovieArchetypeProjectile.create({ kind: "grenade" }, s), "y").size,
     ),
     row(
       "grenade mass",
       14 * AutoMovieArchetypeUnits.OUNCE,
       14 * AutoMovieArchetypeUnits.OUNCE,
-      (s: number): number => createProjectile({ kind: "grenade" }, s).body.mass,
+      (s: number): number => AutoMovieArchetypeProjectile.create({ kind: "grenade" }, s).body.mass,
     ),
     row(
       "shot diameter",
       3.58 * AutoMovieArchetypeUnits.INCH,
       4.52 * AutoMovieArchetypeUnits.INCH,
       (s: number): number =>
-        archetypeExtent(createProjectile({ kind: "roundShot" }, s), "x").size,
+        archetypeExtent(AutoMovieArchetypeProjectile.create({ kind: "roundShot" }, s), "x").size,
     ),
   ]);
   for (const seed of [0, 1, 2]) {
@@ -133,13 +130,13 @@ export function test_archetype_weapon_projectile_bands(): void {
       if (
         !(
           Math.abs(
-            archetypeExtent(createProjectile({ kind }, seed), "y").low,
+            archetypeExtent(AutoMovieArchetypeProjectile.create({ kind }, seed), "y").low,
           ) <= 1e-12
         )
       )
         findings.push(`${kind}@${seed}: off the floor`);
     for (const kind of ["arrow", "bolt"] as const) {
-      const shaft: ReturnType<typeof createProjectile> = createProjectile(
+      const shaft: ReturnType<typeof AutoMovieArchetypeProjectile.create> = AutoMovieArchetypeProjectile.create(
         { kind },
         seed,
       );
@@ -159,7 +156,7 @@ export function test_archetype_weapon_projectile_bands(): void {
     ["sixPounder", 3.58, 6.1],
     ["twelvePounder", 4.52, 12.3],
   ] as const) {
-    const shot: ReturnType<typeof createProjectile> = createProjectile(
+    const shot: ReturnType<typeof AutoMovieArchetypeProjectile.create> = AutoMovieArchetypeProjectile.create(
       { kind: "roundShot", model },
       1,
     );

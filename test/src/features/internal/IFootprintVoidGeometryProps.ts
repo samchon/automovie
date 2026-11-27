@@ -1,4 +1,4 @@
-import { footprintConvexPieces, surfaceFootprint } from "@automovie/engine";
+import { AutoMovieEngineSpace } from "@automovie/engine";
 import {
   IAutoMovieBuiltEnvironment,
   IAutoMovieSpace,
@@ -11,7 +11,7 @@ import {
  */
 export interface IFootprintVoidGeometryProps {
   /** Prepared outer and void rings for the authored plate. */
-  holed: ReturnType<typeof surfaceFootprint>;
+  holed: ReturnType<typeof AutoMovieEngineSpace.surfaceFootprint>;
 
   /** The same plate as a space queried by downstream readers. */
   holedSpace: IAutoMovieSpace;
@@ -39,6 +39,6 @@ export interface IFootprintVoidGeometryProps {
 
   /** Shoelace area of the emitted convex piece, in square metres. */
   pieceArea: (
-    piece: ReturnType<typeof footprintConvexPieces>[number],
+    piece: ReturnType<typeof AutoMovieEngineSpace.footprintConvexPieces>[number],
   ) => number;
 }

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, prepareArticulatedRig } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   IAutoMovieArticulatedRig,
   IAutoMovieArticulatedRigReader,
@@ -8,12 +8,9 @@ import type {
 } from "@automovie/interface";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
-import { ApplyQuadrupedCarrierPose } from "./ApplyQuadrupedCarrierPose";
+import { ApplyQuadrupedCarrierPose } from "./quadruped/ApplyQuadrupedCarrierPose";
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
-import { QuadrupedScapula } from "./QuadrupedScapula";
-
-/** Local degree rotations without borrowing a humanoid bone slot. */
-type Rotation = Pick<IAutoMovieJointPose, "flexion" | "abduction" | "twist">;
+import { QuadrupedScapula } from "./quadruped/QuadrupedScapula";
 
 /** The animal's bars as an engine-readable named rigid skeleton. */
 export namespace AutoMovieArchetypeQuadrupedSkeleton {
@@ -89,18 +86,18 @@ export namespace AutoMovieArchetypeQuadrupedSkeleton {
             parent === null
               ? AutoMovieArchetypeFrame.upright({ x: 0, y: 0, z: 0 })
               : frameOf(parent);
-          const inverse: IAutoMovieTransform["rotation"] = Quaternion.inverse(
+          const inverse: IAutoMovieTransform["rotation"] = AutoMovieEngineQuaternion.inverse(
             base.rotation,
           );
           return {
             bone,
             parent,
             rest: {
-              translation: Quaternion.rotateVector(
+              translation: AutoMovieEngineQuaternion.rotateVector(
                 inverse,
-                Vector3.subtract(frame.translation, base.translation),
+                AutoMovieEngineVector3.subtract(frame.translation, base.translation),
               ),
-              rotation: Quaternion.multiply(inverse, frame.rotation),
+              rotation: AutoMovieEngineQuaternion.multiply(inverse, frame.rotation),
               scale: { ...frame.scale },
             },
             axes: {
@@ -114,7 +111,7 @@ export namespace AutoMovieArchetypeQuadrupedSkeleton {
       ),
     };
 
-    /**
+    /*
      * The part owns its link frame; missing geometry is not rebuilt from
      * defaults.
      */
@@ -134,9 +131,9 @@ export namespace AutoMovieArchetypeQuadrupedSkeleton {
           `The quadruped ${bone} is not an actual rigid bar`,
         );
       return {
-        translation: Vector3.subtract(
+        translation: AutoMovieEngineVector3.subtract(
           part.transform.translation,
-          Quaternion.rotateVector(part.transform.rotation, {
+          AutoMovieEngineQuaternion.rotateVector(part.transform.rotation, {
             x: 0,
             y: geometry.shape.height / 2,
             z: 0,
@@ -174,7 +171,7 @@ export namespace AutoMovieArchetypeQuadrupedSkeleton {
     const rig: IAutoMovieArticulatedRig<AutoMovieArchetypeQuadrupedBody.Bone> =
       of(animal);
     const reader: IAutoMovieArticulatedRigReader<AutoMovieArchetypeQuadrupedBody.Bone> =
-      prepareArticulatedRig(rig);
+      AutoMovieEngineKinematics.prepareArticulatedRig(rig);
     return apply(
       animal,
       reader.read(),
@@ -214,3 +211,6 @@ export namespace AutoMovieArchetypeQuadrupedSkeleton {
     return ApplyQuadrupedCarrierPose.emit(animal, rest, posed, parts, contacts);
   }
 }
+
+/** Local degree rotations without borrowing a humanoid bone slot. */
+type Rotation = Pick<IAutoMovieJointPose, "flexion" | "abduction" | "twist">;

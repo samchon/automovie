@@ -1,10 +1,10 @@
 import { AutoMovieArchetypeRefusal } from "../core";
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
-import { CamelGait } from "./CamelGait";
-import { DeerGait } from "./DeerGait";
-import type { QuadrupedChange } from "./QuadrupedChange";
-import { QuadrupedGaitAdmission } from "./QuadrupedGaitAdmission";
+import { CamelGait } from "./camel/CamelGait";
+import { DeerGait } from "./deer/DeerGait";
+import type { QuadrupedChange } from "./quadruped/QuadrupedChange";
+import { QuadrupedGaitAdmission } from "./quadruped/QuadrupedGaitAdmission";
 
 /**
  * Explicit authored clocks for locomotion absent from the measured walk tables.
@@ -51,45 +51,24 @@ export namespace AutoMovieArchetypeQuadrupedLocomotion {
     pace: readonly IClock[];
   }
 
+  /** Deer input with an authored diagonal-trot clock table. */
+  export interface IDeerTrot {
+    /** Required authored diagonal-trot clocks in this branch. */
+    trot: readonly IClock[];
+    /** Optional authored rotary-gallop clocks, faster than trot. */
+    gallop?: readonly IClock[];
+  }
+
+  /** Deer input with rotary-gallop clocks and no authored trot. */
+  export interface IDeerGallop {
+    /** No authored trot is supplied in the gallop-only branch. */
+    trot?: undefined;
+    /** Required authored rotary-gallop clocks in this branch. */
+    gallop: readonly IClock[];
+  }
+
   /** Authored sika trot and/or rotary gallop; an absent gait stays unsupported. */
-  export type IDeer =
-    | {
-        /** Required authored diagonal-trot clocks in this branch. */
-        trot: readonly IClock[];
-        /** Optional authored rotary-gallop clocks, faster than trot. */
-        gallop?: readonly IClock[];
-      }
-    | {
-        /** No authored trot is supplied in the gallop-only branch. */
-        trot?: undefined;
-        /** Required authored rotary-gallop clocks in this branch. */
-        gallop: readonly IClock[];
-      };
-
-  /** Coincident lateral pairs, explicitly constructed for running pace. */
-  const PACE: Readonly<Record<AutoMovieArchetypeQuadrupedBody.Limb, number>> = {
-    leftFore: 0,
-    rightFore: 0.5,
-    leftHind: 0,
-    rightHind: 0.5,
-  };
-
-  /** Coincident diagonals; the other diagonal lands half a stride later. */
-  const TROT: Readonly<Record<AutoMovieArchetypeQuadrupedBody.Limb, number>> = {
-    leftFore: 0,
-    rightFore: 0.5,
-    leftHind: 0.5,
-    rightHind: 0,
-  };
-
-  /** Constructed LH→RH→RF→LF rotary order: left fore leads, right hind leads. */
-  const ROTARY: Readonly<Record<AutoMovieArchetypeQuadrupedBody.Limb, number>> =
-    {
-      leftFore: 0,
-      rightFore: 0.75,
-      leftHind: 0.25,
-      rightHind: 0.5,
-    };
+  export type IDeer = IDeerTrot | IDeerGallop;
 
   /**
    * The camel's measured walking point plus the caller's running-pace clocks.
@@ -284,7 +263,38 @@ export namespace AutoMovieArchetypeQuadrupedLocomotion {
     };
   }
 
-  /**
+  /*
+   * Coincident lateral pairs, explicitly constructed for running pace.
+   */
+  const PACE: Readonly<Record<AutoMovieArchetypeQuadrupedBody.Limb, number>> = {
+    leftFore: 0,
+    rightFore: 0.5,
+    leftHind: 0,
+    rightHind: 0.5,
+  };
+
+  /*
+   * Coincident diagonals; the other diagonal lands half a stride later.
+   */
+  const TROT: Readonly<Record<AutoMovieArchetypeQuadrupedBody.Limb, number>> = {
+    leftFore: 0,
+    rightFore: 0.5,
+    leftHind: 0.5,
+    rightHind: 0,
+  };
+
+  /*
+   * Constructed LH→RH→RF→LF rotary order: left fore leads, right hind leads.
+   */
+  const ROTARY: Readonly<Record<AutoMovieArchetypeQuadrupedBody.Limb, number>> =
+    {
+      leftFore: 0,
+      rightFore: 0.75,
+      leftHind: 0.25,
+      rightHind: 0.5,
+    };
+
+  /*
    * Convert required authored seconds to common gait rows, retaining named walk
    * construction proxies.
    */
@@ -318,7 +328,7 @@ export namespace AutoMovieArchetypeQuadrupedLocomotion {
     };
   }
 
-  /**
+  /*
    * Admit every positive SI clock and copy rows without a caller-owned
    * reference.
    */
@@ -372,7 +382,7 @@ export namespace AutoMovieArchetypeQuadrupedLocomotion {
     );
   }
 
-  /**
+  /*
    * Admit ordered gait ranges and copy the existing owner's closed change-rule
    * vocabulary.
    */
@@ -431,17 +441,21 @@ export namespace AutoMovieArchetypeQuadrupedLocomotion {
     return { kind: "overlap" };
   }
 
-  /** A finite positive SI time, reciprocal frequency, speed or reference length. */
+  /*
+   * A finite positive SI time, reciprocal frequency, speed or reference length.
+   */
   function positive(value: number, axis: string): void {
     if (value <= 0) refuse(axis, value, "supply a finite positive value");
   }
 
-  /** A finite nonnegative range, spread or hysteresis. */
+  /*
+   * A finite nonnegative range, spread or hysteresis.
+   */
   function nonnegative(value: number, axis: string): void {
     if (value < 0) refuse(axis, value, "supply a finite nonnegative value");
   }
 
-  /**
+  /*
    * A finite unit fraction; touchdown phases separately exclude the endpoint
    * one.
    */
@@ -450,7 +464,9 @@ export namespace AutoMovieArchetypeQuadrupedLocomotion {
       refuse(axis, value, "supply a finite fraction from zero through one");
   }
 
-  /** One structured admission refusal with no hidden fallback. */
+  /*
+   * One structured admission refusal with no hidden fallback.
+   */
   function refuse(axis: string, value: unknown, reason: string): never {
     throw new AutoMovieArchetypeRefusal({
       kind: "parameter",

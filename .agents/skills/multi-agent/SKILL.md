@@ -28,6 +28,12 @@ Audit every 10 minutes unless the user sets another interval.
    - Give check status and any checkpoint.
    - Give the actual time and reason for delays.
 
-## Subagents
+## Continuing
 
-Follow [worker resumption](continuing.md) when a worker pauses.
+A Claude Code subagent may stop mid-task with a message like this:
+
+> My context is nearly full. I'll stop here; a fresh agent can pick this up from my notes.
+
+Claude Code subagents can compact the context on their own.
+
+The main session must resume the same subagent with a firm order to continue the task and never stop for context. A mild request to resume does not hold.

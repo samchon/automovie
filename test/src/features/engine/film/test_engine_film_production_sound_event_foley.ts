@@ -1,4 +1,4 @@
-import { deriveProductionSoundPlan } from "@automovie/engine";
+import { AutoMovieEngineSound } from "@automovie/engine";
 import type {
   IAutoMovieCompiledShotSource,
   IAutoMovieDeriveProductionSoundPlan,
@@ -70,14 +70,16 @@ export function test_engine_film_production_sound_event_foley(): void {
     fadeOutFrames: 3,
     bus: "effects",
   };
-  const fixed: IAutoMovieProductionSoundPlan = deriveProductionSoundPlan(input);
-  const synced: IAutoMovieProductionSoundPlan = deriveProductionSoundPlan({
-    ...input,
-    eventCues: [
-      cue,
-      { ...cue, id: "trimmed-foley", event: "trimmed", offsetFrames: 0 },
-    ],
-  });
+  const fixed: IAutoMovieProductionSoundPlan =
+    AutoMovieEngineSound.deriveProductionSoundPlan(input);
+  const synced: IAutoMovieProductionSoundPlan =
+    AutoMovieEngineSound.deriveProductionSoundPlan({
+      ...input,
+      eventCues: [
+        cue,
+        { ...cue, id: "trimmed-foley", event: "trimmed", offsetFrames: 0 },
+      ],
+    });
   const placements: IAutoMovieProductionSoundCue[] = synced.cues.slice(
     timeline.tracks.audio.length,
   );
@@ -166,7 +168,7 @@ export function test_engine_film_production_sound_event_foley(): void {
       name,
       throwsError(
         (): IAutoMovieProductionSoundPlan =>
-          deriveProductionSoundPlan({
+          AutoMovieEngineSound.deriveProductionSoundPlan({
             ...input,
             eventCues: [{ ...cue, ...changes }],
           }),
@@ -177,7 +179,7 @@ export function test_engine_film_production_sound_event_foley(): void {
     "a declaration without a realized sample refuses",
     throwsError(
       (): IAutoMovieProductionSoundPlan =>
-        deriveProductionSoundPlan({
+        AutoMovieEngineSound.deriveProductionSoundPlan({
           ...input,
           compiled: new Map([[shot.shot, { ...compiled, eventSamples: [] }]]),
           eventCues: [cue],
@@ -189,7 +191,10 @@ export function test_engine_film_production_sound_event_foley(): void {
     "duplicate authored cue identity refuses",
     throwsError(
       (): IAutoMovieProductionSoundPlan =>
-        deriveProductionSoundPlan({ ...input, eventCues: [cue, cue] }),
+        AutoMovieEngineSound.deriveProductionSoundPlan({
+          ...input,
+          eventCues: [cue, cue],
+        }),
       ['"recorded-contact"', "repeats an authored cue id"],
     ),
   );

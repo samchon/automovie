@@ -1,4 +1,4 @@
-import { admitProductionTtsReceipt } from "@automovie/ingest";
+import { AutoMovieIngestAudio } from "@automovie/ingest";
 import type {
   IAutoMovieAdmitProductionTtsReceipt,
   IAutoMovieProductionTtsReceipt,
@@ -22,7 +22,7 @@ import { throwsError } from "../internal/predicates";
  * 4. A receipt with one-phoneme chunks and an aligner record is admitted.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists each admitted and refused receipt and the field each refusal names.
- * @evidence contracts/development/testing.md#behavioral-verification Runs ingest's `admitProductionTtsReceipt` on fixture bytes; a check that let any changed field through, or named the wrong field, fails.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs ingest's `AutoMovieIngestAudio.admitReceipt` on fixture bytes; a check that let any changed field through, or named the wrong field, fails.
  * @evidence contracts/development/testing.md#independent-expectations The fixture digests its bytes and request with Node's SHA-256, so the product's digest is compared against an independent implementation; the decoded length follows the receipt's documented rate rule.
  * @evidence contracts/development/testing.md#distinguishing-cases Each refusal changes one field of an otherwise admitted receipt, and the aligner case admits the adjacent positive form; WAVE container refusals belong to the decoder's tests.
  * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through `test_ingest_sound_receipt_admission`; it starts no process.
@@ -54,7 +54,7 @@ export function test_ingest_sound_receipt_admission(): void {
         phonemeChunks: chunks,
         ...(edit === undefined ? {} : { edit }),
       });
-    return admitProductionTtsReceipt({
+    return AutoMovieIngestAudio.admitReceipt({
       line: { id: "hello", text: "Hello world." },
       pcmPath: "lines/hello.wav",
       pcm: fixture.pcm,
@@ -141,7 +141,7 @@ export function test_ingest_sound_receipt_admission(): void {
         view.setUint16(22, 2, true);
         view.setUint32(28, 24_000 * 8, true);
         view.setUint16(32, 8, true);
-        return admitProductionTtsReceipt({
+        return AutoMovieIngestAudio.admitReceipt({
           line: { id: "hello", text: "Hello world." },
           pcmPath: "lines/hello.wav",
           pcm: bytes,

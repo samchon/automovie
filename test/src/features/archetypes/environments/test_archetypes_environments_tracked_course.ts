@@ -1,5 +1,7 @@
-import { createTrackedCourse } from "@automovie/archetypes/environments";
-import { Quaternion } from "@automovie/engine";
+import {
+  AutoMovieArchetypeEnvironmentRide
+} from "../../../../../packages/archetypes/src/environments/AutoMovieArchetypeEnvironmentRide";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -10,7 +12,7 @@ const TRACK_ROUNDING: number = 256 * Number.EPSILON;
 
 /** The station travels along a grade and banks around the graded tangent. */
 export function test_archetypes_environments_tracked_course(): void {
-  const course = createTrackedCourse({
+  const course = AutoMovieArchetypeEnvironmentRide.trackedCourse({
     points: [
       { x: 1, y: 2, z: 5 },
       { x: 1, y: 5, z: 9 },
@@ -26,12 +28,12 @@ export function test_archetypes_environments_tracked_course(): void {
   TestValidator.predicate(
     "half station preserves the graded forward and rolls the right axis 30 degrees",
     vclose(
-      Quaternion.rotateVector(middle.rotation, { x: 0, y: 0, z: 1 }),
+      AutoMovieEngineQuaternion.rotateVector(middle.rotation, { x: 0, y: 0, z: 1 }),
       { x: 0, y: 0.6, z: 0.8 },
       TRACK_ROUNDING,
     ) &&
       vclose(
-        Quaternion.rotateVector(middle.rotation, { x: 1, y: 0, z: 0 }),
+        AutoMovieEngineQuaternion.rotateVector(middle.rotation, { x: 1, y: 0, z: 0 }),
         { x: Math.sqrt(3) / 2, y: 0.4, z: -0.3 },
         TRACK_ROUNDING,
       ),

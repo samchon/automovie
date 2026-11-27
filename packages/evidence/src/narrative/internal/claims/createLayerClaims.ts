@@ -2,8 +2,8 @@ import type { IEvidenceClaim, IEvidenceReference } from "@wrtnlabs/evidence";
 
 import type { AuthoredLayer } from "../../AuthoredLayer";
 import type { IProductionConfigProps } from "../../IProductionConfigProps";
-import type { ProductionStage } from "../../ProductionStage";
-import { createNarrativeUnitFiles } from "../../createNarrativeUnitFiles";
+import type { AutoMovieEvidenceProductionStage } from "../../AutoMovieEvidenceProductionStage";
+import { createNarrativeUnitFiles } from "../createNarrativeUnitFiles";
 import { constructionStage } from "../constructionStage";
 import { isCanonLayer } from "../isCanonLayer";
 import { createCoverageReference } from "../references/createCoverageReference";
@@ -16,7 +16,7 @@ import { BODY_ROOT } from "../utilities/BODY_ROOT";
 import { createUnitFiles } from "../utilities/createUnitFiles";
 import { createSettingCoverageClaim } from "./createSettingCoverageClaim";
 
-/**
+/*
  * Creates the shared claims for one authored layer.
  *
  * Unit H2s answer only questions each can establish from its own body. The
@@ -39,7 +39,7 @@ export function createLayerClaims(
   props: IProductionConfigProps,
   layer: AuthoredLayer,
 ): IEvidenceClaim[] {
-  const stage: ProductionStage = constructionStage(props, layer);
+  const stage: AutoMovieEvidenceProductionStage = constructionStage(props, layer);
   const disabled: boolean = stage === "disabled";
   const files: string[] = createUnitFiles(layer, props.narrativeScope);
 
@@ -57,10 +57,8 @@ export function createLayerClaims(
     scope: props.narrativeScope,
   });
 
-  const parents: (symbol: "file" | "h2") => IEvidenceReference[] = (
-    symbol: "file" | "h2",
-  ): IEvidenceReference[] =>
-    props.mode !== "long"
+  function parents(symbol: "file" | "h2"): IEvidenceReference[] {
+    return props.mode !== "long"
       ? []
       : [
           // A screenplay scene file realizes one script scene, an H2 of its
@@ -72,6 +70,7 @@ export function createLayerClaims(
             ? [createCoverageReference(treatments, symbol)]
             : []),
         ];
+  }
 
   const inherits: string = isCanonLayer(layer)
     ? ""

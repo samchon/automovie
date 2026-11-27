@@ -4,11 +4,17 @@ import type {
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 import {
-  lieDown,
-  lieDownBlend,
-  lieDownPhases,
-  lieDownRollSide,
-} from "@automovie/motions/internal";
+  lieDown
+} from "../../../../../packages/motions/src/floor/internal/lieDown";
+import {
+  lieDownBlend
+} from "../../../../../packages/motions/src/floor/internal/lieDownBlend";
+import {
+  lieDownPhases
+} from "../../../../../packages/motions/src/floor/internal/lieDownPhases";
+import {
+  lieDownRollSide
+} from "../../../../../packages/motions/src/floor/internal/lieDownRollSide";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

@@ -1,8 +1,8 @@
-import { planAutoMovieAlphaWrap } from "@automovie/render";
+import { AutoMovieRenderVideo } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `planAutoMovieAlphaWrap` plans a copy of PNG frames into a `.mov`.
+ * `AutoMovieRenderVideo.planAlphaWrap` plans a copy of PNG frames into a `.mov`.
  *
  * Scenarios:
  *
@@ -12,10 +12,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. A frame count of zero is refused.
  */
 export function test_render_delivery_plan_auto_movie_alpha_wrap(): void {
-  const args: string[] = planAutoMovieAlphaWrap({
+  const args: string[] = AutoMovieRenderVideo.planAlphaWrap({
     frameDir: "frames",
     outputPath: "out.mov",
-    frameRate: [30, 1],
+    frameRate: { numerator: 30, denominator: 1 },
     frameCount: 10,
   });
   const after = (flag: string): string | undefined =>
@@ -27,10 +27,10 @@ export function test_render_delivery_plan_auto_movie_alpha_wrap(): void {
   TestValidator.predicate("no audio", args.includes("-an"));
   TestValidator.equals("output last", args[args.length - 1], "out.mov");
   TestValidator.error("no frames", (): void => {
-    planAutoMovieAlphaWrap({
+    AutoMovieRenderVideo.planAlphaWrap({
       frameDir: "frames",
       outputPath: "out.mov",
-      frameRate: [30, 1],
+      frameRate: { numerator: 30, denominator: 1 },
       frameCount: 0,
     });
   });

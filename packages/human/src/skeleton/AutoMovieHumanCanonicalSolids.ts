@@ -1,10 +1,4 @@
-import {
-  Vector3,
-  physicalHullFaces,
-  physicalHullMass,
-  physicalHullNearest,
-  resolveAutoMovieHumanoidRingModules,
-} from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEnginePhysicalHullFaces, AutoMovieEnginePhysicalHull, AutoMovieEnginePhysics, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieHumanCanonicalSolids,
@@ -17,7 +11,7 @@ import type {
  * The convex solids of a polygon man at the canonical T-pose rest: the
  * convex hulls of the ring points its drawing is lofted through.
  *
- * The rings come from `resolveAutoMovieHumanoidRingModules`, the one owner
+ * The rings come from `resolveHumanoidRingModules`, the one owner
  * the drawing reads too, so a solid's vertices are the drawn vertices. The
  * owner works in Human's frame, so the canonical joints are reflected into
  * it by `(x, y, z) -> (z, y, x)` and every ring point reflected back; a
@@ -64,22 +58,22 @@ export namespace AutoMovieHumanCanonicalSolids {
       run: IAutoMovieVector3[][],
       points: IAutoMovieVector3[],
     ): boolean => {
-      const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(points);
+      const hull: IAutoMoviePhysicalHullFaces.IHull = AutoMovieEnginePhysicalHullFaces.build(points);
       return (
         hull.buried <= hull.tolerance &&
         run.every((ring: IAutoMovieVector3[]): boolean =>
           ring.every(
             (p: IAutoMovieVector3, index: number): boolean =>
-              physicalHullNearest(
+              AutoMovieEnginePhysicalHull.nearest(
                 points,
-                Vector3.lerp(p, ring[(index + 1) % ring.length]!, 0.5),
+                AutoMovieEngineVector3.lerp(p, ring[(index + 1) % ring.length]!, 0.5),
               ).distance >= -hull.tolerance,
           ),
         )
       );
     };
     const solids: IAutoMovieHumanCanonicalSolids.ISolid[] = [];
-    for (const module of resolveAutoMovieHumanoidRingModules(
+    for (const module of AutoMovieEngineKinematics.resolveAutoMovieHumanoidRingModules(
       [...joints.entries()].map(
         ([bone, joint]): IAutoMovieResolveHumanoidRingModules.IBone => ({
           bone,
@@ -120,15 +114,15 @@ export namespace AutoMovieHumanCanonicalSolids {
         start = end;
       }
       runs.forEach((points: IAutoMovieVector3[], index: number): void => {
-        const solid: ReturnType<typeof physicalHullMass> =
-          physicalHullMass(points);
+        const solid: ReturnType<typeof AutoMovieEnginePhysics.hullMass> =
+          AutoMovieEnginePhysics.hullMass(points);
         solids.push({
           id: runs.length === 1 ? module.bone : `${module.bone}.${index}`,
           carrier,
           centre: solid.centerOfMass,
           // The centred points are a translation of the run, so their hull
           // is read from the run's instead of being searched again.
-          points: physicalHullFaces.shift(points, solid.centerOfMass),
+          points: AutoMovieEnginePhysicalHullFaces.shift(points, solid.centerOfMass),
           volume: solid.volume,
           inertia: solid.inertia,
           inertiaRotation: solid.inertiaRotation,
@@ -139,6 +133,8 @@ export namespace AutoMovieHumanCanonicalSolids {
   }
 }
 
-/** A phalanx of the hand, whose collider stays a capsule. */
+/*
+ * A phalanx of the hand, whose collider stays a capsule.
+ */
 const DIGIT: RegExp =
   /(?:Thumb|Index|Middle|Ring|Little)(?:Metacarpal|Proximal|Intermediate|Distal)$/;

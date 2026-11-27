@@ -1,6 +1,6 @@
-import { HumanArchery as HumanArcherySource } from "../lexicon/HumanArchery";
-import { HumanLasso as HumanLassoSource } from "../lexicon/HumanLasso";
-import { HumanThrownWeapon as HumanThrownWeaponSource } from "../lexicon/HumanThrownWeapon";
+import { HumanArchery as HumanArcherySource } from "../lexicon/internal/HumanArchery";
+import { HumanLasso as HumanLassoSource } from "../lexicon/internal/HumanLasso";
+import { HumanThrownWeapon as HumanThrownWeaponSource } from "../lexicon/internal/HumanThrownWeapon";
 import { HUMAN_ARCHERY_PRESENT_BOW } from "./presets/HUMAN_ARCHERY_PRESENT_BOW";
 import { HUMAN_ARCHERY_THROW_JAVELIN } from "./presets/HUMAN_ARCHERY_THROW_JAVELIN";
 import { HUMAN_ARCHERY_THROW_KNIFE } from "./presets/HUMAN_ARCHERY_THROW_KNIFE";
@@ -80,7 +80,7 @@ export namespace AutoMovieMotionHumanArchery {
    *   line (`extended`), as the shot cycle's set-up raises it toward the
    *   target.
    * - `drawBow`: an operation of the bow's `string` slider by the drawing hand,
-   *   performed over `presentBow` (`HumanChain.over`) from the set-up, so the
+   *   performed over `presentBow` (`AutoMovieMotionHumanChain.over`) from the set-up, so the
    *   string is drawn while the bow rises and the bow arm extends (the shot
    *   cycle's set-up and pre-draw, KSL Shot Cycle); the hand takes the string
    *   where the bow arm carries the bow (`onBowArm`: the grip the bow arm's own

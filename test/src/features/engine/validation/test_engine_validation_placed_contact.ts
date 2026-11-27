@@ -1,4 +1,4 @@
-import { measureAutoMoviePlacedContact } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMoviePlacedContact,
   IAutoMovieQuaternion,
@@ -32,6 +32,16 @@ const CARRIER: IAutoMovieRigidTransform = {
 /**
  * Measure contact in the current moving frame, including independently declared
  * targets for an active rolling point and intentional in-hand motion.
+ *
+ * Scenarios:
+ *
+ * 1. A resting, carried or rolling support stays on its declared target.
+ * 2. Lift, tangential drift and penetration give independent metre findings.
+ * 3. A carried grip follows its hand, including an authored in-hand turn.
+ * 4. A loose grip reports unequivalent position and orientation.
+ * 5. A missing sample is unsupported. Invalid limits, rotation or a nonfinite
+ *    frame origin leave the measurement unavailable and report the input
+ *    field.
  */
 export const test_engine_validation_placed_contact = (): void => {
   const support: ISupportCheck = {
@@ -45,7 +55,7 @@ export const test_engine_validation_placed_contact = (): void => {
     frame: CARRIER,
     anchor: { x: 2, y: 0, z: 1 },
   };
-  const resting = measureAutoMoviePlacedContact({
+  const resting = AutoMovieEngineValidation.measurePlacedContact({
     ...support,
     sample: {
       point: supportSample.anchor,
@@ -53,11 +63,11 @@ export const test_engine_validation_placed_contact = (): void => {
       anchor: supportSample.anchor,
     },
   });
-  const carried = measureAutoMoviePlacedContact({
+  const carried = AutoMovieEngineValidation.measurePlacedContact({
     ...support,
     sample: supportSample,
   });
-  const rolling = measureAutoMoviePlacedContact({
+  const rolling = AutoMovieEngineValidation.measurePlacedContact({
     ...support,
     sample: {
       ...supportSample,
@@ -78,7 +88,7 @@ export const test_engine_validation_placed_contact = (): void => {
       ),
   );
 
-  const drifting = measureAutoMoviePlacedContact({
+  const drifting = AutoMovieEngineValidation.measurePlacedContact({
     ...support,
     sample: { ...supportSample, point: { x: 9.875, y: 4.25, z: 5 } },
   });
@@ -98,7 +108,7 @@ export const test_engine_validation_placed_contact = (): void => {
       ),
   );
 
-  const penetrating = measureAutoMoviePlacedContact({
+  const penetrating = AutoMovieEngineValidation.measurePlacedContact({
     ...support,
     sample: { ...supportSample, point: { x: 10.125, y: 4, z: 5 } },
   });
@@ -124,8 +134,8 @@ export const test_engine_validation_placed_contact = (): void => {
     prop: { position: { x: 10, y: 2.25, z: 4 }, rotation: QUARTER_TURN },
     expected: { position: { x: 0.25, y: 0, z: 0 }, rotation: IDENTITY },
   };
-  const firm = measureAutoMoviePlacedContact({ ...grip, sample: gripSample });
-  const intentionalTurn = measureAutoMoviePlacedContact({
+  const firm = AutoMovieEngineValidation.measurePlacedContact({ ...grip, sample: gripSample });
+  const intentionalTurn = AutoMovieEngineValidation.measurePlacedContact({
     ...grip,
     sample: {
       ...gripSample,
@@ -149,7 +159,7 @@ export const test_engine_validation_placed_contact = (): void => {
       ),
   );
 
-  const loose = measureAutoMoviePlacedContact({
+  const loose = AutoMovieEngineValidation.measurePlacedContact({
     ...grip,
     sample: {
       ...gripSample,
@@ -170,7 +180,7 @@ export const test_engine_validation_placed_contact = (): void => {
       loose.violations.some(({ path }) => path === "props.lantern.grip.angle"),
   );
 
-  const malformed = measureAutoMoviePlacedContact({
+  const malformed = AutoMovieEngineValidation.measurePlacedContact({
     ...support,
     maxGap: -1,
     sample: {
@@ -181,7 +191,7 @@ export const test_engine_validation_placed_contact = (): void => {
   TestValidator.predicate(
     "missing sample and malformed support have different outcomes",
     () =>
-      measureAutoMoviePlacedContact(support).status === "unsupported" &&
+      AutoMovieEngineValidation.measurePlacedContact(support).status === "unsupported" &&
       malformed.status === "invalid" &&
       malformed.violations.length === 2 &&
       malformed.violations.some(
@@ -189,6 +199,26 @@ export const test_engine_validation_placed_contact = (): void => {
       ) &&
       malformed.violations.some(
         ({ path }) => path === "actors.rook.support.maxGap",
+      ),
+  );
+
+  const nonfiniteOrigin: IAutoMoviePlacedContact.IResult =
+    AutoMovieEngineValidation.measurePlacedContact({
+      ...support,
+      sample: {
+        ...supportSample,
+        frame: {
+          ...CARRIER,
+          position: { ...CARRIER.position, x: NaN },
+        },
+      },
+    });
+  TestValidator.predicate(
+    "a nonfinite origin makes the support observation invalid",
+    () =>
+      nonfiniteOrigin.status === "invalid" &&
+      nonfiniteOrigin.violations.some(({ path }) =>
+        path.startsWith("actors.rook.support.frame.position"),
       ),
   );
 };

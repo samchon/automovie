@@ -1,13 +1,5 @@
-import {
-  AutoMovieArchetypeFrame,
-  type AutoMovieArchetypeQuadrupedBody,
-  type AutoMovieArchetypeQuadrupedGait,
-  AutoMovieArchetypeRefusal,
-  type AutoMovieArchetypeRide,
-  createCamel,
-  type rideQuadruped,
-} from "@automovie/archetypes";
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieArchetypeFrame, type AutoMovieArchetypeQuadrupedBody, type AutoMovieArchetypeQuadrupedGait, AutoMovieArchetypeRefusal, type AutoMovieArchetypeRide, type AutoMovieArchetypeQuadruped, AutoMovieArchetypeCamel } from "@automovie/archetypes";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieVector3,
@@ -21,7 +13,7 @@ import { animalTerminalSole } from "./animalTerminalSole";
  */
 export namespace animalLocomotionFixture {
   /** Actual cohort consumer, including its producer-owned contact vocabulary. */
-  export type Animal = ReturnType<typeof createCamel>;
+  export type Animal = ReturnType<typeof AutoMovieArchetypeCamel.create>;
 
   /** The shared ride with the actual consumer's own contact and dimension types. */
   export type Ride = AutoMovieArchetypeRide.IRide<
@@ -47,7 +39,7 @@ export namespace animalLocomotionFixture {
   export function course(
     speed: number,
     lead: AutoMovieArchetypeQuadrupedGait.Lead = "left",
-  ): rideQuadruped.ICourse {
+  ): AutoMovieArchetypeQuadruped.IRideCourse {
     return {
       start: { x: 2, z: -3, heading: 29 },
       legs: [{ kind: "straight", length: speed * 6, lead }],
@@ -84,9 +76,9 @@ export namespace animalLocomotionFixture {
       throw new Error(
         "The actual terminal control bar must retain its rod height",
       );
-    const endpoint: IAutoMovieVector3 = Vector3.add(
+    const endpoint: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       part.transform.translation,
-      Quaternion.rotateVector(part.transform.rotation, {
+      AutoMovieEngineQuaternion.rotateVector(part.transform.rotation, {
         x: 0,
         y: shape.height / 2,
         z: 0,

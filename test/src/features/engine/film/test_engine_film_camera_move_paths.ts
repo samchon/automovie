@@ -1,4 +1,4 @@
-import { compileCameraMove } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import {
   IAutoMovieCamera,
   IAutoMovieCameraAction,
@@ -68,8 +68,8 @@ export function test_engine_film_camera_move_paths(): void {
     height: 2,
     at: null,
   };
-  const orbit: NonNullable<ReturnType<typeof compileCameraMove>> =
-    compileCameraMove({
+  const orbit: NonNullable<ReturnType<typeof AutoMovieEngineFilm.compileCameraMove>> =
+    AutoMovieEngineFilm.compileCameraMove({
       clipId: "clip",
       camera: CAMERA,
       entries: [{ action: frame("orbit"), subject }],
@@ -126,8 +126,8 @@ export function test_engine_film_camera_move_paths(): void {
     height: 2,
     at: (t: number): IAutoMovieVector3 => ({ x: t, y: 0, z: 0 }),
   };
-  const follow: NonNullable<ReturnType<typeof compileCameraMove>> =
-    compileCameraMove({
+  const follow: NonNullable<ReturnType<typeof AutoMovieEngineFilm.compileCameraMove>> =
+    AutoMovieEngineFilm.compileCameraMove({
       clipId: "clip",
       camera: CAMERA,
       entries: [{ action: frame("follow", 0, 1), subject: marching }],
@@ -149,8 +149,8 @@ export function test_engine_film_camera_move_paths(): void {
     nclose(follow.tracks[0]!.values[72]!, 1),
   );
 
-  const held: NonNullable<ReturnType<typeof compileCameraMove>> =
-    compileCameraMove({
+  const held: NonNullable<ReturnType<typeof AutoMovieEngineFilm.compileCameraMove>> =
+    AutoMovieEngineFilm.compileCameraMove({
       clipId: "clip",
       camera: CAMERA,
       entries: [{ action: frame("follow"), subject }],
@@ -165,8 +165,8 @@ export function test_engine_film_camera_move_paths(): void {
     { length: 1, atZero: true },
   );
 
-  const truck: NonNullable<ReturnType<typeof compileCameraMove>> =
-    compileCameraMove({
+  const truck: NonNullable<ReturnType<typeof AutoMovieEngineFilm.compileCameraMove>> =
+    AutoMovieEngineFilm.compileCameraMove({
       clipId: "clip",
       camera: CAMERA,
       entries: [{ action: frame("truck", 0, 2), subject }],
@@ -199,8 +199,8 @@ export function test_engine_film_camera_move_paths(): void {
       ncloseTruckTracks3: true,
     },
   );
-  const movingTruck: NonNullable<ReturnType<typeof compileCameraMove>> =
-    compileCameraMove({
+  const movingTruck: NonNullable<ReturnType<typeof AutoMovieEngineFilm.compileCameraMove>> =
+    AutoMovieEngineFilm.compileCameraMove({
       clipId: "clip",
       camera: CAMERA,
       entries: [{ action: frame("truck", 0, 1), subject: marching }],
@@ -210,8 +210,8 @@ export function test_engine_film_camera_move_paths(): void {
     "truck keeps tracking an animated subject",
     nclose(movingTruck.tracks[0]!.values[72]!, -0.15),
   );
-  const verticalTruck: NonNullable<ReturnType<typeof compileCameraMove>> =
-    compileCameraMove({
+  const verticalTruck: NonNullable<ReturnType<typeof AutoMovieEngineFilm.compileCameraMove>> =
+    AutoMovieEngineFilm.compileCameraMove({
       clipId: "clip",
       camera: {
         ...CAMERA,
@@ -246,8 +246,8 @@ export function test_engine_film_camera_move_paths(): void {
     },
   );
 
-  const abutted: NonNullable<ReturnType<typeof compileCameraMove>> =
-    compileCameraMove({
+  const abutted: NonNullable<ReturnType<typeof AutoMovieEngineFilm.compileCameraMove>> =
+    AutoMovieEngineFilm.compileCameraMove({
       clipId: "clip",
       camera: CAMERA,
       entries: [
@@ -274,8 +274,8 @@ export function test_engine_film_camera_move_paths(): void {
     abutted.tracks[0]!.values[1]! < 0.8,
   );
 
-  const onAim: NonNullable<ReturnType<typeof compileCameraMove>> =
-    compileCameraMove({
+  const onAim: NonNullable<ReturnType<typeof AutoMovieEngineFilm.compileCameraMove>> =
+    AutoMovieEngineFilm.compileCameraMove({
       clipId: "clip",
       camera: {
         ...CAMERA,
@@ -298,7 +298,7 @@ export function test_engine_film_camera_move_paths(): void {
 
   TestValidator.equals(
     "no entries, no clip",
-    compileCameraMove({
+    AutoMovieEngineFilm.compileCameraMove({
       clipId: "clip",
       camera: CAMERA,
       entries: [],

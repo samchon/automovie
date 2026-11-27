@@ -26,10 +26,11 @@ Before changing an operator, read the applicable skill, existing engine and inte
 Finish one reference before generalizing. Pass each step's [gates](verification.md#steps-one-and-two) before advancing.
 
 1. Trace the reference in its recorded pose.
-   - Cut exact planes at the loft stations and read extents and quarter shoulders.
-   - Reduce to sparse knots within tolerance. Document corrections for mesh artifacts.
+   - Cut exact planes at loft stations. Read extents and quarter shoulders.
+   - Reduce to sparse knots within tolerance. Record mesh artifact corrections.
    - Loft the traced curves in world coordinates.
-2. Rebase each part to its joint origin and landmark axes. Verify the exact pose round trip.
+2. Rebase each part to its joint origin and landmark axes.
+   - Verify the exact pose round trip.
 3. Derive shared laws that generate the curves from [inputs](construction.md#inputs).
    - Follow [parameter generation](curves.md#generate-from-parameters) and [numerical sources](construction.md#numbers).
 
@@ -54,11 +55,17 @@ Finish the anatomical neutral and the bind before any other pose, because every 
 
 Keep the polygon man's rigid primitives, segment count and style for motion verification and diffusion hints. Correct wrong dimensions or frames. Refer a change needing more geometry, anatomy or style to the user.
 
+## Delivery
+
+Construction commits must pass the [delivery gate](supervision.md#before-delivery).
+
 ## Done when
 
-- Every public parameter changes the figure through the one construction, answered at its published site.
-- One construction yields finite, connected and anatomically valid skin across parameters and supported poses.
-- Generation returns a figure for every valid person with an empty diagnostics list.
+- Each public parameter changes the figure through the one construction.
+  - Answer for each parameter at its published site.
+- One construction yields finite, connected, anatomically valid skin.
+  - Verify across parameters and supported poses.
+- Each valid person generates a figure with an empty diagnostics list.
 
 ## Files
 

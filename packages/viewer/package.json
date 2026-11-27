@@ -3,11 +3,6 @@
   "version": "0.4.3",
   "description": "automovie viewer: the interactive display, a React inspector and an imperative mount over the render package's three.js scene (not an editor)",
   "main": "src/index.ts",
-  "exports": {
-    ".": "./src/index.ts",
-    "./internal": "./src/internal.ts",
-    "./package.json": "./package.json"
-  },
   "files": [
     "lib",
     "src",
@@ -26,15 +21,12 @@
         "import": "./lib/index.mjs",
         "default": "./lib/index.js"
       },
-      "./internal": {
-        "types": "./lib/internal.d.ts",
-        "default": "./lib/internal.js"
-      },
       "./package.json": "./package.json"
     }
   },
   "scripts": {
     "build": "rimraf lib && ttsc && rolldown -c",
+    "prepack": "node ../../scripts/copy-package-notices.mjs",
     "evidence": "evidence"
   },
   "keywords": [],
@@ -45,6 +37,7 @@
     "url": "https://github.com/samchon/automovie"
   },
   "dependencies": {
+    "@automovie/interface": "workspace:^",
     "@automovie/render": "workspace:^",
     "three": "catalog:three"
   },
@@ -53,6 +46,7 @@
     "react-dom": "catalog:react"
   },
   "devDependencies": {
+    "@automovie/config": "workspace:^",
     "@types/react": "catalog:react",
     "@types/react-dom": "catalog:react",
     "@types/three": "catalog:three",

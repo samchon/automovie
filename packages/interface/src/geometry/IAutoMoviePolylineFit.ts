@@ -1,4 +1,4 @@
-import type { IAutoMovieCubicBezierCurve64 } from "./curve/IAutoMovieCubicBezierCurve64";
+import type { IAutoMovieCubicBezierCurve64 } from "./IAutoMovieCubicBezierCurve64";
 
 /**
  * Fitted cubic coefficients with finite-observation residuals and error

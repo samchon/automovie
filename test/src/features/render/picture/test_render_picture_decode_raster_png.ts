@@ -1,12 +1,9 @@
-import {
-  decodeAutoMovieRasterPng,
-  encodeAutoMovieRasterPng,
-} from "@automovie/render";
+import { AutoMovieRenderPicture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `decodeAutoMovieRasterPng` reads back the PNG `encodeAutoMovieRasterPng`
- * writes.
+ * `AutoMovieRenderPicture.decodeRasterPng` reads back the PNG
+ * `AutoMovieRenderPicture.encodeRasterPng` writes.
  *
  * Scenarios:
  *
@@ -23,13 +20,13 @@ export async function test_render_picture_decode_raster_png(): Promise<void> {
     height: 1,
     pixels,
   };
-  const rgba = await decodeAutoMovieRasterPng(
-    await encodeAutoMovieRasterPng(raster, { alpha: true }),
+  const rgba = await AutoMovieRenderPicture.decodeRasterPng(
+    await AutoMovieRenderPicture.encodeRasterPng(raster, { alpha: true }),
   );
   TestValidator.equals("size", [rgba.width, rgba.height], [2, 1]);
   TestValidator.equals("rgba", [...rgba.pixels], [...pixels]);
-  const rgb = await decodeAutoMovieRasterPng(
-    await encodeAutoMovieRasterPng(raster),
+  const rgb = await AutoMovieRenderPicture.decodeRasterPng(
+    await AutoMovieRenderPicture.encodeRasterPng(raster),
   );
   TestValidator.equals(
     "rgb",
@@ -37,6 +34,8 @@ export async function test_render_picture_decode_raster_png(): Promise<void> {
     [10, 20, 30, 255, 40, 50, 60, 255],
   );
   await TestValidator.error("not a png", async (): Promise<void> => {
-    await decodeAutoMovieRasterPng(Uint8Array.from([1, 2, 3, 4, 5, 6, 7, 8, 9]));
+    await AutoMovieRenderPicture.decodeRasterPng(
+      Uint8Array.from([1, 2, 3, 4, 5, 6, 7, 8, 9]),
+    );
   });
 }

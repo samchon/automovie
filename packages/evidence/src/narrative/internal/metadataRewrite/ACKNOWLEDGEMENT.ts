@@ -1,4 +1,4 @@
-/**
+/*
  * Recognizes a flat evidence acknowledgement with its required reason.
  *
  * Principled implementation: Anchored grammar requires an acknowledgement

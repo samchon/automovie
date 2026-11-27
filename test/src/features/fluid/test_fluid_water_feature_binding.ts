@@ -1,4 +1,6 @@
-import { lowerWaterFeature, validateWaterFeatures } from "@automovie/engine";
+import {
+  AutoMovieEngineFluid,
+} from "@automovie/engine";
 import type {
   IAutoMovieConstraintViolation,
   IAutoMovieFluidDomain,
@@ -88,7 +90,7 @@ export function test_fluid_water_feature_binding(): void {
 
   TestValidator.equals(
     "a well-formed binding validates clean",
-    validateWaterFeatures({
+    AutoMovieEngineFluid.validateWaterFeatures({
       environment,
       features: [waterFeature()],
       domains: [domain],
@@ -96,7 +98,7 @@ export function test_fluid_water_feature_binding(): void {
     true,
   );
 
-  const names: ReturnType<typeof validateWaterFeatures> = validateWaterFeatures(
+  const names: ReturnType<typeof AutoMovieEngineFluid.validateWaterFeatures> = AutoMovieEngineFluid.validateWaterFeatures(
     {
       environment,
       features: [
@@ -145,8 +147,8 @@ export function test_fluid_water_feature_binding(): void {
     },
   );
 
-  const identity: ReturnType<typeof validateWaterFeatures> =
-    validateWaterFeatures({
+  const identity: ReturnType<typeof AutoMovieEngineFluid.validateWaterFeatures> =
+    AutoMovieEngineFluid.validateWaterFeatures({
       environment,
       features: [
         waterFeature({ id: "first" }),
@@ -189,14 +191,14 @@ export function test_fluid_water_feature_binding(): void {
     },
   );
 
-  const broken: ReturnType<typeof validateWaterFeatures> =
-    validateWaterFeatures({
+  const broken: ReturnType<typeof AutoMovieEngineFluid.validateWaterFeatures> =
+    AutoMovieEngineFluid.validateWaterFeatures({
       environment,
       features: [waterFeature()],
       domains: [pondDomain({ depth: new Array<number>(16).fill(-1) })],
     });
-  const unstable: ReturnType<typeof validateWaterFeatures> =
-    validateWaterFeatures({
+  const unstable: ReturnType<typeof AutoMovieEngineFluid.validateWaterFeatures> =
+    AutoMovieEngineFluid.validateWaterFeatures({
       environment,
       features: [waterFeature()],
       domains: [
@@ -238,8 +240,8 @@ export function test_fluid_water_feature_binding(): void {
     },
   );
 
-  const outside: ReturnType<typeof validateWaterFeatures> =
-    validateWaterFeatures({
+  const outside: ReturnType<typeof AutoMovieEngineFluid.validateWaterFeatures> =
+    AutoMovieEngineFluid.validateWaterFeatures({
       environment,
       features: [waterFeature()],
       domains: [
@@ -254,8 +256,8 @@ export function test_fluid_water_feature_binding(): void {
         }),
       ],
     });
-  const semantic: ReturnType<typeof validateWaterFeatures> =
-    validateWaterFeatures({
+  const semantic: ReturnType<typeof AutoMovieEngineFluid.validateWaterFeatures> =
+    AutoMovieEngineFluid.validateWaterFeatures({
       environment: withoutCells(),
       features: [waterFeature()],
       domains: [
@@ -300,7 +302,7 @@ export function test_fluid_water_feature_binding(): void {
   });
   TestValidator.equals(
     "the flat 3x3 bed fits its convex basin",
-    validateWaterFeatures({
+    AutoMovieEngineFluid.validateWaterFeatures({
       environment,
       features: [waterFeature()],
       domains: [flatInterior],
@@ -313,7 +315,7 @@ export function test_fluid_water_feature_binding(): void {
       index === 4 ? 100 : height,
     ),
   };
-  const interiorRefusal: IAutoMovieValidation = validateWaterFeatures({
+  const interiorRefusal: IAutoMovieValidation = AutoMovieEngineFluid.validateWaterFeatures({
     environment,
     features: [waterFeature()],
     domains: [raisedInterior],
@@ -327,21 +329,21 @@ export function test_fluid_water_feature_binding(): void {
   // of the notched basin while the middle two stand over the notch, so the
   // lattice's own corners say nothing about where its water is.
   const notched: ReturnType<typeof notchedEnvironment> = notchedEnvironment();
-  const bridging: ReturnType<typeof validateWaterFeatures> =
-    validateWaterFeatures({
+  const bridging: ReturnType<typeof AutoMovieEngineFluid.validateWaterFeatures> =
+    AutoMovieEngineFluid.validateWaterFeatures({
       environment: notched,
       features: [waterFeature()],
       domains: [placed({ cell: 0.5, x: -1 })],
     });
   // Centres −1.75, −1.5, −1.25, −1: wholly inside the west half.
-  const seated: ReturnType<typeof validateWaterFeatures> =
-    validateWaterFeatures({
+  const seated: ReturnType<typeof AutoMovieEngineFluid.validateWaterFeatures> =
+    AutoMovieEngineFluid.validateWaterFeatures({
       environment: notched,
       features: [waterFeature()],
       domains: [placed({ cell: 0.25, x: -1.875 })],
     });
-  const unsound: ReturnType<typeof validateWaterFeatures> =
-    validateWaterFeatures({
+  const unsound: ReturnType<typeof AutoMovieEngineFluid.validateWaterFeatures> =
+    AutoMovieEngineFluid.validateWaterFeatures({
       environment,
       features: [waterFeature()],
       domains: [
@@ -385,18 +387,18 @@ export function test_fluid_water_feature_binding(): void {
     },
   );
 
-  const still: ReturnType<typeof lowerWaterFeature> = lowerWaterFeature({
+  const still: ReturnType<typeof AutoMovieEngineFluid.lowerWaterFeature> = AutoMovieEngineFluid.lowerWaterFeature({
     feature: waterFeature({ mode: "static" }),
     domain,
     time: 4,
   });
-  const solved: ReturnType<typeof lowerWaterFeature> = lowerWaterFeature({
+  const solved: ReturnType<typeof AutoMovieEngineFluid.lowerWaterFeature> = AutoMovieEngineFluid.lowerWaterFeature({
     feature: waterFeature({ mode: "simulated" }),
     domain,
     time: 4,
     cameraDistance: 0,
   });
-  const flowing: ReturnType<typeof lowerWaterFeature> = lowerWaterFeature({
+  const flowing: ReturnType<typeof AutoMovieEngineFluid.lowerWaterFeature> = AutoMovieEngineFluid.lowerWaterFeature({
     feature: waterFeature({ mode: "flowing" }),
     domain,
     time: 4,
@@ -426,8 +428,8 @@ export function test_fluid_water_feature_binding(): void {
     "a feature names the domain it refuses",
     (): boolean =>
       throwsError(
-        (): ReturnType<typeof lowerWaterFeature> =>
-          lowerWaterFeature({
+        (): ReturnType<typeof AutoMovieEngineFluid.lowerWaterFeature> =>
+          AutoMovieEngineFluid.lowerWaterFeature({
             feature: waterFeature({ domain: `${domain.id}-elsewhere` }),
             domain,
             time: 4,

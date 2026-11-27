@@ -1,5 +1,5 @@
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
-import { AutoMovieLoftChain, AutoMovieViewLoft } from "@automovie/engine";
+import { AutoMovieEngineLoftChain, AutoMovieEngineViewLoft } from "@automovie/engine";
 import type {
   IAutoMovieHumanF1,
   IAutoMovieSolidSurface,
@@ -121,7 +121,7 @@ export namespace FamilyConicCaptureCatalog {
     }
     for (const [name, part] of declared.sources) {
       try {
-        const raw: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create(part);
+        const raw: IAutoMovieViewLoft.IResult = AutoMovieEngineViewLoft.create(part);
         if (raw.chain === null)
           throw new Error(JSON.stringify(raw.diagnostics));
         const chain: NonNullable<IAutoMovieViewLoft.IResult["chain"]> =
@@ -155,7 +155,7 @@ export namespace FamilyConicCaptureCatalog {
           domain,
           2 * Math.PI,
           (s: number, c: number): readonly number[] =>
-            AutoMovieLoftChain.point(chain, s, c),
+            AutoMovieEngineLoftChain.point(chain, s, c),
           cutter ? "dc3264" : "284b78",
           9,
         );

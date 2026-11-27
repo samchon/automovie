@@ -1,9 +1,4 @@
-import {
-  designLineagePhaseOrder,
-  designLineagePhaseSnapshot,
-  designLineageProject,
-  validateDesignLineage,
-} from "@automovie/engine";
+import { AutoMovieEngineDesignLineage, AutoMovieEngineArchitecture } from "@automovie/engine";
 import type {
   IAutoMovieDesignLineage,
   IAutoMovieDesignPhaseSnapshot,
@@ -37,19 +32,19 @@ export function test_architecture_design_lineage_phase_states(): void {
   const lineage: IAutoMovieDesignLineage = renovationLineage();
   TestValidator.equals(
     "the authored renovation lineage is self-consistent",
-    validateDesignLineage({ lineage }).success,
+    AutoMovieEngineArchitecture.validateDesignLineage({ lineage }).success,
     true,
   );
 
   TestValidator.equals(
     "the construction plan orders by prerequisite then by ascending id",
-    designLineagePhaseOrder(lineage),
+    AutoMovieEngineDesignLineage.designLineagePhaseOrder(lineage),
     ["survey", "shore", "strip", "structure", "services", "finishes"],
   );
 
   TestValidator.equals(
     "the demolition phase reports every subject's role and presence",
-    designLineagePhaseSnapshot(lineage, "strip"),
+    AutoMovieEngineDesignLineage.designLineagePhaseSnapshot(lineage, "strip"),
     {
       phase: "strip",
       states: [
@@ -123,7 +118,7 @@ export function test_architecture_design_lineage_phase_states(): void {
     },
   );
 
-  const shoring: IAutoMovieDesignPhaseState[] = designLineagePhaseSnapshot(
+  const shoring: IAutoMovieDesignPhaseState[] = AutoMovieEngineDesignLineage.designLineagePhaseSnapshot(
     lineage,
     "shore",
   ).states;
@@ -155,7 +150,7 @@ export function test_architecture_design_lineage_phase_states(): void {
   );
   TestValidator.equals(
     "the shoring is taken out again once the structure phase completes",
-    designLineagePhaseSnapshot(lineage, "structure").states.find(
+    AutoMovieEngineDesignLineage.designLineagePhaseSnapshot(lineage, "structure").states.find(
       (state: IAutoMovieDesignPhaseState): boolean =>
         state.subject === "shoring-frame",
     ),
@@ -169,7 +164,7 @@ export function test_architecture_design_lineage_phase_states(): void {
 
   TestValidator.equals(
     "the completed work keeps everything the plan never removes",
-    designLineagePhaseSnapshot(lineage, null).states.map(
+    AutoMovieEngineDesignLineage.designLineagePhaseSnapshot(lineage, null).states.map(
       (state: IAutoMovieDesignPhaseState): string =>
         `${state.subject}:${state.role}:${state.presence}`,
     ),
@@ -218,16 +213,16 @@ export function test_architecture_design_lineage_phase_states(): void {
   const projected: (phase: string | null) => string[][] = (
     phase: string | null,
   ): string[][] => [
-    designLineageProject(lineage, phase, sceneNodes).map(
+    AutoMovieEngineDesignLineage.designLineageProject(lineage, phase, sceneNodes).map(
       (row: { id: string; model: string }): string => row.id,
     ),
-    designLineageProject(lineage, phase, drawingRows).map(
+    AutoMovieEngineDesignLineage.designLineageProject(lineage, phase, drawingRows).map(
       (row: { id: string; sheet: string }): string => row.id,
     ),
-    designLineageProject(lineage, phase, quantityLines).map(
+    AutoMovieEngineDesignLineage.designLineageProject(lineage, phase, quantityLines).map(
       (row: { id: string; unit: string; amount: number }): string => row.id,
     ),
-    designLineageProject(lineage, phase, renderDraws).map(
+    AutoMovieEngineDesignLineage.designLineageProject(lineage, phase, renderDraws).map(
       (row: { id: string; pass: string }): string => row.id,
     ),
   ];
@@ -256,9 +251,9 @@ export function test_architecture_design_lineage_phase_states(): void {
   TestValidator.equals(
     "a lineage with no construction sequence still orders and still answers",
     [
-      designLineagePhaseOrder(bare),
-      designLineagePhaseSnapshot(bare, null).states,
-      designLineageProject(bare, null, sceneNodes).map(
+      AutoMovieEngineDesignLineage.designLineagePhaseOrder(bare),
+      AutoMovieEngineDesignLineage.designLineagePhaseSnapshot(bare, null).states,
+      AutoMovieEngineDesignLineage.designLineageProject(bare, null, sceneNodes).map(
         (row: { id: string; model: string }): string => row.id,
       ),
     ],
@@ -269,7 +264,7 @@ export function test_architecture_design_lineage_phase_states(): void {
     "a phase the plan does not contain is refused, not answered",
     throwsError(
       (): IAutoMovieDesignPhaseSnapshot =>
-        designLineagePhaseSnapshot(lineage, "topping-out"),
+        AutoMovieEngineDesignLineage.designLineagePhaseSnapshot(lineage, "topping-out"),
       'has no construction phase "topping-out"',
     ),
   );

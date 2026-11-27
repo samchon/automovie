@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeCourse as course } from "@automovie/archetypes";
-import { AutoMovieGravity } from "@automovie/engine";
+import { AutoMovieEngineGravity } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -27,7 +27,7 @@ export function test_archetypes_internal_course_lean(): void {
     distance: 0,
     speed: 2,
     progress: 0,
-    curvature: AutoMovieGravity.STANDARD / 4,
+    curvature: AutoMovieEngineGravity.STANDARD / 4,
     reverse: false,
     placement: {
       translation: { x: 2, y: 3, z: 4 },

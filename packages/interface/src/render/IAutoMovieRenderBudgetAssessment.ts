@@ -1,7 +1,7 @@
-import type { IAutoMovieRenderInventory } from "./IAutoMovieRenderInventory.js";
-import type { IAutoMovieRenderReport } from "./IAutoMovieRenderReport.js";
-import type { IAutoMovieRenderTarget } from "./IAutoMovieRenderTarget.js";
-import type { IAutoMovieSemanticMask } from "./IAutoMovieSemanticMask.js";
+import type { IAutoMovieRenderInventory } from "./IAutoMovieRenderInventory";
+import type { IAutoMovieRenderReport } from "./IAutoMovieRenderReport";
+import type { IAutoMovieRenderTarget } from "./IAutoMovieRenderTarget";
+import type { IAutoMovieSemanticMask } from "./IAutoMovieSemanticMask";
 
 /**
  * One caller-supplied shot's measured inventory and explicit budget assessment,

@@ -1,4 +1,4 @@
-import { AutoMovieConstructionSplitSeam } from "@automovie/engine";
+import { AutoMovieEngineConstructionSplitSeam } from "@automovie/engine";
 import type {
   IAutoMovieConstructionRealization,
   IAutoMovieConstructionSplitSeam,
@@ -10,7 +10,7 @@ import { ConstructionRead } from "../../internal/construction/ConstructionRead";
 import { ConstructionSplitSeam as S } from "../../internal/construction/ConstructionSplitSeam";
 
 /**
- * `AutoMovieConstructionSplitSeam.create` builds a curved seam on a realized
+ * `AutoMovieEngineConstructionSplitSeam.create` builds a curved seam on a realized
  * host that leaves both forks along the host's own surface.
  *
  * Fixture: `ConstructionSplitSeam` (host end circle R = 25 sqrt(1 - (30 /
@@ -36,16 +36,16 @@ export function test_engine_geometry_split_seam_curve(): void {
   );
   const trunk: IAutoMovieSolidSurface = ConstructionRead.surface(real, "trunk");
   const seam: IAutoMovieConstructionSplitSeam.ISeam | string =
-    AutoMovieConstructionSplitSeam.create({
+    AutoMovieEngineConstructionSplitSeam.create({
       host: trunk,
       station: 30,
       into: 1,
-      seam: [0, Math.PI],
+      seam: { startPhaseRad: 0, endPhaseRad: Math.PI },
       normal: [0, 0, -1],
-      knots: S.KNOTS.map(([a, d]: [number, number]): [number, number] => [
-        a * 1000,
-        d * 1000,
-      ]),
+      knots: S.KNOTS.map(({ alongM, depthM }) => ({
+        alongMm: alongM * 1000,
+        depthMm: depthM * 1000,
+      })),
     });
   if (typeof seam === "string") throw new Error(`seam refused: ${seam}`);
   const A: S.V3 = [S.R, 0, -30];
@@ -78,7 +78,7 @@ export function test_engine_geometry_split_seam_curve(): void {
     "seam stays in its plane",
     samples.every((p: S.V3): boolean => Math.abs(p[1]) <= 1e-9),
   );
-  for (const [along, depth] of S.KNOTS) {
+  for (const { alongM: along, depthM: depth } of S.KNOTS) {
     const knot: S.V3 = [S.R - along * 1000, 0, -30 - depth * 1000];
     const distance = (t: number): number =>
       S.len(S.sub(seam.at(t).point, knot));

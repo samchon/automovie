@@ -3,13 +3,13 @@ import fs from "node:fs";
 import path from "node:path";
 
 import type { IProductionConfigProps } from "../../IProductionConfigProps";
-import type { ProductionStage } from "../../ProductionStage";
+import type { AutoMovieEvidenceProductionStage } from "../../AutoMovieEvidenceProductionStage";
 import { constructionStage } from "../constructionStage";
 import { BODY_ROOT } from "../utilities/BODY_ROOT";
 import { PACKAGE_DOCS_ROOT } from "../utilities/PACKAGE_DOCS_ROOT";
 import { createUnitFiles } from "../utilities/createUnitFiles";
 
-/**
+/*
  * Tracks instruction adoption in long work's settings, and realization in
  * treatments or a short's screenplay. Each layer covers the targets
  * independently through its own construction hosts and stage. Settings accounts
@@ -22,7 +22,7 @@ export function createInstructionCoverageClaim(
   props: IProductionConfigProps,
   layer: "settings" | "treatments" | "screenplay",
 ): IEvidenceClaim | undefined {
-  const stage: ProductionStage = constructionStage(props, layer);
+  const stage: AutoMovieEvidenceProductionStage = constructionStage(props, layer);
   const directory: string = path.join(
     props.location,
     PACKAGE_DOCS_ROOT,

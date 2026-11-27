@@ -1,7 +1,4 @@
-import {
-  admitRecoveryCameraScene,
-  createRecoveryCameraScene,
-} from "@automovie/recovery";
+import { AutoMovieRecoveryCameraMap } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { createRecoverySceneNumericalFixture } from "../../internal/createRecoverySceneNumericalFixture";
@@ -27,11 +24,11 @@ export function test_recovery_internal_create_camera_scene(): void {
     pairs: fixture.pairs,
     poses: fixture.poses,
   });
-  const result: ReturnType<typeof createRecoveryCameraScene> =
-    createRecoveryCameraScene(
+  const result: ReturnType<typeof AutoMovieRecoveryCameraMap.createCameraScene> =
+    AutoMovieRecoveryCameraMap.createCameraScene(
       fixture.input,
       fixture.features,
-      admitRecoveryCameraScene(fixture.input),
+      AutoMovieRecoveryCameraMap.admitCameraScene(fixture.input),
       fixture.pairs,
       fixture.comparisons,
       (): void => {},

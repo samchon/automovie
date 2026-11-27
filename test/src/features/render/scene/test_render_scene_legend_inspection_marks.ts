@@ -1,12 +1,9 @@
 import type { IAutoMovieMark } from "@automovie/interface";
-import {
-  AUTO_MOVIE_INSPECTION_PALETTE,
-  legendAutoMovieInspectionMarks,
-} from "@automovie/render";
+import { AutoMovieRenderInspectionPalette, AutoMovieRenderInspectionMarks } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `legendAutoMovieInspectionMarks` counts marks by kind, flagged ones apart.
+ * `legendInspectionMarks` counts marks by kind, flagged ones apart.
  *
  * Scenarios:
  *
@@ -29,7 +26,7 @@ export function test_render_scene_legend_inspection_marks(): void {
   ]);
   TestValidator.equals(
     "legend",
-    legendAutoMovieInspectionMarks(
+    AutoMovieRenderInspectionMarks.legend(
       [mark(false), mark(true), mark(false)],
       kinds,
     ),
@@ -37,10 +34,10 @@ export function test_render_scene_legend_inspection_marks(): void {
       { label: "Curve", color: 0x00ff00, count: 2 },
       {
         label: "Curve (flagged)",
-        color: AUTO_MOVIE_INSPECTION_PALETTE.flagged,
+        color: AutoMovieRenderInspectionPalette.flagged,
         count: 1,
       },
     ],
   );
-  TestValidator.equals("none", legendAutoMovieInspectionMarks([], kinds), []);
+  TestValidator.equals("none", AutoMovieRenderInspectionMarks.legend([], kinds), []);
 }

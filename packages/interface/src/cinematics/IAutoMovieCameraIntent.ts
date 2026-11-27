@@ -1,4 +1,6 @@
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMovieCameraFocusPull } from "./IAutoMovieCameraFocusPull";
+import type { AutoMovieCameraFraming } from "../harness/AutoMovieCameraFraming";
 import type { IAutoMovieCameraAction } from "../harness/IAutoMovieCameraAction";
 
 /**
@@ -13,7 +15,7 @@ export interface IAutoMovieCameraIntent {
   start: number;
 
   /** Shot size the span asks for. */
-  framing: IAutoMovieCameraAction["framing"];
+  framing: AutoMovieCameraFraming;
 
   /** How the camera behaves over the span. */
   move: IAutoMovieCameraAction["move"];
@@ -25,16 +27,7 @@ export interface IAutoMovieCameraIntent {
   focus: IAutoMovieVector3 | null;
 
   /** Second focus mark and the timing of both marks, when authored. */
-  focusPull?: {
-    /** Shot-local seconds of the first mark, at or after the frame start. */
-    start: number;
-
-    /** Shot-local seconds of the second mark, strictly after the first. */
-    end: number;
-
-    /** World focus point in metres at the second mark. */
-    to: IAutoMovieVector3;
-  };
+  focusPull?: IAutoMovieCameraFocusPull;
 
   /**
    * Positive lens intent in millimetres, full-frame equivalent, or `null` when
@@ -44,7 +37,7 @@ export interface IAutoMovieCameraIntent {
 
   /**
    * The lens stop, finite and `> 0`, present exactly when the action authored
-   * `fNumber`. `resolveAutoMovieLensAt` reads it with `focus` and `focusPull`.
+   * `fNumber`. `resolveLensAt` reads it with `focus` and `focusPull`.
    */
   fNumber?: number;
 }

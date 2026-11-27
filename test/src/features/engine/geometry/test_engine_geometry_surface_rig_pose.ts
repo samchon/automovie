@@ -1,8 +1,4 @@
-import {
-  poseAutoMovieSurfaceNetwork,
-  rigAutoMovieSurfaceNetwork,
-  sampleAutoMovieSurfaceNetwork,
-} from "@automovie/engine";
+import { AutoMovieEngineSweep } from "@automovie/engine";
 import type {
   AutoMovieSurfaceTier,
   IAutoMovieQuaternion,
@@ -17,9 +13,9 @@ import { sweepBranchedBody } from "../../internal/sweepBranchedBody";
 import { sweepBranchedSkeleton } from "../../internal/sweepBranchedSkeleton";
 
 /**
- * A surface rig's per-pose update (`rigAutoMovieSurfaceNetwork`) writes the
- * cage that sampling the posed network (`poseAutoMovieSurfaceNetwork`, then
- * `sampleAutoMovieSurfaceNetwork`) gives.
+ * A surface rig's per-pose update (`rigSurfaceNetwork`) writes the
+ * cage that sampling the posed network (`poseSurfaceNetwork`, then
+ * `sampleSurfaceNetwork`) gives.
  *
  * Fixture: the branched body on its skeleton, posed with the spine leaning 15
  * degrees, the upper arm raised 30 and the forearm bent 90, the thigh -40 and
@@ -52,7 +48,7 @@ export function test_engine_geometry_surface_rig_pose(): void {
     neck: turn(0, 1, 0, 20),
   });
   for (const tier of ["lowest", "high"] satisfies AutoMovieSurfaceTier[]) {
-    const rig: IAutoMovieSurfaceRig = rigAutoMovieSurfaceNetwork({
+    const rig: IAutoMovieSurfaceRig = AutoMovieEngineSweep.rigSurfaceNetwork({
       network,
       tier,
       bindings: skeleton.bindings,
@@ -61,8 +57,8 @@ export function test_engine_geometry_surface_rig_pose(): void {
     const positions: Float64Array = new Float64Array(rig.cage.cage.positions.length);
     const targets: Float64Array = new Float64Array(positions.length);
     rig.pose(posed, positions, targets);
-    const sampled: IAutoMovieSurfaceCage = sampleAutoMovieSurfaceNetwork({
-      network: poseAutoMovieSurfaceNetwork({
+    const sampled: IAutoMovieSurfaceCage = AutoMovieEngineSweep.sampleSurfaceNetwork({
+      network: AutoMovieEngineSweep.poseSurfaceNetwork({
         network,
         bindings: skeleton.bindings,
         rest: skeleton.rest,

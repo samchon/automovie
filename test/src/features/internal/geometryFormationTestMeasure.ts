@@ -1,4 +1,4 @@
-import { measureAutoMovieGeometry } from "@automovie/engine";
+import { AutoMovieEngineGeometryObservation } from "@automovie/engine";
 import { IAutoMovieProductionDesign } from "@automovie/interface";
 
 import { GEOMETRY_FORMATION_TEST_WORLD as WORLD } from "./GEOMETRY_FORMATION_TEST_WORLD";
@@ -14,7 +14,7 @@ const PRODUCTION: Pick<IAutoMovieProductionDesign, "frameFormat"> = {
 export const geometryFormationTestMeasure = (
   props: IGeometryFormationTestMeasureProps,
 ): Record<string, number | string | boolean> => {
-  const result = measureAutoMovieGeometry({
+  const result = AutoMovieEngineGeometryObservation.measure({
     request: {
       query: "formation",
       formation: props.formation ?? "unit",

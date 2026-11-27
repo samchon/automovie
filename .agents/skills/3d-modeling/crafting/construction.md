@@ -7,8 +7,8 @@ Pick the representation by the form, then optimize the form within it:
 | Representation | The form |
 | --- | --- |
 | Code CAD | Made of dimensions, such as furniture or a building |
-| Lofted sections | One section changing along an axis, such as a limb or a bottle |
-| Procedural rules, such as grammars or scattering | Repeated structure, such as a fence or foliage |
+| Lofted sections | Section changes along an axis, as in a limb or bottle |
+| Procedural grammar or scattering | Repeats such as fences or foliage |
 | Implicit surfaces | Blended masses that never deform |
 | Formula fields, such as displacement | Fine detail over any of these |
 
@@ -46,9 +46,11 @@ Plan each part in one of three form tiers, together with the closest distance a 
 
 | Tier | Parts |
 | --- | --- |
-| Primary | Masses that set the overall size and proportions, such as a chair's seat, back and legs |
-| Secondary | Parts that change local shape, such as a handle, and surfaces a person touches |
-| Tertiary | Relief within a surface that changes no part's shape, such as a seam, a groove or a panel line |
+| Primary | Overall size and proportions, as in a chair's seat, back and legs |
+| Secondary | Local shape or contact surfaces, such as a handle |
+| Tertiary | Relief inside a surface, such as seams, grooves or panel lines |
+
+Tertiary features leave each part's overall shape intact.
 
 Build a tier only where its smallest feature, together with the gap that separates it from its neighbor, spans at least two pixels at that distance. A feature and its gap make one period of the pattern, and a period sampled fewer than two times cannot be resolved ([Shannon 1949](https://doi.org/10.1109/JRPROC.1949.232969)).
 

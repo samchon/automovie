@@ -1,4 +1,4 @@
-import { AutoMovieLoftChain } from "@automovie/engine";
+import { AutoMovieEngineLoftChain } from "@automovie/engine";
 import { AutoMovieHumanConicLoft, AutoMovieHumanF1 } from "@automovie/human";
 import type {
   IAutoMovieHumanConicLoft,
@@ -101,7 +101,7 @@ namespace FamilyConicTurns {
       ]),
     ];
     const point = (c: IAutoMovieLoftChain, s: number, t: number): V3 =>
-      AutoMovieLoftChain.point(c, s, t) as V3;
+      AutoMovieEngineLoftChain.point(c, s, t) as V3;
     const turn = (a: V3, b: V3, d: V3): number => {
       const u: V3 = [b[0] - a[0], b[1] - a[1], b[2] - a[2]];
       const w: V3 = [d[0] - b[0], d[1] - b[1], d[2] - b[2]];

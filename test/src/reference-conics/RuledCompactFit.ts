@@ -2,7 +2,7 @@ import type {
   IAutoMovieCompactCurveApproximation,
   IAutoMovieCubicBezierCurve64,
 } from "@automovie/interface";
-import { approximateAutoMovieRecoveryCompactCurves as approximate } from "@automovie/recovery";
+import { AutoMovieRecoveryCompactApproximation } from "@automovie/recovery";
 import { once } from "node:events";
 import { createWriteStream } from "node:fs";
 import path from "node:path";
@@ -117,7 +117,7 @@ export namespace RuledCompactFit {
               maximumQueries: 12000,
             };
             const fitted: IAutoMovieCompactCurveApproximation.IResult =
-              approximate(prepared.source, options);
+              AutoMovieRecoveryCompactApproximation.approximate(prepared.source, options);
             queries = fitted.queries;
             const candidate: IAutoMovieCubicBezierCurve64 | null =
               A.materialize(original, prepared, fitted);

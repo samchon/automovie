@@ -1,5 +1,5 @@
 import type { IAutoMovieInspectionKind } from "@automovie/interface";
-import { listAutoMovieInspectionKinds } from "@automovie/render";
+import { AutoMovieRenderInspectionRequest } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { InspectionScene } from "../../internal/InspectionScene";
@@ -64,7 +64,7 @@ export function test_render_scene_list_inspection_kinds(): void {
   // 1. Neither condition.
   TestValidator.equals(
     "supplied kinds, then the inspection's",
-    listAutoMovieInspectionKinds({
+    AutoMovieRenderInspectionRequest.listKinds({
       request: InspectionScene.ask({}),
       marks: supplied,
     }),
@@ -78,7 +78,7 @@ export function test_render_scene_list_inspection_kinds(): void {
   // 2. Sliver and trail.
   TestValidator.equals(
     "a sliver limit adds the sliver kind",
-    listAutoMovieInspectionKinds({
+    AutoMovieRenderInspectionRequest.listKinds({
       request: InspectionScene.ask({ sliver: 20 }),
       marks: [],
     }),
@@ -89,7 +89,7 @@ export function test_render_scene_list_inspection_kinds(): void {
   );
   TestValidator.equals(
     "a trail adds the trail kinds",
-    listAutoMovieInspectionKinds({
+    AutoMovieRenderInspectionRequest.listKinds({
       request: InspectionScene.ask({ trail: ["hero"] }),
       marks: [],
     }),
@@ -107,7 +107,7 @@ export function test_render_scene_list_inspection_kinds(): void {
   // 3. A clash with an inspection kind.
   TestValidator.equals(
     "a supplied edge kind is listed once, as supplied",
-    listAutoMovieInspectionKinds({
+    AutoMovieRenderInspectionRequest.listKinds({
       request: InspectionScene.ask({}),
       marks: [
         InspectionScene.mark("a/e", "edge", 0x123456, {

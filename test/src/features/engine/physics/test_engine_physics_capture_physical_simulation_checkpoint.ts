@@ -1,10 +1,4 @@
-import {
-  AutoMoviePhysicsCache,
-  AutoMovieXpbdWorld,
-  type IAutoMoviePhysicalBinding,
-  capturePhysicalSimulationCheckpoint,
-  restorePhysicalSimulationCheckpoint,
-} from "@automovie/engine";
+import { AutoMovieEnginePhysicsCache, AutoMovieEngineXpbdWorld, type IAutoMovieEnginePhysicalBinding, type IAutoMovieEnginePhysicalSimulationCheckpointCapture, AutoMovieEnginePhysicalSimulation } from "@automovie/engine";
 import type {
   IAutoMovieContactReceipt,
   IAutoMoviePhysicalControllerCheckpoint,
@@ -17,7 +11,7 @@ import { PhysicalFixtures } from "../../internal/PhysicalFixtures";
 
 /**
  * A captured checkpoint restores the run as it stood when it was captured,
- * whatever the run did after (`capturePhysicalSimulationCheckpoint`, then
+ * whatever the run did after (`AutoMovieEnginePhysicalSimulation.captureCheckpoint`, then
  * `restorePhysicalSimulationCheckpoint`).
  *
  * A hand-written run of one body at 120 Hz: one contact episode ends before
@@ -39,18 +33,18 @@ import { PhysicalFixtures } from "../../internal/PhysicalFixtures";
 export function test_engine_physics_capture_physical_simulation_checkpoint(): void {
   const input: IAutoMoviePhysicalSimulationInput.IInput =
     PhysicalFixtures.input([], 0.25);
-  const cache: AutoMoviePhysicsCache = new AutoMoviePhysicsCache(
+  const cache: AutoMovieEnginePhysicsCache = new AutoMovieEnginePhysicsCache(
     "previous",
     input.rate,
     input.duration,
   );
   for (let step: number = 0; step <= 30; step++)
     cache.frames.push({ seconds: step / input.rate, bodies: {} });
-  const world: AutoMovieXpbdWorld = new AutoMovieXpbdWorld(input.gravity);
+  const world: AutoMovieEngineXpbdWorld = new AutoMovieEngineXpbdWorld(input.gravity);
   // A balance plan told apart by its step alone.
   const plan = (
     step: number,
-  ): Parameters<IAutoMoviePhysicalBinding["planned"]["set"]>[1] => ({
+  ): Parameters<IAutoMovieEnginePhysicalBinding["planned"]["set"]>[1] => ({
     step,
     revision: 0,
     start: 0,
@@ -60,14 +54,12 @@ export function test_engine_physics_capture_physical_simulation_checkpoint(): vo
     residuals: {},
     fromRootDrop: 0,
   });
-  const planned: IAutoMoviePhysicalBinding["planned"] = new Map([
+  const planned: IAutoMovieEnginePhysicalBinding["planned"] = new Map([
     ["ball", plan(10)],
   ]);
   const released: Set<string> = new Set();
   // The binding's parts a checkpoint keeps; the run's other parts are not read.
-  const bound: Parameters<
-    typeof capturePhysicalSimulationCheckpoint
-  >[0]["bound"] = {
+  const bound: IAutoMovieEnginePhysicalSimulationCheckpointCapture["bound"] = {
     released,
     contactReleased: new Set<string>(),
     planned,
@@ -78,7 +70,7 @@ export function test_engine_physics_capture_physical_simulation_checkpoint(): vo
   const active: Map<string, IAutoMovieContactReceipt> = new Map();
   const softened: Map<string, number> = new Map();
   const capture = (step: number): void =>
-    capturePhysicalSimulationCheckpoint({
+    AutoMovieEnginePhysicalSimulation.captureCheckpoint({
       cache,
       world,
       bound,
@@ -145,17 +137,17 @@ export function test_engine_physics_capture_physical_simulation_checkpoint(): vo
     tracking: [],
     trackingAt: (): IAutoMoviePhysicalSimulationInput.IDiagnostic[] => [],
   };
-  const restore = (start: number): AutoMoviePhysicsCache => {
-    const restored: AutoMoviePhysicsCache = new AutoMoviePhysicsCache(
+  const restore = (start: number): AutoMovieEnginePhysicsCache => {
+    const restored: AutoMovieEnginePhysicsCache = new AutoMovieEnginePhysicsCache(
       "previous",
       input.rate,
       input.duration,
     );
-    restorePhysicalSimulationCheckpoint(input, run, restored, start, []);
+    AutoMovieEnginePhysicalSimulation.restoreCheckpoint(input, run, restored, start, []);
     return restored;
   };
-  const atTen: AutoMoviePhysicsCache = restore(10);
-  const atTwenty: AutoMoviePhysicsCache = restore(20);
+  const atTen: AutoMovieEnginePhysicsCache = restore(10);
+  const atTwenty: AutoMovieEnginePhysicsCache = restore(20);
   const record: IAutoMoviePhysicalControllerCheckpoint =
     atTwenty.controllerCheckpoints.get(20)!;
   TestValidator.equals(

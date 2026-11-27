@@ -1,8 +1,8 @@
 /**
  * The host dimension a build-up is measured against.
  *
- * When passed as `host` to `validateAutoMovieMaterialAssembly` or
- * `resolveAutoMovieMaterialAssembly`, the summed layer thickness must equal
+ * When passed as `host` to `validateMaterialAssembly` or
+ * `resolveMaterialAssembly`, the summed layer thickness must equal
  * `thickness` within `1e-9` m; a non-finite or non-positive thickness is itself
  * reported as a violation. Omitting `host` skips the comparison.
  */

@@ -1,4 +1,4 @@
-import { AutoMovieGravity } from "@automovie/engine";
+import { AutoMovieEngineGravity } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieIntegrateMotionTrajectory,
@@ -7,7 +7,9 @@ import type {
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanWater } from "@automovie/motions/internal";
+import {
+  HumanWater
+} from "../../../../../packages/motions/src/perform/internal/HumanWater";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -19,7 +21,7 @@ const R: number = 0.1;
 /** Its volume, cubic metres. */
 const V: number = (4 / 3) * Math.PI * R ** 3;
 
-/** The sphere's drag coefficient (`resolveHydrodynamicForce.DRAG`). */
+/** The sphere's drag coefficient (`AutoMovieEngineMotionHydrodynamics.DRAG`). */
 const DRAG: number = 0.47;
 
 /** No turn. */
@@ -100,7 +102,7 @@ const WATER: IAutoMovieMotionHumanWater = { surface: 0 };
  *    t)` with `k = ½ ρ C_d π r² / m`.
  */
 export function test_motions_perform_human_water(): void {
-  const g: number = AutoMovieGravity.STANDARD;
+  const g: number = AutoMovieEngineGravity.STANDARD;
   const half: IAutoMovieMotionHumanWater.ISum = HumanWater.sum(
     sphere(2),
     posed(0),

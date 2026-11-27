@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { gzipSync } from "node:zlib";
-import { approximateAutoMovieRecoveryCompactCurves, approximateAutoMovieRecoveryConicsAhn, AutoMovieRecoveryConicApproximation } from "@automovie/recovery";
+import { AutoMovieRecoveryConicApproximation, AutoMovieRecoveryCompactApproximation } from "@automovie/recovery";
 import { ConicPaperInput as I } from "./ConicPaperInput";
 import { ConicPaperRender as R } from "./ConicPaperRender";
 import { CompactCurveSource as S } from "./CompactCurveSource";
@@ -18,12 +18,12 @@ export async function CompactCurveExperiment(): Promise<void> {
   const allClosed: boolean = process.argv.includes("--all-closed");
   const wallBudgetMs: number = allClosed ? 120000 : 30000;
   await fs.mkdir(out, { recursive: true });
-  const files: string[] = ["packages/recovery/src/curves/AutoMovieRecoveryCompactApproximation.ts", "packages/recovery/src/curves/approximateAutoMovieRecoveryCompactCurves.ts", "packages/recovery/src/curves/AutoMovieRecoveryConicApproximation.ts", "packages/recovery/src/curves/approximateAutoMovieRecoveryConicsAhn.ts", "packages/engine/src/math/decomposeAutoMovieSingularMatrix.ts", "packages/engine/src/geometry/curve/tessellateAutoMovieContourStrip64.ts", "test/src/reference-conics/CompactCurveSource.ts", "test/src/reference-conics/CompactCurveFit.ts", "test/src/reference-conics/CompactCurveLoft.ts", "test/src/reference-conics/CompactCurveExperiment.ts", "test/src/reference-conics/ConicPaperInput.ts", "test/src/reference-conics/ConicPaperRender.ts", "packages/human/src/inspection/NodeCanvasCamera.ts", "packages/human/src/executable/NodeCanvasRaster.ts"];
+  const files: string[] = ["packages/recovery/src/curves/AutoMovieRecoveryCompactApproximation.ts", "packages/recovery/src/curves/internal/approximateRecoveryCompactCurves.ts", "packages/recovery/src/curves/AutoMovieRecoveryConicApproximation.ts", "packages/recovery/src/curves/internal/approximateRecoveryConicsAhn.ts", "packages/engine/src/math/internal/decomposeSingularMatrix.ts", "packages/engine/src/geometry/curve/internal/tessellateContourStrip64.ts", "test/src/reference-conics/CompactCurveSource.ts", "test/src/reference-conics/CompactCurveFit.ts", "test/src/reference-conics/CompactCurveLoft.ts", "test/src/reference-conics/CompactCurveExperiment.ts", "test/src/reference-conics/ConicPaperInput.ts", "test/src/reference-conics/ConicPaperRender.ts", "test/src/reference-conics/render/NodeCanvasCamera.ts", "test/src/reference-conics/render/NodeCanvasRaster.ts"];
   const hashes = async (): Promise<{ file: string; sha256: string }[]> => Promise.all(files.map(async (file: string): Promise<{ file: string; sha256: string }> => ({ file, sha256: createHash("sha256").update(await fs.readFile(path.join(root, file))).digest("hex") })));
   const sourceIdentity: { file: string; sha256: string }[] = await hashes();
   const loadedBodies = (): { name: string; sha256: string }[] => [
-    { name: "approximateAutoMovieRecoveryCompactCurves", body: approximateAutoMovieRecoveryCompactCurves.toString() },
-    { name: "approximateAutoMovieRecoveryConicsAhn", body: approximateAutoMovieRecoveryConicsAhn.toString() },
+    { name: "approximateAutoMovieRecoveryCompactCurves", body: AutoMovieRecoveryCompactApproximation.approximate.toString() },
+    { name: "approximateAutoMovieRecoveryConicsAhn", body: AutoMovieRecoveryConicApproximation.approximateAhn.toString() },
     { name: "ConicPaperInput.load", body: I.load.toString() },
     ...Object.entries(AutoMovieRecoveryConicApproximation).filter(([, value]): boolean => typeof value === "function").map(([name, value]): { name: string; body: string } => ({ name: "AutoMovieRecoveryConicApproximation." + name, body: value.toString() })),
   ].map((item: { name: string; body: string }): { name: string; sha256: string } => ({ name: item.name, sha256: createHash("sha256").update(item.body).digest("hex") }));
@@ -47,7 +47,7 @@ export async function CompactCurveExperiment(): Promise<void> {
       if (selected.has(loop.key)) {
         const begin: number = performance.now();
         for (let i: number = 0; i < 64; ++i) {
-          const t: number = source.curve.domain[1] * (i + 0.317) / 64;
+          const t: number = source.curve.domain.end * (i + 0.317) / 64;
           source.curve.evaluate(t); source.curve.derivative(t, 1); source.curve.derivative(t, 2); source.curve.derivative(t, 3);
         }
         evaluationMs += performance.now() - begin; evaluationQueries += source.queries();

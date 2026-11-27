@@ -1,7 +1,7 @@
 import type { IAutoMovieVector3 } from "./IAutoMovieVector3";
 
 /**
- * Input and result of `measureAutoMovieFeatureEdges`, which finds where a
+ * Input and result of `measureFeatureEdges`, which finds where a
  * triangle mesh's surface bends sharply, so wear can be placed along edges and
  * grime in creases independently of how finely flat faces are tessellated.
  */

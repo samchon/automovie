@@ -1,4 +1,4 @@
-import { ViolationCollector, validateUniqueValues } from "@automovie/engine";
+import { AutoMovieEngineViolationCollector, AutoMovieEngineValidation } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -11,8 +11,8 @@ import { TestValidator } from "@nestia/e2e";
  * 2. Values p, q, p, p push findings at the third and fourth paths.
  */
 export function test_engine_validation_unique_values(): void {
-  const clean: ViolationCollector = new ViolationCollector();
-  validateUniqueValues(
+  const clean: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();
+  AutoMovieEngineValidation.validateUniqueValues(
     [
       ["p", "$.0"],
       ["q", "$.1"],
@@ -22,8 +22,8 @@ export function test_engine_validation_unique_values(): void {
   );
   TestValidator.equals("distinct", clean.items.length, 0);
 
-  const found: ViolationCollector = new ViolationCollector();
-  validateUniqueValues(
+  const found: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();
+  AutoMovieEngineValidation.validateUniqueValues(
     [
       ["p", "$.0"],
       ["q", "$.1"],

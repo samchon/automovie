@@ -12,7 +12,7 @@ export namespace IAutoMovieMaterializeCompiledFormation {
    *
    * The record stores what regenerates the members rather than the members: the
    * layout, anchor, heading and seed, one bounds and centroid per chunk of
-   * {@link AUTOMOVIE_FORMATION_CHUNK_SIZE} slots with that chunk's anonymous
+   * {@link AutoMovieEngineFormationChunkSize} slots with that chunk's anonymous
    * count once heroes are excluded, each hero's promoted base transform, the
    * anonymous representation tiers the design declares, a measured or fallback
    * member radius, a domain-separated motion phase seed, and a digest of every

@@ -1,13 +1,13 @@
-import { playWindInstrument as playWindInstrumentLaw } from "../daily/playWindInstrument";
-import { guitarChord as guitarChordLaw } from "../handling/guitarChord";
-import { guitarNote as guitarNoteLaw } from "../handling/guitarNote";
-import { pianoPedal as pianoPedalLaw } from "../handling/pianoPedal";
-import { pianoPerformance as pianoPerformanceLaw } from "../handling/pianoPerformance";
-import { pianoScore as pianoScoreLaw } from "../handling/pianoScore";
-import { bowViolin as bowViolinLaw } from "../music/bowViolin";
-import { conduct as conductLaw } from "../music/conduct";
-import { cymbalStrike as cymbalStrikeLaw } from "../tasks/cymbalStrike";
-import { sideDrumStrike as sideDrumStrikeLaw } from "../tasks/sideDrumStrike";
+import { playWindInstrument as playWindInstrumentLaw } from "../daily/internal/playWindInstrument";
+import { guitarChord as guitarChordLaw } from "../handling/internal/guitarChord";
+import { guitarNote as guitarNoteLaw } from "../handling/internal/guitarNote";
+import { pianoPedal as pianoPedalLaw } from "../handling/internal/pianoPedal";
+import { pianoPerformance as pianoPerformanceLaw } from "../handling/internal/pianoPerformance";
+import { pianoScore as pianoScoreLaw } from "../handling/internal/pianoScore";
+import { bowViolin as bowViolinLaw } from "../music/internal/bowViolin";
+import { conduct as conductLaw } from "../music/internal/conduct";
+import { cymbalStrike as cymbalStrikeLaw } from "../tasks/internal/cymbalStrike";
+import { sideDrumStrike as sideDrumStrikeLaw } from "../tasks/internal/sideDrumStrike";
 
 /**
  * Playing and conducting music: wind, bowed string, plucked string, keyboard
@@ -75,7 +75,7 @@ export namespace AutoMovieMotionHumanInstrument {
 
   /**
    * One staged open-string violin stroke with a held bow. Register this law
-   * with HumanChain.extend and HumanPerformance.laws. The bow moves to a raised
+   * with AutoMovieMotionHumanChain.extend and AutoMovieMotionHumanPerformance.laws. The bow moves to a raised
    * ready pose, lowers to contact, slides frog-to-tip or tip-to-frog during the
    * stroke and leaves the string after lift, still in the hand.
    *
@@ -169,7 +169,7 @@ export namespace AutoMovieMotionHumanInstrument {
    * row uses the held working-point arc of `useTool`. The up position after the
    * hit follows the rebound stroke taught in Vic Firth Drumset Lessons 1–2
    * (https://ae.vicfirth.com/wp-content/uploads/FA-Drumset-Lessons-1-2.pdf).
-   * Register the row with `HumanPerformance` and align `contact1` to a cue
+   * Register the row with `AutoMovieMotionHumanPerformance` and align `contact1` to a cue
    * using the chain's `sync`. The stroke uses the existing provisional tool
    * cycle and keeps the stick held.
    */
@@ -181,7 +181,7 @@ export namespace AutoMovieMotionHumanInstrument {
    * document struck cymbals and damping as distinct playing conditions
    * (https://zenodo.org/records/21360429). This scenic action uses the existing
    * single-cycle held-tool arc and its provisional timing. Register it with
-   * `HumanPerformance` and align `contact1` with the chain's `sync`. Stage the
+   * `AutoMovieMotionHumanPerformance` and align `contact1` with the chain's `sync`. Stage the
    * named edge within reach in front of the performer.
    */
   export const cymbalStrike: typeof cymbalStrikeLaw = cymbalStrikeLaw;

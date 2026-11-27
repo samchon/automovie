@@ -1,6 +1,6 @@
 import type { AuthoredLayer } from "../AuthoredLayer";
 
-/**
+/*
  * Every authored layer, canon first and then in pipeline order.
  *
  * Principled implementation: The array enumerates both canon layers, settings

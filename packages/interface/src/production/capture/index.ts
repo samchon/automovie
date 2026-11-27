@@ -1,9 +1,0 @@
-export type { AutoMovieRepaintReferenceRole } from "./AutoMovieRepaintReferenceRole";
-export type { AutoMovieRepaintRetryableFailureClass } from "./AutoMovieRepaintRetryableFailureClass";
-export type { IAutoMovieRepaintExecutionPolicy } from "./IAutoMovieRepaintExecutionPolicy";
-export type { IAutoMovieRepaintGeneratorAdoption } from "./IAutoMovieRepaintGeneratorAdoption";
-export type { IAutoMovieRepaintGeneratorProvenance } from "./IAutoMovieRepaintGeneratorProvenance";
-export type { IAutoMovieRepaintParameters } from "./IAutoMovieRepaintParameters";
-export type { IAutoMovieRepaintReferenceInput } from "./IAutoMovieRepaintReferenceInput";
-export type { IAutoMovieRepaintRequestEvidence } from "./IAutoMovieRepaintRequestEvidence";
-export type { IAutoMovieRepaintRuntimeIdentity } from "./IAutoMovieRepaintRuntimeIdentity";

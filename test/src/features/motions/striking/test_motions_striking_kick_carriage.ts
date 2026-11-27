@@ -1,4 +1,6 @@
-import { KickCarriage } from "@automovie/motions/internal";
+import {
+  KickCarriage
+} from "../../../../../packages/motions/src/striking/internal/KickCarriage";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

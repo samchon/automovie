@@ -1,5 +1,25 @@
 import type { AutoMovieHumanoidBone, IAutoMovieBodyMeasure, IAutoMovieMotionClock, IAutoMovieVector3 } from "@automovie/interface";
-import { AutoMovieMotionHumanTargetGrid, AutoMovieMotionManner, MartialArtStanceForms, martialArtGuardSite, martialArtStanceClock, martialArtStanceTurn, prepareChokuZukiPath } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanTargetGrid
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanTargetGrid";
+import {
+  motionManner
+} from "../../../../../packages/motions/src/compose/internal/motionManner";
+import {
+  MartialArtStanceForms
+} from "../../../../../packages/motions/src/sport/internal/MartialArtStanceForms";
+import {
+  martialArtGuardSite
+} from "../../../../../packages/motions/src/sport/internal/martialArtGuardSite";
+import {
+  martialArtStanceClock
+} from "../../../../../packages/motions/src/sport/internal/martialArtStanceClock";
+import {
+  martialArtStanceTurn
+} from "../../../../../packages/motions/src/sport/internal/martialArtStanceTurn";
+import {
+  prepareChokuZukiPath
+} from "../../../../../packages/motions/src/sport/internal/prepareChokuZukiPath";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixture } from "../../internal/fixtures/humanFixture";
@@ -35,7 +55,7 @@ export async function test_motions_sport_martial_art(): Promise<void> {
   const clock: IAutoMovieMotionClock = martialArtStanceClock(
     MartialArtStanceForms.FORM.taekwondoStanceReset,
     0.24,
-    AutoMovieMotionManner.NEUTRAL,
+    motionManner.NEUTRAL,
   );
   TestValidator.predicate(
     "the taekwondo marks",

@@ -1,4 +1,4 @@
-import { Matrix4, recompose } from "@automovie/engine";
+import { AutoMovieEngineMatrix4, AutoMovieEngineResolve } from "@automovie/engine";
 import type { IAutoMovieTransform } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -28,8 +28,8 @@ const move: (x: number, y: number, z: number) => IAutoMovieTransform = (
  * 2. A grandchild at (0, 1, 0) of that child lands at (1, 3, 3).
  */
 export function test_engine_resolve_recompose(): void {
-  const world: Map<string, number[]> = new Map([["root", Matrix4.identity()]]);
-  recompose(
+  const world: Map<string, number[]> = new Map([["root", AutoMovieEngineMatrix4.identity()]]);
+  AutoMovieEngineResolve.recompose(
     "root",
     world,
     new Map([

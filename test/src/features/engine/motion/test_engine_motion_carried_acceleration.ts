@@ -1,4 +1,4 @@
-import { carriedAcceleration } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -36,7 +36,7 @@ export function test_engine_motion_carried_acceleration(): void {
     TestValidator.predicate(
       `interior at ${u}`,
       nclose(
-        carriedAcceleration(D, u * D),
+        AutoMovieEngineMotionSampling.carriedAcceleration(D, u * D),
         (D * D * u * u * (1 - u) ** 3) / 2,
         ROUNDING,
       ),
@@ -46,21 +46,21 @@ export function test_engine_motion_carried_acceleration(): void {
   for (const elapsed of [-D, 0, D, 2 * D])
     TestValidator.predicate(
       `zero at ${elapsed} s`,
-      nclose(carriedAcceleration(D, elapsed), 0, ROUNDING),
+      nclose(AutoMovieEngineMotionSampling.carriedAcceleration(D, elapsed), 0, ROUNDING),
     );
 
   // 3. The peak.
-  const peak: number = carriedAcceleration(D, (2 * D) / 5);
+  const peak: number = AutoMovieEngineMotionSampling.carriedAcceleration(D, (2 * D) / 5);
   TestValidator.predicate(
     "the peak at two fifths",
-    nclose(carriedAcceleration.PEAK, 54 / 3125, 1e-15) &&
+    nclose(AutoMovieEngineMotionSampling.carriedAccelerationPeak(), 54 / 3125, 1e-15) &&
       nclose(peak, (D * D * 54) / 3125, ROUNDING) &&
-      carriedAcceleration(D, (2 * D) / 5 - D / 100) < peak &&
-      carriedAcceleration(D, (2 * D) / 5 + D / 100) < peak,
+      AutoMovieEngineMotionSampling.carriedAcceleration(D, (2 * D) / 5 - D / 100) < peak &&
+      AutoMovieEngineMotionSampling.carriedAcceleration(D, (2 * D) / 5 + D / 100) < peak,
   );
 
   // 4. The start's acceleration and slope.
-  const near: number = carriedAcceleration(D, H);
+  const near: number = AutoMovieEngineMotionSampling.carriedAcceleration(D, H);
   TestValidator.predicate(
     "unit acceleration and zero slope at the cut",
     nclose((2 * near) / (H * H), 1, (4 * H) / D) && nclose(near / H, 0, H),
@@ -70,6 +70,6 @@ export function test_engine_motion_carried_acceleration(): void {
   for (const duration of [0, -1])
     TestValidator.predicate(
       `a duration of ${duration} is refused`,
-      throwsError(() => carriedAcceleration(duration, 0.1)),
+      throwsError(() => AutoMovieEngineMotionSampling.carriedAcceleration(duration, 0.1)),
     );
 }

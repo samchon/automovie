@@ -1,4 +1,4 @@
-import { productionPhonemesToVisemes } from "@automovie/engine";
+import { AutoMovieEngineSound } from "@automovie/engine";
 import type {
   AutoMovieViseme,
   IAutoMovieProductionViseme,
@@ -71,7 +71,7 @@ export function test_engine_dialogue_viseme_mpeg4_map(): void {
   const map: (phonemes: string) => IAutoMovieProductionViseme[] = (
     phonemes: string,
   ): IAutoMovieProductionViseme[] =>
-    productionPhonemesToVisemes({
+    AutoMovieEngineSound.phonemesToVisemes({
       chunks: [{ phonemes, startSample: 0, endSample: 1200 }],
     });
   TestValidator.equals(

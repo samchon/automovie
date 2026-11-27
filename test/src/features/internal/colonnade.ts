@@ -1,7 +1,4 @@
-import {
-  mergeAutoMovieMeshParts,
-  revolveAutoMovieProfile,
-} from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieMesh,
   IAutoMovieMeshAssembly,
@@ -26,7 +23,7 @@ export const colonnade: (props: {
   height: number;
   segments: number;
 }): IAutoMovieMeshAssembly => {
-  const shaft: IAutoMovieMesh = revolveAutoMovieProfile({
+  const shaft: IAutoMovieMesh = AutoMovieEngineGeometry.revolveProfile({
     profile: [
       { x: 0, y: 0 },
       { x: props.radius, y: 0 },
@@ -36,7 +33,7 @@ export const colonnade: (props: {
     segments: props.segments,
   });
   const span: number = (props.count - 1) * props.spacing;
-  return mergeAutoMovieMeshParts(
+  return AutoMovieEngineGeometry.mergeMeshParts(
     Array.from(
       { length: props.count },
       (

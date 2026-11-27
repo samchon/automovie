@@ -1,7 +1,7 @@
-import { HumanReaction as HumanReactionSource } from "../reaction/HumanReaction";
-import { ReactionSource as ReactionSourceSource } from "../reaction/ReactionSource";
-import { flinch as flinchLaw } from "../reaction/flinch";
-import { give as giveLaw } from "../reaction/give";
+import { HumanReaction as HumanReactionSource } from "../reaction/internal/HumanReaction";
+import { ReactionSource as ReactionSourceSource } from "../reaction/internal/ReactionSource";
+import { flinch as flinchLaw } from "../reaction/internal/flinch";
+import { give as giveLaw } from "../reaction/internal/give";
 
 /**
  * The small involuntary reactions that share one size-and-time model: an
@@ -96,7 +96,7 @@ export namespace AutoMovieMotionHumanReaction {
    * them, so a startle synced to it begins that much after the shot.
    *
    * The delay is the distance over the speed of sound of the engine's one air
-   * (`AutoMovieAir.SOUND`, the ICAO Standard Atmosphere at sea level). The
+   * (`AutoMovieEngineAir.SOUND`, the ICAO Standard Atmosphere at sea level). The
    * report is a cue instant, not a hit: it delivers no impulse, and the
    * reaction's own latency is the sync's to add (`latency: "reaction"`).
    */

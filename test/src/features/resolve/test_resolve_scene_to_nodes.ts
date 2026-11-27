@@ -1,11 +1,4 @@
-import {
-  Matrix4,
-  composeScene,
-  motionToClip,
-  resolveFrame,
-  resolvePose,
-  sceneToNodes,
-} from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineMatrix4, AutoMovieEngineMotionClip, AutoMovieEngineResolve } from "@automovie/engine";
 import {
   IAutoMovieModel,
   type IAutoMovieMotion,
@@ -119,12 +112,12 @@ export function test_resolve_scene_to_nodes(): void {
     hero: actorModel,
     crate: propModel,
   };
-  const nodes: IAutoMovieNode[] = sceneToNodes({ scene, models });
+  const nodes: IAutoMovieNode[] = AutoMovieEngineResolve.sceneToNodes({ scene, models });
 
   // 1. rest structure worlds ≡ declared transforms
-  const rest: Map<string, number[]> = composeScene(nodes);
+  const rest: Map<string, number[]> = AutoMovieEngineResolve.composeScene(nodes);
   const placement: IAutoMovieTransform = scene.nodes[0]!.transform;
-  const placementMatrix: number[] = Matrix4.compose(
+  const placementMatrix: number[] = AutoMovieEngineMatrix4.compose(
     placement.translation,
     placement.rotation,
     placement.scale,
@@ -135,13 +128,13 @@ export function test_resolve_scene_to_nodes(): void {
       [
         "vcloseMatrix4Position",
         (): boolean =>
-          vclose(Matrix4.position(rest.get("actor")!), placement.translation),
+          vclose(AutoMovieEngineMatrix4.position(rest.get("actor")!), placement.translation),
       ],
       [
         "qcloseMatrix4Decompose",
         (): boolean =>
           qclose(
-            Matrix4.decompose(rest.get("actor")!).rotation,
+            AutoMovieEngineMatrix4.decompose(rest.get("actor")!).rotation,
             placement.rotation,
           ),
       ],
@@ -150,11 +143,11 @@ export function test_resolve_scene_to_nodes(): void {
   );
   TestValidator.predicate(
     "camera node world equals the camera transform",
-    vclose(Matrix4.position(rest.get("cam")!), { x: 0, y: 1.5, z: 4 }),
+    vclose(AutoMovieEngineMatrix4.position(rest.get("cam")!), { x: 0, y: 1.5, z: 4 }),
   );
   TestValidator.predicate(
     "light node world equals the light transform",
-    vclose(Matrix4.position(rest.get("sun")!), { x: 0, y: 5, z: 0 }),
+    vclose(AutoMovieEngineMatrix4.position(rest.get("sun")!), { x: 0, y: 5, z: 0 }),
   );
 
   // 2. the prop lowers no subtree
@@ -197,18 +190,18 @@ export function test_resolve_scene_to_nodes(): void {
     [keyframe(0, pose), keyframe(1, pose)],
     1,
   );
-  const bridge: IAutoMovieMotionClipBridge = motionToClip({
+  const bridge: IAutoMovieMotionClipBridge = AutoMovieEngineMotionClip.motionToClip({
     motion: held,
     skeleton,
     nodePrefix: "actor/",
   });
-  const world: Map<string, number[]> = resolveFrame({
+  const world: Map<string, number[]> = AutoMovieEngineResolve.resolveFrame({
     nodes,
     clip: bridge.clip,
     limits: [],
     seconds: 0.5,
   }).world;
-  const expected: IAutoMovieResolvedBone[] = resolvePose(pose, skeleton);
+  const expected: IAutoMovieResolvedBone[] = AutoMovieEngineKinematics.resolvePose(pose, skeleton);
   let bonesMatch: boolean = true;
   for (const bone of expected) {
     const matrix: number[] | undefined = world.get(`actor/${bone.bone}`);
@@ -216,19 +209,19 @@ export function test_resolve_scene_to_nodes(): void {
       bonesMatch = false;
       break;
     }
-    const specialized: number[] = Matrix4.multiply(
+    const specialized: number[] = AutoMovieEngineMatrix4.multiply(
       placementMatrix,
-      Matrix4.compose(bone.worldPosition, bone.worldRotation, {
+      AutoMovieEngineMatrix4.compose(bone.worldPosition, bone.worldRotation, {
         x: 1,
         y: 1,
         z: 1,
       }),
     );
     if (
-      !vclose(Matrix4.position(matrix), Matrix4.position(specialized)) ||
+      !vclose(AutoMovieEngineMatrix4.position(matrix), AutoMovieEngineMatrix4.position(specialized)) ||
       !qclose(
-        Matrix4.decompose(matrix).rotation,
-        Matrix4.decompose(specialized).rotation,
+        AutoMovieEngineMatrix4.decompose(matrix).rotation,
+        AutoMovieEngineMatrix4.decompose(specialized).rotation,
       )
     ) {
       bonesMatch = false;
@@ -241,9 +234,9 @@ export function test_resolve_scene_to_nodes(): void {
   );
 
   const rootWorld: number[] = world.get("actor/root")!;
-  const folded: number[] = Matrix4.multiply(
+  const folded: number[] = AutoMovieEngineMatrix4.multiply(
     placementMatrix,
-    Matrix4.compose(
+    AutoMovieEngineMatrix4.compose(
       pose.root!.translation,
       pose.root!.rotation,
       pose.root!.scale,
@@ -251,10 +244,10 @@ export function test_resolve_scene_to_nodes(): void {
   );
   TestValidator.predicate(
     "the synthetic root sits at placement ∘ pose.root",
-    vclose(Matrix4.position(rootWorld), Matrix4.position(folded)),
+    vclose(AutoMovieEngineMatrix4.position(rootWorld), AutoMovieEngineMatrix4.position(folded)),
   );
   TestValidator.predicate(
     "…which differs from the bare placement (the fold is real)",
-    !vclose(Matrix4.position(rootWorld), placement.translation),
+    !vclose(AutoMovieEngineMatrix4.position(rootWorld), placement.translation),
   );
 }

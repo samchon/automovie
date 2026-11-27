@@ -1,6 +1,8 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type { IAutoMovieMotionClock } from "@automovie/interface";
-import { AutoMovieMotionClock } from "@automovie/motions/internal";
+import {
+  motionClock
+} from "../../../../../packages/motions/src/compose/internal/motionClock";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -28,7 +30,7 @@ const ROUNDING: number = 1e-12;
  *    held at it.
  */
 export function test_motions_compose_clock_native(): void {
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock(4, [
+  const clock: IAutoMovieMotionClock = motionClock(4, [
     { name: "b", seconds: 3 },
     { name: "a", seconds: 1 },
   ]);
@@ -49,7 +51,7 @@ export function test_motions_compose_clock_native(): void {
   TestValidator.predicate(
     "a window's linear share and its minimum-jerk progress",
     clock.linear("a", "b", 2) === 0.5 &&
-      nclose(clock.progress("a", "b", 2), minimumJerk.share(0.5), ROUNDING) &&
+      nclose(clock.progress("a", "b", 2), AutoMovieEngineMotionSampling.minimumJerkShare(0.5), ROUNDING) &&
       clock.linear("a", "b", 0) === 0 &&
       clock.linear("a", "b", 4) === 1,
   );
@@ -59,7 +61,7 @@ export function test_motions_compose_clock_native(): void {
     "the envelope",
     nclose(
       clock.envelope(["start", "a"], ["a", "b"], 2),
-      1 - minimumJerk.share(0.5),
+      1 - AutoMovieEngineMotionSampling.minimumJerkShare(0.5),
       ROUNDING,
     ) && clock.envelope(["a", "b"], ["start", "a"], 2) === 0,
   );
@@ -67,21 +69,21 @@ export function test_motions_compose_clock_native(): void {
   // 4. Refusals.
   TestValidator.predicate(
     "invalid clocks and names are refused, a rounding past the end held",
-    throwsError((): unknown => AutoMovieMotionClock(0, [])) &&
+    throwsError((): unknown => motionClock(0, [])) &&
       throwsError((): unknown =>
-        AutoMovieMotionClock(4, [
+        motionClock(4, [
           { name: "a", seconds: 1 },
           { name: "a", seconds: 2 },
         ]),
       ) &&
       throwsError((): unknown =>
-        AutoMovieMotionClock(4, [{ name: "start", seconds: 1 }]),
+        motionClock(4, [{ name: "start", seconds: 1 }]),
       ) &&
       throwsError((): unknown =>
-        AutoMovieMotionClock(4, [{ name: "a", seconds: 5 }]),
+        motionClock(4, [{ name: "a", seconds: 5 }]),
       ) &&
       throwsError((): unknown => clock.at("c"), "no instant") &&
-      AutoMovieMotionClock(4, [{ name: "a", seconds: 4 + 1e-12 }]).at("a") ===
+      motionClock(4, [{ name: "a", seconds: 4 + 1e-12 }]).at("a") ===
         4,
   );
 }

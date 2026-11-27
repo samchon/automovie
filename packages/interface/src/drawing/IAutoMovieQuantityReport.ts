@@ -6,7 +6,7 @@ import type { IAutoMovieQuantityFinding } from "./IAutoMovieQuantityFinding";
  *
  * Quantities are recomputed from authored footprints, volumes, voids, routes
  * and counts on each call; edits outside those measurements need not change a
- * quantity. measureAutoMovieQuantities throws for an invalid environment or a
+ * quantity. measureQuantities throws for an invalid environment or a
  * contributor bound that is not a positive safe integer.
  *
  * Known omitted measurements are stated as gaps. Material take-off and pattern

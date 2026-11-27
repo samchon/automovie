@@ -6,7 +6,7 @@ import type { AutoMovieVector2Tuple } from "../geometry/AutoMovieVector2Tuple";
  * Positions use millimetres and station uses physical millimetres. Phase keeps
  * the caller's original or exactly re-expressed clock: radians for section
  * readers, a normalized piece coordinate for ConstructionProfileSurface.
- * AutoMovieLoftWorldJet borrows all six pairs without mutation and rejects
+ * loftWorldJet borrows all six pairs without mutation and rejects
  * nonfinite computed world output; it does not reconstruct missing
  * derivatives.
  */

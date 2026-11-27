@@ -9,7 +9,7 @@ import { createUnitFiles } from "../utilities/createUnitFiles";
 import { hasStoryContract } from "../utilities/hasStoryContract";
 import { validateSettingsOutline } from "../validateSettingsOutline";
 
-/**
+/*
  * Selects the outline's own respondents and the canon-to-entry bijection.
  *
  * The two installed outline contracts opt a package into this topology. A
@@ -25,9 +25,8 @@ import { validateSettingsOutline } from "../validateSettingsOutline";
  * file cites exactly one outline entry, so a missing, duplicated or invented
  * file fails the build. The general canon claims never read `index.md`, and the
  * outline never answers a canon principle.
- *
- * @param completeSubmission Explicitly requests layout validation even while
- *   both stages are `disabled`.
+ * Parameter completeSubmission: Explicitly requests layout validation even while
+ * both stages are `disabled`.
  */
 export function createOutlineClaims(
   props: IProductionConfigProps,

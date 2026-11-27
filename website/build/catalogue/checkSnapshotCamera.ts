@@ -1,17 +1,15 @@
 import {
-  Quaternion,
-  Vector3,
-  physicalShapePairDistance,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
+  AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanSegment,
   IAutoMoviePhysicalShape,
 } from "@automovie/interface";
-import {
-  AutoMovieMotionHumanAuditTangle,
-  HumanColliders,
-  poseBones,
-} from "@automovie/motions/internal";
+import { AutoMovieMotionHumanAuditTangle } from "../../../packages/motions/src/audit/internal/AutoMovieMotionHumanAuditTangle";
+import { HumanColliders } from "../../../packages/motions/src/posture/internal/HumanColliders";
+import { poseBones } from "../../../packages/motions/src/posture/internal/poseBones";
 import assert from "node:assert/strict";
 
 import { PlaygroundPerformance } from "../../src/playground/package/PlaygroundPerformance";
@@ -80,14 +78,14 @@ function checkGripAt(
   )!.frame.translation;
   const skin = AutoMovieMotionHumanAuditTangle.BUILT;
   assert(
-    Vector3.distance(
-      Vector3.add(
+    AutoMovieEngineVector3.distance(
+      AutoMovieEngineVector3.add(
         prop.position,
-        Quaternion.rotateVector(prop.rotation, screen),
+        AutoMovieEngineQuaternion.rotateVector(prop.rotation, screen),
       ),
-      Vector3.add(
+      AutoMovieEngineVector3.add(
         head.worldPosition,
-        Quaternion.rotateVector(head.worldRotation, nose.point),
+        AutoMovieEngineQuaternion.rotateVector(head.worldRotation, nose.point),
       ),
     ) <= skin,
     "the viewfinder reaches the nose bridge",
@@ -123,7 +121,7 @@ function checkGripAt(
         .filter((part) => part.bone.startsWith(side))
         .flatMap((part) =>
           part.shapes.map((shape) =>
-            physicalShapePairDistance(part.pose, shape, prop, target),
+            AutoMovieEnginePhysics.physicalShapePairDistance(part.pose, shape, prop, target),
           ),
         ),
     );

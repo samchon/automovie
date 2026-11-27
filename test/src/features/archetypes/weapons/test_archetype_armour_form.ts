@@ -1,9 +1,5 @@
-import {
-  AutoMovieArchetypeDensity,
-  AutoMovieArchetypeRefusal,
-  createArmour,
-} from "@automovie/archetypes";
-import { physicalHullMass, physicalShapeNearest } from "@automovie/engine";
+import { AutoMovieArchetypeDensity, AutoMovieArchetypeRefusal, AutoMovieArchetypeArmour } from "@automovie/archetypes";
+import { AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalShape,
   IAutoMovieRigidTransform,
@@ -49,13 +45,13 @@ export function test_archetype_armour_form(): void {
     position: origin,
     rotation: { x: 0, y: 0, z: 0, w: 1 },
   };
-  for (const kind of createArmour.KINDS)
+  for (const kind of AutoMovieArchetypeArmour.KINDS)
     for (const [model, [heightCm, widthCm, depthCm, grams]] of Object.entries(
       ARMOUR_RECORDS[kind]!,
     )) {
-      const piece: ReturnType<typeof createArmour> = createArmour({
+      const piece: ReturnType<typeof AutoMovieArchetypeArmour.create> = AutoMovieArchetypeArmour.create({
         kind,
-        model: model as createArmour.Model,
+        model: model as AutoMovieArchetypeArmour.Model,
       });
       const shapes: IAutoMoviePhysicalShape[] = piece.shapes();
       const height: number = heightCm / 100;
@@ -84,7 +80,7 @@ export function test_archetype_armour_form(): void {
           findings.push(model + " has a primitive body proxy");
           continue;
         }
-        const cellVolume: number = physicalHullMass(shape.points).volume;
+        const cellVolume: number = AutoMovieEnginePhysics.hullMass(shape.points).volume;
         if (!(cellVolume > 0))
           findings.push(model + " has a nonpositive wall cell");
         volume += cellVolume;
@@ -170,12 +166,12 @@ export function test_archetype_armour_form(): void {
         return Math.min(
           ...shapes.map(
             (shape: IAutoMoviePhysicalShape): number =>
-              physicalShapeNearest(pose, shape, a, b).distance,
+              AutoMovieEnginePhysics.physicalShapeNearest(pose, shape, a, b).distance,
           ),
         );
       }
     }
-  const first: ReturnType<typeof createArmour> = createArmour({
+  const first: ReturnType<typeof AutoMovieArchetypeArmour.create> = AutoMovieArchetypeArmour.create({
     kind: "openHelmet",
   });
   const geometry: (typeof first.parts)[number]["geometry"] =
@@ -185,7 +181,7 @@ export function test_archetype_armour_form(): void {
   else {
     const original: number = geometry.mesh.positions[0]!;
     geometry.mesh.positions[0] = original + 1;
-    const second: ReturnType<typeof createArmour> = createArmour({
+    const second: ReturnType<typeof AutoMovieArchetypeArmour.create> = AutoMovieArchetypeArmour.create({
       kind: "openHelmet",
     });
     const next: (typeof second.parts)[number]["geometry"] =
@@ -194,7 +190,7 @@ export function test_archetype_armour_form(): void {
       findings.push("independent producer calls share mutable geometry");
   }
   try {
-    createArmour({
+    AutoMovieArchetypeArmour.create({
       kind: "mail",
       measure: { chestBreadth: 3, chestDepth: 0.2 },
     });

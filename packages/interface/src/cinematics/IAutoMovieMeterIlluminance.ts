@@ -5,7 +5,7 @@ import type { IAutoMovieLight } from "../scene/IAutoMovieLight";
 import type { IAutoMovieSceneEnvironment } from "../scene/IAutoMovieSceneEnvironment";
 
 /**
- * Data contracts of `meterAutoMovieIlluminance`, an incident-light meter held
+ * Data contracts of `meterIlluminance`, an incident-light meter held
  * at one point of a scene.
  */
 export namespace IAutoMovieMeterIlluminance {

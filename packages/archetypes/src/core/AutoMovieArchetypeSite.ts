@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieTransform,
@@ -97,9 +97,9 @@ export namespace AutoMovieArchetypeSite {
     // A rim site: turn the frame to the rim point, then lay a bar frame there, +X the tangent in the turning sense (the turned -Z) and +Y the turned +X out from the centre.
     const turned: IAutoMovieTransform = {
       translation: frame.translation,
-      rotation: Quaternion.multiply(
+      rotation: AutoMovieEngineQuaternion.multiply(
         frame.rotation,
-        Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 360 * u),
+        AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 360 * u),
       ),
       scale: frame.scale,
     };
@@ -110,7 +110,7 @@ export namespace AutoMovieArchetypeSite {
         z: 0,
       }),
       AutoMovieArchetypeFrame.axis(turned, "x"),
-      Vector3.scale(AutoMovieArchetypeFrame.axis(turned, "z"), -1),
+      AutoMovieEngineVector3.scale(AutoMovieArchetypeFrame.axis(turned, "z"), -1),
     );
   }
 }

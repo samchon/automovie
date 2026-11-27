@@ -1,4 +1,4 @@
-import { wrapDegrees } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -20,5 +20,5 @@ export function test_engine_math_wrap_degrees(): void {
     [540, -180],
   ];
   for (const [input, expected] of cases)
-    TestValidator.equals(`wrap ${input}`, wrapDegrees(input), expected);
+    TestValidator.equals(`wrap ${input}`, AutoMovieEngineMath.wrapDegrees(input), expected);
 }

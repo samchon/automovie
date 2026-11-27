@@ -1,4 +1,4 @@
-import { createTable } from "@automovie/archetypes";
+import { AutoMovieArchetypeTable } from "@automovie/archetypes";
 import type { IAutoMoviePhysicalShape } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 import { strict as assert } from "node:assert";
@@ -13,7 +13,7 @@ import { nclose } from "../../internal/nclose";
  * 2. Its 0.305 m overhang is on +Z and the back of the base is flush.
  */
 export function test_archetypes_furniture_bar_knee_space(): void {
-  const item: ReturnType<typeof createTable> = createTable({ kind: "bar" });
+  const item: ReturnType<typeof AutoMovieArchetypeTable.create> = AutoMovieArchetypeTable.create({ kind: "bar" });
   const shapes: IAutoMoviePhysicalShape[] = item.shapes();
   const top: IAutoMoviePhysicalShape | undefined = shapes.find(
     (part): boolean => part.id === "top",

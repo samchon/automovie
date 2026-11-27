@@ -1,8 +1,4 @@
-import {
-  AutoMovieLoftChain,
-  AutoMovieLoftStations,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
+import { AutoMovieEngineLoftChain, AutoMovieEngineLoftStations, AutoMovieEngineConstruction } from "@automovie/engine";
 import type { IAutoMovieLoftChain } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -11,7 +7,7 @@ import { ConstructionShapes } from "../../internal/construction/ConstructionShap
 type V3 = [number, number, number];
 
 /**
- * `AutoMovieLoftStations.bisect` keeps every flat band within its tolerance:
+ * `AutoMovieEngineLoftStations.bisect` keeps every flat band within its tolerance:
  * every principal layer is a station, and between two consecutive stations the
  * section at their midpoint departs from the average of their end rings by at
  * most the tolerance.
@@ -28,7 +24,7 @@ type V3 = [number, number, number];
  *    interval past 0.01 mm.
  */
 export function test_engine_geometry_loft_stations(): void {
-  const chain: IAutoMovieLoftChain = realizeAutoMovieConstruction(
+  const chain: IAutoMovieLoftChain = AutoMovieEngineConstruction.realize(
     {
       name: "made",
       root: ConstructionShapes.ellipsoid(
@@ -51,10 +47,10 @@ export function test_engine_geometry_loft_stations(): void {
   const departures = (stations: readonly number[]): number[] =>
     stations.slice(1).map((b: number, i: number): number => {
       const a: number = stations[i]!;
-      const ra: V3[] = AutoMovieLoftChain.ring(chain, a, probes);
-      const rb: V3[] = AutoMovieLoftChain.ring(chain, b, probes);
+      const ra: V3[] = AutoMovieEngineLoftChain.ring(chain, a, probes);
+      const rb: V3[] = AutoMovieEngineLoftChain.ring(chain, b, probes);
       return Math.max(
-        ...AutoMovieLoftChain.ring(chain, (a + b) / 2, probes).map(
+        ...AutoMovieEngineLoftChain.ring(chain, (a + b) / 2, probes).map(
           (p: V3, k: number): number =>
             Math.hypot(
               p[0] - (ra[k]![0] + rb[k]![0]) / 2,
@@ -67,7 +63,7 @@ export function test_engine_geometry_loft_stations(): void {
 
   // 1.
   for (const tolerance of [0.1, 0.01]) {
-    const stations: number[] = AutoMovieLoftStations.bisect(
+    const stations: number[] = AutoMovieEngineLoftStations.bisect(
       chain,
       first,
       last,
@@ -87,7 +83,7 @@ export function test_engine_geometry_loft_stations(): void {
   }
 
   // 2.
-  const fine: number[] = AutoMovieLoftStations.bisect(chain, first, last, 0.01);
+  const fine: number[] = AutoMovieEngineLoftStations.bisect(chain, first, last, 0.01);
   TestValidator.predicate(
     "thinned stations leave a band",
     departures(

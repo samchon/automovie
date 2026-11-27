@@ -1,18 +1,15 @@
+import { AutoMovieEngineSound } from "@automovie/engine";
 import type {
   IAutoMovieDeliveryContentAudit,
   IAutoMovieInspectionDiagnostics,
 } from "@automovie/interface";
 import {
-  AUTOMOVIE_MP4_SRGB_COLOUR,
-  assertProductionAacProfile,
-  assertProductionVideoProfile,
-  auditAutoMovieDeliveryContent,
-  createAutoMovieLoudnessMeter,
-  renderAutoMovieDrawnVideo,
-  resolveProductionVideoProfile,
+  AutoMovieRenderMp4SrgbColour,
+  AutoMovieRenderDelivery,
+  AutoMovieRenderVideo,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
-import { renderAutoMovieVideo } from "automovie";
+import { AutoMovieCliRender } from "automovie";
 import { createHash } from "node:crypto";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
@@ -20,7 +17,7 @@ import * as path from "node:path";
 import { writeDeliveryMp4Header } from "./writeDeliveryMp4Header";
 
 /**
- * A `renderAutoMovieVideo` run against Render's real composer and validators,
+ * A `AutoMovieCliRender.renderVideo` run against Render's real composer and validators,
  * with a fixture draw session and FFmpeg process in place of a browser and an
  * encoder. The session draws four white 2 by 2 frames at 4 fps, the "encoder"
  * writes `encodedBytes` as the candidate, and the "decoder" logs black from the
@@ -64,7 +61,7 @@ export class CliRenderDeliveryFixture {
   public readonly reservation: string;
 
   /** The render input, its session reading the fields above. */
-  public readonly input: Parameters<typeof renderAutoMovieVideo>[0];
+  public readonly input: Parameters<typeof AutoMovieCliRender.renderVideo>[0];
 
   /** The temporary project root the caller owns. */
   public readonly root: string;
@@ -78,13 +75,10 @@ export class CliRenderDeliveryFixture {
     this.input = {
       host: {
         render: {
-          renderAutoMovieDrawnVideo,
-          auditAutoMovieDeliveryContent,
-          createAutoMovieLoudnessMeter,
-          AUTOMOVIE_MP4_SRGB_COLOUR,
-          assertProductionAacProfile,
-          assertProductionVideoProfile,
-          resolveProductionVideoProfile,
+          AutoMovieRenderVideo,
+          createAutoMovieLoudnessMeter: AutoMovieEngineSound.createLoudnessMeter,
+          AutoMovieRenderMp4SrgbColour,
+          AutoMovieRenderDelivery,
         },
         session: async () => ({
           backend: "fixture",
@@ -129,7 +123,7 @@ export class CliRenderDeliveryFixture {
   }
 
   /** The FFmpeg process the render runs: the fixture encoder and decoder. */
-  public readonly run: NonNullable<Parameters<typeof renderAutoMovieVideo>[1]> =
+  public readonly run: NonNullable<Parameters<typeof AutoMovieCliRender.renderVideo>[1]> =
     async (_binary, args, _accept, output) => {
       if (!args.includes("-xerror")) {
         if (this.refuseEncode) throw new Error("Fixture encoder refused input");
@@ -173,7 +167,7 @@ export class CliRenderDeliveryFixture {
    */
   public async rejected(): Promise<string> {
     try {
-      await renderAutoMovieVideo(this.input, this.run);
+      await AutoMovieCliRender.renderVideo(this.input, this.run);
     } catch (error) {
       if (error instanceof Error) return error.message;
       throw error;

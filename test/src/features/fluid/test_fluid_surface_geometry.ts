@@ -1,4 +1,6 @@
-import { fluidSurfaceGeometry, simulateFluidDomain } from "@automovie/engine";
+import {
+  AutoMovieEngineFluid,
+} from "@automovie/engine";
 import type {
   IAutoMovieFluidDomain,
   IAutoMovieVector3,
@@ -108,9 +110,9 @@ export function test_fluid_surface_geometry(): void {
     bed: new Array<number>(16).fill(0),
     depth: new Array<number>(16).fill(0.5),
   });
-  const still: ReturnType<typeof fluidSurfaceGeometry> = fluidSurfaceGeometry({
+  const still: ReturnType<typeof AutoMovieEngineFluid.fluidSurfaceGeometry> = AutoMovieEngineFluid.fluidSurfaceGeometry({
     domain: flat,
-    state: simulateFluidDomain(flat, 0),
+    state: AutoMovieEngineFluid.simulateFluidDomain(flat, 0),
   });
   TestValidator.predicate(
     "a still flat pool restates the authored grid and depth",
@@ -161,9 +163,9 @@ export function test_fluid_surface_geometry(): void {
     bed: tiltedBed,
     depth: new Array<number>(9).fill(0.5),
   });
-  const slope: ReturnType<typeof fluidSurfaceGeometry> = fluidSurfaceGeometry({
+  const slope: ReturnType<typeof AutoMovieEngineFluid.fluidSurfaceGeometry> = AutoMovieEngineFluid.fluidSurfaceGeometry({
     domain: tilted,
-    state: simulateFluidDomain(tilted, 0),
+    state: AutoMovieEngineFluid.simulateFluidDomain(tilted, 0),
   });
   const expected: IAutoMovieVector3 = {
     x: -0.5 / Math.sqrt(1.25),
@@ -197,10 +199,10 @@ export function test_fluid_surface_geometry(): void {
     bed: new Array<number>(16).fill(0),
     depth: new Array<number>(16).fill(0),
   });
-  const nothing: ReturnType<typeof fluidSurfaceGeometry> = fluidSurfaceGeometry(
+  const nothing: ReturnType<typeof AutoMovieEngineFluid.fluidSurfaceGeometry> = AutoMovieEngineFluid.fluidSurfaceGeometry(
     {
       domain: drained,
-      state: simulateFluidDomain(drained, 0),
+      state: AutoMovieEngineFluid.simulateFluidDomain(drained, 0),
     },
   );
   const single: ReturnType<typeof pool> = pool({
@@ -209,9 +211,9 @@ export function test_fluid_surface_geometry(): void {
     bed: [0],
     depth: [0.5],
   });
-  const alone: ReturnType<typeof fluidSurfaceGeometry> = fluidSurfaceGeometry({
+  const alone: ReturnType<typeof AutoMovieEngineFluid.fluidSurfaceGeometry> = AutoMovieEngineFluid.fluidSurfaceGeometry({
     domain: single,
-    state: simulateFluidDomain(single, 0),
+    state: AutoMovieEngineFluid.simulateFluidDomain(single, 0),
   });
   TestValidator.predicate(
     "a drained basin and a one-cell domain draw nothing",
@@ -244,9 +246,9 @@ export function test_fluid_surface_geometry(): void {
     depth,
     solid,
   });
-  const around: ReturnType<typeof fluidSurfaceGeometry> = fluidSurfaceGeometry({
+  const around: ReturnType<typeof AutoMovieEngineFluid.fluidSurfaceGeometry> = AutoMovieEngineFluid.fluidSurfaceGeometry({
     domain: pier,
-    state: simulateFluidDomain(pier, 0),
+    state: AutoMovieEngineFluid.simulateFluidDomain(pier, 0),
   });
   TestValidator.equals(
     "a pier removes exactly the quads that touch it",
@@ -275,11 +277,11 @@ export function test_fluid_surface_geometry(): void {
       0.5, 0.25, 0.25,
     ],
   });
-  const state: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(
+  const state: ReturnType<typeof AutoMovieEngineFluid.simulateFluidDomain> = AutoMovieEngineFluid.simulateFluidDomain(
     moving,
     20,
   );
-  const flowing: ReturnType<typeof fluidSurfaceGeometry> = fluidSurfaceGeometry(
+  const flowing: ReturnType<typeof AutoMovieEngineFluid.fluidSurfaceGeometry> = AutoMovieEngineFluid.fluidSurfaceGeometry(
     { domain: moving, state },
   );
   TestValidator.predicate(
@@ -317,10 +319,10 @@ export function test_fluid_surface_geometry(): void {
         "foreignState",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof fluidSurfaceGeometry> =>
-              fluidSurfaceGeometry({
+            (): ReturnType<typeof AutoMovieEngineFluid.fluidSurfaceGeometry> =>
+              AutoMovieEngineFluid.fluidSurfaceGeometry({
                 domain: moving,
-                state: simulateFluidDomain(other, 0),
+                state: AutoMovieEngineFluid.simulateFluidDomain(other, 0),
               }),
             ["reflecting-pool", "other-pool"],
           ),
@@ -329,10 +331,10 @@ export function test_fluid_surface_geometry(): void {
         "ownState",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof fluidSurfaceGeometry> =>
-              fluidSurfaceGeometry({
+            (): ReturnType<typeof AutoMovieEngineFluid.fluidSurfaceGeometry> =>
+              AutoMovieEngineFluid.fluidSurfaceGeometry({
                 domain: moving,
-                state: simulateFluidDomain(moving, 0),
+                state: AutoMovieEngineFluid.simulateFluidDomain(moving, 0),
               }),
           ) === false,
       ],

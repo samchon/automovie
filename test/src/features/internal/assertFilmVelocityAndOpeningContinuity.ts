@@ -1,20 +1,14 @@
+import { AutoMovieEngineMotionSampling, AutoMovieEngineVector3, AutoMovieEngineFilm } from "@automovie/engine";
 import {
-  Vector3,
-  compileDefinedShot,
-  defineShot,
-  makeActorSynthesizer,
-  sampleMotion,
-} from "@automovie/engine";
-import type {
-  IAutoMovieActorContext,
-  IAutoMovieBeatEndActorState,
-  IAutoMovieBeatEndState,
-  IAutoMovieSceneNode,
-  IAutoMovieShotProgram,
-  IAutoMovieSkeleton,
-  IAutoMovieStageActor,
-  IAutoMovieStageCamera,
-  IAutoMovieVector3,
+  type IAutoMovieActorContext,
+  type IAutoMovieBeatEndActorState,
+  type IAutoMovieBeatEndState,
+  type IAutoMovieSceneNode,
+  type IAutoMovieShotProgram,
+  type IAutoMovieSkeleton,
+  type IAutoMovieStageActor,
+  type IAutoMovieStageCamera,
+  type IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -97,8 +91,8 @@ export function assertFilmVelocityAndOpeningContinuity(
         // narrowing from the previous fact stops at this closure.
         (): boolean =>
           velocitySecond.success &&
-          Vector3.length(
-            sampleMotion(velocitySecond.source.motions[0]!, 1).pose.root
+          AutoMovieEngineVector3.length(
+            AutoMovieEngineMotionSampling.sampleMotion(velocitySecond.source.motions[0]!, 1).pose.root
               ?.translation ?? { x: 0, y: 0, z: 0 },
           ) >=
             0.5 - 1e-9,
@@ -228,7 +222,7 @@ export function assertFilmVelocityAndOpeningContinuity(
         [camera.node, camera.position] as const,
     ),
   ]);
-  const shot: ReturnType<typeof defineShot> = defineShot("SB-CONTINUITY", {
+  const shot: ReturnType<typeof AutoMovieEngineFilm.defineShot> = AutoMovieEngineFilm.defineShot("SB-CONTINUITY", {
     scene: "scene-duel",
     contract: {
       beat: "beat-1",
@@ -246,11 +240,11 @@ export function assertFilmVelocityAndOpeningContinuity(
     },
     build: (): IAutoMovieShotProgram => program,
   });
-  const compiled: ReturnType<typeof compileDefinedShot> = compileDefinedShot({
+  const compiled: ReturnType<typeof AutoMovieEngineFilm.compileDefinedShot> = AutoMovieEngineFilm.compileDefinedShot({
     shot,
     context: undefined,
     runtime: {
-      synthesize: makeActorSynthesizer(contexts, nodes),
+      synthesize: AutoMovieEngineFilm.makeActorSynthesizer(contexts, nodes),
       skeleton: (node: string): IAutoMovieSkeleton | null =>
         node === "knightA" || node === "knightB" ? rig : null,
       hasActorContext: (node: string): boolean => node === "knightA",

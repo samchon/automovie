@@ -1,4 +1,4 @@
-import { applyChannelLimit } from "@automovie/engine";
+import { AutoMovieEngineResolve } from "@automovie/engine";
 import type {
   IAutoMovieChannelLimit,
   IAutoMovieClampOutcome,
@@ -27,7 +27,7 @@ const LIMIT: IAutoMovieChannelLimit = {
  * 3. A bound beyond the value width, and a minimum above its maximum, are refused.
  */
 export function test_engine_resolve_apply_channel_limit(): void {
-  const clamped: IAutoMovieClampOutcome = applyChannelLimit([5, -5, 7], LIMIT);
+  const clamped: IAutoMovieClampOutcome = AutoMovieEngineResolve.applyChannelLimit([5, -5, 7], LIMIT);
   TestValidator.equals("a clamped value", clamped, {
     value: [3, -2, 7],
     violations: [
@@ -35,21 +35,21 @@ export function test_engine_resolve_apply_channel_limit(): void {
       { component: 1, bound: "min", limit: -2, actual: -5 },
     ],
   });
-  TestValidator.equals("a free value", applyChannelLimit([1, 0, 9], LIMIT), {
+  TestValidator.equals("a free value", AutoMovieEngineResolve.applyChannelLimit([1, 0, 9], LIMIT), {
     value: [1, 0, 9],
     violations: [],
   });
   TestValidator.predicate(
     "a bound beyond the width",
     throwsError(
-      () => applyChannelLimit([1], { ...LIMIT, min: [0, 5] }),
+      () => AutoMovieEngineResolve.applyChannelLimit([1], { ...LIMIT, min: [0, 5] }),
       "outside value width",
     ),
   );
   TestValidator.predicate(
     "a minimum above its maximum",
     throwsError(
-      () => applyChannelLimit([1, 1, 1], { ...LIMIT, min: [4] }),
+      () => AutoMovieEngineResolve.applyChannelLimit([1, 1, 1], { ...LIMIT, min: [4] }),
       "must be <=",
     ),
   );

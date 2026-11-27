@@ -9,8 +9,8 @@ Craft the form in code when dimensions or parameters must control it. Otherwise 
 
 | Read | For |
 | --- | --- |
-| [Construction](construction.md) | Choosing a representation; building, sizing, testing or refining from dimensions |
+| [Construction](construction.md) | Choose a form, then build, size, test or refine it |
 | [Lofting](lofting.md) | Lofting a form through related sections and guides |
-| [Mesh recovery](recovery.md) | Rebuilding a fixed mesh as curves or surfaces that parameters drive |
+| [Mesh recovery](recovery.md) | Rebuild a fixed mesh as parametric curves or surfaces |
 
 Organize a crafted form's parts and groups by [Modularization](../modularization.md), and test its construction as [construction](construction.md#tests) describes, within the project's [testing](../../development/testing.md) rules.

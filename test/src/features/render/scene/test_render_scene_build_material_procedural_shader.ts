@@ -1,14 +1,13 @@
-import {
-  autoMovieProceduralFrame,
-  autoMovieProceduralPattern,
-  sampleAutoMovieProceduralSurface,
-} from "@automovie/engine";
+import { AutoMovieEngineMaterial } from "@automovie/engine";
 import type {
   IAutoMovieColor,
   IAutoMovieMaterial,
   IAutoMovieProceduralSurface,
 } from "@automovie/interface";
-import { type IMaterialShaderSource, buildMaterial } from "@automovie/render";
+import {
+  AutoMovieRenderMaterial,
+  type IAutoMovieRenderMaterialShaderSource,
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -26,12 +25,13 @@ import { nclose } from "../../internal/nclose";
  *    on three's own physical program splices the sample point into the vertex
  *    stage and the pattern, colour, roughness and bump into the fragment stage,
  *    after the chunks they extend.
- * 2. The sample point the uniforms give, `(uvTransform · (u, v, 1)).xy × tile +
+ * 2. The sample point the uniforms give, `(uvTransform 쨌 (u, v, 1)).xy 횞 tile +
  *    pieceOffset` with the normal offset as third coordinate, yields through
- *    `autoMovieProceduralPattern` the same value as
- *    `sampleAutoMovieProceduralSurface` at 64 UV points, within 1e-12.
- * 3. The axis frame uniforms equal `autoMovieProceduralFrame`, and the colour,
- *    roughness and relief uniforms equal the surface's.
+ *    `AutoMovieEngineMaterial.proceduralPattern` the same value as
+ *    `AutoMovieEngineMaterial.sampleProceduralSurface` at 64 UV points, within
+ *    1e-12.
+ * 3. The axis frame uniforms equal `AutoMovieEngineMaterial.proceduralFrame`, and
+ *    the colour, roughness and relief uniforms equal the surface's.
  * 4. Two stone materials with different seeds share a program key, a stone and a
  *    wood material do not, and a piece material's key differs from an
  *    object-space one.
@@ -55,8 +55,10 @@ export function test_render_scene_build_material_procedural_shader(): void {
       },
     },
   };
-  const material: THREE.MeshPhysicalMaterial = buildMaterial(record(piece));
-  const shader: IMaterialShaderSource = compile(material);
+  const material: THREE.MeshPhysicalMaterial = AutoMovieRenderMaterial.build(
+    record(piece),
+  );
+  const shader: IAutoMovieRenderMaterialShaderSource = compile(material);
 
   // 1. Splices after the chunks they extend.
   TestValidator.predicate(
@@ -90,14 +92,14 @@ export function test_render_scene_build_material_procedural_shader(): void {
     const sheet: THREE.Vector3 = new THREE.Vector3(u, v, 1).applyMatrix3(
       transform,
     );
-    const value: number = autoMovieProceduralPattern(piece, [
+    const value: number = AutoMovieEngineMaterial.proceduralPattern(piece, [
       sheet.x * tile.x + shift.x,
       sheet.y * tile.y + shift.y,
       0.004 + shift.z,
     ]);
     agree &&= nclose(
       value,
-      sampleAutoMovieProceduralSurface({
+      AutoMovieEngineMaterial.sampleProceduralSurface({
         surface: piece,
         uv: { u, v },
         offset: 0.004,
@@ -111,8 +113,8 @@ export function test_render_scene_build_material_procedural_shader(): void {
   );
 
   // 3. Frame and the interpolated pairs.
-  const frame: ReturnType<typeof autoMovieProceduralFrame> =
-    autoMovieProceduralFrame(piece.axis!);
+  const frame: ReturnType<typeof AutoMovieEngineMaterial.proceduralFrame> =
+    AutoMovieEngineMaterial.proceduralFrame(piece.axis!);
   const vector: (name: string) => number[] = (name: string): number[] =>
     uniforms[name]!.value.toArray();
   const roughnessMatches: boolean = uniforms.uProceduralRoughness!.value.equals(
@@ -138,7 +140,8 @@ export function test_render_scene_build_material_procedural_shader(): void {
   // 4. Program keys.
   const key: (one: IAutoMovieProceduralSurface) => string = (
     one: IAutoMovieProceduralSurface,
-  ): string => buildMaterial(record(one)).customProgramCacheKey();
+  ): string =>
+    AutoMovieRenderMaterial.build(record(one)).customProgramCacheKey();
   TestValidator.predicate(
     "kinds and sheet sampling separate programs, seeds do not",
     key(surface("stone", 1)) === key(surface("stone", 2)) &&
@@ -151,8 +154,8 @@ export function test_render_scene_build_material_procedural_shader(): void {
 }
 
 /** Run a material's compile hook on three's physical program. */
-function compile(material: THREE.Material): IMaterialShaderSource {
-  const shader: IMaterialShaderSource = compileMaterialShaderSource(material);
+function compile(material: THREE.Material): IAutoMovieRenderMaterialShaderSource {
+  const shader: IAutoMovieRenderMaterialShaderSource = compileMaterialShaderSource(material);
   return shader;
 }
 
@@ -175,7 +178,7 @@ function surface(
     seed,
     scale: 0.02,
     colors: [color(0.2), color(0.6)],
-    roughness: [0.45, 0.85],
+    roughness: { atZero: 0.45, atOne: 0.85 },
     relief: 0.001,
   };
 }

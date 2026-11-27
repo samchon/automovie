@@ -6,15 +6,8 @@ import type {
   IAutoMovieCaptureRecord,
   IAutoMovieProductionCheck,
 } from "@automovie/interface";
-import {
-  AutoMovieCaptureFolder,
-  encodeAutoMovieRasterPng,
-  hashAutoMovieRasterImage,
-  parseAutoMovieCapturePlanRequest,
-  planAutoMovieCapture,
-  runAutoMovieCapture,
-} from "@automovie/render";
-import { runAutoMovieProductionCheck } from "automovie";
+import { AutoMovieRenderCaptureFolder, AutoMovieRenderPicture, AutoMovieRenderCapture } from "@automovie/render";
+import { AutoMovieCliProduction } from "automovie";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
@@ -29,7 +22,8 @@ import * as path from "node:path";
  * Scenarios:
  *
  * 1. A single still in a right view supplies one supporting sample. It cannot
- *    supply a different pass, mixed view audit or a two-frame interval.
+ *    supply a different pass, mixed view audit or a two-frame interval. A check
+ *    combining that valid second with the incomplete interval blocks handoff.
  * 2. A real adjacent frame and bounded diagnostic coverage complete the interval.
  *    An unmatched error still calls for comparable observations.
  * 3. A legacy capture from a nested production cannot prove the sibling model it
@@ -82,7 +76,7 @@ export async function test_cli_production_check_records(): Promise<void> {
       check: IAutoMovieProductionCheck.Check,
       run: boolean = false,
     ): Promise<IAutoMovieProductionCheck.IReport> =>
-      runAutoMovieProductionCheck({
+      AutoMovieCliProduction.runCheck({
         root: project,
         env: {},
         targets: [
@@ -106,7 +100,8 @@ export async function test_cli_production_check_records(): Promise<void> {
       height: 18,
       pixels: new Uint8ClampedArray(32 * 18 * 4).fill(140),
     };
-    const png: Uint8Array = await encodeAutoMovieRasterPng(picture);
+    const png: Uint8Array =
+      await AutoMovieRenderPicture.encodeRasterPng(picture);
     await fs.writeFile(path.join(root, "one.png"), png);
     await fs.writeFile(path.join(root, "two.png"), png);
     const still: IAutoMovieProductionCheck.ICapture = {
@@ -120,11 +115,11 @@ export async function test_cli_production_check_records(): Promise<void> {
       pass: "beauty",
       occurrence: "shot/0",
       diagnostic: { check: "support", key: "foot" },
-      at: { second: 0 },
+      at: { type: "second", second: 0 },
     };
     const interval: IAutoMovieProductionCheck.ICapture = {
       ...still,
-      at: { fromFrame: 0, endFrame: 2 },
+      at: { type: "frames", fromFrame: 0, endFrame: 2 },
     };
     const first = { filmSeconds: 0, outputFrame: 0 };
     const last = { filmSeconds: 0.5, outputFrame: 1 };
@@ -133,7 +128,7 @@ export async function test_cli_production_check_records(): Promise<void> {
       pass: "beauty",
       state: "drawn",
       file: "one.png",
-      hash: hashAutoMovieRasterImage(picture),
+      hash: AutoMovieRenderPicture.hashRasterImage(picture),
       time: { seconds: 0, frame: 0 },
     };
     const lastRow = {
@@ -161,6 +156,16 @@ export async function test_cli_production_check_records(): Promise<void> {
       diagnostics: { episodes: [], coverage: [checked] },
     };
     assert.equal((await verifyCapture(still, single)).state, "passed");
+    const legacy: unknown = { second: 0 };
+    assert.equal(
+      (
+        await verify({
+          ...still,
+          at: legacy as IAutoMovieProductionCheck.ICaptureTime,
+        })
+      ).state,
+      "passed",
+    );
     const onePath: string = path.join(root, "one.png");
     await fs.writeFile(onePath, "corrupt still");
     const corrupt: string = (await verifyCapture(still, single)).state;
@@ -168,7 +173,10 @@ export async function test_cli_production_check_records(): Promise<void> {
     replacement[0] = 0;
     await fs.writeFile(
       onePath,
-      await encodeAutoMovieRasterPng({ ...picture, pixels: replacement }),
+      await AutoMovieRenderPicture.encodeRasterPng({
+        ...picture,
+        pixels: replacement,
+      }),
     );
     const replaced: string = (await verifyCapture(still, single)).state;
     await fs.writeFile(onePath, png);
@@ -185,7 +193,25 @@ export async function test_cli_production_check_records(): Promise<void> {
       ).state,
       "unobserved",
     );
-    assert.equal((await verifyCapture(interval, single)).state, "unobserved");
+    const incomplete: IAutoMovieProductionCheck.IResult = await verifyCapture(
+      interval,
+      single,
+    );
+    assert.equal(incomplete.state, "unobserved");
+    assert.match(incomplete.message, /Only 1\/2 requested samples/u);
+
+    for (const conflicting of [
+      { second: 0, fromFrame: 0, endFrame: 2 },
+      { type: "second", second: 0, fromFrame: 0 },
+    ]) {
+      const refused: IAutoMovieProductionCheck.IReport = await assess(root, {
+        ...still,
+        at: conflicting as unknown as IAutoMovieProductionCheck.ICaptureTime,
+      });
+      assert.equal(refused.items[0]?.state, "unobserved");
+      assert.match(refused.items[0]?.message ?? "", /exactly one/u);
+      assert.equal(refused.blocked, true);
+    }
     const adjacent = {
       ...single,
       rows: [firstRow, lastRow],
@@ -223,8 +249,8 @@ export async function test_cli_production_check_records(): Promise<void> {
       hasFinding: (seconds: number) => boolean = (): boolean => false,
       retimed: boolean = false,
     ): Promise<Extract<IAutoMovieCaptureRecord, { state: "complete" }>> => {
-      const plan: IAutoMovieCapturePlan = planAutoMovieCapture({
-        request: parseAutoMovieCapturePlanRequest(new URLSearchParams(query)),
+      const plan: IAutoMovieCapturePlan = AutoMovieRenderCapture.plan({
+        request: AutoMovieRenderCapture.parsePlanRequest(new URLSearchParams(query)),
         subject: {
           ...picture,
           name: "walk",
@@ -236,7 +262,7 @@ export async function test_cli_production_check_records(): Promise<void> {
         },
         cuts: [],
       });
-      return runAutoMovieCapture({
+      return AutoMovieRenderCapture.run({
         plan,
         draw: async (
           cell: IAutoMovieCaptureCell,
@@ -269,7 +295,7 @@ export async function test_cli_production_check_records(): Promise<void> {
             coverage: [{ ...checked.coverage, status: "checked" }],
           },
         }),
-        folder: await AutoMovieCaptureFolder.open({
+        folder: await AutoMovieRenderCaptureFolder.open({
           storage: fs,
           root: path.join(root, "captures"),
           round: plan.request.round,
@@ -290,13 +316,13 @@ export async function test_cli_production_check_records(): Promise<void> {
       ...still,
       record: "captures/rounds/after/record.json",
       pass: "graphics",
-      at: { second: 1 },
+      at: { type: "second", second: 1 },
     };
     const local: string = (await verify(correctedCheck)).state;
     const localFrame: string = (
       await verify({
         ...correctedCheck,
-        at: { fromFrame: 2, endFrame: 3 },
+        at: { type: "frames", fromFrame: 2, endFrame: 3 },
       })
     ).state;
     await drawRound(
@@ -308,7 +334,7 @@ export async function test_cli_production_check_records(): Promise<void> {
       await verify({
         ...correctedCheck,
         record: "captures/rounds/retimed/record.json",
-        at: { second: 3 },
+        at: { type: "second", second: 3 },
       })
     ).state;
     await drawRound(
@@ -318,11 +344,11 @@ export async function test_cli_production_check_records(): Promise<void> {
     const offGridCheck: IAutoMovieProductionCheck.ICapture = {
       ...correctedCheck,
       record: "captures/rounds/off-grid/record.json",
-      at: { fromFrame: 2, endFrame: 3 },
+      at: { type: "frames", fromFrame: 2, endFrame: 3 },
     };
     const offGrid: string = (await verify(offGridCheck)).state;
     const atOffGrid: string = (
-      await verify({ ...offGridCheck, at: { second: 3.25 } })
+      await verify({ ...offGridCheck, at: { type: "second", second: 3.25 } })
     ).state;
     const alpha = await drawRound(
       "views=front&passes=graphics&at=1&round=alpha",
@@ -345,7 +371,7 @@ export async function test_cli_production_check_records(): Promise<void> {
     changedAlpha[3] = 0;
     await fs.writeFile(
       alphaPath,
-      await encodeAutoMovieRasterPng(
+      await AutoMovieRenderPicture.encodeRasterPng(
         { ...picture, pixels: changedAlpha },
         { alpha: true },
       ),

@@ -2,7 +2,7 @@ import type {
   IAutoMovieCubicBezierCurve64,
   IAutoMovieModel,
 } from "@automovie/interface";
-import { approximateAutoMovieRecoveryCompactCurves } from "@automovie/recovery";
+import { AutoMovieRecoveryCompactApproximation } from "@automovie/recovery";
 import fs from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
@@ -420,7 +420,7 @@ async function code(root: string): Promise<I.Member[]> {
 function bodies(): object {
   return Object.fromEntries(
     [
-      approximateAutoMovieRecoveryCompactCurves,
+      AutoMovieRecoveryCompactApproximation.approximate,
       A.prepare,
       A.materialize,
       A.bound,

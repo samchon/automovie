@@ -6,11 +6,13 @@ import type {
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
 import {
-  HumanChain,
-  HumanPerformance,
-  createHumanBody,
+  AutoMovieMotionHumanBody,
+  AutoMovieMotionHumanChain,
+  AutoMovieMotionHumanPerformance,
 } from "@automovie/motions";
-import { HUMAN_LEXICON } from "@automovie/motions/internal";
+import {
+  HUMAN_LEXICON
+} from "../../../../../packages/motions/src/lexicon/internal/HUMAN_LEXICON";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixture } from "../../internal/fixtures/humanFixture";
@@ -32,7 +34,7 @@ import { vclose } from "../../internal/vclose";
 export async function test_motions_striking_punch_impact_cut(): Promise<void> {
   const fixture: Awaited<ReturnType<typeof humanFixture>> =
     await humanFixture("m-average");
-  const body: IAutoMovieMotionHumanBody = createHumanBody(
+  const body: IAutoMovieMotionHumanBody = AutoMovieMotionHumanBody.create(
     fixture.skeleton,
     fixture.profile,
   );
@@ -41,7 +43,7 @@ export async function test_motions_striking_punch_impact_cut(): Promise<void> {
     frame: "world",
     at: { x: 0, y: 1.56, z: 0.62 },
   };
-  const performance: HumanPerformance = new HumanPerformance({
+  const performance: AutoMovieMotionHumanPerformance = new AutoMovieMotionHumanPerformance({
     seed: "straight cut",
     laws: HUMAN_LEXICON.strike!.filter(
       (law) => law.name === "jab" || law.name === "cross",
@@ -55,10 +57,10 @@ export async function test_motions_striking_punch_impact_cut(): Promise<void> {
         proficiency: { level: "trained" },
       },
     ],
-    composition: HumanChain.subject("a")
+    composition: AutoMovieMotionHumanChain.subject("a")
       .guard({ style: "boxing", duration: 0.5 })
       .registered("jab", { at: target }, "lead")
-      .until({ event: "impact" })
+      .until({ type: "event", event: "impact" })
       .registered("cross", { at: target }, "rear").node,
   });
   const [, lead, rear]: readonly IAutoMovieMotionHumanSegment[] =

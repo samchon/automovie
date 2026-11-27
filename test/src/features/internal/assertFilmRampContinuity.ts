@@ -1,10 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  resolvePose,
-  sampleMotion,
-  spaceGround,
-} from "@automovie/engine";
+import { AutoMovieEngineMotionSampling, AutoMovieEngineKinematics, AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineSpace } from "@automovie/engine";
 import type {
   IAutoMovieBeatEndActorState,
   IAutoMovieBeatEndFootPlant,
@@ -44,7 +38,7 @@ export function assertFilmRampContinuity(
       ],
       walkable: ["ramp"],
     };
-  const rampGround: ReturnType<typeof spaceGround> = spaceGround(slopeSpace);
+  const rampGround: ReturnType<typeof AutoMovieEngineSpace.spaceGround> = AutoMovieEngineSpace.spaceGround(slopeSpace);
   TestValidator.predicate(
     "the authored ramp rises one metre per twenty horizontal metres",
     nclose(rampGround(3.25, 4), 0.1625, 1e-12),
@@ -150,12 +144,12 @@ export function assertFilmRampContinuity(
   const slopeSecondFoot: IAutoMovieVector3 | null =
     slopeSecondNode === null || slopeSecondMotion === null
       ? null
-      : Vector3.add(
+      : AutoMovieEngineVector3.add(
           slopeSecondNode.transform.translation,
-          Quaternion.rotateVector(
+          AutoMovieEngineQuaternion.rotateVector(
             slopeSecondNode.transform.rotation,
-            resolvePose(sampleMotion(slopeSecondMotion, 0).pose, rig).find(
-              (bone: ReturnType<typeof resolvePose>[number]): boolean =>
+            AutoMovieEngineKinematics.resolvePose(AutoMovieEngineMotionSampling.sampleMotion(slopeSecondMotion, 0).pose, rig).find(
+              (bone: ReturnType<typeof AutoMovieEngineKinematics.resolvePose>[number]): boolean =>
                 bone.bone === "leftFoot",
             )!.worldPosition,
           ),

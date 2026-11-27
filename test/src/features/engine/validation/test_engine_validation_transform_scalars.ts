@@ -1,7 +1,4 @@
-import {
-  ViolationCollector,
-  validateTransformScalars,
-} from "@automovie/engine";
+import { AutoMovieEngineViolationCollector, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -22,10 +19,10 @@ export function test_engine_validation_transform_scalars(): void {
   const rotation: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
   const translation: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   const run = (
-    transform: Parameters<typeof validateTransformScalars>[0]["transform"],
+    transform: Parameters<typeof AutoMovieEngineValidation.validateTransformScalars>[0]["transform"],
   ): string[] => {
-    const collector: ViolationCollector = new ViolationCollector();
-    validateTransformScalars({
+    const collector: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();
+    AutoMovieEngineValidation.validateTransformScalars({
       transform,
       path: "$.t",
       label: "node",

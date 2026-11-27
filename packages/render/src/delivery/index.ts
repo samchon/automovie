@@ -1,18 +1,9 @@
-export * from "./admitAutoMovieControlPasses.js";
-export * from "./assertProductionAacProfile.js";
-export * from "./assertProductionPngPicture.js";
-export * from "./assertProductionVideoProfile.js";
-export * from "./AUTOMOVIE_PRODUCTION_AAC_PROFILE.js";
-export * from "./AutoMovieProductionPngRole.js";
-export * from "./IAutoMovieProductionPngProfile.js";
-export * from "./IAutoMovieProductionVideoProfile.js";
-export * from "./resolveProductionPngProfile.js";
-export * from "./resolveProductionVideoProfile.js";
-export * from "./assertAutoMovieCaptureClock.js";
-export * from "./auditAutoMovieDecodedFrames.js";
-export * from "./auditAutoMovieDeliveryContent.js";
-export * from "./auditAutoMovieEncodedPresentation.js";
-export * from "./autoMovieVideoFrameRate.js";
-export * from "./planAutoMovieAlphaWrap.js";
-export * from "./planAutoMovieCaptureUrl.js";
-export * from "./planAutoMovieVideoEncoding.js";
+export * from "./AutoMovieRenderDelivery";
+
+
+
+export * from "./AutoMovieRenderProductionAacProfile";
+export * from "./AutoMovieRenderPoseKeypointSidecar";
+export * from "./AutoMovieRenderVideo";
+export * from "./AutoMovieRenderMp4SrgbColour";
+export * from "./AutoMovieRenderMp4UnityMatrix";

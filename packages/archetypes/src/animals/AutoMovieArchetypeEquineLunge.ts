@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieTransform,
@@ -16,20 +16,7 @@ import { AutoMovieArchetypeEquineStance } from "./AutoMovieArchetypeEquineStance
 import type { AutoMovieArchetypeEquineStanceCue } from "./AutoMovieArchetypeEquineStanceCue";
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
-import { createQuadruped } from "./createQuadruped";
-import { rideQuadruped } from "./rideQuadruped";
-
-/** A named instant of a ride. */
-type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];
-
-/** One rein's ride and the film second it takes over. */
-interface ISegment<Id extends string, D extends string> {
-  /** The film second the rein begins. */
-  from: number;
-
-  /** The rein's ride, its halt and turns included. */
-  ride: AutoMovieArchetypeRide.IRide<Id, D>;
-}
+import { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
 /**
  * An equid lunged on a circle round its handler: each rein a ride round the
@@ -44,7 +31,7 @@ interface ISegment<Id extends string, D extends string> {
  * its gait and speed (the middle of the gait's admitted speeds when unstated),
  * changes speed between works over the distance its acceleration needs, and
  * brakes to a halt the same way. Its body leans into the circle by the ride's
- * own steady-turn balance (`rideQuadruped`). At the halt the stance turns it on
+ * own steady-turn balance (`AutoMovieArchetypeQuadruped.ride`). At the halt the stance turns it on
  * the centre toward the handler (`AutoMovieArchetypeEquineStance`, a spin
  * `about` the centre), holds it facing for `face` seconds, and, between reins,
  * turns it on to the opposite heading, the centre now on its other side, where
@@ -173,7 +160,7 @@ export namespace AutoMovieArchetypeEquineLunge {
           "consecutive reins change sides",
         );
     });
-    const species: createQuadruped.ISpecies = createQuadruped.species(animal);
+    const species: AutoMovieArchetypeQuadruped.ISpecies = AutoMovieArchetypeQuadruped.species(animal);
     const withers: number | undefined = animal.dimensions.withersHeight;
     const half: number = halfTrack(animal);
 
@@ -224,7 +211,7 @@ export namespace AutoMovieArchetypeEquineLunge {
       Id,
       D | AutoMovieArchetypeQuadrupedBody.Dimension
     >[] = [];
-    let start: rideQuadruped.ICourse["start"] = {
+    let start: AutoMovieArchetypeQuadruped.IRideCourse["start"] = {
       x: centre.x + radius * Math.sin((bearing * Math.PI) / 180),
       z: centre.z + radius * Math.cos((bearing * Math.PI) / 180),
       heading: bearing + (reins[0]!.side === "left" ? 90 : -90),
@@ -235,7 +222,7 @@ export namespace AutoMovieArchetypeEquineLunge {
       const sign: number = rein.side === "left" ? 1 : -1;
       const arc = (length: number): number =>
         (sign * length * 180) / (Math.PI * radius);
-      const legs: rideQuadruped.ILeg[] = [];
+      const legs: AutoMovieArchetypeQuadruped.IRideLeg[] = [];
       const marks: number[] = [];
       let speed: number = 0;
       const shift = (to: number): void => {
@@ -259,7 +246,7 @@ export namespace AutoMovieArchetypeEquineLunge {
         marks.push(speed);
       });
       shift(0);
-      const going: Ride = rideQuadruped(animal, {
+      const going: Ride = AutoMovieArchetypeQuadruped.ride(animal, {
         start,
         at: film,
         cruise: Math.max(...speeds[k]!),
@@ -308,13 +295,13 @@ export namespace AutoMovieArchetypeEquineLunge {
         Id,
         D | AutoMovieArchetypeQuadrupedBody.Dimension
       > = going.at(halt);
-      const middle: IAutoMovieVector3 = Vector3.scale(
+      const middle: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
         AutoMovieArchetypeQuadrupedBody.LIMBS.reduce(
           (
             sum: IAutoMovieVector3,
             limb: AutoMovieArchetypeQuadrupedBody.Limb,
           ): IAutoMovieVector3 =>
-            Vector3.add(sum, endpoint(stopped.archetype.parts, limb)),
+            AutoMovieEngineVector3.add(sum, endpoint(stopped.archetype.parts, limb)),
           { x: 0, y: 0, z: 0 },
         ),
         1 / AutoMovieArchetypeQuadrupedBody.LIMBS.length,
@@ -392,7 +379,9 @@ export namespace AutoMovieArchetypeEquineLunge {
     };
   }
 
-  /** Half the hooves' lateral spacing at rest, metres: the fore pair's. */
+  /*
+   * Half the hooves' lateral spacing at rest, metres: the fore pair's.
+   */
   function halfTrack<Id extends string, D extends string>(
     animal: AutoMovieArchetype<Id, D>,
   ): number {
@@ -404,7 +393,7 @@ export namespace AutoMovieArchetypeEquineLunge {
     );
   }
 
-  /**
+  /*
    * A limb's terminal endpoint in the model's space: the far end of its last
    * bar.
    */
@@ -423,22 +412,26 @@ export namespace AutoMovieArchetypeEquineLunge {
         pastern.geometry.shape.type === "cylinder")
         ? pastern.geometry.shape.height
         : NaN;
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       frame.translation,
-      Quaternion.rotateVector(frame.rotation, { x: 0, y: height / 2, z: 0 }),
+      AutoMovieEngineQuaternion.rotateVector(frame.rotation, { x: 0, y: height / 2, z: 0 }),
     );
   }
 
-  /** A placement's heading, degrees, 0 along +Z, positive toward +X. */
+  /*
+   * A placement's heading, degrees, 0 along +Z, positive toward +X.
+   */
   function headingOf(placement: IAutoMovieTransform): number {
-    const forward: IAutoMovieVector3 = Quaternion.rotateVector(
+    const forward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       placement.rotation,
       { x: 0, y: 0, z: 1 },
     );
     return (Math.atan2(forward.x, forward.z) * 180) / Math.PI;
   }
 
-  /** A refusal of a malformed lunge. */
+  /*
+   * A refusal of a malformed lunge.
+   */
   function refuse(
     archetype: string,
     axis: string,
@@ -455,4 +448,24 @@ export namespace AutoMovieArchetypeEquineLunge {
       fix: "Give a positive radius, acceleration and turn, reins that alternate sides, and works of positive laps within their gaits' speeds.",
     });
   }
+}
+
+/*
+ * A named instant of a ride.
+ */
+type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];
+
+/*
+ * One rein's ride and the film second it takes over.
+ */
+interface ISegment<Id extends string, D extends string> {
+  /*
+   * The film second the rein begins.
+   */
+  from: number;
+
+  /*
+   * The rein's ride, its halt and turns included.
+   */
+  ride: AutoMovieArchetypeRide.IRide<Id, D>;
 }

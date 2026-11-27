@@ -1,16 +1,22 @@
-import { Vector3, physicalShapePairDistance } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanChain, HumanPerformance } from "@automovie/motions";
-import { FamilyCaseKit } from "@automovie/motions/executable/internal";
+import { AutoMovieMotionHumanChain, AutoMovieMotionHumanPerformance } from "@automovie/motions";
 import {
-  HumanColliders,
-  HumanFrame,
-  workout,
-} from "@automovie/motions/internal";
+  FamilyCaseKit
+} from "../../../../../packages/motions/src/executable/cases/FamilyCaseKit";
+import {
+  HumanColliders
+} from "../../../../../packages/motions/src/posture/internal/HumanColliders";
+import {
+  HumanFrame
+} from "../../../../../packages/motions/src/posture/internal/HumanFrame";
+import {
+  workout
+} from "../../../../../packages/motions/src/exercise/internal/workout";
 import { TestValidator } from "@nestia/e2e";
 
 const ACTOR = "a";
@@ -32,7 +38,7 @@ export function test_motions_exercise_workout_overhead(): void {
   ] as const) {
     const { body }: FamilyCaseKit.IBody = FamilyCaseKit.body(id);
     for (const kind of ["snatch", "cleanAndJerk"] as const) {
-      const take = new HumanPerformance({
+      const take = new AutoMovieMotionHumanPerformance({
         seed: "unloaded-overhead",
         performers: [
           {
@@ -43,7 +49,7 @@ export function test_motions_exercise_workout_overhead(): void {
             proficiency: { level: "trained" },
           },
         ],
-        composition: HumanChain.subject(ACTOR).registered("workout", {
+        composition: AutoMovieMotionHumanChain.subject(ACTOR).registered("workout", {
           kind,
           count: 1,
         }).node,
@@ -55,7 +61,7 @@ export function test_motions_exercise_workout_overhead(): void {
 }
 
 function verify(
-  take: HumanPerformance,
+  take: AutoMovieMotionHumanPerformance,
   id: string,
   body: IAutoMovieMotionHumanBody,
   yaw: number,
@@ -72,8 +78,8 @@ function verify(
   const armShapes = HumanColliders.preparePlaced(body, ARMS);
   const headShapes = HumanColliders.preparePlaced(body, HEAD);
   const shoulder = take.bones(ACTOR, last);
-  const shoulderWidth: number = Vector3.dot(
-    Vector3.subtract(
+  const shoulderWidth: number = AutoMovieEngineVector3.dot(
+    AutoMovieEngineVector3.subtract(
       shoulder.get("leftUpperArm")!.worldPosition,
       shoulder.get("rightUpperArm")!.worldPosition,
     ),
@@ -90,14 +96,14 @@ function verify(
   for (let i: number = 0; i <= count; ++i) {
     const bones = take.bones(ACTOR, first + i * step);
     const wrist = bones.get("leftHand")!.worldPosition;
-    const width: number = Vector3.dot(
-      Vector3.subtract(wrist, bones.get("rightHand")!.worldPosition),
+    const width: number = AutoMovieEngineVector3.dot(
+      AutoMovieEngineVector3.subtract(wrist, bones.get("rightHand")!.worldPosition),
       left,
     );
     minimum = Math.min(minimum, width);
     maximum = Math.max(maximum, width);
     if (previous !== undefined)
-      speed = Math.max(speed, Vector3.distance(previous, wrist) / step);
+      speed = Math.max(speed, AutoMovieEngineVector3.distance(previous, wrist) / step);
     previous = wrist;
     if (i % 4 === 0)
       for (const hand of armShapes(bones))
@@ -106,7 +112,7 @@ function verify(
             for (const b of head.shapes)
               clearance = Math.min(
                 clearance,
-                physicalShapePairDistance(hand.pose, a, head.pose, b),
+                AutoMovieEnginePhysics.physicalShapePairDistance(hand.pose, a, head.pose, b),
               );
   }
   TestValidator.predicate(
@@ -125,8 +131,8 @@ function verify(
     TestValidator.predicate(
       `${id} jerk uses a slightly outboard grip overhead`,
       () => {
-        const width: number = Vector3.dot(
-          Vector3.subtract(
+        const width: number = AutoMovieEngineVector3.dot(
+          AutoMovieEngineVector3.subtract(
             shoulder.get("leftHand")!.worldPosition,
             shoulder.get("rightHand")!.worldPosition,
           ),

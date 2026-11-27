@@ -1,9 +1,7 @@
 import {
-  createBuilding,
-  createEnvironment,
-  createPassage,
-} from "@automovie/archetypes/environments";
-import { Quaternion, Vector3, heightAt } from "@automovie/engine";
+  AutoMovieArchetypeEnvironment
+} from "../../../../packages/archetypes/src/environments/AutoMovieArchetypeEnvironment";
+import { AutoMovieEngineSpace, AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieBuiltBoundary,
   IAutoMovieBuiltEnvironment,
@@ -22,16 +20,17 @@ import { nclose } from "../internal/predicates";
  *
  * Scenarios:
  *
- * 1. Two rectangles sharing only the centre of an edge produce one partition
- *    and two exposed wall remainders.
+ * 1. Two rectangles sharing only the centre of an edge produce one partition and
+ *    two exposed wall remainders.
  * 2. The courtyard floor has no support in its interior void, while its
  *    surrounding floor and connector deck have the authored world elevation.
- * 3. Moving one landing vertically, oversizing the deck or crossing the opening obliquely refuses a bridge.
+ * 3. Moving one landing vertically, oversizing the deck or crossing the opening
+ *    obliquely refuses a bridge.
  * 4. Positive-area overlap refuses before generating either room.
  * 5. One stair run creates treads and the upper-floor void at the same
  *    coordinates, retaining adjacent support at the upper level.
- * 6. Open threshold support spans the wall depth while solid wall and a
- *    closed door leave gaps. A standard lever keeps both carried contacts.
+ * 6. Open threshold support spans the wall depth while solid wall and a closed
+ *    door leave gaps. A standard lever keeps both carried contacts.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Observes admitted boundary widths and incidence, final stage support coordinates, and normal composer refusals.
  * @evidence contracts/development/testing.md#independent-expectations The authored shared interval is [1,3] within [0,4], leaving 1 m on both sides. The deck and courtyard probes have explicitly authored elevations. The stair probe is midway over the sixth tread, whose rise is 6 times 0.17 m above the building's 3 m world origin. A 2 m normal run and 3 m sideways shift make the 1 m deck span sqrt(13)/2 m in the plane of the 1.4 m opening.
@@ -40,114 +39,122 @@ import { nclose } from "../internal/predicates";
  * @evidence contracts/development/common.md#meaningful-documentation Enumerates the normalized plan and passage cases, expected dimensions, and each named refusal.
  */
 export function test_location_floor_plan(): void {
-  const first: ReturnType<typeof createBuilding> = createBuilding({
-    levels: [
-      {
-        id: "ground",
-        rooms: {
-          hall: [0, 0, 6, 4],
-          office: [6, 1, 3, 2],
-          courtyard: {
-            polygon: [
-              [0, 10],
-              [6, 10],
-              [6, 16],
-              [0, 16],
-            ],
-            holes: [
-              [
-                [2, 12],
-                [4, 12],
-                [4, 14],
-                [2, 14],
-              ],
-            ],
+  const first: ReturnType<typeof AutoMovieArchetypeEnvironment.building> =
+    AutoMovieArchetypeEnvironment.building({
+      type: "levels",
+      levels: [
+        {
+          id: "ground",
+          rooms: {
+            hall: { type: "rectangle", value: { x: 0, z: 0, width: 6, depth: 4 } },
+            office: { type: "rectangle", value: { x: 6, z: 1, width: 3, depth: 2 } },
+            courtyard: {
+              type: "polygon",
+              value: {
+                vertices: [
+                  { x: 0, z: 10 },
+                  { x: 6, z: 10 },
+                  { x: 6, z: 16 },
+                  { x: 0, z: 16 },
+                ],
+                holes: [
+                  [
+                    { x: 2, z: 12 },
+                    { x: 4, z: 12 },
+                    { x: 4, z: 14 },
+                    { x: 2, z: 14 },
+                  ],
+                ],
+              },
+            },
           },
+          openings: [
+            {
+              id: "inside",
+              kind: "passage",
+              between: { from: "hall", to: "office" },
+              width: 1,
+              height: 2,
+            },
+            {
+              id: "landing",
+              kind: "passage",
+              between: { from: "hall", to: null },
+              edge: {
+                from: { x: 0, z: 0 },
+                to: { x: 0, z: 4 },
+              },
+              width: 1.4,
+              height: 2.2,
+            },
+            {
+              id: "entrance",
+              kind: "door",
+              between: { from: "hall", to: null },
+              edge: {
+                from: { x: 0, z: 0 },
+                to: { x: 6, z: 0 },
+              },
+            },
+          ],
         },
-        openings: [
-          {
-            id: "inside",
-            kind: "passage",
-            between: ["hall", "office"],
-            width: 1,
-            height: 2,
+        {
+          id: "upper",
+          elevation: 3.4,
+          rooms: { hall: { type: "rectangle", value: { x: 0, z: 0, width: 6, depth: 4 } } },
+        },
+      ],
+      stairs: [
+        {
+          id: "main",
+          from: { level: "ground", room: "hall" },
+          to: { level: "upper", room: "hall" },
+          run: {
+            from: { x: 1, z: 1.5 },
+            to: { x: 5, z: 1.5 },
           },
-          {
-            id: "landing",
-            kind: "passage",
-            between: ["hall", null],
-            edge: [
-              [0, 0],
-              [0, 4],
-            ],
-            width: 1.4,
-            height: 2.2,
-          },
-          {
-            id: "entrance",
-            kind: "door",
-            between: ["hall", null],
-            edge: [
-              [0, 0],
-              [6, 0],
-            ],
-          },
-        ],
-      },
-      {
-        id: "upper",
-        elevation: 3.4,
-        rooms: { hall: [0, 0, 6, 4] },
-      },
-    ],
-    stairs: [
-      {
-        id: "main",
-        from: ["ground", "hall"],
-        to: ["upper", "hall"],
-        run: [
-          [1, 1.5],
-          [5, 1.5],
-        ],
-        width: 1,
-        steps: 20,
-      },
-    ],
-  });
-  const second: ReturnType<typeof createBuilding> = createBuilding({
-    levels: [
-      {
-        id: "ground",
-        rooms: { hall: [0, 0, 6, 4] },
-        openings: [
-          {
-            id: "landing",
-            kind: "passage",
-            between: ["hall", null],
-            edge: [
-              [6, 0],
-              [6, 4],
-            ],
-            width: 1.4,
-            height: 2.2,
-          },
-        ],
-      },
-    ],
-  });
-  const span: ReturnType<typeof createPassage> = createPassage({
-    kind: "bridge",
-    from: { opening: "east/ground/landing" },
-    to: { opening: "west/ground/landing" },
-    width: 1,
-    clearHeight: 2,
-  });
+          width: 1,
+          steps: 20,
+        },
+      ],
+    });
+  const second: ReturnType<typeof AutoMovieArchetypeEnvironment.building> =
+    AutoMovieArchetypeEnvironment.building({
+      type: "levels",
+      levels: [
+        {
+          id: "ground",
+          rooms: { hall: { type: "rectangle", value: { x: 0, z: 0, width: 6, depth: 4 } } },
+          openings: [
+            {
+              id: "landing",
+              kind: "passage",
+              between: { from: "hall", to: null },
+              edge: {
+                from: { x: 6, z: 0 },
+                to: { x: 6, z: 4 },
+              },
+              width: 1.4,
+              height: 2.2,
+            },
+          ],
+        },
+      ],
+    });
+  const span: ReturnType<typeof AutoMovieArchetypeEnvironment.passage> =
+    AutoMovieArchetypeEnvironment.passage({
+      kind: "bridge",
+      from: { opening: "east/ground/landing" },
+      to: { opening: "west/ground/landing" },
+      width: 1,
+      clearHeight: 2,
+    });
   const east: {
-    use: ReturnType<typeof createBuilding>;
+    use: ReturnType<typeof AutoMovieArchetypeEnvironment.building>;
     at: { x: number; y: number; z: number };
   } = { use: first, at: { x: 0, y: 3, z: 0 } };
   const west: typeof east = { use: second, at: { x: -8, y: 3, z: 0 } };
-  const site: IAutoMovieEnvironment = createEnvironment({
+  const site: IAutoMovieEnvironment = AutoMovieArchetypeEnvironment.create({
     id: "walkway-test",
     items: { east, west, bridge: { use: span } },
   });
@@ -157,9 +164,9 @@ export function test_location_floor_plan(): void {
       const face: IAutoMovieBuiltBoundary["face"] = wall.face;
       if (face === undefined || face.origin.x !== 6 || face.origin.y !== 3)
         return false;
-      const end: IAutoMovieVector3 = Vector3.add(
+      const end: IAutoMovieVector3 = AutoMovieEngineVector3.add(
         face.origin,
-        Quaternion.rotateVector(face.rotation, {
+        AutoMovieEngineQuaternion.rotateVector(face.rotation, {
           x: face.outline[1]!.x,
           y: 0,
           z: 0,
@@ -185,12 +192,20 @@ export function test_location_floor_plan(): void {
   const space: IAutoMovieSpace = site.stage.space!;
   TestValidator.equals(
     "support observes the courtyard void, surrounding floor and skybridge",
-    [heightAt(space, 3, 13), heightAt(space, 1, 13), heightAt(space, -1, 2)],
+    [
+      AutoMovieEngineSpace.heightAt(space, 3, 13),
+      AutoMovieEngineSpace.heightAt(space, 1, 13),
+      AutoMovieEngineSpace.heightAt(space, -1, 2),
+    ],
     [null, 3, 3],
   );
   TestValidator.equals(
     "only an open threshold supports a performer in a wall",
-    [heightAt(space, 6, 1.2), heightAt(space, 6, 2), heightAt(space, 3, 0)],
+    [
+      AutoMovieEngineSpace.heightAt(space, 6, 1.2),
+      AutoMovieEngineSpace.heightAt(space, 6, 2),
+      AutoMovieEngineSpace.heightAt(space, 3, 0),
+    ],
     [null, 3, null],
   );
   const door: IAutoMoviePropSpec | undefined = site.runtime.props.find(
@@ -202,8 +217,8 @@ export function test_location_floor_plan(): void {
     door?.model.affordances?.map((contact): string => contact.id).sort(),
     ["pull", "push"],
   );
-  const tread: number | null = heightAt(space, 2.1, 1.5);
-  const upper: number | null = heightAt(space, 2.1, 3);
+  const tread: number | null = AutoMovieEngineSpace.heightAt(space, 2.1, 1.5);
+  const upper: number | null = AutoMovieEngineSpace.heightAt(space, 2.1, 3);
   TestValidator.predicate(
     "shaft leaves the sixth tread and upper floor independently supported",
     tread !== null &&
@@ -213,7 +228,7 @@ export function test_location_floor_plan(): void {
   );
   assert.throws(
     (): IAutoMovieEnvironment =>
-      createEnvironment({
+      AutoMovieArchetypeEnvironment.create({
         id: "displaced",
         items: {
           east,
@@ -225,13 +240,13 @@ export function test_location_floor_plan(): void {
   );
   assert.throws(
     (): IAutoMovieEnvironment =>
-      createEnvironment({
+      AutoMovieArchetypeEnvironment.create({
         id: "overwide",
         items: {
           east,
           west,
           bridge: {
-            use: createPassage({
+            use: AutoMovieArchetypeEnvironment.passage({
               kind: "bridge",
               from: { opening: "east/ground/landing" },
               to: { opening: "west/ground/landing" },
@@ -244,7 +259,7 @@ export function test_location_floor_plan(): void {
   );
   assert.throws(
     (): IAutoMovieEnvironment =>
-      createEnvironment({
+      AutoMovieArchetypeEnvironment.create({
         id: "oblique",
         items: {
           east,
@@ -255,9 +270,10 @@ export function test_location_floor_plan(): void {
     /passage "oblique\/bridge" must approach opening "east\/ground\/landing" perpendicular/,
   );
   assert.throws(
-    (): ReturnType<typeof createBuilding> =>
-      createBuilding({
-        levels: [{ id: "ground", rooms: { a: [0, 0, 4, 4], b: [3, 3, 2, 2] } }],
+    (): ReturnType<typeof AutoMovieArchetypeEnvironment.building> =>
+      AutoMovieArchetypeEnvironment.building({
+        type: "levels",
+        levels: [{ id: "ground", rooms: { a: { type: "rectangle", value: { x: 0, z: 0, width: 4, depth: 4 } }, b: { type: "rectangle", value: { x: 3, z: 3, width: 2, depth: 2 } } } }],
       }),
     /rooms "a" and "b" have overlapping interiors/,
   );

@@ -1,8 +1,4 @@
-import {
-  createAutoMovieMeshDeformer,
-  mergeAutoMovieMeshes,
-  transformAutoMovieMesh,
-} from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -10,8 +6,8 @@ import { vertexColourMesh } from "../../internal/vertexColourFixture";
 
 /**
  * Vertex colour follows vertex correspondence, not world coordinates, through
- * `transformAutoMovieMesh`, `mergeAutoMovieMeshes` and a deformer
- * (`createAutoMovieMeshDeformer`).
+ * `transformMesh`, `mergeMeshes` and a deformer
+ * (`createMeshDeformer`).
  *
  * Fixture: the three-vertex coloured triangle (`vertexColourMesh`) and the same
  * mesh without colours.
@@ -33,30 +29,30 @@ export function test_engine_geometry_vertex_colour(): void {
   const bare: IAutoMovieMesh = { ...coloured, colors: undefined };
 
   // 1.
-  const placed: IAutoMovieMesh = transformAutoMovieMesh(coloured, {
+  const placed: IAutoMovieMesh = AutoMovieEngineGeometry.transformMesh(coloured, {
     scale: { x: -2, y: 3, z: 1 },
   });
   TestValidator.equals("placement keeps RGB", placed.colors, rgb);
   TestValidator.predicate("placement copies RGB", placed.colors !== coloured.colors);
   TestValidator.equals("mirrored winding", placed.indices, [0, 2, 1]);
-  TestValidator.equals("bare stays bare", transformAutoMovieMesh(bare, {}).colors, undefined);
+  TestValidator.equals("bare stays bare", AutoMovieEngineGeometry.transformMesh(bare, {}).colors, undefined);
 
   // 2.
   TestValidator.equals(
     "white fill",
-    mergeAutoMovieMeshes([bare, coloured, { ...bare, indices: null }]).colors,
+    AutoMovieEngineGeometry.mergeMeshes([bare, coloured, { ...bare, indices: null }]).colors,
     [...new Array<number>(9).fill(1), ...rgb, ...new Array<number>(9).fill(1)],
   );
   TestValidator.equals(
     "both coloured",
-    mergeAutoMovieMeshes([coloured, coloured]).colors,
+    AutoMovieEngineGeometry.mergeMeshes([coloured, coloured]).colors,
     [...rgb, ...rgb],
   );
-  TestValidator.equals("empty", mergeAutoMovieMeshes([]).colors, undefined);
-  TestValidator.equals("wholly bare", mergeAutoMovieMeshes([bare]).colors, undefined);
+  TestValidator.equals("empty", AutoMovieEngineGeometry.mergeMeshes([]).colors, undefined);
+  TestValidator.equals("wholly bare", AutoMovieEngineGeometry.mergeMeshes([bare]).colors, undefined);
 
   // 3.
-  const deformed: IAutoMovieMesh = createAutoMovieMeshDeformer([
+  const deformed: IAutoMovieMesh = AutoMovieEngineGeometry.createMeshDeformer([
     {
       center: { x: 0, y: 0, z: 0 },
       radius: { x: 2, y: 2, z: 2 },

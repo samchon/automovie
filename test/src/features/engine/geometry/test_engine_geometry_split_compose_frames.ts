@@ -52,7 +52,7 @@ export function test_engine_geometry_split_compose_frames(): void {
   );
   const chordHalf: number = Math.sqrt(81 - C.fork(C.LEAN) ** 2);
   const conflicts: [string, IAutoMovieConstructionSplit.IProfile][] = [
-    ["a knot", { knots: [[chordHalf / 1000, 0.006]], corner: 0.3 }],
+    ["a knot", { knots: [{ alongM: chordHalf / 1000, depthM: 0.006 }], corner: 0.3 }],
     ["a heading", { knots: [], corner: 0.3, heading: [0, 0, -1] }],
   ];
   for (const [what, profile] of conflicts) {

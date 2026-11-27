@@ -1,5 +1,7 @@
 import type { IAutoMovieMotionHumanArmPlanned } from "@automovie/interface";
-import { AutoMovieMotionHumanArmStated } from "@automovie/motions/internal";
+import {
+  motionHumanArmStated
+} from "../../../../../packages/motions/src/compose/internal/motionHumanArmStated";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -19,7 +21,7 @@ function trapezoid(
 }
 
 /**
- * `AutoMovieMotionHumanArmStated` reads the span a carry's weight states: the
+ * `motionHumanArmStated` reads the span a carry's weight states: the
  * last second at rest before it moves (`start`), the first at 1 (`ready`), the
  * first below 1 again (`relax`) and the first back at rest (`end`), each
  * bracketed on a 1/240 s grid and bisected to 1e-12 s; a weight that holds 1 to
@@ -40,7 +42,7 @@ export function test_motions_compose_arm_stated(): void {
   // 1. A whole span.
   const a: number = 0.3 + 1 / 300;
   const span: IAutoMovieMotionHumanArmPlanned.ISpan | undefined =
-    AutoMovieMotionHumanArmStated(trapezoid(a, 0.7, 1.2, 1.6), 0, 2);
+    motionHumanArmStated(trapezoid(a, 0.7, 1.2, 1.6), 0, 2);
   TestValidator.predicate(
     "the four instants",
     span !== undefined &&
@@ -52,7 +54,7 @@ export function test_motions_compose_arm_stated(): void {
 
   // 2. Held to the end.
   const held: IAutoMovieMotionHumanArmPlanned.ISpan | undefined =
-    AutoMovieMotionHumanArmStated(trapezoid(0.5, 1, 3, 4), 0, 2);
+    motionHumanArmStated(trapezoid(0.5, 1, 3, 4), 0, 2);
   TestValidator.predicate(
     "held, it relaxes and ends at the window's end",
     held !== undefined &&
@@ -68,14 +70,14 @@ export function test_motions_compose_arm_stated(): void {
   TestValidator.equals(
     "weights that state no span",
     [
-      AutoMovieMotionHumanArmStated((): number => 0, 0, 2),
-      AutoMovieMotionHumanArmStated(
+      motionHumanArmStated((): number => 0, 0, 2),
+      motionHumanArmStated(
         (t: number): number => Math.max(0, 0.5 - Math.abs(t - 1)),
         0,
         2,
       ),
-      AutoMovieMotionHumanArmStated(trapezoid(-1, 0.5, 1, 1.5), 0, 2),
-      AutoMovieMotionHumanArmStated(twice, 0, 2),
+      motionHumanArmStated(trapezoid(-1, 0.5, 1, 1.5), 0, 2),
+      motionHumanArmStated(twice, 0, 2),
     ],
     [undefined, undefined, undefined, undefined],
   );

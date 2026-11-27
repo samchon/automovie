@@ -1,0 +1,27 @@
+import {
+  IAutoMovieSemanticMask,
+  IAutoMovieSemanticMaskEntry,
+} from "@automovie/interface";
+
+/*
+ * Index a mask by the scene node ids that draw each entry.
+ *
+ * The viewer holds objects, not semantics; this is the join it uses. Built as
+ * one map rather than searched per mesh, because a structural pass touches
+ * every drawable in the scene once per frame.
+ */
+export function semanticMaskNodeIndex(
+  mask: IAutoMovieSemanticMask,
+): Map<string, IAutoMovieSemanticMaskEntry> {
+  const index: Map<string, IAutoMovieSemanticMaskEntry> = new Map<
+    string,
+    IAutoMovieSemanticMaskEntry
+  >();
+  for (const entry of mask.entries) {
+    for (const node of entry.nodes) index.set(node, entry);
+    // An instance set's viewer group carries the entry's own id as its name,
+    // so the same index resolves batched geometry without a second lookup.
+    if (entry.kind === "instance-set") index.set(entry.id, entry);
+  }
+  return index;
+}

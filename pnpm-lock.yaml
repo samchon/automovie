@@ -322,6 +322,9 @@ importers:
       '@ttsc/lint':
         specifier: catalog:samchon
         version: 0.38.1(ttsc@0.38.1(typescript@7.0.2))
+      '@ttsc/unplugin':
+        specifier: catalog:samchon
+        version: 0.38.1(ttsc@0.38.1(typescript@7.0.2))
       '@types/node':
         specifier: catalog:utils
         version: 22.19.20
@@ -364,6 +367,9 @@ importers:
       three:
         specifier: catalog:three
         version: 0.187.0
+      tinyglobby:
+        specifier: catalog:utils
+        version: 0.2.17
       ttsc:
         specifier: catalog:samchon
         version: 0.38.1(typescript@7.0.2)
@@ -382,15 +388,9 @@ importers:
       '@ttsc/lint':
         specifier: catalog:samchon
         version: 0.38.1(ttsc@0.38.1(typescript@7.0.2))
-      '@ttsc/unplugin':
-        specifier: catalog:samchon
-        version: 0.38.1(ttsc@0.38.1(typescript@7.0.2))
       '@wrtnlabs/evidence':
         specifier: catalog:samchon
         version: 0.11.1(ttsc@0.38.1(typescript@7.0.2))
-      tinyglobby:
-        specifier: catalog:utils
-        version: 0.2.17
       ttsc:
         specifier: catalog:samchon
         version: 0.38.1(typescript@7.0.2)
@@ -407,6 +407,9 @@ importers:
         specifier: workspace:^
         version: link:../interface
     devDependencies:
+      '@automovie/config':
+        specifier: workspace:^
+        version: link:../../config
       '@automovie/render':
         specifier: workspace:^
         version: link:../render
@@ -458,6 +461,9 @@ importers:
 
   packages/cli:
     dependencies:
+      '@automovie/engine':
+        specifier: workspace:^
+        version: link:../engine
       '@automovie/interface':
         specifier: workspace:^
         version: link:../interface
@@ -474,6 +480,9 @@ importers:
         specifier: catalog:vite
         version: 5.4.21(@types/node@22.19.20)(terser@5.51.2)
     devDependencies:
+      '@automovie/config':
+        specifier: workspace:^
+        version: link:../../config
       '@automovie/render':
         specifier: workspace:^
         version: link:../render
@@ -505,6 +514,9 @@ importers:
         specifier: workspace:^
         version: link:../interface
     devDependencies:
+      '@automovie/config':
+        specifier: workspace:^
+        version: link:../../config
       '@ttsc/evidence':
         specifier: catalog:samchon
         version: 0.38.1(@ttsc/lint@0.38.1(ttsc@0.38.1(typescript@7.0.2)))
@@ -533,6 +545,9 @@ importers:
         specifier: catalog:samchon
         version: 0.11.1(ttsc@0.38.1(typescript@7.0.2))
     devDependencies:
+      '@automovie/config':
+        specifier: workspace:^
+        version: link:../../config
       '@ttsc/evidence':
         specifier: catalog:samchon
         version: 0.38.1(@ttsc/lint@0.38.1(ttsc@0.38.1(typescript@7.0.2)))
@@ -560,10 +575,16 @@ importers:
       '@automovie/interface':
         specifier: workspace:^
         version: link:../interface
+      tstl:
+        specifier: catalog:samchon
+        version: 3.0.0
       typia:
         specifier: catalog:samchon
         version: 15.5.0(ttsc@0.38.1(typescript@7.0.2))
     devDependencies:
+      '@automovie/config':
+        specifier: workspace:^
+        version: link:../../config
       '@automovie/recovery':
         specifier: workspace:^
         version: link:../recovery
@@ -606,9 +627,6 @@ importers:
       three:
         specifier: catalog:three
         version: 0.187.0
-      tstl:
-        specifier: catalog:samchon
-        version: 3.0.0
       ttsc:
         specifier: catalog:samchon
         version: 0.38.1(typescript@7.0.2)
@@ -631,6 +649,9 @@ importers:
         specifier: catalog:gltf
         version: 4.5.0
     devDependencies:
+      '@automovie/config':
+        specifier: workspace:^
+        version: link:../../config
       '@ttsc/evidence':
         specifier: catalog:samchon
         version: 0.38.1(@ttsc/lint@0.38.1(ttsc@0.38.1(typescript@7.0.2)))
@@ -652,6 +673,9 @@ importers:
 
   packages/interface:
     devDependencies:
+      '@automovie/config':
+        specifier: workspace:^
+        version: link:../../config
       '@ttsc/evidence':
         specifier: catalog:samchon
         version: 0.38.1(@ttsc/lint@0.38.1(ttsc@0.38.1(typescript@7.0.2)))
@@ -680,6 +704,9 @@ importers:
         specifier: workspace:^
         version: link:../interface
     devDependencies:
+      '@automovie/config':
+        specifier: workspace:^
+        version: link:../../config
       '@automovie/human':
         specifier: workspace:^
         version: link:../human
@@ -744,6 +771,9 @@ importers:
         specifier: workspace:^
         version: link:../interface
     devDependencies:
+      '@automovie/config':
+        specifier: workspace:^
+        version: link:../../config
       '@ttsc/evidence':
         specifier: catalog:samchon
         version: 0.38.1(@ttsc/lint@0.38.1(ttsc@0.38.1(typescript@7.0.2)))
@@ -781,6 +811,9 @@ importers:
         specifier: catalog:three
         version: 0.187.0
     devDependencies:
+      '@automovie/config':
+        specifier: workspace:^
+        version: link:../../config
       '@ttsc/evidence':
         specifier: catalog:samchon
         version: 0.38.1(@ttsc/lint@0.38.1(ttsc@0.38.1(typescript@7.0.2)))
@@ -815,6 +848,9 @@ importers:
         specifier: ^2.9.0
         version: 2.9.0
     devDependencies:
+      '@automovie/config':
+        specifier: workspace:^
+        version: link:../../config
       '@automovie/evidence':
         specifier: workspace:^
         version: link:../evidence
@@ -842,6 +878,9 @@ importers:
 
   packages/viewer:
     dependencies:
+      '@automovie/interface':
+        specifier: workspace:^
+        version: link:../interface
       '@automovie/render':
         specifier: workspace:^
         version: link:../render
@@ -849,6 +888,9 @@ importers:
         specifier: catalog:three
         version: 0.187.0
     devDependencies:
+      '@automovie/config':
+        specifier: workspace:^
+        version: link:../../config
       '@ttsc/evidence':
         specifier: catalog:samchon
         version: 0.38.1(@ttsc/lint@0.38.1(ttsc@0.38.1(typescript@7.0.2)))
@@ -958,6 +1000,9 @@ importers:
         specifier: catalog:samchon
         version: 15.5.0(ttsc@0.38.1(typescript@7.0.2))
     devDependencies:
+      '@automovie/config':
+        specifier: workspace:^
+        version: link:../config
       '@napi-rs/canvas':
         specifier: 1.0.1
         version: 1.0.1

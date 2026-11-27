@@ -17,17 +17,17 @@ import { AutoMovieHumanSkeletonMath as Math3D } from "./AutoMovieHumanSkeletonMa
  * the trunk's and the leg's: at each depth under the shoulder the arm's own
  * radius there (its skin's farthest distance from the bone line, read off the
  * arm chain at the bind and carried onto the straightened arm) must reach no
- * further toward the body than the body's skin at that depth.
- * The bind's bend gives the elbow's plane, which neutral lays in the sagittal
- * plane: the upper arm turns about its own axis until the forearm lies
- * forward of it.
+ * further toward the body than the body's skin at that depth. The bind's bend
+ * gives the elbow's plane, which neutral lays in the sagittal plane: the upper
+ * arm turns about its own axis until the forearm lies forward of it.
  */
 export namespace AutoMovieHumanNeutralShoulder {
   /**
    * Derive one shoulder's neutral.
    *
    * @param body The bind skeleton.
-   * @param rings The skin of the trunk, the legs and the arms; the arm's own chain sizes it, the others are cleared.
+   * @param rings The skin of the trunk, the legs and the arms; the arm's own
+   *   chain sizes it, the others are cleared.
    * @param side Which arm.
    * @returns The upper arm's turn, direction and resting angle.
    */
@@ -65,15 +65,15 @@ export namespace AutoMovieHumanNeutralShoulder {
 
   /**
    * The sine of the elbow's bend below which the bind arm counts as straight
-   * and has no elbow plane: one degree, far under any carrying or flexion
-   * angle a bind is built with, and far over the rounding of unit directions.
+   * and has no elbow plane: one degree, far under any carrying or flexion angle
+   * a bind is built with, and far over the rounding of unit directions.
    */
   export const STRAIGHT: number = Math.sin(Math.PI / 180);
 
   /** Width of a station bin of the arm's radius profile, mm. */
   export const BIN: number = 5;
 
-  /**
+  /*
    * The least abduction at which the straight arm's skin clears the trunk and
    * the leg beside it.
    *
@@ -81,7 +81,8 @@ export namespace AutoMovieHumanNeutralShoulder {
    * ring, where the axilla makes them one surface and flesh gives) down to the
    * fingertips: each skin point of the arm, the palm, the thumb and the fingers
    * is carried onto the straightened arm by its station along its own bone (the
-   * humerus above the elbow, the forearm below and on past the wrist) and its distance from that bone. Without an arm chain the forearm's joint radius
+   * humerus above the elbow, the forearm below and on past the wrist) and its
+   * distance from that bone. Without an arm chain the forearm's joint radius
    * stands for the skin from the elbow down.
    */
   function restingAngle(
@@ -90,9 +91,9 @@ export namespace AutoMovieHumanNeutralShoulder {
     side: "left" | "right",
   ): number {
     const s: number = side === "left" ? 1 : -1;
-    const at: (bone: string) => AutoMovieVector3Tuple = (
-      bone: string,
-    ): AutoMovieVector3Tuple => body.byBone.get(`${side}${bone}`)!.position;
+    function at(bone: string): AutoMovieVector3Tuple {
+      return body.byBone.get(`${side}${bone}`)!.position;
+    }
     const shoulder: AutoMovieVector3Tuple = at("UpperArm");
     const profile: IProfile = armProfile(rings, body, side);
     const fore: number = profile.to;
@@ -118,23 +119,29 @@ export namespace AutoMovieHumanNeutralShoulder {
     return (Math.asin(Math.min(1, widest)) * 180) / Math.PI;
   }
 
-  /** The straight arm's radius along its length. */
+  /*
+   * The straight arm's radius along its length.
+   */
   interface IProfile {
-    /** Depth under the shoulder from which the arm's skin is its own, mm. */
+    /*
+     * Depth under the shoulder from which the arm's skin is its own, mm.
+     */
     from: number;
 
-    /** Depth under the shoulder to which the arm and hand reach, mm: the fingertips. */
+    /*
+     * Depth under the shoulder to which the arm and hand reach, mm: the
+     * fingertips.
+     */
     to: number;
 
-    /**
+    /*
      * The arm's radius at a depth under the shoulder, mm.
-     *
-     * @param t Depth along the straight arm, mm.
+     * Parameter t: Depth along the straight arm, mm.
      */
     radius(t: number): number;
   }
 
-  /**
+  /*
    * The arm's radius profile from its own skin, or the forearm's joint radius
    * from the elbow down when the rings hold no arm chain.
    */
@@ -143,9 +150,9 @@ export namespace AutoMovieHumanNeutralShoulder {
     body: IAutoMovieHumanNeutralBody,
     side: "left" | "right",
   ): IProfile {
-    const at: (bone: string) => AutoMovieVector3Tuple = (
-      bone: string,
-    ): AutoMovieVector3Tuple => body.byBone.get(`${side}${bone}`)!.position;
+    function at(bone: string): AutoMovieVector3Tuple {
+      return body.byBone.get(`${side}${bone}`)!.position;
+    }
     const shoulder: AutoMovieVector3Tuple = at("UpperArm");
     const elbow: AutoMovieVector3Tuple = at("LowerArm");
     const upper: number = Turn.length(shoulder, elbow);
@@ -169,9 +176,7 @@ export namespace AutoMovieHumanNeutralShoulder {
 
     // Each skin point onto the straight arm: station and distance from the
     // nearer bone line within that bone's span.
-    const reading: (p: AutoMovieVector3Tuple) => [number, number] = (
-      p: AutoMovieVector3Tuple,
-    ): [number, number] => {
+    function reading(p: AutoMovieVector3Tuple): [number, number] {
       const a: number = Turn.dot(Math3D.sub(p, shoulder), humerus);
       const b: number = Turn.dot(Math3D.sub(p, elbow), forearm);
       const da: number = Turn.length(
@@ -183,7 +188,7 @@ export namespace AutoMovieHumanNeutralShoulder {
         Math3D.add(elbow, [forearm[0] * b, forearm[1] * b, forearm[2] * b]),
       );
       return a <= upper && (b < 0 || da <= db) ? [a, da] : [upper + b, db];
-    };
+    }
     const count: number = arm.points.length / 3;
     const readings: [number, number][] = Array.from(
       { length: count },

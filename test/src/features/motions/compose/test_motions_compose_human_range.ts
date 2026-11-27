@@ -1,8 +1,10 @@
-import { DEFAULT_HUMANOID_ROM } from "@automovie/engine";
+import { AutoMovieEngineDefaultHumanoidRom } from "@automovie/engine";
 import {
-  AutoMovieMotionHumanRange,
-  AutoMovieMotionHumanReach,
-} from "@automovie/motions/internal";
+  AutoMovieMotionHumanRange
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanRange";
+import {
+  AutoMovieMotionHumanReach
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanReach";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -13,7 +15,7 @@ const ROUNDING: number = 1e-12;
 
 /**
  * `AutoMovieMotionHumanRange` turns an amount into degrees: a level is a share
- * of the way from rest to the named motion's limit in `DEFAULT_HUMANOID_ROM`
+ * of the way from rest to the named motion's limit in `AutoMovieEngineDefaultHumanoidRom`
  * (flexion its `flexion.max`, extension its `flexion.min`, and so on), signed
  * as the clinical angle; a level may be scaled within [0.5, 1.5] and no further
  * than the whole range; explicit degrees are a sourced magnitude signed by the
@@ -65,7 +67,7 @@ export function test_motions_compose_human_range(): void {
 
   // 3. Degrees.
   const neck: { min: number; max: number } =
-    DEFAULT_HUMANOID_ROM.neck!.flexion!;
+    AutoMovieEngineDefaultHumanoidRom.neck!.flexion!;
   TestValidator.predicate(
     "degrees from the joint's own range",
     nclose(

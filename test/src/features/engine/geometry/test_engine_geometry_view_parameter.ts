@@ -1,11 +1,11 @@
-import { AutoMovieViewParameter } from "@automovie/engine";
+import { AutoMovieEngineViewParameter } from "@automovie/engine";
 import type { IAutoMovieConstructionOutlineParameter } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 type P = IAutoMovieConstructionOutlineParameter;
 
 /**
- * `AutoMovieViewParameter` maps a station to a source parameter: a root map
+ * `AutoMovieEngineViewParameter` maps a station to a source parameter: a root map
  * +-sqrt(distance from a pole) or an angle map 2 asin sqrt((s - bottom) /
  * span), with its inverse (`station`), its derivatives in the station (`jet`),
  * the station's in the parameter (`inverseJet`), and one parameter's
@@ -31,7 +31,7 @@ type P = IAutoMovieConstructionOutlineParameter;
  *    domain null.
  */
 export function test_engine_geometry_view_parameter(): void {
-  const V = AutoMovieViewParameter;
+  const V = AutoMovieEngineViewParameter;
   const up: P = { type: "root", pole: 10, end: "bottom" };
   const down: P = { type: "root", pole: 10, end: "top" };
   const angle: P = { type: "angle", bottom: 0, top: 4 };

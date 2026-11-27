@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieQuaternion,
@@ -19,67 +19,8 @@ import type { AutoMovieArchetypeEquineLibertyCue } from "./AutoMovieArchetypeEqu
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { AutoMovieArchetypeQuadrupedRest } from "./AutoMovieArchetypeQuadrupedRest";
 import type { AutoMovieArchetypeQuadrupedRestPlan } from "./AutoMovieArchetypeQuadrupedRestPlan";
-import { EquineRecumbency } from "./EquineRecumbency";
-import { rideQuadruped } from "./rideQuadruped";
-
-/**
- * How often the mare's path is read for a following foal's course, seconds:
- * authored.
- */
-const STEP: number = 0.25;
-
-/**
- * Where a suckling foal stands, facing in at the udder: its centre's distance
- * from the udder, metres, the degrees and radius of its turn in; its walking
- * speed and its pause before reaching: authored.
- */
-const NURSE: Readonly<INurseShape> = {
-  out: 1.12,
-  turn: 90,
-  radius: 0.4,
-  speed: 1,
-  settle: 0.3,
-  ease: 1,
-};
-
-/** A suckling foal's authored place. */
-interface INurseShape {
-  /** Metres out from the mare's centre line. */
-  out: number;
-
-  /** Degrees of its last turn in, from the mare's heading. */
-  turn: number;
-
-  /** Metres of radius of its last turn in. */
-  radius: number;
-
-  /** Its walking speed, metres per second. */
-  speed: number;
-
-  /** Seconds it settles before reaching. */
-  settle: number;
-
-  /** Seconds its reach eases in and out. */
-  ease: number;
-}
-
-/**
- * The udder's place along the mare's trunk bar from its rear end, a share of
- * the bar: authored.
- */
-const UDDER: number = 0.3;
-
-/**
- * How far the udder hangs below the barrel's underside, metres: authored, the
- * coarse body draws no udder.
- */
-const HANG: number = 0.15;
-
-/** A mare's lying for the foaling: everything but its start. */
-type Lying = Omit<EquineRecumbency.ICue, "from">;
-
-/** A named instant of a ride. */
-type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];
+import { EquineRecumbency } from "./equine/EquineRecumbency";
+import { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
 /**
  * A mare and her foal: following at her flank, suckling, and the foaling.
@@ -176,7 +117,7 @@ export namespace AutoMovieArchetypeEquineFoal {
       });
       samples.push({ seconds, x: point.x, z: point.z });
     }
-    return rideQuadruped(
+    return AutoMovieArchetypeQuadruped.ride(
       foal,
       AutoMovieArchetypeCourse.timed(foal.archetype, samples),
     );
@@ -205,26 +146,26 @@ export namespace AutoMovieArchetypeEquineFoal {
       trunk.geometry.shape.type === "capsule"
         ? trunk.geometry.shape.radius
         : 0;
-    const axis: IAutoMovieVector3 = Quaternion.rotateVector(
+    const axis: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       trunk.transform!.rotation,
       { x: 0, y: 1, z: 0 },
     );
-    const rear: IAutoMovieVector3 = Vector3.addScaled(
+    const rear: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(
       trunk.transform!.translation,
       axis,
       -height / 2,
     );
-    const centre: IAutoMovieVector3 = Vector3.addScaled(
+    const centre: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(
       rear,
       axis,
       UDDER * height,
     );
-    const down: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.addScaled({ x: 0, y: -1, z: 0 }, axis, axis.y),
+    const down: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.addScaled({ x: 0, y: -1, z: 0 }, axis, axis.y),
     );
     return AutoMovieArchetypeFrame.point(
       mare.placement,
-      Vector3.addScaled(centre, down, radius + HANG),
+      AutoMovieEngineVector3.addScaled(centre, down, radius + HANG),
     );
   }
 
@@ -284,7 +225,9 @@ export namespace AutoMovieArchetypeEquineFoal {
       D | AutoMovieArchetypeQuadrupedBody.Dimension
     >,
   ] {
-    /** The source dimensions with the quadruped size the ride solves. */
+    /*
+     * The source dimensions with the quadruped size the ride solves.
+     */
     type Dimension = D | AutoMovieArchetypeQuadrupedBody.Dimension;
     const lying: AutoMovieArchetypeRide.IRide<Id, Dimension> =
       EquineRecumbency.after(mare, ride, { from: timing.from, ...timing.mare });
@@ -300,7 +243,7 @@ export namespace AutoMovieArchetypeEquineFoal {
       }),
     };
     const clip: AutoMovieArchetypeQuadrupedRestPlan.IClip<Id, Dimension> =
-      AutoMovieArchetypeQuadrupedRest(
+      AutoMovieArchetypeQuadrupedRest.plan(
         foal,
         AutoMovieArchetypeEquineLiberty.rested(foal, place, timing.foal),
       );
@@ -354,7 +297,7 @@ export namespace AutoMovieArchetypeEquineFoal {
     ];
   }
 
-  /**
+  /*
    * The risen foal walks to the risen mare's flank and suckles: an S-curve of
    * two opposite quarter turns steps it across, a straight brings it level with
    * the udder, and a last turn faces it in at the udder from beside the barrel,
@@ -375,7 +318,9 @@ export namespace AutoMovieArchetypeEquineFoal {
     Id,
     D | AutoMovieArchetypeQuadrupedBody.Dimension
   > {
-    /** The source dimensions with the quadruped size the ride solves. */
+    /*
+     * The source dimensions with the quadruped size the ride solves.
+     */
     type Dimension = D | AutoMovieArchetypeQuadrupedBody.Dimension;
     const both: number = Math.max(born.duration, lying.duration);
     const stood: AutoMovieArchetypeRide.ISample<Id, Dimension> = born.at(
@@ -384,13 +329,13 @@ export namespace AutoMovieArchetypeEquineFoal {
     const mare: AutoMovieArchetypeRide.ISample<Id, Dimension> = lying.at(
       lying.duration,
     );
-    const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+    const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
       mare.placement.rotation,
     );
     const local = (point: IAutoMovieVector3): IAutoMovieVector3 =>
-      Quaternion.rotateVector(
+      AutoMovieEngineQuaternion.rotateVector(
         inverse,
-        Vector3.subtract(point, mare.placement.translation),
+        AutoMovieEngineVector3.subtract(point, mare.placement.translation),
       );
     const teat: IAutoMovieVector3 = local(udder(mare));
     const from: IAutoMovieVector3 = local(stood.placement.translation);
@@ -402,7 +347,7 @@ export namespace AutoMovieArchetypeEquineFoal {
       y: 0,
       z: Math.cos(turn),
     };
-    const centre: IAutoMovieVector3 = Vector3.addScaled(
+    const centre: IAutoMovieVector3 = AutoMovieEngineVector3.addScaled(
       teat,
       facing,
       -NURSE.out,
@@ -419,12 +364,12 @@ export namespace AutoMovieArchetypeEquineFoal {
       throw new RangeError(
         "The foal stands too near the udder to walk round to the flank",
       );
-    const ahead: IAutoMovieVector3 = Quaternion.rotateVector(
+    const ahead: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       stood.placement.rotation,
       { x: 0, y: 0, z: 1 },
     );
     const sign: number = across >= 0 ? 1 : -1;
-    const approach: AutoMovieArchetypeRide.IRide<Id, Dimension> = rideQuadruped(
+    const approach: AutoMovieArchetypeRide.IRide<Id, Dimension> = AutoMovieArchetypeQuadruped.ride(
       foal,
       {
         start: {
@@ -493,3 +438,78 @@ export namespace AutoMovieArchetypeEquineFoal {
     ]);
   }
 }
+
+/*
+ * How often the mare's path is read for a following foal's course, seconds:
+ * authored.
+ */
+const STEP: number = 0.25;
+
+/*
+ * Where a suckling foal stands, facing in at the udder: its centre's distance
+ * from the udder, metres, the degrees and radius of its turn in; its walking
+ * speed and its pause before reaching: authored.
+ */
+const NURSE: Readonly<INurseShape> = {
+  out: 1.12,
+  turn: 90,
+  radius: 0.4,
+  speed: 1,
+  settle: 0.3,
+  ease: 1,
+};
+
+/*
+ * The udder's place along the mare's trunk bar from its rear end, a share of
+ * the bar: authored.
+ */
+const UDDER: number = 0.3;
+
+/*
+ * How far the udder hangs below the barrel's underside, metres: authored, the
+ * coarse body draws no udder.
+ */
+const HANG: number = 0.15;
+
+/*
+ * A suckling foal's authored place.
+ */
+interface INurseShape {
+  /*
+   * Metres out from the mare's centre line.
+   */
+  out: number;
+
+  /*
+   * Degrees of its last turn in, from the mare's heading.
+   */
+  turn: number;
+
+  /*
+   * Metres of radius of its last turn in.
+   */
+  radius: number;
+
+  /*
+   * Its walking speed, metres per second.
+   */
+  speed: number;
+
+  /*
+   * Seconds it settles before reaching.
+   */
+  settle: number;
+
+  /*
+   * Seconds its reach eases in and out.
+   */
+  ease: number;
+}
+
+/** A mare's lying for the foaling: everything but its start. */
+type Lying = Omit<EquineRecumbency.ICue, "from">;
+
+/*
+ * A named instant of a ride.
+ */
+type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];

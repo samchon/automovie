@@ -1,11 +1,11 @@
-import { preparePhysicalGeometry } from "@automovie/engine";
+import { AutoMovieEnginePhysicalGeometry } from "@automovie/engine";
 import type { IAutoMoviePreparePhysicalGeometry } from "@automovie/interface";
-import { observeAutoMovieSceneCollision } from "@automovie/render";
+import { AutoMovieRenderInspection } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 /**
- * `observeAutoMovieSceneCollision` finds the placed meshes that interpenetrate.
+ * `AutoMovieRenderInspection.observePlacedSceneCollisions` finds the placed meshes that interpenetrate.
  *
  * Scenarios:
  *
@@ -14,8 +14,8 @@ import * as THREE from "three";
  */
 export async function test_render_scene_observe_scene_collision(): Promise<void> {
   const geometry: IAutoMoviePreparePhysicalGeometry.IQueries =
-    await preparePhysicalGeometry();
-  const observe = (gap: number): ReturnType<typeof observeAutoMovieSceneCollision> & {
+    await AutoMovieEnginePhysicalGeometry.prepare();
+  const observe = (gap: number): AutoMovieRenderInspection.IPlacedSceneCollisionResult & {
     spent: number;
   } => {
     const root: THREE.Scene = new THREE.Scene();
@@ -39,7 +39,7 @@ export async function test_render_scene_observe_scene_collision(): Promise<void>
       sweptCells: 1_000,
     };
     const spent = { comparisons: 0, posedVertices: 0, surfaceTriangles: 0, sweptCells: 0 };
-    const result = observeAutoMovieSceneCollision({
+    const result = AutoMovieRenderInspection.observePlacedSceneCollisions({
       time: { filmSeconds: 0 },
       layers: [{ id: "main", root, localSeconds: 0 }],
       geometry,

@@ -1,4 +1,4 @@
-import { bufferAutoMovieBones, rigAutoMovieSweep } from "@automovie/engine";
+import { AutoMovieEngineSweep } from "@automovie/engine";
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -7,7 +7,7 @@ import { sweepBranchedSkeleton } from "../../internal/sweepBranchedSkeleton";
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * A volume-preserving sweep rig (`rigAutoMovieSweep`) refuses a posed scale
+ * A volume-preserving sweep rig (`rigSweep`) refuses a posed scale
  * that overflows instead of publishing it, and keeps its prior scales.
  *
  * Fixture: the branched body's left side sweep on its skeleton, scaled by 0.5
@@ -23,10 +23,10 @@ import { throwsError } from "../../internal/throwsError";
  */
 export function test_engine_geometry_sweep_rig_pose_overflow(): void {
   const skeleton: ReturnType<typeof sweepBranchedSkeleton> = sweepBranchedSkeleton();
-  const motion: ReturnType<typeof bufferAutoMovieBones> = bufferAutoMovieBones(skeleton.rest);
+  const motion: ReturnType<typeof AutoMovieEngineSweep.bufferBones> = AutoMovieEngineSweep.bufferBones(skeleton.rest);
   const binding: (typeof skeleton.bindings.sweeps)[string] = skeleton.bindings.sweeps.sideLeft!;
   const index = (bone: AutoMovieHumanoidBone): number => motion.index(bone);
-  const rig: ReturnType<typeof rigAutoMovieSweep> = rigAutoMovieSweep({
+  const rig: ReturnType<typeof AutoMovieEngineSweep.rigSweep> = AutoMovieEngineSweep.rigSweep({
     sweep: sweepBranchedBody().sweeps.sideLeft!,
     binding: {
       points: binding.points.map(index),

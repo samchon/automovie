@@ -1,8 +1,4 @@
-import {
-  AutoMovieCanonicalJsonError,
-  autoMovieRenderDigest,
-  canonicalizeAutoMovieJson,
-} from "@automovie/engine";
+import { AutoMovieEngineCanonicalJsonError, AutoMovieEngineCanonicalJson, AutoMovieEngineRenderTarget } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 import { createHash } from "node:crypto";
 
@@ -50,9 +46,9 @@ export function test_text_canonical_json_runtime_parity(): void {
   TestValidator.equals(
     "the pure digest reproduces the FIPS 180-4 example digests",
     [
-      autoMovieRenderDigest(""),
-      autoMovieRenderDigest("abc"),
-      autoMovieRenderDigest(
+      AutoMovieEngineRenderTarget.autoMovieRenderDigest(""),
+      AutoMovieEngineRenderTarget.autoMovieRenderDigest("abc"),
+      AutoMovieEngineRenderTarget.autoMovieRenderDigest(
         "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq",
       ),
     ],
@@ -104,14 +100,16 @@ export function test_text_canonical_json_runtime_parity(): void {
   TestValidator.equals(
     "the engine text is the hand-written canonical text",
     cases.map((item: (typeof cases)[number]): string =>
-      canonicalizeAutoMovieJson(item.value),
+      AutoMovieEngineCanonicalJson.canonicalize(item.value),
     ),
     cases.map((item: (typeof cases)[number]): string => item.text),
   );
   TestValidator.equals(
     "the pure engine digest equals node:crypto over the hand-written bytes",
     cases.map((item: (typeof cases)[number]): string =>
-      autoMovieRenderDigest(canonicalizeAutoMovieJson(item.value)),
+      AutoMovieEngineRenderTarget.autoMovieRenderDigest(
+        AutoMovieEngineCanonicalJson.canonicalize(item.value),
+      ),
     ),
     cases.map((item: (typeof cases)[number]): string => nodeDigest(item.text)),
   );
@@ -119,14 +117,20 @@ export function test_text_canonical_json_runtime_parity(): void {
   TestValidator.equals(
     "members follow code units and absent members leave the identity unchanged",
     {
-      text: canonicalizeAutoMovieJson({ a: 2, ä: 4, B: 1, Z: 3 }),
+      text: AutoMovieEngineCanonicalJson.canonicalize({
+        a: 2,
+        ä: 4,
+        B: 1,
+        Z: 3,
+      }),
       omitted:
-        autoMovieRenderDigest(
-          canonicalizeAutoMovieJson({ skip: undefined, a: 1 }),
+        AutoMovieEngineRenderTarget.autoMovieRenderDigest(
+          AutoMovieEngineCanonicalJson.canonicalize({ skip: undefined, a: 1 }),
         ) === nodeDigest('{"a":1}'),
       changed:
-        autoMovieRenderDigest(canonicalizeAutoMovieJson({ a: 2 })) ===
-        nodeDigest('{"a":1}'),
+        AutoMovieEngineRenderTarget.autoMovieRenderDigest(
+          AutoMovieEngineCanonicalJson.canonicalize({ a: 2 }),
+        ) === nodeDigest('{"a":1}'),
     },
     { text: '{"B":1,"Z":3,"a":2,"ä":4}', omitted: true, changed: false },
   );
@@ -142,16 +146,16 @@ export function test_text_canonical_json_runtime_parity(): void {
     }
   };
   const engineRefusal: unknown = refusal((): string =>
-    canonicalizeAutoMovieJson(new Date(0)),
+    AutoMovieEngineCanonicalJson.canonicalize(new Date(0)),
   );
   TestValidator.equals(
     "container refusals preserve their domain error categories",
     [
-      engineRefusal instanceof AutoMovieCanonicalJsonError,
-      engineRefusal instanceof AutoMovieCanonicalJsonError
+      engineRefusal instanceof AutoMovieEngineCanonicalJsonError,
+      engineRefusal instanceof AutoMovieEngineCanonicalJsonError
         ? engineRefusal.category
         : null,
-      new TypeError("unrelated") instanceof AutoMovieCanonicalJsonError,
+      new TypeError("unrelated") instanceof AutoMovieEngineCanonicalJsonError,
     ],
     [true, "non-plain-container", false],
   );

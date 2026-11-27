@@ -1,18 +1,4 @@
-import {
-  autoMoviePlanarRegionFailure,
-  footprintArea,
-  footprintContains,
-  footprintConvexPieces,
-  footprintInteriorPoint,
-  footprintRing,
-  footprintRingPlacement,
-  heightAt,
-  isWalkable,
-  spaceGround,
-  supportContactsFor,
-  surfaceContains,
-  surfaceFootprint,
-} from "@automovie/engine";
+import { AutoMovieEngineSpace, AutoMovieEnginePlanarRegion } from "@automovie/engine";
 import {
   IAutoMovieBuiltEnvironment,
   type IAutoMovieFootprint,
@@ -139,7 +125,7 @@ const pieceArea: (piece: readonly IAutoMovieVector3[]) => number = (
   piece: readonly IAutoMovieVector3[],
 ): number =>
   Math.abs(
-    footprintRing(
+    AutoMovieEngineSpace.footprintRing(
       piece.map((p: IAutoMovieVector3): { x: number; y: number; z: number } =>
         v(p.x, p.z),
       ),
@@ -195,9 +181,12 @@ const pieceArea: (piece: readonly IAutoMovieVector3[]) => number = (
  *     the slab, a patch with no area is no face at all, and the take-off
  *     subtracts the void from the floor area somebody orders against.
  * 14. An admitted positive thin band survives decomposition. An independently
- *     specified dyadic L has normalized area three in its authored winding, so a hull
- *     replacement or dropped band cannot hide behind a broad absolute tolerance.
- * 15. Validation refuses a crossing ring; its decomposition contains only finite points and its containment query returns a boolean. These assertions do not require an empty decomposition or compare repeated readings.
+ *     specified dyadic L has normalized area three in its authored winding, so
+ *     a hull replacement or dropped band cannot hide behind a broad absolute
+ *     tolerance.
+ * 15. Validation refuses a crossing ring; its decomposition contains only finite
+ *     points and its containment query returns a boolean. These assertions do
+ *     not require an empty decomposition or compare repeated readings.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Footprint membership, support/ground outputs, convex-piece area and emitted surface triangles exercise actual region readers and consumers; the dyadic thin L catches both hull-filled notches and dropped positive slabs.
  * @evidence contracts/development/testing.md#independent-expectations Authored rectangles give plate area 64-16=48 and thin L area three times its binary-exact width. Shoelace sums check the actual decomposition, while downstream membership and emitted triangle probes establish the asserted local void cases rather than universal polygon exactness.
@@ -209,7 +198,7 @@ export function test_space_footprint_voids(): void {
   // An admitted dyadic L is three width-by-one rectangles. Normalize its area
   // by width so a broad absolute tolerance cannot hide the positive feature.
   const width: number = 2 ** -32;
-  const thin: IAutoMovieFootprint = surfaceFootprint({
+  const thin: IAutoMovieFootprint = AutoMovieEngineSpace.surfaceFootprint({
     ...ell,
     polygon: [
       v(0, 0),
@@ -222,10 +211,10 @@ export function test_space_footprint_voids(): void {
   });
   TestValidator.equals(
     "thin positive L is admitted by canonical region hygiene",
-    autoMoviePlanarRegionFailure({ outer: thin.outer.plan }),
+    AutoMovieEnginePlanarRegion.failure({ outer: thin.outer.plan }),
     null,
   );
-  const thinArea: number = footprintConvexPieces(thin).reduce(
+  const thinArea: number = AutoMovieEngineSpace.footprintConvexPieces(thin).reduce(
     (sum: number, piece: readonly IAutoMovieVector3[]): number =>
       sum + pieceArea(piece),
     0,
@@ -234,19 +223,19 @@ export function test_space_footprint_voids(): void {
     `convex pieces preserve the independently authored thin L area: measured ${thinArea / width}, expected 3`,
     nclose(thinArea / width, 3, 1e-12),
   );
-  const holed: IAutoMovieFootprint = surfaceFootprint(plate);
-  const filled: IAutoMovieFootprint = surfaceFootprint(solid);
+  const holed: IAutoMovieFootprint = AutoMovieEngineSpace.surfaceFootprint(plate);
+  const filled: IAutoMovieFootprint = AutoMovieEngineSpace.surfaceFootprint(solid);
 
   TestValidator.equals(
     "a void in a plate is off the surface while its arms are on it",
     namedFacts([
-      ["inTheVoid", (): boolean => surfaceContains(plate, 4, 4) === false],
-      ["southArm", (): boolean => surfaceContains(plate, 4, 1)],
-      ["northArm", (): boolean => surfaceContains(plate, 4, 7)],
-      ["westArm", (): boolean => surfaceContains(plate, 1, 4)],
-      ["eastArm", (): boolean => surfaceContains(plate, 7, 4)],
-      ["beyondThePlate", (): boolean => surfaceContains(plate, 9, 4) === false],
-      ["voidCorner", (): boolean => surfaceContains(plate, 5.9, 5.9) === false],
+      ["inTheVoid", (): boolean => AutoMovieEngineSpace.surfaceContains(plate, 4, 4) === false],
+      ["southArm", (): boolean => AutoMovieEngineSpace.surfaceContains(plate, 4, 1)],
+      ["northArm", (): boolean => AutoMovieEngineSpace.surfaceContains(plate, 4, 7)],
+      ["westArm", (): boolean => AutoMovieEngineSpace.surfaceContains(plate, 1, 4)],
+      ["eastArm", (): boolean => AutoMovieEngineSpace.surfaceContains(plate, 7, 4)],
+      ["beyondThePlate", (): boolean => AutoMovieEngineSpace.surfaceContains(plate, 9, 4) === false],
+      ["voidCorner", (): boolean => AutoMovieEngineSpace.surfaceContains(plate, 5.9, 5.9) === false],
     ]),
     {
       inTheVoid: true,
@@ -262,15 +251,15 @@ export function test_space_footprint_voids(): void {
   TestValidator.equals(
     "both rims belong to the slab, because the concrete reaches them",
     namedFacts([
-      ["onTheVoidRim", (): boolean => surfaceContains(plate, 2, 4)],
-      ["onTheVoidCorner", (): boolean => surfaceContains(plate, 6, 6)],
-      ["onTheOuterRim", (): boolean => surfaceContains(plate, 0, 4)],
+      ["onTheVoidRim", (): boolean => AutoMovieEngineSpace.surfaceContains(plate, 2, 4)],
+      ["onTheVoidCorner", (): boolean => AutoMovieEngineSpace.surfaceContains(plate, 6, 6)],
+      ["onTheOuterRim", (): boolean => AutoMovieEngineSpace.surfaceContains(plate, 0, 4)],
       [
         "ringPlacementSaysBoundary",
         (): boolean =>
-          footprintRingPlacement(holed.holes[0]!, 2, 4) === "boundary" &&
-          footprintRingPlacement(holed.holes[0]!, 4, 4) === "inside" &&
-          footprintRingPlacement(holed.holes[0]!, 7, 4) === "outside",
+          AutoMovieEngineSpace.footprintRingPlacement(holed.holes[0]!, 2, 4) === "boundary" &&
+          AutoMovieEngineSpace.footprintRingPlacement(holed.holes[0]!, 4, 4) === "inside" &&
+          AutoMovieEngineSpace.footprintRingPlacement(holed.holes[0]!, 7, 4) === "outside",
       ],
     ]),
     {
@@ -284,13 +273,13 @@ export function test_space_footprint_voids(): void {
   TestValidator.equals(
     "without the void the same plate answers what the convex query answered",
     namedFacts([
-      ["theVoidsPlace", (): boolean => surfaceContains(solid, 4, 4)],
-      ["southArm", (): boolean => surfaceContains(solid, 4, 1)],
-      ["northArm", (): boolean => surfaceContains(solid, 4, 7)],
-      ["westArm", (): boolean => surfaceContains(solid, 1, 4)],
-      ["eastArm", (): boolean => surfaceContains(solid, 7, 4)],
-      ["beyondThePlate", (): boolean => surfaceContains(solid, 9, 4) === false],
-      ["onTheOuterRim", (): boolean => surfaceContains(solid, 0, 4)],
+      ["theVoidsPlace", (): boolean => AutoMovieEngineSpace.surfaceContains(solid, 4, 4)],
+      ["southArm", (): boolean => AutoMovieEngineSpace.surfaceContains(solid, 4, 1)],
+      ["northArm", (): boolean => AutoMovieEngineSpace.surfaceContains(solid, 4, 7)],
+      ["westArm", (): boolean => AutoMovieEngineSpace.surfaceContains(solid, 1, 4)],
+      ["eastArm", (): boolean => AutoMovieEngineSpace.surfaceContains(solid, 7, 4)],
+      ["beyondThePlate", (): boolean => AutoMovieEngineSpace.surfaceContains(solid, 9, 4) === false],
+      ["onTheOuterRim", (): boolean => AutoMovieEngineSpace.surfaceContains(solid, 0, 4)],
     ]),
     {
       theVoidsPlace: true,
@@ -306,11 +295,11 @@ export function test_space_footprint_voids(): void {
   TestValidator.equals(
     "an L-shaped plate keeps its notch out and both arms in",
     namedFacts([
-      ["inTheNotch", (): boolean => surfaceContains(ell, 3, 3) === false],
-      ["longArm", (): boolean => surfaceContains(ell, 3, 1)],
-      ["shortArm", (): boolean => surfaceContains(ell, 1, 3)],
-      ["onTheInnerCorner", (): boolean => surfaceContains(ell, 2, 2)],
-      ["outside", (): boolean => surfaceContains(ell, 5, 5) === false],
+      ["inTheNotch", (): boolean => AutoMovieEngineSpace.surfaceContains(ell, 3, 3) === false],
+      ["longArm", (): boolean => AutoMovieEngineSpace.surfaceContains(ell, 3, 1)],
+      ["shortArm", (): boolean => AutoMovieEngineSpace.surfaceContains(ell, 1, 3)],
+      ["onTheInnerCorner", (): boolean => AutoMovieEngineSpace.surfaceContains(ell, 2, 2)],
+      ["outside", (): boolean => AutoMovieEngineSpace.surfaceContains(ell, 5, 5) === false],
     ]),
     {
       inTheNotch: true,
@@ -327,27 +316,27 @@ export function test_space_footprint_voids(): void {
     namedFacts([
       [
         "heightOverTheArm",
-        (): boolean => nclose(heightAt(holedSpace, 4, 1) ?? NaN, 3, 0),
+        (): boolean => nclose(AutoMovieEngineSpace.heightAt(holedSpace, 4, 1) ?? NaN, 3, 0),
       ],
-      ["heightOverTheVoid", (): boolean => heightAt(holedSpace, 4, 4) === null],
-      ["walkableOverTheArm", (): boolean => isWalkable(holedSpace, 4, 1)],
+      ["heightOverTheVoid", (): boolean => AutoMovieEngineSpace.heightAt(holedSpace, 4, 4) === null],
+      ["walkableOverTheArm", (): boolean => AutoMovieEngineSpace.isWalkable(holedSpace, 4, 1)],
       [
         "walkableOverTheVoid",
-        (): boolean => isWalkable(holedSpace, 4, 4) === false,
+        (): boolean => AutoMovieEngineSpace.isWalkable(holedSpace, 4, 4) === false,
       ],
       [
         "onlyTheArmCornersSupport",
         (): boolean =>
-          supportContactsFor(holedSpace, [v(4, 1), v(4, 4), v(4, 7)]).length ===
+          AutoMovieEngineSpace.supportContactsFor(holedSpace, [v(4, 1), v(4, 4), v(4, 7)]).length ===
           2,
       ],
       [
         "groundOverTheArm",
-        (): boolean => nclose(spaceGround(holedSpace)(4, 1), 3, 0),
+        (): boolean => nclose(AutoMovieEngineSpace.spaceGround(holedSpace)(4, 1), 3, 0),
       ],
       [
         "groundOverTheVoid",
-        (): boolean => nclose(spaceGround(holedSpace, -1)(4, 4), -1, 0),
+        (): boolean => nclose(AutoMovieEngineSpace.spaceGround(holedSpace, -1)(4, 4), -1, 0),
       ],
     ]),
     {
@@ -364,15 +353,15 @@ export function test_space_footprint_voids(): void {
   TestValidator.equals(
     "the plate's plan area is its outer ring less the void",
     namedFacts([
-      ["holed", (): boolean => nclose(footprintArea(holed), 8 * 8 - 4 * 4)],
-      ["filled", (): boolean => nclose(footprintArea(filled), 8 * 8)],
+      ["holed", (): boolean => nclose(AutoMovieEngineSpace.footprintArea(holed), 8 * 8 - 4 * 4)],
+      ["filled", (): boolean => nclose(AutoMovieEngineSpace.footprintArea(filled), 8 * 8)],
     ]),
     { holed: true, filled: true },
   );
 
-  const holedPieces: IAutoMovieVector3[][] = footprintConvexPieces(holed);
-  const ellPieces: IAutoMovieVector3[][] = footprintConvexPieces(
-    surfaceFootprint(ell),
+  const holedPieces: IAutoMovieVector3[][] = AutoMovieEngineSpace.footprintConvexPieces(holed);
+  const ellPieces: IAutoMovieVector3[][] = AutoMovieEngineSpace.footprintConvexPieces(
+    AutoMovieEngineSpace.surfaceFootprint(ell),
   );
   TestValidator.equals(
     "the convex decomposition is exactly the region, no more and no less",
@@ -406,7 +395,7 @@ export function test_space_footprint_voids(): void {
         (): boolean =>
           holedPieces.every(
             (piece: IAutoMovieVector3[]): boolean =>
-              footprintContains(
+              AutoMovieEngineSpace.footprintContains(
                 holed,
                 piece.reduce(
                   (sum: number, point: IAutoMovieVector3): number =>
@@ -423,7 +412,7 @@ export function test_space_footprint_voids(): void {
       ],
       [
         "aConvexPatchIsOnePiece",
-        (): boolean => footprintConvexPieces(filled).length === 1,
+        (): boolean => AutoMovieEngineSpace.footprintConvexPieces(filled).length === 1,
       ],
     ]),
     {
@@ -441,9 +430,9 @@ export function test_space_footprint_voids(): void {
         "holedAnchorIsOnTheSlab",
         (): boolean => {
           const anchor: { x: number; z: number } | null =
-            footprintInteriorPoint(holed);
+            AutoMovieEngineSpace.footprintInteriorPoint(holed);
           return (
-            anchor !== null && footprintContains(holed, anchor.x, anchor.z)
+            anchor !== null && AutoMovieEngineSpace.footprintContains(holed, anchor.x, anchor.z)
           );
         },
       ],
@@ -451,10 +440,10 @@ export function test_space_footprint_voids(): void {
         "ellAnchorIsOutOfTheNotch",
         (): boolean => {
           const anchor: { x: number; z: number } | null =
-            footprintInteriorPoint(surfaceFootprint(ell));
+            AutoMovieEngineSpace.footprintInteriorPoint(AutoMovieEngineSpace.surfaceFootprint(ell));
           return (
             anchor !== null &&
-            footprintContains(surfaceFootprint(ell), anchor.x, anchor.z)
+            AutoMovieEngineSpace.footprintContains(AutoMovieEngineSpace.surfaceFootprint(ell), anchor.x, anchor.z)
           );
         },
       ],
@@ -462,15 +451,15 @@ export function test_space_footprint_voids(): void {
         "aConvexPatchKeepsItsOwnCentre",
         (): boolean => {
           const anchor: { x: number; z: number } | null =
-            footprintInteriorPoint(filled);
+            AutoMovieEngineSpace.footprintInteriorPoint(filled);
           return anchor !== null && nclose(anchor.x, 4) && nclose(anchor.z, 4);
         },
       ],
       [
         "aRegionWithNoAreaHasNoAnchor",
         (): boolean =>
-          footprintInteriorPoint({
-            outer: footprintRing([v(0, 0), v(1, 1), v(2, 2)]),
+          AutoMovieEngineSpace.footprintInteriorPoint({
+            outer: AutoMovieEngineSpace.footprintRing([v(0, 0), v(1, 1), v(2, 2)]),
             holes: [],
           }) === null,
       ],

@@ -1,5 +1,7 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { StrikingGuardYield } from "@automovie/motions/internal";
+import {
+  StrikingGuardYield
+} from "../../../../../packages/motions/src/striking/internal/StrikingGuardYield";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../../internal/vclose";

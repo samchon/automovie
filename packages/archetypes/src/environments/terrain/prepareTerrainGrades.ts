@@ -1,9 +1,4 @@
-import {
-  Quaternion,
-  autoMoviePlanarRegionFailure,
-  pointInPolygon,
-  polygonsOverlap,
-} from "@automovie/engine";
+import { AutoMovieEnginePlanarRegion, AutoMovieEngineQuaternion, AutoMovieEnginePlanarGeometry } from "@automovie/engine";
 import type {
   IAutoMovieEnvironmentModule,
   IAutoMoviePlanarPoint,
@@ -12,98 +7,19 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
- * A resolved area with a level apron and a smooth transition to its
- * surroundings.
- */
-interface IPad {
-  /** Scoped diagnostic name. */
-  id: string;
-
-  /** World XZ stored under the shared planar X/Y names. */
-  outline: IAutoMoviePlanarPoint[];
-
-  /** Level world Y and shoulder width in metres. */
-  height: number;
-  shoulder: number;
-  /** A separately built floor owns support inside this plateau. */
-  cut: boolean;
-}
-
-/** Consecutive grade vertices and the length of their usable rise. */
-interface ISegment {
-  /** Endpoints in world metres. */
-  from: IAutoMovieVector3;
-  to: IAutoMovieVector3;
-
-  /** Length and landing lengths in plan metres. */
-  length: number;
-  fromLanding: number;
-  toLanding: number;
-}
-
-/** One resolved grade corridor sharing path coordinates with the runtime route. */
-interface IPath {
-  /** Stable local key and scoped diagnostic identity. */
-  name: string;
-  id: string;
-
-  /** Corridor and shoulder metres. */
-  radius: number;
-  shoulder: number;
-
-  /** Maximum absolute slope, in metres per metre, if constrained. */
-  maxSlope: number | undefined;
-
-  /** Ordered world waypoints and the hard anchors among them. */
-  points: IAutoMovieVector3[];
-  fixed: boolean[];
-
-  /** Graded segments in order. */
-  segments: ISegment[];
-}
-
-/** Prepared scene placement constraints and their base-height reader. */
-interface ITerrainGrades {
-  /** Narrowest apron or path feature whose bake requires more than one cell. */
-  featureSize: number;
-
-  /** Common level of all grade constraints, when every grade is at one height. */
-  commonLevel: number | undefined;
-
-  /** Resolved paths, in authored order. */
-  paths: IPath[];
-
-  /** Grade pads whose structures own support inside their footprint. */
-  cuts: IAutoMovieVector3[][];
-
-  /** One continuous blend away from the declared hard grade regions. */
-  height: (point: { x: number; z: number }) => number;
-
-  /**
-   * Closest paved, raised or deliberately cleared source within a trunk's
-   * protection radius.
-   */
-  protectedArea: (
-    center: IAutoMoviePlanarPoint,
-    radius: number,
-  ) => string | null;
-}
-
-/**
+/*
  * Resolve grade authority before sampling any terrain cells.
  *
  * Pads first reserve a level apron over half their declared shoulder. Paths
  * take heights from that plan, or from a named frame that pins the exact
  * waypoint. A pinned waypoint gets a short level landing on each incident
  * segment. Adjacent shoulders use smoothstep falloff.
- *
- * @param context The terrain's world placement and environment-relative anchor
- *   lookup.
- * @param recipe Widths, ordered local plan coordinates, and named heights for
- *   the parcel.
- * @param base The finite, ungraded world-height sampler.
- * @returns Resolved paths and an evaluator for the shared ground lattice.
+ * Parameter context: The terrain's world placement and environment-relative anchor
+ * lookup.
+ * Parameter recipe: Widths, ordered local plan coordinates, and named heights for
+ * the parcel.
+ * Parameter base: The finite, ungraded world-height sampler.
+ * Returns: Resolved paths and an evaluator for the shared ground lattice.
  */
 export function prepareTerrainGrades(
   context: IAutoMovieEnvironmentModule.IContext,
@@ -124,7 +40,7 @@ export function prepareTerrainGrades(
     for (let second: number = first + 1; second < grades.length; second += 1) {
       const a: IPad = grades[first]!;
       const b: IPad = grades[second]!;
-      if (a.height !== b.height && polygonsOverlap(a.outline, b.outline))
+      if (a.height !== b.height && AutoMovieEnginePlanarGeometry.polygonsOverlap(a.outline, b.outline))
         throw new Error(
           `Terrain grades "${a.id}" and "${b.id}" overlap at different heights.`,
         );
@@ -148,9 +64,9 @@ export function prepareTerrainGrades(
       preparePath(context, name, path, base, padAt),
   );
   const holes: IAutoMoviePlanarPoint[][] = (recipe.holes ?? []).map(
-    (ring: readonly IAutoMovieTerrainRecipe.Point[]): IAutoMoviePlanarPoint[] =>
+    (ring: readonly IAutoMovieTerrainRecipe.IXzPoint[]): IAutoMoviePlanarPoint[] =>
       ring.map(
-        ([x, z]: IAutoMovieTerrainRecipe.Point): IAutoMoviePlanarPoint => ({
+        ({ x, z }: IAutoMovieTerrainRecipe.IXzPoint): IAutoMoviePlanarPoint => ({
           x: origin.x + x,
           y: origin.z + z,
         }),
@@ -237,13 +153,129 @@ export function prepareTerrainGrades(
   };
 }
 
-/**
+/*
+ * A resolved area with a level apron and a smooth transition to its
+ * surroundings.
+ */
+interface IPad {
+  /*
+   * Scoped diagnostic name.
+   */
+  id: string;
+
+  /*
+   * World XZ stored under the shared planar X/Y names.
+   */
+  outline: IAutoMoviePlanarPoint[];
+
+  /*
+   * Level world Y and shoulder width in metres.
+   */
+  height: number;
+  shoulder: number;
+  /*
+   * A separately built floor owns support inside this plateau.
+   */
+  cut: boolean;
+}
+
+/*
+ * Consecutive grade vertices and the length of their usable rise.
+ */
+interface ISegment {
+  /*
+   * Endpoints in world metres.
+   */
+  from: IAutoMovieVector3;
+  to: IAutoMovieVector3;
+
+  /*
+   * Length and landing lengths in plan metres.
+   */
+  length: number;
+  fromLanding: number;
+  toLanding: number;
+}
+
+/*
+ * One resolved grade corridor sharing path coordinates with the runtime route.
+ */
+interface IPath {
+  /*
+   * Stable local key and scoped diagnostic identity.
+   */
+  name: string;
+  id: string;
+
+  /*
+   * Corridor and shoulder metres.
+   */
+  radius: number;
+  shoulder: number;
+
+  /*
+   * Maximum absolute slope, in metres per metre, if constrained.
+   */
+  maxSlope: number | undefined;
+
+  /*
+   * Ordered world waypoints and the hard anchors among them.
+   */
+  points: IAutoMovieVector3[];
+  fixed: boolean[];
+
+  /*
+   * Graded segments in order.
+   */
+  segments: ISegment[];
+}
+
+/*
+ * Prepared scene placement constraints and their base-height reader.
+ */
+interface ITerrainGrades {
+  /*
+   * Narrowest apron or path feature whose bake requires more than one cell.
+   */
+  featureSize: number;
+
+  /*
+   * Common level of all grade constraints, when every grade is at one height.
+   */
+  commonLevel: number | undefined;
+
+  /*
+   * Resolved paths, in authored order.
+   */
+  paths: IPath[];
+
+  /*
+   * Grade pads whose structures own support inside their footprint.
+   */
+  cuts: IAutoMovieVector3[][];
+
+  /*
+   * One continuous blend away from the declared hard grade regions.
+   */
+  height: (point: { x: number; z: number }) => number;
+
+  /*
+   * Closest paved, raised or deliberately cleared source within a trunk's
+   * protection radius.
+   */
+  protectedArea: (
+    center: IAutoMoviePlanarPoint,
+    radius: number,
+  ) => string | null;
+}
+
+/*
  * Resolve a local pad ring through its optional named pose and establish its
  * plateau height.
  */
 function preparePad(
   context: IAutoMovieEnvironmentModule.IContext,
-  size: IAutoMovieTerrainRecipe.Point,
+  size: IAutoMovieTerrainRecipe.ISize,
   family: string,
   name: string,
   pad: IAutoMovieTerrainRecipe.IPad,
@@ -254,8 +286,8 @@ function preparePad(
   if (frame.rotation.x !== 0 || frame.rotation.z !== 0)
     throw new Error(`Terrain grade "${id}" requires an upright pad frame.`);
   const outline: IAutoMoviePlanarPoint[] = pad.outline.map(
-    ([x, z]: IAutoMovieTerrainRecipe.Point): IAutoMoviePlanarPoint => {
-      const point: IAutoMovieVector3 = Quaternion.rotateVector(frame.rotation, {
+    ({ x, z }: IAutoMovieTerrainRecipe.IXzPoint): IAutoMoviePlanarPoint => {
+      const point: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(frame.rotation, {
         x,
         y: 0,
         z,
@@ -266,10 +298,12 @@ function preparePad(
       };
     },
   );
-  const failure: string | null = autoMoviePlanarRegionFailure({
-    outer: outline,
-    label: id,
-  });
+  const failure: string | null = AutoMovieEnginePlanarRegion.failure(
+    {
+      outer: outline,
+    },
+    id,
+  );
   if (failure !== null) throw new Error(failure);
   const origin: IAutoMovieVector3 = context.frame.translation;
   if (
@@ -277,8 +311,8 @@ function preparePad(
       (point: IAutoMoviePlanarPoint): boolean =>
         point.x < origin.x ||
         point.y < origin.z ||
-        point.x > origin.x + size[0] ||
-        point.y > origin.z + size[1],
+        point.x > origin.x + size.width ||
+        point.y > origin.z + size.depth,
     )
   )
     throw new Error(`Terrain grade "${id}" is outside its parcel.`);
@@ -296,7 +330,7 @@ function preparePad(
   return { id, outline, height, shoulder, cut: pad.cut ?? false };
 }
 
-/**
+/*
  * Resolve waypoint heights, plateau entrances and the grade along each
  * successive segment.
  */
@@ -323,7 +357,7 @@ function preparePath(
   const fixed: boolean[] = [];
   const points: IAutoMovieVector3[] = recipe.points.map(
     (
-      point: IAutoMovieTerrainRecipe.Point | { anchor: string },
+      point: IAutoMovieTerrainRecipe.IXzPoint | { anchor: string },
       index: number,
     ): IAutoMovieVector3 => {
       const origin: IAutoMovieVector3 = context.frame.translation;
@@ -331,8 +365,8 @@ function preparePath(
         "anchor" in point
           ? context.anchor(point.anchor).translation
           : undefined;
-      const x: number = "anchor" in point ? anchored!.x : origin.x + point[0];
-      const z: number = "anchor" in point ? anchored!.z : origin.z + point[1];
+      const x: number = "anchor" in point ? anchored!.x : origin.x + point.x;
+      const z: number = "anchor" in point ? anchored!.z : origin.z + point.z;
       const pad: IPad | undefined = padAt({ x, y: z });
       const y: number = anchored?.y ?? pad?.height ?? base({ x, z });
       if (pad !== undefined && anchored !== undefined && y !== pad.height)
@@ -366,12 +400,14 @@ function preparePath(
   return { id, name, points, fixed, segments, radius, shoulder, maxSlope };
 }
 
-/** Unsigned distance to a closed polygon, including zero over its interior. */
+/*
+ * Unsigned distance to a closed polygon, including zero over its interior.
+ */
 function ringDistance(
   point: IAutoMoviePlanarPoint,
   outline: readonly IAutoMoviePlanarPoint[],
 ): number {
-  if (pointInPolygon(point, outline)) return 0;
+  if (AutoMovieEnginePlanarGeometry.pointInPolygon(point, outline)) return 0;
   let distance: number = Infinity;
   for (let edge: number = 0; edge < outline.length; edge += 1) {
     const a: IAutoMoviePlanarPoint = outline[edge]!;
@@ -397,7 +433,9 @@ function ringDistance(
   return distance;
 }
 
-/** Distance and plateau-aware height at the closest point of a centerline. */
+/*
+ * Distance and plateau-aware height at the closest point of a centerline.
+ */
 function pathGrade(
   point: IAutoMoviePlanarPoint,
   path: IPath,
@@ -430,7 +468,9 @@ function pathGrade(
   return [distance, height];
 }
 
-/** Arc position of the closest point on a finite segment. */
+/*
+ * Arc position of the closest point on a finite segment.
+ */
 function projection(
   x: number,
   z: number,
@@ -441,7 +481,9 @@ function projection(
   return Math.max(0, Math.min(length, x * (dx / length) + z * (dz / length)));
 }
 
-/** Cubic smoothstep complement on a normalized shoulder coordinate. */
+/*
+ * Cubic smoothstep complement on a normalized shoulder coordinate.
+ */
 function taper(progress: number): number {
   const t: number = Math.max(0, Math.min(1, progress));
   return 1 - t * t * (3 - 2 * t);

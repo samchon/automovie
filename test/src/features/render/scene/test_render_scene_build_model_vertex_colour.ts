@@ -1,4 +1,4 @@
-import { AutoMovieThreeKind, buildModel } from "@automovie/render";
+import { AutoMovieRenderThreeKind, AutoMovieRenderSceneLayout } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -41,11 +41,11 @@ export function test_render_scene_build_model_vertex_colour(): void {
       shape: { type: "box", width: 1, height: 1, depth: 1 },
     },
   });
-  const built: import("@automovie/render").IAutoMovieModelObject =
-    buildModel(model);
+  const built: import("@automovie/render").IAutoMovieRenderModelObject =
+    AutoMovieRenderSceneLayout.buildModel(model);
   const parts: THREE.Mesh[] = [...built.parts.values()].filter(
     (part: THREE.Object3D): part is THREE.Mesh =>
-      AutoMovieThreeKind.isMesh(part),
+      AutoMovieRenderThreeKind.isMesh(part),
   );
   TestValidator.equals(
     "variant flags",
@@ -81,7 +81,7 @@ export function test_render_scene_build_model_vertex_colour(): void {
     [parts[0]!, parts[1]!].every((part: THREE.Mesh): boolean => {
       const material: THREE.Material = singleMaterial(part.material);
       return (
-        AutoMovieThreeKind.isMeshStandardMaterial(material) &&
+        AutoMovieRenderThreeKind.isMeshStandardMaterial(material) &&
         nclose(material.color.r, baseColor.r, 0) &&
         nclose(material.color.g, baseColor.g, 0) &&
         nclose(material.color.b, baseColor.b, 0)

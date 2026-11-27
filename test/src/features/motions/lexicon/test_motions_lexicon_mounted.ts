@@ -4,10 +4,14 @@ import type {
   IAutoMovieScheduleCue,
 } from "@automovie/interface";
 import {
-  HumanMountedStirrups,
-  HumanMountedTimeline,
-  HumanMountedWhip,
-} from "@automovie/motions/internal";
+  HumanMountedStirrups
+} from "../../../../../packages/motions/src/lexicon/internal/HumanMountedStirrups";
+import {
+  HumanMountedTimeline
+} from "../../../../../packages/motions/src/lexicon/internal/HumanMountedTimeline";
+import {
+  HumanMountedWhip
+} from "../../../../../packages/motions/src/lexicon/internal/HumanMountedWhip";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

@@ -1,8 +1,4 @@
-import {
-  autoMovieFeatureEdgeDistance,
-  measureAutoMovieFeatureEdges,
-  tessellate,
-} from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieMeasureFeatureEdges,
   IAutoMovieTessellation,
@@ -16,9 +12,9 @@ import { throwsError } from "../../internal/throwsError";
 type Edge = IAutoMovieMeasureFeatureEdges.IEdge;
 
 /**
- * `measureAutoMovieFeatureEdges` finds a welded mesh's sharp bends (30 degrees
+ * `measureFeatureEdges` finds a welded mesh's sharp bends (30 degrees
  * or more), independent of how finely flat faces are tessellated; the convex
- * distance (`autoMovieFeatureEdgeDistance`) follows them.
+ * distance (`featureEdgeDistance`) follows them.
  *
  * Fixtures: the unit box from `tessellate` (24 vertices, every corner split by
  * face); the same box with every face an 8 x 8 grid of quads; a 16-segment
@@ -42,18 +38,18 @@ export function test_engine_geometry_feature_edges(): void {
   const distance = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
     Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
   const measure = (mesh: { positions: number[]; indices: number[] }, reach: number = 0.05) =>
-    measureAutoMovieFeatureEdges({ positions: mesh.positions, indices: mesh.indices, reach });
+    AutoMovieEngineGeometry.measureFeatureEdges({ positions: mesh.positions, indices: mesh.indices, reach });
   const convex = (
     mesh: { positions: number[]; indices: number[] },
     edges: IAutoMovieMeasureFeatureEdges.IResult,
     point: IAutoMovieVector3,
   ): number =>
-    autoMovieFeatureEdgeDistance({
+    AutoMovieEngineGeometry.featureEdgeDistance({
       edges,
       triangle: surfaceTriangleOf(mesh.positions, mesh.indices, point),
       point,
     }).convex;
-  const box: IAutoMovieTessellation = tessellate({ type: "box", width: 1, height: 1, depth: 1 });
+  const box: IAutoMovieTessellation = AutoMovieEngineGeometry.tessellate({ type: "box", width: 1, height: 1, depth: 1 });
   const measured: IAutoMovieMeasureFeatureEdges.IResult = measure(box);
 
   // 1.
@@ -69,7 +65,7 @@ export function test_engine_geometry_feature_edges(): void {
   TestValidator.predicate("near the edge", close(convex(box, measured, { x: 0.495, y: 0.5, z: 0 }), 0.005, 1e-9));
 
   // 2.
-  const rims: IAutoMovieMeasureFeatureEdges.IResult = measure(tessellate({ type: "cylinder", radius: 0.3, height: 1 }));
+  const rims: IAutoMovieMeasureFeatureEdges.IResult = measure(AutoMovieEngineGeometry.tessellate({ type: "cylinder", radius: 0.3, height: 1 }));
   TestValidator.equals("rim count", rims.edges.length, 32);
   TestValidator.predicate(
     "rims only",

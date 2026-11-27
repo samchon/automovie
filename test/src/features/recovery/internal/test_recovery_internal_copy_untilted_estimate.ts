@@ -1,5 +1,5 @@
 import type { IAutoMovieRecoveryUntiltedEstimate } from "@automovie/interface";
-import { copyRecoveryUntiltedEstimate } from "@automovie/recovery";
+import { AutoMovieRecoveryCameraMap } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -20,7 +20,7 @@ export function test_recovery_internal_copy_untilted_estimate(): void {
   };
   TestValidator.equals(
     "no estimate",
-    copyRecoveryUntiltedEstimate(null, 2, 4, charge),
+    AutoMovieRecoveryCameraMap.copyUntiltedEstimate(null, 2, 4, charge),
     null,
   );
   const estimate: IAutoMovieRecoveryUntiltedEstimate = {
@@ -30,7 +30,7 @@ export function test_recovery_internal_copy_untilted_estimate(): void {
     multipliers: [0.5, 0],
   };
   const copy: IAutoMovieRecoveryUntiltedEstimate | null =
-    copyRecoveryUntiltedEstimate(estimate, 2, 4, charge);
+    AutoMovieRecoveryCameraMap.copyUntiltedEstimate(estimate, 2, 4, charge);
   TestValidator.predicate(
     "an equal new copy",
     JSON.stringify(copy) === JSON.stringify(estimate) &&
@@ -43,6 +43,6 @@ export function test_recovery_internal_copy_untilted_estimate(): void {
     ["a changed width", estimate, 3],
   ] as const)
     TestValidator.error(name, (): unknown =>
-      copyRecoveryUntiltedEstimate(wrong, width, 4, (): void => {}),
+      AutoMovieRecoveryCameraMap.copyUntiltedEstimate(wrong, width, 4, (): void => {}),
     );
 }

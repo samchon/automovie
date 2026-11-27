@@ -1,4 +1,4 @@
-import { createDetailNormalShaderPatch } from "@automovie/render";
+import { AutoMovieRenderDetailNormalShading } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -19,8 +19,8 @@ export function test_render_scene_create_detail_normal_shader_patch(): void {
   const texture: THREE.Texture = new THREE.Texture();
   texture.offset.set(0.25, 0.5);
   texture.repeat.set(2, 3);
-  const patch: ReturnType<typeof createDetailNormalShaderPatch> =
-    createDetailNormalShaderPatch(texture, 0.75);
+  const patch: ReturnType<typeof AutoMovieRenderDetailNormalShading.createShaderPatch> =
+    AutoMovieRenderDetailNormalShading.createShaderPatch(texture, 0.75);
   texture.offset.set(0.75, 0.125);
   texture.repeat.set(4, 5);
   texture.updateMatrix();

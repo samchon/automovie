@@ -1,9 +1,7 @@
 import { TestValidator } from "@nestia/e2e";
 import {
-  AUTOMOVIE_RENDER_OPTIONS,
-  AUTOMOVIE_REVIEW_OPTIONS,
-  readAutoMovieRenderOptions,
-  readAutoMovieReviewOptions,
+  AutoMovieCliRender,
+  AutoMovieCliReview,
 } from "automovie";
 
 import { throwsError } from "../internal/predicates";
@@ -40,8 +38,8 @@ export function test_cli_render_review_options(): void {
   const render: (values: [string, string][]) => unknown = (
     values: [string, string][],
   ): unknown => {
-    const read: ReturnType<typeof readAutoMovieRenderOptions> =
-      readAutoMovieRenderOptions(new Map(values));
+    const read: ReturnType<typeof AutoMovieCliRender.readOptions> =
+      AutoMovieCliRender.readOptions(new Map(values));
     return { ...read, request: [...read.request] };
   };
   // 1. Render's options.
@@ -84,7 +82,7 @@ export function test_cli_render_review_options(): void {
   TestValidator.equals(
     "a request key passes to the request",
     [
-      ...readAutoMovieRenderOptions(
+      ...AutoMovieCliRender.readOptions(
         new Map([
           ["module", "m.ts"],
           ["at", "1"],
@@ -121,7 +119,7 @@ export function test_cli_render_review_options(): void {
       `render refuses ${JSON.stringify(values)}`,
       throwsError(
         (): unknown =>
-          readAutoMovieRenderOptions(new Map(values as [string, string][])),
+          AutoMovieCliRender.readOptions(new Map(values as [string, string][])),
         fragment,
       ),
     );
@@ -129,7 +127,7 @@ export function test_cli_render_review_options(): void {
   // 3. Review's options.
   TestValidator.equals(
     "review of the inspector",
-    readAutoMovieReviewOptions(
+    AutoMovieCliReview.readOptions(
       new Map([
         ["url", "http://127.0.0.1:5173/?subject=starter"],
         ["seconds", "12.5"],
@@ -139,7 +137,7 @@ export function test_cli_render_review_options(): void {
   );
   TestValidator.equals(
     "review into a folder",
-    readAutoMovieReviewOptions(
+    AutoMovieCliReview.readOptions(
       new Map([
         ["url", "http://localhost:5173/"],
         ["seconds", "86400"],
@@ -208,7 +206,7 @@ export function test_cli_render_review_options(): void {
       `review refuses ${JSON.stringify(values)}`,
       throwsError(
         (): unknown =>
-          readAutoMovieReviewOptions(new Map(values as [string, string][])),
+          AutoMovieCliReview.readOptions(new Map(values as [string, string][])),
         fragment,
       ),
     );
@@ -216,8 +214,8 @@ export function test_cli_render_review_options(): void {
   // 5. The lists and the readers agree.
   TestValidator.predicate(
     "every render option is admitted",
-    AUTOMOVIE_RENDER_OPTIONS.every((option: string): boolean => {
-      readAutoMovieRenderOptions(
+    AutoMovieCliRender.OPTIONS.every((option: string): boolean => {
+      AutoMovieCliRender.readOptions(
         new Map([
           ["module", "m.ts"],
           [
@@ -278,7 +276,7 @@ export function test_cli_render_review_options(): void {
   const admitted: string[] = [
     ...new Set(
       examples.flatMap((pairs): string[] => {
-        readAutoMovieReviewOptions(new Map(pairs));
+        AutoMovieCliReview.readOptions(new Map(pairs));
         return pairs.map(([key]): string => key);
       }),
     ),
@@ -288,7 +286,7 @@ export function test_cli_render_review_options(): void {
   TestValidator.equals(
     "review examples cover every option",
     admitted.sort(byKey),
-    [...AUTOMOVIE_REVIEW_OPTIONS].sort(byKey),
+    [...AutoMovieCliReview.OPTIONS].sort(byKey),
   );
   for (const [values, fragment] of [
     [
@@ -351,7 +349,7 @@ export function test_cli_render_review_options(): void {
       `review refuses ${JSON.stringify(values)}`,
       throwsError(
         (): unknown =>
-          readAutoMovieReviewOptions(new Map(values as [string, string][])),
+          AutoMovieCliReview.readOptions(new Map(values as [string, string][])),
         fragment,
       ),
     );

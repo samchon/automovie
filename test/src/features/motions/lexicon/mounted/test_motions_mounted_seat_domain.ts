@@ -1,4 +1,4 @@
-import { Quaternion, Transform, physicalShapePairDistance } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineTransform, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieAffordance,
@@ -10,9 +10,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  prepareMountMaterialSeat,
-  prepareMountSeat,
-} from "@automovie/motions/internal";
+  prepareMountMaterialSeat
+} from "../../../../../../packages/motions/src/lexicon/internal/prepareMountMaterialSeat";
+import {
+  prepareMountSeat
+} from "../../../../../../packages/motions/src/lexicon/internal/prepareMountSeat";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
@@ -37,7 +39,7 @@ import { nclose } from "../../../internal/nclose";
 export async function test_motions_mounted_seat_domain(): Promise<void> {
   const origin: IAutoMovieRigidTransform = {
     position: { x: 0, y: 0, z: 0 },
-    rotation: Quaternion.identity(),
+    rotation: AutoMovieEngineQuaternion.identity(),
   };
   const pelvis: IAutoMoviePhysicalShape = {
     id: "pelvis",
@@ -61,7 +63,7 @@ export async function test_motions_mounted_seat_domain(): Promise<void> {
     halfLength: 0.06,
     transform: {
       position: { x: 0, y: 0.03, z },
-      rotation: Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90),
+      rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90),
     },
   });
   const rear: IAutoMoviePhysicalShape = rod("cantle", -0.4);
@@ -85,7 +87,7 @@ export async function test_motions_mounted_seat_domain(): Promise<void> {
     conventional.position.z > -0.4 &&
       conventional.position.z < 0 &&
       nclose(
-        physicalShapePairDistance(conventional, pelvis, origin, rear),
+        AutoMovieEnginePhysics.physicalShapePairDistance(conventional, pelvis, origin, rear),
         -0.045,
         roundoff,
       ),
@@ -100,17 +102,17 @@ export async function test_motions_mounted_seat_domain(): Promise<void> {
       nclose(seat.point.z, -0.2, roundoff) &&
       nclose(seat.point.y, 0, roundoff) &&
       nclose(
-        physicalShapePairDistance(placed, pelvis, origin, deck),
+        AutoMovieEnginePhysics.physicalShapePairDistance(placed, pelvis, origin, deck),
         0,
         roundoff,
       ) &&
       nclose(
-        physicalShapePairDistance(placed, pelvis, origin, rear),
+        AutoMovieEnginePhysics.physicalShapePairDistance(placed, pelvis, origin, rear),
         0.055,
         roundoff,
       ) &&
       nclose(
-        physicalShapePairDistance(placed, pelvis, origin, front),
+        AutoMovieEnginePhysics.physicalShapePairDistance(placed, pelvis, origin, front),
         0.055,
         roundoff,
       ),
@@ -152,12 +154,12 @@ export async function test_motions_mounted_seat_domain(): Promise<void> {
     halfExtents: { x: 0.01, y: run / 2, z: 0.02 },
     transform: {
       position: { x: 0.255, y: 0.06, z: -0.085 },
-      rotation: Quaternion.multiply(
-        Quaternion.fromAxisAngle(
+      rotation: AutoMovieEngineQuaternion.multiply(
+        AutoMovieEngineQuaternion.fromAxisAngle(
           { x: 0, y: 1, z: 0 },
-          Math.atan2(0.19, -0.17) / Quaternion.DEG2RAD,
+          Math.atan2(0.19, -0.17) / AutoMovieEngineQuaternion.DEG2RAD,
         ),
-        Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
+        AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
       ),
     },
   };
@@ -181,7 +183,7 @@ export async function test_motions_mounted_seat_domain(): Promise<void> {
   );
   TestValidator.predicate(
     "a skew rail leaves the pelvis in clear bearing",
-    physicalShapePairDistance(
+    AutoMovieEnginePhysics.physicalShapePairDistance(
       { ...origin, position: narrowed.point },
       pelvis,
       origin,
@@ -192,13 +194,13 @@ export async function test_motions_mounted_seat_domain(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
   const live: IAutoMovieRigidTransform = {
     position: { x: 2, y: 1, z: 3 },
-    rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90),
+    rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90),
   };
   const surface: IAutoMovieAffordance = {
     id: "riding-seat",
     kind: "seat",
     extent: null,
-    frame: Transform.identity(),
+    frame: AutoMovieEngineTransform.identity(),
     width: 0.3,
     depth: 0.4,
     astride: true,
@@ -207,7 +209,7 @@ export async function test_motions_mounted_seat_domain(): Promise<void> {
     id,
     kind: "stirrup",
     extent: null,
-    frame: Transform.of({ x, y: -0.66, z: -0.15 }, origin.rotation),
+    frame: AutoMovieEngineTransform.of({ x, y: -0.66, z: -0.15 }, origin.rotation),
     width: 0.12,
     depth: 0.05,
   });

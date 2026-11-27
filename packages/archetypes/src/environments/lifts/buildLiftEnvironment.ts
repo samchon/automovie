@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieBoxShape,
@@ -15,17 +15,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { createElevator } from "../../architecture/createElevator";
 import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
-import type { createLift } from "./createLift";
+import { AutoMovieArchetypeElevator } from "../../architecture/AutoMovieArchetypeElevator";
+import type { AutoMovieArchetypeEnvironment } from "../AutoMovieArchetypeEnvironment";
+import type { liftStopHeights } from "./internal/liftStopHeights";
 import { liftLandingSpace } from "./liftLandingSpace";
 import { liftShaftParts } from "./liftShaftParts";
-import type { liftStopHeights } from "./liftStopHeights";
 
-/** The two leaf affordances and their corresponding existing panel parts. */
-const LEAVES: readonly ["leftDoor", "rightDoor"] = ["leftDoor", "rightDoor"];
-
-/**
+/*
  * Assemble the cab, hoistway and declared landings on a single lift axis. The
  * stock cab sets both door layers and the width of the boarding strips. Each
  * landing has a fixed call plate and a full bearing surface. The lift unit's
@@ -113,10 +110,10 @@ export function buildLiftEnvironment(
       "shaft-walls",
       root,
       root,
-      Vector3.create(0, 0, 0),
+      AutoMovieEngineVector3.create(0, 0, 0),
       walls.id,
     ),
-    element("cab", "cab", root, root, Vector3.create(0, minimum, 0), cab.id),
+    element("cab", "cab", root, root, AutoMovieEngineVector3.create(0, minimum, 0), cab.id),
   ];
   const spaces: IAutoMovieBuiltSpace[] = [
     { id: root, kind: "shaft", parent: null, cells: [] },
@@ -124,18 +121,18 @@ export function buildLiftEnvironment(
   const surfaces: IAutoMovieBuiltSurface[] = [];
   const anchors: Record<string, IAutoMovieTransform> = Object.create(null);
   const world = (x: number, y: number, z: number): IAutoMovieVector3 =>
-    AutoMovieArchetypeFrame.point(context.frame, Vector3.create(x, y, z));
+    AutoMovieArchetypeFrame.point(context.frame, AutoMovieEngineVector3.create(x, y, z));
   const anchorFrame = (x: number, y: number, z: number): IAutoMovieTransform =>
     AutoMovieArchetypeFrame.compose(
       context.frame,
-      AutoMovieArchetypeFrame.upright(Vector3.create(x, y, z)),
+      AutoMovieArchetypeFrame.upright(AutoMovieEngineVector3.create(x, y, z)),
     );
   const leafOffset = (
     leaf: (typeof LEAVES)[number],
     opened: boolean,
   ): IAutoMovieVector3 => {
     const slider: IAutoMovieAffordance = car.affordance(leaf);
-    return Vector3.scale(
+    return AutoMovieEngineVector3.scale(
       AutoMovieArchetypeFrame.axis(slider.frame, "x"),
       opened ? slider.travel! : 0,
     );
@@ -169,7 +166,7 @@ export function buildLiftEnvironment(
       width: shaftWidth,
       depth: landingDepth,
       frame: AutoMovieArchetypeFrame.upright(
-        Vector3.create(0, 0, landingDepth / 2),
+        AutoMovieEngineVector3.create(0, 0, landingDepth / 2),
       ),
     };
     const landingModel: IAutoMovieModel = isolated(
@@ -182,7 +179,7 @@ export function buildLiftEnvironment(
           shaftWidth,
           wallThickness,
           landingDepth,
-          Vector3.create(0, -wallThickness / 2, landingDepth / 2),
+          AutoMovieEngineVector3.create(0, -wallThickness / 2, landingDepth / 2),
         ),
       ],
       [landingFloor, { ...landingFloor, id: "sill", width: aperture }],
@@ -201,7 +198,7 @@ export function buildLiftEnvironment(
         "landing-floor",
         root,
         local,
-        Vector3.create(0, height, gap),
+        AutoMovieEngineVector3.create(0, height, gap),
         landingModel.id,
       ),
       element(
@@ -209,7 +206,7 @@ export function buildLiftEnvironment(
         "call-button",
         root,
         local,
-        Vector3.create(0, height, callShift),
+        AutoMovieEngineVector3.create(0, height, callShift),
         callModel.id,
       ),
       element(
@@ -217,7 +214,7 @@ export function buildLiftEnvironment(
         "landing-doors",
         root,
         local,
-        Vector3.create(0, height, gap),
+        AutoMovieEngineVector3.create(0, height, gap),
         null,
       ),
     );
@@ -324,7 +321,7 @@ export function buildLiftEnvironment(
                 element: "cab",
                 motion: {
                   kind: "prismatic",
-                  axis: Vector3.create(0, 1, 0),
+                  axis: AutoMovieEngineVector3.create(0, 1, 0),
                   min: 0,
                   max: rise,
                 },
@@ -353,7 +350,81 @@ export function buildLiftEnvironment(
   };
 }
 
-/** Require an upright box part from the lift archetype, the geometry owner. */
+/*
+ * The lift assembly's geometry input and portable result contracts.
+ */
+export namespace buildLiftEnvironment {
+  /*
+   * The placed lift and the resolved dimensions shared by its staged members.
+   * The context supplies the rigid world frame. The car supplies its aperture
+   * and contacts at the original scale, and the stops give the sill
+   * elevations.
+   */
+  export interface IProps {
+    /*
+     * The upright module instance layout and ownership.
+     */
+    context: IAutoMovieEnvironmentModule.IContext;
+
+    /*
+     * The chosen car and its resolved aperture affordances.
+     */
+    car: ReturnType<typeof AutoMovieArchetypeElevator.create>;
+
+    /*
+     * Clear sill gap, metres.
+     */
+    gap: number;
+
+    /*
+     * Fixed landing depth beyond the gap, metres.
+     */
+    landingDepth: number;
+
+    /*
+     * Local stop names and strictly increasing sill elevations.
+     */
+    stops: readonly liftStopHeights.IStop[];
+
+    /*
+     * Door and cab state at film second zero.
+     */
+    first: AutoMovieArchetypeEnvironment.ILiftKey;
+  }
+
+  /*
+   * Geometry, logical stations and current-state prop facts for one lift. Each
+   * prop references its model in the design. Anchors locate fixed attachments
+   * in world metres, and the object clip supplies cab motion.
+   */
+  export interface IResult {
+    /*
+     * Built design owning shaft, landings, and connector.
+     */
+    environment: IAutoMovieBuiltEnvironment;
+
+    /*
+     * The fixed landing and moving cab support props, plus the fixed call
+     * plates.
+     */
+    props: IAutoMoviePropSpec[];
+
+    /*
+     * World-space sill, call and approach points keyed by stop.
+     */
+    anchors: Readonly<Record<string, IAutoMovieTransform>>;
+  }
+}
+
+
+/*
+ * The two leaf affordances and their corresponding existing panel parts.
+ */
+const LEAVES: readonly ["leftDoor", "rightDoor"] = ["leftDoor", "rightDoor"];
+
+/*
+ * Require an upright box part from the lift archetype, the geometry owner.
+ */
 function boxPart(
   car: IAutoMovieModel,
   id: string,
@@ -377,7 +448,7 @@ function boxPart(
   };
 }
 
-/**
+/*
  * Assemble a rigid subset with its original materials and only its own
  * contacts.
  */
@@ -400,12 +471,16 @@ function isolated(
   };
 }
 
-/** Register a rigid model carrying a staged prop affordance. */
+/*
+ * Register a rigid model carrying a staged prop affordance.
+ */
 function asProp(model: IAutoMovieModel): IAutoMoviePropSpec {
   return { node: model.id, model, articulation: null };
 }
 
-/** Name one visible or grouping element in its parent's rigid frame. */
+/*
+ * Name one visible or grouping element in its parent's rigid frame.
+ */
 function element(
   id: string,
   kind: string,
@@ -424,7 +499,9 @@ function element(
   };
 }
 
-/** Create an XY outline in one wall's local metres. */
+/*
+ * Create an XY outline in one wall's local metres.
+ */
 function rectangle(
   left: number,
   bottom: number,
@@ -437,52 +514,4 @@ function rectangle(
     { x: right, y: top },
     { x: left, y: top },
   ];
-}
-
-/** The lift assembly's geometry input and portable result contracts. */
-export namespace buildLiftEnvironment {
-  /**
-   * The placed lift and the resolved dimensions shared by its staged members.
-   * The context supplies the rigid world frame. The car supplies its aperture
-   * and contacts at the original scale, and the stops give the sill
-   * elevations.
-   */
-  export interface IProps {
-    /** The upright module instance layout and ownership. */
-    context: IAutoMovieEnvironmentModule.IContext;
-
-    /** The chosen car and its resolved aperture affordances. */
-    car: ReturnType<typeof createElevator>;
-
-    /** Clear sill gap, metres. */
-    gap: number;
-
-    /** Fixed landing depth beyond the gap, metres. */
-    landingDepth: number;
-
-    /** Local stop names and strictly increasing sill elevations. */
-    stops: readonly liftStopHeights.IStop[];
-
-    /** Door and cab state at film second zero. */
-    first: createLift.IKey;
-  }
-
-  /**
-   * Geometry, logical stations and current-state prop facts for one lift. Each
-   * prop references its model in the design. Anchors locate fixed attachments
-   * in world metres, and the object clip supplies cab motion.
-   */
-  export interface IResult {
-    /** Built design owning shaft, landings, and connector. */
-    environment: IAutoMovieBuiltEnvironment;
-
-    /**
-     * The fixed landing and moving cab support props, plus the fixed call
-     * plates.
-     */
-    props: IAutoMoviePropSpec[];
-
-    /** World-space sill, call and approach points keyed by stop. */
-    anchors: Readonly<Record<string, IAutoMovieTransform>>;
-  }
 }

@@ -42,14 +42,14 @@ export function test_human_hip_support_placement(): void {
     },
   ];
   const failures: string[] = [];
-  const unchanged: readonly IAutoMovieHumanSegmentJoint[] = AutoMovieHumanHipSupportPlacement(
+  const unchanged: readonly IAutoMovieHumanSegmentJoint[] = AutoMovieHumanHipSupportPlacement.place(
     { hipJointCentreBreadth: 60 },
     chain,
     "support",
   );
   if (unchanged !== chain)
     failures.push("the unchanged B60 chain lost identity");
-  const placed: readonly IAutoMovieHumanSegmentJoint[] = AutoMovieHumanHipSupportPlacement(
+  const placed: readonly IAutoMovieHumanSegmentJoint[] = AutoMovieHumanHipSupportPlacement.place(
     { hipJointCentreBreadth: 80 },
     chain,
     "support",
@@ -100,7 +100,7 @@ export function test_human_hip_support_placement(): void {
   for (const breadth of [0, -1, NaN, Infinity, 801, Number.MIN_VALUE]) {
     let refused: boolean = false;
     try {
-      AutoMovieHumanHipSupportPlacement(
+      AutoMovieHumanHipSupportPlacement.place(
         { hipJointCentreBreadth: breadth },
         chain,
         "support",

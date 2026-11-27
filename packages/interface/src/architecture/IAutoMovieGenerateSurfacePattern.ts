@@ -23,13 +23,13 @@ export namespace IAutoMovieGenerateSurfacePattern {
    * that the mesh, the instance slot, the finish, and the take-off all cite, so
    * a quantity can be traced back to the exact piece it counted. Quantities are
    * reported per zone and in total, and quality is judged by
-   * {@link autoMoviePatternFindings}.
+   * {@link patternFindings}.
    *
    * Coordinates are the surface's planar (u, v) metres and angles are degrees.
    * A malformed declaration throws an `Error` naming the field: blank or
    * duplicate ids, non-finite or non-positive sizes, a non-convex region or
    * exclusion, overlapping zones or exclusions, ambiguous surviving occurrence
-   * ids, a zone spanning more than `AUTOMOVIE_MAX_PATTERN_CELLS` lattice cells,
+   * ids, a zone spanning more than `AutoMovieEngineMaxPatternCells` lattice cells,
    * non-safe-integer derived lattice bounds, or a generated module reaching
    * beyond its cell's declared reach. Quality defects are not thrown; they are
    * returned as `findings` (sliver, unsupported-piece, module-overlap,

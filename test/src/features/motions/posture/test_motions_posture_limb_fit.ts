@@ -10,10 +10,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanLimbFit,
-  poseBones,
-  resolveHumanPosture,
-} from "@automovie/motions/internal";
+  HumanLimbFit
+} from "../../../../../packages/motions/src/posture/internal/HumanLimbFit";
+import {
+  poseBones
+} from "../../../../../packages/motions/src/posture/internal/poseBones";
+import {
+  resolveHumanPosture
+} from "../../../../../packages/motions/src/posture/internal/resolveHumanPosture";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -48,8 +52,8 @@ const SHIFT: IAutoMovieVector3 = { x: 0, y: 0.15, z: 0.2 };
  *
  * The body is built whole (`humanFixtureBody`): the fit reads the body's
  * prepared limb chains and limb reads, and the resolve its pose rig, topology,
- * ROM projection and settled bones, records only `createHumanBody` derives from
- * the stored rig and profile.
+ * ROM projection and settled bones, records only
+ * `AutoMovieMotionHumanBody.create` derives from the stored rig and profile.
  */
 export async function test_motions_posture_limb_fit(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

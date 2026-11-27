@@ -1,4 +1,4 @@
-import { clipAutoMovieDrawingTriangles } from "@automovie/engine";
+import { AutoMovieEngineDrawing } from "@automovie/engine";
 import type {
   IAutoMovieDrawingFrame,
   IAutoMovieDrawingTriangle,
@@ -14,7 +14,7 @@ const FRAME: IAutoMovieDrawingFrame = {
 };
 
 /**
- * `clipAutoMovieDrawingTriangles` keeps the part of each triangle on or behind
+ * `clipDrawingTriangles` keeps the part of each triangle on or behind
  * the plane (distance <= epsilon along the normal).
  *
  * Scenarios:
@@ -36,12 +36,15 @@ export function test_engine_drawing_clip_triangles(): void {
   };
   TestValidator.equals(
     "whole and dropped",
-    clipAutoMovieDrawingTriangles(FRAME, [behind, ahead]),
+    AutoMovieEngineDrawing.clipAutoMovieDrawingTriangles(FRAME, [
+      behind,
+      ahead,
+    ]),
     [behind],
   );
   TestValidator.equals(
     "a cut triangle",
-    clipAutoMovieDrawingTriangles(FRAME, [
+    AutoMovieEngineDrawing.clipAutoMovieDrawingTriangles(FRAME, [
       {
         a: { x: 0, y: 0, z: -1 },
         b: { x: 1, y: 0, z: 1 },

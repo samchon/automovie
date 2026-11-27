@@ -29,7 +29,7 @@ export namespace IAutoMovieDisplaceSurface {
    * belongs at a finer level. The orientation check is local to each normal
    * group's aggregate area; it does not certify every face orientation or
    * global absence of self-intersections. The heights usually come from a field
-   * evaluated at each vertex's `locateAutoMovieSurfaceVertices` location, which
+   * evaluated at each vertex's `locateSurfaceVertices` location, which
    * depends on no pose, so a posed surface takes the same heights.
    */
   export type IProps = {

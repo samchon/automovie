@@ -1,11 +1,11 @@
-import { subdivideAutoMovieSurface } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type { IAutoMovieSubdivisionCage } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * `subdivideAutoMovieSurface` refuses every cage it cannot subdivide, each one
+ * `subdivideSurface` refuses every cage it cannot subdivide, each one
  * property away from a cage that subdivides.
  *
  * Fixture: two unit quads sharing the edge 1-4, one UV per vertex, a crease 1-4
@@ -38,7 +38,7 @@ export function test_engine_geometry_subdivision_refusals(): void {
     creases: [{ from: 1, to: 4, sharpness: 2.5 }],
   };
   const refused = (label: string, cage: IAutoMovieSubdivisionCage, message: string): void =>
-    TestValidator.predicate(label, throwsError((): unknown => subdivideAutoMovieSurface({ cage, levels: 1 }), message));
+    TestValidator.predicate(label, throwsError((): unknown => AutoMovieEngineGeometry.subdivideSurface({ cage, levels: 1 }), message));
   const quad: number[] = [0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0];
 
   // 1.
@@ -47,12 +47,12 @@ export function test_engine_geometry_subdivision_refusals(): void {
     { ...valid, creases: [{ from: 4, to: 1, sharpness: 0 }] },
     { ...valid, creases: [{ from: 1, to: 4, sharpness: 10 }] },
   ])
-    TestValidator.equals("subdivides", subdivideAutoMovieSurface({ cage, levels: 2 }).faces.length, 32 * 4);
+    TestValidator.equals("subdivides", AutoMovieEngineGeometry.subdivideSurface({ cage, levels: 2 }).faces.length, 32 * 4);
 
   // 2.
   TestValidator.equals(
     "six levels",
-    subdivideAutoMovieSurface({ cage: { positions: quad, faces: [[0, 1, 2, 3]] }, levels: 6 }).faces.length,
+    AutoMovieEngineGeometry.subdivideSurface({ cage: { positions: quad, faces: [[0, 1, 2, 3]] }, levels: 6 }).faces.length,
     4 ** 6 * 4,
   );
 

@@ -1,9 +1,4 @@
-import {
-  Matrix4,
-  Quaternion,
-  childrenIndex,
-  resolveWorldDrivers,
-} from "@automovie/engine";
+import { AutoMovieEngineMatrix4, AutoMovieEngineQuaternion, AutoMovieEngineResolve } from "@automovie/engine";
 import {
   IAutoMovieAimDriver,
   type IAutoMovieDriver,
@@ -28,7 +23,7 @@ const W: (x: number, y: number, z: number) => number[] = (
   y: number,
   z: number,
 ): number[] =>
-  Matrix4.compose(
+  AutoMovieEngineMatrix4.compose(
     { x, y, z },
     { x: 0, y: 0, z: 0, w: 1 },
     { x: 1, y: 1, z: 1 },
@@ -55,7 +50,7 @@ const aimedDir: (
   world: Map<string, number[]>,
   aimAxis: IAutoMovieVector3,
 ): IAutoMovieVector3 =>
-  Quaternion.rotateVector(Matrix4.decompose(world.get("o")!).rotation, aimAxis);
+  AutoMovieEngineQuaternion.rotateVector(AutoMovieEngineMatrix4.decompose(world.get("o")!).rotation, aimAxis);
 
 const runAim: (
   d: IAutoMovieAimDriver,
@@ -70,7 +65,7 @@ const runAim: (
     ["o", W(ownerPos.x, ownerPos.y, ownerPos.z)],
     ["t", W(targetPos.x, targetPos.y, targetPos.z)],
   ]);
-  resolveWorldDrivers([d], world, new Map(), new Map());
+  AutoMovieEngineResolve.resolveWorldDrivers([d], world, new Map(), new Map());
   return world;
 };
 
@@ -112,8 +107,8 @@ export function test_resolve_world_drivers(): void {
     "aim points at +X",
     vclose(aimedDir(w1, { x: 0, y: 0, z: -1 }), { x: 1, y: 0, z: 0 }, 1e-5),
   );
-  const up1: IAutoMovieVector3 = Quaternion.rotateVector(
-    Matrix4.decompose(w1.get("o")!).rotation,
+  const up1: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineMatrix4.decompose(w1.get("o")!).rotation,
     { x: 0, y: 1, z: 0 },
   );
   TestValidator.predicate("up stays generally up", up1.y > 0.5);
@@ -196,8 +191,8 @@ export function test_resolve_world_drivers(): void {
     string,
     IAutoMovieTransform
   >([["c", trs(0, 2, 0)]]);
-  resolveWorldDrivers([aim({})], world, localById, childrenIndex(nodes));
-  const childPos: IAutoMovieVector3 = Matrix4.position(world.get("c")!);
+  AutoMovieEngineResolve.resolveWorldDrivers([aim({})], world, localById, AutoMovieEngineResolve.childrenIndex(nodes));
+  const childPos: IAutoMovieVector3 = AutoMovieEngineMatrix4.position(world.get("c")!);
   TestValidator.predicate(
     "child recomposed off the rotated owner",
     !vclose(childPos, { x: 0, y: 2, z: 0 }, 1e-3),
@@ -213,7 +208,7 @@ export function test_resolve_world_drivers(): void {
     iterations: null,
     influence: 1,
   };
-  const deferred: IAutoMovieDriver[] = resolveWorldDrivers(
+  const deferred: IAutoMovieDriver[] = AutoMovieEngineResolve.resolveWorldDrivers(
     [aim({}), ik],
     new Map([
       ["o", W(0, 0, 0)],
@@ -229,7 +224,7 @@ export function test_resolve_world_drivers(): void {
     "aim rejects negative influence",
     throwsError(
       (): IAutoMovieDriver[] =>
-        resolveWorldDrivers(
+        AutoMovieEngineResolve.resolveWorldDrivers(
           [aim({ influence: -0.1 })],
           new Map(),
           new Map(),
@@ -242,7 +237,7 @@ export function test_resolve_world_drivers(): void {
     "aim rejects influence above one",
     throwsError(
       (): IAutoMovieDriver[] =>
-        resolveWorldDrivers(
+        AutoMovieEngineResolve.resolveWorldDrivers(
           [aim({ influence: 1.1 })],
           new Map(),
           new Map(),
@@ -255,7 +250,7 @@ export function test_resolve_world_drivers(): void {
     "aim rejects zero aim axis",
     throwsError(
       (): IAutoMovieDriver[] =>
-        resolveWorldDrivers(
+        AutoMovieEngineResolve.resolveWorldDrivers(
           [aim({ aimAxis: { x: 0, y: 0, z: 0 } })],
           new Map(),
           new Map(),
@@ -268,7 +263,7 @@ export function test_resolve_world_drivers(): void {
     "aim rejects zero up axis",
     throwsError(
       (): IAutoMovieDriver[] =>
-        resolveWorldDrivers(
+        AutoMovieEngineResolve.resolveWorldDrivers(
           [aim({ upAxis: { x: 0, y: 0, z: 0 } })],
           new Map(),
           new Map(),
@@ -281,7 +276,7 @@ export function test_resolve_world_drivers(): void {
     "aim rejects zero world up",
     throwsError(
       (): IAutoMovieDriver[] =>
-        resolveWorldDrivers(
+        AutoMovieEngineResolve.resolveWorldDrivers(
           [aim({ worldUp: { x: 0, y: 0, z: 0 } })],
           new Map(),
           new Map(),
@@ -292,7 +287,7 @@ export function test_resolve_world_drivers(): void {
   );
 
   // childrenIndex: a root is skipped; a second child of one parent appends
-  const idx: Map<string, string[]> = childrenIndex([
+  const idx: Map<string, string[]> = AutoMovieEngineResolve.childrenIndex([
     { ...node("root"), parent: null },
     { ...node("a"), parent: "root" },
     { ...node("b"), parent: "root" },
@@ -307,7 +302,7 @@ export function test_resolve_world_drivers(): void {
     "missing aim owner rejects incomplete world map",
     throwsError(
       (): IAutoMovieDriver[] =>
-        resolveWorldDrivers(
+        AutoMovieEngineResolve.resolveWorldDrivers(
           [aim({ owner: "missing" })],
           new Map([["t", W(1, 0, 0)]]),
           new Map(),
@@ -320,7 +315,7 @@ export function test_resolve_world_drivers(): void {
     "missing aim target rejects incomplete world map",
     throwsError(
       (): IAutoMovieDriver[] =>
-        resolveWorldDrivers(
+        AutoMovieEngineResolve.resolveWorldDrivers(
           [aim({ target: "missing" })],
           new Map([["o", W(0, 0, 0)]]),
           new Map(),
@@ -333,7 +328,7 @@ export function test_resolve_world_drivers(): void {
     "missing child local rejects incomplete recomposition map",
     throwsError(
       (): IAutoMovieDriver[] =>
-        resolveWorldDrivers(
+        AutoMovieEngineResolve.resolveWorldDrivers(
           [aim({})],
           new Map([
             ["o", W(0, 0, 0)],

@@ -1,9 +1,8 @@
 import type { IAutoMovieInspectionDiagnostics } from "@automovie/interface";
 import {
-  type IAutoMovieInspectorState,
-  createAutoMovieInspectorState,
-  locateAutoMovieInspectorFinding,
-  reduceAutoMovieInspectorState,
+  type IAutoMovieViewerInspectorState,
+
+  AutoMovieViewerInspector,
 } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 
@@ -53,8 +52,8 @@ export function test_viewer_inspector_locate_inspector_finding(): void {
   // 1. Owners of part paths.
   TestValidator.equals(
     "each path is labelled by its drawn owner, once",
-    locateAutoMovieInspectorFinding(
-      observation([
+    AutoMovieViewerInspector.locateFinding({
+      observation: observation([
         "hero",
         "rope/segment/4",
         "guards/slot/2",
@@ -62,8 +61,8 @@ export function test_viewer_inspector_locate_inspector_finding(): void {
         "hero",
         "rig/hand.L.children[0].matrixWorld",
       ]),
-      drawn,
-    ),
+      paths: drawn,
+    }),
     {
       type: "locate",
       seconds: 2.25,
@@ -74,25 +73,22 @@ export function test_viewer_inspector_locate_inspector_finding(): void {
   // 2. Unowned paths.
   TestValidator.equals(
     "an unowned path is left out",
-    locateAutoMovieInspectorFinding(
-      observation(['["scene-mesh",2.25,3]', "hero"]),
-      drawn,
-    ).label,
+    AutoMovieViewerInspector.locateFinding({ observation: observation(['["scene-mesh",2.25,3]', "hero"]), paths: drawn }).label,
     ["hero"],
   );
   TestValidator.equals(
     "no drawn path clears the labels",
-    locateAutoMovieInspectorFinding(observation(["ghost/arm"]), drawn).label,
+    AutoMovieViewerInspector.locateFinding({ observation: observation(["ghost/arm"]), paths: drawn }).label,
     [],
   );
 
   // 3. Through the reducer.
-  const playing: IAutoMovieInspectorState = createAutoMovieInspectorState(
+  const playing: IAutoMovieViewerInspectorState = AutoMovieViewerInspector.createState(
     "?from=0&to=4&rate=24&label=stage",
   );
-  const located: IAutoMovieInspectorState = reduceAutoMovieInspectorState(
+  const located: IAutoMovieViewerInspectorState = AutoMovieViewerInspector.reduceState(
     playing,
-    locateAutoMovieInspectorFinding(observation(["rope/segment/1"]), drawn),
+    AutoMovieViewerInspector.locateFinding({ observation: observation(["rope/segment/1"]), paths: drawn }),
   );
   TestValidator.equals(
     "the located request names one second and the located label",

@@ -1,14 +1,7 @@
 import {
-  createEnvironment,
-  createTerrain,
-} from "@automovie/archetypes/environments";
-import {
-  heightAt,
-  prepareSpace,
-  surfaceHeightAt,
-  tessellateSurface,
-  worldGroundHeight,
-} from "@automovie/engine";
+  AutoMovieArchetypeEnvironment
+} from "../../../../packages/archetypes/src/environments/AutoMovieArchetypeEnvironment";
+import { AutoMovieEngineWorld, AutoMovieEngineSpace, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieEnvironment,
   IAutoMovieHeightRule,
@@ -64,13 +57,13 @@ export function test_location_terrain_noise(): void {
     seed: number,
     recipe: Partial<IAutoMovieTerrainRecipe> = {},
   ): IAutoMovieEnvironment =>
-    createEnvironment({
+    AutoMovieArchetypeEnvironment.create({
       id: "hills",
       seed,
       items: {
         land: {
           at: { x: 0, y: 2, z: 0 },
-          use: createTerrain({ size: [60, 40], relief: NOISE, ...recipe }),
+          use: AutoMovieArchetypeEnvironment.terrain({ size: { width: 60, depth: 40 }, relief: NOISE, ...recipe }),
         },
       },
     });
@@ -87,20 +80,20 @@ export function test_location_terrain_noise(): void {
     r: IAutoMovieHeightRule,
     x: number,
     z: number,
-  ): number => surfaceHeightAt({ height: r }, x, z);
+  ): number => AutoMovieEngineSpace.surfaceHeightAt({ height: r }, x, z);
 
   // 4. Pads 0.5 m square centred 20 m apart at heights 0 and 1, joined by a
   // path between their centres. Each pad's level apron ends 0.75 m from its
   // centre, inside the path's 1 m landing, so the pads add no grade of their
   // own to the path's 1 / 18.
-  const square: (cx: number, cz: number) => IAutoMovieTerrainRecipe.Point[] = (
+  const square: (cx: number, cz: number) => IAutoMovieTerrainRecipe.IXzPoint[] = (
     cx: number,
     cz: number,
-  ): IAutoMovieTerrainRecipe.Point[] => [
-    [cx - 0.25, cz - 0.25],
-    [cx + 0.25, cz - 0.25],
-    [cx + 0.25, cz + 0.25],
-    [cx - 0.25, cz + 0.25],
+  ): IAutoMovieTerrainRecipe.IXzPoint[] => [
+    { x: cx - 0.25, z: cz - 0.25 },
+    { x: cx + 0.25, z: cz - 0.25 },
+    { x: cx + 0.25, z: cz + 0.25 },
+    { x: cx - 0.25, z: cz + 0.25 },
   ];
   const graded: (maxSlope: number) => IAutoMovieEnvironment = (
     maxSlope: number,
@@ -113,8 +106,8 @@ export function test_location_terrain_noise(): void {
       paths: {
         trail: {
           points: [
-            [15, 20],
-            [35, 20],
+            { x: 15, z: 20 },
+            { x: 35, z: 20 },
           ],
           width: 2,
           shoulder: 4,
@@ -145,8 +138,15 @@ export function test_location_terrain_noise(): void {
   /** The difference from the triangle fan peaks at the diagonal midpoint. */
   const paddedMeshAgrees: () => boolean = (): boolean => {
     if (paddedRule.kind !== "heightfield") return false;
-    const { originX, originZ, spacingX, spacingZ, columns, rows, samples }:
-      typeof paddedRule = paddedRule;
+    const {
+      originX,
+      originZ,
+      spacingX,
+      spacingZ,
+      columns,
+      rows,
+      samples,
+    }: typeof paddedRule = paddedRule;
     for (let row: number = 0; row + 1 < rows; ++row)
       for (let column: number = 0; column + 1 < columns; ++column) {
         const corner: number = row * columns + column;
@@ -181,8 +181,8 @@ export function test_location_terrain_noise(): void {
 
   // 7. The actual triangle centroids against the two height readers.
   const space: IAutoMovieSpace = environment.stage.space!;
-  const mesh: IAutoMovieTessellation = tessellateSurface(space.surfaces[0]!)!;
-  const prepared: ReturnType<typeof prepareSpace> = prepareSpace(space);
+  const mesh: IAutoMovieTessellation = AutoMovieEngineGeometry.tessellateSurface(space.surfaces[0]!)!;
+  const prepared: ReturnType<typeof AutoMovieEngineSpace.prepareSpace> = AutoMovieEngineSpace.prepareSpace(space);
   const meshAgrees: () => boolean = (): boolean => {
     for (let face: number = 0; face < mesh.indices.length; face += 3) {
       const corners: number[] = [0, 1, 2].map(
@@ -194,8 +194,8 @@ export function test_location_terrain_noise(): void {
           0,
         ) / 3;
       const [x, y, z]: number[] = [mean(0), mean(1), mean(2)];
-      const scene: number | null = heightAt(space, x!, z!, prepared);
-      const world: number | null = worldGroundHeight(
+      const scene: number | null = AutoMovieEngineSpace.heightAt(space, x!, z!, prepared);
+      const world: number | null = AutoMovieEngineWorld.groundHeight(
         environment.runtime.world.surfaces,
         { x: x!, z: z! },
       );
@@ -248,7 +248,7 @@ export function test_location_terrain_noise(): void {
           throwsError(
             () =>
               build(1, {
-                size: [400, 400],
+                size: { width: 400, depth: 400 },
                 relief: {
                   kind: "noise",
                   amplitude: 3,

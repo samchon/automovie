@@ -1,4 +1,6 @@
-import { escapeWebVttText } from "@automovie/render/internal";
+import {
+  escapeWebVttText
+} from "../../../../../packages/render/src/caption/internal/escapeWebVttText";
 import { TestValidator } from "@nestia/e2e";
 
 /**

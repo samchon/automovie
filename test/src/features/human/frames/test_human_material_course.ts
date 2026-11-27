@@ -1,4 +1,4 @@
-import { AutoMovieViewAxis } from "@automovie/engine";
+import { AutoMovieEngineViewAxis } from "@automovie/engine";
 import {
   AutoMovieHumanCourseRuns as Runs,
   AutoMovieHumanMaterialCourse as Material,
@@ -103,7 +103,7 @@ export function test_human_material_course(): void {
   // 5. A right-angle jointed course whose first run is lengthened.
   const reference: { centres: [number, number, number][]; halves: number[] } = { centres: [[0, 0, 0], [100, 0, 0], [100, 50, 0]], halves: [10] };
   const person: { centres: [number, number, number][]; halves: number[] } = { centres: [[0, 0, 0], [120, 0, 0], [120, 50, 0]], halves: [10] };
-  const jointed: IAutoMovieViewAxis.IAxis | string = AutoMovieViewAxis.jointed(person.centres, person.halves, [0, 0, 1]);
+  const jointed: IAutoMovieViewAxis.IAxis | string = AutoMovieEngineViewAxis.jointed(person.centres, person.halves, [0, 0, 1]);
   if (typeof jointed === "string") failures.push("the made jointed course is refused: " + jointed);
   else {
     const carried: Runs.IMap = Material.map(reference, person);

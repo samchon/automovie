@@ -1,4 +1,4 @@
-﻿import { Vector3 } from "@automovie/engine";
+﻿import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -6,11 +6,17 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanAuditTangle,
-  poseBones,
-  resolveHumanPosture,
-  stand,
-} from "@automovie/motions/internal";
+  AutoMovieMotionHumanAuditTangle
+} from "../../../../../packages/motions/src/audit/internal/AutoMovieMotionHumanAuditTangle";
+import {
+  poseBones
+} from "../../../../../packages/motions/src/posture/internal/poseBones";
+import {
+  resolveHumanPosture
+} from "../../../../../packages/motions/src/posture/internal/resolveHumanPosture";
+import {
+  stand
+} from "../../../../../packages/motions/src/actions/internal/stand";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -49,7 +55,7 @@ export async function test_motions_audit_auto_movie_motion_human_audit_tangle_ar
     ],
     [0, 0],
   );
-  const by: IAutoMovieVector3 = Vector3.subtract(
+  const by: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
     still.get("chest")!.worldPosition,
     still.get("leftHand")!.worldPosition,
   );
@@ -61,7 +67,7 @@ export async function test_motions_audit_auto_movie_motion_human_audit_tangle_ar
       ] => [
         name,
         FOREARM.test(name)
-          ? { ...bone, worldPosition: Vector3.add(bone.worldPosition, by) }
+          ? { ...bone, worldPosition: AutoMovieEngineVector3.add(bone.worldPosition, by) }
           : bone,
       ],
     ),

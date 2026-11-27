@@ -16,15 +16,18 @@ export namespace IAutoMoviePlanPhysicalRootSupportTargets {
       string,
       IAutoMovieRigidTransform
     >;
-    /** Actual root body frame. */ root: {
-      /** Root segment bone used as the rebasing anchor. */
-      bone: string;
-      /** Measured root world position in metres and rotation. */
-      pose: IAutoMovieRigidTransform;
-    };
+    /** Actual root body frame. */ root: IInputRoot;
     /**
      * Joint coordinates already owned by a simultaneous balance posture task.
      * Only disjoint endpoint chains are fitted here.
      */ excluded?: ReadonlySet<string>;
+  };
+
+  /** The root object of {@link IInput}. */
+  export type IInputRoot = {
+    /** Root segment bone used as the rebasing anchor. */
+    bone: string;
+    /** Measured root world position in metres and rotation. */
+    pose: IAutoMovieRigidTransform;
   };
 }

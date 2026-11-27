@@ -2,12 +2,12 @@ import {
   type IAutoMovieBicubicAtlasGeometry,
   type IAutoMovieMesh,
 } from "@automovie/interface";
-import { compileAutoMovieRecoveryAtlas } from "@automovie/recovery";
+import { AutoMovieRecoveryReconstruction } from "@automovie/recovery";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
-import { writeAutoMovieRecoveryArtifact } from "../artifact/writeAutoMovieRecoveryArtifact";
+import { writeRecoveryArtifact } from "../artifact/writeRecoveryArtifact";
 import { observeRecoveryAtlas } from "./observeRecoveryAtlas";
 
 /**
@@ -74,8 +74,9 @@ export function recoveryAtlas(args: string[], sourceEpoch: string): void {
       memory: process.memoryUsage(),
     }),
   );
-  const generated: ReturnType<typeof compileAutoMovieRecoveryAtlas> =
-    compileAutoMovieRecoveryAtlas(input.geometry);
+  const generated: ReturnType<
+    typeof AutoMovieRecoveryReconstruction.compileAtlas
+  > = AutoMovieRecoveryReconstruction.compileAtlas(input.geometry);
   const provenance: object = {
     sourceEpoch,
     inputSha256,
@@ -89,16 +90,16 @@ export function recoveryAtlas(args: string[], sourceEpoch: string): void {
   };
   const recipeFile: string = path.join(output, "recipe-model.json"),
     compiledFile: string = path.join(output, "compiled-model.json");
-  const recipePublication: ReturnType<typeof writeAutoMovieRecoveryArtifact> =
-    writeAutoMovieRecoveryArtifact(recipeFile, {
+  const recipePublication: ReturnType<typeof writeRecoveryArtifact> =
+    writeRecoveryArtifact(recipeFile, {
       schema: "automovie-recovery-engine-model-v1",
       model: generated.recipeModel,
       coverage: input.coverage,
       charts: input.charts,
       provenance,
     });
-  const compiledPublication: ReturnType<typeof writeAutoMovieRecoveryArtifact> =
-    writeAutoMovieRecoveryArtifact(compiledFile, {
+  const compiledPublication: ReturnType<typeof writeRecoveryArtifact> =
+    writeRecoveryArtifact(compiledFile, {
       schema: "automovie-recovery-engine-model-v1",
       model: generated.compiledModel,
       coverage: input.coverage,
@@ -136,8 +137,8 @@ export function recoveryAtlas(args: string[], sourceEpoch: string): void {
       processMaximumRssKiB: process.resourceUsage().maxRSS,
     },
   };
-  const publication: ReturnType<typeof writeAutoMovieRecoveryArtifact> =
-    writeAutoMovieRecoveryArtifact(path.join(output, "compile.json"), manifest);
+  const publication: ReturnType<typeof writeRecoveryArtifact> =
+    writeRecoveryArtifact(path.join(output, "compile.json"), manifest);
   console.log(
     JSON.stringify({
       phase: "atlas-engine-complete",

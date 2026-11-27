@@ -1,11 +1,11 @@
-import { solveAutoMovieHalfPlaneProgram } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import type { IAutoMovieSolveHalfPlaneProgram } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/predicates";
 
 /**
- * With no half-plane, `solveAutoMovieHalfPlaneProgram` returns the point of the
+ * With no half-plane, `solveHalfPlaneProgram` returns the point of the
  * disc of the given radius nearest the preferred point: the point itself
  * inside, its radial projection `r p / |p|` outside.
  *
@@ -16,9 +16,9 @@ import { nclose } from "../../internal/predicates";
  */
 export function test_engine_math_half_plane_program_preferred(): void {
   const interior: IAutoMovieSolveHalfPlaneProgram.IResult =
-    solveAutoMovieHalfPlaneProgram([], 1, { x: 0.25, y: 0.5 });
+    AutoMovieEngineMath.solveHalfPlaneProgram([], 1, { x: 0.25, y: 0.5 });
   const exterior: IAutoMovieSolveHalfPlaneProgram.IResult =
-    solveAutoMovieHalfPlaneProgram([], 1, { x: 3, y: 4 });
+    AutoMovieEngineMath.solveHalfPlaneProgram([], 1, { x: 3, y: 4 });
   TestValidator.predicate(
     "the interior preference is kept",
     interior.feasible &&

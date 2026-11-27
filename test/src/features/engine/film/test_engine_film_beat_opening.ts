@@ -1,4 +1,4 @@
-import { resolveBeatEnd, resolveBeatOpening } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import {
   type IAutoMovieBeatEndActorState,
   IAutoMovieMotion,
@@ -85,7 +85,7 @@ const shot: IAutoMovieShot = {
  *    opening instant from the closing state.
  */
 export function test_engine_film_beat_opening(): void {
-  const opening: IAutoMovieBeatEndActorState = resolveBeatOpening({
+  const opening: IAutoMovieBeatEndActorState = AutoMovieEngineFilm.resolveBeatOpening({
     beat: "beat-1",
     scene,
     shot,
@@ -105,7 +105,7 @@ export function test_engine_film_beat_opening(): void {
     nclose(opening.localTime, 0),
   );
 
-  const end: IAutoMovieBeatEndActorState = resolveBeatEnd({
+  const end: IAutoMovieBeatEndActorState = AutoMovieEngineFilm.resolveBeatEnd({
     beat: "beat-1",
     scene,
     shot,

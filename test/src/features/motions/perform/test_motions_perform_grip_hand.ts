@@ -5,7 +5,9 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { prepareHumanGripHand } from "@automovie/motions/internal";
+import {
+  prepareHumanGripHand
+} from "../../../../../packages/motions/src/perform/internal/prepareHumanGripHand";
 import { TestValidator } from "@nestia/e2e";
 
 import { standingPerformanceState } from "../../internal/fixtures/standingPerformanceState";

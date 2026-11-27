@@ -1,8 +1,4 @@
-import {
-  AutoMovieLoftChain,
-  AutoMovieViewLoft,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
+import { AutoMovieEngineLoftChain, AutoMovieEngineViewLoft, AutoMovieEngineConstruction } from "@automovie/engine";
 import { AutoMovieHumanConicLoft, AutoMovieHumanF1 } from "@automovie/human";
 import type {
   IAutoMovieConstructionNode,
@@ -103,7 +99,7 @@ namespace FamilyConicPorts {
       const free: number = digit.knots[0]!;
 
       // The digit's ring near its joint, from its fields carried back there, on the limb's chart.
-      const probe: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create(
+      const probe: IAutoMovieViewLoft.IResult = AutoMovieEngineViewLoft.create(
         partOf({ ...digit, tips: undefined }, Number(ringAt)),
       );
       if (probe.chain === null)
@@ -112,7 +108,7 @@ namespace FamilyConicPorts {
         { length: 48 },
         (_: unknown, j: number): [number, number] =>
           chart(
-            AutoMovieLoftChain.point(
+            AutoMovieEngineLoftChain.point(
               probe.chain!,
               Number(ringAt),
               (2 * Math.PI * j) / 48,
@@ -140,29 +136,30 @@ namespace FamilyConicPorts {
       );
       const radius: number =
         Math.hypot(
-          ...AutoMovieLoftChain.point(probe.chain, Number(ringAt), 0).map(
+          ...AutoMovieEngineLoftChain.point(probe.chain, Number(ringAt), 0).map(
             (x: number, c: number): number =>
               x -
-              AutoMovieLoftChain.point(probe.chain!, Number(ringAt), Math.PI)[
+              AutoMovieEngineLoftChain.point(probe.chain!, Number(ringAt), Math.PI)[
                 c
               ]!,
           ),
         ) / 2;
       const loop: IAutoMovieConstructionPortLoop = {
-        centre: [
-          (Math.min(...stations) + Math.max(...stations)) / 2000,
-          middle + (Math.min(...turned) + Math.max(...turned)) / 2,
-        ],
-        semi: [
-          ((Math.max(...stations) - Math.min(...stations)) / 2 +
-            Number(margin)) /
+        centre: {
+          station: (Math.min(...stations) + Math.max(...stations)) / 2000,
+          phase: middle + (Math.min(...turned) + Math.max(...turned)) / 2,
+        },
+        semi: {
+          stationMetres:
+            ((Math.max(...stations) - Math.min(...stations)) / 2 +
+              Number(margin)) /
             1000,
-          Math.min(
+          phaseRadians: Math.min(
             3,
             ((Math.max(...turned) - Math.min(...turned)) / 2) *
               (1 + Number(margin) / radius),
           ),
-        ],
+        },
         sense: 1,
       };
       loops[name] = loop;
@@ -185,7 +182,7 @@ namespace FamilyConicPorts {
     process.stdout.write(JSON.stringify({ tip: limb.tips![1], loops }) + "\n");
     const started: number = performance.now();
     const real: IAutoMovieConstructionRealization.IRealization =
-      realizeAutoMovieConstruction(
+      AutoMovieEngineConstruction.realize(
         { name: "f1.ports", root },
         { chord: 0.0005, sources },
       );

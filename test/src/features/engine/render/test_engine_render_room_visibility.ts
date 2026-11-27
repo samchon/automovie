@@ -1,4 +1,4 @@
-import { autoMovieRoomVisibility } from "@automovie/engine";
+import { AutoMovieEngineScene } from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieRoomVisibility,
@@ -29,7 +29,7 @@ const sealed: () => IAutoMovieBuiltEnvironment =
   });
 
 /**
- * `autoMovieRoomVisibility` hides the spaces that no declared sight line can
+ * `roomVisibility` hides the spaces that no declared sight line can
  * reach from the camera's cell, conservatively.
  *
  * Scenarios, on the atelier (a hall and a roof deck under a building, a stair
@@ -44,7 +44,7 @@ const sealed: () => IAutoMovieBuiltEnvironment =
  *    and an exterior placement.
  */
 export function test_engine_render_room_visibility(): void {
-  const connected: IAutoMovieRoomVisibility = autoMovieRoomVisibility({
+  const connected: IAutoMovieRoomVisibility = AutoMovieEngineScene.autoMovieRoomVisibility({
     environment: drawingEnvironment(),
     camera: IN_HALL,
   });
@@ -58,7 +58,7 @@ export function test_engine_render_room_visibility(): void {
     ],
     ["hall", "interior", [], null],
   );
-  const apart: IAutoMovieRoomVisibility = autoMovieRoomVisibility({
+  const apart: IAutoMovieRoomVisibility = AutoMovieEngineScene.autoMovieRoomVisibility({
     environment: sealed(),
     camera: IN_HALL,
   });
@@ -67,7 +67,7 @@ export function test_engine_render_room_visibility(): void {
     [apart.camera, apart.hidden, apart.visible],
     ["hall", ["roof-deck"], ["hall", "site"]],
   );
-  const deck: IAutoMovieRoomVisibility = autoMovieRoomVisibility({
+  const deck: IAutoMovieRoomVisibility = AutoMovieEngineScene.autoMovieRoomVisibility({
     environment: sealed(),
     camera: IN_DECK,
   });
@@ -76,7 +76,7 @@ export function test_engine_render_room_visibility(): void {
     [deck.camera, deck.hidden],
     ["roof-deck", ["hall"]],
   );
-  const outside: IAutoMovieRoomVisibility = autoMovieRoomVisibility({
+  const outside: IAutoMovieRoomVisibility = AutoMovieEngineScene.autoMovieRoomVisibility({
     environment: drawingEnvironment(),
     camera: OUTSIDE,
   });

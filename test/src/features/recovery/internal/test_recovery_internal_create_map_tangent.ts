@@ -1,4 +1,4 @@
-import { createRecoveryMapTangent } from "@automovie/recovery";
+import { AutoMovieRecoveryCameraMap } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -18,14 +18,14 @@ import { nclose } from "../../internal/nclose";
 export function test_recovery_internal_create_map_tangent(): void {
   TestValidator.equals(
     "the tangent at +Z",
-    createRecoveryMapTangent([0, 0, 1]),
+    AutoMovieRecoveryCameraMap.createMapTangent([0, 0, 1]),
     [
       [1, 0, 0],
       [0, 1, 0],
     ],
   );
   const t: [number, number, number] = [0.6, 0, 0.8];
-  const tangent: [number, number, number][] = createRecoveryMapTangent(t);
+  const tangent: [number, number, number][] = AutoMovieRecoveryCameraMap.createMapTangent(t);
   const a: [number, number, number] = tangent[0]!;
   const b: [number, number, number] = tangent[1]!;
   const dot: (p: readonly number[], q: readonly number[]) => number = (
@@ -41,6 +41,6 @@ export function test_recovery_internal_create_map_tangent(): void {
       nclose(dot(a, b), 0, 1e-15),
   );
   TestValidator.error("a non-unit translation", (): unknown =>
-    createRecoveryMapTangent([0, 0, 2]),
+    AutoMovieRecoveryCameraMap.createMapTangent([0, 0, 2]),
   );
 }

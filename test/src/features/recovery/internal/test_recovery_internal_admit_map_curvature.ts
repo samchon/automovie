@@ -1,4 +1,4 @@
-import { admitRecoveryMapCurvature } from "@automovie/recovery";
+import { AutoMovieRecoveryCameraMap } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -22,15 +22,15 @@ export function test_recovery_internal_admit_map_curvature(): void {
   const charge = (work: number): void => {
     charged += work;
   };
-  const roomy = admitRecoveryMapCurvature(6, 2, 4, 100, 100000, 100000, charge);
+  const roomy = AutoMovieRecoveryCameraMap.admitMapCurvature(6, 2, 4, 100, 100000, 100000, charge);
   TestValidator.equals("eligible", roomy.eligible, true);
   TestValidator.equals("retained", roomy.retainedEntries, 10060);
   TestValidator.equals("work", roomy.work, 718976);
   TestValidator.equals("charged", charged, 512);
-  const tight = admitRecoveryMapCurvature(6, 2, 4, 100, 5000, 100000, charge);
+  const tight = AutoMovieRecoveryCameraMap.admitMapCurvature(6, 2, 4, 100, 5000, 100000, charge);
   TestValidator.equals("not eligible", tight.eligible, false);
   TestValidator.equals("fixed only", tight.retainedEntries, 356);
   TestValidator.error("a zero base", (): unknown =>
-    admitRecoveryMapCurvature(6, 2, 4, 0, 100000, 100000, charge),
+    AutoMovieRecoveryCameraMap.admitMapCurvature(6, 2, 4, 0, 100000, 100000, charge),
   );
 }

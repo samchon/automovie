@@ -1,12 +1,5 @@
-import {
-  Quaternion,
-  Vector3,
-  measurePhysicalJointLimits,
-  physicalShapeBounds,
-  physicalSupportPoint,
-  validatePoseResult,
-} from "@automovie/engine";
-import { fitHumanPhysicalStandingPose } from "@automovie/human";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysics, AutoMovieEngineValidation } from "@automovie/engine";
+import { AutoMovieHumanPhysicalStandingPose } from "@automovie/human";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -18,7 +11,7 @@ import type {
   IAutoMovieValidation,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanChain } from "@automovie/motions";
+import { AutoMovieMotionHumanChain } from "@automovie/motions";
 
 import { PhysicalSupportFixtures } from "../features/internal/PhysicalSupportFixtures";
 import { createPhysicalBalanceInput } from "../features/internal/createPhysicalBalanceInput";
@@ -187,7 +180,7 @@ export namespace preparePhysicalSupportInput {
     const film: motionHumanLaw.IFilm = motionHumanLaw.perform(
       "physical-support-geometry",
       [{ subject: profile.id, body: human }],
-      HumanChain.subject(profile.id).stand({ hold: 1, sway: 0 }),
+      AutoMovieMotionHumanChain.subject(profile.id).stand({ hold: 1, sway: 0 }),
     );
     const settled: number = motionHumanLaw.event(film, "settled", profile.id);
     const seconds: number = settled + (film.duration - settled) / 2;
@@ -215,14 +208,14 @@ export namespace preparePhysicalSupportInput {
       seconds,
       settled,
       duration: film.duration,
-      clinical: validatePoseResult(
+      clinical: AutoMovieEngineValidation.validatePoseResult(
         film.performance.pose(profile.id, seconds),
         human.skeleton,
       ),
       authored: observePhysicalPose(profile, poses),
     };
-    const fit: ReturnType<typeof fitHumanPhysicalStandingPose> =
-      fitHumanPhysicalStandingPose({
+    const fit: ReturnType<typeof AutoMovieHumanPhysicalStandingPose.fit> =
+      AutoMovieHumanPhysicalStandingPose.fit({
         profile,
         targets: poses,
         floor: 0,
@@ -265,14 +258,14 @@ function observePhysicalPose(
   for (const joint of profile.joints) {
     const parent: IAutoMovieRigidTransform = poses[joint.parent]!;
     const child: IAutoMovieRigidTransform = poses[joint.child]!;
-    const error: number = Vector3.length(
-      Vector3.subtract(
-        physicalSupportPoint(parent, joint.parentFrame.position),
-        physicalSupportPoint(child, joint.childFrame.position),
+    const error: number = AutoMovieEngineVector3.length(
+      AutoMovieEngineVector3.subtract(
+        AutoMovieEnginePhysics.physicalSupportPoint(parent, joint.parentFrame.position),
+        AutoMovieEnginePhysics.physicalSupportPoint(child, joint.childFrame.position),
       ),
     );
     if (error > anchor.error) anchor = { joint: joint.id, error };
-    for (const { axis, violation } of measurePhysicalJointLimits(
+    for (const { axis, violation } of AutoMovieEnginePhysics.measurePhysicalJointLimits(
       joint,
       parent,
       child,
@@ -286,7 +279,7 @@ function observePhysicalPose(
         segment.shapes.map(
           (shape: (typeof segment.shapes)[number]): [string, number] => [
             shape.id,
-            physicalShapeBounds(poses[segment.bone]!, shape).min.y,
+            AutoMovieEnginePhysics.physicalShapeBounds(poses[segment.bone]!, shape).min.y,
           ],
         ),
       );
@@ -324,12 +317,12 @@ function centerOfMass(
   let center: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   for (const segment of profile.segments) {
     const pose: IAutoMovieRigidTransform = poses[segment.bone]!;
-    center = Vector3.add(
+    center = AutoMovieEngineVector3.add(
       center,
-      Vector3.scale(
-        Vector3.add(
+      AutoMovieEngineVector3.scale(
+        AutoMovieEngineVector3.add(
           pose.position,
-          Quaternion.rotateVector(pose.rotation, segment.centerOfMass),
+          AutoMovieEngineQuaternion.rotateVector(pose.rotation, segment.centerOfMass),
         ),
         segment.mass / profile.mass,
       ),

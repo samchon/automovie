@@ -4,7 +4,9 @@ import type {
   IAutoMoviePhysicalSegmentState,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { pocketedBalls } from "@automovie/motions/internal";
+import {
+  pocketedBalls
+} from "../../../../../packages/motions/src/sport/internal/pocketedBalls";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";

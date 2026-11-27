@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
@@ -7,11 +7,17 @@ import type {
   IAutoMoviePose,
 } from "@automovie/interface";
 import {
-  HumanFoot,
-  poseBones,
-  prepareWalkSwingSeams,
-  resolveHumanPosture,
-} from "@automovie/motions/internal";
+  HumanFoot
+} from "../../../../../packages/motions/src/posture/internal/HumanFoot";
+import {
+  poseBones
+} from "../../../../../packages/motions/src/posture/internal/poseBones";
+import {
+  prepareWalkSwingSeams
+} from "../../../../../packages/motions/src/actions/internal/prepareWalkSwingSeams";
+import {
+  resolveHumanPosture
+} from "../../../../../packages/motions/src/posture/internal/resolveHumanPosture";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../../internal/motionHumanBody";
@@ -98,8 +104,8 @@ export function test_motions_actions_walk_swing_seams(): void {
         vclose(flight.bend, held.get("leftLowerLeg")!.worldPosition, 1e-9) &&
         nclose(joints.leftToes![0], toe, 1e-9) &&
         vclose(
-          Quaternion.rotateVector(flight.rotation!, { x: 0, y: 0, z: 1 }),
-          Quaternion.rotateVector(actual.worldRotation, { x: 0, y: 0, z: 1 }),
+          AutoMovieEngineQuaternion.rotateVector(flight.rotation!, { x: 0, y: 0, z: 1 }),
+          AutoMovieEngineQuaternion.rotateVector(actual.worldRotation, { x: 0, y: 0, z: 1 }),
           1e-9,
         ),
     );

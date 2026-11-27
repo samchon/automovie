@@ -1,12 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  planPhysicalBalanceTargets,
-  planPhysicalContactTargets,
-  planPhysicalFloorSupportTargets,
-  preparePhysicalGeometry,
-  setPhysicalTargetJointRotation,
-} from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysicalGeometry, AutoMovieEnginePhysics, AutoMovieEnginePhysicalBalance } from "@automovie/engine";
 import type {
   IAutoMovieFootfallPattern,
   IAutoMoviePhysicalContactSupportRows,
@@ -79,8 +71,8 @@ export async function test_engine_physics_plan_physical_balance_targets(): Promi
   tilt(floorTargets, planted[0]!, 6);
   tilt(floorTargets, planted[1]!, -5);
   const original: string = JSON.stringify({ goals, pattern });
-  const fitted: ReturnType<typeof planPhysicalFloorSupportTargets> =
-    planPhysicalFloorSupportTargets({
+  const fitted: ReturnType<typeof AutoMovieEnginePhysics.planPhysicalFloorSupportTargets> =
+    AutoMovieEnginePhysics.planPhysicalFloorSupportTargets({
       profile,
       targets: floorTargets,
       pattern,
@@ -97,7 +89,7 @@ export async function test_engine_physics_plan_physical_balance_targets(): Promi
     });
 
   const geometry: IAutoMoviePreparePhysicalGeometry.IQueries =
-    await preparePhysicalGeometry();
+    await AutoMovieEnginePhysicalGeometry.prepare();
   const contactTargets: Poses = structuredClone(fitted.targets);
   tilt(contactTargets, planted[0]!, -5);
   tilt(contactTargets, planted[1]!, 6);
@@ -134,22 +126,22 @@ export async function test_engine_physics_plan_physical_balance_targets(): Promi
       };
     },
   );
-  const contacted: ReturnType<typeof planPhysicalContactTargets> =
+  const contacted: ReturnType<typeof AutoMovieEnginePhysics.planPhysicalContactTargets> =
     contact(bounds);
   const invalid: IAutoMoviePhysicalPointBound = {
     ...bounds[0]!,
     minimum: bounds[0]!.minimum! + 2,
     maximum: undefined,
   };
-  const missed: ReturnType<typeof planPhysicalContactTargets> = contact([
+  const missed: ReturnType<typeof AutoMovieEnginePhysics.planPhysicalContactTargets> = contact([
     invalid,
   ]);
 
   const elevated: Poses = translated(0.0004);
   const limb: IAutoMovieFootfallPattern["limbs"][number] = pattern.limbs[0]!;
   const elevatedGoal: IAutoMovieVector3 = { ...elevated[limb.bone]!.position };
-  const elevatedFit: ReturnType<typeof planPhysicalBalanceTargets> =
-    planPhysicalBalanceTargets({
+  const elevatedFit: ReturnType<typeof AutoMovieEnginePhysicalBalance.planTargets> =
+    AutoMovieEnginePhysicalBalance.planTargets({
       profile,
       pattern: {
         ...pattern,
@@ -195,8 +187,8 @@ export async function test_engine_physics_plan_physical_balance_targets(): Promi
     );
   const gap: number = minimum(elevatedFit.targets, limb.bone);
   const residual: number = elevatedFit.residuals[limb.bone]!;
-  const endpointError: number = Vector3.length(
-    Vector3.subtract(elevatedFit.targets[limb.bone]!.position, elevatedGoal),
+  const endpointError: number = AutoMovieEngineVector3.length(
+    AutoMovieEngineVector3.subtract(elevatedFit.targets[limb.bone]!.position, elevatedGoal),
   );
   const expectedResidual: number = Math.hypot(endpointError, gap);
   if (
@@ -217,8 +209,8 @@ export async function test_engine_physics_plan_physical_balance_targets(): Promi
   /** Forward a prepared pose without rebinding the original support goals. */
   function contact(
     pointBounds: readonly IAutoMoviePhysicalPointBound[],
-  ): ReturnType<typeof planPhysicalContactTargets> {
-    return planPhysicalContactTargets({
+  ): ReturnType<typeof AutoMovieEnginePhysics.planPhysicalContactTargets> {
+    return AutoMovieEnginePhysics.planPhysicalContactTargets({
       body,
       profiles: { [body]: profile },
       targets: contactTargets,
@@ -262,7 +254,7 @@ export async function test_engine_physics_plan_physical_balance_targets(): Promi
         ...corners(bone, true).map((point: IAutoMovieVector3): number =>
           Math.abs(
             pose.position.y +
-              Quaternion.rotateVector(pose.rotation, point).y -
+              AutoMovieEngineQuaternion.rotateVector(pose.rotation, point).y -
               plane,
           ),
         ),
@@ -282,11 +274,11 @@ export async function test_engine_physics_plan_physical_balance_targets(): Promi
     const joint: IAutoMoviePhysicalJoint = profile.joints.find(
       (candidate: IAutoMoviePhysicalJoint): boolean => candidate.child === bone,
     )!;
-    setPhysicalTargetJointRotation(
+    AutoMovieEnginePhysics.setPhysicalTargetJointRotation(
       poses,
       joint,
       [bone],
-      Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, angle),
+      AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, angle),
     );
   }
 
@@ -304,9 +296,9 @@ export async function test_engine_physics_plan_physical_balance_targets(): Promi
       for (const y of undersideOnly ? [-1] : [-1, 1])
         for (const z of [-1, 1])
           points.push(
-            Vector3.add(
+            AutoMovieEngineVector3.add(
               shape.transform.position,
-              Quaternion.rotateVector(shape.transform.rotation, {
+              AutoMovieEngineQuaternion.rotateVector(shape.transform.rotation, {
                 x: x * shape.halfExtents.x,
                 y: y * shape.halfExtents.y,
                 z: z * shape.halfExtents.z,
@@ -325,7 +317,7 @@ export async function test_engine_physics_plan_physical_balance_targets(): Promi
     return Math.min(
       ...corners(bone, false).map(
         (point: IAutoMovieVector3): number =>
-          pose.position.y + Quaternion.rotateVector(pose.rotation, point).y,
+          pose.position.y + AutoMovieEngineQuaternion.rotateVector(pose.rotation, point).y,
       ),
     );
   }
@@ -342,7 +334,7 @@ export async function test_engine_physics_plan_physical_balance_targets(): Promi
         ...corners(bone, true).map((point: IAutoMovieVector3): number =>
           Math.abs(
             pose.position.y +
-              Quaternion.rotateVector(pose.rotation, point).y -
+              AutoMovieEngineQuaternion.rotateVector(pose.rotation, point).y -
               plane,
           ),
         ),
@@ -352,8 +344,8 @@ export async function test_engine_physics_plan_physical_balance_targets(): Promi
         bone,
         gap,
         face,
-        endpointError: Vector3.length(
-          Vector3.subtract(pose.position, goals[bone]!),
+        endpointError: AutoMovieEngineVector3.length(
+          AutoMovieEngineVector3.subtract(pose.position, goals[bone]!),
         ),
       });
       if (

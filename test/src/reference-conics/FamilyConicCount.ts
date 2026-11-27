@@ -180,9 +180,9 @@ namespace FamilyConicCount {
 
   /** The sources whose constants are scanned, from the repository's root. */
   const SOURCES: string[] = [
-    "packages/human/src/generation/f1/AutoMovieHumanF1.ts",
-    "packages/human/src/generation/conic/AutoMovieHumanConicLoft.ts",
-    "packages/human/src/generation/conic/AutoMovieHumanConicSection.ts",
+    "packages/human/src/generation/AutoMovieHumanF1.ts",
+    "packages/human/src/generation/AutoMovieHumanConicLoft.ts",
+    "packages/human/src/generation/AutoMovieHumanConicSection.ts",
   ];
 
   /**
@@ -224,8 +224,8 @@ namespace FamilyConicCount {
     zeros: number;
     /** Heights of the three outer rings, which the engine's rule holds at zero. */
     ring: number;
-    stations: [number, number];
-    phases: [number, number];
+    stations: { start: number; end: number };
+    phases: { start: number; end: number };
     /** Smallest and largest height, mm. */
     amplitude: [number, number];
     cast: "fixed" | "turning";
@@ -512,7 +512,10 @@ namespace FamilyConicCount {
     );
     const unlisted: { file: string; name: string; header: string }[] = [];
     for (const file of (await fs.readdir(directory))
-      .filter((f: string): boolean => f.endsWith(".ts"))
+      .filter(
+        (f: string): boolean =>
+          f.startsWith("AutoMovieHumanF1") && f.endsWith(".ts"),
+      )
       .sort((a: string, b: string): number => a.localeCompare(b))) {
       const text: string = await fs.readFile(
         path.join(directory, file),
@@ -810,8 +813,8 @@ namespace FamilyConicCount {
           pad(n.zeros, 7) +
           pad(n.ring, 6) +
           "  " +
-          lead(n.stations[0] + " .. " + n.stations[1], 18) +
-          lead(n.phases[0].toFixed(4) + " .. " + n.phases[1].toFixed(4), 20) +
+          lead(n.stations.start + " .. " + n.stations.end, 18) +
+          lead(n.phases.start.toFixed(4) + " .. " + n.phases.end.toFixed(4), 20) +
           lead(
             n.amplitude[0].toFixed(2) + " .. " + n.amplitude[1].toFixed(2),
             20,

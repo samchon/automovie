@@ -4,9 +4,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanKneeBend,
-  HumanFrame,
-} from "@automovie/motions/internal";
+  AutoMovieMotionHumanKneeBend
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanKneeBend";
+import {
+  HumanFrame
+} from "../../../../../packages/motions/src/posture/internal/HumanFrame";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";

@@ -1,7 +1,4 @@
-import {
-  validateDesignLineage,
-  validateDesignLineageBinding,
-} from "@automovie/engine";
+import { AutoMovieEngineArchitecture } from "@automovie/engine";
 import type {
   IAutoMovieDesignLifecycle,
   IAutoMovieDesignLineage,
@@ -49,7 +46,7 @@ export function test_architecture_design_lineage_structure_refusals(): void {
       [
         "the coherent renovation lineage validates",
         (): boolean =>
-          validateDesignLineage({ lineage: renovationLineage() }).success,
+          AutoMovieEngineArchitecture.validateDesignLineage({ lineage: renovationLineage() }).success,
       ],
       [
         "an unknown schema version is refused",
@@ -127,7 +124,7 @@ export function test_architecture_design_lineage_structure_refusals(): void {
               parent: index + 1 === depth ? null : `ancestor-${index + 1}`,
               digest: lineageDigest("ad"),
             });
-          return validateDesignLineage({ lineage }).success;
+          return AutoMovieEngineArchitecture.validateDesignLineage({ lineage }).success;
         },
       ],
       [
@@ -265,7 +262,7 @@ export function test_architecture_design_lineage_structure_refusals(): void {
       [
         "a lineage whose subjects all resolve binds cleanly",
         (): boolean =>
-          validateDesignLineageBinding({
+          AutoMovieEngineArchitecture.validateDesignLineageBinding({
             lineage: renovationLineage(),
             known: published,
           }).success,
@@ -274,7 +271,7 @@ export function test_architecture_design_lineage_structure_refusals(): void {
         "a subject resolving to nothing published is refused",
         (): boolean =>
           hasViolation(
-            validateDesignLineageBinding({
+            AutoMovieEngineArchitecture.validateDesignLineageBinding({
               lineage: renovationLineage(),
               known: published.filter(
                 (id: string): boolean => id !== "opening-door",
@@ -288,7 +285,7 @@ export function test_architecture_design_lineage_structure_refusals(): void {
         "a derived artifact squatting on a published identity is refused",
         (): boolean =>
           hasViolation(
-            validateDesignLineageBinding({
+            AutoMovieEngineArchitecture.validateDesignLineageBinding({
               lineage: renovationLineage(),
               known: [...published, "render-lobby"],
             }),

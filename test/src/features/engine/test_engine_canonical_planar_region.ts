@@ -1,9 +1,7 @@
 import {
-  autoMoviePlanarRegionFailure,
-  footprintConvexPieces,
-  footprintRing,
-  triangulateAutoMoviePolygon,
-  triangulateAutoMovieRegion,
+  AutoMovieEnginePlanarRegion,
+  AutoMovieEngineSpace,
+  AutoMovieEngineDrawing,
 } from "@automovie/engine";
 import type {
   IAutoMovieFootprintRing,
@@ -29,7 +27,8 @@ const crossing: { x: number; y: number }[] = [
 ];
 
 /**
- * Selected planar consumers share hygiene decisions while retaining their API outcomes.
+ * Selected planar consumers share hygiene decisions while retaining their API
+ * outcomes.
  *
  * The region boundary returns a message instead of repaired geometry; the
  * procedural region and the drawing triangulator throw it, and the footprint
@@ -40,16 +39,16 @@ const crossing: { x: number; y: number }[] = [
  * 1. A 4 m square less a 1 m square hole triangulates to area 15 over two rings,
  *    and the bare square draws as two triangles.
  * 2. A self-crossing ring is named by the boundary, thrown by both constructors,
- *    and decomposes into no footprint pieces; a valid square whose cached double
- *    area reads zero also yields none.
+ *    and decomposes into no footprint pieces; a valid square whose cached
+ *    double area reads zero also yields none.
  * 3. A non-finite coordinate, an adjacent duplicate point, a hole touching the
  *    outer ring and a hole outside it are each refused by their own phrase.
  * 4. A two-point ring, a collinear ring and a spike are refused, a hole inside
  *    another hole is refused, while a redundant straight point and two disjoint
  *    holes are accepted.
  * 5. Drawing keeps its own short-ring diagnostic ahead of the shared boundary.
- * 6. Either winding of an L-shaped ring produces four counter-clockwise
- *    triangles whose signed areas sum to the independently authored 12 m2.
+ * 6. Either winding of an L-shaped ring produces four counter-clockwise triangles
+ *    whose signed areas sum to the independently authored 12 m2.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls planar hygiene, procedural/drawing triangulation and footprint decomposition for valid/invalid authored rings, checking area/ring/count output, shared refusal phrases versus query-safe empty pieces, diagnostic precedence and concave triangle orientation/area under either winding.
  * @evidence contracts/development/testing.md#independent-expectations A 4-by-4 outer less a one-by-one hole has area 15; a six-corner L is a 4-by-4 square less a 2-by-2 corner, so four triangles must have positive shoelace areas summing to 12. The cross-product area oracle operates on original input vertices and returned indices rather than reading a product area field; literal topology defects supply their expected refusal classes.
@@ -58,17 +57,18 @@ const crossing: { x: number; y: number }[] = [
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A 4 m square less a 1 m square hole triangulates to area 15 over two rings,).
  */
 export function test_engine_canonical_planar_region(): void {
-  const holed: IAutoMovieRegionTriangulation = triangulateAutoMovieRegion({
-    outer: square,
-    holes: [
-      [
-        { x: 1, y: 1 },
-        { x: 1, y: 2 },
-        { x: 2, y: 2 },
-        { x: 2, y: 1 },
+  const holed: IAutoMovieRegionTriangulation =
+    AutoMovieEnginePlanarRegion.triangulate({
+      outer: square,
+      holes: [
+        [
+          { x: 1, y: 1 },
+          { x: 1, y: 2 },
+          { x: 2, y: 2 },
+          { x: 2, y: 1 },
+        ],
       ],
-    ],
-  });
+    });
   TestValidator.predicate(
     "a valid holed region remains constructible and drawing remains triangulable",
     test12ValuesClose(
@@ -76,13 +76,14 @@ export function test_engine_canonical_planar_region(): void {
         area: holed.area,
         rings: holed.rings.length,
         triangles: holed.triangles.length > 0,
-        drawing: triangulateAutoMoviePolygon(square).length,
+        drawing:
+          AutoMovieEngineDrawing.triangulateAutoMoviePolygon(square).length,
       },
       { area: 15, rings: 2, triangles: true, drawing: 2 },
     ),
   );
 
-  const failure: string | null = autoMoviePlanarRegionFailure({
+  const failure: string | null = AutoMovieEnginePlanarRegion.failure({
     outer: crossing,
   });
   TestValidator.equals(
@@ -91,7 +92,7 @@ export function test_engine_canonical_planar_region(): void {
     true,
   );
   const footprint: { outer: IAutoMovieFootprintRing; holes: never[] } = {
-    outer: footprintRing(
+    outer: AutoMovieEngineSpace.footprintRing(
       crossing.map(
         (point: {
           x: number;
@@ -110,17 +111,18 @@ export function test_engine_canonical_planar_region(): void {
     {
       procedural: throwsError(
         (): IAutoMovieRegionTriangulation =>
-          triangulateAutoMovieRegion({ outer: crossing }),
+          AutoMovieEnginePlanarRegion.triangulate({ outer: crossing }),
         "crosses itself",
       ),
       drawing: throwsError(
-        (): [number, number, number][] => triangulateAutoMoviePolygon(crossing),
+        (): [number, number, number][] =>
+          AutoMovieEngineDrawing.triangulateAutoMoviePolygon(crossing),
         "crosses itself",
       ),
-      footprint: footprintConvexPieces(footprint).length,
-      staleArea: footprintConvexPieces({
+      footprint: AutoMovieEngineSpace.footprintConvexPieces(footprint).length,
+      staleArea: AutoMovieEngineSpace.footprintConvexPieces({
         outer: {
-          ...footprintRing(
+          ...AutoMovieEngineSpace.footprintRing(
             square.map(
               (point: {
                 x: number;
@@ -143,13 +145,13 @@ export function test_engine_canonical_planar_region(): void {
   TestValidator.equals(
     "numeric, adjacent-duplicate, and ring-relation boundaries are refused",
     {
-      nonfinite: autoMoviePlanarRegionFailure({
+      nonfinite: AutoMovieEnginePlanarRegion.failure({
         outer: [{ ...square[0]!, x: NaN }, ...square.slice(1)],
       })?.includes("finite"),
-      duplicate: autoMoviePlanarRegionFailure({
+      duplicate: AutoMovieEnginePlanarRegion.failure({
         outer: [square[0]!, square[1]!, square[1]!, square[2]!, square[3]!],
       })?.includes("repeats"),
-      touchingHole: autoMoviePlanarRegionFailure({
+      touchingHole: AutoMovieEnginePlanarRegion.failure({
         outer: square,
         holes: [
           [
@@ -160,7 +162,7 @@ export function test_engine_canonical_planar_region(): void {
           ],
         ],
       })?.includes("touch or cross"),
-      outsideHole: autoMoviePlanarRegionFailure({
+      outsideHole: AutoMovieEnginePlanarRegion.failure({
         outer: square,
         holes: [
           [
@@ -183,17 +185,17 @@ export function test_engine_canonical_planar_region(): void {
   TestValidator.equals(
     "short, area-free, spiked, redundant, and nested rings keep distinct outcomes",
     {
-      short: autoMoviePlanarRegionFailure({
+      short: AutoMovieEnginePlanarRegion.failure({
         outer: square.slice(0, 2),
       })?.includes("at least three"),
-      areaFree: autoMoviePlanarRegionFailure({
+      areaFree: AutoMovieEnginePlanarRegion.failure({
         outer: [
           { x: 0, y: 0 },
           { x: 1, y: 0 },
           { x: 2, y: 0 },
         ],
       })?.includes("encloses no area"),
-      spike: autoMoviePlanarRegionFailure({
+      spike: AutoMovieEnginePlanarRegion.failure({
         outer: [
           { x: 0, y: 0 },
           { x: 2, y: 0 },
@@ -203,7 +205,7 @@ export function test_engine_canonical_planar_region(): void {
         ],
       })?.includes("doubles back"),
       redundantStraightPoint:
-        autoMoviePlanarRegionFailure({
+        AutoMovieEnginePlanarRegion.failure({
           outer: [
             { x: 0, y: 0 },
             { x: 1, y: 0 },
@@ -212,7 +214,7 @@ export function test_engine_canonical_planar_region(): void {
             { x: 0, y: 2 },
           ],
         }) === null,
-      nested: autoMoviePlanarRegionFailure({
+      nested: AutoMovieEnginePlanarRegion.failure({
         outer: square,
         holes: [
           [
@@ -230,7 +232,7 @@ export function test_engine_canonical_planar_region(): void {
         ],
       })?.includes("must lie outside"),
       disjoint:
-        autoMoviePlanarRegionFailure({
+        AutoMovieEnginePlanarRegion.failure({
           outer: square,
           holes: [
             [
@@ -262,7 +264,7 @@ export function test_engine_canonical_planar_region(): void {
     "drawing retains its established short-ring diagnostic",
     throwsError(
       (): [number, number, number][] =>
-        triangulateAutoMoviePolygon(square.slice(0, 2)),
+        AutoMovieEngineDrawing.triangulateAutoMoviePolygon(square.slice(0, 2)),
       "needs at least 3 corners to triangulate",
     ),
     true,
@@ -282,7 +284,7 @@ export function test_engine_canonical_planar_region(): void {
   const tiling: (ring: { x: number; y: number }[]) => number[] = (
     ring: typeof ell,
   ): number[] =>
-    triangulateAutoMoviePolygon(ring).map(
+    AutoMovieEngineDrawing.triangulateAutoMoviePolygon(ring).map(
       ([a, b, c]: [number, number, number]): number => {
         const p: { x: number; y: number } = ring[a]!;
         const q: { x: number; y: number } = ring[b]!;

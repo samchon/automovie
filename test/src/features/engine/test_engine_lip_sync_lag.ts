@@ -1,4 +1,4 @@
-import { measureAutoMovieLipSyncLag } from "@automovie/engine";
+import { AutoMovieEngineSound } from "@automovie/engine";
 import type { IAutoMovieMeasureLipSyncLag } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -20,7 +20,7 @@ import { nclose } from "../internal/predicates";
  * 4. Two runs give identical results.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the shifts, their milliseconds and the verdicts.
- * @evidence contracts/development/testing.md#behavioral-verification Feeds synthetic series to `measureAutoMovieLipSyncLag` and reads its lag and verdict. A sign error, a wrong millisecond conversion or thresholds other than −45 and +125 ms give a different answer.
+ * @evidence contracts/development/testing.md#behavioral-verification Feeds synthetic series to `measureLipSyncLag` and reads its lag and verdict. A sign error, a wrong millisecond conversion or thresholds other than −45 and +125 ms give a different answer.
  * @evidence contracts/development/testing.md#independent-expectations The shifts are constructed, the milliseconds are frames × 1000 / 24, and the thresholds are ITU-R BT.1359-1's; the mouth series is an aperiodic sequence of syllable-like pulses so only the true shift correlates fully.
  * @evidence contracts/development/testing.md#distinguishing-cases Covers zero, a passing lead, a failing lead, a failing trail and a constant series; the render report and publication gate belong to `test_cli_render_video_lip_sync`.
  * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through `test_engine_lip_sync_lag`; it starts no process.
@@ -49,7 +49,11 @@ export function test_engine_lip_sync_lag(): void {
   const measure: (shift: number) => IAutoMovieMeasureLipSyncLag.IResult = (
     shift: number,
   ): IAutoMovieMeasureLipSyncLag.IResult =>
-    measureAutoMovieLipSyncLag({ mouth, level: shifted(shift), fps: 24 });
+    AutoMovieEngineSound.measureLipSyncLag({
+      mouth,
+      level: shifted(shift),
+      fps: 24,
+    });
 
   const results: IAutoMovieMeasureLipSyncLag.IResult[] = [0, -1, -2, 5].map(
     measure,
@@ -76,7 +80,7 @@ export function test_engine_lip_sync_lag(): void {
 
   TestValidator.equals(
     "a constant mouth is inconclusive",
-    measureAutoMovieLipSyncLag({
+    AutoMovieEngineSound.measureLipSyncLag({
       mouth: new Array(72).fill(3),
       level: shifted(0),
       fps: 24,

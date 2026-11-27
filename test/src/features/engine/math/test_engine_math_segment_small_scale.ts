@@ -1,9 +1,4 @@
-import {
-  closestPointOnSegmentXZ,
-  closestPointsBetweenSegments,
-  pointSegmentDistance,
-  segmentSegmentDistance,
-} from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieClosestSegmentPoints,
   IAutoMovieVector3,
@@ -31,7 +26,7 @@ export function test_engine_math_segment_small_scale(): void {
   const b: IAutoMovieVector3 = { x: 5e-6, y: 0, z: 0 };
   const c: IAutoMovieVector3 = { x: 0, y: -5e-6, z: 1e-6 };
   const d: IAutoMovieVector3 = { x: 0, y: 5e-6, z: 1e-6 };
-  const pair: IAutoMovieClosestSegmentPoints = closestPointsBetweenSegments(
+  const pair: IAutoMovieClosestSegmentPoints = AutoMovieEngineMath.closestPointsBetweenSegments(
     a,
     b,
     c,
@@ -40,7 +35,7 @@ export function test_engine_math_segment_small_scale(): void {
   TestValidator.predicate("pair gap", nclose(pair.distance, 1e-6, 1e-15));
   TestValidator.predicate(
     "distance gap",
-    nclose(segmentSegmentDistance(a, b, c, d), 1e-6, 1e-15),
+    nclose(AutoMovieEngineMath.segmentSegmentDistance(a, b, c, d), 1e-6, 1e-15),
   );
   TestValidator.predicate(
     "witnesses",
@@ -52,10 +47,10 @@ export function test_engine_math_segment_small_scale(): void {
   const middle: IAutoMovieVector3 = { x: 5e-11, y: 0, z: 0 };
   TestValidator.predicate(
     "tiny segment interior",
-    nclose(pointSegmentDistance(middle, start, end), 0, 1e-25),
+    nclose(AutoMovieEngineMath.pointSegmentDistance(middle, start, end), 0, 1e-25),
   );
   TestValidator.predicate(
     "tiny segment projection",
-    vclose(closestPointOnSegmentXZ(middle, start, end), middle, 1e-25),
+    vclose(AutoMovieEngineMath.closestPointOnSegmentXZ(middle, start, end), middle, 1e-25),
   );
 }

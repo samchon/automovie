@@ -3,7 +3,7 @@ import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 /** Per-contact displacement measurements converted to world inspection marks. */
 export namespace IAutoMovieMarkSlip {
   /**
-   * Borrowed contacts at one instant for markAutoMovieSlip. Horizontal XZ
+   * Borrowed contacts at one instant for markSlip. Horizontal XZ
    * displacement above zero yields one unanchored steel-blue (0x4682b4) segment
    * mark in entry order, with kind/label "slip" and path ending "/slip".
    * Displacement strictly greater than limit is flagged; purely vertical motion

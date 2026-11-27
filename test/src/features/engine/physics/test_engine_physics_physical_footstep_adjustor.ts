@@ -1,6 +1,6 @@
 import {
-  physicalPlanarPolygon as Polygon,
-  physicalFootstepAdjustor,
+  AutoMovieEnginePhysicalPlanarPolygon as Polygon,
+  AutoMovieEnginePhysicalFootstepAdjustor,
 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
@@ -43,15 +43,15 @@ export function test_engine_physics_physical_footstep_adjustor(): void {
   const adjust = (
     x: number,
     within: readonly Polygon.IPoint[] = region,
-  ): physicalFootstepAdjustor.IResult =>
-    physicalFootstepAdjustor({
+  ): AutoMovieEnginePhysicalFootstepAdjustor.IResult =>
+    AutoMovieEnginePhysicalFootstepAdjustor.adjust({
       position: { x, y: 0 },
       outline: outline(x),
       support: { x: -1, y: 0 },
       region: within,
     });
 
-  const moved: physicalFootstepAdjustor.IResult = adjust(0);
+  const moved: AutoMovieEnginePhysicalFootstepAdjustor.IResult = adjust(0);
   TestValidator.predicate(
     "far edge",
     moved.adjusted &&

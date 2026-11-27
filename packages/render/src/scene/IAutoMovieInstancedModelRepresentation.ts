@@ -1,5 +1,5 @@
-import type { IAutoMovieFormationCycle } from "./IAutoMovieFormationCycle.js";
-import type { IAutoMovieInstancedGeometry } from "./IAutoMovieInstancedGeometry.js";
+import type { IAutoMovieRenderFormationCycle } from "./IAutoMovieRenderFormationCycle";
+import type { IAutoMovieInstancedGeometry } from "./IAutoMovieInstancedGeometry";
 
 /**
  * Rigid prototype geometry with the cycle baked after its rest-space
@@ -8,8 +8,8 @@ import type { IAutoMovieInstancedGeometry } from "./IAutoMovieInstancedGeometry.
  * skeleton.
  */
 export interface IAutoMovieInstancedModelRepresentation<
-  Cycle extends IAutoMovieFormationCycle | null =
-    IAutoMovieFormationCycle | null,
+  Cycle extends IAutoMovieRenderFormationCycle | null =
+    IAutoMovieRenderFormationCycle | null,
 > extends IAutoMovieInstancedGeometry {
   /** Baked rigid-part matrix table, or null for the static representation. */
   cycle: Cycle;

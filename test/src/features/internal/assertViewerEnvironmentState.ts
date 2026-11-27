@@ -1,10 +1,5 @@
 import type { IAutoMovieSceneEnvironment } from "@automovie/interface";
-import {
-  applyRenderMode,
-  applyRendererEnvironment,
-  applySceneEnvironment,
-  buildLight,
-} from "@automovie/render";
+import { AutoMovieRenderSceneRenderMode, AutoMovieRenderSceneEnvironment, AutoMovieRenderSceneLayout } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -32,7 +27,7 @@ export const assertViewerEnvironmentState: (
   const texture: THREE.Texture<unknown, THREE.TextureEventMap> =
     new THREE.Texture();
   const ldrVersion: number = texture.version;
-  applySceneEnvironment(scene, ENVIRONMENT, texture);
+  AutoMovieRenderSceneEnvironment.applySceneEnvironment(scene, ENVIRONMENT, texture);
   TestValidator.equals(
     "IBL image configures scene environment and background",
     namedFacts([
@@ -66,7 +61,7 @@ export const assertViewerEnvironmentState: (
     THREE.HalfFloatType,
   );
   const hdrVersion: number = hdr.version;
-  applySceneEnvironment(scene, ENVIRONMENT, hdr);
+  AutoMovieRenderSceneEnvironment.applySceneEnvironment(scene, ENVIRONMENT, hdr);
   TestValidator.equals(
     "environment decoding follows the image's own storage",
     namedFacts([
@@ -87,8 +82,8 @@ export const assertViewerEnvironmentState: (
       hdrMounted: true,
     },
   );
-  applySceneEnvironment(scene, ENVIRONMENT, texture);
-  const normalPass: ReturnType<typeof applyRenderMode> = applyRenderMode(
+  AutoMovieRenderSceneEnvironment.applySceneEnvironment(scene, ENVIRONMENT, texture);
+  const normalPass: ReturnType<typeof AutoMovieRenderSceneRenderMode.apply> = AutoMovieRenderSceneRenderMode.apply(
     scene,
     "normal",
   );
@@ -123,7 +118,7 @@ export const assertViewerEnvironmentState: (
     },
     { environment: true, background: true },
   );
-  applySceneEnvironment(scene, {
+  AutoMovieRenderSceneEnvironment.applySceneEnvironment(scene, {
     ...ENVIRONMENT,
     image: null,
     background: { r: 0.1, g: 0.2, b: 0.3, a: null, hex: null },
@@ -136,7 +131,7 @@ export const assertViewerEnvironmentState: (
     },
     { environmentCleared: true, backgroundIsColor: true },
   );
-  applySceneEnvironment(scene, { ...ENVIRONMENT, image: "missing.hdr" });
+  AutoMovieRenderSceneEnvironment.applySceneEnvironment(scene, { ...ENVIRONMENT, image: "missing.hdr" });
   TestValidator.equals(
     "unresolved environment image is explicit transparent no-IBL",
     {
@@ -145,7 +140,7 @@ export const assertViewerEnvironmentState: (
     },
     { environmentCleared: true, backgroundCleared: true },
   );
-  applySceneEnvironment(scene, null);
+  AutoMovieRenderSceneEnvironment.applySceneEnvironment(scene, null);
   TestValidator.equals(
     "null clears scene environment",
     {
@@ -200,8 +195,8 @@ export const assertViewerEnvironmentState: (
         current.shadowType === expected.shadowType,
     );
   };
-  const beauty: ReturnType<typeof applyRendererEnvironment> =
-    applyRendererEnvironment(renderer, ENVIRONMENT, "beauty");
+  const beauty: ReturnType<typeof AutoMovieRenderSceneEnvironment.applyRendererEnvironment> =
+    AutoMovieRenderSceneEnvironment.applyRendererEnvironment(renderer, ENVIRONMENT, "beauty");
   assertPolicy("beauty applies tone, exposure and shadows", {
     toneMapping: THREE.ACESFilmicToneMapping,
     exposure: 1.25,
@@ -216,8 +211,8 @@ export const assertViewerEnvironmentState: (
     shadows: false,
     shadowType: THREE.BasicShadowMap,
   });
-  const structural: ReturnType<typeof applyRendererEnvironment> =
-    applyRendererEnvironment(renderer, ENVIRONMENT, "mask");
+  const structural: ReturnType<typeof AutoMovieRenderSceneEnvironment.applyRendererEnvironment> =
+    AutoMovieRenderSceneEnvironment.applyRendererEnvironment(renderer, ENVIRONMENT, "mask");
   TestValidator.predicate(
     "structural pass bypasses photographic settings",
     renderer.toneMapping === THREE.NoToneMapping &&
@@ -225,8 +220,8 @@ export const assertViewerEnvironmentState: (
       renderer.shadowMap.enabled === false,
   );
   structural.restore();
-  const legacyBeauty: ReturnType<typeof applyRendererEnvironment> =
-    applyRendererEnvironment(renderer, null, "beauty");
+  const legacyBeauty: ReturnType<typeof AutoMovieRenderSceneEnvironment.applyRendererEnvironment> =
+    AutoMovieRenderSceneEnvironment.applyRendererEnvironment(renderer, null, "beauty");
   assertPolicy("legacy beauty leaves host renderer policy unchanged", {
     toneMapping: THREE.LinearToneMapping,
     exposure: 3,
@@ -234,8 +229,8 @@ export const assertViewerEnvironmentState: (
     shadowType: THREE.BasicShadowMap,
   });
   legacyBeauty.restore();
-  const legacyStructural: ReturnType<typeof applyRendererEnvironment> =
-    applyRendererEnvironment(renderer, null, "normal");
+  const legacyStructural: ReturnType<typeof AutoMovieRenderSceneEnvironment.applyRendererEnvironment> =
+    AutoMovieRenderSceneEnvironment.applyRendererEnvironment(renderer, null, "normal");
   TestValidator.predicate(
     "legacy structural pass still bypasses photographic renderer state",
     renderer.toneMapping === THREE.NoToneMapping &&
@@ -244,16 +239,16 @@ export const assertViewerEnvironmentState: (
   );
   legacyStructural.restore();
   // The delivery curve applies only when the scene environment supplies none.
-  const delivered: ReturnType<typeof applyRendererEnvironment> =
-    applyRendererEnvironment(renderer, null, "beauty", "acesFilmic");
+  const delivered: ReturnType<typeof AutoMovieRenderSceneEnvironment.applyRendererEnvironment> =
+    AutoMovieRenderSceneEnvironment.applyRendererEnvironment(renderer, null, "beauty", "acesFilmic");
   TestValidator.predicate(
     "the render spec curve applies only to an environment-less scene",
     renderer.toneMapping === THREE.ACESFilmicToneMapping &&
       nclose(renderer.toneMappingExposure, 3, 0),
   );
   delivered.restore();
-  const overridden: ReturnType<typeof applyRendererEnvironment> =
-    applyRendererEnvironment(
+  const overridden: ReturnType<typeof AutoMovieRenderSceneEnvironment.applyRendererEnvironment> =
+    AutoMovieRenderSceneEnvironment.applyRendererEnvironment(
       renderer,
       { ...ENVIRONMENT, toneMapping: "none" },
       "beauty",
@@ -265,16 +260,16 @@ export const assertViewerEnvironmentState: (
     THREE.NoToneMapping,
   );
   overridden.restore();
-  const deliveredStructural: ReturnType<typeof applyRendererEnvironment> =
-    applyRendererEnvironment(renderer, null, "depth", "acesFilmic");
+  const deliveredStructural: ReturnType<typeof AutoMovieRenderSceneEnvironment.applyRendererEnvironment> =
+    AutoMovieRenderSceneEnvironment.applyRendererEnvironment(renderer, null, "depth", "acesFilmic");
   TestValidator.equals(
     "a structural pass ignores the delivery curve too",
     renderer.toneMapping,
     THREE.NoToneMapping,
   );
   deliveredStructural.restore();
-  const none: ReturnType<typeof applyRendererEnvironment> =
-    applyRendererEnvironment(
+  const none: ReturnType<typeof AutoMovieRenderSceneEnvironment.applyRendererEnvironment> =
+    AutoMovieRenderSceneEnvironment.applyRendererEnvironment(
       renderer,
       {
         ...ENVIRONMENT,
@@ -289,8 +284,8 @@ export const assertViewerEnvironmentState: (
     { toneMapping: THREE.NoToneMapping, shadowType: THREE.PCFShadowMap },
   );
   none.restore();
-  const vsm: ReturnType<typeof applyRendererEnvironment> =
-    applyRendererEnvironment(
+  const vsm: ReturnType<typeof AutoMovieRenderSceneEnvironment.applyRendererEnvironment> =
+    AutoMovieRenderSceneEnvironment.applyRendererEnvironment(
       renderer,
       { ...ENVIRONMENT, shadows: { enabled: true, type: "vsm" } },
       "beauty",
@@ -304,8 +299,8 @@ export const assertViewerEnvironmentState: (
   // A disabled scene shadow policy must suspend an already enabled host policy before restoring it.
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFShadowMap;
-  const shadowless: ReturnType<typeof applyRendererEnvironment> =
-    applyRendererEnvironment(
+  const shadowless: ReturnType<typeof AutoMovieRenderSceneEnvironment.applyRendererEnvironment> =
+    AutoMovieRenderSceneEnvironment.applyRendererEnvironment(
       renderer,
       { ...ENVIRONMENT, shadows: { enabled: false, type: "vsm" } },
       "beauty",
@@ -320,7 +315,7 @@ export const assertViewerEnvironmentState: (
   renderer.shadowMap.enabled = false;
   renderer.shadowMap.type = THREE.BasicShadowMap;
 
-  const shadowed: THREE.DirectionalLight = buildLight({
+  const shadowed: THREE.DirectionalLight = AutoMovieRenderSceneLayout.buildLight({
     id: "sun",
     type: "directional",
     transform: {
@@ -344,7 +339,7 @@ export const assertViewerEnvironmentState: (
   );
   TestValidator.predicate(
     "light without shadow stays legacy",
-    buildLight({
+    AutoMovieRenderSceneLayout.buildLight({
       id: "point",
       type: "point",
       transform: {

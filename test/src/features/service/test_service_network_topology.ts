@@ -1,11 +1,4 @@
-import {
-  serviceAnalysisSupport,
-  serviceNetworkSchematic,
-  serviceSystemReach,
-  validateBuiltEnvironment,
-  validateServiceNetwork,
-  validateWetZones,
-} from "@automovie/engine";
+import { AutoMovieEngineService, AutoMovieEngineArchitecture } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import {
@@ -78,21 +71,21 @@ export function test_service_network_topology(): void {
     "the building the network is checked against is itself a valid building",
     validationHasNoWarnings(
       "service environment",
-      validateBuiltEnvironment({ environment }),
+      AutoMovieEngineArchitecture.validateBuiltEnvironment({ environment }),
     ),
   );
   TestValidator.predicate(
     "a seven-system network validates clean",
     validationHasNoWarnings(
       "service network",
-      validateServiceNetwork({ network, environment }),
+      AutoMovieEngineService.validateServiceNetwork({ network, environment }),
     ),
   );
   TestValidator.predicate(
     "its wet zones validate clean",
     validationHasNoWarnings(
       "wet zones",
-      validateWetZones({ network, environment }),
+      AutoMovieEngineService.validateWetZones({ network, environment }),
     ),
   );
 
@@ -102,7 +95,7 @@ export function test_service_network_topology(): void {
       network.systems.map(
         (system: (typeof network.systems)[number]): [string, string[]] => [
           system.id,
-          serviceSystemReach({ network, system: system.id }),
+          AutoMovieEngineService.serviceSystemReach({ network, system: system.id }),
         ],
       ),
     ),
@@ -144,13 +137,13 @@ export function test_service_network_topology(): void {
       [
         "ring",
         (): boolean =>
-          serviceSystemReach({ network: ring, system: "hot" }).join() ===
+          AutoMovieEngineService.serviceSystemReach({ network: ring, system: "hot" }).join() ===
           "hot-main,basin",
       ],
       [
         "directed",
         (): boolean =>
-          serviceSystemReach({ network: backwards, system: "hot" }).join() ===
+          AutoMovieEngineService.serviceSystemReach({ network: backwards, system: "hot" }).join() ===
           "basin",
       ],
     ]),
@@ -171,18 +164,18 @@ export function test_service_network_topology(): void {
       [
         "stillValid",
         (): boolean =>
-          validateServiceNetwork({ network: shut, environment }).success,
+          AutoMovieEngineService.validateServiceNetwork({ network: shut, environment }).success,
       ],
       [
         "designReach",
         (): boolean =>
-          serviceSystemReach({ network: shut, system: "cold" }).join() ===
+          AutoMovieEngineService.serviceSystemReach({ network: shut, system: "cold" }).join() ===
           "cold-main,bath-valve,basin",
       ],
       [
         "operatingReach",
         (): boolean =>
-          serviceSystemReach({
+          AutoMovieEngineService.serviceSystemReach({
             network: shut,
             system: "cold",
             closedValvesBlock: true,
@@ -191,7 +184,7 @@ export function test_service_network_topology(): void {
       [
         "openValvePasses",
         (): boolean =>
-          serviceSystemReach({
+          AutoMovieEngineService.serviceSystemReach({
             network,
             system: "cold",
             closedValvesBlock: true,
@@ -220,12 +213,12 @@ export function test_service_network_topology(): void {
       [
         "stillValid",
         (): boolean =>
-          validateServiceNetwork({ network: deEnergised, environment }).success,
+          AutoMovieEngineService.validateServiceNetwork({ network: deEnergised, environment }).success,
       ],
       [
         "designReach",
         (): boolean =>
-          serviceSystemReach({
+          AutoMovieEngineService.serviceSystemReach({
             network: deEnergised,
             system: "lighting",
           }).join() === "panel,bath-light",
@@ -233,7 +226,7 @@ export function test_service_network_topology(): void {
       [
         "operatingReach",
         (): boolean =>
-          serviceSystemReach({
+          AutoMovieEngineService.serviceSystemReach({
             network: deEnergised,
             system: "lighting",
             closedValvesBlock: true,
@@ -242,7 +235,7 @@ export function test_service_network_topology(): void {
       [
         "liveCircuitPasses",
         (): boolean =>
-          serviceSystemReach({
+          AutoMovieEngineService.serviceSystemReach({
             network,
             system: "lighting",
             closedValvesBlock: true,
@@ -273,15 +266,15 @@ export function test_service_network_topology(): void {
       [
         "rootless",
         (): boolean =>
-          serviceSystemReach({ network: rootless, system: "cold" }).length ===
+          AutoMovieEngineService.serviceSystemReach({ network: rootless, system: "cold" }).length ===
           0,
       ],
       [
         "reachRefuses",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof serviceSystemReach> =>
-              serviceSystemReach({ network, system: "steam" }),
+            (): ReturnType<typeof AutoMovieEngineService.serviceSystemReach> =>
+              AutoMovieEngineService.serviceSystemReach({ network, system: "steam" }),
             ['has no system "steam"'],
           ),
       ],
@@ -289,8 +282,8 @@ export function test_service_network_topology(): void {
         "schematicRefuses",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof serviceNetworkSchematic> =>
-              serviceNetworkSchematic({ network, system: "steam" }),
+            (): ReturnType<typeof AutoMovieEngineService.serviceNetworkSchematic> =>
+              AutoMovieEngineService.serviceNetworkSchematic({ network, system: "steam" }),
             ['has no system "steam"'],
           ),
       ],
@@ -298,8 +291,8 @@ export function test_service_network_topology(): void {
     { rootless: true, reachRefuses: true, schematicRefuses: true },
   );
 
-  const schematic: ReturnType<typeof serviceNetworkSchematic> =
-    serviceNetworkSchematic({ network, system: "cold" });
+  const schematic: ReturnType<typeof AutoMovieEngineService.serviceNetworkSchematic> =
+    AutoMovieEngineService.serviceNetworkSchematic({ network, system: "cold" });
   TestValidator.equals(
     "the cold schematic is the same graph in plan, with its own totals",
     namedFacts([
@@ -366,8 +359,8 @@ export function test_service_network_topology(): void {
     },
   );
 
-  const stack: ReturnType<typeof serviceNetworkSchematic> =
-    serviceNetworkSchematic({ network, system: "waste" });
+  const stack: ReturnType<typeof AutoMovieEngineService.serviceNetworkSchematic> =
+    AutoMovieEngineService.serviceNetworkSchematic({ network, system: "waste" });
   TestValidator.equals(
     "a stack's schematic reports what discharges into it",
     namedFacts([
@@ -398,8 +391,8 @@ export function test_service_network_topology(): void {
     },
   );
 
-  const broken: ReturnType<typeof serviceNetworkSchematic> =
-    serviceNetworkSchematic({
+  const broken: ReturnType<typeof AutoMovieEngineService.serviceNetworkSchematic> =
+    AutoMovieEngineService.serviceNetworkSchematic({
       network: {
         ...network,
         segments: network.segments.map(
@@ -426,8 +419,8 @@ export function test_service_network_topology(): void {
     { from: true, to: true, orphaned: true },
   );
 
-  const support: ReturnType<typeof serviceAnalysisSupport> =
-    serviceAnalysisSupport({ network, environment });
+  const support: ReturnType<typeof AutoMovieEngineService.serviceAnalysisSupport> =
+    AutoMovieEngineService.serviceAnalysisSupport({ network, environment });
   TestValidator.equals(
     "what cannot be answered is named rather than implied",
     namedFacts([
@@ -447,7 +440,7 @@ export function test_service_network_topology(): void {
       [
         "volumelessDropsBothPlacementAnswers",
         (): boolean =>
-          serviceAnalysisSupport({
+          AutoMovieEngineService.serviceAnalysisSupport({
             network,
             environment: {
               ...environment,
@@ -481,7 +474,7 @@ export function test_service_network_topology(): void {
       [
         "facelessBoundaryDropsIt",
         (): boolean =>
-          serviceAnalysisSupport({
+          AutoMovieEngineService.serviceAnalysisSupport({
             network: {
               ...network,
               penetrations: network.penetrations.map(
@@ -504,7 +497,7 @@ export function test_service_network_topology(): void {
       [
         "unresolvedBoundaryDropsItToo",
         (): boolean =>
-          serviceAnalysisSupport({
+          AutoMovieEngineService.serviceAnalysisSupport({
             network: {
               ...network,
               penetrations: network.penetrations.map(

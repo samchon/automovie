@@ -1,8 +1,8 @@
-import { HUMAN_DRILL_CADENCES as HUMAN_DRILL_CADENCESSource } from "../lexicon/HUMAN_DRILL_CADENCES";
-import { HumanDrill as HumanDrillSource } from "../lexicon/HumanDrill";
-import { HumanGunCrew as HumanGunCrewSource } from "../lexicon/HumanGunCrew";
-import { HumanGunDrill as HumanGunDrillSource } from "../lexicon/HumanGunDrill";
-import { HumanMusketDrill as HumanMusketDrillSource } from "../lexicon/HumanMusketDrill";
+import { HUMAN_DRILL_CADENCES as HUMAN_DRILL_CADENCESSource } from "../lexicon/internal/HUMAN_DRILL_CADENCES";
+import { HumanDrill as HumanDrillSource } from "../lexicon/internal/HumanDrill";
+import { HumanGunCrew as HumanGunCrewSource } from "../lexicon/internal/HumanGunCrew";
+import { HumanGunDrill as HumanGunDrillSource } from "../lexicon/internal/HumanGunDrill";
+import { HumanMusketDrill as HumanMusketDrillSource } from "../lexicon/internal/HumanMusketDrill";
 import { HUMAN_MILITARY_DRILL_AIM } from "./presets/HUMAN_MILITARY_DRILL_AIM";
 import { HUMAN_MILITARY_DRILL_BITE_CARTRIDGE } from "./presets/HUMAN_MILITARY_DRILL_BITE_CARTRIDGE";
 import { HUMAN_MILITARY_DRILL_COVER_VENT } from "./presets/HUMAN_MILITARY_DRILL_COVER_VENT";

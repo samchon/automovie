@@ -3,7 +3,7 @@ import type {
   IAutoMovieConicApproximation,
   IAutoMoviePlanarCurveSource,
 } from "@automovie/interface";
-import { approximateAutoMovieRecoveryConicsAhn as approximate } from "@automovie/recovery";
+import { AutoMovieRecoveryConicApproximation } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { RecoveryConicSources } from "../../internal/RecoveryConicSources";
@@ -26,11 +26,11 @@ export function test_recovery_curves_approximate_conics_ahn_refusals(): void {
   const before: string = JSON.stringify(options);
   const cubic: IAutoMoviePlanarCurveSource = RecoveryConicSources.cubic;
   const convex: IAutoMoviePlanarCurveSource = RecoveryConicSources.convex;
-  const fitted: IAutoMovieConicApproximation.IResult = approximate(
+  const fitted: IAutoMovieConicApproximation.IResult = AutoMovieRecoveryConicApproximation.approximateAhn(
     convex,
     options,
   );
-  const repeated: IAutoMovieConicApproximation.IResult = approximate(
+  const repeated: IAutoMovieConicApproximation.IResult = AutoMovieRecoveryConicApproximation.approximateAhn(
     convex,
     options,
   );
@@ -56,16 +56,29 @@ export function test_recovery_curves_approximate_conics_ahn_refusals(): void {
   // Invalid contracts and inadequate budgets must not return default geometry.
   for (const invalid of [
     { ...options, maximumArcs: 0 },
+    { ...options, maximumArcs: NaN },
+    { ...options, maximumArcs: 1.5 },
     { ...options, maximumDepth: 53 },
+    { ...options, maximumDepth: 1.5 },
+    { ...options, toleranceMm: NaN },
+    { ...options, toleranceMm: Infinity },
   ]) {
-    const refusal: IAutoMovieConicApproximation.IResult = approximate(
+    const refusal: IAutoMovieConicApproximation.IResult = AutoMovieRecoveryConicApproximation.approximateAhn(
       convex,
       invalid,
     );
     TestValidator.equals("invalid admission", refusal.status, "refused");
     TestValidator.equals("admission invokes no callbacks", refusal.queries, 0);
   }
-  const throwing: IAutoMovieConicApproximation.IResult = approximate(
+  const nonfiniteBreak: IAutoMovieConicApproximation.IResult = AutoMovieRecoveryConicApproximation.approximateAhn(
+    { ...convex, breaks: [NaN] },
+    options,
+  );
+  TestValidator.predicate(
+    "a nonfinite source break refuses before sampling",
+    nonfiniteBreak.status === "refused" && nonfiniteBreak.queries === 0,
+  );
+  const throwing: IAutoMovieConicApproximation.IResult = AutoMovieRecoveryConicApproximation.approximateAhn(
     {
       ...convex,
       evaluate: (_t: number): Readonly<AutoMovieVector2Tuple> => {
@@ -79,7 +92,7 @@ export function test_recovery_curves_approximate_conics_ahn_refusals(): void {
     "callback failure explained",
     throwing.diagnostics.includes("Source acquisition failed"),
   );
-  const exhausted: IAutoMovieConicApproximation.IResult = approximate(
+  const exhausted: IAutoMovieConicApproximation.IResult = AutoMovieRecoveryConicApproximation.approximateAhn(
     { ...cubic, breaks: [] },
     { ...options, maximumArcs: 1 },
   );

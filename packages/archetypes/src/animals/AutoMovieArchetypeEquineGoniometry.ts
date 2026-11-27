@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieArchetypeEquineJointLimits } from "./AutoMovieArchetypeEquineJointLimits";
@@ -84,13 +84,13 @@ export namespace AutoMovieArchetypeEquineGoniometry {
         "The equine measurement plane needs a nonzero normal",
       );
 
-    const normal: IAutoMovieVector3 = Vector3.normalize(input.planeNormal);
+    const normal: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(input.planeNormal);
     const first: IAutoMovieVector3 = project(input.markers[0]);
     const second: IAutoMovieVector3 = project(input.markers[2]);
     const signedDegrees: number =
       Math.atan2(
-        Vector3.dot(normal, Vector3.cross(first, second)),
-        Vector3.dot(first, second),
+        AutoMovieEngineVector3.dot(normal, AutoMovieEngineVector3.cross(first, second)),
+        AutoMovieEngineVector3.dot(first, second),
       ) *
       (180 / Math.PI);
     const oriented: number =
@@ -111,27 +111,27 @@ export namespace AutoMovieArchetypeEquineGoniometry {
       limits: null,
     };
 
-    /**
+    /*
      * A unit double-cross projection retains orientation without subtractive
      * axial cancellation.
      */
     function project(marker: Readonly<IAutoMovieVector3>): IAutoMovieVector3 {
-      const displacement: IAutoMovieVector3 = Vector3.subtract(
+      const displacement: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
         marker,
         input.markers[1],
       );
-      const direction: IAutoMovieVector3 = Vector3.normalize(displacement);
-      const projected: IAutoMovieVector3 = Vector3.cross(
+      const direction: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(displacement);
+      const projected: IAutoMovieVector3 = AutoMovieEngineVector3.cross(
         normal,
-        Vector3.cross(direction, normal),
+        AutoMovieEngineVector3.cross(direction, normal),
       );
 
       // An overflowing marker displacement cannot produce a nonzero ray.
-      if (!(Vector3.length(projected) > 0))
+      if (!(AutoMovieEngineVector3.length(projected) > 0))
         throw new RangeError(
           "An equine marker ray has no nonzero planar projection",
         );
-      return Vector3.normalize(projected);
+      return AutoMovieEngineVector3.normalize(projected);
     }
   }
 }

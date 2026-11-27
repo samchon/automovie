@@ -1,7 +1,4 @@
-import {
-  autoMovieFeatureEdgeDistance,
-  measureAutoMovieFeatureEdges,
-} from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieMeasureFeatureEdges,
   IAutoMovieVector3,
@@ -12,8 +9,8 @@ import { surfaceTriangleOf } from "../../internal/surfaceTriangleOf";
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * `measureAutoMovieFeatureEdges` signs each sharp edge convex or concave, and
- * `autoMovieFeatureEdgeDistance` measures a surface point to the nearest of
+ * `measureFeatureEdges` signs each sharp edge convex or concave, and
+ * `featureEdgeDistance` measures a surface point to the nearest of
  * each sign, capped at the reach.
  *
  * Fixture: the L profile (0,0), (2,0), (2,1), (1,1), (1,2), (0,2) extruded 1 m
@@ -60,13 +57,13 @@ export function test_engine_geometry_feature_edge_distance(): void {
     quad([x, y, 1], [x + 1, y, 1], [x + 1, y + 1, 1], [x, y + 1, 1]);
     quad([x, y, 0], [x, y + 1, 0], [x + 1, y + 1, 0], [x + 1, y, 0]);
   }
-  const measured: IAutoMovieMeasureFeatureEdges.IResult = measureAutoMovieFeatureEdges({
+  const measured: IAutoMovieMeasureFeatureEdges.IResult = AutoMovieEngineGeometry.measureFeatureEdges({
     positions,
     indices,
     reach: 0.05,
   });
   const at = (point: IAutoMovieVector3) =>
-    autoMovieFeatureEdgeDistance({
+    AutoMovieEngineGeometry.featureEdgeDistance({
       edges: measured,
       triangle: surfaceTriangleOf(positions, indices, point),
       point,
@@ -93,7 +90,7 @@ export function test_engine_geometry_feature_edge_distance(): void {
   TestValidator.predicate(
     "triangle past the mesh",
     throwsError((): unknown =>
-      autoMovieFeatureEdgeDistance({ edges: measured, triangle: indices.length, point: { x: 0, y: 0, z: 0 } }),
+      AutoMovieEngineGeometry.featureEdgeDistance({ edges: measured, triangle: indices.length, point: { x: 0, y: 0, z: 0 } }),
     ),
   );
 }

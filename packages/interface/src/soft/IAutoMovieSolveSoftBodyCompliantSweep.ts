@@ -24,7 +24,7 @@ export namespace IAutoMovieSolveSoftBodyCompliantSweep {
    * straight rest where the angle between the segments is not differentiable.
    *
    * Edges are visited in a fixed order (row-major particles, each with the
-   * neighbours that follow it in `SOFT_BODY_NEIGHBOURS`), so a solve is
+   * neighbours that follow it in `AutoMovieEngineSoftBodyNeighbours`), so a solve is
    * deterministic. `lambda` holds one multiplier per particle and neighbour
    * slot and is reset by the caller at the start of each step.
    *
@@ -61,7 +61,7 @@ export namespace IAutoMovieSolveSoftBodyCompliantSweep {
     inverseMass: Float64Array<ArrayBufferLike>;
 
     /**
-     * Borrowed 12P rest distances in metres in SOFT_BODY_NEIGHBOURS order; a
+     * Borrowed 12P rest distances in metres in AutoMovieEngineSoftBodyNeighbours order; a
      * negative slot marks a missing neighbour.
      */
     restLength: Float64Array<ArrayBufferLike>;

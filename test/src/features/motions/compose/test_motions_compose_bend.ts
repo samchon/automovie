@@ -7,10 +7,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanBend,
-  poseBones,
-  resolveHumanPosture,
-} from "@automovie/motions/internal";
+  AutoMovieMotionHumanBend
+} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanBend";
+import {
+  poseBones
+} from "../../../../../packages/motions/src/posture/internal/poseBones";
+import {
+  resolveHumanPosture
+} from "../../../../../packages/motions/src/posture/internal/resolveHumanPosture";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -42,7 +46,7 @@ const LENGTH: number = 1e-6;
  * The body is built whole (`humanFixtureBody`): the solve reads the body's pose
  * rig, topology, rest and hanging arms, and the shoulder it is checked against
  * is read by forward kinematics on the whole body, records only
- * `createHumanBody` derives from the stored rig and profile.
+ * `AutoMovieMotionHumanBody.create` derives from the stored rig and profile.
  */
 export async function test_motions_compose_bend(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

@@ -55,11 +55,11 @@ export interface IAutoMovieConstructionSplit {
   hostEnd: "bottom" | "top";
 
   /**
-   * The seam chord's two ends as host phases `[a, b]` on that end's ring,
-   * radians, `a < b < a + 2 pi`: child 0 takes the arc `[a, b]`, child 1 the
+   * The seam chord's two ends as `startPhaseRad` and `endPhaseRad` on that end's ring,
+   * radians with `startPhaseRad < endPhaseRad < startPhaseRad + 2 pi`: child 0 takes the arc between them, child 1 the
    * arc `[b, a + 2 pi]`.
    */
-  seam: [number, number];
+  seam: IAutoMovieConstructionSplit.ISeamPhases;
 
   /**
    * The seam's curve, or absent for the straight chord. With a profile, the
@@ -114,6 +114,21 @@ export interface IAutoMovieConstructionSplit {
 
 /** Child bands, seam curves and declared crease windows at a split end. */
 export namespace IAutoMovieConstructionSplit {
+  /** Ordered angular locations of a seam's forks on the host end ring. */
+  export interface ISeamPhases {
+    /** First fork phase, radians. */
+    startPhaseRad: number;
+    /** Second fork phase, radians. */
+    endPhaseRad: number;
+  }
+
+  /** One interior seam control in its seam plane. */
+  export interface IProfileKnot {
+    /** Distance from the first fork along the chord, metres. */
+    alongM: number;
+    /** Outward depth from the host end, metres. */
+    depthM: number;
+  }
   /**
    * A plane with a kept side: the points `x` with `normal . (x - point) >= 0`
    * are kept.
@@ -312,12 +327,12 @@ export namespace IAutoMovieConstructionSplit {
   export interface IProfile {
     /**
      * Interior knots in the seam plane, metres, in the seam's own order:
-     * `[along, depth]`, `along` the distance from the seam's first end toward
+     * `{ alongM, depthM }`, `along` the distance from the seam's first end toward
      * its second along the chord, in `[0, chord]` and not necessarily
      * increasing, `depth` along the host end's outward normal (positive out of
      * the host).
      */
-    knots: [number, number][];
+    knots: IProfileKnot[];
 
     /**
      * The ribbons' turn at each fork: radians of the loop clock on each side,
@@ -393,7 +408,7 @@ export namespace IAutoMovieConstructionSplit {
    */
   export interface ISeam {
     /** The seam's two ends as host phases `[a, b]` on the end's ring, radians. */
-    seam: [number, number];
+    seam: ISeamPhases;
 
     /** The seam's curve, or absent for the straight chord. */
     profile?: IProfile;

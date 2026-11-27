@@ -1,8 +1,10 @@
-import { crcAutoMoviePngChunk } from "@automovie/render/internal";
+import {
+  crcPngChunk
+} from "../../../../../packages/render/src/picture/internal/crcPngChunk";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `crcAutoMoviePngChunk` is the CRC-32 of PNG chunk bytes.
+ * `crcPngChunk` is the CRC-32 of PNG chunk bytes.
  *
  * Scenarios:
  *
@@ -12,8 +14,8 @@ import { TestValidator } from "@nestia/e2e";
 export function test_render_picture_crc_png_chunk(): void {
   TestValidator.equals(
     "check value",
-    crcAutoMoviePngChunk(new TextEncoder().encode("123456789")),
+    crcPngChunk(new TextEncoder().encode("123456789")),
     0xcbf43926,
   );
-  TestValidator.equals("empty", crcAutoMoviePngChunk(new Uint8Array(0)), 0);
+  TestValidator.equals("empty", crcPngChunk(new Uint8Array(0)), 0);
 }

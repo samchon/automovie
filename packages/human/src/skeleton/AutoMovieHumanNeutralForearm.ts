@@ -55,10 +55,9 @@ export namespace AutoMovieHumanNeutralForearm {
       Turn.dot(Turn.cross(radial, Turn.FORWARD), down),
       Turn.dot(radial, Turn.FORWARD),
     );
-    const twist: (share: number) => AutoMovieQuaternionTuple = (
-      share: number,
-    ): AutoMovieQuaternionTuple =>
-      Math3D.fromAxisAngle(down, (rotation * share * 180) / Math.PI);
+    function twist(share: number): AutoMovieQuaternionTuple {
+      return Math3D.fromAxisAngle(down, (rotation * share * 180) / Math.PI);
+    }
     return {
       lower: Math3D.multiply(twist(1 - WRIST_TWIST), straight),
       hand: Math3D.multiply(twist(1), bent),

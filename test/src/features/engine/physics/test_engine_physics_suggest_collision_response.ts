@@ -1,4 +1,4 @@
-import { suggestCollisionResponse } from "@automovie/engine";
+import { AutoMovieEnginePhysics } from "@automovie/engine";
 import type { IAutoMovieImpactBodyState } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -27,7 +27,7 @@ export function test_engine_physics_suggest_collision_response(): void {
     hardness: 0.5,
     penetrability: 0,
   });
-  const withChain = suggestCollisionResponse({
+  const withChain = AutoMovieEnginePhysics.suggestCollisionResponse({
     a: bodyAt(2, 0),
     b: bodyAt(2, -1),
     normal: { x: 1, y: 0, z: 0 },
@@ -52,7 +52,7 @@ export function test_engine_physics_suggest_collision_response(): void {
     withChain.recoil?.joints[0]?.flexion,
     10,
   );
-  const noChain = suggestCollisionResponse({
+  const noChain = AutoMovieEnginePhysics.suggestCollisionResponse({
     a: bodyAt(2, 0),
     b: bodyAt(2, -1),
     normal: { x: 1, y: 0, z: 0 },

@@ -1,9 +1,11 @@
-import { parseAutoMovieInspectionRequest } from "@automovie/render";
-import { writeAutoMovieInspectorInspection } from "@automovie/viewer/internal";
+import { AutoMovieRenderInspectionRequest } from "@automovie/render";
+import {
+  writeInspectorInspection
+} from "../../../../../packages/viewer/src/inspector/internal/writeInspectorInspection";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `writeAutoMovieInspectorInspection` writes an inspection as the text by which
+ * `writeInspectorInspection` writes an inspection as the text by which
  * the inspector tells two inspections apart.
  *
  * Scenarios:
@@ -15,23 +17,23 @@ import { TestValidator } from "@nestia/e2e";
 export function test_viewer_inspector_write_inspection(): void {
   const request = (
     entries: [string, string][],
-  ): { inspection: ReturnType<typeof parseAutoMovieInspectionRequest> } => {
+  ): { inspection: ReturnType<typeof AutoMovieRenderInspectionRequest.parseRequest> } => {
     const values: Map<string, string> = new Map<string, string>(entries);
     return {
-      inspection: parseAutoMovieInspectionRequest(
+      inspection: AutoMovieRenderInspectionRequest.parseRequest(
         (key: string): string | undefined => values.get(key),
       ),
     };
   };
-  TestValidator.equals("absent", writeAutoMovieInspectorInspection(request([])), "[]");
+  TestValidator.equals("absent", writeInspectorInspection(request([])), "[]");
   TestValidator.equals(
     "shade",
-    writeAutoMovieInspectorInspection(request([["shade", "depth"]])),
+    writeInspectorInspection(request([["shade", "depth"]])),
     '[["shade","depth"]]',
   );
   TestValidator.equals(
     "equal",
-    writeAutoMovieInspectorInspection(request([["shade", "depth"]])),
-    writeAutoMovieInspectorInspection(request([["shade", "depth"]])),
+    writeInspectorInspection(request([["shade", "depth"]])),
+    writeInspectorInspection(request([["shade", "depth"]])),
   );
 }

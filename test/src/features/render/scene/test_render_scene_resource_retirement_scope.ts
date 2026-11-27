@@ -1,4 +1,4 @@
-import { AutoMovieResourceRetirementScope } from "@automovie/render";
+import { AutoMovieRenderResourceRetirementScope } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import { rejects } from "node:assert/strict";
 
@@ -14,8 +14,8 @@ import { rejects } from "node:assert/strict";
  *    shares the report and new ownership is refused after close.
  */
 export async function test_render_scene_resource_retirement_scope(): Promise<void> {
-  const scope: AutoMovieResourceRetirementScope =
-    new AutoMovieResourceRetirementScope();
+  const scope: AutoMovieRenderResourceRetirementScope =
+    new AutoMovieRenderResourceRetirementScope();
   const resource: object = {};
   const events: string[] = [];
   const finish: (() => void)[] = [];

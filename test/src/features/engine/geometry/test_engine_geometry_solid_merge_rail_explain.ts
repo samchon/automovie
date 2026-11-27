@@ -1,4 +1,4 @@
-import { AutoMovieSolidMerge } from "@automovie/engine";
+import { AutoMovieEngineSolidMerge } from "@automovie/engine";
 import type {
   IAutoMovieLoftContract,
   IAutoMovieSolidJoin,
@@ -10,7 +10,7 @@ import { TestValidator } from "@nestia/e2e";
 import { HumanSolidShapes } from "../../internal/HumanSolidShapes";
 
 /**
- * `AutoMovieSolidMerge.create` names the premise its rail solve failed, with
+ * `AutoMovieEngineSolidMerge.create` names the premise its rail solve failed, with
  * that solve's numbers, and a join's `explain(t)` explains a found rail with
  * the same numbers as `rail(t)`.
  *
@@ -31,7 +31,7 @@ export function test_engine_geometry_solid_merge_rail_explain(): void {
   const part: IAutoMovieSolidSurface = HumanSolidShapes.cylinder("column", [0, 0, 0], [0, 0, 1], [1, 0, 0], [0, 1, 0], r);
   const host: IAutoMovieSolidSurface = HumanSolidShapes.plane("floor", [0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1]);
   const merge = (width: IAutoMovieSolidJoin.IInput["width"]): IAutoMovieSolidJoin.IResult =>
-    AutoMovieSolidMerge.create({
+    AutoMovieEngineSolidMerge.create({
       part,
       host,
       seed: { phi: 0, s: 0.5, y: r - 0.4, theta: 0.3 },

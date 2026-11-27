@@ -1,11 +1,11 @@
-import { Vector3, solveTwoBoneIK } from "@automovie/engine";
+import { AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   IAutoMovieTwoBoneIK,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { AutoMovieArchetypeUnits } from "../core";
-import { solveQuadrupedSupportPlane } from "./solveQuadrupedSupportPlane";
+import { solveQuadrupedSupportPlane } from "./quadruped/solveQuadrupedSupportPlane";
 
 /**
  * A four-bar quadruped limb solved from its neutral controls. The upper bar and
@@ -99,16 +99,6 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
     ) => IAutoMovieVector3[];
   }
 
-  /** Fold-dependent lower-carriage vector in the second bar's neutral frame. */
-  interface IPiece extends IRange {
-    /** Third-bar angle relative to the second, radians. */
-    bend: number;
-    /** Resultant lower-carriage length, metres. */
-    lower: number;
-    /** Resultant angle from the second bar, radians. */
-    offset: number;
-  }
-
   /**
    * Snapshot four lengths and neutral relative angles.
    *
@@ -180,7 +170,7 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
     const slope: number = angles[3]! - angles[2]!;
     const branch: -1 | 1 = fore ? -1 : 1;
 
-    /**
+    /*
      * Preserve neutral relative fold; an oriented terminal is removed from the
      * lower resultant.
      */
@@ -201,7 +191,9 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
       return { bend, lower, offset: Math.atan2(z, -y), minimum, maximum };
     }
 
-    /** Accept binary64 sagittal noise without projecting an input point. */
+    /*
+     * Accept binary64 sagittal noise without projecting an input point.
+     */
     function admit(point: IAutoMovieVector3): void {
       if (!finite(point))
         throw new RangeError(
@@ -219,7 +211,7 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
         );
     }
 
-    /**
+    /*
      * One strict triangle owner fits either the terminal or the oriented ankle
      * target.
      */
@@ -259,7 +251,7 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
         );
       let triangle: IAutoMovieTwoBoneIK;
       try {
-        triangle = solveTwoBoneIK(a, lower.lower, distance);
+        triangle = AutoMovieEngineKinematics.solveTwoBoneIK(a, lower.lower, distance);
       } catch (error) {
         throw new RangeError(
           error instanceof Error
@@ -304,7 +296,7 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
       return [{ ...root }, elbow, wrist, ankle];
     }
 
-    /**
+    /*
      * Refuse a solved representation that cannot retain the four positive
      * lengths.
      */
@@ -365,8 +357,8 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
                 y: direction.y / magnitude,
                 z: direction.z / magnitude,
               }
-            : Vector3.normalize(direction);
-        if (!direct && !(Vector3.length(axis) > 0))
+            : AutoMovieEngineVector3.normalize(direction);
+        if (!direct && !(AutoMovieEngineVector3.length(axis) > 0))
           throw new RangeError(
             "A terminal direction must have representable positive magnitude",
           );
@@ -380,7 +372,7 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
           z: d * axis.z,
         };
 
-        /**
+        /*
          * Move from the exact terminal endpoint to the constrained proximal
          * target.
          */
@@ -423,7 +415,27 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
     };
   }
 
-  /** Admit finite coordinates without dereferencing a missing/sparse control. */
+  /*
+   * Fold-dependent lower-carriage vector in the second bar's neutral frame.
+   */
+  interface IPiece extends IRange {
+    /*
+     * Third-bar angle relative to the second, radians.
+     */
+    bend: number;
+    /*
+     * Resultant lower-carriage length, metres.
+     */
+    lower: number;
+    /*
+     * Resultant angle from the second bar, radians.
+     */
+    offset: number;
+  }
+
+  /*
+   * Admit finite coordinates without dereferencing a missing/sparse control.
+   */
   function finite(point: IAutoMovieVector3 | null | undefined): boolean {
     return point !== null && point !== undefined;
   }

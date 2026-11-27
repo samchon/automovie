@@ -1,4 +1,4 @@
-import { solveAutoMovieSunPosition } from "@automovie/engine";
+import { AutoMovieEngineEnvironment } from "@automovie/engine";
 import type {
   IAutoMovieSolveSunPosition,
   IAutoMovieSunPosition,
@@ -35,7 +35,7 @@ import { throwsError } from "../internal/throwsError";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the four scenarios with their inputs and expected angles or refusals.
  */
 export function test_analysis_sun_position(): void {
-  const example: IAutoMovieSunPosition = solveAutoMovieSunPosition({
+  const example: IAutoMovieSunPosition = AutoMovieEngineEnvironment.solveSunPosition({
     latitude: 39.742476,
     longitude: -105.1786,
     elevation: 1830.14,
@@ -56,7 +56,7 @@ export function test_analysis_sun_position(): void {
     nclose(example.elevation, 90 - example.zenith, 1e-12),
   );
 
-  const equinox: IAutoMovieSunPosition = solveAutoMovieSunPosition({
+  const equinox: IAutoMovieSunPosition = AutoMovieEngineEnvironment.solveSunPosition({
     latitude: 0,
     longitude: 0,
     utc: utc(2025, 3, 20, 12, 0, 0),
@@ -67,7 +67,7 @@ export function test_analysis_sun_position(): void {
   );
 
   const below: (pressure: number) => number = (pressure: number): number =>
-    solveAutoMovieSunPosition({
+    AutoMovieEngineEnvironment.solveSunPosition({
       latitude: 0,
       longitude: 0,
       pressure,
@@ -83,7 +83,7 @@ export function test_analysis_sun_position(): void {
     below(500),
   );
   const above: (pressure: number) => number = (pressure: number): number =>
-    solveAutoMovieSunPosition({
+    AutoMovieEngineEnvironment.solveSunPosition({
       latitude: 0,
       longitude: 0,
       pressure,
@@ -103,7 +103,7 @@ export function test_analysis_sun_position(): void {
   ): boolean =>
     throwsError(
       (): IAutoMovieSunPosition =>
-        solveAutoMovieSunPosition({
+        AutoMovieEngineEnvironment.solveSunPosition({
           latitude: 0,
           longitude: 0,
           utc: utc(2025, 3, 20, 12, 0, 0),

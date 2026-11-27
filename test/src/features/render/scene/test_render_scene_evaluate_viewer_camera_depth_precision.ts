@@ -1,8 +1,7 @@
 import type { IAutoMovieCamera } from "@automovie/interface";
 import {
-  type IAutoMovieDepthPrecisionRenderer,
-  assertAutoMovieViewerCameraDepthPrecision,
-  evaluateAutoMovieViewerCameraDepthPrecision,
+  type IAutoMovieRenderDepthPrecisionRenderer,
+  AutoMovieRenderViewerCameraDepthPrecision,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
@@ -43,11 +42,11 @@ const renderer: (
   bits: unknown,
   logarithmic?: boolean,
   reversed?: boolean,
-) => IAutoMovieDepthPrecisionRenderer = (
+) => IAutoMovieRenderDepthPrecisionRenderer = (
   bits: unknown,
   logarithmic: boolean = false,
   reversed: boolean = false,
-): IAutoMovieDepthPrecisionRenderer => {
+): IAutoMovieRenderDepthPrecisionRenderer => {
   const depthBits: WebGLRenderingContext["DEPTH_BITS"] = 0x0d56;
   return {
     capabilities: {
@@ -78,11 +77,11 @@ type EvaluateProps = {
 };
 const evaluate: (
   props: EvaluateProps,
-) => ReturnType<typeof evaluateAutoMovieViewerCameraDepthPrecision> = (
+) => ReturnType<typeof AutoMovieRenderViewerCameraDepthPrecision.evaluate> = (
   props: EvaluateProps,
-): ReturnType<typeof evaluateAutoMovieViewerCameraDepthPrecision> => {
+): ReturnType<typeof AutoMovieRenderViewerCameraDepthPrecision.evaluate> => {
   const source: IAutoMovieCamera = props.source ?? sourceCamera();
-  return evaluateAutoMovieViewerCameraDepthPrecision({
+  return AutoMovieRenderViewerCameraDepthPrecision.evaluate({
     renderer: renderer(props.bits ?? 24, props.logarithmic, props.reversed),
     source,
     realized: props.realized ?? realizedCamera(source),
@@ -203,7 +202,7 @@ export function test_render_scene_evaluate_viewer_camera_depth_precision(): void
       [
         "pass",
         (): boolean =>
-          assertAutoMovieViewerCameraDepthPrecision({
+          AutoMovieRenderViewerCameraDepthPrecision.assert({
             renderer: renderer(24),
             source: sourceCamera(),
             realized: realizedCamera(),
@@ -213,8 +212,8 @@ export function test_render_scene_evaluate_viewer_camera_depth_precision(): void
         "refuse",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof assertAutoMovieViewerCameraDepthPrecision> =>
-              assertAutoMovieViewerCameraDepthPrecision({
+            (): ReturnType<typeof AutoMovieRenderViewerCameraDepthPrecision.assert> =>
+              AutoMovieRenderViewerCameraDepthPrecision.assert({
                 renderer: renderer(16),
                 source: sourceCamera(),
                 realized: realizedCamera(),

@@ -1,9 +1,5 @@
-import {
-  AutoMovieArchetypeRefusal,
-  AutoMovieArchetypeUnits,
-  createBow,
-} from "@automovie/archetypes";
-import { AutoMovieGravity } from "@automovie/engine";
+import { AutoMovieArchetypeRefusal, AutoMovieArchetypeUnits, AutoMovieArchetypeBow } from "@automovie/archetypes";
+import { AutoMovieEngineGravity } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -25,15 +21,15 @@ export function test_archetype_weapon_bow_launch(): void {
   const findings: string[] = [];
   // A pound-force in the order the band multiplies it, so a band end fixed here is the band's own float.
   const lbf: (pounds: number) => number = (pounds: number): number =>
-    pounds * AutoMovieArchetypeUnits.POUND * AutoMovieGravity.STANDARD;
+    pounds * AutoMovieArchetypeUnits.POUND * AutoMovieEngineGravity.STANDARD;
   for (const pounds of [49, 54]) {
-    const bow: ReturnType<typeof createBow> = createBow({
+    const bow: ReturnType<typeof AutoMovieArchetypeBow.create> = AutoMovieArchetypeBow.create({
       kind: "recurve",
       draw: lbf(pounds),
     });
-    const speed: number = createBow.launchSpeed(
+    const speed: number = AutoMovieArchetypeBow.launchSpeed(
       bow,
-      createBow.KOOI.arrow,
+      AutoMovieArchetypeBow.KOOI.arrow,
       bow.affordance("string").travel!,
     );
     if (!(speed >= 54.7 && speed <= 62.2))
@@ -42,9 +38,9 @@ export function test_archetype_weapon_bow_launch(): void {
   // A crossbow's draw weight is unread, so its launch is refused at `draw`.
   let refused: string | null = null;
   try {
-    createBow.launchSpeed(
-      createBow({ kind: "crossbow" }),
-      createBow.KOOI.arrow,
+    AutoMovieArchetypeBow.launchSpeed(
+      AutoMovieArchetypeBow.create({ kind: "crossbow" }),
+      AutoMovieArchetypeBow.KOOI.arrow,
       0,
     );
   } catch (error) {
@@ -55,18 +51,18 @@ export function test_archetype_weapon_bow_launch(): void {
     findings.push(
       `a crossbow's launch was refused at ${refused}, not at its unread draw`,
     );
-  for (const kind of createBow.KINDS.filter(
-    (k: createBow.Kind): boolean => k !== "crossbow",
+  for (const kind of AutoMovieArchetypeBow.KINDS.filter(
+    (k: AutoMovieArchetypeBow.Kind): boolean => k !== "crossbow",
   )) {
-    const bow: ReturnType<typeof createBow> = createBow({ kind });
+    const bow: ReturnType<typeof AutoMovieArchetypeBow.create> = AutoMovieArchetypeBow.create({ kind });
     const stroke: number = bow.affordance("string").travel!;
-    let before: number = createBow.launchSpeed(bow, createBow.KOOI.arrow, 0);
+    let before: number = AutoMovieArchetypeBow.launchSpeed(bow, AutoMovieArchetypeBow.KOOI.arrow, 0);
     if (before !== 0)
       findings.push(`${kind} at brace launches at ${before} m/s`);
     for (let k: number = 1; k <= 10; ++k) {
-      const now: number = createBow.launchSpeed(
+      const now: number = AutoMovieArchetypeBow.launchSpeed(
         bow,
-        createBow.KOOI.arrow,
+        AutoMovieArchetypeBow.KOOI.arrow,
         (k / 10) * stroke,
       );
       if (!(now > before))
@@ -81,17 +77,17 @@ export function test_archetype_weapon_bow_launch(): void {
     { longbow: 0.407, recurve: 0.426, horseBow: 0.426 };
   const virtual: number = (0.02 * (1 - 0.765)) / 0.765;
   for (const kind of ["longbow", "recurve", "horseBow"] as const) {
-    const bow: ReturnType<typeof createBow> = createBow({ kind });
+    const bow: ReturnType<typeof AutoMovieArchetypeBow.create> = AutoMovieArchetypeBow.create({ kind });
     const stroke: number = bow.affordance("string").travel!;
     const expected: number = Math.sqrt(
       (2 * QUOTIENT[kind] * bow.dimensions.draw! * stroke) / (0.02 + virtual),
     );
-    const full: number = createBow.launchSpeed(bow, 0.02, stroke);
+    const full: number = AutoMovieArchetypeBow.launchSpeed(bow, 0.02, stroke);
     if (!(Math.abs(full / expected - 1) <= 1e-12))
       findings.push(
         `${kind} drawn full launches at ${full} m/s, ${expected} m/s worked`,
       );
-    if (!(createBow.launchSpeed(bow, 0.04, stroke) < full))
+    if (!(AutoMovieArchetypeBow.launchSpeed(bow, 0.04, stroke) < full))
       findings.push(`${kind}: a heavier arrow does not leave slower`);
   }
   TestValidator.equals("a bow launches at its stored energy", findings, []);

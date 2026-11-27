@@ -4,7 +4,7 @@ import type { IContractLocation } from "../../../internal/IContractLocation";
 import type { NarrativeLayer } from "../../NarrativeLayer";
 import { createSharedReference } from "./createSharedReference";
 
-/**
+/*
  * Creates the upstream-revision duty every unit of one narrative layer answers.
  *
  * Settings has no layer above it and never selects this family. It is a

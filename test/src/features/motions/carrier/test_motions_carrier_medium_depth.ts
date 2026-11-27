@@ -1,4 +1,9 @@
-import { HumanMediumWalk, HumanRefusal } from "@automovie/motions/internal";
+import {
+  HumanMediumWalk
+} from "../../../../../packages/motions/src/carrier/internal/HumanMediumWalk";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -23,7 +28,7 @@ export function test_motions_carrier_medium_depth(): void {
     try {
       HumanMediumWalk.admitDepth({ kind, depth }, measure);
     } catch (error: unknown) {
-      if (!(error instanceof HumanRefusal)) throw error;
+      if (!(error instanceof AutoMovieMotionHumanRefusal)) throw error;
       if (error.axis === "medium.depth" && error.feasible?.kind === "range")
         return error.feasible.maximum;
     }

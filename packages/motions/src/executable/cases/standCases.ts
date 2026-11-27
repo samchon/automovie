@@ -1,22 +1,14 @@
-import { Quaternion, resolveAutoMovieCenterOfMass } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanChain,
-  IAutoMovieMotionHumanPerformance,
-  IAutoMoviePose,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics, AutoMovieEngineQuaternion } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMoviePose, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanChain } from "../../HumanChain";
-import { createHumanBody } from "../../body/createHumanBody";
-import { HumanPerformance } from "../../perform/HumanPerformance";
-import { HumanFoot } from "../../posture/HumanFoot";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
-import { MotionBodies } from "../MotionBodies";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
+import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
+import { AutoMovieMotionHumanPerformance } from "../../perform/AutoMovieMotionHumanPerformance";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
+import { MotionBodies } from "../internal/MotionBodies";
 
-/**
+/*
  * The capture case of quiet standing on the polygon man (`stand`): the named
  * bodies, by default the smallest, the average and the tallest of the sweep,
  * stand for 2 s on a diagonal, 0.8 m apart along each axis, drawn at the start,
@@ -29,10 +21,9 @@ import { MotionBodies } from "../MotionBodies";
  * forward axis level within 2°; the centre of mass 2 to 6 cm in front of the
  * ankles' midpoint (Winter 1995); and each heel and toe on the floor within 5
  * mm.
- *
- * @param names The bodies that stand.
- * @param label The case's name.
- * @returns The case.
+ * Parameter names: The bodies that stand.
+ * Parameter label: The case's name.
+ * Returns: The case.
  */
 export function standCases(
   names: readonly string[] = ["f-small", "m-average", "m-tall"],
@@ -40,16 +31,16 @@ export function standCases(
 ): IMotionCaptureCase[] {
   const men = names.map((name) => MotionBodies.population(name));
   const bodies: IAutoMovieMotionHumanBody[] = men.map((man) =>
-    createHumanBody(man.body.skeleton, man.body.profile),
+    AutoMovieMotionHumanBody.create(man.body.skeleton, man.body.profile),
   );
   let chain: IAutoMovieMotionHumanChain | undefined;
   names.forEach((_, i: number): void => {
-    const one: IAutoMovieMotionHumanChain = HumanChain.subject(`s${i}`).stand({
+    const one: IAutoMovieMotionHumanChain = AutoMovieMotionHumanChain.subject(`s${i}`).stand({
       hold: 2,
     });
     chain = chain === undefined ? one : chain.with(one);
   });
-  const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
+  const performance: IAutoMovieMotionHumanPerformance = new AutoMovieMotionHumanPerformance({
     seed: "stand",
     performers: bodies.map((body: IAutoMovieMotionHumanBody, i: number) => ({
       subject: `s${i}`,
@@ -88,15 +79,15 @@ export function standCases(
     );
     if (Math.abs(shoulders - hips) > 0.03 || Math.abs(ear - hips) > 0.03)
       plumbOk = false;
-    const forward: IAutoMovieVector3 = Quaternion.rotateVector(
+    const forward: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
       bones.get("head")!.worldRotation,
       { x: 0, y: 0, z: 1 },
     );
     const pitch: number = (Math.asin(forward.y) * 180) / Math.PI;
     level.push(`${name} ${pitch.toFixed(1)} deg`);
     if (Math.abs(pitch) > 2) levelOk = false;
-    const com: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
-      resolveAutoMovieCenterOfMass(body.skeleton, body.profile),
+    const com: IAutoMovieVector3 = AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(
+      AutoMovieEngineKinematics.resolveAutoMovieCenterOfMass(body.skeleton, body.profile),
       bones,
     );
     const ahead: number = com.z - (z("leftFoot") + z("rightFoot")) / 2;

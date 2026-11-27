@@ -1,4 +1,4 @@
-import { inspectAutoMovieExternalModelBytes } from "@automovie/ingest";
+import { AutoMovieIngestExternalModel } from "@automovie/ingest";
 import type {
   AutoMovieExternalModelIngestProfile,
   IAutoMovieExternalModelInspection,
@@ -39,7 +39,7 @@ export const inspectExternalModelHierarchyFixture: (
       }
     : fixture.document;
   const json: Buffer = Buffer.from(JSON.stringify(document), "utf8");
-  return inspectAutoMovieExternalModelBytes({
+  return AutoMovieIngestExternalModel.inspectBytes({
     path: vrm ? "public/models/actor.vrm" : "public/models/actor.gltf",
     bytes: vrm ? glb(json) : json,
     profile,

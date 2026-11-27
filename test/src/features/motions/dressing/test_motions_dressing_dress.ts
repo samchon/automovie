@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanBody,
@@ -6,12 +6,20 @@ import type {
   IAutoMovieMotionHumanHeld,
 } from "@automovie/interface";
 import {
-  HumanHand,
-  HumanRefusal,
-  HumanWornItem,
-  dress,
-  dressTurn,
-} from "@automovie/motions/internal";
+  HumanHand
+} from "../../../../../packages/motions/src/posture/internal/HumanHand";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  HumanWornItem
+} from "../../../../../packages/motions/src/dressing/internal/HumanWornItem";
+import {
+  dress
+} from "../../../../../packages/motions/src/dressing/internal/dress";
+import {
+  dressTurn
+} from "../../../../../packages/motions/src/dressing/internal/dressTurn";
 import { TestValidator } from "@nestia/e2e";
 import { strict as assert } from "node:assert";
 
@@ -53,12 +61,12 @@ const ROUNDING: number = 1e-12;
  */
 export async function test_motions_dressing_dress(): Promise<void> {
   // 1. Points.
-  const quarter = Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90);
+  const quarter = AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90);
   TestValidator.predicate(
     "the points",
     vclose(
       HumanWornItem.point(
-        { position: { x: 0, y: 1, z: 0 }, rotation: Quaternion.identity() },
+        { position: { x: 0, y: 1, z: 0 }, rotation: AutoMovieEngineQuaternion.identity() },
         { x: 0.1, y: 0, z: 0.2 },
       ),
       { x: 0.1, y: 1, z: 0.2 },
@@ -82,7 +90,7 @@ export async function test_motions_dressing_dress(): Promise<void> {
     side: "right",
     frame: {
       position: { x: 0, y: 0.1, z: 0 },
-      rotation: Quaternion.identity(),
+      rotation: AutoMovieEngineQuaternion.identity(),
     },
     affordances: [],
   };
@@ -106,17 +114,17 @@ export async function test_motions_dressing_dress(): Promise<void> {
   // 3. The carrying hand.
   const worn = { position: { x: 0, y: 1, z: 0.5 }, rotation: quarter };
   const offset = { x: 0, y: 0, z: 0.1 };
-  const straight = dressTurn.carried(worn, Quaternion.identity(), offset);
+  const straight = dressTurn.carried(worn, AutoMovieEngineQuaternion.identity(), offset);
   const turned = dressTurn.carried(
     worn,
-    Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, -90),
+    AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, -90),
     offset,
   );
   TestValidator.predicate(
     "the carrying hand",
     qclose(straight.rotation, worn.rotation, ROUNDING) &&
       vclose(straight.grip, { x: -0.1, y: 1, z: 0.5 }, ROUNDING) &&
-      qclose(turned.rotation, Quaternion.identity(), ROUNDING) &&
+      qclose(turned.rotation, AutoMovieEngineQuaternion.identity(), ROUNDING) &&
       vclose(turned.grip, { x: 0, y: 1, z: 0.4 }, ROUNDING),
   );
 
@@ -139,7 +147,7 @@ export async function test_motions_dressing_dress(): Promise<void> {
           },
         }),
       (error: unknown): boolean =>
-        error instanceof HumanRefusal &&
+        error instanceof AutoMovieMotionHumanRefusal &&
         error.kind === "affordance" &&
         error.axis === "prop" &&
         error.value === "hat" &&

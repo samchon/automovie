@@ -4,6 +4,10 @@
   "version": "0.4.3",
   "description": "automovie test program: exhaustive deterministic engine validation",
   "main": "src/index.ts",
+  "imports": {
+    "#scenario-selection/parseScenarioSelection": "./src/parseScenarioSelection.ts",
+    "#scenario-selection/selectScenarioNames": "./src/selectScenarioNames.ts"
+  },
   "scripts": {
     "build": "ttsc --noEmit",
     "start": "ttsx src/index.ts",
@@ -50,6 +54,7 @@
     "typia": "catalog:samchon"
   },
   "devDependencies": {
+    "@automovie/config": "workspace:^",
     "@ttsc/evidence": "catalog:samchon",
     "@ttsc/lint": "catalog:samchon",
     "@ttsc/unplugin": "catalog:samchon",

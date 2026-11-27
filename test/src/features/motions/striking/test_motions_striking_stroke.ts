@@ -1,6 +1,8 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type { IAutoMovieMotionHumanStrikingStroke } from "@automovie/interface";
-import { StrikingStroke } from "@automovie/motions/internal";
+import {
+  StrikingStroke
+} from "../../../../../packages/motions/src/striking/internal/StrikingStroke";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -101,7 +103,7 @@ export function test_motions_striking_stroke(): void {
       vclose(rechambered.free(2), { x: 0, y: 0, z: 0 }, 1e-12),
   );
   const stopped = StrikingStroke.create({ ...INPUT, fixed: 0.6 });
-  const met: number = minimumJerk.share(0.6);
+  const met: number = AutoMovieEngineMotionSampling.minimumJerkShare(0.6);
   TestValidator.predicate(
     "a resolved stop",
     StrikingStroke.DWELL === 0.015 &&

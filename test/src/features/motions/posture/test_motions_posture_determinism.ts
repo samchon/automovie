@@ -1,11 +1,21 @@
 import {
-  HumanKnot,
-  HumanPathParameterization,
-  minimizeHumanBrent,
-  prepareHumanAdaptiveKnots,
-  prepareHumanKnotCourse,
-  prepareHumanSampledCourse,
-} from "@automovie/motions/internal";
+  HumanKnot
+} from "../../../../../packages/motions/src/posture/internal/HumanKnot";
+import {
+  HumanPathParameterization
+} from "../../../../../packages/motions/src/posture/internal/HumanPathParameterization";
+import {
+  minimizeHumanBrent
+} from "../../../../../packages/motions/src/posture/internal/minimizeHumanBrent";
+import {
+  prepareHumanAdaptiveKnots
+} from "../../../../../packages/motions/src/posture/internal/prepareHumanAdaptiveKnots";
+import {
+  prepareHumanKnotCourse
+} from "../../../../../packages/motions/src/posture/internal/prepareHumanKnotCourse";
+import {
+  prepareHumanSampledCourse
+} from "../../../../../packages/motions/src/posture/internal/prepareHumanSampledCourse";
 import { TestValidator } from "@nestia/e2e";
 
 /** The instants read, in ascending order. */

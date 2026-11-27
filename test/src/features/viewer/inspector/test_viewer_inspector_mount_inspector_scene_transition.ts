@@ -2,13 +2,12 @@ import type {
   IAutoMovieInspectionDiagnostics,
   IAutoMovieMark,
 } from "@automovie/interface";
-import type { IAutoMovieDrawScene } from "@automovie/render";
+import type { IAutoMovieRenderDrawScene } from "@automovie/render";
 import {
-  AutoMovieInspectorPlayhead,
-  type IAutoMovieInspectorScene,
-  type IAutoMovieInspectorSceneHost,
-  mountAutoMovieInspectorScene,
-  readAutoMovieInspectorAddress,
+  AutoMovieViewerInspectorPlayhead,
+  AutoMovieViewerInspector,
+  type IAutoMovieViewerInspectorScene,
+  type IAutoMovieViewerInspectorSceneHost,
 } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import type * as THREE from "three";
@@ -40,13 +39,13 @@ export async function test_viewer_inspector_mount_inspector_scene_transition(): 
     },
   );
   const calls: createRecordedFilmSubject.ICall[] = recorded.calls;
-  const subject: IAutoMovieDrawScene = {
+  const subject: IAutoMovieRenderDrawScene = {
     ...recorded.subject,
     place: (seconds: number): void => {
       calls.push({ name: "place", shot: null, numbers: [seconds] });
     },
     inspectPlaced: (
-      sample: IAutoMovieDrawScene.IPlacedSample,
+      sample: IAutoMovieRenderDrawScene.IPlacedSample,
     ): IAutoMovieInspectionDiagnostics => {
       calls.push({
         name: "inspect",
@@ -66,8 +65,8 @@ export async function test_viewer_inspector_mount_inspector_scene_transition(): 
     },
   };
   let frame: ((nowMs: number) => void) | undefined;
-  const host: IAutoMovieInspectorSceneHost = {
-    size: (): IAutoMovieInspectorSceneHost.ISize => ({
+  const host: IAutoMovieViewerInspectorSceneHost = {
+    size: (): IAutoMovieViewerInspectorSceneHost.ISize => ({
       width: 320,
       height: 180,
       pixelRatio: 1,
@@ -79,7 +78,7 @@ export async function test_viewer_inspector_mount_inspector_scene_transition(): 
     cancelFrame: (): void => {
       frame = undefined;
     },
-    createRenderer: (): IAutoMovieInspectorSceneHost.ICreated => ({
+    createRenderer: (): IAutoMovieViewerInspectorSceneHost.ICreated => ({
       compositor: null,
       renderer: {
         ...filmResponseRendererFields(),
@@ -92,11 +91,11 @@ export async function test_viewer_inspector_mount_inspector_scene_transition(): 
     }),
   };
   const errors: string[] = [];
-  const playhead: AutoMovieInspectorPlayhead = new AutoMovieInspectorPlayhead();
-  const mounted: IAutoMovieInspectorScene = mountAutoMovieInspectorScene({
-    subject: { create: async (): Promise<IAutoMovieDrawScene> => subject },
+  const playhead: AutoMovieViewerInspectorPlayhead = new AutoMovieViewerInspectorPlayhead();
+  const mounted: IAutoMovieViewerInspectorScene = AutoMovieViewerInspector.mountScene({
+    subject: { create: async (): Promise<IAutoMovieRenderDrawScene> => subject },
     name: "film",
-    request: readAutoMovieInspectorAddress("at=1.25"),
+    request: AutoMovieViewerInspector.readAddress("at=1.25"),
     playhead,
     host,
     report: {

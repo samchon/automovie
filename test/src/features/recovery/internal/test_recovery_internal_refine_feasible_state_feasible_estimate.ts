@@ -3,7 +3,7 @@ import type {
   IAutoMovieRecoveryFeasibleProblem,
   IAutoMovieRecoveryUntiltedEstimate,
 } from "@automovie/interface";
-import { refineRecoveryFeasibleState } from "@automovie/recovery";
+import { AutoMovieRecoveryCameraMap } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -72,13 +72,13 @@ export function test_recovery_internal_refine_feasible_state_feasible_estimate()
       multiplierCount = current?.multipliers.length ?? 0;
     },
   };
-  const direction: Parameters<typeof refineRecoveryFeasibleState>[3] = {
+  const direction: Parameters<typeof AutoMovieRecoveryCameraMap.refineFeasibleState>[3] = {
     maxIterations: 10000,
     maxEntries: 10000,
     maxWork: 10000000,
   };
   const auxiliary: NonNullable<
-    Parameters<typeof refineRecoveryFeasibleState>[6]
+    Parameters<typeof AutoMovieRecoveryCameraMap.refineFeasibleState>[6]
   > = {
     maxEntries: 10000,
     maxResidentEntries: 100000,
@@ -87,8 +87,8 @@ export function test_recovery_internal_refine_feasible_state_feasible_estimate()
     minimumSingularRatio: 1e-8,
     maxWork: 10000000,
   };
-  const qualified: ReturnType<typeof refineRecoveryFeasibleState<number>> =
-    refineRecoveryFeasibleState(
+  const qualified: ReturnType<typeof AutoMovieRecoveryCameraMap.refineFeasibleState<number>> =
+    AutoMovieRecoveryCameraMap.refineFeasibleState(
       { ...problem, constraintValues: (): number[] => [] },
       2,
       1e-8,
@@ -110,8 +110,8 @@ export function test_recovery_internal_refine_feasible_state_feasible_estimate()
       nclose(qualified.state, 0.1, 1e-12),
   );
   notifications = 0;
-  const mixNull: ReturnType<typeof refineRecoveryFeasibleState<number>> =
-    refineRecoveryFeasibleState(
+  const mixNull: ReturnType<typeof AutoMovieRecoveryCameraMap.refineFeasibleState<number>> =
+    AutoMovieRecoveryCameraMap.refineFeasibleState(
       {
         ...problem,
         evaluate: (x: number): number => (x - 2) ** 2 / 2,
@@ -149,8 +149,8 @@ export function test_recovery_internal_refine_feasible_state_feasible_estimate()
       multiplierCount === 0,
   );
   notifications = 0;
-  const requested: ReturnType<typeof refineRecoveryFeasibleState<number>> =
-    refineRecoveryFeasibleState(
+  const requested: ReturnType<typeof AutoMovieRecoveryCameraMap.refineFeasibleState<number>> =
+    AutoMovieRecoveryCameraMap.refineFeasibleState(
       problem,
       1,
       1e-8,
@@ -166,8 +166,8 @@ export function test_recovery_internal_refine_feasible_state_feasible_estimate()
       argumentsCount === 5 &&
       estimateState === 1,
   );
-  const absent: ReturnType<typeof refineRecoveryFeasibleState<number>> =
-    refineRecoveryFeasibleState(
+  const absent: ReturnType<typeof AutoMovieRecoveryCameraMap.refineFeasibleState<number>> =
+    AutoMovieRecoveryCameraMap.refineFeasibleState(
       { ...problem, requestUntiltedEstimate: undefined },
       1,
       1e-8,
@@ -185,8 +185,8 @@ export function test_recovery_internal_refine_feasible_state_feasible_estimate()
       requested.trials.work === absent.trials.work,
   );
   notifications = 0;
-  const initial: ReturnType<typeof refineRecoveryFeasibleState<number>> =
-    refineRecoveryFeasibleState(
+  const initial: ReturnType<typeof AutoMovieRecoveryCameraMap.refineFeasibleState<number>> =
+    AutoMovieRecoveryCameraMap.refineFeasibleState(
       { ...problem, initial: 0.1 },
       1,
       1e-8,
@@ -195,8 +195,8 @@ export function test_recovery_internal_refine_feasible_state_feasible_estimate()
       (): void => {},
       auxiliary,
     );
-  const refused: ReturnType<typeof refineRecoveryFeasibleState<number>> =
-    refineRecoveryFeasibleState(
+  const refused: ReturnType<typeof AutoMovieRecoveryCameraMap.refineFeasibleState<number>> =
+    AutoMovieRecoveryCameraMap.refineFeasibleState(
       {
         ...problem,
         evaluate: (x: number): number | null => (x === 0 ? 0.005 : null),
@@ -211,7 +211,7 @@ export function test_recovery_internal_refine_feasible_state_feasible_estimate()
   evaluations = 0;
   let missingOwner: boolean = false;
   try {
-    refineRecoveryFeasibleState(
+    AutoMovieRecoveryCameraMap.refineFeasibleState(
       { ...problem, accepted: undefined },
       1,
       1e-8,
@@ -237,7 +237,7 @@ export function test_recovery_internal_refine_feasible_state_feasible_estimate()
     wrapperError: boolean = false,
     callbackError: boolean = false;
   try {
-    refineRecoveryFeasibleState(
+    AutoMovieRecoveryCameraMap.refineFeasibleState(
       problem,
       1,
       1e-8,
@@ -254,7 +254,7 @@ export function test_recovery_internal_refine_feasible_state_feasible_estimate()
     wrapperError = error === marker;
   }
   try {
-    refineRecoveryFeasibleState(
+    AutoMovieRecoveryCameraMap.refineFeasibleState(
       {
         ...problem,
         accepted: (): void => {

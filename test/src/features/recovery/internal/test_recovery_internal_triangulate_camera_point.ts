@@ -1,4 +1,4 @@
-import { triangulateRecoveryCameraPoint } from "@automovie/recovery";
+import { AutoMovieRecoveryCameraGeometry } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -20,8 +20,8 @@ export function test_recovery_internal_triangulate_camera_point(): void {
     first: [number, number],
     second: [number, number],
     ratio: number = chart.minimumRatio,
-  ): ReturnType<typeof triangulateRecoveryCameraPoint> =>
-    triangulateRecoveryCameraPoint(
+  ): ReturnType<typeof AutoMovieRecoveryCameraGeometry.triangulateCameraPoint> =>
+    AutoMovieRecoveryCameraGeometry.triangulateCameraPoint(
       first,
       second,
       chart.first,

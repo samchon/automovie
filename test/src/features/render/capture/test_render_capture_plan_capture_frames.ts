@@ -1,6 +1,11 @@
-import type { IAutoMovieCaptureTime } from "@automovie/interface";
-import { planAutoMovieCaptureFrames } from "@automovie/render";
+import type {
+  IAutoMovieCaptureFramePlanProps,
+  IAutoMovieCaptureTime,
+} from "@automovie/interface";
+import { AutoMovieRenderCapture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
+
+import { nclose } from "../../internal/predicates";
 
 /**
  * Around every event and cut a capture plans the subject's own consecutive
@@ -21,6 +26,9 @@ import { TestValidator } from "@nestia/e2e";
  *    the event.
  * 5. Explicit seconds keep an off-grid second without a frame and an on-grid
  *    second as its frame.
+ * 6. At 4 fps, even sampling of a one-second subject ends at frame 3. An
+ *    explicitly requested subject endpoint remains a drawable second with no
+ *    frame number.
  */
 export function test_render_capture_plan_capture_frames(): void {
   const frames: (times: IAutoMovieCaptureTime[]) => (number | null)[] = (
@@ -36,8 +44,8 @@ export function test_render_capture_plan_capture_frames(): void {
     };
 
   // 1. One event inside the subject.
-  const event: ReturnType<typeof planAutoMovieCaptureFrames> =
-    planAutoMovieCaptureFrames({
+  const event: ReturnType<typeof AutoMovieRenderCapture.planFrames> =
+    AutoMovieRenderCapture.planFrames({
       durationSeconds: 4,
       fps: 30,
       sampling: even,
@@ -68,8 +76,8 @@ export function test_render_capture_plan_capture_frames(): void {
   ]);
 
   // 2. Events at the bounds.
-  const bounds: ReturnType<typeof planAutoMovieCaptureFrames> =
-    planAutoMovieCaptureFrames({
+  const bounds: ReturnType<typeof AutoMovieRenderCapture.planFrames> =
+    AutoMovieRenderCapture.planFrames({
       durationSeconds: 4,
       fps: 30,
       sampling: { kind: "at", seconds: [1] },
@@ -102,8 +110,8 @@ export function test_render_capture_plan_capture_frames(): void {
   );
 
   // 3. Two cuts.
-  const cut: ReturnType<typeof planAutoMovieCaptureFrames> =
-    planAutoMovieCaptureFrames({
+  const cut: ReturnType<typeof AutoMovieRenderCapture.planFrames> =
+    AutoMovieRenderCapture.planFrames({
       durationSeconds: 4,
       fps: 30,
       sampling: { kind: "at", seconds: [0] },
@@ -131,8 +139,8 @@ export function test_render_capture_plan_capture_frames(): void {
   );
 
   // 4. No cut, and a zero window.
-  const none: ReturnType<typeof planAutoMovieCaptureFrames> =
-    planAutoMovieCaptureFrames({
+  const none: ReturnType<typeof AutoMovieRenderCapture.planFrames> =
+    AutoMovieRenderCapture.planFrames({
       durationSeconds: 4,
       fps: 30,
       sampling: { kind: "at", seconds: [0] },
@@ -156,7 +164,7 @@ export function test_render_capture_plan_capture_frames(): void {
   // 5. Explicit seconds.
   TestValidator.equals(
     "explicit seconds keep their frames or none",
-    planAutoMovieCaptureFrames({
+    AutoMovieRenderCapture.planFrames({
       durationSeconds: 4,
       fps: 30,
       sampling: { kind: "at", seconds: [1.01, 0.5] },
@@ -168,5 +176,30 @@ export function test_render_capture_plan_capture_frames(): void {
       { seconds: 0.5, frame: 15 },
       { seconds: 1.01, frame: null },
     ],
+  );
+
+  const oneSecond: IAutoMovieCaptureFramePlanProps = {
+    durationSeconds: 1,
+    fps: 4,
+    sampling: { kind: "even", from: 0, to: null, rate: 4 },
+    events: [],
+    cuts: [],
+    window: 0,
+  };
+  TestValidator.equals(
+    "even sampling ends at the last pre-end frame",
+    frames(AutoMovieRenderCapture.planFrames(oneSecond).times),
+    [0, 1, 2, 3],
+  );
+  const endpoint: IAutoMovieCaptureTime | undefined =
+    AutoMovieRenderCapture.planFrames({
+      ...oneSecond,
+      sampling: { kind: "at", seconds: [1] },
+    }).times[0];
+  TestValidator.predicate(
+    "the explicit endpoint has no encoded frame",
+    endpoint !== undefined &&
+      endpoint.frame === null &&
+      nclose(endpoint.seconds, 1),
   );
 }

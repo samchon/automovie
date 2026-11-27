@@ -1,9 +1,9 @@
 import type { IAutoMovieCaptionSidecar } from "@automovie/interface";
-import { sliceCaptionSidecar } from "@automovie/render";
+import { AutoMovieRenderCaption } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `sliceCaptionSidecar` cuts the captions of a frame window and renumbers them
+ * `AutoMovieRenderCaption.sliceSidecar` cuts the captions of a frame window and renumbers them
  * from the window's start.
  *
  * Scenarios:
@@ -32,7 +32,7 @@ export function test_render_caption_slice_caption_sidecar(): void {
     frameCount: 10,
     entries: [span(0, 4, "a"), span(4, 8, "b"), span(8, 10, "c")],
   };
-  const sliced: IAutoMovieCaptionSidecar = sliceCaptionSidecar(sidecar, 2, 6);
+  const sliced: IAutoMovieCaptionSidecar = AutoMovieRenderCaption.sliceSidecar(sidecar, 2, 6);
   TestValidator.equals("frames", sliced.frameCount, 4);
   TestValidator.equals(
     "entries",
@@ -46,7 +46,7 @@ export function test_render_caption_slice_caption_sidecar(): void {
       ["b", 2, 4],
     ],
   );
-  const tail: IAutoMovieCaptionSidecar = sliceCaptionSidecar(sidecar, 6, 20);
+  const tail: IAutoMovieCaptionSidecar = AutoMovieRenderCaption.sliceSidecar(sidecar, 6, 20);
   TestValidator.equals("clamped", tail.frameCount, 4);
   TestValidator.equals(
     "tail entries",
@@ -66,6 +66,6 @@ export function test_render_caption_slice_caption_sidecar(): void {
     [10, 12],
   ] as const)
     TestValidator.error(`${start}..${end}`, (): void => {
-      sliceCaptionSidecar(sidecar, start, end);
+      AutoMovieRenderCaption.sliceSidecar(sidecar, start, end);
     });
 }

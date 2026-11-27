@@ -1,22 +1,18 @@
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import {
-  compileDefinedShot,
-  defineShot,
-  makeActorSynthesizer,
-} from "@automovie/engine";
-import type {
-  IAutoMovieActorContext,
-  IAutoMovieBeatEndActorState,
-  IAutoMovieBeatEndState,
-  IAutoMovieDefinedShotContract,
-  IAutoMovieGait,
-  IAutoMovieMotion,
-  IAutoMovieShotProgram,
-  IAutoMovieSkeleton,
-  IAutoMovieStage,
-  IAutoMovieStageActor,
-  IAutoMovieStageSupportWindow,
-  IAutoMovieSurface,
-  IAutoMovieVector3,
+  type IAutoMovieActorContext,
+  type IAutoMovieBeatEndActorState,
+  type IAutoMovieBeatEndState,
+  type IAutoMovieDefinedShotContract,
+  type IAutoMovieGait,
+  type IAutoMovieMotion,
+  type IAutoMovieShotProgram,
+  type IAutoMovieSkeleton,
+  type IAutoMovieStage,
+  type IAutoMovieStageActor,
+  type IAutoMovieStageSupportWindow,
+  type IAutoMovieSurface,
+  type IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -92,7 +88,7 @@ function compileSupport(
     previous,
     seconds = 1,
   }: { previous?: IAutoMovieBeatEndState; seconds?: number } = {},
-): ReturnType<typeof compileDefinedShot> {
+): ReturnType<typeof AutoMovieEngineFilm.compileDefinedShot> {
   const rig: IAutoMovieSkeleton = createSkeleton();
   rig.bones.find(
     (bone: IAutoMovieSkeleton["bones"][number]): boolean =>
@@ -151,8 +147,8 @@ function compileSupport(
     },
     reviewFrames: [{ id: "middle", time: seconds / 2, passes: ["beauty"] }],
   };
-  return compileDefinedShot({
-    shot: defineShot("level-support", {
+  return AutoMovieEngineFilm.compileDefinedShot({
+    shot: AutoMovieEngineFilm.defineShot("level-support", {
       scene: stage.scene.id,
       contract: shotContract,
       build: (): IAutoMovieShotProgram => ({
@@ -222,7 +218,7 @@ function compileSupport(
     }),
     context: undefined,
     runtime: {
-      synthesize: makeActorSynthesizer(contexts, positions),
+      synthesize: AutoMovieEngineFilm.makeActorSynthesizer(contexts, positions),
       skeleton: (): IAutoMovieSkeleton => rig,
       frameFormat: { width: 1920, height: 1080 },
       previous,

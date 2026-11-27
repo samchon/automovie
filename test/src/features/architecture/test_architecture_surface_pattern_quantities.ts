@@ -1,4 +1,4 @@
-import { generateAutoMovieSurfacePattern } from "@automovie/engine";
+import { AutoMovieEngineSurfaceMaterial } from "@automovie/engine";
 import type {
   IAutoMoviePatternFinding,
   IAutoMoviePatternPlacement,
@@ -44,7 +44,7 @@ import { namedFacts, nclose } from "../internal/predicates";
  * 6. A non-zero joint turns the area the modules did not cover into a joint
  *    length, instead of reporting zero.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls generateAutoMovieSurfacePattern and inspects each occurrence's cut reason, punched/remaining area and coverage, total/per-zone quantities, ordered unsupported/sliver findings, fully excluded module removal, and conversion of uncovered area to joint length.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls generateSurfacePattern and inspects each occurrence's cut reason, punched/remaining area and coverage, total/per-zone quantities, ordered unsupported/sliver findings, fully excluded module removal, and conversion of uncovered area to joint length.
  * @evidence contracts/development/testing.md#independent-expectations Authored 1.75-by-one field minus 0.3-square and 0.1-square exclusions leaves 1.65 square metres; eight half-metre squares consume two, yielding 0.35 waste and ratio 0.175. Explicit piece areas 0.16/0.115/0.125 and coverages 0.64/0.46/0.5 anchor per-piece accounting; an empty two-square-metre field with 0.01 joint implies 200 metres of reported joint length.
  * @evidence contracts/development/testing.md#distinguishing-cases None/exclusion/boundary/both cuts retain distinct occurrence identities; below/exact minimum coverage separates slivers from accepted cuts, while punched pieces independently report unsupported geometry. Full exclusion removes a module; separate zone/material records and a nonzero nominal joint distinguish aggregation and quotient policies.
  * @evidence contracts/development/testing.md#execution-ownership Uses synchronous local declarations and generated numeric records without resources, clocks, renderer, global replacement or another host. The test validates area accounting and unsupported-piece reporting, not polygon boolean mesh construction or a physical joint network's measured length.
@@ -52,7 +52,7 @@ import { namedFacts, nclose } from "../internal/predicates";
  */
 export function test_architecture_surface_pattern_quantities(): void {
   const punched: IAutoMovieSurfacePatternResult =
-    generateAutoMovieSurfacePattern({
+    AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
       pattern: pattern({
         zones: [zone({ region: rectangle(0, 0, 1.75, 1) })],
         exclusions: [
@@ -216,7 +216,7 @@ export function test_architecture_surface_pattern_quantities(): void {
   );
 
   const swallowed: IAutoMovieSurfacePatternResult =
-    generateAutoMovieSurfacePattern({
+    AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
       pattern: pattern({
         exclusions: [{ id: "shaft", polygon: rectangle(0.5, 0, 1, 0.5) }],
       }),
@@ -259,7 +259,7 @@ export function test_architecture_surface_pattern_quantities(): void {
   );
 
   const paired: IAutoMovieSurfacePatternResult =
-    generateAutoMovieSurfacePattern({
+    AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
       pattern: pattern({
         zones: [
           zone({ id: "a", region: rectangle(0, 0, 1, 1) }),
@@ -350,7 +350,7 @@ export function test_architecture_surface_pattern_quantities(): void {
   );
 
   const jointed: IAutoMovieSurfacePatternResult =
-    generateAutoMovieSurfacePattern({
+    AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
       pattern: pattern({
         zones: [zone({ generate: (): never[] => [] })],
         joint: 0.01,

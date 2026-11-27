@@ -1,4 +1,4 @@
-import { pinnedElastica } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -27,34 +27,34 @@ const K_HALF: number = 1.8540746773013719;
 export function test_engine_math_pinned_elastica(): void {
   TestValidator.predicate(
     "the straight rod",
-    nclose(pinnedElastica.chord(0), 1, 1e-12) &&
-      pinnedElastica.slope(0, 0.25) === 0 &&
-      pinnedElastica.curvature(0, 2) === 0 &&
-      pinnedElastica.parameter(1) === 0 &&
-      pinnedElastica.parameter(1.5) === 0,
+    nclose(AutoMovieEngineMath.pinnedElasticaChord(0), 1, 1e-12) &&
+      AutoMovieEngineMath.pinnedElasticaSlope(0, 0.25) === 0 &&
+      AutoMovieEngineMath.pinnedElasticaCurvature(0, 2) === 0 &&
+      AutoMovieEngineMath.pinnedElasticaParameter(1) === 0 &&
+      AutoMovieEngineMath.pinnedElasticaParameter(1.5) === 0,
   );
   TestValidator.predicate(
     "the curvature at m = 1/2 over a 2 m rod is 4 sqrt(1/2) K(1/2) / 2",
     nclose(
-      pinnedElastica.curvature(0.5, 2),
+      AutoMovieEngineMath.pinnedElasticaCurvature(0.5, 2),
       (4 * Math.SQRT1_2 * K_HALF) / 2,
       1e-12,
     ),
   );
   TestValidator.predicate(
     "the inverse recovers the parameter",
-    nclose(pinnedElastica.parameter(pinnedElastica.chord(0.5)), 0.5, 1e-9),
+    nclose(AutoMovieEngineMath.pinnedElasticaParameter(AutoMovieEngineMath.pinnedElasticaChord(0.5)), 0.5, 1e-9),
   );
   TestValidator.predicate(
     "the end is steep and the middle flat",
-    nclose(pinnedElastica.slope(0.5, 0), Math.PI / 2, 1e-9) &&
-      nclose(pinnedElastica.slope(0.5, 0.5), 0, 1e-12),
+    nclose(AutoMovieEngineMath.pinnedElasticaSlope(0.5, 0), Math.PI / 2, 1e-9) &&
+      nclose(AutoMovieEngineMath.pinnedElasticaSlope(0.5, 0.5), 0, 1e-12),
   );
   TestValidator.predicate(
     "a ratio past the fully bent limit is refused",
     throwsError(
       (): number =>
-        pinnedElastica.parameter(pinnedElastica.chord(pinnedElastica.HIGHEST)),
+        AutoMovieEngineMath.pinnedElasticaParameter(AutoMovieEngineMath.pinnedElasticaChord(AutoMovieEngineMath.PINNED_ELASTICA_HIGHEST)),
       "shortens to",
     ),
   );

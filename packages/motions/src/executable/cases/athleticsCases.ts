@@ -1,28 +1,21 @@
-import { resolveAutoMovieCenterOfMass } from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanPerformance,
-  IAutoMovieResolveCenterOfMass,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
 
-import { HumanChain } from "../../HumanChain";
-import { createHumanBody } from "../../body/createHumanBody";
-import { AutoMovieMotionHumanTouchEffector } from "../../compose/AutoMovieMotionHumanTouchEffector";
-import { HumanPerformance } from "../../perform/HumanPerformance";
-import { athletics } from "../../sport/athletics";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
-import { MotionBodies } from "../MotionBodies";
-import type { humanPolygonMan } from "../humanPolygonMan";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
+
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
+import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
+import { AutoMovieMotionHumanTouchEffector } from "../../compose/internal/AutoMovieMotionHumanTouchEffector";
+import { AutoMovieMotionHumanPerformance } from "../../perform/AutoMovieMotionHumanPerformance";
+import { athletics } from "../../sport/internal/athletics";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
+import { MotionBodies } from "../internal/MotionBodies";
+import type { humanPolygonMan } from "../internal/humanPolygonMan";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { StanceVerdicts } from "./StanceVerdicts";
 import { TouchVerdicts } from "./TouchVerdicts";
-import { everydayVerdicts } from "./everydayVerdicts";
+import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/**
+/*
  * Capture case of the sprint start: `athletics-set`, the crouch from quiet
  * standing into the set position, held 1.5 s to the gun.
  *
@@ -35,9 +28,8 @@ import { everydayVerdicts } from "./everydayVerdicts";
  * mm (Slawinski et al. 2010, as Valamatos et al. 2022, section 4.1.2, report
  * it). The block settings determine hip height; it is not a fixed level
  * relative to the shoulders.
- *
- * @param bodies The bodies; `m-average` when absent.
- * @returns The cases.
+ * Parameter bodies: The bodies; `m-average` when absent.
+ * Returns: The cases.
  */
 export function athleticsCases(
   bodies: readonly string[] = ["m-average"],
@@ -45,7 +37,7 @@ export function athleticsCases(
   const out: IMotionCaptureCase[] = [];
   for (const id of bodies) {
     const man: humanPolygonMan.IPolygonMan = MotionBodies.population(id);
-    const body: IAutoMovieMotionHumanBody = createHumanBody(
+    const body: IAutoMovieMotionHumanBody = AutoMovieMotionHumanBody.create(
       man.body.skeleton,
       man.body.profile,
     );
@@ -54,7 +46,7 @@ export function athleticsCases(
 
     // Process boundary: a case that throws is reported as that case's refusal, and the remaining cases still run.
     try {
-      performance = new HumanPerformance({
+      performance = new AutoMovieMotionHumanPerformance({
         seed: "athletics",
         performers: [
           {
@@ -65,7 +57,7 @@ export function athleticsCases(
             proficiency: { level: "trained" as const },
           },
         ],
-        composition: HumanChain.subject("a").act("athletics", {}).node,
+        composition: AutoMovieMotionHumanChain.subject("a").act("athletics", {}).node,
       });
     } catch (error) {
       out.push(FamilyCaseKit.refused(name, error));
@@ -76,7 +68,7 @@ export function athleticsCases(
     const window: number[] = [];
     for (let t: number = set; t <= gun + 1e-9; t += 1 / 24) window.push(t);
     const mass: IAutoMovieResolveCenterOfMass.IModel =
-      resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
+      AutoMovieEngineKinematics.resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
     const knee = (
       side: AutoMovieHumanSide,
       want: number,
@@ -130,7 +122,7 @@ export function athleticsCases(
         (t: number): number => {
           const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
             performance.bones("a", t);
-          const centre: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
+          const centre: IAutoMovieVector3 = AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(
             mass,
             bones,
           );

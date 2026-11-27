@@ -1,0 +1,130 @@
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanStrikingBlade,
+  IAutoMovieMotionHumanStrikingHeld,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
+import { StrikingHeld } from "./StrikingHeld";
+
+/*
+ * The other hand's goal on a tool held in both hands, shared by a stroke, its
+ * decisive-pose judgement and the demands an earlier grasp must hold. A support
+ * hand being replanned is judged at its new goal, not left as an obstacle at
+ * the previous action's handle.
+ */
+export namespace StrikingSupport {
+  /*
+   * Where the supporting hand grips a held tool: the support's offset laid
+   * along the tool's axis, its edge and their cross product, in the hand's
+   * frame, from the held point.
+   * Parameter frame: The held point and the hand's attitude.
+   * Parameter tool: The tool's axis and edge, in the hand's frame.
+   * Parameter offset: The support's offset along axis, edge and their cross,
+   * metres.
+   * Returns: World metres.
+   */
+  export function point(
+    frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
+    tool: Pick<IAutoMovieMotionHumanStrikingHeld.ITool, "axis" | "edge">,
+    offset: IAutoMovieVector3,
+  ): IAutoMovieVector3 {
+    const axis: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+      frame.rotation,
+      tool.axis,
+    );
+    const edge: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+      frame.rotation,
+      tool.edge,
+    );
+    return AutoMovieEngineVector3.add(
+      frame.point,
+      AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.add(
+          AutoMovieEngineVector3.scale(axis, offset.x),
+          AutoMovieEngineVector3.scale(edge, offset.y),
+        ),
+        AutoMovieEngineVector3.scale(AutoMovieEngineVector3.cross(axis, edge), offset.z),
+      ),
+    );
+  }
+
+  /*
+   * The supporting hand on the tool at a frame of the holding hand.
+   * Parameter body: The body.
+   * Parameter posture: The body beneath the hands.
+   * Parameter tool: The held tool.
+   * Parameter frame: Its holding hand's grip frame, world.
+   * Parameter support: The other handle in the tool's own axis-edge basis.
+   * Returns: The other arm's goal, with its elbow left to the fit.
+   */
+  export function goal(
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    tool: IAutoMovieMotionHumanStrikingHeld.ITool,
+    frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
+    support: IAutoMovieMotionHumanStrikingBlade.ISupport,
+  ): IAutoMovieHumanLimbGoal {
+    const other: AutoMovieHumanSide = tool.side === "left" ? "right" : "left";
+    const axis: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+      frame.rotation,
+      tool.axis,
+    );
+    const edge: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+      frame.rotation,
+      tool.edge,
+    );
+    const offset: IAutoMovieVector3 = support.offset;
+    const along: boolean = support.handle === "axis";
+    return {
+      ...AutoMovieMotionHumanArm.goal(body, other, {
+        surface: "grip",
+        shape: "fist",
+        ...StrikingHeld.hand(
+          StrikingHeld.bare(body, other),
+          0,
+          point(frame, tool, offset),
+
+          along ? axis : edge,
+          along ? edge : axis,
+        ),
+        bend: AutoMovieMotionHumanBend.hang(body, posture, other),
+      }),
+      elbow: "strain",
+    };
+  }
+
+  /*
+   * The body with its supporting hand on that handle, unchanged for one hand.
+   * Parameter body: The body.
+   * Parameter posture: The body beneath the hands.
+   * Parameter tool: The held tool.
+   * Parameter frame: The holding hand's grip frame.
+   * Parameter support: The support contact, or null for one hand.
+   * Returns: The posture with the supporting arm's goal.
+   */
+  export function posture(
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    tool: IAutoMovieMotionHumanStrikingHeld.ITool,
+    frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
+    support: IAutoMovieMotionHumanStrikingBlade.ISupport | null,
+  ): IAutoMovieMotionHumanPosture {
+    const other: AutoMovieHumanSide = tool.side === "left" ? "right" : "left";
+    return support === null
+      ? posture
+      : {
+          ...posture,
+          limbs: {
+            ...posture.limbs,
+            [`${other}Arm`]: goal(body, posture, tool, frame, support),
+          },
+        };
+  }
+}

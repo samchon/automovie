@@ -1,4 +1,6 @@
-import { BoatOars } from "@automovie/archetypes/internal";
+import {
+  BoatOars
+} from "../../../../../packages/archetypes/src/vehicles/internal/BoatOars";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

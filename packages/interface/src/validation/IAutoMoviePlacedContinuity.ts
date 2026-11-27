@@ -1,5 +1,6 @@
 import type { IAutoMovieTransform } from "../geometry/IAutoMovieTransform";
 import type { IAutoMovieConstraintViolation } from "./IAutoMovieConstraintViolation";
+import type { IAutoMoviePlacedContinuityMotionDelta } from "./IAutoMoviePlacedContinuityMotionDelta";
 
 /**
  * Engine input and result for one declared placed transform, continuity edge or
@@ -112,10 +113,7 @@ export namespace IAutoMoviePlacedContinuity {
          * Available on valid continuous endpoint pairs, including those with no
          * supplied limits.
          */
-        readonly motion?: {
-          readonly distance: number;
-          readonly angle: number;
-        };
+        readonly motion?: IAutoMoviePlacedContinuityMotionDelta;
       }
     | { readonly status: "excluded" }
     | { readonly status: "unsupported" };

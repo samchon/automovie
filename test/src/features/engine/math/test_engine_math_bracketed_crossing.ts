@@ -1,4 +1,4 @@
-import { bracketedCrossing } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -19,7 +19,7 @@ import { TestValidator } from "@nestia/e2e";
 export function test_engine_math_bracketed_crossing(): void {
   const f = (x: number): number => x - 0.3;
   const past = (value: number): boolean => value >= 0;
-  const plain: { low: number; high: number } = bracketedCrossing({
+  const plain: { low: number; high: number } = AutoMovieEngineMath.bracketedCrossing({
     f,
     past,
     low: 0,
@@ -32,7 +32,7 @@ export function test_engine_math_bracketed_crossing(): void {
   );
 
   const reads: number[] = [];
-  const known: { low: number; high: number } = bracketedCrossing({
+  const known: { low: number; high: number } = AutoMovieEngineMath.bracketedCrossing({
     f: (x: number): number => {
       reads.push(x);
       return f(x);

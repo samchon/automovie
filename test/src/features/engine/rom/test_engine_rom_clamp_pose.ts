@@ -1,4 +1,6 @@
-import { clampPose } from "@automovie/engine";
+import {
+  AutoMovieEngineKinematics,
+} from "@automovie/engine";
 import {
   IAutoMovieAngleRange,
   IAutoMovieBone,
@@ -95,7 +97,7 @@ export function test_engine_rom_clamp_pose(): void {
       { bone: "hips", flexion: 999, abduction: null, twist: null },
     ],
   };
-  const out: IAutoMoviePose = clampPose(pose, SKELETON);
+  const out: IAutoMoviePose = AutoMovieEngineKinematics.clampPose(pose, SKELETON);
   const byBone: (b: string) => IAutoMovieJointPose = (
     b: string,
   ): IAutoMovieJointPose =>
@@ -169,9 +171,9 @@ export function test_engine_rom_clamp_pose(): void {
         }),
       ),
     };
-    const once: IAutoMoviePose = clampPose(wild, SKELETON);
+    const once: IAutoMoviePose = AutoMovieEngineKinematics.clampPose(wild, SKELETON);
     fixed &&=
-      JSON.stringify(clampPose(once, SKELETON)) === JSON.stringify(once);
+      JSON.stringify(AutoMovieEngineKinematics.clampPose(once, SKELETON)) === JSON.stringify(once);
     changed &&= JSON.stringify(once.joints) !== JSON.stringify(wild.joints);
   }
   TestValidator.predicate("clamping is idempotent", fixed);
@@ -223,7 +225,7 @@ function duplicates(): void {
     { bone: "leftLowerArm", flexion: -40, abduction: -3, twist: 10 },
     { bone: "leftLowerArm", flexion: 4, abduction: null, twist: null },
   ]);
-  const out: IAutoMoviePose = clampPose(input, skeleton);
+  const out: IAutoMoviePose = AutoMovieEngineKinematics.clampPose(input, skeleton);
   TestValidator.equals(
     "the first constraint, record by record",
     [0, 2, 3].map((index: number): (number | null)[] =>
@@ -244,7 +246,7 @@ function duplicates(): void {
       input.joints[0]!.flexion === 35,
   );
   const prepared: (value: IAutoMoviePose) => IAutoMoviePose =
-    clampPose.prepare(skeleton);
+    AutoMovieEngineKinematics.prepareClampPose(skeleton);
   const a: IAutoMoviePose = prepared(input);
   input.joints[0]!.flexion = -12;
   input.joints[2]!.flexion = 35;
@@ -298,7 +300,7 @@ function boundsRead(): void {
     { bone: "leftLowerArm", flexion: -40, abduction: null, twist: null },
   ]);
   const read: () => (number | null)[] = (): (number | null)[] =>
-    clampPose(input, skeleton).joints.map(
+    AutoMovieEngineKinematics.clampPose(input, skeleton).joints.map(
       (joint: IAutoMovieJointPose): number | null => joint.flexion,
     );
   const before: (number | null)[] = read();
@@ -353,11 +355,11 @@ function axesOrder(): void {
   TestValidator.predicate(
     "malformed axes fail in input order",
     throwsError(
-      (): IAutoMoviePose => clampPose(pose([spine, chest]), ordered),
+      (): IAutoMoviePose => AutoMovieEngineKinematics.clampPose(pose([spine, chest]), ordered),
       "axes.flexion",
     ) &&
       throwsError(
-        (): IAutoMoviePose => clampPose(pose([chest, spine]), ordered),
+        (): IAutoMoviePose => AutoMovieEngineKinematics.clampPose(pose([chest, spine]), ordered),
         "axes.abduction",
       ),
   );
@@ -370,13 +372,13 @@ function axesOrder(): void {
   const empty: IAutoMoviePose = pose([]);
   TestValidator.predicate(
     "unconstrained, empty and null root",
-    clampPose(pose([hips]), {
+    AutoMovieEngineKinematics.clampPose(pose([hips]), {
       id: "current-rig",
       bones: [
         withAxes("hips", null, { ...valid, flexion: { x: 0, y: 0, z: 0 } }),
       ],
     }).joints[0] === hips &&
-      clampPose(empty, ordered).root === empty.root &&
-      clampPose(pose([], null), ordered).root === null,
+      AutoMovieEngineKinematics.clampPose(empty, ordered).root === empty.root &&
+      AutoMovieEngineKinematics.clampPose(pose([], null), ordered).root === null,
   );
 }

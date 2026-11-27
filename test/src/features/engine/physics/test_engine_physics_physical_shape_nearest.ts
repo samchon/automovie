@@ -1,4 +1,4 @@
-import { Quaternion, physicalShapeNearest } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalShape,
   IAutoMoviePhysicalShapeNearest,
@@ -39,7 +39,7 @@ import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
 export function test_engine_physics_physical_shape_nearest(): void {
   const still: IAutoMovieRigidTransform = {
     position: { x: 0, y: 0, z: 0 },
-    rotation: Quaternion.identity(),
+    rotation: AutoMovieEngineQuaternion.identity(),
   };
   const half: number = 0.05;
   const shapes: Record<string, IAutoMoviePhysicalShape> = {
@@ -55,7 +55,7 @@ export function test_engine_physics_physical_shape_nearest(): void {
       material: "solid",
       transform: {
         position: { x: 0, y: 0, z: 0 },
-        rotation: Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
+        rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
       },
       kind: "capsule",
       radius: half,
@@ -102,7 +102,7 @@ export function test_engine_physics_physical_shape_nearest(): void {
     (h - half) * Math.sqrt(1 - k * k) - r0 - k * (0.5 - half);
   const at: number = 0.5 + (k * h) / Math.sqrt(1 - k * k);
   for (const [name, shape] of Object.entries(shapes)) {
-    const read: IAutoMoviePhysicalShapeNearest.IResult = physicalShapeNearest(
+    const read: IAutoMoviePhysicalShapeNearest.IResult = AutoMovieEnginePhysics.physicalShapeNearest(
       still,
       shape,
       a,
@@ -124,8 +124,8 @@ export function test_engine_physics_physical_shape_nearest(): void {
 
   // 3. One radius on both ends is the bare segment less that radius.
   for (const [name, shape] of Object.entries(shapes)) {
-    const bare: number = physicalShapeNearest(still, shape, a, b).distance;
-    const widened: number = physicalShapeNearest(
+    const bare: number = AutoMovieEnginePhysics.physicalShapeNearest(still, shape, a, b).distance;
+    const widened: number = AutoMovieEnginePhysics.physicalShapeNearest(
       still,
       shape,
       a,

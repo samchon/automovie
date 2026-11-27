@@ -1,6 +1,6 @@
 import type { IAutoMoviePerformance } from "../authoring/IAutoMoviePerformance";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
-import type { IAutoMovieViolationCollector } from "../validation/IAutoMovieViolationCollector";
+import type { IAutoMovieViolationAppendShotGateSink } from "../validation/IAutoMovieViolationAppendShotGateSink";
 import type { IAutoMovieCompiledFormation } from "./IAutoMovieCompiledFormation";
 import type { IAutoMoviePerformShotProps } from "./IAutoMoviePerformShotProps";
 import type { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
@@ -16,7 +16,7 @@ import type { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
  */
 export interface IAutoMovieEnginePerformShotGateContext {
   /** Collector every gate reports into, in gate order. */
-  out: IAutoMovieViolationCollector;
+  out: IAutoMovieViolationAppendShotGateSink;
 
   /** The validated stage result the shot performs on. */
   staged: IAutoMovieStagedSet.ISuccess;

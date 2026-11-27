@@ -48,7 +48,7 @@ export function test_engine_geometry_split_fan_square(): void {
         outer: F.OUTER,
         host: oval,
         profile: {
-          knots: [[0.002, 0.002]],
+          knots: [{ alongM: 0.002, depthM: 0.002 }],
           corner: 0.3,
           ...(square ? { square } : {}),
         },

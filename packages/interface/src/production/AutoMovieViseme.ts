@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanVisemeWeights } from "../human/expression/IAutoMovieHumanVisemeWeights";
+import type { IAutoMovieHumanVisemeWeights } from "../human/IAutoMovieHumanVisemeWeights";
 
 /**
  * One of the 15 visemes of ISO/IEC 14496-2 (MPEG-4 Visual) Annex C, under the

@@ -1,4 +1,3 @@
-export * from "./AutoMovieCanonicalJsonError";
-export * from "./canonicalizeAutoMovieJson";
-export * from "./compareCodeUnits";
-export * from "./withArticle";
+export * from "./AutoMovieEngineCanonicalJson";
+export * from "./AutoMovieEngineCanonicalJsonError";
+export * from "./AutoMovieEngineText";

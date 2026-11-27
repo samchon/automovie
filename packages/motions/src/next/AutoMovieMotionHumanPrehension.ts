@@ -1,18 +1,18 @@
-import { HumanGrasp as HumanGraspSource } from "../handling/HumanGrasp";
-import { HumanGraspUse as HumanGraspUseSource } from "../handling/HumanGraspUse";
-import { HumanGrip as HumanGripSource } from "../handling/HumanGrip";
-import { HumanHeld as HumanHeldSource } from "../handling/HumanHeld";
-import { HumanHeldUse as HumanHeldUseSource } from "../handling/HumanHeldUse";
-import { HumanPocket as HumanPocketSource } from "../handling/HumanPocket";
-import { HumanPrehension as HumanPrehensionSource } from "../handling/HumanPrehension";
-import { HumanPreshape as HumanPreshapeSource } from "../handling/HumanPreshape";
-import { carryHang as carryHangLaw } from "../handling/carryHang";
-import { pickUp as pickUpLaw } from "../handling/pickUp";
-import { pickUpMoving as pickUpMovingLaw } from "../handling/pickUpMoving";
-import { putDown as putDownLaw } from "../handling/putDown";
-import { putDownAperture as putDownApertureLaw } from "../handling/putDownAperture";
-import { regrasp as regraspLaw } from "../handling/regrasp";
-import { HumanRegrasp as HumanRegraspSource } from "../lexicon/HumanRegrasp";
+import { HumanGrasp as HumanGraspSource } from "../handling/internal/HumanGrasp";
+import { HumanGraspUse as HumanGraspUseSource } from "../handling/internal/HumanGraspUse";
+import { HumanGrip as HumanGripSource } from "../handling/internal/HumanGrip";
+import { HumanHeld as HumanHeldSource } from "../handling/internal/HumanHeld";
+import { HumanHeldUse as HumanHeldUseSource } from "../handling/internal/HumanHeldUse";
+import { HumanPocket as HumanPocketSource } from "../handling/internal/HumanPocket";
+import { HumanPrehension as HumanPrehensionSource } from "../handling/internal/HumanPrehension";
+import { HumanPreshape as HumanPreshapeSource } from "../handling/internal/HumanPreshape";
+import { carryHang as carryHangLaw } from "../handling/internal/carryHang";
+import { pickUp as pickUpLaw } from "../handling/internal/pickUp";
+import { pickUpMoving as pickUpMovingLaw } from "../handling/internal/pickUpMoving";
+import { putDown as putDownLaw } from "../handling/internal/putDown";
+import { putDownAperture as putDownApertureLaw } from "../handling/internal/putDownAperture";
+import { regrasp as regraspLaw } from "../handling/internal/regrasp";
+import { HumanRegrasp as HumanRegraspSource } from "../lexicon/internal/HumanRegrasp";
 
 /**
  * Taking, holding and releasing an object by hand: the grasp, the carry pose
@@ -29,7 +29,7 @@ import { HumanRegrasp as HumanRegraspSource } from "../lexicon/HumanRegrasp";
  *   from a carry grip to a texting grip), or rolled across the fingers (a
  *   coin).
  * - `carryHang`: Loads carried at the sides with the arms hanging, performed over
- *   a walk (`HumanChain.over`): a farmer's walk.
+ *   a walk (`AutoMovieMotionHumanChain.over`): a farmer's walk.
  * - `pickUpMoving`: Intercept a mounted prop on a translating support at an
  *   authored time.
  * - `putDownAperture`: Register and stage an aligned solid-object insertion and
@@ -124,7 +124,7 @@ export namespace AutoMovieMotionHumanPrehension {
    *    `lift` (`pickUpLift.judged`).
    *
    * The hand grips the prop from `gripClosed` to the end, which attaches the
-   * prop to the hand (`HumanPerformance.prop`), so the prop rides the lift, and
+   * prop to the hand (`AutoMovieMotionHumanPerformance.prop`), so the prop rides the lift, and
    * the plan declares a hold from `gripClosed`, so the hand keeps the prop with
    * its closed fingers through later actions (carried with the trunk while a
    * walk or a turn drives the body) until a put down or a hand over takes it. A
@@ -216,7 +216,7 @@ export namespace AutoMovieMotionHumanPrehension {
 
   /**
    * Loads carried at the sides with the arms hanging, performed over a walk
-   * (`HumanChain.over`): a farmer's walk. Each hand that holds a prop is let
+   * (`AutoMovieMotionHumanChain.over`): a farmer's walk. Each hand that holds a prop is let
    * down until its arm hangs nearly straight from the shoulder, a little out
    * from the thigh, the hand turned as it held the prop (carried round with the
    * body when the walk turns), and holds it there.
@@ -242,8 +242,8 @@ export namespace AutoMovieMotionHumanPrehension {
   /**
    * Register and stage an aligned solid-object insertion and seated handoff.
    *
-   * Use with HumanChain.extend({ putDownAperture }) and supply the law to
-   * HumanPerformance. The receptacle must hold its opening and seat fixed until
+   * Use with AutoMovieMotionHumanChain.extend({ putDownAperture }) and supply the law to
+   * AutoMovieMotionHumanPerformance. The receptacle must hold its opening and seat fixed until
    * the empty hand has withdrawn through the opening. The authored corridor
    * must clear the prop and hand.
    *
@@ -302,7 +302,7 @@ export namespace AutoMovieMotionHumanPrehension {
    * digit's phalanges as the body's own colliders, and the finger angles at
    * contact, solved, never authored.
    *
-   * Closure is the engine's `curlChainUntilContact` (the auto-grasp stopping
+   * Closure is the engine's `AutoMovieEngineKinematicsChains.curlChainUntilContact` (the auto-grasp stopping
    * rule of Miller and Allen 2004, IEEE Robot. Autom. Mag. 11(4):110): the
    * digits named by the grip kind close proximal to distal until each phalanx
    * first touches the object, the four fingers before the thumb so the thumb
@@ -434,7 +434,7 @@ export namespace AutoMovieMotionHumanPrehension {
   /**
    * A held object moved within or with the hand, without being put down: each a
    * row of `regrasp`. Register the ones a film uses
-   * (`HumanPerformance.IInput.laws`, `HumanChain.extend`).
+   * (`AutoMovieMotionHumanPerformance.IInput.laws`, `AutoMovieMotionHumanChain.extend`).
    */
   export import HumanRegrasp = HumanRegraspSource;
 }

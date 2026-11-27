@@ -1,5 +1,7 @@
-import { AutoMovieGravity } from "@automovie/engine";
-import { squatVault } from "@automovie/motions/internal";
+import { AutoMovieEngineGravity } from "@automovie/engine";
+import {
+  squatVault
+} from "../../../../../packages/motions/src/sport/internal/squatVault";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -16,7 +18,7 @@ import { nclose } from "../../internal/nclose";
  * 2. Rising 1.5 m over 2 m: the lift is 1.5 + 2.5 = 4 m.
  */
 export function test_motions_sport_squat_vault(): void {
-  const g: number = AutoMovieGravity.STANDARD;
+  const g: number = AutoMovieEngineGravity.STANDARD;
   const level: squatVault.IArc = squatVault.arc(0, 2);
   TestValidator.predicate(
     "the level arc",

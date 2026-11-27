@@ -1,0 +1,86 @@
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+import { HumanFoot } from "./HumanFoot";
+
+/*
+ * Prepare only the world height of one fixed articulated sole socket.
+ * Parameter body: The unchanged canonical body owning its socket and rest joints.
+ * Parameter side: The foot.
+ * Parameter point: The same sole socket or toes joint accepted by HumanFoot.point.
+ * Parameter toes: Fixed toe flexion, degrees; zero when absent.
+ * Returns: The exact metre Y component of HumanFoot.point for each actual
+ * placement.
+ */
+export function prepareHumanFootHeight(
+  body: IAutoMovieMotionHumanBody,
+  side: AutoMovieHumanSide,
+  point: PrepareHumanFootHeightPoint,
+  toes: number = 0,
+): (foot: IAutoMovieMotionHumanFoot.IPlacement) => number {
+  const local: ReturnType<typeof HumanFoot.offset> = HumanFoot.offset(
+    body,
+    side,
+    point,
+    toes,
+  );
+  return (foot: IAutoMovieMotionHumanFoot.IPlacement): number =>
+    height(local, foot);
+}
+
+/*
+ * Height readers whose fixed socket has changing toe flexion between reads.
+ */
+export namespace prepareHumanFootHeight {
+  /*
+   * Bind unchanged body/socket geometry once; each actual toe angle creates one
+   * exact local offset and a height reader for that angle's placement trials.
+   * Release the angle reader with its synchronous query and the fixed reader
+   * with its swing/action. Neither reader retains a queried placement or
+   * history.
+   */
+  export function articulated(
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
+    point: PrepareHumanFootHeightArticulatedPoint,
+  ): (toes: number) => (foot: IAutoMovieMotionHumanFoot.IPlacement) => number {
+    const offset: ReturnType<typeof HumanFoot.prepareOffset> =
+      HumanFoot.prepareOffset(body, side, point);
+    return (
+      toes: number,
+    ): ((foot: IAutoMovieMotionHumanFoot.IPlacement) => number) => {
+      const local: IAutoMovieVector3 = offset(toes);
+      return (foot: IAutoMovieMotionHumanFoot.IPlacement): number =>
+        height(local, foot);
+    };
+  }
+}
+/*
+ * The exact original rigid point height, omitting only unread X/Z outputs.
+ */
+function height(
+  local: IAutoMovieVector3,
+  foot: IAutoMovieMotionHumanFoot.IPlacement,
+): number {
+  return foot.ankle.y + AutoMovieEngineQuaternion.rotateVectorY(foot.rotation, local);
+}
+
+/*
+ * The alternatives of `PrepareHumanFootHeightPoint`'s site.
+ */
+type PrepareHumanFootHeightPoint = "heel" | "ball" | "toe" | "sole" | "mtp";
+
+/*
+ * The alternatives of `PrepareHumanFootHeightArticulatedPoint`'s site.
+ */
+type PrepareHumanFootHeightArticulatedPoint =
+  | "heel"
+  | "ball"
+  | "toe"
+  | "sole"
+  | "mtp";

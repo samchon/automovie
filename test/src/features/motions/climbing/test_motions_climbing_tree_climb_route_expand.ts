@@ -1,10 +1,16 @@
 import type { IAutoMovieMotionHumanSupport } from "@automovie/interface";
 import {
-  HumanRefusal,
-  type treeClimbRoute,
-  treeClimbRouteExpand,
-  type treeLimbs,
-} from "@automovie/motions/internal";
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import type {
+  treeClimbRoute
+} from "../../../../../packages/motions/src/climbing/treeClimb/treeClimbRoute";
+import {
+  treeClimbRouteExpand
+} from "../../../../../packages/motions/src/climbing/treeClimb/treeClimbRouteExpand";
+import type {
+  treeLimbs
+} from "../../../../../packages/motions/src/climbing/treeClimb/treeLimbs";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -116,7 +122,7 @@ export function test_motions_climbing_tree_climb_route_expand(): void {
   try {
     treeClimbRouteExpand(body, tree(100), [onBranch]);
   } catch (error: unknown) {
-    if (error instanceof HumanRefusal) axis = error.axis;
+    if (error instanceof AutoMovieMotionHumanRefusal) axis = error.axis;
   }
   TestValidator.predicate(
     "the branch's load",

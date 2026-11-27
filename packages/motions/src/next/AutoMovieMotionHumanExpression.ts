@@ -1,7 +1,7 @@
-import { HumanAffect as HumanAffectSource } from "../everyday/HumanAffect";
-import { HumanBreath as HumanBreathSource } from "../everyday/HumanBreath";
-import { expressionAffect as expressionAffectLaw } from "../everyday/expressionAffect";
-import { expressionBreath as expressionBreathLaw } from "../everyday/expressionBreath";
+import { HumanAffect as HumanAffectSource } from "../perform/expression/HumanAffect";
+import { HumanBreath as HumanBreathSource } from "../perform/expression/HumanBreath";
+import { expressionAffect as expressionAffectLaw } from "../perform/expression/expressionAffect";
+import { expressionBreath as expressionBreathLaw } from "../perform/expression/expressionBreath";
 
 /**
  * An overlay: what the body's own signals add to any whole-body action, as
@@ -47,7 +47,7 @@ export namespace AutoMovieMotionHumanExpression {
    *
    * @param params The displays.
    * @returns The layer that adds the displays.
-   * @throws {HumanRefusal} For a display whose length is not above the
+   * @throws {AutoMovieMotionHumanRefusal} For a display whose length is not above the
    *   display's floor (0 s, more for a sneeze or a gasp).
    */
   export const affect: typeof expressionAffectLaw = expressionAffectLaw;

@@ -1,4 +1,4 @@
-import { AutoMovieNaturalSpline } from "@automovie/engine";
+import { AutoMovieEngineNaturalSpline } from "@automovie/engine";
 import { AutoMovieHumanPeriodicRailRange } from "@automovie/human";
 
 import { nclose } from "../../internal/predicates";
@@ -19,8 +19,8 @@ import { nclose } from "../../internal/predicates";
 export function test_human_periodic_rail_range(): void {
   const failures: string[] = [];
   const controls: readonly number[] = [1, 1, 2, 2];
-  const read = AutoMovieNaturalSpline.periodic(controls);
-  const bounds = AutoMovieHumanPeriodicRailRange(controls);
+  const read = AutoMovieEngineNaturalSpline.periodic(controls);
+  const bounds = AutoMovieHumanPeriodicRailRange.of(controls);
   for (const [phase, expected] of [
     [Math.PI / 4, 13 / 16],
     [(5 * Math.PI) / 4, 35 / 16],
@@ -36,13 +36,13 @@ export function test_human_periodic_rail_range(): void {
           "]",
       );
   }
-  const constant = AutoMovieHumanPeriodicRailRange([2, 2, 2]);
+  const constant = AutoMovieHumanPeriodicRailRange.of([2, 2, 2]);
   if (!nclose(constant[0], 2, 1e-12) || !nclose(constant[1], 2, 1e-12))
     failures.push("constant rail acquired a width");
   for (const bad of [[], [1, 2], [1, NaN, 2]]) {
     let refused = false;
     try {
-      AutoMovieHumanPeriodicRailRange(bad);
+      AutoMovieHumanPeriodicRailRange.of(bad);
     } catch {
       refused = true;
     }

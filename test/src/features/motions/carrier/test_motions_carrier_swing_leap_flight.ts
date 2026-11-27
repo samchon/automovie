@@ -1,5 +1,10 @@
-import { AutoMovieGravity } from "@automovie/engine";
-import { HumanRefusal, HumanSwingLeap } from "@automovie/motions/internal";
+import { AutoMovieEngineGravity } from "@automovie/engine";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  HumanSwingLeap
+} from "../../../../../packages/motions/src/carrier/internal/HumanSwingLeap";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -19,7 +24,7 @@ const ROUNDING: number = 8 * Number.EPSILON;
  *    is refused on the authored swing.
  */
 export function test_motions_carrier_swing_leap_flight(): void {
-  const g: number = AutoMovieGravity.STANDARD;
+  const g: number = AutoMovieEngineGravity.STANDARD;
   const tiny: number = 2 ** -80;
   TestValidator.predicate(
     "descending roots and near-zero drop",
@@ -32,11 +37,11 @@ export function test_motions_carrier_swing_leap_flight(): void {
       ) &&
       HumanSwingLeap.flight(1, -1, 1, "swing") === 0,
   );
-  let refusal: HumanRefusal | undefined;
+  let refusal: AutoMovieMotionHumanRefusal | undefined;
   try {
     HumanSwingLeap.flight(1, 0, 2, "swing");
   } catch (error: unknown) {
-    if (!(error instanceof HumanRefusal)) throw error;
+    if (!(error instanceof AutoMovieMotionHumanRefusal)) throw error;
     refusal = error;
   }
   TestValidator.predicate(

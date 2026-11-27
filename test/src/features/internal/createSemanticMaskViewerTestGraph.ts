@@ -2,11 +2,11 @@ import type {
   IAutoMovieScene,
   IAutoMovieSemanticMask,
 } from "@automovie/interface";
-import type { IAutoMovieFormationCycle } from "@automovie/render";
+import type { IAutoMovieRenderFormationCycle } from "@automovie/render";
 import * as THREE from "three";
 
 /** Existing route-only cycle input; tests its material hook key, not deformation or full bake validity. */
-const cycle: () => IAutoMovieFormationCycle = (): IAutoMovieFormationCycle =>
+const cycle: () => IAutoMovieRenderFormationCycle = (): IAutoMovieRenderFormationCycle =>
   ({
     samples: 1,
     names: [],
@@ -14,7 +14,7 @@ const cycle: () => IAutoMovieFormationCycle = (): IAutoMovieFormationCycle =>
     fallback: null,
     active: null,
     uniforms: {},
-  }) as unknown as IAutoMovieFormationCycle;
+  }) as unknown as IAutoMovieRenderFormationCycle;
 
 /** Preserve the existing anonymous leading-node graph and all additional CPU test objects; this is a construction-contract input, not an independently observed render. */
 export function createSemanticMaskViewerTestGraph(

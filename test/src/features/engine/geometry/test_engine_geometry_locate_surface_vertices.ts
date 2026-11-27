@@ -1,9 +1,4 @@
-import {
-  compileAutoMovieSweep,
-  locateAutoMovieSurfaceVertices,
-  sampleAutoMovieSurfaceNetwork,
-  subdivideAutoMovieSurface,
-} from "@automovie/engine";
+import { AutoMovieEngineGeometry, AutoMovieEngineSweep } from "@automovie/engine";
 import type {
   IAutoMovieSubdivisionParameter,
   IAutoMovieSubdivisionSurface,
@@ -20,7 +15,7 @@ import { sweepTransitionTube } from "../../internal/sweepTransitionTube";
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * `locateAutoMovieSurfaceVertices` locates every vertex of a subdivided network
+ * `locateSurfaceVertices` locates every vertex of a subdivided network
  * by patch, patch coordinates and, on a sweep or transition patch, the sweep's
  * domain point, which lies on the sweep near the vertex.
  *
@@ -45,18 +40,18 @@ export function test_engine_geometry_locate_surface_vertices(): void {
     ["bottle", sweepBottle()],
     ["tube", sweepTransitionTube()],
   ] satisfies [string, IAutoMovieSurfaceNetwork][]) {
-    const cage: IAutoMovieSurfaceCage = sampleAutoMovieSurfaceNetwork({ network, tier: "medium" });
-    const surface: IAutoMovieSubdivisionSurface = subdivideAutoMovieSurface({
+    const cage: IAutoMovieSurfaceCage = AutoMovieEngineSweep.sampleSurfaceNetwork({ network, tier: "medium" });
+    const surface: IAutoMovieSubdivisionSurface = AutoMovieEngineGeometry.subdivideSurface({
       cage: { positions: cage.cage.positions, faces: cage.cage.faces },
       levels: 2,
     });
-    const located: IAutoMovieSurfaceLocation[] = locateAutoMovieSurfaceVertices({
+    const located: IAutoMovieSurfaceLocation[] = AutoMovieEngineSweep.locateSurfaceVertices({
       network,
       cage,
       parameters: surface.parameters,
     });
     const sweeps: Record<string, IAutoMovieSweepSurface> = Object.fromEntries(
-      Object.entries(network.sweeps).map(([key, sweep]: [string, IAutoMovieSweep]) => [key, compileAutoMovieSweep(sweep)]),
+      Object.entries(network.sweeps).map(([key, sweep]: [string, IAutoMovieSweep]) => [key, AutoMovieEngineSweep.compileSweep(sweep)]),
     );
     const distance = (sweep: string, u: number, v: number, at: number): number => {
       const p = sweeps[sweep]!.point(u, v);
@@ -87,7 +82,7 @@ export function test_engine_geometry_locate_surface_vertices(): void {
 
   // 2.
   const network: IAutoMovieSurfaceNetwork = sweepTransitionTube();
-  const cage: IAutoMovieSurfaceCage = sampleAutoMovieSurfaceNetwork({ network, tier: "lowest" });
+  const cage: IAutoMovieSurfaceCage = AutoMovieEngineSweep.sampleSurfaceNetwork({ network, tier: "lowest" });
   for (const [label, parameter, other, message] of [
     ["another network", { face: 0, corner: null, u: 0.5, v: 0.5 }, sweepBottle(), "not sampled from this network"],
     ["face out of range", { face: cage.cage.faces.length, corner: null, u: 0.5, v: 0.5 }, network, "out of range"],
@@ -96,6 +91,6 @@ export function test_engine_geometry_locate_surface_vertices(): void {
   ] satisfies [string, IAutoMovieSubdivisionParameter, IAutoMovieSurfaceNetwork, string][])
     TestValidator.predicate(
       label,
-      throwsError((): unknown => locateAutoMovieSurfaceVertices({ network: other, cage, parameters: [parameter] }), message),
+      throwsError((): unknown => AutoMovieEngineSweep.locateSurfaceVertices({ network: other, cage, parameters: [parameter] }), message),
     );
 }

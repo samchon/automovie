@@ -1,9 +1,4 @@
-import {
-  builtEnvironmentPlacementBounds,
-  builtEnvironmentPlacementOverlap,
-  builtEnvironmentSupportStatus,
-  validateBuiltEnvironment,
-} from "@automovie/engine";
+import { AutoMovieEngineBuiltEnvironment, AutoMovieEngineArchitecture } from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieBuiltPlacementBounds,
@@ -41,7 +36,7 @@ export function test_architecture_built_environment_placement(): void {
   const source: IAutoMovieBuiltEnvironment = environment();
   TestValidator.equals(
     "the authored environment is valid",
-    validateBuiltEnvironment({ environment: source }).success,
+    AutoMovieEngineArchitecture.validateBuiltEnvironment({ environment: source }).success,
     true,
   );
 
@@ -49,7 +44,7 @@ export function test_architecture_built_environment_placement(): void {
     "element world bounds",
     ((): boolean => {
       const observed: IAutoMovieBuiltPlacementBounds | null =
-        builtEnvironmentPlacementBounds({
+        AutoMovieEngineBuiltEnvironment.environmentPlacementBounds({
           environment: source,
           target: body("element", "resting"),
         });
@@ -98,7 +93,7 @@ export function test_architecture_built_environment_placement(): void {
     "compact population world bounds",
     ((): boolean => {
       const observed: IAutoMovieBuiltPlacementBounds | null =
-        builtEnvironmentPlacementBounds({
+        AutoMovieEngineBuiltEnvironment.environmentPlacementBounds({
           environment: source,
           target: body("population", "flags"),
         });
@@ -145,7 +140,7 @@ export function test_architecture_built_environment_placement(): void {
   );
   TestValidator.equals(
     "unknown element has no invented bounds",
-    builtEnvironmentPlacementBounds({
+    AutoMovieEngineBuiltEnvironment.environmentPlacementBounds({
       environment: source,
       target: body("element", "missing"),
     }),
@@ -153,7 +148,7 @@ export function test_architecture_built_environment_placement(): void {
   );
   TestValidator.equals(
     "transform-only element has no invented bounds",
-    builtEnvironmentPlacementBounds({
+    AutoMovieEngineBuiltEnvironment.environmentPlacementBounds({
       environment: source,
       target: body("element", "root"),
     }),
@@ -163,7 +158,7 @@ export function test_architecture_built_environment_placement(): void {
     "referenced model without local geometry is its stated origin point",
     ((): boolean => {
       const observed: IAutoMovieBuiltPlacementBounds | null =
-        builtEnvironmentPlacementBounds({
+        AutoMovieEngineBuiltEnvironment.environmentPlacementBounds({
           environment: source,
           target: body("element", "external"),
         });
@@ -210,7 +205,7 @@ export function test_architecture_built_environment_placement(): void {
   );
   TestValidator.equals(
     "unknown population has no invented bounds",
-    builtEnvironmentPlacementBounds({
+    AutoMovieEngineBuiltEnvironment.environmentPlacementBounds({
       environment: source,
       target: body("population", "missing"),
     }),
@@ -220,7 +215,7 @@ export function test_architecture_built_environment_placement(): void {
   delete unpopulated.populations;
   TestValidator.equals(
     "a record declaring no populations at all resolves none",
-    builtEnvironmentPlacementBounds({
+    AutoMovieEngineBuiltEnvironment.environmentPlacementBounds({
       environment: unpopulated,
       target: body("population", "flags"),
     }),
@@ -236,7 +231,7 @@ export function test_architecture_built_environment_placement(): void {
     target: IAutoMovieBuiltPlacementSupportLocator = support("element", "slab"),
     tolerance?: number,
   ): IAutoMovieBuiltSupportResult =>
-    builtEnvironmentSupportStatus({
+    AutoMovieEngineBuiltEnvironment.environmentSupportStatus({
       environment: source,
       query: {
         subject: body("element", subjectId),
@@ -445,7 +440,7 @@ export function test_architecture_built_environment_placement(): void {
 
   TestValidator.equals(
     "authored chandelier suspension",
-    builtEnvironmentSupportStatus({
+    AutoMovieEngineBuiltEnvironment.environmentSupportStatus({
       environment: source,
       query: {
         subject: body("element", "chandelier"),
@@ -498,7 +493,7 @@ export function test_architecture_built_environment_placement(): void {
   degenerate.surfaces[0]!.surface.polygon = [];
   TestValidator.equals(
     "surface with no measurable face is unresolved",
-    builtEnvironmentSupportStatus({
+    AutoMovieEngineBuiltEnvironment.environmentSupportStatus({
       environment: degenerate,
       query: {
         subject: body("element", "resting"),
@@ -523,7 +518,7 @@ export function test_architecture_built_environment_placement(): void {
     left: string,
     right: string,
   ): IAutoMovieBuiltPlacementOverlapResult =>
-    builtEnvironmentPlacementOverlap({
+    AutoMovieEngineBuiltEnvironment.environmentPlacementOverlap({
       environment: source,
       left: body("element", left),
       right: body("element", right),
@@ -560,7 +555,7 @@ export function test_architecture_built_environment_placement(): void {
   );
   TestValidator.equals(
     "population overlap preserves conservative basis",
-    builtEnvironmentPlacementOverlap({
+    AutoMovieEngineBuiltEnvironment.environmentPlacementOverlap({
       environment: source,
       left: body("population", "flags"),
       right: body("element", "off-support"),
@@ -584,7 +579,7 @@ export function test_architecture_built_environment_placement(): void {
   );
   TestValidator.equals(
     "both unresolved overlap operands are named",
-    builtEnvironmentPlacementOverlap({
+    AutoMovieEngineBuiltEnvironment.environmentPlacementOverlap({
       environment: source,
       left: body("element", "missing-left"),
       right: body("population", "missing-right"),

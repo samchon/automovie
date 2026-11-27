@@ -6,13 +6,23 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionClock,
-  HumanRefusal,
-  kiss,
-  kissClock,
-  kissPitch,
-  kissProjection,
-} from "@automovie/motions/internal";
+  motionClock
+} from "../../../../../packages/motions/src/compose/internal/motionClock";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  kiss
+} from "../../../../../packages/motions/src/touch/internal/kiss";
+import {
+  kissClock
+} from "../../../../../packages/motions/src/touch/internal/kissClock";
+import {
+  kissPitch
+} from "../../../../../packages/motions/src/touch/internal/kissPitch";
+import {
+  kissProjection
+} from "../../../../../packages/motions/src/touch/internal/kissProjection";
 import { TestValidator } from "@nestia/e2e";
 import { strict as assert } from "node:assert";
 
@@ -58,7 +68,7 @@ export function test_motions_touch_kiss(): void {
   assert.throws(
     () => kiss.admitReach("cheekRight", { ...at, miss: 0.006 }),
     (error: unknown): boolean =>
-      error instanceof HumanRefusal && error.kind === "reach" && error.axis === "region",
+      error instanceof AutoMovieMotionHumanRefusal && error.kind === "reach" && error.axis === "region",
   );
   assert.equal(kiss.handFor("handBackRight", "kisser"), "right");
   assert.equal(kiss.handFor("handBackLeft", "presenter"), "left");
@@ -66,12 +76,12 @@ export function test_motions_touch_kiss(): void {
   assert.throws(
     () => kiss.handFor("cheekRight", "kisser"),
     (error: unknown): boolean =>
-      error instanceof HumanRefusal && error.kind === "parameter" && error.axis === "region",
+      error instanceof AutoMovieMotionHumanRefusal && error.kind === "parameter" && error.axis === "region",
   );
 
   // 2. Clock.
   const clock: IAutoMovieMotionClock = kissClock(
-    AutoMovieMotionClock.phrase({
+    motionClock.phrase({
       prepare: 0.4,
       attack: 0,
       hold: 1,

@@ -1,10 +1,5 @@
 import type { IAutoMovieCapturePlanRequest } from "@automovie/interface";
-import {
-  AUTO_MOVIE_CAPTURE_PLAN_KEYS,
-  AUTO_MOVIE_INSPECTION_KEYS,
-  parseAutoMovieCapturePlanRequest,
-  readAutoMovieCaptureArguments,
-} from "@automovie/render";
+import { AutoMovieRenderCapturePlanKeys, AutoMovieRenderInspectionKeys, AutoMovieRenderCapture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /** A value for every key that differs from its absent value, with the keys it needs beside it. */
@@ -50,12 +45,12 @@ const SAMPLES: Readonly<Record<string, readonly [string, string][]>> = {
 };
 
 /**
- * Every option of the grammar exists in both hosts: each key of `AUTO_MOVIE_CAPTURE_PLAN_KEYS` reaches the request through the address mapping and through the command-line mapping alike, and no host has an option of its own.
+ * Every option of the grammar exists in both hosts: each key of `AutoMovieRenderCapturePlanKeys` reaches the request through the address mapping and through the command-line mapping alike, and no host has an option of its own.
  *
  * Scenarios:
  *
- * 1. The key list is the capture's own keys followed by `AUTO_MOVIE_INSPECTION_KEYS`, each once, and this test has a sample for exactly those keys.
- * 2. For every key, its sample read through `URLSearchParams` and through `readAutoMovieCaptureArguments` gives equal requests.
+ * 1. The key list is the capture's own keys followed by `AutoMovieRenderInspectionKeys`, each once, and this test has a sample for exactly those keys.
+ * 2. For every key, its sample read through `URLSearchParams` and through `readCaptureArguments` gives equal requests.
  * 3. For every key, the request with the key differs from the request with only the keys it needs, so the key is not ignored by either host.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Reads each key through both host mappings into the public reader and compares the requests; a key that one mapping dropped, or that the reader ignored, fails scenario 2 or 3.
@@ -68,17 +63,17 @@ export function test_capture_request_keys(): void {
   // 1. The key list.
   TestValidator.equals(
     "the inspection keys close the list",
-    AUTO_MOVIE_CAPTURE_PLAN_KEYS.slice(-AUTO_MOVIE_INSPECTION_KEYS.length),
-    [...AUTO_MOVIE_INSPECTION_KEYS],
+    AutoMovieRenderCapturePlanKeys.slice(-AutoMovieRenderInspectionKeys.length),
+    [...AutoMovieRenderInspectionKeys],
   );
   TestValidator.equals(
     "every key is listed once",
-    new Set(AUTO_MOVIE_CAPTURE_PLAN_KEYS).size,
-    AUTO_MOVIE_CAPTURE_PLAN_KEYS.length,
+    new Set(AutoMovieRenderCapturePlanKeys).size,
+    AutoMovieRenderCapturePlanKeys.length,
   );
   TestValidator.equals(
     "every key has a sample",
-    [...AUTO_MOVIE_CAPTURE_PLAN_KEYS].sort((a: string, b: string): number =>
+    [...AutoMovieRenderCapturePlanKeys].sort((a: string, b: string): number =>
       a < b ? -1 : a > b ? 1 : 0,
     ),
     Object.keys(SAMPLES).sort((a: string, b: string): number =>
@@ -92,20 +87,20 @@ export function test_capture_request_keys(): void {
   ) => IAutoMovieCapturePlanRequest = (
     pairs: readonly [string, string][],
   ): IAutoMovieCapturePlanRequest =>
-    parseAutoMovieCapturePlanRequest(new URLSearchParams([...pairs]));
+    AutoMovieRenderCapture.parsePlanRequest(new URLSearchParams([...pairs]));
   const command: (
     pairs: readonly [string, string][],
   ) => IAutoMovieCapturePlanRequest = (
     pairs: readonly [string, string][],
   ): IAutoMovieCapturePlanRequest =>
-    parseAutoMovieCapturePlanRequest(
-      readAutoMovieCaptureArguments(
+    AutoMovieRenderCapture.parsePlanRequest(
+      AutoMovieRenderCapture.readArguments(
         pairs.flatMap(([key, value]: readonly [string, string]): string[] => [
           `--${key}=${value}`,
         ]),
       ),
     );
-  for (const key of AUTO_MOVIE_CAPTURE_PLAN_KEYS) {
+  for (const key of AutoMovieRenderCapturePlanKeys) {
     const pairs: readonly [string, string][] = SAMPLES[key]!;
     const without: readonly [string, string][] = pairs.filter(
       ([name]: readonly [string, string]): boolean => name !== key,

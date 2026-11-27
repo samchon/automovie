@@ -1,14 +1,14 @@
-import { crabWalk as crabWalkLaw } from "../floor/crabWalk";
-import { crawl as crawlLaw } from "../floor/crawl";
-import { dive as diveLaw } from "../floor/dive";
-import { getUp as getUpLaw } from "../floor/getUp";
-import { lieDown as lieDownLaw } from "../floor/lieDown";
-import { lieOnSurface as lieOnSurfaceLaw } from "../floor/lieOnSurface";
-import { logRoll as logRollLaw } from "../floor/logRoll";
-import { lyingTurn as lyingTurnLaw } from "../floor/lyingTurn";
-import { roll as rollLaw } from "../floor/roll";
-import { turnOver as turnOverLaw } from "../floor/turnOver";
-import { HumanFloorRoll as HumanFloorRollSource } from "../lexicon/HumanFloorRoll";
+import { crabWalk as crabWalkLaw } from "../floor/internal/crabWalk";
+import { crawl as crawlLaw } from "../floor/internal/crawl";
+import { dive as diveLaw } from "../floor/internal/dive";
+import { getUp as getUpLaw } from "../floor/internal/getUp";
+import { lieDown as lieDownLaw } from "../floor/internal/lieDown";
+import { lieOnSurface as lieOnSurfaceLaw } from "../floor/internal/lieOnSurface";
+import { logRoll as logRollLaw } from "../floor/internal/logRoll";
+import { lyingTurn as lyingTurnLaw } from "../floor/internal/lyingTurn";
+import { roll as rollLaw } from "../floor/internal/roll";
+import { turnOver as turnOverLaw } from "../floor/internal/turnOver";
+import { HumanFloorRoll as HumanFloorRollSource } from "../lexicon/internal/HumanFloorRoll";
 import { HUMAN_FLOOR_LIE_STILL } from "./presets/HUMAN_FLOOR_LIE_STILL";
 import { HUMAN_FLOOR_SIT_CROSS_LEGGED } from "./presets/HUMAN_FLOOR_SIT_CROSS_LEGGED";
 import { HUMAN_FLOOR_SIT_ON_FLOOR } from "./presets/HUMAN_FLOOR_SIT_ON_FLOOR";
@@ -251,7 +251,7 @@ export namespace AutoMovieMotionHumanFloor {
    * Toe-off, in a dive: over the crouch's last `TOE_OFF` seconds each planted
    * foot rolls about its ball, the heel rising, by the angle (solved on the
    * planted take-off, `SECANT`) that brings the take-off's ankle to what a
-   * weightless ankle reaches (`ANKLE_DORSIFLEXION.unloaded`), so the feet leave
+   * weightless ankle reaches (`AutoMovieEngineAnkleDorsiflexion.unloaded`), so the feet leave
    * the floor plantarflexed, as the push-off's plantarflexion leaves them, and
    * stay so in the air.
    *

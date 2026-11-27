@@ -1,9 +1,4 @@
-import {
-  AutoMovieViewAxis,
-  AutoMovieViewSection,
-  compareCodeUnits,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
+import { AutoMovieEngineViewAxis, AutoMovieEngineViewSection, AutoMovieEngineText, AutoMovieEngineConstruction } from "@automovie/engine";
 import type {
   IAutoMovieConstructionRealization,
   IAutoMovieViewPart,
@@ -40,7 +35,7 @@ export function test_engine_geometry_construction_view_phases(): void {
   ): IAutoMovieConstructionRealization.IRealization => {
     const part: IAutoMovieViewPart = {
       name: "phase-tube-" + name,
-      axis: AutoMovieViewAxis.horizontal(),
+      axis: AutoMovieEngineViewAxis.horizontal(),
       stations: [0, 25, 50, 75, 100],
       front: { positive: outline(1), negative: outline(-1) },
       side: { positive: outline(1), negative: outline(-1) },
@@ -48,8 +43,8 @@ export function test_engine_geometry_construction_view_phases(): void {
         kind: "shoulder",
         shoulder: {
           knots: [
-            { site: "bottom", station: 0, value: AutoMovieViewSection.ELLIPSE },
-            { site: "top", station: 100, value: AutoMovieViewSection.ELLIPSE },
+            { site: "bottom", station: 0, value: AutoMovieEngineViewSection.ELLIPSE },
+            { site: "top", station: 100, value: AutoMovieEngineViewSection.ELLIPSE },
           ],
         },
       },
@@ -57,7 +52,7 @@ export function test_engine_geometry_construction_view_phases(): void {
       samples: 16,
       ...(phases === undefined ? {} : { phases }),
     };
-    return realizeAutoMovieConstruction(
+    return AutoMovieEngineConstruction.realize(
       {
         name: "phase-tree",
         root: { type: "source", name: part.name, source: part.name },
@@ -83,8 +78,10 @@ export function test_engine_geometry_construction_view_phases(): void {
       seen.add(turn(real.mesh.coordinates[v]!));
     TestValidator.equals(
       `${label} phases`,
-      [...seen].sort(compareCodeUnits),
-      [...new Set(expected.map(turn))].sort(compareCodeUnits),
+      [...seen].sort(AutoMovieEngineText.compareCodeUnits),
+      [...new Set(expected.map(turn))].sort(
+        AutoMovieEngineText.compareCodeUnits,
+      ),
     );
   };
   const clustered: number[] = [

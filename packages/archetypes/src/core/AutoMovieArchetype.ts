@@ -9,8 +9,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { ArchetypeBody } from "./ArchetypeBody";
-import { ArchetypeShapes } from "./ArchetypeShapes";
+import { ArchetypeBody } from "./internal/ArchetypeBody";
+import { ArchetypeShapes } from "./internal/ArchetypeShapes";
 import { AutoMovieArchetypeArticulation } from "./AutoMovieArchetypeArticulation";
 import type { AutoMovieArchetypeConvexCell } from "./AutoMovieArchetypeConvexCell";
 import type { AutoMovieArchetypeDrawSession } from "./AutoMovieArchetypeDrawSession";
@@ -23,9 +23,9 @@ import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
 import { AutoMovieArchetypeSite } from "./AutoMovieArchetypeSite";
 import { AutoMovieArchetypeSpan } from "./AutoMovieArchetypeSpan";
 import type { IAutoMovieArchetypeProps } from "./IAutoMovieArchetypeProps";
-import { archetypeAffordance } from "./archetypeAffordance";
-import { poseArchetype } from "./poseArchetype";
-import { reposeArchetype } from "./reposeArchetype";
+import { archetypeAffordance } from "./internal/archetypeAffordance";
+import { poseArchetype } from "./internal/poseArchetype";
+import { reposeArchetype } from "./internal/reposeArchetype";
 
 /**
  * What a producer returns: a model of one thing people hold, use, sit on, ride

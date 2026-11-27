@@ -1,9 +1,9 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { formatAutoMovieInspectionView } from "@automovie/render";
+import { AutoMovieRenderInspectionRequest } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `formatAutoMovieInspectionView` writes a view as the `views` text the
+ * `formatInspectionView` writes a view as the `views` text the
  * inspection request reads.
  *
  * Scenarios:
@@ -20,36 +20,36 @@ export function test_render_scene_format_inspection_view(): void {
   TestValidator.equals(
     "views",
     [
-      formatAutoMovieInspectionView({ type: "film" }),
-      formatAutoMovieInspectionView({
+      AutoMovieRenderInspectionRequest.formatView({ type: "film" }),
+      AutoMovieRenderInspectionRequest.formatView({
         type: "fixed",
         position,
         target,
         metresPerPixel: null,
         up: null,
       }),
-      formatAutoMovieInspectionView({
+      AutoMovieRenderInspectionRequest.formatView({
         type: "fixed",
         position,
         target,
         metresPerPixel: 0.005,
         up: { x: 0, y: 0, z: -1 },
       }),
-      formatAutoMovieInspectionView({
+      AutoMovieRenderInspectionRequest.formatView({
         type: "named",
         name: "front",
         orthographic: false,
         follow: false,
         focus: null,
       }),
-      formatAutoMovieInspectionView({
+      AutoMovieRenderInspectionRequest.formatView({
         type: "named",
         name: "front",
         orthographic: true,
         follow: true,
         focus: { type: "flagged" },
       }),
-      formatAutoMovieInspectionView({
+      AutoMovieRenderInspectionRequest.formatView({
         type: "named",
         name: "side",
         orthographic: false,

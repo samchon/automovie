@@ -1,8 +1,8 @@
-import { scaleAutoMovieCaptureLabels } from "@automovie/render";
+import { AutoMovieRenderCapture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `scaleAutoMovieCaptureLabels` scales labels by how many cells' short sides
+ * `scaleCaptureLabels` scales labels by how many cells' short sides
  * fit the raster's short side, rounded up and at least 1.
  *
  * Scenarios:
@@ -19,7 +19,7 @@ export function test_render_capture_scale_labels(): void {
       [1000, 700, 300, 400],
       [100, 50, 320, 180],
     ].map(([width, height, cellWidth, cellHeight]): number =>
-      scaleAutoMovieCaptureLabels(
+      AutoMovieRenderCapture.scaleLabels(
         { width: width!, height: height! },
         { cell: { width: cellWidth!, height: cellHeight! } },
       ),

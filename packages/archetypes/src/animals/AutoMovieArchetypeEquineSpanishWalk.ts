@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, rotationBetween } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieModelPart,
@@ -9,27 +9,6 @@ import type {
 
 import { AutoMovieArchetypeFrame, type AutoMovieArchetypeRide } from "../core";
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
-
-/**
- * The forelimb's peak forward swing about the shoulder at mid-swing, degrees:
- * authored.
- */
-const RAISE: number = 60;
-
-/** The fore limbs. */
-const FORES: readonly Fore[] = ["leftFore", "rightFore"];
-
-/**
- * A sole this far above the floor, metres, is in its swing; below it the hoof
- * bears on the floor.
- */
-const OFF: number = 1e-6;
-
-/** A fore limb. */
-type Fore = Extract<AutoMovieArchetypeQuadrupedBody.Limb, `${string}Fore`>;
-
-/** A named instant of a ride. */
-type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];
 
 /**
  * The Spanish walk, a layer over an equid's walk: each forelimb, while it
@@ -88,7 +67,7 @@ export namespace AutoMovieArchetypeEquineSpanishWalk {
           to === from
             ? 0
             : Math.max(0, Math.min(1, (now - from) / (to - from)));
-        const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+        const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
           { x: 1, y: 0, z: 0 },
           -RAISE * Math.sin(Math.PI * progress),
         );
@@ -101,11 +80,11 @@ export namespace AutoMovieArchetypeEquineSpanishWalk {
         const forearm: IAutoMovieModelPart = part(base, bones[1]!);
         const cannon: IAutoMovieModelPart = part(base, bones[2]!);
         const carpus: IAutoMovieVector3 = start(cannon);
-        const straighten: IAutoMovieQuaternion = Quaternion.slerp(
+        const straighten: IAutoMovieQuaternion = AutoMovieEngineQuaternion.slerp(
           { x: 0, y: 0, z: 0, w: 1 },
-          rotationBetween(
-            Vector3.subtract(end(cannon), carpus),
-            Vector3.subtract(end(forearm), start(forearm)),
+          AutoMovieEngineMath.rotationBetween(
+            AutoMovieEngineVector3.subtract(end(cannon), carpus),
+            AutoMovieEngineVector3.subtract(end(forearm), start(forearm)),
           ),
           Math.sin(Math.PI * progress),
         );
@@ -118,9 +97,9 @@ export namespace AutoMovieArchetypeEquineSpanishWalk {
             transform: AutoMovieArchetypeFrame.move(
               {
                 rotation: straighten,
-                translation: Vector3.subtract(
+                translation: AutoMovieEngineVector3.subtract(
                   carpus,
-                  Quaternion.rotateVector(straighten, carpus),
+                  AutoMovieEngineQuaternion.rotateVector(straighten, carpus),
                 ),
               },
               parts[index]!.transform!,
@@ -137,9 +116,9 @@ export namespace AutoMovieArchetypeEquineSpanishWalk {
             transform: AutoMovieArchetypeFrame.move(
               {
                 rotation: turn,
-                translation: Vector3.subtract(
+                translation: AutoMovieEngineVector3.subtract(
                   shoulder,
-                  Quaternion.rotateVector(turn, shoulder),
+                  AutoMovieEngineQuaternion.rotateVector(turn, shoulder),
                 ),
               },
               frame,
@@ -177,7 +156,9 @@ export namespace AutoMovieArchetypeEquineSpanishWalk {
     };
   }
 
-  /** A part of a sample by id. */
+  /*
+   * A part of a sample by id.
+   */
   function part(
     sample: AutoMovieArchetypeRide.IPose<string, string>,
     id: string,
@@ -187,7 +168,7 @@ export namespace AutoMovieArchetypeEquineSpanishWalk {
     )!;
   }
 
-  /**
+  /*
    * The world forward coordinate of a sample's terminal bar end, metres: the
    * footprint a swing is measured between, since the body moves a stride
    * between two landings.
@@ -202,7 +183,9 @@ export namespace AutoMovieArchetypeEquineSpanishWalk {
     ).z;
   }
 
-  /** A bar's half length along its local +Y. */
+  /*
+   * A bar's half length along its local +Y.
+   */
   function half(part: IAutoMovieModelPart): IAutoMovieVector3 {
     const height: number =
       part.geometry.type === "primitive" &&
@@ -210,24 +193,28 @@ export namespace AutoMovieArchetypeEquineSpanishWalk {
         part.geometry.shape.type === "capsule")
         ? part.geometry.shape.height
         : 0;
-    return Quaternion.rotateVector(part.transform!.rotation, {
+    return AutoMovieEngineQuaternion.rotateVector(part.transform!.rotation, {
       x: 0,
       y: height / 2,
       z: 0,
     });
   }
 
-  /** A bar's start, model space. */
+  /*
+   * A bar's start, model space.
+   */
   function start(part: IAutoMovieModelPart): IAutoMovieVector3 {
-    return Vector3.subtract(part.transform!.translation, half(part));
+    return AutoMovieEngineVector3.subtract(part.transform!.translation, half(part));
   }
 
-  /** A bar's end, model space. */
+  /*
+   * A bar's end, model space.
+   */
   function end(part: IAutoMovieModelPart): IAutoMovieVector3 {
-    return Vector3.add(part.transform!.translation, half(part));
+    return AutoMovieEngineVector3.add(part.transform!.translation, half(part));
   }
 
-  /**
+  /*
    * A terminal cylinder's lowest point above the floor under a placement,
    * metres.
    */
@@ -243,8 +230,8 @@ export namespace AutoMovieArchetypeEquineSpanishWalk {
       placement,
       end(part),
     );
-    const axis: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(bottom, top),
+    const axis: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineVector3.subtract(bottom, top),
     );
     const radius: number =
       part.geometry.type === "primitive" &&
@@ -255,3 +242,30 @@ export namespace AutoMovieArchetypeEquineSpanishWalk {
     return Math.min(top.y, bottom.y) - radius * Math.hypot(axis.x, axis.z);
   }
 }
+
+/*
+ * The forelimb's peak forward swing about the shoulder at mid-swing, degrees:
+ * authored.
+ */
+const RAISE: number = 60;
+
+/*
+ * The fore limbs.
+ */
+const FORES: readonly Fore[] = ["leftFore", "rightFore"];
+
+/*
+ * A sole this far above the floor, metres, is in its swing; below it the hoof
+ * bears on the floor.
+ */
+const OFF: number = 1e-6;
+
+/*
+ * A fore limb.
+ */
+type Fore = Extract<AutoMovieArchetypeQuadrupedBody.Limb, `${string}Fore`>;
+
+/*
+ * A named instant of a ride.
+ */
+type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];

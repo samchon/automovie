@@ -1,4 +1,4 @@
-import { validateShotArtifact } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   AutoMovieChannelValueType,
   AutoMovieInterpolation,
@@ -116,7 +116,7 @@ const track: (
 /** The artifact gate's verdict on a shot carrying only `one`. */
 const verdict: (one: IAutoMovieTrack) => IAutoMovieValidation = (
   one: IAutoMovieTrack,
-): IAutoMovieValidation => validateShotArtifact(shot(one), scene(), null);
+): IAutoMovieValidation => AutoMovieEngineValidation.validateShotArtifact(shot(one), scene(), null);
 
 /** Whether any violation's path starts with `prefix`. */
 const reportsAt: (one: IAutoMovieTrack, prefix: string) => boolean = (

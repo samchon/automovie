@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieComposition,
@@ -9,64 +9,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanChain } from "../../HumanChain";
-import { HumanPerformance } from "../../perform/HumanPerformance";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
+import { AutoMovieMotionHumanPerformance } from "../../perform/AutoMovieMotionHumanPerformance";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { TouchVerdicts } from "./TouchVerdicts";
-import { everydayVerdicts } from "./everydayVerdicts";
+import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/** One side of a matched pair; the simulated subject remains the same. */
-interface IVariant {
-  /** Figure and manifest label. */
-  label: string;
-  /** Performance seed. */
-  seed: string;
-  /** Per-actor proficiency for this take. */
-  proficiency: IAutoMovieProficiency;
-  /** The authored action. */
-  composition: IAutoMovieComposition;
-}
-
-/** Paired takes sharing the body, staging, film seconds and camera. */
-interface IPair {
-  /** The capture's output name. */
-  name: string;
-  /** The two independently prepared takes. */
-  variants: readonly [IVariant, IVariant];
-  /** The bone whose world positions are compared, metres. */
-  feature: AutoMovieHumanoidBone;
-  /** Compare the feature from the character's hips on a traveling action. */
-  relativeToHips?: boolean;
-  /** Water plane, world metres, when the author stages a swim. */
-  water?: number;
-  /** Common instants used to compare parts of the movement at equal phase. */
-  phaseEvents?: readonly string[];
-  /** Draw in the first take's event clock instead of elapsed film seconds. */
-  alignPhase?: boolean;
-}
-
-/** The provenance of a row on the capture clock. */
-interface IPhaseMark {
-  /** The named action event, plus the boundaries of the performance. */
-  name: string;
-  /** The seconds at which this mark occurs in the first and second take. */
-  seconds: readonly [number, number];
-}
-
-/** Stills are at 12 Hz, with neighboring frames of the native video clock. */
-const STILL_FPS: number = 12;
-const NATIVE_FPS: number = 32;
-const WALK_PHASES: readonly string[] = [
-  "rightHeelStrike1",
-  "leftHeelStrike1",
-  "rightHeelStrike2",
-  "leftHeelStrike2",
-  "lastFootfall",
-];
-const WAVE_PHASES: readonly string[] = ["strokeStart", "strokeEnd"];
-
-/**
+/*
  * Matched visual and displayed-skeleton comparisons for distinct variation
  * mechanisms.
  */
@@ -76,17 +26,17 @@ export function* motionDiversityCases(
   const actor: string = "a";
   const seed: string = "diversity";
   const trained: IAutoMovieProficiency = { level: "trained" };
-  const gesture: IAutoMovieComposition = HumanChain.subject(actor)
+  const gesture: IAutoMovieComposition = AutoMovieMotionHumanChain.subject(actor)
     .gesture({ kind: "wave", manner: { variation: 1, consistency: 0 } })
     .gesture({ kind: "wave", manner: { variation: 1, consistency: 0 } }).node;
   const dance = (intensity: number): IAutoMovieComposition =>
-    HumanChain.subject(actor).act("dance", {
+    AutoMovieMotionHumanChain.subject(actor).act("dance", {
       kind: "sway",
       bpm: 120,
       count: 4,
       manner: { intensity },
     }).node;
-  const danceVariation: IAutoMovieComposition = HumanChain.subject(actor).act(
+  const danceVariation: IAutoMovieComposition = AutoMovieMotionHumanChain.subject(actor).act(
     "dance",
     {
       kind: "sway",
@@ -95,28 +45,28 @@ export function* motionDiversityCases(
       manner: { variation: 1 },
     },
   ).node;
-  const swim: IAutoMovieComposition = HumanChain.subject(actor).act("swim", {
+  const swim: IAutoMovieComposition = AutoMovieMotionHumanChain.subject(actor).act("swim", {
     kind: "frontCrawl",
     count: 2,
     water: 1.2,
   }).node;
   const squat = (pace: number): IAutoMovieComposition =>
-    HumanChain.subject(actor).act("exercise", {
+    AutoMovieMotionHumanChain.subject(actor).act("exercise", {
       kind: "squat",
       count: 2,
       manner: { pace },
     }).node;
-  const wave: IAutoMovieComposition = HumanChain.subject(actor).gesture({
+  const wave: IAutoMovieComposition = AutoMovieMotionHumanChain.subject(actor).gesture({
     kind: "wave",
     manner: { variation: 1 },
   }).node;
-  const stand: IAutoMovieComposition = HumanChain.subject(actor).stand({
+  const stand: IAutoMovieComposition = AutoMovieMotionHumanChain.subject(actor).stand({
     hold: 2,
   }).node;
-  const walk: IAutoMovieComposition = HumanChain.subject(actor).walk({
+  const walk: IAutoMovieComposition = AutoMovieMotionHumanChain.subject(actor).walk({
     to: { x: 0, y: 0, z: 2.4 },
   }).node;
-  const look: IAutoMovieComposition = HumanChain.subject(actor)
+  const look: IAutoMovieComposition = AutoMovieMotionHumanChain.subject(actor)
     .look({
       target: {
         kind: "point",
@@ -153,7 +103,7 @@ export function* motionDiversityCases(
     label: depth,
     seed,
     proficiency: trained,
-    composition: HumanChain.subject(actor).act("exercise", {
+    composition: AutoMovieMotionHumanChain.subject(actor).act("exercise", {
       kind: "squat",
       depth,
       count: 1,
@@ -169,7 +119,7 @@ export function* motionDiversityCases(
     name: "diversity-walk-flow",
     variants: flowVariants(
       (flow): IAutoMovieComposition =>
-        HumanChain.subject(actor).walk({
+        AutoMovieMotionHumanChain.subject(actor).walk({
           to: { x: 0, y: 0, z: 2.4 },
           manner: { effort: { flow } },
         }).node,
@@ -290,7 +240,7 @@ export function* motionDiversityCases(
       name: "diversity-wave-flow",
       variants: flowVariants(
         (flow): IAutoMovieComposition =>
-          HumanChain.subject(actor).gesture({
+          AutoMovieMotionHumanChain.subject(actor).gesture({
             kind: "wave",
             effort: { flow },
           }).node,
@@ -329,12 +279,98 @@ export function* motionDiversityCases(
   }
 }
 
-/** Prepare each take before sampling it in film seconds. */
+/*
+ * One side of a matched pair; the simulated subject remains the same.
+ */
+interface IVariant {
+  /*
+   * Figure and manifest label.
+   */
+  label: string;
+  /*
+   * Performance seed.
+   */
+  seed: string;
+  /*
+   * Per-actor proficiency for this take.
+   */
+  proficiency: IAutoMovieProficiency;
+  /*
+   * The authored action.
+   */
+  composition: IAutoMovieComposition;
+}
+
+/*
+ * Paired takes sharing the body, staging, film seconds and camera.
+ */
+interface IPair {
+  /*
+   * The capture's output name.
+   */
+  name: string;
+  /*
+   * The two independently prepared takes.
+   */
+  variants: readonly [IVariant, IVariant];
+  /*
+   * The bone whose world positions are compared, metres.
+   */
+  feature: AutoMovieHumanoidBone;
+  /*
+   * Compare the feature from the character's hips on a traveling action.
+   */
+  relativeToHips?: boolean;
+  /*
+   * Water plane, world metres, when the author stages a swim.
+   */
+  water?: number;
+  /*
+   * Common instants used to compare parts of the movement at equal phase.
+   */
+  phaseEvents?: readonly string[];
+  /*
+   * Draw in the first take's event clock instead of elapsed film seconds.
+   */
+  alignPhase?: boolean;
+}
+
+/*
+ * The provenance of a row on the capture clock.
+ */
+interface IPhaseMark {
+  /*
+   * The named action event, plus the boundaries of the performance.
+   */
+  name: string;
+  /*
+   * The seconds at which this mark occurs in the first and second take.
+   */
+  seconds: readonly [number, number];
+}
+/*
+ * Stills are at 12 Hz, with neighboring frames of the native video clock.
+ */
+const STILL_FPS: number = 12;
+const NATIVE_FPS: number = 32;
+const WALK_PHASES: readonly string[] = [
+  "rightHeelStrike1",
+  "leftHeelStrike1",
+  "rightHeelStrike2",
+  "leftHeelStrike2",
+  "lastFootfall",
+];
+
+const WAVE_PHASES: readonly string[] = ["strokeStart", "strokeEnd"];
+
+/*
+ * Prepare each take before sampling it in film seconds.
+ */
 function compare(figure: FamilyCaseKit.IBody, pair: IPair): IMotionCaptureCase {
   const body: IAutoMovieMotionHumanBody = figure.body;
   const origin: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-  const make = (variant: IVariant): HumanPerformance =>
-    new HumanPerformance({
+  const make = (variant: IVariant): AutoMovieMotionHumanPerformance =>
+    new AutoMovieMotionHumanPerformance({
       seed: variant.seed,
       performers: [
         {
@@ -347,8 +383,8 @@ function compare(figure: FamilyCaseKit.IBody, pair: IPair): IMotionCaptureCase {
       ],
       composition: variant.composition,
     });
-  const a: HumanPerformance = make(pair.variants[0]);
-  const b: HumanPerformance = make(pair.variants[1]);
+  const a: AutoMovieMotionHumanPerformance = make(pair.variants[0]);
+  const b: AutoMovieMotionHumanPerformance = make(pair.variants[1]);
   const marks: readonly IPhaseMark[] = phaseMarks(a, b, pair.phaseEvents ?? []);
   const end: number =
     pair.alignPhase === true ? a.duration : Math.max(a.duration, b.duration);
@@ -374,7 +410,7 @@ function compare(figure: FamilyCaseKit.IBody, pair: IPair): IMotionCaptureCase {
     "bottom1",
   ]);
   const around: number[] = [a, b].flatMap(
-    (take: HumanPerformance, index: number): number[] =>
+    (take: AutoMovieMotionHumanPerformance, index: number): number[] =>
       take.segments("a").flatMap(({ start, plan }): number[] =>
         plan.events.flatMap(({ name, share }): number[] => {
           if (!critical.has(name)) return [];
@@ -404,38 +440,38 @@ function compare(figure: FamilyCaseKit.IBody, pair: IPair): IMotionCaptureCase {
         label: `${seconds.toFixed(3)} s`,
       }),
     );
-  const actual = (take: HumanPerformance, seconds: number): IAutoMoviePose =>
+  const actual = (take: AutoMovieMotionHumanPerformance, seconds: number): IAutoMoviePose =>
     take.pose("a", Math.min(seconds, take.duration));
-  const read = (take: HumanPerformance, seconds: number): IAutoMovieVector3 => {
+  const read = (take: AutoMovieMotionHumanPerformance, seconds: number): IAutoMovieVector3 => {
     const bones = take.bones("a", Math.min(seconds, take.duration));
     const feature = bones.get(pair.feature)!.worldPosition;
     return pair.relativeToHips === true
-      ? Vector3.subtract(feature, bones.get("hips")!.worldPosition)
+      ? AutoMovieEngineVector3.subtract(feature, bones.get("hips")!.worldPosition)
       : feature;
   };
   const largest: number = Math.max(
     ...grid.map((seconds: number): number =>
-      Vector3.distance(read(a, seconds), read(b, seconds)),
+      AutoMovieEngineVector3.distance(read(a, seconds), read(b, seconds)),
     ),
   );
   const phaseDifference: number = Math.max(
     ...Array.from({ length: 65 }, (_, index: number): number => {
       const seconds: number = (index / 64) * a.duration;
-      return Vector3.distance(
+      return AutoMovieEngineVector3.distance(
         read(a, seconds),
         read(b, phaseSecond(marks, seconds, 0)),
       );
     }),
   );
   const deterministic: boolean = [a, b].every(
-    (take: HumanPerformance, index: number): boolean => {
+    (take: AutoMovieMotionHumanPerformance, index: number): boolean => {
       const probes: number[] = [0, 0.172, 0.414, 0.827, 1].map(
         (share): number => share * take.duration,
       );
       const snapshot: string[] = probes.map((seconds): string =>
         JSON.stringify(actual(take, seconds)),
       );
-      const fresh: HumanPerformance = make(pair.variants[index]!);
+      const fresh: AutoMovieMotionHumanPerformance = make(pair.variants[index]!);
       return [...probes]
         .reverse()
         .every((seconds: number, reverse: number): boolean => {
@@ -500,7 +536,7 @@ function compare(figure: FamilyCaseKit.IBody, pair: IPair): IMotionCaptureCase {
     times,
     performers: [a, b].map(
       (
-        take: HumanPerformance,
+        take: AutoMovieMotionHumanPerformance,
         index: number,
       ): IMotionCaptureCase.IPerformer => {
         const offset: IAutoMovieVector3 = {
@@ -520,11 +556,11 @@ function compare(figure: FamilyCaseKit.IBody, pair: IPair): IMotionCaptureCase {
             return {
               ...pose,
               root: {
-                translation: Vector3.add(
+                translation: AutoMovieEngineVector3.add(
                   pose.root?.translation ?? origin,
                   offset,
                 ),
-                rotation: pose.root?.rotation ?? Quaternion.identity(),
+                rotation: pose.root?.rotation ?? AutoMovieEngineQuaternion.identity(),
                 scale: pose.root?.scale ?? { x: 1, y: 1, z: 1 },
               },
             };
@@ -565,7 +601,7 @@ function compare(figure: FamilyCaseKit.IBody, pair: IPair): IMotionCaptureCase {
           composition,
         }),
       ),
-      instants: [a, b].map((take: HumanPerformance): object =>
+      instants: [a, b].map((take: AutoMovieMotionHumanPerformance): object =>
         take.segments("a").map(({ start, plan }) =>
           plan.events.map(({ name, share }) => ({
             name,
@@ -578,14 +614,16 @@ function compare(figure: FamilyCaseKit.IBody, pair: IPair): IMotionCaptureCase {
   };
 }
 
-/** Keep only homologous events that are strictly ordered in both takes. */
+/*
+ * Keep only homologous events that are strictly ordered in both takes.
+ */
 function phaseMarks(
-  a: HumanPerformance,
-  b: HumanPerformance,
+  a: AutoMovieMotionHumanPerformance,
+  b: AutoMovieMotionHumanPerformance,
   names: readonly string[],
 ): readonly IPhaseMark[] {
   const selected: ReadonlySet<string> = new Set(names);
-  const events = (take: HumanPerformance): [string, number][] =>
+  const events = (take: AutoMovieMotionHumanPerformance): [string, number][] =>
     take
       .segments("a")
       .flatMap(({ start, plan }, index): [string, number][] =>
@@ -616,7 +654,9 @@ function phaseMarks(
   return result;
 }
 
-/** Map a film second to the same fraction between two common action events. */
+/*
+ * Map a film second to the same fraction between two common action events.
+ */
 function phaseSecond(
   marks: readonly IPhaseMark[],
   seconds: number,
@@ -633,17 +673,19 @@ function phaseSecond(
   return marks[marks.length - 1]!.seconds[to];
 }
 
-/** Compare the authored invariant associated with the variable in each pair. */
+/*
+ * Compare the authored invariant associated with the variable in each pair.
+ */
 function outcome(
   pair: IPair,
-  a: HumanPerformance,
-  b: HumanPerformance,
-  read: (take: HumanPerformance, seconds: number) => IAutoMovieVector3,
+  a: AutoMovieMotionHumanPerformance,
+  b: AutoMovieMotionHumanPerformance,
+  read: (take: AutoMovieMotionHumanPerformance, seconds: number) => IAutoMovieVector3,
 ): IMotionCaptureCase.IVerdict | undefined {
   const equal: (x: number, y: number) => boolean = (x, y) =>
     Math.abs(x - y) <= 1e-9;
   if (pair.name === "diversity-wave-seed") {
-    const strokes = (take: HumanPerformance): number[] =>
+    const strokes = (take: AutoMovieMotionHumanPerformance): number[] =>
       take
         .segments("a")
         .map(
@@ -670,7 +712,7 @@ function outcome(
     const expected: number[] = [0.5, 1, 1.5, 2];
     return {
       name: "both sway phrases keep the four authored beats",
-      passed: [a, b].every((take: HumanPerformance): boolean =>
+      passed: [a, b].every((take: AutoMovieMotionHumanPerformance): boolean =>
         expected.every((seconds: number, index: number): boolean =>
           equal(TouchVerdicts.event(take, "a", `beat${index + 1}`), seconds),
         ),
@@ -699,7 +741,7 @@ function outcome(
   if (pair.name !== "diversity-squat-pace") return undefined;
   const mismatch: number = Math.max(
     ...Array.from({ length: 17 }, (_, index): number =>
-      Vector3.distance(
+      AutoMovieEngineVector3.distance(
         read(a, (index / 16) * a.duration),
         read(b, (index / 16) * b.duration),
       ),

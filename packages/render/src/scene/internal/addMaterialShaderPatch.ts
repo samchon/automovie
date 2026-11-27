@@ -1,0 +1,38 @@
+import type * as THREE from "three";
+
+import type { IAutoMovieRenderMaterialShaderPatch } from "../IAutoMovieRenderMaterialShaderPatch";
+import { applyMaterialShaderPatches } from "./applyMaterialShaderPatches";
+import { readMaterialShaderPatches } from "./readMaterialShaderPatches";
+
+/*
+ * Add a shader patch to a material, keeping the ones already on it: three calls
+ * one `onBeforeCompile`, so every patch a material carries runs in the order it
+ * was added and the program key names them all. A patch whose key the material
+ * already carries replaces that one, so applying a patch again injects it
+ * once.
+ *
+ * This owner installs the material's compile and program-key hooks; an
+ * unrelated preexisting hook is not composed. Registered keys must avoid
+ * ambiguous `+` concatenation, and registration should finish before first
+ * compilation since this helper does not set needsUpdate for an
+ * already-compiled material.
+ */
+export const addMaterialShaderPatch: (
+  material: THREE.Material,
+  patch: IAutoMovieRenderMaterialShaderPatch,
+) => void = (material: THREE.Material, patch: IAutoMovieRenderMaterialShaderPatch): void => {
+  const patches: IAutoMovieRenderMaterialShaderPatch[] = [
+    ...readMaterialShaderPatches(material).filter(
+      (one: IAutoMovieRenderMaterialShaderPatch): boolean => one.key !== patch.key,
+    ),
+    patch,
+  ];
+  material.userData.shaderPatches = patches;
+  material.onBeforeCompile = (
+    shader: THREE.WebGLProgramParametersWithUniforms,
+  ): void => {
+    applyMaterialShaderPatches(patches, shader);
+  };
+  material.customProgramCacheKey = (): string =>
+    patches.map((one: IAutoMovieRenderMaterialShaderPatch): string => one.key).join("+");
+};

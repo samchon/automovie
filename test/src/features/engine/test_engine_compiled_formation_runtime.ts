@@ -1,10 +1,4 @@
-import {
-  AUTOMOVIE_FORMATION_CHUNK_SIZE,
-  canonicalizeAutoMovieJson,
-  materializeCompiledFormation,
-  productionRuntimeModelId,
-  worldRamp,
-} from "@automovie/engine";
+import { AutoMovieEngineFormationChunkSize, AutoMovieEngineWorld, AutoMovieEngineCanonicalJson, AutoMovieEnginePopulationRuntime } from "@automovie/engine";
 import {
   IAutoMovieCompiledFormation,
   IAutoMovieCompiledFormationHero,
@@ -40,10 +34,10 @@ const column: (
 ): IAutoMovieFormationDesign => ({
   id: "column",
   model: "member",
-  count: AUTOMOVIE_FORMATION_CHUNK_SIZE + 1,
+  count: AutoMovieEngineFormationChunkSize + 1,
   layout: {
     kind: "line",
-    files: AUTOMOVIE_FORMATION_CHUNK_SIZE + 1,
+    files: AutoMovieEngineFormationChunkSize + 1,
     ranks: 1,
     spacing: { lateral: 1, depth: 1 },
   },
@@ -53,7 +47,7 @@ const column: (
   capabilities: [],
   // Out of slot order on purpose: the compiled heroes are ordered by slot.
   heroOverrides: [
-    { slot: AUTOMOVIE_FORMATION_CHUNK_SIZE, actor: "rear" },
+    { slot: AutoMovieEngineFormationChunkSize, actor: "rear" },
     { slot: 0, actor: "front" },
   ],
   ...overrides,
@@ -67,7 +61,10 @@ const model: (id: string) => IAutoMovieModel = (
   id,
 });
 
-/** A declared hero tier, a near tier of the base group, and a far tier of a group nobody supplied. */
+/**
+ * A declared hero tier, a near tier of the base group, and a far tier of a
+ * group nobody supplied.
+ */
 const TIERS: IAutoMovieModelLod[] = [
   { tier: "hero", maxDistance: 2, model: "member-hero" },
   { tier: "near", maxDistance: 20, model: "member" },
@@ -86,7 +83,7 @@ const groups: () => Map<string, IAutoMovieModel> = (): Map<
 
 /** The Node builder's digest of one value's canonical JSON. */
 const nodeDigest: (value: unknown) => string = (value: unknown): string =>
-  `sha256:${createHash("sha256").update(canonicalizeAutoMovieJson(value), "utf8").digest("hex")}`;
+  `sha256:${createHash("sha256").update(AutoMovieEngineCanonicalJson.canonicalize(value), "utf8").digest("hex")}`;
 
 /** A flat rectangle from one ground-plan point to another, `width` across. */
 const strip: (
@@ -100,10 +97,19 @@ const strip: (
   to: { x: number; z: number },
   width: number,
 ): IAutoMovieWorldSurface =>
-  worldRamp({ id, from, to, width, baseHeight: 0, rise: 0, walkable: true });
+  AutoMovieEngineWorld.ramp({
+    id,
+    from,
+    to,
+    width,
+    baseHeight: 0,
+    rise: 0,
+    walkable: true,
+  });
 
 /**
- * A formation compiles to compact placement laws, summaries and repeatable digests.
+ * A formation compiles to compact placement laws, summaries and repeatable
+ * digests.
  *
  * Hand geometry anchors one rank of 1,025 members a metre apart. Node crypto
  * independently hashes bytes from the shared canonicalizer; this checks the
@@ -116,7 +122,8 @@ const strip: (
  *    last one, each with its exact bounds and centroid, and each counting its
  *    anonymous members after the hero standing in it is excluded.
  * 2. Heroes compile in slot order at their authored unturned positions, with a
- *    heading quaternion; a quarter heading turns that quaternion a quarter about +Y.
+ *    heading quaternion; a quarter heading turns that quaternion a quarter
+ *    about +Y.
  * 3. Anonymous tiers drop the design's declared hero tier and keep the rest in
  *    order; a tier whose model group is supplied carries the Node digest of
  *    that group, and every tier carries its runtime model id. A formation
@@ -129,9 +136,9 @@ const strip: (
  *    order; a surface beyond it on each of the four sides is dropped.
  * 6. The record's digest is the Node digest of every other field, identical for
  *    identical input and different for another seed, with and without terrain.
- * 7. Omitted tiers, model groups, radii and terrain compile a record with no terrain, one
- *    near tier and a half-metre radius, and a hero outside the formation refuses
- *    compilation.
+ * 7. Omitted tiers, model groups, radii and terrain compile a record with no
+ *    terrain, one near tier and a half-metre radius, and a hero outside the
+ *    formation refuses compilation.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs materializeCompiledFormation and asserts chunk/whole bounds, hero placement/count, applicable tiers, measured/fallback radii, terrain selection and canonical digest; wrong chunk folds, default tier policy or selected terrain change observable fields.
  * @evidence contracts/development/testing.md#independent-expectations The authored 1025-member rank at x=slot-512 gives first-chunk extrema -512..511 and mean -0.5, last point 512 and whole mean zero. Literal hero quaternions, runtime model ids and terrain rectangle overlap anchor geometry/identity. Node SHA checks the portable hash while canonical text is shared; missing-radius expectations pin policy rather than geometric enclosure, and unencodable-group cases check continuation rather than independently verify the fallback marker digest.
@@ -141,7 +148,7 @@ const strip: (
  */
 export function test_engine_compiled_formation_runtime(): void {
   // 1. Chunks.
-  const compiled: IAutoMovieCompiledFormation = materializeCompiledFormation({
+  const compiled: IAutoMovieCompiledFormation = AutoMovieEnginePopulationRuntime.materializeCompiledFormation({
     formation: column(),
   });
   const [first, last]: IAutoMovieFormationChunk[] = compiled.chunks;
@@ -214,7 +221,7 @@ export function test_engine_compiled_formation_runtime(): void {
   );
 
   // 2. Heroes.
-  const turned: IAutoMovieCompiledFormation = materializeCompiledFormation({
+  const turned: IAutoMovieCompiledFormation = AutoMovieEnginePopulationRuntime.materializeCompiledFormation({
     formation: column({ facingDeg: 90 }),
   });
   TestValidator.equals(
@@ -281,7 +288,7 @@ export function test_engine_compiled_formation_runtime(): void {
 
   // 3. Tiers.
   const models: Map<string, IAutoMovieModel> = groups();
-  const withTiers: IAutoMovieCompiledFormation = materializeCompiledFormation({
+  const withTiers: IAutoMovieCompiledFormation = AutoMovieEnginePopulationRuntime.materializeCompiledFormation({
     formation: column({ lod: TIERS }),
     models,
   });
@@ -292,7 +299,7 @@ export function test_engine_compiled_formation_runtime(): void {
     rotation: { x: 0, y: 0, z: 0, w: 1 },
     scale: { x: 1, y: 1, z: 1 },
   };
-  const unencodable: IAutoMovieCompiledFormation = materializeCompiledFormation(
+  const unencodable: IAutoMovieCompiledFormation = AutoMovieEnginePopulationRuntime.materializeCompiledFormation(
     {
       formation: column(),
       models: new Map([["member", unencodableGroup]]),
@@ -325,10 +332,9 @@ export function test_engine_compiled_formation_runtime(): void {
                 item.runtimeModel,
             )
             .join() === "automovie:model:member,automovie:model:member-far" &&
-          withTiers.lod.every(
-            (item: IAutoMovieCompiledFormationLod): boolean =>
-              item.runtimeModel === productionRuntimeModelId(item.model),
-          ),
+          withTiers.lod
+            .map((item: IAutoMovieCompiledFormationLod): string => item.model)
+            .join() === "member,member-far",
       ],
       [
         "defaultTier",
@@ -362,7 +368,7 @@ export function test_engine_compiled_formation_runtime(): void {
     radii: ReadonlyArray<readonly [string, number]>,
     lod: IAutoMovieModelLod[] = TIERS,
   ): number =>
-    materializeCompiledFormation({
+    AutoMovieEnginePopulationRuntime.materializeCompiledFormation({
       formation: column({ lod }),
       models,
       projectionRadii: new Map(radii),
@@ -410,7 +416,7 @@ export function test_engine_compiled_formation_runtime(): void {
     { x: 10, z: 0 },
     2,
   );
-  const grounded: IAutoMovieCompiledFormation = materializeCompiledFormation({
+  const grounded: IAutoMovieCompiledFormation = AutoMovieEnginePopulationRuntime.materializeCompiledFormation({
     formation: column(),
     surfaces: [
       strip("east", { x: 600, z: 0 }, { x: 700, z: 0 }, 2),
@@ -458,13 +464,13 @@ export function test_engine_compiled_formation_runtime(): void {
       [
         "repeatable",
         (): boolean =>
-          materializeCompiledFormation({ formation: column() }).digest ===
+          AutoMovieEnginePopulationRuntime.materializeCompiledFormation({ formation: column() }).digest ===
           digest,
       ],
       [
         "seed",
         (): boolean =>
-          materializeCompiledFormation({ formation: column({ seed: 12 }) })
+          AutoMovieEnginePopulationRuntime.materializeCompiledFormation({ formation: column({ seed: 12 }) })
             .digest !== digest,
       ],
       ["terrain", (): boolean => groundedDigest !== digest],
@@ -489,7 +495,7 @@ export function test_engine_compiled_formation_runtime(): void {
         (): boolean =>
           throwsError(
             (): IAutoMovieCompiledFormation =>
-              materializeCompiledFormation({
+              AutoMovieEnginePopulationRuntime.materializeCompiledFormation({
                 formation: column({
                   count: 2,
                   layout: {

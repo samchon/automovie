@@ -1,4 +1,6 @@
-import { prepareAutoMovieRecoveryInput } from "@automovie/recovery";
+import {
+  AutoMovieRecoveryObservation,
+} from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -10,7 +12,7 @@ import { TestValidator } from "@nestia/e2e";
  *    arrays unchanged.
  */
 export function test_recovery_observation_prepare_input(): void {
-  type Input = Parameters<typeof prepareAutoMovieRecoveryInput>[0];
+  type Input = Parameters<typeof AutoMovieRecoveryObservation.prepareInput>[0];
   const makeInput: () => Input = (): Input => ({
     registration: {
       units: "mm",
@@ -42,8 +44,8 @@ export function test_recovery_observation_prepare_input(): void {
   });
   const input: Input = makeInput();
   const original: string = JSON.stringify(input);
-  const admitted: ReturnType<typeof prepareAutoMovieRecoveryInput> =
-    prepareAutoMovieRecoveryInput(input);
+  const admitted: ReturnType<typeof AutoMovieRecoveryObservation.prepareInput> =
+    AutoMovieRecoveryObservation.prepareInput(input);
   TestValidator.equals(
     "registered triangle admitted",
     admitted.status,

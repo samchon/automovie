@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanActionPlan,
@@ -7,8 +7,10 @@ import type {
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanVerdicts } from "@automovie/motions";
-import { poseBones } from "@automovie/motions/internal";
+import { AutoMovieMotionHumanVerdicts } from "@automovie/motions";
+import {
+  poseBones
+} from "../../../../../packages/motions/src/posture/internal/poseBones";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -16,13 +18,13 @@ import { motionActionContext } from "../../internal/motionActionContext";
 import { syntheticHumanPlan } from "../../internal/synthetic/syntheticHumanPlan";
 
 /**
- * `HumanVerdicts` reads every physical bound on a performance: the generic
+ * `AutoMovieMotionHumanVerdicts` reads every physical bound on a performance: the generic
  * audit's checks, contact, range, spin, statics and timing, each reading past
  * its limit a finding placed at its act.
  *
  * Scenarios, the average man holding a quiet stance for 1 s at the origin, his
  * planted feet the declared contacts, read at 4 Hz on a typed minimal
- * performance (`HumanVerdicts.IPerformance`) that displays the stance:
+ * performance (`AutoMovieMotionHumanVerdicts.IPerformance`) that displays the stance:
  *
  * 1. Displayed still, the report is clean.
  * 2. Displayed sliding 0.1 m along +X over the second, the planted feet slip past
@@ -50,7 +52,7 @@ export async function test_motions_audit_human_verdicts(): Promise<void> {
   );
   const performance = (
     shift: (seconds: number) => IAutoMovieVector3,
-  ): HumanVerdicts.IPerformance => ({
+  ): AutoMovieMotionHumanVerdicts.IPerformance => ({
     duration: 1,
     performers: [{ subject: "a", body }],
     pose: () => context.entry.pose,
@@ -64,7 +66,7 @@ export async function test_motions_audit_human_verdicts(): Promise<void> {
             name,
             {
               ...bone,
-              worldPosition: Vector3.add(bone.worldPosition, shift(seconds)),
+              worldPosition: AutoMovieEngineVector3.add(bone.worldPosition, shift(seconds)),
             },
           ],
         ),
@@ -87,12 +89,12 @@ export async function test_motions_audit_human_verdicts(): Promise<void> {
       },
     ],
   });
-  const clean: IAutoMovieMotionHumanVerdicts.IReport = HumanVerdicts(
+  const clean: IAutoMovieMotionHumanVerdicts.IReport = AutoMovieMotionHumanVerdicts.read(
     performance(() => ({ x: 0, y: 0, z: 0 })),
     4,
   );
   TestValidator.predicate("still", clean.clean);
-  const slid: IAutoMovieMotionHumanVerdicts.IReport = HumanVerdicts(
+  const slid: IAutoMovieMotionHumanVerdicts.IReport = AutoMovieMotionHumanVerdicts.read(
     performance((t: number) => ({ x: 0.1 * t, y: 0, z: 0 })),
     4,
   );

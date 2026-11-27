@@ -1,7 +1,7 @@
 import {
-  Quaternion,
-  Vector3,
-  physicalShapeSegmentDistance,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
+  AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
@@ -17,19 +17,9 @@ import {
   AutoMovieArchetypeFrame,
   AutoMovieArchetypeRefusal,
 } from "../core";
-import { QuadrupedFootingClip } from "./QuadrupedFootingClip";
-import { QuadrupedObstacleShape } from "./QuadrupedObstacleShape";
-import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
-
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-const SIDES: readonly IAutoMovieQuaternion[] = [
-  Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90),
-  Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, -90),
-  Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -90),
-  Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
-];
-
-type Interval = readonly [number, number];
+import { QuadrupedFootingClip } from "./quadruped/QuadrupedFootingClip";
+import { QuadrupedObstacleShape } from "./quadruped/QuadrupedObstacleShape";
+import { QuadrupedRestFloor } from "./quadruped/QuadrupedRestFloor";
 
 /** Authored world footing evaluated against emitted rigid parts. */
 export namespace AutoMovieArchetypeQuadrupedFooting {
@@ -44,10 +34,13 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
     /** Lower-closed, upper-open world Z interval, metres. */
     z: Interval;
     /** Metres gained along each corresponding horizontal world axis. */
-    slope: { x: number; z: number };
+    slope: IPlaneSlope;
     /** A yielding surface's sinkage under a loaded hoof; firm when absent. */
     yield?: IYield;
   }
+
+  /** The slope object of {@link IPlane}. */
+  export type IPlaneSlope = { x: number; z: number };
 
   /**
    * A yielding surface: sand, mud, bog or snow, and how deep a loaded hoof
@@ -201,7 +194,7 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
           "A yielding plane needs a known material, a finite nonnegative depth and its source.",
           plane.id,
         );
-      const normal: IAutoMovieVector3 = Vector3.normalize({
+      const normal: IAutoMovieVector3 = AutoMovieEngineVector3.normalize({
         x: -slope.x,
         y: 1,
         z: -slope.z,
@@ -209,9 +202,9 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
       const rotation: IAutoMovieQuaternion = turn(normal, UP);
       const frame: IAutoMovieTransform = {
         rotation,
-        translation: Quaternion.rotateVector(
+        translation: AutoMovieEngineQuaternion.rotateVector(
           rotation,
-          Vector3.scale(origin, -1),
+          AutoMovieEngineVector3.scale(origin, -1),
         ),
         scale: AutoMovieArchetypeFrame.UNIT,
       };
@@ -227,7 +220,7 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
       if (
         !finitePoint(pole.from) ||
         !finitePoint(pole.to) ||
-        !(Vector3.distance(pole.from, pole.to) > 0) ||
+        !(AutoMovieEngineVector3.distance(pole.from, pole.to) > 0) ||
         !(pole.radius > 0)
       )
         throw refusal(
@@ -241,14 +234,16 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
     );
     return { swingLift: swingLift + deepest, poles, landing, verify };
 
-    /** Give each terrain component one stable public diagnostic identity. */
+    /*
+     * Give each terrain component one stable public diagnostic identity.
+     */
     function name(id: string): void {
       if (id.length === 0 || names.has(id))
         throw refusal("Terrain names must be nonempty and unique.", id);
       names.add(id);
     }
 
-    /**
+    /*
      * Choose the topmost real patch below the footprint and orient the carried
      * axes.
      */
@@ -277,8 +272,8 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
           depth,
           point: { ...point, y: y - depth },
           normal: { ...normal },
-          rotation: Quaternion.multiply(
-            turn(Quaternion.rotateVector(rotation, UP), normal),
+          rotation: AutoMovieEngineQuaternion.multiply(
+            turn(AutoMovieEngineQuaternion.rotateVector(rotation, UP), normal),
             rotation,
           ),
         };
@@ -288,7 +283,7 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
       return result;
     }
 
-    /**
+    /*
      * Check oriented shapes against each overlapping finite patch and physical
      * pole.
      */
@@ -337,7 +332,7 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
         const roundoff: number =
           256 *
           Number.EPSILON *
-          Math.max(1, Vector3.length(part.transform!.translation));
+          Math.max(1, AutoMovieEngineVector3.length(part.transform!.translation));
         for (const { plane, frame, clearance } of surfaces)
           if (
             minX! < plane.x[1] &&
@@ -359,10 +354,10 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
         );
         for (const pole of poles)
           if (
-            physicalShapeSegmentDistance(
+            AutoMovieEnginePhysics.physicalShapeSegmentDistance(
               {
                 position: { x: 0, y: 0, z: 0 },
-                rotation: Quaternion.identity(),
+                rotation: AutoMovieEngineQuaternion.identity(),
               },
               bounds,
               pole.from,
@@ -377,7 +372,9 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
       }
     }
 
-    /** Carry the route's author-facing typed refusal contract. */
+    /*
+     * Carry the route's author-facing typed refusal contract.
+     */
     function refusal(
       reason: string,
       value: unknown,
@@ -395,30 +392,47 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
   }
 }
 
-/** Require finite world position coordinates. */
+const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+
+const SIDES: readonly IAutoMovieQuaternion[] = [
+  AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90),
+  AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, -90),
+  AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -90),
+  AutoMovieEngineQuaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
+];
+
+/*
+ * Require finite world position coordinates.
+ */
 function finitePoint(point: IAutoMovieVector3): boolean {
   return point !== null && point !== undefined;
 }
 
-/** Admit an explicit half-open world patch interval. */
+/*
+ * Admit an explicit half-open world patch interval.
+ */
 function interval(span: Interval): boolean {
   return span.length === 2 && span[0] < span[1];
 }
 
-/** Turn the admitted unit surface normal to another unit up vector. */
+/*
+ * Turn the admitted unit surface normal to another unit up vector.
+ */
 function turn(
   from: IAutoMovieVector3,
   to: IAutoMovieVector3,
 ): IAutoMovieQuaternion {
-  const axis: IAutoMovieVector3 = Vector3.cross(from, to);
-  const magnitude: number = Vector3.length(axis);
-  return Quaternion.fromAxisAngle(
+  const axis: IAutoMovieVector3 = AutoMovieEngineVector3.cross(from, to);
+  const magnitude: number = AutoMovieEngineVector3.length(axis);
+  return AutoMovieEngineQuaternion.fromAxisAngle(
     axis,
-    (Math.atan2(magnitude, Vector3.dot(from, to)) * 180) / Math.PI,
+    (Math.atan2(magnitude, AutoMovieEngineVector3.dot(from, to)) * 180) / Math.PI,
   );
 }
 
-/** Exact lowest coordinate of a transformed complete solid. */
+/*
+ * Exact lowest coordinate of a transformed complete solid.
+ */
 function lowest(
   part: IAutoMovieModelPart,
   frame: IAutoMovieTransform,
@@ -432,3 +446,5 @@ function lowest(
     cells,
   );
 }
+
+type Interval = readonly [number, number];

@@ -3,9 +3,11 @@ import type {
   IAutoMovieMotionHumanVariation,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanVariation,
-  HumanSkill,
-} from "@automovie/motions/internal";
+  motionHumanVariation
+} from "../../../../packages/motions/src/compose/internal/motionHumanVariation";
+import {
+  HumanSkill
+} from "../../../../packages/motions/src/skill/internal/HumanSkill";
 
 /**
  * Build the variation source of one action instance from real seeded streams,
@@ -36,7 +38,7 @@ export const motionVariationSource: (props?: {
     { p: props.skill ?? 0 },
     props.seed ?? "film",
   );
-  return AutoMovieMotionHumanVariation(
+  return motionHumanVariation(
     {
       skill,
       series: (channel: string) => ({

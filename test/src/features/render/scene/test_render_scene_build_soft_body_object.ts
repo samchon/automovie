@@ -1,9 +1,5 @@
-import {
-  lowerSoftFurnishing,
-  simulateSoftBody,
-  softBodySurfaceGeometry,
-} from "@automovie/engine";
-import { buildSoftBodyObject } from "@automovie/render";
+import { AutoMovieEngineSoftFurnishing, AutoMovieEngineSoftBody } from "@automovie/engine";
+import { AutoMovieRenderSceneLayout } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -13,9 +9,9 @@ import { singleMaterial } from "../../internal/singleMaterial";
 import { softFurnishing, softPanel } from "../../internal/softFixtures";
 
 /** A hanging panel and its derived surface at one step. */
-const drape: (step: number) => ReturnType<typeof softBodySurfaceGeometry> = (
+const drape: (step: number) => ReturnType<typeof AutoMovieEngineSoftBody.softBodySurfaceGeometry> = (
   step: number,
-): ReturnType<typeof softBodySurfaceGeometry> => {
+): ReturnType<typeof AutoMovieEngineSoftBody.softBodySurfaceGeometry> => {
   const domain: ReturnType<typeof softPanel> = softPanel({
     columns: 4,
     rows: 4,
@@ -27,9 +23,9 @@ const drape: (step: number) => ReturnType<typeof softBodySurfaceGeometry> = (
       ],
     },
   });
-  return softBodySurfaceGeometry({
+  return AutoMovieEngineSoftBody.softBodySurfaceGeometry({
     domain,
-    state: simulateSoftBody(domain, step),
+    state: AutoMovieEngineSoftBody.simulateSoftBody(domain, step),
   });
 };
 
@@ -71,8 +67,8 @@ const drape: (step: number) => ReturnType<typeof softBodySurfaceGeometry> = (
  *    cannot skip independent current-geometry/default-material close.
  */
 export function test_render_scene_build_soft_body_object(): void {
-  const surface: ReturnType<typeof softBodySurfaceGeometry> = drape(64);
-  const object: ReturnType<typeof buildSoftBodyObject> = buildSoftBodyObject({
+  const surface: ReturnType<typeof AutoMovieEngineSoftBody.softBodySurfaceGeometry> = drape(64);
+  const object: ReturnType<typeof AutoMovieRenderSceneLayout.buildSoftBodyObject> = AutoMovieRenderSceneLayout.buildSoftBodyObject({
     surface,
     status: "solved",
   });
@@ -140,7 +136,7 @@ export function test_render_scene_build_soft_body_object(): void {
     },
   );
 
-  const bounds: ReturnType<typeof softBodySurfaceGeometry>["bounds"] =
+  const bounds: ReturnType<typeof AutoMovieEngineSoftBody.softBodySurfaceGeometry>["bounds"] =
     surface.bounds;
   TestValidator.equals(
     "the bounding sphere is the engine's extent, not a recomputed one",
@@ -240,14 +236,14 @@ export function test_render_scene_build_soft_body_object(): void {
     rows: 4,
     overrides: { id: "cord" },
   });
-  const thread: ReturnType<typeof buildSoftBodyObject> = buildSoftBodyObject({
-    surface: softBodySurfaceGeometry({
+  const thread: ReturnType<typeof AutoMovieRenderSceneLayout.buildSoftBodyObject> = AutoMovieRenderSceneLayout.buildSoftBodyObject({
+    surface: AutoMovieEngineSoftBody.softBodySurfaceGeometry({
       domain: cord,
-      state: simulateSoftBody(cord, 0),
+      state: AutoMovieEngineSoftBody.simulateSoftBody(cord, 0),
     }),
     status: "rest",
   });
-  const sparse: ReturnType<typeof buildSoftBodyObject> = buildSoftBodyObject({
+  const sparse: ReturnType<typeof AutoMovieRenderSceneLayout.buildSoftBodyObject> = AutoMovieRenderSceneLayout.buildSoftBodyObject({
     surface: sparseSurface(),
     status: "not-run",
   });
@@ -295,7 +291,7 @@ export function test_render_scene_build_soft_body_object(): void {
   borrowed.addEventListener("dispose", (): void => {
     ++borrowedDisposals;
   });
-  const lent: ReturnType<typeof buildSoftBodyObject> = buildSoftBodyObject({
+  const lent: ReturnType<typeof AutoMovieRenderSceneLayout.buildSoftBodyObject> = AutoMovieRenderSceneLayout.buildSoftBodyObject({
     surface,
     material: borrowed,
     status: "solved",
@@ -326,8 +322,8 @@ export function test_render_scene_build_soft_body_object(): void {
   );
   borrowed.dispose();
 
-  const unsupported: ReturnType<typeof lowerSoftFurnishing> =
-    lowerSoftFurnishing({
+  const unsupported: ReturnType<typeof AutoMovieEngineSoftFurnishing.lowerSoftFurnishing> =
+    AutoMovieEngineSoftFurnishing.lowerSoftFurnishing({
       furnishing: softFurnishing({ domain: "self" }),
       domain: softPanel({
         columns: 3,
@@ -336,7 +332,7 @@ export function test_render_scene_build_soft_body_object(): void {
       }),
       time: 0.25,
     });
-  const flagged: ReturnType<typeof buildSoftBodyObject> = buildSoftBodyObject({
+  const flagged: ReturnType<typeof AutoMovieRenderSceneLayout.buildSoftBodyObject> = AutoMovieRenderSceneLayout.buildSoftBodyObject({
     surface: unsupported.surface ?? surface,
     status: unsupported.analysis.status,
   });
@@ -385,7 +381,7 @@ export function test_render_scene_build_soft_body_object(): void {
     { followed: true, step: true, back: true },
   );
   flagged.dispose();
-  const resized: ReturnType<typeof buildSoftBodyObject> = buildSoftBodyObject({
+  const resized: ReturnType<typeof AutoMovieRenderSceneLayout.buildSoftBodyObject> = AutoMovieRenderSceneLayout.buildSoftBodyObject({
     surface,
     status: "solved",
   });
@@ -403,8 +399,8 @@ export function test_render_scene_build_soft_body_object(): void {
   );
   resized.dispose();
 
-  const failedResize: ReturnType<typeof buildSoftBodyObject> =
-    buildSoftBodyObject({ surface, status: "solved" });
+  const failedResize: ReturnType<typeof AutoMovieRenderSceneLayout.buildSoftBodyObject> =
+    AutoMovieRenderSceneLayout.buildSoftBodyObject({ surface, status: "solved" });
   let priorAttempts: number = 0;
   let currentAttempts: number = 0;
   let materialAttempts: number = 0;
@@ -458,7 +454,7 @@ export function test_render_scene_build_soft_body_object(): void {
 }
 
 /** The existing sparse triangle case expressed for geometry-shape transitions. */
-function sparseSurface(): ReturnType<typeof softBodySurfaceGeometry> {
+function sparseSurface(): ReturnType<typeof AutoMovieEngineSoftBody.softBodySurfaceGeometry> {
   return {
     domain: "sparse",
     step: 0,

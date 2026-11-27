@@ -1,0 +1,337 @@
+import { AutoMovieEngineGeometry } from "@automovie/engine";
+import type {
+  IAutoMovieContourLoft64,
+  IAutoMovieRecoveryAnalyticDomainsRealizationOperation,
+  IAutoMovieRecoveryAnalyticRealization,
+  IAutoMovieRecoveryAtlasGeneration,
+  IAutoMovieRecoveryOpenContinuation,
+} from "@automovie/interface";
+
+/*
+ * Admit source-free analytic ownership and retain every finite native result.
+ * Invalid or multiply claimed domains leave the original saved operator owned;
+ * valid independent domains remain available. A finite partial atlas owns its
+ * declared domain with explicit omissions, rather than overlapping a second
+ * mesh.
+ */
+export function realizeRecoveryAnalyticDomains(
+  bundle: Parameters<IAutoMovieRecoveryAnalyticDomainsRealizationOperation.Operation>[0],
+  graph?: Parameters<IAutoMovieRecoveryAnalyticDomainsRealizationOperation.Operation>[1],
+): ReturnType<IAutoMovieRecoveryAnalyticDomainsRealizationOperation.Operation> {
+  const result: IAutoMovieRecoveryAnalyticRealization = {
+    parts: [],
+    construction: [],
+    closedGroups: new Map(),
+    openPairs: new Map(),
+    openUnresolved: new Map(),
+    reports: [],
+  };
+  if (!bundle.analyticDomains?.length) return result;
+  const curves: Map<
+      string,
+      IAutoMovieContourLoft64.ISection["loops"][number]["curve"]
+    > = new Map(),
+    ambiguous: Set<string> = new Set();
+  const register: (
+    curve: IAutoMovieContourLoft64.ISection["loops"][number]["curve"],
+  ) => void = (
+    curve: IAutoMovieContourLoft64.ISection["loops"][number]["curve"],
+  ): void => {
+    const name: string = curve.name;
+    if (curves.has(name)) ambiguous.add(name);
+    else curves.set(name, curve);
+  };
+  for (const section of bundle.loft.sections)
+    for (const loop of section.loops) register(loop.curve);
+  for (const row of bundle.reports)
+    for (const arc of row.open) register(arc.curve);
+  const occupied: Set<string> = new Set(
+    (bundle.tensorFamilies ?? []).flatMap(
+      (family: NonNullable<typeof bundle.tensorFamilies>[number]): string[] =>
+        family.replacedGroups.map(
+          (address: (typeof family.replacedGroups)[number]): string =>
+            `c:${address.interval}:${address.group}`,
+        ),
+    ),
+  );
+  const claims: Map<string, number[]> = new Map(),
+    invalid: Map<number, string[]> = new Map(),
+    names: Map<string, number[]> = new Map();
+  const refuse: (index: number, message: string) => void = (
+    index: number,
+    message: string,
+  ): void => {
+    const rows: string[] = invalid.get(index) ?? [];
+    rows.push(message);
+    invalid.set(index, rows);
+  };
+  const claim: (index: number, key: string) => void = (
+    index: number,
+    key: string,
+  ): void => {
+    const rows: number[] = claims.get(key) ?? [];
+    rows.push(index);
+    claims.set(key, rows);
+    if (occupied.has(key))
+      refuse(index, `Occurrence already belongs to a tensor family: ${key}`);
+  };
+  for (const [index, domain] of bundle.analyticDomains.entries()) {
+    try {
+      if (!domain.id || domain.geometry.topologyDomain !== domain.id)
+        throw new Error(
+          "A named analytic domain requires complete ownership and qualification records",
+        );
+      const named: number[] = names.get(domain.id) ?? [];
+      named.push(index);
+      names.set(domain.id, named);
+      const ports: Set<string> = new Set(
+        domain.ports.map((port: (typeof domain.ports)[number]): string => {
+          if (
+            !curves.has(port.curveName) ||
+            ambiguous.has(port.curveName) ||
+            (port.side !== "lower" && port.side !== "upper")
+          )
+            throw new Error("A port must name a saved lower or upper curve");
+          return `${port.side}:${port.curveName}`;
+        }),
+      );
+      const need: (
+        name: string | undefined,
+        side: "lower" | "upper",
+      ) => void = (name: string | undefined, side: "lower" | "upper"): void => {
+        if (!name || !ports.has(`${side}:${name}`))
+          throw new Error(
+            "A delegated occurrence lacks a complete named port inventory",
+          );
+      };
+      for (const address of domain.closedGroups) {
+        const group:
+          | IAutoMovieContourLoft64.IInterval["groups"][number]
+          | undefined =
+          bundle.loft.intervals?.[address.interval]?.groups[address.group];
+        if (address.interval < 0 || address.group < 0 || !group)
+          throw new Error("Closed analytic ownership addresses no saved group");
+        for (const id of group.before)
+          need(
+            bundle.loft.sections[address.interval]?.loops[id]?.curve.name,
+            "lower",
+          );
+        for (const id of group.after)
+          need(
+            bundle.loft.sections[address.interval + 1]?.loops[id]?.curve.name,
+            "upper",
+          );
+        claim(index, `c:${address.interval}:${address.group}`);
+      }
+      for (const address of domain.openPairs) {
+        const pair:
+          | IAutoMovieRecoveryOpenContinuation["intervals"][number]["pairs"][number]
+          | undefined = graph?.intervals[address.interval]?.pairs[address.pair];
+        if (address.interval < 0 || address.pair < 0 || !pair)
+          throw new Error(
+            "Open analytic ownership requires its saved continuation pair",
+          );
+        need(
+          bundle.reports[address.interval]?.open[pair.before]?.curve.name,
+          "lower",
+        );
+        need(
+          bundle.reports[address.interval + 1]?.open[pair.after]?.curve.name,
+          "upper",
+        );
+        claim(index, `p:${address.interval}:${address.pair}`);
+      }
+      for (const address of domain.openUnresolved) {
+        const group:
+          | IAutoMovieRecoveryOpenContinuation["intervals"][number]["unresolved"][number]
+          | undefined =
+          graph?.intervals[address.interval]?.unresolved[address.group];
+        if (address.interval < 0 || address.group < 0 || !group)
+          throw new Error(
+            "Event ownership requires its entire saved unresolved projection group",
+          );
+        for (const id of group.before)
+          need(bundle.reports[address.interval]?.open[id]?.curve.name, "lower");
+        for (const id of group.after)
+          need(
+            bundle.reports[address.interval + 1]?.open[id]?.curve.name,
+            "upper",
+          );
+        claim(index, `u:${address.interval}:${address.group}`);
+      }
+      const authorities: Map<
+        string,
+        NonNullable<typeof domain.geometry.boundaryAuthorities>[number]
+      > = new Map(
+        (domain.geometry.boundaryAuthorities ?? []).map(
+          (
+            owner: NonNullable<
+              typeof domain.geometry.boundaryAuthorities
+            >[number],
+          ): [
+            string,
+            NonNullable<typeof domain.geometry.boundaryAuthorities>[number],
+          ] => [owner.id, owner],
+        ),
+      );
+      if (
+        authorities.size !== (domain.geometry.boundaryAuthorities?.length ?? 0)
+      )
+        throw new Error("Native authority identity is not unique");
+      const bound: Set<string> = new Set();
+      for (const binding of domain.curveBindings) {
+        const curve:
+          | IAutoMovieContourLoft64.ISection["loops"][number]["curve"]
+          | undefined = curves.get(binding.curveName);
+        const key: string = `${binding.curveName}:${binding.span}`;
+        if (
+          !curve ||
+          curve.unit !== "mm" ||
+          binding.span < 0 ||
+          bound.has(key) ||
+          !domain.ports.some(
+            (port: (typeof domain.ports)[number]): boolean =>
+              port.curveName === binding.curveName,
+          )
+        )
+          throw new Error(
+            "A binding requires one saved millimetre curve span and named port",
+          );
+        bound.add(key);
+        const saved: readonly (readonly number[])[] | undefined = curves.get(
+            binding.curveName,
+          )?.spans[binding.span],
+          owner:
+            | NonNullable<typeof domain.geometry.boundaryAuthorities>[number]
+            | undefined = authorities.get(binding.authority);
+        if (!saved || !owner || owner.controlIds.length !== 4)
+          throw new Error("A native named curve binding is absent");
+        for (let k: number = 0; k < 4; k++) {
+          const point: (typeof domain.geometry.controls)[number] | undefined =
+            domain.geometry.controls[owner.controlIds[k]!];
+          if (
+            owner.controlIds[k]! < 0 ||
+            !point ||
+            saved[k]![0]! * 0.001 !== point.x ||
+            saved[k]![1]! * 0.001 !== point.y ||
+            saved[k]![2]! * 0.001 !== point.z
+          )
+            throw new Error(
+              "Native analytic coefficients differ from their saved curve's forward unit authority",
+            );
+        }
+      }
+      for (const port of domain.ports)
+        for (
+          let span: number = 0;
+          span < curves.get(port.curveName)!.spans.length;
+          span++
+        )
+          if (!bound.has(`${port.curveName}:${span}`))
+            throw new Error(
+              "Every saved port span requires its native coefficient binding",
+            );
+    } catch (error: unknown) {
+      refuse(index, error instanceof Error ? error.message : String(error));
+    }
+  }
+  for (const [key, indices] of claims)
+    if (indices.length > 1)
+      for (const index of indices)
+        refuse(index, `Multiple analytic owners claim ${key}`);
+  for (const [name, indices] of names)
+    if (indices.length > 1)
+      for (const index of indices)
+        refuse(index, `Analytic identity is not unique: ${name}`);
+  for (const [index, domain] of bundle.analyticDomains.entries()) {
+    const diagnostics: string[] = invalid.get(index) ?? [];
+    if (diagnostics.length) {
+      result.reports.push({
+        id: domain?.id ?? `invalid-analytic-${index}`,
+        admitted: false,
+        complete: false,
+        approximationQualified: false,
+        observationComplete: domain?.observationComplete === true,
+        unrepresentedDomains: domain.unrepresentedDomains,
+        diagnostics,
+        primitiveRanges: [],
+      });
+      continue;
+    }
+    try {
+      const generated: IAutoMovieRecoveryAtlasGeneration = AutoMovieEngineGeometry.realizeBicubicAtlas64(
+        domain.geometry,
+      );
+      if (generated.mesh.indices!.length)
+        result.parts.push({
+          id: domain.id,
+          name: null,
+          material: null,
+          attachedBone: null,
+          transform: null,
+          geometry: { type: "mesh", mesh: generated.mesh },
+        });
+      for (const address of domain.closedGroups)
+        result.closedGroups.set(
+          `${address.interval}:${address.group}`,
+          domain.id,
+        );
+      for (const address of domain.openPairs)
+        result.openPairs.set(`${address.interval}:${address.pair}`, domain.id);
+      for (const address of domain.openUnresolved)
+        result.openUnresolved.set(
+          `${address.interval}:${address.group}`,
+          domain.id,
+        );
+      result.reports.push({
+        id: domain.id,
+        admitted: true,
+        complete: generated.complete,
+        approximationQualified: generated.approximationQualified,
+        observationComplete: domain?.observationComplete === true,
+        unrepresentedDomains: domain.unrepresentedDomains,
+        diagnostics: generated.diagnostics,
+        primitiveRanges: generated.primitiveRanges,
+      });
+      for (const owner of domain.geometry.boundaryAuthorities ?? []) {
+        const points: [number, number, number][] = [];
+        for (const id of owner.controlIds) {
+          const point: (typeof domain.geometry.controls)[number] | undefined =
+            domain.geometry.controls[id];
+          if (
+            point &&
+            ![point.x, point.y, point.z].some(
+              (value: number): boolean =>
+                value === Infinity || value === -Infinity,
+            )
+          )
+            points.push([point.x, point.y, point.z]);
+        }
+        if (points.length === 4)
+          result.construction.push({
+            id: `${domain.id}.native.${owner.id}`,
+            closed: false,
+            points,
+          });
+        else
+          result.reports
+            .at(-1)!
+            .diagnostics.push(
+              `Invalid native control polygon omitted from construction: ${owner.id}`,
+            );
+      }
+    } catch (error: unknown) {
+      result.reports.push({
+        id: domain?.id ?? `invalid-analytic-${index}`,
+        admitted: false,
+        complete: false,
+        approximationQualified: false,
+        observationComplete: domain?.observationComplete === true,
+        unrepresentedDomains: domain.unrepresentedDomains,
+        diagnostics: [error instanceof Error ? error.message : String(error)],
+        primitiveRanges: [],
+      });
+    }
+  }
+  return result;
+}

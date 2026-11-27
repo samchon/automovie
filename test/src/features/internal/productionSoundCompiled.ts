@@ -1,7 +1,4 @@
-import {
-  materializeCompiledFormation,
-  materializeCompiledInstanceSet,
-} from "@automovie/engine";
+import { AutoMovieEnginePopulationRuntime } from "@automovie/engine";
 import type { IAutoMovieCompiledShotSource } from "@automovie/interface";
 
 import { productionSoundTransform } from "./productionSoundTransform";
@@ -115,7 +112,7 @@ export function productionSoundCompiled(): IAutoMovieCompiledShotSource {
     },
     models: [],
     formations: [
-      materializeCompiledFormation({
+      AutoMovieEnginePopulationRuntime.materializeCompiledFormation({
         formation: {
           id: "formation",
           model: "formation-model",
@@ -135,7 +132,7 @@ export function productionSoundCompiled(): IAutoMovieCompiledShotSource {
       }),
     ],
     instanceSets: [
-      materializeCompiledInstanceSet({
+      AutoMovieEnginePopulationRuntime.materializeCompiledInstanceSet({
         instanceSet: {
           id: "instances",
           model: "instance-model",

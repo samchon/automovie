@@ -1,6 +1,6 @@
 import {
-  AutoMovieLoftSection,
-  AutoMovieLoftSectionSource,
+  AutoMovieEngineLoftSection,
+  AutoMovieEngineLoftSectionSource,
 } from "@automovie/engine";
 import type {
   IAutoMovieLoftChain,
@@ -12,7 +12,7 @@ import { TestValidator } from "@nestia/e2e";
 
 /**
  * A native section source bound to a chain's endpoint layers
- * (`AutoMovieLoftSectionSource.bind`) answers `AutoMovieLoftSection.phase` and
+ * (`AutoMovieEngineLoftSectionSource.bind`) answers `AutoMovieEngineLoftSection.phase` and
  * `.jet` with the complete generating shape.
  *
  * Fixture: radius-2 circles from constant station jets. A rational quadratic
@@ -106,7 +106,7 @@ export function test_engine_geometry_loft_captured_phase(): void {
       ),
     };
     for (const layer of chain.layers)
-      layer.sectionSource = AutoMovieLoftSectionSource.bind(layer, {
+      layer.sectionSource = AutoMovieEngineLoftSectionSource.bind(layer, {
         kind: "native",
         inputs,
       });
@@ -115,8 +115,8 @@ export function test_engine_geometry_loft_captured_phase(): void {
       ["clone", structuredClone(chain)],
     ] satisfies [string, IAutoMovieLoftChain][])
       for (const station of [0, 10]) {
-        const phase = AutoMovieLoftSection.phase(owner, station);
-        const jet = AutoMovieLoftSection.jet(owner, station);
+        const phase = AutoMovieEngineLoftSection.phase(owner, station);
+        const jet = AutoMovieEngineLoftSection.jet(owner, station);
         const label: string = `${mode} ${copy} ${station}`;
         TestValidator.predicate(
           `${label} owned`,

@@ -1,4 +1,6 @@
-import { punchCorrected } from "@automovie/motions/internal";
+import {
+  punchCorrected
+} from "../../../../../packages/motions/src/striking/internal/punchCorrected";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../../internal/vclose";

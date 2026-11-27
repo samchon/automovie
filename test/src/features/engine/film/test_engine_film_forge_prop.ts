@@ -1,4 +1,4 @@
-import { forgeProp } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import {
   type IAutoMovieForgedProp,
   IAutoMoviePropSpec,
@@ -22,7 +22,7 @@ import { createDoorPropSpec } from "../../internal/createDoorPropSpec";
  */
 export function test_engine_film_forge_prop(): void {
   const spec: IAutoMoviePropSpec = createDoorPropSpec();
-  const forged: IAutoMovieForgedProp = forgeProp(spec);
+  const forged: IAutoMovieForgedProp = AutoMovieEngineFilm.forgeProp(spec);
   TestValidator.equals("articulated prop passes", forged.success, true);
   TestValidator.equals(
     "accepted spec echoed",
@@ -30,7 +30,7 @@ export function test_engine_film_forge_prop(): void {
     "door",
   );
 
-  const rigid: IAutoMovieForgedProp = forgeProp({
+  const rigid: IAutoMovieForgedProp = AutoMovieEngineFilm.forgeProp({
     ...spec,
     articulation: null,
   });

@@ -1,6 +1,6 @@
 import type {
-  AutoMovieDrawSubjects,
-  IAutoMovieDrawScene,
+  AutoMovieRenderDrawSubjects,
+  IAutoMovieRenderDrawScene,
 } from "@automovie/render";
 
 import { bankedParkRide } from "./bankedParkRide";
@@ -11,54 +11,90 @@ import { pondTrail } from "./pondTrail";
 import { railShuttle } from "./railShuttle";
 
 /** Draw the compiled production examples through the ordinary capture host. */
-export const subjects: AutoMovieDrawSubjects = () => ({
+export const subjects: AutoMovieRenderDrawSubjects = () => ({
   "hillside-stop": {
-    create: async (): Promise<IAutoMovieDrawScene> =>
+    create: async (): Promise<IAutoMovieRenderDrawScene> =>
       drawEnvironmentExample(hillsideStop(), {
-        sill: () => ({ position: [5, 3.1, -3.6], target: [3, 2.15, 0] }),
+        sill: () => ({
+          position: { x: 5, y: 3.1, z: -3.6 },
+          target: { x: 3, y: 2.15, z: 0 },
+        }),
         room: () => ({
-          position: [12.8, 3.15, 5.45],
-          target: [9.5, 2.05, 2.6],
+          position: { x: 12.8, y: 3.15, z: 5.45 },
+          target: { x: 9.5, y: 2.05, z: 2.6 },
         }),
       }),
   },
   "pond-trail": {
-    create: async (): Promise<IAutoMovieDrawScene> =>
+    create: async (): Promise<IAutoMovieRenderDrawScene> =>
       drawEnvironmentExample(pondTrail(), {
-        shoreline: () => ({ position: [22, 6, 2], target: [11, 0, 9] }),
-        parcel: () => ({ position: [26, 9, 0], target: [15, 0, 9] }),
+        shoreline: () => ({
+          position: { x: 22, y: 6, z: 2 },
+          target: { x: 11, y: 0, z: 9 },
+        }),
+        parcel: () => ({
+          position: { x: 26, y: 9, z: 0 },
+          target: { x: 15, y: 0, z: 9 },
+        }),
       }),
   },
   "bridge-campus": {
-    create: async (): Promise<IAutoMovieDrawScene> =>
+    create: async (): Promise<IAutoMovieRenderDrawScene> =>
       drawEnvironmentExample(bridgeCampus(), {
-        span: () => ({ position: [9.5, 7, -3], target: [9.5, 3.4, 4] }),
-        garden: () => ({ position: [16.5, 4.7, 17], target: [9, 1.0, 9.5] }),
-        ground: () => ({ position: [1.1, 1.65, 1.0], target: [4, 1, 4] }),
-        upper: () => ({ position: [1.1, 5.05, 1.0], target: [4, 4.4, 4] }),
-        lift: () => ({ position: [19, 6, -7], target: [15, 3, 0] }),
+        span: () => ({
+          position: { x: 9.5, y: 7, z: -3 },
+          target: { x: 9.5, y: 3.4, z: 4 },
+        }),
+        garden: () => ({
+          position: { x: 16.5, y: 4.7, z: 17 },
+          target: { x: 9, y: 1.0, z: 9.5 },
+        }),
+        ground: () => ({
+          position: { x: 1.1, y: 1.65, z: 1.0 },
+          target: { x: 4, y: 1, z: 4 },
+        }),
+        upper: () => ({
+          position: { x: 1.1, y: 5.05, z: 1.0 },
+          target: { x: 4, y: 4.4, z: 4 },
+        }),
+        lift: () => ({
+          position: { x: 19, y: 6, z: -7 },
+          target: { x: 15, y: 3, z: 0 },
+        }),
         "lift-ground": () => ({
-          position: [15.8, 1.55, 3],
-          target: [15, 1, -1],
+          position: { x: 15.8, y: 1.55, z: 3 },
+          target: { x: 15, y: 1, z: -1 },
         }),
         "lift-upper": () => ({
-          position: [15.8, 4.95, 3],
-          target: [15, 4.4, -1],
+          position: { x: 15.8, y: 4.95, z: 3 },
+          target: { x: 15, y: 4.4, z: -1 },
         }),
       }),
   },
   "banked-park-ride": {
-    create: async (): Promise<IAutoMovieDrawScene> =>
+    create: async (): Promise<IAutoMovieRenderDrawScene> =>
       drawEnvironmentExample(bankedParkRide(), {
-        station: () => ({ position: [10, 4, -11], target: [7.4, 1.15, -6.8] }),
-        bank: () => ({ position: [23, 8.2, 5], target: [14, 4, -0.8] }),
+        station: () => ({
+          position: { x: 10, y: 4, z: -11 },
+          target: { x: 7.4, y: 1.15, z: -6.8 },
+        }),
+        bank: () => ({
+          position: { x: 23, y: 8.2, z: 5 },
+          target: { x: 14, y: 4, z: -0.8 },
+        }),
       }),
   },
   "rail-shuttle": {
-    create: async (): Promise<IAutoMovieDrawScene> =>
+    create: async (): Promise<IAutoMovieRenderDrawScene> =>
       drawEnvironmentExample(railShuttle(), {
-        board: () => ({ position: [6, 2.1, 9.6], target: [1.5, 0.9, 12] }),
-        arrival: () => ({ position: [6, 2.1, 35.6], target: [1.5, 0.9, 38] }),
+        board: () => ({
+          position: { x: 6, y: 2.1, z: 9.6 },
+          target: { x: 1.5, y: 0.9, z: 12 },
+        }),
+        arrival: () => ({
+          position: { x: 6, y: 2.1, z: 35.6 },
+          target: { x: 1.5, y: 0.9, z: 38 },
+        }),
       }),
   },
 });

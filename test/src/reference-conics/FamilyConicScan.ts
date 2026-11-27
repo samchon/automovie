@@ -1,11 +1,6 @@
 import { FamilyConicSection as C } from "./FamilyConicSection";
 import { FamilyConicSource as R } from "./FamilyConicSource";
-import {
-  AutoMovieLoftChain,
-  AutoMovieMeshExtract as M,
-  AutoMovieViewAxis,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
+import { AutoMovieEngineLoftChain, AutoMovieEngineMeshExtract as M, AutoMovieEngineViewAxis, AutoMovieEngineConstruction } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft,
   AutoMovieHumanConicSection,
@@ -84,7 +79,7 @@ namespace FamilyConicScan {
     if (process.argv[2] === "crotch") {
       // Level planes through the crotch, 2 mm apart: how many loops each cuts, and on the loop round the axis how far the skin stands
       // forward and backward on the median line, so the height where the legs part is read and not assumed.
-      const axis: IAutoMovieViewAxis.IAxis = AutoMovieViewAxis.jointed([[0, 780, 0], [0, 1480, 0]], [], [1, 0, 0]) as IAutoMovieViewAxis.IAxis;
+      const axis: IAutoMovieViewAxis.IAxis = AutoMovieEngineViewAxis.jointed([[0, 780, 0], [0, 1480, 0]], [], [1, 0, 0]) as IAutoMovieViewAxis.IAxis;
       for (let s: number = 10; s <= 50; s += 2) {
         const loops: C.P[][] = R.loops(source.body, axis.at(s));
         const loop: C.P[] | null = R.cut(source.body, axis.at(s)).loop;
@@ -169,7 +164,7 @@ namespace FamilyConicScan {
     if (process.argv[2] === "radii") {
       // `radii <fromMm> <toMm> [stepMm]`: the trunk's level sections between two stations, the skin's radius every 15 degrees over the +Z
       // half turn. A radius that jumps between two neighbouring stations is skin that lies level between them, which no section samples.
-      const axis: IAutoMovieViewAxis.IAxis = AutoMovieViewAxis.jointed([[0, 780, 0], [0, 1705, 0]], [], [1, 0, 0]) as IAutoMovieViewAxis.IAxis;
+      const axis: IAutoMovieViewAxis.IAxis = AutoMovieEngineViewAxis.jointed([[0, 780, 0], [0, 1705, 0]], [], [1, 0, 0]) as IAutoMovieViewAxis.IAxis;
       const step: number = Number(process.argv[5] ?? 2);
       for (let s: number = Number(process.argv[3]); s <= Number(process.argv[4]); s += step) {
         const loop: C.P[] | null = R.cut(source.all, axis.at(s)).loop;
@@ -182,7 +177,7 @@ namespace FamilyConicScan {
     }
     if (process.argv[2] === "trunk") {
       // Trunk sections in polar form about the vertical axis through the origin: radius every 15 degrees over the half turn, to read crests and grooves before choosing a layout.
-      const axis: IAutoMovieViewAxis.IAxis = AutoMovieViewAxis.jointed([[0, 780, 0], [0, 1480, 0]], [], [1, 0, 0]) as IAutoMovieViewAxis.IAxis;
+      const axis: IAutoMovieViewAxis.IAxis = AutoMovieEngineViewAxis.jointed([[0, 780, 0], [0, 1480, 0]], [], [1, 0, 0]) as IAutoMovieViewAxis.IAxis;
       for (let s: number = 40; s <= 492; s += 36) {
         const loop: C.P[] | null = R.cut(source.body, axis.at(s)).loop;
         if (loop === null) continue;
@@ -299,7 +294,7 @@ namespace FamilyConicScan {
         // The arm's fan splits the hand's own family (`AutoMovieHumanF1Hand`), which the arm continues across the wrist.
         const family = { ...(which === "arm" ? AutoMovieHumanF1.BODY.hand : AutoMovieHumanF1.BODY.leg), tips: undefined };
         const loft = AutoMovieHumanConicLoft.create(family, family.knots);
-        const ring = (t: number): R.V => AutoMovieLoftChain.point(loft.chain!, station, t) as R.V;
+        const ring = (t: number): R.V => AutoMovieEngineLoftChain.point(loft.chain!, station, t) as R.V;
         const mesh = source.body;
         const cast = (o: R.V, d: R.V): number[] => {
           const hits: number[] = [];
@@ -427,7 +422,7 @@ namespace FamilyConicScan {
       const name: string = process.argv[3] ?? "band.nose";
       const every: number = Number(process.argv[4] ?? 48);
       const declared = AutoMovieHumanF1.construction();
-      const real = realizeAutoMovieConstruction({ name: "f1.body", root: declared.root }, { chord: 0.001, sources: declared.sources });
+      const real = AutoMovieEngineConstruction.realize({ name: "f1.body", root: declared.root }, { chord: 0.001, sources: declared.sources });
       const face = { surface: real.surfaces.find((s: { name: string }): boolean => s.name === name)! };
       const L: number | undefined = real.chains.find((c: { name: string }): boolean => c.name === name)?.layers.at(-1)?.y;
       if (face.surface === undefined || L === undefined) throw new Error("no band " + name);
@@ -512,7 +507,7 @@ namespace FamilyConicScan {
       for (let j: number = 0; j < 32; ++j) {
         const psi: number = (2 * Math.PI * j) / 32;
         const off: number[] = stations.map((s: number): number => {
-          const p: R.V = AutoMovieLoftChain.point(chain, s, psi) as R.V;
+          const p: R.V = AutoMovieEngineLoftChain.point(chain, s, psi) as R.V;
           return Math.min(...triangles.map((t: R.V[]): number => toTriangle(p, t)));
         });
         const at: number = off.findIndex((_: number, i: number): boolean => i + 4 < off.length && off.slice(i, i + 5).every((d: number): boolean => d < 0.3));
@@ -670,7 +665,7 @@ namespace FamilyConicScan {
               const gap = (x: C.P): number => Math.abs(Math.atan2(Math.sin(polar(x) - t), Math.cos(polar(x) - t)));
               let best: C.P | null = null;
               for (let j: number = 0; j < 720; ++j) {
-                const q: number[] = AutoMovieLoftChain.point(chain, s, (2 * Math.PI * j) / 720);
+                const q: number[] = AutoMovieEngineLoftChain.point(chain, s, (2 * Math.PI * j) / 720);
                 const d: number[] = [q[0]! - frame.origin[0], q[1]! - frame.origin[1], q[2]! - frame.origin[2]];
                 const c: C.P = [d[0]! * frame.u[0] + d[1]! * frame.u[1] + d[2]! * frame.u[2], d[0]! * frame.v[0] + d[1]! * frame.v[1] + d[2]! * frame.v[2]];
                 if (best === null || gap(c) < gap(best)) best = c;
@@ -752,11 +747,11 @@ namespace FamilyConicScan {
       const made: IAutoMovieViewAxis.IAxis | string =
         process.argv[4] === "square"
           ? hand
-            ? AutoMovieViewAxis.jointed([joint("upperarm_r"), joint("lowerarm_r"), joint("hand_r"), square(joint("hand_r"), joint("middle_01_r"), joint("pinky_01_r"), joint("index_01_r"))], [30, 10], [1, 0, 0])
-            : AutoMovieViewAxis.jointed([joint("thigh_r"), joint("calf_r"), joint("foot_r"), square(joint("foot_r"), [133, 20, 157], joint("littletoe_01_r"), joint("bigtoe_01_r"))], [40, 62], [1, 0, 0])
+            ? AutoMovieEngineViewAxis.jointed([joint("upperarm_r"), joint("lowerarm_r"), joint("hand_r"), square(joint("hand_r"), joint("middle_01_r"), joint("pinky_01_r"), joint("index_01_r"))], [30, 10], [1, 0, 0])
+            : AutoMovieEngineViewAxis.jointed([joint("thigh_r"), joint("calf_r"), joint("foot_r"), square(joint("foot_r"), [133, 20, 157], joint("littletoe_01_r"), joint("bigtoe_01_r"))], [40, 62], [1, 0, 0])
           : hand
-            ? AutoMovieViewAxis.jointed([joint("upperarm_r"), joint("lowerarm_r"), joint("hand_r"), past(joint("middle_01_r"), joint("index_01_r"), reach)], [30, 10], [1, 0, 0])
-            : AutoMovieViewAxis.jointed([joint("thigh_r"), joint("calf_r"), joint("foot_r"), past(joint("indextoe_01_r"), joint("bigtoe_01_r"), reach)], [40, 62], [1, 0, 0]);
+            ? AutoMovieEngineViewAxis.jointed([joint("upperarm_r"), joint("lowerarm_r"), joint("hand_r"), past(joint("middle_01_r"), joint("index_01_r"), reach)], [30, 10], [1, 0, 0])
+            : AutoMovieEngineViewAxis.jointed([joint("thigh_r"), joint("calf_r"), joint("foot_r"), past(joint("indextoe_01_r"), joint("bigtoe_01_r"), reach)], [40, 62], [1, 0, 0]);
       if (typeof made === "string") throw new Error(made);
       const axis: IAutoMovieViewAxis.IAxis = made;
       const [from, to]: [number, number] = hand ? [556, 640] : [930, 1010];
@@ -807,13 +802,13 @@ namespace FamilyConicScan {
         for (const relief of member.family.reliefs ?? []) {
           const rows: number = relief.rows;
           const columns: number = relief.columns;
-          const periodic: boolean = relief.phases[1] - relief.phases[0] >= 2 * Math.PI - 1e-9;
+          const periodic: boolean = relief.phases.end - relief.phases.start >= 2 * Math.PI - 1e-9;
           const free: number[] = Array.from({ length: columns }, (_: unknown, c: number): number => c).filter((c: number): boolean => periodic || (c >= 3 && c < columns - 3));
-          const pitch: number = (relief.stations[1] - relief.stations[0]) / (rows - 3);
-          const round: number = (relief.phases[1] - relief.phases[0]) / (columns - 3);
+          const pitch: number = (relief.stations.end - relief.stations.start) / (rows - 3);
+          const round: number = (relief.phases.end - relief.phases.start) / (columns - 3);
           const height = (r: number, c: number): number => relief.heights[r * columns + c]!;
-          const station = (r: number): number => relief.stations[0] + (r - 1) * pitch;
-          const phase = (c: number): number => relief.phases[0] + (c - 1) * round;
+          const station = (r: number): number => relief.stations.start + (r - 1) * pitch;
+          const phase = (c: number): number => relief.phases.start + (c - 1) * round;
           const means: number[] = Array.from({ length: rows }, (_: unknown, r: number): number => free.reduce((sum: number, c: number): number => sum + height(r, c), 0) / free.length);
           // The least of three steps that turn back twice, or 0 where they do not: one turn is a crest or a hollow, two are a zigzag.
           const alternates = (q: readonly number[]): number => {
@@ -860,7 +855,7 @@ namespace FamilyConicScan {
       const pattern: RegExp = new RegExp(process.argv[3] ?? "^band\\.");
       const columns: number | undefined = process.argv[4] === undefined ? undefined : Number(process.argv[4]);
       const declared = AutoMovieHumanF1.construction();
-      const real = realizeAutoMovieConstruction({ name: "f1.body", root: declared.root, fills: declared.fills }, { chord: 0.001, sources: declared.sources });
+      const real = AutoMovieEngineConstruction.realize({ name: "f1.body", root: declared.root, fills: declared.fills }, { chord: 0.001, sources: declared.sources });
       process.stdout.write("diagnostics " + real.diagnostics.length + real.diagnostics.map((d: { node: string; contract: string; detail: string }): string => "\n  " + d.node + " (" + d.contract + "): " + d.detail.slice(0, 200)).join("") + "\nsurfaces " + real.surfaces.map((s: { name: string }): string => s.name).join(", ") + "\n");
       const sub = (a: readonly number[], b: readonly number[]): R.V => [a[0]! - b[0]!, a[1]! - b[1]!, a[2]! - b[2]!];
       const dot = (a: readonly number[], b: readonly number[]): number => a[0]! * b[0]! + a[1]! * b[1]! + a[2]! * b[2]!;
@@ -908,7 +903,7 @@ namespace FamilyConicScan {
             "; largest gap " + gap.text + "; largest turn " + turn.text + "\n    clock:chord/gap/gap/turn " + table.join(" ") + "\n",
         );
       }
-      // Each join of that name: its traced curve's points at its columns (`AutoMovieSolidBlendChain.IBlend.curve`), the curve's length and
+      // Each join of that name: its traced curve's points at its columns (`AutoMovieEngineSolidBlendChain.IBlend.curve`), the curve's length and
       // the least, mean and largest distance between two neighbouring columns, with the blend's declared chords either side.
       for (const join of real.joins.filter((j: { name: string }): boolean => pattern.test(j.name))) {
         const curve: [number, number, number][] = join.blend.curve;
@@ -933,7 +928,7 @@ namespace FamilyConicScan {
         const roots = AutoMovieHumanF1.fanRoots(which);
         const plane = roots[0]!.root.plane;
         const ring: C.P[] = Array.from({ length: 720 }, (_: unknown, k: number): C.P => {
-          const p: number[] = AutoMovieLoftChain.point(chain, station, (2 * Math.PI * k) / 720);
+          const p: number[] = AutoMovieEngineLoftChain.point(chain, station, (2 * Math.PI * k) / 720);
           const d: number[] = [p[0]! - plane.origin[0], p[1]! - plane.origin[1], p[2]! - plane.origin[2]];
           return [d[0]! * plane.u[0] + d[1]! * plane.u[1] + d[2]! * plane.u[2], d[0]! * plane.v[0] + d[1]! * plane.v[1] + d[2]! * plane.v[2]];
         });
@@ -975,7 +970,7 @@ namespace FamilyConicScan {
       for (const stored of members) {
         if (stored.centres.length < 3) continue;
         const family: IAutoMovieHumanConicLoft.IFamily = { ...stored, tips: undefined, reliefs: undefined };
-        const runs: IAutoMovieViewAxis.IRun[] | string = AutoMovieViewAxis.runs(family.centres, family.halves);
+        const runs: IAutoMovieViewAxis.IRun[] | string = AutoMovieEngineViewAxis.runs(family.centres, family.halves);
         if (typeof runs === "string") throw new Error(family.name + ": " + runs);
         const course: IAutoMovieViewAxis.IAxis = AutoMovieHumanConicLoft.axis(family);
         const unit = (a: readonly number[], b: readonly number[]): number[] => {
@@ -1000,7 +995,7 @@ namespace FamilyConicScan {
               const origin = course.at(middle).origin;
               let far: number = 0;
               for (let j: number = 0; j < 360; ++j) {
-                const p: number[] = AutoMovieLoftChain.point(chain, middle, (2 * Math.PI * j) / 360);
+                const p: number[] = AutoMovieEngineLoftChain.point(chain, middle, (2 * Math.PI * j) / 360);
                 far = Math.max(far, ((p[0]! - origin[0]) * inward[0]! + (p[1]! - origin[1]) * inward[1]! + (p[2]! - origin[2]) * inward[2]!) / size);
               }
               reach = far.toFixed(1) + " mm";
@@ -1055,9 +1050,9 @@ namespace FamilyConicScan {
       const centres: R.V[] = JSON.parse(process.argv[3] ?? "[[112,1551,16.5],[119,1552,15.2],[125,1553,12.5],[129,1553.5,8]]") as R.V[];
       const halves: number[] = JSON.parse(process.argv[4] ?? "[2.5,2.5]") as number[];
       const reach: number = Number(process.argv[5] ?? 9);
-      const made: IAutoMovieViewAxis.IAxis | string = AutoMovieViewAxis.jointed(centres, halves, [0, 1, 0]);
+      const made: IAutoMovieViewAxis.IAxis | string = AutoMovieEngineViewAxis.jointed(centres, halves, [0, 1, 0]);
       if (typeof made === "string") throw new Error(made);
-      const runs: IAutoMovieViewAxis.IRun[] | string = AutoMovieViewAxis.runs(centres, halves);
+      const runs: IAutoMovieViewAxis.IRun[] | string = AutoMovieEngineViewAxis.runs(centres, halves);
       if (typeof runs === "string") throw new Error(runs);
       const length: number = runs.at(-1)!.end;
       process.stdout.write("course " + JSON.stringify(centres) + " halves " + JSON.stringify(halves) + " length " + length.toFixed(1) + " mm, reach " + reach + " mm\n");
@@ -1123,9 +1118,9 @@ namespace FamilyConicScan {
       const halves: number[] = JSON.parse(process.argv[4] ?? "[]") as number[];
       const up: R.V = ((v: R.V): R.V => [v[0], v[1], side * v[2]])(JSON.parse(process.argv[5] ?? "[0,1,0]") as R.V);
       const reach: number = Number(process.argv[6] ?? 90);
-      const made: IAutoMovieViewAxis.IAxis | string = AutoMovieViewAxis.jointed(centres, halves, up);
+      const made: IAutoMovieViewAxis.IAxis | string = AutoMovieEngineViewAxis.jointed(centres, halves, up);
       if (typeof made === "string") throw new Error(made);
-      const runs: IAutoMovieViewAxis.IRun[] | string = AutoMovieViewAxis.runs(centres, halves);
+      const runs: IAutoMovieViewAxis.IRun[] | string = AutoMovieEngineViewAxis.runs(centres, halves);
       if (typeof runs === "string") throw new Error(runs);
       const length: number = runs.at(-1)!.end;
       const from: number = Number(process.argv[8] ?? -30);
@@ -1696,9 +1691,9 @@ namespace FamilyConicScan {
     courses.push({ name: "leg", centres: [joint("thigh_r"), joint("calf_r"), joint("foot_r"), [133, 20, 157]], halves: [40, 62], up: [1, 0, 0], step: 6 });
     courses.push({ name: "trunk", centres: [[0, 780, 0], [0, 1705, 0]], halves: [], up: [1, 0, 0], step: 12 });
     for (const course of courses) {
-      const axis: IAutoMovieViewAxis.IAxis | string = AutoMovieViewAxis.jointed(course.centres, course.halves, course.up);
+      const axis: IAutoMovieViewAxis.IAxis | string = AutoMovieEngineViewAxis.jointed(course.centres, course.halves, course.up);
       if (typeof axis === "string") throw new Error(course.name + ": " + axis);
-      const runs: IAutoMovieViewAxis.IRun[] | string = AutoMovieViewAxis.runs(course.centres, course.halves);
+      const runs: IAutoMovieViewAxis.IRun[] | string = AutoMovieEngineViewAxis.runs(course.centres, course.halves);
       const length: number = typeof runs === "string" ? 0 : runs.at(-1)!.end;
       const cells: string[] = [];
       for (let s: number = -24; s <= length + 24; s += course.step) {

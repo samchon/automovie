@@ -1,9 +1,11 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { shiftStandingWeightSteps } from "@automovie/motions/internal";
+import {
+  shiftStandingWeightSteps
+} from "../../../../../packages/motions/src/everyday/internal/shiftStandingWeightSteps";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -32,7 +34,7 @@ export async function test_motions_everyday_shift_standing_weight(): Promise<voi
     turn: number,
   ): Parameters<typeof shiftStandingWeightSteps.plants>[0] => ({
     worldPosition: { ...ankle, x: ankle.x + dx },
-    worldRotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, turn),
+    worldRotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, turn),
   });
   TestValidator.equals(
     "the ankle's drift",

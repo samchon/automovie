@@ -1,5 +1,5 @@
-import { RUMMAGE as RUMMAGESource } from "../search/RUMMAGE";
-import { searchBag as searchBagLaw } from "../search/searchBag";
+import { RUMMAGE as RUMMAGESource } from "../search/internal/RUMMAGE";
+import { searchBag as searchBagLaw } from "../search/internal/searchBag";
 
 /**
  * Searching a bag composed from shipped actions: the hand reaches through the

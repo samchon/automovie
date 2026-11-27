@@ -1,4 +1,5 @@
-import { realizeAutoMovieConstruction } from "@automovie/engine";
+
+import { AutoMovieEngineConstruction } from "@automovie/engine";
 import type { IAutoMovieConstructionRealization } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -25,7 +26,7 @@ export function test_engine_geometry_construction_nesting(): void {
     k: number,
     nested: "left" | "right",
   ): IAutoMovieConstructionRealization.IRealization =>
-    realizeAutoMovieConstruction(
+    AutoMovieEngineConstruction.realize(
       { name: `made.${nested}`, root: ConstructionShapes.assembly(k, nested) },
       { chord: 1e-4 * k },
     );

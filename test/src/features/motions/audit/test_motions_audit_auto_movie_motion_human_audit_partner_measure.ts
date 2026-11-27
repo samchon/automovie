@@ -1,4 +1,4 @@
-﻿import { Vector3 } from "@automovie/engine";
+﻿import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanAuditMotion,
@@ -7,11 +7,17 @@ import type {
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanAuditPartner,
-  poseBones,
-  resolveHumanPosture,
-  stand,
-} from "@automovie/motions/internal";
+  AutoMovieMotionHumanAuditPartner
+} from "../../../../../packages/motions/src/audit/internal/AutoMovieMotionHumanAuditPartner";
+import {
+  poseBones
+} from "../../../../../packages/motions/src/posture/internal/poseBones";
+import {
+  resolveHumanPosture
+} from "../../../../../packages/motions/src/posture/internal/resolveHumanPosture";
+import {
+  stand
+} from "../../../../../packages/motions/src/actions/internal/stand";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -66,7 +72,7 @@ export async function test_motions_audit_auto_movie_motion_human_audit_partner_m
                 name,
                 {
                   ...bone,
-                  worldPosition: Vector3.add(bone.worldPosition, {
+                  worldPosition: AutoMovieEngineVector3.add(bone.worldPosition, {
                     x: x(t),
                     y: 0,
                     z: 0,

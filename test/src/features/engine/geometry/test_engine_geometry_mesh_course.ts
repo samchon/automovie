@@ -1,4 +1,4 @@
-import { AutoMovieMeshCourse } from "@automovie/engine";
+import { AutoMovieEngineMeshCourse } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieMeshCourse,
@@ -8,7 +8,7 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../../internal/predicates";
 
 /**
- * `AutoMovieMeshCourse` cuts a mesh on a course plane and reads the loop that
+ * `AutoMovieEngineMeshCourse` cuts a mesh on a course plane and reads the loop that
  * holds the course point; `newell` and `centroid` read a closed polygon.
  *
  * Scenarios:
@@ -43,42 +43,42 @@ export function test_engine_geometry_mesh_course(): void {
   ];
   TestValidator.equals(
     "square newell",
-    AutoMovieMeshCourse.newell(square),
+    AutoMovieEngineMeshCourse.newell(square),
     p(0, 0, 8),
   );
   TestValidator.equals(
     "reversed newell",
-    AutoMovieMeshCourse.newell([...square].reverse()),
+    AutoMovieEngineMeshCourse.newell([...square].reverse()),
     p(0, 0, -8),
   );
   TestValidator.equals(
     "triangle newell",
-    AutoMovieMeshCourse.newell(triangle),
+    AutoMovieEngineMeshCourse.newell(triangle),
     p(0, 0, 9),
   );
   TestValidator.equals(
     "square centroid",
-    AutoMovieMeshCourse.centroid(square),
+    AutoMovieEngineMeshCourse.centroid(square),
     p(1, 1, 0),
   );
   TestValidator.equals(
     "reversed centroid",
-    AutoMovieMeshCourse.centroid([...square].reverse()),
+    AutoMovieEngineMeshCourse.centroid([...square].reverse()),
     p(1, 1, 0),
   );
   TestValidator.equals(
     "triangle centroid",
-    AutoMovieMeshCourse.centroid(triangle),
+    AutoMovieEngineMeshCourse.centroid(triangle),
     p(1, 1, 0),
   );
   TestValidator.equals(
     "two points",
-    AutoMovieMeshCourse.centroid([p(0, 0, 0), p(1, 0, 0)]),
+    AutoMovieEngineMeshCourse.centroid([p(0, 0, 0), p(1, 0, 0)]),
     null,
   );
   TestValidator.equals(
     "collinear",
-    AutoMovieMeshCourse.centroid([p(0, 0, 0), p(1, 0, 0), p(2, 0, 0)]),
+    AutoMovieEngineMeshCourse.centroid([p(0, 0, 0), p(1, 0, 0), p(2, 0, 0)]),
     null,
   );
 
@@ -93,7 +93,7 @@ export function test_engine_geometry_mesh_course(): void {
     0, 2, 1, 1, 2, 3, 4, 5, 6, 5, 7, 6, 0, 1, 4, 1, 5, 4, 2, 6, 3, 3, 6, 7, 0,
     4, 2, 2, 4, 6, 1, 3, 5, 3, 7, 5,
   ];
-  const sections: IAutoMovieMeshCourse.ISection[] = AutoMovieMeshCourse.cut(
+  const sections: IAutoMovieMeshCourse.ISection[] = AutoMovieEngineMeshCourse.cut(
     { positions, indices },
     [{ station: 0, origin: [0, 0, 0], u: [1, 0, 0], v: [0, 1, 0] }],
   );

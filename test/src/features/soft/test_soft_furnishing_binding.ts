@@ -1,4 +1,4 @@
-import { validateSoftFurnishings } from "@automovie/engine";
+import { AutoMovieEngineSoftFurnishing } from "@automovie/engine";
 import {
   IAutoMovieConstraintViolation,
   IAutoMovieSoftBodyDomain,
@@ -46,7 +46,7 @@ const check: (props: {
   domains?: IAutoMovieSoftBodyDomain[];
   semantic?: boolean;
 }): IAutoMovieValidation =>
-  validateSoftFurnishings({
+  AutoMovieEngineSoftFurnishing.validateSoftFurnishings({
     environment: roomEnvironment({ semantic: props.semantic }),
     furnishings: props.furnishings ?? [softFurnishing()],
     domains: props.domains ?? [panel()],

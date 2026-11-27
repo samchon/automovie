@@ -1,1 +1,3 @@
-export { default } from "../../config/lint.config";
+import { createLintConfig } from "@automovie/config";
+
+export default createLintConfig();

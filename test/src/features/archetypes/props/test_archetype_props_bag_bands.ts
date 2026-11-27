@@ -1,4 +1,4 @@
-import { AutoMovieArchetypeUnits, createBag } from "@automovie/archetypes";
+import { AutoMovieArchetypeUnits, AutoMovieArchetypeBag } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../../internal/archetypeBandSweep";
@@ -21,7 +21,7 @@ export function test_archetype_props_bag_bands(): void {
   const bag = (
     kind: "suitcase" | "briefcase" | "toolbox" | "handbag" | "duffel",
     seed: number,
-  ): ReturnType<typeof createBag> => createBag({ kind }, seed);
+  ): ReturnType<typeof AutoMovieArchetypeBag.create> => AutoMovieArchetypeBag.create({ kind }, seed);
   const row = (
     name: string,
     minimum: number,
@@ -123,7 +123,7 @@ export function test_archetype_props_bag_bands(): void {
         archetypeExtent(bag("handbag", s), "z", ["body"]).size,
     ),
     row("handbag drop", 0.11, 0.12, LONGCHAMP, (s: number): number => {
-      const made: ReturnType<typeof createBag> = bag("handbag", s);
+      const made: ReturnType<typeof AutoMovieArchetypeBag.create> = bag("handbag", s);
       return (
         archetypeExtent(made, "y", ["handle"]).high -
         archetypeExtent(made, "y", ["body"]).high
@@ -188,7 +188,7 @@ export function test_archetype_props_bag_bands(): void {
       "toolbox",
       "duffel",
     ] as const) {
-      const made: ReturnType<typeof createBag> = bag(kind, seed);
+      const made: ReturnType<typeof AutoMovieArchetypeBag.create> = bag(kind, seed);
       const handle: ReturnType<typeof made.affordance> =
         made.affordance("handle");
       const top: number = archetypeExtent(made, "y", ["body"]).high;
@@ -205,7 +205,7 @@ export function test_archetype_props_bag_bands(): void {
         findings.push(`${kind}@${seed}: the handle is off the NIOSH handle`);
     }
   for (const seed of [0, 1, 2]) {
-    const made: ReturnType<typeof createBag> = bag("handbag", seed);
+    const made: ReturnType<typeof AutoMovieArchetypeBag.create> = bag("handbag", seed);
     if (
       Math.abs(made.affordance("handle").length! - 0.115) > 1e-9 ||
       Math.abs(

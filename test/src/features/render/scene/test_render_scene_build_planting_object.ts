@@ -1,4 +1,4 @@
-import { arrangePlantingCluster, growPlanting } from "@automovie/engine";
+import { AutoMovieEnginePlanting } from "@automovie/engine";
 import type {
   IAutoMoviePlantingArrangement,
   IAutoMoviePlantingBranch,
@@ -7,7 +7,7 @@ import type {
   IAutoMoviePlantingPlacement,
   IAutoMoviePlantingState,
 } from "@automovie/interface";
-import { AutoMovieThreeKind, buildPlantingObject } from "@automovie/render";
+import { AutoMovieRenderThreeKind, AutoMovieRenderSceneLayout } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -76,10 +76,10 @@ const FOLIAGE: {
  */
 export function test_render_scene_build_planting_object(): void {
   const domain: IAutoMoviePlantingDomain = plantingRecipe({ foliage: FOLIAGE });
-  const plant: IAutoMoviePlantingState = growPlanting(domain);
+  const plant: IAutoMoviePlantingState = AutoMovieEnginePlanting.growPlanting(domain);
   const arrangement: IAutoMoviePlantingArrangement =
-    arrangePlantingCluster(plantingCluster());
-  const object: ReturnType<typeof buildPlantingObject> = buildPlantingObject({
+    AutoMovieEnginePlanting.arrangePlantingCluster(plantingCluster());
+  const object: ReturnType<typeof AutoMovieRenderSceneLayout.buildPlantingObject> = AutoMovieRenderSceneLayout.buildPlantingObject({
     plant,
     arrangement,
   });
@@ -94,7 +94,7 @@ export function test_render_scene_build_planting_object(): void {
       leafInstances: object.leaves?.count ?? -1,
       instancedMeshes: object.object.children.filter(
         (child: THREE.Object3D<THREE.Object3DEventMap>): boolean =>
-          AutoMovieThreeKind.isInstancedMesh(child),
+          AutoMovieRenderThreeKind.isInstancedMesh(child),
       ).length,
     },
     {
@@ -307,12 +307,12 @@ export function test_render_scene_build_planting_object(): void {
   borrowed.addEventListener("dispose", (): void => {
     ++borrowedDisposals;
   });
-  const bare: ReturnType<typeof buildPlantingObject> = buildPlantingObject({
-    plant: growPlanting(plantingRecipe()),
+  const bare: ReturnType<typeof AutoMovieRenderSceneLayout.buildPlantingObject> = AutoMovieRenderSceneLayout.buildPlantingObject({
+    plant: AutoMovieEnginePlanting.growPlanting(plantingRecipe()),
     arrangement,
     branchMaterial: borrowed,
   });
-  const cut: IAutoMoviePlantingState = growPlanting(
+  const cut: IAutoMoviePlantingState = AutoMovieEnginePlanting.growPlanting(
     plantingRecipe({
       structure: { ...plantingRecipe().structure, length: 2 },
       pruning: {
@@ -322,7 +322,7 @@ export function test_render_scene_build_planting_object(): void {
       },
     }),
   );
-  const pruned: ReturnType<typeof buildPlantingObject> = buildPlantingObject({
+  const pruned: ReturnType<typeof AutoMovieRenderSceneLayout.buildPlantingObject> = AutoMovieRenderSceneLayout.buildPlantingObject({
     plant: cut,
     arrangement,
   });
@@ -370,8 +370,8 @@ export function test_render_scene_build_planting_object(): void {
     ]),
     { noLeaves: true, oneChild: true, borrowed: true },
   );
-  const dormant: ReturnType<typeof buildPlantingObject> = buildPlantingObject({
-    plant: growPlanting(
+  const dormant: ReturnType<typeof AutoMovieRenderSceneLayout.buildPlantingObject> = AutoMovieRenderSceneLayout.buildPlantingObject({
+    plant: AutoMovieEnginePlanting.growPlanting(
       plantingRecipe({ growth: { stage: 0, onset: 0.25 }, foliage: FOLIAGE }),
     ),
     arrangement,

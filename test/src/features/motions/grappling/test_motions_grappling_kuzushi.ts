@@ -1,4 +1,6 @@
-import { kuzushi } from "@automovie/motions/internal";
+import {
+  kuzushi
+} from "../../../../../packages/motions/src/grappling/internal/kuzushi";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

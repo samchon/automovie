@@ -1,7 +1,7 @@
 /** Raw image samples supplied to the deterministic PNG encoder. */
 export namespace IAutoMovieEncodePng {
   /**
-   * Borrowed 8-bit interleaved pixels for encodeAutoMoviePng. The encoder reads
+   * Borrowed 8-bit interleaved pixels for encodePng. The encoder reads
    * without mutation and returns padded base64 PNG bytes without a data:
    * prefix; image identity is assigned separately by the caller.
    *

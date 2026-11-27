@@ -1,10 +1,4 @@
-import {
-  AutoMovieConstructionContinuation,
-  AutoMovieConstructionRing,
-  AutoMovieSolidBody,
-  AutoMovieSolidChain,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
+import { AutoMovieEngineConstructionContinuation, AutoMovieEngineConstructionRing, AutoMovieEngineSolidBody, AutoMovieEngineSolidChain, AutoMovieEngineConstruction } from "@automovie/engine";
 import type {
   IAutoMovieConstructionNode,
   IAutoMovieConstructionRealization,
@@ -95,7 +89,7 @@ export namespace ConstructionBlendFixture {
     );
     const width: number = 0.006;
     const real: IAutoMovieConstructionRealization.IWithoutSkin =
-      realizeAutoMovieConstruction(
+      AutoMovieEngineConstruction.realize(
         {
           name: "made",
           root: ConstructionShapes.join(
@@ -106,8 +100,8 @@ export namespace ConstructionBlendFixture {
             {
               partFace: "post",
               hostFace: across ? "beam.left" : "beam",
-              part: [BEAM + 0.001, Math.PI / 2],
-              host: [across ? 0.1 - 0.001 : 0.1 + POST, 0.01],
+              part: { station: BEAM + 0.001, phase: Math.PI / 2 },
+              host: { station: across ? 0.1 - 0.001 : 0.1 + POST, phase: 0.01 },
             },
             {
               part: { type: "chord", value: width },
@@ -135,7 +129,7 @@ export namespace ConstructionBlendFixture {
       (chain: IAutoMovieLoftChain, k: number): IAutoMovieSolidBody.IFaceInput =>
         face(chain, real.surfaces[k]!),
     );
-    const body: IAutoMovieSolidBody.IBody = AutoMovieSolidBody.create(
+    const body: IAutoMovieSolidBody.IBody = AutoMovieEngineSolidBody.create(
       "made",
       faces,
     );
@@ -144,7 +138,7 @@ export namespace ConstructionBlendFixture {
     // each beam's boundary cycle through it.
     if (across) {
       const first: IAutoMovieLoftChain = real.chains[0]!;
-      AutoMovieConstructionRing.create(body, {
+      AutoMovieEngineConstructionRing.create(body, {
         host: 0,
         hostStation: first.layers[first.layers.length - 1]!.y,
         hostKind: "end",
@@ -152,18 +146,18 @@ export namespace ConstructionBlendFixture {
         partStation: real.chains[1]!.layers[0]!.y,
         partKind: "start",
         count: first.samples,
-        sign: AutoMovieConstructionContinuation.sign("top", "bottom"),
+        sign: AutoMovieEngineConstructionContinuation.sign("top", "bottom"),
       });
     }
     const blendSurface: IAutoMovieSolidSurface | null =
-      AutoMovieSolidChain.surface(joined.blend.chain);
+      AutoMovieEngineSolidChain.surface(joined.blend.chain);
     if (blendSurface === null)
       throw new Error("the fixture blend carries no jets");
     return {
       body,
       join: joined.join,
       blend: joined.blend,
-      index: AutoMovieSolidBody.atlas(body, faces.length - 1).index,
+      index: AutoMovieEngineSolidBody.atlas(body, faces.length - 1).index,
       count: joined.blend.host.chart.length,
       surface: blendSurface,
     };

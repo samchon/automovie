@@ -56,9 +56,9 @@ export namespace AutoMovieHumanSpinalGroove {
       "trunk.spinalGroove",
       feature(frame, half),
       {
-        stations: [frame.origin[1] - half, frame.origin[1] + half],
-        phases: [Math.PI - halfPhase, Math.PI + halfPhase],
-        apex: [0.5, 0.5],
+        stations: { start: frame.origin[1] - half, end: frame.origin[1] + half },
+        phases: { start: Math.PI - halfPhase, end: Math.PI + halfPhase },
+        apex: { station: 0.5, phase: 0.5 },
       },
       base,
     );

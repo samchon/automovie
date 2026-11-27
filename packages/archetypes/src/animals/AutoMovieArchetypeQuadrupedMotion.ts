@@ -1,7 +1,9 @@
-import { minimumJerk } from "@automovie/engine";
+import {
+  AutoMovieEngineMotionSampling,
+} from "@automovie/engine";
 
 import { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
-import type { createQuadruped } from "./createQuadruped";
+import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
 /**
  * How a quadruped's swinging foot and its head move through a stride: the foot
@@ -43,7 +45,7 @@ export namespace AutoMovieArchetypeQuadrupedMotion {
    * @returns The pitch.
    */
   export function nod(
-    species: createQuadruped.ISpecies,
+    species: AutoMovieArchetypeQuadruped.ISpecies,
     stride: AutoMovieArchetypeQuadrupedGait.IStride,
     phase: number,
     duty: number,
@@ -63,7 +65,9 @@ export namespace AutoMovieArchetypeQuadrupedMotion {
   }
 }
 
-/** Sample the existing quintic by its first-half value and exact time symmetry. */
+/*
+ * Sample the existing quintic by its first-half value and exact time symmetry.
+ */
 function progress(u: number): number {
-  return u <= 0.5 ? minimumJerk(u).s : 1 - minimumJerk(1 - u).s;
+  return u <= 0.5 ? AutoMovieEngineMotionSampling.minimumJerk(u).s : 1 - AutoMovieEngineMotionSampling.minimumJerk(1 - u).s;
 }

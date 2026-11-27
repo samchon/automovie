@@ -26,10 +26,10 @@ export namespace AutoMovieHumanGlutealRelief {
     const dome: IAutoMovieHumanTrunkFeature = input.dome;
     if (!(dome.height(dome.apex[0], dome.apex[1]) > 0)) return [];
     const o: [number, number, number] = dome.frame.origin;
-    const stations: [number, number] = [
-      o[1] + dome.reach.v[0],
-      o[1] + dome.reach.v[1],
-    ];
+    const stations = {
+      start: o[1] + dome.reach.v[0],
+      end: o[1] + dome.reach.v[1],
+    };
 
     // On the back the phase falls as the lateral place rises, so the window's
     // phases run from the lateral edge (smaller z, larger phase is the midline).
@@ -38,12 +38,12 @@ export namespace AutoMovieHumanGlutealRelief {
       input.phaseOf(lateralOf(dome.reach.u[0])),
       input.phaseOf(lateralOf(dome.reach.u[1])),
     ];
-    const phases: [number, number] = [Math.min(...edges), Math.max(...edges)];
-    const apex: [number, number] = [
-      (o[1] - stations[0]) / (stations[1] - stations[0]),
-      (input.phaseOf(lateralOf(dome.apex[0])) - phases[0]) /
-        (phases[1] - phases[0]),
-    ];
+    const phases = { start: Math.min(...edges), end: Math.max(...edges) };
+    const apex = {
+      station: (o[1] - stations.start) / (stations.end - stations.start),
+      phase: (input.phaseOf(lateralOf(dome.apex[0])) - phases.start) /
+        (phases.end - phases.start),
+    };
     const left: IAutoMovieLoftRelief = AutoMovieHumanTrunkReliefNet.fromFeature(
       "trunk.buttock.left",
       dome,

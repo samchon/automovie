@@ -1,8 +1,4 @@
-import {
-  Quaternion,
-  autoMoviePatternInstanceTransforms,
-  generateAutoMovieSurfacePattern,
-} from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineArchitecture, AutoMovieEngineSurfaceMaterial } from "@automovie/engine";
 import type {
   IAutoMovieExplicitInstanceTransform,
   IAutoMoviePatternFinding,
@@ -128,7 +124,7 @@ const moulding: (
 const ceiling: (minimumPiece: number) => IAutoMovieSurfacePatternResult = (
   minimumPiece: number,
 ): IAutoMovieSurfacePatternResult =>
-  generateAutoMovieSurfacePattern({
+  AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
     pattern: pattern({
       id: "coffered-ceiling",
       zones: [
@@ -364,7 +360,7 @@ export function test_architecture_surface_pattern_coffers(): void {
     ["sliver:border-east/trim", "sliver:border-west/trim"],
   );
 
-  const hung: IAutoMoviePatternInstancing = autoMoviePatternInstanceTransforms({
+  const hung: IAutoMoviePatternInstancing = AutoMovieEngineArchitecture.patternInstanceTransforms({
     result: laid,
     frame: CEILING,
     thickness: 0.08,
@@ -401,7 +397,7 @@ export function test_architecture_surface_pattern_coffers(): void {
           hung.transforms.every(
             (one: IAutoMovieExplicitInstanceTransform): boolean =>
               vclose(
-                Quaternion.rotateVector(one.rotation, { x: 0, y: 0, z: 1 }),
+                AutoMovieEngineQuaternion.rotateVector(one.rotation, { x: 0, y: 0, z: 1 }),
                 { x: 0, y: -1, z: 0 },
               ),
           ),

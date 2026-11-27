@@ -1,4 +1,4 @@
-import { instanceSlot } from "@automovie/engine";
+import { AutoMovieEnginePopulationRuntime } from "@automovie/engine";
 import type {
   IAutoMovieInstanceSetPlacement,
   IAutoMovieInstanceSlot,
@@ -23,5 +23,5 @@ export const sampleInstanceVariationSlots: (
   Array.from(
     { length: placement.count },
     (_: unknown, slot: number): IAutoMovieInstanceSlot =>
-      instanceSlot(placement, slot),
+      AutoMovieEnginePopulationRuntime.instanceSlot(placement, slot),
   );

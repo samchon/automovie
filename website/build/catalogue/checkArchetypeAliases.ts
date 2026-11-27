@@ -1,26 +1,26 @@
-import {
-  AutoMovieArchetype,
-  AutoMovieArchetypeFrame,
-  createQuadruped,
-  rideQuadruped,
-} from "@automovie/archetypes";
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieArchetype, AutoMovieArchetypeBicycle, AutoMovieArchetypeBoat, AutoMovieArchetypeCamera, AutoMovieArchetypeCar, AutoMovieArchetypeCarriage, AutoMovieArchetypeChariot, AutoMovieArchetypeDinghy, AutoMovieArchetypeFrame, AutoMovieArchetypeHorseCart, AutoMovieArchetypeKayak, AutoMovieArchetypeLimber, AutoMovieArchetypeMotorcycle, AutoMovieArchetypePhone, AutoMovieArchetypeRemote, AutoMovieArchetypeRickshaw, AutoMovieArchetypeShoppingTrolley, AutoMovieArchetypeTablet, AutoMovieArchetypeWagon, AutoMovieArchetypeWheelbarrow, AutoMovieArchetypeDiscus, AutoMovieArchetypeHammerThrow, AutoMovieArchetypeJavelin, AutoMovieArchetypeOvalBall, AutoMovieArchetypePuck, AutoMovieArchetypeShot, AutoMovieArchetypeShuttlecock, AutoMovieArchetypeSphericalBall, AutoMovieArchetypeQuadruped } from "@automovie/archetypes";
+import * as archetypes from "@automovie/archetypes";
+import { AutoMovieEngineQuaternion } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieTransform,
 } from "@automovie/interface";
 import assert from "node:assert/strict";
 
+import { ArchetypeRegistry } from "../../src/archetypes/ArchetypeRegistry";
 import { GalleryAddress } from "../../src/gallery/GalleryAddress";
 import { GalleryArchetype } from "../../src/gallery/package/GalleryArchetype";
 import { GalleryCatalogue } from "../../src/gallery/package/GalleryCatalogue";
 import { PlaygroundAddress } from "../../src/playground/PlaygroundAddress";
 import { PlaygroundObjects } from "../../src/playground/package/PlaygroundObjects";
+import { playgroundVehicleCourse } from "../../src/playground/package/playgroundVehicleCourse";
 import type { IPlaygroundComposition } from "../../src/playground/structures/IPlaygroundComposition";
 import { SCENES_PARTNER } from "../../src/scenes/data/SCENES_PARTNER";
 import { formatSceneChain } from "../../src/scenes/formatSceneChain";
 import { SceneArchetype } from "../../src/scenes/package/SceneArchetype";
 import { SceneChainNames } from "../../src/scenes/package/SceneChainNames";
+import { SceneStatus } from "../../src/scenes/package/SceneStatus";
+import { sceneCourseBuilder } from "../../src/scenes/sceneCourseBuilder";
 
 /** A version-two composition encoded by the original lz-string writer. */
 const SAVED_LINK: string =
@@ -28,16 +28,434 @@ const SAVED_LINK: string =
 
 /** Check the site's saved links, seeded animal samples and restored objects. */
 export function checkArchetypeAliases(): void {
+  assert.equal(ArchetypeRegistry.get("createCar.toString"), undefined);
+  assert.equal(ArchetypeRegistry.get("constructor"), undefined);
+  assert.equal(sceneCourseBuilder("createCar"), "AutoMovieArchetypeCar.drive");
+  assert.equal(
+    ArchetypeRegistry.get("createBoat.rowboat")?.expression,
+    'archetypes.AutoMovieArchetypeBoat.PRODUCERS["rowboat"]',
+  );
+  assert.throws(
+    () => sceneCourseBuilder("constructor"),
+    /"constructor" does not supply a vehicle course\./,
+  );
+  const bench: IPlaygroundComposition.IObject = {
+    subject: "bench",
+    producer: "createSeat",
+    kind: "bench",
+    x: 0,
+    z: 0,
+    yaw: 0,
+    course: { legs: [{ kind: "straight", length: 1 }], cruise: 1 },
+  };
+  const seat: SceneArchetype.Model = SceneArchetype.model(bench);
+  assert.throws(
+    () => playgroundVehicleCourse(bench, seat),
+    /"createSeat" does not supply a vehicle course\./,
+  );
+
   const catalogue = GalleryCatalogue.catalogue();
   const listed = catalogue.groups.flatMap((group) =>
     group.subjects.map((subject) => subject.id),
   );
   assert.equal(
+    listed.length,
+    355,
+    "the gallery preserves its visible root IDs",
+  );
+  const aliases: readonly NonNullable<typeof catalogue.aliases>[number][] =
+    catalogue.aliases ?? [];
+  assert.equal(aliases.length, 34, "the gallery preserves dispatcher aliases");
+  assert.equal(listed.length + aliases.length, 389);
+  assert.equal(listed.filter((id) => id === "createCar").length, 1);
+  assert.equal(listed.filter((id) => id === "createBicycle").length, 1);
+  assert.equal(listed.filter((id) => id === "createMotorcycle").length, 1);
+  assert.equal(listed.filter((id) => id === "createDinghy").length, 1);
+  assert.equal(listed.filter((id) => id === "createKayak").length, 1);
+  assert.equal(listed.filter((id) => id === "createPhone").length, 1);
+  assert.equal(listed.filter((id) => id === "createCamera").length, 1);
+  assert.equal(listed.filter((id) => id === "createRemote").length, 1);
+  assert.equal(listed.filter((id) => id === "createTablet").length, 1);
+  assert(
+    catalogue.groups
+      .find((group) => group.name === "vehicles")!
+      .subjects.some((subject) => subject.id === "createCar"),
+  );
+  const vehicleSubjects: readonly string[] = catalogue.groups
+    .find((group) => group.name === "vehicles")!
+    .subjects.map((subject) => subject.id);
+  assert(vehicleSubjects.includes("createBicycle"));
+  assert(vehicleSubjects.includes("createMotorcycle"));
+  const factories: string[] = ArchetypeRegistry.factoryIds();
+  assert.equal(factories.length, 583);
+  assert.equal(new Set(factories).size, 583);
+  const roots: string[] = ArchetypeRegistry.rootIds();
+  assert.equal(roots.length, 389);
+  assert.equal(new Set(roots).size, 389);
+  assert.equal(Object.hasOwn(archetypes, "createCar"), false);
+  assert.equal(Object.hasOwn(archetypes, "createBicycle"), false);
+  assert.equal(Object.hasOwn(archetypes, "createMotorcycle"), false);
+  assert.equal(Object.hasOwn(archetypes, "createBoat"), false);
+  assert.equal(Object.hasOwn(archetypes, "createDinghy"), false);
+  assert.equal(Object.hasOwn(archetypes, "createKayak"), false);
+  assert.equal(Object.hasOwn(archetypes, "createPhone"), false);
+  assert.equal(Object.hasOwn(archetypes, "createCamera"), false);
+  assert.equal(Object.hasOwn(archetypes, "createRemote"), false);
+  assert.equal(Object.hasOwn(archetypes, "createTablet"), false);
+  assert.equal(Object.hasOwn(archetypes, "createCarriage"), false);
+  assert.equal(Object.hasOwn(archetypes, "createChariot"), false);
+  assert.equal(Object.hasOwn(archetypes, "createHorseCart"), false);
+  assert.equal(Object.hasOwn(archetypes, "createLimber"), false);
+  assert.equal(Object.hasOwn(archetypes, "createRickshaw"), false);
+  assert.equal(Object.hasOwn(archetypes, "createShoppingTrolley"), false);
+  assert.equal(Object.hasOwn(archetypes, "createWagon"), false);
+  assert.equal(Object.hasOwn(archetypes, "createWheelbarrow"), false);
+  assert.equal(Object.hasOwn(archetypes, "createDiscus"), false);
+  assert.equal(Object.hasOwn(archetypes, "createHammerThrow"), false);
+  assert.equal(Object.hasOwn(archetypes, "createJavelin"), false);
+  assert.equal(Object.hasOwn(archetypes, "createOvalBall"), false);
+  assert.equal(Object.hasOwn(archetypes, "createPuck"), false);
+  assert.equal(Object.hasOwn(archetypes, "createShot"), false);
+  assert.equal(Object.hasOwn(archetypes, "createShuttlecock"), false);
+  assert.equal(Object.hasOwn(archetypes, "createSphericalBall"), false);
+  assert.equal(
+    ArchetypeRegistry.get("createCar")?.call,
+    AutoMovieArchetypeCar.create,
+  );
+  assert.equal(
+    ArchetypeRegistry.get("createCar")?.expression,
+    "archetypes.AutoMovieArchetypeCar.create",
+  );
+  assert.deepEqual(ArchetypeRegistry.get("createCar")?.variant, {
+    key: "kind",
+    values: AutoMovieArchetypeCar.KINDS,
+  });
+  assert.equal(
+    ArchetypeRegistry.get("createBicycle")?.call,
+    AutoMovieArchetypeBicycle.create,
+  );
+  assert.equal(
+    ArchetypeRegistry.get("createBicycle")?.expression,
+    "archetypes.AutoMovieArchetypeBicycle.create",
+  );
+  assert.deepEqual(ArchetypeRegistry.get("createBicycle")?.variant, {
+    key: "",
+    values: [],
+  });
+  assert.equal(
+    ArchetypeRegistry.get("createMotorcycle")?.call,
+    AutoMovieArchetypeMotorcycle.create,
+  );
+  for (const [id, owner, create] of [
+    ["createCarriage", "AutoMovieArchetypeCarriage", AutoMovieArchetypeCarriage.create],
+    ["createChariot", "AutoMovieArchetypeChariot", AutoMovieArchetypeChariot.create],
+    ["createHorseCart", "AutoMovieArchetypeHorseCart", AutoMovieArchetypeHorseCart.create],
+    ["createLimber", "AutoMovieArchetypeLimber", AutoMovieArchetypeLimber.create],
+    ["createRickshaw", "AutoMovieArchetypeRickshaw", AutoMovieArchetypeRickshaw.create],
+    ["createShoppingTrolley", "AutoMovieArchetypeShoppingTrolley", AutoMovieArchetypeShoppingTrolley.create],
+    ["createWagon", "AutoMovieArchetypeWagon", AutoMovieArchetypeWagon.create],
+    ["createWheelbarrow", "AutoMovieArchetypeWheelbarrow", AutoMovieArchetypeWheelbarrow.create],
+  ] as const) {
+    assert.equal(ArchetypeRegistry.get(id)?.call, create);
+    assert.equal(ArchetypeRegistry.get(id)?.expression, "archetypes." + owner + ".create");
+    assert.equal(listed.filter((listedId) => listedId === id).length, 1);
+  }
+  for (const [id, owner, create] of [
+    ["createCarriage", "AutoMovieArchetypeCarriage", AutoMovieArchetypeCarriage.create],
+    ["createChariot", "AutoMovieArchetypeChariot", AutoMovieArchetypeChariot.create],
+    ["createHorseCart", "AutoMovieArchetypeHorseCart", AutoMovieArchetypeHorseCart.create],
+    ["createLimber", "AutoMovieArchetypeLimber", AutoMovieArchetypeLimber.create],
+    ["createRickshaw", "AutoMovieArchetypeRickshaw", AutoMovieArchetypeRickshaw.create],
+    ["createShoppingTrolley", "AutoMovieArchetypeShoppingTrolley", AutoMovieArchetypeShoppingTrolley.create],
+    ["createWagon", "AutoMovieArchetypeWagon", AutoMovieArchetypeWagon.create],
+    ["createWheelbarrow", "AutoMovieArchetypeWheelbarrow", AutoMovieArchetypeWheelbarrow.create],
+  ] as const) {
+    assert.equal(ArchetypeRegistry.get(id)?.call, create);
+    assert.equal(ArchetypeRegistry.get(id)?.expression, "archetypes." + owner + ".create");
+    assert.equal(listed.filter((listedId) => listedId === id).length, 1);
+  }
+  assert.equal(
+    ArchetypeRegistry.get("createMotorcycle")?.expression,
+    "archetypes.AutoMovieArchetypeMotorcycle.create",
+  );
+  assert.deepEqual(ArchetypeRegistry.get("createMotorcycle")?.variant, {
+    key: "kind",
+    values: AutoMovieArchetypeMotorcycle.KINDS,
+  });
+  assert.equal(
+    ArchetypeRegistry.get("createBoat")?.call,
+    AutoMovieArchetypeBoat.create,
+  );
+  assert.equal(
+    ArchetypeRegistry.get("createBoat")?.expression,
+    "archetypes.AutoMovieArchetypeBoat.create",
+  );
+  assert.deepEqual(ArchetypeRegistry.get("createBoat")?.variant, {
+    key: "kind",
+    values: AutoMovieArchetypeBoat.KINDS,
+  });
+  assert.equal(
+    ArchetypeRegistry.get("createDinghy")?.call,
+    AutoMovieArchetypeDinghy.create,
+  );
+  assert.equal(
+    ArchetypeRegistry.get("createDinghy")?.expression,
+    "archetypes.AutoMovieArchetypeDinghy.create",
+  );
+  assert.deepEqual(ArchetypeRegistry.get("createDinghy")?.variant, {
+    key: "",
+    values: [],
+  });
+  assert.equal(
+    ArchetypeRegistry.get("createKayak")?.call,
+    AutoMovieArchetypeKayak.create,
+  );
+  assert.equal(
+    ArchetypeRegistry.get("createKayak")?.expression,
+    "archetypes.AutoMovieArchetypeKayak.create",
+  );
+  assert.deepEqual(ArchetypeRegistry.get("createKayak")?.variant, {
+    key: "",
+    values: [],
+  });
+  for (const [id, kind, ownerName, create] of [
+    [
+      "createPhone",
+      "phone",
+      "AutoMovieArchetypePhone",
+      AutoMovieArchetypePhone.create,
+    ],
+    [
+      "createCamera",
+      "camera",
+      "AutoMovieArchetypeCamera",
+      AutoMovieArchetypeCamera.create,
+    ],
+    [
+      "createRemote",
+      "remote",
+      "AutoMovieArchetypeRemote",
+      AutoMovieArchetypeRemote.create,
+    ],
+    [
+      "createTablet",
+      "tablet",
+      "AutoMovieArchetypeTablet",
+      AutoMovieArchetypeTablet.create,
+    ],
+  ] as const) {
+    assert.equal(ArchetypeRegistry.get(id)?.call, create);
+    assert.equal(
+      ArchetypeRegistry.get(id)?.expression,
+      `archetypes.${ownerName}.create`,
+    );
+    assert.deepEqual(ArchetypeRegistry.get(id)?.variant, {
+      key: "",
+      values: [],
+    });
+    assert.equal(ArchetypeRegistry.get(`createDevice.${kind}`)?.call, create);
+  }
+  assert.equal(
     new Set(listed).size,
     listed.length,
     "every displayed producer has exactly one catalogue entry",
   );
-  const aliased = new Set(catalogue.aliases?.map((alias) => alias.id) ?? []);
+  const savedCar: IPlaygroundComposition = {
+    version: 3,
+    seed: "saved-car",
+    performers: [],
+    mutuals: [],
+    objects: [
+      {
+        subject: "car",
+        producer: "createCar",
+        kind: "sedan",
+        seed: 3,
+        x: 0,
+        z: 0,
+        yaw: 0,
+      },
+    ],
+  };
+  assert.deepEqual(SceneStatus.lacks(savedCar), []);
+  assert.deepEqual(
+    SceneArchetype.model(savedCar.objects![0]!),
+    AutoMovieArchetypeCar.create({ kind: "sedan" }, 3),
+  );
+  const savedCarCode: string = formatSceneChain(
+    savedCar,
+    SceneChainNames.read(savedCar),
+  );
+  assert.match(savedCarCode, /archetypes\.AutoMovieArchetypeCar\.create\(/);
+  assert.doesNotMatch(savedCarCode, /archetypes\.createCar\(/);
+  const savedVehicles: IPlaygroundComposition = {
+    version: 3,
+    seed: "saved-vehicles",
+    performers: [],
+    mutuals: [],
+    objects: [
+      {
+        subject: "bicycle",
+        producer: "createBicycle",
+        seed: 3,
+        x: -1,
+        z: 0,
+        yaw: 0,
+      },
+      {
+        subject: "motorcycle",
+        producer: "createMotorcycle",
+        kind: "motorcycle",
+        seed: 5,
+        x: 1,
+        z: 0,
+        yaw: 0,
+      },
+      {
+        subject: "rowboat",
+        producer: "createBoat",
+        kind: "rowboat",
+        seed: 7,
+        x: 0,
+        z: 2,
+        yaw: 0,
+      },
+      {
+        subject: "dinghy",
+        producer: "createDinghy",
+        seed: 7,
+        x: 0,
+        z: 4,
+        yaw: 0,
+      },
+      {
+        subject: "kayak",
+        producer: "createKayak",
+        seed: 7,
+        x: 0,
+        z: 6,
+        yaw: 0,
+      },
+    ],
+  };
+  assert.deepEqual(SceneStatus.lacks(savedVehicles), []);
+  assert.deepEqual(
+    SceneArchetype.model(savedVehicles.objects![0]!),
+    AutoMovieArchetypeBicycle.create({}, 3),
+  );
+  assert.deepEqual(
+    SceneArchetype.model(savedVehicles.objects![1]!),
+    AutoMovieArchetypeMotorcycle.create({ kind: "motorcycle" }, 5),
+  );
+  assert.deepEqual(
+    SceneArchetype.model(savedVehicles.objects![2]!),
+    AutoMovieArchetypeBoat.create({ kind: "rowboat" }, 7),
+  );
+  assert.deepEqual(
+    SceneArchetype.model(savedVehicles.objects![3]!),
+    AutoMovieArchetypeDinghy.create({}, 7),
+  );
+  assert.deepEqual(
+    SceneArchetype.model(savedVehicles.objects![4]!),
+    AutoMovieArchetypeKayak.create({}, 7),
+  );
+  const savedVehiclesCode: string = formatSceneChain(
+    savedVehicles,
+    SceneChainNames.read(savedVehicles),
+  );
+  assert.match(
+    savedVehiclesCode,
+    /archetypes\.AutoMovieArchetypeBicycle\.create\(/,
+  );
+  assert.match(
+    savedVehiclesCode,
+    /archetypes\.AutoMovieArchetypeMotorcycle\.create\(/,
+  );
+  assert.match(
+    savedVehiclesCode,
+    /archetypes\.AutoMovieArchetypeBoat\.create\(/,
+  );
+  assert.match(
+    savedVehiclesCode,
+    /archetypes\.AutoMovieArchetypeDinghy\.create\(/,
+  );
+  assert.match(
+    savedVehiclesCode,
+    /archetypes\.AutoMovieArchetypeKayak\.create\(/,
+  );
+  const savedDevices: IPlaygroundComposition = {
+    version: 3,
+    seed: "saved-devices",
+    performers: [],
+    mutuals: [],
+    objects: [
+      {
+        subject: "phone",
+        producer: "createPhone",
+        seed: 11,
+        x: 0,
+        z: 0,
+        yaw: 0,
+      },
+      {
+        subject: "camera",
+        producer: "createCamera",
+        seed: 12,
+        x: 1,
+        z: 0,
+        yaw: 0,
+      },
+      {
+        subject: "remote",
+        producer: "createRemote",
+        seed: 13,
+        x: 2,
+        z: 0,
+        yaw: 0,
+      },
+      {
+        subject: "tablet",
+        producer: "createTablet",
+        seed: 14,
+        x: 3,
+        z: 0,
+        yaw: 0,
+      },
+    ],
+  };
+  assert.deepEqual(SceneStatus.lacks(savedDevices), []);
+  assert.deepEqual(
+    SceneArchetype.model(savedDevices.objects![0]!),
+    AutoMovieArchetypePhone.create({}, 11),
+  );
+  assert.deepEqual(
+    SceneArchetype.model(savedDevices.objects![1]!),
+    AutoMovieArchetypeCamera.create({}, 12),
+  );
+  assert.deepEqual(
+    SceneArchetype.model(savedDevices.objects![2]!),
+    AutoMovieArchetypeRemote.create({}, 13),
+  );
+  assert.deepEqual(
+    SceneArchetype.model(savedDevices.objects![3]!),
+    AutoMovieArchetypeTablet.create({}, 14),
+  );
+  const savedDevicesCode: string = formatSceneChain(
+    savedDevices,
+    SceneChainNames.read(savedDevices),
+  );
+  for (const owner of [
+    "AutoMovieArchetypePhone",
+    "AutoMovieArchetypeCamera",
+    "AutoMovieArchetypeRemote",
+    "AutoMovieArchetypeTablet",
+  ])
+    assert.match(
+      savedDevicesCode,
+      new RegExp(`archetypes\\.${owner}\\.create\\(`),
+    );
+  const aliased = new Set(aliases.map((alias) => alias.id));
+  assert(aliased.has("createBoat"));
   assert(
     listed.every((id) => !aliased.has(id)),
     "no saved dispatcher is also listed beside its named forms",
@@ -73,7 +491,7 @@ export function checkArchetypeAliases(): void {
       [subject],
     );
     assert(!listed.includes(legacy));
-    assert.equal(typeof GalleryCatalogue.producer(legacy), "function");
+    assert.equal(typeof GalleryCatalogue.producer(legacy)?.call, "function");
     const request = GalleryAddress.decode(
       `?subject=${legacy}&variant=${variant}&seed=7&affordances=0&move.hinge=63`,
       catalogue,
@@ -100,9 +518,109 @@ export function checkArchetypeAliases(): void {
     "hinged",
   );
   assert(
-    Object.is(GalleryCatalogue.producer("createQuadruped"), createQuadruped),
+    Object.is(
+      GalleryCatalogue.producer("createQuadruped")?.call,
+      AutoMovieArchetypeQuadruped.create,
+    ),
   );
 
+  const ballAlias = aliases.find((alias) => alias.id === "createBall");
+  assert(ballAlias, "createBall preserves its saved dispatcher route");
+  const basketball: ArchetypeRegistry.IFactory | undefined =
+    ArchetypeRegistry.get("createBall.basketball");
+  assert.equal(
+    basketball?.expression,
+    "archetypes.AutoMovieArchetypeSphericalBall.create",
+  );
+  assert.deepEqual(basketball?.variant, {
+    key: "kind",
+    values: AutoMovieArchetypeSphericalBall.KINDS,
+  });
+  const savedBasketball = GalleryAddress.decode(
+    "?subject=createBall&variant=basketball&seed=7",
+    catalogue,
+  );
+  assert.equal(savedBasketball.subject, "createSphericalBall");
+  assert.equal(savedBasketball.variant, "basketball");
+  assert.deepEqual(
+    ballAlias.variants.map((variant) => variant.id),
+    [
+      "football",
+      "futsal",
+      "basketball",
+      "volleyball",
+      "handball",
+      "tennis",
+      "tableTennis",
+      "padel",
+      "squash",
+      "baseball",
+      "softball",
+      "golf",
+      "cricket",
+      "bowling",
+      "pool",
+      "rugby",
+      "americanFootball",
+      "fieldHockey",
+      "lacrosse",
+      "puck",
+    ],
+  );
+
+  const cartAlias = aliases.find((alias) => alias.id === "createCart");
+  assert(cartAlias, "createCart preserves its saved dispatcher route");
+  assert.deepEqual(
+    cartAlias.variants.map((variant) => variant.id),
+    ["trolley", "wheelbarrow", "cart", "rickshaw", "chariot", "limber", "wagon", "carriage"],
+  );
+  const sportProjectileOwners = [
+    [
+      "createDiscus",
+      "AutoMovieArchetypeDiscus",
+      AutoMovieArchetypeDiscus.create,
+    ],
+    [
+      "createHammerThrow",
+      "AutoMovieArchetypeHammerThrow",
+      AutoMovieArchetypeHammerThrow.create,
+    ],
+    [
+      "createJavelin",
+      "AutoMovieArchetypeJavelin",
+      AutoMovieArchetypeJavelin.create,
+    ],
+    [
+      "createOvalBall",
+      "AutoMovieArchetypeOvalBall",
+      AutoMovieArchetypeOvalBall.create,
+    ],
+    [
+      "createPuck",
+      "AutoMovieArchetypePuck",
+      AutoMovieArchetypePuck.create,
+    ],
+    [
+      "createShot",
+      "AutoMovieArchetypeShot",
+      AutoMovieArchetypeShot.create,
+    ],
+    [
+      "createShuttlecock",
+      "AutoMovieArchetypeShuttlecock",
+      AutoMovieArchetypeShuttlecock.create,
+    ],
+    [
+      "createSphericalBall",
+      "AutoMovieArchetypeSphericalBall",
+      AutoMovieArchetypeSphericalBall.create,
+    ],
+  ] as const;
+  for (const [id, owner, create] of sportProjectileOwners) {
+    assert.equal(ArchetypeRegistry.get(id)?.call, create);
+    assert.equal(ArchetypeRegistry.get(id)?.expression, "archetypes." + owner + ".create");
+    assert.equal(listed.filter((listedId) => listedId === id).length, 1);
+  }
   for (const legacy of [
     "createInstrument",
     "createGoal",
@@ -246,7 +764,10 @@ export function checkArchetypeAliases(): void {
     cavalry,
     SceneChainNames.read(cavalry),
   );
-  assert.match(mountedCode, /const h0Ride = archetypes\.rideQuadruped\(h0,/);
+  assert.match(
+    mountedCode,
+    /const h0Ride = archetypes\.AutoMovieArchetypeQuadruped\.ride\(h0,/,
+  );
   assert.match(mountedCode, /cues\["h0:gaits"\] = h0Gaits/);
   assert.match(mountedCode, /^  cues,$/m);
   const fitted = GalleryArchetype.build(
@@ -284,15 +805,25 @@ export function checkArchetypeAliases(): void {
       `${kind} rest contacts`,
     );
     assert(legacy.body !== null && named.body !== null);
-    const course: rideQuadruped.ICourse = {
+    const course: AutoMovieArchetypeQuadruped.IRideCourse = {
       start: { x: 0, z: 0, heading: 0 },
       legs: [{ kind: "straight", length: 9 }],
       cruise: speed,
       startSpeed: speed,
       endSpeed: speed,
     };
-    const oldRide = rideQuadruped(legacy as AutoMovieArchetype, course, gait);
-    const newRide = rideQuadruped(named as AutoMovieArchetype, course, gait);
+    const oldRide: ReturnType<typeof AutoMovieArchetypeQuadruped.ride> =
+      AutoMovieArchetypeQuadruped.ride(
+        legacy as AutoMovieArchetype,
+        course,
+        gait,
+      );
+    const newRide: ReturnType<typeof AutoMovieArchetypeQuadruped.ride> =
+      AutoMovieArchetypeQuadruped.ride(
+        named as AutoMovieArchetype,
+        course,
+        gait,
+      );
     assert.deepEqual(newRide.instants, oldRide.instants, `${kind} gait events`);
     const landings = newRide.instants.filter(
       (event) => event.label === "leftForeOn" && event.seconds > 0,
@@ -337,14 +868,12 @@ export function checkArchetypeAliases(): void {
       leadRadius: 0.004,
     },
   };
-  const oldLead = GalleryCatalogue.producer("createQuadruped")!(
-    { ...collared, kind: "dog" },
-    dog.seed ?? undefined,
-  ).affordance("lead");
-  const newLead = GalleryCatalogue.producer(dog.subject)!(
-    collared,
-    dog.seed ?? undefined,
-  ).affordance("lead");
+  const oldLead = GalleryCatalogue.producer("createQuadruped")!
+    .call({ ...collared, kind: "dog" }, dog.seed ?? undefined)
+    .affordance("lead");
+  const newLead = GalleryCatalogue.producer(dog.subject)!
+    .call(collared, dog.seed ?? undefined)
+    .affordance("lead");
   assert.deepEqual(newLead, oldLead, "the named dog's lead retains its frame");
 
   const restored = PlaygroundAddress.decode(SAVED_LINK)!;
@@ -414,8 +943,8 @@ function terminalSole(
   assert(part.transform && part.geometry.type === "primitive");
   const shape = part.geometry.shape;
   assert(shape.type === "capsule" || shape.type === "cylinder");
-  const axis = Quaternion.rotateVector(
-    Quaternion.multiply(frame.rotation, part.transform.rotation),
+  const axis = AutoMovieEngineQuaternion.rotateVector(
+    AutoMovieEngineQuaternion.multiply(frame.rotation, part.transform.rotation),
     { x: 0, y: 1, z: 0 },
   );
   return (

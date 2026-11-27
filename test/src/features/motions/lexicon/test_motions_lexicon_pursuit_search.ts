@@ -2,7 +2,9 @@ import type {
   IAutoMovieMotionHumanLayer,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanPursuit } from "@automovie/motions/internal";
+import {
+  HumanPursuit
+} from "../../../../../packages/motions/src/lexicon/internal/HumanPursuit";
 import { TestValidator } from "@nestia/e2e";
 
 /** A chain that records the walks and stands it is given. */

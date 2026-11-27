@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanMilitaryDrill } from "@automovie/interface";
 
-/**
+/*
  * The front kick preset: a push kick of the lead leg. The `frontKick` row of
  * `HumanDrill` reads it, so the row and the preset share one value.
  */

@@ -241,65 +241,6 @@ export namespace AutoMovieHumanLoftAperture {
   }
 
   /**
-   * The grid of an outline: about `sqrt(n)` cells along its longer side for
-   * `n` segments, so a dense margin puts a few segments in each cell it
-   * crosses.
-   *
-   * @param points The projected margin.
-   * @param box Its bounding box `[lateral, up]` minimum then maximum.
-   */
-  function gridOf(
-    points: readonly [number, number][],
-    box: readonly [number, number, number, number],
-  ): IAutoMovieHumanLoftApertureConstruction.IGrid {
-    const n: number = points.length;
-    const side: number = Math.max(1, Math.ceil(Math.sqrt(n)));
-    const size: number =
-      Math.max(box[2] - box[0], box[3] - box[1], 1e-9) / side;
-    const columns: number = Math.max(1, Math.ceil((box[2] - box[0]) / size));
-    const rows: number = Math.max(1, Math.ceil((box[3] - box[1]) / size));
-    const cells: number[][] = Array.from(
-      { length: columns * rows },
-      (): number[] => [],
-    );
-    const bands: number[][] = Array.from({ length: rows }, (): number[] => []);
-    const column = (u: number): number =>
-      Math.min(columns - 1, Math.max(0, Math.floor((u - box[0]) / size)));
-    const rowOf = (v: number): number =>
-      Math.min(rows - 1, Math.max(0, Math.floor((v - box[1]) / size)));
-    for (let i: number = 0; i < n; i++) {
-      const a: [number, number] = points[(i + n - 1) % n]!;
-      const c: [number, number] = points[i]!;
-      const c0: number = column(Math.min(a[0], c[0]));
-      const c1: number = column(Math.max(a[0], c[0]));
-      const r0: number = rowOf(Math.min(a[1], c[1]));
-      const r1: number = rowOf(Math.max(a[1], c[1]));
-      for (let w: number = r0; w <= r1; w++) {
-        bands[w]!.push(i);
-        for (let k: number = c0; k <= c1; k++) cells[w * columns + k]!.push(i);
-      }
-    }
-    return { origin: [box[0], box[1]], size, columns, rows, cells, bands };
-  }
-
-  /** Squared distance from `(u, v)` to the segment from `a` to `c`. */
-  function squared(
-    a: readonly [number, number],
-    c: readonly [number, number],
-    u: number,
-    v: number,
-  ): number {
-    const du: number = c[0] - a[0];
-    const dv: number = c[1] - a[1];
-    const l: number = du * du + dv * dv;
-    const w: number =
-      l > 0
-        ? Math.min(1, Math.max(0, ((u - a[0]) * du + (v - a[1]) * dv) / l))
-        : 0;
-    return (a[0] + w * du - u) ** 2 + (a[1] + w * dv - v) ** 2;
-  }
-
-  /**
    * Move a point within the projection plane onto the projected margin.
    *
    * The point keeps its depth along `forward`; its in-plane position moves
@@ -346,7 +287,69 @@ export namespace AutoMovieHumanLoftAperture {
     ) as AutoMovieVector3Tuple;
   }
 
-  /** In-plane coordinates `[lateral, up]` of a point. */
+  /*
+   * The grid of an outline: about `sqrt(n)` cells along its longer side for
+   * `n` segments, so a dense margin puts a few segments in each cell it
+   * crosses.
+   * Parameter points: The projected margin.
+   * Parameter box: Its bounding box `[lateral, up]` minimum then maximum.
+   */
+  function gridOf(
+    points: readonly [number, number][],
+    box: readonly [number, number, number, number],
+  ): IAutoMovieHumanLoftApertureConstruction.IGrid {
+    const n: number = points.length;
+    const side: number = Math.max(1, Math.ceil(Math.sqrt(n)));
+    const size: number =
+      Math.max(box[2] - box[0], box[3] - box[1], 1e-9) / side;
+    const columns: number = Math.max(1, Math.ceil((box[2] - box[0]) / size));
+    const rows: number = Math.max(1, Math.ceil((box[3] - box[1]) / size));
+    const cells: number[][] = Array.from(
+      { length: columns * rows },
+      (): number[] => [],
+    );
+    const bands: number[][] = Array.from({ length: rows }, (): number[] => []);
+    const column = (u: number): number =>
+      Math.min(columns - 1, Math.max(0, Math.floor((u - box[0]) / size)));
+    const rowOf = (v: number): number =>
+      Math.min(rows - 1, Math.max(0, Math.floor((v - box[1]) / size)));
+    for (let i: number = 0; i < n; i++) {
+      const a: [number, number] = points[(i + n - 1) % n]!;
+      const c: [number, number] = points[i]!;
+      const c0: number = column(Math.min(a[0], c[0]));
+      const c1: number = column(Math.max(a[0], c[0]));
+      const r0: number = rowOf(Math.min(a[1], c[1]));
+      const r1: number = rowOf(Math.max(a[1], c[1]));
+      for (let w: number = r0; w <= r1; w++) {
+        bands[w]!.push(i);
+        for (let k: number = c0; k <= c1; k++) cells[w * columns + k]!.push(i);
+      }
+    }
+    return { origin: [box[0], box[1]], size, columns, rows, cells, bands };
+  }
+
+  /*
+   * Squared distance from `(u, v)` to the segment from `a` to `c`.
+   */
+  function squared(
+    a: readonly [number, number],
+    c: readonly [number, number],
+    u: number,
+    v: number,
+  ): number {
+    const du: number = c[0] - a[0];
+    const dv: number = c[1] - a[1];
+    const l: number = du * du + dv * dv;
+    const w: number =
+      l > 0
+        ? Math.min(1, Math.max(0, ((u - a[0]) * du + (v - a[1]) * dv) / l))
+        : 0;
+    return (a[0] + w * du - u) ** 2 + (a[1] + w * dv - v) ** 2;
+  }
+
+  /*
+   * In-plane coordinates `[lateral, up]` of a point.
+   */
   function project(
     lateral: Readonly<AutoMovieVector3Tuple>,
     up: Readonly<AutoMovieVector3Tuple>,
@@ -358,6 +361,8 @@ export namespace AutoMovieHumanLoftAperture {
     ];
   }
 
-  /** Margin samples used by the polyline. */
+  /*
+   * Margin samples used by the polyline.
+   */
   const SAMPLES: number = 720;
 }

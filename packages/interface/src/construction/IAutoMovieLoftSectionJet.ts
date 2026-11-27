@@ -7,8 +7,8 @@ import type { IAutoMovieLoftSectionPhase } from "./IAutoMovieLoftSectionPhase";
  * Station s is measured in millimetres; phase is the inherited
  * polar/correspondence angle in radians. These derivatives have already been
  * converted from any root, angle or normalized interpolation coordinate.
- * AutoMovieLoftSectionLegacy.jet requires a prepared jet variant and rejects
- * unavailable or nonfinite requested derivatives; AutoMovieLoftSection returns
+ * AutoMovieEngineLoftSectionLegacy.jet requires a prepared jet variant and rejects
+ * unavailable or nonfinite requested derivatives; AutoMovieEngineLoftSection returns
  * the same shape for native and mixed fields. All six local vectors are fresh
  * and mutable.
  */

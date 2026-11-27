@@ -27,7 +27,7 @@ export namespace FamilyConicStar {
     /** The direction the chart's `u` starts from. */
     up: [number, number, number];
 
-    /** Each joint's half turn arclength, mm, for a course of more than two centres (`AutoMovieViewAxis.jointed`); absent, none. */
+    /** Each joint's half turn arclength, mm, for a course of more than two centres (`AutoMovieEngineViewAxis.jointed`); absent, none. */
     halves?: number[];
 
     /** The region's box, `[x0, x1, y0, y1, z0, z1]`, mm: only skin inside it is the region's. */

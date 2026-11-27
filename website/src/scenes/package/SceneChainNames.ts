@@ -1,13 +1,11 @@
-import * as archetypes from "@automovie/archetypes";
-import * as motions from "@automovie/motions";
-import { HUMAN_ACTIONS } from "@automovie/motions";
-import * as internal from "@automovie/motions/internal";
+import { AutoMovieMotionHumanActions } from "@automovie/motions";
+import { MotionInventory } from "../../motions/package/MotionInventory";
 
 import { PLAYGROUND_BODIES } from "../../playground/data/PLAYGROUND_BODIES";
+import { ArchetypeRegistry } from "../../archetypes/ArchetypeRegistry";
 import { PlaygroundChain } from "../../playground/package/PlaygroundChain";
 import type { IPlaygroundComposition } from "../../playground/structures/IPlaygroundComposition";
 import type { ISceneChainNames } from "../structures/ISceneChainNames";
-import { SceneArchetype } from "./SceneArchetype";
 
 /**
  * The exported names the code of a scene's page refers to, read from the
@@ -15,11 +13,6 @@ import { SceneArchetype } from "./SceneArchetype";
  * imports what it uses without loading the packages in the browser.
  */
 export namespace SceneChainNames {
-  /** The packages' exports by name. */
-  const MOTIONS: Readonly<Record<string, unknown>> = {
-    ...(motions as Readonly<Record<string, unknown>>),
-    ...(internal as Readonly<Record<string, unknown>>),
-  };
 
   /**
    * The names a scene's code needs: every row, law, mutual and variant
@@ -29,46 +22,19 @@ export namespace SceneChainNames {
    * @returns The names; no laws when the installed packages cannot build it.
    */
   export function read(composition: IPlaygroundComposition): ISceneChainNames {
-    const rows: Record<string, string> = {};
+    const rows: Record<string, string> = MotionInventory.rows();
     const mutuals: Record<string, string> = Object.fromEntries(
       Object.entries(PlaygroundChain.mutualExports()).map(
         ([name, { expression }]): [string, string] => [name, expression],
       ),
     );
-    for (const [key, value] of Object.entries(MOTIONS)) {
-      if (typeof value !== "object" || value === null) continue;
-
-      // A law exported on its own, such as `armWrestle`.
-      if (
-        typeof (value as { plan?: unknown }).plan === "function" &&
-        typeof (value as { name?: unknown }).name === "string"
-      ) {
-        rows[(value as { name: string }).name] ??= key;
-        continue;
-      }
-
-      // A namespace of rows, such as `HumanSocial`.
-      for (const [member, inner] of Object.entries(
-        value as Record<string, unknown>,
-      )) {
-        if (typeof inner !== "object" || inner === null) continue;
-        const name: unknown = (inner as { name?: unknown }).name;
-        if (typeof name !== "string") continue;
-        if (typeof (inner as { plan?: unknown }).plan === "function")
-          rows[name] ??= `${key}.${member}`;
-      }
-    }
     const frames: string[] = [];
     const formats: string[] = [];
-    for (const [name, producer] of Object.entries(archetypes) as [
-      string,
-      unknown,
-    ][]) {
-      if (typeof producer !== "function") continue;
-      const variants: SceneArchetype.IProducer =
-        producer as SceneArchetype.IProducer;
-      if (Array.isArray(variants.FRAMES)) frames.push(name);
-      else if (Array.isArray(variants.FORMATS)) formats.push(name);
+    for (const name of ArchetypeRegistry.rootIds()) {
+      const producer: ArchetypeRegistry.IFactory | undefined =
+        ArchetypeRegistry.get(name);
+      if (producer?.variant.key === "frame") frames.push(name);
+      else if (producer?.variant.key === "format") formats.push(name);
     }
     let laws: string[] = [];
     try {
@@ -102,7 +68,7 @@ export namespace SceneChainNames {
       Object.fromEntries(
         Object.entries(all).filter(
           ([name]: [string, string]): boolean =>
-            used.has(name) && !(name in HUMAN_ACTIONS),
+            used.has(name) && !(name in AutoMovieMotionHumanActions),
         ),
       );
     const bodySex: ISceneChainNames["bodySex"] = Object.fromEntries(

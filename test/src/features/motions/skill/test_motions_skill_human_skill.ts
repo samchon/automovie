@@ -1,9 +1,12 @@
-import { createAutoMovieRandom } from "@automovie/engine";
+import { AutoMovieEngineRandom } from "@automovie/engine";
+
 import type {
   IAutoMovieMotionHumanSkill,
   IAutoMovieRandom,
 } from "@automovie/interface";
-import { HumanSkill } from "@automovie/motions/internal";
+import {
+  HumanSkill
+} from "../../../../../packages/motions/src/skill/internal/HumanSkill";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -17,7 +20,7 @@ import { throwsError } from "../../internal/throwsError";
 const ROUNDING: number = 64 * Number.EPSILON * 4;
 
 /** The indexed engine stream supplies unused members of the controlled draws. */
-const STREAM: IAutoMovieRandom = createAutoMovieRandom("0000000000000000");
+const STREAM: IAutoMovieRandom = AutoMovieEngineRandom.createRandom("0000000000000000");
 
 /** Supply the exact fractions used in each independent distribution oracle. */
 function indexed(samples: readonly number[]): IAutoMovieRandom {

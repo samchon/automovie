@@ -2,7 +2,9 @@ import type {
   IAutoMovieMotionHumanFrame,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanFrame } from "@automovie/motions/internal";
+import {
+  HumanFrame
+} from "../../../../../packages/motions/src/posture/internal/HumanFrame";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

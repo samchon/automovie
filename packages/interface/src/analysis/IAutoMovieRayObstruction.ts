@@ -9,7 +9,7 @@ export namespace IAutoMovieRayObstruction {
    * Solids are tried in list order and the first one that blocks ends the test;
    * an empty list never obstructs. A ray that starts inside a solid is
    * obstructed at once, and one leaving a point exactly on a face is not (see
-   * `autoMovieSolidBlocks`).
+   * `solidBlocks`).
    */
   export type IProps = {
     /** World-space ray origin in metres. */

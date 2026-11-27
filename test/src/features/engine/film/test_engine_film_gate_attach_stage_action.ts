@@ -1,7 +1,4 @@
-import {
-  ViolationCollector,
-  gatePerformShotStageAction,
-} from "@automovie/engine";
+import { AutoMovieEngineViolationCollector, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieAttachAction,
   IAutoMovieEnginePerformShotActionPlan,
@@ -24,7 +21,7 @@ import { createSkeleton } from "../../internal/createSkeleton";
  *    original bone-local offset.
  */
 export function test_engine_film_gate_attach_stage_action(): void {
-  const out: ViolationCollector = new ViolationCollector();
+  const out: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();
   const rig: IAutoMovieSkeleton = createSkeleton();
   const context: IAutoMovieEnginePerformShotGateContext = {
     out,
@@ -86,7 +83,7 @@ export function test_engine_film_gate_attach_stage_action(): void {
     authored,
   ];
   requests.forEach((request: IAutoMovieAttachAction, index: number): void =>
-    gatePerformShotStageAction(
+    AutoMovieEngineFilm.gatePerformShotStageAction(
       context,
       plan,
       request,

@@ -1,4 +1,4 @@
-import { generateAutoMovieSurfacePattern } from "@automovie/engine";
+import { AutoMovieEngineSurfaceMaterial } from "@automovie/engine";
 import type {
   AutoMovieSurfacePatternGenerator,
   IAutoMoviePatternFinding,
@@ -90,7 +90,7 @@ const course: (
  * 7. A null grain tolerance disables the grain scan entirely, even where the grain
  *    turns ninety degrees.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Runs generateAutoMovieSurfacePattern and inspects laid outlines plus ordered overlap/joint/grain findings for overlapping courses, shared borders, triangular clipping, narrowed modules, and zone transitions.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs generateSurfacePattern and inspects laid outlines plus ordered overlap/joint/grain findings for overlapping courses, shared borders, triangular clipping, narrowed modules, and zone transitions.
  * @evidence contracts/development/testing.md#independent-expectations Authored 0.6 widths on a 0.5 pitch imply 0.1 penetration; the 0.98/0.94 course widths imply 0.04 gaps around the narrowed middle piece. Explicit clipped triangles, zero butt joint, 20 mm nominal, 90-degree grain turn, and named occurrence pairs supply independent numerical and identity oracles.
  * @evidence contracts/development/testing.md#distinguishing-cases Clipped shared-border pieces must avoid the uncut rectangles' false overlap; exact clip corners remain distinct and still report a nonzero nominal joint deviation. Nominal/narrow courses, joint-plus-grain ordering, cross-zone grain only, and null tolerance distinguish each scan policy.
  * @evidence contracts/development/testing.md#execution-ownership Uses synchronous authored records/generator callbacks and numerical engine output without a renderer, resources, clocks, global replacement, or additional host. The aligned cases do not prove exhaustive Euclidean neighbourhood detection or rendered surface quality.
@@ -98,7 +98,7 @@ const course: (
  */
 export function test_architecture_surface_pattern_findings(): void {
   const overlapping: IAutoMovieSurfacePatternResult =
-    generateAutoMovieSurfacePattern({
+    AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
       pattern: pattern({
         id: "overlap",
         zones: [
@@ -240,7 +240,7 @@ export function test_architecture_surface_pattern_findings(): void {
           ],
   });
   const shared: IAutoMovieSurfacePatternResult =
-    generateAutoMovieSurfacePattern({
+    AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
       pattern: pattern({
         id: "border",
         zones: [
@@ -300,7 +300,7 @@ export function test_architecture_surface_pattern_findings(): void {
     jointTolerance: number,
     adjacency: number,
   ): IAutoMovieSurfacePatternResult =>
-    generateAutoMovieSurfacePattern({
+    AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
       pattern: pattern({
         id: "corner",
         zones: [
@@ -439,7 +439,7 @@ export function test_architecture_surface_pattern_findings(): void {
     narrow: boolean,
     grainToleranceDeg: number | null,
   ): IAutoMovieSurfacePatternResult =>
-    generateAutoMovieSurfacePattern({
+    AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
       pattern: pattern({
         id: "course",
         zones: [
@@ -580,7 +580,7 @@ export function test_architecture_surface_pattern_findings(): void {
   ) => IAutoMovieSurfacePatternResult = (
     grainToleranceDeg: number | null,
   ): IAutoMovieSurfacePatternResult =>
-    generateAutoMovieSurfacePattern({
+    AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
       pattern: pattern({
         id: "transition",
         zones: [

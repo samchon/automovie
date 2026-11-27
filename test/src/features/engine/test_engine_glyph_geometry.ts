@@ -1,8 +1,5 @@
-import {
-  buildAutoMovieTextGeometry,
-  flattenAutoMovieQuadratic,
-} from "@automovie/engine";
-import { decodeAutoMovieTrueTypeFont } from "@automovie/ingest";
+import { AutoMovieEngineTypography } from "@automovie/engine";
+import { AutoMovieIngestFont } from "@automovie/ingest";
 import type {
   AutoMovieVector2Tuple,
   IAutoMovieFont,
@@ -44,7 +41,7 @@ export function test_engine_glyph_geometry(): void {
   const p1: AutoMovieVector2Tuple = [0.1, 0.015];
   const p2: AutoMovieVector2Tuple = [0.2, 0];
   const tolerance: number = 0.00005;
-  const chords: AutoMovieVector2Tuple[] = flattenAutoMovieQuadratic(
+  const chords: AutoMovieVector2Tuple[] = AutoMovieEngineTypography.flattenQuadratic(
     p0,
     p1,
     p2,
@@ -72,13 +69,13 @@ export function test_engine_glyph_geometry(): void {
   );
 
   // 2. The O covers outer minus hole.
-  const font: IAutoMovieFont = decodeAutoMovieTrueTypeFont(
+  const font: IAutoMovieFont = AutoMovieIngestFont.decode(
     syntheticTrueTypeFont(),
   );
   const build: (text: string) => IAutoMovieTessellation = (
     text: string,
   ): IAutoMovieTessellation =>
-    buildAutoMovieTextGeometry({
+    AutoMovieEngineTypography.buildTextGeometry({
       font,
       text,
       size: 1,
@@ -92,7 +89,7 @@ export function test_engine_glyph_geometry(): void {
     (contour: IAutoMovieFontSegment[]): number => {
       const ring: AutoMovieVector2Tuple[] = contour.flatMap(
         (s: IAutoMovieFontSegment): AutoMovieVector2Tuple[] =>
-          flattenAutoMovieQuadratic(
+          AutoMovieEngineTypography.flattenQuadratic(
             [s.start[0] / 1000, s.start[1] / 1000],
             [s.control[0] / 1000, s.control[1] / 1000],
             [s.end[0] / 1000, s.end[1] / 1000],

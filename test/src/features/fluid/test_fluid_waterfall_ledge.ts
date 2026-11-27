@@ -1,4 +1,6 @@
-import { simulateFluidDomain } from "@automovie/engine";
+import {
+  AutoMovieEngineFluid,
+} from "@automovie/engine";
 import type {
   IAutoMovieFluidDomain,
   IAutoMovieFluidState,
@@ -61,8 +63,8 @@ export function test_fluid_waterfall_ledge(): void {
   const domain: ReturnType<typeof ledge> = ledge();
   const authored: number = 3 * 0.5 * 0.25;
   const states: IAutoMovieFluidState[] = [1, 60, 400].map(
-    (step: number): ReturnType<typeof simulateFluidDomain> =>
-      simulateFluidDomain(domain, step),
+    (step: number): ReturnType<typeof AutoMovieEngineFluid.simulateFluidDomain> =>
+      AutoMovieEngineFluid.simulateFluidDomain(domain, step),
   );
   const last: IAutoMovieFluidState = states[states.length - 1];
   TestValidator.predicate(
@@ -102,8 +104,8 @@ export function test_fluid_waterfall_ledge(): void {
         "infiniteBed",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof simulateFluidDomain> =>
-              simulateFluidDomain(ledge({ bed: [Infinity, 1, 1, 0, 0, 0] }), 8),
+            (): ReturnType<typeof AutoMovieEngineFluid.simulateFluidDomain> =>
+              AutoMovieEngineFluid.simulateFluidDomain(ledge({ bed: [Infinity, 1, 1, 0, 0, 0] }), 8),
             ["water-wall", "non-finite state at step 1"],
           ),
       ],
@@ -111,8 +113,8 @@ export function test_fluid_waterfall_ledge(): void {
         "nanDepth",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof simulateFluidDomain> =>
-              simulateFluidDomain(
+            (): ReturnType<typeof AutoMovieEngineFluid.simulateFluidDomain> =>
+              AutoMovieEngineFluid.simulateFluidDomain(
                 ledge({ depth: [Number.NaN, 0.5, 0.5, 0, 0, 0] }),
                 8,
               ),

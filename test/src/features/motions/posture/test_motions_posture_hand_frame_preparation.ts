@@ -3,7 +3,9 @@ import type {
   IAutoMovieMotionHumanHand,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanHandTarget } from "@automovie/motions/internal";
+import {
+  HumanHandTarget
+} from "../../../../../packages/motions/src/posture/internal/HumanHandTarget";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";

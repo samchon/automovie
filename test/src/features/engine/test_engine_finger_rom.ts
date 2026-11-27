@@ -1,4 +1,7 @@
-import { DEFAULT_HUMANOID_ROM, clampPose } from "@automovie/engine";
+import {
+  AutoMovieEngineDefaultHumanoidRom,
+  AutoMovieEngineKinematics,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieJointConstraint,
@@ -6,7 +9,9 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMoviePose,
 } from "@automovie/interface";
-import { HumanHandShape } from "@automovie/motions/internal";
+import {
+  HumanHandShape
+} from "../../../../packages/motions/src/posture/internal/HumanHandShape";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -39,7 +44,7 @@ const SPREAD: number = 8;
  *    the middle finger's knuckles after the clamp, and `crossed` keeps its
  *    cross (the two knuckles turned toward each other).
  * 3. A thumb carpometacarpal posture with palmar abduction and in-plane flexion
- *    inside the new range survives `clampPose` unchanged.
+ *    inside the new range survives `AutoMovieEngineKinematics.clampPose` unchanged.
  * 4. Every working shape (`relaxed`, `flat`, `point`, `fist`) survives the clamp
  *    unchanged.
  *
@@ -83,7 +88,7 @@ export function test_engine_finger_rom(): void {
           `${side}${digit}${segment}` as AutoMovieHumanoidBone;
         const want = expected[digit === "Thumb" ? `Thumb${segment}` : segment]!;
         const have: IAutoMovieJointConstraint | undefined =
-          DEFAULT_HUMANOID_ROM[bone];
+          AutoMovieEngineDefaultHumanoidRom[bone];
         const same = (
           a: { min: number; max: number } | null | undefined,
           b: { min: number; max: number } | null,
@@ -127,7 +132,7 @@ export function test_engine_finger_rom(): void {
       ),
     };
     return new Map(
-      clampPose(pose, body.skeleton).joints.map(
+      AutoMovieEngineKinematics.clampPose(pose, body.skeleton).joints.map(
         (
           j: IAutoMovieJointPose,
         ): [AutoMovieHumanoidBone, IAutoMovieJointPose] => [j.bone, j],

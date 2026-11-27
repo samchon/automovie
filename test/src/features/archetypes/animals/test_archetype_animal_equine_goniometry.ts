@@ -141,7 +141,7 @@ export function test_archetype_animal_equine_goniometry(): void {
   );
   TestValidator.equals(
     "clinical references do not create immobile axes",
-    AutoMovieArchetypeEquineJointLimits(input.bone).limits,
+    AutoMovieArchetypeEquineJointLimits.lookup(input.bone).limits,
     null,
   );
 
@@ -174,7 +174,7 @@ export function test_archetype_animal_equine_goniometry(): void {
     );
     TestValidator.equals(
       `${bone} has no borrowed reference rows`,
-      AutoMovieArchetypeEquineJointLimits(bone).observations,
+      AutoMovieArchetypeEquineJointLimits.lookup(bone).observations,
       null,
     );
   }

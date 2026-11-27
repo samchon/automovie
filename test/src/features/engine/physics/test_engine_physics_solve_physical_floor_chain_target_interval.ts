@@ -1,4 +1,4 @@
-import { solvePhysicalFloorChainTarget } from "@automovie/engine";
+import { AutoMovieEnginePhysicalFloorChainTarget } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalSegment,
   IAutoMovieRigidTransform,
@@ -27,8 +27,8 @@ export function test_engine_physics_solve_physical_floor_chain_target_interval()
       ],
     ),
   );
-  const lifted: ReturnType<typeof solvePhysicalFloorChainTarget> =
-    solvePhysicalFloorChainTarget({
+  const lifted: ReturnType<typeof AutoMovieEnginePhysicalFloorChainTarget.solve> =
+    AutoMovieEnginePhysicalFloorChainTarget.solve({
       profile,
       targets,
       chain: ["carrier", "source"],

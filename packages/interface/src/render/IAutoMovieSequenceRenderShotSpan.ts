@@ -1,4 +1,4 @@
-import type { IAutoMovieTrim } from "../cinematics/IAutoMovieTrim.js";
+import type { IAutoMovieTrim } from "../cinematics/IAutoMovieTrim";
 
 /** A shot entry resolved onto the sequence output clock. */
 export interface IAutoMovieSequenceRenderShotSpan {

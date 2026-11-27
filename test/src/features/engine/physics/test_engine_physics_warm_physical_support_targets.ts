@@ -1,10 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  physicalSupportPoint,
-  setPhysicalTargetJointRotation,
-  warmPhysicalSupportTargets,
-} from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieFootfallPattern,
   IAutoMoviePhysicalJoint,
@@ -111,9 +105,9 @@ export function test_engine_physics_warm_physical_support_targets(): void {
   const pivots: IAutoMovieRigidTransform["position"][] = chain.map((bone) => {
     const joint: IAutoMoviePhysicalJoint = joints.get(bone)!;
     const parent: IAutoMovieRigidTransform = authored[joint.parent]!;
-    return Vector3.add(
+    return AutoMovieEngineVector3.add(
       parent.position,
-      Quaternion.rotateVector(parent.rotation, joint.parentFrame.position),
+      AutoMovieEngineQuaternion.rotateVector(parent.rotation, joint.parentFrame.position),
     );
   });
   const rowY: number[] = pivots.map((p) => -(tip.z - p.z));
@@ -203,7 +197,7 @@ export function test_engine_physics_warm_physical_support_targets(): void {
   function endpoint(
     poses: Readonly<Record<string, IAutoMovieRigidTransform>>,
   ): IAutoMovieRigidTransform["position"] {
-    return physicalSupportPoint(poses[limb.bone]!, limb.localPoint);
+    return AutoMovieEnginePhysics.physicalSupportPoint(poses[limb.bone]!, limb.localPoint);
   }
 
   /** Run the warm seed with identical current and preceding authored poses. */
@@ -211,7 +205,7 @@ export function test_engine_physics_warm_physical_support_targets(): void {
     previous: Readonly<Record<string, IAutoMovieRigidTransform>>,
     selected: readonly string[],
   ): Record<string, IAutoMovieRigidTransform> {
-    return warmPhysicalSupportTargets({
+    return AutoMovieEnginePhysics.warmPhysicalSupportTargets({
       order: profile.segments,
       joints,
       descendants,
@@ -236,11 +230,11 @@ export function test_engine_physics_warm_physical_support_targets(): void {
       structuredClone(authored);
     for (const bone of chain)
       if (angles[bone] !== undefined)
-        setPhysicalTargetJointRotation(
+        AutoMovieEnginePhysics.setPhysicalTargetJointRotation(
           result,
           joints.get(bone)!,
           descendants.get(bone)!,
-          Quaternion.normalize({
+          AutoMovieEngineQuaternion.normalize({
             x: Math.tan(angles[bone]! / 2),
             y: 0,
             z: 0,
@@ -256,14 +250,14 @@ export function test_engine_physics_warm_physical_support_targets(): void {
     bone: string,
   ): number {
     const joint: IAutoMoviePhysicalJoint = joints.get(bone)!;
-    const relative: IAutoMovieRigidTransform["rotation"] = Quaternion.multiply(
-      Quaternion.inverse(
-        Quaternion.multiply(
+    const relative: IAutoMovieRigidTransform["rotation"] = AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.inverse(
+        AutoMovieEngineQuaternion.multiply(
           poses[joint.parent]!.rotation,
           joint.parentFrame.rotation,
         ),
       ),
-      Quaternion.multiply(poses[bone]!.rotation, joint.childFrame.rotation),
+      AutoMovieEngineQuaternion.multiply(poses[bone]!.rotation, joint.childFrame.rotation),
     );
     return (
       2 * Math.atan2(relative.x * Math.sign(relative.w), Math.abs(relative.w))

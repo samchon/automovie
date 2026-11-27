@@ -1,10 +1,10 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { AutoMovieArchetypeBuilder } from "../core";
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
-import { QuadrupedEquipmentBearing } from "./QuadrupedEquipmentBearing";
-import { QuadrupedEquipmentPlan } from "./QuadrupedEquipmentPlan";
+import { QuadrupedEquipmentBearing } from "./quadruped/QuadrupedEquipmentBearing";
+import { QuadrupedEquipmentPlan } from "./quadruped/QuadrupedEquipmentPlan";
 
 /**
  * A yoke and a pack frame laid on a quadruped's rest landmarks, every dimension
@@ -140,12 +140,6 @@ export namespace AutoMovieArchetypeQuadrupedEquipment {
     hook: IHook;
   }
 
-  /** Authored coarse wood/pad color, not a physical material declaration. */
-  const WOOD: string = "#70543b";
-
-  /** Metal display color; no friction/restitution is inferred from it. */
-  const METAL: string = "#575851";
-
   /**
    * Add admitted yoke/pack geometry and their three possible real hook sites.
    *
@@ -208,7 +202,17 @@ export namespace AutoMovieArchetypeQuadrupedEquipment {
     return plan;
   }
 
-  /**
+  /*
+   * Authored coarse wood/pad color, not a physical material declaration.
+   */
+  const WOOD: string = "#70543b";
+
+  /*
+   * Metal display color; no friction/restitution is inferred from it.
+   */
+  const METAL: string = "#575851";
+
+  /*
    * Plan the beam above the neck/trunk envelope and connect its forward U
    * hitch.
    */
@@ -223,8 +227,8 @@ export namespace AutoMovieArchetypeQuadrupedEquipment {
     plan.admitHook("yoke.hook", yoke.hook);
     plan.positive("rig.neckRadius", rig.neckRadius);
     plan.positive("rig.back", rig.back);
-    const axis: IAutoMovieVector3 = Vector3.subtract(rig.poll, rig.neck);
-    const length: number = Vector3.length(axis);
+    const axis: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(rig.poll, rig.neck);
+    const length: number = AutoMovieEngineVector3.length(axis);
     plan.positive("rig.neck.length", length);
     if (axis.x !== 0 || !(axis.z > 0))
       plan.refuse(
@@ -252,9 +256,9 @@ export namespace AutoMovieArchetypeQuadrupedEquipment {
         "the beam's rear edge would pass behind the neck root",
         "move the beam farther along the actual neck or reduce its radius/clearance",
       );
-    const anchor: IAutoMovieVector3 = Vector3.add(
+    const anchor: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       rig.neck,
-      Vector3.scale(axis, yoke.neckAt / length),
+      AutoMovieEngineVector3.scale(axis, yoke.neckAt / length),
     );
     const front: number =
       yoke.radius + yoke.hook.opening + 4 * yoke.hook.radius;
@@ -289,7 +293,7 @@ export namespace AutoMovieArchetypeQuadrupedEquipment {
     QuadrupedEquipmentBearing.yoke(plan, rig, yoke, centre, WOOD);
   }
 
-  /**
+  /*
    * Fit pads to the side planes; their rails and over-back bridges share those
    * endpoints.
    */

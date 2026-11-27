@@ -1,4 +1,6 @@
-import { violation } from "@automovie/engine";
+import {
+  violation
+} from "../../../../../packages/engine/src/validation/internal/violation";
 import { TestValidator } from "@nestia/e2e";
 
 /**

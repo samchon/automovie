@@ -1,4 +1,6 @@
-import { webVttTime } from "@automovie/render/internal";
+import {
+  webVttTime
+} from "../../../../../packages/render/src/caption/internal/webVttTime";
 import { TestValidator } from "@nestia/e2e";
 
 /**

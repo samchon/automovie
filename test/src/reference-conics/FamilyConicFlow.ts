@@ -6,9 +6,9 @@ import { NodeCanvasCamera } from "./render/NodeCanvasCamera";
 import { NodeCanvasRaster } from "./render/NodeCanvasRaster";
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
 import {
-  AutoMovieLoftChain,
-  AutoMovieViewChain as Q,
-  AutoMovieViewLoft,
+  AutoMovieEngineLoftChain,
+  AutoMovieEngineViewChain as Q,
+  AutoMovieEngineViewLoft,
 } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft as H,
@@ -398,7 +398,7 @@ export namespace FamilyConicFlow {
     const points: Float64Array = new Float64Array(stations.length * phases * 3);
     stations.forEach((s: number, i: number): void => {
       for (let j: number = 0; j < phases; ++j) {
-        const p: number[] = AutoMovieLoftChain.point(
+        const p: number[] = AutoMovieEngineLoftChain.point(
           chain,
           s,
           (2 * Math.PI * j) / phases,
@@ -610,7 +610,7 @@ export namespace FamilyConicFlow {
       const ring: C.P[] = Array.from(
         { length: FOLD_PHASES },
         (_: unknown, j: number): C.P => {
-          const p: number[] = AutoMovieLoftChain.point(
+          const p: number[] = AutoMovieEngineLoftChain.point(
             chain,
             s,
             (2 * Math.PI * j) / FOLD_PHASES,
@@ -883,7 +883,7 @@ export namespace FamilyConicFlow {
       const stations: number[] = part.source.stations;
       const domain: [number, number] = [stations[0]!, stations.at(-1)!];
       const loft: IAutoMovieViewLoft.IResult = H.create(figured, stations);
-      const figure: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create(
+      const figure: IAutoMovieViewLoft.IResult = AutoMovieEngineViewLoft.create(
         part.source,
       );
       const own: IOwned = owned(round, family.name);
@@ -955,7 +955,7 @@ export namespace FamilyConicFlow {
       let chart: number = 0;
       for (let i: number = 0; i < sampled.stations.length; i += 4)
         for (let j: number = 0; j < sampled.phases; j += 4) {
-          const p: number[] = AutoMovieLoftChain.point(
+          const p: number[] = AutoMovieEngineLoftChain.point(
             figure.chain,
             sampled.stations[i]!,
             (2 * Math.PI * j) / sampled.phases,

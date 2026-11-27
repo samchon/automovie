@@ -1,8 +1,12 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { HumanChain, HumanPerformance } from "@automovie/motions";
-import { FamilyCaseKit } from "@automovie/motions/executable/internal";
-import { HumanFrame } from "@automovie/motions/internal";
+import { AutoMovieMotionHumanChain, AutoMovieMotionHumanPerformance } from "@automovie/motions";
+import {
+  FamilyCaseKit
+} from "../../../../../packages/motions/src/executable/cases/FamilyCaseKit";
+import {
+  HumanFrame
+} from "../../../../../packages/motions/src/posture/internal/HumanFrame";
 import { TestValidator } from "@nestia/e2e";
 
 const ACTOR = "a";
@@ -27,7 +31,7 @@ export function test_motions_sport_swim_supine_clearance(): void {
       ["backstroke", 1.4, 1],
       ["float", 2, 0],
     ] as const) {
-      const take: HumanPerformance = new HumanPerformance({
+      const take: AutoMovieMotionHumanPerformance = new AutoMovieMotionHumanPerformance({
         seed: "supine clearance",
         performers: [
           {
@@ -38,7 +42,7 @@ export function test_motions_sport_swim_supine_clearance(): void {
             proficiency: { level: "trained" },
           },
         ],
-        composition: HumanChain.subject(ACTOR).swim({ kind, water, count: 2 })
+        composition: AutoMovieMotionHumanChain.subject(ACTOR).swim({ kind, water, count: 2 })
           .node,
       });
       const segment = take.segments(ACTOR)[0]!;
@@ -62,18 +66,18 @@ export function test_motions_sport_swim_supine_clearance(): void {
         const t: number = (take.duration * i) / steps;
         const display = frames(t);
         const head = display.get(mouth.bone)!;
-        const lips: IAutoMovieVector3 = Vector3.add(
+        const lips: IAutoMovieVector3 = AutoMovieEngineVector3.add(
           head.worldPosition,
-          Quaternion.rotateVector(head.worldRotation, mouth.point),
+          AutoMovieEngineQuaternion.rotateVector(head.worldRotation, mouth.point),
         );
         clearance = Math.min(clearance, lips.y - water);
         const moved: IAutoMovieVector3 = display.get("hips")!.worldPosition;
         hipDepth = Math.min(hipDepth, water - moved.y);
-        const expected: IAutoMovieVector3 = Vector3.add(
+        const expected: IAutoMovieVector3 = AutoMovieEngineVector3.add(
           hip,
-          Vector3.scale(direction, -speed * t),
+          AutoMovieEngineVector3.scale(direction, -speed * t),
         );
-        drift = Math.max(drift, Vector3.distance(moved, expected));
+        drift = Math.max(drift, AutoMovieEngineVector3.distance(moved, expected));
       }
       TestValidator.predicate(
         `${id} ${kind} breathes throughout both cycles`,

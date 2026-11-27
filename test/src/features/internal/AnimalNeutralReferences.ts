@@ -1,4 +1,4 @@
-import type { createQuadruped } from "@automovie/archetypes";
+import type { AutoMovieArchetypeQuadruped } from "@automovie/archetypes";
 
 /**
  * Independent source literals and declared transfer assumptions of the neutral unit.
@@ -34,7 +34,7 @@ export namespace AnimalNeutralReferences {
     /** Human-readable source/cohort/tack identity. */
     id: string;
     /** Complete caller-authored producer inputs; the unit checks they stay unchanged. */
-    params: createQuadruped.IParams;
+    params: AutoMovieArchetypeQuadruped.IParams;
     /** Derive expected source lengths at the independently observed height. */
     expected: (height: number) => IExpected;
   }

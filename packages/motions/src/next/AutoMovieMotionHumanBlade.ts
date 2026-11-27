@@ -1,13 +1,13 @@
-import { HumanBlade as HumanBladeSource } from "../lexicon/HumanBlade";
-import { HumanLanceCouch as HumanLanceCouchSource } from "../lexicon/HumanLanceCouch";
-import { HumanSabre as HumanSabreSource } from "../lexicon/HumanSabre";
-import { HumanSword as HumanSwordSource } from "../lexicon/HumanSword";
-import { HumanSwordGuard as HumanSwordGuardLaw } from "../lexicon/HumanSwordGuard";
-import { HumanSwordParry as HumanSwordParrySource } from "../lexicon/HumanSwordParry";
-import { HumanSwordTaken as HumanSwordTakenSource } from "../lexicon/HumanSwordTaken";
-import { HumanSwordThrust as HumanSwordThrustSource } from "../lexicon/HumanSwordThrust";
-import { HumanSwordTiming as HumanSwordTimingSource } from "../lexicon/HumanSwordTiming";
-import { HumanWeaponMelee as HumanWeaponMeleeSource } from "../lexicon/HumanWeaponMelee";
+import { HumanBlade as HumanBladeSource } from "../lexicon/internal/HumanBlade";
+import { HumanLanceCouch as HumanLanceCouchSource } from "../lexicon/internal/HumanLanceCouch";
+import { HumanSabre as HumanSabreSource } from "../lexicon/internal/HumanSabre";
+import { HumanSword as HumanSwordSource } from "../lexicon/internal/HumanSword";
+import { HumanSwordGuard as HumanSwordGuardLaw } from "../lexicon/internal/HumanSwordGuard";
+import { HumanSwordParry as HumanSwordParrySource } from "../lexicon/internal/HumanSwordParry";
+import { HumanSwordTaken as HumanSwordTakenSource } from "../lexicon/internal/HumanSwordTaken";
+import { HumanSwordThrust as HumanSwordThrustSource } from "../lexicon/internal/HumanSwordThrust";
+import { HumanSwordTiming as HumanSwordTimingSource } from "../lexicon/internal/HumanSwordTiming";
+import { HumanWeaponMelee as HumanWeaponMeleeSource } from "../lexicon/internal/HumanWeaponMelee";
 import { HUMAN_BLADE_ADVANCE } from "./presets/HUMAN_BLADE_ADVANCE";
 import { HUMAN_BLADE_BEAT } from "./presets/HUMAN_BLADE_BEAT";
 import { HUMAN_BLADE_BIND } from "./presets/HUMAN_BLADE_BIND";
@@ -130,7 +130,7 @@ export namespace AutoMovieMotionHumanBlade {
    * what every blade action shares. `HumanSwordThrust` holds the thrust,
    * `HumanSwordGuard` the guards and `HumanSwordParry` the parry.
    *
-   * The blade is a prop the hand already holds (`HumanObject.prop` of a sword,
+   * The blade is a prop the hand already holds (`AutoMovieMotionHumanObject.prop` of a sword,
    * then `pickUp` by its grip); the law reads its point and edge from the
    * prop's `point` and `edge` affordances as the hand holds them and aims
    * those. With no blade named the hand itself is aimed, and with no target a

@@ -1,4 +1,4 @@
-import { AutoMovieLoftChain, AutoMovieLoftJet } from "@automovie/engine";
+import { AutoMovieEngineLoftChain, AutoMovieEngineLoftJet } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanBodyCalibration,
@@ -6,28 +6,30 @@ import type {
   IAutoMovieLoftChain,
 } from "@automovie/interface";
 
-/** The skin's normals: each vertex's station jet and the blend of the normals of rings shared between chains. */
+/**
+ * The skin's normals: each vertex's station jet and the blend of the normals of
+ * rings shared between chains.
+ */
 export namespace AutoMovieHumanBodySurfaceNormals {
   /**
    * Shading normals from the lofted surface itself.
    *
-   * The mesh joins equal phases of consecutive stations, and where a
-   * chain's correspondence slides along its sections (5 to 7 mm per 0.8 mm
-   * of station beside the outer eye corners) or a child's own ring meets
-   * the ring it inherits by a zipper, the triangles cut across the curved
-   * surface. Their area-weighted normals then turn by several degrees from
-   * one band to the next, which shaded as lines along the head rings and
-   * round the hips although the surface those rings lie on is smooth
-   * (profiled in fixed planes, its slope is continuous to 0.1 mm). Every
-   * regular vertex with loft coordinates takes the analytic normal when
-   * the original physical jets are available. Otherwise its actual phase
-   * derivative and the existing {@link STEP} mm station difference give
-   * `dS/dt x dS/ds`, oriented with the mesh normal. Retained cap geometry
-   * needs Point0 only, so vertices outside the principal physical2 domain
-   * keep their triangle normals without inventing missing derivatives. A vertex
-   * without coordinates, or whose two normals differ by more than
-   * {@link AGREE} degrees (a pinch bridge or a pole apex, where the mesh is
-   * the surface), keeps the mesh normal.
+   * The mesh joins equal phases of consecutive stations, and where a chain's
+   * correspondence slides along its sections (5 to 7 mm per 0.8 mm of station
+   * beside the outer eye corners) or a child's own ring meets the ring it
+   * inherits by a zipper, the triangles cut across the curved surface. Their
+   * area-weighted normals then turn by several degrees from one band to the
+   * next, which shaded as lines along the head rings and round the hips
+   * although the surface those rings lie on is smooth (profiled in fixed
+   * planes, its slope is continuous to 0.1 mm). Every regular vertex with loft
+   * coordinates takes the analytic normal when the original physical jets are
+   * available. Otherwise its actual phase derivative and the existing
+   * {@link STEP} mm station difference give `dS/dt x dS/ds`, oriented with the
+   * mesh normal. Retained cap geometry needs Point0 only, so vertices outside
+   * the principal physical2 domain keep their triangle normals without
+   * inventing missing derivatives. A vertex without coordinates, or whose two
+   * normals differ by more than {@link AGREE} degrees (a pinch bridge or a pole
+   * apex, where the mesh is the surface), keeps the mesh normal.
    */
   export function surfaceNormals(
     calibration: IAutoMovieHumanBodyCalibration,
@@ -57,9 +59,9 @@ export namespace AutoMovieHumanBodySurfaceNormals {
         continue;
 
       // A chain with jets has its exact normal, oriented with the mesh's.
-      if (AutoMovieLoftJet.carries(target)) {
-        const n: [number, number, number] | null = AutoMovieLoftJet.normal(
-          AutoMovieLoftJet.at(target, s, t),
+      if (AutoMovieEngineLoftJet.carries(target)) {
+        const n: [number, number, number] | null = AutoMovieEngineLoftJet.normal(
+          AutoMovieEngineLoftJet.at(target, s, t),
         );
         if (n === null) continue;
         const c: number =
@@ -108,20 +110,19 @@ export namespace AutoMovieHumanBodySurfaceNormals {
   /**
    * Shading normals blended across the event rings.
    *
-   * Parent and child are fitted on their own and meet at a shared ring with
-   * one tangent plane (`AutoMovieHumanEventJoin`) but not one curvature, so
-   * each side's surface normals turn at their own rate and the ring shades
-   * as a line under raking light: across the face at the 1543.2 mm ring
-   * under the nose and at the 1595.5 mm ring beside the eyes, in clay as in
-   * colour, although the normals there agree with the local surface to 1.7
-   * degrees. Every vertex within {@link BLEND} mm of station from one of
-   * its chain's event rings therefore averages its normal with its mesh
-   * neighbours' over {@link PASSES} passes, fully at the ring and fading to
-   * nothing at the band's edge, so the turn spreads over the band on both
-   * sides. A neighbour whose normal differs by more than {@link FOLD}
-   * degrees is left out: the contacts' real folds (the axillae, the crotch,
-   * the webs, the auricle's rims) keep their shading. Positions are not
-   * moved.
+   * Parent and child are fitted on their own and meet at a shared ring with one
+   * tangent plane (`AutoMovieHumanEventJoin`) but not one curvature, so each
+   * side's surface normals turn at their own rate and the ring shades as a line
+   * under raking light: across the face at the 1543.2 mm ring under the nose
+   * and at the 1595.5 mm ring beside the eyes, in clay as in colour, although
+   * the normals there agree with the local surface to 1.7 degrees. Every vertex
+   * within {@link BLEND} mm of station from one of its chain's event rings
+   * therefore averages its normal with its mesh neighbours' over {@link PASSES}
+   * passes, fully at the ring and fading to nothing at the band's edge, so the
+   * turn spreads over the band on both sides. A neighbour whose normal differs
+   * by more than {@link FOLD} degrees is left out: the contacts' real folds (the
+   * axillae, the crotch, the webs, the auricle's rims) keep their shading.
+   * Positions are not moved.
    */
   export function ringBlend(
     calibration: IAutoMovieHumanBodyCalibration,
@@ -254,15 +255,15 @@ export namespace AutoMovieHumanBodySurfaceNormals {
   ): IAutoMovieHumanBodySurfaceNormals.IStationJet {
     const bottom: number = target.layers[0]!.y;
     const top: number = target.layers[target.layers.length - 1]!.y;
-    const sample: (
+    function sample(
       y: number,
-    ) => IAutoMovieHumanBodySurfaceNormals.IStationSample = (
-      y: number,
-    ): IAutoMovieHumanBodySurfaceNormals.IStationSample => ({
-      at: AutoMovieLoftChain.sampler(target, y),
-    });
+    ): IAutoMovieHumanBodySurfaceNormals.IStationSample {
+      return {
+        at: AutoMovieEngineLoftChain.sampler(target, y),
+      };
+    }
     return {
-      here: AutoMovieLoftChain.phaseSampler(target, s),
+      here: AutoMovieEngineLoftChain.phaseSampler(target, s),
       lo: sample(Math.max(bottom, s - STEP)),
       hi: sample(Math.min(top, s + STEP)),
     };

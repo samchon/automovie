@@ -1,7 +1,7 @@
 {
   "extends": "../config/tsconfig.json",
   "compilerOptions": {
-    "rootDir": "src",
+    "rootDir": "..",
     "noEmit": true,
     "allowImportingTsExtensions": true,
     "rewriteRelativeImportExtensions": true,
@@ -9,7 +9,16 @@
     "jsx": "react-jsx",
     "types": [
       "node"
-    ]
+    ],
+    "paths": {
+      "#production-check-entry": [
+        "../packages/cli/src/production/internal/importProductionCheckEntry.mts"
+      ],
+      "#three-addon/*": [
+        "../packages/render/node_modules/@types/three/examples/jsm/*",
+        "../packages/render/node_modules/three/examples/jsm/*"
+      ]
+    }
   },
   "include": [
     "src"

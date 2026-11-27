@@ -1,5 +1,22 @@
-import type { IAutoMovieComposition, IAutoMovieIntent, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanEnsemble, IAutoMovieVector3 } from "@automovie/interface";
-import { HumanEnsemble, HumanRefusal, humanQueueAdvance, humanQueueMarks } from "@automovie/motions/internal";
+import type {
+  IAutoMovieComposition,
+  IAutoMovieIntent,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanEnsemble,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanEnsemble
+} from "../../../../../packages/motions/src/ensemble/internal/HumanEnsemble";
+import {
+  AutoMovieMotionHumanRefusal
+} from "@automovie/motions";
+import {
+  humanQueueAdvance
+} from "../../../../../packages/motions/src/ensemble/internal/humanQueueAdvance";
+import {
+  humanQueueMarks
+} from "../../../../../packages/motions/src/ensemble/internal/humanQueueMarks";
 import { TestValidator } from "@nestia/e2e";
 
 import { compositionIntents } from "../../internal/compositionIntents";
@@ -66,9 +83,9 @@ namespace part_human_queue_advance {
     const syncs: (node: IAutoMovieComposition) => unknown[] = (
       node: IAutoMovieComposition,
     ): unknown[] =>
-      node.kind === "intent"
+      node.type === "intent"
         ? []
-        : node.kind === "at"
+        : node.type === "at"
           ? [
               [
                 compositionIntents(node.part)[0]?.subject,
@@ -84,14 +101,14 @@ namespace part_human_queue_advance {
       ["queue.1", "queue.0.queueAdvance", "end", 0.25],
       ["queue.2", "queue.1.queueAdvance", "end", 0.25],
     ]);
-    let refusal: HumanRefusal | undefined;
+    let refusal: AutoMovieMotionHumanRefusal | undefined;
     try {
       humanQueueAdvance(ensemble, {
         on: { of: "counter", event: "release" },
         exit: { x: 0, y: 0, z: 0.01 },
       });
     } catch (error: unknown) {
-      if (error instanceof HumanRefusal) refusal = error;
+      if (error instanceof AutoMovieMotionHumanRefusal) refusal = error;
     }
     TestValidator.predicate(
       "a crowding exit",
@@ -163,7 +180,7 @@ namespace part_human_queue_marks {
           wait === undefined ? { exit: to } : { exit: to, wait },
         );
       } catch (error: unknown) {
-        if (error instanceof HumanRefusal)
+        if (error instanceof AutoMovieMotionHumanRefusal)
           return `${error.axis}:${error.performer}`;
       }
       return "admitted";

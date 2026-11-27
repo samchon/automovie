@@ -1,4 +1,4 @@
-import { growPlanting, plantingStateDigest } from "@automovie/engine";
+import { AutoMovieEnginePlanting } from "@automovie/engine";
 import type {
   IAutoMoviePlantingDomain,
   IAutoMoviePlantingState,
@@ -67,8 +67,8 @@ const jittered: (seed: number) => IAutoMoviePlantingDomain = (
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Two derivations have identical counts, branch endpoints, leaf rotations and).
  */
 export function test_planting_determinism(): void {
-  const once: IAutoMoviePlantingState = growPlanting(jittered(20_260_810));
-  const twice: IAutoMoviePlantingState = growPlanting(jittered(20_260_810));
+  const once: IAutoMoviePlantingState = AutoMovieEnginePlanting.growPlanting(jittered(20_260_810));
+  const twice: IAutoMoviePlantingState = AutoMovieEnginePlanting.growPlanting(jittered(20_260_810));
   TestValidator.equals(
     "the same recipe derives the same plant, bit for bit",
     namedFacts([
@@ -128,7 +128,7 @@ export function test_planting_determinism(): void {
       ],
       [
         "digest",
-        () => plantingStateDigest(once) === plantingStateDigest(twice),
+        () => AutoMovieEnginePlanting.plantingStateDigest(once) === AutoMovieEnginePlanting.plantingStateDigest(twice),
       ],
     ]),
     {
@@ -147,21 +147,21 @@ export function test_planting_determinism(): void {
       [
         "differs",
         () =>
-          plantingStateDigest(growPlanting(jittered(7))) !==
-          plantingStateDigest(once),
+          AutoMovieEnginePlanting.plantingStateDigest(AutoMovieEnginePlanting.growPlanting(jittered(7))) !==
+          AutoMovieEnginePlanting.plantingStateDigest(once),
       ],
       [
         "rebuilt",
         () =>
-          plantingStateDigest(
-            growPlanting(JSON.parse(JSON.stringify(jittered(20_260_810)))),
-          ) === plantingStateDigest(once),
+          AutoMovieEnginePlanting.plantingStateDigest(
+            AutoMovieEnginePlanting.growPlanting(JSON.parse(JSON.stringify(jittered(20_260_810)))),
+          ) === AutoMovieEnginePlanting.plantingStateDigest(once),
       ],
     ]),
     { differs: true, rebuilt: true },
   );
 
-  const plain: IAutoMoviePlantingState = growPlanting(plantingRecipe());
+  const plain: IAutoMoviePlantingState = AutoMovieEnginePlanting.growPlanting(plantingRecipe());
   const lengths: (state: IAutoMoviePlantingState, level: number) => number[] = (
     state: IAutoMoviePlantingState,
     level: number,
@@ -207,7 +207,7 @@ export function test_planting_determinism(): void {
         () =>
           throwsError(
             () =>
-              growPlanting(
+              AutoMovieEnginePlanting.growPlanting(
                 plantingRecipe({ budget: { maxBranches: 3, maxLeaves: 512 } }),
               ),
             ['planting "fern" exceeded its declared cap of 3 branches'],
@@ -218,7 +218,7 @@ export function test_planting_determinism(): void {
         () =>
           throwsError(
             () =>
-              growPlanting(
+              AutoMovieEnginePlanting.growPlanting(
                 plantingRecipe({
                   foliage: {
                     density: 4,
@@ -238,7 +238,7 @@ export function test_planting_determinism(): void {
         () =>
           throwsError(
             () =>
-              growPlanting(
+              AutoMovieEnginePlanting.growPlanting(
                 plantingRecipe({
                   foliage: {
                     density: 1e12,

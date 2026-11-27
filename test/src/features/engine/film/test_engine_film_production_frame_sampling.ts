@@ -1,4 +1,4 @@
-import { sampleProductionRenderFrame } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import {
   IAutoMovieFilmTimeline,
   IAutoMovieFilmTimelineSegment,
@@ -95,7 +95,7 @@ export function test_engine_film_production_frame_sampling(): void {
   const layers: (frame: number) => IAutoMovieProductionRenderLayer[] = (
     frame: number,
   ): IAutoMovieProductionRenderLayer[] =>
-    sampleProductionRenderFrame(edit, frame).layers;
+    AutoMovieEngineFilm.sampleProductionRenderFrame(edit, frame).layers;
 
   TestValidator.predicate(
     "a fade-in opens at zero and reaches full weight at its duration",
@@ -171,7 +171,7 @@ export function test_engine_film_production_frame_sampling(): void {
     [0, 1, 2, 3]
       .map(
         (frame: number): number =>
-          sampleProductionRenderFrame(shortFade, frame).layers[0]!.weight,
+          AutoMovieEngineFilm.sampleProductionRenderFrame(shortFade, frame).layers[0]!.weight,
       )
       .every((weight: number, index: number): boolean =>
         nclose(weight, [0, 0.25, 0.5, 0.25][index]!),
@@ -205,7 +205,7 @@ export function test_engine_film_production_frame_sampling(): void {
     ].every(
       (expected: IAutoMovieProductionRenderLayer[], index: number): boolean =>
         sameFilmProductionRenderLayers(
-          sampleProductionRenderFrame(cut, [5, 6][index]!).layers,
+          AutoMovieEngineFilm.sampleProductionRenderFrame(cut, [5, 6][index]!).layers,
           expected,
         ),
     ),
@@ -227,7 +227,7 @@ export function test_engine_film_production_frame_sampling(): void {
   TestValidator.predicate(
     "a rational clock stamps the independently calculated frame time within 1e-6",
     sameFilmProductionRenderFrames(
-      [sampleProductionRenderFrame(rational, 3)],
+      [AutoMovieEngineFilm.sampleProductionRenderFrame(rational, 3)],
       [
         {
           globalFrame: 3,
@@ -241,12 +241,12 @@ export function test_engine_film_production_frame_sampling(): void {
   const forward: IAutoMovieProductionRenderFrame[] = Array.from(
     { length: 20 },
     (_: unknown, frame: number): IAutoMovieProductionRenderFrame =>
-      sampleProductionRenderFrame(edit, frame),
+      AutoMovieEngineFilm.sampleProductionRenderFrame(edit, frame),
   );
   const reverse: IAutoMovieProductionRenderFrame[] = Array.from(
     { length: 20 },
     (_: unknown, index: number): IAutoMovieProductionRenderFrame =>
-      sampleProductionRenderFrame(edit, 19 - index),
+      AutoMovieEngineFilm.sampleProductionRenderFrame(edit, 19 - index),
   ).reverse();
   TestValidator.predicate(
     "reverse sampling equals the forward schedule",
@@ -283,22 +283,22 @@ export function test_engine_film_production_frame_sampling(): void {
     {
       negative: throwsError(
         (): IAutoMovieProductionRenderFrame =>
-          sampleProductionRenderFrame(edit, -1),
+          AutoMovieEngineFilm.sampleProductionRenderFrame(edit, -1),
         "Film-global frame -1 is outside 0..19.",
       ),
       end: throwsError(
         (): IAutoMovieProductionRenderFrame =>
-          sampleProductionRenderFrame(edit, 20),
+          AutoMovieEngineFilm.sampleProductionRenderFrame(edit, 20),
         "outside 0..19",
       ),
       uncovered: throwsError(
         (): IAutoMovieProductionRenderFrame =>
-          sampleProductionRenderFrame(gap, 5),
+          AutoMovieEngineFilm.sampleProductionRenderFrame(gap, 5),
         "Film-global frame 5 has no builder-owned video segment.",
       ),
       orphanDissolve: throwsError(
         (): IAutoMovieProductionRenderFrame =>
-          sampleProductionRenderFrame(firstDissolve, 0),
+          AutoMovieEngineFilm.sampleProductionRenderFrame(firstDissolve, 0),
         'Segment "x" dissolves without an outgoing segment.',
       ),
     },
@@ -312,7 +312,7 @@ export function test_engine_film_production_frame_sampling(): void {
   TestValidator.predicate(
     "the orphan segment samples normally after its dissolve window",
     sameFilmProductionRenderLayers(
-      sampleProductionRenderFrame(firstDissolve, 2).layers,
+      AutoMovieEngineFilm.sampleProductionRenderFrame(firstDissolve, 2).layers,
       [{ shot: "x", sourceFrame: 2, weight: 1 }],
     ),
   );

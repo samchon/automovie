@@ -1,5 +1,5 @@
 import type { IAutoMovieFilmOptics } from "@automovie/interface";
-import { accumulateAutoMovieFilmSamples } from "@automovie/render";
+import { AutoMovieRenderDrawFilm } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -46,7 +46,7 @@ export async function test_render_draw_accumulate_film_samples(): Promise<void> 
       0.1,
       100,
     );
-    await accumulateAutoMovieFilmSamples({
+    await AutoMovieRenderDrawFilm.accumulateSamples({
       stage: {
         accumulate: (props: {
           index: number;

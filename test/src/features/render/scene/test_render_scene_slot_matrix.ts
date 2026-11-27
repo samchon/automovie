@@ -1,4 +1,6 @@
-import { slotMatrix } from "@automovie/render/internal";
+import {
+  slotMatrix
+} from "../../../../../packages/render/src/scene/internal/slotMatrix";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 

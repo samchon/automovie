@@ -1,15 +1,11 @@
-import {
-  AutoMovieLoftChain,
-  AutoMovieMeshExtract,
-  AutoMovieNaturalSpline,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
+import { AutoMovieEngineLoftChain, AutoMovieEngineMeshExtract, AutoMovieEngineNaturalSpline, AutoMovieEngineConstruction } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft,
   AutoMovieHumanF1,
   AutoMovieHumanF1Joints,
 } from "@automovie/human";
 import type {
+  IAutoMovieConstructionPortLoop,
   IAutoMovieHumanConicLoft,
   IAutoMovieMillimeterMesh,
 } from "@automovie/interface";
@@ -91,9 +87,9 @@ namespace FamilyConicArmscye {
       const first: number = family.knots[0]!;
       const arm = chainOf(family, first, first + 160);
       const host = (s: number, p: number): V3 =>
-        AutoMovieLoftChain.point(trunk, s, p) as V3;
+        AutoMovieEngineLoftChain.point(trunk, s, p) as V3;
       const part = (s: number, p: number): V3 =>
-        AutoMovieLoftChain.point(arm, s, p) as V3;
+        AutoMovieEngineLoftChain.point(arm, s, p) as V3;
       for (const rail of rails) {
         // The declared loop, as the engine reads it: the ellipse's point at each clock scaled from the centre by the column's share.
         const declared = AutoMovieHumanF1.armscye(side);
@@ -101,12 +97,12 @@ namespace FamilyConicArmscye {
           const share: number = (1 - shrink) * (declared.shape?.[k] ?? 1);
           return host(
             1000 *
-              (declared.centre[0] +
-                share * declared.semi[0] * Math.cos((turn * k) / n)),
-            declared.centre[1] +
+              (declared.centre.station +
+                share * declared.semi.stationMetres * Math.cos((turn * k) / n)),
+            declared.centre.phase +
               share *
                 declared.sense *
-                declared.semi[1] *
+                declared.semi.phaseRadians *
                 Math.sin((turn * k) / n),
           );
         };
@@ -120,7 +116,7 @@ namespace FamilyConicArmscye {
 
         // The rail ring, its centroid and Newell plane, as the engine's correspondence reads them.
         const curve: (psi: number) => number = Number.isNaN(rail)
-          ? AutoMovieNaturalSpline.periodic(AutoMovieHumanF1.armRails(side))
+          ? AutoMovieEngineNaturalSpline.periodic(AutoMovieHumanF1.armRails(side))
           : (): number => rail;
         const station = (psi: number): number => first + curve(psi);
         const samples: number = 8 * n;
@@ -270,18 +266,18 @@ namespace FamilyConicArmscye {
             );
         }
         // Whether the port's loop crosses another port's on the trunk's chart (the breast's), as two polygons in station and phase.
-        const polygon = (l: {
-          centre: [number, number];
-          semi: [number, number];
-          sense: 1 | -1;
-          shape?: number[];
-        }): [number, number][] =>
+        const polygon = (l: IAutoMovieConstructionPortLoop): [number, number][] =>
           (l.shape ?? new Array<number>(96).fill(1)).map(
             (share: number, k: number, all: number[]): [number, number] => [
-              l.centre[0] +
-                share * l.semi[0] * Math.cos((turn * k) / all.length),
-              l.centre[1] +
-                share * l.sense * l.semi[1] * Math.sin((turn * k) / all.length),
+              l.centre.station +
+                share *
+                  l.semi.stationMetres *
+                  Math.cos((turn * k) / all.length),
+              l.centre.phase +
+                share *
+                  l.sense *
+                  l.semi.phaseRadians *
+                  Math.sin((turn * k) / all.length),
             ],
           );
         const crosses = (
@@ -408,7 +404,7 @@ namespace FamilyConicArmscye {
     for (let j: number = 0; j < 24; ++j) {
       const psi: number = (2 * Math.PI * j) / 24;
       const armSide = (s: number): boolean =>
-        loop.side(AutoMovieLoftChain.point(chain, s, psi) as V3) > 0;
+        loop.side(AutoMovieEngineLoftChain.point(chain, s, psi) as V3) > 0;
       let cross: number = NaN;
       for (
         let s: number = first;
@@ -420,7 +416,7 @@ namespace FamilyConicArmscye {
           stays = armSide(t);
         if (stays) cross = s;
       }
-      const p: V3 = AutoMovieLoftChain.point(chain, cross, psi) as V3;
+      const p: V3 = AutoMovieEngineLoftChain.point(chain, cross, psi) as V3;
       process.stdout.write(
         `phase ${j}: crosses at ${cross.toFixed(2)} mm, [${p.map((x: number): string => x.toFixed(1)).join(", ")}]\n`,
       );
@@ -444,7 +440,7 @@ namespace FamilyConicArmscye {
     const to: number = Number(process.argv[4] ?? 1330);
     const source: R.ISource = await R.load(path.resolve(process.cwd(), ".."));
     const declared = AutoMovieHumanF1.construction();
-    const real = realizeAutoMovieConstruction(
+    const real = AutoMovieEngineConstruction.realize(
       { name: "f1.body", root: declared.root, fills: declared.fills },
       { chord: 0.001, sources: declared.sources },
     );
@@ -467,7 +463,7 @@ namespace FamilyConicArmscye {
     ] as [string, IAutoMovieMillimeterMesh][]) {
       // The level's closed loops on the +Z side, in (x, z), mm.
       const level = (y: number): [number, number][][] =>
-        AutoMovieMeshExtract.outline(
+        AutoMovieEngineMeshExtract.outline(
           mesh,
           {
             origin: [0, y, 0],
@@ -601,7 +597,7 @@ namespace FamilyConicArmscye {
       throw new Error("the trunk does not loft over the loop's heights");
     const skin: number[][] = stations.flatMap((s: number): number[][] =>
       Array.from({ length: 720 }, (_: unknown, j: number): number[] =>
-        AutoMovieLoftChain.point(trunk, s, (2 * Math.PI * j) / 720),
+        AutoMovieEngineLoftChain.point(trunk, s, (2 * Math.PI * j) / 720),
       ),
     );
     for (let k: number = 0; k < count; ++k) {
@@ -631,7 +627,7 @@ namespace FamilyConicArmscye {
    */
   export function realize(): void {
     const declared = AutoMovieHumanF1.construction();
-    const real = realizeAutoMovieConstruction(
+    const real = AutoMovieEngineConstruction.realize(
       { name: "f1.body", root: declared.root, fills: declared.fills },
       { chord: 0.001, sources: declared.sources },
     );

@@ -18,7 +18,7 @@ import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  *
  * Both axes are normalized before use, so their lengths do not matter, and they
  * are not orthogonalized: two non-perpendicular axes give a parallelogram grid.
- * A grid may hold at most `AUTOMOVIE_ANALYSIS_MAX_SAMPLES` cells.
+ * A grid may hold at most `AutoMovieEngineAnalysisMaxSamples` cells.
  */
 export interface IAutoMovieAnalysisWorkplane {
   /** World-space corner the grid grows from, in metres; every axis finite. */

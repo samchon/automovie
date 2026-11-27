@@ -8,7 +8,7 @@
  * each triple red, green, blue. The irradiance in lux of a receiver facing the
  * world unit direction `n = (x, y, z)` is `Σ c_lm Y_lm(n)` with the real basis
  * 0.282095; 0.488603 y, z, x; 1.092548 xy, yz; 0.315392 (3z² − 1); 1.092548 xz;
- * 0.546274 (x² − y²). `autoMovieIrradianceOf` evaluates it.
+ * 0.546274 (x² − y²). `irradianceOf` evaluates it.
  */
 export interface IAutoMovieIrradianceProbe {
   /** Nine RGB irradiance coefficients, lux, in band order. */

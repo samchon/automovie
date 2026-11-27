@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieTransform,
@@ -10,15 +10,8 @@ import {
   AutoMovieArchetypeFrame,
   type AutoMovieArchetypeRide,
 } from "../core";
-import { AnnularFitting } from "./AnnularFitting";
+import { AnnularFitting } from "./fittings/AnnularFitting";
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
-
-/** The pose's frame: the hobble is posed in world coordinates. */
-const WORLD: IAutoMovieTransform = AutoMovieArchetypeFrame.upright({
-  x: 0,
-  y: 0,
-  z: 0,
-});
 
 /**
  * A fore hobble (`createHobble`) worn by a moving equid: at each film second
@@ -80,7 +73,9 @@ export namespace AutoMovieArchetypeEquineHobble {
     };
   }
 
-  /** A cuff's world frame on a fore cannon of a sample. */
+  /*
+   * A cuff's world frame on a fore cannon of a sample.
+   */
   function cuff<Id extends string, D extends string>(
     sample: AutoMovieArchetypeRide.ISample<Id, D>,
     limb: AutoMovieArchetypeQuadrupedBody.Limb,
@@ -99,13 +94,13 @@ export namespace AutoMovieArchetypeEquineHobble {
         cannon.geometry.shape.type === "cylinder")
         ? cannon.geometry.shape.height
         : NaN;
-    const down: IAutoMovieVector3 = Quaternion.rotateVector(frame.rotation, {
+    const down: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(frame.rotation, {
       x: 0,
       y: 1,
       z: 0,
     });
     return {
-      translation: Vector3.addScaled(
+      translation: AutoMovieEngineVector3.addScaled(
         frame.translation,
         down,
         length / 2 - ABOVE,
@@ -115,3 +110,12 @@ export namespace AutoMovieArchetypeEquineHobble {
     };
   }
 }
+
+/*
+ * The pose's frame: the hobble is posed in world coordinates.
+ */
+const WORLD: IAutoMovieTransform = AutoMovieArchetypeFrame.upright({
+  x: 0,
+  y: 0,
+  z: 0,
+});

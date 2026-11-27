@@ -1,9 +1,4 @@
-import {
-  Vector3,
-  physicalShapeNearest,
-  projectileAt,
-  projectileFirstContact,
-} from "@automovie/engine";
+import { AutoMovieEnginePhysicalProjectile, AutoMovieEngineVector3, AutoMovieEnginePhysics, AutoMovieEngineAir } from "@automovie/engine";
 import type {
   IAutoMovieHit,
   IAutoMoviePhysicalShape,
@@ -61,9 +56,9 @@ export function test_engine_physics_projectile_first_contact(): void {
     attitude: { kind: "fixed" },
   };
   const shape: IAutoMoviePhysicalShape = post(10, 0);
-  const hit: IAutoMovieHit | null = projectileFirstContact(
+  const hit: IAutoMovieHit | null = AutoMovieEnginePhysicalProjectile.firstContact(
     arrow,
-    [projectileFirstContact.shape("post", shape, pose())],
+    [AutoMovieEnginePhysicalProjectile.shapeCollider("post", shape, pose())],
     { from: 0, to: 1 },
     { radius: 0, tail: { x: 0, y: 0, z: -0.7 }, thickness: 0.06 },
   );
@@ -75,15 +70,15 @@ export function test_engine_physics_projectile_first_contact(): void {
   TestValidator.predicate(
     "the post's normal faces the arrow",
     hit !== null &&
-      Vector3.dot(hit.normal!, { x: 0, y: 0, z: -1 }) >=
+      AutoMovieEngineVector3.dot(hit.normal!, { x: 0, y: 0, z: -1 }) >=
         1 - PhysicalTolerance.CONVERGED,
   );
-  const opaque: IAutoMovieHit | null = projectileFirstContact(
+  const opaque: IAutoMovieHit | null = AutoMovieEnginePhysicalProjectile.firstContact(
     arrow,
     [
       {
         id: "post",
-        nearest: (a, b) => physicalShapeNearest(pose(), shape, a, b),
+        nearest: (a, b) => AutoMovieEnginePhysics.physicalShapeNearest(pose(), shape, a, b),
       },
     ],
     { from: 0, to: 1 },
@@ -102,13 +97,13 @@ export function test_engine_physics_projectile_first_contact(): void {
   );
 
   // 2. The ball on the ground.
-  const drop: IAutoMovieHit | null = projectileFirstContact(
+  const drop: IAutoMovieHit | null = AutoMovieEnginePhysicalProjectile.firstContact(
     {
       origin: { x: 0, y: 1, z: 0 },
       velocity: zero,
       gravity: { x: 0, y: -9.80665, z: 0 },
     },
-    [projectileFirstContact.plane("ground", zero, { x: 0, y: 1, z: 0 })],
+    [AutoMovieEnginePhysicalProjectile.planeCollider("ground", zero, { x: 0, y: 1, z: 0 })],
     { from: 0, to: 2 },
     { radius: 0, thickness: 0.05 },
   );
@@ -124,11 +119,11 @@ export function test_engine_physics_projectile_first_contact(): void {
   );
 
   // 3. Between two posts.
-  const miss: IAutoMovieHit | null = projectileFirstContact(
+  const miss: IAutoMovieHit | null = AutoMovieEnginePhysicalProjectile.firstContact(
     arrow,
     [
-      projectileFirstContact.shape("left", post(10, 0.2), pose),
-      projectileFirstContact.shape("right", post(10, -0.2), pose),
+      AutoMovieEnginePhysicalProjectile.shapeCollider("left", post(10, 0.2), pose),
+      AutoMovieEnginePhysicalProjectile.shapeCollider("right", post(10, -0.2), pose),
     ],
     { from: 0, to: 1 },
     { radius: 0, tail: { x: 0, y: 0, z: -0.7 }, thickness: 0.06 },
@@ -149,13 +144,13 @@ export function test_engine_physics_projectile_first_contact(): void {
     drag: { coefficient: 2 * drag, area: 1, density: 1, mass: 1 },
   };
   const from: number = 0.15 * step;
-  const start = projectileAt(launch, from);
-  const plane = projectileFirstContact.plane("dense-turn", start.position, {
+  const start = AutoMovieEngineAir.projectileAt(launch, from);
+  const plane = AutoMovieEnginePhysicalProjectile.planeCollider("dense-turn", start.position, {
     x: 0,
     y: 1,
     z: 0,
   });
-  const turn: IAutoMovieHit | null = projectileFirstContact(
+  const turn: IAutoMovieHit | null = AutoMovieEnginePhysicalProjectile.firstContact(
     launch,
     [plane],
     { from, to: 0.75 * step },
@@ -164,8 +159,8 @@ export function test_engine_physics_projectile_first_contact(): void {
   TestValidator.predicate(
     "a dense turn keeps its initial contact",
     start.velocity.y > 0 &&
-      projectileAt(launch, 0.3 * step).position.y > start.position.y &&
-      projectileAt(launch, 0.75 * step).position.y < start.position.y &&
+      AutoMovieEngineAir.projectileAt(launch, 0.3 * step).position.y > start.position.y &&
+      AutoMovieEngineAir.projectileAt(launch, 0.75 * step).position.y < start.position.y &&
       turn !== null &&
       turn.collider === plane.id &&
       turn.time === from,

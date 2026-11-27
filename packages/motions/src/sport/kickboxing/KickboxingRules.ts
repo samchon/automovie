@@ -6,21 +6,9 @@ import type {
   IAutoMovieScheduleEntry,
 } from "@automovie/interface";
 
-/** The record of `IRulesAt`'s site. */
-type IRulesAt = { at?: IAutoMovieMotionTarget };
-
-/** The record of `IFoulP2`'s site. */
-type IFoulP2 = {
-  at?: IAutoMovieMotionTarget;
-  technique?: string;
-};
-
-/** The record of `IFoulP`'s site. */
-type IFoulP = { at?: IAutoMovieMotionTarget; technique?: string };
-
-/**
+/*
  * The kickboxing ruleset a performance's schedule must keep, in the engine's
- * `checkAutoMovieLegality` form, for the motions vocabulary's `punch`, `kick`,
+ * `checkLegality` form, for the motions vocabulary's `punch`, `kick`,
  * `defend` and `knockdown` actions.
  *
  * From the GLORY Official Rules V2.2, §5.07 (as inspected in the kickboxing
@@ -38,7 +26,7 @@ type IFoulP = { at?: IAutoMovieMotionTarget; technique?: string };
  * are not checked here.
  */
 export namespace KickboxingRules {
-  /**
+  /*
    * Regions a strike may not target (GLORY §5.07 A.2 the back of the head or
    * the back, A.3 the groin).
    */
@@ -53,7 +41,9 @@ export namespace KickboxingRules {
       "groin",
     ]);
 
-  /** Leg regions a linear kick may not target. */
+  /*
+   * Leg regions a linear kick may not target.
+   */
   export const LEG_REGIONS: ReadonlySet<AutoMovieHumanoidRegion> =
     new Set<AutoMovieHumanoidRegion>([
       "thighFrontLeft",
@@ -70,12 +60,11 @@ export namespace KickboxingRules {
       "calfRight",
     ]);
 
-  /**
+  /*
    * Why a strike's parameters are a foul, or null when they are legal.
-   *
-   * @param capability The action's name.
-   * @param params Its parameters.
-   * @returns The reason, or null.
+   * Parameter capability: The action's name.
+   * Parameter params: Its parameters.
+   * Returns: The reason, or null.
    */
   export function foul(capability: string, params: object): string | null {
     if (
@@ -97,7 +86,9 @@ export namespace KickboxingRules {
     return null;
   }
 
-  /** The rules. */
+  /*
+   * The rules.
+   */
   export const rules: readonly IAutoMovieCheckLegality.IRule[] = Object.freeze([
     {
       id: "single-clinch-knee",
@@ -178,8 +169,28 @@ export namespace KickboxingRules {
     },
   ]);
 
-  /** An entry's action parameters. */
+  /*
+   * An entry's action parameters.
+   */
   function params(entry: IAutoMovieScheduleEntry): object {
     return (entry.intent.parameters?.params as object | undefined) ?? {};
   }
 }
+
+/*
+ * The record of `IRulesAt`'s site.
+ */
+type IRulesAt = { at?: IAutoMovieMotionTarget };
+
+/*
+ * The record of `IFoulP2`'s site.
+ */
+type IFoulP2 = {
+  at?: IAutoMovieMotionTarget;
+  technique?: string;
+};
+
+/*
+ * The record of `IFoulP`'s site.
+ */
+type IFoulP = { at?: IAutoMovieMotionTarget; technique?: string };

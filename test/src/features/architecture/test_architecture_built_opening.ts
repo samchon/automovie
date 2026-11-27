@@ -1,12 +1,4 @@
-import {
-  buildAutoMovieWall,
-  builtBoundaryWallCut,
-  builtOpeningPanelPlacements,
-  builtOpeningSweepEnvelope,
-  inspectAutoMovieMeshTopology,
-  lowerBuiltEnvironment,
-  validateBuiltEnvironment,
-} from "@automovie/engine";
+import { AutoMovieEngineBuiltEnvironment, AutoMovieEngineBuiltEnvironmentWorkflow, AutoMovieEngineArchitecture, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieBoundaryWallCut,
   IAutoMovieBuiltEnvironment,
@@ -44,7 +36,8 @@ import { sameProductData } from "../internal/sameProductData";
  *    whole.
  * 2. Wall-cut ids and selected dimensions join the graph to the mesh kernel; the
  *    cut mesh has more triangles, less measured volume and no nonfinite
- *    topology entries than the solid wall.
+ *    topology entries than the solid wall. The kernel refuses non-finite wall
+ *    dimensions and opening origins and admits openings at zero origins.
  * 3. A round void is handed to the rectangular kernel as the rectangle that
  *    exactly bounds it, which for a 0.4 m circle is 0.8 m square.
  * 4. Panel placement answers where a leaf stands at the record's own state and at
@@ -81,11 +74,11 @@ export function test_architecture_built_opening(): void {
   const source: IAutoMovieBuiltEnvironment = partition();
   TestValidator.equals(
     "a partition carrying every opening family validates",
-    validateBuiltEnvironment({ environment: source }).success,
+    AutoMovieEngineArchitecture.validateBuiltEnvironment({ environment: source }).success,
     true,
   );
 
-  const cut: IAutoMovieBoundaryWallCut = builtBoundaryWallCut(
+  const cut: IAutoMovieBoundaryWallCut = AutoMovieEngineBuiltEnvironment.boundaryWallCut(
     source,
     "partition",
   );
@@ -179,13 +172,13 @@ export function test_architecture_built_opening(): void {
     ]),
     { origin: true, rotation: true },
   );
-  const cutWall: IAutoMovieMesh = buildAutoMovieWall({
+  const cutWall: IAutoMovieMesh = AutoMovieEngineGeometry.buildWall({
     width: cut.width,
     height: cut.height,
     depth: cut.depth,
     openings: cut.openings,
   });
-  const solidWall: IAutoMovieMesh = buildAutoMovieWall({
+  const solidWall: IAutoMovieMesh = AutoMovieEngineGeometry.buildWall({
     width: cut.width,
     height: cut.height,
     depth: cut.depth,
@@ -195,23 +188,74 @@ export function test_architecture_built_opening(): void {
     "the declared voids become real holes in a closed wall",
     ((): boolean => {
       const cutTopology: IAutoMovieMeshTopology =
-        inspectAutoMovieMeshTopology(cutWall);
+        AutoMovieEngineGeometry.inspectMeshTopology(cutWall);
       const solidTopology: IAutoMovieMeshTopology =
-        inspectAutoMovieMeshTopology(solidWall);
+        AutoMovieEngineGeometry.inspectMeshTopology(solidWall);
       return (
         cutTopology.triangles > solidTopology.triangles &&
         cutTopology.volume < solidTopology.volume
       );
     })(),
   );
+  for (const width of [
+    Number.NaN,
+    Number.POSITIVE_INFINITY,
+    Number.NEGATIVE_INFINITY,
+    0,
+  ])
+    TestValidator.predicate(
+      `wall width ${width} is refused`,
+      throwsError(
+        (): unknown =>
+          AutoMovieEngineGeometry.buildWall({ width, height: 2, depth: 0.2, openings: [] }),
+        "wall width must be a finite number > 0",
+      ),
+    );
+  for (const [axis, x, y] of [
+    ["x", Number.NaN, 0],
+    ["y", 0, Number.NaN],
+    ["x", Number.POSITIVE_INFINITY, 0],
+    ["y", 0, Number.NEGATIVE_INFINITY],
+  ] satisfies [string, number, number][]) {
+    const opening: IAutoMovieWallOpening = {
+      id: `bad-${axis}`,
+      x,
+      y,
+      width: 1,
+      height: 1,
+    };
+    TestValidator.predicate(
+      `non-finite opening origin ${axis} is refused`,
+      throwsError(
+        (): unknown =>
+          AutoMovieEngineGeometry.buildWall({
+            width: 2,
+            height: 2,
+            depth: 0.2,
+            openings: [opening],
+          }),
+        `wall opening "${opening.id}" must stay inside the wall`,
+      ),
+    );
+  }
+  const zeroOriginWall: IAutoMovieMesh = AutoMovieEngineGeometry.buildWall({
+    width: 2,
+    height: 2,
+    depth: 0.2,
+    openings: [{ id: "zero-origin", x: 0, y: 0, width: 1, height: 1 }],
+  });
+  TestValidator.predicate(
+    "a zero opening origin remains valid",
+    zeroOriginWall.positions.every(Number.isFinite),
+  );
 
   TestValidator.predicate(
     "panel placement answers for the record's state and for another",
     ((): boolean => {
       const closed: IAutoMovieOpeningPanelPlacement[] =
-        builtOpeningPanelPlacements(source, "door");
+        AutoMovieEngineBuiltEnvironment.openingPanelPlacements(source, "door");
       const open: IAutoMovieOpeningPanelPlacement[] =
-        builtOpeningPanelPlacements(source, "door", "open");
+        AutoMovieEngineBuiltEnvironment.openingPanelPlacements(source, "door", "open");
       const closedOuter: IAutoMovieOpeningPanelPlacement = closed.find(
         (entry: IAutoMovieOpeningPanelPlacement): boolean =>
           entry.panel === "outer",
@@ -243,11 +287,11 @@ export function test_architecture_built_opening(): void {
   );
 
   const staged: readonly IAutoMovieStageSetPiece[] =
-    lowerBuiltEnvironment(source).set ?? [];
+    AutoMovieEngineBuiltEnvironmentWorkflow.lowerBuiltEnvironment(source).set ?? [];
   const opened: IAutoMovieBuiltEnvironment = partition();
   opened.openings[0]!.operation!.state = "open";
   const openedStaged: readonly IAutoMovieStageSetPiece[] =
-    lowerBuiltEnvironment(opened).set ?? [];
+    AutoMovieEngineBuiltEnvironmentWorkflow.lowerBuiltEnvironment(opened).set ?? [];
   TestValidator.predicate(
     "the staged leaf reproduces the operating state the record stands in",
     ((): boolean => {
@@ -272,13 +316,13 @@ export function test_architecture_built_opening(): void {
   );
   TestValidator.predicate(
     "a record with no operation lowers exactly as a rest-state record does",
-    sameProductData(lowerBuiltEnvironment(inert).set, staged),
+    sameProductData(AutoMovieEngineBuiltEnvironmentWorkflow.lowerBuiltEnvironment(inert).set, staged),
   );
 
   TestValidator.predicate(
     "a quarter-turn leaf sweeps exactly the quarter disc it can reach",
     ((): boolean => {
-      const sweep: IAutoMovieOpeningSweep = builtOpeningSweepEnvelope(
+      const sweep: IAutoMovieOpeningSweep = AutoMovieEngineBuiltEnvironment.openingSweepEnvelope(
         source,
         "door",
       ).find(
@@ -293,7 +337,7 @@ export function test_architecture_built_opening(): void {
   TestValidator.predicate(
     "a double-acting leaf reaches its widest at an interior critical angle",
     ((): boolean => {
-      const sweep: IAutoMovieOpeningSweep = builtOpeningSweepEnvelope(
+      const sweep: IAutoMovieOpeningSweep = AutoMovieEngineBuiltEnvironment.openingSweepEnvelope(
         source,
         "casement",
       )[0]!;
@@ -308,7 +352,7 @@ export function test_architecture_built_opening(): void {
   TestValidator.predicate(
     "a sliding leaf sweeps its own travel and no more",
     ((): boolean => {
-      const sweep: IAutoMovieOpeningSweep = builtOpeningSweepEnvelope(
+      const sweep: IAutoMovieOpeningSweep = AutoMovieEngineBuiltEnvironment.openingSweepEnvelope(
         source,
         "hatch",
       )[0]!;
@@ -327,12 +371,12 @@ export function test_architecture_built_opening(): void {
       // to answer rather than fail on a value it was never given.
       partial.openings[0]!.operation!.states[1]!.panels.pop();
       const inner: IAutoMovieOpeningPanelPlacement =
-        builtOpeningPanelPlacements(partial, "door", "open").find(
+        AutoMovieEngineBuiltEnvironment.openingPanelPlacements(partial, "door", "open").find(
           (entry: IAutoMovieOpeningPanelPlacement): boolean =>
             entry.panel === "inner",
         )!;
       return (
-        validateBuiltEnvironment({ environment: partial }).success === false &&
+        AutoMovieEngineArchitecture.validateBuiltEnvironment({ environment: partial }).success === false &&
         // Carried a quarter turn by its parent leaf, but not turned itself.
         vclose(inner.position, { x: 1, y: 0, z: -1 }) &&
         qclose(inner.rotation, {
@@ -348,40 +392,40 @@ export function test_architecture_built_opening(): void {
   TestValidator.equals(
     "an opening with no operation answers with no panel and no envelope",
     {
-      placements: builtOpeningPanelPlacements(source, "oculus"),
-      sweep: builtOpeningSweepEnvelope(source, "oculus"),
+      placements: AutoMovieEngineBuiltEnvironment.openingPanelPlacements(source, "oculus"),
+      sweep: AutoMovieEngineBuiltEnvironment.openingSweepEnvelope(source, "oculus"),
     },
     { placements: [], sweep: [] },
   );
   TestValidator.predicate(
     "an unknown opening refuses placement",
     throwsError((): IAutoMovieOpeningPanelPlacement[] =>
-      builtOpeningPanelPlacements(source, "missing"),
+      AutoMovieEngineBuiltEnvironment.openingPanelPlacements(source, "missing"),
     ),
   );
   TestValidator.predicate(
     "an unknown opening refuses an envelope",
     throwsError((): IAutoMovieOpeningSweep[] =>
-      builtOpeningSweepEnvelope(source, "missing"),
+      AutoMovieEngineBuiltEnvironment.openingSweepEnvelope(source, "missing"),
     ),
   );
   TestValidator.predicate(
     "an unknown operating state is refused",
     throwsError((): IAutoMovieOpeningPanelPlacement[] =>
-      builtOpeningPanelPlacements(source, "door", "ajar"),
+      AutoMovieEngineBuiltEnvironment.openingPanelPlacements(source, "door", "ajar"),
     ),
   );
   TestValidator.predicate(
     "an unknown boundary refuses a wall cut",
     throwsError(
-      (): IAutoMovieBoundaryWallCut => builtBoundaryWallCut(source, "missing"),
+      (): IAutoMovieBoundaryWallCut => AutoMovieEngineBuiltEnvironment.boundaryWallCut(source, "missing"),
     ),
   );
   TestValidator.predicate(
     "a boundary with no face refuses a wall cut",
     throwsError(
       (): IAutoMovieBoundaryWallCut =>
-        builtBoundaryWallCut(source, "threshold"),
+        AutoMovieEngineBuiltEnvironment.boundaryWallCut(source, "threshold"),
     ),
   );
   TestValidator.predicate(
@@ -389,7 +433,7 @@ export function test_architecture_built_opening(): void {
     throwsError((): void => {
       const broken: IAutoMovieBuiltEnvironment = partition();
       broken.openings[0]!.operation!.panels[0]!.element = "missing";
-      builtOpeningPanelPlacements(broken, "door");
+      AutoMovieEngineBuiltEnvironment.openingPanelPlacements(broken, "door");
     }),
   );
   TestValidator.predicate(
@@ -397,7 +441,7 @@ export function test_architecture_built_opening(): void {
     throwsError((): void => {
       const broken: IAutoMovieBuiltEnvironment = partition();
       broken.openings[0]!.operation!.panels[0]!.element = "missing";
-      builtOpeningSweepEnvelope(broken, "door");
+      AutoMovieEngineBuiltEnvironment.openingSweepEnvelope(broken, "door");
     }),
   );
   // A travel the solver cannot walk to the end of is refused by name rather
@@ -409,7 +453,7 @@ export function test_architecture_built_opening(): void {
       const broken: IAutoMovieBuiltEnvironment = partition();
       broken.openings[0]!.operation!.panels[0]!.motion.min =
         Number.NEGATIVE_INFINITY;
-      builtOpeningSweepEnvelope(broken, "door");
+      AutoMovieEngineBuiltEnvironment.openingSweepEnvelope(broken, "door");
     }),
   );
   TestValidator.predicate(
@@ -418,7 +462,7 @@ export function test_architecture_built_opening(): void {
       const broken: IAutoMovieBuiltEnvironment = partition();
       broken.openings[0]!.operation!.panels[0]!.motion.max =
         Number.POSITIVE_INFINITY;
-      builtOpeningSweepEnvelope(broken, "door");
+      AutoMovieEngineBuiltEnvironment.openingSweepEnvelope(broken, "door");
     }),
   );
   TestValidator.predicate(
@@ -427,7 +471,7 @@ export function test_architecture_built_opening(): void {
       const broken: IAutoMovieBuiltEnvironment = partition();
       broken.openings[0]!.operation!.panels[0]!.motion.min = -100;
       broken.openings[0]!.operation!.panels[0]!.motion.max = 100;
-      builtOpeningSweepEnvelope(broken, "door");
+      AutoMovieEngineBuiltEnvironment.openingSweepEnvelope(broken, "door");
     }),
   );
   const invalidRanges: [label: string, minimum: number, maximum: number][] = [
@@ -448,7 +492,7 @@ export function test_architecture_built_opening(): void {
         const broken: IAutoMovieBuiltEnvironment = partition();
         broken.openings[0]!.operation!.panels[0]!.motion.min = minimum;
         broken.openings[0]!.operation!.panels[0]!.motion.max = maximum;
-        builtOpeningSweepEnvelope(broken, "door");
+        AutoMovieEngineBuiltEnvironment.openingSweepEnvelope(broken, "door");
       }, "no swept envelope can enumerate"),
     );
   assertBuiltOpeningTestRefusals();
@@ -463,7 +507,7 @@ export function test_architecture_built_opening(): void {
       [
         "arch",
         (): boolean =>
-          validateBuiltEnvironment({
+          AutoMovieEngineArchitecture.validateBuiltEnvironment({
             environment: ((): IAutoMovieBuiltEnvironment => {
               const value: IAutoMovieBuiltEnvironment = partition();
               value.openings = [value.openings[4]!];
@@ -474,7 +518,7 @@ export function test_architecture_built_opening(): void {
       [
         "gap",
         (): boolean =>
-          validateBuiltEnvironment({
+          AutoMovieEngineArchitecture.validateBuiltEnvironment({
             environment: ((): IAutoMovieBuiltEnvironment => {
               const value: IAutoMovieBuiltEnvironment = partition();
               value.openings = [value.openings[5]!];

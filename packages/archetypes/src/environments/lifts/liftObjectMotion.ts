@@ -1,4 +1,4 @@
-import { Vector3, builtConnectorCarriagePlacements } from "@automovie/engine";
+import { AutoMovieEngineBuiltEnvironment, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieClip,
@@ -7,12 +7,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { createElevator } from "../../architecture/createElevator";
 import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
-import type { createLift } from "./createLift";
-import type { liftStopHeights } from "./liftStopHeights";
+import { AutoMovieArchetypeElevator } from "../../architecture/AutoMovieArchetypeElevator";
+import type { AutoMovieArchetypeEnvironment } from "../AutoMovieArchetypeEnvironment";
+import type { liftStopHeights } from "./internal/liftStopHeights";
 
-/**
+/*
  * Bake the staged cab and sliding door panels into one ordinary object clip.
  * The first cab pose comes from the checked building connector. Every other
  * pose is its rigid displacement along the same resolved shaft. Keys are
@@ -21,16 +21,18 @@ import type { liftStopHeights } from "./liftStopHeights";
  */
 export function liftObjectMotion(
   environment: IAutoMovieBuiltEnvironment,
-  car: ReturnType<typeof createElevator>,
+  car: ReturnType<typeof AutoMovieArchetypeElevator.create>,
   stops: readonly liftStopHeights.IStop[],
-  schedule: readonly createLift.IKey[],
+  schedule: readonly AutoMovieArchetypeEnvironment.ILiftKey[],
   gap: number,
 ): IAutoMovieClip {
-  const firstState: createLift.IKey = schedule[0]!;
-  const firstPlacement = builtConnectorCarriagePlacements(
-    environment,
-    "travel",
-  )[0]!;
+  const firstState: AutoMovieArchetypeEnvironment.ILiftKey =
+    schedule[0]!;
+  const firstPlacement =
+    AutoMovieEngineBuiltEnvironment.connectorCarriagePlacements(
+      environment,
+      "travel",
+    )[0]!;
   const frame: IAutoMovieTransform = {
     translation: firstPlacement.position,
     rotation: firstPlacement.rotation,
@@ -71,7 +73,7 @@ export function liftObjectMotion(
       translation(
         AutoMovieArchetypeFrame.point(
           frame,
-          Vector3.create(0, atHeight(stop), 0),
+          AutoMovieEngineVector3.create(0, atHeight(stop), 0),
         ),
       ),
     ),
@@ -83,7 +85,7 @@ export function liftObjectMotion(
   );
   for (const door of ["leftDoor", "rightDoor"] as const) {
     const slider = car.affordance(door);
-    const sweep: IAutoMovieVector3 = Vector3.scale(
+    const sweep: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
       AutoMovieArchetypeFrame.axis(slider.frame, "x"),
       slider.travel!,
     );
@@ -93,25 +95,25 @@ export function liftObjectMotion(
         translation(
           AutoMovieArchetypeFrame.point(
             frame,
-            Vector3.add(
-              Vector3.create(0, atHeight(stop), 0),
-              Vector3.scale(sweep, doors === "open" ? 1 : 0),
+            AutoMovieEngineVector3.add(
+              AutoMovieEngineVector3.create(0, atHeight(stop), 0),
+              AutoMovieEngineVector3.scale(sweep, doors === "open" ? 1 : 0),
             ),
           ),
         ),
       ),
     );
     for (const stop of visited) {
-      const rest: IAutoMovieVector3 = Vector3.create(0, atHeight(stop), gap);
+      const rest: IAutoMovieVector3 = AutoMovieEngineVector3.create(0, atHeight(stop), gap);
       append(
         `${environment.id}/stops/${stop}/doors/${door}`,
         schedule.flatMap((key): number[] =>
           translation(
             AutoMovieArchetypeFrame.point(
               frame,
-              Vector3.add(
+              AutoMovieEngineVector3.add(
                 rest,
-                Vector3.scale(
+                AutoMovieEngineVector3.scale(
                   sweep,
                   key.stop === stop && key.doors === "open" ? 1 : 0,
                 ),

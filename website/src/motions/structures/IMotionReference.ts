@@ -3,7 +3,7 @@
  * lexicon's families, and the grammar.
  */
 export interface IMotionReference {
-  /** The actions of `HUMAN_ACTIONS`, in the package's order. */
+  /** The actions of `AutoMovieMotionHumanActions`, in the package's order. */
   actions: IMotionReference.IRow[];
 
   /** The lexicon's families, in the package's order; empty when the release has no lexicon. */

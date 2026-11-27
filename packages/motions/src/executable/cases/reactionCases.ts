@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
@@ -7,21 +7,21 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanChain } from "../../HumanChain";
-import { createHumanBody } from "../../body/createHumanBody";
-import { AutoMovieMotionHumanRange } from "../../compose/AutoMovieMotionHumanRange";
-import { HumanPerformance } from "../../perform/HumanPerformance";
-import { HumanColliders } from "../../posture/HumanColliders";
-import { flinch } from "../../reaction/flinch";
-import { StrikingBody } from "../../striking/StrikingBody";
-import { StrikingQuality } from "../../striking/StrikingQuality";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
-import { MotionBodies } from "../MotionBodies";
-import type { humanPolygonMan } from "../humanPolygonMan";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
+import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
+import { AutoMovieMotionHumanRange } from "../../compose/internal/AutoMovieMotionHumanRange";
+import { AutoMovieMotionHumanPerformance } from "../../perform/AutoMovieMotionHumanPerformance";
+import { HumanColliders } from "../../posture/internal/HumanColliders";
+import { flinch } from "../../reaction/internal/flinch";
+import { StrikingBody } from "../../striking/internal/StrikingBody";
+import { StrikingQuality } from "../../striking/internal/StrikingQuality";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
+import { MotionBodies } from "../internal/MotionBodies";
+import type { humanPolygonMan } from "../internal/humanPolygonMan";
 import { FamilyCaseKit } from "./FamilyCaseKit";
-import { everydayVerdicts } from "./everydayVerdicts";
+import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/**
+/*
  * Capture cases of the reaction laws on the polygon man, each performed alone
  * from quiet standing and drawn every tenth of a second or denser, with the
  * peak of the reaction among the stills.
@@ -44,9 +44,8 @@ import { everydayVerdicts } from "./everydayVerdicts";
  *   body's collision shapes never below the floor by more than 10 mm, the seat
  *   and the feet both within 10 mm of the floor as the seat lands, and the
  *   lowest point within 10 mm of the floor once the body lies.
- *
- * @param bodies The sweep bodies to run each case on; `m-average` when absent.
- * @returns The cases.
+ * Parameter bodies: The sweep bodies to run each case on; `m-average` when absent.
+ * Returns: The cases.
  */
 export function reactionCases(
   bodies: readonly string[] = ["m-average"],
@@ -54,7 +53,7 @@ export function reactionCases(
   const out: IMotionCaptureCase[] = [];
   for (const id of bodies) {
     const man: humanPolygonMan.IPolygonMan = MotionBodies.population(id);
-    const body: IAutoMovieMotionHumanBody = createHumanBody(
+    const body: IAutoMovieMotionHumanBody = AutoMovieMotionHumanBody.create(
       man.body.skeleton,
       man.body.profile,
     );
@@ -73,12 +72,12 @@ export function reactionCases(
       };
       const performance: IAutoMovieMotionHumanPerformance = perform(
         body,
-        HumanChain.subject("a").flinch({ target: from }),
+        AutoMovieMotionHumanChain.subject("a").flinch({ target: from }),
       );
       const peak: number = FamilyCaseKit.event(performance, "stroke");
       const gap = (seconds: number): number =>
-        Vector3.length(
-          Vector3.subtract(
+        AutoMovieEngineVector3.length(
+          AutoMovieEngineVector3.subtract(
             performance.bones("a", seconds).get("head")!.worldPosition,
             at,
           ),
@@ -100,8 +99,8 @@ export function reactionCases(
         },
         everydayVerdicts.within(
           "head travel at the peak",
-          Vector3.length(
-            Vector3.subtract(
+          AutoMovieEngineVector3.length(
+            AutoMovieEngineVector3.subtract(
               bones.get("head")!.worldPosition,
               start.get("head")!.worldPosition,
             ),
@@ -117,15 +116,15 @@ export function reactionCases(
         ),
       ];
       for (const side of ["left", "right"] as const) {
-        const wrist: IAutoMovieVector3 = Vector3.subtract(
+        const wrist: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
           bones.get(`${side}Hand`)!.worldPosition,
           face.point,
         );
-        const ahead: number = Vector3.dot(wrist, face.normal);
+        const ahead: number = AutoMovieEngineVector3.dot(wrist, face.normal);
         verdicts.push({
           name: `${side} wrist before the face at the peak`,
-          passed: ahead > 0 && Vector3.length(wrist) <= reach,
-          detail: `${(ahead * 1000).toFixed(1)} mm ahead, ${(Vector3.length(wrist) * 1000).toFixed(1)} mm away (limit ${(reach * 1000).toFixed(1)} mm)`,
+          passed: ahead > 0 && AutoMovieEngineVector3.length(wrist) <= reach,
+          detail: `${(ahead * 1000).toFixed(1)} mm ahead, ${(AutoMovieEngineVector3.length(wrist) * 1000).toFixed(1)} mm away (limit ${(reach * 1000).toFixed(1)} mm)`,
         });
       }
       out.push({
@@ -140,7 +139,7 @@ export function reactionCases(
     for (const [label, at] of threats) {
       const performance: IAutoMovieMotionHumanPerformance = perform(
         body,
-        HumanChain.subject("a").stagger({
+        AutoMovieMotionHumanChain.subject("a").stagger({
           target: { kind: "point", at, frame: "world" },
           speed: 1,
         }),
@@ -176,7 +175,7 @@ export function reactionCases(
       const at: IAutoMovieVector3 = threats[0]![1];
       const performance: IAutoMovieMotionHumanPerformance = perform(
         body,
-        HumanChain.subject("a").knockdown({
+        AutoMovieMotionHumanChain.subject("a").knockdown({
           target: { kind: "point", at, frame: "world" },
         }),
       );
@@ -246,7 +245,9 @@ export function reactionCases(
   return out;
 }
 
-/** A planted foot stays on the floor: within 5 mm in its plant windows. */
+/*
+ * A planted foot stays on the floor: within 5 mm in its plant windows.
+ */
 function planted(
   performance: IAutoMovieMotionHumanPerformance,
   body: IAutoMovieMotionHumanBody,
@@ -261,12 +262,14 @@ function planted(
   return { ...verdict, detail: `${verdict.detail}, worst in ${off.where}` };
 }
 
-/** A performance of one polygon man standing at the origin heading +Z. */
+/*
+ * A performance of one polygon man standing at the origin heading +Z.
+ */
 function perform(
   body: IAutoMovieMotionHumanBody,
   chain: IAutoMovieMotionHumanChain,
 ): IAutoMovieMotionHumanPerformance {
-  return new HumanPerformance({
+  return new AutoMovieMotionHumanPerformance({
     seed: "reaction",
     performers: [
       {

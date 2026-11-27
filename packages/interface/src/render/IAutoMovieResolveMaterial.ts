@@ -7,7 +7,7 @@ import type { IAutoMovieModel } from "../model/IAutoMovieModel";
 export namespace IAutoMovieResolveMaterial {
   /**
    * Borrowed admitted models and one exact material id.
-   * resolveAutoMovieMaterial scans all matching definitions, sorts candidates
+   * AutoMovieEngineRenderMaterial.resolveMaterial scans all matching definitions, sorts candidates
    * by model id and compares recursively key-ordered structural signatures.
    * Identical definitions share one identity; absent or conflicting definitions
    * throw.

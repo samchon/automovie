@@ -1,4 +1,7 @@
-import { ViolationCollector, appendGraphCycles } from "@automovie/engine";
+import { AutoMovieEngineViolationCollector } from "@automovie/engine";
+import {
+  appendGraphCycles
+} from "../../../../../packages/engine/src/validation/internal/appendGraphCycles";
 import type {
   IAutoMovieAppendGraphCycles,
   IAutoMovieConstraintViolation,
@@ -10,7 +13,7 @@ import { TestValidator } from "@nestia/e2e";
  * cycle returns to, by a depth-first walk that skips links to undeclared nodes
  * and revisits no finished node.
  *
- * Graph: a → b → c → a, d → a, e → (undeclared), f → f.
+ * Graph: a ??b ??c ??a, d ??a, e ??(undeclared), f ??f.
  *
  * Scenarios:
  *
@@ -30,7 +33,7 @@ export function test_engine_validation_append_graph_cycles(): void {
     value: id,
   });
   const cycles = (nodes: IAutoMovieAppendGraphCycles.INodes): string[] => {
-    const collector: ViolationCollector = new ViolationCollector();
+    const collector: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();
     appendGraphCycles(nodes, "the graph must be acyclic", collector);
     return collector.items.map(
       (item: IAutoMovieConstraintViolation): string => item.path,

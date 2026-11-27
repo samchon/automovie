@@ -1,5 +1,16 @@
 import type { IAutoMovieHumanParameters } from "@automovie/interface";
-import { HumanPopulationBuild, HumanPopulationConditional, HumanPopulationEnds, HumanPopulationSurvey } from "@automovie/motions/executable/internal";
+import {
+  HumanPopulationBuild
+} from "../../../../../packages/motions/src/executable/population/HumanPopulationBuild";
+import {
+  HumanPopulationConditional
+} from "../../../../../packages/motions/src/executable/population/HumanPopulationConditional";
+import {
+  HumanPopulationEnds
+} from "../../../../../packages/motions/src/executable/population/HumanPopulationEnds";
+import {
+  HumanPopulationSurvey
+} from "../../../../../packages/motions/src/executable/population/HumanPopulationSurvey";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

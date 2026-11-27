@@ -1,4 +1,4 @@
-import { createViewerDisplayPublication } from "@automovie/viewer";
+import { AutoMovieViewerDisplay } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -16,7 +16,7 @@ export function test_viewer_root_create_display_publication(): void {
   let copies: number = 0;
   let releases: number = 0;
   const starts: Array<[string, number]> = [];
-  const ports: Parameters<typeof createViewerDisplayPublication>[0] = {
+  const ports: AutoMovieViewerDisplay.IPublicationRequest = {
     copy: (): boolean => {
       ++copies;
       return accepts;
@@ -28,8 +28,8 @@ export function test_viewer_root_create_display_publication(): void {
       ++releases;
     },
   };
-  const candidate: ReturnType<typeof createViewerDisplayPublication> =
-    createViewerDisplayPublication(ports);
+  const candidate: AutoMovieViewerDisplay.IPublication =
+    AutoMovieViewerDisplay.createPublication(ports);
   TestValidator.equals("live lifecycle", candidate.active(), true);
   TestValidator.equals("uncommitted change", candidate.changed(), false);
   TestValidator.equals("refused prepare", candidate.prepare(), false);
@@ -72,8 +72,8 @@ export function test_viewer_root_create_display_publication(): void {
     true,
   );
   TestValidator.equals("direct identity", starts[2], ["page", 3]);
-  const rejected: ReturnType<typeof createViewerDisplayPublication> =
-    createViewerDisplayPublication(ports);
+  const rejected: AutoMovieViewerDisplay.IPublication =
+    AutoMovieViewerDisplay.createPublication(ports);
   TestValidator.equals(
     "rejected candidate can first stage",
     rejected.prepare(),
@@ -110,8 +110,8 @@ export function test_viewer_root_create_display_publication(): void {
     starts[starts.length - 1],
     ["page", 3],
   );
-  const direct: ReturnType<typeof createViewerDisplayPublication> =
-    createViewerDisplayPublication(ports);
+  const direct: AutoMovieViewerDisplay.IPublication =
+    AutoMovieViewerDisplay.createPublication(ports);
   TestValidator.equals(
     "direct active display preserves commit-copy behavior",
     direct.commit("direct", 1),
@@ -121,8 +121,8 @@ export function test_viewer_root_create_display_publication(): void {
     "direct",
     1,
   ]);
-  const retainedStage: ReturnType<typeof createViewerDisplayPublication> =
-    createViewerDisplayPublication(ports);
+  const retainedStage: AutoMovieViewerDisplay.IPublication =
+    AutoMovieViewerDisplay.createPublication(ports);
   TestValidator.equals("valid staged snapshot", retainedStage.prepare(), true);
   accepts = false;
   TestValidator.equals(

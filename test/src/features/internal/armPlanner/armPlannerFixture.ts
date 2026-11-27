@@ -1,4 +1,4 @@
-import { ROM_TOLERANCE, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineRomTolerance, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanArmClearance,
@@ -7,16 +7,29 @@ import type {
   IAutoMovieMotionHumanColliders,
   IAutoMoviePose,
 } from "@automovie/interface";
-import { createHumanBody } from "@automovie/motions";
 import {
-  HumanArmGeometry,
-  HumanArmTrajectory,
-  HumanArmTrajectoryContactContinuation,
-  HumanArmTrajectoryContext,
-  HumanArmTrajectoryModel,
-  HumanArmTrajectoryPairs,
-  HumanRefusal,
-} from "@automovie/motions/internal";
+  AutoMovieMotionHumanBody,
+  AutoMovieMotionHumanRefusal,
+} from "@automovie/motions";
+import {
+  HumanArmGeometry
+} from "../../../../../packages/motions/src/posture/internal/HumanArmGeometry";
+import {
+  HumanArmTrajectory
+} from "../../../../../packages/motions/src/posture/internal/HumanArmTrajectory";
+import {
+  HumanArmTrajectoryContactContinuation
+} from "../../../../../packages/motions/src/posture/internal/HumanArmTrajectoryContactContinuation";
+import {
+  HumanArmTrajectoryContext
+} from "../../../../../packages/motions/src/posture/internal/HumanArmTrajectoryContext";
+import {
+  HumanArmTrajectoryModel
+} from "../../../../../packages/motions/src/posture/internal/HumanArmTrajectoryModel";
+import {
+  HumanArmTrajectoryPairs
+} from "../../../../../packages/motions/src/posture/internal/HumanArmTrajectoryPairs";
+
 import fs from "node:fs/promises";
 import path from "node:path";
 
@@ -75,7 +88,7 @@ export namespace armPlannerFixture {
               "utf8",
             ),
           );
-    const body: IAutoMovieMotionHumanBody = createHumanBody(
+    const body: IAutoMovieMotionHumanBody = AutoMovieMotionHumanBody.create(
       person.skeleton,
       profile,
     );
@@ -217,7 +230,7 @@ export namespace armPlannerFixture {
       solve(loaded);
     } catch (error: unknown) {
       if (
-        error instanceof HumanRefusal &&
+        error instanceof AutoMovieMotionHumanRefusal &&
         error.kind === "reach" &&
         error.axis === "duration" &&
         error.value === span &&
@@ -261,7 +274,7 @@ export namespace armPlannerFixture {
    * What a solution breaks of the planner's contracts, read on the played arms
    * independently of the solve's own verdict: a hold frame's hand outside its
    * site's disc, an instant every 5 ms outside a joint's range to its
-   * resolution (`ROM_TOLERANCE`), the model's reading of the played grid past
+   * resolution (`AutoMovieEngineRomTolerance`), the model's reading of the played grid past
    * its tolerance (every pair, sweep, site, range and speed), and a knot where
    * the displayed derivatives disagree. The nonlinear shoulder chart uses
    * small-step differences. The distal angles use a degree-five stencil exact
@@ -321,7 +334,7 @@ export namespace armPlannerFixture {
             site,
           );
         const miss: number =
-          Vector3.distance(
+          AutoMovieEngineVector3.distance(
             HumanArmTrajectoryPairs.pad(placed[a]![g]!, site.contact),
             at.point,
           ) - site.disc;
@@ -356,7 +369,7 @@ export namespace armPlannerFixture {
             Math.abs(v - shown.hand[d]!),
           ),
         );
-        if (excess > ROM_TOLERANCE)
+        if (excess > AutoMovieEngineRomTolerance)
           out.push(
             `the ${arm.side} arm ${excess.toFixed(3)} degrees out of range at ${s.toFixed(3)} s`,
           );

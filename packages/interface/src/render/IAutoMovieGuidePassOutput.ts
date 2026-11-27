@@ -1,4 +1,4 @@
-import type { AutoMovieGuidePass } from "../cinematics/AutoMovieGuidePass.js";
+import type { AutoMovieGuidePass } from "../cinematics/AutoMovieGuidePass";
 
 /**
  * Where one guide pass writes its frames inside a frame directory, as

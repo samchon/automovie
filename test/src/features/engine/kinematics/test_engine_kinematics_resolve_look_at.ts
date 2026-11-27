@@ -1,8 +1,7 @@
 import {
-  Quaternion,
-  resolveLookAt,
-  resolvePose,
-  validatePose,
+  AutoMovieEngineKinematics,
+  AutoMovieEngineValidation,
+  AutoMovieEngineQuaternion,
 } from "@automovie/engine";
 import {
   AutoMovieExpressionPreset,
@@ -46,8 +45,8 @@ const DEGREE: number = Math.PI / 180;
  * 1. `lookLeft` at full intensity turns the left eye 30 degrees outward and the
  *    right eye 20 degrees inward, both toward +X, the model's left.
  * 2. `lookRight` at half intensity turns the left eye 10 degrees inward and the
- *    right eye 15 degrees outward, both toward −X.
- * 3. `lookDown` turns both eyes 25 degrees down (−Y), `lookUp` 15 up.
+ *    right eye 15 degrees outward, both toward ?뭎.
+ * 3. `lookDown` turns both eyes 25 degrees down (?뭑), `lookUp` 15 up.
  * 4. A listed `eyeLookOutLeft` 0.5 replaces the preset's left-eye weight while the
  *    right eye keeps it; the gaze preset becomes `neutral`, the eye channels
  *    leave the list and `jawOpen` stays.
@@ -78,7 +77,7 @@ export function test_engine_kinematics_resolve_look_at(): void {
     rightEye: [0, -15],
   });
   TestValidator.predicate(
-    "look right points both eyes to −X",
+    "look right points both eyes to ?뭎",
     nclose(yaw(right, "leftEye"), -10, 1e-9) &&
       nclose(yaw(right, "rightEye"), -15, 1e-9),
   );
@@ -118,7 +117,7 @@ export function test_engine_kinematics_resolve_look_at(): void {
   });
 
   // 5. adds to authored eye angles
-  const authored: IAutoMovieMotionSample = resolveLookAt(
+  const authored: IAutoMovieMotionSample = AutoMovieEngineKinematics.resolveLookAt(
     {
       pose: makePose([joint("leftEye", { flexion: 5, abduction: 2 })]),
       expression: expression("lookDown", 1),
@@ -149,10 +148,10 @@ export function test_engine_kinematics_resolve_look_at(): void {
   TestValidator.equals(
     "no bone gaze returns the sample itself",
     [
-      resolveLookAt(plain, undefined) === plain,
-      resolveLookAt(plain, { type: "expression" }) === plain,
-      resolveLookAt(silent, LOOK_AT) === silent,
-      resolveLookAt(happy, LOOK_AT) === happy,
+      AutoMovieEngineKinematics.resolveLookAt(plain, undefined) === plain,
+      AutoMovieEngineKinematics.resolveLookAt(plain, { type: "expression" }) === plain,
+      AutoMovieEngineKinematics.resolveLookAt(silent, LOOK_AT) === silent,
+      AutoMovieEngineKinematics.resolveLookAt(happy, LOOK_AT) === happy,
     ],
     [true, true, true, true],
   );
@@ -163,14 +162,20 @@ export function test_engine_kinematics_resolve_look_at(): void {
   );
 
   // 7. the default eye rows hold a horizontal gaze and refuse a roll
+  const admitted = AutoMovieEngineValidation.validatePoseResult(left.pose, RIG);
+  const rolled = AutoMovieEngineValidation.validatePoseResult(
+    makePose([joint("leftEye", { abduction: 5 })]),
+    RIG,
+  );
   TestValidator.equals(
     "default ROM admits the gaze and refuses an eye roll",
     [
-      validatePose({ pose: left.pose, skeleton: RIG }).items.length,
-      validatePose({
-        pose: makePose([joint("leftEye", { abduction: 5 })]),
-        skeleton: RIG,
-      }).items.length > 0,
+      admitted.success
+        ? (admitted.warnings?.length ?? 0)
+        : admitted.violations.length,
+      rolled.success
+        ? (rolled.warnings?.length ?? 0) > 0
+        : rolled.violations.length > 0,
     ],
     [0, true],
   );
@@ -218,7 +223,7 @@ function gaze(
   intensity: number,
   blendshapes: IAutoMovieBlendshapeChannel[] | null = null,
 ): IAutoMovieMotionSample {
-  return resolveLookAt(
+  return AutoMovieEngineKinematics.resolveLookAt(
     {
       pose: makePose([]),
       expression: expression(preset, intensity, blendshapes),
@@ -247,10 +252,10 @@ function look(
   sample: IAutoMovieMotionSample,
   bone: AutoMovieHumanoidBone,
 ): IAutoMovieVector3 {
-  const resolved: IAutoMovieResolvedBone = resolvePose(sample.pose, RIG).find(
+  const resolved: IAutoMovieResolvedBone = AutoMovieEngineKinematics.resolvePose(sample.pose, RIG).find(
     (b: IAutoMovieResolvedBone): boolean => b.bone === bone,
   )!;
-  return Quaternion.rotateVector(resolved.worldRotation, { x: 0, y: 0, z: 1 });
+  return AutoMovieEngineQuaternion.rotateVector(resolved.worldRotation, { x: 0, y: 0, z: 1 });
 }
 
 /** Degrees the gaze turns toward +X from +Z. */

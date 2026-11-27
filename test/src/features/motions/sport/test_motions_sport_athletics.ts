@@ -1,5 +1,13 @@
 import type { IAutoMovieMotionClock, IAutoMovieMotionHumanFoot } from "@automovie/interface";
-import { AthleticsSwing, AutoMovieMotionManner, athleticsClock } from "@automovie/motions/internal";
+import {
+  AthleticsSwing
+} from "../../../../../packages/motions/src/sport/internal/AthleticsSwing";
+import {
+  motionManner
+} from "../../../../../packages/motions/src/compose/internal/motionManner";
+import {
+  athleticsClock
+} from "../../../../../packages/motions/src/sport/internal/athleticsClock";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -31,12 +39,12 @@ export function test_motions_sport_athletics(): void {
   const driven: IAutoMovieMotionClock = athleticsClock(
     1,
     0.4,
-    AutoMovieMotionManner.NEUTRAL,
+    motionManner.NEUTRAL,
   );
   const held: IAutoMovieMotionClock = athleticsClock(
     1,
     undefined,
-    AutoMovieMotionManner.NEUTRAL,
+    motionManner.NEUTRAL,
   );
   TestValidator.predicate(
     "the sprint start",

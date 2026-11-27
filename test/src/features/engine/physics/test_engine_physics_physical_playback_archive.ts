@@ -1,10 +1,4 @@
-import {
-  AutoMoviePhysicsCache as Cache,
-  AutoMoviePhysicalPlayback as Playback,
-  AutoMoviePhysicalSimulation as Simulation,
-  physicalInputDigest,
-  samplePhysicalRecoverySupport,
-} from "@automovie/engine";
+import { AutoMovieEnginePhysicsCache as Cache, AutoMovieEnginePhysicalPlayback as Playback, AutoMovieEnginePhysicalSimulation as Simulation, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalPlayback,
   IAutoMoviePhysicalSimulation,
@@ -47,7 +41,7 @@ export async function test_engine_physics_physical_playback_archive(): Promise<v
   } = { maximumBytes: 1_000_000, maximumFrames: 241, maximumSegments: 1 };
   const playback: IAutoMoviePhysicalPlayback = await Playback.decode(
     bytes,
-    physicalInputDigest(input),
+    Simulation.inputDigest(input),
     budget,
   );
   for (const seconds of [1.72, 0, 2, 0.001, 1 / 120, 0.75])
@@ -201,7 +195,7 @@ export async function test_engine_physics_physical_playback_archive(): Promise<v
   );
   TestValidator.equals(
     "latest admitted landing retains its independent endpoint offset",
-    samplePhysicalRecoverySupport(ordered.recovery.ball, "root", 0.8).offset.x,
+    AutoMovieEnginePhysics.samplePhysicalRecoverySupport(ordered.recovery.ball, "root", 0.8).offset.x,
     0.3,
   );
   const cancelled: IAutoMoviePhysicsCache = copy();

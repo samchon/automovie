@@ -1,7 +1,9 @@
+import type { IAutoMoviePhysicalYInterval } from "./IAutoMoviePhysicalYInterval";
+
 /** Aligned elliptical section profiles over one physical Y interval. */
 export interface IAutoMovieEllipticLoftSpan {
-  /** Lower and upper Y coordinates, in metres. */
-  interval: [number, number];
+  /** Physical Y interval of this span, in metres. */
+  interval: IAutoMoviePhysicalYInterval;
 
   /** Positive X half-axis Bernstein controls, lower station to upper. */
   radiusX: [number, number, number, number];

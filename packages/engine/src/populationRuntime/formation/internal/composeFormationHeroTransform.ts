@@ -1,0 +1,59 @@
+import {
+  IAutoMovieFormationMotionState,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+import { AutoMovieEngineQuaternion } from "../../../math/AutoMovieEngineQuaternion";
+import { AutoMovieEngineVector3 } from "../../../math/AutoMovieEngineVector3";
+import { transformFormationPoint } from "./transformFormationPoint";
+
+/*
+ * Compose a promoted hero's source-authored node transform with formation
+ * placement and motion.
+ *
+ * Translation keeps authored node/object-motion displacement relative to the
+ * builder-owned hero slot. Rotation applies the current formation facing before
+ * the authored rotation relative to that slot, while scale remains
+ * source-owned.
+ *
+ * Exactly: translation is the slot position carried through the sampled
+ * formation state by transformFormationPoint, plus `source.translation -
+ * base.translation`, and rotation is a yaw of `baseFacingDeg +
+ * motion.facingOffsetDeg` degrees about +Y applied after
+ * `inverse(base.rotation) * source.rotation`. The authored displacement is
+ * added in world axes, so it is neither turned by the formation's facing nor
+ * scaled by its spacing. Units are metres and degrees. Geometry measurement and
+ * the viewer's instanced formation both place heroes through here.
+ * Parameter base: Builder-owned hero slot transform in the designed formation.
+ * Parameter source: Authored node transform at the sampled time.
+ * Parameter anchor: Formation anchor the slot is laid out around.
+ * Parameter motion: Sampled formation state: translation, facing offset and spacing
+ * scale.
+ * Parameter baseFacingDeg: Designed formation heading in degrees, default 0.
+ * Returns: A new world transform for the promoted hero.
+ */
+export function composeFormationHeroTransform(
+  base: IAutoMovieTransform,
+  source: IAutoMovieTransform,
+  anchor: IAutoMovieVector3,
+  motion: IAutoMovieFormationMotionState,
+  baseFacingDeg: number = 0,
+): IAutoMovieTransform {
+  return {
+    translation: AutoMovieEngineVector3.add(
+      transformFormationPoint(base.translation, anchor, motion, baseFacingDeg),
+      AutoMovieEngineVector3.subtract(source.translation, base.translation),
+    ),
+    rotation: AutoMovieEngineQuaternion.multiply(
+      AutoMovieEngineQuaternion.fromAxisAngle(UP, baseFacingDeg + motion.facingOffsetDeg),
+      AutoMovieEngineQuaternion.multiply(AutoMovieEngineQuaternion.inverse(base.rotation), source.rotation),
+    ),
+    scale: { ...source.scale },
+  };
+}
+
+/*
+ * World up, the axis every formation heading turns about.
+ */
+const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };

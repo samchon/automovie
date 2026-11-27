@@ -1,5 +1,5 @@
 import type { IAutoMovieLight } from "@automovie/interface";
-import { applyLightMotion } from "@automovie/render";
+import { AutoMovieRenderSceneMotion } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -27,7 +27,7 @@ export function test_render_scene_apply_light_motion(): void {
     range: 12,
   };
   const target: THREE.PointLight = new THREE.PointLight();
-  applyLightMotion([light], [], 0, (id: string): THREE.Light | undefined =>
+  AutoMovieRenderSceneMotion.applyLightMotion([light], [], 0, (id: string): THREE.Light | undefined =>
     id === "lamp" ? target : undefined,
   );
   TestValidator.equals("position", target.position.toArray(), [1, 2, 3]);
@@ -35,6 +35,6 @@ export function test_render_scene_apply_light_motion(): void {
   TestValidator.equals("intensity and range", [target.intensity, target.distance], [7, 12]);
 
   const other: THREE.PointLight = new THREE.PointLight();
-  applyLightMotion([light], [], 0, (): THREE.Light | undefined => undefined);
+  AutoMovieRenderSceneMotion.applyLightMotion([light], [], 0, (): THREE.Light | undefined => undefined);
   TestValidator.equals("untouched", other.intensity, 1);
 }

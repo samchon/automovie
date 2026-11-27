@@ -1,4 +1,4 @@
-import { Quaternion, foldRoot } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineFilm } from "@automovie/engine";
 import type { IAutoMovieTransform } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -21,16 +21,16 @@ import { qclose, vclose } from "../../internal/predicates";
 export function test_engine_film_fold_root(): void {
   const base: IAutoMovieTransform = {
     translation: { x: 3, y: 0, z: -2 },
-    rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90),
+    rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90),
     scale: { x: 1, y: 1, z: 1 },
   };
-  TestValidator.predicate("null root", foldRoot(base, null) === base);
+  TestValidator.predicate("null root", AutoMovieEngineFilm.foldRoot(base, null) === base);
   const root: IAutoMovieTransform = {
     translation: { x: 1, y: 0, z: 0 },
-    rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90),
+    rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90),
     scale: { x: 1, y: 1, z: 1 },
   };
-  const folded: IAutoMovieTransform = foldRoot(base, root);
+  const folded: IAutoMovieTransform = AutoMovieEngineFilm.foldRoot(base, root);
   TestValidator.predicate(
     "travels in node space",
     vclose(folded.translation, { x: 3, y: 0, z: -3 }, 1e-9),
@@ -39,11 +39,11 @@ export function test_engine_film_fold_root(): void {
     "yaw composes",
     qclose(
       folded.rotation,
-      Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 180),
+      AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 180),
       1e-9,
     ),
   );
-  const scaled: IAutoMovieTransform = foldRoot(base, {
+  const scaled: IAutoMovieTransform = AutoMovieEngineFilm.foldRoot(base, {
     ...root,
     scale: { x: 2, y: 2, z: 2 },
   });

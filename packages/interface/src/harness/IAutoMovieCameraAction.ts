@@ -1,5 +1,7 @@
 import type { IAutoMovieActionBase } from "./IAutoMovieActionBase";
+import type { AutoMovieCameraFraming } from "./AutoMovieCameraFraming";
 import type { IAutoMovieActionTarget } from "./IAutoMovieActionTarget";
+import type { IAutoMovieCameraActionFocusPull } from "./IAutoMovieCameraActionFocusPull";
 
 /**
  * The camera is an actor; this is how it moves. A list of camera actions
@@ -19,7 +21,7 @@ export interface IAutoMovieCameraAction extends IAutoMovieActionBase {
   verb: "frame";
 
   /** How tight the framing is. */
-  framing: "wide" | "full" | "medium" | "close";
+  framing: AutoMovieCameraFraming;
 
   /** How the camera behaves over this span. */
   move: "static" | "follow" | "orbit" | "push-in" | "truck" | "whip";
@@ -50,16 +52,7 @@ export interface IAutoMovieCameraAction extends IAutoMovieActionBase {
    * The frame action's interval contains both marks. A downstream host can read
    * these lens marks independently of the camera path.
    */
-  focusPull?: {
-    /** Finite seconds from the frame action's start, at least zero. */
-    start: number;
-
-    /** Finite seconds from the first mark to the second, strictly positive. */
-    duration: number;
-
-    /** Positional lens subject at the second mark. */
-    to: IAutoMovieActionTarget;
-  };
+  focusPull?: IAutoMovieCameraActionFocusPull;
 
   /**
    * Lens intent in millimetres, full-frame equivalent (24 wide, 50 normal, 85
@@ -73,7 +66,7 @@ export interface IAutoMovieCameraAction extends IAutoMovieActionBase {
   /**
    * The lens stop, the f-number, finite and `> 0`: how a cinematographer states
    * how much falls out of focus. Copied into `shot.cameraIntent`, where
-   * `resolveAutoMovieLensAt` turns it and the lens subject into the depth of
+   * `resolveLensAt` turns it and the lens subject into the depth of
    * field a directly rendered film draws. The blur's aperture is the camera's
    * actual field of view's full-frame focal length divided by this stop, not
    * `focalLength`. Omit for a frame drawn sharp at every depth.

@@ -1,9 +1,10 @@
 import type { IAutoMovieRenderBudget } from "@automovie/interface";
-import { selectAutoMovieRenderBudget } from "@automovie/render";
+import { AutoMovieRenderBudgetPreflight } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `selectAutoMovieRenderBudget` picks the budget declared for a tier.
+ * `AutoMovieRenderBudgetPreflight.selectBudget` picks the budget declared for
+ * a tier.
  *
  * Scenarios:
  *
@@ -23,14 +24,17 @@ export function test_render_render_budget_preflight_select_budget(): void {
   };
   TestValidator.equals(
     "the declared tier",
-    selectAutoMovieRenderBudget([review, delivery], "delivery"),
+    AutoMovieRenderBudgetPreflight.selectBudget(
+      [review, delivery],
+      "delivery",
+    ),
     delivery,
   );
   TestValidator.equals(
     "no budget",
     [
-      selectAutoMovieRenderBudget([review], "delivery"),
-      selectAutoMovieRenderBudget(undefined, "review"),
+      AutoMovieRenderBudgetPreflight.selectBudget([review], "delivery"),
+      AutoMovieRenderBudgetPreflight.selectBudget(undefined, "review"),
     ],
     [null, null],
   );

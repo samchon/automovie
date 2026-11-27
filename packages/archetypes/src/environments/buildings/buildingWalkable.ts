@@ -1,14 +1,10 @@
-import {
-  pointInPolygon,
-  polygonInside,
-  triangulateAutoMovieRegion,
-} from "@automovie/engine";
+import { AutoMovieEnginePlanarRegion, AutoMovieEnginePlanarGeometry } from "@automovie/engine";
 import type {
   IAutoMovieProfilePoint,
   IAutoMovieRegionTriangulation,
 } from "@automovie/interface";
 
-/**
+/*
  * Keep walking support inside the inner faces of the plan's walls.
  *
  * The slab geometry remains unchanged. Its already planned flight apertures
@@ -32,27 +28,27 @@ export function buildingWalkable(
     ...slab.slice(walls.length),
   ];
   if (
-    !polygonInside(outer, walls[0]!) ||
+    !AutoMovieEnginePlanarGeometry.polygonInside(outer, walls[0]!) ||
     walls
       .slice(1)
       .some(
         (hole: IAutoMovieProfilePoint[], index: number): boolean =>
-          !polygonInside(hole, physical[index + 1]!),
+          !AutoMovieEnginePlanarGeometry.polygonInside(hole, physical[index + 1]!),
       )
   )
     throw new Error(`${path} cannot retain a usable floor between its walls`);
   let region: IAutoMovieRegionTriangulation;
   try {
-    region = triangulateAutoMovieRegion({ outer, holes });
+    region = AutoMovieEnginePlanarRegion.triangulate({ outer, holes });
   } catch (error) {
     throw new Error(
       `${path} has no usable wall setback: ${error instanceof Error ? error.message : String(error)}`,
     );
   }
   if (
-    pointInPolygon(anchor, outer) &&
+    AutoMovieEnginePlanarGeometry.pointInPolygon(anchor, outer) &&
     !holes.some((hole: IAutoMovieProfilePoint[]): boolean =>
-      pointInPolygon(anchor, hole),
+      AutoMovieEnginePlanarGeometry.pointInPolygon(anchor, hole),
     )
   )
     return { rings: [outer, ...holes], anchor };
@@ -68,7 +64,7 @@ export function buildingWalkable(
   };
 }
 
-/**
+/*
  * Intersect inward parallel edge lines at each miter, refusing a reversed
  * offset edge.
  */

@@ -1,4 +1,4 @@
-import { createDevice } from "@automovie/archetypes";
+import { AutoMovieArchetypeDevice } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../../internal/archetypeBandSweep";
@@ -27,7 +27,7 @@ export function test_archetype_props_device_bands(): void {
   const device = (
     kind: "tablet" | "walkieTalkie",
     seed: number,
-  ): ReturnType<typeof createDevice> => createDevice({ kind }, seed);
+  ): ReturnType<typeof AutoMovieArchetypeDevice.create> => AutoMovieArchetypeDevice.create({ kind }, seed);
   const findings: string[] = archetypeBandSweep(
     (
       [
@@ -82,7 +82,7 @@ export function test_archetype_props_device_bands(): void {
       ["tablet", "screen"],
       ["walkieTalkie", "speaker"],
     ] as const) {
-      const slab: ReturnType<typeof createDevice> = device(kind, seed);
+      const slab: ReturnType<typeof AutoMovieArchetypeDevice.create> = device(kind, seed);
       const grip: ReturnType<typeof slab.affordance> = slab.affordance("grip");
       const front: ReturnType<typeof slab.affordance> = slab.affordance(face);
       if (

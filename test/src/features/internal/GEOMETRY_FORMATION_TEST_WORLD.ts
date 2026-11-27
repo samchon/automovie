@@ -1,8 +1,8 @@
-import { worldRamp } from "@automovie/engine";
+import { AutoMovieEngineWorld } from "@automovie/engine";
 import { IAutoMovieWorldDesign } from "@automovie/interface";
 
 /** Level ground nobody may stand on, far along +x. */
-const BOG = worldRamp({
+const BOG = AutoMovieEngineWorld.ramp({
   id: "bog",
   from: { x: 100, z: -10 },
   to: { x: 100, z: 30 },
@@ -13,7 +13,7 @@ const BOG = worldRamp({
 });
 
 /** Ground height `(z + 10) / 2`: 5 m under z = 0, 6.5 m under z = 3. */
-const RISE = worldRamp({
+const RISE = AutoMovieEngineWorld.ramp({
   id: "rise",
   from: { x: 0, z: -10 },
   to: { x: 0, z: 30 },

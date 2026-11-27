@@ -1,7 +1,7 @@
 /**
  * One construction role carried through a junction by both build-ups.
  *
- * Produced by `matchAutoMovieAssemblyJunction`. Each span is the hull of every
+ * Produced by `matchAssemblyJunction`. Each span is the hull of every
  * layer of the role on that side's signed measuring line, so a role split over
  * non-adjacent layers spans the layers between them too and can read aligned
  * where its own layers leave a gap. The two spans are comparable only when the

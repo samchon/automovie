@@ -1,10 +1,10 @@
-import { cutSequence, sequenceEventTimeline } from "@automovie/engine";
-import type {
-  IAutoMovieCut,
-  IAutoMovieEditPlan,
-  IAutoMovieInteractionEvent,
-  IAutoMoviePlaybackEvent,
-  IAutoMovieShot,
+import { AutoMovieEngineFilm } from "@automovie/engine";
+import {
+  type IAutoMovieCut,
+  type IAutoMovieEditPlan,
+  type IAutoMovieInteractionEvent,
+  type IAutoMoviePlaybackEvent,
+  type IAutoMovieShot,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -60,12 +60,10 @@ export function test_engine_film_cut_sequence_required_events(): void {
     ...plan,
     requiredEvents: [{ entry: 1, event: handoff.id }],
   };
-  const kept: IAutoMovieCut = cutSequence(needed, [shot]);
+  const kept: IAutoMovieCut = AutoMovieEngineFilm.cutSequence(needed, [shot]);
   if (!kept.success) throw new Error("the second play must retain the handoff");
-  const events: IAutoMoviePlaybackEvent[] = sequenceEventTimeline(
-    kept.sequence,
-    [shot],
-  );
+  const events: IAutoMoviePlaybackEvent[] =
+    AutoMovieEngineFilm.sequenceEventTimeline(kept.sequence, [shot]);
   TestValidator.equals(
     "only the incoming play retains the source event",
     events.map((event: IAutoMoviePlaybackEvent): [string, number] => [
@@ -99,7 +97,9 @@ export function test_engine_film_cut_sequence_required_events(): void {
     ],
   ];
   for (const [label, candidate, source, paths] of refusals) {
-    const result: IAutoMovieCut = cutSequence(candidate, [source]);
+    const result: IAutoMovieCut = AutoMovieEngineFilm.cutSequence(candidate, [
+      source,
+    ]);
     TestValidator.equals(
       label,
       result.success ? [] : result.violations.map((item): string => item.path),

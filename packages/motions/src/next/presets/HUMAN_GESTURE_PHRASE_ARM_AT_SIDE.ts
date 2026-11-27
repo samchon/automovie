@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanGesture } from "@automovie/interface";
 
-/**
+/*
  * The values the `armAtSide` row of `HumanUpperRows` fixes on `armPhrase`,
  * spread into its parameters. An arm at rest at the side: the relaxed hand
  * visits a place beside the thigh, palm in, and stays.

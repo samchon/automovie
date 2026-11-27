@@ -1,4 +1,5 @@
-import { createAutoMovieRandom, deriveAutoMovieSeed } from "@automovie/engine";
+import { AutoMovieEngineRandom } from "@automovie/engine";
+
 import type {
   IAutoMovieMotionHumanConversation,
   IAutoMovieMotionHumanGaze,
@@ -6,33 +7,36 @@ import type {
   IAutoMovieRandom,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import {
-  conversationGaze,
-  conversationGroupGaze,
-  conversationShare,
-} from "@automovie/motions/internal";
+import { AutoMovieMotionHumanConversation } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
 import { throwsError } from "../../internal/throwsError";
 
+/**
+ * `conversation`'s unit contract: its gaze and turn shares.
+ *
+ * Its parts, each documented with its own scenarios:
+ *
+ * - `conversation_gaze`: `AutoMovieMotionHumanConversation.gaze` looks at the
+ *   partner more while listening than while speaking, at the shares Acarturk et
+ *   al.
+ * - `conversation_group_gaze`: `AutoMovieMotionHumanConversation.groupGaze` plans
+ *   a participant's gaze over authored turns in a group:
+ * - `conversation_share`: `AutoMovieMotionHumanConversation.share` is the share
+ *   of a film span the gaze requests spend on a person's face:
+ */
+export async function test_motions_everyday_conversation(): Promise<void> {
+  part_conversation_gaze.verify();
+  part_conversation_group_gaze.verify();
+  part_conversation_share.verify();
+}
+
 namespace part_conversation_gaze {
-  /** The eyes' height the looks away are read from, metres. */
-  const EYES: number = 1.6;
-
-  /** The seeds the shares are averaged over. */
-  const SEEDS: number = 200;
-
-  /** The distribution tolerance on a mean share. */
-  const SHARE: number = 0.2;
-
-  /** How far a look away turns the gaze, degrees: the eyes' share of a shift. */
-  const AWAY: number = 15;
-
   /**
-   * `conversationGaze` looks at the partner more while listening than while
-   * speaking, at the shares Acarturk et al. 2021 measured, and starts each turn
-   * looking at the partner.
+   * `AutoMovieMotionHumanConversation.gaze` looks at the partner more while
+   * listening than while speaking, at the shares Acarturk et al. 2021 measured,
+   * and starts each turn looking at the partner.
    *
    * Scenarios, a speaker change between two 30-second turns:
    *
@@ -50,22 +54,23 @@ namespace part_conversation_gaze {
       { speaker: "a", from: 0, to: 30 },
       { speaker: "b", from: 30, to: 60 },
     ];
-    const gaze: (seed: string) => ReturnType<typeof conversationGaze> = (
-      seed: string,
-    ): ReturnType<typeof conversationGaze> =>
-      conversationGaze({
+    function gaze(seed: string): IAutoMovieMotionHumanConversation.IGlances {
+      return AutoMovieMotionHumanConversation.gaze({
         subject: "a",
         partner: "b",
         turns,
-        random: createAutoMovieRandom(deriveAutoMovieSeed("talk", seed)),
+        random: AutoMovieEngineRandom.createRandom(AutoMovieEngineRandom.deriveSeed("talk", seed)),
         eyes: EYES,
       });
+    }
     let speaking: number = 0;
     let listening: number = 0;
     for (let seed: number = 0; seed < SEEDS; seed++) {
-      const requests: ReturnType<typeof conversationGaze> = gaze(String(seed));
+      const requests: IAutoMovieMotionHumanConversation.IGlances = gaze(
+        String(seed),
+      );
       for (const turn of turns) {
-        const share: number = conversationShare({
+        const share: number = AutoMovieMotionHumanConversation.share({
           requests,
           from: turn.from,
           to: turn.to,
@@ -85,27 +90,28 @@ namespace part_conversation_gaze {
       Math.abs(speaking / SEEDS / spoken - 1) < SHARE,
     );
 
-    const requests: ReturnType<typeof conversationGaze> = gaze("0");
-    type Request = (typeof requests)[number];
+    const requests: IAutoMovieMotionHumanConversation.IGlances = gaze("0");
     TestValidator.predicate(
       "turns start on the partner",
       turns.every(
         (turn: IAutoMovieMotionHumanConversation.ITurn): boolean =>
-          requests.find((r: Request): boolean => r.from === turn.from)?.target
-            .kind === "person",
+          requests.find(
+            (r: IAutoMovieMotionHumanGaze.ILayer): boolean =>
+              r.from === turn.from,
+          )?.target.kind === "person",
       ),
     );
     TestValidator.predicate(
       "requests ordered",
       requests.every(
-        (r: Request, i: number): boolean =>
+        (r: IAutoMovieMotionHumanGaze.ILayer, i: number): boolean =>
           i === 0 || r.from >= requests[i - 1]!.from,
       ),
     );
     TestValidator.predicate(
       "a listener looks away below the eyes",
       requests.every(
-        (r: Request): boolean =>
+        (r: IAutoMovieMotionHumanGaze.ILayer): boolean =>
           r.target.kind !== "point" ||
           turns.find(
             (turn: IAutoMovieMotionHumanConversation.ITurn): boolean =>
@@ -116,7 +122,7 @@ namespace part_conversation_gaze {
     );
     TestValidator.predicate(
       "a look away turns the gaze by the eyes' share",
-      requests.every((r: Request): boolean => {
+      requests.every((r: IAutoMovieMotionHumanGaze.ILayer): boolean => {
         if (r.target.kind !== "point") return true;
         const at: IAutoMovieVector3 = r.target.at;
         const angle: number =
@@ -129,27 +135,37 @@ namespace part_conversation_gaze {
     TestValidator.predicate(
       "a backward turn is refused",
       throwsError((): unknown =>
-        conversationGaze({
+        AutoMovieMotionHumanConversation.gaze({
           subject: "a",
           partner: "b",
           turns: [{ speaker: "a", from: 2, to: 1 }],
-          random: createAutoMovieRandom(deriveAutoMovieSeed("x")),
+          random: AutoMovieEngineRandom.createRandom(AutoMovieEngineRandom.deriveSeed("x")),
           eyes: EYES,
         }),
       ),
     );
   }
-}
 
-namespace part_conversation_group_gaze {
   /** The eyes' height the looks away are read from, metres. */
   const EYES: number = 1.6;
 
+  /** The seeds the shares are averaged over. */
+  const SEEDS: number = 200;
+
+  /** The distribution tolerance on a mean share. */
+  const SHARE: number = 0.2;
+
+  /** How far a look away turns the gaze, degrees: the eyes' share of a shift. */
+  const AWAY: number = 15;
+}
+
+namespace part_conversation_group_gaze {
   /**
-   * `conversationGroupGaze` plans a participant's gaze over authored turns in a
-   * group: a speaker looks at the stated addressee, a listener at the current
-   * speaker, each span's last request releasing at its end; the dyadic
-   * `conversationGaze` keeps one partner and leaves its requests open.
+   * `AutoMovieMotionHumanConversation.groupGaze` plans a participant's gaze
+   * over authored turns in a group: a speaker looks at the stated addressee, a
+   * listener at the current speaker, each span's last request releasing at its
+   * end; the dyadic `AutoMovieMotionHumanConversation.gaze` keeps one partner
+   * and leaves its requests open.
    *
    * Scenarios, A addressing B over 1 to 2 s, then C over 2 to 3 s, and B
    * addressing A over 4 to 5 s:
@@ -172,25 +188,22 @@ namespace part_conversation_group_gaze {
       { speaker: "a", addressee: "c", from: 2, to: 3 },
       { speaker: "b", addressee: "a", from: 4, to: 5 },
     ];
-    const random: IAutoMovieRandom = createAutoMovieRandom(
-      deriveAutoMovieSeed("group-conversation", "gaze"),
+    const random: IAutoMovieRandom = AutoMovieEngineRandom.createRandom(
+      AutoMovieEngineRandom.deriveSeed("group-conversation", "gaze"),
     );
-    const requests: (id: string) => IAutoMovieMotionHumanGaze.ILayer[] = (
-      id: string,
-    ): IAutoMovieMotionHumanGaze.ILayer[] =>
-      conversationGroupGaze({
+    function requests(id: string): IAutoMovieMotionHumanGaze.ILayer[] {
+      return AutoMovieMotionHumanConversation.groupGaze({
         subject: id,
         participants,
         turns,
         random: random.stream(id),
         eyes: EYES,
       });
-    const faces: (
+    }
+    function faces(
       track: readonly IAutoMovieMotionHumanGaze.ILayer[],
-    ) => string[] = (
-      track: readonly IAutoMovieMotionHumanGaze.ILayer[],
-    ): string[] =>
-      turns.map(
+    ): string[] {
+      return turns.map(
         (turn: IAutoMovieMotionHumanConversation.IGroupTurn): string => {
           const target: IAutoMovieMotionTarget | undefined = track.find(
             (request: IAutoMovieMotionHumanGaze.ILayer): boolean =>
@@ -201,6 +214,7 @@ namespace part_conversation_group_gaze {
             : "";
         },
       );
+    }
     const listener: IAutoMovieMotionHumanGaze.ILayer[] = requests("c");
     TestValidator.equals(
       "who faces whom",
@@ -231,12 +245,12 @@ namespace part_conversation_group_gaze {
         },
       ),
     );
-    const held: IAutoMovieRandom = createAutoMovieRandom("000000000000000a");
+    const held: IAutoMovieRandom = AutoMovieEngineRandom.createRandom("000000000000000a");
     TestValidator.predicate(
       "three of four seconds on a face",
       nclose(
-        conversationShare({
-          requests: conversationGroupGaze({
+        AutoMovieMotionHumanConversation.share({
+          requests: AutoMovieMotionHumanConversation.groupGaze({
             subject: "c",
             participants,
             turns,
@@ -251,13 +265,14 @@ namespace part_conversation_group_gaze {
       ),
     );
     TestValidator.equals("replayed", requests("c"), listener);
-    const dyad: IAutoMovieMotionHumanGaze.ILayer[] = conversationGaze({
-      subject: "a",
-      partner: "b",
-      turns,
-      random: held,
-      eyes: EYES,
-    });
+    const dyad: IAutoMovieMotionHumanGaze.ILayer[] =
+      AutoMovieMotionHumanConversation.gaze({
+        subject: "a",
+        partner: "b",
+        turns,
+        random: held,
+        eyes: EYES,
+      });
     TestValidator.predicate(
       "the dyad",
       faces(dyad).every((face: string): boolean => face === "b") &&
@@ -267,7 +282,7 @@ namespace part_conversation_group_gaze {
         ),
     );
     TestValidator.error("an unending dyad", (): void => {
-      conversationGaze({
+      AutoMovieMotionHumanConversation.gaze({
         subject: "a",
         partner: "b",
         turns: [{ speaker: "a", from: 1, to: Infinity }],
@@ -279,7 +294,7 @@ namespace part_conversation_group_gaze {
       requests("absent");
     });
     TestValidator.error("a duplicate participant", (): void => {
-      conversationGroupGaze({
+      AutoMovieMotionHumanConversation.groupGaze({
         subject: "a",
         participants: ["a", "b", "a"],
         turns,
@@ -294,7 +309,7 @@ namespace part_conversation_group_gaze {
       { speaker: "b", addressee: "c", from: 3, to: Infinity },
     ] satisfies IAutoMovieMotionHumanConversation.IGroupTurn[])
       TestValidator.error(`refuses ${JSON.stringify(turn)}`, (): void => {
-        conversationGroupGaze({
+        AutoMovieMotionHumanConversation.groupGaze({
           subject: "c",
           participants,
           turns: [turns[0]!, turn],
@@ -303,16 +318,16 @@ namespace part_conversation_group_gaze {
         });
       });
   }
+
+  /** The eyes' height the looks away are read from, metres. */
+  const EYES: number = 1.6;
 }
 
 namespace part_conversation_share {
-  /** Rounding of a few sums of film seconds and one quotient, unitless. */
-  const ROUNDING: number = 1e-12;
-
   /**
-   * `conversationShare` is the share of a film span the gaze requests spend on
-   * a person's face: each request runs from its start to its release or the
-   * next request, whichever is first, clipped to the span.
+   * `AutoMovieMotionHumanConversation.share` is the share of a film span the
+   * gaze requests spend on a person's face: each request runs from its start to
+   * its release or the next request, whichever is first, clipped to the span.
    *
    * Over the span 0 to 10 s: a face from 1 s released at 3 s, a point from 4 s,
    * a face from 6 s with no release, and a face from 8 s.
@@ -342,29 +357,22 @@ namespace part_conversation_share {
     ];
     TestValidator.predicate(
       "the faces' share of the span",
-      nclose(conversationShare({ requests, from: 0, to: 10 }), 0.6, ROUNDING),
+      nclose(
+        AutoMovieMotionHumanConversation.share({ requests, from: 0, to: 10 }),
+        0.6,
+        ROUNDING,
+      ),
     );
     TestValidator.predicate(
       "clipped to a part of the span",
-      nclose(conversationShare({ requests, from: 2, to: 7 }), 0.4, ROUNDING),
+      nclose(
+        AutoMovieMotionHumanConversation.share({ requests, from: 2, to: 7 }),
+        0.4,
+        ROUNDING,
+      ),
     );
   }
-}
 
-/**
- * `conversation`'s unit contract: its gaze and turn shares.
- *
- * Its parts, each documented with its own scenarios:
- *
- * - `conversation_gaze`: `conversationGaze` looks at the partner more while
- *   listening than while speaking, at the shares Acarturk et al.
- * - `conversation_group_gaze`: `conversationGroupGaze` plans a participant's gaze
- *   over authored turns in a group:
- * - `conversation_share`: `conversationShare` is the share of a film span the
- *   gaze requests spend on a person's face:
- */
-export async function test_motions_everyday_conversation(): Promise<void> {
-  part_conversation_gaze.verify();
-  part_conversation_group_gaze.verify();
-  part_conversation_share.verify();
+  /** Rounding of a few sums of film seconds and one quotient, unitless. */
+  const ROUNDING: number = 1e-12;
 }

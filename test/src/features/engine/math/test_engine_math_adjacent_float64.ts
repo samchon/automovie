@@ -1,10 +1,10 @@
-import { adjacentAutoMovieFloat64 } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/predicates";
 
 /**
- * `adjacentAutoMovieFloat64` steps one binary64 encoding up or down (IEEE 754
+ * `adjacentFloat64` steps one binary64 encoding up or down (IEEE 754
  * binary64: 52 fraction bits, so the spacing just above 1 is 2^-52 and just
  * below it 2^-53).
  *
@@ -30,7 +30,7 @@ export function test_engine_math_adjacent_float64(): void {
   ] as const)
     TestValidator.predicate(
       `the neighbour of ${value} ${upper ? "above" : "below"}`,
-      Object.is(adjacentAutoMovieFloat64(value, upper), expected),
+      Object.is(AutoMovieEngineMath.adjacentFloat64(value, upper), expected),
     );
 
   // 3. Finite neighbour exhaustion.
@@ -41,7 +41,7 @@ export function test_engine_math_adjacent_float64(): void {
     TestValidator.predicate(
       "no finite neighbour past the largest double",
       throwsError(
-        (): number => adjacentAutoMovieFloat64(value, upper),
+        (): number => AutoMovieEngineMath.adjacentFloat64(value, upper),
         "overflowing",
       ),
     );

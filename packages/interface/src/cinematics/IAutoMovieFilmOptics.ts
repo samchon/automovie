@@ -83,7 +83,7 @@ export interface IAutoMovieFilmOptics {
    * unchanged. The aperture diameter is the full-frame equivalent focal length
    * of the camera's field of view, `12 mm / tan(fovY / 2)`, divided by
    * `fNumber`. Absent keeps the eye at the camera centre. The film fills it
-   * from `resolveAutoMovieLensAt`.
+   * from `resolveLensAt`.
    */
   lens?: IAutoMovieFilmOptics.ILens;
 }
@@ -134,18 +134,28 @@ export namespace IAutoMovieFilmOptics {
    */
   export interface IGrade {
     /** Finite per-channel gain. */
-    slope: [number, number, number];
+    slope: IAutoMovieFilmOptics.IChannels;
 
     /** Finite per-channel lift, in encoded units. */
-    offset: [number, number, number];
+    offset: IAutoMovieFilmOptics.IChannels;
 
     /** Per-channel exponent, finite and above zero. */
-    power: [number, number, number];
+    power: IAutoMovieFilmOptics.IChannels;
 
     /**
      * Finite saturation: zero gives luma grey, one keeps the colour, above one
      * exaggerates it.
      */
     saturation: number;
+  }
+
+  /** Per-channel values, named in red, green, blue order. */
+  export interface IChannels {
+    /** Red channel. */
+    r: number;
+    /** Green channel. */
+    g: number;
+    /** Blue channel. */
+    b: number;
   }
 }

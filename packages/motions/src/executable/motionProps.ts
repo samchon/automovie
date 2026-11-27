@@ -1,15 +1,12 @@
-import { readAutoMovieCaptureArguments } from "@automovie/render";
+import { AutoMovieRenderCapture } from "@automovie/render";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 
-import type { IMotionCaptureCase } from "./IMotionCaptureCase";
-import { buildMotionCaptureCases } from "./buildMotionCaptureCases";
-import { planMotionCaptureProps } from "./planMotionCaptureProps";
+import type { IMotionCaptureCase } from "./internal/IMotionCaptureCase";
+import { buildMotionCaptureCases } from "./internal/buildMotionCaptureCases";
+import { planMotionCaptureProps } from "./internal/planMotionCaptureProps";
 
-/** The motions package, whose `media/props/` holds the written files by default. */
-const ROOT: string = path.join(__dirname, "..", "..");
-
-/**
+/*
  * Write motion cases' page data as files, so the `automovie` commands draw a
  * case through `src/executable/subjects.ts` with `--props`.
  *
@@ -22,7 +19,7 @@ const ROOT: string = path.join(__dirname, "..", "..");
  * case's whole clock, and `automovie inspect` shows it.
  */
 export async function motionProps(): Promise<void> {
-  const options: Map<string, string> = readAutoMovieCaptureArguments(
+  const options: Map<string, string> = AutoMovieRenderCapture.readArguments(
     process.argv
       .slice(2)
       .filter((argument: string): boolean => argument !== "--"),
@@ -56,6 +53,11 @@ export async function motionProps(): Promise<void> {
     console.log(file);
   }
 }
+
+/*
+ * The motions package, whose `media/props/` holds the written files by default.
+ */
+const ROOT: string = path.join(__dirname, "..", "..");
 
 void motionProps().catch((error: unknown): void => {
   console.error(error);

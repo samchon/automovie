@@ -6,11 +6,11 @@ A pass specifies what a still draws.
 
 | Pass | Answers |
 | --- | --- |
-| The finished picture from the delivery's renderer | How the result looks to its audience |
+| Finished picture from the delivery renderer | Audience view |
 | The construction that generated a surface | Why the surface has its shape |
-| A structural pass of only one quantity, such as depth, normals or a mask | What that quantity is across the picture |
+| Structural pass such as depth, normals or a mask | One quantity across frame |
 | An overlay on the picture | Where joints, contacts, targets and paths are |
-| The guide channel itself, read through the receiver's input path | What a receiver is given |
+| Guide channel read through its receiver | The input a receiver sees |
 
 Verify the structural quantity's range and convention. Inspect optional fields only for their required uses.
 

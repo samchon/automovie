@@ -1,4 +1,4 @@
-import { Matrix4, resolveFrame } from "@automovie/engine";
+import { AutoMovieEngineMatrix4, AutoMovieEngineResolve } from "@automovie/engine";
 import type {
   IAutoMovieChannelLimit,
   IAutoMovieClip,
@@ -42,7 +42,7 @@ const CAP: IAutoMovieChannelLimit = {
 const at: (result: IAutoMovieResolveOutput, id: string) => IAutoMovieVector3 = (
   result: IAutoMovieResolveOutput,
   id: string,
-): IAutoMovieVector3 => Matrix4.position(result.world.get(id)!);
+): IAutoMovieVector3 => AutoMovieEngineMatrix4.position(result.world.get(id)!);
 
 /**
  * `resolveFrame` resolves one frame of a scene: it samples the clip, applies
@@ -62,7 +62,7 @@ const at: (result: IAutoMovieResolveOutput, id: string) => IAutoMovieVector3 = (
  * 6. A clip addressing a node that is not in the scene is refused.
  */
 export function test_engine_resolve_resolve_frame(): void {
-  const still: IAutoMovieResolveOutput = resolveFrame({
+  const still: IAutoMovieResolveOutput = AutoMovieEngineResolve.resolveFrame({
     nodes: resolveScene(),
     clip: null,
     limits: [],
@@ -74,7 +74,7 @@ export function test_engine_resolve_resolve_frame(): void {
       vclose(at(still, "ball"), { x: 0, y: 0, z: 3 }, ROUNDING) &&
       still.violations.length === 0,
   );
-  const slid: IAutoMovieResolveOutput = resolveFrame({
+  const slid: IAutoMovieResolveOutput = AutoMovieEngineResolve.resolveFrame({
     nodes: resolveScene(),
     clip: SLIDE,
     limits: [],
@@ -84,7 +84,7 @@ export function test_engine_resolve_resolve_frame(): void {
     "a sampled slide",
     vclose(at(slid, "ball"), { x: 2, y: 0, z: 3 }, ROUNDING),
   );
-  const capped: IAutoMovieResolveOutput = resolveFrame({
+  const capped: IAutoMovieResolveOutput = AutoMovieEngineResolve.resolveFrame({
     nodes: resolveScene(),
     clip: SLIDE,
     limits: [CAP],
@@ -112,7 +112,7 @@ export function test_engine_resolve_resolve_frame(): void {
     worldUp: { x: 0, y: 0, z: 1 },
     influence: 1,
   };
-  const aimed: IAutoMovieResolveOutput = resolveFrame({
+  const aimed: IAutoMovieResolveOutput = AutoMovieEngineResolve.resolveFrame({
     nodes: resolveScene(),
     clip: null,
     limits: [],
@@ -137,7 +137,7 @@ export function test_engine_resolve_resolve_frame(): void {
   };
   TestValidator.predicate(
     "a deferred spring",
-    resolveFrame({
+    AutoMovieEngineResolve.resolveFrame({
       nodes: resolveScene(),
       clip: null,
       limits: [],
@@ -149,7 +149,7 @@ export function test_engine_resolve_resolve_frame(): void {
     "a clip for a node that is not there",
     throwsError(
       (): unknown =>
-        resolveFrame({
+        AutoMovieEngineResolve.resolveFrame({
           nodes: resolveScene().filter(
             (node: { id: string }): boolean => node.id !== "ball",
           ),

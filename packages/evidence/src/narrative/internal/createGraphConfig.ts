@@ -3,7 +3,7 @@ import type { IEvidenceClaim, IEvidenceConfig } from "@wrtnlabs/evidence";
 import type { IProductionConfigProps } from "../IProductionConfigProps";
 import { collectProductionClaims } from "./collectProductionClaims";
 
-/**
+/*
  * Builds the full evidence config.
  *
  * Every layer contributes the same shared claims, recorded work requirements

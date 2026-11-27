@@ -2,7 +2,9 @@
   IAutoMovieJointPose,
   IAutoMovieMotionHumanAuditRange,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanAuditRange } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionHumanAuditRange
+} from "../../../../../packages/motions/src/audit/internal/AutoMovieMotionHumanAuditRange";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -16,7 +18,7 @@ const ROUNDING: number = 1e-9;
  * distance to the nearer bound, an angle on an axis the joint lacks by its
  * magnitude; `share` is the part of the grid's instants with some joint past.
  *
- * The elbow's row (`DEFAULT_HUMANOID_ROM.leftLowerArm`) allows flexion 0 to 150
+ * The elbow's row (`AutoMovieEngineDefaultHumanoidRom.leftLowerArm`) allows flexion 0 to 150
  * degrees and no abduction (the elbow is a hinge, AAOS norms).
  *
  * Scenarios, 1 s read at 4 Hz (five instants):

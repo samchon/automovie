@@ -1,14 +1,11 @@
-import {
-  AutoMovieMonotone,
-  interpolateAutoMovieMonotone,
-} from "@automovie/engine";
+import { AutoMovieEngineMonotone, AutoMovieEngineSweep } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * `interpolateAutoMovieMonotone({ knots, values, period? })` is the
- * Fritsch-Carlson monotone cubic (1980); `AutoMovieMonotone.slope` writes its
+ * `interpolateMonotone({ knots, values, period? })` is the
+ * Fritsch-Carlson monotone cubic (1980); `AutoMovieEngineMonotone.slope` writes its
  * knot slopes: the mean of the two secants, 0 at a sign change or a flat
  * secant, the end secants at open ends, pairs scaled back onto the circle of
  * radius 3.
@@ -35,7 +32,7 @@ export function test_engine_geometry_monotone_interpolation(): void {
     Math.abs(a - b) <= e;
   const slopes = (xs: number[], ys: number[], period: number = 0): number[] => {
     const out: Float64Array = new Float64Array(xs.length);
-    AutoMovieMonotone.slope(xs, ys, xs.length, period, out);
+    AutoMovieEngineMonotone.slope(xs, ys, xs.length, period, out);
     return [...out];
   };
 
@@ -58,7 +55,7 @@ export function test_engine_geometry_monotone_interpolation(): void {
 
   // 3.
   TestValidator.equals("peak", slopes([0, 1, 2], [0, 1, 0])[1], 0);
-  const hill = interpolateAutoMovieMonotone({
+  const hill = AutoMovieEngineSweep.interpolateMonotone({
     knots: [0, 1, 2],
     values: [0, 1, 0],
   });
@@ -71,12 +68,12 @@ export function test_engine_geometry_monotone_interpolation(): void {
   );
 
   // 4.
-  const curve = interpolateAutoMovieMonotone({
+  const curve = AutoMovieEngineSweep.interpolateMonotone({
     knots: [0, 1, 2, 3],
     values: [0, 1, 3, 3],
   });
   TestValidator.predicate("hermite", near(curve(1.5), 2.1875));
-  const line = interpolateAutoMovieMonotone({
+  const line = AutoMovieEngineSweep.interpolateMonotone({
     knots: [0, 2, 3],
     values: [0, 2, 3],
   });
@@ -89,7 +86,7 @@ export function test_engine_geometry_monotone_interpolation(): void {
   // 5.
   TestValidator.equals("wrap slopes", slopes([0, 1, 2], [0, 1, 2], 3)[0], 0);
   TestValidator.equals("wrap mean", slopes([0, 1, 2], [0, 1, -1], 4)[0], 0.75);
-  const loop = interpolateAutoMovieMonotone({
+  const loop = AutoMovieEngineSweep.interpolateMonotone({
     knots: [0, 1, 2],
     values: [0, 1, 2],
     period: 3,
@@ -105,29 +102,29 @@ export function test_engine_geometry_monotone_interpolation(): void {
   // 6.
   TestValidator.equals(
     "one knot",
-    interpolateAutoMovieMonotone({ knots: [1], values: [4] })(9),
+    AutoMovieEngineSweep.interpolateMonotone({ knots: [1], values: [4] })(9),
     4,
   );
   for (const [label, run, message] of [
     [
       "none",
-      () => interpolateAutoMovieMonotone({ knots: [], values: [] }),
+      () => AutoMovieEngineSweep.interpolateMonotone({ knots: [], values: [] }),
       "needs at least one knot",
     ],
     [
       "values",
-      () => interpolateAutoMovieMonotone({ knots: [0, 1], values: [0] }),
+      () => AutoMovieEngineSweep.interpolateMonotone({ knots: [0, 1], values: [0] }),
       "needs one value per knot",
     ],
     [
       "order",
-      () => interpolateAutoMovieMonotone({ knots: [0, 0], values: [0, 1] }),
+      () => AutoMovieEngineSweep.interpolateMonotone({ knots: [0, 0], values: [0, 1] }),
       "knot 1 does not increase",
     ],
     [
       "period",
       () =>
-        interpolateAutoMovieMonotone({
+        AutoMovieEngineSweep.interpolateMonotone({
           knots: [0, 3],
           values: [0, 1],
           period: 3,

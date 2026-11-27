@@ -1,11 +1,11 @@
-import { autoMovieViewerPoseFromHeading } from "@automovie/render";
+import { AutoMovieRenderSubjectViewpoint } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /** Tolerance of the unit look direction. */
 const DIRECTION_TOLERANCE: number = 1e-12;
 
 /**
- * `autoMovieViewerPoseFromHeading` poses a camera at a point looking along a
+ * `AutoMovieRenderSubjectViewpoint.poseFromHeading` poses a camera at a point looking along a
  * yaw and pitch, with yaw 0 looking along -Z.
  *
  * Scenarios:
@@ -20,15 +20,15 @@ export function test_render_scene_viewer_pose_from_heading(): void {
   const at = (
     yaw: number,
     pitch: number,
-  ): ReturnType<typeof autoMovieViewerPoseFromHeading> =>
-    autoMovieViewerPoseFromHeading(
+  ): ReturnType<typeof AutoMovieRenderSubjectViewpoint.poseFromHeading> =>
+    AutoMovieRenderSubjectViewpoint.poseFromHeading(
       { x: 1, y: 2, z: 3 },
       { yaw, pitch },
       lens,
       { near: 0.1, far: 50 },
     );
   const close = (
-    pose: ReturnType<typeof autoMovieViewerPoseFromHeading>,
+    pose: ReturnType<typeof AutoMovieRenderSubjectViewpoint.poseFromHeading>,
     x: number,
     y: number,
     z: number,
@@ -50,7 +50,7 @@ export function test_render_scene_viewer_pose_from_heading(): void {
     { near: 1, far: 1 },
   ])
     TestValidator.error(JSON.stringify(clip), (): void => {
-      autoMovieViewerPoseFromHeading(
+      AutoMovieRenderSubjectViewpoint.poseFromHeading(
         { x: 0, y: 0, z: 0 },
         { yaw: 0, pitch: 0 },
         lens,

@@ -1,4 +1,4 @@
-import { AutoMovieViewChain as Q } from "@automovie/engine";
+import { AutoMovieEngineViewChain as Q } from "@automovie/engine";
 import type { IAutoMovieViewChain } from "@automovie/interface";
 
 import type { PartConicTypes as T } from "./PartConicTypes";

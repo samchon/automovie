@@ -1,4 +1,6 @@
-import { humanRideGripTiming } from "@automovie/motions/internal";
+import {
+  humanRideGripTiming
+} from "../../../../../packages/motions/src/lexicon/internal/humanRideGripTiming";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";

@@ -1,4 +1,4 @@
-import { physicalIcpPlanner, physicalIcpPlannerCmps } from "@automovie/engine";
+import { AutoMovieEnginePhysicalIcpPlanner, AutoMovieEnginePhysicalIcpPlannerCmps } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
@@ -27,8 +27,8 @@ import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
  * 6. A foot of one point puts the exit pivot on it.
  */
 export function test_engine_physics_physical_icp_planner_cmps(): void {
-  const cmps = physicalIcpPlannerCmps;
-  const p: physicalIcpPlannerCmps.IParameters = physicalIcpPlanner.DEFAULTS;
+  const cmps = AutoMovieEnginePhysicalIcpPlannerCmps;
+  const p: AutoMovieEnginePhysicalIcpPlannerCmps.IParameters = AutoMovieEnginePhysicalIcpPlanner.DEFAULTS;
   const rectangle = [
     { x: -0.11, y: -0.05 },
     { x: 0.11, y: -0.05 },
@@ -40,7 +40,7 @@ export function test_engine_physics_physical_icp_planner_cmps(): void {
     x: number,
     z: number,
     polygon = rectangle,
-  ): physicalIcpPlannerCmps.IFoot => ({
+  ): AutoMovieEnginePhysicalIcpPlannerCmps.IFoot => ({
     side,
     frame: { origin: { x, z }, forward: { x: 1, z: 0 } },
     polygon,

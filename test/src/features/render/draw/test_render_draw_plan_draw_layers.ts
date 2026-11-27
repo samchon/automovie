@@ -4,8 +4,8 @@ import type {
   IAutoMovieSequence,
 } from "@automovie/interface";
 import {
-  type IAutoMovieDrawScene,
-  planAutoMovieDrawLayers,
+  type IAutoMovieRenderDrawScene,
+  AutoMovieRenderDraw,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
@@ -40,7 +40,7 @@ function cut(kind: "crossDissolve" | "fade"): {
 
 /** A shot placement that records nothing; the plan only checks it exists. */
 const SEEK_SHOT: NonNullable<
-  IAutoMovieDrawScene["seekShot"]
+  IAutoMovieRenderDrawScene["seekShot"]
 > = async (): Promise<void> => {};
 
 /**
@@ -64,9 +64,9 @@ const SEEK_SHOT: NonNullable<
 export function test_render_draw_plan_draw_layers(): void {
   const placed: (
     kind: "crossDissolve" | "fade",
-  ) => ReturnType<typeof cut> & Pick<IAutoMovieDrawScene, "seekShot"> = (
+  ) => ReturnType<typeof cut> & Pick<IAutoMovieRenderDrawScene, "seekShot"> = (
     kind: "crossDissolve" | "fade",
-  ): ReturnType<typeof cut> & Pick<IAutoMovieDrawScene, "seekShot"> => ({
+  ): ReturnType<typeof cut> & Pick<IAutoMovieRenderDrawScene, "seekShot"> => ({
     ...cut(kind),
     seekShot: SEEK_SHOT,
   });
@@ -104,14 +104,14 @@ export function test_render_draw_plan_draw_layers(): void {
   // 1-2. Direct pictures.
   TestValidator.equals(
     "a subject without a sequence plans nothing",
-    planAutoMovieDrawLayers("film", { cut: dissolve.cut }, 2.5),
+    AutoMovieRenderDraw.planLayers("film", { cut: dissolve.cut }, 2.5),
     null,
   );
   TestValidator.equals(
     "outside the transition the plan is null",
     [
-      planAutoMovieDrawLayers("film", dissolve, 1),
-      planAutoMovieDrawLayers("film", dissolve, 3.5),
+      AutoMovieRenderDraw.planLayers("film", dissolve, 1),
+      AutoMovieRenderDraw.planLayers("film", dissolve, 3.5),
     ],
     [null, null],
   );
@@ -119,17 +119,17 @@ export function test_render_draw_plan_draw_layers(): void {
   // 3-4. Inside each kind.
   TestValidator.predicate(
     "a dissolve's midpoint mixes both shots",
-    same(shots(planAutoMovieDrawLayers("film", dissolve, 2.5)), [
+    same(shots(AutoMovieRenderDraw.planLayers("film", dissolve, 2.5)), [
       ["shot:a", 0.5, false],
       ["shot:b", 0.5, true],
     ]),
   );
   TestValidator.predicate(
     "a fade draws one shot at a time",
-    same(shots(planAutoMovieDrawLayers("film", fade, 2.25)), [
+    same(shots(AutoMovieRenderDraw.planLayers("film", fade, 2.25)), [
       ["shot:a", 0.5, false],
     ]) &&
-      same(shots(planAutoMovieDrawLayers("film", fade, 2.75)), [
+      same(shots(AutoMovieRenderDraw.planLayers("film", fade, 2.75)), [
         ["shot:b", 0.5, true],
       ]),
   );
@@ -146,17 +146,17 @@ export function test_render_draw_plan_draw_layers(): void {
   TestValidator.predicate(
     "an outgoing shot without seekShot is refused by name",
     throwsError(
-      (): unknown => planAutoMovieDrawLayers("film", placeless(dissolve), 2.5),
+      (): unknown => AutoMovieRenderDraw.planLayers("film", placeless(dissolve), 2.5),
       'Subject "film" draws a crossDissolve into sequence entry 1',
     ) &&
       throwsError(
-        (): unknown => planAutoMovieDrawLayers("film", placeless(fade), 2.25),
+        (): unknown => AutoMovieRenderDraw.planLayers("film", placeless(fade), 2.25),
         "seekShot",
       ),
   );
   TestValidator.predicate(
     "a fade's second half draws the live shot without seekShot",
-    same(shots(planAutoMovieDrawLayers("film", placeless(fade), 2.75)), [
+    same(shots(AutoMovieRenderDraw.planLayers("film", placeless(fade), 2.75)), [
       ["shot:b", 0.5, true],
     ]),
   );

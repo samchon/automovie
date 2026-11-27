@@ -2,7 +2,9 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { lieTogetherShifted } from "@automovie/motions/internal";
+import {
+  lieTogetherShifted
+} from "../../../../../packages/motions/src/floor/internal/lieTogetherShifted";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../../internal/vclose";

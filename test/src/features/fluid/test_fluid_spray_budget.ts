@@ -1,4 +1,6 @@
-import { sampleFluidSpray, simulateFluidDomain } from "@automovie/engine";
+import {
+  AutoMovieEngineFluid,
+} from "@automovie/engine";
 import type {
   IAutoMovieFluidDomain,
   IAutoMovieFluidSpray,
@@ -107,11 +109,11 @@ const misted: (sprays: IAutoMovieFluidSpray[]) => IAutoMovieFluidDomain = (
  */
 export function test_fluid_spray_budget(): void {
   const domain: ReturnType<typeof misted> = misted([JET]);
-  const state: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(
+  const state: ReturnType<typeof AutoMovieEngineFluid.simulateFluidDomain> = AutoMovieEngineFluid.simulateFluidDomain(
     domain,
     64,
   );
-  const sample: ReturnType<typeof sampleFluidSpray> = sampleFluidSpray({
+  const sample: ReturnType<typeof AutoMovieEngineFluid.sampleFluidSpray> = AutoMovieEngineFluid.sampleFluidSpray({
     domain,
     state,
   });
@@ -158,17 +160,17 @@ export function test_fluid_spray_budget(): void {
     },
   );
 
-  const capped: ReturnType<typeof sampleFluidSpray> = sampleFluidSpray({
+  const capped: ReturnType<typeof AutoMovieEngineFluid.sampleFluidSpray> = AutoMovieEngineFluid.sampleFluidSpray({
     domain: misted([{ ...JET, maxParticles: 3 }]),
     state,
   });
   const thinnedDomain: ReturnType<typeof misted> = misted([JET]);
-  const thinned: ReturnType<typeof sampleFluidSpray> = sampleFluidSpray({
+  const thinned: ReturnType<typeof AutoMovieEngineFluid.sampleFluidSpray> = AutoMovieEngineFluid.sampleFluidSpray({
     domain: thinnedDomain,
     state,
     cameraDistance: 25,
   });
-  const thinnedAgain: ReturnType<typeof sampleFluidSpray> = sampleFluidSpray({
+  const thinnedAgain: ReturnType<typeof AutoMovieEngineFluid.sampleFluidSpray> = AutoMovieEngineFluid.sampleFluidSpray({
     domain: thinnedDomain,
     state,
     cameraDistance: 25,
@@ -208,7 +210,7 @@ export function test_fluid_spray_budget(): void {
       [
         "negativeDistanceThinsNothing",
         (): boolean =>
-          sampleFluidSpray({
+          AutoMovieEngineFluid.sampleFluidSpray({
             domain,
             state,
             cameraDistance: -40,
@@ -222,7 +224,7 @@ export function test_fluid_spray_budget(): void {
     },
   );
 
-  const spread: ReturnType<typeof sampleFluidSpray> = sampleFluidSpray({
+  const spread: ReturnType<typeof AutoMovieEngineFluid.sampleFluidSpray> = AutoMovieEngineFluid.sampleFluidSpray({
     domain: misted([{ ...JET, spread: 0.75 }]),
     state,
   });
@@ -246,7 +248,7 @@ export function test_fluid_spray_budget(): void {
   );
 
   const bare: ReturnType<typeof misted> = misted([]);
-  const early: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(
+  const early: ReturnType<typeof AutoMovieEngineFluid.simulateFluidDomain> = AutoMovieEngineFluid.simulateFluidDomain(
     domain,
     16,
   );
@@ -260,15 +262,15 @@ export function test_fluid_spray_budget(): void {
       [
         "noEmitter",
         (): boolean =>
-          sampleFluidSpray({
+          AutoMovieEngineFluid.sampleFluidSpray({
             domain: bare,
-            state: simulateFluidDomain(bare, 64),
+            state: AutoMovieEngineFluid.simulateFluidDomain(bare, 64),
           }).particles.length === 0,
       ],
       [
         "beforeFirstLifetime",
         (): boolean =>
-          sampleFluidSpray({ domain, state: early })
+          AutoMovieEngineFluid.sampleFluidSpray({ domain, state: early })
             .particles.map(
               (particle: IAutoMovieFluidSprayParticle): number =>
                 particle.index,
@@ -278,7 +280,7 @@ export function test_fluid_spray_budget(): void {
       [
         "twoEmitters",
         (): boolean =>
-          sampleFluidSpray({ domain: twoEmitters, state }).particles.filter(
+          AutoMovieEngineFluid.sampleFluidSpray({ domain: twoEmitters, state }).particles.filter(
             (particle: IAutoMovieFluidSprayParticle): boolean =>
               particle.spray === "mist",
           ).length === 8,
@@ -297,10 +299,10 @@ export function test_fluid_spray_budget(): void {
         "foreignState",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof sampleFluidSpray> =>
-              sampleFluidSpray({
+            (): ReturnType<typeof AutoMovieEngineFluid.sampleFluidSpray> =>
+              AutoMovieEngineFluid.sampleFluidSpray({
                 domain,
-                state: simulateFluidDomain(foreign, 0),
+                state: AutoMovieEngineFluid.simulateFluidDomain(foreign, 0),
               }),
             ["jet-basin", "other-basin"],
           ),
@@ -309,8 +311,8 @@ export function test_fluid_spray_budget(): void {
         "nanDistance",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof sampleFluidSpray> =>
-              sampleFluidSpray({
+            (): ReturnType<typeof AutoMovieEngineFluid.sampleFluidSpray> =>
+              AutoMovieEngineFluid.sampleFluidSpray({
                 domain,
                 state,
                 cameraDistance: Number.NaN,
@@ -322,8 +324,8 @@ export function test_fluid_spray_budget(): void {
         "infiniteDistance",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof sampleFluidSpray> =>
-              sampleFluidSpray({
+            (): ReturnType<typeof AutoMovieEngineFluid.sampleFluidSpray> =>
+              AutoMovieEngineFluid.sampleFluidSpray({
                 domain,
                 state,
                 cameraDistance: Number.POSITIVE_INFINITY,
@@ -337,7 +339,7 @@ export function test_fluid_spray_budget(): void {
         // the number being unreal rather than about the distance being large.
         "heavyButFinite",
         (): boolean =>
-          sampleFluidSpray({
+          AutoMovieEngineFluid.sampleFluidSpray({
             domain,
             state,
             cameraDistance: 70,
@@ -359,7 +361,7 @@ export function test_fluid_spray_budget(): void {
 
   // An axis whose squared length overflows or underflows is still a direction:
   // compare both particle count and positions with the unit-axis sample.
-  const unit: IAutoMovieFluidSprayParticle[] = sampleFluidSpray({
+  const unit: IAutoMovieFluidSprayParticle[] = AutoMovieEngineFluid.sampleFluidSpray({
     domain,
     state,
   }).particles;
@@ -371,9 +373,9 @@ export function test_fluid_spray_budget(): void {
   const scaled: (factor: number) => IAutoMovieFluidSprayParticle[] = (
     factor: number,
   ): IAutoMovieFluidSprayParticle[] =>
-    sampleFluidSpray({
+    AutoMovieEngineFluid.sampleFluidSpray({
       domain: misted([{ ...JET, direction: { x: 0, y: factor, z: 0 } }]),
-      state: simulateFluidDomain(misted([JET]), 64),
+      state: AutoMovieEngineFluid.simulateFluidDomain(misted([JET]), 64),
     }).particles;
   const huge: IAutoMovieFluidSprayParticle[] = scaled(1e200);
   const tiny: IAutoMovieFluidSprayParticle[] = scaled(1e-200);

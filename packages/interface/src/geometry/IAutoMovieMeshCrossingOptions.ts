@@ -1,6 +1,6 @@
 /**
  * Population and contact classification for the mesh triangle crossing census
- * `measureAutoMovieMeshCrossings`.
+ * `AutoMovieEngineMeshCrossingQuery.measure`.
  *
  * A transverse point is supplied only after the strict edge/triangle predicate
  * admits it. Rejecting that point continues through the remaining edges and

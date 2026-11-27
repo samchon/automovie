@@ -1,6 +1,6 @@
 /**
  * One topological or shape defect of a triangle mesh, located by the vertices
- * that carry it, as `measureAutoMovieMeshDefects` lists them.
+ * that carry it, as `measureMeshDefects` lists them.
  *
  * A defect is either an edge between two welded corners or one whole triangle,
  * and `kind` says which. Vertex indices address the measured position buffer as
@@ -25,7 +25,7 @@ export interface IAutoMovieMeshDefect {
 /** Data and callback contracts shared by the MeshDefect operations. */
 export namespace IAutoMovieMeshDefect {
   /**
-   * The defect classes `measureAutoMovieMeshDefects` tells apart.
+   * The defect classes `measureMeshDefects` tells apart.
    *
    * `open`, `non-manifold` and `inconsistent` are edge kinds: an edge between
    * two welded corners used by exactly one triangle, by more than two, or by

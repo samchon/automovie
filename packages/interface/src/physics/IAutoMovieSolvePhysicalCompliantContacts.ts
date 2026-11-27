@@ -70,21 +70,24 @@ export namespace IAutoMovieSolvePhysicalCompliantContacts {
      * Actual transferred normal impulse on each mapped side, after response
      * gain.
      */
-    appliedImpulse: {
-      /**
-       * Normal impulse actually transferred to handle's dynamic parent in N s
-       * after gain; zero without a dynamic parent.
-       */
-      a: number;
-
-      /**
-       * Normal impulse actually transferred to other's dynamic parent in N s
-       * after its gain; may differ from a.
-       */
-      b: number;
-    };
+    appliedImpulse: IMeasurementAppliedImpulse;
 
     /** Actual signed outer-surface separation, metres. */
     separation: number;
   }
+
+  /** The appliedImpulse object of {@link IMeasurement}. */
+  export type IMeasurementAppliedImpulse = {
+    /**
+     * Normal impulse actually transferred to handle's dynamic parent in N s
+     * after gain; zero without a dynamic parent.
+     */
+    a: number;
+
+    /**
+     * Normal impulse actually transferred to other's dynamic parent in N s
+     * after its gain; may differ from a.
+     */
+    b: number;
+  };
 }

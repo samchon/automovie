@@ -45,8 +45,10 @@ Frame a close-up from outside the subject. Reuse its resolved camera in later [c
 
 Review the exact cut in contiguous windows of up to 10 seconds. Include the first and last frames and decode rendered files.
 
-- Inspect at least 10 distinct frames per second, at most 0.1 seconds apart. A 10-second window needs at least 100 frames.
-- Inspect every native frame through decisive movements, contacts, cuts and joins, plus adjacent frames.
+- Inspect at least 10 distinct frames per second, at most 0.1 seconds apart.
+  - A 10-second window needs at least 100 frames.
+- Inspect every native frame through decisive moves, contacts, cuts and joins.
+  - Include adjacent frames.
 - Match source and delivery times. Record windows and frame indices.
 
 Use focused stills for diagnosis and separate continuous 1× playback for pace.

@@ -1,5 +1,5 @@
 import type { IAutoMovieRasterImage } from "@automovie/interface";
-import { AutoMovieRasterSheet } from "@automovie/render";
+import { AutoMovieRenderRasterSheet } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -57,8 +57,8 @@ export function test_render_picture_raster_sheet(): void {
     capacity: number,
     columns: number,
     count: number,
-  ): AutoMovieRasterSheet => {
-    const sheet: AutoMovieRasterSheet = new AutoMovieRasterSheet(
+  ): AutoMovieRenderRasterSheet => {
+    const sheet: AutoMovieRenderRasterSheet = new AutoMovieRenderRasterSheet(
       capacity,
       columns,
       8,
@@ -108,7 +108,12 @@ export function test_render_picture_raster_sheet(): void {
   );
 
   // 2. Reduction by area average.
-  const reduced: AutoMovieRasterSheet = new AutoMovieRasterSheet(1, 1, 8, 12);
+  const reduced: AutoMovieRenderRasterSheet = new AutoMovieRenderRasterSheet(
+    1,
+    1,
+    8,
+    12,
+  );
   reduced.add(
     picture(16, 24, (x: number): number => (x % 2 === 0 ? 0 : 200)),
     "",
@@ -167,7 +172,7 @@ export function test_render_picture_raster_sheet(): void {
   );
 
   // 5. A finished picture is not rewritten.
-  const growing: AutoMovieRasterSheet = filled(6, 3, 1);
+  const growing: AutoMovieRenderRasterSheet = filled(6, 3, 1);
   const first: IAutoMovieRasterImage = growing.finish();
   const before: number[] = Array.from(first.pixels);
   growing.add(flat(90), "1");
@@ -187,7 +192,7 @@ export function test_render_picture_raster_sheet(): void {
 
   // 6. Refusals.
   TestValidator.error("an empty sheet is refused", (): void => {
-    new AutoMovieRasterSheet(4, 2, 8, 12).finish();
+    new AutoMovieRenderRasterSheet(4, 2, 8, 12).finish();
   });
   TestValidator.error("a picture beyond the capacity is refused", (): void => {
     filled(2, 2, 2).add(flat(0), "1");
@@ -199,10 +204,10 @@ export function test_render_picture_raster_sheet(): void {
         (): void => {
           const sizes: [number, number, number, number] = [4, 2, 8, 12];
           sizes[position] = value;
-          new AutoMovieRasterSheet(...sizes);
+          new AutoMovieRenderRasterSheet(...sizes);
         },
       );
   TestValidator.error("a sheet above 64 megapixels is refused", (): void => {
-    new AutoMovieRasterSheet(1, 1, 8001, 8000);
+    new AutoMovieRenderRasterSheet(1, 1, 8001, 8000);
   });
 }

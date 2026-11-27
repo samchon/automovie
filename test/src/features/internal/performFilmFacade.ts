@@ -1,5 +1,8 @@
-import { performShot, stageScene } from "@automovie/engine";
-import type { IAutoMovieClip, IAutoMovieModel } from "@automovie/interface";
+import { AutoMovieEngineFilm } from "@automovie/engine";
+import {
+  type IAutoMovieClip,
+  type IAutoMovieModel,
+} from "@automovie/interface";
 
 import {
   makePerformanceWrite,
@@ -26,7 +29,7 @@ export function performFilmFacade(
       },
     ],
   });
-  const staged: ReturnType<typeof stageScene> = stageScene(
+  const staged: ReturnType<typeof AutoMovieEngineFilm.stageScene> = AutoMovieEngineFilm.stageScene(
     script,
     makeStagingWrite({
       actors: [
@@ -46,7 +49,7 @@ export function performFilmFacade(
     }),
   );
   if (staged.success !== true) throw new Error("staging fixture must succeed");
-  const result: ReturnType<typeof performShot> = performShot({
+  const result: ReturnType<typeof AutoMovieEngineFilm.performShot> = AutoMovieEngineFilm.performShot({
     script,
     staged,
     performance: makePerformanceWrite({

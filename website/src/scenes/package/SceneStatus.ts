@@ -1,6 +1,6 @@
-import * as archetypes from "@automovie/archetypes";
-import { HUMAN_ACTIONS } from "@automovie/motions";
+import { AutoMovieMotionHumanActions } from "@automovie/motions";
 
+import { ArchetypeRegistry } from "../../archetypes/ArchetypeRegistry";
 import { PlaygroundChain } from "../../playground/package/PlaygroundChain";
 import { PlaygroundObjects } from "../../playground/package/PlaygroundObjects";
 import type { IPlaygroundComposition } from "../../playground/structures/IPlaygroundComposition";
@@ -77,25 +77,23 @@ export namespace SceneStatus {
     const mutuals: Set<string> = new Set(
       Object.keys(PlaygroundChain.mutuals()),
     );
-    const exported: Readonly<Record<string, unknown>> = archetypes as Readonly<
-      Record<string, unknown>
-    >;
+    const exported: Set<string> = new Set(ArchetypeRegistry.rootIds());
     const missing: Set<string> = new Set();
 
     const visit: (action: IPlaygroundComposition.IAction) => void = (
       action: IPlaygroundComposition.IAction,
     ): void => {
-      if (!(action.name in HUMAN_ACTIONS)) {
+      if (!(action.name in AutoMovieMotionHumanActions)) {
         if (!rows.has(action.name)) missing.add(`the action ${action.name}`);
         else if (!PlaygroundChain.has("registered"))
-          missing.add("HumanChain.registered");
+          missing.add("AutoMovieMotionHumanChain.registered");
       }
       if (action.over !== undefined && action.over.length !== 0) {
-        if (!PlaygroundChain.has("over")) missing.add("HumanChain.over");
+        if (!PlaygroundChain.has("over")) missing.add("AutoMovieMotionHumanChain.over");
         action.over.forEach(visit);
       }
       if (action.sync !== undefined && !PlaygroundChain.has("sync"))
-        missing.add("HumanChain.sync");
+        missing.add("AutoMovieMotionHumanChain.sync");
     };
     for (const performer of composition.performers)
       performer.actions.forEach(visit);
@@ -105,9 +103,9 @@ export namespace SceneStatus {
     const objects: readonly IPlaygroundComposition.IObject[] =
       composition.objects ?? [];
     if (objects.length !== 0 && !PlaygroundObjects.available())
-      missing.add("HumanObject");
+      missing.add("AutoMovieMotionHumanObject");
     for (const object of objects)
-      if (typeof exported[object.producer] !== "function")
+      if (!exported.has(object.producer))
         missing.add(`the archetype ${object.producer}`);
     return [...missing];
   }

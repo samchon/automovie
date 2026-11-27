@@ -1,9 +1,4 @@
-import {
-  preparePhysicalGeometry as Geometry,
-  Quaternion,
-  Vector3,
-  physicalShapeSurfaceAnchor,
-} from "@automovie/engine";
+import { AutoMovieEnginePhysicalGeometry as Geometry, AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalShape,
   IAutoMoviePreparePhysicalGeometry,
@@ -25,14 +20,14 @@ import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
  *    witness.
  */
 export async function test_engine_physics_physical_shape_surface(): Promise<void> {
-  const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry();
+  const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry.prepare();
   const pose: IAutoMovieRigidTransform = {
     position: { x: 1, y: 2, z: 3 },
-    rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 55),
+    rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 55),
   };
   const transform: IAutoMovieRigidTransform = {
     position: { x: 0.1, y: -0.2, z: 0.3 },
-    rotation: Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 35),
+    rotation: AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 35),
   };
   const shapes: IAutoMoviePhysicalShape[] = [
     { id: "sphere", material: "solid", kind: "sphere", radius: 0.1, transform },
@@ -58,16 +53,16 @@ export async function test_engine_physics_physical_shape_surface(): Promise<void
       { x: 1, y: 0, z: 0 },
       { x: 0.3, y: 0.6, z: 0.2 },
     ]) {
-      const anchor: ReturnType<typeof physicalShapeSurfaceAnchor> =
-        physicalShapeSurfaceAnchor(pose, shape, normal);
+      const anchor: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeSurfaceAnchor> =
+        AutoMovieEnginePhysics.physicalShapeSurfaceAnchor(pose, shape, normal);
       const projected: IAutoMovieRigidTransform["position"] = geometry.project(
         { body: "object", bone: "part", shape, pose },
-        Vector3.add(anchor.point, Vector3.scale(anchor.normal, 0.01)),
+        AutoMovieEngineVector3.add(anchor.point, AutoMovieEngineVector3.scale(anchor.normal, 0.01)),
       );
       if (
-        Vector3.length(Vector3.subtract(anchor.point, projected)) >
+        AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(anchor.point, projected)) >
           PhysicalTolerance.CONVERGED ||
-        Math.abs(Vector3.length(anchor.normal) - 1) >
+        Math.abs(AutoMovieEngineVector3.length(anchor.normal) - 1) >
           PhysicalTolerance.ACCUMULATED
       )
         findings.push(`${shape.kind}: invalid world surface witness`);

@@ -1,4 +1,4 @@
-import { validateJointAxesBasis } from "@automovie/engine";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
 import type { IAutoMovieJointAxes } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -25,12 +25,12 @@ const BASIS: IAutoMovieJointAxes = {
 export function test_engine_kinematics_validate_joint_axes_basis(): void {
   TestValidator.equals(
     "an orthogonal basis",
-    validateJointAxesBasis(BASIS, "joint").length,
+    AutoMovieEngineKinematics.validateJointAxesBasis(BASIS, "joint").length,
     0,
   );
   TestValidator.equals(
     "a zero axis",
-    validateJointAxesBasis(
+    AutoMovieEngineKinematics.validateJointAxesBasis(
       { ...BASIS, flexion: { x: 0, y: 0, z: 0 } },
       "joint",
     ).map((issue: { path: string }): string => issue.path),
@@ -38,7 +38,7 @@ export function test_engine_kinematics_validate_joint_axes_basis(): void {
   );
   TestValidator.equals(
     "a slanted axis",
-    validateJointAxesBasis(
+    AutoMovieEngineKinematics.validateJointAxesBasis(
       { ...BASIS, twist: { x: 0, y: 1, z: 1 } },
       "joint",
     ).map((issue: { path: string }): string => issue.path),
@@ -46,7 +46,7 @@ export function test_engine_kinematics_validate_joint_axes_basis(): void {
   );
   TestValidator.equals(
     "proximal twist under the fixed order",
-    validateJointAxesBasis(
+    AutoMovieEngineKinematics.validateJointAxesBasis(
       {
         ...BASIS,
         rotationOrder: "flexion-abduction-twist",

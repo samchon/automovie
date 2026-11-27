@@ -2,7 +2,10 @@ import { type IAutoMovieDrivenDriver } from "@automovie/interface";
 
 import { createDriverPointer } from "./createDriverPointer";
 
-/** Create the existing unclamped /in-to-/out linear fixture mapping [0,10] to [0,100], then apply authored overrides without admission. */
+/**
+ * Create the existing unclamped /in-to-/out linear fixture mapping [0,10] to
+ * [0,100], then apply authored overrides without admission.
+ */
 export function createDrivenDriver(
   overrides: Partial<IAutoMovieDrivenDriver>,
 ): IAutoMovieDrivenDriver {
@@ -10,8 +13,8 @@ export function createDrivenDriver(
     type: "driven",
     output: createDriverPointer("/out"),
     source: createDriverPointer("/in"),
-    inRange: [0, 10],
-    outRange: [0, 100],
+    inRange: { from: 0, to: 10 },
+    outRange: { from: 0, to: 100 },
     clamp: false,
     ...overrides,
   };

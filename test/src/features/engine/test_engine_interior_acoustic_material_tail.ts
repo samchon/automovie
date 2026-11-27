@@ -1,18 +1,19 @@
-import {
-  applyAutoMovieInteriorAcousticResponse,
-  deriveAutoMovieInteriorAcousticResponse,
-} from "@automovie/engine";
+import { AutoMovieEngineSound } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { createInteriorAcousticTestInputs } from "../internal/audio/createInteriorAcousticTestInputs";
 import { nclose } from "../internal/predicates";
 
 /**
- * Material absorption changes the derived T60 and the complete bounded impulse tail on the existing 100 Hz kernel clock.
+ * Material absorption changes the derived T60 and the complete bounded impulse
+ * tail on the existing 100 Hz kernel clock.
  *
  * Scenarios:
- * 1. Two impulse samples at the existing 100 Hz kernel clock produce T60 values 0.805 s and0.20125 s for absorption0.2 and0.8.
- * 2. The reflective response has both a longer complete bounded tail and greater tail energy.
+ *
+ * 1. Two impulse samples at the existing 100 Hz kernel clock produce T60 values
+ *    0.805 s and0.20125 s for absorption0.2 and0.8.
+ * 2. The reflective response has both a longer complete bounded tail and greater
+ *    tail energy.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Derives two real Sabine responses and applies the maintained sparse PCM tier, observing expected T60 ordering, output-tail length and summed absolute delayed amplitude.
  * @evidence contracts/development/testing.md#independent-expectations V=100 and S=100 with absorption .2/.8 give .161*V/(S*alpha)=.805/.20125 seconds independently. The helper named tailEnergy sums absolute amplitude after index zero, an L1 witness rather than physical squared energy or measured audible reverberation.
@@ -28,30 +29,32 @@ export function test_engine_interior_acoustic_material_tail(): void {
   }: ReturnType<typeof createInteriorAcousticTestInputs> =
     createInteriorAcousticTestInputs();
 
-  const reflective: ReturnType<typeof deriveAutoMovieInteriorAcousticResponse> =
-    deriveAutoMovieInteriorAcousticResponse({
-      sourceSpace: "room-a",
-      listenerSpace: "room-a",
-      inputRevision: digest,
-      request: request(0.2),
-      profile,
-    });
+  const reflective: ReturnType<
+    typeof AutoMovieEngineSound.deriveInteriorAcousticResponse
+  > = AutoMovieEngineSound.deriveInteriorAcousticResponse({
+    sourceSpace: "room-a",
+    listenerSpace: "room-a",
+    inputRevision: digest,
+    request: request(0.2),
+    profile,
+  });
 
-  const absorptive: ReturnType<typeof deriveAutoMovieInteriorAcousticResponse> =
-    deriveAutoMovieInteriorAcousticResponse({
-      sourceSpace: "room-a",
-      listenerSpace: "room-a",
-      inputRevision: digest,
-      request: request(0.8),
-      profile,
-    });
+  const absorptive: ReturnType<
+    typeof AutoMovieEngineSound.deriveInteriorAcousticResponse
+  > = AutoMovieEngineSound.deriveInteriorAcousticResponse({
+    sourceSpace: "room-a",
+    listenerSpace: "room-a",
+    inputRevision: digest,
+    request: request(0.8),
+    profile,
+  });
 
   if (reflective.status !== "available" || absorptive.status !== "available")
     throw new Error("positive material twins unexpectedly lacked responses");
 
   const reflectivePcm: ReturnType<
-    typeof applyAutoMovieInteriorAcousticResponse
-  > = applyAutoMovieInteriorAcousticResponse({
+    typeof AutoMovieEngineSound.applyInteriorAcousticResponse
+  > = AutoMovieEngineSound.applyInteriorAcousticResponse({
     samples: Float32Array.from([1, 0]),
     channels: 1,
     sampleRate: 100,
@@ -59,8 +62,8 @@ export function test_engine_interior_acoustic_material_tail(): void {
   });
 
   const absorptivePcm: ReturnType<
-    typeof applyAutoMovieInteriorAcousticResponse
-  > = applyAutoMovieInteriorAcousticResponse({
+    typeof AutoMovieEngineSound.applyInteriorAcousticResponse
+  > = AutoMovieEngineSound.applyInteriorAcousticResponse({
     samples: Float32Array.from([1, 0]),
     channels: 1,
     sampleRate: 100,

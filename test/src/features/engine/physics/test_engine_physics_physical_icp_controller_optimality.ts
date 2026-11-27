@@ -1,4 +1,4 @@
-import { physicalIcpController } from "@automovie/engine";
+import { AutoMovieEnginePhysicalIcpController } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
@@ -35,25 +35,25 @@ import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
 export function test_engine_physics_physical_icp_controller_optimality(): void {
   const omega: number = Math.sqrt(9.81 / 0.9);
   const dt: number = 0.004;
-  const parameters: Partial<physicalIcpController.IParameters> = {
+  const parameters: Partial<AutoMovieEnginePhysicalIcpController.IParameters> = {
     rateWeight: 1e-5,
     copCmpRateWeight: 1e-6,
     maxFeedbackParallel: 0.05,
     maxFeedbackOrthogonal: 0.03,
     maxFeedbackRate: 2.0,
   };
-  const p: physicalIcpController.IParameters = {
-    ...physicalIcpController.ZULU,
+  const p: AutoMovieEnginePhysicalIcpController.IParameters = {
+    ...AutoMovieEnginePhysicalIcpController.ZULU,
     ...parameters,
   };
-  const last: physicalIcpController.IState = {
-    ...physicalIcpController.create(),
+  const last: AutoMovieEnginePhysicalIcpController.IState = {
+    ...AutoMovieEnginePhysicalIcpController.create(),
     copDelta: { x: 0.012, y: -0.004 },
     cmpDelta: { x: 0.003, y: 0.002 },
   };
   const cases: {
     title: string;
-    state: physicalIcpController.IState;
+    state: AutoMovieEnginePhysicalIcpController.IState;
     velocity: { x: number; y: number };
     error: { x: number; y: number };
     box: { x0: number; x1: number; y0: number; y1: number };
@@ -69,7 +69,7 @@ export function test_engine_physics_physical_icp_controller_optimality(): void {
     },
     {
       title: "corner",
-      state: physicalIcpController.create(),
+      state: AutoMovieEnginePhysicalIcpController.create(),
       velocity: { x: 0, y: 0 },
       error: { x: 0.04, y: 0.03 },
       box: { x0: -0.03, x1: 0.02, y0: -0.02, y1: 0.015 },
@@ -77,7 +77,7 @@ export function test_engine_physics_physical_icp_controller_optimality(): void {
     },
     {
       title: "initialized",
-      state: physicalIcpController.initialize(last),
+      state: AutoMovieEnginePhysicalIcpController.initialize(last),
       velocity: { x: 0.15, y: 0.1 },
       error: { x: 0.03, y: -0.02 },
       box: { x0: -0.1, x1: -0.02, y0: -0.07, y1: 0.0 },
@@ -86,7 +86,7 @@ export function test_engine_physics_physical_icp_controller_optimality(): void {
   ];
   for (const c of cases) {
     const desired = { x: 0, y: 0 };
-    const result: physicalIcpController.IResult = physicalIcpController({
+    const result: AutoMovieEnginePhysicalIcpController.IResult = AutoMovieEnginePhysicalIcpController.update({
       state: c.state,
       support: [
         { x: c.box.x0, y: c.box.y0 },

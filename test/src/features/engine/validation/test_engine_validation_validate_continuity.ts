@@ -1,4 +1,4 @@
-import { validateContinuity } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieBeatEndActorState,
   IAutoMovieBeatEndState,
@@ -64,7 +64,7 @@ export function test_engine_validation_validate_continuity(): void {
     opening: IAutoMovieBeatEndActorState,
     options: { positionTolerance?: number; facingToleranceDeg?: number } = {},
   ): IAutoMovieValidation =>
-    validateContinuity({
+    AutoMovieEngineValidation.validateContinuity({
       previous: state(previous),
       opening: state(opening),
       ...options,

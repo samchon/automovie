@@ -1,10 +1,10 @@
 import {
-  AutoMovieGravity,
-  compileLaunch,
-  projectileAt,
+  AutoMovieEngineAir,
+  AutoMovieEngineFilm,
+  AutoMovieEngineGravity,
 } from "@automovie/engine";
 import {
-  AutoMovieInteractionEventKind,
+  type AutoMovieInteractionEventKind,
   IAutoMovieInteractionEvent,
   IAutoMovieLaunchAction,
   type IAutoMovieLaunchResult,
@@ -78,7 +78,7 @@ export function test_engine_film_launch(): void {
   const origin: IAutoMovieVector3 = { x: 0, y: 1.6, z: 0 };
   const target: IAutoMovieVector3 = { x: 12, y: 1.4, z: 0 };
 
-  const hit: IAutoMovieLaunchResult = compileLaunch({
+  const hit: IAutoMovieLaunchResult = AutoMovieEngineFilm.compileLaunch({
     action: launch({ onHit: { force: 0.7, unbalance: true } }),
     origin,
     target,
@@ -232,8 +232,8 @@ export function test_engine_film_launch(): void {
     (): boolean =>
       knock.x > 0 && Math.abs(knock.z) < 1e-9 && nclose(knock.z, 0, 1e-9),
   );
-  const vHit: IAutoMovieVector3 = projectileAt(
-    { origin, velocity: hit.velocity, gravity: AutoMovieGravity.DOWN },
+  const vHit: IAutoMovieVector3 = AutoMovieEngineAir.projectileAt(
+    { origin, velocity: hit.velocity, gravity: AutoMovieEngineGravity.DOWN },
     hit.hitTime,
   ).velocity;
   const vLen: number = Math.hypot(vHit.x, vHit.y, vHit.z);
@@ -251,7 +251,7 @@ export function test_engine_film_launch(): void {
   );
 
   // 4. no onHit → no scheduled reaction
-  const quiet: IAutoMovieLaunchResult = compileLaunch({
+  const quiet: IAutoMovieLaunchResult = AutoMovieEngineFilm.compileLaunch({
     action: launch(),
     origin,
     target,
@@ -272,18 +272,20 @@ export function test_engine_film_launch(): void {
     quiet.events[1]!.reaction,
     null,
   );
-  const listedActor: IAutoMovieLaunchResult = compileLaunch({
-    action: launch({ actor: ["archer", "spotter"] }),
-    origin,
-    target,
-    targetNode: "foe",
-  })!;
+  const listedActor: IAutoMovieLaunchResult = AutoMovieEngineFilm.compileLaunch(
+    {
+      action: launch({ actor: ["archer", "spotter"] }),
+      origin,
+      target,
+      targetNode: "foe",
+    },
+  )!;
   TestValidator.equals(
     "actor-list launch events use the first actor",
     listedActor.events[0]!.actor,
     "archer",
   );
-  const emptyActor: IAutoMovieLaunchResult = compileLaunch({
+  const emptyActor: IAutoMovieLaunchResult = AutoMovieEngineFilm.compileLaunch({
     action: launch({ actor: [] }),
     origin,
     target,
@@ -296,7 +298,7 @@ export function test_engine_film_launch(): void {
   );
 
   // 4b. A literal aim without onHit still flies and records contact only.
-  const pointed: IAutoMovieLaunchResult = compileLaunch({
+  const pointed: IAutoMovieLaunchResult = AutoMovieEngineFilm.compileLaunch({
     action: launch({ at: { kind: "point", point: target } }),
     origin,
     target,
@@ -327,7 +329,7 @@ export function test_engine_film_launch(): void {
       "a requested reaction without an identified struck actor is refused",
       throwsError(
         (): unknown =>
-          compileLaunch({
+          AutoMovieEngineFilm.compileLaunch({
             action: launch({ onHit: { force: 0.9 } }),
             origin,
             target,
@@ -338,13 +340,13 @@ export function test_engine_film_launch(): void {
     );
 
   // 5. the high arc flies longer than the direct arc to the same target
-  const direct: IAutoMovieLaunchResult = compileLaunch({
+  const direct: IAutoMovieLaunchResult = AutoMovieEngineFilm.compileLaunch({
     action: launch(),
     origin,
     target,
     targetNode: "foe",
   })!;
-  const high: IAutoMovieLaunchResult = compileLaunch({
+  const high: IAutoMovieLaunchResult = AutoMovieEngineFilm.compileLaunch({
     action: launch(),
     origin,
     target,
@@ -363,7 +365,7 @@ export function test_engine_film_launch(): void {
   // 6. out of range → null
   TestValidator.equals(
     "a target out of range → null",
-    compileLaunch({
+    AutoMovieEngineFilm.compileLaunch({
       action: launch({ speed: 4 }),
       origin,
       target: { x: 200, y: 1.4, z: 0 },
@@ -376,7 +378,7 @@ export function test_engine_film_launch(): void {
   // g = 8 → apex 100/16 = 6.25 m (all exact in float), where the projectile
   // arrives with zero velocity. The incoming direction degenerates, so `from`
   // falls back to the sightline (straight up), one meter below the target.
-  const apex: IAutoMovieLaunchResult = compileLaunch({
+  const apex: IAutoMovieLaunchResult = AutoMovieEngineFilm.compileLaunch({
     action: launch({ speed: 10, onHit: { force: 0.5 } }),
     origin: { x: 0, y: 0, z: 0 },
     target: { x: 0, y: 6.25, z: 0 },
@@ -420,7 +422,7 @@ export function test_engine_film_launch(): void {
       z: startAt.z,
     };
   }
-  const led: IAutoMovieLaunchResult = compileLaunch({
+  const led: IAutoMovieLaunchResult = AutoMovieEngineFilm.compileLaunch({
     action: launch({ speed: 24, onHit: { force: 0.6 } }),
     origin,
     target: startAt,

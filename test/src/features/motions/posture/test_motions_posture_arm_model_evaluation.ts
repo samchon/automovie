@@ -1,13 +1,15 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanArmGeometry,
   IAutoMovieMotionHumanBody,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanArmGeometry,
-  HumanArmTrajectoryModel,
-} from "@automovie/motions/internal";
+  HumanArmGeometry
+} from "../../../../../packages/motions/src/posture/internal/HumanArmGeometry";
+import {
+  HumanArmTrajectoryModel
+} from "../../../../../packages/motions/src/posture/internal/HumanArmTrajectoryModel";
 import { TestValidator } from "@nestia/e2e";
 
 import { armTrajectoryReading as fixture } from "../../internal/armTrajectoryReading";
@@ -59,7 +61,7 @@ export async function test_motions_posture_arm_model_evaluation(): Promise<void>
       part: obstacle,
       pose: {
         position: fixture.point(-5 / 64),
-        rotation: Quaternion.identity(),
+        rotation: AutoMovieEngineQuaternion.identity(),
       },
       shape: fixture.sphere(1 / 8),
       centre: fixture.point(-5 / 64),
@@ -78,7 +80,7 @@ export async function test_motions_posture_arm_model_evaluation(): Promise<void>
     point: fixture.point(1 / 32),
     contact: fixture.point(0),
     disc: 1 / 64,
-    rotation: Quaternion.identity(),
+    rotation: AutoMovieEngineQuaternion.identity(),
     limits: [{ contact: fixture.point(1 / 16), bound: 1 / 128 }],
   };
   const context: HumanArmTrajectoryModel.IContext = {
@@ -215,18 +217,18 @@ function readMaterialAfterRemoteKnot(
     setup.bones.hand,
     "material witness",
   );
-  const corner: IAutoMovieVector3 = Vector3.scale(basis.abduction, 1 / 8);
+  const corner: IAutoMovieVector3 = AutoMovieEngineVector3.scale(basis.abduction, 1 / 8);
   const at: IAutoMovieMotionHumanArmGeometry.IPlaced = HumanArmGeometry.placed(
     setup,
     base,
     fixture.zero(),
     false,
   );
-  const centre: IAutoMovieVector3 = Vector3.add(
+  const centre: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     at.wrist,
-    Quaternion.rotateVector(at.hand, corner),
+    AutoMovieEngineQuaternion.rotateVector(at.hand, corner),
   );
-  const axis: IAutoMovieVector3 = Quaternion.rotateVector(
+  const axis: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     at.hand,
     basis.flexion,
   );
@@ -234,7 +236,7 @@ function readMaterialAfterRemoteKnot(
   const shape: IAutoMovieMotionHumanArmGeometry.IShape = {
     bone: "chest",
     part: setup.body.tangle.parts.findIndex((part) => part.bone === "chest"),
-    pose: { position: centre, rotation: Quaternion.identity() },
+    pose: { position: centre, rotation: AutoMovieEngineQuaternion.identity() },
     shape: fixture.sphere(radius),
     centre,
     radius,
@@ -248,7 +250,7 @@ function readMaterialAfterRemoteKnot(
     bounds: { ...base.bounds, hand: { centre: corner, radius: 0 } },
     parent: {
       ...base.parent,
-      position: Vector3.addScaled(
+      position: AutoMovieEngineVector3.addScaled(
         base.parent.position,
         axis,
         (Math.min(2, Math.max(1, seconds)) - 3 / 2) / 128,

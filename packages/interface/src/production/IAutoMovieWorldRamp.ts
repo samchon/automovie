@@ -10,23 +10,13 @@ export namespace IAutoMovieWorldRamp {
     /**
      * World XZ centerline start, where the plane has baseHeight.
      */
-    from: {
-      /** Centerline start world X in metres. */
-      x: number;
-      /** Centerline start world Z in metres. */
-      z: number;
-    };
+    from: IInputFrom;
     /**
      * World XZ centerline end, where the plane has baseHeight + rise.
      * Its distance from the start must be finite and positive. The sides of
      * the rectangle must stay distinct at both endpoints.
      */
-    to: {
-      /** Centerline end world X in metres. */
-      x: number;
-      /** Centerline end world Z in metres. */
-      z: number;
-    };
+    to: IInputTo;
     /**
      * Finite positive full width in metres perpendicular to the centerline; the
      * footprint extends half this distance on each side.
@@ -44,5 +34,21 @@ export namespace IAutoMovieWorldRamp {
      * direction changes it automatically.
      */
     walkable: boolean;
+  };
+
+  /** The to object of {@link IInput}. */
+  export type IInputTo = {
+    /** Centerline end world X in metres. */
+    x: number;
+    /** Centerline end world Z in metres. */
+    z: number;
+  };
+
+  /** The from object of {@link IInput}. */
+  export type IInputFrom = {
+    /** Centerline start world X in metres. */
+    x: number;
+    /** Centerline start world Z in metres. */
+    z: number;
   };
 }

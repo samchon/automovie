@@ -1,11 +1,11 @@
-import { formationSlotRecord } from "@automovie/engine";
+import { AutoMovieEnginePopulationFormation } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose } from "../internal/predicates";
 import { test12ValuesClose } from "../internal/test12ValuesClose";
 
-const UNIT: Parameters<typeof formationSlotRecord>[0] = {
+const UNIT: Parameters<typeof AutoMovieEnginePopulationFormation.formationSlotRecord>[0] = {
   id: "levy",
   model: "member",
   facingDeg: 30,
@@ -32,14 +32,14 @@ const AT: IAutoMovieVector3 = { x: 1, y: 2.5, z: -3 };
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An anonymous slot is named by the formation id and six-digit slot and carries the base model, heading, supplied position and phase...).
  */
 export function test_engine_formation_slot_record(): void {
-  const phase: number = formationSlotRecord(UNIT, 7, {
+  const phase: number = AutoMovieEnginePopulationFormation.formationSlotRecord(UNIT, 7, {
     actor: null,
     position: AT,
   }).motionPhase;
   TestValidator.predicate(
     "an anonymous slot is named by its formation and slot",
     test12ValuesClose(
-      formationSlotRecord(UNIT, 7, { actor: null, position: AT }),
+      AutoMovieEnginePopulationFormation.formationSlotRecord(UNIT, 7, { actor: null, position: AT }),
       {
         slot: 7,
         node: "formation:levy:slot:000007",
@@ -54,7 +54,7 @@ export function test_engine_formation_slot_record(): void {
   TestValidator.predicate(
     "a hero slot is named by its actor and keeps the slot's phase",
     test12ValuesClose(
-      formationSlotRecord(UNIT, 7, { actor: "captain", position: AT }),
+      AutoMovieEnginePopulationFormation.formationSlotRecord(UNIT, 7, { actor: "captain", position: AT }),
       {
         slot: 7,
         node: "captain",
@@ -75,20 +75,20 @@ export function test_engine_formation_slot_record(): void {
     unit: typeof UNIT,
     slot: number,
     member: { actor: string | null; position: typeof AT },
-  ): number => formationSlotRecord(unit, slot, member).motionPhase;
+  ): number => AutoMovieEnginePopulationFormation.formationSlotRecord(unit, slot, member).motionPhase;
   TestValidator.equals(
     "the node pads the slot and the phase follows only slot and seed",
     namedFacts([
       [
         "padded",
         (): boolean =>
-          formationSlotRecord(UNIT, 0, { actor: null, position: AT }).node ===
+          AutoMovieEnginePopulationFormation.formationSlotRecord(UNIT, 0, { actor: null, position: AT }).node ===
           "formation:levy:slot:000000",
       ],
       [
         "wide",
         (): boolean =>
-          formationSlotRecord(UNIT, 1_234_567, { actor: null, position: AT })
+          AutoMovieEnginePopulationFormation.formationSlotRecord(UNIT, 1_234_567, { actor: null, position: AT })
             .node === "formation:levy:slot:1234567",
       ],
       [
