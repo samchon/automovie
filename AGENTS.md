@@ -45,8 +45,8 @@ Open the applicable skill and only the pages it routes you to for this task.
 | [3d-modeling](.agents/skills/3d-modeling/SKILL.md) | Change geometry, rigs, assets, materials or lighting |
 | [benchmark-campaign](.agents/skills/benchmark-campaign/SKILL.md) | Measure AutoMovie on real productions |
 | [contracts](.agents/skills/contracts/SKILL.md) | Write or review maintained source or tests, or change Evidence selection |
-| [development](.agents/skills/development/SKILL.md) | Change code, tests or workflows |
-| [documentation](.agents/skills/documentation/SKILL.md) | Write a document or doc comment |
+| [development](.agents/skills/development/SKILL.md) | Change code, JSDoc, tests or workflows |
+| [documentation](.agents/skills/documentation/SKILL.md) | Write a repository document |
 | [human](.agents/skills/human/SKILL.md) | Work on or oversee `packages/human`, human figures or the Human viewer |
 | [issue-campaign](.agents/skills/issue-campaign/SKILL.md) | Run a broad audit or repeated issue-to-PR rounds |
 | [motion](.agents/skills/motion/SKILL.md) | Author or verify body motion, vocabulary, grammar, laws, primitives or retargeting |

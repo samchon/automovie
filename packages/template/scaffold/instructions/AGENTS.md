@@ -57,8 +57,8 @@ Directors, writers, reviewers and Evidence answerers pursue perfection. Each ins
 | [3d-modeling](.agents/skills/3d-modeling/SKILL.md) | Build, rig or detail a 3D subject |
 | [audio](.agents/skills/audio/SKILL.md) | Make sound or preview a voice |
 | [contracts](.agents/skills/contracts/SKILL.md) | Find the checklist and its respondent |
-| [development](.agents/skills/development/SKILL.md) | Change code, dependencies, commands or tests |
-| [documentation](.agents/skills/documentation/SKILL.md) | Write a document or comment |
+| [development](.agents/skills/development/SKILL.md) | Change code, doc comments, dependencies, commands or tests |
+| [documentation](.agents/skills/documentation/SKILL.md) | Write a project document |
 | [evidence](.agents/skills/evidence/SKILL.md) | Adopt requirements, configure checks or answer them |
 | [image](.agents/skills/image/SKILL.md) | Make appearance references, shot frames or set views |
 | [motion](.agents/skills/motion/SKILL.md) | Author or verify motion, staging, camera or channels |

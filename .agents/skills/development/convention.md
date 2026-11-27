@@ -22,4 +22,6 @@ Annotate variable, parameter and return types explicitly. Declare named function
 
 Use named object types. Tag variants with a literal `type`.
 
-Document public exports and members with JSDoc.
+## JSDoc
+
+Document public exports and members with JSDoc. Apply the [writing rules](../documentation/SKILL.md) to all JSDoc.

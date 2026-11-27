@@ -1,12 +1,12 @@
 # Verification
 
-Apply prompting's [verification](../prompting/SKILL.md#verification) to production tasks and their consumers.
+Apply [instruction verification](../prompting/verification.md) to production tasks and their consumers.
 
 ## Distribution
 
 Inspect the file map, substitutions and expanded shared files in the [implementation of `AutoMovieTemplateScaffold.create`](../../../packages/template/src/scaffold/internal/create.ts). Untracked scaffold files ship.
 
-Ship [shared rules](../prompting/SKILL.md#shared-skills) through empty `$` placeholders. Keep scaffold-owned text for production rules. Use production-relative paths and local skill links within `.agents`.
+Ship [shared rules](../prompting/structure.md#shared-skills) through empty `$` placeholders. Keep scaffold-owned text for production rules. Use production-relative paths and local skill links within `.agents`.
 
 When a skill has supporting documents, use `SKILL.md` as their contents page. Link from each overview to the applicable details.
 

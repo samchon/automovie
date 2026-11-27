@@ -7,7 +7,7 @@ description: Changes and validates AutoMovie code, tests, workflows and package 
 
 | Read | For |
 | --- | --- |
-| [Conventions](convention.md) | Writing and organizing source |
+| [Conventions](convention.md) | Write and organize source or JSDoc |
 | [Repair](repair.md) | Changing existing behavior |
 | [Testing](testing.md) | Adding or changing tests |
 | [Validation](validation.md) | Running checks or finishing a change |

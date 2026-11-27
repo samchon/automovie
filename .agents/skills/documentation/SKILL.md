@@ -1,19 +1,18 @@
 ---
 name: documentation
-description: Guides writing and revising repository documentation.
+description: Guides clear writing and revision.
 ---
 
 # Documentation
 
-The [development skill](../development/SKILL.md) owns doc comment requirements.
-
-Keep what the reader needs to understand or act. State each rule or fact once.
+Keep what the reader needs to understand or act.
 
 ## Wording
 
 ### Content and sentences
 
 - Keep the action, its conditions and how to verify it.
+- Use a shorter or clearer expression whenever it preserves meaning, clarity and the details the reader needs.
 - Make one point per sentence.
 - Give the reason when it is not obvious.
 - Say what to do rather than what to avoid, and name the concrete pattern when a prohibition is needed.
@@ -25,7 +24,7 @@ Use one term per concept, with the same meaning throughout.
 
 Use established terms or plain language. Define unfamiliar terms on first use or link to their definitions.
 
-Use a metaphor at most once to explain a concept. Use the concept's actual name in headings, labels and later references.
+Explain a concept directly whenever that is clearer. Use at most one metaphor when it helps, then use the concept's actual name.
 
 ### Careless text
 
@@ -45,27 +44,25 @@ Use distinct headings so their anchors are unique.
 
 Use heading slugs. Add an explicit anchor only if the address must survive renames and the renderer supports it.
 
-### Links
-
-Routers link to their resources. A resource links to the next task or the section that owns a rule. Refer to parent pages, other consumers and sections of the current page by name.
-
 ### Paragraphs
 
-Give each paragraph one topic and one source line. Lead with its point. Check paragraphs over about five sentences for a second topic.
+Give each paragraph one topic and lead with its point. Start a new paragraph at every change of topic. Saving a line break has no value.
+
+Separate paragraphs with a blank line. Keep each Markdown paragraph on one source line.
 
 ### Lists
 
-Use lists for short parallel items or steps whose order matters. Keep each item to about 120 characters on one source line.
+Use lists for short parallel items or ordered steps. Keep each item on one source line of about 120 characters.
 
 Introduce each list. Use parallel grammar and at least two items. End complete sentences with periods.
 
-Keep items to one paragraph and distinguish nested list markers.
+Put related details in a sublist. Use prose when the points need a connected explanation.
 
-Under a descriptive checklist heading, omit the introduction. Each item may be as long as its assertion and exceptions require.
+Under a descriptive checklist heading, omit the introduction.
 
 ### Tables
 
-Use two columns by default for short mappings. Keep rows to about 120 characters on one source line.
+Use two columns by default for short mappings. Keep each row on one source line of about 120 characters.
 
 Put the subject or page link in the first column and its description in the second.
 
@@ -89,4 +86,4 @@ Choose the form that fits the content:
 
 Rewrite the affected section in the reader's order.
 
-Remove unused material. Move shared rules to their owner. Reread the result as its reader.
+Remove unused material. Reread the result as its reader.
