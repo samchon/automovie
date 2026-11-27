@@ -429,11 +429,23 @@ export namespace AutoMovieArchetypeBicycle {
    */
   export const LEAN: number = 50;
 
-  /** A stretch of the course from one distance to another, metres. */
+  /** A hop's takeoff and touchdown on the ride clock, in seconds. */
   export type IRideInterval = readonly [number, number];
 
-  /** One freewheel interval, or several in course order without overlap. */
-  export type IRideCoast = IRideInterval | readonly IRideInterval[];
+  /** A freewheel span measured from the start of the course, in metres. */
+  export interface ICoastInterval {
+    /** Course distance at which freewheeling starts, in metres. */
+    readonly startMeters: number;
+
+    /**
+     * Course distance at which freewheeling ends, in metres; it is greater than
+     * `startMeters`.
+     */
+    readonly endMeters: number;
+  }
+
+  /** One coast span, or several ordered, non-overlapping spans. */
+  export type IRideCoast = ICoastInterval | readonly ICoastInterval[];
 
   /** The drive: the teeth in use and where the crank freewheels. */
   export interface IGear {
@@ -444,9 +456,9 @@ export namespace AutoMovieArchetypeBicycle {
     sprocket: number;
 
     /**
-     * Course stretches over which the wheels roll and the crank holds its
-     * phase: a road coast, or a bicycle wheeled by hand. Absent, the drive is
-     * fixed.
+     * Readonly coast spans with start and end course distances in metres.
+     * Give one span or several in course order without overlap. Absent, the
+     * drive is fixed.
      */
     coast?: IRideCoast;
   }

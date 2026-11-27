@@ -143,9 +143,18 @@ export namespace handToFace {
     const count: number = p.count ?? row.count;
     let hold: number;
     if (typeof p.hold === "object") {
-      const [lower, upper] = p.hold.between;
-      HumanBound.least("seconds.between[0]", lower, 0, "s");
-      HumanBound.least("seconds.between[1]", upper, lower, "s");
+      const lower: number = HumanBound.least(
+        "seconds.between[0]",
+        p.hold.between.minimumSeconds,
+        0,
+        "s",
+      );
+      const upper: number = HumanBound.least(
+        "seconds.between[1]",
+        p.hold.between.maximumSeconds,
+        lower,
+        "s",
+      );
       hold =
         lower +
         (upper - lower) *

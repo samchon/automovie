@@ -37,6 +37,21 @@ import type { IAutoMovieMotionHumanBalance } from "./IAutoMovieMotionHumanBalanc
  * and back supports on the floor.
  */
 export namespace IAutoMovieMotionHumanExercise {
+  /**
+   * The three timed spans of one repetition, in seconds. Each duration is
+   * validated as nonnegative; manner pace scales all three durations.
+   */
+  export interface ITempo {
+    /** Time lowering into the eccentric position. */
+    readonly eccentricSeconds: number;
+
+    /** Pause at the bottom position. */
+    readonly bottomPauseSeconds: number;
+
+    /** Time rising from the eccentric position. */
+    readonly concentricSeconds: number;
+  }
+
   /** Parameters. */
   export interface IParams {
     /**
@@ -62,11 +77,12 @@ export namespace IAutoMovieMotionHumanExercise {
     depth?: IAutoMovieMotionHumanExercise.Depth;
 
     /**
-     * Eccentric, bottom pause and concentric seconds; `[2, 0, 1]` when absent:
-     * a controlled 2 s lowering and a 1 s rise. `manner.pace` scales the three;
-     * the 0.3 s at the top is fixed.
+     * The eccentric lowering, bottom pause and concentric rise in seconds;
+     * `{ eccentricSeconds: 2, bottomPauseSeconds: 0, concentricSeconds: 1 }`
+     * when absent. `manner.pace` scales the three; the 0.3 s at the top is
+     * fixed.
      */
-    tempo?: readonly [number, number, number];
+    tempo?: ITempo;
 
     /** The lunge's lead leg, or the first knee raised; `right` when absent. */
     side?: "left" | "right";

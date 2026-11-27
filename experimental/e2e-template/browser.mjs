@@ -13,7 +13,7 @@ const require = createRequire(path.join(root, "package.json"));
 const { chromium } = require("playwright-core");
 const {
   AutoMovieRenderPicture,
-  guidePassFrameName,
+  AutoMovieRenderMedia,
 } = require("@automovie/render");
 process.env.VITE_CJS_IGNORE_WARNING = "true";
 const vite = require("vite");
@@ -180,6 +180,6 @@ if (parity)
     root,
     command,
     decodePng: AutoMovieRenderPicture.decodeRasterPng,
-    guideFrameName: guidePassFrameName,
+    guideFrameName: AutoMovieRenderMedia.guidePassFrameName,
     ffmpeg: process.env.FFMPEG_PATH?.trim() || require("ffmpeg-static"),
   });

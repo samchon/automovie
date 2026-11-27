@@ -44,7 +44,7 @@ export namespace HumanHabit {
       head: 0,
       at: "atLips",
     },
-    hold: { between: [1.6, 2.1] },
+    hold: { between: { minimumSeconds: 1.6, maximumSeconds: 2.1 } },
   });
 
   /**

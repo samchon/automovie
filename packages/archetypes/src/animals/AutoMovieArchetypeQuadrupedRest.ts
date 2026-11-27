@@ -72,7 +72,7 @@ export namespace AutoMovieArchetypeQuadrupedRest {
     const duration: number = riseStart + rising;
     const windows: Record<
       "body" | "fore" | "hind",
-      AutoMovieArchetypeQuadrupedRestPlan.Window
+      AutoMovieArchetypeQuadrupedRestPlan.IWindow
     > = {
       body: window(params.windows.body),
       fore: window(params.windows.fore),
@@ -370,13 +370,13 @@ function positive(value: number, name: string): number {
 
 /** Copy one normalized movement window; zero-duration movement is not admitted. */
 function window(
-  value: AutoMovieArchetypeQuadrupedRestPlan.Window,
-): AutoMovieArchetypeQuadrupedRestPlan.Window {
-  const start: number = value[0];
-  const end: number = value[1];
+  value: AutoMovieArchetypeQuadrupedRestPlan.IWindow,
+): AutoMovieArchetypeQuadrupedRestPlan.IWindow {
+  const start: number = value.startShare;
+  const end: number = value.endShare;
   if (!(start >= 0 && end <= 1 && start < end))
     throw new RangeError("Rest movement windows require 0 <= start < end <= 1");
-  return [start, end];
+  return { startShare: start, endShare: end };
 }
 
 /**
@@ -384,10 +384,10 @@ function window(
  * down.
  */
 function directions(
-  value: readonly [number, number],
+  value: AutoMovieArchetypeQuadrupedRestPlan.IFoldedDirections,
 ): readonly [number, number] {
-  const a: number = value[0];
-  const b: number = value[1];
+  const a: number = value.thirdDegrees;
+  const b: number = value.fourthDegrees;
   if (Math.abs(a) > 180 || Math.abs(b) >= 90)
     throw new RangeError(
       "Rest distal directions require |third| <= 180 and |fourth| < 90 degrees",
@@ -401,9 +401,11 @@ function directions(
  */
 function progress(
   value: number,
-  span: AutoMovieArchetypeQuadrupedRestPlan.Window,
+  span: AutoMovieArchetypeQuadrupedRestPlan.IWindow,
 ): number {
-  if (value <= span[0]) return 0;
-  if (value >= span[1]) return 1;
-  return AutoMovieEngineMotionSampling.minimumJerk((value - span[0]) / (span[1] - span[0])).s;
+  if (value <= span.startShare) return 0;
+  if (value >= span.endShare) return 1;
+  return AutoMovieEngineMotionSampling.minimumJerk(
+    (value - span.startShare) / (span.endShare - span.startShare),
+  ).s;
 }

@@ -40,6 +40,15 @@ import type { IAutoMovieMotionHumanHandToFaceRows } from "./IAutoMovieMotionHuma
  * the first carries it, as a camera is held in both hands.
  */
 export namespace IAutoMovieMotionHumanHandToFace {
+  /** A face hold duration range, in seconds. */
+  export interface IHoldRange {
+    /** Inclusive minimum duration. */
+    readonly minimumSeconds: number;
+
+    /** Inclusive maximum duration. */
+    readonly maximumSeconds: number;
+  }
+
   /** Parameters. */
   export interface IParams {
     /** The task: one of the table's by name, or a row of the production's own. */
@@ -58,15 +67,7 @@ export namespace IAutoMovieMotionHumanHandToFace {
      * the seed draws them between, evenly (a puff on a cigarette lasts 1.6 to
      * 2.1 s); the row's when absent.
      */
-    hold?:
-      | number
-      | {
-          /**
-           * Lower and upper bounds for an evenly drawn hold duration at the
-           * face AFTER repetitions, seconds.
-           */
-          between: readonly [number, number];
-        };
+    hold?: number | IHoldRange;
 
     /**
      * The subject id of the prop the acting hand holds, performed with instead

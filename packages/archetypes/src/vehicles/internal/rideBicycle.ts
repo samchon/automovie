@@ -97,43 +97,55 @@ export function rideBicycle(
 
   // One interval, or several in course order that do not overlap: a
   // bicycle wheeled by hand out of a transition and back into it coasts twice.
-  const coasts: readonly AutoMovieArchetypeBicycle.IRideInterval[] =
+  const coasts: readonly AutoMovieArchetypeBicycle.ICoastInterval[] =
     gear.coast === undefined
       ? []
       : single(gear.coast)
         ? [gear.coast]
         : gear.coast;
-  coasts.forEach((coast: AutoMovieArchetypeBicycle.IRideInterval, index: number): void => {
-    const previous: number = index === 0 ? 0 : coasts[index - 1]![1];
-    if (
-      !(coast[0] >= previous && coast[1] > coast[0] && coast[1] <= plan.length)
-    )
-      throw new AutoMovieArchetypeRefusal({
-        kind: "parameter",
-        archetype: "bicycle",
-        axis: "gear.coast",
-        value: gear.coast!,
-        feasible: null,
-        reason:
-          "each freewheel interval must be ordered within the course, after the one before it",
-        fix: "give increasing, non-overlapping pairs of course distances in metres",
-      });
-  });
+  coasts.forEach(
+    (coast: AutoMovieArchetypeBicycle.ICoastInterval, index: number): void => {
+      const previous: number = index === 0 ? 0 : coasts[index - 1]!.endMeters;
+      if (
+        !(
+          coast.startMeters >= previous &&
+          coast.endMeters > coast.startMeters &&
+          coast.endMeters <= plan.length
+        )
+      )
+        throw new AutoMovieArchetypeRefusal({
+          kind: "parameter",
+          archetype: "bicycle",
+          axis: "gear.coast",
+          value: gear.coast!,
+          feasible: null,
+          reason:
+            "each coast span must increase in course order and start after the previous span",
+          fix:
+            "give startMeters and endMeters for each increasing, non-overlapping course span",
+        });
+    },
+  );
 
   /** Distance of chain-driven travel up to a course position, metres. */
   const pedalled = (distance: number): number =>
     coasts.reduce(
-      (driven: number, coast: AutoMovieArchetypeBicycle.IRideInterval): number =>
+      (driven: number, coast: AutoMovieArchetypeBicycle.ICoastInterval): number =>
         driven -
-        Math.min(coast[1] - coast[0], Math.max(0, distance - coast[0])),
+        Math.min(
+          coast.endMeters - coast.startMeters,
+          Math.max(0, distance - coast.startMeters),
+        ),
       distance,
     );
 
   /** The course position at a distance of chain-driven travel, metres. */
   const position = (powered: number): number =>
     coasts.reduce(
-      (distance: number, coast: AutoMovieArchetypeBicycle.IRideInterval): number =>
-        distance > coast[0] ? distance + coast[1] - coast[0] : distance,
+      (distance: number, coast: AutoMovieArchetypeBicycle.ICoastInterval): number =>
+        distance > coast.startMeters
+          ? distance + coast.endMeters - coast.startMeters
+          : distance,
       powered,
     );
 
@@ -146,8 +158,8 @@ export function rideBicycle(
     });
   for (const coast of coasts)
     instants.push(
-      { seconds: plan.when(coast[0]), label: "coastStart" },
-      { seconds: plan.when(coast[1]), label: "coastEnd" },
+      { seconds: plan.when(coast.startMeters), label: "coastStart" },
+      { seconds: plan.when(coast.endMeters), label: "coastEnd" },
     );
   instants.sort(
     (left: AutoMovieArchetypeBicycle.IRideInstant, right: AutoMovieArchetypeBicycle.IRideInstant): number =>
@@ -190,9 +202,11 @@ export function rideBicycle(
   );
 }
 
-/** Whether a coast is one interval rather than a list of them. */
-function single(coast: AutoMovieArchetypeBicycle.IRideCoast): coast is AutoMovieArchetypeBicycle.IRideInterval {
-  return typeof coast[0] === "number";
+/** Whether a coast value is one span rather than a list of spans. */
+function single(
+  coast: AutoMovieArchetypeBicycle.IRideCoast,
+): coast is AutoMovieArchetypeBicycle.ICoastInterval {
+  return !Array.isArray(coast);
 }
 
 /**

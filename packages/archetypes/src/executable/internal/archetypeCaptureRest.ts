@@ -52,7 +52,11 @@ export function archetypeCaptureRest(): Readonly<
     risingSeconds: 2,
     restPitch: 0,
     tailDirection: -90,
-    windows: { body: [0, 1], fore: [0, 1], hind: [0, 1] },
+    windows: {
+      body: { startShare: 0, endShare: 1 },
+      fore: { startShare: 0, endShare: 1 },
+      hind: { startShare: 0, endShare: 1 },
+    },
   };
   const dogCarriers: ReturnType<typeof QuadrupedCarriage.of> =
     QuadrupedCarriage.of(dog, AutoMovieArchetypeQuadruped.species(dog));
@@ -62,7 +66,10 @@ export function archetypeCaptureRest(): Readonly<
   > = AutoMovieArchetypeQuadrupedRest.plan(dog, {
     ...params,
     ...dogCarriers,
-    folded: { fore: [-120, -50], hind: [-95, 80] },
+    folded: {
+      fore: { thirdDegrees: -120, fourthDegrees: -50 },
+      hind: { thirdDegrees: -95, fourthDegrees: 80 },
+    },
     parts: { ...dogCarriers.parts, leftEar: "head", rightEar: "head" },
   });
   const horse: ReturnType<typeof AutoMovieArchetypeHorse.create> = AutoMovieArchetypeHorse.create({
@@ -81,7 +88,10 @@ export function archetypeCaptureRest(): Readonly<
   > = AutoMovieArchetypeQuadrupedRest.plan(horse, {
     ...params,
     ...carriers,
-    folded: { fore: [-110, 5], hind: [-105, 55] },
+    folded: {
+      fore: { thirdDegrees: -110, fourthDegrees: 5 },
+      hind: { thirdDegrees: -105, fourthDegrees: 55 },
+    },
     restPitch: (Math.atan2(front.y - rear.y, front.z - rear.z) * 180) / Math.PI,
   });
   return {

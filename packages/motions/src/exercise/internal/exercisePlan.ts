@@ -52,8 +52,29 @@ export function exercisePlan(
   const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
   const m: IAutoMovieMotionHumanActionContext["body"]["measure"] = body.measure;
   const reps: number = HumanBound.whole("count", p.count ?? 3);
-  const tempo: readonly [number, number, number] = p.tempo ?? [2, 0, 1];
-  for (const span of tempo) HumanBound.least("tempo", span, 0, "s");
+  const tempo: IAutoMovieMotionHumanExercise.ITempo = p.tempo ?? {
+    eccentricSeconds: 2,
+    bottomPauseSeconds: 0,
+    concentricSeconds: 1,
+  };
+  const eccentricSeconds: number = HumanBound.least(
+    "tempo",
+    tempo.eccentricSeconds,
+    0,
+    "s",
+  );
+  const bottomPauseSeconds: number = HumanBound.least(
+    "tempo",
+    tempo.bottomPauseSeconds,
+    0,
+    "s",
+  );
+  const concentricSeconds: number = HumanBound.least(
+    "tempo",
+    tempo.concentricSeconds,
+    0,
+    "s",
+  );
   const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
     context,
     p.manner,
@@ -62,9 +83,9 @@ export function exercisePlan(
   const timed: IAutoMovieMotionClock = AutoMovieMotionClock.sequence([
     ...AutoMovieMotionClock.repeat(
       [
-        { name: "eccentricStart", seconds: tempo[0] },
-        { name: "bottom", seconds: tempo[1] },
-        { name: "concentricStart", seconds: tempo[2] },
+        { name: "eccentricStart", seconds: eccentricSeconds },
+        { name: "bottom", seconds: bottomPauseSeconds },
+        { name: "concentricStart", seconds: concentricSeconds },
         { name: "top", seconds: top },
       ],
       reps,
