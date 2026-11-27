@@ -4,9 +4,9 @@ import type {
 } from "@automovie/interface";
 
 import { run } from "../gait/internal/run";
-import { stand } from "../actions/stand";
-import { exercise } from "../exercise/exercise";
-import { workout } from "../exercise/workout";
+import { stand } from "../actions/internal/stand";
+import { exercise } from "../exercise/internal/exercise";
+import { workout } from "../exercise/internal/workout";
 import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 import { HUMAN_STANCE_MOUNTAIN_POSE } from "../next/presets/HUMAN_STANCE_MOUNTAIN_POSE";
 import { HumanSportWorkoutBarSwing } from "./HumanSportWorkoutBarSwing";

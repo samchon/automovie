@@ -16,9 +16,9 @@ import type {
 
 import { AutoMovieMotionHumanFootRelax } from "../compose/AutoMovieMotionHumanFootRelax";
 import { HumanLimbFit } from "../posture/HumanLimbFit";
-import { blendHumanJoint } from "../posture/blendHumanJoint";
-import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { blendHumanJoint } from "../posture/internal/blendHumanJoint";
+import { poseBones } from "../posture/internal/poseBones";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
 import { StrikingStance } from "./StrikingStance";
 
 /** The kicking leg's solution at a key of the strike. */

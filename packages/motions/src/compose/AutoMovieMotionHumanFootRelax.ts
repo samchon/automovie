@@ -12,12 +12,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { prepareWalkLegLean } from "../actions/prepareWalkLegLean";
-import { walkLeg } from "../actions/walkLeg";
+import { prepareWalkLegLean } from "../actions/internal/prepareWalkLegLean";
+import { walkLeg } from "../actions/internal/walkLeg";
 import { HumanFoot } from "../posture/HumanFoot";
-import { hipJoints } from "../posture/hipJoints";
+import { hipJoints } from "../posture/internal/hipJoints";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPoseResolution } from "../posture/internal/prepareHumanPoseResolution";
 
 /**
  * How far a foot must roll past the roll asked of it so the ankle stays within

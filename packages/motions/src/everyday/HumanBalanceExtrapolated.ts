@@ -8,11 +8,11 @@ import type {
 
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanFoot } from "../posture/HumanFoot";
-import { poseBones } from "../posture/poseBones";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { prepareHumanBalanceCentre } from "./prepareHumanBalanceCentre";
+import { poseBones } from "../posture/internal/poseBones";
+import { prepareHumanPoseResolution } from "../posture/internal/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/internal/prepareHumanPostureProjection";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
+import { prepareHumanBalanceCentre } from "./internal/prepareHumanBalanceCentre";
 
 /**
  * The dynamic margin at one instant of a movement given by a one-argument

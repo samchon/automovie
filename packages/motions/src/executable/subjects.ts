@@ -7,7 +7,7 @@ import {
 import * as THREE from "three";
 
 import { applyMotionCaptureGhost } from "./internal/applyMotionCaptureGhost";
-import { markMotionCaptureCase } from "../capture/markMotionCaptureCase";
+import { markMotionCaptureCase } from "../capture/internal/markMotionCaptureCase";
 import type { IMotionCaptureProps } from "./IMotionCaptureProps";
 import { MotionCaptureFigure } from "./MotionCaptureFigure";
 

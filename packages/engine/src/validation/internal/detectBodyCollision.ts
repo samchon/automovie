@@ -16,7 +16,7 @@ import {
 } from "@automovie/interface";
 
 import { indexSkeletonTopology } from "../../kinematics/indexSkeletonTopology";
-import { resolvePose } from "../../kinematics/resolvePose";
+import { resolvePose } from "../../kinematics/internal/resolvePose";
 import { Vector3 } from "../../math/Vector3";
 import { closestPointsBetweenSegments } from "../../math/internal/closestPointsBetweenSegments";
 import { sampleMotion } from "../../motion/sampleMotion";

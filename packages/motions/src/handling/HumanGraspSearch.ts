@@ -15,9 +15,9 @@ import type {
 } from "@automovie/interface";
 
 import { HumanLimbFit } from "../posture/HumanLimbFit";
-import { poseBones } from "../posture/poseBones";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { poseBones } from "../posture/internal/poseBones";
+import { prepareHumanPoseResolution } from "../posture/internal/prepareHumanPoseResolution";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
 
 /**
  * The search of a symmetric grip's turns and tilts by the error the arm's fit

@@ -14,12 +14,12 @@ import type {
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import { lowerHumanPosture } from "../posture/lowerHumanPosture";
+import { lowerHumanPosture } from "../posture/internal/lowerHumanPosture";
 import { StrikingGuard } from "./StrikingGuard";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
 import { StrikingTwist } from "./StrikingTwist";
-import type { strikingStepSupport } from "./strikingStepSupport";
+import type { strikingStepSupport } from "./internal/strikingStepSupport";
 
 /** A single stance side. */
 type Side = AutoMovieHumanSide;

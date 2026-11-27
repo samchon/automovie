@@ -17,10 +17,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { stand } from "../../actions/stand";
+import { stand } from "../../actions/internal/stand";
 import { HumanPreparedPlayback } from "../../perform/HumanPreparedPlayback";
 import { HumanFoot } from "../../posture/HumanFoot";
-import { poseBones } from "../../posture/poseBones";
+import { poseBones } from "../../posture/internal/poseBones";
 import { GymnasticsFlight } from "../../sport/GymnasticsFlight";
 
 /** Seconds the landing takes to absorb into the stand (provisional). */

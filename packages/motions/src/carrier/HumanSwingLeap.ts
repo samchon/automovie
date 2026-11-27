@@ -20,10 +20,10 @@ import type {
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
-import { poseBones } from "../posture/poseBones";
-import { prepareHumanShapeBlend } from "../posture/prepareHumanShapeBlend";
-import { shankTilt } from "./shankTilt";
-import { unloadedFoot } from "./unloadedFoot";
+import { poseBones } from "../posture/internal/poseBones";
+import { prepareHumanShapeBlend } from "../posture/internal/prepareHumanShapeBlend";
+import { shankTilt } from "./internal/shankTilt";
+import { unloadedFoot } from "./internal/unloadedFoot";
 
 type Params = IAutoMovieMotionHumanPlayground.ISwingLeapParams;
 type Plan = IAutoMovieMotionHumanActionPlan;

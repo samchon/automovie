@@ -13,8 +13,8 @@ import type {
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
-import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { poseBones } from "../posture/internal/poseBones";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
 import { HumanSkill } from "../skill/HumanSkill";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { StrikingSkill } from "../striking/StrikingSkill";

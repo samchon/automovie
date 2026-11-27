@@ -9,9 +9,9 @@ import type {
 
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { mixHumanPosture } from "../posture/mixHumanPosture";
+import { mixHumanPosture } from "../posture/internal/mixHumanPosture";
 import { HumanMountedFrame } from "./HumanMountedFrame";
-import { humanRomanStance } from "./humanRomanStance";
+import { humanRomanStance } from "./internal/humanRomanStance";
 
 /**
  * Roman riding (`IAutoMovieMotionHumanRoman`): each foot planted on its own

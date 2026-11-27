@@ -21,19 +21,19 @@ import type {
 
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { ExerciseKey } from "../exercise/ExerciseKey";
-import { lieDown } from "../floor/lieDown";
+import { lieDown } from "../floor/internal/lieDown";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
-import { knockdown } from "../reaction/knockdown";
+import { prepareHumanPoseResolution } from "../posture/internal/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/internal/prepareHumanPostureProjection";
+import { knockdown } from "../reaction/internal/knockdown";
 import { AthleticsRunUp } from "./AthleticsRunUp";
 import { GymnasticsFlight } from "./GymnasticsFlight";
 import { GymnasticsMat } from "./GymnasticsMat";
 import { GymnasticsTakeoff } from "./GymnasticsTakeoff";
-import { highJumpBar } from "./highJumpBar";
-import { highJumpFlight } from "./highJumpFlight";
-import { prepareGymnasticsFrame } from "./prepareGymnasticsFrame";
+import { highJumpBar } from "./internal/highJumpBar";
+import { highJumpFlight } from "./internal/highJumpFlight";
+import { prepareGymnasticsFrame } from "./internal/prepareGymnasticsFrame";
 
 /**
  * A high jump in the Fosbury flop: a one-foot take-off, a half turn that puts

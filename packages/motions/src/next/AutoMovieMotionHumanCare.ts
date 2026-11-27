@@ -1,4 +1,4 @@
-import { holdInfant as holdInfantLaw } from "../tasks/holdInfant";
+import { holdInfant as holdInfantLaw } from "../tasks/internal/holdInfant";
 import { COMPRESSION_CYCLE as COMPRESSION_CYCLESource } from "../touch/care/COMPRESSION_CYCLE";
 import { PULSE_HOLD as PULSE_HOLDSource } from "../touch/care/PULSE_HOLD";
 import { compressions as compressionsLaw } from "../touch/care/compressions";

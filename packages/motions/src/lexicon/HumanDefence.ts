@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanLexiconParams,
 } from "@automovie/interface";
 
-import { brace } from "../everyday/brace";
+import { brace } from "../everyday/internal/brace";
 import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 import { HUMAN_DEFENCE_CHECK_KICK } from "../next/presets/HUMAN_DEFENCE_CHECK_KICK";
 import { HUMAN_DEFENCE_COVER } from "../next/presets/HUMAN_DEFENCE_COVER";
@@ -13,7 +13,7 @@ import { HUMAN_DEFENCE_HIGH_BLOCK } from "../next/presets/HUMAN_DEFENCE_HIGH_BLO
 import { HUMAN_DEFENCE_ROLL_UNDER } from "../next/presets/HUMAN_DEFENCE_ROLL_UNDER";
 import { HUMAN_DEFENCE_SLIP } from "../next/presets/HUMAN_DEFENCE_SLIP";
 import { HUMAN_DEFENCE_SWAY_BACK } from "../next/presets/HUMAN_DEFENCE_SWAY_BACK";
-import { defend } from "../striking/defend";
+import { defend } from "../striking/internal/defend";
 
 /**
  * The defences as rows on the grammar: each named defence is a row of `defend`,

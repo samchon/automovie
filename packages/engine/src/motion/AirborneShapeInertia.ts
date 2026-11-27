@@ -4,7 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { physicalInertiaFactor } from "../physics/physicalInertiaFactor";
+import { physicalInertiaFactor } from "../physics/internal/physicalInertiaFactor";
 import { physicalPrincipalAxes } from "../physics/internal/physicalPrincipalAxes";
 import type { AirborneShapeStatistics } from "./AirborneShapeStatistics";
 

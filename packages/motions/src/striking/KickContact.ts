@@ -9,8 +9,8 @@ import type {
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanArmTrajectoryTerms } from "../posture/HumanArmTrajectoryTerms";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
+import { prepareHumanPoseResolution } from "../posture/internal/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/internal/prepareHumanPostureProjection";
 import { KickCarriage } from "./KickCarriage";
 import { KickChain } from "./KickChain";
 import { KickForm } from "./KickForm";

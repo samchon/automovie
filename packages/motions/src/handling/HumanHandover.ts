@@ -16,8 +16,8 @@ import type {
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanFrame } from "../posture/HumanFrame";
-import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { poseBones } from "../posture/internal/poseBones";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
 import { HumanGrasp } from "./HumanGrasp";
 import { HumanGraspHand } from "./HumanGraspHand";
 import { HumanGraspTarget } from "./HumanGraspTarget";

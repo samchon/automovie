@@ -7,10 +7,10 @@ import type {
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 
-import { courseArmGoal } from "../compose/courseArmGoal";
-import { crutchSitDown } from "./crutchSitDown";
-import { crutchSitKit } from "./crutchSitKit";
-import { crutchSitUp } from "./crutchSitUp";
+import { courseArmGoal } from "../compose/internal/courseArmGoal";
+import { crutchSitDown } from "./internal/crutchSitDown";
+import { crutchSitKit } from "./internal/crutchSitKit";
+import { crutchSitUp } from "./internal/crutchSitUp";
 
 /**
  * Sit down onto a chair with two crutches, or rise from it, in the prescribed

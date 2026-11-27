@@ -16,7 +16,7 @@ import { HumanPerformanceContactBodies } from "./HumanPerformanceContactBodies";
 import { HumanPerformanceContactSpeed } from "./HumanPerformanceContactSpeed";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanSegment } from "./HumanSegment";
-import { prepareHumanPerformancePlans } from "./prepareHumanPerformancePlans";
+import { prepareHumanPerformancePlans } from "./internal/prepareHumanPerformancePlans";
 
 /** The record of `IContactsNearestBest`'s site. */
 type IContactsNearestBest = { subject: string; distance: number };

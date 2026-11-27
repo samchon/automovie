@@ -5,7 +5,7 @@ import type {
   IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { appendFlamesArtifact } from "../../../validation/appendFlamesArtifact";
+import { appendFlamesArtifact } from "../../../validation/internal/appendFlamesArtifact";
 
 /**
  * Admit a shot's flame cues against the staged nodes, the registered models and

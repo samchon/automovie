@@ -1,7 +1,7 @@
-import { support as supportLaw } from "../actions/support";
+import { support as supportLaw } from "../actions/internal/support";
 import { HumanSupportCarry as HumanSupportCarryLaw } from "../carrier/HumanSupportCarry";
 import { HumanSupportFrame as HumanSupportFrameLaw } from "../carrier/HumanSupportFrame";
-import { supportTransfer as supportTransferLaw } from "../carrier/supportTransfer";
+import { supportTransfer as supportTransferLaw } from "../carrier/internal/supportTransfer";
 import { HumanSupportRows as HumanSupportRowsLaw } from "../lexicon/HumanSupportRows";
 import { HUMAN_SUPPORT_SCRAMBLE } from "./presets/HUMAN_SUPPORT_SCRAMBLE";
 import { HUMAN_SUPPORT_SLIDE_OFF } from "./presets/HUMAN_SUPPORT_SLIDE_OFF";

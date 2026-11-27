@@ -13,8 +13,8 @@ import type {
 } from "@automovie/interface";
 
 import { HumanFoot } from "../posture/HumanFoot";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
+import { prepareHumanPoseResolution } from "../posture/internal/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/internal/prepareHumanPostureProjection";
 import { KickCarriage } from "./KickCarriage";
 import type { KickChain } from "./KickChain";
 import { KickChamber } from "./KickChamber";
@@ -27,7 +27,7 @@ import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingStroke } from "./StrikingStroke";
 import { StrikingTarget } from "./StrikingTarget";
-import type { strikingStepSupport } from "./strikingStepSupport";
+import type { strikingStepSupport } from "./internal/strikingStepSupport";
 
 /**
  * Builds a kick's geometry.

@@ -8,7 +8,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
-import { seated } from "../../everyday/seated";
+import { seated } from "../../everyday/internal/seated";
 import { HumanFoot } from "../../posture/HumanFoot";
 import { HumanHand } from "../../posture/HumanHand";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";

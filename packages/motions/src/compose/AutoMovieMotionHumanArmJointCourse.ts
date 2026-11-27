@@ -8,9 +8,9 @@ import type {
   IAutoMoviePose,
 } from "@automovie/interface";
 
-import { prepareHumanAdaptiveKnots } from "../posture/prepareHumanAdaptiveKnots";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { prepareHumanAdaptiveKnots } from "../posture/internal/prepareHumanAdaptiveKnots";
+import { prepareHumanPoseResolution } from "../posture/internal/prepareHumanPoseResolution";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
 import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
 import { AutoMovieMotionHumanArmCourse } from "./AutoMovieMotionHumanArmCourse";
 import { AutoMovieMotionHumanArmJointCarry } from "./AutoMovieMotionHumanArmJointCarry";

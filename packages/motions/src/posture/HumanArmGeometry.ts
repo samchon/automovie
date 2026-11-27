@@ -12,10 +12,10 @@ import type {
   IAutoMovieQuaternion,
 } from "@automovie/interface";
 
-import { readHumanBone } from "../body/readHumanBone";
+import { readHumanBone } from "../body/internal/readHumanBone";
 import type { HumanArmGeometryTypes as T } from "./HumanArmGeometryTypes";
-import { placeHumanArmGeometry } from "./placeHumanArmGeometry";
-import { resolveHumanArmChain } from "./resolveHumanArmChain";
+import { placeHumanArmGeometry } from "./internal/placeHumanArmGeometry";
+import { resolveHumanArmChain } from "./internal/resolveHumanArmChain";
 
 /** The record of `IArmRead`'s site. */
 type IArmRead = { flexion: number; abduction: number; twist: number };

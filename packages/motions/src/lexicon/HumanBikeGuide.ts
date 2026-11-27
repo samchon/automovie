@@ -21,12 +21,12 @@ import type {
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionPrepared } from "../compose/AutoMovieMotionPrepared";
-import { courseArmGoal } from "../compose/courseArmGoal";
+import { courseArmGoal } from "../compose/internal/courseArmGoal";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { HumanFoot } from "../posture/HumanFoot";
-import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { poseBones } from "../posture/internal/poseBones";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
 import { AquaticProp } from "../sport/AquaticProp";
 import { HumanBikeGuideHeading } from "./HumanBikeGuideHeading";
 import { HumanBikeGuidePath } from "./HumanBikeGuidePath";

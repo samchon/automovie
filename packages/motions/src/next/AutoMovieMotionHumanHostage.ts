@@ -1,7 +1,7 @@
-import { disarm as disarmLaw } from "../grappling/disarm";
-import { disarmed as disarmedLaw } from "../grappling/disarmed";
-import { heldHostage as heldHostageLaw } from "../grappling/heldHostage";
-import { hostageHold as hostageHoldLaw } from "../grappling/hostageHold";
+import { disarm as disarmLaw } from "../grappling/internal/disarm";
+import { disarmed as disarmedLaw } from "../grappling/internal/disarmed";
+import { heldHostage as heldHostageLaw } from "../grappling/internal/heldHostage";
+import { hostageHold as hostageHoldLaw } from "../grappling/internal/hostageHold";
 
 /**
  * A hostage scene: a hostage held by an arm and a disarm of a knife or a

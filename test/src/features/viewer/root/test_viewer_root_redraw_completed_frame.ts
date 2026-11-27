@@ -1,7 +1,4 @@
-import {
-  AutoMovieViewerDisplay,
-  type IAutoMovieViewerCompletedFrame,
-} from "@automovie/viewer";
+import { AutoMovieViewerDisplay } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
 import * as THREE from "three";
@@ -25,17 +22,17 @@ export function test_viewer_root_redraw_completed_frame(): void {
     AutoMovieViewerDisplay.createClock();
   clock.complete(3.4);
   let count: number = 1;
-  let current: Omit<IAutoMovieViewerCompletedFrame, "control"> | undefined = {
+  let current: Omit<AutoMovieViewerDisplay.ICompletedFrame, "control"> | undefined = {
     scene,
     camera,
     pass: "beauty",
     elapsedSeconds: 3.4,
   };
   const publish: (
-    frame: Omit<IAutoMovieViewerCompletedFrame, "control">,
+    frame: Omit<AutoMovieViewerDisplay.ICompletedFrame, "control">,
     seconds: number,
   ) => void = (
-    _frame: Omit<IAutoMovieViewerCompletedFrame, "control">,
+    _frame: Omit<AutoMovieViewerDisplay.ICompletedFrame, "control">,
     seconds: number,
   ): void => {
     ++count;

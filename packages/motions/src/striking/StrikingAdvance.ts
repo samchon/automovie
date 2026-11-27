@@ -14,9 +14,9 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
-import { carryHumanPosture } from "../posture/carryHumanPosture";
-import { lowerHumanPosture } from "../posture/lowerHumanPosture";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { carryHumanPosture } from "../posture/internal/carryHumanPosture";
+import { lowerHumanPosture } from "../posture/internal/lowerHumanPosture";
+import { prepareHumanPoseResolution } from "../posture/internal/prepareHumanPoseResolution";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
 

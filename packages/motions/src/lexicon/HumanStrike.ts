@@ -38,11 +38,11 @@ import { HUMAN_STRIKE_SPINNING_HOOK_KICK } from "../next/presets/HUMAN_STRIKE_SP
 import { HUMAN_STRIKE_STOMP } from "../next/presets/HUMAN_STRIKE_STOMP";
 import { HUMAN_STRIKE_SWITCH_KICK } from "../next/presets/HUMAN_STRIKE_SWITCH_KICK";
 import { HUMAN_STRIKE_TEEP } from "../next/presets/HUMAN_STRIKE_TEEP";
-import { closeStrike } from "../striking/closeStrike";
-import { footStrike } from "../striking/footStrike";
-import { kick } from "../striking/kick";
-import { knee } from "../striking/knee";
-import { punch } from "../striking/punch";
+import { closeStrike } from "../striking/internal/closeStrike";
+import { footStrike } from "../striking/internal/footStrike";
+import { kick } from "../striking/internal/kick";
+import { knee } from "../striking/internal/knee";
+import { punch } from "../striking/internal/punch";
 
 /**
  * The strikes as rows on the grammar: each named technique is a row of the

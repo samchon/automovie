@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
-import { pickUp } from "../handling/pickUp";
+import { pickUp } from "../handling/internal/pickUp";
 
 /**
  * Take a mounted display object from its carrier with the ordinary pickup grip

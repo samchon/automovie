@@ -14,16 +14,16 @@ import type {
 } from "@automovie/interface";
 
 import { PoseResolutionSnapshot } from "./PoseResolutionSnapshot";
-import { composePoseFrames } from "./composePoseFrames";
+import { composePoseFrames } from "./internal/composePoseFrames";
 import { DEFAULT_JOINT_AXES } from "./constants/DEFAULT_JOINT_AXES";
 import { SKELETON_ROOT_PARENT } from "./constants/SKELETON_ROOT_PARENT";
 import { indexSkeletonTopology } from "./indexSkeletonTopology";
-import { preparePoseBoneDemand } from "./preparePoseBoneDemand";
-import { preparePoseJointResolution } from "./preparePoseJointResolution";
-import type { preparePoseReading } from "./preparePoseReading";
+import { preparePoseBoneDemand } from "./internal/preparePoseBoneDemand";
+import { preparePoseJointResolution } from "./internal/preparePoseJointResolution";
+import type { preparePoseReading } from "./internal/preparePoseReading";
 import { preparePoseResolution } from "./preparePoseResolution";
-import { preparePoseResolutionState } from "./preparePoseResolutionState";
-import { preparePoseTupleScan } from "./preparePoseTupleScan";
+import { preparePoseResolutionState } from "./internal/preparePoseResolutionState";
+import { preparePoseTupleScan } from "./internal/preparePoseTupleScan";
 import { skeletonJointAxes } from "./internal/skeletonJointAxes";
 
 /**

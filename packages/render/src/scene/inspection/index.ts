@@ -10,7 +10,6 @@ export * from "./autoMovieInspectionEntityPathOf.js";
 export * from "./autoMovieInspectionPathOf.js";
 
 
-export * from "./chooseAutoMovieInspectionMarks.js";
 export { AutoMovieRenderInspectionGeometry } from "./AutoMovieRenderInspectionGeometry.js";
 export * from "./colorAutoMovieInspectionObjects.js";
 
@@ -38,7 +37,6 @@ export type { ISelectAutoMoviePlacedChecks } from "./ISelectAutoMoviePlacedCheck
 export * from "./listAutoMovieInspectionPaths.js";
 
 
-export * from "./measureAutoMovieCameraFrameEdge.js";
 
 
 export * from "./measureAutoMovieInspectionDefects.js";

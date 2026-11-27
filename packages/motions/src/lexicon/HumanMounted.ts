@@ -16,7 +16,7 @@ import type {
 
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { mixHumanPosture } from "../posture/mixHumanPosture";
+import { mixHumanPosture } from "../posture/internal/mixHumanPosture";
 import { HumanMountRider } from "./HumanMountRider";
 import { HumanMountedAids } from "./HumanMountedAids";
 import { HumanMountedBank } from "./HumanMountedBank";
@@ -32,7 +32,7 @@ import { HumanMountedTimeline } from "./HumanMountedTimeline";
 import { HumanMountedTransfer } from "./HumanMountedTransfer";
 import { HumanMountedWhip } from "./HumanMountedWhip";
 import { HumanRideHands } from "./HumanRideHands";
-import { admitHumanMountedFigure } from "./admitHumanMountedFigure";
+import { admitHumanMountedFigure } from "./internal/admitHumanMountedFigure";
 
 /**
  * Plan a mounted performance on a moving carrier

@@ -28,7 +28,7 @@ import { HumanBound } from "../../../law/HumanBound";
 import { HumanRefusal } from "../../../law/HumanRefusal";
 import { HumanMountRider } from "../../../lexicon/HumanMountRider";
 import { HumanSurfaceGlide } from "../../HumanSurfaceGlide";
-import { pivotSurfaceFoot } from "../../pivotSurfaceFoot";
+import { pivotSurfaceFoot } from "../../internal/pivotSurfaceFoot";
 import { admitSnowGlide } from "./admitSnowGlide";
 
 /** The ski's local forward axis. */

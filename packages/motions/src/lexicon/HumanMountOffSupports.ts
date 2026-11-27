@@ -23,7 +23,7 @@ import type {
 import { HumanPropFrame } from "../perform/HumanPropFrame";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanLimbFit } from "../posture/HumanLimbFit";
-import { poseBones } from "../posture/poseBones";
+import { poseBones } from "../posture/internal/poseBones";
 
 /** A dismount's material-frame custody up to the instant it leaves support. */
 export namespace HumanMountOffSupports {

@@ -11,7 +11,7 @@ import { HUMAN_BLADE_FEINT } from "../next/presets/HUMAN_BLADE_FEINT";
 import { HUMAN_BLADE_RETREAT } from "../next/presets/HUMAN_BLADE_RETREAT";
 import { HUMAN_BLADE_TRAVERSE } from "../next/presets/HUMAN_BLADE_TRAVERSE";
 import { HUMAN_BLADE_VOID_STEP } from "../next/presets/HUMAN_BLADE_VOID_STEP";
-import { step } from "../striking/step";
+import { step } from "../striking/internal/step";
 import { HumanSword } from "./HumanSword";
 import { HumanSwordGuard } from "./HumanSwordGuard";
 import { HumanSwordParry } from "./HumanSwordParry";

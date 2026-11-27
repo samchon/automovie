@@ -18,11 +18,11 @@ import type {
 } from "@automovie/interface";
 
 import { HumanColliders } from "../posture/HumanColliders";
-import { poseBones } from "../posture/poseBones";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { turnHumanPosture } from "../posture/turnHumanPosture";
-import { addHumanTrunkInclination } from "./addHumanTrunkInclination";
-import { authoredHumanTrunkPose } from "./authoredHumanTrunkPose";
+import { poseBones } from "../posture/internal/poseBones";
+import { prepareHumanPoseResolution } from "../posture/internal/prepareHumanPoseResolution";
+import { turnHumanPosture } from "../posture/internal/turnHumanPosture";
+import { addHumanTrunkInclination } from "./internal/addHumanTrunkInclination";
+import { authoredHumanTrunkPose } from "./internal/authoredHumanTrunkPose";
 
 /** The record of `IRHYTHMItem`'s site. */
 type IRHYTHMItem = {

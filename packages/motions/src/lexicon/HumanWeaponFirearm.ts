@@ -4,8 +4,8 @@ import type {
   IAutoMovieMotionHumanWeaponPresent,
 } from "@automovie/interface";
 
-import { pickUp } from "../handling/pickUp";
-import { putDown } from "../handling/putDown";
+import { pickUp } from "../handling/internal/pickUp";
+import { putDown } from "../handling/internal/putDown";
 import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 import { HUMAN_FIREARM_DRAW } from "../next/presets/HUMAN_FIREARM_DRAW";
 import { HumanWeaponPresent } from "./HumanWeaponPresent";

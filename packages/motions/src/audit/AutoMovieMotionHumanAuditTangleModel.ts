@@ -15,13 +15,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { stand } from "../actions/stand";
+import { stand } from "../actions/internal/stand";
 import { HumanColliderCorners } from "../posture/HumanColliderCorners";
 import { HumanColliders } from "../posture/HumanColliders";
-import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { poseBones } from "../posture/internal/poseBones";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
 import { AutoMovieMotionHumanAuditSkin } from "./AutoMovieMotionHumanAuditSkin";
-import { prepareAutoMovieMotionHumanAuditDepths } from "./prepareAutoMovieMotionHumanAuditDepths";
+import { prepareAutoMovieMotionHumanAuditDepths } from "./internal/prepareAutoMovieMotionHumanAuditDepths";
 
 /**
  * The per-body model the tangle audit (`AutoMovieMotionHumanAuditTangle`) reads

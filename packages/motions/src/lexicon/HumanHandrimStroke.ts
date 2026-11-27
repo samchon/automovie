@@ -24,18 +24,18 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionInterval } from "../compose/AutoMovieMotionInterval";
-import { seated } from "../everyday/seated";
+import { seated } from "../everyday/internal/seated";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanObject } from "../perform/HumanObject";
-import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { poseBones } from "../posture/internal/poseBones";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
 import { HandrimMaterialTransfer } from "./HandrimMaterialTransfer";
 import { HumanHandrimStrokeForm } from "./HumanHandrimStrokeForm";
 import { HumanHandrimStrokeRefuseRim } from "./HumanHandrimStrokeRefuseRim";
 import { HumanMountRider } from "./HumanMountRider";
 import { HumanRide } from "./HumanRide";
 import type { WorkingSeatRidePlan } from "./WorkingSeatRidePlan";
-import { humanHandrimStrokePhases } from "./humanHandrimStrokePhases";
+import { humanHandrimStrokePhases } from "./internal/humanHandrimStrokePhases";
 
 /** Carry a sampled grip from one chair placement into another. */
 const carry = (

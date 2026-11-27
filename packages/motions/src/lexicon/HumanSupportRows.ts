@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanLexiconParams,
 } from "@automovie/interface";
 
-import { support } from "../actions/support";
+import { support } from "../actions/internal/support";
 import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 import { HUMAN_SUPPORT_SCRAMBLE } from "../next/presets/HUMAN_SUPPORT_SCRAMBLE";
 import { HUMAN_SUPPORT_SLIDE_OFF } from "../next/presets/HUMAN_SUPPORT_SLIDE_OFF";

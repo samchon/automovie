@@ -10,7 +10,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { mixHumanPosture } from "../posture/mixHumanPosture";
+import { mixHumanPosture } from "../posture/internal/mixHumanPosture";
 import type { KnockdownFloor } from "../reaction/KnockdownFloor";
 import { HumanMountedFrame } from "./HumanMountedFrame";
 import { HumanUnseatFlight } from "./HumanUnseatFlight";

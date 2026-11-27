@@ -17,28 +17,28 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { stand } from "../actions/stand";
-import { standUpright } from "../actions/standUpright";
+import { stand } from "../actions/internal/stand";
+import { standUpright } from "../actions/internal/standUpright";
 import { walk } from "../gait/internal/walk";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { AutoMovieMotionHumanArmChain } from "../compose/AutoMovieMotionHumanArmChain";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
-import { courseHumanLegs } from "../compose/courseHumanLegs";
+import { courseHumanLegs } from "../compose/internal/courseHumanLegs";
 import { HumanTrunk } from "../everyday/HumanTrunk";
-import { prepareSeatedPalms } from "../everyday/prepareSeatedPalms";
-import { seated } from "../everyday/seated";
+import { prepareSeatedPalms } from "../everyday/internal/prepareSeatedPalms";
+import { seated } from "../everyday/internal/seated";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanArmSwing } from "../posture/HumanArmSwing";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import { blendHumanJoint } from "../posture/blendHumanJoint";
-import { hipJoints } from "../posture/hipJoints";
+import { blendHumanJoint } from "../posture/internal/blendHumanJoint";
+import { hipJoints } from "../posture/internal/hipJoints";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { HumanMount } from "./HumanMount";
 import { HumanMountOffSupports } from "./HumanMountOffSupports";
 import { HumanMountPush } from "./HumanMountPush";
 import { HumanSwungLeg } from "./HumanSwungLeg";
-import { prepareMountOffFloor } from "./prepareMountOffFloor";
+import { prepareMountOffFloor } from "./internal/prepareMountOffFloor";
 
 /** The alternatives of `Frame2`'s site. */
 type Frame2 = "root" | "yaw" | "pitch" | "roll" | "joints";

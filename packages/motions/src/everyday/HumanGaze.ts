@@ -17,10 +17,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPoseResolution } from "../posture/internal/prepareHumanPoseResolution";
 import { HumanGazeLayer } from "./HumanGazeLayer";
-import { blendGazeJoint } from "./blendGazeJoint";
-import { readHumanGazeBones } from "./readHumanGazeBones";
+import { blendGazeJoint } from "./internal/blendGazeJoint";
+import { readHumanGazeBones } from "./internal/readHumanGazeBones";
 
 /**
  * Gaze as a goal: the eyes' lines brought onto a target, with the eyes, the

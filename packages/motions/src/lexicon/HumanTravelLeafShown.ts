@@ -5,8 +5,8 @@ import type {
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 
-import type { pickUpPosture } from "../handling/pickUpPosture";
-import { lowerHumanPosture } from "../posture/lowerHumanPosture";
+import type { pickUpPosture } from "../handling/internal/pickUpPosture";
+import { lowerHumanPosture } from "../posture/internal/lowerHumanPosture";
 import { HumanTravelLeaf } from "./HumanTravelLeaf";
 
 /**

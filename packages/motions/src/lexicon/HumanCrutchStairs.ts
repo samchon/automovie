@@ -16,19 +16,19 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { support } from "../actions/support";
-import { supportContact } from "../actions/supportContact";
-import type { supportCourse } from "../actions/supportCourse";
-import { crawl } from "../floor/crawl";
-import { getUp } from "../floor/getUp";
+import { support } from "../actions/internal/support";
+import { supportContact } from "../actions/internal/supportContact";
+import type { supportCourse } from "../actions/internal/supportCourse";
+import { crawl } from "../floor/internal/crawl";
+import { getUp } from "../floor/internal/getUp";
 import { HumanContactWindow } from "../law/HumanContactWindow";
 import { HumanFoot } from "../posture/HumanFoot";
-import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { poseBones } from "../posture/internal/poseBones";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
 import { HumanCrutchStairsRefuse } from "./HumanCrutchStairsRefuse";
-import { carryCrutchHands } from "./carryCrutchHands";
-import { crutchHeldLeg } from "./crutchHeldLeg";
-import { crutchStairsFlight } from "./crutchStairsFlight";
+import { carryCrutchHands } from "./internal/carryCrutchHands";
+import { crutchHeldLeg } from "./internal/crutchHeldLeg";
+import { crutchStairsFlight } from "./internal/crutchStairsFlight";
 
 /** World vertical. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };

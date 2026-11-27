@@ -1,7 +1,7 @@
 import type { IAutoMovieLoudnessMeter } from "@automovie/interface";
 
 import { AUTOMOVIE_TRUE_PEAK_PHASES } from "./AUTOMOVIE_TRUE_PEAK_PHASES";
-import { autoMovieTruePeakBetween } from "./autoMovieTruePeakBetween";
+import { autoMovieTruePeakBetween } from "./internal/autoMovieTruePeakBetween";
 
 /**
  * Create a streaming ITU-R BS.1770-5 meter for 48 kHz mono or interleaved

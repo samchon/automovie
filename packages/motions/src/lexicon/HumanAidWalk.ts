@@ -15,12 +15,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { support } from "../actions/support";
-import { supportContact } from "../actions/supportContact";
-import { getUp } from "../floor/getUp";
+import { support } from "../actions/internal/support";
+import { supportContact } from "../actions/internal/supportContact";
+import { getUp } from "../floor/internal/getUp";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanMountRider } from "./HumanMountRider";
-import { humanAidWalkGrip } from "./humanAidWalkGrip";
+import { humanAidWalkGrip } from "./internal/humanAidWalkGrip";
 
 /** The prop's visible lift for authored film clearance, metres. */
 const LIFT: number = 0.04;

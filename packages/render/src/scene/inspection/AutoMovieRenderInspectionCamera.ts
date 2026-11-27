@@ -6,6 +6,7 @@ import { listAutoMovieCameraSubjectMeshes as listAutoMovieCameraSubjectMeshesImp
 import { measureAutoMovieCameraFrameEdgeSurface as measureFrameEdgeSurfaceImplementation } from "./internal/measureAutoMovieCameraFrameEdgeSurface.js";
 
 import { measureAutoMovieCameraNearClip } from "./internal/measureAutoMovieCameraNearClip.js";
+import { measureAutoMovieCameraFrameEdge } from "./internal/measureAutoMovieCameraFrameEdge.js";
 import { observeAutoMovieCameraInspection } from "./internal/observeAutoMovieCameraInspection.js";
 import { observeAutoMoviePlacedCamera } from "./internal/observeAutoMoviePlacedCamera.js";
 
@@ -183,6 +184,120 @@ export namespace AutoMovieRenderInspectionCamera {
   export function observePlaced(
     props: ObservePlaced.IProps,
   ): ObservePlaced.IResult {
+    return observeAutoMoviePlacedCamera(props);
+  }
+  /**
+   * Measure where the sides of the delivered frame cut a required subject.
+   *
+   * The subject's world box, or its certified envelope, crosses a side plane when
+   * its outermost corner lies outside that plane beyond the 32-ulp slack the
+   * framing grade uses. For each crossed side, the extent is how far the part of
+   * the box beyond the near plane reaches past that edge, in normalized device
+   * units: the frame spans -1 to 1 on each axis, crop and aspect included. It is
+   * read at the vertices of the box clipped by the near plane, because a
+   * perspective projection of a convex solid reaches its extremes at vertices. A
+   * side crossed only on the camera side of the near plane has no extent: that
+   * part is never drawn, so it cannot be cut.
+   *
+   * When some side has an extent and the meshes are readable,
+   * `measureFrameEdgeSurface` confirms or clears the cut on the drawn surface and
+   * measures the visible fraction.
+   *
+   * @param props Delivery camera, subject bounds and meshes, and the triangle
+   *   budget.
+   * @returns `inside` when the bounds cross no side plane, `crossed` with the
+   *   crossed sides, their extents and the surface outcome, or `unmeasured` with
+   *   the reason the bounds or projection cannot be read.
+   */
+  export function measureFrameEdge(
+    props: FrameEdge.IProps,
+  ): FrameEdge.IResult {
+    return measureAutoMovieCameraFrameEdge(props);
+  }
+
+  /** Frame-edge input and outcome types shared by the camera evaluator. */
+  export namespace FrameEdge {
+    /** The delivery camera and a required subject's bounds and admitted meshes. */
+    export interface IProps {
+      /**
+       * Delivery camera with its world matrices and projection, crop included,
+       * already current.
+       */
+      camera: Camera;
+      /**
+       * Meshes from listAutoMovieCameraSubjectMeshes with current world matrices
+       * and poses, or undefined when it refused the subject.
+       */
+      meshes: readonly Mesh[] | undefined;
+      /**
+       * Optional independently certified world envelope of the whole placed
+       * subject, metres. It replaces the mesh box for the side test.
+       */
+      bounds?: IAutoMovieSubjectBox;
+      /** Largest number of drawn triangles the surface check may examine. */
+      triangleBudget: number;
+    }
+
+    /** A side of the delivered frame. */
+    export type Side = "left" | "right" | "bottom" | "top";
+
+    /** One side plane the subject's bounds cross. */
+    export interface ICrossing {
+      /** The crossed side. */
+      side: Side;
+      /**
+       * How far the bounds beyond the near plane reach past this edge, in
+       * normalized device units; absent when only the part before the near plane
+       * crosses.
+       */
+      extent?: number;
+    }
+
+    /** Inside every side, crossing some side, or unmeasured. */
+    export type IResult =
+      | { /** The bounds lie inside all four side planes. */ status: "inside" }
+      | {
+          /** The bounds cross at least one side plane. */
+          status: "crossed";
+          /** Crossed sides in right, left, bottom, top order. */
+          crossings: ICrossing[];
+          /** The surface check of the cut, or clear when no crossing has extent. */
+          surface: IFrameEdgeSurfaceResult;
+        }
+      | {
+          /** The bounds or projection cannot be read. */
+          status: "unmeasured";
+          /** Why the check cannot run. */
+          reason: string;
+        };
+  }
+  /** Observes required-subject framing from the original delivered projection. */
+  export function observe(
+    props: Parameters<typeof observeAutoMovieCameraInspection>[0],
+  ): ReturnType<typeof observeAutoMovieCameraInspection> {
+    return observeAutoMovieCameraInspection(props);
+  }
+
+  /**
+   * Observe active, source-owned requirements on the host's original delivery
+   * camera.
+   *
+   * The interactive Viewer checks each painted frame under fixed triangle budgets
+   * and reports a check they stop as `deferred`. Capture and delivery run every
+   * camera check without a budget, and they audit authored pixel coverage with
+   * the host renderer, so they leave nothing deferred. A check that cannot run on
+   * the subject at all is `unsupported` in every host.
+   *
+   * A subject whose bounds cross a side of the frame gets an optional
+   * `camera-frame-edge` check: a cut by the frame edge is often the intended
+   * composition, so it is a `frame-edge-cut` warning that never blocks delivery.
+   *
+   * @param props The placed sample and the requirements active at its time.
+   * @returns Findings and one coverage row per check and requirement.
+   */
+  export function observePlaced(
+    props: Parameters<typeof observeAutoMoviePlacedCamera>[0],
+  ): ReturnType<typeof observeAutoMoviePlacedCamera> {
     return observeAutoMoviePlacedCamera(props);
   }
   /** Inputs for one required subject's camera frame-edge surface check. */

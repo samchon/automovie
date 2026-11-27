@@ -188,7 +188,7 @@ const addSdkConsumer = (directory, { parity = true } = {}) => {
     path.join(directory, "src", "composition", "films", "starter.ts"),
     `import { AutoMovieEnvironment, AutoMovieEnvironmentFurnishing, createBuilding } from "@automovie/archetypes/environments";
 import { createBookcase, createSeat } from "@automovie/archetypes/furniture";
-import { AutoMovieEngineFilm, compileDefinedShot } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type { IAutoMovieCompiledDefinedShot, IAutoMovieEnvironment, IAutoMovieModel, IAutoMovieStage } from "@automovie/interface";
 import {
   type IAutoMovieSceneObject,
@@ -236,7 +236,7 @@ export function starter(): IFilm {
         cameras: [{ node: "camera", position: { x: 0.8, y: 1.65, z: 3.3 }, lookAt: target, fovDeg: 48, near: 0.1, far: 20, depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 0.03 } }],
         lights: [{ node: "key", role: "key", direction: { x: -1, y: -2, z: -1 }, intensity: 2.5 }],
       };
-      const compiled: IAutoMovieCompiledDefinedShot = compileDefinedShot({
+      const compiled: IAutoMovieCompiledDefinedShot = AutoMovieEngineFilm.compileDefinedShot({
         shot: AutoMovieEngineFilm.defineShot(id, {
           scene: id,
           contract: { beat: id, durationSeconds: 2, participants: [], opening: [], closing: [], camera: { intent: description, requiredSubjects: ["installed-room/bench"], maxOcclusionRatio: 0.2 }, events: [], reviewFrames: [{ id: "room", time: 1, passes: ["beauty"] }] },

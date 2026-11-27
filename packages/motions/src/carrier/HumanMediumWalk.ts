@@ -19,9 +19,9 @@ import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanWater } from "../perform/HumanWater";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
-import { poseBones } from "../posture/poseBones";
-import { shankTilt } from "./shankTilt";
-import { unloadedFoot } from "./unloadedFoot";
+import { poseBones } from "../posture/internal/poseBones";
+import { shankTilt } from "./internal/shankTilt";
+import { unloadedFoot } from "./internal/unloadedFoot";
 
 type Params = IAutoMovieMotionHumanMedium.IWalkParams;
 type Plan = IAutoMovieMotionHumanActionPlan;

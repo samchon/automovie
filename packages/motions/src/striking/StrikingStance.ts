@@ -15,8 +15,8 @@ import type {
 
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
+import { prepareHumanPoseResolution } from "../posture/internal/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/internal/prepareHumanPostureProjection";
 import { StrikingBody } from "./StrikingBody";
 import { StrikingGuard } from "./StrikingGuard";
 import { StrikingGuardBones } from "./StrikingGuardBones";

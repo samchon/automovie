@@ -1,6 +1,6 @@
 import type { IAutoMovieAffordanceCoupling } from "@automovie/interface";
 
-import { interpolateAffordanceTravel } from "./interpolateAffordanceTravel";
+import { interpolateAffordanceTravel } from "./internal/interpolateAffordanceTravel";
 
 /**
  * A follower's travel at its leader's travel, by the rule its `follows`

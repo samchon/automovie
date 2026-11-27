@@ -1,8 +1,8 @@
-import { stopDropRoll as stopDropRollLaw } from "../reaction/stopDropRoll";
-import { beatFlames as beatFlamesLaw } from "../tasks/beatFlames";
-import { extinguish as extinguishLaw } from "../tasks/extinguish";
-import { hoseLine as hoseLineLaw } from "../tasks/hoseLine";
-import { hoseTeam as hoseTeamLaw } from "../tasks/hoseTeam";
+import { stopDropRoll as stopDropRollLaw } from "../reaction/internal/stopDropRoll";
+import { beatFlames as beatFlamesLaw } from "../tasks/internal/beatFlames";
+import { extinguish as extinguishLaw } from "../tasks/internal/extinguish";
+import { hoseLine as hoseLineLaw } from "../tasks/internal/hoseLine";
+import { hoseTeam as hoseTeamLaw } from "../tasks/internal/hoseTeam";
 
 /**
  * Fighting a fire. A nozzle and a backup role extinguish, run a hose line and

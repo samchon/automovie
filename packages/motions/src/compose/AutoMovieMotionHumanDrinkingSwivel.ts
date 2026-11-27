@@ -9,9 +9,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { poseBones } from "../posture/poseBones";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { poseBones } from "../posture/internal/poseBones";
+import { prepareHumanPoseResolution } from "../posture/internal/prepareHumanPoseResolution";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
 import { AutoMovieMotionHumanDrinkingArm } from "./AutoMovieMotionHumanDrinkingArm";
 import { AutoMovieMotionHumanSwivelBound } from "./AutoMovieMotionHumanSwivelBound";
 

@@ -13,9 +13,9 @@ import type {
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
-import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { knockdown } from "../reaction/knockdown";
+import { poseBones } from "../posture/internal/poseBones";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
+import { knockdown } from "../reaction/internal/knockdown";
 import { GymnasticsWheel } from "../sport/GymnasticsWheel";
 import { ExerciseKey } from "./ExerciseKey";
 

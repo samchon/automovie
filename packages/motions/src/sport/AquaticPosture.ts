@@ -13,9 +13,9 @@ import type {
 
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { HumanFrame } from "../posture/HumanFrame";
-import { poseBones } from "../posture/poseBones";
-import { prepareHumanShapeBlend } from "../posture/prepareHumanShapeBlend";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { poseBones } from "../posture/internal/poseBones";
+import { prepareHumanShapeBlend } from "../posture/internal/prepareHumanShapeBlend";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
 
 /**
  * Pool and boat sequences use the same clinical keys and prepared joint blends

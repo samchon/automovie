@@ -1,7 +1,7 @@
 import { minimumJerk } from "@automovie/engine";
 import type { AutoMovieHumanSide } from "@automovie/interface";
 
-import { walkReach } from "../actions/walkReach";
+import { walkReach } from "../actions/internal/walkReach";
 import { HumanRefusal } from "../law/HumanRefusal";
 
 /**

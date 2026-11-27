@@ -14,8 +14,8 @@ import type {
 import { AutoMovieMotionHumanArm } from "../../compose/AutoMovieMotionHumanArm";
 import { HumanFrame } from "../../posture/HumanFrame";
 import { HumanHand } from "../../posture/HumanHand";
-import { poseBones } from "../../posture/poseBones";
-import { resolveHumanPosture } from "../../posture/resolveHumanPosture";
+import { poseBones } from "../../posture/internal/poseBones";
+import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
 /** The alternatives of `OfContext`'s site. */
 type OfContext = "body" | "entry" | "params";

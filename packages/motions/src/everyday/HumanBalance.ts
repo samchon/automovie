@@ -9,13 +9,13 @@ import type {
 
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanFoot } from "../posture/HumanFoot";
-import { poseBones } from "../posture/poseBones";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { poseBones } from "../posture/internal/poseBones";
+import { prepareHumanPoseResolution } from "../posture/internal/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/internal/prepareHumanPostureProjection";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
 import { HumanBalanceExtrapolated } from "./HumanBalanceExtrapolated";
 import { HumanBalanceReading } from "./HumanBalanceReading";
-import { prepareHumanBalanceCentre } from "./prepareHumanBalanceCentre";
+import { prepareHumanBalanceCentre } from "./internal/prepareHumanBalanceCentre";
 
 /** The record of `IShiftDown`'s site. */
 type IShiftDown = { found: boolean; back: number };

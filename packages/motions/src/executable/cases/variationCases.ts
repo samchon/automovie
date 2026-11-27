@@ -22,7 +22,7 @@ import { HumanHand } from "../../posture/HumanHand";
 import { HumanSkill } from "../../skill/HumanSkill";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
-import type { humanPolygonMan } from "../humanPolygonMan";
+import type { humanPolygonMan } from "../internal/humanPolygonMan";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { MotionPlaceVerdicts } from "./MotionPlaceVerdicts";
 import { VariationSeries } from "./VariationSeries";

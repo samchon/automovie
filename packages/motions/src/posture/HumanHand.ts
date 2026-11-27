@@ -13,9 +13,9 @@ import type {
 
 import { HumanHandDirection } from "./HumanHandDirection";
 import { HumanHandShape } from "./HumanHandShape";
-import { alignHumanHandSurface } from "./alignHumanHandSurface";
-import { placeHumanHandSurface } from "./placeHumanHandSurface";
-import { readHumanHandFrame } from "./readHumanHandFrame";
+import { alignHumanHandSurface } from "./internal/alignHumanHandSurface";
+import { placeHumanHandSurface } from "./internal/placeHumanHandSurface";
+import { readHumanHandFrame } from "./internal/readHumanHandFrame";
 
 /** The alternatives of `FrameBonesEntry`'s site. */
 type FrameBonesEntry = "worldPosition" | "worldRotation";

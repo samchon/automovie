@@ -26,7 +26,7 @@ import { applyAutoMovieInspectionSection } from "../applyAutoMovieInspectionSect
 import { applyAutoMovieInspectionShade } from "../applyAutoMovieInspectionShade.js";
 import { autoMovieInspectionPathOf } from "../autoMovieInspectionPathOf.js";
 import { buildAutoMovieInspectionMarks } from "./buildAutoMovieInspectionMarks.js";
-import { chooseAutoMovieInspectionMarks } from "../chooseAutoMovieInspectionMarks.js";
+import { AutoMovieRenderInspectionMarks } from "../AutoMovieRenderInspectionMarks.js";
 import { colorAutoMovieInspectionObjects } from "../colorAutoMovieInspectionObjects.js";
 import { AutoMovieRenderInspection } from "../AutoMovieRenderInspection.js";
 import { legendAutoMovieInspectionMarks } from "./legendAutoMovieInspectionMarks.js";
@@ -181,7 +181,7 @@ export function applyAutoMovieInspection(
   const choose: (marks: readonly IAutoMovieMark[]) => IChosen = (
     marks: readonly IAutoMovieMark[],
   ): IChosen =>
-    chooseAutoMovieInspectionMarks({ marks, asks, selects, hidden, anchors });
+    AutoMovieRenderInspectionMarks.choose({ marks, asks, selects, hidden, anchors });
   const ownMarks: IAutoMovieMark[] = measured.flatMap(
     (set: IAutoMovieInspectionMeasured): IAutoMovieMark[] =>
       set.marks.filter((mark: IAutoMovieMark): boolean => selects(mark.path)),

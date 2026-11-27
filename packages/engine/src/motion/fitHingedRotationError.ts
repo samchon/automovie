@@ -17,7 +17,7 @@ import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
 import { getConstraint } from "../rom/getConstraint";
 import { toClinicalAngle } from "../rom/toClinicalAngle";
 import { basisOf } from "./basisOf";
-import type { prepareChainFit } from "./prepareChainFit";
+import type { prepareChainFit } from "./internal/prepareChainFit";
 import { prepareJointRotationProjection } from "./prepareJointRotationProjection";
 import { solveDistalTwist } from "./solveDistalTwist";
 

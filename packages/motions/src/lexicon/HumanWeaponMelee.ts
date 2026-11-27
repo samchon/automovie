@@ -7,7 +7,7 @@ import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanAction
 import { HUMAN_BLADE_CLUB_STRIKE } from "../next/presets/HUMAN_BLADE_CLUB_STRIKE";
 import { HUMAN_BLADE_CLUB_SWING } from "../next/presets/HUMAN_BLADE_CLUB_SWING";
 import { HUMAN_BLADE_RELOAD } from "../next/presets/HUMAN_BLADE_RELOAD";
-import { touch } from "../touch/touch";
+import { touch } from "../touch/internal/touch";
 import { HumanSword } from "./HumanSword";
 import { HumanSwordThrust } from "./HumanSwordThrust";
 

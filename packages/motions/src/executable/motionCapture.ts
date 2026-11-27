@@ -12,10 +12,10 @@ import {
 } from "automovie";
 import path from "node:path";
 
-import { markMotionCaptureCase } from "../capture/markMotionCaptureCase";
+import { markMotionCaptureCase } from "../capture/internal/markMotionCaptureCase";
 import type { IMotionCaptureCase } from "./IMotionCaptureCase";
 import type { IMotionCaptureProps } from "./IMotionCaptureProps";
-import { buildMotionCaptureCases } from "./buildMotionCaptureCases";
+import { buildMotionCaptureCases } from "./internal/buildMotionCaptureCases";
 import { MOTION_CAPTURE_CASES } from "./cases/MOTION_CAPTURE_CASES";
 import { planMotionCaptureProps } from "./internal/planMotionCaptureProps";
 

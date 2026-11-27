@@ -13,7 +13,7 @@ import type {
 import { HumanBound } from "../law/HumanBound";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
-import { poseBones } from "../posture/poseBones";
+import { poseBones } from "../posture/internal/poseBones";
 import { HumanSkill } from "../skill/HumanSkill";
 import { StrikingAdvance } from "../striking/StrikingAdvance";
 import { StrikingBlade } from "../striking/StrikingBlade";

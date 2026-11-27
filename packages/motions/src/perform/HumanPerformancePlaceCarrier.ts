@@ -7,7 +7,7 @@ import type {
   IAutoMovieMotionHumanSegment,
 } from "@automovie/interface";
 
-import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import type { prepareHumanPoseResolution } from "../posture/internal/prepareHumanPoseResolution";
 
 /** The record of `IPlaceDraftedResult`'s site. */
 type IPlaceDraftedResult = {

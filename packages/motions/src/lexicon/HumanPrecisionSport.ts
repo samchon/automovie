@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { PRECISION_STROKE_FORMS } from "./PRECISION_STROKE_FORMS";
-import { createPrecisionSportStroke } from "./createPrecisionSportStroke";
+import { createPrecisionSportStroke } from "./internal/createPrecisionSportStroke";
 
 /**
  * Bound sporting strokes for baseball, cricket, tennis, golf, pool and

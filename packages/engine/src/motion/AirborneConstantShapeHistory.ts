@@ -13,7 +13,7 @@ import { prepareAutoMovieMassModel } from "../kinematics/prepareAutoMovieMassMod
 import { resolveAutoMovieBoneRates } from "../kinematics/internal/resolveAutoMovieBoneRates";
 import { resolveAutoMovieMomentum } from "../kinematics/resolveAutoMovieMomentum";
 import { resolveAutoMovieMomentumRates } from "../kinematics/internal/resolveAutoMovieMomentumRates";
-import { physicalInertiaFactor } from "../physics/physicalInertiaFactor";
+import { physicalInertiaFactor } from "../physics/internal/physicalInertiaFactor";
 import { physicalInertiaTensor } from "../physics/physicalInertiaTensor";
 import { AirborneShapeInertia } from "./AirborneShapeInertia";
 import { AirborneShapeStatistics } from "./AirborneShapeStatistics";

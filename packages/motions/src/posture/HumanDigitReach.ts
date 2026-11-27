@@ -20,7 +20,7 @@ import type {
 
 import { HumanGrip } from "../handling/HumanGrip";
 import { HumanShapeFraming } from "./HumanShapeFraming";
-import { poseBones } from "./poseBones";
+import { poseBones } from "./internal/poseBones";
 
 /**
  * What the digit fit reads of a hand on a posed body (`HumanDigitFit`): its

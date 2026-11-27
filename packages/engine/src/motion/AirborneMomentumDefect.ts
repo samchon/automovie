@@ -6,7 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
-import type { physicalInertiaFactor } from "../physics/physicalInertiaFactor";
+import type { physicalInertiaFactor } from "../physics/internal/physicalInertiaFactor";
 import { AirborneShapeHistory } from "./AirborneShapeHistory";
 import { AirborneTabulatedShapeHistory } from "./AirborneTabulatedShapeHistory";
 import type { MotionTrajectoryFailure } from "./MotionTrajectoryFailure";

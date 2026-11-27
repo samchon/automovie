@@ -1,8 +1,8 @@
-import { climbLadder as climbLadderLaw } from "../climbing/climbLadder";
-import { wallClimbSupport as wallClimbSupportLaw } from "../climbing/wallClimbSupport";
+import { climbLadder as climbLadderLaw } from "../climbing/internal/climbLadder";
+import { wallClimbSupport as wallClimbSupportLaw } from "../climbing/internal/wallClimbSupport";
 import { HumanRope as HumanRopeLaw } from "../lexicon/HumanRope";
 import { HumanTreeClimb as HumanTreeClimbLaw } from "../lexicon/HumanTreeClimb";
-import { climbStairs as climbStairsLaw } from "../terrain/climbStairs";
+import { climbStairs as climbStairsLaw } from "../terrain/internal/climbStairs";
 
 /**
  * Climbing with the support law: the ladder, the stairs, the rope, the tree and

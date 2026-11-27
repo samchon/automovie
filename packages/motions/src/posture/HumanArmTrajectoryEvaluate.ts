@@ -15,7 +15,7 @@ import { HumanArmTrajectoryRangeExcess as R } from "./HumanArmTrajectoryRangeExc
 import { HumanArmTrajectorySweep } from "./HumanArmTrajectorySweep";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 import { HumanArmTrajectoryTravel as V } from "./HumanArmTrajectoryTravel";
-import { nameArmTrajectoryPair } from "./nameArmTrajectoryPair";
+import { nameArmTrajectoryPair } from "./internal/nameArmTrajectoryPair";
 
 /** The alternatives of `HumanArmTrajectoryEvaluateNoteTerm`'s site. */
 type HumanArmTrajectoryEvaluateNoteTerm =

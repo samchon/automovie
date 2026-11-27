@@ -11,7 +11,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { hipJoints } from "../posture/hipJoints";
+import { hipJoints } from "../posture/internal/hipJoints";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { HumanMount } from "./HumanMount";
 import { HumanMountedFrame } from "./HumanMountedFrame";
@@ -19,8 +19,8 @@ import type { HumanMountedSeats } from "./HumanMountedSeats";
 import { HumanMountedStirrups } from "./HumanMountedStirrups";
 import { HumanMountedStride } from "./HumanMountedStride";
 import type { HumanMountedTimeline } from "./HumanMountedTimeline";
-import { hangMountedLeg } from "./hangMountedLeg";
-import { heelMountedFoot } from "./heelMountedFoot";
+import { hangMountedLeg } from "./internal/hangMountedLeg";
+import { heelMountedFoot } from "./internal/heelMountedFoot";
 
 /**
  * The paths a mounted performance (`HumanMounted`) prepares between its key

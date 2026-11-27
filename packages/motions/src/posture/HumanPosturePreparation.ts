@@ -14,12 +14,12 @@ import type {
 
 import { HumanPostureRaw as Raw } from "./HumanPostureRaw";
 import { humanPostureHeading } from "./humanPostureHeading";
-import { poseBones } from "./poseBones";
-import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
-import { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
-import { resolveHumanPosture } from "./resolveHumanPosture";
-import { resolveHumanPostureSource } from "./resolveHumanPostureSource";
-import { turnHumanPosture } from "./turnHumanPosture";
+import { poseBones } from "./internal/poseBones";
+import { prepareHumanPoseResolution } from "./internal/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "./internal/prepareHumanPostureProjection";
+import { resolveHumanPosture } from "./internal/resolveHumanPosture";
+import { resolveHumanPostureSource } from "./internal/resolveHumanPostureSource";
+import { turnHumanPosture } from "./internal/turnHumanPosture";
 
 /**
  * One canonical free-leg solve or direct-joint projection, prepared once and

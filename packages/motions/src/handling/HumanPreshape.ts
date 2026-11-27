@@ -8,7 +8,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanHand } from "../posture/HumanHand";
-import { prepareHumanShapeBlend } from "../posture/prepareHumanShapeBlend";
+import { prepareHumanShapeBlend } from "../posture/internal/prepareHumanShapeBlend";
 import { HumanGrip } from "./HumanGrip";
 import { HumanPrehension } from "./HumanPrehension";
 

@@ -9,10 +9,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { readHumanBone } from "../body/readHumanBone";
+import { readHumanBone } from "../body/internal/readHumanBone";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { HumanTrunk } from "../everyday/HumanTrunk";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPoseResolution } from "../posture/internal/prepareHumanPoseResolution";
 
 /** The record of `IGoal`'s site. */
 type IGoal = { shoulder: IAutoMovieVector3 };

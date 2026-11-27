@@ -11,14 +11,14 @@ import type {
 } from "@automovie/interface";
 
 import { humanPostureHeading } from "../posture/humanPostureHeading";
-import { lowerHumanPosture } from "../posture/lowerHumanPosture";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
+import { lowerHumanPosture } from "../posture/internal/lowerHumanPosture";
+import { prepareHumanPoseResolution } from "../posture/internal/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/internal/prepareHumanPostureProjection";
 import { KickForm } from "./KickForm";
 import { StrikingBody } from "./StrikingBody";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
-import type { strikingStepSupport } from "./strikingStepSupport";
+import type { strikingStepSupport } from "./internal/strikingStepSupport";
 
 /**
  * How the body carries a kick (Gavagan and Sayers 2017 phases; kickboxing

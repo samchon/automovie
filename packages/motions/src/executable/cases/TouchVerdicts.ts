@@ -20,7 +20,7 @@ import type {
 import { AutoMovieMotionHumanTouchEffector } from "../../compose/AutoMovieMotionHumanTouchEffector";
 import { HumanColliders } from "../../posture/HumanColliders";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
-import type { humanPolygonMan } from "../humanPolygonMan";
+import type { humanPolygonMan } from "../internal/humanPolygonMan";
 
 /** The part of a segment its events are read from. */
 interface IEventSegment {

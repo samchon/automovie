@@ -24,14 +24,14 @@ import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlace
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import { lowerHumanPosture } from "../posture/lowerHumanPosture";
+import { lowerHumanPosture } from "../posture/internal/lowerHumanPosture";
 import { StrikingFootPoint } from "../striking/StrikingFootPoint";
 import { StrikingStance } from "../striking/StrikingStance";
 import { StrikingTarget } from "../striking/StrikingTarget";
 import { MartialArtStanceForms } from "./MartialArtStanceForms";
-import { martialArtGuardSite } from "./martialArtGuardSite";
-import { martialArtStanceClock } from "./martialArtStanceClock";
-import { martialArtStanceTurn } from "./martialArtStanceTurn";
+import { martialArtGuardSite } from "./internal/martialArtGuardSite";
+import { martialArtStanceClock } from "./internal/martialArtStanceClock";
+import { martialArtStanceTurn } from "./internal/martialArtStanceTurn";
 
 /** One side of the body, as the stance names its lead and rear. */
 type Side = AutoMovieHumanSide;

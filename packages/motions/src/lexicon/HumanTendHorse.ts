@@ -17,16 +17,16 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
-import { courseArmGoal } from "../compose/courseArmGoal";
+import { courseArmGoal } from "../compose/internal/courseArmGoal";
 import { HumanGrip } from "../handling/HumanGrip";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
-import { poseBones } from "../posture/poseBones";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { poseBones } from "../posture/internal/poseBones";
+import { prepareHumanPoseResolution } from "../posture/internal/prepareHumanPoseResolution";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
 import { HumanMountRider } from "./HumanMountRider";
 import { HumanRideHands } from "./HumanRideHands";
-import { humanRideGripTiming } from "./humanRideGripTiming";
+import { humanRideGripTiming } from "./internal/humanRideGripTiming";
 
 /**
  * Tasks whose hand closes on what it holds; the others lay the hand on a

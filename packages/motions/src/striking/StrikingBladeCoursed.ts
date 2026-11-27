@@ -4,8 +4,8 @@ import type {
   IAutoMovieMotionHumanStrikingBlade,
 } from "@automovie/interface";
 
-import { courseArmGoal } from "../compose/courseArmGoal";
-import { precisionStrokePeak } from "../lexicon/precisionStrokePeak";
+import { courseArmGoal } from "../compose/internal/courseArmGoal";
+import { precisionStrokePeak } from "../lexicon/internal/precisionStrokePeak";
 
 /**
  * Plan a one-handed stroke whose path stays in one basin of the arm (a thrust

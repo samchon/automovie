@@ -37,7 +37,7 @@ import { actorPointInModelSpace } from "./actorPointInModelSpace";
 import { createDynamicActorPoseClip } from "./createDynamicActorPoseClip";
 import { resolveTargetPoint } from "./resolveTargetPoint";
 import { resumeActorSynthesisRuntime } from "./resumeActorSynthesisRuntime";
-import { synthesizeActorReach } from "./synthesizeActorReach";
+import { synthesizeActorReach } from "./internal/synthesizeActorReach";
 
 const GAIT_SAMPLES: number = 8 as const;
 

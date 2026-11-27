@@ -7,11 +7,11 @@ import type {
 } from "@automovie/interface";
 
 import { HumanFoot } from "../posture/HumanFoot";
-import { staggerNearest } from "./staggerNearest";
-import { staggerPendulumCourses } from "./staggerPendulumCourses";
-import { staggerPendulumEntry } from "./staggerPendulumEntry";
-import type { staggerRecover } from "./staggerRecover";
-import { staggerTransfer } from "./staggerTransfer";
+import { staggerNearest } from "./internal/staggerNearest";
+import { staggerPendulumCourses } from "./internal/staggerPendulumCourses";
+import { staggerPendulumEntry } from "./internal/staggerPendulumEntry";
+import type { staggerRecover } from "./internal/staggerRecover";
+import { staggerTransfer } from "./internal/staggerTransfer";
 
 /** The record of `IFootprintResult`'s site. */
 type IFootprintResult = {

@@ -9,10 +9,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { unloadedFoot } from "../carrier/unloadedFoot";
+import { unloadedFoot } from "../carrier/internal/unloadedFoot";
 import { ExerciseKey } from "../exercise/ExerciseKey";
 import { HumanFoot } from "../posture/HumanFoot";
-import { lowerHumanPosture } from "../posture/lowerHumanPosture";
+import { lowerHumanPosture } from "../posture/internal/lowerHumanPosture";
 import { AquaticCrew } from "./AquaticCrew";
 import { AquaticPosture } from "./AquaticPosture";
 import { AquaticProp } from "./AquaticProp";

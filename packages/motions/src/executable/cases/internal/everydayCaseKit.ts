@@ -11,9 +11,9 @@ import type {
 
 import { AutoMovieMotionHumanBody } from "../../../body/AutoMovieMotionHumanBody";
 import { HumanPerformance } from "../../../perform/HumanPerformance";
-import { poseBones } from "../../../posture/poseBones";
+import { poseBones } from "../../../posture/internal/poseBones";
 import type { IMotionCaptureCase } from "../../IMotionCaptureCase";
-import type { humanPolygonMan } from "../../humanPolygonMan";
+import type { humanPolygonMan } from "../../internal/humanPolygonMan";
 
 /** The part of a segment its events are read from. */
 interface IEventSegment {

@@ -12,8 +12,8 @@ import { HumanTrunk } from "../everyday/HumanTrunk";
 import { ExerciseKey } from "../exercise/ExerciseKey";
 import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
-import { mixHumanPosture } from "../posture/mixHumanPosture";
-import { turnHumanPosture } from "../posture/turnHumanPosture";
+import { mixHumanPosture } from "../posture/internal/mixHumanPosture";
+import { turnHumanPosture } from "../posture/internal/turnHumanPosture";
 
 /** The time for a swimmer to change their surface posture, seconds. */
 const CHANGE: number = 0.65;

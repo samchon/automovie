@@ -7,7 +7,7 @@ import type {
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPoseResolution } from "../posture/internal/prepareHumanPoseResolution";
 
 /** The alternatives of `PlantsPart`'s site. */
 type PlantsPart = "leftFoot" | "rightFoot";

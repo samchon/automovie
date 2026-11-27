@@ -11,8 +11,8 @@ import type {
 import { HumanArmClearance } from "../posture/HumanArmClearance";
 import { HumanArmObstacleBones } from "../posture/HumanArmObstacleBones";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
-import { poseBones } from "../posture/poseBones";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { poseBones } from "../posture/internal/poseBones";
+import { prepareHumanPoseResolution } from "../posture/internal/prepareHumanPoseResolution";
 
 /** Keep the source's placement independent of every returned chain's mutation. */
 function copyShapes(

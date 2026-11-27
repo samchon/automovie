@@ -7,7 +7,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
-import { gestureStrokeTables } from "../../everyday/gestureStrokeTables";
+import { gestureStrokeTables } from "../../everyday/internal/gestureStrokeTables";
 import { HumanHand } from "../../posture/HumanHand";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { everydayCaseKit } from "./internal/everydayCaseKit";

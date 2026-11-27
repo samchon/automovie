@@ -3,13 +3,13 @@ import { HumanFloorFall as HumanFloorFallSource } from "../lexicon/HumanFloorFal
 import { HumanStuntFall as HumanStuntFallSource } from "../lexicon/HumanStuntFall";
 import { HumanVehicleHit as HumanVehicleHitLaw } from "../lexicon/HumanVehicleHit";
 import { CollapseFold as CollapseFoldSource } from "../reaction/CollapseFold";
-import { collapse as collapseLaw } from "../reaction/collapse";
-import { knockdown as knockdownLaw } from "../reaction/knockdown";
-import { perturb as perturbLaw } from "../reaction/perturb";
-import { stagger as staggerLaw } from "../reaction/stagger";
-import { thrown as thrownLaw } from "../reaction/thrown";
-import { wireArrest as wireArrestLaw } from "../reaction/wireArrest";
-import { wireFlight as wireFlightLaw } from "../reaction/wireFlight";
+import { collapse as collapseLaw } from "../reaction/internal/collapse";
+import { knockdown as knockdownLaw } from "../reaction/internal/knockdown";
+import { perturb as perturbLaw } from "../reaction/internal/perturb";
+import { stagger as staggerLaw } from "../reaction/internal/stagger";
+import { thrown as thrownLaw } from "../reaction/internal/thrown";
+import { wireArrest as wireArrestLaw } from "../reaction/internal/wireArrest";
+import { wireFlight as wireFlightLaw } from "../reaction/internal/wireFlight";
 import { HUMAN_FALL_GOALKEEPER_DIVE_LEFT } from "./presets/HUMAN_FALL_GOALKEEPER_DIVE_LEFT";
 import { HUMAN_FALL_GOALKEEPER_DIVE_RIGHT } from "./presets/HUMAN_FALL_GOALKEEPER_DIVE_RIGHT";
 

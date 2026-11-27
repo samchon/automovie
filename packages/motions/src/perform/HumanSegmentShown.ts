@@ -5,11 +5,11 @@ import type {
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
 
-import { poseBones } from "../posture/poseBones";
+import { poseBones } from "../posture/internal/poseBones";
 import { HumanSegmentPose } from "./HumanSegmentPose";
 import { HumanSegmentSelection } from "./HumanSegmentSelection";
 import { HumanSegmentStill } from "./HumanSegmentStill";
-import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
+import { prepareHumanSegmentPose } from "./internal/prepareHumanSegmentPose";
 
 /** The record of `IBonesBound`'s site. */
 type IBonesBound = {

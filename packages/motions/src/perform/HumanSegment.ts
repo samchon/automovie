@@ -16,7 +16,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanSegmentCut } from "./HumanSegmentCut";
 import { HumanSegmentEntry } from "./HumanSegmentEntry";
 import { HumanSegmentPose } from "./HumanSegmentPose";
-import type { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
+import type { prepareHumanSegmentPose } from "./internal/prepareHumanSegmentPose";
 
 /** The alternatives of `ShareAt`'s site. */
 type ShareAt = number | string;

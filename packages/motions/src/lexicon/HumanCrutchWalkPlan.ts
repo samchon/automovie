@@ -17,17 +17,17 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { support } from "../actions/support";
-import { supportContact } from "../actions/supportContact";
-import { getUp } from "../floor/getUp";
+import { support } from "../actions/internal/support";
+import { supportContact } from "../actions/internal/supportContact";
+import { getUp } from "../floor/internal/getUp";
 import { HumanContactWindow } from "../law/HumanContactWindow";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { carryCrutchHands } from "./carryCrutchHands";
-import { crutchHeldLeg } from "./crutchHeldLeg";
-import { crutchWalkCourse } from "./crutchWalkCourse";
+import { poseBones } from "../posture/internal/poseBones";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
+import { carryCrutchHands } from "./internal/carryCrutchHands";
+import { crutchHeldLeg } from "./internal/crutchHeldLeg";
+import { crutchWalkCourse } from "./internal/crutchWalkCourse";
 
 /** How far a staged crutch tip may stand off the floor, metres. */
 const FLOOR: number = 0.01;

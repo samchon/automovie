@@ -1,5 +1,5 @@
-import { bakePrecisionDeck as bakePrecisionDeckLaw } from "../sport/bakePrecisionDeck";
-import { pocketedBalls as pocketedBallsLaw } from "../sport/pocketedBalls";
+import { bakePrecisionDeck as bakePrecisionDeckLaw } from "../sport/internal/bakePrecisionDeck";
+import { pocketedBalls as pocketedBallsLaw } from "../sport/internal/pocketedBalls";
 
 /**
  * Cue sports and putting greens: the credit of the balls a baked precision shot

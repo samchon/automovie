@@ -10,9 +10,9 @@ import type {
 } from "@automovie/interface";
 
 import { HumanPosture } from "../posture/HumanPosture";
-import { orderHumanLimbs } from "../posture/orderHumanLimbs";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { refitHumanPosture } from "../posture/refitHumanPosture";
+import { orderHumanLimbs } from "../posture/internal/orderHumanLimbs";
+import { prepareHumanPoseResolution } from "../posture/internal/prepareHumanPoseResolution";
+import { refitHumanPosture } from "../posture/internal/refitHumanPosture";
 import { HumanSegmentPose } from "./HumanSegmentPose";
 import { HumanSegmentPoseSeeds } from "./HumanSegmentPoseSeeds";
 

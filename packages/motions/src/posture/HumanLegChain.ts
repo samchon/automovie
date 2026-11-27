@@ -16,7 +16,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { prepareHumanLegSeededFit } from "./prepareHumanLegSeededFit";
+import { prepareHumanLegSeededFit } from "./internal/prepareHumanLegSeededFit";
 
 /** The alternatives of `PlacedChain`'s site. */
 type PlacedChain = "target" | "range";

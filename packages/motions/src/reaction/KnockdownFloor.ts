@@ -7,8 +7,8 @@ import type {
 
 import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange";
 import { HumanColliders } from "../posture/HumanColliders";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
+import { prepareHumanPoseResolution } from "../posture/internal/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/internal/prepareHumanPostureProjection";
 import { StrikingBody } from "../striking/StrikingBody";
 
 /** The alternatives of `ANGLESEntry`'s site. */

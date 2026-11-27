@@ -11,17 +11,17 @@ import type {
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
 
-import { stand } from "../actions/stand";
+import { stand } from "../actions/internal/stand";
 import { AutoMovieMotionHumanAudit } from "../audit/AutoMovieMotionHumanAudit";
 import { AutoMovieMotionHumanAuditTangle } from "../audit/AutoMovieMotionHumanAuditTangle";
 import { HumanArmClearance } from "./HumanArmClearance";
 import { HumanColliders } from "./HumanColliders";
-import { poseBones } from "./poseBones";
-import { prepareHumanArmRoom } from "./prepareHumanArmRoom";
-import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
-import { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
-import { prepareHumanSampledCourse } from "./prepareHumanSampledCourse";
-import { resolveHumanPosture } from "./resolveHumanPosture";
+import { poseBones } from "./internal/poseBones";
+import { prepareHumanArmRoom } from "./internal/prepareHumanArmRoom";
+import { prepareHumanPoseResolution } from "./internal/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "./internal/prepareHumanPostureProjection";
+import { prepareHumanSampledCourse } from "./internal/prepareHumanSampledCourse";
+import { resolveHumanPosture } from "./internal/resolveHumanPosture";
 
 /** Quiet-arm tolerances are invariant for the same prepared body geometry. */
 const STANDING_ROOM: WeakMap<

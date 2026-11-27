@@ -3,7 +3,7 @@ import type { IAutoMovieSwivelArcs } from "@automovie/interface";
 import { Quaternion } from "../../math/Quaternion";
 import { ROM_TOLERANCE } from "../../rom/constants/ROM_TOLERANCE";
 import { distalEndSwivelReadings } from "../distalEndSwivelReadings";
-import { sphericalBoxMiss } from "../sphericalBoxMiss";
+import { sphericalBoxMiss } from "./sphericalBoxMiss";
 
 /**
  * A certified lower bound, over an interval of swivels, of how far the end

@@ -11,8 +11,8 @@ import type {
 
 import { HumanPerformanceContacts } from "../perform/HumanPerformanceContacts";
 import { HumanColliders } from "../posture/HumanColliders";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
+import { prepareHumanPoseResolution } from "../posture/internal/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/internal/prepareHumanPostureProjection";
 import { KickCarriage } from "./KickCarriage";
 import { KickForm } from "./KickForm";
 import { KickGeometry } from "./KickGeometry";

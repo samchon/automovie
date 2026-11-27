@@ -9,7 +9,7 @@ import type {
 } from "@automovie/interface";
 
 import { HUMANOID_JOINT_AXES } from "../kinematics/constants/HUMANOID_JOINT_AXES";
-import { resolvePose } from "../kinematics/resolvePose";
+import { resolvePose } from "../kinematics/internal/resolvePose";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { sampleMotion } from "../motion/sampleMotion";

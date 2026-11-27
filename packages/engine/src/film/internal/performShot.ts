@@ -36,17 +36,17 @@ import { sampleFormationMotion } from "../../populationRuntime/formation/sampleF
 import { transformFormationPoint } from "../../populationRuntime/formation/internal/transformFormationPoint";
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
-import { admitShotEditorialMarkers } from "../../validation/admitShotEditorialMarkers";
+import { admitShotEditorialMarkers } from "../../validation/internal/admitShotEditorialMarkers";
 import { appendLightMotionsArtifact } from "../../validation/appendLightMotionsArtifact";
-import { appendPolygonBodyCuesArtifact } from "../../validation/appendPolygonBodyCuesArtifact";
+import { appendPolygonBodyCuesArtifact } from "../../validation/internal/appendPolygonBodyCuesArtifact";
 import { describeInvalidValue } from "../../validation/describeInvalidValue";
 import { validateShotArtifact } from "../../validation/validateShotArtifact";
-import { admitPerformShotSurfaces } from "../admitPerformShotSurfaces";
+import { admitPerformShotSurfaces } from "./admitPerformShotSurfaces";
 import { compileCameraClearanceReports } from "./compileCameraClearanceReports";
 import { compilePerformShotCameras } from "./compilePerformShotCameras";
 import { compilePerformShotLaunches } from "./compilePerformShotLaunches";
-import { compilePerformShotPracticalLights } from "../compilePerformShotPracticalLights";
-import { copyPolygonBodyCue } from "../copyPolygonBodyCue";
+import { compilePerformShotPracticalLights } from "./compilePerformShotPracticalLights";
+import { copyPolygonBodyCue } from "./copyPolygonBodyCue";
 import { coupleObjects } from "./coupleObjects";
 import { createPerformShotSubjectFramer } from "../createPerformShotSubjectFramer";
 import { admitPerformShotFlames } from "../flame/internal/admitPerformShotFlames";
@@ -54,11 +54,11 @@ import { gateAuthoredObjectMotions } from "./gateAuthoredObjectMotions";
 import { gatePerformShotActions } from "./gatePerformShotActions";
 import { gatePerformShotBlocking } from "./gatePerformShotBlocking";
 import { gatePerformShotCamera } from "./gatePerformShotCamera";
-import { gatePerformShotCompiledMotions } from "../gatePerformShotCompiledMotions";
+import { gatePerformShotCompiledMotions } from "./gatePerformShotCompiledMotions";
 import { gatePerformShotFrameOverlaps } from "./gatePerformShotFrameOverlaps";
 import { gatePerformShotRegionOverlaps } from "./gatePerformShotRegionOverlaps";
-import { gatePerformShotScript } from "../gatePerformShotScript";
-import { memoizePerformShotSynthesis } from "../memoizePerformShotSynthesis";
+import { gatePerformShotScript } from "./gatePerformShotScript";
+import { memoizePerformShotSynthesis } from "./memoizePerformShotSynthesis";
 import { plantPerformShotStanceFeet } from "./plantPerformShotStanceFeet";
 
 /** Event order at one instant: cause before effect, pickup before release. */

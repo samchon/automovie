@@ -6,7 +6,7 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { resolvePreparedChainLower } from "./resolvePreparedChainLower";
+import { resolvePreparedChainLower } from "./internal/resolvePreparedChainLower";
 
 /**
  * Resolve the effector produced by two candidate clinical joints through a

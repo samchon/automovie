@@ -1,7 +1,7 @@
 import { HumanReaction as HumanReactionSource } from "../reaction/HumanReaction";
 import { ReactionSource as ReactionSourceSource } from "../reaction/ReactionSource";
-import { flinch as flinchLaw } from "../reaction/flinch";
-import { give as giveLaw } from "../reaction/give";
+import { flinch as flinchLaw } from "../reaction/internal/flinch";
+import { give as giveLaw } from "../reaction/internal/give";
 
 /**
  * The small involuntary reactions that share one size-and-time model: an

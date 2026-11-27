@@ -14,7 +14,7 @@ import type {
 
 import { DEFAULT_JOINT_AXES } from "../kinematics/constants/DEFAULT_JOINT_AXES";
 import { HUMANOID_JOINT_AXES } from "../kinematics/constants/HUMANOID_JOINT_AXES";
-import { hingedArmSpan } from "../kinematics/hingedArmSpan";
+import { hingedArmSpan } from "../kinematics/internal/hingedArmSpan";
 import { jointRomOvershoot } from "../kinematics/jointRomOvershoot";
 import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
 import { normalizeJointAxes } from "../kinematics/internal/normalizeJointAxes";

@@ -21,16 +21,16 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
-import { courseArmGoal } from "../compose/courseArmGoal";
+import { courseArmGoal } from "../compose/internal/courseArmGoal";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { HumanHand } from "../posture/HumanHand";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
-import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { poseBones } from "../posture/internal/poseBones";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { HumanMountedFrame } from "./HumanMountedFrame";
-import { humanLassoAdmit } from "./humanLassoAdmit";
+import { humanLassoAdmit } from "./internal/humanLassoAdmit";
 
 /**
  * The swinging wrist's circle overhead, metres, the hand turning mostly at the

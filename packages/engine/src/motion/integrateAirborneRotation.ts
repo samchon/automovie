@@ -12,7 +12,7 @@ import type {
 import { prepareAutoMovieMassModel } from "../kinematics/prepareAutoMovieMassModel";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import type { physicalInertiaFactor } from "../physics/physicalInertiaFactor";
+import type { physicalInertiaFactor } from "../physics/internal/physicalInertiaFactor";
 import { AirborneConstantShapeHistory } from "./AirborneConstantShapeHistory";
 import { AirborneMomentumDefect } from "./AirborneMomentumDefect";
 import { AirborneRotationFlight } from "./AirborneRotationFlight";
@@ -21,7 +21,7 @@ import { AirborneShapeStatistics } from "./AirborneShapeStatistics";
 import { AirborneTabulatedShapeHistory } from "./AirborneTabulatedShapeHistory";
 import { MotionTrajectoryFailure } from "./MotionTrajectoryFailure";
 import { integrateMotionTrajectory } from "./integrateMotionTrajectory";
-import { solveAirborneInvariant } from "./solveAirborneInvariant";
+import { solveAirborneInvariant } from "./internal/solveAirborneInvariant";
 
 /**
  * The root orientation of a body in flight, from its angular momentum about the

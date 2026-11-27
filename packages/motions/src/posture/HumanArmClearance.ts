@@ -16,9 +16,9 @@ import { HumanArmClearing } from "./HumanArmClearing";
 import { HumanArmObstacleBones } from "./HumanArmObstacleBones";
 import { HumanArmOvershoot } from "./HumanArmOvershoot";
 import { HumanColliders } from "./HumanColliders";
-import { poseBones } from "./poseBones";
-import { prepareHumanJointRom } from "./prepareHumanJointRom";
-import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
+import { poseBones } from "./internal/poseBones";
+import { prepareHumanJointRom } from "./internal/prepareHumanJointRom";
+import { prepareHumanPoseResolution } from "./internal/prepareHumanPoseResolution";
 
 /**
  * The room a forearm needs beside its own trunk and beside the other arm.

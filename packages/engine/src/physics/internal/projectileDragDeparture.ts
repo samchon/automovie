@@ -6,7 +6,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { binary64SumProductsSign } from "../../math/binary64SumProductsSign";
+import { binary64SumProductsSign } from "../../math/internal/binary64SumProductsSign";
 import { projectileDragFlight } from "../projectileDragFlight";
 
 /**

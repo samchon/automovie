@@ -11,8 +11,8 @@ import type {
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPerformanceGrips } from "./HumanPerformanceGrips";
 import { HumanPerformanceObject } from "./HumanPerformanceObject";
-import { humanTetherCatenary } from "./humanTetherCatenary";
-import { humanTetherReach } from "./humanTetherReach";
+import { humanTetherCatenary } from "./internal/humanTetherCatenary";
+import { humanTetherReach } from "./internal/humanTetherReach";
 
 /** A tether found by its far prop: the declaring prop and the line. */
 type IHeld = IAutoMovieMotionHumanPerformanceState.ITethered;

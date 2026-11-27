@@ -10,7 +10,7 @@ import {
 
 import { Vector3 } from "../../math/Vector3";
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
-import { directionLength } from "../../validation/directionLength";
+import { directionLength } from "../../validation/internal/directionLength";
 import { validateSolidPlanes } from "./validateSolidPlanes";
 
 /**

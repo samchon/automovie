@@ -8,7 +8,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
-import { climbLadder } from "../../climbing/climbLadder";
+import { climbLadder } from "../../climbing/internal/climbLadder";
 import { HumanFoot } from "../../posture/HumanFoot";
 import { HumanFrame } from "../../posture/HumanFrame";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";

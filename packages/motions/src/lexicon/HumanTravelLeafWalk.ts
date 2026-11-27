@@ -12,11 +12,11 @@ import type {
 } from "@automovie/interface";
 
 import { walk } from "../gait/internal/walk";
-import { walkPaced } from "../actions/walkPaced";
+import { walkPaced } from "../actions/internal/walkPaced";
 import { HumanSupportCarry } from "../carrier/HumanSupportCarry";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { HumanFrame } from "../posture/HumanFrame";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPoseResolution } from "../posture/internal/prepareHumanPoseResolution";
 
 /** The record of `IPlanLast`'s site. */
 type IPlanLast = { mid: IAutoMovieVector3; turn: number };

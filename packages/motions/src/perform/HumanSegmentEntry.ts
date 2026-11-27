@@ -16,10 +16,10 @@ import type {
 
 import { HumanBase } from "../law/HumanBase";
 import { HumanBoneGroups } from "../posture/HumanBoneGroups";
-import { humanRig } from "../posture/humanRig";
-import { poseBones } from "../posture/poseBones";
+import { humanRig } from "../posture/internal/humanRig";
+import { poseBones } from "../posture/internal/poseBones";
 import { HumanSegmentPose } from "./HumanSegmentPose";
-import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
+import { prepareHumanSegmentPose } from "./internal/prepareHumanSegmentPose";
 
 /** The alternatives of `SupportsPart`'s site. */
 type SupportsPart = "leftFoot" | "rightFoot";

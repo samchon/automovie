@@ -16,7 +16,7 @@ import { HumanGrip } from "../../handling/HumanGrip";
 import { HumanPerformance } from "../../perform/HumanPerformance";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
-import type { humanPolygonMan } from "../humanPolygonMan";
+import type { humanPolygonMan } from "../internal/humanPolygonMan";
 import { handoverCases } from "./handoverCases";
 import { handshakeCases } from "./handshakeCases";
 

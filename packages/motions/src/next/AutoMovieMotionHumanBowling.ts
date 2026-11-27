@@ -1,5 +1,5 @@
-import { bowlingPinfall as bowlingPinfallLaw } from "../sport/bowlingPinfall";
-import { bowlingSlide as bowlingSlideLaw } from "../sport/bowlingSlide";
+import { bowlingPinfall as bowlingPinfallLaw } from "../sport/internal/bowlingPinfall";
+import { bowlingSlide as bowlingSlideLaw } from "../sport/internal/bowlingSlide";
 import { HUMAN_BOWLING_DELIVERY } from "./presets/HUMAN_BOWLING_DELIVERY";
 
 /**

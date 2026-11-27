@@ -16,7 +16,7 @@ import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
-import { poseBones } from "../posture/poseBones";
+import { poseBones } from "../posture/internal/poseBones";
 
 /**
  * A trunk leaned forward to bring work within the arms: a hip hinge, the whole

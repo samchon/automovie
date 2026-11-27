@@ -11,7 +11,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
-import { humanForceRespond } from "./humanForceRespond";
+import { humanForceRespond } from "./internal/humanForceRespond";
 
 /**
  * A partner's response to a pull through grips, the outcomes of `perturb` a

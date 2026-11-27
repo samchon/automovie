@@ -3,8 +3,8 @@ import type {
   IAutoMovieMotionHumanEnvironmentRecovery,
 } from "@automovie/interface";
 
-import { perturb } from "../reaction/perturb";
-import { planEnvironmentRecovery } from "../reaction/planEnvironmentRecovery";
+import { perturb } from "../reaction/internal/perturb";
+import { planEnvironmentRecovery } from "../reaction/internal/planEnvironmentRecovery";
 
 /**
  * Resolving a walk's staged trip or slip: the walk is cut at the measured cue

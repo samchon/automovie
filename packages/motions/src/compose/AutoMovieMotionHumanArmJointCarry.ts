@@ -7,8 +7,8 @@ import type {
   IAutoMoviePose,
 } from "@automovie/interface";
 
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { prepareHumanPoseResolution } from "../posture/internal/prepareHumanPoseResolution";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
 import { AutoMovieMotionHumanArmCarryCourse } from "./AutoMovieMotionHumanArmCarryCourse";
 
 /**

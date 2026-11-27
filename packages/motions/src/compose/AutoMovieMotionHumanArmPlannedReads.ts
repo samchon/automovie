@@ -16,9 +16,9 @@ import type {
 import { HumanArmClearance } from "../posture/HumanArmClearance";
 import type { HumanArmTrajectory } from "../posture/HumanArmTrajectory";
 import { HumanLimbFit } from "../posture/HumanLimbFit";
-import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import type { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import type { prepareHumanPoseResolution } from "../posture/internal/prepareHumanPoseResolution";
+import type { prepareHumanPostureProjection } from "../posture/internal/prepareHumanPostureProjection";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
 import { AutoMovieMotionHumanArmAimed } from "./AutoMovieMotionHumanArmAimed";
 import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
 import { AutoMovieMotionHumanArmCourse } from "./AutoMovieMotionHumanArmCourse";

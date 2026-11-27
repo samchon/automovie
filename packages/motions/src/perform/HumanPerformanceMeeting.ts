@@ -12,7 +12,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
-import { poseBones } from "../posture/poseBones";
+import { poseBones } from "../posture/internal/poseBones";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 
 /** The record of `IReaderContext`'s site. */

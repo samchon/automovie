@@ -1,9 +1,9 @@
-import { composeHumanStraightenTie as composeHumanStraightenTieLaw } from "../dressing/composeHumanStraightenTie";
-import { dress as dressLaw } from "../dressing/dress";
-import { tipHat as tipHatLaw } from "../dressing/tipHat";
-import { wardrobe as wardrobeLaw } from "../dressing/wardrobe";
+import { composeHumanStraightenTie as composeHumanStraightenTieLaw } from "../dressing/internal/composeHumanStraightenTie";
+import { dress as dressLaw } from "../dressing/internal/dress";
+import { tipHat as tipHatLaw } from "../dressing/internal/tipHat";
+import { wardrobe as wardrobeLaw } from "../dressing/internal/wardrobe";
 import { HumanSheath as HumanSheathSource } from "../handling/HumanSheath";
-import { drawFromCarrier as drawFromCarrierLaw } from "../handling/drawFromCarrier";
+import { drawFromCarrier as drawFromCarrierLaw } from "../handling/internal/drawFromCarrier";
 import { HumanCarrierCustody as HumanCarrierCustodySource } from "../lexicon/HumanCarrierCustody";
 import { HumanDressRows as HumanDressRowsSource } from "../lexicon/HumanDressRows";
 

@@ -7,12 +7,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { walkLeg } from "../../actions/walkLeg";
+import { walkLeg } from "../../actions/internal/walkLeg";
 import { AutoMovieMotionHumanArmCourse } from "../../compose/AutoMovieMotionHumanArmCourse";
 import { HumanFoot } from "../../posture/HumanFoot";
-import type { humanFootOffset } from "../../posture/humanFootOffset";
-import { prepareHumanPoseResolution } from "../../posture/prepareHumanPoseResolution";
-import { prepareHumanSampledCourse } from "../../posture/prepareHumanSampledCourse";
+import type { humanFootOffset } from "../../posture/internal/humanFootOffset";
+import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
+import { prepareHumanSampledCourse } from "../../posture/internal/prepareHumanSampledCourse";
 import type { climbStairsRocker } from "./climbStairsRocker";
 
 /**

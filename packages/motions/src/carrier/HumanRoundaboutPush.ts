@@ -9,9 +9,9 @@ import type {
 } from "@automovie/interface";
 
 import { walk } from "../gait/internal/walk";
-import { courseArmGoal } from "../compose/courseArmGoal";
+import { courseArmGoal } from "../compose/internal/courseArmGoal";
 import { HumanMountRider } from "../lexicon/HumanMountRider";
-import { readPropGrip } from "./readPropGrip";
+import { readPropGrip } from "./internal/readPropGrip";
 
 type Params = IAutoMovieMotionHumanPlayground.IRoundaboutPushParams;
 type Plan = IAutoMovieMotionHumanActionPlan;

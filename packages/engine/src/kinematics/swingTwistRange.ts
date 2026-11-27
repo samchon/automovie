@@ -26,7 +26,7 @@ import { HUMANOID_REST_FRAME } from "../rom/constants/HUMANOID_REST_FRAME";
 import { toClinicalAngle } from "../rom/toClinicalAngle";
 import { toRigAngle } from "../rom/toRigAngle";
 import { HUMANOID_JOINT_AXES } from "./constants/HUMANOID_JOINT_AXES";
-import { placeSwingTwistChart } from "./placeSwingTwistChart";
+import { placeSwingTwistChart } from "./internal/placeSwingTwistChart";
 import { skeletonJointAxes } from "./internal/skeletonJointAxes";
 import { swingTwistBasis } from "./swingTwistBasis";
 import { swingTwistRegion } from "./swingTwistRegion";

@@ -5,7 +5,7 @@ import type {
   IAutoMoviePose,
 } from "@automovie/interface";
 
-import type { crawlFeet } from "./crawlFeet";
+import type { crawlFeet } from "./internal/crawlFeet";
 
 /** What the way down onto all fours (`crawlDown`) is built from. */
 export interface ICrawlDownProps {

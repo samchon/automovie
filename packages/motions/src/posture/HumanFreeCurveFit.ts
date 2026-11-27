@@ -21,9 +21,9 @@ import type {
 
 import { HumanPosturePreparation } from "./HumanPosturePreparation";
 import { HumanPostureRaw } from "./HumanPostureRaw";
-import { poseBones } from "./poseBones";
-import type { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
-import type { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
+import { poseBones } from "./internal/poseBones";
+import type { prepareHumanPoseResolution } from "./internal/prepareHumanPoseResolution";
+import type { prepareHumanPostureProjection } from "./internal/prepareHumanPostureProjection";
 
 /**
  * The fits and physical gates of a free-leg curve (`prepareHumanFreeCurve`):

@@ -11,8 +11,8 @@ import type {
 
 import { AutoMovieMotionHumanElbowPlace } from "../../compose/AutoMovieMotionHumanElbowPlace";
 import { HumanFrame } from "../../posture/HumanFrame";
-import { poseBones } from "../../posture/poseBones";
-import { resolveHumanPosture } from "../../posture/resolveHumanPosture";
+import { poseBones } from "../../posture/internal/poseBones";
+import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
 /**
  * The swing of a ball arm.

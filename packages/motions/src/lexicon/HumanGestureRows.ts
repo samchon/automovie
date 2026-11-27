@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanLexiconParams,
 } from "@automovie/interface";
 
-import { gesture } from "../everyday/gesture";
+import { gesture } from "../everyday/internal/gesture";
 import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 import { HUMAN_GESTURE_BECKON } from "../next/presets/HUMAN_GESTURE_BECKON";
 import { HUMAN_GESTURE_BOW } from "../next/presets/HUMAN_GESTURE_BOW";

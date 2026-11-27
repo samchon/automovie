@@ -1,4 +1,4 @@
-import { inspectRefrigerator as inspectRefrigeratorLaw } from "../lexicon/inspectRefrigerator";
+import { inspectRefrigerator as inspectRefrigeratorLaw } from "../lexicon/internal/inspectRefrigerator";
 
 /**
  * Eating and kitchen behaviours at a table: opening a refrigerator and looking

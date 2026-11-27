@@ -12,12 +12,12 @@ import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
 import { AutoMovieMotionHumanRange } from "../../compose/AutoMovieMotionHumanRange";
 import { HumanPerformance } from "../../perform/HumanPerformance";
 import { HumanColliders } from "../../posture/HumanColliders";
-import { flinch } from "../../reaction/flinch";
+import { flinch } from "../../reaction/internal/flinch";
 import { StrikingBody } from "../../striking/StrikingBody";
 import { StrikingQuality } from "../../striking/StrikingQuality";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
-import type { humanPolygonMan } from "../humanPolygonMan";
+import type { humanPolygonMan } from "../internal/humanPolygonMan";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./internal/everydayVerdicts";
 

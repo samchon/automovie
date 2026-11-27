@@ -23,9 +23,9 @@ import { AutoMovieMotionHumanBend } from "../../compose/AutoMovieMotionHumanBend
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanHand } from "../../posture/HumanHand";
 import { HumanHandTarget } from "../../posture/HumanHandTarget";
-import { poseBones } from "../../posture/poseBones";
-import { prepareHumanPostureProjection } from "../../posture/prepareHumanPostureProjection";
-import { resolveHumanPosture } from "../../posture/resolveHumanPosture";
+import { poseBones } from "../../posture/internal/poseBones";
+import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
+import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { climbStairsRailLine } from "./climbStairsRailLine";
 
 /** Allowed displayed grip residual, in metres. */

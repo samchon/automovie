@@ -18,11 +18,11 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
 import { getConstraint } from "../rom/getConstraint";
-import type { prepareChainFit } from "./prepareChainFit";
+import type { prepareChainFit } from "./internal/prepareChainFit";
 import { prepareJointRotationProjection } from "./prepareJointRotationProjection";
 import { resolveBoneMap } from "./resolveBoneMap";
-import { resolveChainEffectorBaseRotation } from "./resolveChainEffectorBaseRotation";
-import { resolvePreparedChainFrames } from "./resolvePreparedChainFrames";
+import { resolveChainEffectorBaseRotation } from "./internal/resolveChainEffectorBaseRotation";
+import { resolvePreparedChainFrames } from "./internal/resolvePreparedChainFrames";
 import { splitDistalTwist } from "./splitDistalTwist";
 
 /**

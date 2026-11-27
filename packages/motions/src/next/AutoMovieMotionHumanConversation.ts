@@ -1,7 +1,7 @@
 import { HumanConversation as HumanConversationSource } from "../everyday/HumanConversation";
-import { conversationGaze as conversationGazeLaw } from "../everyday/conversationGaze";
-import { conversationGroupGaze as conversationGroupGazeLaw } from "../everyday/conversationGroupGaze";
-import { conversationShare as conversationShareLaw } from "../everyday/conversationShare";
+import { conversationGaze as conversationGazeLaw } from "../everyday/internal/conversationGaze";
+import { conversationGroupGaze as conversationGroupGazeLaw } from "../everyday/internal/conversationGroupGaze";
+import { conversationShare as conversationShareLaw } from "../everyday/internal/conversationShare";
 
 /**
  * The Conversation family of motions.

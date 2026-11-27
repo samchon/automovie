@@ -8,9 +8,9 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
-import { mixHumanPosture } from "../posture/mixHumanPosture";
+import { mixHumanPosture } from "../posture/internal/mixHumanPosture";
 import { HumanMountedFrame } from "./HumanMountedFrame";
-import { humanDrapeLying } from "./humanDrapeLying";
+import { humanDrapeLying } from "./internal/humanDrapeLying";
 
 /** The law's context. */
 type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDrape>;

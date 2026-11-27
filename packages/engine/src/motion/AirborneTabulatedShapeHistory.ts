@@ -9,14 +9,14 @@ import type {
 import type { prepareAutoMovieMassModel } from "../kinematics/prepareAutoMovieMassModel";
 import type { resolveAutoMovieMomentum } from "../kinematics/resolveAutoMovieMomentum";
 import { Quaternion } from "../math/Quaternion";
-import { physicalInertiaFactor } from "../physics/physicalInertiaFactor";
+import { physicalInertiaFactor } from "../physics/internal/physicalInertiaFactor";
 import { physicalInertiaTensor } from "../physics/physicalInertiaTensor";
 import { AirborneShapeInertia } from "./AirborneShapeInertia";
 import { AirborneShapeReduction } from "./AirborneShapeReduction";
 import { AirborneShapeStatistics } from "./AirborneShapeStatistics";
 import type { integrateAirborneRotation } from "./integrateAirborneRotation";
 import { samplePoseVelocity } from "./samplePoseVelocity";
-import { tabulateAirborneShapeKnots } from "./tabulateAirborneShapeKnots";
+import { tabulateAirborneShapeKnots } from "./internal/tabulateAirborneShapeKnots";
 
 /** The numeric sufficient statistics a query returns. */
 type IInstant = IAutoMovieIntegrateAirborneRotation.IInstant;

@@ -18,8 +18,8 @@ import { HumanRide } from "../lexicon/HumanRide";
 import { PreparedHumanIntervals } from "../perform/PreparedHumanIntervals";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanMaterialContact } from "../posture/HumanMaterialContact";
-import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { poseBones } from "../posture/internal/poseBones";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
 
 type Params = IAutoMovieMotionHumanPlayground.ISeesawRideParams;
 type Plan = IAutoMovieMotionHumanActionPlan;

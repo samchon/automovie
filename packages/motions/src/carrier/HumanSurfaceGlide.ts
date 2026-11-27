@@ -13,12 +13,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { standingLegs } from "../actions/standingLegs";
+import { standingLegs } from "../actions/internal/standingLegs";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
-import { carryHumanPosture } from "../posture/carryHumanPosture";
-import { prepareGlideSlope } from "./prepareGlideSlope";
+import { carryHumanPosture } from "../posture/internal/carryHumanPosture";
+import { prepareGlideSlope } from "./internal/prepareGlideSlope";
 
 /** Fixed traversal order of the two independently fitted feet. */
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];

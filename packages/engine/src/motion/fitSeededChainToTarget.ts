@@ -14,14 +14,14 @@ import type {
 import { preparePoseResolution } from "../kinematics/preparePoseResolution";
 import type { prepareSkeletonPoseResolution } from "../kinematics/prepareSkeletonPoseResolution";
 import type { IAutoMovieChainContinuationObserver } from "./IAutoMovieChainContinuationObserver";
-import { continueHingedOrientation } from "./continueHingedOrientation";
-import { fitChainBend } from "./fitChainBend";
+import { continueHingedOrientation } from "./internal/continueHingedOrientation";
+import { fitChainBend } from "./internal/fitChainBend";
 import { fitHingedChainAt } from "./fitHingedChainAt";
-import { fitHingedChainBend } from "./fitHingedChainBend";
+import { fitHingedChainBend } from "./internal/fitHingedChainBend";
 import { orientChainEffector } from "./orientChainEffector";
-import { prepareChainFit } from "./prepareChainFit";
+import { prepareChainFit } from "./internal/prepareChainFit";
 import { resolveBoneMap } from "./resolveBoneMap";
-import { resolvePreparedChainFrames } from "./resolvePreparedChainFrames";
+import { resolvePreparedChainFrames } from "./internal/resolvePreparedChainFrames";
 
 /**
  * Fit a reachable two-bone chain to a model-frame target under the rig's

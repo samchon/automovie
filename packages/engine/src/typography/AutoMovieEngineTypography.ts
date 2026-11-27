@@ -11,12 +11,12 @@ import type {
   IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { buildAutoMovieRaisedLettering as buildAutoMovieRaisedLetteringImplementation } from "./buildAutoMovieRaisedLettering";
-import { buildAutoMovieTextGeometry as buildAutoMovieTextGeometryImplementation } from "./buildAutoMovieTextGeometry";
-import { flattenAutoMovieQuadratic as flattenAutoMovieQuadraticImplementation } from "./flattenAutoMovieQuadratic";
-import { layoutAutoMovieText as layoutAutoMovieTextImplementation } from "./layoutAutoMovieText";
-import { regionsOfAutoMovieGlyph as regionsOfAutoMovieGlyphImplementation } from "./regionsOfAutoMovieGlyph";
-import { validateAutoMovieFontSources as validateAutoMovieFontSourcesImplementation } from "./validateAutoMovieFontSources";
+import { buildAutoMovieRaisedLettering as buildAutoMovieRaisedLetteringImplementation } from "./internal/buildAutoMovieRaisedLettering";
+import { buildAutoMovieTextGeometry as buildAutoMovieTextGeometryImplementation } from "./internal/buildAutoMovieTextGeometry";
+import { flattenAutoMovieQuadratic as flattenAutoMovieQuadraticImplementation } from "./internal/flattenAutoMovieQuadratic";
+import { layoutAutoMovieText as layoutAutoMovieTextImplementation } from "./internal/layoutAutoMovieText";
+import { regionsOfAutoMovieGlyph as regionsOfAutoMovieGlyphImplementation } from "./internal/regionsOfAutoMovieGlyph";
+import { validateAutoMovieFontSources as validateAutoMovieFontSourcesImplementation } from "./internal/validateAutoMovieFontSources";
 
 /** Deterministic font layout, glyph geometry and font-source admission. */
 export namespace AutoMovieEngineTypography {

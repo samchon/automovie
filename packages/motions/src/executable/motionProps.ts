@@ -3,7 +3,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 import type { IMotionCaptureCase } from "./IMotionCaptureCase";
-import { buildMotionCaptureCases } from "./buildMotionCaptureCases";
+import { buildMotionCaptureCases } from "./internal/buildMotionCaptureCases";
 import { planMotionCaptureProps } from "./internal/planMotionCaptureProps";
 
 /** The motions package, whose `media/props/` holds the written files by default. */

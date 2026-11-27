@@ -10,7 +10,7 @@ import type {
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanArmTrajectory } from "../posture/HumanArmTrajectory";
-import { certifyHumanArmTracks } from "../posture/certifyHumanArmTracks";
+import { certifyHumanArmTracks } from "../posture/internal/certifyHumanArmTracks";
 import type { AutoMovieMotionHumanArmCourse } from "./AutoMovieMotionHumanArmCourse";
 import type { AutoMovieMotionHumanArmPlanned } from "./AutoMovieMotionHumanArmPlanned";
 import type { AutoMovieMotionHumanArmPlannedProblem } from "./AutoMovieMotionHumanArmPlannedProblem";

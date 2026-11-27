@@ -10,12 +10,12 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
-import { courseArmGoal } from "../compose/courseArmGoal";
+import { courseArmGoal } from "../compose/internal/courseArmGoal";
 import { ExerciseKey } from "../exercise/ExerciseKey";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { poseBones } from "../posture/poseBones";
-import { prepareHumanShapeBlend } from "../posture/prepareHumanShapeBlend";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { poseBones } from "../posture/internal/poseBones";
+import { prepareHumanShapeBlend } from "../posture/internal/prepareHumanShapeBlend";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
 import { AquaticCrew } from "./AquaticCrew";
 import { AquaticPaddleCraft } from "./AquaticPaddleCraft";
 import { AquaticPosture } from "./AquaticPosture";

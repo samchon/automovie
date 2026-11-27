@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanLexiconParams,
 } from "@automovie/interface";
 
-import { rest } from "../everyday/rest";
+import { rest } from "../everyday/internal/rest";
 import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 import { HUMAN_STANCE_ARMS_CROSSED } from "../next/presets/HUMAN_STANCE_ARMS_CROSSED";
 import { HUMAN_STANCE_CHIN_REST } from "../next/presets/HUMAN_STANCE_CHIN_REST";

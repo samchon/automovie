@@ -13,7 +13,7 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { preparePoseResolution } from "./preparePoseResolution";
 import type { prepareSkeletonPoseResolution } from "./prepareSkeletonPoseResolution";
-import { resolvePose } from "./resolvePose";
+import { resolvePose } from "./internal/resolvePose";
 
 /**
  * The transform of a child model's root rigidly coupled to one bone of a posed

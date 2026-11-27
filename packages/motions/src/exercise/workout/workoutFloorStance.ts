@@ -5,7 +5,7 @@ import type {
   IAutoMovieMotionHumanWorkoutKind,
 } from "@automovie/interface";
 
-import { floorEntry } from "../../floor/floorEntry";
+import { floorEntry } from "../../floor/internal/floorEntry";
 
 /** The parts a held floor stance bears on. */
 const BEARING = ["leftHand", "rightHand", "leftFoot", "rightFoot"] as const;

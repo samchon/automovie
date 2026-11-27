@@ -11,7 +11,7 @@ import type {
 import { HumanBound } from "../../law/HumanBound";
 import { HumanFoot } from "../../posture/HumanFoot";
 import { HumanFrame } from "../../posture/HumanFrame";
-import type { humanFootOffset } from "../../posture/humanFootOffset";
+import type { humanFootOffset } from "../../posture/internal/humanFootOffset";
 
 /** The measurements and toe sockets used to resolve a flight. */
 type FlightBody = humanFootOffset.IBody & {

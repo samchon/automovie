@@ -16,12 +16,12 @@ import { AutoMovieMotionHumanElbowPole } from "../compose/AutoMovieMotionHumanEl
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanHandShape } from "../posture/HumanHandShape";
 import { HumanHandTarget } from "../posture/HumanHandTarget";
-import { blendHumanJoint } from "../posture/blendHumanJoint";
-import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { blendHumanJoint } from "../posture/internal/blendHumanJoint";
+import { poseBones } from "../posture/internal/poseBones";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
 import { GymnasticsPalmRise } from "./GymnasticsPalmRise";
-import { layGymnasticsWheelFoot } from "./layGymnasticsWheelFoot";
-import { solveGymnasticsLaidArm } from "./solveGymnasticsLaidArm";
+import { layGymnasticsWheelFoot } from "./internal/layGymnasticsWheelFoot";
+import { solveGymnasticsLaidArm } from "./internal/solveGymnasticsLaidArm";
 
 /** One bearing window with its laid place. */
 interface ILaid {

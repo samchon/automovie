@@ -20,7 +20,7 @@ import { getConstraint } from "../rom/getConstraint";
 import { toClinicalAngle } from "../rom/toClinicalAngle";
 import { basisOf } from "./basisOf";
 import { orientChainEffector } from "./orientChainEffector";
-import { prepareHingedChainAt } from "./prepareHingedChainAt";
+import { prepareHingedChainAt } from "./internal/prepareHingedChainAt";
 
 /**
  * A hinged two-bone chain posed at a prescribed swivel and bend branch, with no

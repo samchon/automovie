@@ -10,9 +10,9 @@ import type {
 } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
-import { catchObject } from "../../throwing/catchObject";
-import { readThrowObjectLaunch } from "../../throwing/readThrowObjectLaunch";
-import { throwObject } from "../../throwing/throwObject";
+import { catchObject } from "../../throwing/internal/catchObject";
+import { readThrowObjectLaunch } from "../../throwing/internal/readThrowObjectLaunch";
+import { throwObject } from "../../throwing/internal/throwObject";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./internal/everydayVerdicts";

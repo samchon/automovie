@@ -16,7 +16,7 @@ import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarge
 import { HumanSeatedReach } from "../touch/HumanSeatedReach";
 import { HumanGrasp } from "./HumanGrasp";
 import { HumanPrehension } from "./HumanPrehension";
-import { handshake } from "./handshake";
+import { handshake } from "./internal/handshake";
 
 /** The record of `IKindProps`'s site. */
 type IKindProps = {

@@ -1,9 +1,6 @@
 import { guardAutoMovieRenderModeRetirement, guardAutoMovieSceneShadowRetirement, restoreAutoMovieRenderModeState, AutoMovieSceneResource, AutoMovieSceneRenderMode } from "@automovie/render";
 import * as THREE from "three";
 
-import type { IAutoMovieViewerCompletedFrame } from "../../IAutoMovieViewerCompletedFrame.js";
-import type { IAutoMovieViewerHandle } from "../../IAutoMovieViewerHandle.js";
-import type { IMountViewerOptions } from "../../IMountViewerOptions.js";
 import { AutoMovieViewerDisplay } from "../../display/AutoMovieViewerDisplay.js";
 import type { AutoMovieViewer } from "../AutoMovieViewer.js";
 import { releaseMountedViewer } from "./releaseMountedViewer.js";
@@ -32,8 +29,8 @@ export function mountViewer(
   scene: THREE.Scene,
   camera: THREE.PerspectiveCamera,
   onFrame: AutoMovieViewer.FrameProducer,
-  options?: IMountViewerOptions,
-): IAutoMovieViewerHandle {
+  options?: AutoMovieViewer.IMountOptions,
+): AutoMovieViewer.IHandle {
   const renderer: THREE.WebGLRenderer = new THREE.WebGLRenderer({
     canvas,
     antialias: options?.antialias ?? true,
@@ -60,7 +57,7 @@ export function mountViewer(
       AutoMovieViewerDisplay.createClock();
     let timeOffset: number = 0;
     let lastCompleted:
-      | Omit<IAutoMovieViewerCompletedFrame, "control">
+      | Omit<AutoMovieViewerDisplay.ICompletedFrame, "control">
       | undefined;
     let completions: number = 0;
     function active(): void {
@@ -79,7 +76,7 @@ export function mountViewer(
         freezeCompleted: options?.freezeCompleted,
       });
     frameControl = ownedControl;
-    const control: NonNullable<IAutoMovieViewerCompletedFrame["control"]> =
+    const control: NonNullable<AutoMovieViewerDisplay.ICompletedFrame["control"]> =
       ownedControl.control;
     function draw(seconds: number, explicitDraw: boolean = false): void {
       active();
@@ -105,19 +102,19 @@ export function mountViewer(
       });
     }
     function complete(
-      ordinary?: Omit<IAutoMovieViewerCompletedFrame, "control">,
+      ordinary?: Omit<AutoMovieViewerDisplay.ICompletedFrame, "control">,
       seconds?: number,
       explicitDraw: boolean = false,
     ): void {
       active();
       const completed:
-        | Omit<IAutoMovieViewerCompletedFrame, "control">
+        | Omit<AutoMovieViewerDisplay.ICompletedFrame, "control">
         | undefined = options?.completedFrame?.() ?? ordinary;
       if (completed !== undefined)
         publishCompleted(completed, seconds, explicitDraw);
     }
     function publishCompleted(
-      completed: Omit<IAutoMovieViewerCompletedFrame, "control">,
+      completed: Omit<AutoMovieViewerDisplay.ICompletedFrame, "control">,
       seconds?: number,
       explicitDraw: boolean = false,
     ): void {
@@ -153,7 +150,7 @@ export function mountViewer(
           completedCount: (): number => completions,
           completedSeconds: (): number => clock.current(),
           readFrame: ():
-            | Omit<IAutoMovieViewerCompletedFrame, "control">
+            | Omit<AutoMovieViewerDisplay.ICompletedFrame, "control">
             | undefined => options?.completedFrame?.(),
           produce: (time: number): void => {
             if (options?.redrawCompleted !== undefined)
@@ -161,7 +158,7 @@ export function mountViewer(
             else draw(time, true);
           },
             publish: (
-              frame: Omit<IAutoMovieViewerCompletedFrame, "control">,
+              frame: Omit<AutoMovieViewerDisplay.ICompletedFrame, "control">,
               time: number,
             ): void => publishCompleted(frame, time, true),
           },

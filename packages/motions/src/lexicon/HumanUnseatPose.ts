@@ -11,14 +11,14 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import { hipJoints } from "../posture/hipJoints";
+import { hipJoints } from "../posture/internal/hipJoints";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
-import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { poseBones } from "../posture/internal/poseBones";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
 import type { KnockdownFloor } from "../reaction/KnockdownFloor";
 import { HumanMountedFrame } from "./HumanMountedFrame";
 import { HumanUnseatFlight } from "./HumanUnseatFlight";
-import { heelMountedFoot } from "./heelMountedFoot";
+import { heelMountedFoot } from "./internal/heelMountedFoot";
 
 /** The alternatives of `FLEXEntryItem`'s site. */
 type FLEXEntryItem = "spine" | "chest" | "neck";

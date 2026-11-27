@@ -9,7 +9,7 @@ import type {
 
 import { HumanChain } from "../../HumanChain";
 import { AutoMovieMotionInterval } from "../../compose/AutoMovieMotionInterval";
-import { wipe } from "../../tasks/wipe";
+import { wipe } from "../../tasks/internal/wipe";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./internal/everydayVerdicts";

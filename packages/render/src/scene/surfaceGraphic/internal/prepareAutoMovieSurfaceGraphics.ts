@@ -23,7 +23,7 @@ import { AUTOMOVIE_SURFACE_GRAPHIC_KEY } from "../AUTOMOVIE_SURFACE_GRAPHIC_KEY.
 import type { IAutoMovieSurfaceGraphicsObject } from "../IAutoMovieSurfaceGraphicsObject.js";
 import type { IPrepareAutoMovieSurfaceGraphicsProps } from "../IPrepareAutoMovieSurfaceGraphicsProps.js";
 import { buildAutoMovieSurfaceGraphicKey } from "./buildAutoMovieSurfaceGraphicKey.js";
-import { createAutoMovieSurfaceGraphicMaterial } from "../createAutoMovieSurfaceGraphicMaterial.js";
+import { createAutoMovieSurfaceGraphicMaterial } from "./createAutoMovieSurfaceGraphicMaterial.js";
 
 /**
  * Lift of every graphic above its surface along the frame's `+Y`, metres: half

@@ -9,7 +9,7 @@ import { HUMAN_ATTRIBUTE_EFFECTS } from "../../ensemble/HUMAN_ATTRIBUTE_EFFECTS"
 import { HumanAttribute } from "../../ensemble/HumanAttribute";
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanSkill } from "../../skill/HumanSkill";
-import { walkTempo } from "../../actions/walkTempo";
+import { walkTempo } from "../../actions/internal/walkTempo";
 
 /**
  * Heel strikes entrained to a beat track: which beat each strike answers and

@@ -16,7 +16,7 @@ import { nearestHullEdge } from "../math/internal/nearestHullEdge";
 import { pointInHull } from "../math/internal/pointInHull";
 import { AutoMovieGravity } from "../physics/AutoMovieGravity";
 import { prepareSkeletonPoseResolution } from "./prepareSkeletonPoseResolution";
-import { resolvePose } from "./resolvePose";
+import { resolvePose } from "./internal/resolvePose";
 
 /**
  * Resolve a body's mass model: every profile segment's mass and centre of mass

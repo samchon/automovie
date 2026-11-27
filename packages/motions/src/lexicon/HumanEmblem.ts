@@ -3,8 +3,8 @@ import type {
   IAutoMovieMotionHumanLexiconParams,
 } from "@automovie/interface";
 
-import { handToFace } from "../daily/handToFace";
-import { gesture } from "../everyday/gesture";
+import { handToFace } from "../daily/internal/handToFace";
+import { gesture } from "../everyday/internal/gesture";
 import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 import { HUMAN_GESTURE_EMBLEM_AIR_QUOTES } from "../next/presets/HUMAN_GESTURE_EMBLEM_AIR_QUOTES";
 import { HUMAN_GESTURE_EMBLEM_COME_HERE } from "../next/presets/HUMAN_GESTURE_EMBLEM_COME_HERE";
@@ -29,7 +29,7 @@ import { HUMAN_TOUCH_EMBLEM_COVER_EARS } from "../next/presets/HUMAN_TOUCH_EMBLE
 import { HUMAN_TOUCH_EMBLEM_COVER_MOUTH } from "../next/presets/HUMAN_TOUCH_EMBLEM_COVER_MOUTH";
 import { HUMAN_TOUCH_EMBLEM_HAND_ON_HEART } from "../next/presets/HUMAN_TOUCH_EMBLEM_HAND_ON_HEART";
 import { HUMAN_TOUCH_EMBLEM_SALUTE } from "../next/presets/HUMAN_TOUCH_EMBLEM_SALUTE";
-import { touch } from "../touch/touch";
+import { touch } from "../touch/internal/touch";
 
 /**
  * Emblems: gestures with a fixed meaning, each a row of a shipped action.

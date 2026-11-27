@@ -4,7 +4,7 @@ import type {
   IAutoMovieMotionHumanBody,
 } from "@automovie/interface";
 
-import { readHumanBone } from "../body/readHumanBone";
+import { readHumanBone } from "../body/internal/readHumanBone";
 
 /**
  * How far a torque through the arm bends a trunk that resists it: the share of

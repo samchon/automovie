@@ -4,8 +4,8 @@ import type {
 } from "@automovie/interface";
 
 import { walk } from "../gait/internal/walk";
-import { carryHang } from "../handling/carryHang";
-import { pushSled } from "../handling/pushSled";
+import { carryHang } from "../handling/internal/carryHang";
+import { pushSled } from "../handling/internal/pushSled";
 import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 
 /**

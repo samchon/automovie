@@ -1,5 +1,5 @@
-import { lieTogether as lieTogetherLaw } from "../floor/lieTogether";
-import { pullCover as pullCoverLaw } from "../floor/pullCover";
+import { lieTogether as lieTogetherLaw } from "../floor/internal/lieTogether";
+import { pullCover as pullCoverLaw } from "../floor/internal/pullCover";
 import { sleep as sleepLaw } from "../floor/sleep";
 
 /**

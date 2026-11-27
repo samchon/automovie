@@ -10,7 +10,7 @@ import type {
 
 import { AutoMovieMotionHumanHeld } from "../../compose/AutoMovieMotionHumanHeld";
 import { StrikingHeld } from "../../striking/StrikingHeld";
-import { throwObjectLaunch } from "../throwObjectLaunch";
+import { throwObjectLaunch } from "../internal/throwObjectLaunch";
 
 /** The alternatives of `SpinContext`'s site. */
 type SpinContext = "body" | "entry" | "prop" | "subject";

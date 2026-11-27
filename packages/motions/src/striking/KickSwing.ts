@@ -13,8 +13,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { walkFoot } from "../actions/walkFoot";
-import { walkLeg } from "../actions/walkLeg";
+import { walkFoot } from "../actions/internal/walkFoot";
+import { walkLeg } from "../actions/internal/walkLeg";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { KickCarriage } from "./KickCarriage";
 import { KickChain } from "./KickChain";

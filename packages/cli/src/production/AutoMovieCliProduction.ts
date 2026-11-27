@@ -1,9 +1,35 @@
+import type { IAutoMovieProductionCheck } from "@automovie/interface";
 import { loadAutoMovieProductionModule } from "./internal/loadAutoMovieProductionModule";
 import { readAutoMovieRevision } from "./internal/readAutoMovieRevision";
 import { runAutoMovieProductionCheck } from "./internal/runAutoMovieProductionCheck";
 
 /** Public production operations for the CLI. */
 export namespace AutoMovieCliProduction {
+  /** Input admitted by the production-check operation. */
+  export interface IRunCheckInput {
+    /** Absolute production directory, resolving inputs and owned observations. */
+    readonly root: string;
+
+    /** The installed capture host's environment. */
+    readonly env: Readonly<Record<string, string | undefined>>;
+
+    /** Subjects defined by this production. */
+    readonly targets: readonly IAutoMovieProductionCheck[];
+
+    /** Explicit workload and optional gate. */
+    readonly options: {
+      subjects: string[];
+      only: string[];
+      require: string | null;
+      run: boolean;
+    };
+
+    /** Resolve the source hashes used to identify a measurement input. */
+    readonly measurementSources?: (
+      file: string | undefined,
+    ) => ReadonlyMap<string, string>;
+  }
+
   /**
    * Read the source revision recorded by capture and delivery: the production's
    * Git commit with `+changes` when its working tree differs, or `unrecorded`
@@ -26,8 +52,8 @@ export namespace AutoMovieCliProduction {
   * @throws When target/check IDs or the requested scope are not usable.
   */
   export function runCheck(
-    props: Parameters<typeof runAutoMovieProductionCheck>[0],
-  ): ReturnType<typeof runAutoMovieProductionCheck> {
+    props: AutoMovieCliProduction.IRunCheckInput,
+  ): Promise<IAutoMovieProductionCheck.IReport> {
     return runAutoMovieProductionCheck(props);
   }
 

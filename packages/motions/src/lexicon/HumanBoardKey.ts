@@ -18,10 +18,10 @@ import type {
 } from "@automovie/interface";
 
 import { HumanTrunk } from "../everyday/HumanTrunk";
-import { seated } from "../everyday/seated";
-import { sitPlace } from "../everyday/sitPlace";
+import { seated } from "../everyday/internal/seated";
+import { sitPlace } from "../everyday/internal/sitPlace";
 import type { HumanMountedFrame } from "./HumanMountedFrame";
-import { hangMountedLeg } from "./hangMountedLeg";
+import { hangMountedLeg } from "./internal/hangMountedLeg";
 
 /**
  * A boarding's seated key in the seat's frame: upright and astride with the

@@ -9,7 +9,7 @@ import { walk } from "../../gait/internal/walk";
 import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
-import type { humanPolygonMan } from "../humanPolygonMan";
+import type { humanPolygonMan } from "../internal/humanPolygonMan";
 import { locomotionCase } from "./locomotionCase";
 
 /** The record of `ILocomotionCasesAllItem`'s site. */

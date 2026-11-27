@@ -10,7 +10,7 @@ import type {
 
 import { indexSkeletonTopology } from "../kinematics/indexSkeletonTopology";
 import { preparePoseResolution } from "../kinematics/preparePoseResolution";
-import { resolvePose } from "../kinematics/resolvePose";
+import { resolvePose } from "../kinematics/internal/resolvePose";
 
 /**
  * Index root-reachable FK results by humanoid bone name using the same clinical

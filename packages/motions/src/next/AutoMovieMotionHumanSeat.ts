@@ -1,10 +1,10 @@
-import { bedsidePerch as bedsidePerchLaw } from "../everyday/bedsidePerch";
-import { crossAnkleOverKnee as crossAnkleOverKneeLaw } from "../everyday/crossAnkleOverKnee";
-import { kneel as kneelLaw } from "../everyday/kneel";
-import { rise as riseLaw } from "../everyday/rise";
-import { seated as seatedLaw } from "../everyday/seated";
-import { seatedHeelBounce as seatedHeelBounceLaw } from "../everyday/seatedHeelBounce";
-import { sit as sitLaw } from "../everyday/sit";
+import { bedsidePerch as bedsidePerchLaw } from "../everyday/internal/bedsidePerch";
+import { crossAnkleOverKnee as crossAnkleOverKneeLaw } from "../everyday/internal/crossAnkleOverKnee";
+import { kneel as kneelLaw } from "../everyday/internal/kneel";
+import { rise as riseLaw } from "../everyday/internal/rise";
+import { seated as seatedLaw } from "../everyday/internal/seated";
+import { seatedHeelBounce as seatedHeelBounceLaw } from "../everyday/internal/seatedHeelBounce";
+import { sit as sitLaw } from "../everyday/internal/sit";
 import { HUMAN_SEAT_KNEEL_BRIEFLY } from "./presets/HUMAN_SEAT_KNEEL_BRIEFLY";
 import { HUMAN_SEAT_KNEEL_SIT } from "./presets/HUMAN_SEAT_KNEEL_SIT";
 import { HUMAN_SEAT_TAKE_A_KNEE } from "./presets/HUMAN_SEAT_TAKE_A_KNEE";

@@ -18,15 +18,15 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { operate } from "../affordance/operate";
+import { operate } from "../affordance/internal/operate";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
-import { pickUp } from "../handling/pickUp";
-import { putDown } from "../handling/putDown";
+import { pickUp } from "../handling/internal/pickUp";
+import { putDown } from "../handling/internal/putDown";
 import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HUMAN_ARCHERY_PRESENT_BOW } from "../next/presets/HUMAN_ARCHERY_PRESENT_BOW";
 import { HumanHand } from "../posture/HumanHand";
-import { release } from "../throwing/release";
+import { release } from "../throwing/internal/release";
 import { HumanArcheryCue } from "./HumanArcheryCue";
 import { HumanWeaponPresent } from "./HumanWeaponPresent";
 

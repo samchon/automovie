@@ -21,7 +21,7 @@ import { physicalShapeBounds } from "../physics/physicalShapeBounds";
 import { physicalShapeNormal } from "../physics/physicalShapeNormal";
 import { AutoMovieHumanoidNeutralBounds } from "./AutoMovieHumanoidNeutralBounds";
 import type { AutoMovieHumanoidSurfaceRegions } from "./AutoMovieHumanoidSurfaceRegions";
-import { resolvePose } from "./resolvePose";
+import { resolvePose } from "./internal/resolvePose";
 
 /**
  * The rest-pose readers a humanoid's surfaces are resolved with

@@ -10,8 +10,8 @@ import type {
 
 import { HumanBreath } from "./expression/HumanBreath";
 import { HumanAirborneShape } from "../lexicon/HumanAirborneShape";
-import { mixHumanPosture } from "../posture/mixHumanPosture";
-import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
+import { mixHumanPosture } from "../posture/internal/mixHumanPosture";
+import { prepareHumanPostureProjection } from "../posture/internal/prepareHumanPostureProjection";
 import { HumanSkill } from "../skill/HumanSkill";
 import { HumanSegmentSelection } from "./HumanSegmentSelection";
 

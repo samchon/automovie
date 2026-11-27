@@ -11,10 +11,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { lowerHumanPosture } from "../posture/lowerHumanPosture";
+import { lowerHumanPosture } from "../posture/internal/lowerHumanPosture";
 import { StrikingStance } from "../striking/StrikingStance";
 import { StrikingTarget } from "../striking/StrikingTarget";
-import { step } from "../striking/step";
+import { step } from "../striking/internal/step";
 import { HumanLungePivot } from "./HumanLungePivot";
 
 /** The lunge's context. */

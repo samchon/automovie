@@ -11,7 +11,7 @@ import type {
   IAutoMovieMotionHumanWallClimb,
 } from "@automovie/interface";
 
-import { wallClimbSupport } from "../climbing/wallClimbSupport";
+import { wallClimbSupport } from "../climbing/internal/wallClimbSupport";
 import { HumanChainTravel } from "./HumanChainTravel";
 
 /**

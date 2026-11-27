@@ -1,3 +1,3 @@
 // The body internals the test programme reads directly, re-exported by `../internal`.
 
-export * from "./readHumanBone";
+export * from "./internal/readHumanBone";

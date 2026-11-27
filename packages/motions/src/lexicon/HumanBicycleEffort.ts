@@ -24,16 +24,16 @@ import type {
 } from "@automovie/interface";
 
 import { HumanTrunk } from "../everyday/HumanTrunk";
-import { seated } from "../everyday/seated";
+import { seated } from "../everyday/internal/seated";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { hipJoints } from "../posture/hipJoints";
+import { hipJoints } from "../posture/internal/hipJoints";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
-import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { poseBones } from "../posture/internal/poseBones";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
 import { HumanMountRider } from "./HumanMountRider";
 import { HumanRide } from "./HumanRide";
 import type { WorkingSeatRidePlan } from "./WorkingSeatRidePlan";
-import { humanBicycleEffortTimeline } from "./humanBicycleEffortTimeline";
+import { humanBicycleEffortTimeline } from "./internal/humanBicycleEffortTimeline";
 
 /** Sides of the bicycle contact pairs. */
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];

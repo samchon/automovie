@@ -7,10 +7,10 @@ import { HumanEnsemble as HumanEnsembleSource } from "../ensemble/HumanEnsemble"
 import { HumanFormation as HumanFormationSource } from "../ensemble/HumanFormation";
 import { HumanManoeuvre as HumanManoeuvreSource } from "../ensemble/HumanManoeuvre";
 import { HumanPopulation as HumanPopulationSource } from "../ensemble/HumanPopulation";
-import { humanCrowdGroupFormation as humanCrowdGroupFormationLaw } from "../ensemble/humanCrowdGroupFormation";
-import { humanQueueAdvance as humanQueueAdvanceLaw } from "../ensemble/humanQueueAdvance";
-import { instance as instanceLaw } from "../ensemble/instance";
-import { manoeuvreWheel as manoeuvreWheelLaw } from "../ensemble/manoeuvreWheel";
+import { humanCrowdGroupFormation as humanCrowdGroupFormationLaw } from "../ensemble/internal/humanCrowdGroupFormation";
+import { humanQueueAdvance as humanQueueAdvanceLaw } from "../ensemble/internal/humanQueueAdvance";
+import { instance as instanceLaw } from "../ensemble/internal/instance";
+import { manoeuvreWheel as manoeuvreWheelLaw } from "../ensemble/internal/manoeuvreWheel";
 
 /**
  * Groups of people: a formation, a crowd and a manoeuvre.

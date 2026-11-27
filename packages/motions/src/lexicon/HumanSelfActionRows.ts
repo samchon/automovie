@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
-import { selfAction } from "../touch/selfAction";
+import { selfAction } from "../touch/internal/selfAction";
 
 /**
  * The actions on one's own body as rows: each kind of `selfAction` under a name

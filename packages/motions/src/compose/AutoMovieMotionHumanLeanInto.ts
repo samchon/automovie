@@ -9,8 +9,8 @@ import type {
 
 import { HumanBalance } from "../everyday/HumanBalance";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { lowerHumanPosture } from "../posture/lowerHumanPosture";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { lowerHumanPosture } from "../posture/internal/lowerHumanPosture";
+import { prepareHumanPoseResolution } from "../posture/internal/prepareHumanPoseResolution";
 import { AutoMovieMotionHumanLean } from "./AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanReach } from "./AutoMovieMotionHumanReach";
 

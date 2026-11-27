@@ -12,10 +12,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { poseBones } from "../posture/poseBones";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { resolveHumanPostureSource } from "../posture/resolveHumanPostureSource";
+import { poseBones } from "../posture/internal/poseBones";
+import { prepareHumanPoseResolution } from "../posture/internal/prepareHumanPoseResolution";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
+import { resolveHumanPostureSource } from "../posture/internal/resolveHumanPostureSource";
 
 /**
  * The body shapes held in flight: tuck, pike, layout, straddle and the twisting

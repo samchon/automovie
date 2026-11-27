@@ -4,10 +4,10 @@ import type {
 } from "@automovie/interface";
 
 import { walk } from "../gait/internal/walk";
-import { handToFace } from "../daily/handToFace";
-import { gesture } from "../everyday/gesture";
+import { handToFace } from "../daily/internal/handToFace";
+import { gesture } from "../everyday/internal/gesture";
 import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
-import { touch } from "../touch/touch";
+import { touch } from "../touch/internal/touch";
 
 /**
  * Habits: the small things people do with their hands, each a row of a shipped

@@ -20,16 +20,16 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { stand } from "../actions/stand";
+import { stand } from "../actions/internal/stand";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
-import { courseArmGoal } from "../compose/courseArmGoal";
+import { courseArmGoal } from "../compose/internal/courseArmGoal";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanMountRider } from "../lexicon/HumanMountRider";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanSupportCarry } from "./HumanSupportCarry";
-import { prepareSkateboardPhrase } from "./prepareSkateboardPhrase";
-import { prepareSurfboardPhrase } from "./prepareSurfboardPhrase";
+import { prepareSkateboardPhrase } from "./internal/prepareSkateboardPhrase";
+import { prepareSurfboardPhrase } from "./internal/prepareSurfboardPhrase";
 
 /** Vertical in the deck frame. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };

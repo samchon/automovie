@@ -2,11 +2,11 @@ import { HumanForceExchange as HumanForceExchangeLaw } from "../grappling/HumanF
 import { HumanForceResponse as HumanForceResponseLaw } from "../grappling/HumanForceResponse";
 import { HumanForceThrow as HumanForceThrowLaw } from "../grappling/HumanForceThrow";
 import { HumanForceTrunk as HumanForceTrunkLaw } from "../grappling/HumanForceTrunk";
-import { clinch as clinchLaw } from "../grappling/clinch";
-import { grapple as grappleLaw } from "../grappling/grapple";
-import { kuzushi as kuzushiLaw } from "../grappling/kuzushi";
-import { armWrestle as armWrestleLaw } from "../touch/armWrestle";
-import { lungeGrab as lungeGrabLaw } from "../touch/lungeGrab";
+import { clinch as clinchLaw } from "../grappling/internal/clinch";
+import { grapple as grappleLaw } from "../grappling/internal/grapple";
+import { kuzushi as kuzushiLaw } from "../grappling/internal/kuzushi";
+import { armWrestle as armWrestleLaw } from "../touch/internal/armWrestle";
+import { lungeGrab as lungeGrabLaw } from "../touch/internal/lungeGrab";
 import { HUMAN_GRAPPLE_JUDO_GRIP } from "./presets/HUMAN_GRAPPLE_JUDO_GRIP";
 
 /**

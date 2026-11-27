@@ -22,18 +22,18 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { readHumanBone } from "../body/readHumanBone";
+import { readHumanBone } from "../body/internal/readHumanBone";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanLimbFit } from "../posture/HumanLimbFit";
-import { isHumanArmAlone } from "../posture/isHumanArmAlone";
-import { poseBones } from "../posture/poseBones";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { isHumanArmAlone } from "../posture/internal/isHumanArmAlone";
+import { poseBones } from "../posture/internal/poseBones";
+import { prepareHumanPoseResolution } from "../posture/internal/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/internal/prepareHumanPostureProjection";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
 import { AutoMovieMotionHumanTouchEffector } from "./AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanTouchLaid } from "./AutoMovieMotionHumanTouchLaid";
 import { HumanTouchArmReference } from "./HumanTouchArmReference";
-import { measureDrinkingShoulder } from "./measureDrinkingShoulder";
+import { measureDrinkingShoulder } from "./internal/measureDrinkingShoulder";
 
 /** The alternatives of `CarriedTouch`'s site. */
 type CarriedTouch = "body" | "side" | "rest" | "effector" | "held";

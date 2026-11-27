@@ -1,5 +1,4 @@
 import type { AutoMovieViewerDisplay } from "../AutoMovieViewerDisplay.js";
-import type { IAutoMovieViewerDisplayMetadata } from "../../IAutoMovieViewerDisplayMetadata.js";
 import { createViewerDisplayPublication } from "./createViewerDisplayPublication.js";
 
 /**
@@ -22,7 +21,7 @@ export function createViewerDisplaySave(
   const snapshot: () =>
     | {
         surface: HTMLCanvasElement;
-        metadata: IAutoMovieViewerDisplayMetadata & {
+        metadata: AutoMovieViewerDisplay.IDisplayMetadata & {
           session?: string;
           generation?: number;
           width: number;
@@ -33,7 +32,7 @@ export function createViewerDisplaySave(
     | undefined = ():
     | {
         surface: HTMLCanvasElement;
-        metadata: IAutoMovieViewerDisplayMetadata & {
+        metadata: AutoMovieViewerDisplay.IDisplayMetadata & {
           session?: string;
           generation?: number;
           width: number;
@@ -42,10 +41,10 @@ export function createViewerDisplaySave(
         };
       }
     | undefined => {
-    const observed: IAutoMovieViewerDisplayMetadata | undefined =
+    const observed: AutoMovieViewerDisplay.IDisplayMetadata | undefined =
       props.observe();
     if (observed === undefined) return undefined;
-    const facts: IAutoMovieViewerDisplayMetadata = structuredClone(observed);
+    const facts: AutoMovieViewerDisplay.IDisplayMetadata = structuredClone(observed);
     const surface: HTMLCanvasElement = document.createElement("canvas");
     try {
       if (props.paint !== undefined) props.paint(surface);
@@ -83,7 +82,7 @@ export function createViewerDisplaySave(
       metadata,
     }: {
       surface: HTMLCanvasElement;
-      metadata: IAutoMovieViewerDisplayMetadata & {
+      metadata: AutoMovieViewerDisplay.IDisplayMetadata & {
         session?: string;
         generation?: number;
         width: number;
@@ -157,7 +156,7 @@ export function createViewerDisplaySave(
       const completed:
         | {
             surface: HTMLCanvasElement;
-            metadata: IAutoMovieViewerDisplayMetadata & {
+            metadata: AutoMovieViewerDisplay.IDisplayMetadata & {
               session?: string;
               generation?: number;
               width: number;

@@ -13,9 +13,9 @@ import type {
 import { AutoMovieMotionHumanArm } from "../../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanPlaced } from "../../compose/AutoMovieMotionHumanPlaced";
 import { HumanFrame } from "../../posture/HumanFrame";
-import { poseBones } from "../../posture/poseBones";
-import { prepareHumanPoseResolution } from "../../posture/prepareHumanPoseResolution";
-import { prepareHumanPostureProjection } from "../../posture/prepareHumanPostureProjection";
+import { poseBones } from "../../posture/internal/poseBones";
+import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
 import { StrikingBody } from "../../striking/StrikingBody";
 import { ExerciseKey } from "../ExerciseKey";
 

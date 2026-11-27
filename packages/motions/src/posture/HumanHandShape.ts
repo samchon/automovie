@@ -16,7 +16,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanColliders } from "./HumanColliders";
-import { poseBones } from "./poseBones";
+import { poseBones } from "./internal/poseBones";
 
 /** The alternatives of `TipSide`'s site. */
 type TipSide = "Left" | "Right";

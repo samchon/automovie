@@ -18,8 +18,8 @@ import type {
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanWorn } from "../dressing/HumanWorn";
 import { HumanFreedomChoice } from "../posture/HumanFreedomChoice";
-import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { poseBones } from "../posture/internal/poseBones";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
 
 /** The record of `IKeyProps`'s site. */
 type IKeyProps = {

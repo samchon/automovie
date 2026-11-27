@@ -6,12 +6,12 @@ import { HumanHeldUse as HumanHeldUseSource } from "../handling/HumanHeldUse";
 import { HumanPocket as HumanPocketSource } from "../handling/HumanPocket";
 import { HumanPrehension as HumanPrehensionSource } from "../handling/HumanPrehension";
 import { HumanPreshape as HumanPreshapeSource } from "../handling/HumanPreshape";
-import { carryHang as carryHangLaw } from "../handling/carryHang";
-import { pickUp as pickUpLaw } from "../handling/pickUp";
-import { pickUpMoving as pickUpMovingLaw } from "../handling/pickUpMoving";
-import { putDown as putDownLaw } from "../handling/putDown";
-import { putDownAperture as putDownApertureLaw } from "../handling/putDownAperture";
-import { regrasp as regraspLaw } from "../handling/regrasp";
+import { carryHang as carryHangLaw } from "../handling/internal/carryHang";
+import { pickUp as pickUpLaw } from "../handling/internal/pickUp";
+import { pickUpMoving as pickUpMovingLaw } from "../handling/internal/pickUpMoving";
+import { putDown as putDownLaw } from "../handling/internal/putDown";
+import { putDownAperture as putDownApertureLaw } from "../handling/internal/putDownAperture";
+import { regrasp as regraspLaw } from "../handling/internal/regrasp";
 import { HumanRegrasp as HumanRegraspSource } from "../lexicon/HumanRegrasp";
 
 /**

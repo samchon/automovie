@@ -9,10 +9,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { seated } from "../everyday/seated";
+import { seated } from "../everyday/internal/seated";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { HumanMountedStirrups } from "./HumanMountedStirrups";
-import { respondHumanMounted } from "./respondHumanMounted";
+import { respondHumanMounted } from "./internal/respondHumanMounted";
 
 /** The alternatives of `KeyAttitude`'s site. */
 type KeyAttitude = "yaw" | "pitch" | "roll";

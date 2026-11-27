@@ -6,7 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanCrutchWalkPlan } from "./HumanCrutchWalkPlan";
-import { crutchWalkCourse } from "./crutchWalkCourse";
+import { crutchWalkCourse } from "./internal/crutchWalkCourse";
 
 /**
  * Walking on two crutches: a crutch gait on the support law, the crutches

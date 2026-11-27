@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { affordanceFollowedTravel } from "./affordanceFollowedTravel";
-import { interpolateAffordanceTravel } from "./interpolateAffordanceTravel";
+import { interpolateAffordanceTravel } from "./internal/interpolateAffordanceTravel";
 
 /**
  * The unique leader travel that gives a requested follower travel.

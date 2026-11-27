@@ -3,10 +3,10 @@ import type {
   IAutoMovieMotionHumanLexiconParams,
 } from "@automovie/interface";
 
-import { balletStep } from "../exercise/balletStep";
-import { groupDance } from "../exercise/groupDance";
-import { streetDance } from "../exercise/streetDance";
-import { tapDance } from "../exercise/tapDance";
+import { balletStep } from "../exercise/internal/balletStep";
+import { groupDance } from "../exercise/internal/groupDance";
+import { streetDance } from "../exercise/internal/streetDance";
+import { tapDance } from "../exercise/internal/tapDance";
 import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 
 /**

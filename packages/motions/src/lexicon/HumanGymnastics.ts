@@ -3,22 +3,22 @@ import type {
   IAutoMovieMotionHumanLexiconParams,
 } from "@automovie/interface";
 
-import { juggle } from "../exercise/juggle";
-import { lineWalk as lineWalkLaw } from "../exercise/lineWalk";
-import { stiltWalk } from "../exercise/stiltWalk";
-import { trampolineBounce } from "../exercise/trampolineBounce";
+import { juggle } from "../exercise/internal/juggle";
+import { lineWalk as lineWalkLaw } from "../exercise/internal/lineWalk";
+import { stiltWalk } from "../exercise/internal/stiltWalk";
+import { trampolineBounce } from "../exercise/internal/trampolineBounce";
 import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 import { HUMAN_ACROBATICS_ROUND_OFF_LEFT } from "../next/presets/HUMAN_ACROBATICS_ROUND_OFF_LEFT";
 import { HUMAN_ACROBATICS_ROUND_OFF_RIGHT } from "../next/presets/HUMAN_ACROBATICS_ROUND_OFF_RIGHT";
-import { fieldThrow as fieldThrowLaw } from "../sport/fieldThrow";
-import { handspring } from "../sport/handspring";
+import { fieldThrow as fieldThrowLaw } from "../sport/internal/fieldThrow";
+import { handspring } from "../sport/internal/handspring";
 import { AutoMovieMotionHumanHighJump as highJump } from "../sport/AutoMovieMotionHumanHighJump";
-import { horizontalJump } from "../sport/horizontalJump";
-import { hurdleClear as hurdleClearLaw } from "../sport/hurdleClear";
+import { horizontalJump } from "../sport/internal/horizontalJump";
+import { hurdleClear as hurdleClearLaw } from "../sport/internal/hurdleClear";
 import { AutoMovieMotionHumanPoleVault as poleVault } from "../sport/AutoMovieMotionHumanPoleVault";
-import { roundOff } from "../sport/roundOff";
-import { squatVault } from "../sport/squatVault";
-import { vault } from "../sport/vault";
+import { roundOff } from "../sport/internal/roundOff";
+import { squatVault } from "../sport/internal/squatVault";
+import { vault } from "../sport/internal/vault";
 
 /**
  * The airborne acrobatics and jumps of gymnastics and athletics under their

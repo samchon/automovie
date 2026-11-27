@@ -3,17 +3,17 @@ import type {
   IAutoMovieMotionHumanLexiconParams,
 } from "@automovie/interface";
 
-import { gesture } from "../everyday/gesture";
-import { dance } from "../exercise/dance";
-import { exercise } from "../exercise/exercise";
+import { gesture } from "../everyday/internal/gesture";
+import { dance } from "../exercise/internal/dance";
+import { exercise } from "../exercise/internal/exercise";
 import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 import { HUMAN_MILITARY_DRILL_AIM } from "../next/presets/HUMAN_MILITARY_DRILL_AIM";
 import { HUMAN_MILITARY_DRILL_FRONT_KICK } from "../next/presets/HUMAN_MILITARY_DRILL_FRONT_KICK";
 import { HUMAN_MILITARY_DRILL_HOOK } from "../next/presets/HUMAN_MILITARY_DRILL_HOOK";
 import { HUMAN_MILITARY_DRILL_UPPERCUT } from "../next/presets/HUMAN_MILITARY_DRILL_UPPERCUT";
-import { guard } from "../striking/guard";
-import { kick } from "../striking/kick";
-import { punch } from "../striking/punch";
+import { guard } from "../striking/internal/guard";
+import { kick } from "../striking/internal/kick";
+import { punch } from "../striking/internal/punch";
 
 /**
  * Fighting and training rows, each a row of a shipped action; a strike's row

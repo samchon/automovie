@@ -9,7 +9,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { poseBones } from "../posture/poseBones";
+import { poseBones } from "../posture/internal/poseBones";
 
 /** Metres, or a raw action's heading/pitch/roll in degrees. */
 type Vector = [number, number, number];

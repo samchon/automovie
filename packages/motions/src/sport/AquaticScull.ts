@@ -16,12 +16,12 @@ import type {
 
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
-import { courseArmGoal } from "../compose/courseArmGoal";
-import { seated } from "../everyday/seated";
-import { sitPlace } from "../everyday/sitPlace";
+import { courseArmGoal } from "../compose/internal/courseArmGoal";
+import { seated } from "../everyday/internal/seated";
+import { sitPlace } from "../everyday/internal/sitPlace";
 import { ExerciseKey } from "../exercise/ExerciseKey";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { precisionStrokePeak } from "../lexicon/precisionStrokePeak";
+import { precisionStrokePeak } from "../lexicon/internal/precisionStrokePeak";
 import { HumanFoot } from "../posture/HumanFoot";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { AquaticCrew } from "./AquaticCrew";

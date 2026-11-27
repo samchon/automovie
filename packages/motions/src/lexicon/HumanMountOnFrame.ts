@@ -7,10 +7,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { stand } from "../actions/stand";
-import { standUpright } from "../actions/standUpright";
+import { stand } from "../actions/internal/stand";
+import { standUpright } from "../actions/internal/standUpright";
 import { HumanTrunk } from "../everyday/HumanTrunk";
-import { seated } from "../everyday/seated";
+import { seated } from "../everyday/internal/seated";
 import { HumanMount } from "./HumanMount";
 
 /** The alternatives of `Frame2`'s site. */

@@ -1,2 +1,2 @@
-export * from "./ropeLine";
-export * from "./ropeSwingCourse";
+export * from "./internal/ropeLine";
+export * from "./internal/ropeSwingCourse";

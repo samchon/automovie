@@ -15,7 +15,7 @@ import type {
 
 import { HumanChain } from "../../HumanChain";
 import { AutoMovieMotionHumanAuditSkin } from "../../audit/AutoMovieMotionHumanAuditSkin";
-import { dress } from "../../dressing/dress";
+import { dress } from "../../dressing/internal/dress";
 import { HumanColliders } from "../../posture/HumanColliders";
 import { HumanHand } from "../../posture/HumanHand";
 import { StrikingRoll } from "../../striking/StrikingRoll";

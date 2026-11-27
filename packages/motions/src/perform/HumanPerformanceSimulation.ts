@@ -26,14 +26,14 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import { bindHumanSimulationGrips } from "./bindHumanSimulationGrips";
-import { coupleHumanSimulationGrips } from "./coupleHumanSimulationGrips";
-import { placeHumanSimulationColliders } from "./placeHumanSimulationColliders";
-import { placeHumanSimulationImpulses } from "./placeHumanSimulationImpulses";
-import { planHumanSimulationBody } from "./planHumanSimulationBody";
-import { reachHumanSimulation } from "./reachHumanSimulation";
-import { readHumanSimulatedPose } from "./readHumanSimulatedPose";
-import { sampleHumanSimulationTargets } from "./sampleHumanSimulationTargets";
+import { bindHumanSimulationGrips } from "./internal/bindHumanSimulationGrips";
+import { coupleHumanSimulationGrips } from "./internal/coupleHumanSimulationGrips";
+import { placeHumanSimulationColliders } from "./internal/placeHumanSimulationColliders";
+import { placeHumanSimulationImpulses } from "./internal/placeHumanSimulationImpulses";
+import { planHumanSimulationBody } from "./internal/planHumanSimulationBody";
+import { reachHumanSimulation } from "./internal/reachHumanSimulation";
+import { readHumanSimulatedPose } from "./internal/readHumanSimulatedPose";
+import { sampleHumanSimulationTargets } from "./internal/sampleHumanSimulationTargets";
 
 /**
  * The simulated tier: a window of a performance baked once through the engine's

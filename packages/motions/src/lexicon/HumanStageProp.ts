@@ -20,7 +20,7 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { StrikingBlade } from "../striking/StrikingBlade";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { StrikingHeldFrame } from "../striking/StrikingHeldFrame";
-import { humanStagePropBeat } from "./humanStagePropBeat";
+import { humanStagePropBeat } from "./internal/humanStagePropBeat";
 
 /**
  * A held digital prop display law. `stroke` is the authored screen beat,

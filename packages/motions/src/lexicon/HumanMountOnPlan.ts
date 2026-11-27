@@ -15,20 +15,20 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { stand } from "../actions/stand";
+import { stand } from "../actions/internal/stand";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
-import { courseHumanLegs } from "../compose/courseHumanLegs";
+import { courseHumanLegs } from "../compose/internal/courseHumanLegs";
 import { HumanTrunk } from "../everyday/HumanTrunk";
-import { prepareSeatedPalms } from "../everyday/prepareSeatedPalms";
-import { seated } from "../everyday/seated";
-import { sitCarried } from "../everyday/sitCarried";
+import { prepareSeatedPalms } from "../everyday/internal/prepareSeatedPalms";
+import { seated } from "../everyday/internal/seated";
+import { sitCarried } from "../everyday/internal/sitCarried";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPropFrame } from "../perform/HumanPropFrame";
 import { HumanFrame } from "../posture/HumanFrame";
-import { hipJoints } from "../posture/hipJoints";
+import { hipJoints } from "../posture/internal/hipJoints";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
 import { HumanMount } from "./HumanMount";
 import { HumanMountFlight } from "./HumanMountFlight";
 import { HumanMountOnCourses } from "./HumanMountOnCourses";
@@ -37,9 +37,9 @@ import { HumanMountPlace } from "./HumanMountPlace";
 import { HumanMountPush } from "./HumanMountPush";
 import { HumanMountTrack } from "./HumanMountTrack";
 import { HumanSwungLeg } from "./HumanSwungLeg";
-import { prepareCoupledMount } from "./prepareCoupledMount";
-import { prepareMountMaterialSeat } from "./prepareMountMaterialSeat";
-import { prepareMountTransfer } from "./prepareMountTransfer";
+import { prepareCoupledMount } from "./internal/prepareCoupledMount";
+import { prepareMountMaterialSeat } from "./internal/prepareMountMaterialSeat";
+import { prepareMountTransfer } from "./internal/prepareMountTransfer";
 
 /** Where the pelvis is at an instant of getting on (`HumanMountOnFrame`). */
 type Frame = HumanMountOnFrame.Frame;

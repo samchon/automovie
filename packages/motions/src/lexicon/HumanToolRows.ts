@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
-import { useTool } from "../tasks/useTool";
+import { useTool } from "../tasks/internal/useTool";
 
 /**
  * The tool strokes as rows: each tool of `useTool` under a name of its own, the

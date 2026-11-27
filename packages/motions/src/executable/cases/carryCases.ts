@@ -8,8 +8,8 @@ import type {
 } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
-import { carry } from "../../carrying/carry";
-import { carryPlace } from "../../carrying/carryPlace";
+import { carry } from "../../carrying/internal/carry";
+import { carryPlace } from "../../carrying/internal/carryPlace";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./internal/everydayVerdicts";

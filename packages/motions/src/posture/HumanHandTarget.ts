@@ -14,8 +14,8 @@ import type {
 import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
 import { HumanFrame } from "./HumanFrame";
 import { HumanHand } from "./HumanHand";
-import { assembleHumanHandTarget } from "./assembleHumanHandTarget";
-import { placeHumanHandSurface } from "./placeHumanHandSurface";
+import { assembleHumanHandTarget } from "./internal/assembleHumanHandTarget";
+import { placeHumanHandSurface } from "./internal/placeHumanHandSurface";
 
 /** The alternatives of `HumanHandTargetPlace`'s site. */
 type HumanHandTargetPlace = "point" | "normal";

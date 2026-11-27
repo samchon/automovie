@@ -18,7 +18,7 @@ import type {
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
-import { poseBones } from "../posture/poseBones";
+import { poseBones } from "../posture/internal/poseBones";
 import { HumanGraspUse } from "./HumanGraspUse";
 
 /** The record of `IOfPlaced`'s site. */

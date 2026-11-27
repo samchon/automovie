@@ -20,7 +20,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanLimbAt } from "../posture/HumanLimbAt";
 import { HumanSequentialConvex } from "../posture/HumanSequentialConvex";
 import { HumanSequentialConvexFunctions } from "../posture/HumanSequentialConvexFunctions";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
 import { AutoMovieMotionHumanArmReachJoints } from "./AutoMovieMotionHumanArmReachJoints";
 
 /**

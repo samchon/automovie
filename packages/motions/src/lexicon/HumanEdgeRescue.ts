@@ -4,7 +4,7 @@ import type {
   IAutoMovieMotionHumanMutual,
 } from "@automovie/interface";
 
-import { planEdgeRescue } from "../coupled/planEdgeRescue";
+import { planEdgeRescue } from "../coupled/internal/planEdgeRescue";
 
 /**
  * The cliffhanger rescue at a ledge: the `edgeRescue` law each role performs

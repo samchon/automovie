@@ -8,7 +8,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { stand } from "../actions/stand";
+import { stand } from "../actions/internal/stand";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { HumanGrasp } from "./HumanGrasp";
 

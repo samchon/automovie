@@ -8,9 +8,9 @@ import type {
 
 import { solveAutoMovieHalfPlaneProgram } from "../math/internal/solveAutoMovieHalfPlaneProgram";
 import { integrateMotionTrajectory } from "./integrateMotionTrajectory";
-import { steerAutoMovieCrowdContacts } from "./steerAutoMovieCrowdContacts";
-import { steerAutoMovieCrowdGeometry } from "./steerAutoMovieCrowdGeometry";
-import { steerAutoMovieCrowdNeighbours } from "./steerAutoMovieCrowdNeighbours";
+import { steerAutoMovieCrowdContacts } from "./internal/steerAutoMovieCrowdContacts";
+import { steerAutoMovieCrowdGeometry } from "./internal/steerAutoMovieCrowdGeometry";
+import { steerAutoMovieCrowdNeighbours } from "./internal/steerAutoMovieCrowdNeighbours";
 
 /**
  * A crowd's ways planned once: every agent heads for its goals at its own

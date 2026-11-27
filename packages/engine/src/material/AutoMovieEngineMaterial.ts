@@ -5,16 +5,16 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { autoMoviePcg3d } from "./autoMoviePcg3d";
-import { autoMovieProceduralCells } from "./autoMovieProceduralCells";
-import { autoMovieProceduralFractal } from "./autoMovieProceduralFractal";
-import { autoMovieProceduralFrame } from "./autoMovieProceduralFrame";
-import { autoMovieProceduralHash } from "./autoMovieProceduralHash";
-import { autoMovieProceduralNoise } from "./autoMovieProceduralNoise";
-import { autoMovieProceduralPattern } from "./autoMovieProceduralPattern";
-import { autoMovieProceduralPieceOffset } from "./autoMovieProceduralPieceOffset";
-import { autoMovieWearWeight } from "./autoMovieWearWeight";
-import { sampleAutoMovieProceduralSurface } from "./sampleAutoMovieProceduralSurface";
+import { autoMoviePcg3d } from "./internal/autoMoviePcg3d";
+import { autoMovieProceduralCells } from "./internal/autoMovieProceduralCells";
+import { autoMovieProceduralFractal } from "./internal/autoMovieProceduralFractal";
+import { autoMovieProceduralFrame } from "./internal/autoMovieProceduralFrame";
+import { autoMovieProceduralHash } from "./internal/autoMovieProceduralHash";
+import { autoMovieProceduralNoise } from "./internal/autoMovieProceduralNoise";
+import { autoMovieProceduralPattern } from "./internal/autoMovieProceduralPattern";
+import { autoMovieProceduralPieceOffset } from "./internal/autoMovieProceduralPieceOffset";
+import { autoMovieWearWeight } from "./internal/autoMovieWearWeight";
+import { sampleAutoMovieProceduralSurface } from "./internal/sampleAutoMovieProceduralSurface";
 
 /** Deterministic material sampling and procedural surface calculations. */
 export namespace AutoMovieEngineMaterial {

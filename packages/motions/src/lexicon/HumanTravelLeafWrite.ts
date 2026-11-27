@@ -8,7 +8,7 @@ import type {
   IAutoMovieMotionHumanTravelLeaf,
 } from "@automovie/interface";
 
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPoseResolution } from "../posture/internal/prepareHumanPoseResolution";
 import { HumanMountRider } from "./HumanMountRider";
 import { HumanTravelLeaf } from "./HumanTravelLeaf";
 

@@ -38,8 +38,8 @@ import { immobileAxisSwivels as immobileAxisSwivelsImplementation } from "./inte
 
 import { type AutoMovieHumanoidBone, type IAutoMovieJointAxes, type IAutoMovieLookAt, type IAutoMovieMotionSample, type IAutoMoviePose, type IAutoMoviePoseResolution, type IAutoMovieResolvedBone, type IAutoMovieRestFrame, type IAutoMovieSkeleton, type IAutoMovieSkeletonTopology, type IAutoMovieYawPitch, type IAutoMovieVector3, type IAutoMovieResolvedJointAngles, type AutoMovieJointTwistPlacement, type IAutoMovieBoxExcludedSwivels, type IAutoMovieFitDigitDescent, type IAutoMovieFitDigitToTarget, type IAutoMovieSwivelArcs, type IAutoMovieArticulatedRigReader, type IAutoMovieArticulatedRig, type IAutoMovieResolveBalanceOutcome, type IAutoMovieBodyMomentum, type IAutoMovieResolveCenterOfMass, type IAutoMovieResolveHumanoidRingModules, type AutoMovieHumanoidRegion, type IAutoMovieHumanoidSurfaces, type IAutoMovieHumanoidSurfaceReader, type IAutoMoviePhysicalProfile, type IAutoMovieHumanoidSurfaceExtents, type IAutoMovieTwoBoneIK, type IAutoMovieJointAxesIssue, type IAutoMovieMark, type IAutoMovieMarkBalance, type IAutoMovieMarkRomOvershoot, type IAutoMovieJointConstraint, type IAutoMovieQuaternion, type IAutoMovieArmChainFault, type IAutoMovieJointRotationDomain, type IAutoMovieJointPose, type AutoMovieClinicalAxis, type IAutoMovieHingedArticulation } from "@automovie/interface";
 
-import { resolveLookAt as resolveLookAtImplementation } from "./resolveLookAt";
-import { resolvePose as resolvePoseImplementation } from "./resolvePose";
+import { resolveLookAt as resolveLookAtImplementation } from "./internal/resolveLookAt";
+import { resolvePose as resolvePoseImplementation } from "./internal/resolvePose";
 
 import type { AutoMovieEngineKinematicsTypes } from "./AutoMovieEngineKinematicsTypes";
 

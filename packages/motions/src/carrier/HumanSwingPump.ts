@@ -12,8 +12,8 @@ import type {
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanRide } from "../lexicon/HumanRide";
-import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { poseBones } from "../posture/internal/poseBones";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
 
 type Params = IAutoMovieMotionHumanPlayground.ISwingPumpParams;
 type Plan = IAutoMovieMotionHumanActionPlan;

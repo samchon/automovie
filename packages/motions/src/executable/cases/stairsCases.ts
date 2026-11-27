@@ -9,7 +9,7 @@ import type {
 import { HumanChain } from "../../HumanChain";
 import { HumanFoot } from "../../posture/HumanFoot";
 import { HumanFrame } from "../../posture/HumanFrame";
-import { climbStairs } from "../../terrain/climbStairs";
+import { climbStairs } from "../../terrain/internal/climbStairs";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./internal/everydayVerdicts";

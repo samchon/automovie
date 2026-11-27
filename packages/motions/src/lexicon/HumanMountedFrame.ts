@@ -18,7 +18,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import { carryHumanPosture } from "../posture/carryHumanPosture";
+import { carryHumanPosture } from "../posture/internal/carryHumanPosture";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
 
 /** The alternatives of `MoveAttitude`'s site. */

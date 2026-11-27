@@ -3,9 +3,9 @@ import type {
   IAutoMovieMotionHumanLexiconParams,
 } from "@automovie/interface";
 
-import { operate } from "../affordance/operate";
+import { operate } from "../affordance/internal/operate";
 import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
-import { release } from "../throwing/release";
+import { release } from "../throwing/internal/release";
 
 /**
  * A bolt-action rifle's and a pistol's magazine handling, each a row of a

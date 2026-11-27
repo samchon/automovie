@@ -7,7 +7,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { resolvePose } from "../../kinematics/resolvePose";
+import { resolvePose } from "../../kinematics/internal/resolvePose";
 import { Matrix4 } from "../../math/Matrix4";
 import { DEFAULT_KEYPOINT_BONES } from "../constants/DEFAULT_KEYPOINT_BONES";
 import { projectToNdc } from "./projectToNdc";

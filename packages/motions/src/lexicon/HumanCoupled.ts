@@ -7,8 +7,8 @@ import type {
   IAutoMovieMotionHumanSupport,
 } from "@automovie/interface";
 
-import { supportAssist } from "../actions/supportAssist";
-import { getUp } from "../floor/getUp";
+import { supportAssist } from "../actions/internal/supportAssist";
+import { getUp } from "../floor/internal/getUp";
 
 /**
  * The two-body compositions: carries with their lift and set-down, a supported

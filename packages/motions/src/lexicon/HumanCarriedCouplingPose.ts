@@ -18,17 +18,17 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { stand } from "../actions/stand";
+import { stand } from "../actions/internal/stand";
 import { HumanTrunk } from "../everyday/HumanTrunk";
-import { bendLower } from "../everyday/bendLower";
+import { bendLower } from "../everyday/internal/bendLower";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 import { HumanHandTarget } from "../posture/HumanHandTarget";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
-import { poseBones } from "../posture/poseBones";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { resolveCarriedHoldGeometry } from "./resolveCarriedHoldGeometry";
+import { poseBones } from "../posture/internal/poseBones";
+import { prepareHumanPoseResolution } from "../posture/internal/prepareHumanPoseResolution";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
+import { resolveCarriedHoldGeometry } from "./internal/resolveCarriedHoldGeometry";
 
 /**
  * The borne body of a coupled carry placed on its bearer: the carry's key

@@ -14,9 +14,9 @@ import type {
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanArmSwing } from "../posture/HumanArmSwing";
 import { HumanHandAttitude } from "../posture/HumanHandAttitude";
-import { poseBones } from "../posture/poseBones";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { poseBones } from "../posture/internal/poseBones";
+import { prepareHumanPoseResolution } from "../posture/internal/prepareHumanPoseResolution";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
 import { AutoMovieMotionHumanArmCarryHung } from "./AutoMovieMotionHumanArmCarryHung";
 import { AutoMovieMotionHumanArmCarrySpan } from "./AutoMovieMotionHumanArmCarrySpan";
 import { AutoMovieMotionHumanArmChain } from "./AutoMovieMotionHumanArmChain";

@@ -1,13 +1,13 @@
-import { playWindInstrument as playWindInstrumentLaw } from "../daily/playWindInstrument";
-import { guitarChord as guitarChordLaw } from "../handling/guitarChord";
-import { guitarNote as guitarNoteLaw } from "../handling/guitarNote";
-import { pianoPedal as pianoPedalLaw } from "../handling/pianoPedal";
-import { pianoPerformance as pianoPerformanceLaw } from "../handling/pianoPerformance";
-import { pianoScore as pianoScoreLaw } from "../handling/pianoScore";
-import { bowViolin as bowViolinLaw } from "../music/bowViolin";
-import { conduct as conductLaw } from "../music/conduct";
-import { cymbalStrike as cymbalStrikeLaw } from "../tasks/cymbalStrike";
-import { sideDrumStrike as sideDrumStrikeLaw } from "../tasks/sideDrumStrike";
+import { playWindInstrument as playWindInstrumentLaw } from "../daily/internal/playWindInstrument";
+import { guitarChord as guitarChordLaw } from "../handling/internal/guitarChord";
+import { guitarNote as guitarNoteLaw } from "../handling/internal/guitarNote";
+import { pianoPedal as pianoPedalLaw } from "../handling/internal/pianoPedal";
+import { pianoPerformance as pianoPerformanceLaw } from "../handling/internal/pianoPerformance";
+import { pianoScore as pianoScoreLaw } from "../handling/internal/pianoScore";
+import { bowViolin as bowViolinLaw } from "../music/internal/bowViolin";
+import { conduct as conductLaw } from "../music/internal/conduct";
+import { cymbalStrike as cymbalStrikeLaw } from "../tasks/internal/cymbalStrike";
+import { sideDrumStrike as sideDrumStrikeLaw } from "../tasks/internal/sideDrumStrike";
 
 /**
  * Playing and conducting music: wind, bowed string, plucked string, keyboard

@@ -8,7 +8,7 @@ import type {
 import { AutoMovieSolidVector } from "../geometry/construction/AutoMovieSolidVector";
 import { resolveAutoMovieMomentum } from "../kinematics/resolveAutoMovieMomentum";
 import { Quaternion } from "../math/Quaternion";
-import type { physicalInertiaFactor } from "../physics/physicalInertiaFactor";
+import type { physicalInertiaFactor } from "../physics/internal/physicalInertiaFactor";
 import { physicalInertiaTensor } from "../physics/physicalInertiaTensor";
 import { AirborneShapeHistory } from "./AirborneShapeHistory";
 import { AirborneTakeoffQuadrature } from "./AirborneTakeoffQuadrature";

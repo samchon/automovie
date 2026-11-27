@@ -21,13 +21,13 @@ import type {
   IAutoMovieSwivelSeed,
 } from "@automovie/interface";
 
-import { readHumanBone } from "../body/readHumanBone";
+import { readHumanBone } from "../body/internal/readHumanBone";
 import { AutoMovieMotionHumanArmCourse } from "../compose/AutoMovieMotionHumanArmCourse";
 import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { HumanFoot } from "../posture/HumanFoot";
-import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { writtenHumanSeeds } from "../posture/writtenHumanSeeds";
+import { poseBones } from "../posture/internal/poseBones";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
+import { writtenHumanSeeds } from "../posture/internal/writtenHumanSeeds";
 import { HumanMountPush } from "./HumanMountPush";
 
 /** The alternatives of `AtAngleAxis`'s site. */

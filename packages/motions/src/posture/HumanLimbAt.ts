@@ -20,7 +20,7 @@ import type {
 import { HumanLimbFit } from "./HumanLimbFit";
 import { HumanLimbMirror } from "./HumanLimbMirror";
 import { HumanLimbView } from "./HumanLimbView";
-import { poseBones } from "./poseBones";
+import { poseBones } from "./internal/poseBones";
 
 /** The record of `IAtPosed`'s site. */
 type IAtPosed = { shortfall: number };

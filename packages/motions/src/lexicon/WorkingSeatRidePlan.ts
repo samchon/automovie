@@ -17,9 +17,9 @@ import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { HumanArmTrajectoryModel } from "../posture/HumanArmTrajectoryModel";
 import { HumanArmTrajectoryTerms } from "../posture/HumanArmTrajectoryTerms";
 import { HumanBoneGroups } from "../posture/HumanBoneGroups";
-import { poseBones } from "../posture/poseBones";
-import { resolveHumanPostureSource } from "../posture/resolveHumanPostureSource";
-import type { fixedSeatWorkingPostures } from "./fixedSeatWorkingPostures";
+import { poseBones } from "../posture/internal/poseBones";
+import { resolveHumanPostureSource } from "../posture/internal/resolveHumanPostureSource";
+import type { fixedSeatWorkingPostures } from "./internal/fixedSeatWorkingPostures";
 
 type Plan = IAutoMovieMotionHumanActionPlan;
 type Posture = IAutoMovieMotionHumanPosture;

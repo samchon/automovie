@@ -6,7 +6,7 @@ import type {
 import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 import { HUMAN_ARCHERY_THROW_JAVELIN } from "../next/presets/HUMAN_ARCHERY_THROW_JAVELIN";
 import { HUMAN_ARCHERY_THROW_KNIFE } from "../next/presets/HUMAN_ARCHERY_THROW_KNIFE";
-import { throwObject } from "../throwing/throwObject";
+import { throwObject } from "../throwing/internal/throwObject";
 
 /**
  * Thrown weapons as rows of `throwObject`, each throwing the held prop the

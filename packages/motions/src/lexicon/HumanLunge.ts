@@ -17,7 +17,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
-import { courseArmGoal } from "../compose/courseArmGoal";
+import { courseArmGoal } from "../compose/internal/courseArmGoal";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanLungeChange } from "./HumanLungeChange";
 import { HumanLungeHands } from "./HumanLungeHands";

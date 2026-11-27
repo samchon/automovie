@@ -1,13 +1,13 @@
 import type { IAutoMovieRandom } from "@automovie/interface";
 
-import { createAutoMovieFractalNoise2 } from "./createAutoMovieFractalNoise2";
-import { createAutoMovieFractalNoise3 } from "./createAutoMovieFractalNoise3";
-import { createAutoMovieGradientNoise2 } from "./createAutoMovieGradientNoise2";
-import { createAutoMovieGradientNoise3 } from "./createAutoMovieGradientNoise3";
-import { createAutoMovieRandom } from "./createAutoMovieRandom";
-import { deriveAutoMovieSeed } from "./deriveAutoMovieSeed";
-import { hashAutoMovieFnv1a64 } from "./hashAutoMovieFnv1a64";
-import { philoxAutoMovie4x32 } from "./philoxAutoMovie4x32";
+import { createAutoMovieFractalNoise2 } from "./internal/createAutoMovieFractalNoise2";
+import { createAutoMovieFractalNoise3 } from "./internal/createAutoMovieFractalNoise3";
+import { createAutoMovieGradientNoise2 } from "./internal/createAutoMovieGradientNoise2";
+import { createAutoMovieGradientNoise3 } from "./internal/createAutoMovieGradientNoise3";
+import { createAutoMovieRandom } from "./internal/createAutoMovieRandom";
+import { deriveAutoMovieSeed } from "./internal/deriveAutoMovieSeed";
+import { hashAutoMovieFnv1a64 } from "./internal/hashAutoMovieFnv1a64";
+import { philoxAutoMovie4x32 } from "./internal/philoxAutoMovie4x32";
 import { AutoMovieEngineRandomBounds } from "./AutoMovieEngineRandomBounds";
 
 /**

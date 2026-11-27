@@ -9,7 +9,7 @@ import type {
 import { hingedArmSwivel } from "../kinematics/hingedArmSwivel";
 import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
 import { Quaternion } from "../math/Quaternion";
-import { prepareHingedChainAt } from "./prepareHingedChainAt";
+import { prepareHingedChainAt } from "./internal/prepareHingedChainAt";
 
 /**
  * The swivel and bend branch of a posed hinged chain, in the frame the fit's

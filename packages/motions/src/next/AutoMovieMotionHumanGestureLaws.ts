@@ -1,8 +1,8 @@
-import { armPhrase as armPhraseLaw } from "../everyday/armPhrase";
-import { gesture as gestureLaw } from "../everyday/gesture";
-import { gestureSignal as gestureSignalLaw } from "../everyday/gestureSignal";
-import { gestureStroke as gestureStrokeLaw } from "../everyday/gestureStroke";
-import { handGoals as handGoalsLaw } from "../everyday/handGoals";
+import { armPhrase as armPhraseLaw } from "../everyday/internal/armPhrase";
+import { gesture as gestureLaw } from "../everyday/internal/gesture";
+import { gestureSignal as gestureSignalLaw } from "../everyday/internal/gestureSignal";
+import { gestureStroke as gestureStrokeLaw } from "../everyday/internal/gestureStroke";
+import { handGoals as handGoalsLaw } from "../everyday/internal/handGoals";
 import { HumanEmblem as HumanEmblemSource } from "../lexicon/HumanEmblem";
 import { HumanGestureRows as HumanGestureRowsSource } from "../lexicon/HumanGestureRows";
 import { HumanUpperRows as HumanUpperRowsSource } from "../lexicon/HumanUpperRows";

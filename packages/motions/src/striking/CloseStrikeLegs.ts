@@ -11,12 +11,12 @@ import type {
 
 import { HumanFoot } from "../posture/HumanFoot";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
-import { lowerHumanPosture } from "../posture/lowerHumanPosture";
+import { lowerHumanPosture } from "../posture/internal/lowerHumanPosture";
 import { KickCarriage } from "./KickCarriage";
 import { StrikingFootPoint } from "./StrikingFootPoint";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
-import { punchFootwork } from "./punchFootwork";
+import { punchFootwork } from "./internal/punchFootwork";
 
 /** The alternatives of `CloseStrikeLegsLeg`'s site. */
 type CloseStrikeLegsLeg = "leftLeg" | "rightLeg";

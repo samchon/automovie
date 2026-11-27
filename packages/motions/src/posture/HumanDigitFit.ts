@@ -24,9 +24,9 @@ import { HumanColliders } from "./HumanColliders";
 import { HumanDigitReach } from "./HumanDigitReach";
 import { HumanPosture } from "./HumanPosture";
 import { HumanShapeFraming } from "./HumanShapeFraming";
-import { poseBones } from "./poseBones";
-import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
-import { selectHumanDigitGoals } from "./selectHumanDigitGoals";
+import { poseBones } from "./internal/poseBones";
+import { prepareHumanPoseResolution } from "./internal/prepareHumanPoseResolution";
+import { selectHumanDigitGoals } from "./internal/selectHumanDigitGoals";
 
 /** The record of `IFittedWorld`'s site. */
 type IFittedWorld = { point: IAutoMovieVector3; normal?: IAutoMovieVector3 };

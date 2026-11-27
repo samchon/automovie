@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import { polynomialUnitRoots } from "../math/internal/polynomialUnitRoots";
-import { rotationVectorJacobian } from "../math/rotationVectorJacobian";
+import { rotationVectorJacobian } from "../math/internal/rotationVectorJacobian";
 import type { MotionTrajectoryFailure } from "./MotionTrajectoryFailure";
 import { MotionTrajectoryPolynomial } from "./MotionTrajectoryPolynomial";
 import type { MotionTrajectoryRead } from "./MotionTrajectoryRead";

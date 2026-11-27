@@ -22,13 +22,13 @@ import type {
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
-import { courseArmGoal } from "../compose/courseArmGoal";
+import { courseArmGoal } from "../compose/internal/courseArmGoal";
 import { HumanWornItem } from "../dressing/HumanWornItem";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
-import { humanCaneSweepTouches } from "./humanCaneSweepTouches";
+import { humanCaneSweepTouches } from "./internal/humanCaneSweepTouches";
 
 /**
  * How far beyond the body's widest part the tip touches, metres: about an inch

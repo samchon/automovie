@@ -20,19 +20,19 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { seated as seatSocket } from "../everyday/seated";
+import { seated as seatSocket } from "../everyday/internal/seated";
 import { HumanMountReach } from "./HumanMountReach";
 import { HumanMountRider } from "./HumanMountRider";
 import type { IHumanRideHandsHandle } from "./IHumanRideHandsHandle";
 import type { IHumanRideHandsHands } from "./IHumanRideHandsHands";
-import { closeRideHandGrips } from "./closeRideHandGrips";
-import { crossRideReinGrip } from "./crossRideReinGrip";
-import { fixedSeatGripPosture } from "./fixedSeatGripPosture";
-import { fixedSeatGripReach } from "./fixedSeatGripReach";
-import { fixedSeatWorkingPostures } from "./fixedSeatWorkingPostures";
-import { measureRidePalmDepth } from "./measureRidePalmDepth";
-import { readRideHandles } from "./readRideHandles";
-import { sideRideGrips } from "./sideRideGrips";
+import { closeRideHandGrips } from "./internal/closeRideHandGrips";
+import { crossRideReinGrip } from "./internal/crossRideReinGrip";
+import { fixedSeatGripPosture } from "./internal/fixedSeatGripPosture";
+import { fixedSeatGripReach } from "./internal/fixedSeatGripReach";
+import { fixedSeatWorkingPostures } from "./internal/fixedSeatWorkingPostures";
+import { measureRidePalmDepth } from "./internal/measureRidePalmDepth";
+import { readRideHandles } from "./internal/readRideHandles";
+import { sideRideGrips } from "./internal/sideRideGrips";
 
 /** The alternatives of `OfBowAngles`'s site. */
 type OfBowAngles = "yaw" | "pitch" | "roll";

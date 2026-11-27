@@ -10,7 +10,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
-import { instance } from "../ensemble/instance";
+import { instance } from "../ensemble/internal/instance";
 import { HumanRefusal } from "../law/HumanRefusal";
 
 /** The alternatives of `TwistBone`'s site. */

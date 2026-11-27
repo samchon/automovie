@@ -11,8 +11,8 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanAuditSkin } from "../audit/AutoMovieMotionHumanAuditSkin";
-import { courseArmGoal } from "../compose/courseArmGoal";
-import { poseBones } from "../posture/poseBones";
+import { courseArmGoal } from "../compose/internal/courseArmGoal";
+import { poseBones } from "../posture/internal/poseBones";
 import { AquaticCrew } from "./AquaticCrew";
 import { AquaticPosture } from "./AquaticPosture";
 import { AquaticSailBounds } from "./AquaticSailBounds";

@@ -9,7 +9,7 @@ import { HumanBodyFitMerit } from "./HumanBodyFitMerit";
 import { HumanInteractionMeshLaplacian as Laplacian } from "./HumanInteractionMeshLaplacian";
 import { HumanInteractionMeshSide as Side } from "./HumanInteractionMeshSide";
 import { HumanInteractionMeshStep as Step } from "./HumanInteractionMeshStep";
-import { humanInteractionMeshShape } from "./humanInteractionMeshShape";
+import { humanInteractionMeshShape } from "./internal/humanInteractionMeshShape";
 
 /**
  * Adapt the spatial relations of a multi-body key pose to bodies of other

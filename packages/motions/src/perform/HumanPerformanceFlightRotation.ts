@@ -5,7 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { createHumanPostureRotation } from "../posture/createHumanPostureRotation";
+import { createHumanPostureRotation } from "../posture/internal/createHumanPostureRotation";
 
 /**
  * Playback of a flight's supplied orientation about its composed centre,

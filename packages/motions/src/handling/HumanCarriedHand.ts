@@ -15,7 +15,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
-import { poseBones } from "../posture/poseBones";
+import { poseBones } from "../posture/internal/poseBones";
 
 /** The finger bones' names, as they follow a side in a joint's name. */
 const DIGITS: RegExp = /(Thumb|Index|Middle|Ring|Little)/;

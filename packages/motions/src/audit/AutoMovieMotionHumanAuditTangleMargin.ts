@@ -10,7 +10,7 @@ import type {
 
 import { HumanLinkCertificate } from "../posture/HumanLinkCertificate";
 import { AutoMovieMotionHumanAuditTangleModel as M } from "./AutoMovieMotionHumanAuditTangleModel";
-import { prepareAutoMovieMotionHumanAuditDepths } from "./prepareAutoMovieMotionHumanAuditDepths";
+import { prepareAutoMovieMotionHumanAuditDepths } from "./internal/prepareAutoMovieMotionHumanAuditDepths";
 
 /** The record of `IAcrossResult`'s site. */
 type IAcrossResult = { depth: number; base: number };

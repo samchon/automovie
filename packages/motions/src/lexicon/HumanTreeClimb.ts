@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanTreeClimb,
 } from "@automovie/interface";
 
-import { planTreeClimb } from "../climbing/planTreeClimb";
+import { planTreeClimb } from "../climbing/internal/planTreeClimb";
 
 /**
  * Climbing a tree by its lower branches, sitting astride one and climbing down

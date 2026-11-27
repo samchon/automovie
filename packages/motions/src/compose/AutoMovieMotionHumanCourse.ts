@@ -10,8 +10,8 @@ import type {
 } from "@automovie/interface";
 
 import { HumanBalance } from "../everyday/HumanBalance";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
+import { prepareHumanPoseResolution } from "../posture/internal/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/internal/prepareHumanPostureProjection";
 
 /** The record of `ISolveResult`'s site. */
 type ISolveResult = { knots: number[]; count: number; dt: number };

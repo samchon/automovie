@@ -3,7 +3,7 @@ import type { IAutoMovieMotionHumanResolve } from "@automovie/interface";
 import { AutoMovieMotionHumanBody } from "../body/AutoMovieMotionHumanBody";
 import { AutoMovieMotionHumanResolve } from "../compose/AutoMovieMotionHumanResolve";
 import { MotionBodies } from "./MotionBodies";
-import type { humanPolygonMan } from "./humanPolygonMan";
+import type { humanPolygonMan } from "./internal/humanPolygonMan";
 
 /**
  * Prints what every place name, height, lateral, distance, elbow preset and

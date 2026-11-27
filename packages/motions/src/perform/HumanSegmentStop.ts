@@ -7,10 +7,10 @@ import type {
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
 
-import { poseBones } from "../posture/poseBones";
+import { poseBones } from "../posture/internal/poseBones";
 import { HumanSegment } from "./HumanSegment";
 import { HumanSegmentPose } from "./HumanSegmentPose";
-import type { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
+import type { prepareHumanSegmentPose } from "./internal/prepareHumanSegmentPose";
 
 /**
  * The contact goals held by stopped weapons: a stopped limb holds its end where

@@ -20,13 +20,13 @@ import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanGrip } from "../handling/HumanGrip";
 import { HumanHand } from "../posture/HumanHand";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
+import { prepareHumanPoseResolution } from "../posture/internal/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/internal/prepareHumanPostureProjection";
 import { HumanMountReach } from "./HumanMountReach";
 import { HumanMountRiderFreeHands } from "./HumanMountRiderFreeHands";
 import type { HumanRideHands } from "./HumanRideHands";
-import { ankleRidePedalFoot } from "./ankleRidePedalFoot";
-import { placeRideReinPalm } from "./placeRideReinPalm";
+import { ankleRidePedalFoot } from "./internal/ankleRidePedalFoot";
+import { placeRideReinPalm } from "./internal/placeRideReinPalm";
 
 /**
  * What a seated rider's own body gives to stay on a mount's parts: the ankle

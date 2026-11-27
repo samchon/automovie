@@ -1,6 +1,6 @@
 import type { IAutoMovieFitDigitDescent } from "@automovie/interface";
 
-import { descendDigitTasks } from "../descendDigitTasks";
+import { descendDigitTasks } from "./descendDigitTasks";
 
 /**
  * One prioritized descent of a digit's fit: a primary residual (where the point

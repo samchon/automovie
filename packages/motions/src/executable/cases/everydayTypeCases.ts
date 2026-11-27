@@ -9,8 +9,8 @@ import type {
 } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
-import { seated } from "../../everyday/seated";
-import { typeText } from "../../everyday/typeText";
+import { seated } from "../../everyday/internal/seated";
+import { typeText } from "../../everyday/internal/typeText";
 import { HumanHand } from "../../posture/HumanHand";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { everydayCaseKit } from "./internal/everydayCaseKit";

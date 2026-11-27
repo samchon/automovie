@@ -7,8 +7,8 @@ import type {
 } from "@automovie/interface";
 
 import { walk } from "../gait/internal/walk";
-import { humanTravelDoorWay } from "./humanTravelDoorWay";
-import { planReducedOpening } from "./planReducedOpening";
+import { humanTravelDoorWay } from "./internal/humanTravelDoorWay";
+import { planReducedOpening } from "./internal/planReducedOpening";
 
 /**
  * Going through a doorway: travel that squares up before a named opening of one

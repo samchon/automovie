@@ -12,7 +12,7 @@ import type {
 } from "@automovie/interface";
 
 import { humanPostureHeading } from "../posture/humanPostureHeading";
-import { poseBones } from "../posture/poseBones";
+import { poseBones } from "../posture/internal/poseBones";
 
 /**
  * Read the resting hands where the ride is entered.

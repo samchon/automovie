@@ -12,7 +12,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import { poseBones } from "../posture/poseBones";
+import { poseBones } from "../posture/internal/poseBones";
 import { HumanPerformanceGrips } from "./HumanPerformanceGrips";
 import { HumanPerformanceHold } from "./HumanPerformanceHold";
 import { HumanPerformanceReadMissing } from "./HumanPerformanceReadMissing";
@@ -21,9 +21,9 @@ import { HumanPerformanceTether } from "./HumanPerformanceTether";
 import { HumanPropHold } from "./HumanPropHold";
 import { HumanSegment } from "./HumanSegment";
 import { HumanSegmentShown } from "./HumanSegmentShown";
-import { placeDemandedHumanPerformer } from "./placeDemandedHumanPerformer";
-import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
-import { readPlacedHumanPosture } from "./readPlacedHumanPosture";
+import { placeDemandedHumanPerformer } from "./internal/placeDemandedHumanPerformer";
+import { prepareHumanSegmentPose } from "./internal/prepareHumanSegmentPose";
+import { readPlacedHumanPosture } from "./internal/readPlacedHumanPosture";
 
 /** The reader of a refusal's axis, read only when the read is refused. */
 type AvailableAxis = () => string;

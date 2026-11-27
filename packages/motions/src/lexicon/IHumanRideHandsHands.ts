@@ -6,7 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import type { HumanRideHands } from "./HumanRideHands";
-import type { fixedSeatWorkingPostures } from "./fixedSeatWorkingPostures";
+import type { fixedSeatWorkingPostures } from "./internal/fixedSeatWorkingPostures";
 
 /** Each hand's current, complete support-relative hold. */
 type Grips = Partial<Record<AutoMovieHumanSide, HumanRideHands.IMaterialGrip>>;

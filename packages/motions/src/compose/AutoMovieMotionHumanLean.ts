@@ -12,7 +12,7 @@ import { HumanBalance } from "../everyday/HumanBalance";
 import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanFrame } from "../posture/HumanFrame";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
-import { lowerHumanPosture } from "../posture/lowerHumanPosture";
+import { lowerHumanPosture } from "../posture/internal/lowerHumanPosture";
 
 /**
  * Trunk lean primitives: the whole body above the feet tipped about the hips,

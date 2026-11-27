@@ -1,6 +1,8 @@
+import type * as THREE from "three";
 import { type IAutoMovieInspectionOverlay } from "./IAutoMovieInspectionOverlay.js";
 import { type IAutoMovieInspectionMarkSet } from "./IAutoMovieInspectionMarkSet.js";
 import { buildAutoMovieInspectionMarks as buildAutoMovieInspectionMarksImplementation } from "./internal/buildAutoMovieInspectionMarks.js";
+import { chooseAutoMovieInspectionMarks as chooseAutoMovieInspectionMarksImplementation } from "./internal/chooseAutoMovieInspectionMarks.js";
 import { type IAutoMovieInspectionSweepUnit, type IAutoMovieInspectionSweepProps, type IAutoMovieInspectionLegendEntry, type IAutoMovieMark, type IAutoMovieInspectionKindStyle, type IAutoMovieInspectionDiagnostics } from "@automovie/interface";
 import { expandAutoMovieInspectionSweep as expandAutoMovieInspectionSweepImplementation } from "./internal/expandAutoMovieInspectionSweep.js";
 import { legendAutoMovieInspectionMarks as legendAutoMovieInspectionMarksImplementation } from "./internal/legendAutoMovieInspectionMarks.js";
@@ -9,6 +11,47 @@ import { reduceAutoMovieInspectionEpisodes as reduceAutoMovieInspectionEpisodesI
 
 /** Public operations for Auto Movie Render Inspection Marks. */
 export namespace AutoMovieRenderInspectionMarks {
+  /** Named input and result contracts for choosing drawn inspection marks. */
+  export namespace Choose {
+    /** Inputs that select supplied marks and resolve their anchors. */
+    export interface IProps {
+      /** The supplied marks. */
+      marks: readonly IAutoMovieMark[];
+      /** Whether a kind is asked. */
+      asks: (kind: string) => boolean;
+      /** Whether a path is selected. */
+      selects: (path: string) => boolean;
+      /** Whether a path is left out by `hide`. */
+      hidden: (path: string) => boolean;
+      /** The first scene object at each path. */
+      anchors: ReadonlyMap<string, THREE.Object3D>;
+    }
+
+    /** Marks selected for drawing, grouped by their anchor object. */
+    export interface IResult {
+      /** The selected marks in their original order. */
+      marks: IAutoMovieMark[];
+      /** The selected marks grouped by anchor, with null for world space. */
+      sets: Map<THREE.Object3D | null, IAutoMovieMark[]>;
+    }
+  }
+
+  /**
+   * Choose the supplied marks one picture draws, and group them by the scene
+   * object their frame belongs to.
+   *
+   * A mark is drawn when its kind is asked, its path is selected, and its anchor,
+   * if it has one, is visible with its ancestors and not left out by `hide`.
+   * Anchors are found by path among `anchors`, the first scene object at each
+   * path, and `null` stands for world space. Marks keep their order within each
+   * group.
+   *
+   * It throws naming the mark and the anchor when a mark follows a path no scene
+   * object has.
+   */
+  export function choose(props: Choose.IProps): Choose.IResult {
+    return chooseAutoMovieInspectionMarksImplementation(props);
+  }
   /**
    * Build marks into drawable lines and points, one line object and one points
    * object per anchor, that follow their anchors.

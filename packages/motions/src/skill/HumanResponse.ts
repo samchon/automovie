@@ -8,7 +8,7 @@ import type {
 
 import { HUMAN_ATTRIBUTE_EFFECTS } from "../ensemble/HUMAN_ATTRIBUTE_EFFECTS";
 import { HumanAttribute } from "../ensemble/HumanAttribute";
-import { look } from "../everyday/look";
+import { look } from "../everyday/internal/look";
 import { HumanSkill } from "./HumanSkill";
 
 /**

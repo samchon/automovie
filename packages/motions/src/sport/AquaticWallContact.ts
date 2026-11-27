@@ -15,7 +15,7 @@ import { HumanSupportStepPlants } from "../carrier/HumanSupportStepPlants";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanHand } from "../posture/HumanHand";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
 import { AquaticPosture } from "./AquaticPosture";
 
 /** The two contacts are fitted and checked independently in the wall frame. */

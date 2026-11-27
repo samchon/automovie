@@ -3,22 +3,22 @@ import type {
   IAutoMovieMotionHumanLexiconParams,
 } from "@automovie/interface";
 
-import { bend } from "../everyday/bend";
-import { crouch } from "../everyday/crouch";
-import { kneel } from "../everyday/kneel";
-import { dance } from "../exercise/dance";
-import { exercise } from "../exercise/exercise";
-import { stretch } from "../exercise/stretch";
-import { lieDown } from "../floor/lieDown";
+import { bend } from "../everyday/internal/bend";
+import { crouch } from "../everyday/internal/crouch";
+import { kneel } from "../everyday/internal/kneel";
+import { dance } from "../exercise/internal/dance";
+import { exercise } from "../exercise/internal/exercise";
+import { stretch } from "../exercise/internal/stretch";
+import { lieDown } from "../floor/internal/lieDown";
 import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
-import { athletics } from "../sport/athletics";
-import { ballSport } from "../sport/ballSport";
+import { athletics } from "../sport/internal/athletics";
+import { ballSport } from "../sport/internal/ballSport";
 import { AutoMovieMotionHumanBaseball as baseball } from "../sport/AutoMovieMotionHumanBaseball";
-import { gymnastics } from "../sport/gymnastics";
-import { martialArt } from "../sport/martialArt";
+import { gymnastics } from "../sport/internal/gymnastics";
+import { martialArt } from "../sport/internal/martialArt";
 import { AutoMovieMotionHumanRacket as racket } from "../sport/AutoMovieMotionHumanRacket";
 import { swim } from "../sport/swim";
-import { step } from "../striking/step";
+import { step } from "../striking/internal/step";
 
 /**
  * Sport, exercise, stretching and dance under the names a screenplay uses, each

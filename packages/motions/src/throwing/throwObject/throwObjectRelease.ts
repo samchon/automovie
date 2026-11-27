@@ -14,8 +14,8 @@ import { AutoMovieMotionHumanTrunk } from "../../compose/AutoMovieMotionHumanTru
 import { HumanTrunk } from "../../everyday/HumanTrunk";
 import { HumanFrame } from "../../posture/HumanFrame";
 import { HumanHand } from "../../posture/HumanHand";
-import { poseBones } from "../../posture/poseBones";
-import { resolveHumanPosture } from "../../posture/resolveHumanPosture";
+import { poseBones } from "../../posture/internal/poseBones";
+import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { throwObjectForm } from "./throwObjectForm";
 
 /**

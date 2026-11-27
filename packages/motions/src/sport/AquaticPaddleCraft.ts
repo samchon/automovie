@@ -14,11 +14,11 @@ import type {
 
 import { HumanSupportCarry } from "../carrier/HumanSupportCarry";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
-import { seated } from "../everyday/seated";
+import { seated } from "../everyday/internal/seated";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
-import { poseBones } from "../posture/poseBones";
+import { poseBones } from "../posture/internal/poseBones";
 import { AquaticPosture } from "./AquaticPosture";
 import { AquaticProp } from "./AquaticProp";
 

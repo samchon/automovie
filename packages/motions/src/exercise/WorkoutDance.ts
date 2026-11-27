@@ -7,7 +7,7 @@ import type {
 import { ExerciseKey } from "./ExerciseKey";
 import { WorkoutKind } from "./WorkoutKind";
 import { WorkoutStance } from "./WorkoutStance";
-import { balletStep } from "./balletStep";
+import { balletStep } from "./internal/balletStep";
 
 /**
  * The dance steps of the workout law: ballet's plié, relevé and arabesque on

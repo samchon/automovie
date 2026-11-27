@@ -16,15 +16,15 @@ import type {
 
 import { HumanFootOutline } from "./HumanFootOutline";
 import { HumanFootRotation } from "./HumanFootRotation";
-import { humanFootBones } from "./humanFootBones";
-import { humanFootOffset } from "./humanFootOffset";
-import { prepareHumanFootAnkle } from "./prepareHumanFootAnkle";
-import { prepareHumanFootAt } from "./prepareHumanFootAt";
-import { prepareHumanFootHeight } from "./prepareHumanFootHeight";
-import { prepareHumanFootPivot } from "./prepareHumanFootPivot";
-import { prepareHumanFootPoint } from "./prepareHumanFootPoint";
-import { prepareHumanFootSole } from "./prepareHumanFootSole";
-import { readHumanFoot } from "./readHumanFoot";
+import { humanFootBones } from "./internal/humanFootBones";
+import { humanFootOffset } from "./internal/humanFootOffset";
+import { prepareHumanFootAnkle } from "./internal/prepareHumanFootAnkle";
+import { prepareHumanFootAt } from "./internal/prepareHumanFootAt";
+import { prepareHumanFootHeight } from "./internal/prepareHumanFootHeight";
+import { prepareHumanFootPivot } from "./internal/prepareHumanFootPivot";
+import { prepareHumanFootPoint } from "./internal/prepareHumanFootPoint";
+import { prepareHumanFootSole } from "./internal/prepareHumanFootSole";
+import { readHumanFoot } from "./internal/readHumanFoot";
 
 /** The alternatives of `PointPoint`'s site. */
 type PointPoint = "heel" | "ball" | "toe" | "sole" | "mtp";

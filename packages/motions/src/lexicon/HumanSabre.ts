@@ -18,15 +18,15 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
-import { courseArmGoal } from "../compose/courseArmGoal";
+import { courseArmGoal } from "../compose/internal/courseArmGoal";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { HumanLimbFit } from "../posture/HumanLimbFit";
-import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { poseBones } from "../posture/internal/poseBones";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
 import { HumanResponse } from "../skill/HumanResponse";
 import { StrikingBlade } from "../striking/StrikingBlade";
 import { StrikingHeld } from "../striking/StrikingHeld";
@@ -35,7 +35,7 @@ import { HumanMountedPresentation } from "./HumanMountedPresentation";
 import { HumanSabreForm } from "./HumanSabreForm";
 import { HumanSwordGuard } from "./HumanSwordGuard";
 import { HumanUnseatPose } from "./HumanUnseatPose";
-import { humanSabreCharge } from "./humanSabreCharge";
+import { humanSabreCharge } from "./internal/humanSabreCharge";
 
 /**
  * A sabre's slope and engage from the saddle (`IAutoMovieMotionHumanSabre`):

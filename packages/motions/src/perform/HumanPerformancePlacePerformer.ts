@@ -6,7 +6,7 @@ import type {
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 
-import { poseBones } from "../posture/poseBones";
+import { poseBones } from "../posture/internal/poseBones";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 
 /**

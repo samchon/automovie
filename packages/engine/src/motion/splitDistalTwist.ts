@@ -15,10 +15,10 @@ import { DEFAULT_JOINT_AXES } from "../kinematics/constants/DEFAULT_JOINT_AXES";
 import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
 import { normalizeJointAxes } from "../kinematics/internal/normalizeJointAxes";
 import { Quaternion } from "../math/Quaternion";
-import type { prepareChainFit } from "./prepareChainFit";
+import type { prepareChainFit } from "./internal/prepareChainFit";
 import { resolveBoneMap } from "./resolveBoneMap";
-import { resolveChainEffectorBaseRotation } from "./resolveChainEffectorBaseRotation";
-import { resolvePreparedChainFrames } from "./resolvePreparedChainFrames";
+import { resolveChainEffectorBaseRotation } from "./internal/resolveChainEffectorBaseRotation";
+import { resolvePreparedChainFrames } from "./internal/resolvePreparedChainFrames";
 import { solveDistalTwist } from "./solveDistalTwist";
 
 /**

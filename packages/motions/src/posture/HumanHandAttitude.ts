@@ -15,11 +15,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { readHumanBone } from "../body/readHumanBone";
-import { poseBones } from "./poseBones";
-import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
-import { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
-import { resolveHumanPosture } from "./resolveHumanPosture";
+import { readHumanBone } from "../body/internal/readHumanBone";
+import { poseBones } from "./internal/poseBones";
+import { prepareHumanPoseResolution } from "./internal/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "./internal/prepareHumanPostureProjection";
+import { resolveHumanPosture } from "./internal/resolveHumanPosture";
 
 /**
  * A hand held at a world attitude on the arm as it stands: what a carried or

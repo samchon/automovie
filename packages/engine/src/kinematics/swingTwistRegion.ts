@@ -17,7 +17,7 @@ import { swingConeAngle } from "../rom/swingConeAngle";
 import { toClinicalAngle } from "../rom/toClinicalAngle";
 import { toRigAngle } from "../rom/toRigAngle";
 import { swingTwistBasis } from "./swingTwistBasis";
-import { swingTwistReachBound } from "./swingTwistReachBound";
+import { swingTwistReachBound } from "./internal/swingTwistReachBound";
 
 /**
  * The swing region of a ball joint: the farthest the limb may point from its

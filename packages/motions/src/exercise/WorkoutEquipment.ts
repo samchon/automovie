@@ -9,7 +9,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import { knockdown } from "../reaction/knockdown";
+import { knockdown } from "../reaction/internal/knockdown";
 import { GymnasticsWheel } from "../sport/GymnasticsWheel";
 import { StrikingBody } from "../striking/StrikingBody";
 import { ExerciseKey } from "./ExerciseKey";

@@ -7,7 +7,7 @@ import type {
 import { ExerciseKey } from "./ExerciseKey";
 import { WorkoutKind } from "./WorkoutKind";
 import { WorkoutStance } from "./WorkoutStance";
-import { karateBlockChamber } from "./karateBlockChamber";
+import { karateBlockChamber } from "./internal/karateBlockChamber";
 import { workoutTurn } from "./workout/workoutTurn";
 
 /**

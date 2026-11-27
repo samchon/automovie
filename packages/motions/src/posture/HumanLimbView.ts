@@ -8,8 +8,8 @@ import type {
   IAutoMoviePose,
 } from "@automovie/interface";
 
-import { readHumanBone } from "../body/readHumanBone";
-import { poseBones } from "./poseBones";
+import { readHumanBone } from "../body/internal/readHumanBone";
+import { poseBones } from "./internal/poseBones";
 
 /**
  * The records a limb's fit reads of a pose: those of its chain, of the bone its

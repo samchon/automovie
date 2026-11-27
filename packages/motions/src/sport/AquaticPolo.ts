@@ -16,9 +16,9 @@ import { HumanTrunk } from "../everyday/HumanTrunk";
 import { ExerciseKey } from "../exercise/ExerciseKey";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPropHold } from "../perform/HumanPropHold";
-import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { throwObjectLaunch } from "../throwing/throwObjectLaunch";
+import { poseBones } from "../posture/internal/poseBones";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
+import { throwObjectLaunch } from "../throwing/internal/throwObjectLaunch";
 import { AquaticPosture } from "./AquaticPosture";
 
 /**

@@ -14,12 +14,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { courseArmGoal } from "../compose/courseArmGoal";
+import { courseArmGoal } from "../compose/internal/courseArmGoal";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { mixHumanPosture } from "../posture/mixHumanPosture";
+import { mixHumanPosture } from "../posture/internal/mixHumanPosture";
 import { HumanMountedFrame } from "./HumanMountedFrame";
 import { HumanUnseatPose } from "./HumanUnseatPose";
-import { humanTrickSchedule } from "./humanTrickSchedule";
+import { humanTrickSchedule } from "./internal/humanTrickSchedule";
 
 /**
  * Trick-riding figures (`IAutoMovieMotionHumanTrick`): each figure is a key

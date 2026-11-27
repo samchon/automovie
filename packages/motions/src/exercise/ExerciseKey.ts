@@ -10,9 +10,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { stand } from "../actions/stand";
+import { stand } from "../actions/internal/stand";
 import { StrikingBody } from "../striking/StrikingBody";
-import { prepareExerciseKeyBlend } from "./prepareExerciseKeyBlend";
+import { prepareExerciseKeyBlend } from "./internal/prepareExerciseKeyBlend";
 
 /**
  * A keyed whole-body posture of an exercise: the body's tilt, its turn and its

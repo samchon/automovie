@@ -14,12 +14,12 @@ import type {
 } from "@automovie/interface";
 
 import { HumanTrunk } from "../everyday/HumanTrunk";
-import { sit } from "../everyday/sit";
+import { sit } from "../everyday/internal/sit";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { HumanFrame } from "../posture/HumanFrame";
-import { carryHumanPosture } from "../posture/carryHumanPosture";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { carryHumanPosture } from "../posture/internal/carryHumanPosture";
+import { prepareHumanPoseResolution } from "../posture/internal/prepareHumanPoseResolution";
 
 /**
  * Getting into a car through its door: the person stands in the doorway with

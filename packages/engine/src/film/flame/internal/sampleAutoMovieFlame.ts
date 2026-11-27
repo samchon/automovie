@@ -5,8 +5,8 @@ import type {
 } from "@automovie/interface";
 
 import { revolveAutoMovieProfile } from "../../../geometry/internal/revolveAutoMovieProfile";
-import { createAutoMovieGradientNoise3 } from "../../../random/createAutoMovieGradientNoise3";
-import { deriveAutoMovieSeed } from "../../../random/deriveAutoMovieSeed";
+import { createAutoMovieGradientNoise3 } from "../../../random/internal/createAutoMovieGradientNoise3";
+import { deriveAutoMovieSeed } from "../../../random/internal/deriveAutoMovieSeed";
 import { heskestadFlameHeight } from "./heskestadFlameHeight";
 import { puffingFrequency } from "./puffingFrequency";
 

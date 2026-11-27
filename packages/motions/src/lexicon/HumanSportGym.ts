@@ -3,8 +3,8 @@ import type {
   IAutoMovieMotionHumanLexiconParams,
 } from "@automovie/interface";
 
-import { workout } from "../exercise/workout";
-import { crawl } from "../floor/crawl";
+import { workout } from "../exercise/internal/workout";
+import { crawl } from "../floor/internal/crawl";
 import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 
 /**

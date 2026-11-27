@@ -6,8 +6,8 @@ import type {
   IAutoMovieMotionHumanManipulate,
 } from "@automovie/interface";
 
-import { manipulate } from "../handling/manipulate";
-import { manipulateHeld } from "../handling/manipulateHeld";
+import { manipulate } from "../handling/internal/manipulate";
+import { manipulateHeld } from "../handling/internal/manipulateHeld";
 import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 
 /**

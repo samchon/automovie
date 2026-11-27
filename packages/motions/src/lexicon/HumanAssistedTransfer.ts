@@ -23,12 +23,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { support } from "../actions/support";
+import { support } from "../actions/internal/support";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
-import { getUp } from "../floor/getUp";
-import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { humanAssistedTransferSeat } from "./humanAssistedTransferSeat";
+import { getUp } from "../floor/internal/getUp";
+import { poseBones } from "../posture/internal/poseBones";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
+import { humanAssistedTransferSeat } from "./internal/humanAssistedTransferSeat";
 
 /** The bearing parts of the transfer are not constrained to the chair's base. */
 const FEET: readonly IAutoMovieMotionHumanSupport.IContact[] = [

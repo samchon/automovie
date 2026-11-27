@@ -11,10 +11,10 @@ import type {
 } from "@automovie/interface";
 
 import { HumanBoneGroups } from "../posture/HumanBoneGroups";
-import { lowerHumanPosture } from "../posture/lowerHumanPosture";
-import { poseBones } from "../posture/poseBones";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { lowerHumanPosture } from "../posture/internal/lowerHumanPosture";
+import { poseBones } from "../posture/internal/poseBones";
+import { prepareHumanPoseResolution } from "../posture/internal/prepareHumanPoseResolution";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
 import { AutoMovieMotionHumanLeg } from "./AutoMovieMotionHumanLeg";
 import { AutoMovieMotionHumanRange } from "./AutoMovieMotionHumanRange";
 import type { AutoMovieMotionHumanReach } from "./AutoMovieMotionHumanReach";

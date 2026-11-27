@@ -16,8 +16,8 @@ import type {
 
 import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { HumanFoot } from "../posture/HumanFoot";
-import { assembleHumanPosture } from "../posture/assembleHumanPosture";
-import { poseBones } from "../posture/poseBones";
+import { assembleHumanPosture } from "../posture/internal/assembleHumanPosture";
+import { poseBones } from "../posture/internal/poseBones";
 
 /**
  * The feet of a body going down, held where they stood. A fall that pitches or

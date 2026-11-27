@@ -13,13 +13,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { stand } from "../../actions/stand";
+import { stand } from "../../actions/internal/stand";
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanFrame } from "../../posture/HumanFrame";
 import { HumanHand } from "../../posture/HumanHand";
-import { poseBones } from "../../posture/poseBones";
-import { resolveHumanPosture } from "../../posture/resolveHumanPosture";
-import { precisionThrow } from "../precisionThrow";
+import { poseBones } from "../../posture/internal/poseBones";
+import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
+import { precisionThrow } from "../internal/precisionThrow";
 import { throwObjectForm } from "./throwObjectForm";
 import { throwObjectLever } from "./throwObjectLever";
 import { throwObjectRelease } from "./throwObjectRelease";

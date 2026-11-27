@@ -14,10 +14,10 @@ import type {
 
 import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanFoot } from "../posture/HumanFoot";
-import { poseBones } from "../posture/poseBones";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { poseBones } from "../posture/internal/poseBones";
+import { prepareHumanPoseResolution } from "../posture/internal/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/internal/prepareHumanPostureProjection";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
 
 /**
  * A posture's static balance as `HumanBalance` reads it: the whole-body centre

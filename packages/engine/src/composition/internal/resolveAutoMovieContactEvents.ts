@@ -3,8 +3,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { firstAutoMovieContactImpact } from "../firstAutoMovieContactImpact";
-import { sampleAutoMovieContactWeapon } from "../sampleAutoMovieContactWeapon";
+import { firstAutoMovieContactImpact } from "./firstAutoMovieContactImpact";
+import { sampleAutoMovieContactWeapon } from "./sampleAutoMovieContactWeapon";
 
 /**
  * The contacts of several moving weapons with several bodies that may each

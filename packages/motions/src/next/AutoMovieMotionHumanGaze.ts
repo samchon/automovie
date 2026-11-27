@@ -1,8 +1,8 @@
 import { GAZE_RECRUITS } from "../compose/GAZE_RECRUITS";
-import { glance as glanceLaw } from "../compose/glance";
-import { lookPrimitive as lookPrimitiveLaw } from "../compose/lookPrimitive";
+import { glance as glanceLaw } from "../compose/internal/glance";
+import { lookPrimitive as lookPrimitiveLaw } from "../compose/internal/lookPrimitive";
 import { HumanGaze as HumanGazeSource } from "../everyday/HumanGaze";
-import { look as lookLaw } from "../everyday/look";
+import { look as lookLaw } from "../everyday/internal/look";
 
 /**
  * An overlay: where the eyes and head look. It layers on any whole-body action.

@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanWallRun,
 } from "@automovie/interface";
 
-import { planWallRun } from "../terrain/planWallRun";
+import { planWallRun } from "../terrain/internal/planWallRun";
 
 /**
  * Using a wall's face as a brief foot support: a wall step, or a run up the

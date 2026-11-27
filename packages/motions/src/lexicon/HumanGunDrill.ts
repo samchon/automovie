@@ -4,12 +4,12 @@ import type {
 } from "@automovie/interface";
 
 import { walk } from "../gait/internal/walk";
-import { operate } from "../affordance/operate";
-import { handOver } from "../handling/handOver";
-import { putDown } from "../handling/putDown";
+import { operate } from "../affordance/internal/operate";
+import { handOver } from "../handling/internal/handOver";
+import { putDown } from "../handling/internal/putDown";
 import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 import { HUMAN_MILITARY_DRILL_COVER_VENT } from "../next/presets/HUMAN_MILITARY_DRILL_COVER_VENT";
-import { touch } from "../touch/touch";
+import { touch } from "../touch/internal/touch";
 
 /**
  * A field gun's drill, the duties of the National Park Service's drill for the

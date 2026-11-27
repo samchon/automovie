@@ -13,7 +13,7 @@ import {
 
 import { placeTransformedPoint } from "./film/internal/placeTransformedPoint";
 import { HUMANOID_JOINT_AXES } from "./kinematics/constants/HUMANOID_JOINT_AXES";
-import { resolvePose } from "./kinematics/resolvePose";
+import { resolvePose } from "./kinematics/internal/resolvePose";
 import { Transform } from "./math/Transform";
 import { sampleMotion } from "./motion/sampleMotion";
 import { sampleClipSequence } from "./resolve/internal/sampleClipSequence";

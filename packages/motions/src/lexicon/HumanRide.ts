@@ -22,18 +22,18 @@ import type {
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
-import { carryHumanPosture } from "../posture/carryHumanPosture";
-import { hipJoints } from "../posture/hipJoints";
+import { carryHumanPosture } from "../posture/internal/carryHumanPosture";
+import { hipJoints } from "../posture/internal/hipJoints";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { HeldRideArms } from "./HeldRideArms";
 import { HumanMountRider } from "./HumanMountRider";
 import { HumanRideHands } from "./HumanRideHands";
 import { RideRestingHands } from "./RideRestingHands";
 import { WorkingSeatRidePlan } from "./WorkingSeatRidePlan";
-import { humanRidePosting } from "./humanRidePosting";
-import { humanRideWindows } from "./humanRideWindows";
-import { placeRideFeet } from "./placeRideFeet";
-import { prepareHumanEquestrianRide } from "./prepareHumanEquestrianRide";
+import { humanRidePosting } from "./internal/humanRidePosting";
+import { humanRideWindows } from "./internal/humanRideWindows";
+import { placeRideFeet } from "./internal/placeRideFeet";
+import { prepareHumanEquestrianRide } from "./internal/prepareHumanEquestrianRide";
 
 /**
  * Riding: a seated person carried by a support that moves by itself, such as a

@@ -9,8 +9,8 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanAuditTangleModel } from "../../audit/AutoMovieMotionHumanAuditTangleModel";
-import { walkLegBinding } from "../../actions/walkLegBinding";
-import { walkLegCapsules } from "../../actions/walkLegCapsules";
+import { walkLegBinding } from "../../actions/internal/walkLegBinding";
+import { walkLegCapsules } from "../../actions/internal/walkLegCapsules";
 
 /**
  * How far two legs of one body pass into each other, read as the tangle audit

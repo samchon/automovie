@@ -19,7 +19,7 @@ import { HumanArmShapes as S } from "./HumanArmShapes";
 import { HumanArmTrajectoryTerms } from "./HumanArmTrajectoryTerms";
 import { HumanColliderCorners } from "./HumanColliderCorners";
 import { HumanColliders } from "./HumanColliders";
-import { poseBones } from "./poseBones";
+import { poseBones } from "./internal/poseBones";
 
 /** The record of `IBuiltOfResult`'s site. */
 type IBuiltOfResult = { centre: IAutoMovieVector3; radius: number };

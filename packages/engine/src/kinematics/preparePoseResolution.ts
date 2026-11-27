@@ -9,7 +9,7 @@ import type {
 import { DEFAULT_JOINT_AXES } from "./constants/DEFAULT_JOINT_AXES";
 import { jointToQuaternionOnBasis } from "./jointToQuaternionOnBasis";
 import { normalizeJointAxes } from "./internal/normalizeJointAxes";
-import { resolvePoseBone } from "./resolvePoseBone";
+import { resolvePoseBone } from "./internal/resolvePoseBone";
 
 /** The factory's reader: its two methods as own data properties. */
 const READER: IReader = {

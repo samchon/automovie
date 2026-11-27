@@ -10,11 +10,11 @@ import { createReadStream } from "node:fs";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 
+import type { AutoMovieCliRender } from "../AutoMovieCliRender";
 import { AutoMovieRenderOutputReservation } from "../../AutoMovieRenderOutputReservation";
 import type { IAutoMovieDeliveryProfileFinding } from "../../IAutoMovieDeliveryProfileFinding";
 import { auditAutoMovieAlphaSamples } from "../../auditAutoMovieAlphaSamples";
 import { auditAutoMovieDeliveryProfile } from "../../delivery/internal/auditAutoMovieDeliveryProfile";
-import type { AutoMovieCliCaptureHost } from "../../capture/AutoMovieCliCaptureHost";
 import { AutoMovieCliDelivery } from "../../delivery/AutoMovieCliDelivery";
 import { listAutoMovieReleaseFindings } from "../../listAutoMovieReleaseFindings";
 import { publishAutoMovieRenderAttempt } from "../../publishAutoMovieRenderAttempt";
@@ -56,38 +56,9 @@ import { runAutoMovieFfmpeg } from "../../ffmpeg/internal/runAutoMovieFfmpeg";
  * the frame file's bytes.
  */
 export async function renderAutoMovieVideo(
-  props: {
-    /** The opened draw host. */
-    host: IDeliveryHost;
-    /** The production's root folder. */
-    root: string;
-    /** The subject's name, or null for the page's only subject. */
-    subject: string | null;
-    /** Data the subject module reads, as JSON, or null. */
-    props: unknown;
-    /** Output folder, relative to the root or absolute. */
-    out?: string;
-    /** FFmpeg executable. */
-    ffmpeg: string;
-    /**
-     * Guide passes other than `beauty` drawn at every frame into
-     * `<out>/controls/`; absent or empty draws the film alone.
-     */
-    passes?: readonly string[];
-    /**
-     * `transparent` renders a straight-alpha layer as `film.mov` with no audio,
-     * into `media/automovie/<film>/transparent` by default; absent or `scene`
-     * renders the film.
-     */
-    background?: "scene" | "transparent";
-  },
+  props: AutoMovieCliRender.IRenderVideoInput,
   run: typeof runAutoMovieFfmpeg = runAutoMovieFfmpeg,
-): Promise<{
-  video: string;
-  report: string;
-  frames: number;
-  controls: string | null;
-}> {
+): Promise<AutoMovieCliRender.IRenderVideoResult> {
   const session = await props.host.session({
     subject: props.subject,
     props: props.props,
@@ -374,26 +345,6 @@ export async function renderAutoMovieVideo(
 }
 
 type DeliveryAudit = IAutoMovieDeliveryContentAudit.IResult;
-
-/** The render operations this host needs from a production's draw session. */
-interface IDeliveryHost {
-  render: Pick<
-    typeof Render,
-    | "renderAutoMovieDrawnVideo"
-    | "auditAutoMovieDeliveryContent"
-    | "createAutoMovieLoudnessMeter"
-    | "AUTOMOVIE_MP4_SRGB_COLOUR"
-    | "AutoMovieRenderDelivery"
-  >;
-  session(
-    props: Parameters<AutoMovieCliCaptureHost["session"]>[0],
-  ): Promise<
-    Pick<
-      Render.AutoMovieDrawSession,
-      "backend" | "close" | "frame" | "speak" | "subject"
-    >
-  >;
-}
 
 /**
  * Scene and encoded evidence from a single release attempt on the output

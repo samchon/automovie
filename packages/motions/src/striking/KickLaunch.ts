@@ -12,7 +12,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { poseBones } from "../posture/poseBones";
+import { poseBones } from "../posture/internal/poseBones";
 import { KickCarriage } from "./KickCarriage";
 import type { KickChain } from "./KickChain";
 import { KickChamber } from "./KickChamber";
@@ -25,7 +25,7 @@ import { StrikingQuality } from "./StrikingQuality";
 import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
-import { strikingStepSupport } from "./strikingStepSupport";
+import { strikingStepSupport } from "./internal/strikingStepSupport";
 
 /** The alternatives of `OfLevel`'s site. */
 type OfLevel = "low" | "middle" | "high";

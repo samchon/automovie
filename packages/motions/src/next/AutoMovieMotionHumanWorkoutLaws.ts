@@ -1,10 +1,10 @@
-import { exercise as exerciseLaw } from "../exercise/exercise";
-import { lineWalk as lineWalkLaw } from "../exercise/lineWalk";
-import { prepareRopeSkip as prepareRopeSkipLaw } from "../exercise/prepareRopeSkip";
-import { ropeSkip as ropeSkipLaw } from "../exercise/ropeSkip";
-import { stiltWalk as stiltWalkLaw } from "../exercise/stiltWalk";
-import { stretch as stretchLaw } from "../exercise/stretch";
-import { workout as workoutLaw } from "../exercise/workout";
+import { exercise as exerciseLaw } from "../exercise/internal/exercise";
+import { lineWalk as lineWalkLaw } from "../exercise/internal/lineWalk";
+import { prepareRopeSkip as prepareRopeSkipLaw } from "../exercise/internal/prepareRopeSkip";
+import { ropeSkip as ropeSkipLaw } from "../exercise/internal/ropeSkip";
+import { stiltWalk as stiltWalkLaw } from "../exercise/internal/stiltWalk";
+import { stretch as stretchLaw } from "../exercise/internal/stretch";
+import { workout as workoutLaw } from "../exercise/internal/workout";
 
 /**
  * The workout family's laws, each the shipped function under its family name

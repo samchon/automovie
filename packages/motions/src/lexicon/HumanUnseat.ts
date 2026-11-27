@@ -17,12 +17,12 @@ import type {
 
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmReach } from "../compose/AutoMovieMotionHumanArmReach";
-import { courseArmGoal } from "../compose/courseArmGoal";
+import { courseArmGoal } from "../compose/internal/courseArmGoal";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
 import { KnockdownFloor } from "../reaction/KnockdownFloor";
 import { HumanMountedFrame } from "./HumanMountedFrame";
 import { HumanUnseatDrag } from "./HumanUnseatDrag";

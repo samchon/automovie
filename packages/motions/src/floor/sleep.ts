@@ -5,7 +5,7 @@ import type {
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanArmConnect } from "../posture/HumanArmConnect";
-import { turnOver } from "./turnOver";
+import { turnOver } from "./internal/turnOver";
 
 /**
  * The share of time in bed spent in each lying position, Skarpsno et al. 2017

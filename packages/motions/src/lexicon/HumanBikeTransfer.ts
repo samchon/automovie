@@ -11,15 +11,15 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { seated } from "../everyday/seated";
-import { sit } from "../everyday/sit";
+import { seated } from "../everyday/internal/seated";
+import { sit } from "../everyday/internal/sit";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanObject } from "../perform/HumanObject";
 import { HumanFoot } from "../posture/HumanFoot";
-import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { poseBones } from "../posture/internal/poseBones";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
 import { HumanMountOff } from "./HumanMountOff";
-import { humanBikeTransferLine } from "./humanBikeTransferLine";
+import { humanBikeTransferLine } from "./internal/humanBikeTransferLine";
 
 /** Number of intervals over which the authored stationary segment is probed. */
 const INTERVALS: number = 8;

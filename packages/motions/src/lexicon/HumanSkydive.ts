@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanSkydive,
 } from "@automovie/interface";
 
-import { planSkydive } from "../airborne/planSkydive";
+import { planSkydive } from "../airborne/internal/planSkydive";
 
 /**
  * A parachute jump: the exit, the arched freefall, the canopy steered by its

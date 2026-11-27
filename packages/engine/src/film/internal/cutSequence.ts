@@ -10,7 +10,7 @@ import type {
 
 import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
-import { checkCutPropContinuity } from "../checkCutPropContinuity";
+import { checkCutPropContinuity } from "./checkCutPropContinuity";
 import { sequenceEventTimeline } from "./sequenceEventTimeline";
 
 /** A built shot with the index it was first supplied at. */

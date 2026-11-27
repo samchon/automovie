@@ -22,7 +22,7 @@ import { pinStanceTargets } from "./pinStanceTargets";
 import { rekeyPlantedFeet } from "./rekeyPlantedFeet";
 import { resolveBoneMap } from "./resolveBoneMap";
 import { sampleMotion } from "./sampleMotion";
-import { sampleStanceTimes } from "./sampleStanceTimes";
+import { sampleStanceTimes } from "./internal/sampleStanceTimes";
 
 const DEFAULT_GROUND_Y: number = 0;
 

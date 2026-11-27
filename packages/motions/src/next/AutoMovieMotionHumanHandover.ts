@@ -1,8 +1,8 @@
 import { HumanHandover as HumanHandoverSource } from "../handling/HumanHandover";
-import { handOver as handOverLaw } from "../handling/handOver";
-import { handshake as handshakeLaw } from "../handling/handshake";
-import { receive as receiveLaw } from "../handling/receive";
-import { relayPass as relayPassLaw } from "../handling/relayPass";
+import { handOver as handOverLaw } from "../handling/internal/handOver";
+import { handshake as handshakeLaw } from "../handling/internal/handshake";
+import { receive as receiveLaw } from "../handling/internal/receive";
+import { relayPass as relayPassLaw } from "../handling/internal/relayPass";
 
 /**
  * Passing an object between two people: giving, receiving, relaying and the

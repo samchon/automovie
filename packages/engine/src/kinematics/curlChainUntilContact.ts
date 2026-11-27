@@ -17,7 +17,7 @@ import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
 import { ROM_TOLERANCE } from "../rom/constants/ROM_TOLERANCE";
 import { preparePoseResolution } from "./preparePoseResolution";
 import type { prepareSkeletonPoseResolution } from "./prepareSkeletonPoseResolution";
-import { resolvePose } from "./resolvePose";
+import { resolvePose } from "./internal/resolvePose";
 
 /**
  * Close articulated chains (fingers and thumb) around an object: each joint,

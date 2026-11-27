@@ -12,10 +12,10 @@ import type {
 import { AutoMovieMotionHumanArmCourse } from "../compose/AutoMovieMotionHumanArmCourse";
 import { HumanArmTrajectoryTerms } from "../posture/HumanArmTrajectoryTerms";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
-import { poseBones } from "../posture/poseBones";
-import { prepareHumanAdaptiveKnots } from "../posture/prepareHumanAdaptiveKnots";
-import { resolveHumanPostureSource } from "../posture/resolveHumanPostureSource";
-import { turnHumanPosture } from "../posture/turnHumanPosture";
+import { poseBones } from "../posture/internal/poseBones";
+import { prepareHumanAdaptiveKnots } from "../posture/internal/prepareHumanAdaptiveKnots";
+import { resolveHumanPostureSource } from "../posture/internal/resolveHumanPostureSource";
+import { turnHumanPosture } from "../posture/internal/turnHumanPosture";
 
 /**
  * The knots a carry's lift or set-down keeps of the carried body's frozen

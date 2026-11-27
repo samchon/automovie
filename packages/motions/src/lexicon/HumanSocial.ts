@@ -7,14 +7,14 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
-import { handToFace } from "../daily/handToFace";
+import { handToFace } from "../daily/internal/handToFace";
 import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 import { HUMAN_TOUCH_SOCIAL_COMFORT } from "../next/presets/HUMAN_TOUCH_SOCIAL_COMFORT";
 import { HUMAN_TOUCH_SOCIAL_FIRM_PRESS } from "../next/presets/HUMAN_TOUCH_SOCIAL_FIRM_PRESS";
 import { HUMAN_TOUCH_SOCIAL_SHOULDER_PAT } from "../next/presets/HUMAN_TOUCH_SOCIAL_SHOULDER_PAT";
-import { highFive } from "../touch/highFive";
-import { kiss } from "../touch/kiss";
-import { touch } from "../touch/touch";
+import { highFive } from "../touch/internal/highFive";
+import { kiss } from "../touch/internal/kiss";
+import { touch } from "../touch/internal/touch";
 
 /** The alternatives of `CastEntryItem5`'s site. */
 type CastEntryItem5 = "host" | "guest" | "third" | "fourth";

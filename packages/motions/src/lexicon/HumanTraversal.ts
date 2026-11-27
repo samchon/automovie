@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanCrossing,
 } from "@automovie/interface";
 
-import { planNamedCrossing } from "../terrain/planNamedCrossing";
+import { planNamedCrossing } from "../terrain/internal/planNamedCrossing";
 
 /**
  * Crossing named stage geometry: a step over, a hand-supported vault or a jump

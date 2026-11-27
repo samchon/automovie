@@ -19,7 +19,7 @@ import type {
 import { walk } from "../gait/internal/walk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanMountPush } from "../lexicon/HumanMountPush";
-import { hipJoints } from "../posture/hipJoints";
+import { hipJoints } from "../posture/internal/hipJoints";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { HumanSupportCarry } from "./HumanSupportCarry";
 import { HumanSupportFrame } from "./HumanSupportFrame";

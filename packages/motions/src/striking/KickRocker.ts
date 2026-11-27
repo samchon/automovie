@@ -6,7 +6,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { walkLeg } from "../actions/walkLeg";
+import { walkLeg } from "../actions/internal/walkLeg";
 import { HumanFoot } from "../posture/HumanFoot";
 import type { KickChamber } from "./KickChamber";
 

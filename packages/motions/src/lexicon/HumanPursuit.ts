@@ -13,7 +13,7 @@ import type {
 import { run } from "../gait/internal/run";
 import { HumanGaze } from "../everyday/HumanGaze";
 import { HumanProxemics } from "../everyday/HumanProxemics";
-import { approach } from "../everyday/approach";
+import { approach } from "../everyday/internal/approach";
 import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";

@@ -24,7 +24,7 @@ import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
 import { HumanArmTrajectorySweep } from "./HumanArmTrajectorySweep";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 import { HumanArmTrajectoryTravel } from "./HumanArmTrajectoryTravel";
-import { placeHumanArmGeometry } from "./placeHumanArmGeometry";
+import { placeHumanArmGeometry } from "./internal/placeHumanArmGeometry";
 
 /**
  * Step a hand contact along a world-space site. Keeping the distal angles fixed

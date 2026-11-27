@@ -18,7 +18,7 @@ import { HumanPropCatchHands } from "./HumanPropCatchHands";
 import { HumanPropFlightFrame } from "./HumanPropFlightFrame";
 import { HumanPropOutcome } from "./HumanPropOutcome";
 import { HumanPropSweep } from "./HumanPropSweep";
-import { launchPropProjectile } from "./launchPropProjectile";
+import { launchPropProjectile } from "./internal/launchPropProjectile";
 
 /** The record of `IFlightsLaunchesItem`'s site. */
 type IFlightsLaunchesItem = {

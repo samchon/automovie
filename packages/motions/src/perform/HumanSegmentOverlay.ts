@@ -16,11 +16,11 @@ import type {
 
 import { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import { HumanLimbFit } from "../posture/HumanLimbFit";
-import { blendHumanJoint } from "../posture/blendHumanJoint";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { refitHumanPosture } from "../posture/refitHumanPosture";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { resolveHumanPostureSource } from "../posture/resolveHumanPostureSource";
+import { blendHumanJoint } from "../posture/internal/blendHumanJoint";
+import { prepareHumanPoseResolution } from "../posture/internal/prepareHumanPoseResolution";
+import { refitHumanPosture } from "../posture/internal/refitHumanPosture";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
+import { resolveHumanPostureSource } from "../posture/internal/resolveHumanPostureSource";
 import { HumanPreparedPlayback } from "./HumanPreparedPlayback";
 import { HumanSegment } from "./HumanSegment";
 import { HumanSegmentCarry } from "./HumanSegmentCarry";
@@ -28,10 +28,10 @@ import { HumanSegmentLegs } from "./HumanSegmentLegs";
 import { HumanSegmentOverlayRun } from "./HumanSegmentOverlayRun";
 import { HumanSegmentPose } from "./HumanSegmentPose";
 import { HumanSegmentPoseSeeds } from "./HumanSegmentPoseSeeds";
-import { overlayContactGoals } from "./overlayContactGoals";
-import { overlayContinuations } from "./overlayContinuations";
-import type { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
-import { unplantedHumanObservation } from "./unplantedHumanObservation";
+import { overlayContactGoals } from "./internal/overlayContactGoals";
+import { overlayContinuations } from "./internal/overlayContinuations";
+import type { prepareHumanSegmentPose } from "./internal/prepareHumanSegmentPose";
+import { unplantedHumanObservation } from "./internal/unplantedHumanObservation";
 
 /** The record of `IBuildResult`'s site. */
 type IBuildResult = {

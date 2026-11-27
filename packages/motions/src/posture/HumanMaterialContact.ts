@@ -14,8 +14,8 @@ import type {
 
 import { HumanPropFrame } from "../perform/HumanPropFrame";
 import { HumanColliderPlacement } from "./HumanColliderPlacement";
-import { poseBones } from "./poseBones";
-import { resolveHumanPosture } from "./resolveHumanPosture";
+import { poseBones } from "./internal/poseBones";
+import { resolveHumanPosture } from "./internal/resolveHumanPosture";
 
 /** Finite bearing faces and their paired contact with displayed Human shapes. */
 export namespace HumanMaterialContact {

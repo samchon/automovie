@@ -10,7 +10,7 @@ import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmTrajectoryLaid } from "./HumanArmTrajectoryLaid";
 import { HumanArmTrajectoryMirror as Mirror } from "./HumanArmTrajectoryMirror";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
-import { planHumanArmTrajectory } from "./planHumanArmTrajectory";
+import { planHumanArmTrajectory } from "./internal/planHumanArmTrajectory";
 
 /**
  * A performer's arms over one action as one trajectory optimisation, in

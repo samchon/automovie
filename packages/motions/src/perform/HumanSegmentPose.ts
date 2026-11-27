@@ -15,9 +15,9 @@ import type {
 } from "@automovie/interface";
 
 import { HumanLimbFit } from "../posture/HumanLimbFit";
-import { humanRig } from "../posture/humanRig";
-import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanRig } from "../posture/internal/humanRig";
+import { prepareHumanPostureProjection } from "../posture/internal/prepareHumanPostureProjection";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
 import { HumanSegment } from "./HumanSegment";
 import { HumanSegmentCarry } from "./HumanSegmentCarry";
 import { HumanSegmentLayer } from "./HumanSegmentLayer";
@@ -26,10 +26,10 @@ import { HumanSegmentPlant } from "./HumanSegmentPlant";
 import { HumanSegmentPoseSeeds } from "./HumanSegmentPoseSeeds";
 import { HumanSegmentShown } from "./HumanSegmentShown";
 import { HumanSegmentStop } from "./HumanSegmentStop";
-import { carrySeatTransition } from "./carrySeatTransition";
-import { observableHumanSegment } from "./observableHumanSegment";
-import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
-import { readHumanSegmentLeaf } from "./readHumanSegmentLeaf";
+import { carrySeatTransition } from "./internal/carrySeatTransition";
+import { observableHumanSegment } from "./internal/observableHumanSegment";
+import { prepareHumanSegmentPose } from "./internal/prepareHumanSegmentPose";
+import { readHumanSegmentLeaf } from "./internal/readHumanSegmentLeaf";
 
 /** The alternatives of `ContinuedSide`'s site. */
 type ContinuedSide = "before" | "after";

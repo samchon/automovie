@@ -1,21 +1,21 @@
-import { operateDrive as operateDriveLaw } from "../affordance/operateDrive";
-import { operateInsert as operateInsertLaw } from "../affordance/operateInsert";
-import { swipeTouchscreen as swipeTouchscreenLaw } from "../everyday/swipeTouchscreen";
-import { button as buttonLaw } from "../handling/button";
-import { manipulateFacing as manipulateFacingLaw } from "../handling/manipulateFacing";
-import { manipulateFingering as manipulateFingeringLaw } from "../handling/manipulateFingering";
-import { manipulateReach as manipulateReachLaw } from "../handling/manipulateReach";
-import { manipulateShape as manipulateShapeLaw } from "../handling/manipulateShape";
-import { pushPullLean as pushPullLeanLaw } from "../handling/pushPullLean";
-import { throwPottery as throwPotteryLaw } from "../handling/throwPottery";
-import { write as writeLaw } from "../handling/write";
-import { zip as zipLaw } from "../handling/zip";
+import { operateDrive as operateDriveLaw } from "../affordance/internal/operateDrive";
+import { operateInsert as operateInsertLaw } from "../affordance/internal/operateInsert";
+import { swipeTouchscreen as swipeTouchscreenLaw } from "../everyday/internal/swipeTouchscreen";
+import { button as buttonLaw } from "../handling/internal/button";
+import { manipulateFacing as manipulateFacingLaw } from "../handling/internal/manipulateFacing";
+import { manipulateFingering as manipulateFingeringLaw } from "../handling/internal/manipulateFingering";
+import { manipulateReach as manipulateReachLaw } from "../handling/internal/manipulateReach";
+import { manipulateShape as manipulateShapeLaw } from "../handling/internal/manipulateShape";
+import { pushPullLean as pushPullLeanLaw } from "../handling/internal/pushPullLean";
+import { throwPottery as throwPotteryLaw } from "../handling/internal/throwPottery";
+import { write as writeLaw } from "../handling/internal/write";
+import { zip as zipLaw } from "../handling/internal/zip";
 import { HumanHoldHandles as HumanHoldHandlesLaw } from "../lexicon/HumanHoldHandles";
 import { HumanManipulate as HumanManipulateSource } from "../lexicon/HumanManipulate";
 import { HumanToolRows as HumanToolRowsSource } from "../lexicon/HumanToolRows";
 import { LongToolStroke as LongToolStrokeSource } from "../tasks/LongToolStroke";
-import { composeHumanToolWork as composeHumanToolWorkLaw } from "../tasks/composeHumanToolWork";
-import { hookSet as hookSetLaw } from "../tasks/hookSet";
+import { composeHumanToolWork as composeHumanToolWorkLaw } from "../tasks/internal/composeHumanToolWork";
+import { hookSet as hookSetLaw } from "../tasks/internal/hookSet";
 
 /**
  * The operate family's further laws, helpers and rows, each the shipped value

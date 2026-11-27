@@ -1,8 +1,5 @@
 import { restoreAutoMovieRenderModeState, AutoMovieSceneRenderMode } from "@automovie/render";
 import type { AutoMovieViewerDisplay } from "../AutoMovieViewerDisplay.js";
-import type { IAutoMovieViewerCompletedFrame } from "../../IAutoMovieViewerCompletedFrame.js";
-import type { IViewerCameraStateSnapshot } from "../../IViewerCameraStateSnapshot.js";
-import type { IViewerFrameTransfer } from "../../IViewerFrameTransfer.js";
 import { createViewerCameraState } from "./createViewerCameraState.js";
 
 /**
@@ -27,19 +24,19 @@ export function createViewerFrameControl(
     if (failure !== undefined) throw failure.error;
     options.assertActive();
   };
-  const control: NonNullable<IAutoMovieViewerCompletedFrame["control"]> = {
-    capture: (): IViewerFrameTransfer => {
+  const control: NonNullable<AutoMovieViewerDisplay.ICompletedFrame["control"]> = {
+    capture: (): AutoMovieViewerDisplay.IFrameTransfer => {
       active();
       return {
         camera: cameraState.capture(),
         elapsedSeconds: options.currentSeconds(),
       };
     },
-    restore: (state: IViewerFrameTransfer): void => {
+    restore: (state: AutoMovieViewerDisplay.IFrameTransfer): void => {
       active();
       const seconds: number = state.elapsedSeconds;
       if (seconds < 0) throw new Error("Viewer transfer has no valid time.");
-      const previousCamera: IViewerCameraStateSnapshot = cameraState.capture();
+      const previousCamera: AutoMovieViewerDisplay.ICameraStateSnapshot = cameraState.capture();
       const previousSeconds: number = options.currentSeconds();
       cameraState.restore(state.camera);
       try {

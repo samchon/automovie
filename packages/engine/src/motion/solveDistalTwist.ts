@@ -16,7 +16,7 @@ import { swingTwist } from "../math/swingTwist";
 import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
 import { getConstraint } from "../rom/getConstraint";
 import { toClinicalAngle } from "../rom/toClinicalAngle";
-import { prepareDistalTwistEffector } from "./prepareDistalTwistEffector";
+import { prepareDistalTwistEffector } from "./internal/prepareDistalTwistEffector";
 import { prepareJointRotationProjection } from "./prepareJointRotationProjection";
 
 /**

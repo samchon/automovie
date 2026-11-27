@@ -18,19 +18,19 @@ import type {
 
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
-import { courseArmGoal } from "../compose/courseArmGoal";
+import { courseArmGoal } from "../compose/internal/courseArmGoal";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { HumanHand } from "../posture/HumanHand";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
-import { mixHumanPosture } from "../posture/mixHumanPosture";
-import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { mixHumanPosture } from "../posture/internal/mixHumanPosture";
+import { poseBones } from "../posture/internal/poseBones";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { HumanMountedFrame } from "./HumanMountedFrame";
 import { HumanPoloForm } from "./HumanPoloForm";
 import { HumanPoloHand } from "./HumanPoloHand";
-import { humanPoloTimetable } from "./humanPoloTimetable";
+import { humanPoloTimetable } from "./internal/humanPoloTimetable";
 
 /**
  * A polo stroke from the saddle (`IAutoMovieMotionHumanPolo`): carried on the

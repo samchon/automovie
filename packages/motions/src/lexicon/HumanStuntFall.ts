@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanStuntFall,
 } from "@automovie/interface";
 
-import { planStuntFall } from "../reaction/planStuntFall";
+import { planStuntFall } from "../reaction/internal/planStuntFall";
 
 /**
  * Staged stunt falls: a tumble or seat slide down a staircase and a high fall

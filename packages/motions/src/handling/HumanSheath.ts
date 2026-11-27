@@ -14,8 +14,8 @@ import type {
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanCarrierCustody } from "../lexicon/HumanCarrierCustody";
-import { drawFromCarrier } from "./drawFromCarrier";
-import { putDownAperture } from "./putDownAperture";
+import { drawFromCarrier } from "./internal/drawFromCarrier";
+import { putDownAperture } from "./internal/putDownAperture";
 
 /**
  * Seat a blade in a carrier and derive the draw line.

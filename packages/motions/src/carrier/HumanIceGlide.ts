@@ -20,7 +20,7 @@ import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange"
 import { HumanBound } from "../law/HumanBound";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanSurfaceGlide } from "./HumanSurfaceGlide";
-import { pivotSurfaceFoot } from "./pivotSurfaceFoot";
+import { pivotSurfaceFoot } from "./internal/pivotSurfaceFoot";
 
 /** Left and right legs fitted against the moving ice plane. */
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];

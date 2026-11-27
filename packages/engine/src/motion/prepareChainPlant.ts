@@ -17,7 +17,7 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { getConstraint } from "../rom/getConstraint";
 import { resolveBoneMap } from "./resolveBoneMap";
-import { resolveChainEffectorBaseRotation } from "./resolveChainEffectorBaseRotation";
+import { resolveChainEffectorBaseRotation } from "./internal/resolveChainEffectorBaseRotation";
 
 /**
  * Prepare articulation-free frames and effective domains for one reachable

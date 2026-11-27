@@ -14,17 +14,17 @@ import { HumanFrame } from "../../posture/HumanFrame";
 import { WalkPace } from "../../actions/WalkPace";
 import { WalkPath } from "../../actions/WalkPath";
 import { WalkTurn } from "../../actions/WalkTurn";
-import { runStance } from "../../actions/runStance";
-import { stand } from "../../actions/stand";
-import { walkFoot } from "../../actions/walkFoot";
-import { walkHeading } from "../../actions/walkHeading";
-import { walkReach } from "../../actions/walkReach";
-import { walkRoot } from "../../actions/walkRoot";
-import { walkStepFoot } from "../../actions/walkStepFoot";
-import { walkStepsFootprints } from "../../actions/walkStepsFootprints";
-import { walkStepsPelvis } from "../../actions/walkStepsPelvis";
-import { walkStepsTempo } from "../../actions/walkStepsTempo";
-import { walkStride } from "../../actions/walkStride";
+import { runStance } from "../../actions/internal/runStance";
+import { stand } from "../../actions/internal/stand";
+import { walkFoot } from "../../actions/internal/walkFoot";
+import { walkHeading } from "../../actions/internal/walkHeading";
+import { walkReach } from "../../actions/internal/walkReach";
+import { walkRoot } from "../../actions/internal/walkRoot";
+import { walkStepFoot } from "../../actions/internal/walkStepFoot";
+import { walkStepsFootprints } from "../../actions/internal/walkStepsFootprints";
+import { walkStepsPelvis } from "../../actions/internal/walkStepsPelvis";
+import { walkStepsTempo } from "../../actions/internal/walkStepsTempo";
+import { walkStride } from "../../actions/internal/walkStride";
 
 /**
  * The footstep plan of a walk: footprints, their heel-strike and toe-off times,

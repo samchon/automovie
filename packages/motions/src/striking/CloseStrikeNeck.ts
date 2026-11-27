@@ -15,8 +15,8 @@ import type {
 
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
-import { clinch } from "../grappling/clinch";
-import { poseBones } from "../posture/poseBones";
+import { clinch } from "../grappling/internal/clinch";
+import { poseBones } from "../posture/internal/poseBones";
 
 /**
  * A headbutt's hands on the partner's neck: each palm reaches the opposite side

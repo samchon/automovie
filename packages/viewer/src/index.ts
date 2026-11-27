@@ -1,10 +1,5 @@
-export * from "./mount/AutoMovieViewer.js";
-export * from "./IAutoMovieViewerHandle.js";
-export * from "./display/AutoMovieViewerDisplay.js";
-export * from "./IAutoMovieViewerDisplayMetadata.js";
-export * from "./IAutoMovieViewerCompletedFrame.js";
+export { AutoMovieViewer } from "./mount/AutoMovieViewer.js";
+export { AutoMovieViewerDisplay } from "./display/AutoMovieViewerDisplay.js";
 export * from "./audio/index.js";
 export * from "./inspector/index.js";
 export * from "./transport/index.js";
-export * from "./IViewerCameraStateSnapshot.js";
-export * from "./IViewerFrameTransfer.js";

@@ -18,11 +18,11 @@ import { Vector3 } from "../../math/Vector3";
 import { clampJointToSkeleton } from "../../rom/clampJointToSkeleton";
 import { ROM_TOLERANCE } from "../../rom/constants/ROM_TOLERANCE";
 import { getConstraint } from "../../rom/getConstraint";
-import { descendDigitTasks } from "../descendDigitTasks";
+import { descendDigitTasks } from "./descendDigitTasks";
 import { indexSkeletonTopology } from "../indexSkeletonTopology";
 import { preparePoseResolution } from "../preparePoseResolution";
 import type { prepareSkeletonPoseResolution } from "../prepareSkeletonPoseResolution";
-import { resolvePose } from "../resolvePose";
+import { resolvePose } from "./resolvePose";
 import { swingTwistRange } from "../swingTwistRange";
 
 /**

@@ -1,11 +1,8 @@
 import type * as THREE from "three";
-import type { IViewerCameraStateSnapshot } from "../IViewerCameraStateSnapshot.js";
 import { applyCaptureCanvasSize as applyViewerCaptureCanvasSize } from "./internal/applyCaptureCanvasSize.js";
 import { createViewerCameraState } from "./internal/createViewerCameraState.js";
 import { createViewerViewportResize } from "./internal/createViewerViewportResize.js";
 
-import type { IAutoMovieViewerCompletedFrame } from "../IAutoMovieViewerCompletedFrame.js";
-import type { IAutoMovieViewerDisplayMetadata } from "../IAutoMovieViewerDisplayMetadata.js";
 import { createViewerDisplayClock } from "./internal/createViewerDisplayClock.js";
 import { createViewerDisplayPublication } from "./internal/createViewerDisplayPublication.js";
 import { createViewerDisplaySave } from "./internal/createViewerDisplaySave.js";
@@ -54,7 +51,7 @@ export namespace AutoMovieViewerDisplay {
     /** Display canvas to copy when no custom paint port is supplied. */
     canvas: HTMLCanvasElement;
     /** Metadata observed at the completed draw boundary. */
-    observe(): IAutoMovieViewerDisplayMetadata | undefined;
+    observe(): IDisplayMetadata | undefined;
     /** Paint existing visible layers onto the owned copy surface, when needed. */
     paint?(surface: HTMLCanvasElement): void;
     /** Retain the encoded completed bitmap for graphics recovery, when needed. */
@@ -74,7 +71,7 @@ export namespace AutoMovieViewerDisplay {
     /** Canvas whose observer attribute controls event delivery. */
     canvas: IFrameCanvas;
     /** Facts read from the draw-completion owner. */
-    frame: IAutoMovieViewerCompletedFrame;
+    frame: ICompletedFrame;
     /** Mark an explicit original redraw as changed. */
     explicitDraw?: boolean;
   }
@@ -94,12 +91,12 @@ export namespace AutoMovieViewerDisplay {
     /** Actual last completed scene seconds. */
     completedSeconds(): number;
     /** Current original-producer observation, absent before a completed draw. */
-    readFrame(): Omit<IAutoMovieViewerCompletedFrame, "control"> | undefined;
+    readFrame(): Omit<ICompletedFrame, "control"> | undefined;
     /** Original draw; must throw if it refuses the requested state. */
     produce(seconds: number): void;
     /** Publish a newly supplied legacy observation at these seconds. */
     publish(
-      frame: Omit<IAutoMovieViewerCompletedFrame, "control">,
+      frame: Omit<ICompletedFrame, "control">,
       seconds: number,
     ): void;
   }
@@ -123,7 +120,7 @@ export namespace AutoMovieViewerDisplay {
   /** Frame operations and the state controller returned by frame control. */
   export interface IFrameControl {
     /** Typed capture and restoration controls. */
-    control: NonNullable<IAutoMovieViewerCompletedFrame["control"]>;
+    control: NonNullable<ICompletedFrame["control"]>;
     /** Run one ordinary producer frame unless frozen. */
     frame(produce: () => void): void;
     /** Close the controller and retire a held producer without resuming it. */
@@ -169,15 +166,159 @@ export namespace AutoMovieViewerDisplay {
   }
 
 
-  /** Public snapshot of native camera lens and transform state. */
-  export type ICameraStateSnapshot = IViewerCameraStateSnapshot;
+  /**
+   * Detached native camera state admitted by AutoMovieViewerDisplay.createCameraState.restore.
+   * Vectors and lens values are local native camera data, not a world hierarchy.
+   */
+  export interface ICameraStateSnapshot {
+    /** Native camera class identity; restore requires the same current class. */
+    type: string;
+
+    /** Local metre translation, x/y/z. */
+    position: THREE.Vector3Tuple;
+
+    /** Local x/y/z/w orientation copied without implicit normalization. */
+    quaternion: THREE.QuaternionTuple;
+
+    /** Nonzero dimensionless local axis scales. */
+    scale: THREE.Vector3Tuple;
+
+    /** Nonzero camera-up vector used by controls. */
+    up: THREE.Vector3Tuple;
+
+    /** Native 32-bit layer bitmask. */
+    layers: number;
+
+    /** Native column-major projection values, checked against restored lens state. */
+    projection: THREE.Matrix4Tuple;
+
+    /** Full-raster view offset, including its enabled flag, or omission by null. */
+    view: THREE.PerspectiveCamera["view"];
+
+    /** Native lens scalars: degree fov, metre clip/focus, millimetre film fields. */
+    lens:
+      | {
+          kind: "perspective";
+          fov: number;
+          aspect: number;
+          near: number;
+          far: number;
+          zoom: number;
+          filmGauge: number;
+          filmOffset: number;
+          focus: number;
+        }
+      | {
+          kind: "orthographic";
+          left: number;
+          right: number;
+          top: number;
+          bottom: number;
+          near: number;
+          far: number;
+          zoom: number;
+        };
+  }
+
+  /**
+   * A mounted frame's transfer state, captured and restored by its frame
+   * controller: the native camera and the scene time it was drawn at.
+   */
+  export interface IFrameTransfer {
+    /** Native camera state of the completed view. */
+    camera: ICameraStateSnapshot;
+
+    /** Scene seconds of the completed view, finite and nonnegative. */
+    elapsedSeconds: number;
+  }
+
+  /**
+   * The original scene/camera at an owning producer's completed draw boundary. A
+   * controller, when supplied, owns typed state capture/restoration. Consumers
+   * observe synchronously and must not treat requested state as rendered facts.
+   */
+  export interface ICompletedFrame {
+    /**
+     * Native camera used by the original draw; composite layer cameras belong in
+     * facts.
+     */
+    camera: THREE.Camera;
+
+    /** Original drawn scene; composite facts retain each layer's observed objects. */
+    scene: THREE.Scene;
+
+    /** Pass actually drawn, including the original producer's handled composite. */
+    pass: string;
+
+    /**
+     * Seconds of this completed producer state, when its owner exposes a clock.
+     * Idle requests do not advance it; a guide redraw preserves the last time.
+     * Absence means no clock was supplied, rather than an observed zero.
+     */
+    elapsedSeconds?: number;
+
+    /** Additional actual frame facts supplied by a handled-composite owner. */
+    facts?: object;
+
+    /** Numerical editors require their application transaction before admission. */
+    requiresApplication?: boolean;
+
+    /**
+     * True when the producer's native controls or model/display transitions
+     * changed this view, including an explicit redraw. False marks an idle draw
+     * whose exact facts still remain observable; absent preserves eager saving.
+     * Application-document changes independently require updated display facts.
+     */
+    changed?: boolean;
+
+    /** Actual application controller; its state is serialized only by its owner. */
+    control?: {
+      /** Capture application-owned state corresponding to the live completed view. */
+      capture: () => IFrameTransfer;
+
+      /** Restore a state this controller captured. */
+      restore: (state: IFrameTransfer) => void;
+
+      /** Synchronously redraw through the original producer or report failure. */
+      redraw?: () => void;
+
+      /**
+       * Hold animation while retaining the completed view. Nested leases release
+       * independently; only the last normal release resumes the owning clock.
+       * Explicit redraw/restoration remains available during the hold.
+       */
+      freeze?: () => () => void;
+    };
+  }
+
+  /**
+   * Facts from the owner of an actually completed interactive display.
+   * Application identity and requested values remain separate from observations.
+   * This transport record establishes no review acceptance.
+   */
+  export interface IDisplayMetadata {
+    /** Actual loaded application source identity. */
+    revision: string;
+
+    /** Native device reported by the completed producer. */
+    renderer: string;
+
+    /** Application-owned displayed document, model, pass and view identity. */
+    address: object;
+
+    /** Actual camera pose and projection sampled at completion. */
+    camera: object;
+
+    /** Separately identified requests or other application-owned facts. */
+    [key: string]: unknown;
+  }
 
   /** Camera state capture and restoration through its native lens and transform. */
   export interface ICameraState {
     /** Capture supported camera state. */
-    capture(): IViewerCameraStateSnapshot;
+    capture(): ICameraStateSnapshot;
     /** Restore a compatible snapshot without mutating on refusal. */
-    restore(state: IViewerCameraStateSnapshot): void;
+    restore(state: ICameraStateSnapshot): void;
   }
 
   /** Camera supplied to its native transfer owner. */
@@ -220,5 +361,15 @@ export namespace AutoMovieViewerDisplay {
   /** Apply positive CSS dimensions to the capture canvas; nonpositive dimensions leave it unchanged. */
   export function applyCaptureCanvasSize(request: IApplyCaptureCanvasSizeRequest): void {
     applyViewerCaptureCanvasSize(request);
+  }
+}
+
+declare global {
+  interface HTMLElementEventMap {
+    /**
+     * A frame the viewer completed, sent to a canvas whose
+     * `data-automovie-frame-observer` attribute is `on`.
+     */
+    "automovie:completed-frame": CustomEvent<AutoMovieViewerDisplay.ICompletedFrame>;
   }
 }

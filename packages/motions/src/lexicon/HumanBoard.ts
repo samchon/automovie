@@ -15,12 +15,12 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
-import { courseArmGoal } from "../compose/courseArmGoal";
+import { courseArmGoal } from "../compose/internal/courseArmGoal";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanAuditModel } from "../posture/HumanAuditModel";
 import { HumanColliders } from "../posture/HumanColliders";
-import { mixHumanPosture } from "../posture/mixHumanPosture";
+import { mixHumanPosture } from "../posture/internal/mixHumanPosture";
 import { HumanBoardAdmit } from "./HumanBoardAdmit";
 import { HumanBoardHandover } from "./HumanBoardHandover";
 import { HumanBoardHandoverStill } from "./HumanBoardHandoverStill";

@@ -3,10 +3,10 @@ import type {
   IAutoMovieMotionHumanLexiconParams,
 } from "@automovie/interface";
 
-import { brace } from "../everyday/brace";
-import { crouch } from "../everyday/crouch";
-import { kneel } from "../everyday/kneel";
-import { lieDown } from "../floor/lieDown";
+import { brace } from "../everyday/internal/brace";
+import { crouch } from "../everyday/internal/crouch";
+import { kneel } from "../everyday/internal/kneel";
+import { lieDown } from "../floor/internal/lieDown";
 import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 import { HUMAN_FLOOR_LIE_STILL } from "../next/presets/HUMAN_FLOOR_LIE_STILL";
 import { HUMAN_FLOOR_SIT_CROSS_LEGGED } from "../next/presets/HUMAN_FLOOR_SIT_CROSS_LEGGED";
@@ -17,8 +17,8 @@ import { HUMAN_SEAT_KNEEL_SIT } from "../next/presets/HUMAN_SEAT_KNEEL_SIT";
 import { HUMAN_SEAT_TAKE_A_KNEE } from "../next/presets/HUMAN_SEAT_TAKE_A_KNEE";
 import { HUMAN_STANCE_SQUAT_SIT } from "../next/presets/HUMAN_STANCE_SQUAT_SIT";
 import { HUMAN_STANCE_TAKE_COVER } from "../next/presets/HUMAN_STANCE_TAKE_COVER";
-import { flinch } from "../reaction/flinch";
-import { stagger } from "../reaction/stagger";
+import { flinch } from "../reaction/internal/flinch";
+import { stagger } from "../reaction/internal/stagger";
 
 /**
  * Whole-body postures and reactions under film names, each a row of a shipped

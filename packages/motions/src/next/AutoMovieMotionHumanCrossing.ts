@@ -1,9 +1,9 @@
-import { stepOver as stepOverLaw } from "../everyday/stepOver";
+import { stepOver as stepOverLaw } from "../everyday/internal/stepOver";
 import { HumanTraversal as HumanTraversalSource } from "../lexicon/HumanTraversal";
 import { HumanWallRun as HumanWallRunSource } from "../lexicon/HumanWallRun";
-import { squatVault as squatVaultLaw } from "../sport/squatVault";
-import { vault as vaultLaw } from "../sport/vault";
-import { stepVaultSupport as stepVaultSupportLaw } from "../terrain/stepVaultSupport";
+import { squatVault as squatVaultLaw } from "../sport/internal/squatVault";
+import { vault as vaultLaw } from "../sport/internal/vault";
+import { stepVaultSupport as stepVaultSupportLaw } from "../terrain/internal/stepVaultSupport";
 
 /**
  * Crossing an obstacle: stepping over it and the vaults.

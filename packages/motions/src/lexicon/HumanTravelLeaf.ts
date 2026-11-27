@@ -16,17 +16,17 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { stand } from "../actions/stand";
+import { stand } from "../actions/internal/stand";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
-import { courseArmGoal } from "../compose/courseArmGoal";
-import { bendLower } from "../everyday/bendLower";
-import { pickUpPosture } from "../handling/pickUpPosture";
+import { courseArmGoal } from "../compose/internal/courseArmGoal";
+import { bendLower } from "../everyday/internal/bendLower";
+import { pickUpPosture } from "../handling/internal/pickUpPosture";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
-import { poseBones } from "../posture/poseBones";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { poseBones } from "../posture/internal/poseBones";
+import { prepareHumanPoseResolution } from "../posture/internal/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/internal/prepareHumanPostureProjection";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
 import { HumanMountRider } from "./HumanMountRider";
 import { HumanTravelLeafHolds } from "./HumanTravelLeafHolds";
 import { HumanTravelLeafPlants } from "./HumanTravelLeafPlants";

@@ -1,1 +1,1 @@
-export * from "./edgeRescueScene";
+export * from "./internal/edgeRescueScene";

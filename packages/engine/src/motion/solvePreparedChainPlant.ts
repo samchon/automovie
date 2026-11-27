@@ -12,7 +12,7 @@ import type {
 import { decomposeJointRotation } from "../kinematics/internal/decomposeJointRotation";
 import { decomposeJointRotationOnBasis } from "../kinematics/decomposeJointRotationOnBasis";
 import { twoBoneChainArticulation } from "../kinematics/twoBoneChainArticulation";
-import type { prepareChainFit } from "./prepareChainFit";
+import type { prepareChainFit } from "./internal/prepareChainFit";
 
 /**
  * Solve one prepared two-bone chain for a model-metre target and bend normal.

@@ -1,4 +1,4 @@
-import { trampolineBounce as trampolineBounceLaw } from "../exercise/trampolineBounce";
+import { trampolineBounce as trampolineBounceLaw } from "../exercise/internal/trampolineBounce";
 import { HumanGymnastics as HumanGymnasticsSource } from "../lexicon/HumanGymnastics";
 import { HumanRoman as HumanRomanLaw } from "../lexicon/HumanRoman";
 import { HumanSkydive as HumanSkydiveLaw } from "../lexicon/HumanSkydive";
@@ -7,11 +7,11 @@ import { GymnasticsFlight as GymnasticsFlightSource } from "../sport/GymnasticsF
 import { GymnasticsMat as GymnasticsMatSource } from "../sport/GymnasticsMat";
 import { GymnasticsTakeoff as GymnasticsTakeoffSource } from "../sport/GymnasticsTakeoff";
 import { GymnasticsWheel as GymnasticsWheelSource } from "../sport/GymnasticsWheel";
-import { cartwheel as cartwheelLaw } from "../sport/cartwheel";
-import { gymnastics as gymnasticsLaw } from "../sport/gymnastics";
-import { handspring as handspringLaw } from "../sport/handspring";
-import { roundOff as roundOffLaw } from "../sport/roundOff";
-import { salto as saltoLaw } from "../sport/salto";
+import { cartwheel as cartwheelLaw } from "../sport/internal/cartwheel";
+import { gymnastics as gymnasticsLaw } from "../sport/internal/gymnastics";
+import { handspring as handspringLaw } from "../sport/internal/handspring";
+import { roundOff as roundOffLaw } from "../sport/internal/roundOff";
+import { salto as saltoLaw } from "../sport/internal/salto";
 import { HUMAN_ACROBATICS_ROUND_OFF_LEFT } from "./presets/HUMAN_ACROBATICS_ROUND_OFF_LEFT";
 import { HUMAN_ACROBATICS_ROUND_OFF_RIGHT } from "./presets/HUMAN_ACROBATICS_ROUND_OFF_RIGHT";
 

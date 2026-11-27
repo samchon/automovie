@@ -8,7 +8,7 @@ import type {
 } from "@automovie/interface";
 
 import { walk } from "../gait/internal/walk";
-import { walkFoot } from "../actions/walkFoot";
+import { walkFoot } from "../actions/internal/walkFoot";
 import { walkSteps } from "../gait/internal/walkSteps";
 import { HumanBound } from "../law/HumanBound";
 

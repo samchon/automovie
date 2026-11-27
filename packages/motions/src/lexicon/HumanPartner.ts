@@ -5,14 +5,14 @@ import type {
 } from "@automovie/interface";
 
 import { walk } from "../gait/internal/walk";
-import { approach } from "../everyday/approach";
-import { clinch } from "../grappling/clinch";
-import { kuzushi } from "../grappling/kuzushi";
-import { relayPass } from "../handling/relayPass";
+import { approach } from "../everyday/internal/approach";
+import { clinch } from "../grappling/internal/clinch";
+import { kuzushi } from "../grappling/internal/kuzushi";
+import { relayPass } from "../handling/internal/relayPass";
 import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 import { HUMAN_GRAPPLE_JUDO_GRIP } from "../next/presets/HUMAN_GRAPPLE_JUDO_GRIP";
 import { HUMAN_TOUCH_PARTNER_DANCE_HOLD } from "../next/presets/HUMAN_TOUCH_PARTNER_DANCE_HOLD";
-import { touch } from "../touch/touch";
+import { touch } from "../touch/internal/touch";
 
 /** The alternatives of `CastEntryItem`'s site. */
 type CastEntryItem = "tori" | "uke";

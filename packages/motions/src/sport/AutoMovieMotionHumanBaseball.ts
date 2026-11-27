@@ -32,11 +32,11 @@ import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlace
 import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
-import { exercise } from "../exercise/exercise";
+import { exercise } from "../exercise/internal/exercise";
 import { HumanBound } from "../law/HumanBound";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
-import { baseballGroundBall } from "./baseballGroundBall";
+import { baseballGroundBall } from "./internal/baseballGroundBall";
 
 /**
  * Baseball and softball positions without the bat's swing or the pitch : the

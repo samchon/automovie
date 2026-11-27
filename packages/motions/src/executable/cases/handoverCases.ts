@@ -17,11 +17,11 @@ import type {
 
 import { HumanChain } from "../../HumanChain";
 import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
-import { handshake } from "../../handling/handshake";
+import { handshake } from "../../handling/internal/handshake";
 import { HumanPerformance } from "../../perform/HumanPerformance";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
-import type { humanPolygonMan } from "../humanPolygonMan";
+import type { humanPolygonMan } from "../internal/humanPolygonMan";
 import { HandOverlap } from "./HandOverlap";
 
 /**

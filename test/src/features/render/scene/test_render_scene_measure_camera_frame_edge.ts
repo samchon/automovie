@@ -1,9 +1,9 @@
-import { measureAutoMovieCameraFrameEdge } from "@automovie/render";
+import { AutoMovieRenderInspectionCamera } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 /**
- * `measureAutoMovieCameraFrameEdge` measures where the sides of the delivered
+ * `AutoMovieRenderInspectionCamera.measureFrameEdge` measures where the sides of the delivered
  * frame cut a subject.
  *
  * Scenarios:
@@ -28,7 +28,7 @@ export function test_render_scene_measure_camera_frame_edge(): void {
     return mesh;
   };
   const measure = (x: number) =>
-    measureAutoMovieCameraFrameEdge({
+    AutoMovieRenderInspectionCamera.measureFrameEdge({
       camera,
       meshes: [cube(x)],
       triangleBudget: 1000,
@@ -46,7 +46,7 @@ export function test_render_scene_measure_camera_frame_edge(): void {
   }
   TestValidator.equals(
     "refused",
-    measureAutoMovieCameraFrameEdge({
+    AutoMovieRenderInspectionCamera.measureFrameEdge({
       camera,
       meshes: undefined,
       triangleBudget: 1000,

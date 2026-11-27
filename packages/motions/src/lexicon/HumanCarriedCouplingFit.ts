@@ -12,7 +12,7 @@ import type {
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
 
-import { readHumanBone } from "../body/readHumanBone";
+import { readHumanBone } from "../body/internal/readHumanBone";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanQuadraticProgram as QP } from "../posture/HumanQuadraticProgram";

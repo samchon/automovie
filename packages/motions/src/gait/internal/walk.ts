@@ -10,12 +10,12 @@ import type {
 
 import { HumanSupportCarry } from "../../carrier/HumanSupportCarry";
 import { HumanSupportFrame } from "../../carrier/HumanSupportFrame";
-import { walkCuts } from "../../actions/walkCuts";
-import { walkLevelSupport } from "../../actions/walkLevelSupport";
-import { walkLocomote } from "../../actions/walkLocomote";
-import { walkPlayback } from "../../actions/walkPlayback";
-import { walkReach } from "../../actions/walkReach";
-import { walkRoot } from "../../actions/walkRoot";
+import { walkCuts } from "../../actions/internal/walkCuts";
+import { walkLevelSupport } from "../../actions/internal/walkLevelSupport";
+import { walkLocomote } from "../../actions/internal/walkLocomote";
+import { walkPlayback } from "../../actions/internal/walkPlayback";
+import { walkReach } from "../../actions/internal/walkReach";
+import { walkRoot } from "../../actions/internal/walkRoot";
 
 /**
  * Walking to a floor point in whole steps, ending with the feet side by side.

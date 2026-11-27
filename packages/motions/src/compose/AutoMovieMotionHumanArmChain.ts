@@ -9,9 +9,9 @@ import type {
   IAutoMovieMotionHumanResolveHumanPosture,
 } from "@automovie/interface";
 
-import { blendHumanJoint } from "../posture/blendHumanJoint";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { blendHumanJoint } from "../posture/internal/blendHumanJoint";
+import { prepareHumanPoseResolution } from "../posture/internal/prepareHumanPoseResolution";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
 import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
 import { AutoMovieMotionHumanArmCourse } from "./AutoMovieMotionHumanArmCourse";
 import { AutoMovieMotionHumanArmPlayed } from "./AutoMovieMotionHumanArmPlayed";

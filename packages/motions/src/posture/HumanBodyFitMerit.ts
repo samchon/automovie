@@ -16,7 +16,7 @@ import { HumanFitPairs } from "./HumanFitPairs";
 import { HumanFitVariables } from "./HumanFitVariables";
 import { HumanFloorReading } from "./HumanFloorReading";
 import { HumanSequentialConvex } from "./HumanSequentialConvex";
-import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
+import { prepareHumanPoseResolution } from "./internal/prepareHumanPoseResolution";
 
 /** The record of `IOfReadBearers`'s site. */
 type IOfReadBearers = {

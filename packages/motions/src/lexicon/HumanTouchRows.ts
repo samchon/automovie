@@ -12,7 +12,7 @@ import { HUMAN_TOUCH_SCRATCH } from "../next/presets/HUMAN_TOUCH_SCRATCH";
 import { HUMAN_TOUCH_SQUEEZE } from "../next/presets/HUMAN_TOUCH_SQUEEZE";
 import { HUMAN_TOUCH_STROKE } from "../next/presets/HUMAN_TOUCH_STROKE";
 import { HUMAN_TOUCH_TAP } from "../next/presets/HUMAN_TOUCH_TAP";
-import { touch } from "../touch/touch";
+import { touch } from "../touch/internal/touch";
 
 /**
  * The contact strokes as rows: each kind of `touch` under a name of its own,

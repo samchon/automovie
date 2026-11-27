@@ -36,11 +36,11 @@ import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPerformanceSchedule } from "./HumanPerformanceSchedule";
 import { HumanPerformanceSoftBudget } from "./HumanPerformanceSoftBudget";
 import { HumanPerformanceTether } from "./HumanPerformanceTether";
-import { anchorHumanPerformanceLayers } from "./anchorHumanPerformanceLayers";
-import { createHumanPerformancePerson } from "./createHumanPerformancePerson";
-import { prepareHumanPerformance } from "./prepareHumanPerformance";
-import { prepareHumanPerformancePlans } from "./prepareHumanPerformancePlans";
-import { validateInitialPropMounts } from "./validateInitialPropMounts";
+import { anchorHumanPerformanceLayers } from "./internal/anchorHumanPerformanceLayers";
+import { createHumanPerformancePerson } from "./internal/createHumanPerformancePerson";
+import { prepareHumanPerformance } from "./internal/prepareHumanPerformance";
+import { prepareHumanPerformancePlans } from "./internal/prepareHumanPerformancePlans";
+import { validateInitialPropMounts } from "./internal/validateInitialPropMounts";
 
 /** The alternatives of `HumanPerformanceStateLayer2`'s site. */
 type HumanPerformanceStateLayer2 =

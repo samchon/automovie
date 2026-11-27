@@ -16,7 +16,7 @@ import { HumanChain } from "../../HumanChain";
 import { HumanPerformance } from "../../perform/HumanPerformance";
 import { HumanFoot } from "../../posture/HumanFoot";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
-import type { humanPolygonMan } from "../humanPolygonMan";
+import type { humanPolygonMan } from "../internal/humanPolygonMan";
 import { FootSlip } from "./FootSlip";
 import { locomotionCaseInstants } from "./internal/locomotionCaseInstants";
 

@@ -8,8 +8,8 @@ import type {
   IAutoMovieMotionHumanPerformanceState,
 } from "@automovie/interface";
 
-import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { poseBones } from "../posture/internal/poseBones";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
 import { HumanPerformanceAim } from "./HumanPerformanceAim";
 
 /** The alternatives of `ReaderContext`'s site. */

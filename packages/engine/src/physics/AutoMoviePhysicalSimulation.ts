@@ -22,8 +22,8 @@ import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBin
 import type { IPhysicalCoupledTargetRun } from "./internal/IPhysicalCoupledTargetRun";
 import type { IPhysicalCoupledTargetSchedule } from "./internal/IPhysicalCoupledTargetSchedule";
 import { admitPhysicalSimulation } from "./internal/admitPhysicalSimulation";
-import { admitPhysicalOutcomes } from "./admitPhysicalOutcomes";
-import { auditPhysicalOutcomes } from "./auditPhysicalOutcomes";
+import { admitPhysicalOutcomes } from "./internal/admitPhysicalOutcomes";
+import { auditPhysicalOutcomes } from "./internal/auditPhysicalOutcomes";
 import { assertPhysicalReturnPath } from "./internal/assertPhysicalReturnPath";
 import { bindPhysicalWorld } from "./internal/bindPhysicalWorld";
 import { capturePhysicalSimulationCheckpoint } from "./capturePhysicalSimulationCheckpoint";

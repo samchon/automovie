@@ -17,7 +17,7 @@ import {
 } from "@automovie/interface";
 
 import { HUMANOID_JOINT_AXES } from "../../kinematics/constants/HUMANOID_JOINT_AXES";
-import { resolvePose } from "../../kinematics/resolvePose";
+import { resolvePose } from "../../kinematics/internal/resolvePose";
 import { skeletonJointAxes } from "../../kinematics/internal/skeletonJointAxes";
 import { validateJointAxesBasis } from "../../kinematics/internal/validateJointAxesBasis";
 import { HUMANOID_REST_FRAME } from "../../rom/constants/HUMANOID_REST_FRAME";

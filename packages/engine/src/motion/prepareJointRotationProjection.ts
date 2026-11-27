@@ -11,15 +11,15 @@ import type {
 import { decomposeJointRotationOnBasis } from "../kinematics/decomposeJointRotationOnBasis";
 import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
 import { Quaternion } from "../math/Quaternion";
-import { bilinearAngleBoxCandidates } from "../math/bilinearAngleBoxCandidates";
-import { readNormalizedQuaternion } from "../math/readNormalizedQuaternion";
+import { bilinearAngleBoxCandidates } from "../math/internal/bilinearAngleBoxCandidates";
+import { readNormalizedQuaternion } from "../math/internal/readNormalizedQuaternion";
 import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
 import { toClinicalAngle } from "../rom/toClinicalAngle";
 import { toRigAngle } from "../rom/toRigAngle";
-import { prepareCardinalWristChord } from "./prepareCardinalWristChord";
-import { prepareJointProjectionClamp } from "./prepareJointProjectionClamp";
-import { prepareJointProjectionScores } from "./prepareJointProjectionScores";
-import { prepareJointRotationCoefficientDots } from "./prepareJointRotationCoefficientDots";
+import { prepareCardinalWristChord } from "./internal/prepareCardinalWristChord";
+import { prepareJointProjectionClamp } from "./internal/prepareJointProjectionClamp";
+import { prepareJointProjectionScores } from "./internal/prepareJointProjectionScores";
+import { prepareJointRotationCoefficientDots } from "./internal/prepareJointRotationCoefficientDots";
 
 /** The three named clinical coordinates, all measured in degrees. */
 type ClinicalAxis = "flexion" | "abduction" | "twist";

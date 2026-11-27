@@ -3,16 +3,16 @@ import type {
   IAutoMovieMotionHumanLexiconParams,
 } from "@automovie/interface";
 
-import { carry } from "../carrying/carry";
+import { carry } from "../carrying/internal/carry";
 import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 import { HUMAN_LABOUR_HAMMER } from "../next/presets/HUMAN_LABOUR_HAMMER";
 import { HUMAN_LABOUR_HAUL } from "../next/presets/HUMAN_LABOUR_HAUL";
 import { HUMAN_LABOUR_SCRUB } from "../next/presets/HUMAN_LABOUR_SCRUB";
-import { holdInfant } from "../tasks/holdInfant";
-import { longTool } from "../tasks/longTool";
-import { useTool } from "../tasks/useTool";
-import { wipe } from "../tasks/wipe";
-import { throwObject } from "../throwing/throwObject";
+import { holdInfant } from "../tasks/internal/holdInfant";
+import { longTool } from "../tasks/internal/longTool";
+import { useTool } from "../tasks/internal/useTool";
+import { wipe } from "../tasks/internal/wipe";
+import { throwObject } from "../throwing/internal/throwObject";
 
 /**
  * Work with the hands and with loads, each a row of a shipped action; the

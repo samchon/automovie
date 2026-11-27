@@ -26,7 +26,7 @@ import { AutoMovieMotionHumanAuditStatics } from "./AutoMovieMotionHumanAuditSta
 import { AutoMovieMotionHumanAuditTiming } from "./AutoMovieMotionHumanAuditTiming";
 import type { HumanVerdictsInput } from "./HumanVerdictsInput";
 import { HumanVerdictsSpan } from "./HumanVerdictsSpan";
-import { solvedHumanAuditSpans } from "./solvedHumanAuditSpans";
+import { solvedHumanAuditSpans } from "./internal/solvedHumanAuditSpans";
 
 /** The alternatives of `OfPlaceResult`'s site. */
 type OfPlaceResult = "act" | "instance";

@@ -17,9 +17,9 @@ import type {
   IAutoMovieScheduleEntry,
 } from "@automovie/interface";
 
-import { prepareJumpPosture } from "../actions/prepareJumpPosture";
+import { prepareJumpPosture } from "../actions/internal/prepareJumpPosture";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { poseBones } from "../posture/poseBones";
+import { poseBones } from "../posture/internal/poseBones";
 import { HumanSkill } from "../skill/HumanSkill";
 import { HumanForce } from "./HumanForce";
 import { HumanPerformanceAhead } from "./HumanPerformanceAhead";

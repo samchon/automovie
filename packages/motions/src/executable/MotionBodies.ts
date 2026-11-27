@@ -1,6 +1,6 @@
 import type { IAutoMovieHumanParameters } from "@automovie/interface";
 
-import { humanPolygonMan } from "./humanPolygonMan";
+import { humanPolygonMan } from "./internal/humanPolygonMan";
 import { HumanPopulation } from "./population/HumanPopulation";
 
 /**

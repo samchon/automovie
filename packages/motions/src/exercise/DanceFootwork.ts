@@ -23,7 +23,7 @@ import { AutoMovieMotionHumanToesOnFloor } from "../compose/AutoMovieMotionHuman
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanFoot } from "../posture/HumanFoot";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
-import { pelvisReachHeight } from "../posture/pelvisReachHeight";
+import { pelvisReachHeight } from "../posture/internal/pelvisReachHeight";
 
 /** The alternatives of `OverCourse`'s site. */
 type OverCourse = "duration" | "left" | "right" | "yaw";

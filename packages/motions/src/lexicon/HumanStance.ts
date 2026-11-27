@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanLexiconParams,
 } from "@automovie/interface";
 
-import { rest } from "../everyday/rest";
+import { rest } from "../everyday/internal/rest";
 import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 import { HUMAN_STANCE_ARMS_CROSSED } from "../next/presets/HUMAN_STANCE_ARMS_CROSSED";
 import { HUMAN_STANCE_HANDS_BEHIND_HEAD } from "../next/presets/HUMAN_STANCE_HANDS_BEHIND_HEAD";
@@ -12,7 +12,7 @@ import { HUMAN_STANCE_HANDS_IN_POCKETS } from "../next/presets/HUMAN_STANCE_HAND
 import { HUMAN_STANCE_HANDS_ON_HIPS } from "../next/presets/HUMAN_STANCE_HANDS_ON_HIPS";
 import { HUMAN_STANCE_PARADE_REST } from "../next/presets/HUMAN_STANCE_PARADE_REST";
 import { HUMAN_STANCE_THINKING } from "../next/presets/HUMAN_STANCE_THINKING";
-import { selfAction } from "../touch/selfAction";
+import { selfAction } from "../touch/internal/selfAction";
 
 /**
  * Named ways of standing and what a body does by itself, each a row of `rest`

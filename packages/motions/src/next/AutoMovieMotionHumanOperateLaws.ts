@@ -1,13 +1,13 @@
-import { operate as operateLaw } from "../affordance/operate";
-import { pour as pourLaw } from "../affordance/pour";
-import { typeText as typeTextLaw } from "../everyday/typeText";
-import { manipulate as manipulateLaw } from "../handling/manipulate";
-import { pushPull as pushPullLaw } from "../handling/pushPull";
-import { pushSled as pushSledLaw } from "../handling/pushSled";
-import { workHeld as workHeldLaw } from "../handling/workHeld";
-import { longTool as longToolLaw } from "../tasks/longTool";
-import { useTool as useToolLaw } from "../tasks/useTool";
-import { wipe as wipeLaw } from "../tasks/wipe";
+import { operate as operateLaw } from "../affordance/internal/operate";
+import { pour as pourLaw } from "../affordance/internal/pour";
+import { typeText as typeTextLaw } from "../everyday/internal/typeText";
+import { manipulate as manipulateLaw } from "../handling/internal/manipulate";
+import { pushPull as pushPullLaw } from "../handling/internal/pushPull";
+import { pushSled as pushSledLaw } from "../handling/internal/pushSled";
+import { workHeld as workHeldLaw } from "../handling/internal/workHeld";
+import { longTool as longToolLaw } from "../tasks/internal/longTool";
+import { useTool as useToolLaw } from "../tasks/internal/useTool";
+import { wipe as wipeLaw } from "../tasks/internal/wipe";
 
 /**
  * The operate family's laws, each the shipped function under its family name

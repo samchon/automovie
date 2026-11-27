@@ -3,7 +3,6 @@ import type { IAutoMovieMark } from "@automovie/interface";
 import { type IAutoMovieInspectionHandle, type IAutoMovieModelObject, buildModel, AutoMovieRenderInspection, AutoMovieRenderInspectionRequest } from "@automovie/render";
 import {
   AutoMovieViewer,
-  type IAutoMovieViewerHandle,
 } from "@automovie/viewer";
 import * as THREE from "three";
 
@@ -137,7 +136,7 @@ export namespace GalleryStage {
     const tags: Map<string, HTMLElement> = new Map();
     const projected: THREE.Vector3 = new THREE.Vector3();
 
-    const viewer: IAutoMovieViewerHandle = AutoMovieViewer.mount(
+    const viewer: AutoMovieViewer.IHandle = AutoMovieViewer.mount(
       canvas,
       scene,
       camera,

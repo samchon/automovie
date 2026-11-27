@@ -8,7 +8,7 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
-import { poseBones } from "../posture/poseBones";
+import { poseBones } from "../posture/internal/poseBones";
 import { HumanPerformanceHold } from "./HumanPerformanceHold";
 import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformancePropSnapshot } from "./HumanPerformancePropSnapshot";

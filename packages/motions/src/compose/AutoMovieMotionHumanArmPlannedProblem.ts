@@ -8,8 +8,8 @@ import type {
 
 import { AutoMovieMotionHumanAuditTangle } from "../audit/AutoMovieMotionHumanAuditTangle";
 import type { HumanArmTrajectory } from "../posture/HumanArmTrajectory";
-import { prepareHumanAdaptiveKnots } from "../posture/prepareHumanAdaptiveKnots";
-import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanAdaptiveKnots } from "../posture/internal/prepareHumanAdaptiveKnots";
+import type { prepareHumanPoseResolution } from "../posture/internal/prepareHumanPoseResolution";
 import { AutoMovieMotionHumanArmCourse } from "./AutoMovieMotionHumanArmCourse";
 import { AutoMovieMotionHumanArmObservation } from "./AutoMovieMotionHumanArmObservation";
 import type { AutoMovieMotionHumanArmPlannedReads } from "./AutoMovieMotionHumanArmPlannedReads";

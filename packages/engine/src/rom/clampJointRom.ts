@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import type { swingTwistRange } from "../kinematics/swingTwistRange";
-import { clampJointRomValues } from "./clampJointRomValues";
+import { clampJointRomValues } from "./internal/clampJointRomValues";
 
 /**
  * Project one joint into admitted axis intervals, preserving null rest and

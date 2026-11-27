@@ -9,9 +9,9 @@ import type {
 } from "@automovie/interface";
 
 import { HumanColliders } from "./HumanColliders";
-import { poseBones } from "./poseBones";
-import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
-import { resolveHumanPosture } from "./resolveHumanPosture";
+import { poseBones } from "./internal/poseBones";
+import { prepareHumanPoseResolution } from "./internal/prepareHumanPoseResolution";
+import { resolveHumanPosture } from "./internal/resolveHumanPosture";
 
 /** The record of `ICandidatesShape`'s site. */
 type ICandidatesShape = { kind: "hull" };

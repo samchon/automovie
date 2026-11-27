@@ -15,7 +15,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
-import { prepareHumanShapeBlend } from "../posture/prepareHumanShapeBlend";
+import { prepareHumanShapeBlend } from "../posture/internal/prepareHumanShapeBlend";
 import { HumanSkill } from "../skill/HumanSkill";
 
 /**

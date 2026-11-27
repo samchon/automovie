@@ -9,9 +9,9 @@ import type {
 
 import type { HumanFreeCurveFit } from "./HumanFreeCurveFit";
 import { HumanPostureRaw } from "./HumanPostureRaw";
-import { prepareHumanAdaptiveKnots } from "./prepareHumanAdaptiveKnots";
-import type { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
-import type { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
+import { prepareHumanAdaptiveKnots } from "./internal/prepareHumanAdaptiveKnots";
+import type { prepareHumanPoseResolution } from "./internal/prepareHumanPoseResolution";
+import type { prepareHumanPostureProjection } from "./internal/prepareHumanPostureProjection";
 
 /**
  * The knots of a free-leg curve (`prepareHumanFreeCurve`) from its origin

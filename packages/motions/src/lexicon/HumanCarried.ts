@@ -11,7 +11,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import { carryHumanPosture } from "../posture/carryHumanPosture";
+import { carryHumanPosture } from "../posture/internal/carryHumanPosture";
 import { HumanCarriedBearing } from "./HumanCarriedBearing";
 import { HumanCarriedBorne } from "./HumanCarriedBorne";
 import { HumanCarriedDrag } from "./HumanCarriedDrag";

@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanRope,
 } from "@automovie/interface";
 
-import { planRope } from "../rope/planRope";
+import { planRope } from "../rope/internal/planRope";
 
 /**
  * Crossings on an anchored rope: a hand-over-hand climb with a foot lock, a

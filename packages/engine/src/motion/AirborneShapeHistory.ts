@@ -14,7 +14,7 @@ import { resolveAutoMovieMomentum } from "../kinematics/resolveAutoMovieMomentum
 import { resolveAutoMovieMomentumRates } from "../kinematics/internal/resolveAutoMovieMomentumRates";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import type { physicalInertiaFactor } from "../physics/physicalInertiaFactor";
+import type { physicalInertiaFactor } from "../physics/internal/physicalInertiaFactor";
 import { AirborneConstantShapeHistory } from "./AirborneConstantShapeHistory";
 import { AirborneShapeInertia } from "./AirborneShapeInertia";
 import { AirborneShapeReduction } from "./AirborneShapeReduction";

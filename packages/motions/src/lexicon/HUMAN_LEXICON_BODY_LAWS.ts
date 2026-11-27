@@ -1,20 +1,20 @@
 import type { IAutoMovieMotionHumanLexiconFamilies } from "@automovie/interface";
 
-import { crossAnkleOverKnee } from "../everyday/crossAnkleOverKnee";
-import { curtsy } from "../everyday/curtsy";
-import { seatedHeelBounce } from "../everyday/seatedHeelBounce";
-import { shiftStandingWeight } from "../everyday/shiftStandingWeight";
-import { crabWalk } from "../floor/crabWalk";
-import { disarm } from "../grappling/disarm";
-import { disarmed } from "../grappling/disarmed";
-import { grapple } from "../grappling/grapple";
-import { heldHostage } from "../grappling/heldHostage";
-import { hostageHold } from "../grappling/hostageHold";
-import { spacecraftGlide } from "../spacecraft/spacecraftGlide";
-import { aquatic } from "../sport/aquatic";
-import { stickBall } from "../sport/stickBall";
-import { swimImmersed } from "../sport/swimImmersed";
-import { lungeGrab } from "../touch/lungeGrab";
+import { crossAnkleOverKnee } from "../everyday/internal/crossAnkleOverKnee";
+import { curtsy } from "../everyday/internal/curtsy";
+import { seatedHeelBounce } from "../everyday/internal/seatedHeelBounce";
+import { shiftStandingWeight } from "../everyday/internal/shiftStandingWeight";
+import { crabWalk } from "../floor/internal/crabWalk";
+import { disarm } from "../grappling/internal/disarm";
+import { disarmed } from "../grappling/internal/disarmed";
+import { grapple } from "../grappling/internal/grapple";
+import { heldHostage } from "../grappling/internal/heldHostage";
+import { hostageHold } from "../grappling/internal/hostageHold";
+import { spacecraftGlide } from "../spacecraft/internal/spacecraftGlide";
+import { aquatic } from "../sport/internal/aquatic";
+import { stickBall } from "../sport/internal/stickBall";
+import { swimImmersed } from "../sport/internal/swimImmersed";
+import { lungeGrab } from "../touch/internal/lungeGrab";
 import { HumanBicycleEffort } from "./HumanBicycleEffort";
 import { HumanBikeGuide } from "./HumanBikeGuide";
 import { HumanBikeTransfer } from "./HumanBikeTransfer";
@@ -72,7 +72,7 @@ import { HumanTreeClimb } from "./HumanTreeClimb";
 import { HumanTrick } from "./HumanTrick";
 import { HumanUnseat } from "./HumanUnseat";
 import { HumanWallRun } from "./HumanWallRun";
-import { stageBladeFootwork } from "./stageBladeFootwork";
+import { stageBladeFootwork } from "./internal/stageBladeFootwork";
 
 /**
  * The laws of the lexicon's body families, from the emblems to the floor rolls,

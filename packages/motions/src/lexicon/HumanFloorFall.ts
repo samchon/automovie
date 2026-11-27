@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanLexiconParams,
 } from "@automovie/interface";
 
-import { dive } from "../floor/dive";
+import { dive } from "../floor/internal/dive";
 import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 import { HUMAN_FALL_GOALKEEPER_DIVE_LEFT } from "../next/presets/HUMAN_FALL_GOALKEEPER_DIVE_LEFT";
 import { HUMAN_FALL_GOALKEEPER_DIVE_RIGHT } from "../next/presets/HUMAN_FALL_GOALKEEPER_DIVE_RIGHT";

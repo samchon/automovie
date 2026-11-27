@@ -4,7 +4,7 @@ import type {
   IAutoMovieMotionHumanBody,
 } from "@automovie/interface";
 
-import { walkPoleFrame } from "../../actions/walkPoleFrame";
+import { walkPoleFrame } from "../../actions/internal/walkPoleFrame";
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { poleVaultLean } from "./poleVaultLean";
 import { poleVaultSwing } from "./poleVaultSwing";

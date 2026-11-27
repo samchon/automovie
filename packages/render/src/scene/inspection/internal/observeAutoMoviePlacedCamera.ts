@@ -5,7 +5,7 @@ import type { Mesh } from "three";
 
 import type { IAutoMovieDrawScene } from "../../../draw/IAutoMovieDrawScene.js";
 import { listAutoMovieCameraSubjectMeshes } from "./listAutoMovieCameraSubjectMeshes.js";
-import { measureAutoMovieCameraFrameEdge } from "../measureAutoMovieCameraFrameEdge.js";
+import { measureAutoMovieCameraFrameEdge } from "./measureAutoMovieCameraFrameEdge.js";
 import { measureAutoMovieCameraNearClip } from "./measureAutoMovieCameraNearClip.js";
 import { measureAutoMovieCameraOcclusionPixels } from "./measureAutoMovieCameraOcclusionPixels.js";
 import { observeAutoMovieCameraInspection } from "./observeAutoMovieCameraInspection.js";
@@ -392,7 +392,7 @@ function reportPixels(
 function reportFrameEdge(
   findings: IAutoMovieInspectionDiagnostics.IFinding[],
   row: IRow,
-  result: measureAutoMovieCameraFrameEdge.IResult,
+  result: AutoMovieRenderInspectionCamera.FrameEdge.IResult,
 ): IAutoMovieInspectionDiagnostics.ICoverage {
   if (result.status === "unmeasured")
     return { ...row, status: "unsupported", reason: result.reason };
@@ -400,12 +400,12 @@ function reportFrameEdge(
     return { ...row, status: "checked" };
   const { crossings, surface } = result;
   const extents: number[] = crossings.flatMap(
-    (crossing: measureAutoMovieCameraFrameEdge.ICrossing): number[] =>
+    (crossing: AutoMovieRenderInspectionCamera.FrameEdge.ICrossing): number[] =>
       crossing.extent === undefined ? [] : [crossing.extent],
   );
   const sides: string = crossings
     .map(
-      (crossing: measureAutoMovieCameraFrameEdge.ICrossing): string =>
+      (crossing: AutoMovieRenderInspectionCamera.FrameEdge.ICrossing): string =>
         crossing.side,
     )
     .join(" ");
@@ -424,7 +424,7 @@ function reportFrameEdge(
         { name: "crossed-sides", value: sides, unit: "sides" },
         ...crossings.flatMap(
           (
-            crossing: measureAutoMovieCameraFrameEdge.ICrossing,
+            crossing: AutoMovieRenderInspectionCamera.FrameEdge.ICrossing,
           ): IAutoMovieInspectionDiagnostics.IMeasurement[] =>
             crossing.extent === undefined
               ? []

@@ -2,7 +2,6 @@ import { AutoMovieThreeKind } from "@automovie/render";
 import * as THREE from "three";
 
 import type { AutoMovieViewerDisplay } from "../AutoMovieViewerDisplay.js";
-import type { IViewerCameraStateSnapshot } from "../../IViewerCameraStateSnapshot.js";
 
 /**
  * Transfer detached, auto-updating Perspective/Orthographic cameras through
@@ -32,8 +31,8 @@ export function createViewerCameraState(request: AutoMovieViewerDisplay.ICameraS
       );
     return camera;
   };
-  const capture: () => IViewerCameraStateSnapshot =
-    (): IViewerCameraStateSnapshot => {
+  const capture: () => AutoMovieViewerDisplay.ICameraStateSnapshot =
+    (): AutoMovieViewerDisplay.ICameraStateSnapshot => {
       const owned: THREE.PerspectiveCamera | THREE.OrthographicCamera =
         supported();
       const natural: THREE.PerspectiveCamera | THREE.OrthographicCamera =
@@ -81,8 +80,8 @@ export function createViewerCameraState(request: AutoMovieViewerDisplay.ICameraS
             },
       };
     };
-  const restore: (state: IViewerCameraStateSnapshot) => void = (
-    state: IViewerCameraStateSnapshot,
+  const restore: (state: AutoMovieViewerDisplay.ICameraStateSnapshot) => void = (
+    state: AutoMovieViewerDisplay.ICameraStateSnapshot,
   ): void => {
     const owned: THREE.PerspectiveCamera | THREE.OrthographicCamera =
       supported();
@@ -113,7 +112,7 @@ export function createViewerCameraState(request: AutoMovieViewerDisplay.ICameraS
       throw new Error("Camera transfer has no valid layer mask.");
     const candidate: THREE.PerspectiveCamera | THREE.OrthographicCamera =
       owned.clone();
-    const lens: IViewerCameraStateSnapshot["lens"] = state.lens;
+    const lens: AutoMovieViewerDisplay.ICameraStateSnapshot["lens"] = state.lens;
     if (AutoMovieThreeKind.isPerspectiveCamera(candidate)) {
       if (lens.kind !== "perspective")
         throw new Error("Camera transfer changed projection type.");
@@ -163,7 +162,7 @@ export function createViewerCameraState(request: AutoMovieViewerDisplay.ICameraS
         zoom: lens.zoom,
       });
     }
-    const view: IViewerCameraStateSnapshot["view"] = state.view;
+    const view: AutoMovieViewerDisplay.ICameraStateSnapshot["view"] = state.view;
     if (view !== null) {
       if (
         !(

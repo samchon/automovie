@@ -1,20 +1,20 @@
 import { TOUCH_TIP } from "../compose/TOUCH_TIP";
-import { touchEnvelope as touchEnvelopeLaw } from "../compose/touchEnvelope";
-import { touchGoal as touchGoalLaw } from "../compose/touchGoal";
-import { touchPrimitive as touchPrimitiveLaw } from "../compose/touchPrimitive";
-import { touchRegionFrame as touchRegionFrameLaw } from "../compose/touchRegionFrame";
-import { hug as hugLaw } from "../lexicon/hug";
-import { shoulderClasp as shoulderClaspLaw } from "../lexicon/shoulderClasp";
-import { backToBack as backToBackLaw } from "../touch/backToBack";
-import { embraceFromBehind as embraceFromBehindLaw } from "../touch/embraceFromBehind";
-import { headRest as headRestLaw } from "../touch/headRest";
-import { highFive as highFiveLaw } from "../touch/highFive";
-import { kiss as kissLaw } from "../touch/kiss";
-import { legTouch as legTouchLaw } from "../touch/legTouch";
-import { sitOnLap as sitOnLapLaw } from "../touch/sitOnLap";
-import { touch as touchLaw } from "../touch/touch";
-import { touchEffectors as touchEffectorsLaw } from "../touch/touchEffectors";
-import { touchSite as touchSiteLaw } from "../touch/touchSite";
+import { touchEnvelope as touchEnvelopeLaw } from "../compose/internal/touchEnvelope";
+import { touchGoal as touchGoalLaw } from "../compose/internal/touchGoal";
+import { touchPrimitive as touchPrimitiveLaw } from "../compose/internal/touchPrimitive";
+import { touchRegionFrame as touchRegionFrameLaw } from "../compose/internal/touchRegionFrame";
+import { hug as hugLaw } from "../lexicon/internal/hug";
+import { shoulderClasp as shoulderClaspLaw } from "../lexicon/internal/shoulderClasp";
+import { backToBack as backToBackLaw } from "../touch/internal/backToBack";
+import { embraceFromBehind as embraceFromBehindLaw } from "../touch/internal/embraceFromBehind";
+import { headRest as headRestLaw } from "../touch/internal/headRest";
+import { highFive as highFiveLaw } from "../touch/internal/highFive";
+import { kiss as kissLaw } from "../touch/internal/kiss";
+import { legTouch as legTouchLaw } from "../touch/internal/legTouch";
+import { sitOnLap as sitOnLapLaw } from "../touch/internal/sitOnLap";
+import { touch as touchLaw } from "../touch/internal/touch";
+import { touchEffectors as touchEffectorsLaw } from "../touch/internal/touchEffectors";
+import { touchSite as touchSiteLaw } from "../touch/internal/touchSite";
 
 /**
  * The touch family's laws and helpers, each the shipped value under its family

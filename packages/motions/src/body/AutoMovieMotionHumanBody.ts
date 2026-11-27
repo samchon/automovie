@@ -9,15 +9,15 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { stand } from "../actions/stand";
-import { standRelaxed } from "../actions/standRelaxed";
-import { standUpright } from "../actions/standUpright";
+import { stand } from "../actions/internal/stand";
+import { standRelaxed } from "../actions/internal/standRelaxed";
+import { standUpright } from "../actions/internal/standUpright";
 import { AutoMovieMotionHumanAuditTangleModel } from "../audit/AutoMovieMotionHumanAuditTangleModel";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
-import { bendFloorThumb } from "../everyday/bendFloorThumb";
+import { bendFloorThumb } from "../everyday/internal/bendFloorThumb";
 import { HumanColliderPlacement } from "../posture/HumanColliderPlacement";
-import { humanLimbReads } from "../posture/humanLimbReads";
-import { humanSettledJoints } from "../posture/humanSettledJoints";
+import { humanLimbReads } from "../posture/internal/humanLimbReads";
+import { humanSettledJoints } from "../posture/internal/humanSettledJoints";
 
 /** Prepare the rig data shared by a performer's motion laws. */
 export namespace AutoMovieMotionHumanBody {

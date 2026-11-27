@@ -7,7 +7,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { getUp } from "../../floor/getUp";
+import { getUp } from "../../floor/internal/getUp";
 import { treeClimbRouteForms } from "./treeClimbRouteForms";
 import { treeLimbs } from "./treeLimbs";
 

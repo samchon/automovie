@@ -18,13 +18,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { courseArmGoal } from "../compose/courseArmGoal";
+import { courseArmGoal } from "../compose/internal/courseArmGoal";
 import { ExerciseKey } from "../exercise/ExerciseKey";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
 import { AquaticPosture } from "./AquaticPosture";
 import { AquaticTeamBase } from "./AquaticTeamBase";
-import { aquaticArtisticSchedule } from "./aquaticArtisticSchedule";
+import { aquaticArtisticSchedule } from "./internal/aquaticArtisticSchedule";
 
 /**
  * Seconds a support contact blends in before its grip and out after its

@@ -14,7 +14,6 @@ export * from "./production/AutoMovieCliProduction";
 
 export * from "./ffmpeg/AutoMovieCliFfmpeg";
 
-export * from "./serveAutoMovieDrawPage";
 export * from "./page/AutoMovieCliPage";
 export * from "./inspect/AutoMovieCliInspect";
 export type { AutoMovieCliInspectTypes } from "./inspect/AutoMovieCliInspectTypes";

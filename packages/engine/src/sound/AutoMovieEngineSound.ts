@@ -24,25 +24,25 @@ import type {
   IAutoMovieSampleDialogueMouth,
 } from "@automovie/interface";
 
-import { applyAutoMovieInteriorAcousticResponse as applyAutoMovieInteriorAcousticResponseImplementation } from "./applyAutoMovieInteriorAcousticResponse";
-import { assertProductionSoundRasterInput as assertProductionSoundRasterInputImplementation } from "./assertProductionSoundRasterInput";
-import { autoMovieDialogueEnvelopeJaw as autoMovieDialogueEnvelopeJawImplementation } from "./autoMovieDialogueEnvelopeJaw";
-import { deriveAutoMovieInteriorAcousticResponse as deriveAutoMovieInteriorAcousticResponseImplementation } from "./deriveAutoMovieInteriorAcousticResponse";
-import { deriveAutoMovieSoundPropagation as deriveAutoMovieSoundPropagationImplementation } from "./deriveAutoMovieSoundPropagation";
-import { deriveProductionSoundPlan as deriveProductionSoundPlanImplementation } from "./deriveProductionSoundPlan";
-import { joinAutoMovieDialogueVisemes as joinAutoMovieDialogueVisemesImplementation } from "./joinAutoMovieDialogueVisemes";
-import { masterProductionSound as masterProductionSoundImplementation } from "./masterProductionSound";
-import { measureAutoMovieLipSyncLag as measureAutoMovieLipSyncLagImplementation } from "./measureAutoMovieLipSyncLag";
-import { productionDialogueFrameLevels as productionDialogueFrameLevelsImplementation } from "./productionDialogueFrameLevels";
-import { productionPhonemesToVisemes as productionPhonemesToVisemesImplementation } from "./productionPhonemesToVisemes";
-import { productionSoundEventTone as productionSoundEventToneImplementation } from "./productionSoundEventTone";
-import { productionSoundSpectrogram as productionSoundSpectrogramImplementation } from "./productionSoundSpectrogram";
-import { productionSoundWaveform as productionSoundWaveformImplementation } from "./productionSoundWaveform";
-import { productionSpeechEndFrame as productionSpeechEndFrameImplementation } from "./productionSpeechEndFrame";
-import { renderProductionSound as renderProductionSoundImplementation } from "./renderProductionSound";
-import { sampleAutoMovieDialogueExpression as sampleAutoMovieDialogueExpressionImplementation } from "./sampleAutoMovieDialogueExpression";
-import { sampleAutoMovieDialogueMouth as sampleAutoMovieDialogueMouthImplementation } from "./sampleAutoMovieDialogueMouth";
-import { sampleAutoMovieDialogueVisemeWeights as sampleAutoMovieDialogueVisemeWeightsImplementation } from "./sampleAutoMovieDialogueVisemeWeights";
+import { applyAutoMovieInteriorAcousticResponse as applyAutoMovieInteriorAcousticResponseImplementation } from "./internal/applyAutoMovieInteriorAcousticResponse";
+import { assertProductionSoundRasterInput as assertProductionSoundRasterInputImplementation } from "./internal/assertProductionSoundRasterInput";
+import { autoMovieDialogueEnvelopeJaw as autoMovieDialogueEnvelopeJawImplementation } from "./internal/autoMovieDialogueEnvelopeJaw";
+import { deriveAutoMovieInteriorAcousticResponse as deriveAutoMovieInteriorAcousticResponseImplementation } from "./internal/deriveAutoMovieInteriorAcousticResponse";
+import { deriveAutoMovieSoundPropagation as deriveAutoMovieSoundPropagationImplementation } from "./internal/deriveAutoMovieSoundPropagation";
+import { deriveProductionSoundPlan as deriveProductionSoundPlanImplementation } from "./internal/deriveProductionSoundPlan";
+import { joinAutoMovieDialogueVisemes as joinAutoMovieDialogueVisemesImplementation } from "./internal/joinAutoMovieDialogueVisemes";
+import { masterProductionSound as masterProductionSoundImplementation } from "./internal/masterProductionSound";
+import { measureAutoMovieLipSyncLag as measureAutoMovieLipSyncLagImplementation } from "./internal/measureAutoMovieLipSyncLag";
+import { productionDialogueFrameLevels as productionDialogueFrameLevelsImplementation } from "./internal/productionDialogueFrameLevels";
+import { productionPhonemesToVisemes as productionPhonemesToVisemesImplementation } from "./internal/productionPhonemesToVisemes";
+import { productionSoundEventTone as productionSoundEventToneImplementation } from "./internal/productionSoundEventTone";
+import { productionSoundSpectrogram as productionSoundSpectrogramImplementation } from "./internal/productionSoundSpectrogram";
+import { productionSoundWaveform as productionSoundWaveformImplementation } from "./internal/productionSoundWaveform";
+import { productionSpeechEndFrame as productionSpeechEndFrameImplementation } from "./internal/productionSpeechEndFrame";
+import { renderProductionSound as renderProductionSoundImplementation } from "./internal/renderProductionSound";
+import { sampleAutoMovieDialogueExpression as sampleAutoMovieDialogueExpressionImplementation } from "./internal/sampleAutoMovieDialogueExpression";
+import { sampleAutoMovieDialogueMouth as sampleAutoMovieDialogueMouthImplementation } from "./internal/sampleAutoMovieDialogueMouth";
+import { sampleAutoMovieDialogueVisemeWeights as sampleAutoMovieDialogueVisemeWeightsImplementation } from "./internal/sampleAutoMovieDialogueVisemeWeights";
 
 /** Deterministic sound planning, synthesis, dialogue and analysis operations. */
 export namespace AutoMovieEngineSound {

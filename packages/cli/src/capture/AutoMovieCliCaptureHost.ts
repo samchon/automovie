@@ -14,7 +14,7 @@ import type * as Playwright from "playwright-core";
 import { loadAutoMovieProductionModule } from "../production/internal/loadAutoMovieProductionModule";
 import { readAutoMoviePageTimeout } from "../readAutoMoviePageTimeout";
 import { readAutoMovieRevision } from "../production/internal/readAutoMovieRevision";
-import { serveAutoMovieDrawPage } from "../serveAutoMovieDrawPage";
+import { serveAutoMovieDrawPage } from "../page/internal/serveAutoMovieDrawPage";
 import type { AutoMovieCliCaptureBackend } from "./AutoMovieCliCaptureBackend";
 import type { IAutoMovieCliChromium } from "./IAutoMovieCliChromium";
 import { launchAutoMovieChromium } from "./internal/launchAutoMovieChromium";

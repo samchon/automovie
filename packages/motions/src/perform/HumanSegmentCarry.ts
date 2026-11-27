@@ -10,15 +10,15 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { courseArmGoal } from "../compose/courseArmGoal";
+import { courseArmGoal } from "../compose/internal/courseArmGoal";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanArmTrajectoryTerms } from "../posture/HumanArmTrajectoryTerms";
 import { HumanLimbFit } from "../posture/HumanLimbFit";
-import { poseBones } from "../posture/poseBones";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { poseBones } from "../posture/internal/poseBones";
+import { prepareHumanPoseResolution } from "../posture/internal/prepareHumanPoseResolution";
 import { HumanSegment } from "./HumanSegment";
 import { HumanSegmentPose } from "./HumanSegmentPose";
-import type { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
+import type { prepareHumanSegmentPose } from "./internal/prepareHumanSegmentPose";
 
 /** The alternatives of `CarriesResult`'s site. */
 type CarriesResult = "leftArm" | "rightArm";

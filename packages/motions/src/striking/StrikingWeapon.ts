@@ -12,9 +12,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { poseBones } from "../posture/poseBones";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
+import { poseBones } from "../posture/internal/poseBones";
+import { prepareHumanPoseResolution } from "../posture/internal/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/internal/prepareHumanPostureProjection";
 import { StrikingWeaponBones } from "./StrikingWeaponBones";
 import { StrikingWeaponGirth } from "./StrikingWeaponGirth";
 import type { StrikingWeaponRecord } from "./StrikingWeaponRecord";

@@ -9,7 +9,7 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { ROM_TOLERANCE } from "../rom/constants/ROM_TOLERANCE";
 import { aimRotation } from "./aimRotation";
-import { hingedArmSpan } from "./hingedArmSpan";
+import { hingedArmSpan } from "./internal/hingedArmSpan";
 
 /**
  * The geometry of a two-bone chain whose mid joint bends only about its own

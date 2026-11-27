@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanCover,
 } from "@automovie/interface";
 
-import { planCover } from "../cover/planCover";
+import { planCover } from "../cover/internal/planCover";
 
 /**
  * Moving in cover along staged walls and doors: a corner peek, a wall sidle, a

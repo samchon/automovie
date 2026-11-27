@@ -1,11 +1,11 @@
 import { HumanStageFight as HumanStageFightSource } from "../lexicon/HumanStageFight";
 import { HumanStagePiste as HumanStagePisteSource } from "../lexicon/HumanStagePiste";
 import { HumanStageProp as HumanStagePropSource } from "../lexicon/HumanStageProp";
-import { composeHumanBladeExchange as composeHumanBladeExchangeLaw } from "../lexicon/composeHumanBladeExchange";
-import { composeHumanStageProp as composeHumanStagePropLaw } from "../lexicon/composeHumanStageProp";
-import { readHumanBladeExchangeCues as readHumanBladeExchangeCuesLaw } from "../lexicon/readHumanBladeExchangeCues";
-import { stageBladeFootwork as stageBladeFootworkLaw } from "../lexicon/stageBladeFootwork";
-import { withHumanStagePropLink as withHumanStagePropLinkLaw } from "../lexicon/withHumanStagePropLink";
+import { composeHumanBladeExchange as composeHumanBladeExchangeLaw } from "../lexicon/internal/composeHumanBladeExchange";
+import { composeHumanStageProp as composeHumanStagePropLaw } from "../lexicon/internal/composeHumanStageProp";
+import { readHumanBladeExchangeCues as readHumanBladeExchangeCuesLaw } from "../lexicon/internal/readHumanBladeExchangeCues";
+import { stageBladeFootwork as stageBladeFootworkLaw } from "../lexicon/internal/stageBladeFootwork";
+import { withHumanStagePropLink as withHumanStagePropLinkLaw } from "../lexicon/internal/withHumanStagePropLink";
 import { HUMAN_STAGE_FIGHT_BACKHAND } from "./presets/HUMAN_STAGE_FIGHT_BACKHAND";
 import { HUMAN_STAGE_FIGHT_CHOKE } from "./presets/HUMAN_STAGE_FIGHT_CHOKE";
 import { HUMAN_STAGE_FIGHT_DIVE_FOR_COVER } from "./presets/HUMAN_STAGE_FIGHT_DIVE_FOR_COVER";

@@ -27,7 +27,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { poseBones } from "../posture/poseBones";
+import { poseBones } from "../posture/internal/poseBones";
 import { HumanBallPlay } from "../sport/HumanBallPlay";
 import { HumanPerformanceAim } from "./HumanPerformanceAim";
 import { HumanPerformanceFlightMode } from "./HumanPerformanceFlightMode";
@@ -42,7 +42,7 @@ import { HumanPerformanceState } from "./HumanPerformanceState";
 import { HumanPerformanceTether } from "./HumanPerformanceTether";
 import { HumanPropFlight } from "./HumanPropFlight";
 import { HumanSegment } from "./HumanSegment";
-import { fractureHumanPerformanceProp } from "./fractureHumanPerformanceProp";
+import { fractureHumanPerformanceProp } from "./internal/fractureHumanPerformanceProp";
 
 /** The record of `IAimResult`'s site. */
 type IAimResult = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };

@@ -10,10 +10,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { poseBones } from "../posture/poseBones";
-import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import type { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { poseBones } from "../posture/internal/poseBones";
+import type { prepareHumanPoseResolution } from "../posture/internal/prepareHumanPoseResolution";
+import type { prepareHumanPostureProjection } from "../posture/internal/prepareHumanPostureProjection";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
 import { HumanMountRider } from "./HumanMountRider";
 import { HumanTravelLeaf } from "./HumanTravelLeaf";
 

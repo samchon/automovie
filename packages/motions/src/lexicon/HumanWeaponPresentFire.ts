@@ -18,10 +18,10 @@ import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
-import { courseArmGoal } from "../compose/courseArmGoal";
+import { courseArmGoal } from "../compose/internal/courseArmGoal";
 import { HumanHand } from "../posture/HumanHand";
-import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { poseBones } from "../posture/internal/poseBones";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
 import { HumanSkill } from "../skill/HumanSkill";
 import { StrikingBlade } from "../striking/StrikingBlade";
 import { StrikingHeld } from "../striking/StrikingHeld";
@@ -29,7 +29,7 @@ import { HumanWeaponHeld } from "./HumanWeaponHeld";
 import { HumanWeaponPresent } from "./HumanWeaponPresent";
 import { HumanWeaponPresentOnChest } from "./HumanWeaponPresentOnChest";
 import { HumanWeaponPresentPlacedElbows } from "./HumanWeaponPresentPlacedElbows";
-import { humanWeaponFireRecoil } from "./humanWeaponFireRecoil";
+import { humanWeaponFireRecoil } from "./internal/humanWeaponFireRecoil";
 
 /**
  * Fire one shot from where the weapon is held: the trigger breaks at

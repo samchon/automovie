@@ -17,14 +17,14 @@ import type {
   IAutoMovieResolveCenterOfMass,
 } from "@automovie/interface";
 
-import { jumpAirborne } from "../actions/jumpAirborne";
+import { jumpAirborne } from "../actions/internal/jumpAirborne";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { poseBones } from "../posture/poseBones";
+import { poseBones } from "../posture/internal/poseBones";
 import { HumanPerformanceFlightRotation } from "./HumanPerformanceFlightRotation";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPerformanceStagedFlightRotation } from "./HumanPerformanceStagedFlightRotation";
-import { flyPerformanceFlight } from "./flyPerformanceFlight";
-import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
+import { flyPerformanceFlight } from "./internal/flyPerformanceFlight";
+import { prepareHumanSegmentPose } from "./internal/prepareHumanSegmentPose";
 
 /** The record of `IACCURACYItem`'s site. */
 type IACCURACYItem = { relative: number; absolute: number };

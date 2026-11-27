@@ -9,7 +9,7 @@ import type {
 
 import { HumanArmClearance } from "../posture/HumanArmClearance";
 import { HumanArmSwing } from "../posture/HumanArmSwing";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
 
 /**
  * A planned carry whose rest ends are the arm hanging where its span leaves and

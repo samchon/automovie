@@ -18,7 +18,7 @@ import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanBlade } from "./HumanBlade";
 import { HumanPisteTarget } from "./HumanPisteTarget";
-import { stageBladeFootwork } from "./stageBladeFootwork";
+import { stageBladeFootwork } from "./internal/stageBladeFootwork";
 
 /**
  * A two-performer bout on a piste or a kendo court. The opening distance is

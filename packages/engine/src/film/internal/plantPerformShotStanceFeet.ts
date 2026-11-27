@@ -24,7 +24,7 @@ import { Vector3 } from "../../math/Vector3";
 import { STATIC_SUPPORT_HEIGHT_EPSILON } from "../../motion/constants/STATIC_SUPPORT_HEIGHT_EPSILON";
 import { plantStanceFeet } from "../../motion/plantStanceFeet";
 import { sampleMotion } from "../../motion/sampleMotion";
-import { sampleStanceTimes } from "../../motion/sampleStanceTimes";
+import { sampleStanceTimes } from "../../motion/internal/sampleStanceTimes";
 import { spaceGround } from "../../space/internal/spaceGround";
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 import type { IStageGround } from "../staging/IStageGround";

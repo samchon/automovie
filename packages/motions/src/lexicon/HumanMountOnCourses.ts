@@ -8,10 +8,10 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
-import { courseArmGoal } from "../compose/courseArmGoal";
-import type { prepareSeatedPalms } from "../everyday/prepareSeatedPalms";
-import { seated } from "../everyday/seated";
-import { sitHandMeet } from "../everyday/sitHandMeet";
+import { courseArmGoal } from "../compose/internal/courseArmGoal";
+import type { prepareSeatedPalms } from "../everyday/internal/prepareSeatedPalms";
+import { seated } from "../everyday/internal/seated";
+import { sitHandMeet } from "../everyday/internal/sitHandMeet";
 import { HumanSwungLeg } from "./HumanSwungLeg";
 
 /**

@@ -16,6 +16,6 @@ export * from "./AutoMovieMotionHumanAuditPartner";
 export * from "./AutoMovieMotionHumanAuditTangleModel";
 export * from "./AutoMovieMotionHumanAuditTangleMargin";
 export * from "./HumanVerdictsSpan";
-export * from "./splitSolvedHumanAuditSpan";
-export * from "./subtractHumanAuditInterval";
+export * from "./internal/splitSolvedHumanAuditSpan";
+export * from "./internal/subtractHumanAuditInterval";
 export * from "./HumanVerdictsInput";

@@ -24,8 +24,8 @@ import { AutoMovieMotionHumanVerdicts } from "../audit/AutoMovieMotionHumanVerdi
 import { HumanHand } from "../posture/HumanHand";
 import { HumanHandTarget } from "../posture/HumanHandTarget";
 import { HumanLimbFit } from "../posture/HumanLimbFit";
-import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { poseBones } from "../posture/internal/poseBones";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
 import { HumanCarriedWristCircle } from "./HumanCarriedWristCircle";
 
 /** A shape's signed distance to a pair of world points. */

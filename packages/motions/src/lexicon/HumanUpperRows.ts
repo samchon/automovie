@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanLexiconParams,
 } from "@automovie/interface";
 
-import { armPhrase } from "../everyday/armPhrase";
+import { armPhrase } from "../everyday/internal/armPhrase";
 import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 import { HUMAN_GESTURE_PHRASE_ARM_AT_SIDE } from "../next/presets/HUMAN_GESTURE_PHRASE_ARM_AT_SIDE";
 import { HUMAN_GESTURE_PHRASE_BECKON_HAND } from "../next/presets/HUMAN_GESTURE_PHRASE_BECKON_HAND";

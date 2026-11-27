@@ -14,8 +14,8 @@ import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmPlanned } from "../compose/AutoMovieMotionHumanArmPlanned";
 import { HumanAuditModel } from "../posture/HumanAuditModel";
 import { HumanColliders } from "../posture/HumanColliders";
-import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { poseBones } from "../posture/internal/poseBones";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
 import type { HumanBoardHandover } from "./HumanBoardHandover";
 import { HumanUnseatPose } from "./HumanUnseatPose";
 

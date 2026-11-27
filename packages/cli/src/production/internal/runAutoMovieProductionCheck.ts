@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 
+import type { AutoMovieCliProduction } from "../AutoMovieCliProduction";
 import { AutoMovieCliCapture } from "../../capture/AutoMovieCliCapture";
 import { hashAutoMovieFile } from "../../file/internal/hashAutoMovieFile";
 import { createAutoMovieProductionCheckInputScope } from "./createAutoMovieProductionCheckInputScope";
@@ -11,7 +12,6 @@ import { inspectAutoMovieProductionCheckCapture } from "./inspectAutoMovieProduc
 import { inspectAutoMovieProductionCheckDelivery } from "./inspectAutoMovieProductionCheckDelivery";
 import { inspectAutoMovieProductionCheckReview } from "./inspectAutoMovieProductionCheckReview";
 import { writeAutoMovieProductionCheckReceipt } from "./writeAutoMovieProductionCheckReceipt";
-import type { readAutoMovieCheckOptions } from "../../readAutoMovieCheckOptions";
 import { readAutoMovieErrorCode } from "../../readAutoMovieErrorCode";
 import { readAutoMovieRevision } from "./readAutoMovieRevision";
 
@@ -27,23 +27,9 @@ import { readAutoMovieRevision } from "./readAutoMovieRevision";
  * @returns Current results and whether the requested stage is blocked.
  * @throws When target/check IDs or the requested scope are not usable.
  */
-export async function runAutoMovieProductionCheck(props: {
-  /** Absolute production directory, resolving inputs and owned observations. */
-  readonly root: string;
-
-  /** The installed capture host's environment. */
-  readonly env: Readonly<Record<string, string | undefined>>;
-
-  /** Subjects defined by this production. */
-  readonly targets: readonly IAutoMovieProductionCheck[];
-
-  /** Explicit workload and optional gate. */
-  readonly options: ISelection;
-
-  readonly measurementSources?: (
-    file: string | undefined,
-  ) => ReadonlyMap<string, string>;
-}): Promise<IAutoMovieProductionCheck.IReport> {
+export async function runAutoMovieProductionCheck(
+  props: AutoMovieCliProduction.IRunCheckInput,
+): Promise<IAutoMovieProductionCheck.IReport> {
   const { options, root }: typeof props = props;
   const targets: Map<string, IAutoMovieProductionCheck> = new Map();
   for (const target of props.targets) {
@@ -185,12 +171,6 @@ export async function runAutoMovieProductionCheck(props: {
     ),
   };
 }
-
-/** Settings the evaluator needs after the CLI admitted its arguments. */
-type ISelection = Pick<
-  ReturnType<typeof readAutoMovieCheckOptions>,
-  "subjects" | "only" | "require" | "run"
->;
 
 /** A scoped result before its identity and stage membership are attached. */
 type IOutcome = Pick<

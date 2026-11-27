@@ -10,10 +10,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { jump } from "../actions/jump";
+import { jump } from "../actions/internal/jump";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { GymnasticsFlight } from "./GymnasticsFlight";
-import { prepareGymnasticsLaunch } from "./prepareGymnasticsLaunch";
+import { prepareGymnasticsLaunch } from "./internal/prepareGymnasticsLaunch";
 
 /** How many times the landing place is corrected. */
 const PASSES: number = 3;

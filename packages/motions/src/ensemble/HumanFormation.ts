@@ -8,7 +8,7 @@ import type {
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFormationPath } from "./HumanFormationPath";
-import { formationCourseFrame } from "./formationCourseFrame";
+import { formationCourseFrame } from "./internal/formationCourseFrame";
 
 /**
  * A formation checked: every block's count within its layout's capacity, every

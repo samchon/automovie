@@ -8,7 +8,7 @@ import { HumanSurface as HumanSurfaceSource } from "../lexicon/HumanSurface";
 import { HumanTravelCar as HumanTravelCarLaw } from "../lexicon/HumanTravelCar";
 import { HumanTravelCarExit as HumanTravelCarExitLaw } from "../lexicon/HumanTravelCarExit";
 import { HumanTravelLeaf as HumanTravelLeafLaw } from "../lexicon/HumanTravelLeaf";
-import { spacecraftGlide as spacecraftGlideLaw } from "../spacecraft/spacecraftGlide";
+import { spacecraftGlide as spacecraftGlideLaw } from "../spacecraft/internal/spacecraftGlide";
 
 /**
  * Riding a vehicle or travelling by one: a car, its exit and a leaf, a bicycle,

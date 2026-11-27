@@ -23,22 +23,22 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { courseArmGoal } from "../compose/courseArmGoal";
+import { courseArmGoal } from "../compose/internal/courseArmGoal";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { ExerciseKey } from "../exercise/ExerciseKey";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanWater } from "../perform/HumanWater";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
-import { poseBones } from "../posture/poseBones";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { prepareHumanShapeBlend } from "../posture/prepareHumanShapeBlend";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { poseBones } from "../posture/internal/poseBones";
+import { prepareHumanPoseResolution } from "../posture/internal/prepareHumanPoseResolution";
+import { prepareHumanShapeBlend } from "../posture/internal/prepareHumanShapeBlend";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
 import { AquaticPosture } from "../sport/AquaticPosture";
 import { HumanFloatBesideForm } from "./HumanFloatBesideForm";
 import { HumanMountRider } from "./HumanMountRider";
 import { HumanRideHands } from "./HumanRideHands";
-import { humanFloatBesideAdmit } from "./humanFloatBesideAdmit";
+import { humanFloatBesideAdmit } from "./internal/humanFloatBesideAdmit";
 
 /**
  * Slide off a swimming horse to its upstream side and float beside it, one hand

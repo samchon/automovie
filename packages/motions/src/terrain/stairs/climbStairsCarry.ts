@@ -18,7 +18,7 @@ import type {
 
 import { HumanSupportCarry } from "../../carrier/HumanSupportCarry";
 import { PreparedHumanIntervals } from "../../perform/PreparedHumanIntervals";
-import { prepareHumanPoseResolution } from "../../posture/prepareHumanPoseResolution";
+import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 
 /** Each world goal that can follow the stair body or a held foot. */
 const LIMBS: readonly AutoMovieHumanLimb[] = [

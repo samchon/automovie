@@ -1,9 +1,9 @@
-import { coverFace } from "../daily/coverFace";
-import { wipeTears } from "../daily/wipeTears";
-import { tipHat } from "../dressing/tipHat";
-import { curtsy } from "./curtsy";
-import { headTilt } from "./headTilt";
-import { swipeTouchscreen } from "./swipeTouchscreen";
+import { coverFace } from "../daily/internal/coverFace";
+import { wipeTears } from "../daily/internal/wipeTears";
+import { tipHat } from "../dressing/internal/tipHat";
+import { curtsy } from "./internal/curtsy";
+import { headTilt } from "./internal/headTilt";
+import { swipeTouchscreen } from "./internal/swipeTouchscreen";
 
 /**
  * Installable action laws for everyday gestures. Use the keys to extend an

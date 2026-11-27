@@ -1,7 +1,4 @@
-import {
-  AutoMovieViewerDisplay,
-  type IViewerFrameTransfer,
-} from "@automovie/viewer";
+import { AutoMovieViewerDisplay } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
 import * as THREE from "three";
@@ -44,9 +41,9 @@ export function test_viewer_root_create_frame_control_restore_refusal(): void {
         displayed = seconds;
       },
     });
-  const original: IViewerFrameTransfer = owner.control.capture();
+  const original: AutoMovieViewerDisplay.IFrameTransfer = owner.control.capture();
   camera.position.set(7, 8, 9);
-  const incoming: IViewerFrameTransfer = owner.control.capture();
+  const incoming: AutoMovieViewerDisplay.IFrameTransfer = owner.control.capture();
   owner.control.restore(original);
   assert.throws(
     (): void => owner.control.restore({ ...incoming, elapsedSeconds: 0 }),
@@ -96,7 +93,7 @@ export function test_viewer_root_create_frame_control_restore_refusal(): void {
         throw sourceFailure;
       },
     });
-  const transfer: IViewerFrameTransfer = failed.control.capture();
+  const transfer: AutoMovieViewerDisplay.IFrameTransfer = failed.control.capture();
   let caught: unknown;
   try {
     failed.control.restore({ ...transfer, elapsedSeconds: 0 });

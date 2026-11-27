@@ -1,7 +1,7 @@
 import { HumanDefence as HumanDefenceSource } from "../lexicon/HumanDefence";
 import { DefenceOutcome as DefenceOutcomeSource } from "../striking/DefenceOutcome";
-import { defend as defendLaw } from "../striking/defend";
-import { guard as guardLaw } from "../striking/guard";
+import { defend as defendLaw } from "../striking/internal/defend";
+import { guard as guardLaw } from "../striking/internal/guard";
 import { HUMAN_DEFENCE_CHECK_KICK } from "./presets/HUMAN_DEFENCE_CHECK_KICK";
 import { HUMAN_DEFENCE_COVER } from "./presets/HUMAN_DEFENCE_COVER";
 import { HUMAN_DEFENCE_ELBOW_BLOCK } from "./presets/HUMAN_DEFENCE_ELBOW_BLOCK";

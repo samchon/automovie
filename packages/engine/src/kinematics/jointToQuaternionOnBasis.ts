@@ -8,10 +8,10 @@ import type {
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
-import { multiplyQuaternionInto } from "../math/multiplyQuaternionInto";
+import { multiplyQuaternionInto } from "../math/internal/multiplyQuaternionInto";
 import { toRigAngle } from "../rom/toRigAngle";
 import { normalizeJointAxes } from "./internal/normalizeJointAxes";
-import { prepareJointRotationFactor } from "./prepareJointRotationFactor";
+import { prepareJointRotationFactor } from "./internal/prepareJointRotationFactor";
 
 /** Preserve null rest, angle admission and the caller's clinical frame map. */
 const readAngle: (

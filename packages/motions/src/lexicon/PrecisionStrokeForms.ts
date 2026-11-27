@@ -10,22 +10,22 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { stand } from "../actions/stand";
+import { stand } from "../actions/internal/stand";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
-import { fitClearArmPose } from "../compose/fitClearArmPose";
+import { fitClearArmPose } from "../compose/internal/fitClearArmPose";
 import { HumanFrame } from "../posture/HumanFrame";
-import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { poseBones } from "../posture/internal/poseBones";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
 import { StrikingBlade } from "../striking/StrikingBlade";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { StrikingSupport } from "../striking/StrikingSupport";
 import { PrecisionStrokeFormsAddress } from "./PrecisionStrokeFormsAddress";
-import { addressPrecisionStroke } from "./addressPrecisionStroke";
-import { coursePrecisionStroke } from "./coursePrecisionStroke";
-import { holdPrecisionSwing } from "./holdPrecisionSwing";
-import { precisionStrokeTool } from "./precisionStrokeTool";
+import { addressPrecisionStroke } from "./internal/addressPrecisionStroke";
+import { coursePrecisionStroke } from "./internal/coursePrecisionStroke";
+import { holdPrecisionSwing } from "./internal/holdPrecisionSwing";
+import { precisionStrokeTool } from "./internal/precisionStrokeTool";
 
 /**
  * The precision stroke families: each row's fixed geometry, registered as the

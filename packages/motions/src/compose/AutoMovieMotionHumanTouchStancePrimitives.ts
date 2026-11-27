@@ -8,8 +8,8 @@ import type {
   IAutoMovieMotionHumanTouchStance,
 } from "@automovie/interface";
 
-import { lowerHumanPosture } from "../posture/lowerHumanPosture";
-import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { lowerHumanPosture } from "../posture/internal/lowerHumanPosture";
+import type { prepareHumanPoseResolution } from "../posture/internal/prepareHumanPoseResolution";
 import type { AutoMovieMotionHumanTouchStanceMoves } from "./AutoMovieMotionHumanTouchStanceMoves";
 
 /**

@@ -1,5 +1,4 @@
 import type { AutoMovieViewerDisplay } from "../AutoMovieViewerDisplay.js";
-import type { IAutoMovieViewerCompletedFrame } from "../../IAutoMovieViewerCompletedFrame.js";
 
 /**
  * Admit an original synchronous redraw only from a new completed observation.
@@ -14,11 +13,11 @@ export function redrawViewerCompletedFrame(
   const { seconds, options } = request;
   if (seconds < 0) throw new Error("A redraw requires nonnegative seconds.");
   const before: number = options.completedCount();
-  const previous: Omit<IAutoMovieViewerCompletedFrame, "control"> | undefined =
+  const previous: Omit<AutoMovieViewerDisplay.ICompletedFrame, "control"> | undefined =
     options.readFrame();
   options.produce(seconds);
   if (options.completedCount() === before) {
-    const current: Omit<IAutoMovieViewerCompletedFrame, "control"> | undefined =
+    const current: Omit<AutoMovieViewerDisplay.ICompletedFrame, "control"> | undefined =
       options.readFrame();
     if (current === undefined || current === previous)
       throw new Error(

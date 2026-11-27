@@ -8,8 +8,8 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import { lowerHumanPosture } from "../posture/lowerHumanPosture";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { lowerHumanPosture } from "../posture/internal/lowerHumanPosture";
+import { prepareHumanPoseResolution } from "../posture/internal/prepareHumanPoseResolution";
 import { AutoMovieMotionHumanLeanInto } from "./AutoMovieMotionHumanLeanInto";
 import { AutoMovieMotionHumanRange } from "./AutoMovieMotionHumanRange";
 import { AutoMovieMotionHumanReach } from "./AutoMovieMotionHumanReach";

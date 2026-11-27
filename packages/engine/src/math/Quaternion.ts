@@ -5,10 +5,10 @@ import type {
 } from "@automovie/interface";
 
 import { QUATERNION_NLERP_DOT_THRESHOLD } from "./constants/QUATERNION_NLERP_DOT_THRESHOLD";
-import { quaternionNormalizationDivisor as normalizationDivisor } from "./quaternionNormalizationDivisor";
-import { readNormalizedQuaternion } from "./readNormalizedQuaternion";
-import { readQuaternionAngle } from "./readQuaternionAngle";
-import { readRotatedVector } from "./readRotatedVector";
+import { quaternionNormalizationDivisor as normalizationDivisor } from "./internal/quaternionNormalizationDivisor";
+import { readNormalizedQuaternion } from "./internal/readNormalizedQuaternion";
+import { readQuaternionAngle } from "./internal/readQuaternionAngle";
+import { readRotatedVector } from "./internal/readRotatedVector";
 
 /**
  * Pure quaternion math over {@link IAutoMovieQuaternion}, components `(x, y, z,

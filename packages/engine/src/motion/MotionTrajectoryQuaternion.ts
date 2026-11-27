@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
-import { rotationVectorJacobian } from "../math/rotationVectorJacobian";
+import { rotationVectorJacobian } from "../math/internal/rotationVectorJacobian";
 import { MotionTrajectoryInterval } from "./MotionTrajectoryInterval";
 import type { MotionTrajectoryRead } from "./MotionTrajectoryRead";
 import { MotionTrajectoryRotation } from "./MotionTrajectoryRotation";

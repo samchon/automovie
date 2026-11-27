@@ -8,19 +8,19 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { walkFoot } from "../actions/walkFoot";
-import { walkReach } from "../actions/walkReach";
-import { walkReachGround } from "../actions/walkReachGround";
-import { walkReachHeld } from "../actions/walkReachHeld";
+import { walkFoot } from "../actions/internal/walkFoot";
+import { walkReach } from "../actions/internal/walkReach";
+import { walkReachGround } from "../actions/internal/walkReachGround";
+import { walkReachHeld } from "../actions/internal/walkReachHeld";
 import { HumanFrame } from "../posture/HumanFrame";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPoseResolution } from "../posture/internal/prepareHumanPoseResolution";
 import { StrikingTarget } from "../striking/StrikingTarget";
-import { staggerBounds } from "./staggerBounds";
-import { staggerDorsal } from "./staggerDorsal";
-import { staggerKnots } from "./staggerKnots";
-import { staggerLean } from "./staggerLean";
-import type { staggerRecover } from "./staggerRecover";
-import { staggerSwingBow } from "./staggerSwingBow";
+import { staggerBounds } from "./internal/staggerBounds";
+import { staggerDorsal } from "./internal/staggerDorsal";
+import { staggerKnots } from "./internal/staggerKnots";
+import { staggerLean } from "./internal/staggerLean";
+import type { staggerRecover } from "./internal/staggerRecover";
+import { staggerSwingBow } from "./internal/staggerSwingBow";
 
 /** The record of `ISwingOfResult`'s site. */
 type ISwingOfResult = {

@@ -1,13 +1,13 @@
-import { stand as standLaw } from "../actions/stand";
-import { standUpright as standUprightLaw } from "../actions/standUpright";
-import { bend as bendLaw } from "../everyday/bend";
-import { brace as braceLaw } from "../everyday/brace";
-import { braceOnThigh as braceOnThighLaw } from "../everyday/braceOnThigh";
-import { crouch as crouchLaw } from "../everyday/crouch";
-import { curtsy as curtsyLaw } from "../everyday/curtsy";
-import { rest as restLaw } from "../everyday/rest";
-import { shift as shiftLaw } from "../everyday/shift";
-import { shiftStandingWeight as shiftStandingWeightLaw } from "../everyday/shiftStandingWeight";
+import { stand as standLaw } from "../actions/internal/stand";
+import { standUpright as standUprightLaw } from "../actions/internal/standUpright";
+import { bend as bendLaw } from "../everyday/internal/bend";
+import { brace as braceLaw } from "../everyday/internal/brace";
+import { braceOnThigh as braceOnThighLaw } from "../everyday/internal/braceOnThigh";
+import { crouch as crouchLaw } from "../everyday/internal/crouch";
+import { curtsy as curtsyLaw } from "../everyday/internal/curtsy";
+import { rest as restLaw } from "../everyday/internal/rest";
+import { shift as shiftLaw } from "../everyday/internal/shift";
+import { shiftStandingWeight as shiftStandingWeightLaw } from "../everyday/internal/shiftStandingWeight";
 
 /**
  * The stance family's laws, each the shipped function under its family name

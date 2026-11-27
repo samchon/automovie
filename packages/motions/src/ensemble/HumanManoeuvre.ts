@@ -14,9 +14,9 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanGait } from "../lexicon/HumanGait";
 import { HUMAN_MANOEUVRES } from "./HUMAN_MANOEUVRES";
 import { HumanFormation } from "./HumanFormation";
-import { manoeuvreCrossings } from "./manoeuvreCrossings";
-import { manoeuvreSteered } from "./manoeuvreSteered";
-import { manoeuvreWheel } from "./manoeuvreWheel";
+import { manoeuvreCrossings } from "./internal/manoeuvreCrossings";
+import { manoeuvreSteered } from "./internal/manoeuvreSteered";
+import { manoeuvreWheel } from "./internal/manoeuvreWheel";
 
 /**
  * Manoeuvres planned as each member's own travel, and appended to the members'

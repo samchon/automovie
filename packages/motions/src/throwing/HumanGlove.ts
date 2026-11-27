@@ -13,7 +13,7 @@ import type {
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
-import { poseBones } from "../posture/poseBones";
+import { poseBones } from "../posture/internal/poseBones";
 
 /** The alternatives of `PocketContext`'s site. */
 type PocketContext = "body" | "entry" | "prop" | "start" | "subject";

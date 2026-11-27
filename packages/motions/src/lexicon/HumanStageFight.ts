@@ -3,9 +3,9 @@ import type {
   IAutoMovieMotionHumanLexiconParams,
 } from "@automovie/interface";
 
-import { crouch } from "../everyday/crouch";
-import { lieDown } from "../floor/lieDown";
-import { clinch } from "../grappling/clinch";
+import { crouch } from "../everyday/internal/crouch";
+import { lieDown } from "../floor/internal/lieDown";
+import { clinch } from "../grappling/internal/clinch";
 import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 import { HUMAN_STAGE_FIGHT_BACKHAND } from "../next/presets/HUMAN_STAGE_FIGHT_BACKHAND";
 import { HUMAN_STAGE_FIGHT_CHOKE } from "../next/presets/HUMAN_STAGE_FIGHT_CHOKE";
@@ -29,12 +29,12 @@ import { HUMAN_STAGE_FIGHT_STAGE_HEADBUTT } from "../next/presets/HUMAN_STAGE_FI
 import { HUMAN_STAGE_FIGHT_STAGE_PALM_STRIKE } from "../next/presets/HUMAN_STAGE_FIGHT_STAGE_PALM_STRIKE";
 import { HUMAN_STAGE_FIGHT_STAGE_SLAP } from "../next/presets/HUMAN_STAGE_FIGHT_STAGE_SLAP";
 import { HUMAN_STAGE_FIGHT_STRUGGLE } from "../next/presets/HUMAN_STAGE_FIGHT_STRUGGLE";
-import { give } from "../reaction/give";
-import { stagger } from "../reaction/stagger";
-import { closeStrike } from "../striking/closeStrike";
-import { punch } from "../striking/punch";
-import { step } from "../striking/step";
-import { touch } from "../touch/touch";
+import { give } from "../reaction/internal/give";
+import { stagger } from "../reaction/internal/stagger";
+import { closeStrike } from "../striking/internal/closeStrike";
+import { punch } from "../striking/internal/punch";
+import { step } from "../striking/internal/step";
+import { touch } from "../touch/internal/touch";
 
 /**
  * Stage fighting short of a strike: slaps, grabs and holds, each a row of a

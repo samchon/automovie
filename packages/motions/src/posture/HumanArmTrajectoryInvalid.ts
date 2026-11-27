@@ -5,7 +5,7 @@ import { HumanArmTrajectoryLimits } from "./HumanArmTrajectoryLimits";
 import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
-import { nameArmTrajectoryPair } from "./nameArmTrajectoryPair";
+import { nameArmTrajectoryPair } from "./internal/nameArmTrajectoryPair";
 
 /** The record of `IOfWorst`'s site. */
 type IOfWorst = { value: number; what: string };

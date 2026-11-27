@@ -7,7 +7,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanLimbFit } from "../posture/HumanLimbFit";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
 
 /** A limb's joints by bone, clinical degrees `[flexion, abduction, twist]`. */
 type Joints = IAutoMovieMotionHumanPosture["joints"];

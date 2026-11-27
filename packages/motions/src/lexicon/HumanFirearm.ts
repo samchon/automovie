@@ -3,11 +3,11 @@ import type {
   IAutoMovieMotionHumanLexiconParams,
 } from "@automovie/interface";
 
-import { gesture } from "../everyday/gesture";
+import { gesture } from "../everyday/internal/gesture";
 import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 import { HUMAN_FIREARM_REACH_HOLSTER } from "../next/presets/HUMAN_FIREARM_REACH_HOLSTER";
 import { HUMAN_FIREARM_SURRENDER } from "../next/presets/HUMAN_FIREARM_SURRENDER";
-import { touch } from "../touch/touch";
+import { touch } from "../touch/internal/touch";
 import { HumanWeaponFirearm } from "./HumanWeaponFirearm";
 
 /**

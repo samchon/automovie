@@ -1,14 +1,14 @@
 import type { IAutoMovieHingedArmSwivel, IAutoMovieHingedArticulation, IAutoMovieQuaternion, IAutoMovieSwivelNear, IAutoMovieSwivelSeed } from "@automovie/interface";
 
-import type { hingedArmCandidate } from "../hingedArmCandidate";
+import type { hingedArmCandidate } from "./hingedArmCandidate";
 import type { AutoMovieEngineKinematicsTypes } from "../AutoMovieEngineKinematicsTypes";
 import { hingedArmSwivel } from "../hingedArmSwivel";
-import { hingedSwivelAhead } from "../hingedSwivelAhead";
-import { hingedSwivelBounded } from "../hingedSwivelBounded";
-import { hingedSwivelNear } from "../hingedSwivelNear";
-import { hingedSwivelPole } from "../hingedSwivelPole";
-import { hingedSwivelSwept } from "../hingedSwivelSwept";
-import { refineHingedSwivel } from "../refineHingedSwivel";
+import { hingedSwivelAhead } from "./hingedSwivelAhead";
+import { hingedSwivelBounded } from "./hingedSwivelBounded";
+import { hingedSwivelNear } from "./hingedSwivelNear";
+import { hingedSwivelPole } from "./hingedSwivelPole";
+import { hingedSwivelSwept } from "./hingedSwivelSwept";
+import { refineHingedSwivel } from "./refineHingedSwivel";
 
 /** The sweep's swivel step, degrees (`hingedArmSwivel.STEP`). */
 const SWIVEL_STEP: number = hingedArmSwivel.STEP;

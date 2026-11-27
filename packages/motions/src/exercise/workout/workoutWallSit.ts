@@ -15,8 +15,8 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanFoot } from "../../posture/HumanFoot";
 import { HumanFrame } from "../../posture/HumanFrame";
 import { HumanMaterialContact } from "../../posture/HumanMaterialContact";
-import { poseBones } from "../../posture/poseBones";
-import { resolveHumanPosture } from "../../posture/resolveHumanPosture";
+import { poseBones } from "../../posture/internal/poseBones";
+import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
 /** The torso bones whose exterior can carry wall reaction. */
 const TORSO: ReadonlySet<AutoMovieHumanoidBone> = new Set([

@@ -3,8 +3,8 @@ import type {
   IAutoMovieMotionHumanVehicleHit,
 } from "@automovie/interface";
 
-import { planVehicleDive } from "../reaction/planVehicleDive";
-import { planVehicleHit } from "../reaction/planVehicleHit";
+import { planVehicleDive } from "../reaction/internal/planVehicleDive";
+import { planVehicleHit } from "../reaction/internal/planVehicleHit";
 
 /**
  * A pedestrian and a moving car: struck and thrown along one of the frontal

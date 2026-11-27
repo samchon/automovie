@@ -27,9 +27,9 @@ import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
 import { HumanFrame } from "../posture/HumanFrame";
-import { courtStroke } from "./courtStroke";
-import { racketClock } from "./racketClock";
-import { racketStance } from "./racketStance";
+import { courtStroke } from "./internal/courtStroke";
+import { racketClock } from "./internal/racketClock";
+import { racketStance } from "./internal/racketStance";
 
 /**
  * Racket stroke dispatch and the original solo racket or golf positions. The

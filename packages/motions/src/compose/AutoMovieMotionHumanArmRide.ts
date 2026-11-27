@@ -17,7 +17,7 @@ import type {
 
 import type { HumanArmTrajectory } from "../posture/HumanArmTrajectory";
 import { HumanColliders } from "../posture/HumanColliders";
-import { poseBones } from "../posture/poseBones";
+import { poseBones } from "../posture/internal/poseBones";
 
 /** The alternatives of `RidingOwner`'s site. */
 type RidingOwner = "upper" | "lower" | "hand";

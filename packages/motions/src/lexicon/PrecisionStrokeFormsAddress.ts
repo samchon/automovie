@@ -8,17 +8,17 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { stand } from "../actions/stand";
+import { stand } from "../actions/internal/stand";
 import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
-import type { fitClearArmPose } from "../compose/fitClearArmPose";
+import type { fitClearArmPose } from "../compose/internal/fitClearArmPose";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { poseBones } from "../posture/internal/poseBones";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { PRECISION_STROKE_FORMS } from "./PRECISION_STROKE_FORMS";
 import { PrecisionStrokeForms } from "./PrecisionStrokeForms";
-import { addressPrecisionStroke } from "./addressPrecisionStroke";
-import { precisionStrokeTool } from "./precisionStrokeTool";
+import { addressPrecisionStroke } from "./internal/addressPrecisionStroke";
+import { precisionStrokeTool } from "./internal/precisionStrokeTool";
 
 /**
  * Where a striker stands to play a row at a ball: the floor point under the

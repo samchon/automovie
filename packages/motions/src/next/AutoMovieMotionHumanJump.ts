@@ -1,8 +1,8 @@
-import { jump as jumpLaw } from "../actions/jump";
+import { jump as jumpLaw } from "../actions/internal/jump";
 import { HumanAirborneShape as HumanAirborneShapeSource } from "../lexicon/HumanAirborneShape";
 import { AutoMovieMotionHumanHighJump as highJumpLaw } from "../sport/AutoMovieMotionHumanHighJump";
-import { horizontalJump as horizontalJumpLaw } from "../sport/horizontalJump";
-import { hurdleClear as hurdleClearLaw } from "../sport/hurdleClear";
+import { horizontalJump as horizontalJumpLaw } from "../sport/internal/horizontalJump";
+import { hurdleClear as hurdleClearLaw } from "../sport/internal/hurdleClear";
 import { AutoMovieMotionHumanPoleVault as poleVaultLaw } from "../sport/AutoMovieMotionHumanPoleVault";
 
 /**

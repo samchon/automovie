@@ -24,10 +24,10 @@ import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanBoneGroups } from "./HumanBoneGroups";
 import { HumanLimbFit } from "./HumanLimbFit";
 import type { HumanLimbView } from "./HumanLimbView";
-import { applyHumanLimbFit } from "./applyHumanLimbFit";
-import { compareHumanLimbPair } from "./compareHumanLimbPair";
-import { poseBones } from "./poseBones";
-import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
+import { applyHumanLimbFit } from "./internal/applyHumanLimbFit";
+import { compareHumanLimbPair } from "./internal/compareHumanLimbPair";
+import { poseBones } from "./internal/poseBones";
+import { prepareHumanPoseResolution } from "./internal/prepareHumanPoseResolution";
 
 /**
  * Two arms with goals fitted as one coupled problem, symmetric in the two arms

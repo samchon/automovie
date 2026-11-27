@@ -15,7 +15,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HUMAN_ATTRIBUTE_EFFECTS } from "./HUMAN_ATTRIBUTE_EFFECTS";
 import { HumanAttribute } from "./HumanAttribute";
 import { HumanEnsembleMembers } from "./HumanEnsembleMembers";
-import { instance } from "./instance";
+import { instance } from "./internal/instance";
 
 /**
  * Resolve an ensemble's members.

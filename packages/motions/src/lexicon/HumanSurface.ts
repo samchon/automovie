@@ -15,9 +15,9 @@ import { HumanSupportStep } from "../carrier/HumanSupportStep";
 import { HumanSurfaceBoard } from "../carrier/HumanSurfaceBoard";
 import { HumanSwingLeap } from "../carrier/HumanSwingLeap";
 import { HumanSwingPump } from "../carrier/HumanSwingPump";
-import { measureSurfaceGlide } from "../carrier/measureSurfaceGlide";
+import { measureSurfaceGlide } from "../carrier/internal/measureSurfaceGlide";
 import { planSnowGlide } from "../carrier/snow/internal/planSnowGlide";
-import { swungArms } from "../carrier/swungArms";
+import { swungArms } from "../carrier/internal/swungArms";
 
 /** The channels a surface carrier leaves to a tool action or a gaze layer. */
 const YIELDS: IAutoMovieMotionHumanActionLaw["yields"] = [

@@ -3,9 +3,9 @@ import type {
   IAutoMovieMotionHumanLexiconParams,
 } from "@automovie/interface";
 
-import { jump } from "../actions/jump";
+import { jump } from "../actions/internal/jump";
 import { run } from "../gait/internal/run";
-import { kickBall } from "../ballStrike/kickBall";
+import { kickBall } from "../ballStrike/internal/kickBall";
 import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 import { HUMAN_BOWLING_DELIVERY } from "../next/presets/HUMAN_BOWLING_DELIVERY";
 import { HUMAN_THROWCATCH_CRICKET_BOWL } from "../next/presets/HUMAN_THROWCATCH_CRICKET_BOWL";
@@ -20,11 +20,11 @@ import { HUMAN_THROWCATCH_RUGBY_PASS } from "../next/presets/HUMAN_THROWCATCH_RU
 import { HUMAN_THROWCATCH_SOFTBALL_WINDMILL } from "../next/presets/HUMAN_THROWCATCH_SOFTBALL_WINDMILL";
 import { HUMAN_THROWCATCH_TWO_HAND_CATCH } from "../next/presets/HUMAN_THROWCATCH_TWO_HAND_CATCH";
 import { HUMAN_THROWCATCH_UNDERARM_PITCH } from "../next/presets/HUMAN_THROWCATCH_UNDERARM_PITCH";
-import { bowlingSlide as bowlingSlideLaw } from "../sport/bowlingSlide";
-import { cartwheel } from "../sport/cartwheel";
-import { salto } from "../sport/salto";
-import { catchObject } from "../throwing/catchObject";
-import { throwObject } from "../throwing/throwObject";
+import { bowlingSlide as bowlingSlideLaw } from "../sport/internal/bowlingSlide";
+import { cartwheel } from "../sport/internal/cartwheel";
+import { salto } from "../sport/internal/salto";
+import { catchObject } from "../throwing/internal/catchObject";
+import { throwObject } from "../throwing/internal/throwObject";
 
 /**
  * Throws, catches, kicks, jumps and runs of sport under their names, each a row

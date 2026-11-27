@@ -22,13 +22,13 @@ import { HumanArmOvershoot } from "./HumanArmOvershoot";
 import { HumanLimbAt } from "./HumanLimbAt";
 import { HumanLimbMirror } from "./HumanLimbMirror";
 import { HumanLimbVanishedRefusal } from "./HumanLimbVanishedRefusal";
-import { fitHumanLimbContact } from "./fitHumanLimbContact";
-import { humanLimbGoalWorld } from "./humanLimbGoalWorld";
-import { humanLimbReference } from "./humanLimbReference";
-import { poseBones } from "./poseBones";
-import { prepareHumanLimbFit } from "./prepareHumanLimbFit";
-import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
-import { solveHumanLimbFit } from "./solveHumanLimbFit";
+import { fitHumanLimbContact } from "./internal/fitHumanLimbContact";
+import { humanLimbGoalWorld } from "./internal/humanLimbGoalWorld";
+import { humanLimbReference } from "./internal/humanLimbReference";
+import { poseBones } from "./internal/poseBones";
+import { prepareHumanLimbFit } from "./internal/prepareHumanLimbFit";
+import { prepareHumanPoseResolution } from "./internal/prepareHumanPoseResolution";
+import { solveHumanLimbFit } from "./internal/solveHumanLimbFit";
 
 /** The alternatives of `SolvedFitterParent`'s site. */
 type SolvedFitterParent = "worldPosition" | "worldRotation";

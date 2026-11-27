@@ -13,20 +13,20 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { stand } from "../actions/stand";
+import { stand } from "../actions/internal/stand";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { AutoMovieMotionInterval } from "../compose/AutoMovieMotionInterval";
 import { HumanTrunk } from "../everyday/HumanTrunk";
-import { rise } from "../everyday/rise";
-import { seated } from "../everyday/seated";
-import { sitPlace } from "../everyday/sitPlace";
+import { rise } from "../everyday/internal/rise";
+import { seated } from "../everyday/internal/seated";
+import { sitPlace } from "../everyday/internal/sitPlace";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
 import { HumanMount } from "./HumanMount";
-import { admitCarExitSill } from "./admitCarExitSill";
-import { carExitAnkleAt } from "./carExitAnkleAt";
-import { verifyCarExitSill } from "./verifyCarExitSill";
+import { admitCarExitSill } from "./internal/admitCarExitSill";
+import { carExitAnkleAt } from "./internal/carExitAnkleAt";
+import { verifyCarExitSill } from "./internal/verifyCarExitSill";
 
 /**
  * Static rear-seat egress via the adjacent, already-open door. Shippen (2012,

@@ -6,11 +6,11 @@ import type {
   IAutoMovieMotionHumanWorkoutKind,
 } from "@automovie/interface";
 
-import { stand } from "../actions/stand";
+import { stand } from "../actions/internal/stand";
 import { HumanColliders } from "../posture/HumanColliders";
 import { ExerciseKey } from "./ExerciseKey";
 import { WorkoutKind } from "./WorkoutKind";
-import { prepareWorkoutKeyFrames } from "./prepareWorkoutKeyFrames";
+import { prepareWorkoutKeyFrames } from "./internal/prepareWorkoutKeyFrames";
 
 /**
  * The exercises of the workout law done on the hands and the toes or feet : the

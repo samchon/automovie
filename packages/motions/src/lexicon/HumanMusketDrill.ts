@@ -3,15 +3,15 @@ import type {
   IAutoMovieMotionHumanLexiconParams,
 } from "@automovie/interface";
 
-import { operate } from "../affordance/operate";
-import { pickUp } from "../handling/pickUp";
-import { putDown } from "../handling/putDown";
+import { operate } from "../affordance/internal/operate";
+import { pickUp } from "../handling/internal/pickUp";
+import { putDown } from "../handling/internal/putDown";
 import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 import { HUMAN_MILITARY_DRILL_BITE_CARTRIDGE } from "../next/presets/HUMAN_MILITARY_DRILL_BITE_CARTRIDGE";
 import { HUMAN_MILITARY_DRILL_SEIZE } from "../next/presets/HUMAN_MILITARY_DRILL_SEIZE";
 import { HUMAN_MILITARY_DRILL_SHOULDER_ARMS } from "../next/presets/HUMAN_MILITARY_DRILL_SHOULDER_ARMS";
 import { HUMAN_MILITARY_DRILL_TAKE_FIRELOCK } from "../next/presets/HUMAN_MILITARY_DRILL_TAKE_FIRELOCK";
-import { touch } from "../touch/touch";
+import { touch } from "../touch/internal/touch";
 import { HumanWeaponPresent } from "./HumanWeaponPresent";
 
 /**

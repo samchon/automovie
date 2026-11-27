@@ -13,9 +13,9 @@ import type {
 
 import { HumanFormation } from "../../ensemble/HumanFormation";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { prepareHumanPoseResolution } from "../../posture/prepareHumanPoseResolution";
+import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { WalkPath } from "../../actions/WalkPath";
-import { walkPaced } from "../../actions/walkPaced";
+import { walkPaced } from "../../actions/internal/walkPaced";
 
 /**
  * A stepping plan walked to keep station on a moving point: a formation's slot,

@@ -8,9 +8,9 @@ import type {
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 
-import { readHumanBone } from "../body/readHumanBone";
+import { readHumanBone } from "../body/internal/readHumanBone";
 import { HumanLimbFit } from "../posture/HumanLimbFit";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
 
 /** The alternatives of `ReferenceLimb`'s site. */
 type ReferenceLimb = "leftArm" | "rightArm";

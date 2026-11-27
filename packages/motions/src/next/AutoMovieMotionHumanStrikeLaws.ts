@@ -1,10 +1,10 @@
-import { martialArt as martialArtLaw } from "../sport/martialArt";
-import { closeStrike as closeStrikeLaw } from "../striking/closeStrike";
-import { footStrike as footStrikeLaw } from "../striking/footStrike";
-import { kick as kickLaw } from "../striking/kick";
-import { knee as kneeLaw } from "../striking/knee";
-import { punch as punchLaw } from "../striking/punch";
-import { step as stepLaw } from "../striking/step";
+import { martialArt as martialArtLaw } from "../sport/internal/martialArt";
+import { closeStrike as closeStrikeLaw } from "../striking/internal/closeStrike";
+import { footStrike as footStrikeLaw } from "../striking/internal/footStrike";
+import { kick as kickLaw } from "../striking/internal/kick";
+import { knee as kneeLaw } from "../striking/internal/knee";
+import { punch as punchLaw } from "../striking/internal/punch";
+import { step as stepLaw } from "../striking/internal/step";
 
 /**
  * The strike family's laws, each the shipped function under its family name

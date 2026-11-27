@@ -22,12 +22,12 @@ import type {
 
 import { HumanColliders } from "../posture/HumanColliders";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
-import { poseBones } from "../posture/poseBones";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { knockdown } from "../reaction/knockdown";
-import { prepareGymnasticsLaunch } from "./prepareGymnasticsLaunch";
+import { poseBones } from "../posture/internal/poseBones";
+import { prepareHumanPoseResolution } from "../posture/internal/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/internal/prepareHumanPostureProjection";
+import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
+import { knockdown } from "../reaction/internal/knockdown";
+import { prepareGymnasticsLaunch } from "./internal/prepareGymnasticsLaunch";
 
 /**
  * The airborne kernel of the gymnastic and jumping laws: a body in flight is a

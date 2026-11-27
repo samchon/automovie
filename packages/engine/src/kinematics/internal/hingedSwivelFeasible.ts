@@ -4,8 +4,8 @@ import type {
   IAutoMovieSwivelArcs,
 } from "@automovie/interface";
 
-import { boxRefusedArcs } from "../boxRefusedArcs";
-import { swingTwistRefusedArcs } from "../swingTwistRefusedArcs";
+import { boxRefusedArcs } from "./boxRefusedArcs";
+import { swingTwistRefusedArcs } from "./swingTwistRefusedArcs";
 import { swivelArcs } from "../swivelArcs";
 
 /**

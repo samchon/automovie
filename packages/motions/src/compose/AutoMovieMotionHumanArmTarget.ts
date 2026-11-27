@@ -14,7 +14,7 @@ import type {
 
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
-import { placeHumanHandSurface } from "../posture/placeHumanHandSurface";
+import { placeHumanHandSurface } from "../posture/internal/placeHumanHandSurface";
 
 /** The alternatives of `PrepareSidedTargetPlacement`'s site. */
 type PrepareSidedTargetPlacement = "surface" | "shape";

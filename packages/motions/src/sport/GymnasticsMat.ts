@@ -8,14 +8,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { lieDown } from "../floor/lieDown";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
-import { prepareHumanSampledCourse } from "../posture/prepareHumanSampledCourse";
-import { prepareHumanShapeBlend } from "../posture/prepareHumanShapeBlend";
+import { lieDown } from "../floor/internal/lieDown";
+import { prepareHumanPoseResolution } from "../posture/internal/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/internal/prepareHumanPostureProjection";
+import { prepareHumanSampledCourse } from "../posture/internal/prepareHumanSampledCourse";
+import { prepareHumanShapeBlend } from "../posture/internal/prepareHumanShapeBlend";
 import { GymnasticsFlight } from "./GymnasticsFlight";
 import type { IPreparedGymnasticsFrame } from "./IPreparedGymnasticsFrame";
-import { prepareGymnasticsFrame } from "./prepareGymnasticsFrame";
+import { prepareGymnasticsFrame } from "./internal/prepareGymnasticsFrame";
 
 /**
  * Coming down lying on a landing surface after a jump over a bar: the high

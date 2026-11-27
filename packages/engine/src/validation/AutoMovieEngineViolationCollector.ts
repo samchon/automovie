@@ -7,7 +7,7 @@ import {
 } from "@automovie/interface";
 
 import { describeInvalidValue } from "./describeInvalidValue";
-import { directionLength } from "./directionLength";
+import { directionLength } from "./internal/directionLength";
 import { toValidation } from "./toValidation";
 import { violation } from "./violation";
 

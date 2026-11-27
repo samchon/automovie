@@ -1,9 +1,9 @@
 import { HumanFloatBeside as HumanFloatBesideSource } from "../lexicon/HumanFloatBeside";
 import { AquaticDistress as AquaticDistressSource } from "../sport/AquaticDistress";
 import { SwimStroke as SwimStrokeSource } from "../sport/SwimStroke";
-import { aquatic as aquaticLaw } from "../sport/aquatic";
+import { aquatic as aquaticLaw } from "../sport/internal/aquatic";
 import { swim as swimLaw } from "../sport/swim";
-import { swimImmersed as swimImmersedLaw } from "../sport/swimImmersed";
+import { swimImmersed as swimImmersedLaw } from "../sport/internal/swimImmersed";
 
 /**
  * Moving and floating in water: the strokes, the immersed float and glide, and
