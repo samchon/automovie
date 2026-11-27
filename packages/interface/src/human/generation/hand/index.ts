@@ -12,6 +12,8 @@ export type { IAutoMovieHumanHandBones } from "../../IAutoMovieHumanHandBones";
 export type { IAutoMovieHumanHandClear } from "../../IAutoMovieHumanHandClear";
 export type { IAutoMovieHumanHandConstruction } from "../../IAutoMovieHumanHandConstruction";
 export type { IAutoMovieHumanHandDigit } from "../../IAutoMovieHumanHandDigit";
+export type { IAutoMovieHumanHandDigitDepthKnot } from "../../IAutoMovieHumanHandDigit";
+export type { IAutoMovieHumanHandDigitWidthKnot } from "../../IAutoMovieHumanHandDigit";
 export type { IAutoMovieHumanHandDigitBones } from "../../IAutoMovieHumanHandDigitBones";
 export type { IAutoMovieHumanHandDigitLaw } from "../../IAutoMovieHumanHandDigitLaw";
 export type { IAutoMovieHumanHandFinger } from "../../IAutoMovieHumanHandFinger";

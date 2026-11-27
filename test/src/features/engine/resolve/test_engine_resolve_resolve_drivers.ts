@@ -134,7 +134,11 @@ export function test_engine_resolve_resolve_drivers(): void {
     [1, 2, 3],
   );
   const chain: Map<string, IAutoMovieSampledChannel> = new Map();
-  AutoMovieEngineResolve.resolveDrivers([copy("c", "a", 1), copy("a", "b", 1)], chain, nodes());
+  AutoMovieEngineResolve.resolveDrivers(
+    [copy("c", "a", 1), copy("a", "b", 1)],
+    chain,
+    nodes(),
+  );
   TestValidator.equals(
     "a chain in dependency order",
     chain.get("node:c:translation")!.value,
@@ -143,9 +147,13 @@ export function test_engine_resolve_resolve_drivers(): void {
   TestValidator.equals(
     "remaps",
     [
-      out(5, { inRange: [0, 10], outRange: [0, 100] }),
-      out(20, { inRange: [0, 10], outRange: [0, 100] }),
-      out(20, { inRange: [0, 10], outRange: [0, 100], clamp: true }),
+      out(5, { inRange: { from: 0, to: 10 }, outRange: { from: 0, to: 100 } }),
+      out(20, { inRange: { from: 0, to: 10 }, outRange: { from: 0, to: 100 } }),
+      out(20, {
+        inRange: { from: 0, to: 10 },
+        outRange: { from: 0, to: 100 },
+        clamp: true,
+      }),
       out(0.5, {
         curve: {
           points: [
@@ -173,12 +181,21 @@ export function test_engine_resolve_resolve_drivers(): void {
   TestValidator.predicate(
     "refusals",
     throwsError(
-      (): unknown => AutoMovieEngineResolve.resolveDrivers([copy("a", "b", 2)], new Map(), nodes()),
+      (): unknown =>
+        AutoMovieEngineResolve.resolveDrivers(
+          [copy("a", "b", 2)],
+          new Map(),
+          nodes(),
+        ),
       "influence must be between 0 and 1",
     ) &&
       throwsError(
         (): unknown =>
-          AutoMovieEngineResolve.resolveDrivers([copy("a", "missing", 1)], new Map(), nodes()),
+          AutoMovieEngineResolve.resolveDrivers(
+            [copy("a", "missing", 1)],
+            new Map(),
+            nodes(),
+          ),
         'node "missing" was not provided',
       ) &&
       throwsError(
@@ -187,8 +204,8 @@ export function test_engine_resolve_resolve_drivers(): void {
             [
               driven({
                 output: { kind: "node", node: "a", path: "translation" },
-                inRange: [0, 1],
-                outRange: [0, 1],
+                inRange: { from: 0, to: 1 },
+                outRange: { from: 0, to: 1 },
               }),
             ],
             sample("/in", 0),

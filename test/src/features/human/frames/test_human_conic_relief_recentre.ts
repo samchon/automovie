@@ -62,7 +62,7 @@ export function test_human_conic_relief_recentre(): void {
 
   // The made net: a bump of 3 mm, its three outer rings zero.
   const [rows, columns]: [number, number] = [13, 23];
-  const window: [number, number] = [0.6, 2.2];
+  const window = { start: 0.6, end: 2.2 };
   const middle: number = 1.4;
   const heights: number[] = Array.from({ length: rows * columns }, (_: unknown, i: number): number => {
     const [a, b]: [number, number] = [Math.floor(i / columns), i % columns];
@@ -71,7 +71,7 @@ export function test_human_conic_relief_recentre(): void {
   });
   const inward: V3 = [-Math.cos(middle), 0, -Math.sin(middle)];
   const turning: V3 = [Math.sin(middle), 0, -Math.cos(middle)];
-  const net = (axis: V3, turn?: V3): IAutoMovieLoftRelief => ({ name: "made", stations: [2, 28], phases: window, axis, ...(turn === undefined ? {} : { turn }), rows, columns, heights });
+  const net = (axis: V3, turn?: V3): IAutoMovieLoftRelief => ({ name: "made", stations: { start: 2, end: 28 }, phases: window, axis, ...(turn === undefined ? {} : { turn }), rows, columns, heights });
   const addresses: [number, number][] = [];
   for (const s of [3.3, 8.1, 15, 21.7, 26.9]) for (let j: number = 0; j < 40; ++j) addresses.push([s, 0.45 + (2.1 * (j + 0.3)) / 40]);
 
@@ -112,17 +112,17 @@ export function test_human_conic_relief_recentre(): void {
 
   // 3. The window.
   const mapped = (p: number, s: number): number => Math.atan2(R * Math.sin(p), R * Math.cos(p) - c(s));
-  const [low, high]: [number, number] = cast.relief.phases;
+  const { start: low, end: high } = cast.relief.phases;
   // The edge's angle grows with the move, which grows with the station: its least is at the window's first station, its most at the last.
-  if (!(low <= mapped(window[0], 2.325) && low >= mapped(window[0], 2) - 1.0001e-4)) failures.push(`the window's first edge ${low} does not stand at the mapped edge ${mapped(window[0], 2)} rounded outward`);
-  if (!(high >= mapped(window[1], 27.675) && high <= mapped(window[1], 28) + 1.0001e-4)) failures.push(`the window's last edge ${high} does not stand at the mapped edge ${mapped(window[1], 28)} rounded outward`);
+  if (!(low <= mapped(window.start, 2.325) && low >= mapped(window.start, 2) - 1.0001e-4)) failures.push(`the window's first edge ${low} does not stand at the mapped edge ${mapped(window.start, 2)} rounded outward`);
+  if (!(high >= mapped(window.end, 27.675) && high <= mapped(window.end, 28) + 1.0001e-4)) failures.push(`the window's last edge ${high} does not stand at the mapped edge ${mapped(window.end, 28)} rounded outward`);
 
   // 4. No move, a direction that turns and leaves the section plane.
   const tilted: V3 = [inward[0] * Math.SQRT1_2, Math.SQRT1_2, inward[2] * Math.SQRT1_2];
   const lifted: IAutoMovieLoftRelief = net(tilted, turning);
   const same: Nets.INet = Nets.convert({ stored, made: stored, reliefs: [lifted] })[0]!;
   if (same.mode !== "skew") failures.push(`a direction out of the section plane was converted as ${same.mode}`);
-  if (!(Math.abs(same.relief.phases[0] - window[0]) <= 1e-12 && Math.abs(same.relief.phases[1] - window[1]) <= 1e-12)) failures.push(`with no move the window became [${same.relief.phases.join(", ")}]`);
+  if (!(Math.abs(same.relief.phases.start - window.start) <= 1e-12 && Math.abs(same.relief.phases.end - window.end) <= 1e-12)) failures.push(`with no move the window became [${same.relief.phases.start}, ${same.relief.phases.end}]`);
   const drift: number = Math.max(...same.relief.heights.map((h: number, i: number): number => Math.abs(h - heights[i]!)));
   if (!(drift <= 1e-6)) failures.push(`with no move the heights changed by ${drift} mm`);
 

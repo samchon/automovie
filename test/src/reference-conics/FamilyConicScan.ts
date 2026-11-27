@@ -802,13 +802,13 @@ namespace FamilyConicScan {
         for (const relief of member.family.reliefs ?? []) {
           const rows: number = relief.rows;
           const columns: number = relief.columns;
-          const periodic: boolean = relief.phases[1] - relief.phases[0] >= 2 * Math.PI - 1e-9;
+          const periodic: boolean = relief.phases.end - relief.phases.start >= 2 * Math.PI - 1e-9;
           const free: number[] = Array.from({ length: columns }, (_: unknown, c: number): number => c).filter((c: number): boolean => periodic || (c >= 3 && c < columns - 3));
-          const pitch: number = (relief.stations[1] - relief.stations[0]) / (rows - 3);
-          const round: number = (relief.phases[1] - relief.phases[0]) / (columns - 3);
+          const pitch: number = (relief.stations.end - relief.stations.start) / (rows - 3);
+          const round: number = (relief.phases.end - relief.phases.start) / (columns - 3);
           const height = (r: number, c: number): number => relief.heights[r * columns + c]!;
-          const station = (r: number): number => relief.stations[0] + (r - 1) * pitch;
-          const phase = (c: number): number => relief.phases[0] + (c - 1) * round;
+          const station = (r: number): number => relief.stations.start + (r - 1) * pitch;
+          const phase = (c: number): number => relief.phases.start + (c - 1) * round;
           const means: number[] = Array.from({ length: rows }, (_: unknown, r: number): number => free.reduce((sum: number, c: number): number => sum + height(r, c), 0) / free.length);
           // The least of three steps that turn back twice, or 0 where they do not: one turn is a crest or a hollow, two are a zigzag.
           const alternates = (q: readonly number[]): number => {

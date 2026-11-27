@@ -28,7 +28,14 @@ export const stageBladeFootwork: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
   {
     name: "stageBladeFootwork",
     interrupts: {
-      any: [{ window: [0.92, 1], kind: "inertialize", entry: 0, blend: 0.12 }],
+      any: [
+        {
+          window: { start: 0.92, end: 1 },
+          kind: "inertialize",
+          entry: 0,
+          blend: 0.12,
+        },
+      ],
     },
     plan,
   };

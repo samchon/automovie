@@ -39,11 +39,13 @@ export namespace IAutoMovieHumanHeadFeatures {
      */
     contact: number;
 
-    /**
-     * The part's own size the blend width follows: its height and its least
-     * half extent, mm.
-     */
-    size: [number, number];
+    /** The part's own dimensions the blend width follows, in mm. */
+    size: {
+      /** The part's height. */
+      height: number;
+      /** The part's least half extent. */
+      halfExtent: number;
+    };
 
     /** The part it joins: `head.mass`, or another part's chain name. */
     parent: string;

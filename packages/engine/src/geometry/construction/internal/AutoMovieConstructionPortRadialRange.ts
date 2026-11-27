@@ -32,10 +32,10 @@ export function AutoMovieConstructionPortRadialRange(
   phase: readonly [number, number],
   originalShare: number,
 ): number {
-  const y0: number = loop.centre[0] * 1000;
-  const p0: number = loop.centre[1];
-  const a: number = loop.semi[0] * 1000;
-  const b: number = loop.semi[1];
+  const y0: number = loop.centre.station * 1000;
+  const p0: number = loop.centre.phase;
+  const a: number = loop.semi.stationMetres * 1000;
+  const b: number = loop.semi.phaseRadians;
   if (
     !(a > 0 && b > 0 && originalShare > 0) ||
     !(loop.sense === 1 || loop.sense === -1)

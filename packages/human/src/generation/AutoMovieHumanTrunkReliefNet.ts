@@ -51,28 +51,31 @@ export namespace AutoMovieHumanTrunkReliefNet {
     const grow: number = 2 / (n - 7);
     const first: number = 2 / (n - 3);
     const last: number = (n - 5) / (n - 3);
-    const sLength: number = window.stations[1] - window.stations[0];
-    const tLength: number = window.phases[1] - window.phases[0];
-    const apexS: number = window.stations[0] + window.apex[0] * sLength;
-    const apexT: number = window.phases[0] + window.apex[1] * tLength;
+    const sLength: number = window.stations.end - window.stations.start;
+    const tLength: number = window.phases.end - window.phases.start;
+    const apexS: number = window.stations.start + window.apex.station * sLength;
+    const apexT: number = window.phases.start + window.apex.phase * tLength;
 
     // The window: the footprint grown on each side, stopped at the chart's ends.
-    const bounds: [number, number] = base.bounds ?? [-Infinity, Infinity];
+    const bounds: IAutoMovieHumanTrunkReliefNet.IStationBounds = base.bounds ?? {
+      minimum: -Infinity,
+      maximum: Infinity,
+    };
     const stations: [number, number] = [
-      Math.max(bounds[0], window.stations[0] - grow * sLength),
-      Math.min(bounds[1], window.stations[1] + grow * sLength),
+      Math.max(bounds.minimum, window.stations.start - grow * sLength),
+      Math.min(bounds.maximum, window.stations.end + grow * sLength),
     ];
 
     // A paired feature's footprint lies on one side of the median plane, the
     // left's between the front and the back midline phases, and its mirror
     // takes the other side, so its window stays on its own side.
     const side: [number, number] =
-      window.phases[0] >= 0 && window.phases[1] <= Math.PI
+      window.phases.start >= 0 && window.phases.end <= Math.PI
         ? [0, Math.PI]
         : [-Infinity, Infinity];
     const phases: [number, number] = [
-      Math.max(side[0], window.phases[0] - grow * tLength),
-      Math.min(side[1], window.phases[1] + grow * tLength),
+      Math.max(side[0], window.phases.start - grow * tLength),
+      Math.min(side[1], window.phases.end + grow * tLength),
     ];
     const sSpan: number = stations[1] - stations[0];
     const tSpan: number = phases[1] - phases[0];
@@ -96,14 +99,14 @@ export namespace AutoMovieHumanTrunkReliefNet {
         apex + (x - apex) * (x < apex ? below : above);
     };
     const drawn: (s: number) => number = draw(
-      window.stations[0],
-      window.stations[1],
+      window.stations.start,
+      window.stations.end,
       apexS,
       stations,
     );
     const turned: (t: number) => number = draw(
-      window.phases[0],
-      window.phases[1],
+      window.phases.start,
+      window.phases.end,
       apexT,
       phases,
     );
@@ -130,8 +133,8 @@ export namespace AutoMovieHumanTrunkReliefNet {
       }
     const relief: IAutoMovieLoftRelief = {
       name,
-      stations,
-      phases,
+      stations: { start: stations[0], end: stations[1] },
+      phases: { start: phases[0], end: phases[1] },
       axis: feature.frame.axis,
       rows: n,
       columns: n,
@@ -179,7 +182,10 @@ export namespace AutoMovieHumanTrunkReliefNet {
     return {
       ...relief,
       name,
-      phases: [2 * Math.PI - relief.phases[1], 2 * Math.PI - relief.phases[0]],
+      phases: {
+        start: 2 * Math.PI - relief.phases.end,
+        end: 2 * Math.PI - relief.phases.start,
+      },
       axis: [relief.axis[0], relief.axis[1], -relief.axis[2]],
       heights,
     };

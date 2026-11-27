@@ -2,9 +2,9 @@ import { AutoMovieEngineMaterial } from "@automovie/engine";
 import type { IAutoMovieProceduralSurface } from "@automovie/interface";
 import * as THREE from "three";
 
-import type { IMaterialShaderSource } from "../../IMaterialShaderSource.js";
-import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial.js";
 import { AUTOMOVIE_PROCEDURAL_NOISE_GLSL } from "../../AUTOMOVIE_PROCEDURAL_NOISE_GLSL.js";
+import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial.js";
+import type { IMaterialShaderSource } from "../../IMaterialShaderSource.js";
 import { proceduralPatternGlsl } from "./proceduralPatternGlsl.js";
 
 /*
@@ -59,7 +59,10 @@ export const applyProceduralSurface: (
     uProceduralColor0: { value: new THREE.Vector3(low.r, low.g, low.b) },
     uProceduralColor1: { value: new THREE.Vector3(high.r, high.g, high.b) },
     uProceduralRoughness: {
-      value: new THREE.Vector2(surface.roughness[0], surface.roughness[1]),
+      value: new THREE.Vector2(
+        surface.roughness.atZero,
+        surface.roughness.atOne,
+      ),
     },
     uProceduralRelief: { value: surface.relief },
   };

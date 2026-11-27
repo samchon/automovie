@@ -60,7 +60,7 @@ export const turnOver: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanTurnO
   {
     name: "turnOver",
     interrupts: {
-      any: [{ window: ["settled", 1], kind: "inertialize", entry: 0 }],
+      any: [{ window: { start: "settled", end: 1 }, kind: "inertialize", entry: 0 }],
     },
     plan: planTurnOver,
   };

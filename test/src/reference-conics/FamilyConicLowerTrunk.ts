@@ -787,9 +787,9 @@ namespace FamilyConicLowerTrunk {
       let count: number = 0;
       for (let i: number = 3; i <= relief.rows - 4; ++i) {
         const s: number =
-          relief.stations[0] +
+          relief.stations.start +
           ((i - 1) / (relief.rows - 3)) *
-            (relief.stations[1] - relief.stations[0]);
+            (relief.stations.end - relief.stations.start);
         if (s >= START && s < TO) count += perRow;
       }
       if (count > 0) byNet[relief.name] = count;
@@ -918,15 +918,15 @@ namespace FamilyConicLowerTrunk {
         nets: (stored().reliefs ?? [])
           .filter(
             (r: IAutoMovieLoftRelief): boolean =>
-              r.stations[0] < TO && r.stations[1] > FROM,
+              r.stations.start < TO && r.stations.end > FROM,
           )
           .map((r: IAutoMovieLoftRelief) => ({
             name: r.name,
             stations: r.stations,
-            phases: r.phases.map(round3),
+            phases: { start: round3(r.phases.start), end: round3(r.phases.end) },
             rows: r.rows,
             columns: r.columns,
-            rowMm: round3((r.stations[1] - r.stations[0]) / (r.rows - 3)),
+            rowMm: round3((r.stations.end - r.stations.start) / (r.rows - 3)),
             columnRad: round3(AutoMovieLoftRelief.width(r) / (r.columns - 3)),
           })),
       },
@@ -979,7 +979,10 @@ namespace FamilyConicLowerTrunk {
     };
     nets: {
       net: string;
-      window: { stations: [number, number]; phases: [number, number] };
+      window: {
+        stations: { start: number; end: number };
+        phases: { start: number; end: number };
+      };
       storedGrid: [number, number];
       storedHeights: number;
       coarse: [number, number];
@@ -1391,10 +1394,10 @@ namespace FamilyConicLowerTrunk {
       const width: number = AutoMovieLoftRelief.width(relief);
       // The stored grid's spacing kept on the window clipped to the stretch.
       const rowMm: number =
-        (relief.stations[1] - relief.stations[0]) / (relief.rows - 3);
+        (relief.stations.end - relief.stations.start) / (relief.rows - 3);
       const clipped: [number, number] = [
-        Math.max(START, relief.stations[0]),
-        Math.min(TO, relief.stations[1]),
+        Math.max(START, relief.stations.start),
+        Math.min(TO, relief.stations.end),
       ];
       // A window that does not reach into the fitted stretch carries nothing of it (`trunk.crotch` ends at 88 mm).
       if (clipped[1] - clipped[0] < 4 * rowMm) continue;
@@ -1405,7 +1408,7 @@ namespace FamilyConicLowerTrunk {
       const columns: number = relief.columns;
       const base: Omit<IAutoMovieLoftRelief, "heights" | "rows" | "columns"> = {
         name: relief.name + ".residual",
-        stations: clipped,
+        stations: { start: clipped[0]!, end: clipped[1]! },
         phases: relief.phases,
         axis: relief.axis,
         ...(relief.turn === undefined ? {} : { turn: relief.turn }),
@@ -1417,7 +1420,7 @@ namespace FamilyConicLowerTrunk {
       const samplePhases: number[] = Array.from(
         { length: sampleCount },
         (_: unknown, j: number): number =>
-          relief.phases[0] +
+          relief.phases.start +
           (width * j) / (sampleCount - 1) -
           (j === sampleCount - 1 && width >= 2 * Math.PI - 1e-9 ? 1e-9 : 0),
       );
@@ -1437,7 +1440,7 @@ namespace FamilyConicLowerTrunk {
       if (net === null) {
         nets.push({
           net: window.net,
-          window: { stations: clipped, phases: relief.phases },
+          window: { stations: { start: clipped[0]!, end: clipped[1]! }, phases: relief.phases },
           storedGrid: [rows, columns],
           storedHeights: NaN,
           coarse: [rows, columns],
@@ -1514,7 +1517,7 @@ namespace FamilyConicLowerTrunk {
       carriedNets.push(net, ...twin);
       nets.push({
         net: window.net,
-        window: { stations: clipped, phases: relief.phases },
+        window: { stations: { start: clipped[0]!, end: clipped[1]! }, phases: relief.phases },
         storedGrid: [rows, columns],
         storedHeights: size(rows, columns),
         coarse: [best.net.rows, best.net.columns],
@@ -1548,9 +1551,9 @@ namespace FamilyConicLowerTrunk {
           "none";
         for (let i: number = 3; i <= R - 4; ++i) {
           const s: number =
-            net.window.stations[0] +
+            net.window.stations.start +
             ((i - 1) / (R - 3)) *
-              (net.window.stations[1] - net.window.stations[0]);
+              (net.window.stations.end - net.window.stations.start);
           counted.set(
             bandOf(s),
             (counted.get(bandOf(s)) ?? 0) +
@@ -1916,9 +1919,9 @@ namespace FamilyConicLowerTrunk {
           const perRow: number = mirror === "self" ? (Cc + 1) / 2 : Cc;
           for (let i: number = 3; i <= R - 4; ++i) {
             const s: number =
-              net.window.stations[0] +
+              net.window.stations.start +
               ((i - 1) / (R - 3)) *
-                (net.window.stations[1] - net.window.stations[0]);
+                (net.window.stations.end - net.window.stations.start);
             counted.set(bandOf(s), (counted.get(bandOf(s)) ?? 0) + perRow);
           }
         }

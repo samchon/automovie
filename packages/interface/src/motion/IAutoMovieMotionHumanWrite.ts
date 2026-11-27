@@ -27,13 +27,13 @@ export interface IAutoMovieMotionHumanWrite {
   surface: string;
 
   /**
-   * Consecutive [X, Z] vertices in the writing affordance's frame, metres. Lift
-   * the tool by composing separate strokes.
+   * Consecutive vertices in the writing affordance's frame, metres. `x` is
+   * along X and `z` along Z. Lift the tool by composing separate strokes.
    */
   stroke: readonly [
-    readonly [number, number],
-    readonly [number, number],
-    ...(readonly [number, number])[],
+    IAutoMovieMotionHumanWrite.IVertex,
+    IAutoMovieMotionHumanWrite.IVertex,
+    ...IAutoMovieMotionHumanWrite.IVertex[],
   ];
 
   /**
@@ -75,4 +75,12 @@ export interface IAutoMovieMotionHumanWrite {
    * ribbon's free end drops away from the part still tied.
    */
   release?: readonly string[];
+}
+
+export namespace IAutoMovieMotionHumanWrite {
+  /** One authored stroke vertex, metres in the writing affordance's X/Z plane. */
+  export interface IVertex {
+    readonly x: number;
+    readonly z: number;
+  }
 }

@@ -25,10 +25,10 @@ export class AutoMovieViewerTransport {
   public error: string | null = null;
 
   /** Closed playback interval inside the available range. */
-  public interval: [number, number];
+  public interval: AutoMovieViewerTransport.IRange;
 
   /** The source's available range; review bounds cannot widen it. */
-  public readonly available: readonly [number, number];
+  public readonly available: Readonly<AutoMovieViewerTransport.IRange>;
 
   /*
    * Current review speed.
@@ -61,13 +61,22 @@ export class AutoMovieViewerTransport {
    * @param options Producer, range, frame rate, speeds, sound and clock.
    */
   public constructor(options: AutoMovieViewerTransport.IOptions) {
-    const available: readonly [number, number] = options.available;
-    if (available[0] < 0 || available[0] >= available[1] || !(options.fps > 0))
+    const available: AutoMovieViewerTransport.IRange = options.available;
+    if (
+      !(
+        available.start >= 0 &&
+        available.start < available.end &&
+        options.fps > 0
+      )
+    )
       throw new Error("Invalid transport range or frame rate");
     this.options = options;
-    this.available = Object.freeze([available[0], available[1]]);
-    this.seconds = available[0];
-    this.interval = [available[0], available[1]];
+    this.available = Object.freeze({
+      start: available.start,
+      end: available.end,
+    });
+    this.seconds = available.start;
+    this.interval = { start: available.start, end: available.end };
   }
 
   /** Current review speed, film seconds per wall second. */
@@ -90,8 +99,11 @@ export class AutoMovieViewerTransport {
    */
   public async play(): Promise<void> {
     this.pause();
-    if (this.seconds < this.interval[0] || this.seconds >= this.interval[1])
-      this.seek(this.interval[0]);
+    if (
+      this.seconds < this.interval.start ||
+      this.seconds >= this.interval.end
+    )
+      this.seek(this.interval.start);
     const generation: number = ++this.generation;
     this.error = null;
     try {
@@ -122,9 +134,9 @@ export class AutoMovieViewerTransport {
    * @param seconds The second.
    */
   public seek(seconds: number): void {
-    if (seconds < this.available[0] || seconds > this.available[1])
+    if (seconds < this.available.start || seconds > this.available.end)
       throw new Error(
-        `Seek must remain inside [${this.available[0]},${this.available[1]}]`,
+        `Seek must remain inside [${this.available.start},${this.available.end}]`,
       );
     this.pause();
     try {
@@ -146,11 +158,11 @@ export class AutoMovieViewerTransport {
     if (!this.playing) return false;
     const fps: number = this.options.fps;
     const actual: number = Math.min(
-      this.interval[1],
+      this.interval.end,
       this.origin + ((this.now() - this.wall) * this.rate) / 1000,
     );
     const seconds: number =
-      actual === this.interval[1]
+      actual === this.interval.end
         ? actual
         : Math.max(this.origin, Math.floor(actual * fps) / fps);
     let changed: boolean = false;
@@ -160,7 +172,7 @@ export class AutoMovieViewerTransport {
         this.seconds = seconds;
         changed = true;
       }
-      if (actual === this.interval[1]) this.pause();
+      if (actual === this.interval.end) this.pause();
       return changed;
     } catch (error: unknown) {
       this.error = error instanceof Error ? error.message : String(error);
@@ -176,12 +188,16 @@ export class AutoMovieViewerTransport {
    * @param end End second, after the start.
    */
   public setInterval(start: number, end: number): void {
-    if (start < this.available[0] || end > this.available[1] || end <= start)
+    if (
+      start < this.available.start ||
+      end > this.available.end ||
+      end <= start
+    )
       throw new Error(
-        `Review interval must remain inside [${this.available[0]},${this.available[1]}]`,
+        `Review interval must remain inside [${this.available.start},${this.available.end}]`,
       );
     this.seek(start);
-    this.interval = [start, end];
+    this.interval = { start, end };
   }
 
   /**
@@ -219,6 +235,14 @@ export namespace AutoMovieViewerTransport {
     speed: number;
   }
 
+  /** A closed interval of film seconds. */
+  export interface IRange {
+    /** First film second in the range. */
+    start: number;
+    /** End film second. */
+    end: number;
+  }
+
   /**
    * Read the review interval and speed a URL requests after the source's
    * available range is known. Missing bounds select that range and speed 1;
@@ -231,7 +255,7 @@ export namespace AutoMovieViewerTransport {
    */
   export function readInterval(
     params: URLSearchParams,
-    available: readonly [number, number],
+    available: Readonly<IRange>,
     speeds: readonly number[] = [0.25, 0.5, 1],
   ): IInterval {
     const read: (name: string, fallback: number) => number = (
@@ -244,17 +268,17 @@ export namespace AutoMovieViewerTransport {
         throw new Error(`URL ${name} must contain a decimal number`);
       return Number(text);
     };
-    const start: number = read("start", available[0]);
-    const end: number = read("end", available[1]);
+    const start: number = read("start", available.start);
+    const end: number = read("end", available.end);
     const speed: number = read("speed", 1);
     if (
       !speeds.includes(speed) ||
-      start < available[0] ||
-      end > available[1] ||
+      start < available.start ||
+      end > available.end ||
       start >= end
     )
       throw new Error(
-        `URL requires ${available[0]} <= start < end <= ${available[1]} and a speed of ${speeds.join(", ")}`,
+        `URL requires ${available.start} <= start < end <= ${available.end} and a speed of ${speeds.join(", ")}`,
       );
     return { start, end, speed };
   }
@@ -274,7 +298,7 @@ export namespace AutoMovieViewerTransport {
     place(seconds: number): void;
 
     /** Available source range, seconds. */
-    available: readonly [number, number];
+    available: Readonly<IRange>;
 
     /** Frame grid of playback, frames per second. */
     fps: number;

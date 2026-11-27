@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -48,7 +48,7 @@ export const bowlingSlide: IAutoMovieMotionHumanActionLaw<Parameters> = {
   interrupts: {
     stand: [
       {
-        window: ["recoveryPlant", 1],
+        window: { start: "recoveryPlant", end: 1 },
         kind: "inertialize",
         entry: 0,
         blend: AutoMovieMotionHumanInterrupt.BLENDS.smooth,

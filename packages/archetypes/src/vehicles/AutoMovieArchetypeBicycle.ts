@@ -434,7 +434,13 @@ export namespace AutoMovieArchetypeBicycle {
   export const LEAN: number = 50;
 
   /** A hop's takeoff and touchdown on the ride clock, in seconds. */
-  export type IRideInterval = readonly [number, number];
+  export interface IRideInterval {
+    /** Takeoff time on the ride clock, in seconds. */
+    readonly takeoffSeconds: number;
+
+    /** Touchdown time on the ride clock, in seconds. */
+    readonly touchdownSeconds: number;
+  }
 
   /** A freewheel span measured from the start of the course, in metres. */
   export interface ICoastInterval {
@@ -497,7 +503,7 @@ export namespace AutoMovieArchetypeBicycle {
     ride: ReturnType<typeof AutoMovieArchetypeBicycle.ride>,
     interval: IRideInterval,
   ): ReturnType<typeof AutoMovieArchetypeBicycle.ride> {
-    const [takeoff, touchdown]: typeof interval = interval;
+    const { takeoffSeconds: takeoff, touchdownSeconds: touchdown } = interval;
     if (takeoff < 0 || touchdown <= takeoff || touchdown > ride.duration)
       throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
@@ -518,7 +524,10 @@ export namespace AutoMovieArchetypeBicycle {
       if (event.label === "takeoff") airborne = event.seconds;
       else if (event.label === "touchdown" && airborne !== undefined) {
         if (takeoff < event.seconds && airborne < touchdown)
-          overlap ??= [airborne, event.seconds];
+          overlap ??= {
+            takeoffSeconds: airborne,
+            touchdownSeconds: event.seconds,
+          };
         airborne = undefined;
       }
     }
@@ -529,7 +538,7 @@ export namespace AutoMovieArchetypeBicycle {
         axis: "hop.interval",
         value: interval,
         feasible: null,
-        reason: `the bicycle is already airborne from ${overlap[0]} to ${overlap[1]} s`,
+        reason: `the bicycle is already airborne from ${overlap.takeoffSeconds} to ${overlap.touchdownSeconds} s`,
         fix: "choose a takeoff and touchdown outside its other flights",
       });
 

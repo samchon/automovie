@@ -74,7 +74,7 @@ export namespace wipe {
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
       {
-        window: ["relax", 1],
+        window: { start: "relax", end: 1 },
         kind: "inertialize",
         entry: 0,
         blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
@@ -82,7 +82,7 @@ export namespace wipe {
     ],
     walk: [
       {
-        window: ["relax", 1],
+        window: { start: "relax", end: 1 },
         kind: "inertialize",
         entry: 0,
         blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
@@ -90,7 +90,7 @@ export namespace wipe {
     ],
     operate: [
       {
-        window: ["relax", 1],
+        window: { start: "relax", end: 1 },
         kind: "inertialize",
         entry: 0,
         blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,

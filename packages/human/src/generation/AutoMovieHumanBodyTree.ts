@@ -75,8 +75,14 @@ export namespace AutoMovieHumanBodyTree {
               type: "point",
               partFace: fold.partFace,
               hostFace: fold.sourceSeed.owner,
-              part: [fold.sourceSeed.part[0] * M, fold.sourceSeed.part[1]],
-              host: [fold.sourceSeed.host[0] * M, fold.sourceSeed.host[1]],
+              part: {
+                station: fold.sourceSeed.part.station * M,
+                phase: fold.sourceSeed.part.phase,
+              },
+              host: {
+                station: fold.sourceSeed.host.station * M,
+                phase: fold.sourceSeed.host.phase,
+              },
             },
       parameter: { type: "phase" },
       partWidth: width,

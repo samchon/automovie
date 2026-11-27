@@ -30,6 +30,7 @@ export type { IAutoMovieConstructionBridgeRealize } from "./IAutoMovieConstructi
 export type { IAutoMovieConstructionChord } from "./IAutoMovieConstructionChord";
 export type { IAutoMovieConstructionChordTable } from "./IAutoMovieConstructionChordTable";
 export type { IAutoMovieConstructionComposedEnd } from "./IAutoMovieConstructionComposedEnd";
+export type { IAutoMovieConstructionChartPoint } from "./IAutoMovieConstructionChartPoint";
 export type { IAutoMovieConstructionContinuation } from "./IAutoMovieConstructionContinuation";
 export type { IAutoMovieConstructionCurvatureWidth } from "./IAutoMovieConstructionCurvatureWidth";
 export type { IAutoMovieConstructionCurve } from "./IAutoMovieConstructionCurve";

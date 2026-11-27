@@ -543,8 +543,8 @@ export namespace FamilyConicRelief {
     return {
       relief: {
         name: window.name,
-        stations: window.stations,
-        phases: window.phases,
+        stations: { start: window.stations[0], end: window.stations[1] },
+        phases: { start: window.phases[0], end: window.phases[1] },
         axis: window.axis,
         ...(window.turn === undefined ? {} : { turn: window.turn }),
         rows: R,

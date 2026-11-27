@@ -321,7 +321,7 @@ export namespace AutoMovieHumanHeadLandmarks {
       lowerLip,
       // Separate normal bulk priors; these neither orient the public chord
       // nor calibrate an individual's outermost lip to the clinical mean.
-      lips: [p.lips[0]! * q, p.lips[1]! * q],
+      lips: { upper: p.lips.upper * q, lower: p.lips.lower * q },
       gap: f.gape * head.mouthOpening * k,
       joint: f.joint * head.mandibularLaterotrusion * k,
       left: opening(head.face.eyePair.left),

@@ -98,10 +98,10 @@ export namespace stepOver {
    * Cancel table: a crossing completes before anything else.
    */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
-    stand: [{ window: ["trailContact", 1], kind: "inertialize", entry: 0 }],
+    stand: [{ window: { start: "trailContact", end: 1 }, kind: "inertialize", entry: 0 }],
     walk: [
       {
-        window: ["trailContact", 1],
+        window: { start: "trailContact", end: 1 },
         kind: "inertialize",
         entry: 0,
         blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,

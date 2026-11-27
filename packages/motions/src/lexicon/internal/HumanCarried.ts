@@ -51,7 +51,7 @@ export namespace HumanCarried {
     {
       name: "carried",
       interrupts: {
-        any: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
+        any: [{ window: { start: 0, end: 1 }, kind: "inertialize", entry: 0 }],
       },
       yields: ["head", "leftHand", "rightHand", "leftArm", "rightArm"],
       plan: (
@@ -281,7 +281,7 @@ export namespace HumanCarried {
     {
       name: "borne",
       interrupts: {
-        any: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
+        any: [{ window: { start: 0, end: 1 }, kind: "inertialize", entry: 0 }],
       },
       yields: ["head"],
       plan: (
@@ -308,7 +308,7 @@ export namespace HumanCarried {
     {
       name: "bearing",
       interrupts: {
-        any: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
+        any: [{ window: { start: 0, end: 1 }, kind: "inertialize", entry: 0 }],
       },
       overlay: true,
       plan: (

@@ -22,7 +22,12 @@ const JUMP_BLEND: number = 0.15;
  * The cut a standing action makes into a walk: only once both feet are down.
  */
 const SETTLED: readonly IAutoMovieMotionHumanInterruptRow[] = [
-  { window: ["lastFootfall", 1], kind: "inertialize", entry: 0, blend: BLEND },
+  {
+    window: { start: "lastFootfall", end: 1 },
+    kind: "inertialize",
+    entry: 0,
+    blend: BLEND,
+  },
 ];
 
 /*
@@ -33,11 +38,46 @@ const SETTLED: readonly IAutoMovieMotionHumanInterruptRow[] = [
  * down.
  */
 export const walkCuts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
-  stand: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: BLEND }],
-  walk: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: BLEND }],
-  jump: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: JUMP_BLEND }],
-  run: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: BLEND }],
-  approach: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: BLEND }],
+  stand: [
+    {
+      window: { start: 0, end: 1 },
+      kind: "inertialize",
+      entry: 0,
+      blend: BLEND,
+    },
+  ],
+  walk: [
+    {
+      window: { start: 0, end: 1 },
+      kind: "inertialize",
+      entry: 0,
+      blend: BLEND,
+    },
+  ],
+  jump: [
+    {
+      window: { start: 0, end: 1 },
+      kind: "inertialize",
+      entry: 0,
+      blend: JUMP_BLEND,
+    },
+  ],
+  run: [
+    {
+      window: { start: 0, end: 1 },
+      kind: "inertialize",
+      entry: 0,
+      blend: BLEND,
+    },
+  ],
+  approach: [
+    {
+      window: { start: 0, end: 1 },
+      kind: "inertialize",
+      entry: 0,
+      blend: BLEND,
+    },
+  ],
   look: SETTLED,
   gesture: SETTLED,
   rest: SETTLED,

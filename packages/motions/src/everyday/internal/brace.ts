@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
@@ -69,7 +69,7 @@ export namespace brace {
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
       {
-        window: [0, 1],
+        window: { start: 0, end: 1 },
         kind: "inertialize",
         entry: 0,
         blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,

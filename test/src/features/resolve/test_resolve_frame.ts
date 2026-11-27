@@ -53,9 +53,13 @@ const track: (
 const tx: (m: number[]) => number = (m: number[]): number => m[12]!;
 
 /**
- * Resolve a frame through sampling, constraints and composition, including morph weights and a null-clip rest pose.
+ * Resolve a frame through sampling, constraints and composition, including
+ * morph weights and a null-clip rest pose.
  *
- * Five nodes exercise translation/rotation, rotation-only, scale-only, morph and static paths. Assertions check world X translation, one scale coefficient and morph values; they do not establish every world coefficient or channel combination.
+ * Five nodes exercise translation/rotation, rotation-only, scale-only, morph
+ * and static paths. Assertions check world X translation, one scale coefficient
+ * and morph values; they do not establish every world coefficient or channel
+ * combination.
  *
  * Scenarios:
  *
@@ -216,7 +220,12 @@ export function test_resolve_frame(): void {
     "clip channel rejects missing resolve node",
     throwsError(
       (): IAutoMovieResolveOutput =>
-        AutoMovieEngineResolve.resolveFrame({ nodes, clip: ghostClip, limits: [], seconds: 0 }),
+        AutoMovieEngineResolve.resolveFrame({
+          nodes,
+          clip: ghostClip,
+          limits: [],
+          seconds: 0,
+        }),
       ['sampled channel "node:ghost:translation"', 'missing node "ghost"'],
     ),
   );
@@ -228,8 +237,8 @@ export function test_resolve_frame(): void {
     type: "driven",
     source: { kind: "pointer", pointer: "/input", valueType: "scalar" },
     output: nodeChannel("ghost", "translation"),
-    inRange: [0, 1],
-    outRange: [0, 1],
+    inRange: { from: 0, to: 1 },
+    outRange: { from: 0, to: 1 },
     clamp: false,
   };
   TestValidator.predicate(
@@ -251,13 +260,14 @@ export function test_resolve_frame(): void {
     ...ghostOutput,
     output: { kind: "pointer", pointer: "/scratch", valueType: "scalar" },
   };
-  const pointerOut: IAutoMovieResolveOutput = AutoMovieEngineResolve.resolveFrame({
-    nodes,
-    clip: null,
-    limits: [],
-    drivers: [pointerOutput],
-    seconds: 0,
-  });
+  const pointerOut: IAutoMovieResolveOutput =
+    AutoMovieEngineResolve.resolveFrame({
+      nodes,
+      clip: null,
+      limits: [],
+      drivers: [pointerOutput],
+      seconds: 0,
+    });
   TestValidator.equals(
     "pointer driver output does not require a scene node",
     pointerOut.violations.length,

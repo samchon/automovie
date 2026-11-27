@@ -86,7 +86,7 @@ export const HumanSittingVolley: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
   {
     name: "sittingVolley",
     interrupts: {
-      any: [{ window: ["receive", 1], kind: "inertialize", entry: 0 }],
+      any: [{ window: { start: "receive", end: 1 }, kind: "inertialize", entry: 0 }],
     },
     yields: ["head"],
     plan: planHumanSittingVolley,

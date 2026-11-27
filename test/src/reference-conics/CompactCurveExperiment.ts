@@ -47,7 +47,7 @@ export async function CompactCurveExperiment(): Promise<void> {
       if (selected.has(loop.key)) {
         const begin: number = performance.now();
         for (let i: number = 0; i < 64; ++i) {
-          const t: number = source.curve.domain[1] * (i + 0.317) / 64;
+          const t: number = source.curve.domain.end * (i + 0.317) / 64;
           source.curve.evaluate(t); source.curve.derivative(t, 1); source.curve.derivative(t, 2); source.curve.derivative(t, 3);
         }
         evaluationMs += performance.now() - begin; evaluationQueries += source.queries();

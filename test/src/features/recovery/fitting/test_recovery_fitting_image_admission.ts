@@ -1,10 +1,9 @@
-import {
-  AutoMovieEngineConvexSupportLoft } from "@automovie/engine";
+import { AutoMovieEngineConvexSupportLoft } from "@automovie/engine";
 import type {
   IAutoMovieRealizeConvexSupportLoft,
   IAutoMovieRecoveryImageFitPolicy,
   IAutoMovieRecoverySupportFitPolicy,
-  } from "@automovie/interface";
+} from "@automovie/interface";
 import {
   AutoMovieRecoveryFitting,
   AutoMovieRecoveryObservation,
@@ -16,7 +15,9 @@ import { recoveryImageFixture } from "../../internal/recoveryImageFixture";
 
 /** Image fitters reject malformed count and numerical admission controls. */
 export function test_recovery_fitting_image_admission(): void {
-  const captured = AutoMovieRecoveryObservation.observeImages(recoveryImageFixture());
+  const captured = AutoMovieRecoveryObservation.observeImages(
+    recoveryImageFixture(),
+  );
   if (captured.status !== "complete" && captured.status !== "partial")
     throw new Error(captured.diagnostics.join("; "));
   const ellipse: IAutoMovieRecoveryImageFitPolicy = {
@@ -54,7 +55,7 @@ export function test_recovery_fitting_image_admission(): void {
       ],
       spans: [
         {
-          interval: [1, 4],
+          interval: { lowerY: 1, upperY: 4 },
           offsets: [
             [2, 2, 2, 2],
             [1, 1, 1, 1],
@@ -83,7 +84,10 @@ export function test_recovery_fitting_image_admission(): void {
     ],
     [8, 8, 1, 0],
   );
-  const fitted = AutoMovieRecoveryFitting.fitSupportLoft(captured.value, support);
+  const fitted = AutoMovieRecoveryFitting.fitSupportLoft(
+    captured.value,
+    support,
+  );
   TestValidator.equals(
     "valid image support fit keeps its status and qualified diagnostics",
     [fitted.status, fitted.diagnostics],
@@ -154,7 +158,10 @@ export function test_recovery_fitting_image_admission(): void {
       ...support,
       generation: { ...support.generation, [key]: value },
     };
-    const result = AutoMovieRecoveryFitting.fitSupportLoft(captured.value, policy);
+    const result = AutoMovieRecoveryFitting.fitSupportLoft(
+      captured.value,
+      policy,
+    );
     if (
       result.status !== "refused" ||
       !result.diagnostics.some((message: string): boolean =>
@@ -203,7 +210,10 @@ export function test_recovery_fitting_image_admission(): void {
         ...ellipse,
         [key]: invalid,
       };
-      const result = AutoMovieRecoveryFitting.fitImageLoft(captured.value, policy);
+      const result = AutoMovieRecoveryFitting.fitImageLoft(
+        captured.value,
+        policy,
+      );
       TestValidator.equals(
         `ellipse ${key} ${invalid} refusal`,
         result.status,
@@ -245,7 +255,10 @@ export function test_recovery_fitting_image_admission(): void {
         ...ellipse,
         [threshold]: invalid,
       };
-      const result = AutoMovieRecoveryFitting.fitImageLoft(captured.value, policy);
+      const result = AutoMovieRecoveryFitting.fitImageLoft(
+        captured.value,
+        policy,
+      );
       TestValidator.equals(
         `ellipse ${threshold} ${invalid} refusal`,
         result.status,

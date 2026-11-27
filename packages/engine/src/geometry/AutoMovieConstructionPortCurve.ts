@@ -25,7 +25,10 @@ export namespace AutoMovieConstructionPortCurve {
     const turn: number = 2 * Math.PI;
     const clock: (k: number) => number = (k: number): number =>
       (turn * k) / count;
-    const [a, b]: [number, number] = [loop.semi[0] * 1000, loop.semi[1]];
+    const [a, b]: [number, number] = [
+      loop.semi.stationMetres * 1000,
+      loop.semi.phaseRadians,
+    ];
     const addresses: [number, number][] = Array.from(
       { length: count },
       (_: unknown, k: number): [number, number] => {
@@ -72,10 +75,10 @@ export namespace AutoMovieConstructionPortCurve {
       loop.shape === undefined ? Field.constant(1) : Field.periodic(loop.shape);
     if (!(share.bounds[0] > 0))
       return "the port curve's share between columns is not positive everywhere";
-    const y0: number = loop.centre[0] * 1000;
-    const p0: number = loop.centre[1];
-    const a: number = loop.semi[0] * 1000;
-    const b: number = loop.semi[1];
+    const y0: number = loop.centre.station * 1000;
+    const p0: number = loop.centre.phase;
+    const a: number = loop.semi.stationMetres * 1000;
+    const b: number = loop.semi.phaseRadians;
     const s: number = loop.sense;
     const turn: number = 2 * Math.PI;
 

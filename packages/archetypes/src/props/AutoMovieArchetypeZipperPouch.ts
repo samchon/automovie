@@ -1,5 +1,5 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieAffordanceCoupling, IAutoMovieVector3 } from "@automovie/interface";
 
 import {
   AutoMovieArchetype,
@@ -155,11 +155,11 @@ export namespace AutoMovieArchetypeZipperPouch {
           follows: {
             id: "zipper",
             table: [
-              [0, 0],
-              [cleared, 0],
-              [opened, openAngle],
+              { leader: 0, follower: 0 },
+              { leader: cleared, follower: 0 },
+              { leader: opened, follower: openAngle },
               ...(opened < travel
-                ? ([[travel, openAngle]] satisfies [number, number][])
+                ? ([{ leader: travel, follower: openAngle }] satisfies IAutoMovieAffordanceCoupling.IPoint[])
                 : []),
             ],
           },

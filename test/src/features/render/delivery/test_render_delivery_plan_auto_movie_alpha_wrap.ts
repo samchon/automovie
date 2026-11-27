@@ -15,7 +15,7 @@ export function test_render_delivery_plan_auto_movie_alpha_wrap(): void {
   const args: string[] = AutoMovieRenderVideo.planAlphaWrap({
     frameDir: "frames",
     outputPath: "out.mov",
-    frameRate: [30, 1],
+    frameRate: { numerator: 30, denominator: 1 },
     frameCount: 10,
   });
   const after = (flag: string): string | undefined =>
@@ -30,7 +30,7 @@ export function test_render_delivery_plan_auto_movie_alpha_wrap(): void {
     AutoMovieRenderVideo.planAlphaWrap({
       frameDir: "frames",
       outputPath: "out.mov",
-      frameRate: [30, 1],
+      frameRate: { numerator: 30, denominator: 1 },
       frameCount: 0,
     });
   });

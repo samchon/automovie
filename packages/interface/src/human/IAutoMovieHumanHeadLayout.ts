@@ -131,7 +131,12 @@ export interface IAutoMovieHumanHeadLayout {
    * Separate normal bulk shape priors, calibration mm; neither chord directions
    * nor individual peak targets.
    */
-  lips: [number, number];
+  lips: {
+    /** Upper lip's separate normal bulk shape prior. */
+    upper: number;
+    /** Lower lip's separate normal bulk shape prior. */
+    lower: number;
+  };
 
   /**
    * Retained multiple of maximum incisal mouth-opening capacity; unused by the

@@ -96,7 +96,7 @@ export namespace AutoMovieHumanHeadEarParts {
         join: "merge",
         seed: plate.point(plate.tragion, false),
         contact: plate.tragion,
-        size: [f.length, f.breadth / 2],
+        size: { height: f.length, halfExtent: f.breadth / 2 },
         parent: "head.mass",
         elongated: true,
       });
@@ -146,7 +146,7 @@ export namespace AutoMovieHumanHeadEarParts {
           join: "merge",
           seed: course[Math.floor(course.length / 2)]!,
           contact: 0,
-          size: [height * 2, width],
+          size: { height: height * 2, halfExtent: width },
           parent: auricle,
           elongated: true,
         });
@@ -428,7 +428,10 @@ export namespace AutoMovieHumanHeadEarParts {
               source.attachment === null || source.attachment.parameter === null
                 ? INSET
                 : source.stations.at(-1)! - h + source.attachment.parameter,
-            size: [h - INSET, Math.min(...e)],
+            size: {
+              height: h - INSET,
+              halfExtent: Math.min(...e),
+            },
             parent,
             ...(host === undefined ? {} : { material: host }),
             ...(source.attachment === null

@@ -73,11 +73,20 @@ export namespace IAutoMovieHumanMassSource {
   export interface ISeed {
     /** Boundary source name consumed by the join's hostFace. */
     owner: string;
-    /** Actual mass chart [physical station mm, phase radians]. */
-    part: [number, number];
-    /** Actual original-parent chart [physical station mm, phase radians]. */
-    host: [number, number];
+    /** Actual mass chart point, physical station mm and phase radians. */
+    part: IAutoMovieHumanMassSource.IChartPoint;
+    /** Actual original-parent chart point, physical station mm and phase radians. */
+    host: IAutoMovieHumanMassSource.IChartPoint;
     /** Original world point, calibration mm. */
     point: AutoMovieVector3Tuple;
+  }
+
+  /** A physical chart coordinate in the mass source's millimetre frame. */
+  export interface IChartPoint {
+    /** Physical station along the face, millimetres. */
+    station: number;
+
+    /** Periodic phase around the face, radians. */
+    phase: number;
   }
 }

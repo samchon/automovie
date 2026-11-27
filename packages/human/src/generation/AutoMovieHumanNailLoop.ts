@@ -105,6 +105,12 @@ export namespace AutoMovieHumanNailLoop {
     const [s, t]: [number, number] = chart(0, shape[0]!);
     const seed: { station: number; phase: number } | null = over(AutoMovieLoftChain.point(host, s, t));
     if (seed === null) throw new Error("nail loop: " + nail.plate.name + "'s curve has no point on the plate at clock 0");
-    return { centre: [centre[0] / 1000, centre[1]], semi: [semi[0] / 1000, semi[1]], shape, part: [seed.station / 1000, seed.phase], host: [s / 1000, t] };
+    return {
+      centre: [centre[0] / 1000, centre[1]],
+      semi: [semi[0] / 1000, semi[1]],
+      shape,
+      part: { station: seed.station / 1000, phase: seed.phase },
+      host: { station: s / 1000, phase: t },
+    };
   }
 }

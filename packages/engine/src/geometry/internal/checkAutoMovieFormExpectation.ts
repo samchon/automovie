@@ -235,7 +235,7 @@ const shape: (
       const measured: number = extents[at]!;
       if (
         expected !== undefined &&
-        !(measured >= expected[0] && measured <= expected[1])
+        !(measured >= expected.min && measured <= expected.max)
       )
         findings.push({ field: "size", subject, axis, measured, expected });
     });
@@ -338,7 +338,7 @@ const pairs: (
     if (
       measured.relation !== pair.relation ||
       (pair.gap !== undefined &&
-        !(measured.gap >= pair.gap[0] && measured.gap <= pair.gap[1]))
+        !(measured.gap >= pair.gap.min && measured.gap <= pair.gap.max))
     )
       findings.push({
         field: "pairs",

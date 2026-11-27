@@ -181,7 +181,7 @@ export namespace AutoMovieHumanHeadNeckBaseTrial {
               end: number,
               i: number,
             ): Parameters<typeof AutoMovieEngineCurve.measureCurveLength64>[0][number] => ({
-              domain: [partition[i]!, end],
+              domain: { start: partition[i]!, end },
               derivative(s: number): [number, number, number] {
                 if (work !== undefined) {
                   work.baseFixedQueries++;

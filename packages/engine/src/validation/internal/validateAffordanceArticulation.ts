@@ -183,7 +183,7 @@ function admitFollows(
   }
   if (
     follows.reversible === true &&
-    affordanceLeadingTravel(follows, follows.table?.[0]?.[1] ?? 0) === null
+    affordanceLeadingTravel(follows, follows.table?.[0]?.follower ?? 0) === null
   )
     collector.push(
       "range",
@@ -216,19 +216,21 @@ function admitFollows(
       else outputs.push(first, last);
     }
   } else {
-    const table: [number, number][] = follows.table;
+    const table: IAutoMovieAffordanceCoupling.IPoint[] = follows.table;
     let ordered: boolean = table.length >= 2;
-    table.forEach(([input]: [number, number], k: number): void => {
-      if (k > 0 && !(input > table[k - 1]![0])) {
-        ordered = false;
-        collector.push(
-          "range",
-          `${fp}.table[${k}][0]`,
-          `a follows table's leader travels must strictly increase, but ${input} follows ${table[k - 1]![0]}`,
-          input,
-        );
-      }
-    });
+    table.forEach(
+      ({ leader: input }: IAutoMovieAffordanceCoupling.IPoint, k: number): void => {
+        if (k > 0 && !(input > table[k - 1]!.leader)) {
+          ordered = false;
+          collector.push(
+            "range",
+            `${fp}.table[${k}].leader`,
+            `a follows table's leader travels must strictly increase, but ${input} follows ${table[k - 1]!.leader}`,
+            input,
+          );
+        }
+      },
+    );
     if (!ordered) {
       if (table.length < 2)
         collector.push(
@@ -242,13 +244,13 @@ function admitFollows(
     if (
       lead.minimum === null ||
       lead.maximum === null ||
-      table[0]![0] > lead.minimum ||
-      table[table.length - 1]![0] < lead.maximum
+      table[0]!.leader > lead.minimum ||
+      table[table.length - 1]!.leader < lead.maximum
     ) {
       collector.push(
         "range",
         `${fp}.table`,
-        `a follows table runs from ${table[0]![0]} to ${table[table.length - 1]![0]}, short of "${leader.id}"'s range ${lead.minimum ?? "unbounded"} to ${lead.maximum ?? "unbounded"}`,
+        `a follows table runs from ${table[0]!.leader} to ${table[table.length - 1]!.leader}, short of "${leader.id}"'s range ${lead.minimum ?? "unbounded"} to ${lead.maximum ?? "unbounded"}`,
         table,
       );
       return;
@@ -259,7 +261,7 @@ function admitFollows(
       affordanceFollowedTravel(follows, lead.minimum),
       affordanceFollowedTravel(follows, lead.maximum),
     );
-    for (const [input, output] of table)
+    for (const { leader: input, follower: output } of table)
       if (input > lead.minimum && input < lead.maximum) outputs.push(output);
   }
   for (const output of outputs)

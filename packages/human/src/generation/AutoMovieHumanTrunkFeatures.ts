@@ -112,10 +112,10 @@ export namespace AutoMovieHumanTrunkFeatures {
 
     // The windows stay inside the chart's two shared ends: over the crotch
     // ring the legs share, under the neck's ring a clearance below it.
-    const bounds: [number, number] = [
-      col.keys[0]!.y,
-      col.keys[col.keys.length - 1]!.y - AutoMovieHumanSternalNotch.CLEARANCE,
-    ];
+    const bounds: IAutoMovieHumanTrunkReliefNet.IStationBounds = {
+      minimum: col.keys[0]!.y,
+      maximum: col.keys[col.keys.length - 1]!.y - AutoMovieHumanSternalNotch.CLEARANCE,
+    };
 
     return Object.assign(at, { bounds });
   }

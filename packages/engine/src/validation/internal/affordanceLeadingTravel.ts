@@ -40,17 +40,17 @@ export function affordanceLeadingTravel(
     const image: number = affordanceFollowedTravel(follows, leader);
     return Math.abs(image) < Infinity ? leader : null;
   }
-  const table: [number, number][] = follows.table;
+  const table: IAutoMovieAffordanceCoupling.IPoint[] = follows.table;
   if (table.length < 2) return null;
-  const first: [number, number] = table[0]!;
-  const last: [number, number] = table[table.length - 1]!;
-  const direction: number = Math.sign(last[1] - first[1]);
+  const first = table[0]!;
+  const last = table[table.length - 1]!;
+  const direction: number = Math.sign(last.follower - first.follower);
   if (direction === 0) return null;
   for (let k: number = 1; k < table.length; k++) {
-    const previous: [number, number] = table[k - 1]!;
-    const row: [number, number] = table[k]!;
-    const inputSpan: number = usableSpan(previous[0], row[0]);
-    const outputSpan: number = direction * usableSpan(previous[1], row[1]);
+    const previous = table[k - 1]!;
+    const row = table[k]!;
+    const inputSpan: number = usableSpan(previous.leader, row.leader);
+    const outputSpan: number = direction * usableSpan(previous.follower, row.follower);
     if (
       !(
         inputSpan > 0 &&
@@ -71,23 +71,23 @@ export function affordanceLeadingTravel(
     if (end !== undefined) return end;
   }
   if (
-    direction * (follower - first[1]) < 0 ||
-    direction * (follower - last[1]) > 0
+    direction * (follower - first.follower) < 0 ||
+    direction * (follower - last.follower) > 0
   )
     return null;
-  if (follower === first[1]) return first[0];
-  if (follower === last[1]) return last[0];
+  if (follower === first.follower) return first.leader;
+  if (follower === last.follower) return last.leader;
 
   // Strictly monotone outputs bracket one segment, even for decreasing maps.
   let low: number = 0;
   let high: number = table.length - 1;
   while (high - low > 1) {
     const middle: number = (low + high) >> 1;
-    if (direction * (table[middle]![1] - follower) <= 0) low = middle;
+    if (direction * (table[middle]!.follower - follower) <= 0) low = middle;
     else high = middle;
   }
-  const [x0, y0]: [number, number] = table[low]!;
-  const [x1, y1]: [number, number] = table[high]!;
+  const { leader: x0, follower: y0 } = table[low]!;
+  const { leader: x1, follower: y1 } = table[high]!;
   if (follower === y0) return x0;
   if (follower === y1) return x1;
   const leader: number = interpolateAffordanceTravel(y0, y1, x0, x1, follower);

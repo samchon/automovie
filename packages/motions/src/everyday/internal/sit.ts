@@ -103,7 +103,7 @@ export namespace sit {
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
       {
-        window: [0, "commit"],
+        window: { start: 0, end: "commit" },
         kind: "inertialize",
         entry: 0,
         blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
@@ -111,13 +111,13 @@ export namespace sit {
     ],
     rise: [
       {
-        window: ["seatContact", 1],
+        window: { start: "seatContact", end: 1 },
         kind: "inertialize",
         entry: 0,
         blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
       },
     ],
-    shift: [{ window: ["seated", 1], kind: "inertialize", entry: 0 }],
+    shift: [{ window: { start: "seated", end: 1 }, kind: "inertialize", entry: 0 }],
   };
 
   /*

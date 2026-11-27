@@ -74,7 +74,9 @@ export namespace kick {
    * Cancel table: a round kick redirects into another until its chamber key.
    */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
-    kick: [{ window: [0, "chamber"], kind: "redirect", entry: 0 }],
+    kick: [
+      { window: { start: 0, end: "chamber" }, kind: "redirect", entry: 0 },
+    ],
   };
 
   /*

@@ -79,8 +79,8 @@ export function test_human_native_root_membership(): void {
     AutoMovieViewAxis.straight([10, 0, 0], [0, 1, 0], [0, 0, -1]),
   );
   const loop: IAutoMovieConstructionPortLoop = {
-    centre: [0, 0],
-    semi: [0.001, 0.3],
+    centre: { station: 0, phase: 0 },
+    semi: { stationMetres: 0.001, phaseRadians: 0.3 },
     sense: -1,
     shape: Array.from({ length: count }, (): number => 1),
   };

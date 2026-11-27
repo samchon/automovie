@@ -87,8 +87,12 @@ export namespace armPhrase {
     p: Pick<IAutoMovieMotionHumanArmPhrase.IParams, "hand" | "held" | "point">,
     holds: IAutoMovieMotionHumanEntryState["holds"],
   ): readonly AutoMovieHumanSide[] {
-    const sides: readonly AutoMovieHumanSide[] = p.hand === "both" ? ["left", "right"] : [p.hand ?? "right"];
-    if (p.held !== undefined && (sides.length !== 1 || holds[sides[0]!] !== p.held))
+    const sides: readonly AutoMovieHumanSide[] =
+      p.hand === "both" ? ["left", "right"] : [p.hand ?? "right"];
+    if (
+      p.held !== undefined &&
+      (sides.length !== 1 || holds[sides[0]!] !== p.held)
+    )
       throw new HumanRefusal({
         kind: "base",
         axis: "held",
@@ -118,7 +122,9 @@ export namespace armPhrase {
    * Cancel table: a phrase may be left for anything once it retracts.
    */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
-    any: [{ window: ["relax", 1], kind: "inertialize", entry: 0 }],
+    any: [
+      { window: { start: "relax", end: 1 }, kind: "inertialize", entry: 0 },
+    ],
   };
 
   /*
@@ -139,7 +145,10 @@ export namespace armPhrase {
   ): IAutoMovieMotionHumanActionPlan {
     const p: IAutoMovieMotionHumanArmPhrase.IParams = context.params;
     const body: IAutoMovieMotionHumanBody = context.body;
-    const sides: readonly AutoMovieHumanSide[] = selectHands(p, context.entry.holds);
+    const sides: readonly AutoMovieHumanSide[] = selectHands(
+      p,
+      context.entry.holds,
+    );
     const surface: IAutoMovieMotionHumanHand.Surface = p.surface ?? "palm";
     const shape: IAutoMovieMotionHumanHand.Shape = p.shape ?? "flat";
     const hold: IAutoMovieMotionHumanPosture = context.entry.posture;

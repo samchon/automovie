@@ -59,7 +59,7 @@ export function compileAutoMovieRecoverySupportLoft(
         throw new Error(
           "invalid-support-recipe: original plane normals must already be unit vectors",
         );
-    const anchor: number = recipe.loft.spans[0]?.interval?.[0];
+    const anchor: number = recipe.loft.spans[0]?.interval?.lowerY;
     const lengths: number[] = recipe.loft.planes.map(
       (plane: IAutoMovieConvexSupportLoft["planes"][number]): number =>
         Math.hypot(
@@ -84,12 +84,14 @@ export function compileAutoMovieRecoverySupportLoft(
         (
           span: IAutoMovieConvexSupportLoft["spans"][number],
         ): IAutoMovieConvexSupportLoft["spans"][number] => ({
-          interval: [
-            anchor +
-              (span.interval[0] - anchor) * recipe.dimensions.heightScale,
-            anchor +
-              (span.interval[1] - anchor) * recipe.dimensions.heightScale,
-          ],
+          interval: {
+            lowerY:
+              anchor +
+              (span.interval.lowerY - anchor) * recipe.dimensions.heightScale,
+            upperY:
+              anchor +
+              (span.interval.upperY - anchor) * recipe.dimensions.heightScale,
+          },
           offsets: span.offsets.map(
             (q: number[], i: number): [number, number, number, number] => [
               q[0]! / lengths[i]!,

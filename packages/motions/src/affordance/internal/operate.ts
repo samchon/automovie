@@ -32,8 +32,8 @@ import { AutoMovieMotionHumanReach } from "../../compose/internal/AutoMovieMotio
 import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
-import { HumanPhysics } from "../../law/internal/HumanPhysics";
 import { HumanRefusal } from "../../law/HumanRefusal";
+import { HumanPhysics } from "../../law/internal/HumanPhysics";
 import { HumanPreparedPlayback } from "../../perform/internal/HumanPreparedPlayback";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -114,7 +114,7 @@ export namespace operate {
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
       {
-        window: ["relax", 1],
+        window: { start: "relax", end: 1 },
         kind: "inertialize",
         entry: 0,
         blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
@@ -122,7 +122,7 @@ export namespace operate {
     ],
     walk: [
       {
-        window: ["relax", 1],
+        window: { start: "relax", end: 1 },
         kind: "inertialize",
         entry: 0,
         blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,

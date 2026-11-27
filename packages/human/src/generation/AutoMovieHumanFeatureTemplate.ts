@@ -31,6 +31,11 @@ import type {
  * its C2 ramp). A squared footprint takes a plateau: at its centre `r^2` bends unevenly unless `n` is 2, and a plateau is flat there.
  */
 export namespace AutoMovieHumanFeatureTemplate {
+  /** The feature's half extents along and across, mm. */
+  export interface IExtent {
+    along: number;
+    across: number;
+  }
   /** What makes a feature, which decides what moves its height. */
   export type Class = "bone" | "tendon" | "pad";
 
@@ -55,7 +60,7 @@ export namespace AutoMovieHumanFeatureTemplate {
     across: AutoMovieVector3Tuple;
 
     /** Its half extents along and across, mm. */
-    extent: [number, number];
+    extent: IExtent;
 
     /** Its height at the centre, mm: positive a mound, negative a hollow. */
     height: number;
@@ -151,7 +156,7 @@ export namespace AutoMovieHumanFeatureTemplate {
       centre: F.mid(from, to),
       along,
       across: F.scale(side, 1 / breadth),
-      extent: [length / 2, span.half],
+      extent: { along: length / 2, across: span.half },
       height: span.height,
       ...(span.squareness === undefined ? {} : { squareness: span.squareness }),
       ...(span.flat === undefined ? {} : { flat: span.flat }),
@@ -183,7 +188,7 @@ export namespace AutoMovieHumanFeatureTemplate {
     return {
       ...template,
       centre,
-      extent: [template.extent[0] * change.along, template.extent[1] * change.across],
+      extent: { along: template.extent.along * change.along, across: template.extent.across * change.across },
       height: template.class === "pad" ? template.height * change.tissue : template.height,
     };
   }
@@ -226,7 +231,7 @@ export namespace AutoMovieHumanFeatureTemplate {
   export function height(template: ITemplate, x: number, y: number): number {
     admit(template);
     const n: number = template.squareness ?? 2;
-    const r: number = (Math.abs(x / template.extent[0]) ** n + Math.abs(y / template.extent[1]) ** n) ** (1 / n);
+    const r: number = (Math.abs(x / template.extent.along) ** n + Math.abs(y / template.extent.across) ** n) ** (1 / n);
     if (r >= 1) return 0;
     if (template.flat === undefined) return template.height * (1 - r * r) ** 3;
     if (r <= template.flat) return template.height;
@@ -241,7 +246,7 @@ export namespace AutoMovieHumanFeatureTemplate {
     const { along, across }: ITemplate = template;
     if (Math.abs(F.dot(along, along) - 1) > 1e-9 || Math.abs(F.dot(across, across) - 1) > 1e-9 || Math.abs(F.dot(along, across)) > 1e-9)
       throw new Error("feature template: the directions of " + template.name + " must be unit and square");
-    if (!(template.extent[0] > 0 && template.extent[1] > 0)) throw new Error("feature template: the extents of " + template.name + " must be positive");
+    if (!(template.extent.along > 0 && template.extent.across > 0)) throw new Error("feature template: the extents of " + template.name + " must be positive");
     const n: number = template.squareness ?? 2;
     if (!(n >= 2)) throw new Error("feature template: the squareness of " + template.name + " must be at least 2");
     if (template.flat !== undefined && !(template.flat >= 0 && template.flat < 1)) throw new Error("feature template: the plateau of " + template.name + " must lie in [0, 1)");

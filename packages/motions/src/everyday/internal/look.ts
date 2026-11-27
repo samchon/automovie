@@ -16,8 +16,8 @@ import type {
 import { stand } from "../../actions/internal/stand";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
-import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanRefusal } from "../../law/HumanRefusal";
+import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanArmSwing } from "../../posture/internal/HumanArmSwing";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { HumanSkill } from "../../skill/internal/HumanSkill";
@@ -53,7 +53,10 @@ export namespace look {
   /*
    * Admit the starting yaw in degrees when the performer has no cue.
    */
-  export function admitCue(yaw: number, cue: IAutoMovieMotionHumanLook.IParams["cue"]): void {
+  export function admitCue(
+    yaw: number,
+    cue: IAutoMovieMotionHumanLook.IParams["cue"],
+  ): void {
     if (cue === undefined && Math.abs(yaw) > FIELD)
       throw new HumanRefusal({
         kind: "parameter",
@@ -74,16 +77,16 @@ export namespace look {
    * anywhere.
    */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
-    stand: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
+    stand: [{ window: { start: 0, end: 1 }, kind: "inertialize", entry: 0 }],
     walk: [
       {
-        window: [0, 1],
+        window: { start: 0, end: 1 },
         kind: "inertialize",
         entry: 0,
         blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
       },
     ],
-    look: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
+    look: [{ window: { start: 0, end: 1 }, kind: "inertialize", entry: 0 }],
   };
 
   /*
@@ -154,7 +157,8 @@ export namespace look {
     const weight: (seconds: number, span: number) => number = (
       seconds: number,
       span: number,
-    ): number => AutoMovieEngineMotionSampling.minimumJerkShare((seconds - delay) / span);
+    ): number =>
+      AutoMovieEngineMotionSampling.minimumJerkShare((seconds - delay) / span);
     // The target's direction from a posture, on the side the look chose
     // when it began: a target straight behind, whose yaw crosses from +180
     // to -180 as the body sways, keeps the turn on that side.

@@ -77,7 +77,7 @@ export namespace getUp {
    * Cancel table: once standing, into anything a stand can become.
    */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
-    any: [{ window: ["standing", 1], kind: "inertialize", entry: 0 }],
+    any: [{ window: { start: "standing", end: 1 }, kind: "inertialize", entry: 0 }],
   };
   /*
    * The patterns of Pattern, as data.

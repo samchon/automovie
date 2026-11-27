@@ -1,5 +1,28 @@
-import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
-import type { AutoMovieHumanSide, IAutoMovieAffordance, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanArmTarget, IAutoMovieMotionHumanGrasp, IAutoMovieMotionHumanGrip, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieMotionHumanPropReader, IAutoMovieMotionHumanTipHat, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  AutoMovieEngineKinematics,
+  Quaternion,
+  Vector3,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieAffordance,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmTarget,
+  IAutoMovieMotionHumanGrasp,
+  IAutoMovieMotionHumanGrip,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionHumanPropReader,
+  IAutoMovieMotionHumanTipHat,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
@@ -36,10 +59,20 @@ export const tipHat: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanTipHat>
     name: "tipHat",
     interrupts: {
       stand: [
-        { window: ["relax", 1], kind: "inertialize", entry: 0, blend: 0.3 },
+        {
+          window: { start: "relax", end: 1 },
+          kind: "inertialize",
+          entry: 0,
+          blend: 0.3,
+        },
       ],
       walk: [
-        { window: ["relax", 1], kind: "inertialize", entry: 0, blend: 0.3 },
+        {
+          window: { start: "relax", end: 1 },
+          kind: "inertialize",
+          entry: 0,
+          blend: 0.3,
+        },
       ],
     },
     plan,
@@ -315,7 +348,9 @@ function wornFrame(
   subject: string,
   reader: IAutoMovieMotionHumanPropReader,
   head: IAutoMovieResolvedBone,
-  crown: ReturnType<typeof AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace>,
+  crown: ReturnType<
+    typeof AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace
+  >,
   seconds: number,
 ): IWornFrameResult {
   const { prop } = reader;

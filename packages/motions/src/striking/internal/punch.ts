@@ -1,5 +1,25 @@
 import { AutoMovieEngineKinematics, Vector3 } from "@automovie/engine";
-import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieMotionHumanActionName, IAutoMovieHumanoidSurfaces, IAutoMovieMotionEvent, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPerformerReader, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPunch, IAutoMovieMotionHumanStrikingRecord, IAutoMovieMotionHumanStrikingSkill, IAutoMovieMotionHumanVariation, IAutoMovieMotionWeaponContact, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
+  AutoMovieMotionHumanActionName,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPerformerReader,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPunch,
+  IAutoMovieMotionHumanStrikingRecord,
+  IAutoMovieMotionHumanStrikingSkill,
+  IAutoMovieMotionHumanVariation,
+  IAutoMovieMotionWeaponContact,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { AutoMovieMotionHumanVariation } from "../../compose/internal/AutoMovieMotionHumanVariation";
 import { AutoMovieMotionPrepared } from "../../compose/internal/AutoMovieMotionPrepared";
@@ -76,7 +96,7 @@ export namespace punch {
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     punch: [
       {
-        window: ["impact", 1],
+        window: { start: "impact", end: 1 },
         kind: "inertialize",
         entry: 0,
         blend: 0.12,
@@ -302,7 +322,9 @@ export namespace punch {
     const aimed = (): IAutoMovieHumanoidSurfaces.ITangent | undefined =>
       source === undefined ||
       p.at.kind !== "person" ||
-      !AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfaceRayed(p.at.region)
+      !AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfaceRayed(
+        p.at.region,
+      )
         ? undefined
         : AutoMovieMotionHumanVariation.strike(source, "point", {
             radius: StrikingBody.radius(

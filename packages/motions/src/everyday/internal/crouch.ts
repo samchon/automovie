@@ -23,9 +23,9 @@ import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieM
 import { AutoMovieMotionHumanRange } from "../../compose/internal/AutoMovieMotionHumanRange";
 import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanPhysics } from "../../law/internal/HumanPhysics";
-import { HumanRefusal } from "../../law/HumanRefusal";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { HumanTrunk } from "./HumanTrunk";
 import { bendLower } from "./bendLower";
@@ -90,16 +90,18 @@ export namespace crouch {
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
       {
-        window: [0, 1],
+        window: { start: 0, end: 1 },
         kind: "inertialize",
         entry: 0,
         blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
       },
     ],
-    crouch: [{ window: ["ascend", 1], kind: "inertialize", entry: 0 }],
+    crouch: [
+      { window: { start: "ascend", end: 1 }, kind: "inertialize", entry: 0 },
+    ],
     kneel: [
       {
-        window: ["lowest", "ascend"],
+        window: { start: "lowest", end: "ascend" },
         kind: "inertialize",
         entry: 0,
         blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
@@ -107,7 +109,7 @@ export namespace crouch {
     ],
     pickUp: [
       {
-        window: ["lowest", "ascend"],
+        window: { start: "lowest", end: "ascend" },
         kind: "inertialize",
         entry: 0,
         blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
@@ -115,7 +117,7 @@ export namespace crouch {
     ],
     putDown: [
       {
-        window: ["lowest", "ascend"],
+        window: { start: "lowest", end: "ascend" },
         kind: "inertialize",
         entry: 0,
         blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,

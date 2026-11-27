@@ -1,4 +1,7 @@
-import { AutoMovieEngineConvexSupportLoft, AutoMovieEngineGeometry } from "@automovie/engine";
+import {
+  AutoMovieEngineConvexSupportLoft,
+  AutoMovieEngineGeometry,
+} from "@automovie/engine";
 import type {
   IAutoMovieConvexSupportLoft,
   IAutoMovieRealizeConvexSupportLoft,
@@ -13,11 +16,11 @@ import type {
   IAutoMovieRecoverySupportFitPolicy,
 } from "@automovie/interface";
 
-import { AutoMovieRecoveryProfileFitting } from "../AutoMovieRecoveryProfileFitting";
+import { prepareRecoveryImageSupports } from "../../geometry/internal/prepareRecoveryImageSupports";
 import { isRecoveryPositiveFinite } from "../../internal/isRecoveryPositiveFinite";
 import { isRecoveryPositiveSafeInteger } from "../../internal/isRecoveryPositiveSafeInteger";
 import { isRecoveryUnitInterval } from "../../internal/isRecoveryUnitInterval";
-import { prepareRecoveryImageSupports } from "../../geometry/internal/prepareRecoveryImageSupports";
+import { AutoMovieRecoveryProfileFitting } from "../AutoMovieRecoveryProfileFitting";
 
 /*
  * Fit compact continuous support profiles from supplied-camera image envelopes.
@@ -90,11 +93,12 @@ export function fitAutoMovieRecoveryImageSupportLoft(
         ],
       ),
     ];
-    const query: ReturnType<typeof AutoMovieEngineGeometry.createSupportSectionQuery> =
-      AutoMovieEngineGeometry.createSupportSectionQuery({
-        normals,
-        minimumDirectionSine: policy.generation.minimumDirectionSine,
-      });
+    const query: ReturnType<
+      typeof AutoMovieEngineGeometry.createSupportSectionQuery
+    > = AutoMovieEngineGeometry.createSupportSectionQuery({
+      normals,
+      minimumDirectionSine: policy.generation.minimumDirectionSine,
+    });
     const offsets: number[] = new Array<number>(normals.length);
     const coordinates: Float64Array = new Float64Array(
       normals.length * (normals.length - 1),
@@ -128,7 +132,11 @@ export function fitAutoMovieRecoveryImageSupportLoft(
           diagnostics: ["Cancelled between support candidates"],
         };
       const fit: ReturnType<IAutoMovieRecoveryScalarProfilesFittingOperation.Operation> =
-        AutoMovieRecoveryProfileFitting.fitScalarProfiles(samples, count, policy.minimumSplineRatio);
+        AutoMovieRecoveryProfileFitting.fitScalarProfiles(
+          samples,
+          count,
+          policy.minimumSplineRatio,
+        );
       const loft: IAutoMovieConvexSupportLoft = {
         planes: normals.map(
           (
@@ -143,7 +151,10 @@ export function fitAutoMovieRecoveryImageSupportLoft(
           (
             span: (typeof fit.spans)[number],
           ): IAutoMovieConvexSupportLoft["spans"][number] => ({
-            interval: span.interval,
+            interval: {
+              lowerY: span.interval[0],
+              upperY: span.interval[1],
+            },
             offsets: span.profiles,
           }),
         ),
@@ -154,10 +165,11 @@ export function fitAutoMovieRecoveryImageSupportLoft(
         const span: IAutoMovieConvexSupportLoft["spans"][number] =
           loft.spans.find(
             (field: IAutoMovieConvexSupportLoft["spans"][number]): boolean =>
-              y <= field.interval[1],
+              y <= field.interval.upperY,
           ) ?? loft.spans[loft.spans.length - 1];
         const t: number =
-          (y - span.interval[0]) / (span.interval[1] - span.interval[0]);
+          (y - span.interval.lowerY) /
+          (span.interval.upperY - span.interval.lowerY);
         const u: number = 1 - t;
         const w0: number = u * u * u,
           w1: number = 3 * t * u * u,

@@ -86,7 +86,7 @@ export function test_engine_geometry_construction_split(): void {
       "open",
     );
   interface IOptions {
-    seam?: [number, number];
+    seam?: IAutoMovieConstructionSplit.ISeamPhases;
     rail?: number;
     yb?: number;
     crease?: IAutoMovieConstructionSplit.ICrease;
@@ -97,7 +97,7 @@ export function test_engine_geometry_construction_split(): void {
     host,
     hostFace: "trunk",
     hostEnd: "top",
-    seam: options.seam ?? [0, Math.PI],
+    seam: options.seam ?? { startPhaseRad: 0, endPhaseRad: Math.PI },
     count: n,
     rows: 4,
     children: [
@@ -321,7 +321,7 @@ export function test_engine_geometry_construction_split(): void {
   // 8.
   let reversed: string = "admitted";
   try {
-    realize(split({ seam: [Math.PI, 0] }));
+    realize(split({ seam: { startPhaseRad: Math.PI, endPhaseRad: 0 } }));
   } catch (error: unknown) {
     reversed = error instanceof Error ? error.message : "refused";
   }

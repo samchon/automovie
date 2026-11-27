@@ -55,7 +55,10 @@ export function compilePracticalLightMotion(
     throw new Error("practical light duration must be finite and positive");
   if (light.intensity < 0)
     throw new Error("practical light intensity must be finite and nonnegative");
-  if (on !== undefined && !(0 <= on[0] && on[0] < on[1] && on[1] <= duration))
+  if (
+    on !== undefined &&
+    !(0 <= on.start && on.start < on.end && on.end <= duration)
+  )
     throw new Error(
       "practical light interval must satisfy 0 <= start < end <= duration",
     );
@@ -75,7 +78,12 @@ export function compilePracticalLightMotion(
     );
 
   const times: number[] = [
-    ...new Set([0, duration, ...(input.sampleTimes ?? []), ...(on ?? [])]),
+    ...new Set([
+      0,
+      duration,
+      ...(input.sampleTimes ?? []),
+      ...(on === undefined ? [] : [on.start, on.end]),
+    ]),
   ];
   if (times.some((time: number): boolean => !(0 <= time && time <= duration)))
     throw new Error("practical light sample times must lie in [0, duration]");
@@ -141,7 +149,7 @@ export function compilePracticalLightMotion(
       ),
     );
   } else if (on !== undefined) {
-    const [start, end]: typeof on = on;
+    const { start, end }: typeof on = on;
     tracks.push(
       practicalTrack(
         light.id,

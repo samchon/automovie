@@ -1,4 +1,4 @@
-import { Quaternion, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling, Quaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -82,7 +82,7 @@ export namespace handOver {
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
       {
-        window: ["release", 1],
+        window: { start: "release", end: 1 },
         kind: "inertialize",
         entry: 0,
         blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
@@ -90,7 +90,7 @@ export namespace handOver {
     ],
     walk: [
       {
-        window: ["release", 1],
+        window: { start: "release", end: 1 },
         kind: "inertialize",
         entry: 0,
         blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
@@ -326,14 +326,18 @@ export namespace handOver {
       if (t <= shared.offer) {
         wrist = out.wrist(t);
         rotation = out.turn(t);
-        share = AutoMovieEngineMotionSampling.minimumJerkShare(t / shared.offer);
+        share = AutoMovieEngineMotionSampling.minimumJerkShare(
+          t / shared.offer,
+        );
       } else if (t <= pullback) {
         wrist = shared.giverAt.point;
         rotation = shared.giverAt.rotation;
       } else if (opens && t <= pullback + OPEN) {
         wrist = shared.giverAt.point;
         rotation = shared.giverAt.rotation;
-        digits = openAt!(AutoMovieEngineMotionSampling.minimumJerkShare((t - pullback) / OPEN));
+        digits = openAt!(
+          AutoMovieEngineMotionSampling.minimumJerkShare((t - pullback) / OPEN),
+        );
       } else {
         const r: number = t - pullback - (opens ? OPEN : 0);
         wrist = home.wrist(r);

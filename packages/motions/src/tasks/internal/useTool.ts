@@ -30,8 +30,8 @@ import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMoti
 import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
 import { HumanGrip } from "../../handling/internal/HumanGrip";
-import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanRefusal } from "../../law/HumanRefusal";
+import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { placeHumanHandSurface } from "../../posture/internal/placeHumanHandSurface";
@@ -113,7 +113,7 @@ export namespace useTool {
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
       {
-        window: ["recover", 1],
+        window: { start: "recover", end: 1 },
         kind: "inertialize",
         entry: 0,
         blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
@@ -121,7 +121,7 @@ export namespace useTool {
     ],
     putDown: [
       {
-        window: ["recover", 1],
+        window: { start: "recover", end: 1 },
         kind: "inertialize",
         entry: 0,
         blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,

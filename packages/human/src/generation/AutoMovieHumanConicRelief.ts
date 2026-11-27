@@ -100,7 +100,7 @@ export namespace AutoMovieHumanConicRelief {
     return {
       name: own.name,
       stations: original.stations,
-      phases: own.phases,
+      phases: { start: own.phases.start, end: own.phases.end },
       axis: own.axis,
       ...(own.turn === undefined ? {} : { turn: own.turn }),
       rows,

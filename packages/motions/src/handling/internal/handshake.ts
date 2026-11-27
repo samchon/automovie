@@ -117,13 +117,13 @@ export namespace handshake {
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
       {
-        window: [0, "clasp"],
+        window: { start: 0, end: "clasp" },
         kind: "inertialize",
         entry: 0,
         blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
       },
       {
-        window: ["release", 1],
+        window: { start: "release", end: 1 },
         kind: "inertialize",
         entry: 0,
         blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
@@ -131,7 +131,7 @@ export namespace handshake {
     ],
     walk: [
       {
-        window: ["release", 1],
+        window: { start: "release", end: 1 },
         kind: "inertialize",
         entry: 0,
         blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,

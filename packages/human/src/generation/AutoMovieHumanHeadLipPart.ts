@@ -84,7 +84,7 @@ export namespace AutoMovieHumanHeadLipPart {
   ): IAutoMovieViewPart {
     const half: number = plan.mouthWidth;
     const height: number = upper ? plan.upperLip : plan.lowerLip;
-    const relief: number = plan.lips[upper ? 0 : 1];
+    const relief: number = upper ? plan.lips.upper : plan.lips.lower;
     const ratio: number = plan.sex === 1 ? 11.8 / 48.1 : 13.3 / 50.9;
     const peak: number = ratio * half;
     function theta(s: number): number {

@@ -71,19 +71,25 @@ export namespace bend {
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
       {
-        window: [0, 1],
+        window: { start: 0, end: 1 },
         kind: "inertialize",
         entry: 0,
         blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
       },
     ],
-    bend: [{ window: ["deepest", 1], kind: "inertialize", entry: 0 }],
+    bend: [
+      { window: { start: "deepest", end: 1 }, kind: "inertialize", entry: 0 },
+    ],
     // A pick up continues the deepest point of a bend, the body held as it
     // is lowered and the arm taken from the target over to the grip.
-    pickUp: [{ window: ["deepest", 1], kind: "inertialize", entry: 0 }],
+    pickUp: [
+      { window: { start: "deepest", end: 1 }, kind: "inertialize", entry: 0 },
+    ],
     // A put down continues it the same way, setting the held prop on a
     // place below the standing reach.
-    putDown: [{ window: ["deepest", 1], kind: "inertialize", entry: 0 }],
+    putDown: [
+      { window: { start: "deepest", end: 1 }, kind: "inertialize", entry: 0 },
+    ],
   };
 
   /*

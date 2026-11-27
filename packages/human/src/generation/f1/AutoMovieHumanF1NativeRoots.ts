@@ -245,7 +245,7 @@ export namespace AutoMovieHumanF1NativeRoots {
           return net.name === name + ".hollow.0" ||
             (name === "nose" && net.name === "nose.side")
             ? rootRatio
-            : own((net.stations[0] + net.stations[1]) / 2);
+            : own((net.stations.start + net.stations.end) / 2);
         }
         const features: IAutoMovieLoftRelief[] = AutoMovieHumanNativeFeatureLaw.resolve(
           prior.reliefs ?? [],

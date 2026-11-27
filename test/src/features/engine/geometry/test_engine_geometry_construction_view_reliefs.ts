@@ -27,8 +27,8 @@ import { TestValidator } from "@nestia/e2e";
 export function test_engine_geometry_construction_view_reliefs(): void {
   const relief: IAutoMovieLoftRelief = {
     name: "made-relief",
-    stations: [30, 70],
-    phases: [-0.6, 0.6],
+    stations: { start: 30, end: 70 },
+    phases: { start: -0.6, end: 0.6 },
     axis: [1, 0, 0],
     rows: 7,
     columns: 7,

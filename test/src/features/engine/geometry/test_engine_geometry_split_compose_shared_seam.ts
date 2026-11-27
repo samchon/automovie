@@ -69,7 +69,7 @@ export function test_engine_geometry_split_compose_shared_seam(): void {
       lean: C.LEAN,
       compose: null,
       host: C.roomy(),
-      profile: { knots: [[0.012, 0.006]], corner: 0.3 },
+      profile: { knots: [{ alongM: 0.012, depthM: 0.006 }], corner: 0.3 },
     }),
   );
   TestValidator.equals("authored diagnostics", authored.diagnostics.length, 0);

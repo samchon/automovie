@@ -19,7 +19,10 @@ export function test_viewer_transport_read_review_interval(): void {
     end: number;
     speed: number;
   } = (query: string): { start: number; end: number; speed: number } =>
-    AutoMovieViewerTransport.readInterval(new URLSearchParams(query), [0, 10]);
+    AutoMovieViewerTransport.readInterval(new URLSearchParams(query), {
+      start: 0,
+      end: 10,
+    });
   TestValidator.equals("the defaults", read(""), {
     start: 0,
     end: 10,

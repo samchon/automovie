@@ -1,4 +1,4 @@
-import { Quaternion, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling, Quaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -52,7 +52,7 @@ export namespace carryHang {
    * Cancel table: the arms may be taken over at any time.
    */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
-    any: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
+    any: [{ window: { start: 0, end: 1 }, kind: "inertialize", entry: 0 }],
   };
 
   /*
@@ -142,7 +142,9 @@ export namespace carryHang {
         projection,
       );
       if (sides.length === 0) return { posture, sides: [], held: {}, share: 1 };
-      const share: number = AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, t / SETTLE));
+      const share: number = AutoMovieEngineMotionSampling.minimumJerkShare(
+        Math.min(1, t / SETTLE),
+      );
       const trunk: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
         HumanTrunk.resolve(body, posture, undefined, resolution, shoulders);
       const heading: HumanFrame.IPrepared = HumanFrame.prepare({

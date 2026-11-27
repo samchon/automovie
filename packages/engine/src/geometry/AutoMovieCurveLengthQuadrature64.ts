@@ -30,8 +30,8 @@ export namespace AutoMovieCurveLengthQuadrature64 {
     let collapsedNode: boolean = false;
     if (endpoints)
       for (const piece of pieces) {
-        speed(piece.derivative, piece.domain[0]);
-        speed(piece.derivative, piece.domain[1]);
+        speed(piece.derivative, piece.domain.start);
+        speed(piece.derivative, piece.domain.end);
       }
     const coarseMm: number = integral(subdivisions);
     const fineMm: number = integral(2 * subdivisions);
@@ -67,7 +67,11 @@ export namespace AutoMovieCurveLengthQuadrature64 {
     function integral(count: number): number {
       let length: number = 0;
       for (const piece of pieces) {
-        const [a, b]: readonly [number, number] = piece.domain;
+        const {
+          start: a,
+          end: b,
+        }: IAutoMovieMeasureCurveLength64.IPieces[number]["domain"] =
+          piece.domain;
         const width: number = b - a;
         for (let interval: number = 0; interval < count; ++interval) {
           const low: number = a + width * (interval / count);

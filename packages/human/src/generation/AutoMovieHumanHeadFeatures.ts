@@ -131,7 +131,10 @@ export namespace AutoMovieHumanHeadFeatures {
             0,
           ],
           contact: INSET,
-          size: [plan.noseLead, plan.noseWidth],
+          size: {
+            height: plan.noseLead,
+            halfExtent: plan.noseWidth,
+          },
           parent: "head.mass",
           material: mass,
           elongated: true,
@@ -151,7 +154,10 @@ export namespace AutoMovieHumanHeadFeatures {
           join: "merge",
           seed: [plan.landmarks.stomion[0], plan.stomion, 0],
           contact: 0,
-          size: [upper ? plan.upperLip : plan.lowerLip, plan.mouthWidth],
+          size: {
+            height: upper ? plan.upperLip : plan.lowerLip,
+            halfExtent: plan.mouthWidth,
+          },
           parent: "head.mass",
           material: mass,
           elongated: true,
@@ -308,7 +314,10 @@ export namespace AutoMovieHumanHeadFeatures {
               source.attachment === null || source.attachment.parameter === null
                 ? INSET
                 : source.stations.at(-1)! - h + source.attachment.parameter,
-            size: [h - INSET, Math.min(...extents)],
+            size: {
+              height: h - INSET,
+              halfExtent: Math.min(...extents),
+            },
             parent: "head.mass",
             ...(host === undefined ? {} : { material: host }),
             ...(source.attachment === null

@@ -97,9 +97,15 @@ export const sampleAutoMovieSweepSection: (
       section.left,
       section.down,
     ];
+    const exponents: number[] = [
+      section.exponents.upperRight,
+      section.exponents.upperLeft,
+      section.exponents.lowerLeft,
+      section.exponents.lowerRight,
+    ];
     return angles.map((angle: number): number => {
       const q: number = Math.min(3, Math.floor(angle / (Math.PI / 2)));
-      const n: number = section.exponents[q]!;
+      const n: number = exponents[q]!;
       const a: number = half[q % 2 === 0 ? q : (q + 1) % 4]!;
       const b: number = half[q % 2 === 0 ? q + 1 : q]!;
       return (

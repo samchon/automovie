@@ -47,7 +47,9 @@ import { zipSites } from "./zipSites";
 export const zip: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanZip> = {
   name: "zip",
   interrupts: {
-    any: [{ window: ["relax", 1], kind: "inertialize", entry: 0 }],
+    any: [
+      { window: { start: "relax", end: 1 }, kind: "inertialize", entry: 0 },
+    ],
   },
   plan,
 };
@@ -75,10 +77,7 @@ function plan(
   const reader: IAutoMovieMotionHumanPropReader = context.prop(p.pouch);
   const model: IAutoMovieMotionHumanPropReader["prop"] = reader.prop;
   const { thumb, index, brace, slider }: zipSites.ISites = zipSites(p, model);
-  if (
-    p.travel === 0 ||
-    !(p.duration > 0)
-  )
+  if (p.travel === 0 || !(p.duration > 0))
     throw zipSites.refusal(
       p.pouch,
       "the zipper needs a nonzero finite travel and a positive finite stroke duration",
@@ -108,7 +107,10 @@ function plan(
       "slider",
     );
   if (tab === undefined)
-    throw zipSites.refusal(p.pouch, "the thumb site does not ride the tab slider");
+    throw zipSites.refusal(
+      p.pouch,
+      "the thumb site does not ride the tab slider",
+    );
   zipSites.admitStop(p.pouch, slider, tab.base + tab.amount);
   const first: IAutoMovieMotionHumanOperateDrive.IPlace = tab.place(0);
   const last: IAutoMovieMotionHumanOperateDrive.IPlace = tab.place(1);

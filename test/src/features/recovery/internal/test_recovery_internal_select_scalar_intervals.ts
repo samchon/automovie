@@ -16,7 +16,10 @@ import { TestValidator } from "@nestia/e2e";
 export function test_recovery_internal_select_scalar_intervals(): void {
   TestValidator.equals(
     "an overlapped window",
-    AutoMovieRecoveryProfileFitting.selectScalarIntervals([0, 10, 20, 30], [2, 0, 1], [5, 15]),
+    AutoMovieRecoveryProfileFitting.selectScalarIntervals([0, 10, 20, 30], [2, 0, 1], {
+      lowerMm: 5,
+      upperMm: 15,
+    }),
     {
       intervals: [0, 1],
       windowMm: [5, 15],
@@ -26,7 +29,10 @@ export function test_recovery_internal_select_scalar_intervals(): void {
   );
   TestValidator.equals(
     "a touching window",
-    AutoMovieRecoveryProfileFitting.selectScalarIntervals([0, 10, 20, 30], [2, 0, 1], [30, 40])
+    AutoMovieRecoveryProfileFitting.selectScalarIntervals([0, 10, 20, 30], [2, 0, 1], {
+      lowerMm: 30,
+      upperMm: 40,
+    })
       .intervals,
     [],
   );

@@ -88,8 +88,10 @@ namespace FamilyConicNativeRootFrames {
     const clock: number = (2 * Math.PI * k) / count,
       q: number = loop.shape?.[k] ?? 1;
     return [
-      loop.centre[0] * 1000 + q * loop.semi[0] * 1000 * Math.cos(clock),
-      loop.centre[1] + q * (loop.sense ?? 1) * loop.semi[1] * Math.sin(clock),
+      loop.centre.station * 1000 +
+        q * loop.semi.stationMetres * 1000 * Math.cos(clock),
+      loop.centre.phase +
+        q * (loop.sense ?? 1) * loop.semi.phaseRadians * Math.sin(clock),
     ];
   }
 

@@ -18,6 +18,7 @@ export type { IAutoMovieConvexSupportLoftSpan } from "./IAutoMovieConvexSupportL
 export type { IAutoMovieCylinderShape } from "./IAutoMovieCylinderShape";
 export type { IAutoMovieEllipticLoft } from "./IAutoMovieEllipticLoft";
 export type { IAutoMovieEllipticLoftSpan } from "./IAutoMovieEllipticLoftSpan";
+export type { IAutoMoviePhysicalYInterval } from "./IAutoMoviePhysicalYInterval";
 export type { IAutoMovieGeometry } from "./IAutoMovieGeometry";
 export type { IAutoMovieImportedHumanoidBone } from "./IAutoMovieImportedHumanoidBone";
 export type { IAutoMovieImportedModel } from "./IAutoMovieImportedModel";

@@ -76,9 +76,9 @@ export namespace AutoMovieConstructionAdmission {
           if (
             loop !== undefined &&
             !(
-              loop.semi[0] > 0 &&
-              loop.semi[1] > 0 &&
-              loop.semi[1] < Math.PI &&
+              loop.semi.stationMetres > 0 &&
+              loop.semi.phaseRadians > 0 &&
+              loop.semi.phaseRadians < Math.PI &&
               (loop.sense === 1 || loop.sense === -1) &&
               (loop.shape === undefined ||
                 (loop.shape.length === node.count &&
@@ -137,7 +137,7 @@ export namespace AutoMovieConstructionAdmission {
           };
           const host: Names = check(node.host);
           need(host.views, node.hostFace, "host face");
-          const [a, b]: [number, number] = node.seam;
+          const { startPhaseRad: a, endPhaseRad: b } = node.seam;
           // A composed end derives every seam's phases from its children (`IAutoMovieConstructionSplit.ICompose`), so the authored
           // ones are not read and not admitted; its plane and rounding are.
           const composed: boolean = node.compose !== undefined;
@@ -198,7 +198,7 @@ export namespace AutoMovieConstructionAdmission {
             if (!composed && profile.knots.length === 0)
               refuse("profile has no knot");
             let previous: [number, number] = [0, 0];
-            for (const [along, depth] of profile.knots) {
+            for (const { alongM: along, depthM: depth } of profile.knots) {
               if (
                 !(
                   along >= 0 &&
@@ -240,7 +240,7 @@ export namespace AutoMovieConstructionAdmission {
           // more than the seams.
           let inner: [number, number] = [a, b];
           for (const outer of node.outer ?? []) {
-            const [oa, ob]: [number, number] = outer.seam;
+            const { startPhaseRad: oa, endPhaseRad: ob } = outer.seam;
             if (
               !composed &&
               !(oa < inner[0] && ob > inner[1] && ob < oa + 2 * Math.PI)
@@ -309,8 +309,14 @@ export namespace AutoMovieConstructionAdmission {
           const part: Names = check(node.part);
           need(host.views, node.hostFace, "host face");
           need(part.views, node.partFace, "part face");
-          const semi: readonly [number, number] = node.loop.semi;
-          if (!(semi[0] > 0 && semi[1] > 0 && semi[1] < Math.PI))
+          const semi = node.loop.semi;
+          if (
+            !(
+              semi.stationMetres > 0 &&
+              semi.phaseRadians > 0 &&
+              semi.phaseRadians < Math.PI
+            )
+          )
             throw new Error(
               `realizeAutoMovieConstruction: ${name}'s port curve is not a finite chart ellipse with positive semi-axes, the phase one under pi`,
             );

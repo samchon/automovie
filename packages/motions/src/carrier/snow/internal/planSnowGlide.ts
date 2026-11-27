@@ -1,4 +1,8 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import {
+  AutoMovieEngineMotionSampling,
+  Quaternion,
+  Vector3,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieMotionHumanChannel,
@@ -24,8 +28,8 @@ import type {
 import { AutoMovieMotionClock } from "../../../compose/internal/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../../../compose/internal/AutoMovieMotionHumanArm";
 import { composeAutoMovieMotionHumanAction } from "../../../compose/internal/composeAutoMovieMotionHumanAction";
-import { HumanBound } from "../../../law/internal/HumanBound";
 import { HumanRefusal } from "../../../law/HumanRefusal";
+import { HumanBound } from "../../../law/internal/HumanBound";
 import { HumanMountRider } from "../../../lexicon/internal/HumanMountRider";
 import { HumanSurfaceGlide } from "../../internal/HumanSurfaceGlide";
 import { pivotSurfaceFoot } from "../../internal/pivotSurfaceFoot";
@@ -72,7 +76,8 @@ export function planSnowGlide(
           ? at / transfer.at
           : (at - transfer.at) / (base.duration - transfer.at);
         const weight: number =
-          AutoMovieEngineMotionSampling.minimumJerkShare(2 * share) * (1 - AutoMovieEngineMotionSampling.minimumJerkShare(2 * share - 1));
+          AutoMovieEngineMotionSampling.minimumJerkShare(2 * share) *
+          (1 - AutoMovieEngineMotionSampling.minimumJerkShare(2 * share - 1));
         const twist: number =
           transfer.counter * weight * Math.sign(edge.degrees);
         const chest: readonly [number, number, number] = posture.joints
@@ -103,10 +108,17 @@ export function planSnowGlide(
     };
   }
   if (stroke === undefined) return base;
-  const [catchAt, release]: typeof stroke.window = stroke.window;
-  HumanBound.within("nordic.window[0]", catchAt, 0, base.duration, "s", "both");
+  const { start: catchAt, end: release }: typeof stroke.window = stroke.window;
   HumanBound.within(
-    "nordic.window[1]",
+    "nordic.window.start",
+    catchAt,
+    0,
+    base.duration,
+    "s",
+    "both",
+  );
+  HumanBound.within(
+    "nordic.window.end",
     release,
     catchAt,
     base.duration,
@@ -211,8 +223,13 @@ export function planSnowGlide(
       const foot: IAutoMovieHumanLimbGoal | undefined = posture.limbs[leg];
       if (foot === undefined) return posture;
       const amount: number =
-        AutoMovieEngineMotionSampling.minimumJerkShare((at - catchAt) / (release - catchAt)) *
-        (1 - AutoMovieEngineMotionSampling.minimumJerkShare((at - release) / (duration - release)));
+        AutoMovieEngineMotionSampling.minimumJerkShare(
+          (at - catchAt) / (release - catchAt),
+        ) *
+        (1 -
+          AutoMovieEngineMotionSampling.minimumJerkShare(
+            (at - release) / (duration - release),
+          ));
       const kick: IAutoMovieVector3 = Quaternion.rotateVector(foot.rotation!, {
         x: 0,
         y: 0,
@@ -245,9 +262,14 @@ export function planSnowGlide(
     to: duration,
     rest: AutoMovieMotionHumanArm.angles(context.entry.pose, stroke.hand),
     weight: (at: number): number =>
-      (catchAt > 0 ? AutoMovieEngineMotionSampling.minimumJerkShare(at / catchAt) : 1) *
+      (catchAt > 0
+        ? AutoMovieEngineMotionSampling.minimumJerkShare(at / catchAt)
+        : 1) *
       (release < duration
-        ? 1 - AutoMovieEngineMotionSampling.minimumJerkShare((at - release) / (duration - release))
+        ? 1 -
+          AutoMovieEngineMotionSampling.minimumJerkShare(
+            (at - release) / (duration - release),
+          )
         : 1),
     span: { start: 0, ready: catchAt, relax: release, end: duration },
     goal: (

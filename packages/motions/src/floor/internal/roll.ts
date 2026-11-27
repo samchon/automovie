@@ -56,7 +56,7 @@ export namespace roll {
    * Cancel table: a roll is left once it stands.
    */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
-    any: [{ window: ["risen", 1], kind: "inertialize", entry: 0 }],
+    any: [{ window: { start: "risen", end: 1 }, kind: "inertialize", entry: 0 }],
   };
 
   /*

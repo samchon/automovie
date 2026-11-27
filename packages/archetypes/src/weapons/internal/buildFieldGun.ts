@@ -1,3 +1,4 @@
+import type { IAutoMovieAffordanceCoupling } from "@automovie/interface";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
@@ -280,7 +281,12 @@ export function buildFieldGun(
     rides: "recoil",
     follows: {
       id: "screw",
-      table: degrees.map((k: number): [number, number] => [turns(k), k]),
+      table: degrees.map(
+        (k: number): IAutoMovieAffordanceCoupling.IPoint => ({
+          leader: turns(k),
+          follower: k,
+        }),
+      ),
       reversible: true,
     },
   });

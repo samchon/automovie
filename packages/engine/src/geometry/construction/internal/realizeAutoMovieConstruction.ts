@@ -403,10 +403,12 @@ export function realizeAutoMovieConstruction(
     const result: IAutoMovieSolidTrim.IResult = AutoMovieSolidTrim.create(
       surface,
       node.landmarks.map(AutoMovieConstructionViews.point),
-      node.guesses.map((g: [number, number]): [number, number] => [
-        g[0] * S,
-        g[1],
-      ]),
+      node.guesses.map(
+        (g: IAutoMovieConstructionTrim.IPoint): IAutoMovieConstructionTrim.IPoint => ({
+          station: g.station * S,
+          phase: g.phase,
+        }),
+      ),
       chord / 1000,
     );
     absorb(node.name, result.diagnostics);

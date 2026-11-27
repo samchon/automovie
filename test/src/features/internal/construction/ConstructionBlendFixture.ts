@@ -100,8 +100,8 @@ export namespace ConstructionBlendFixture {
             {
               partFace: "post",
               hostFace: across ? "beam.left" : "beam",
-              part: [BEAM + 0.001, Math.PI / 2],
-              host: [across ? 0.1 - 0.001 : 0.1 + POST, 0.01],
+              part: { station: BEAM + 0.001, phase: Math.PI / 2 },
+              host: { station: across ? 0.1 - 0.001 : 0.1 + POST, phase: 0.01 },
             },
             {
               part: { type: "chord", value: width },

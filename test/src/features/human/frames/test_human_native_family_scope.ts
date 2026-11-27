@@ -37,8 +37,8 @@ export function test_human_native_family_scope(): void {
   shift[24] = 0.25;
   const net: IAutoMovieLoftRelief = {
     name: "made",
-    stations: [1, 2],
-    phases: [0, 2 * Math.PI],
+    stations: { start: 1, end: 2 },
+    phases: { start: 0, end: 2 * Math.PI },
     rows: 7,
     columns: 7,
     heights,
@@ -107,7 +107,7 @@ export function test_human_native_family_scope(): void {
   }
   const placed: IAutoMovieHumanConicLoft.IFamily = {
     ...prior,
-    reliefs: [{ ...net, stations: [2, 4] }],
+    reliefs: [{ ...net, stations: { start: 2, end: 4 } }],
   };
   const along: IAutoMovieHumanConicLoft.IFamily = Native.create(spec(1, 2, placed));
   for (const family of [along, H.mirror(along, "made.mirror")]) {
@@ -115,8 +115,8 @@ export function test_human_native_family_scope(): void {
     const feature: IAutoMovieLoftRelief | undefined = part.reliefs?.[0];
     if (
       feature === undefined ||
-      !nclose(feature.stations[0], 2, 1e-12) ||
-      !nclose(feature.stations[1], 4, 1e-12)
+      !nclose(feature.stations.start, 2, 1e-12) ||
+      !nclose(feature.stations.end, 4, 1e-12)
     )
       failures.push("material window was applied twice on " + family.name);
     if (!nclose(feature?.shift?.[24] ?? NaN, 0.5, 1e-12))

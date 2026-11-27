@@ -47,12 +47,12 @@ export function test_engine_geometry_split_seam_bands(): void {
     host: trunk,
     station: 30,
     into: 1,
-    seam: [0, Math.PI],
+    seam: { startPhaseRad: 0, endPhaseRad: Math.PI },
     normal: [0, 0, -1],
-    knots: S.KNOTS.map(([a, d]: [number, number]): [number, number] => [
-      a * 1000,
-      d * 1000,
-    ]),
+    knots: S.KNOTS.map(({ alongM, depthM }) => ({
+      alongMm: alongM * 1000,
+      depthMm: depthM * 1000,
+    })),
   });
   if (typeof seam === "string") throw new Error(`seam refused: ${seam}`);
 

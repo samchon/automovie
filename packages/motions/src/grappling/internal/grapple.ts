@@ -15,8 +15,8 @@ import type {
 import { support } from "../../actions/internal/support";
 import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
-import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanRefusal } from "../../law/HumanRefusal";
+import { HumanBound } from "../../law/internal/HumanBound";
 import { grappleArms } from "./grappleArms";
 import { grappleFront } from "./grappleFront";
 import { grappleMatRoll } from "./grappleMatRoll";
@@ -43,13 +43,13 @@ export namespace grapple {
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
       {
-        window: ["recovered", 1],
+        window: { start: "recovered", end: 1 },
         kind: "inertialize",
         entry: 0,
         blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
       },
       {
-        window: ["separated", 1],
+        window: { start: "separated", end: 1 },
         kind: "inertialize",
         entry: 0,
         blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
@@ -57,7 +57,7 @@ export namespace grapple {
     ],
     getUp: [
       {
-        window: ["recoveredOnMat", 1],
+        window: { start: "recoveredOnMat", end: 1 },
         kind: "inertialize",
         entry: 0,
         blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,

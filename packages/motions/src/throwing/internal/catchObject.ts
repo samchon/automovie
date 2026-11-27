@@ -1,4 +1,8 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import {
+  AutoMovieEngineMotionSampling,
+  Quaternion,
+  Vector3,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -84,14 +88,24 @@ export namespace catchObject {
    */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     ballSport: [
-      { window: ["secured", 1], kind: "inertialize", entry: 0, blend: 0.2 },
+      {
+        window: { start: "secured", end: 1 },
+        kind: "inertialize",
+        entry: 0,
+        blend: 0.2,
+      },
     ],
     throwObject: [
-      { window: ["secured", 1], kind: "inertialize", entry: 0, blend: 0.2 },
+      {
+        window: { start: "secured", end: 1 },
+        kind: "inertialize",
+        entry: 0,
+        blend: 0.2,
+      },
     ],
     stand: [
       {
-        window: ["secured", 1],
+        window: { start: "secured", end: 1 },
         kind: "inertialize",
         entry: 0,
         blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
@@ -99,7 +113,7 @@ export namespace catchObject {
     ],
     walk: [
       {
-        window: ["secured", 1],
+        window: { start: "secured", end: 1 },
         kind: "inertialize",
         entry: 0,
         blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
@@ -425,7 +439,9 @@ export namespace catchObject {
           });
         },
         weight: (seconds: number): number =>
-          AutoMovieEngineMotionSampling.minimumJerkShare(clock.linear("reach", "contact", seconds)),
+          AutoMovieEngineMotionSampling.minimumJerkShare(
+            clock.linear("reach", "contact", seconds),
+          ),
       });
     };
 

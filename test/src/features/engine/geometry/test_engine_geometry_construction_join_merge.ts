@@ -81,8 +81,8 @@ export function test_engine_geometry_construction_join_merge(): void {
     {
       partFace: "post",
       hostFace: "beam",
-      part: [R + 0.001, Math.PI / 2],
-      host: [0.1 + r, 0.01],
+      part: { station: R + 0.001, phase: Math.PI / 2 },
+      host: { station: 0.1 + r, phase: 0.01 },
     },
     { part: { type: "chord", value: w }, host: { type: "chord", value: w } },
   );

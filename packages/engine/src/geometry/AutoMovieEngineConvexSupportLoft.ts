@@ -87,9 +87,9 @@ export namespace AutoMovieEngineConvexSupportLoft {
       const previous: IAutoMovieConvexSupportLoftSpan | undefined =
         input.loft.spans[i - 1];
       if (
-        !(field.interval[0] < field.interval[1]) ||
+        !(field.interval.lowerY < field.interval.upperY) ||
         (previous !== undefined &&
-          previous.interval[1] !== field.interval[0]) ||
+          previous.interval.upperY !== field.interval.lowerY) ||
         field.offsets.length !== input.loft.planes.length
       )
         throw new Error(

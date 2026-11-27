@@ -170,8 +170,10 @@ export namespace AutoMovieHumanF1NativeRootClock {
     const angles: number[] = unwrap(
       addresses.map(([s, phase]: readonly [number, number]): number =>
         Math.atan2(
-          (phase - loop.centre[1]) / (loop.sense * loop.semi[1]),
-          (s - loop.centre[0] * 1000) / (loop.semi[0] * 1000),
+          (phase - loop.centre.phase) /
+            (loop.sense * loop.semi.phaseRadians),
+          (s - loop.centre.station * 1000) /
+            (loop.semi.stationMetres * 1000),
         ),
       ),
       "parent radial clock",
@@ -179,8 +181,10 @@ export namespace AutoMovieHumanF1NativeRootClock {
     const values: [number, number][] = addresses.map(
       ([s, phase]: readonly [number, number], k: number): [number, number] => [
         Math.hypot(
-          (s - loop.centre[0] * 1000) / (loop.semi[0] * 1000),
-          (phase - loop.centre[1]) / (loop.sense * loop.semi[1]),
+          (s - loop.centre.station * 1000) /
+            (loop.semi.stationMetres * 1000),
+          (phase - loop.centre.phase) /
+            (loop.sense * loop.semi.phaseRadians),
         ),
         angles[k]!,
       ],

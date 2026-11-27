@@ -334,8 +334,8 @@ namespace FamilyConicBodyParts {
         [
           family.name,
           net.name,
-          "stations " + net.stations[0] + ".." + net.stations[1],
-          "phases " + fixed(net.phases[0], 3) + ".." + fixed(net.phases[1], 3),
+          "stations " + net.stations.start + ".." + net.stations.end,
+          "phases " + fixed(net.phases.start, 3) + ".." + fixed(net.phases.end, 3),
           net.rows + " x " + net.columns,
           "stored " + AutoMovieHumanConicRelief.stored(net),
           "nonzero " + live.length,

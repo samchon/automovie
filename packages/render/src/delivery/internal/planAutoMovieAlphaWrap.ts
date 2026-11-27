@@ -27,7 +27,7 @@ export function planAutoMovieAlphaWrap(props: IAutoMoviePlanAlphaWrapProps): str
     "-v",
     "error",
     "-framerate",
-    `${props.frameRate[0]}/${props.frameRate[1]}`,
+    `${props.frameRate.numerator}/${props.frameRate.denominator}`,
     "-i",
     `${props.frameDir}/${pattern}`,
     "-frames:v",

@@ -110,7 +110,7 @@ export function appendFlamesArtifact(
     appendSize(cue.size, `${path}.size`, collector);
 
     const on: IAutoMovieFlameCue["on"] = cue.on;
-    if (on !== undefined && !(0 <= on[0] && on[0] < on[1] && on[1] <= duration))
+    if (on !== undefined && !(0 <= on.start && on.start < on.end && on.end <= duration))
       collector.push(
         "range",
         `${path}.on`,

@@ -31,7 +31,7 @@ export function test_recovery_curves_approximate_conics_ahn(): void {
     [12, 3],
   ] as const) {
     const ellipse: IAutoMoviePlanarCurveSource = {
-      domain: [0, Math.PI / 2],
+      domain: { start: 0, end: Math.PI / 2 },
       breaks: [],
       closed: false,
       evaluate: (t: number): Readonly<AutoMovieVector2Tuple> => [
@@ -74,7 +74,7 @@ export function test_recovery_curves_approximate_conics_ahn(): void {
     }
   }
   const parabola: IAutoMoviePlanarCurveSource = {
-    domain: [-1, 1],
+    domain: { start: -1, end: 1 },
     breaks: [],
     closed: false,
     evaluate: (t: number): Readonly<AutoMovieVector2Tuple> => [t, t * t],
@@ -118,7 +118,7 @@ export function test_recovery_curves_approximate_conics_ahn(): void {
   const scratch: [number, number] = [0, 0];
   const borrowed: IAutoMovieConicApproximation.IResult = AutoMovieRecoveryConicApproximation.approximateAhn(
     {
-      domain: [0, 1],
+      domain: { start: 0, end: 1 },
       breaks: [],
       closed: false,
       evaluate: (t: number): Readonly<AutoMovieVector2Tuple> => {

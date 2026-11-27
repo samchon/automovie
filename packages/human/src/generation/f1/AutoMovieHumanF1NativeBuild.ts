@@ -195,7 +195,7 @@ export namespace AutoMovieHumanF1NativeBuild {
       featureScale: (net: IAutoMovieLoftRelief) => AutoMovieVector2Tuple = (
         net: IAutoMovieLoftRelief,
       ): AutoMovieVector2Tuple =>
-        scales((net.stations[0] + net.stations[1]) / 2),
+        scales((net.stations.start + net.stations.end) / 2),
       resolvedFeatures?: IAutoMovieLoftRelief[],
     ): IAutoMovieHumanConicLoft.IFamily {
       maps.set(prior.name, { forward });
@@ -398,7 +398,7 @@ export namespace AutoMovieHumanF1NativeBuild {
       original.body.hand.reliefs ?? [],
       bone.body.hand.reliefs ?? [],
       (net: IAutoMovieLoftRelief): AutoMovieVector2Tuple =>
-        handProfile((net.stations[0] + net.stations[1]) / 2),
+        handProfile((net.stations.start + net.stations.end) / 2),
       identity,
     );
     const handCourse: IAutoMovieViewAxis.IAxis = course(
@@ -418,7 +418,7 @@ export namespace AutoMovieHumanF1NativeBuild {
         ]),
         identity,
         (net: IAutoMovieLoftRelief): AutoMovieVector2Tuple =>
-          handProfile((net.stations[0] + net.stations[1]) / 2),
+          handProfile((net.stations.start + net.stations.end) / 2),
         handFeatures,
       ),
     );
@@ -520,10 +520,12 @@ export namespace AutoMovieHumanF1NativeBuild {
         : {
             ...original.crotchProfile,
             knots: original.crotchProfile.knots.map(
-              ([along, depth]): [number, number] => [
-                along * hip[0],
-                depth * Math.sqrt(hip[0] * hip[1]),
-              ],
+              (
+                { alongM, depthM }: IAutoMovieHumanF1.ICrotchProfile["knots"][number],
+              ): IAutoMovieHumanF1.ICrotchProfile["knots"][number] => ({
+                alongM: alongM * hip[0],
+                depthM: depthM * Math.sqrt(hip[0] * hip[1]),
+              }),
             ),
           };
     return {

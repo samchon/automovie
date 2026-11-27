@@ -50,14 +50,19 @@ export function validateMaterialProcedural(
   surface.colors.forEach((color: IAutoMovieColor, index: number): void =>
     validateColor(color, `${path}.colors[${index}]`, collector),
   );
-  surface.roughness.forEach((value: number, index: number): void =>
-    collector.range(
-      `${path}.roughness[${index}]`,
-      value,
-      0,
-      1,
-      "procedural roughness",
-    ),
+  collector.range(
+    `${path}.roughness.atZero`,
+    surface.roughness.atZero,
+    0,
+    1,
+    "procedural roughness",
+  );
+  collector.range(
+    `${path}.roughness.atOne`,
+    surface.roughness.atOne,
+    0,
+    1,
+    "procedural roughness",
   );
   collector.range(
     `${path}.relief`,

@@ -1,3 +1,5 @@
+import type { IAutoMovieCurveDomain } from "./IAutoMovieCurveDomain";
+
 /** Data and callback contracts shared by the MeasureCurveLength64 operations. */
 export namespace IAutoMovieMeasureCurveLength64 {
   /**
@@ -19,7 +21,7 @@ export namespace IAutoMovieMeasureCurveLength64 {
    */
   export type IPieces = readonly {
     /** Finite increasing bounds in this derivative's own parameter chart. */
-    domain: readonly [number, number];
+    domain: IAutoMovieCurveDomain;
     /** Original world derivative in mm per domain-parameter unit. */
     derivative: (parameter: number) => readonly [number, number, number];
   }[];

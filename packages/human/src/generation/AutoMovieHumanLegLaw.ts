@@ -147,11 +147,17 @@ export namespace AutoMovieHumanLegLaw {
     const family: IAutoMovieHumanLegLaw.IFamily = {
       bottom,
       length,
-      ankle: ankleSection.centre,
+      ankle: {
+        forward: ankleSection.centre[0],
+        lateral: ankleSection.centre[1],
+      },
       ankleWorld,
       ankleLift: [],
-      crotchOffset: [0, 0],
-      crotchCentre: crotchSection.centre,
+      crotchOffset: { forward: 0, lateral: 0 },
+      crotchCentre: {
+        forward: crotchSection.centre[0],
+        lateral: crotchSection.centre[1],
+      },
       inputs,
       profile,
       forward: spline(prior.forward),
@@ -166,10 +172,16 @@ export namespace AutoMovieHumanLegLaw {
 
     // The trunk owns the crotch ring's place, so the thigh leans onto it.
     const reached: IAutoMovieHumanLegLaw.IBare = bare(family, LAST_INTERIOR);
-    family.crotchOffset = [
-      crotchSection.centre[0] + prior.ring.forward * length - reached.centre[0],
-      crotchSection.centre[1] + prior.ring.lateral * length - reached.centre[1],
-    ];
+    family.crotchOffset = {
+      forward:
+        crotchSection.centre[0] +
+        prior.ring.forward * length -
+        reached.centre[0],
+      lateral:
+        crotchSection.centre[1] +
+        prior.ring.lateral * length -
+        reached.centre[1],
+    };
 
     // The ankle ring against the bare law, read about the law's own centre:
     // its radius and its height off its plane.
@@ -188,7 +200,8 @@ export namespace AutoMovieHumanLegLaw {
 
     // The crotch ring is read about the law's own last centre: read about its
     // own, a phase would slide round the outline over the last reach.
-    family.crotchCentre = bare(family, LAST_INTERIOR).centre;
+    const centre: [number, number] = bare(family, LAST_INTERIOR).centre;
+    family.crotchCentre = { forward: centre[0], lateral: centre[1] };
     return family;
   }
 
@@ -295,7 +308,8 @@ export namespace AutoMovieHumanLegLaw {
       (u - THIGH_FROM) / (LAST_INTERIOR - THIGH_FROM),
     );
     const axis: number =
-      lateral(family.axis, u, L, family.inputs) + family.crotchOffset[1] * lean;
+      lateral(family.axis, u, L, family.inputs) +
+      family.crotchOffset.lateral * lean;
 
     // The inner edge meets the midline and stays on its own side.
     const edge: number = axis - inner;
@@ -304,9 +318,9 @@ export namespace AutoMovieHumanLegLaw {
       CONTACT * Math.log1p(Math.exp(-Math.abs(edge) / CONTACT));
     return {
       centre: [
-        family.ankle[0] +
+        family.ankle.forward +
           L * value(family.forward) +
-          family.crotchOffset[0] * lean,
+          family.crotchOffset.forward * lean,
         contact + inner,
       ],
       radii: radii.map((v: number): number => R * v),

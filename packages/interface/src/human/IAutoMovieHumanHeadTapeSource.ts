@@ -18,8 +18,13 @@ export namespace IAutoMovieHumanHeadTapeSource {
     front: AutoMovieVector3Tuple;
     /** Actual phase-pi posterior anchor, world mm. */
     back: AutoMovieVector3Tuple;
-    /** Physical source station bounds, increasing and closed. */
-    range: [number, number];
+    /** Physical source station bounds, increasing and closed, in mm. */
+    range: {
+      /** Lower physical station. */
+      start: number;
+      /** Upper physical station. */
+      end: number;
+    };
   }
 
   /**

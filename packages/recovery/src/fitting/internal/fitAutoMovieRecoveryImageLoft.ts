@@ -12,12 +12,12 @@ import type {
   IAutoMovieRecoveryResult,
 } from "@automovie/interface";
 
-import { createRecoveryImageDirectionSolver } from "../../observation/internal/createRecoveryImageDirectionSolver";
-import { AutoMovieRecoveryProfileFitting } from "../AutoMovieRecoveryProfileFitting";
+import { prepareRecoveryImageSupports } from "../../geometry/internal/prepareRecoveryImageSupports";
 import { isRecoveryPositiveFinite } from "../../internal/isRecoveryPositiveFinite";
 import { isRecoveryPositiveSafeInteger } from "../../internal/isRecoveryPositiveSafeInteger";
 import { isRecoveryUnitInterval } from "../../internal/isRecoveryUnitInterval";
-import { prepareRecoveryImageSupports } from "../../geometry/internal/prepareRecoveryImageSupports";
+import { createRecoveryImageDirectionSolver } from "../../observation/internal/createRecoveryImageDirectionSolver";
+import { AutoMovieRecoveryProfileFitting } from "../AutoMovieRecoveryProfileFitting";
 
 /*
  * Infer aligned elliptical sections from calibrated horizontal silhouette
@@ -193,10 +193,11 @@ export function fitAutoMovieRecoveryImageLoft(
       const span: IAutoMovieEllipticLoft["spans"][number] =
         loft.spans.find(
           (candidate: IAutoMovieEllipticLoft["spans"][number]): boolean =>
-            y <= candidate.interval[1],
+            y <= candidate.interval.upperY,
         ) ?? loft.spans[loft.spans.length - 1];
       const t: number =
-        (y - span.interval[0]) / (span.interval[1] - span.interval[0]);
+        (y - span.interval.lowerY) /
+        (span.interval.upperY - span.interval.lowerY);
       const weights: number[] = [
         (1 - t) ** 3,
         3 * t * (1 - t) ** 2,

@@ -40,8 +40,8 @@ export const layoutAutoMovieSurfacePatches: (
   ): void {
     const patch: IAutoMovieSurfaceNetwork.IPatch = network.patches[p]!;
     const rect: IAutoMovieSurfaceNetwork.IUvRect = patch.uv ?? {
-      s: [0, 1],
-      t: [p / total, (p + 1) / total],
+      s: { atZero: 0, atOne: 1 },
+      t: { atZero: p / total, atOne: (p + 1) / total },
     };
     const uv: number[][] = Array.from(
       { length: rows + 1 },
@@ -50,8 +50,10 @@ export const layoutAutoMovieSurfacePatches: (
           { length: columns + 1 },
           (__: unknown, i: number): number => {
             uvs.push(
-              rect.s[0] + ((rect.s[1] - rect.s[0]) * i) / columns,
-              rect.t[0] + ((rect.t[1] - rect.t[0]) * j) / rows,
+              rect.s.atZero +
+                ((rect.s.atOne - rect.s.atZero) * i) / columns,
+              rect.t.atZero +
+                ((rect.t.atOne - rect.t.atZero) * j) / rows,
             );
             return uvs.length / 2 - 1;
           },
@@ -94,8 +96,8 @@ export const layoutAutoMovieSurfacePatches: (
   ): void {
     const patch: IAutoMovieSurfaceNetwork.IPatch = network.patches[p]!;
     const rect: IAutoMovieSurfaceNetwork.IUvRect = patch.uv ?? {
-      s: [0, 1],
-      t: [p / total, (p + 1) / total],
+      s: { atZero: 0, atOne: 1 },
+      t: { atZero: p / total, atOne: (p + 1) / total },
     };
     const shared: Map<string, number> = new Map();
     function uv(s: number, t: number): number {
@@ -103,8 +105,8 @@ export const layoutAutoMovieSurfacePatches: (
       let i: number | undefined = shared.get(key);
       if (i === undefined) {
         uvs.push(
-          rect.s[0] + (rect.s[1] - rect.s[0]) * s,
-          rect.t[0] + (rect.t[1] - rect.t[0]) * t,
+          rect.s.atZero + (rect.s.atOne - rect.s.atZero) * s,
+          rect.t.atZero + (rect.t.atOne - rect.t.atZero) * t,
         );
         shared.set(key, (i = uvs.length / 2 - 1));
       }

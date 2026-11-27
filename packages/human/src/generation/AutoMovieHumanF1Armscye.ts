@@ -2,6 +2,7 @@ import { AutoMovieHumanJoinLoop } from "./AutoMovieHumanJoinLoop";
 import { AutoMovieHumanLandmarkSurface } from "./AutoMovieHumanLandmarkSurface";
 import { AutoMovieLoftViewFullSource as Full } from "@automovie/engine";
 import type {
+  IAutoMovieConstructionChartPoint,
   IAutoMovieConstructionPortLoop,
   IAutoMovieHumanSegmentFrame,
   IAutoMovieLoftSectionFrame,
@@ -38,11 +39,11 @@ export namespace AutoMovieHumanF1Armscye {
     /** The loop on the trunk's chart, `count` shares about its own centre. */
     loop: IAutoMovieConstructionPortLoop;
 
-    /** The arm's chart point `[station m, phase rad]` of the loop's point at clock 0. */
-    part: [number, number];
+    /** The arm's chart point at clock 0: station in metres and phase in radians. */
+    part: IAutoMovieConstructionChartPoint;
 
-    /** The trunk's chart point `[station m, phase rad]` at clock 0. */
-    host: [number, number];
+    /** The trunk's chart point at clock 0: station in metres and phase in radians. */
+    host: IAutoMovieConstructionChartPoint;
 
     /** The largest distance between the arm's face and the trunk's skin on the loop, mm: what the join's tolerance must admit. */
     gap: number;
@@ -293,9 +294,23 @@ export namespace AutoMovieHumanF1Armscye {
     const shape: number[] = Array.from({ length: count }, (_: unknown, k: number): number => at((2 * Math.PI * k) / count).share);
     const first: { share: number; j: number } = at(0);
     return {
-      loop: { centre: [centre[0] / 1000, centre[1]], semi: [semi[0] / 1000, semi[1]], sense, shape },
-      part: [stations[first.j]! / 1000, (2 * Math.PI * first.j) / PHASES],
-      host: [(centre[0] + first.share * semi[0]) / 1000, centre[1]],
+      loop: {
+        centre: { station: centre[0] / 1000, phase: centre[1] },
+        semi: {
+          stationMetres: semi[0] / 1000,
+          phaseRadians: semi[1],
+        },
+        sense,
+        shape,
+      },
+      part: {
+        station: stations[first.j]! / 1000,
+        phase: (2 * Math.PI * first.j) / PHASES,
+      },
+      host: {
+        station: (centre[0] + first.share * semi[0]) / 1000,
+        phase: centre[1],
+      },
       gap,
       stations,
     };

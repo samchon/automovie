@@ -1,4 +1,5 @@
 import { AutoMovieRecoveryObservation } from "@automovie/recovery";
+import type { IAutoMovieRecoveryScalarWindow } from "@automovie/interface";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
@@ -43,7 +44,7 @@ export function observeRecoveryAtlas(
       barycentric: [number, number, number];
     }[];
     stationSpacingMm?: number;
-    scalarWindowMm?: [number, number];
+    scalarWindowMm?: IAutoMovieRecoveryScalarWindow | [number, number];
     inventoryOnly?: boolean;
     physicalGradientLengthMm?: number;
     work: {
@@ -64,6 +65,19 @@ export function observeRecoveryAtlas(
     throw new Error(
       "A versioned atlas observation specification and explicit work budgets are required",
     );
+  const scalarWindowMm: IAutoMovieRecoveryScalarWindow | undefined =
+    Array.isArray(input.scalarWindowMm)
+      ? input.scalarWindowMm.length === 2
+        ? {
+            lowerMm: input.scalarWindowMm[0],
+            upperMm: input.scalarWindowMm[1],
+          }
+        : (() => {
+            throw new Error(
+              "A legacy scalar window must contain exactly two endpoints",
+            );
+          })()
+      : input.scalarWindowMm;
   const sourceBytes: ReturnType<typeof read> = read(input.source, base);
   const source: {
     units: string;
@@ -314,7 +328,7 @@ export function observeRecoveryAtlas(
       ...input.work,
       inventoryOnly: input.inventoryOnly,
       physicalGradientLengthMm: input.physicalGradientLengthMm,
-      scalarWindowMm: input.scalarWindowMm,
+      scalarWindowMm,
       priorityFaces: witnessFaces,
       topologyDomain: `observed-atlas.${inputSha256}`,
       tessellation: input.tessellation,

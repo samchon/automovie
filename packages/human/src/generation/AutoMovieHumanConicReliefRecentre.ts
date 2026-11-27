@@ -163,7 +163,7 @@ export namespace AutoMovieHumanConicReliefRecentre {
   function planar(nets: readonly IAutoMovieLoftRelief[], count: number, station: number, normal: readonly number[]): boolean {
     for (let k: number = 0; k < count; ++k) {
       const net: IAutoMovieLoftRelief = nets[k]!;
-      if (station <= net.stations[0] || station >= net.stations[1]) continue;
+      if (station <= net.stations.start || station >= net.stations.end) continue;
       if (Math.abs(dot(net.axis, normal)) > PLANAR || (net.turn !== undefined && Math.abs(dot(net.turn, normal)) > PLANAR)) return false;
     }
     return true;
@@ -274,10 +274,10 @@ export namespace AutoMovieHumanConicReliefRecentre {
     if (net.shift !== undefined) throw new Error("relief recentre: " + net.name + " carries a station map, which is not re-expressed");
     const stations: number[] = rows(props, net).stations;
     if (stations.length === 0) throw new Error("relief recentre: " + net.name + " has no station on the wall");
-    const whole: boolean = net.phases[1] - net.phases[0] >= 2 * Math.PI - 1e-9;
+    const whole: boolean = net.phases.end - net.phases.start >= 2 * Math.PI - 1e-9;
     let [low, high]: [number, number] = [Infinity, -Infinity];
     for (const s of stations)
-      net.phases.forEach((edge: number, side: number): void => {
+      [net.phases.start, net.phases.end].forEach((edge: number, side: number): void => {
         const mapped: number = angle(props.made.axis, s, composed(props.stored, props.reliefs, index, s, edge));
         const near: number = mapped + 2 * Math.PI * Math.round((edge - mapped) / (2 * Math.PI));
         if (whole && Math.abs(near - edge) > 1e-6) throw new Error("relief recentre: " + net.name + " goes once round and its edge moves in the new chart");
@@ -285,11 +285,11 @@ export namespace AutoMovieHumanConicReliefRecentre {
         else high = Math.max(high, near);
       });
     const scale: number = 10 ** WINDOW_DECIMALS;
-    const stored: number = (net.phases[0] + net.phases[1]) / 2;
+    const stored: number = (net.phases.start + net.phases.end) / 2;
     let phases: [number, number];
     // How far the window's middle, the phase a turning direction is laid about, moves: nothing where the middle is kept.
     let turned: number = 0;
-    if (whole) phases = [net.phases[0], net.phases[1]];
+    if (whole) phases = [net.phases.start, net.phases.end];
     else if (Math.abs((low + high) / 2 - stored) < 1 / scale) {
       const half: number = Math.ceil(Math.max(stored - low, high - stored) * scale - 1e-9) / scale;
       phases = [stored - half, stored + half];
@@ -301,8 +301,8 @@ export namespace AutoMovieHumanConicReliefRecentre {
     const [a, b]: [readonly number[], readonly number[] | undefined] = [net.axis, net.turn];
     return {
       name: net.name,
-      stations: [net.stations[0], net.stations[1]],
-      phases,
+      stations: { start: net.stations.start, end: net.stations.end },
+      phases: { start: phases[0], end: phases[1] },
       axis: b === undefined || turned === 0 ? [net.axis[0], net.axis[1], net.axis[2]] : mix([c * a[0]!, c * a[1]!, c * a[2]!], s, b),
       ...(b === undefined ? {} : { turn: turned === 0 ? ([b[0]!, b[1]!, b[2]!] as V3) : mix([c * b[0]!, c * b[1]!, c * b[2]!], -s, a) }),
       rows: net.rows,
@@ -320,7 +320,7 @@ export namespace AutoMovieHumanConicReliefRecentre {
     const [stations, parameters]: [number[], number[]] = [[], []];
     for (let i: number = 0; i < count; ++i) {
       const share: number = (i + 0.5) / count;
-      const s: number = net.stations[0] + (net.stations[1] - net.stations[0]) * share;
+      const s: number = net.stations.start + (net.stations.end - net.stations.start) * share;
       if (s <= from || s >= to) continue;
       stations.push(s);
       parameters.push(share * (net.rows - 3));
@@ -349,8 +349,8 @@ export namespace AutoMovieHumanConicReliefRecentre {
         stored.turn === undefined && laid.turn === undefined && laid.axis.every((x: number, c: number): boolean => x === stored.axis[c]);
       const sampled: { stations: number[]; parameters: number[]; skipped: number } = rows(props, laid);
       const columns: number = samples * (laid.columns - 3);
-      const width: number = laid.phases[1] - laid.phases[0];
-      const phases: number[] = Array.from({ length: columns }, (_: unknown, j: number): number => laid.phases[0] + (width * (j + 0.5)) / columns);
+      const width: number = laid.phases.end - laid.phases.start;
+      const phases: number[] = Array.from({ length: columns }, (_: unknown, j: number): number => laid.phases.start + (width * (j + 0.5)) / columns);
       let mode: INet["mode"] = kept ? "carried" : "cast";
       const targets: number[][] = [];
       const observed: number[] = [];

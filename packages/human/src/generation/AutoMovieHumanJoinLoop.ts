@@ -1,6 +1,7 @@
 import { AutoMovieHumanSkinCutLoop } from "./AutoMovieHumanSkinCutLoop";
 import { AutoMovieLoftViewFullSource as Full } from "@automovie/engine";
 import type {
+  IAutoMovieConstructionChartPoint,
   IAutoMovieConstructionPortLoop,
   IAutoMovieLoftSectionFrame,
   IAutoMovieLoftViewFullSource,
@@ -35,11 +36,11 @@ export namespace AutoMovieHumanJoinLoop {
     /** The loop on the host's chart, `count` shares about its own centre. */
     loop: IAutoMovieConstructionPortLoop;
 
-    /** The part's chart point `[station m, phase rad]` of the loop's point at clock 0. */
-    part: [number, number];
+    /** The part's chart point at clock 0: station in metres and phase in radians. */
+    part: IAutoMovieConstructionChartPoint;
 
-    /** The host's chart point `[station m, phase rad]` at clock 0. */
-    host: [number, number];
+    /** The host's chart point at clock 0: station in metres and phase in radians. */
+    host: IAutoMovieConstructionChartPoint;
 
     /** The largest distance between the part's skin on the surface and the host's skin at the same chart address, mm. */
     gap: number;
@@ -207,8 +208,8 @@ export namespace AutoMovieHumanJoinLoop {
     // The host's own skin cut by the same surface, along each column's ray from the centre.
     const shape: number[] | string = AutoMovieHumanSkinCutLoop.shares({
       point: (u: number, v: number): V => onto!.point(u, v) as V,
-      centre,
-      semi,
+      centre: { u: centre[0], v: centre[1] },
+      semi: { u: semi[0], v: semi[1] },
       sense: 1,
       count,
       side: (p: V): number => -side(p),
@@ -219,9 +220,23 @@ export namespace AutoMovieHumanJoinLoop {
     // The part's ring point nearest clock 0, for the seed.
     const first: number = clocks.reduce((best: number, clock: number, j: number): number => (Math.abs(clock) < Math.abs(clocks[best]!) ? j : best), 0);
     return {
-      loop: { centre: [centre[0] / 1000, centre[1]], semi: [semi[0] / 1000, semi[1]], sense: 1, shape },
-      part: [stations[first]! / 1000, (2 * Math.PI * first) / PHASES],
-      host: [(centre[0] + shape[0]! * semi[0]) / 1000, centre[1]],
+      loop: {
+        centre: { station: centre[0] / 1000, phase: centre[1] },
+        semi: {
+          stationMetres: semi[0] / 1000,
+          phaseRadians: semi[1],
+        },
+        sense: 1,
+        shape,
+      },
+      part: {
+        station: stations[first]! / 1000,
+        phase: (2 * Math.PI * first) / PHASES,
+      },
+      host: {
+        station: (centre[0] + shape[0]! * semi[0]) / 1000,
+        phase: centre[1],
+      },
       gap,
       stations,
     };

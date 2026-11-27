@@ -92,25 +92,33 @@ export namespace gesture {
    */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
-      { window: [0, "strokeStart"], kind: "inertialize", entry: 0 },
-      { window: ["strokeEnd", 1], kind: "inertialize", entry: 0 },
+      {
+        window: { start: 0, end: "strokeStart" },
+        kind: "inertialize",
+        entry: 0,
+      },
+      { window: { start: "strokeEnd", end: 1 }, kind: "inertialize", entry: 0 },
     ],
     walk: [
       {
-        window: [0, "strokeStart"],
+        window: { start: 0, end: "strokeStart" },
         kind: "inertialize",
         entry: 0,
         blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
       },
       {
-        window: ["strokeEnd", 1],
+        window: { start: "strokeEnd", end: 1 },
         kind: "inertialize",
         entry: 0,
         blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
       },
     ],
-    look: [{ window: ["strokeEnd", 1], kind: "inertialize", entry: 0 }],
-    gesture: [{ window: ["retract", 1], kind: "inertialize", entry: 0 }],
+    look: [
+      { window: { start: "strokeEnd", end: 1 }, kind: "inertialize", entry: 0 },
+    ],
+    gesture: [
+      { window: { start: "retract", end: 1 }, kind: "inertialize", entry: 0 },
+    ],
   };
 
   /*

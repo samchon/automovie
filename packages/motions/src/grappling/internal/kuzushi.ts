@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanActionKey,
   IAutoMovieMotionHumanActionContext,
@@ -42,7 +42,9 @@ export namespace kuzushi {
    * throw cuts it.
    */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
-    any: [{ window: ["broken", 1], kind: "inertialize", entry: 0 }],
+    any: [
+      { window: { start: "broken", end: 1 }, kind: "inertialize", entry: 0 },
+    ],
   };
 
   /*
@@ -69,7 +71,10 @@ export namespace kuzushi {
       ? AutoMovieEngineMotionSampling.minimumJerkShare(t / TIP)
       : t <= TIP + hold
         ? 1
-        : 1 - AutoMovieEngineMotionSampling.minimumJerkShare((t - TIP - hold) / TIP);
+        : 1 -
+          AutoMovieEngineMotionSampling.minimumJerkShare(
+            (t - TIP - hold) / TIP,
+          );
   }
   /*
    * Plan a broken base.

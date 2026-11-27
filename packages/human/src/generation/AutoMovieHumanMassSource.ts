@@ -155,8 +155,11 @@ export namespace AutoMovieHumanMassSource {
         : {
             owner: value.boundary.owner,
             point: value.point,
-            part: [station, Math.PI],
-            host: [value.boundary.station, value.boundary.phase],
+            part: { station, phase: Math.PI },
+            host: {
+              station: value.boundary.station,
+              phase: value.boundary.phase,
+            },
           };
   }
 

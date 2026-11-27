@@ -6,10 +6,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieRenderSceneLayout,
   AutoMovieThreeKind,
   type IAutoMovieModelObject,
   type IMaterialShaderSource,
-  AutoMovieRenderSceneLayout,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
@@ -41,7 +41,7 @@ export function test_render_scene_build_model_procedural_skinned(): void {
       { r: 0.2, g: 0.2, b: 0.2, a: 1, hex: null },
       { r: 0.8, g: 0.8, b: 0.8, a: 1, hex: null },
     ],
-    roughness: [0.5, 0.9],
+    roughness: { atZero: 0.5, atOne: 0.9 },
     relief: 0,
   };
   const model: IAutoMovieModel = createSkinnedTubeModel();
@@ -51,7 +51,8 @@ export function test_render_scene_build_model_procedural_skinned(): void {
       procedural: surface,
     }),
   );
-  const built: IAutoMovieModelObject = AutoMovieRenderSceneLayout.buildModel(model);
+  const built: IAutoMovieModelObject =
+    AutoMovieRenderSceneLayout.buildModel(model);
   let mesh: THREE.SkinnedMesh | null = null;
   built.object.traverse((object: THREE.Object3D): void => {
     if (AutoMovieThreeKind.isSkinnedMesh(object)) mesh = object;

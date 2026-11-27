@@ -1,8 +1,8 @@
 import {
+  AutoMovieEngineMotionSampling,
   AutoMovieGravity,
   Quaternion,
   Vector3,
-  AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -68,7 +68,7 @@ export namespace squatVault {
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
       {
-        window: ["touchdown", 1],
+        window: { start: "touchdown", end: 1 },
         kind: "inertialize",
         entry: 0,
         blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,

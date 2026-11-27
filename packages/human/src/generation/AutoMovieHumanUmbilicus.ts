@@ -57,9 +57,9 @@ export namespace AutoMovieHumanUmbilicus {
       "trunk.umbilicus",
       feature(frame),
       {
-        stations: [frame.origin[1] - R, frame.origin[1] + R],
-        phases: [2 * Math.PI - halfPhase, 2 * Math.PI + halfPhase],
-        apex: [0.5, 0.5],
+        stations: { start: frame.origin[1] - R, end: frame.origin[1] + R },
+        phases: { start: 2 * Math.PI - halfPhase, end: 2 * Math.PI + halfPhase },
+        apex: { station: 0.5, phase: 0.5 },
       },
       base,
     );

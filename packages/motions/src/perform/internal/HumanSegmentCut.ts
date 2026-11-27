@@ -61,9 +61,8 @@ export namespace HumanSegmentCut {
       [];
     const found: IAutoMovieMotionHumanInterruptRow | undefined = rows.find(
       (r: IAutoMovieMotionHumanInterruptRow): boolean => {
-        const [a, b] = r.window.map((w: RowFoundW): number =>
-          HumanSegment.share(w, previous.plan),
-        );
+        const a: number = HumanSegment.share(r.window.start, previous.plan);
+        const b: number = HumanSegment.share(r.window.end, previous.plan);
         return share >= a! - 1e-9 && share <= b! + 1e-9;
       },
     );
@@ -74,7 +73,7 @@ export namespace HumanSegmentCut {
         : rows
             .map(
               (r: IAutoMovieMotionHumanInterruptRow): string =>
-                `[${r.window.join(", ")}] (${r.kind})`,
+                `[${r.window.start}, ${r.window.end}] (${r.kind})`,
             )
             .join(", ");
     const next: string[] = Object.keys(previous.law.interrupts);
@@ -87,7 +86,7 @@ export namespace HumanSegmentCut {
         kind: "alternatives",
         values: rows.map(
           (r: IAutoMovieMotionHumanInterruptRow): string =>
-            `[${r.window.join(", ")}]`,
+            `[${r.window.start}, ${r.window.end}]`,
         ),
       },
       reason: `${previous.name} cannot be cut into ${name} at share ${share.toFixed(3)} of itself; its legal windows into ${name}: ${legal}`,
@@ -122,8 +121,3 @@ export namespace HumanSegmentCut {
    */
   export type IBefore = Pick<IAutoMovieScheduleEntry, "cut" | "end">;
 }
-
-/*
- * The alternatives of `RowFoundW`'s site.
- */
-type RowFoundW = number | string;

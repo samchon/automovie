@@ -90,7 +90,13 @@ export const workHeld: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHeldW
   {
     name: "workHeld",
     interrupts: {
-      any: [{ window: ["strokeEnd", 1], kind: "inertialize", entry: 0 }],
+      any: [
+        {
+          window: { start: "strokeEnd", end: 1 },
+          kind: "inertialize",
+          entry: 0,
+        },
+      ],
     },
     plan,
   };

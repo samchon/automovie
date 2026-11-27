@@ -168,11 +168,20 @@ export namespace IAutoMovieProductionCheck {
     /** The activity the reviewer actually reported. */
     readonly viewed: "still" | "playback" | "listening";
 
-    /** Zero-based output frame interval with exclusive end. */
-    readonly frames: readonly [from: number, end: number];
+    /** Zero-based output frames that were reviewed, with exclusive end. */
+    readonly frames: IReviewFrames;
 
     /** A specific source occurrence, when the criterion is tied to one shot. */
     readonly occurrence?: IReviewOccurrence;
+  }
+
+  /** A nonempty half-open interval of consecutive output frames. */
+  export interface IReviewFrames {
+    /** Zero-based first output frame, inclusive. */
+    readonly fromFrame: number;
+
+    /** Zero-based interval end, exclusive. */
+    readonly endFrame: number;
   }
 
   /** The occurrence object of {@link IReview}. */

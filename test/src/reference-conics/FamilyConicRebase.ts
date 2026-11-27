@@ -406,7 +406,7 @@ namespace FamilyConicRebase {
   /** The segment a relief's directions are stored in, with the note of how its window lies on the course. */
   function reliefFrame(
     family: IFamily,
-    relief: { name: string; stations: [number, number] },
+    relief: { name: string; stations: { start: number; end: number } },
   ): { frame: string; note?: string } {
     if (family.name === "trunk") {
       const hit: [string, string] | undefined = TRUNK.find(
@@ -425,11 +425,11 @@ namespace FamilyConicRebase {
     const course = AutoMovieHumanConicLoft.axis(family);
     const at = (s: number): string =>
       legs[nearestLeg(family.centres, course.at(s).origin)]!;
-    const middle: number = (relief.stations[0] + relief.stations[1]) / 2;
+    const middle: number = (relief.stations.start + relief.stations.end) / 2;
     const [from, on, to]: string[] = [
-      at(relief.stations[0]),
+      at(relief.stations.start),
       at(middle),
-      at(relief.stations[1]),
+      at(relief.stations.end),
     ];
     return {
       frame: on!,
@@ -438,9 +438,9 @@ namespace FamilyConicRebase {
         : {
             note:
               "window " +
-              relief.stations[0] +
+              relief.stations.start +
               " to " +
-              relief.stations[1] +
+              relief.stations.end +
               " mm runs from the " +
               from +
               " to the " +

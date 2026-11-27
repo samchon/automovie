@@ -2,6 +2,18 @@ import type { IAutoMovieNaturalCubicSpline } from "../construction/IAutoMovieNat
 import type { AutoMovieVector3Tuple } from "../geometry/AutoMovieVector3Tuple";
 import type { IAutoMovieHumanHandClear } from "./IAutoMovieHumanHandClear";
 
+/** A half-width control at a length along the digit, mm. */
+export interface IAutoMovieHumanHandDigitWidthKnot {
+  length: number;
+  halfWidth: number;
+}
+
+/** A half-depth control at a length along the digit, mm. */
+export interface IAutoMovieHumanHandDigitDepthKnot {
+  length: number;
+  halfDepth: number;
+}
+
 /**
  * A digit's law in the hand form's axes: its centre line, the half width and
  * half depth of its sections along it, the way its section's phase turns, and
@@ -18,11 +30,11 @@ export interface IAutoMovieHumanHandDigit {
    */
   line: IAutoMovieNaturalCubicSpline[];
 
-  /** `[length, half width]` knots across the digit, mm of the form. */
-  width: [number, number][];
+  /** Knots of half width across the digit, at lengths along the digit, mm. */
+  width: IAutoMovieHumanHandDigitWidthKnot[];
 
-  /** `[length, half depth]` knots through the digit, mm of the form. */
-  depth: [number, number][];
+  /** Knots of half depth through the digit, at lengths along the digit, mm. */
+  depth: IAutoMovieHumanHandDigitDepthKnot[];
 
   /** Section angle of each control point, turning one way round the digit. */
   angles: number[];

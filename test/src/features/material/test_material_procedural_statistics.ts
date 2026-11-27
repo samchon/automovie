@@ -139,7 +139,7 @@ function make(
     seed: 21,
     scale,
     colors: [color(0.1), color(0.7)],
-    roughness: [0.3, 0.9],
+    roughness: { atZero: 0.3, atOne: 0.9 },
     relief: 0.001,
     ...(kind === "wood" || kind === "fabric" || kind === "brushedMetal"
       ? { axis: { x: 0, y: 1, z: 0 } }

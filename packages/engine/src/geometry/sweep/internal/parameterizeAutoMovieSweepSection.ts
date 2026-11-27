@@ -39,7 +39,13 @@ export const parameterizeAutoMovieSweepSection: (
       if (h <= 0)
         throw new Error("superellipse half-axes must be positive and finite");
     });
-    section.exponents.forEach((n: number): void => {
+    const exponents: number[] = [
+      section.exponents.upperRight,
+      section.exponents.upperLeft,
+      section.exponents.lowerLeft,
+      section.exponents.lowerRight,
+    ];
+    exponents.forEach((n: number): void => {
       if (n < 1 || n > 20)
         throw new Error("superellipse exponents must lie in [1, 20]");
     });
@@ -50,7 +56,7 @@ export const parameterizeAutoMovieSweepSection: (
       point: (t: number): IAutoMovieSweepSection.IPoint => {
         const p: number = 2 * Math.PI * (t - Math.floor(t));
         const q: number = Math.min(3, Math.floor(p / (Math.PI / 2)));
-        const n: number = section.exponents[q]!;
+        const n: number = exponents[q]!;
         const c: number = Math.cos(p);
         const s: number = Math.sin(p);
         const a: number = c >= 0 ? section.right : section.left;

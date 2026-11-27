@@ -79,7 +79,15 @@ export function test_engine_geometry_surface_rig_construction(): void {
     network: {
       sweeps: { arm: network.sweeps.sideLeft! },
       patches: [
-        { type: "sweep", name: "arm", sweep: "arm", u: [0, 1], v: [0, 1], rows: count, columns: { ...count, medium: 8 } },
+        {
+          type: "sweep",
+          name: "arm",
+          sweep: "arm",
+          u: { start: 0, end: 1 },
+          v: { start: 0, end: 1 },
+          rows: count,
+          columns: { ...count, medium: 8 },
+        },
       ],
     },
     tier: "medium",

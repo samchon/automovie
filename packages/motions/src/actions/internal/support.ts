@@ -15,8 +15,8 @@ import type {
 
 import { AutoMovieMotionHumanAuditSkin } from "../../audit/internal/AutoMovieMotionHumanAuditSkin";
 import { getUp } from "../../floor/internal/getUp";
-import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanRefusal } from "../../law/HumanRefusal";
+import { HumanBound } from "../../law/internal/HumanBound";
 import { prepareSupportFloor } from "./prepareSupportFloor";
 import { prepareSupportPreference } from "./prepareSupportPreference";
 import { supportAssist } from "./supportAssist";
@@ -94,7 +94,14 @@ export namespace support {
    * feet.
    */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
-    stand: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: BLEND }],
+    stand: [
+      {
+        window: { start: 0, end: 1 },
+        kind: "inertialize",
+        entry: 0,
+        blend: BLEND,
+      },
+    ],
   };
 
   /*

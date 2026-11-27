@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineMath, Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -54,7 +54,13 @@ export const beatFlames: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanFir
   {
     name: "beatFlames",
     interrupts: {
-      any: [{ window: ["strokeEnd", 1], kind: "inertialize", entry: 0 }],
+      any: [
+        {
+          window: { start: "strokeEnd", end: 1 },
+          kind: "inertialize",
+          entry: 0,
+        },
+      ],
     },
     plan,
   };

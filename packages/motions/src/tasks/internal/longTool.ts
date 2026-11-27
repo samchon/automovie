@@ -22,8 +22,8 @@ import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionH
 import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
 import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionHumanLeg";
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
-import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanRefusal } from "../../law/HumanRefusal";
+import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -84,7 +84,9 @@ export namespace longTool {
    * Work stops at the recovery.
    */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
-    any: [{ window: ["recover", 1], kind: "inertialize", entry: 0 }],
+    any: [
+      { window: { start: "recover", end: 1 }, kind: "inertialize", entry: 0 },
+    ],
   };
 
   /*

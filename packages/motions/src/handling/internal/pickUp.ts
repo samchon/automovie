@@ -91,13 +91,13 @@ export namespace pickUp {
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
       {
-        window: [0, "gripClosed"],
+        window: { start: 0, end: "gripClosed" },
         kind: "inertialize",
         entry: 0,
         blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
       },
       {
-        window: ["lifted", 1],
+        window: { start: "lifted", end: 1 },
         kind: "inertialize",
         entry: 0,
         blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
@@ -106,7 +106,7 @@ export namespace pickUp {
     ],
     walk: [
       {
-        window: ["lifted", 1],
+        window: { start: "lifted", end: 1 },
         kind: "inertialize",
         entry: 0,
         blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,

@@ -37,8 +37,8 @@ export function test_engine_geometry_loft_relief(): void {
     );
   const relief: IAutoMovieLoftRelief = {
     name: "bump",
-    stations: [10, 30],
-    phases: [0, 1],
+    stations: { start: 10, end: 30 },
+    phases: { start: 0, end: 1 },
     axis: [1, 0, 0],
     rows: 7,
     columns: 7,
@@ -154,12 +154,12 @@ export function test_engine_geometry_loft_relief(): void {
   // 6.
   TestValidator.predicate(
     "whole turn",
-    near(AutoMovieLoftRelief.width({ ...relief, phases: [1, 1] }), 2 * Math.PI),
+    near(AutoMovieLoftRelief.width({ ...relief, phases: { start: 1, end: 1 } }), 2 * Math.PI),
   );
   TestValidator.predicate(
     "wrap",
     near(
-      AutoMovieLoftRelief.width({ ...relief, phases: [6, 0.5] }),
+      AutoMovieLoftRelief.width({ ...relief, phases: { start: 6, end: 0.5 } }),
       0.5 - 6 + 2 * Math.PI,
     ),
   );

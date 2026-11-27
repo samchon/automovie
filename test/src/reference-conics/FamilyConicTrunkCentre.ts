@@ -221,7 +221,12 @@ namespace FamilyConicTrunkCentre {
         after > 0 ? [polar[after - 1]!, polar[after]!] : after === 0 ? [[polar.at(-1)![0] - 2 * Math.PI, polar.at(-1)![1]], polar[0]!] : [polar.at(-1)!, [polar[0]![0] + 2 * Math.PI, polar[0]![1]]];
       return b![0] === a![0] ? a![1] : a![1] + ((b![1] - a![1]) * (clock - a![0])) / (b![0] - a![0]);
     });
-    return { centre: [centre[0] / 1000, centre[1]], semi: [semi[0] / 1000, semi[1]], sense, shape };
+    return {
+      centre: { station: centre[0] / 1000, phase: centre[1] },
+      semi: { stationMetres: semi[0] / 1000, phaseRadians: semi[1] },
+      sense,
+      shape,
+    };
   }
 
   /** A loop's column addresses, `[station mm, phase rad]`. */
@@ -398,7 +403,7 @@ namespace FamilyConicTrunkCentre {
     const made: IAutoMovieLoftRelief[] = converted.map((net: Nets.INet): IAutoMovieLoftRelief => net.relief);
     const madeFull: ISurface = surface({ ...laid, reliefs: made });
     const skew = (s: number): boolean =>
-      s > tip.from - 20 || (trunk.reliefs ?? []).some((net: IAutoMovieLoftRelief): boolean => s > net.stations[0] && s < net.stations[1] && Math.abs(dot(net.axis, normal)) > 1e-9);
+      s > tip.from - 20 || (trunk.reliefs ?? []).some((net: IAutoMovieLoftRelief): boolean => s > net.stations.start && s < net.stations.end && Math.abs(dot(net.axis, normal)) > 1e-9);
     lines.push(
       "",
       "-- the nets, converted in the stored order (each fitted on the nets before it) --",
@@ -410,10 +415,10 @@ namespace FamilyConicTrunkCentre {
       let [sum, count, worst, where]: [number, number, number, number[]] = [0, 0, 0, [NaN, NaN]];
       const [rowsN, columnsN]: [number, number] = [2 * (relief.rows - 3), 2 * (relief.columns - 3)];
       for (let i: number = 0; i < rowsN; ++i) {
-        const s: number = relief.stations[0] + ((relief.stations[1] - relief.stations[0]) * (i + 0.25)) / rowsN;
+        const s: number = relief.stations.start + ((relief.stations.end - relief.stations.start) * (i + 0.25)) / rowsN;
         if (s <= knots[0]! + 0.01 || s >= tip.tip - 0.05) continue;
         for (let j: number = 0; j < columnsN; ++j) {
-          const t: number = relief.phases[0] + ((relief.phases[1] - relief.phases[0]) * (j + 0.25)) / columnsN;
+          const t: number = relief.phases.start + ((relief.phases.end - relief.phases.start) * (j + 0.25)) / columnsN;
           const d: number = nearest(storedFull, madeFull.point(s, t), s, skew(s));
           sum += d;
           ++count;
@@ -423,7 +428,7 @@ namespace FamilyConicTrunkCentre {
       let twin: string = "";
       if (stored.name.endsWith(".twin")) {
         const original: IAutoMovieLoftRelief = made[trunk.reliefs!.findIndex((x: IAutoMovieLoftRelief): boolean => x.name === stored.name.slice(0, -5))]!;
-        let off: number = Math.max(Math.abs(relief.phases[0] + original.phases[1]), Math.abs(relief.phases[1] + original.phases[0]));
+        let off: number = Math.max(Math.abs(relief.phases.start + original.phases.end), Math.abs(relief.phases.end + original.phases.start));
         relief.heights.forEach((h: number, i: number): void => {
           const [a, b]: [number, number] = [Math.floor(i / relief.columns), i % relief.columns];
           off = Math.max(off, Math.abs(h - original.heights[a * relief.columns + relief.columns - 1 - b]!));
@@ -437,7 +442,7 @@ namespace FamilyConicTrunkCentre {
           stored.name,
           `${relief.rows} x ${relief.columns}`,
           net.mode,
-          `${stored.phases.map((x: number): string => fixed(x, 4)).join(" to ")} > ${relief.phases.map((x: number): string => fixed(x, 4)).join(" to ")}`,
+          `${[stored.phases.start, stored.phases.end].map((x: number): string => fixed(x, 4)).join(" to ")} > ${[relief.phases.start, relief.phases.end].map((x: number): string => fixed(x, 4)).join(" to ")}`,
           own === undefined ? "kept" : `axis ${JSON.stringify(own.axis)}${own.turn === undefined ? "" : " turn " + JSON.stringify(own.turn)}`,
           `${net.rows.observed} (${net.rows.unobserved}) ${fixed(net.rows.first, 1)}..${fixed(net.rows.last, 1)}`,
           `${fixed(net.residual.mean, 4)}, ${fixed(net.residual.max, 3)}`,
@@ -467,7 +472,7 @@ namespace FamilyConicTrunkCentre {
       }
       const place = (which: string): string => `AutoMovieHumanF1Placement.direction("${stored.name}.${which}")`;
       const ends: string = `"axis":${place("axis")}${relief.turn === undefined ? "" : `, "turn":${place("turn")}`}`;
-      const window: string = numbers(relief.phases.map((x: number): number => round(x, 4)));
+      const window: string = numbers([relief.phases.start, relief.phases.end].map((x: number): number => round(x, 4)));
       if (stored.name.endsWith(".twin")) {
         text.push(`    {"name":"${stored.name}", "twin":"${stored.name.slice(0, -5)}", "phases":${window}, ${ends}},`);
         return;
@@ -478,7 +483,7 @@ namespace FamilyConicTrunkCentre {
         kept === stored.heights.length
           ? numbers(relief.heights)
           : `AutoMovieHumanConicRelief.mirrored(${relief.rows}, ${relief.columns}, ${numbers(relief.heights.filter((_: number, i: number): boolean => i % relief.columns < half))})`;
-      text.push(`    {"name":"${stored.name}", "stations":${numbers(stored.stations)}, "phases":${window}, ${ends}, "rows":${relief.rows}, "columns":${relief.columns}, "heights":${heights}},`);
+      text.push(`    {"name":"${stored.name}", "stations":${numbers([stored.stations.start, stored.stations.end])}, "phases":${window}, ${ends}, "rows":${relief.rows}, "columns":${relief.columns}, "heights":${heights}},`);
     });
     text.push("  ]),");
     await fs.writeFile(folder + "/switch-in-trunk.txt", text.join("\n") + "\n");
@@ -494,7 +499,7 @@ namespace FamilyConicTrunkCentre {
     };
     const clock = (loop: IAutoMovieConstructionPortLoop): number => {
       // `AutoMovieHumanF1NativeRootClock.reclock`'s premise: the columns' angle about the loop's pole on its own ellipse strictly increases.
-      const angles: number[] = columnsOf(loop).map(([s, t]: [number, number]): number => Math.atan2((t - loop.centre[1]) / (loop.sense * loop.semi[1]), (s - loop.centre[0] * 1000) / (loop.semi[0] * 1000)));
+      const angles: number[] = columnsOf(loop).map(([s, t]: [number, number]): number => Math.atan2((t - loop.centre.phase) / (loop.sense * loop.semi.phaseRadians), (s - loop.centre.station * 1000) / (loop.semi.stationMetres * 1000)));
       return Math.min(...angles.map((a: number, k: number): number => {
         const x: number = angles[(k + 1) % angles.length]! - a;
         return x - 2 * Math.PI * Math.round(x / (2 * Math.PI));
@@ -518,10 +523,10 @@ namespace FamilyConicTrunkCentre {
       }
     };
     const describe = (loop: IAutoMovieConstructionPortLoop): string =>
-      `centre [${fixed(loop.centre[0] * 1000, 2)} mm, ${fixed(loop.centre[1], 5)} rad] semi [${fixed(loop.semi[0] * 1000, 2)} mm, ${fixed(loop.semi[1], 5)} rad] sense ${loop.sense}`;
+      `centre [${fixed(loop.centre.station * 1000, 2)} mm, ${fixed(loop.centre.phase, 5)} rad] semi [${fixed(loop.semi.stationMetres * 1000, 2)} mm, ${fixed(loop.semi.phaseRadians, 5)} rad] sense ${loop.sense}`;
     const loopsText: string[] = [];
     const emit = (name: string, loop: IAutoMovieConstructionPortLoop): number =>
-      loopsText.push(`// ${name}`, `{ centre: ${numbers([...loop.centre])}, semi: ${numbers([...loop.semi])}, sense: ${loop.sense}, shape: ${numbers(loop.shape ?? [])} },`);
+      loopsText.push(`// ${name}`, `{ centre: { station: ${fixed(loop.centre.station, 16)}, phase: ${fixed(loop.centre.phase, 16)} }, semi: { stationMetres: ${fixed(loop.semi.stationMetres, 16)}, phaseRadians: ${fixed(loop.semi.phaseRadians, 16)} }, sense: ${loop.sense}, shape: ${numbers(loop.shape ?? [])} },`);
     const recorded: [string, string, IAutoMovieConstructionPortLoop][] = [
       ["arm", "arm[0]", AutoMovieHumanF1.ROOT_CONTROLS.arm[0]],
       ["arm", "arm[1]", AutoMovieHumanF1.ROOT_CONTROLS.arm[1]],
@@ -533,7 +538,7 @@ namespace FamilyConicTrunkCentre {
       const before: V3[] = worldOf(storedFull, loop);
       const carried: [number, number][] = columnsOf(loop).map(([s]: [number, number], k: number): [number, number] => {
         const mapped: number = angleAt(madeBare.axis, s, before[k]!);
-        return [s, mapped + 2 * Math.PI * Math.round((loop.centre[1] - mapped) / (2 * Math.PI))];
+        return [s, mapped + 2 * Math.PI * Math.round((loop.centre.phase - mapped) / (2 * Math.PI))];
       });
       const again: IAutoMovieConstructionPortLoop = around(carried, carried.length, loop.sense as 1 | -1);
       const after: V3[] = worldOf(madeFull, again);

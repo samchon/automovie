@@ -55,7 +55,7 @@ export namespace crabWalk {
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     getUp: [
       {
-        window: ["settled", 1],
+        window: { start: "settled", end: 1 },
         kind: "inertialize",
         entry: 0,
         blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,

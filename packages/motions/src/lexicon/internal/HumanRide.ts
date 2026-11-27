@@ -76,7 +76,7 @@ export namespace HumanRide {
   export const ride = {
     name: "ride",
     interrupts: {
-      any: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
+      any: [{ window: { start: 0, end: 1 }, kind: "inertialize", entry: 0 }],
     },
     yields: [
       "head",

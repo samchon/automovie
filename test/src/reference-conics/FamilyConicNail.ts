@@ -264,17 +264,17 @@ namespace FamilyConicNail {
           typeof value === "number" ? round(value, 3) : (value as (number | number[])[]).map((x: number | number[]): unknown => (typeof x === "number" ? round(x, 3) : x.map((y: number): number => round(y, 7)))),
         ]),
       );
-      row.bed = { stations: bed.stations.map((x: number): number => round(x)), phases: bed.phases.map((x: number): number => round(x, 3)), rows: bed.rows, columns: bed.columns, deepest: round(Math.min(...bed.heights), 3) };
+      row.bed = { stations: [round(bed.stations.start), round(bed.stations.end)], phases: [round(bed.phases.start, 3), round(bed.phases.end, 3)], rows: bed.rows, columns: bed.columns, deepest: round(Math.min(...bed.heights), 3) };
       row.plate = { knots: plate.knots.length, length: round(plate.knots.at(-1)!), values: plate.values.map((field: number[]): number[] => [round(field[0]!), round(field[Math.floor(field.length / 2)]!), round(field.at(-1)!)]) };
 
       // `--law`: the law's readings and profile only, with no realization.
       if (process.argv.includes("--law")) continue;
       const hosted: IAutoMovieHumanConicLoft.IFamily = AutoMovieHumanF1Nails.bedded(family, made, true);
-      const cell: number = (bed.stations[1] - bed.stations[0]) / (bed.rows - 3);
+      const cell: number = (bed.stations.end - bed.stations.start) / (bed.rows - 3);
       const stations: number[] = [];
       const strip: IAutoMovieHumanNail.INail["strip"] = made.nail.strip;
-      const fine: number = (strip.stations[1] - strip.stations[0]) / (strip.rows - 3);
-      for (let s: number = family.knots[0]!; s < family.knots.at(-1)!; s += s >= strip.stations[0] ? fine : s >= bed.stations[0] - 2 ? cell : 2) stations.push(s);
+      const fine: number = (strip.stations.end - strip.stations.start) / (strip.rows - 3);
+      for (let s: number = family.knots[0]!; s < family.knots.at(-1)!; s += s >= strip.stations.start ? fine : s >= bed.stations.start - 2 ? cell : 2) stations.push(s);
       const lastKnot: number = family.knots.at(-1)!;
       stations.push(lastKnot);
       const plateCount: number = Math.ceil(plate.knots.at(-1)! / cell) + 1;
@@ -323,7 +323,15 @@ namespace FamilyConicNail {
             }
           : {
               ...base,
-              loop: { centre: loop.centre, semi: loop.semi, sense: 1, shape: loop.shape },
+              loop: {
+                centre: { station: loop.centre[0], phase: loop.centre[1] },
+                semi: {
+                  stationMetres: loop.semi[0],
+                  phaseRadians: loop.semi[1],
+                },
+                sense: 1,
+                shape: loop.shape,
+              },
               seed: { type: "point", partFace: plate.name, hostFace: hosted.name, part: loop.part, host: loop.host },
               partWidth: { type: "fold", radius: AutoMovieHumanF1Nails.CHORD_MM / 1000, cap: (2 * AutoMovieHumanF1Nails.CHORD_MM) / 1000, reach: AutoMovieHumanF1Nails.CHORD_MM / 2000 },
               hostWidth: { type: "fold", radius: AutoMovieHumanF1Nails.CHORD_MM / 1000, cap: (2 * AutoMovieHumanF1Nails.CHORD_MM) / 1000, reach: AutoMovieHumanF1Nails.CHORD_MM / 2000 },
@@ -363,7 +371,7 @@ namespace FamilyConicNail {
       // The figure's level beside the close-up's: the same digit with its bed alone, its layers cut to the bed's rows only.
       const plain: IAutoMovieHumanConicLoft.IFamily = AutoMovieHumanF1Nails.bedded(family, made);
       const plainStations: number[] = [];
-      for (let s: number = family.knots[0]!; s < lastKnot; s += s >= bed.stations[0] - 2 ? cell : 2) plainStations.push(s);
+      for (let s: number = family.knots[0]!; s < lastKnot; s += s >= bed.stations.start - 2 ? cell : 2) plainStations.push(s);
       plainStations.push(lastKnot);
       let figured: ReturnType<typeof AutoMovieEngineConstruction.realize>["mesh"] = null;
       try {

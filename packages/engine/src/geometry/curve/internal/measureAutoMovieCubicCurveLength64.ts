@@ -4,6 +4,7 @@ import type {
   IAutoMovieCubicBezierCurve64,
   IAutoMovieCurveLengthMeasurement64,
   IAutoMovieCurveLengthQuadrature64,
+  IAutoMovieMeasureCurveLength64,
 } from "@automovie/interface";
 
 import { AutoMovieCurveLengthQuadrature64 } from "../../AutoMovieCurveLengthQuadrature64";
@@ -37,7 +38,7 @@ export function measureAutoMovieCubicCurveLength64(
              * Original finite closed parameter interval, admitted by the
              * caller.
              */
-            domain: readonly [number, number];
+            domain: IAutoMovieMeasureCurveLength64.IPieces[number]["domain"];
             /*
              * Original world derivative in mm per interval-parameter unit.
              */
@@ -48,7 +49,7 @@ export function measureAutoMovieCubicCurveLength64(
           number,
           boolean,
         ][0][number] => ({
-          domain: [0, 1],
+          domain: { start: 0, end: 1 },
           derivative: (t: number): Readonly<AutoMovieVector3Tuple> => {
             const s: number = 1 - t;
 

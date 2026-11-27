@@ -1,5 +1,28 @@
-import { AutoMovieEngineKinematics, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
-import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, AutoMovieMotionHumanActionName, AutoMovieMotionHumanChannel, IAutoMovieHumanoidSurfaces, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanArmTarget, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanClinch, IAutoMovieMotionHumanPerformerReader, IAutoMovieMotionHumanPosture, IAutoMovieMotionManner, IAutoMoviePhysicalShapeNearest, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  AutoMovieEngineKinematics,
+  AutoMovieEnginePhysics,
+  Vector3,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
+  AutoMovieMotionHumanActionName,
+  AutoMovieMotionHumanChannel,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmTarget,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanClinch,
+  IAutoMovieMotionHumanPerformerReader,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionManner,
+  IAutoMoviePhysicalShapeNearest,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { stand } from "../../actions/internal/stand";
 import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
@@ -51,11 +74,16 @@ export namespace clinch {
    */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     knee: [
-      { window: ["ready", 1], kind: "inertialize", entry: 0, blend: 0.15 },
+      {
+        window: { start: "ready", end: 1 },
+        kind: "inertialize",
+        entry: 0,
+        blend: 0.15,
+      },
     ],
     stand: [
       {
-        window: [0, 1],
+        window: { start: 0, end: 1 },
         kind: "inertialize",
         entry: 0,
         blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,

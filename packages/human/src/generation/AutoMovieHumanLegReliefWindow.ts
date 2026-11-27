@@ -58,9 +58,15 @@ export namespace AutoMovieHumanLegReliefWindow {
         window.share,
       );
     const half: number = window.halfStation * input.radius;
-    const stations: [number, number] = [centre - half, centre + half];
+    const stations: IAutoMovieLoftRelief.IRange = {
+      start: centre - half,
+      end: centre + half,
+    };
     const first: number = wrap(window.angle - window.halfAngle);
-    const phases: [number, number] = [first, first + 2 * window.halfAngle];
+    const phases: IAutoMovieLoftRelief.IRange = {
+      start: first,
+      end: first + 2 * window.halfAngle,
+    };
 
     // Control k peaks at the window fraction (k - 1) / (n - 3), so the inner
     // controls sample the separable profile there; the outer three rings stay zero.

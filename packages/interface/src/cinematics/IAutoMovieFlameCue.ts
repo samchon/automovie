@@ -79,10 +79,10 @@ export interface IAutoMovieFlameCue {
       };
 
   /**
-   * Shot-local `[start, end)` seconds the flame burns, as a practical light
-   * binding's `on`; omitted, it burns for the whole shot.
+   * Shot-local half-open interval in seconds the flame burns as a practical
+   * light binding's `on`; omitted, it burns for the whole shot.
    */
-  on?: readonly [number, number];
+  on?: IAutoMovieFlameCue.IOnInterval;
 
   /** Id of the shot's practical light binding this flame motivates. */
   light?: string;
@@ -98,4 +98,17 @@ export interface IAutoMovieFlameCue {
     /** Linear chromaticity; alpha is ignored. */
     color: IAutoMovieColor;
   };
+}
+
+
+/** Shot-local burning interval shared by flame cues and their practical light. */
+export namespace IAutoMovieFlameCue {
+  /** A half-open shot-local interval in seconds. */
+  export interface IOnInterval {
+    /** First shot-local second, inclusive. */
+    readonly start: number;
+
+    /** Last shot-local second, exclusive. */
+    readonly end: number;
+  }
 }

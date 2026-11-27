@@ -55,8 +55,8 @@ export const HumanBicycleEffort: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
     name: "bicycleEffort",
     interrupts: {
       any: [
-        { window: [0, "seatOff"], kind: "inertialize", entry: 0 },
-        { window: ["seatOn", 1], kind: "inertialize", entry: 0 },
+        { window: { start: 0, end: "seatOff" }, kind: "inertialize", entry: 0 },
+        { window: { start: "seatOn", end: 1 }, kind: "inertialize", entry: 0 },
       ],
     },
     yields: ["head"],

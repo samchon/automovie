@@ -1,3 +1,4 @@
+import type { IAutoMovieAffordanceCoupling } from "@automovie/interface";
 import { AutoMovieArchetypeRefusal, AutoMovieArchetypeUnits } from "../../core/index";
 import { AutoMovieArchetypeBow } from "../AutoMovieArchetypeBow";
 
@@ -10,7 +11,7 @@ import { AutoMovieArchetypeBow } from "../AutoMovieArchetypeBow";
  * metres.
  * Parameter travel: Finite nonnegative full string travel, metres, admitting the
  * fixed limb/string triangle.
- * Returns: Rows of string travel, metres, and limb turn, degrees, from brace to
+ * Returns: Points of string travel, metres, and limb turn, degrees, from brace to
  * full draw; a zero stroke has just the neutral row.
  * For invalid or impossible geometry,
  * unrepresentable intermediate geometry or insufficient binary64 travel
@@ -20,7 +21,7 @@ export function bowLimbs(
   half: number,
   brace: number,
   travel: number,
-): [number, number][] {
+): IAutoMovieAffordanceCoupling.IPoint[] {
   for (const [axis, value] of [
     ["half", half],
     ["brace", brace],
@@ -63,7 +64,7 @@ export function bowLimbs(
         "the drawn nock must form a triangle with the fixed limb and string half",
       fix: "keep the travel nonnegative and within the limb/string triangle",
     });
-  if (travel === 0) return [[0, 0]];
+  if (travel === 0) return [{ leader: 0, follower: 0 }];
   const alpha: number = Math.atan2(brace, half);
   const turn: (x: number) => number = (x: number): number => {
     const n: number = brace + x;
@@ -92,7 +93,9 @@ export function bowLimbs(
       refuse("geometry", x, "the sampled string gap is not representable");
     return result;
   };
-  const rows: [number, number][] = [[0, 0]];
+  const rows: IAutoMovieAffordanceCoupling.IPoint[] = [
+    { leader: 0, follower: 0 },
+  ];
   const fill: (a: number, b: number) => void = (a: number, b: number): void => {
     const middle: number = a + (b - a) / 2;
     const ta: number = turn(a);
@@ -106,7 +109,7 @@ export function bowLimbs(
         );
       fill(a, middle);
       fill(middle, b);
-    } else rows.push([b, tb]);
+    } else rows.push({ leader: b, follower: tb });
   };
   fill(0, travel);
   return rows;

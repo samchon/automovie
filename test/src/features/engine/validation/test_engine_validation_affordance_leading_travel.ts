@@ -46,17 +46,17 @@ export function test_engine_validation_affordance_leading_travel(): void {
   const rising: IAutoMovieAffordanceCoupling = {
     id: "rising-cam",
     table: [
-      [0, 0],
-      [2, 2],
-      [6, 8],
+      { leader: 0, follower: 0 },
+      { leader: 2, follower: 2 },
+      { leader: 6, follower: 8 },
     ],
   };
   const falling: IAutoMovieAffordanceCoupling = {
     id: "falling-cam",
     table: [
-      [0, 8],
-      [2, 6],
-      [6, 0],
+      { leader: 0, follower: 8 },
+      { leader: 2, follower: 6 },
+      { leader: 6, follower: 0 },
     ],
   };
   TestValidator.equals(
@@ -78,8 +78,8 @@ export function test_engine_validation_affordance_leading_travel(): void {
   const wideOutput: IAutoMovieAffordanceCoupling = {
     id: "wide-output",
     table: [
-      [0, -maximum],
-      [1, maximum],
+      { leader: 0, follower: -maximum },
+      { leader: 1, follower: maximum },
     ],
   };
   TestValidator.equals(
@@ -93,8 +93,8 @@ export function test_engine_validation_affordance_leading_travel(): void {
   const wideInput: IAutoMovieAffordanceCoupling = {
     id: "wide-input",
     table: [
-      [-maximum, 1],
-      [maximum, -1],
+      { leader: -maximum, follower: 1 },
+      { leader: maximum, follower: -1 },
     ],
   };
   TestValidator.equals(
@@ -111,8 +111,8 @@ export function test_engine_validation_affordance_leading_travel(): void {
       {
         id: "wide-product",
         table: [
-          [0, 0],
-          [power, power],
+          { leader: 0, follower: 0 },
+          { leader: power, follower: power },
         ],
       },
       power / 2,
@@ -127,8 +127,8 @@ export function test_engine_validation_affordance_leading_travel(): void {
     {
       id: "small-product",
       table: [
-        [0, 0],
-        [small, small],
+        { leader: 0, follower: 0 },
+        { leader: small, follower: small },
       ],
     },
     small / 2,
@@ -137,8 +137,8 @@ export function test_engine_validation_affordance_leading_travel(): void {
     {
       id: "subnormal-product",
       table: [
-        [0, 0],
-        [subnormalProductSpan, subnormalProductSpan],
+        { leader: 0, follower: 0 },
+        { leader: subnormalProductSpan, follower: subnormalProductSpan },
       ],
     },
     subnormalProductQuery,
@@ -147,8 +147,8 @@ export function test_engine_validation_affordance_leading_travel(): void {
     {
       id: "small-fraction",
       table: [
-        [0, 0],
-        [2 ** 30, -(2 ** 10)],
+        { leader: 0, follower: 0 },
+        { leader: 2 ** 30, follower: -(2 ** 10) },
       ],
     },
     -Number.MIN_VALUE,
@@ -167,8 +167,8 @@ export function test_engine_validation_affordance_leading_travel(): void {
   const wideBounds: IAutoMovieAffordanceCoupling = {
     id: "wide-bounds",
     table: [
-      [0, -halfWidth],
-      [1, halfWidth],
+      { leader: 0, follower: -halfWidth },
+      { leader: 1, follower: halfWidth },
     ],
   };
   TestValidator.equals(
@@ -185,8 +185,8 @@ export function test_engine_validation_affordance_leading_travel(): void {
   const wideLeaderBounds: IAutoMovieAffordanceCoupling = {
     id: "wide-leader-bounds",
     table: [
-      [-halfWidth, 0],
-      [halfWidth, 1],
+      { leader: -halfWidth, follower: 0 },
+      { leader: halfWidth, follower: 1 },
     ],
   };
   TestValidator.equals(
@@ -202,25 +202,25 @@ export function test_engine_validation_affordance_leading_travel(): void {
 
   const invalid: NonNullable<IAutoMovieAffordanceCoupling["table"]>[] = [
     [],
-    [[0, 0]],
+    [{ leader: 0, follower: 0 }],
     [
-      [0, 0],
-      [0, 2],
-      [6, 8],
+      { leader: 0, follower: 0 },
+      { leader: 0, follower: 2 },
+      { leader: 6, follower: 8 },
     ],
     [
-      [0, 0],
-      [2, 0],
-      [6, 8],
+      { leader: 0, follower: 0 },
+      { leader: 2, follower: 0 },
+      { leader: 6, follower: 8 },
     ],
     [
-      [0, 0],
-      [2, 9],
-      [6, 8],
+      { leader: 0, follower: 0 },
+      { leader: 2, follower: 9 },
+      { leader: 6, follower: 8 },
     ],
     [
-      [0, 2],
-      [2, 2],
+      { leader: 0, follower: 2 },
+      { leader: 2, follower: 2 },
     ],
   ];
   TestValidator.equals(

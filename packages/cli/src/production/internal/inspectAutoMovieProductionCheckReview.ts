@@ -22,12 +22,13 @@ export async function inspectAutoMovieProductionCheckReview(
   Pick<IAutoMovieProductionCheck.IResult, "state" | "message" | "evidence">
 > {
   const evidence: string = check.observation;
-  const [from, end]: IAutoMovieProductionCheck.IReview["frames"] = check.frames;
+  const { fromFrame, endFrame }: IAutoMovieProductionCheck.IReview["frames"] =
+    check.frames;
   if (
-    !Number.isSafeInteger(from) ||
-    !Number.isSafeInteger(end) ||
-    from < 0 ||
-    from >= end
+    !Number.isSafeInteger(fromFrame) ||
+    !Number.isSafeInteger(endFrame) ||
+    fromFrame < 0 ||
+    fromFrame >= endFrame
   )
     throw new Error(
       "A review check needs a nonempty zero-based frame interval.",
@@ -43,7 +44,7 @@ export async function inspectAutoMovieProductionCheckReview(
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
     return pending(
-      `Record ${check.viewed} review of frames ${from}–${end - 1}.`,
+      `Record ${check.viewed} review of frames ${fromFrame}–${endFrame - 1}.`,
     );
   }
   let value: IAutoMovieCliReviewObservation;
@@ -58,7 +59,7 @@ export async function inspectAutoMovieProductionCheckReview(
           : String(error);
     return {
       state: "unobserved",
-      message: `${reason}. Select a valid ${check.viewed} receipt for frames ${from}–${end - 1}.`,
+      message: `${reason}. Select a valid ${check.viewed} receipt for frames ${fromFrame}–${endFrame - 1}.`,
       evidence,
     };
   }
@@ -86,8 +87,8 @@ export async function inspectAutoMovieProductionCheckReview(
   if (
     value.viewed !== check.viewed ||
     value.observed === null ||
-    value.observed.firstFrame > from ||
-    value.observed.endFrame < end ||
+    value.observed.firstFrame > fromFrame ||
+    value.observed.endFrame < endFrame ||
     value.reviewer === null ||
     value.decision === null ||
     (check.occurrence !== undefined &&
@@ -96,11 +97,11 @@ export async function inspectAutoMovieProductionCheckReview(
         value.cut.shot !== check.occurrence.shot))
   )
     return pending(
-      `Record ${check.viewed} and a named decision for the current video over frames ${from}–${end - 1}.`,
+      `Record ${check.viewed} and a named decision for the current video over frames ${fromFrame}–${endFrame - 1}.`,
     );
   const observation: NonNullable<IAutoMovieCliReviewObservation["observed"]> =
     value.observed;
-  if (check.viewed === "still" && end - from !== 1)
+  if (check.viewed === "still" && endFrame - fromFrame !== 1)
     return pending("A still decision can cover only one frame.");
   if (check.viewed !== "still") {
     // Frame selection can intersect a piece of a frame outside a reviewer’s
@@ -114,8 +115,8 @@ export async function inspectAutoMovieProductionCheckReview(
       (frame * stride * numerator) / denominator;
     if (
       value.requested.to === null ||
-      value.requested.from > frameStart(from) ||
-      value.requested.to < frameStart(end)
+      value.requested.from > frameStart(fromFrame) ||
+      value.requested.to < frameStart(endFrame)
     )
       return pending(
         "The recorded continuous review covers only part of the required span.",

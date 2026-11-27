@@ -41,7 +41,10 @@ export function measureAutoMovieCurveLength64(
 
   // Closed finite derivative charts are admitted before either numerical observation.
   for (const piece of pieces) {
-    const [a, b]: readonly [number, number] = piece.domain;
+    const {
+      start: a,
+      end: b,
+    }: IAutoMovieMeasureCurveLength64.IPieces[number]["domain"] = piece.domain;
     if (!(b > a) || overflowsBinary64(b - a))
       throw new Error(
         "Curve length needs finite increasing representable domains",

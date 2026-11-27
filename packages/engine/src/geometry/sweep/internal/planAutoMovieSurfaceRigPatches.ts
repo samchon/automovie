@@ -67,8 +67,8 @@ export function planAutoMovieSurfaceRigPatches(
     if (patch.type === "sweep") {
       const columns: number = count(patch.columns, what);
       const rows: number = count(patch.rows, what);
-      const [u0, u1]: [number, number] = patch.u;
-      const [v0, v1]: [number, number] = patch.v;
+      const { start: u0, end: u1 } = patch.u;
+      const { start: v0, end: v1 } = patch.v;
       if (!(u0 >= 0 && u1 <= 1 && u1 > u0))
         throw new Error(`${what} u range must increase within 0 to 1`);
       if (!(v1 > v0 && v1 - v0 <= 1))
@@ -107,8 +107,8 @@ export function planAutoMovieSurfaceRigPatches(
       );
       emit(p, grid, columns, rows, false);
     } else if (patch.type === "transition") {
-      const [u0, u1]: [number, number] = patch.u;
-      const [v0, v1]: [number, number] = patch.v;
+      const { start: u0, end: u1 } = patch.u;
+      const { start: v0, end: v1 } = patch.v;
       if (!(u0 >= 0 && u1 <= 1 && u1 > u0))
         throw new Error(`${what} u range must increase within 0 to 1`);
       if (!(v1 > v0 && v1 - v0 <= 1))

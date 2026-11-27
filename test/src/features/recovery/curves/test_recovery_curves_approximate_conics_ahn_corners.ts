@@ -27,7 +27,7 @@ export function test_recovery_curves_approximate_conics_ahn_corners(): void {
   const translated: IAutoMovieConicApproximation.IResult = AutoMovieRecoveryConicApproximation.approximateAhn(
     {
       ...line,
-      domain: [0, 1],
+      domain: { start: 0, end: 1 },
       evaluate: (t: number): Readonly<AutoMovieVector2Tuple> => [
         1e6 + 2 * t,
         -1e6 + 3 * t,
@@ -56,7 +56,7 @@ export function test_recovery_curves_approximate_conics_ahn_corners(): void {
   );
   const leftSecondJets: string[] = [];
   const corner: IAutoMoviePlanarCurveSource = {
-    domain: [-1, 1],
+    domain: { start: -1, end: 1 },
     breaks: [0],
     closed: false,
     evaluate: (t: number): Readonly<AutoMovieVector2Tuple> =>

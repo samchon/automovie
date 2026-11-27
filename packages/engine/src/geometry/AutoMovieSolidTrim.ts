@@ -16,6 +16,14 @@ import { AutoMovieSplineCurve } from "./AutoMovieSplineCurve";
 
 const { dot } = AutoMovieSolidVector;
 
+interface IAutoMovieSolidTrimGuess {
+  /** Physical station along the solid face, millimetres. */
+  station: number;
+
+  /** Periodic phase around the solid face, radians. */
+  phase: number;
+}
+
 /**
  * A through-cut: an opening in the skin (the palpebral fissure, the oral
  * fissure) as a closed trim loop in the skin's own chart.
@@ -63,7 +71,7 @@ export namespace AutoMovieSolidTrim {
   export function create(
     surface: IAutoMovieSolidSurface,
     landmarks: readonly Readonly<AutoMovieVector3Tuple>[],
-    guesses: readonly (readonly [number, number])[],
+    guesses: readonly Readonly<IAutoMovieSolidTrimGuess>[],
     tolerance: number,
   ): IAutoMovieSolidTrim.IResult {
     const producer: string = `solid.trim.${surface.name}`;
@@ -87,7 +95,7 @@ export namespace AutoMovieSolidTrim {
       const foot: IAutoMovieSolidFoot.IFoot | null = AutoMovieSolidFoot.of(
         surface,
         landmarks[m]!,
-        guesses[m]!,
+        [guesses[m]!.station, guesses[m]!.phase],
         tolerance,
       );
       if (foot === null)

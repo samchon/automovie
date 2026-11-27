@@ -66,7 +66,7 @@ export namespace putDown {
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
       {
-        window: ["release", 1],
+        window: { start: "release", end: 1 },
         kind: "inertialize",
         entry: 0,
         blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
@@ -74,7 +74,7 @@ export namespace putDown {
     ],
     walk: [
       {
-        window: ["release", 1],
+        window: { start: "release", end: 1 },
         kind: "inertialize",
         entry: 0,
         blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,

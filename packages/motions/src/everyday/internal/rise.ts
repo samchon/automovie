@@ -1,8 +1,8 @@
 import {
   ANKLE_DORSIFLEXION,
+  AutoMovieEngineMotionSampling,
   ROM_TOLERANCE,
   Vector3,
-  AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -114,16 +114,18 @@ export namespace rise {
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     sit: [
       {
-        window: [0, "seatOff"],
+        window: { start: 0, end: "seatOff" },
         kind: "inertialize",
         entry: 0,
         blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
       },
     ],
-    stand: [{ window: ["standing", 1], kind: "inertialize", entry: 0 }],
+    stand: [
+      { window: { start: "standing", end: 1 }, kind: "inertialize", entry: 0 },
+    ],
     walk: [
       {
-        window: ["standing", 1],
+        window: { start: "standing", end: 1 },
         kind: "inertialize",
         entry: 0,
         blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
@@ -322,7 +324,10 @@ export namespace rise {
     const pitchAt: (t: number, peak: number) => number = (
       t: number,
       peak: number,
-    ): number => pitch0 + (peak - pitch0) * AutoMovieEngineMotionSampling.minimumJerkShare(t / flex);
+    ): number =>
+      pitch0 +
+      (peak - pitch0) *
+        AutoMovieEngineMotionSampling.minimumJerkShare(t / flex);
     const drawn: ReturnType<typeof drawAt> = drawAt(SHANK[0]!);
     const peak: number = seatedCourse.flexion(r);
     const off: number = riseSeatOff(rising);

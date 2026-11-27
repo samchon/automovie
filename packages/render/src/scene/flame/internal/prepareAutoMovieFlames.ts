@@ -125,7 +125,8 @@ export function prepareAutoMovieFlames(
         const mesh: THREE.Mesh<THREE.BufferGeometry, THREE.MeshBasicMaterial> =
           meshes[index]!;
         mesh.visible =
-          cue.on === undefined || (cue.on[0] <= seconds && seconds < cue.on[1]);
+          cue.on === undefined ||
+          (cue.on.start <= seconds && seconds < cue.on.end);
         if (!mesh.visible) return;
         const sample: { mesh: IAutoMovieMesh; area: number } =
           AutoMovieEngineFlame.sampleAutoMovieFlame(cue, seconds);

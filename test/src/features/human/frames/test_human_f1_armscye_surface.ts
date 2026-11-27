@@ -107,17 +107,17 @@ export function test_human_f1_armscye_surface(): void {
     0,
     1e-9,
   );
-  near("bowl: centre station", square.loop.centre[0] * 1000, 200, 1e-6);
+  near("bowl: centre station", square.loop.centre.station * 1000, 200, 1e-6);
   near(
     "bowl: centre phase magnitude",
-    Math.abs(square.loop.centre[1]),
+    Math.abs(square.loop.centre.phase),
     Math.PI / 2,
     1e-6,
   );
-  near("bowl: half extent along", square.loop.semi[0] * 1000, 20, 1e-6);
+  near("bowl: half extent along", square.loop.semi.stationMetres * 1000, 20, 1e-6);
   near(
     "bowl: half extent round",
-    square.loop.semi[1],
+    square.loop.semi.phaseRadians,
     Math.atan(20 / 90),
     1e-6,
   );

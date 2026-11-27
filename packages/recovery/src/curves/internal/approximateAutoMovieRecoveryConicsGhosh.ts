@@ -79,7 +79,7 @@ export function approximateAutoMovieRecoveryConicsGhosh(
     a: Readonly<AutoMovieVector2Tuple>,
     j: Readonly<AutoMovieVector2Tuple>,
   ): boolean {
-    const width: number = curve.domain[1] - curve.domain[0];
+    const width: number = curve.domain.end - curve.domain.start;
     const parameterScale: number = Math.max(width, Math.abs(t));
     const scale: number =
       Math.hypot(...v) * (Math.hypot(...a) + parameterScale * Math.hypot(...j));
@@ -394,9 +394,9 @@ export function approximateAutoMovieRecoveryConicsGhosh(
     "Numerical adaptation: sampled regularity, affine-curvature monotonicity and normal extrema do not certify the paper's smoothness/Hausdorff hypotheses or optimal arc count.",
   );
   const breaks: number[] = [
-    curve.domain[0],
+    curve.domain.start,
     ...new Set(curve.breaks),
-    curve.domain[1],
+    curve.domain.end,
   ].sort((a: number, b: number): number => a - b);
   const pending: Interval[] = [];
   for (let i: number = breaks.length - 2; i >= 0; --i)

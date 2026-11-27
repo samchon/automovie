@@ -47,18 +47,20 @@ export function compileAutoMovieRecoveryImageLoft(
       throw new Error(
         "invalid-image-recipe: aligned-section coefficients, explicit coverage and admissible independent dimensions required",
       );
-    const anchor: number = recipe.loft.spans[0]?.interval?.[0];
+    const anchor: number = recipe.loft.spans[0]?.interval?.lowerY;
     const scaled: IAutoMovieEllipticLoft = {
       spans: recipe.loft.spans.map(
         (
           span: IAutoMovieEllipticLoft["spans"][number],
         ): IAutoMovieEllipticLoft["spans"][number] => ({
-          interval: [
-            anchor +
-              (span.interval[0] - anchor) * recipe.dimensions.heightScale,
-            anchor +
-              (span.interval[1] - anchor) * recipe.dimensions.heightScale,
-          ],
+          interval: {
+            lowerY:
+              anchor +
+              (span.interval.lowerY - anchor) * recipe.dimensions.heightScale,
+            upperY:
+              anchor +
+              (span.interval.upperY - anchor) * recipe.dimensions.heightScale,
+          },
           radiusX: scale4(span.radiusX, recipe.dimensions.widthScale),
           radiusZ: scale4(span.radiusZ, recipe.dimensions.depthScale),
           centreX: scale4(span.centreX, recipe.dimensions.widthScale),
@@ -66,12 +68,13 @@ export function compileAutoMovieRecoveryImageLoft(
         }),
       ),
     };
-    const atlas: ReturnType<typeof AutoMovieEngineGeometry.createEllipticLoftAtlas> =
-      AutoMovieEngineGeometry.createEllipticLoftAtlas({
-        loft: scaled,
-        topologyDomain: `image-loft:${recipe.objectId}`,
-        ...budget,
-      });
+    const atlas: ReturnType<
+      typeof AutoMovieEngineGeometry.createEllipticLoftAtlas
+    > = AutoMovieEngineGeometry.createEllipticLoftAtlas({
+      loft: scaled,
+      topologyDomain: `image-loft:${recipe.objectId}`,
+      ...budget,
+    });
     const geometry: IAutoMovieBicubicAtlasGeometry = atlas.geometry;
     const point: (
       patch: number,

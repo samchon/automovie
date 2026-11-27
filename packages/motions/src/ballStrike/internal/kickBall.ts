@@ -28,8 +28,8 @@ import { AutoMovieMotionHumanJoints } from "../../compose/internal/AutoMovieMoti
 import { AutoMovieMotionHumanLegPhrase } from "../../compose/internal/AutoMovieMotionHumanLegPhrase";
 import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
-import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanRefusal } from "../../law/HumanRefusal";
+import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { hipJoints } from "../../posture/internal/hipJoints";
@@ -75,7 +75,7 @@ export namespace kickBall {
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
       {
-        window: ["strokeEnd", 1],
+        window: { start: "strokeEnd", end: 1 },
         kind: "inertialize",
         entry: 0,
         blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
@@ -83,7 +83,7 @@ export namespace kickBall {
     ],
     walk: [
       {
-        window: ["strokeEnd", 1],
+        window: { start: "strokeEnd", end: 1 },
         kind: "inertialize",
         entry: 0,
         blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,

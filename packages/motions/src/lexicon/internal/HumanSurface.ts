@@ -35,7 +35,7 @@ const YIELDS: IAutoMovieMotionHumanActionLaw["yields"] = [
  * Preserve the supported feet and inertialize free joints at an end cut.
  */
 const AT_END: IAutoMovieMotionHumanActionLaw["interrupts"] = {
-  any: [{ window: [1, 1], kind: "inertialize", entry: 0 }],
+  any: [{ window: { start: 1, end: 1 }, kind: "inertialize", entry: 0 }],
 };
 
 /*

@@ -38,8 +38,8 @@ export namespace AutoMovieHumanInterosseousValley {
     b: number,
     along: number,
   ): number {
-    const mid: number = (input.between[0] + input.between[1]) / 2;
-    const half: number = Math.abs(input.between[0] - input.between[1]) / 2;
+    const mid: number = (input.towardThumb + input.towardLittleFinger) / 2;
+    const half: number = Math.abs(input.towardThumb - input.towardLittleFinger) / 2;
     const ramp: number = Math.min(1, Math.max(0, along));
     return (
       DEPTH_SHARE *

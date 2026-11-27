@@ -41,11 +41,11 @@ export namespace AutoMovieConstructionSplitSeam {
   ): IAutoMovieConstructionSplitSeam.ISeam | string {
     const first: IAutoMovieSolidSurface.IJet = input.host.jet(
       input.station,
-      input.seam[0],
+      input.seam.startPhaseRad,
     );
     const second: IAutoMovieSolidSurface.IJet = input.host.jet(
       input.station,
-      input.seam[1],
+      input.seam.endPhaseRad,
     );
     const A: AutoMovieVector3Tuple = [first.p[0]!, first.p[1]!, first.p[2]!];
     const B: AutoMovieVector3Tuple = [second.p[0]!, second.p[1]!, second.p[2]!];
@@ -71,7 +71,7 @@ export namespace AutoMovieConstructionSplitSeam {
     // host before it turns across the end. Each knot stays within the
     // chord's span; coincident neighbours are refused with the spans below.
     const points: [number, number][] = [[0, 0]];
-    for (const [along, depth] of input.knots) {
+    for (const { alongMm: along, depthMm: depth } of input.knots) {
       if (!(along >= 0 && along <= chord))
         return `the seam's knot (${along}, ${depth}) mm stands beyond the chord's span [0, ${chord}] mm`;
       points.push([along, depth]);
@@ -285,11 +285,11 @@ export namespace AutoMovieConstructionSplitSeam {
   ): IAutoMovieConstructionSplitSeam.ISeam | string {
     const pa: readonly number[] = input.host.jet(
       input.station,
-      input.seam[0],
+      input.seam.startPhaseRad,
     ).p;
     const pb: readonly number[] = input.host.jet(
       input.station,
-      input.seam[1],
+      input.seam.endPhaseRad,
     ).p;
     const A: AutoMovieVector3Tuple = [pa[0]!, pa[1]!, pa[2]!];
     const B: AutoMovieVector3Tuple = [pb[0]!, pb[1]!, pb[2]!];

@@ -100,9 +100,9 @@ export namespace FamilyConicProject {
         (__: unknown, j: number): number =>
           AutoMovieLoftRelief.height(
             relief,
-            relief.stations[0] +
-              ((relief.stations[1] - relief.stations[0]) * i) / (ns - 1),
-            relief.phases[0] + (span * j) / (nt - 1),
+            relief.stations.start +
+              ((relief.stations.end - relief.stations.start) * i) / (ns - 1),
+            relief.phases.start + (span * j) / (nt - 1),
           )[0],
       ),
     );
@@ -321,7 +321,7 @@ export namespace FamilyConicProject {
     ).filter((b: number): boolean => !symmetric || b <= middle);
     const A: number[][] = samples.stations.map((s: number): number[] => {
       const w: number[] = weights(
-        ((s - window.stations[0]) / (window.stations[1] - window.stations[0])) *
+        ((s - window.stations.start) / (window.stations.end - window.stations.start)) *
           (rows - 3),
         rows,
       );
@@ -329,7 +329,7 @@ export namespace FamilyConicProject {
     });
     const B: number[][] = samples.phases.map((t: number): number[] => {
       const offset: number =
-        (((t - window.phases[0]) % (2 * Math.PI)) + 2 * Math.PI) %
+        (((t - window.phases.start) % (2 * Math.PI)) + 2 * Math.PI) %
         (2 * Math.PI);
       const w: number[] = weights(
         (Math.min(offset, span) / span) * (columns - 3),
@@ -420,7 +420,7 @@ export namespace FamilyConicProject {
       r.map((x: number, j: number): number => x - F![i]![j]!),
     );
     const [ds, dt]: [number, number] = [
-      (relief.stations[1] - relief.stations[0]) / (ns - 1),
+      (relief.stations.end - relief.stations.start) / (ns - 1),
       AutoMovieLoftRelief.width(relief) / (nt - 1),
     ];
     const flat: number[] = D.flat()
@@ -444,8 +444,8 @@ export namespace FamilyConicProject {
                   Math.max(
                     1,
                     radius(
-                      relief.stations[0] + i * ds,
-                      relief.phases[0] + j * dt,
+                      relief.stations.start + i * ds,
+                      relief.phases.start + j * dt,
                     ),
                   )),
             ),
@@ -458,7 +458,7 @@ export namespace FamilyConicProject {
           flat.length,
       ),
       slope: (Math.atan(slope) * 180) / Math.PI,
-      at: [relief.stations[0] + at[0] * ds, relief.phases[0] + at[1] * dt],
+      at: [relief.stations.start + at[0] * ds, relief.phases.start + at[1] * dt],
     };
   }
 }

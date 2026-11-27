@@ -28,12 +28,18 @@ export function selectRecoveryScalarIntervals(
     throw new Error(
       "Scalar priority must be a complete saved-interval permutation",
     );
-  if (windowMm && (windowMm.length !== 2 || !(windowMm[0] < windowMm[1])))
+  if (
+    windowMm &&
+    (!Number.isFinite(windowMm.lowerMm) ||
+      !Number.isFinite(windowMm.upperMm) ||
+      !(windowMm.lowerMm < windowMm.upperMm))
+  )
     throw new Error("An increasing finite physical scalar window is required");
   const intervals: number[] = order.filter(
     (id: number): boolean =>
       !windowMm ||
-      (levelsMm[id]! < windowMm[1] && levelsMm[id + 1]! > windowMm[0]),
+      (levelsMm[id]! < windowMm.upperMm &&
+        levelsMm[id + 1]! > windowMm.lowerMm),
   );
   let lower: number = Infinity,
     upper: number = -Infinity;
@@ -43,7 +49,7 @@ export function selectRecoveryScalarIntervals(
   }
   return {
     intervals,
-    windowMm: windowMm ? [windowMm[0], windowMm[1]] : null,
+    windowMm: windowMm ? [windowMm.lowerMm, windowMm.upperMm] : null,
     wholeSlabBoundsMm: intervals.length ? [lower, upper] : null,
     excludedIntervals: order.length - intervals.length,
   };

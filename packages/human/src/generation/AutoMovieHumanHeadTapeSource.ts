@@ -91,7 +91,13 @@ export namespace AutoMovieHumanHeadTapeSource {
         "Head tape has no front-higher positive sagittal anchor span",
       );
     const b: number = (p[1] - q[1]) / (p[0] - q[0]);
-    return { a: p[1] - b * p[0], b, front: p, back: q, range: [back, front] };
+    return {
+      a: p[1] - b * p[0],
+      b,
+      front: p,
+      back: q,
+      range: { start: back, end: front },
+    };
   }
 
   /**
@@ -114,7 +120,10 @@ export namespace AutoMovieHumanHeadTapeSource {
       reader,
       plane,
       phase,
-      AutoMovieHumanHeadTapeStation.create(reader, plane.range),
+      AutoMovieHumanHeadTapeStation.create(reader, [
+        plane.range.start,
+        plane.range.end,
+      ]),
     );
   }
 
@@ -140,7 +149,10 @@ export namespace AutoMovieHumanHeadTapeSource {
     );
 
     const sources: IAutoMovieHumanHeadTapeStation.IOutput =
-      AutoMovieHumanHeadTapeStation.create(reader, plane.range);
+      AutoMovieHumanHeadTapeStation.create(reader, [
+        plane.range.start,
+        plane.range.end,
+      ]);
 
     return AutoMovieEngineCurve.measureCurveLength64(
       sites
@@ -150,7 +162,7 @@ export namespace AutoMovieHumanHeadTapeSource {
             high: number,
             index: number,
           ): Parameters<typeof AutoMovieEngineCurve.measureCurveLength64>[0][number] => ({
-            domain: [sites[index]!, high],
+            domain: { start: sites[index]!, end: high },
             derivative: (phase: number): AutoMovieVector3Tuple =>
               course(reader, plane, phase, sources).derivative,
           }),
@@ -227,11 +239,11 @@ export namespace AutoMovieHumanHeadTapeSource {
       phi: number,
     ) => IAutoMovieHumanHeadTapeStation.IValue,
   ): ILocated {
-    if (plane.b === 0) return { station: plane.range[0] };
+    if (plane.b === 0) return { station: plane.range.start };
     const angle: number =
       ((phase % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
-    if (angle === 0) return { station: plane.range[1] };
-    if (angle === Math.PI) return { station: plane.range[0] };
+    if (angle === 0) return { station: plane.range.end };
+    if (angle === Math.PI) return { station: plane.range.start };
     function residual(station: number): IResidual {
       const at: IAutoMovieHumanHeadTapeStation.IValue = readPoint(
         station,
@@ -242,8 +254,8 @@ export namespace AutoMovieHumanHeadTapeSource {
         source: at.source,
       };
     }
-    let low: number = plane.range[0];
-    let high: number = plane.range[1];
+    let low: number = plane.range.start;
+    let high: number = plane.range.end;
     let a: IResidual = residual(low);
     let b: IResidual = residual(high);
     if (a.value === 0) return { station: low, source: a.source };

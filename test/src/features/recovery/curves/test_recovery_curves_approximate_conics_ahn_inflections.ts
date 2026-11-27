@@ -50,7 +50,7 @@ export function test_recovery_curves_approximate_conics_ahn_inflections(): void 
     options,
   );
   TestValidator.equals("nonconic complete", fitted.status, "complete");
-  let previous: number = convex.domain[0];
+  let previous: number = convex.domain.start;
   for (const arc of fitted.arcs) {
     TestValidator.predicate(
       "nonconic no source gap",
@@ -88,6 +88,6 @@ export function test_recovery_curves_approximate_conics_ahn_inflections(): void 
   }
   TestValidator.predicate(
     "nonconic reaches final endpoint",
-    nclose(previous, convex.domain[1], 0),
+    nclose(previous, convex.domain.end, 0),
   );
 }

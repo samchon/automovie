@@ -2983,7 +2983,7 @@ export namespace FamilyConicBody {
           // `+<shift>`: the other wall was fitted on a course whose stations past the splice are this one's less the shift.
           const shift: number = Number(moved ?? 0);
           tail.knots = tail.knots.map((k: number): number => round(k + shift));
-          tail.reliefs = (tail.reliefs ?? []).map((relief: IAutoMovieLoftRelief): IAutoMovieLoftRelief => ({ ...relief, stations: [round(relief.stations[0] + shift), round(relief.stations[1] + shift)] }));
+          tail.reliefs = (tail.reliefs ?? []).map((relief: IAutoMovieLoftRelief): IAutoMovieLoftRelief => ({ ...relief, stations: { start: round(relief.stations.start + shift), end: round(relief.stations.end + shift) } }));
           // The far end is the tail's, so its end record is the tail's as stored (its cap's start, its pole and whether the family owns
           // it), moved along with its knots; the near end's stays this wall's. Emitted from the refitted stretch's own domain instead, a
           // digit's root piece put its cap's start at its last root knot (the index finger's at 38 mm for a pole at 84.38) and lost `own`.
@@ -3414,7 +3414,7 @@ export namespace FamilyConicBody {
         // straddles the window's edge, fitted again from scratch, moved the trunk's head and breasts up to 13 mm away from the window.
         const touching = (stations: readonly [number, number] | readonly number[]): boolean => spliced?.window === undefined || (stations[0]! >= spliced.window[0] && stations[1]! <= spliced.window[1]);
         const refitted: string[] | null = carried === null ? null : (process.argv.find((argument: string): boolean => argument.startsWith("--refit-reliefs="))?.slice("--refit-reliefs=".length).split(",") ?? null);
-        definition.reliefs = spliced?.window === undefined ? [] : spliced.head.filter((relief: IAutoMovieLoftRelief): boolean => !touching(relief.stations));
+        definition.reliefs = spliced?.window === undefined ? [] : spliced.head.filter((relief: IAutoMovieLoftRelief): boolean => !touching([relief.stations.start, relief.stations.end]));
         const fitAll = (list: readonly IWindow[], judged: boolean): void => {
          for (const window of list) {
           // Each window is fitted over the wall with every earlier relief already on it, as the engine composes them, so a later window takes only what the earlier ones left.
@@ -3488,7 +3488,7 @@ export namespace FamilyConicBody {
           if (kept && window.twin === true) {
             const { relief }: H.IResult = fitted;
             const flip = (v: readonly number[]): [number, number, number] => [v[0]!, v[1]!, -v[2]!];
-            definition.reliefs.push({ ...relief, name: relief.name + ".twin", phases: [-relief.phases[1], -relief.phases[0]], axis: flip(relief.axis), ...(relief.turn === undefined ? {} : { turn: flip(relief.turn).map((x: number): number => -x || 0) as [number, number, number] }), heights: relief.heights.map((_: number, i: number): number => relief.heights[i - (i % relief.columns) + (relief.columns - 1 - (i % relief.columns))]!) });
+            definition.reliefs.push({ ...relief, name: relief.name + ".twin", phases: { start: -relief.phases.end, end: -relief.phases.start }, axis: flip(relief.axis), ...(relief.turn === undefined ? {} : { turn: flip(relief.turn).map((x: number): number => -x || 0) as [number, number, number] }), heights: relief.heights.map((_: number, i: number): number => relief.heights[i - (i % relief.columns) + (relief.columns - 1 - (i % relief.columns))]!) });
           }
           log("family-body-relief", { part: part.name, relief: window.name, kept, scalars: fitted.scalars, deepestMm: round(fitted.deepestMm), trainMaxMm: round(fitted.trainMaxMm), heldMaxMm: round(fitted.heldMaxMm) });
          }
@@ -3518,7 +3518,7 @@ export namespace FamilyConicBody {
         if (spliced !== null && spliced.window === undefined && !process.argv.includes("--refit")) {
           const { tail, at, head }: { tail: K.IStored; at: number; head: IAutoMovieLoftRelief[] } = spliced;
           // A stored net that goes once round the part is left behind: those are fitted again below, over the spliced wall.
-          const window = (relief: IAutoMovieLoftRelief): boolean => relief.phases[1] - relief.phases[0] < 2 * Math.PI - 1e-9;
+          const window = (relief: IAutoMovieLoftRelief): boolean => relief.phases.end - relief.phases.start < 2 * Math.PI - 1e-9;
           // A net round the part's runs (`IPart.rounds`) is fitted again below even where it spans less than a turn (the palm's), so a stored
           // one is not carried as a hollow as well.
           const round = (relief: IAutoMovieLoftRelief): boolean => rounds.some((window: IWindow): boolean => window.name === relief.name);
@@ -3528,8 +3528,8 @@ export namespace FamilyConicBody {
           const hollowName = (relief: IAutoMovieLoftRelief): IAutoMovieLoftRelief => ({ ...relief, name: part.name + ".hollow." + hollow++ });
           // A wall's hollow goes with the wall it starts on: the arm's elbow hollow, fitted on the head, runs 10 mm past the splice into the
           // forearm net's first stations, as the stored arm's own elbow hollow did.
-          definition.reliefs = [...head.filter((relief: IAutoMovieLoftRelief): boolean => window(relief) && !round(relief) && relief.stations[0] < at).map(hollowName), ...(tail.reliefs ?? []).filter((relief: IAutoMovieLoftRelief): boolean => relief.stations[0] >= at && (round(relief) || window(relief))).map((relief: IAutoMovieLoftRelief): IAutoMovieLoftRelief => (round(relief) ? relief : hollowName(relief)))];
-          log("family-body-spliced", { part: part.name, at, reliefs: definition.reliefs.map((relief: IAutoMovieLoftRelief): string => relief.name + " " + relief.stations.join("..")) });
+          definition.reliefs = [...head.filter((relief: IAutoMovieLoftRelief): boolean => window(relief) && !round(relief) && relief.stations.start < at).map(hollowName), ...(tail.reliefs ?? []).filter((relief: IAutoMovieLoftRelief): boolean => relief.stations.start >= at && (round(relief) || window(relief))).map((relief: IAutoMovieLoftRelief): IAutoMovieLoftRelief => (round(relief) ? relief : hollowName(relief)))];
+          log("family-body-spliced", { part: part.name, at, reliefs: definition.reliefs.map((relief: IAutoMovieLoftRelief): string => relief.name + " " + relief.stations.start + ".." + relief.stations.end) });
         }
 
         // The nets round the part come last, over whichever reliefs the wall has kept.
@@ -3785,7 +3785,7 @@ export namespace FamilyConicBody {
         if (face.twin === true) {
           const relief: IAutoMovieLoftRelief = faced.relief;
           const flip = (v: readonly number[]): [number, number, number] => [v[0]!, v[1]!, -v[2]!];
-          definition.reliefs.push({ ...relief, name: relief.name + ".twin", phases: [-relief.phases[1], -relief.phases[0]], axis: flip(relief.axis), ...(relief.turn === undefined ? {} : { turn: flip(relief.turn).map((x: number): number => -x || 0) as [number, number, number] }), heights: relief.heights.map((_: number, i: number): number => relief.heights[i - (i % relief.columns) + (relief.columns - 1 - (i % relief.columns))]!) });
+          definition.reliefs.push({ ...relief, name: relief.name + ".twin", phases: { start: -relief.phases.end, end: -relief.phases.start }, axis: flip(relief.axis), ...(relief.turn === undefined ? {} : { turn: flip(relief.turn).map((x: number): number => -x || 0) as [number, number, number] }), heights: relief.heights.map((_: number, i: number): number => relief.heights[i - (i % relief.columns) + (relief.columns - 1 - (i % relief.columns))]!) });
         }
         log("family-body-face", { part: part.name, relief: window.name, triangles: triangles.length, observed: observed.length, scalars: faced.scalars, deepestMm: round(faced.deepestMm), trainMaxMm: round(faced.trainMaxMm), heldMaxMm: round(faced.heldMaxMm) });
         await fs.writeFile(path.join(out, part.name + ".family.json"), JSON.stringify(definition));
@@ -4619,9 +4619,9 @@ export namespace FamilyConicBody {
       const entries: string[] = family.reliefs.map(
         (relief: IAutoMovieLoftRelief, index: number): string => {
           const phases: number[] =
-            Math.abs(relief.phases[1] - relief.phases[0] - 2 * Math.PI) < 1e-9
-              ? relief.phases
-              : relief.phases.map(round4);
+            Math.abs(relief.phases.end - relief.phases.start - 2 * Math.PI) < 1e-9
+              ? [relief.phases.start, relief.phases.end]
+              : [relief.phases.start, relief.phases.end].map(round4);
           const axis: number[] = relief.axis.map(
             (x: number): number => Math.round(x * 1e5) / 1e5,
           );
@@ -4637,8 +4637,8 @@ export namespace FamilyConicBody {
           if (
             original !== undefined &&
             reversed(relief, original) &&
-            relief.stations[0] === original.stations[0] &&
-            relief.stations[1] === original.stations[1] &&
+            relief.stations.start === original.stations.start &&
+            relief.stations.end === original.stations.end &&
             (relief.turn === undefined) === (original.turn === undefined)
           ) {
             ++twins;

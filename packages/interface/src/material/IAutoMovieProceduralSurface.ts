@@ -60,7 +60,7 @@ export interface IAutoMovieProceduralSurface {
   colors: [IAutoMovieColor, IAutoMovieColor];
 
   /** Roughness at pattern values zero and one, each within [0, 1]. */
-  roughness: [number, number];
+  roughness: IAutoMovieProceduralSurface.IRoughness;
 
   /** Bump height in metres at pattern value one, finite and at least zero. */
   relief: number;
@@ -87,6 +87,15 @@ export interface IAutoMovieProceduralSurface {
 
 /** A laid piece's place on the surface's sheet. */
 export namespace IAutoMovieProceduralSurface {
+  /** Roughness endpoints of the generated pattern. */
+  export interface IRoughness {
+    /** Roughness at pattern value zero. */
+    atZero: number;
+
+    /** Roughness at pattern value one. */
+    atOne: number;
+  }
+
   /**
    * One laid piece's place on the material's sheet.
    *

@@ -1,4 +1,9 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineMath } from "@automovie/engine";
+import {
+  AutoMovieEngineMath,
+  AutoMovieEngineMotionSampling,
+  Quaternion,
+  Vector3,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -21,8 +26,8 @@ import { AutoMovieMotionHumanLean } from "../../compose/internal/AutoMovieMotion
 import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { HumanForceTrunk } from "../../grappling/internal/HumanForceTrunk";
-import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanRefusal } from "../../law/HumanRefusal";
+import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanMaterialContact } from "../../posture/internal/HumanMaterialContact";
 import { HumanTrunkTurn } from "../../posture/internal/HumanTrunkTurn";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -74,7 +79,9 @@ export namespace armWrestle {
    * Cancel table: a contest is left once the hands part.
    */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
-    any: [{ window: ["relax", 1], kind: "inertialize", entry: 0 }],
+    any: [
+      { window: { start: "relax", end: 1 }, kind: "inertialize", entry: 0 },
+    ],
   };
 
   /*
@@ -451,7 +458,10 @@ export namespace armWrestle {
             ? AutoMovieEngineMotionSampling.minimumJerkShare(t / arrive)
             : t <= relax
               ? 1
-              : 1 - AutoMovieEngineMotionSampling.minimumJerkShare((t - relax) / arrive);
+              : 1 -
+                AutoMovieEngineMotionSampling.minimumJerkShare(
+                  (t - relax) / arrive,
+                );
         const degrees: number =
           t <= go
             ? 0
@@ -460,13 +470,17 @@ export namespace armWrestle {
               : t <= pin
                 ? SWAY * Math.sin((2 * Math.PI * struggle) / 1.5) +
                   (asked - SWAY * Math.sin((2 * Math.PI * struggle) / 1.5)) *
-                    AutoMovieEngineMotionSampling.minimumJerkShare((t - turn) / (pin - turn))
+                    AutoMovieEngineMotionSampling.minimumJerkShare(
+                      (t - turn) / (pin - turn),
+                    )
                 : asked;
         const pinned: number =
           t <= turn
             ? 0
             : t <= pin
-              ? AutoMovieEngineMotionSampling.minimumJerkShare((t - turn) / (pin - turn))
+              ? AutoMovieEngineMotionSampling.minimumJerkShare(
+                  (t - turn) / (pin - turn),
+                )
               : 1;
         const posed: IAutoMovieMotionHumanPosture = set(
           base.posture(t, undefined, source, projection),

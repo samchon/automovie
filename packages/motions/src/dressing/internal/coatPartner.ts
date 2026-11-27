@@ -21,8 +21,8 @@ import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotion
 import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
 import { AutoMovieMotionHumanPartnerClear } from "../../compose/internal/AutoMovieMotionHumanPartnerClear";
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
-import { requireOtherPerformer } from "../../touch/internal/requireOtherPerformer";
 import { HumanPropFrame } from "../../perform/internal/HumanPropFrame";
+import { requireOtherPerformer } from "../../touch/internal/requireOtherPerformer";
 import { wardrobeHands } from "./wardrobeHands";
 
 /*
@@ -51,7 +51,9 @@ export const coatPartner: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCo
   {
     name: "coatPartner",
     interrupts: {
-      any: [{ window: ["relax", 1], kind: "inertialize", entry: 0 }],
+      any: [
+        { window: { start: "relax", end: 1 }, kind: "inertialize", entry: 0 },
+      ],
     },
     plan: planCoatPartner,
   };

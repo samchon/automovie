@@ -46,8 +46,9 @@ export function createAutoMovieEllipticLoftAtlas(
     const previous: IAutoMovieEllipticLoft["spans"][number] | undefined =
       input.loft.spans[index - 1];
     if (
-      !(span.interval[0] < span.interval[1]) ||
-      (previous !== undefined && previous.interval[1] !== span.interval[0])
+      !(span.interval.lowerY < span.interval.upperY) ||
+      (previous !== undefined &&
+        previous.interval.upperY !== span.interval.lowerY)
     )
       throw new Error(
         "Elliptic loft intervals must be finite, increasing and exactly adjacent",
@@ -94,7 +95,8 @@ export function createAutoMovieEllipticLoftAtlas(
       for (const angular of circle) {
         const x: number = span.centreX[row] + span.radiusX[row] * angular[0];
         const y: number =
-          span.interval[0] + (span.interval[1] - span.interval[0]) * (row / 3);
+          span.interval.lowerY +
+          (span.interval.upperY - span.interval.lowerY) * (row / 3);
         const z: number = span.centreZ[row] + span.radiusZ[row] * angular[1];
         controls.push({ x, y, z });
       }

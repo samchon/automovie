@@ -58,7 +58,7 @@ export namespace instance {
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     any: [
       {
-        window: [0, 1],
+        window: { start: 0, end: 1 },
         kind: "inertialize",
         entry: 0,
         blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,

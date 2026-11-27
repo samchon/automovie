@@ -52,8 +52,8 @@ export function test_human_conic_project(): void {
     height: (a: number, b: number) => number,
   ): IAutoMovieLoftRelief => ({
     name: "made",
-    stations: [100, 190],
-    phases: [-0.6, 0.6],
+    stations: { start: 100, end: 190 },
+    phases: { start: -0.6, end: 0.6 },
     axis: [-1, 0, 0],
     rows,
     columns,
@@ -162,8 +162,8 @@ export function test_human_conic_project(): void {
     );
   const window = {
     name: "made",
-    stations: [100, 190] as [number, number],
-    phases: [-0.6, 0.6] as [number, number],
+    stations: { start: 100, end: 190 },
+    phases: { start: -0.6, end: 0.6 },
     axis: [-1, 0, 0] as [number, number, number],
   };
   const [stations, phases]: number[][] = [

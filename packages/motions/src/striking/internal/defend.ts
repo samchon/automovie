@@ -78,10 +78,20 @@ export namespace defend {
    */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     punch: [
-      { window: ["contact", 1], kind: "inertialize", entry: 0, blend: 0.12 },
+      {
+        window: { start: "contact", end: 1 },
+        kind: "inertialize",
+        entry: 0,
+        blend: 0.12,
+      },
     ],
     defend: [
-      { window: ["contact", 1], kind: "inertialize", entry: 0, blend: 0.12 },
+      {
+        window: { start: "contact", end: 1 },
+        kind: "inertialize",
+        entry: 0,
+        blend: 0.12,
+      },
     ],
   };
 

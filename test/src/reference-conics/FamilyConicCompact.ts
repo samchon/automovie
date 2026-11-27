@@ -59,7 +59,7 @@ namespace FamilyConicCompact {
   /** Whether the body's reflection maps the net's window and directions onto themselves. */
   function reflective(relief: IAutoMovieLoftRelief): boolean {
     const middle: number =
-      relief.phases[0] + AutoMovieLoftRelief.width(relief) / 2;
+      relief.phases.start + AutoMovieLoftRelief.width(relief) / 2;
     return (
       Math.abs(Math.sin(middle)) < MIDDLE &&
       Math.abs(relief.axis[2]) < 1e-9 &&
@@ -172,8 +172,8 @@ namespace FamilyConicCompact {
         if (
           original !== undefined &&
           reversed(relief, original) &&
-          relief.stations[0] === original.stations[0] &&
-          relief.stations[1] === original.stations[1] &&
+          relief.stations.start === original.stations.start &&
+          relief.stations.end === original.stations.end &&
           (relief.turn === undefined) === (original.turn === undefined) &&
           reliefs.indexOf(original) < reliefs.indexOf(relief)
         ) {

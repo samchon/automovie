@@ -42,7 +42,7 @@ export async function test_motions_carrier_human_snow_glide(): Promise<void> {
     hand: "right",
     on: "track",
     grip: "pole",
-    window: [0.2, 0.8],
+    window: { start: 0.2, end: 0.8 },
     kick: 0.3,
   };
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

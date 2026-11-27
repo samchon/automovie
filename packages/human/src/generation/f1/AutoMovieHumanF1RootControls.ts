@@ -10,8 +10,11 @@ import type { IAutoMovieHumanF1 } from "@automovie/interface";
 export const AutoMovieHumanF1RootControls: IAutoMovieHumanF1.IRootControls = {
   arm: [
     {
-      centre: [0.5514570696257226, 1.642321970577369],
-      semi: [0.06445197823717189, 0.3036131400948552],
+      centre: { station: 0.5514570696257226, phase: 1.642321970577369 },
+      semi: {
+        stationMetres: 0.06445197823717189,
+        phaseRadians: 0.3036131400948552,
+      },
       sense: 1,
       shape: [
         1.0926064803359286, 1.0936554054833403, 1.094971659179167,
@@ -81,8 +84,11 @@ export const AutoMovieHumanF1RootControls: IAutoMovieHumanF1.IRootControls = {
       ],
     },
     {
-      centre: [0.5514570696257226, -1.642321970577369],
-      semi: [0.06445197823717189, 0.30361314009485507],
+      centre: { station: 0.5514570696257226, phase: -1.642321970577369 },
+      semi: {
+        stationMetres: 0.06445197823717189,
+        phaseRadians: 0.30361314009485507,
+      },
       sense: -1,
       shape: [
         1.0926064803359286, 1.0936554054833398, 1.094971659179167,
@@ -154,8 +160,11 @@ export const AutoMovieHumanF1RootControls: IAutoMovieHumanF1.IRootControls = {
   ],
   breast: [
     {
-      centre: [0.48447459467343323, 0.5058376012656751],
-      semi: [0.05679526173215265, 0.3937085292358168],
+      centre: { station: 0.48447459467343323, phase: 0.5058376012656751 },
+      semi: {
+        stationMetres: 0.05679526173215265,
+        phaseRadians: 0.3937085292358168,
+      },
       sense: 1,
       shape: [
         0.987113871629108, 0.9916952393279173, 0.9966314735101287,
@@ -225,8 +234,11 @@ export const AutoMovieHumanF1RootControls: IAutoMovieHumanF1.IRootControls = {
       ],
     },
     {
-      centre: [0.48447459467343323, -0.5058376012656751],
-      semi: [0.05679526173215265, 0.3937085292358168],
+      centre: { station: 0.48447459467343323, phase: -0.5058376012656751 },
+      semi: {
+        stationMetres: 0.05679526173215265,
+        phaseRadians: 0.3937085292358168,
+      },
       sense: -1,
       shape: [
         0.987113871629108, 0.9916952393279173, 0.9966314735101287,
@@ -297,8 +309,11 @@ export const AutoMovieHumanF1RootControls: IAutoMovieHumanF1.IRootControls = {
     },
   ],
   nose: {
-    centre: [0.780841925873081, 0.00116962637877141],
-    semi: [0.0180332883805595, 0.15839264968200029],
+    centre: { station: 0.780841925873081, phase: 0.00116962637877141 },
+    semi: {
+      stationMetres: 0.0180332883805595,
+      phaseRadians: 0.15839264968200029,
+    },
     sense: 1,
     shape: [
       1.1303953474143733, 1.127234998979876, 1.1233684990732484,

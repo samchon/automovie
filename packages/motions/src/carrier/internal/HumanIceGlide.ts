@@ -1,4 +1,8 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import {
+  AutoMovieEngineMotionSampling,
+  Quaternion,
+  Vector3,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -75,11 +79,11 @@ export namespace HumanIceGlide {
     if (edge !== undefined)
       HumanBound.within("edge.degrees", edge.degrees, -90, 90, "deg");
     if (step === undefined) return;
-    HumanBound.least("step.window[0]", step.window[0], 0, "s");
+    HumanBound.least("step.window.start", step.window.start, 0, "s");
     HumanBound.within(
-      "step.window[1]",
-      step.window[1],
-      step.window[0],
+      "step.window.end",
+      step.window.end,
+      step.window.start,
       params.duration,
       "s",
       "minimum",
@@ -111,11 +115,13 @@ export namespace HumanIceGlide {
     const grazing: number =
       step === undefined
         ? 0
-        : ((step.window[1] - step.window[0]) *
+        : ((step.window.end - step.window.start) *
             Math.asin(Math.min(1, HumanFoot.BEARING / step.clearance))) /
           Math.PI;
-    const released: number = ((step?.window[0] ?? 0) + grazing) / base.duration;
-    const acquired: number = ((step?.window[1] ?? 0) - grazing) / base.duration;
+    const released: number =
+      ((step?.window.start ?? 0) + grazing) / base.duration;
+    const acquired: number =
+      ((step?.window.end ?? 0) - grazing) / base.duration;
     return {
       ...base,
       events:
@@ -152,7 +158,9 @@ export namespace HumanIceGlide {
           edge === undefined
             ? 0
             : edge.degrees *
-              AutoMovieEngineMotionSampling.minimumJerkShare(share / HumanSurfaceGlide.ACQUIRE) *
+              AutoMovieEngineMotionSampling.minimumJerkShare(
+                share / HumanSurfaceGlide.ACQUIRE,
+              ) *
               (context.params.stop === true
                 ? 1 -
                   AutoMovieEngineMotionSampling.minimumJerkShare(
@@ -177,10 +185,11 @@ export namespace HumanIceGlide {
             1,
             Math.max(
               0,
-              (at - step.window[0]) / (step.window[1] - step.window[0]),
+              (at - step.window.start) / (step.window.end - step.window.start),
             ),
           );
-          const phase: number = AutoMovieEngineMotionSampling.minimumJerkShare(u);
+          const phase: number =
+            AutoMovieEngineMotionSampling.minimumJerkShare(u);
           const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
             UP,
             posture.yaw,
@@ -196,13 +205,13 @@ export namespace HumanIceGlide {
             posture,
             side,
             moved,
-            at <= step.window[0]
-              ? AutoMovieMotionHumanFootRelax.load(at, step.window[0])
-              : at >= step.window[1]
+            at <= step.window.start
+              ? AutoMovieMotionHumanFootRelax.load(at, step.window.start)
+              : at >= step.window.end
                 ? AutoMovieMotionHumanFootRelax.load(
                     at,
                     Infinity,
-                    step.window[1],
+                    step.window.end,
                   )
                 : 0,
           );

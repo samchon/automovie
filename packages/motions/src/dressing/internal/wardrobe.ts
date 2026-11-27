@@ -42,12 +42,21 @@ import { wardrobeSleeve } from "./wardrobeSleeve";
 export const wardrobe: IAutoMovieMotionHumanActionLaw<Params> = {
   name: "wardrobe",
   interrupts: {
-    any: [{ window: ["relax", 1], kind: "inertialize", entry: 0 }],
+    any: [
+      { window: { start: "relax", end: 1 }, kind: "inertialize", entry: 0 },
+    ],
   },
   accepts: {
-    sit: [{ window: ["seated", 1], kind: "inertialize", entry: 0 }],
+    sit: [
+      { window: { start: "seated", end: 1 }, kind: "inertialize", entry: 0 },
+    ],
     pickUp: [
-      { window: ["lifted", 1], kind: "inertialize", entry: 0, keep: ["grip"] },
+      {
+        window: { start: "lifted", end: 1 },
+        kind: "inertialize",
+        entry: 0,
+        keep: ["grip"],
+      },
     ],
   },
   plan: planWardrobe,

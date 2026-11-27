@@ -19,7 +19,6 @@ import type {
 
 import { stand } from "../../actions/internal/stand";
 import { standUpright } from "../../actions/internal/standUpright";
-import { walk } from "../../gait/internal/walk";
 import { walkRoot } from "../../actions/internal/walkRoot";
 import { HumanSupportCarry } from "../../carrier/internal/HumanSupportCarry";
 import { swungArms } from "../../carrier/internal/swungArms";
@@ -29,6 +28,7 @@ import { AutoMovieMotionHumanLean } from "../../compose/internal/AutoMovieMotion
 import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
+import { walk } from "../../gait/internal/walk";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { hipJoints } from "../../posture/internal/hipJoints";
@@ -116,7 +116,7 @@ export namespace climbStairs {
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
       {
-        window: ["arrived", 1],
+        window: { start: "arrived", end: 1 },
         kind: "inertialize",
         entry: 0,
         blend: climbStairsBounds.BLEND,
@@ -124,7 +124,7 @@ export namespace climbStairs {
     ],
     walk: [
       {
-        window: ["arrived", 1],
+        window: { start: "arrived", end: 1 },
         kind: "inertialize",
         entry: 0,
         blend: climbStairsBounds.BLEND,

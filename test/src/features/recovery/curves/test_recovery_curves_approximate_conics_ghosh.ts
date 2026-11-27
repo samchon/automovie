@@ -33,7 +33,7 @@ export function test_recovery_curves_approximate_conics_ghosh(): void {
     const rx: number = direction === 1 ? 40 : 25;
     const ry: number = direction === 1 ? 20 : 25;
     const ellipse: IAutoMoviePlanarCurveSource = {
-      domain: [0, Math.PI / 2],
+      domain: { start: 0, end: Math.PI / 2 },
       breaks: [],
       closed: false,
       evaluate: (t: number): Readonly<AutoMovieVector2Tuple> => [
@@ -70,7 +70,7 @@ export function test_recovery_curves_approximate_conics_ghosh(): void {
   }
 
   const exponential: IAutoMoviePlanarCurveSource = {
-    domain: [0, 0.8],
+    domain: { start: 0, end: 0.8 },
     breaks: [0.3],
     closed: false,
     evaluate: (t: number): Readonly<AutoMovieVector2Tuple> => [

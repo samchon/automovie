@@ -67,6 +67,16 @@ export namespace AutoMovieHumanHandDigitBones {
       (s: number, l: { length: number }): number => s + l.length,
       0,
     );
+    const width: [number, number][] = d.width.map(
+      (
+        k: IAutoMovieHumanHandDigit["width"][number],
+      ): [number, number] => [k.length, k.halfWidth],
+    );
+    const depth: [number, number][] = d.depth.map(
+      (
+        k: IAutoMovieHumanHandDigit["depth"][number],
+      ): [number, number] => [k.length, k.halfDepth],
+    );
     const formEnd: number = d.cap + norm(sub(d.pole, linePoint(d, d.cap)));
     const size = (s: number): [number, number] => {
       const f: number = Math.min(
@@ -74,8 +84,8 @@ export namespace AutoMovieHumanHandDigitBones {
         Math.min(1, Math.max(0, (s - rootAt) / (length - rootAt))) * formEnd,
       );
       return [
-        AutoMovieHumanMonotoneCubic.interpolate(d.width, f) * hand.across,
-        AutoMovieHumanMonotoneCubic.interpolate(d.depth, f) * hand.through,
+        AutoMovieHumanMonotoneCubic.interpolate(width, f) * hand.across,
+        AutoMovieHumanMonotoneCubic.interpolate(depth, f) * hand.through,
       ];
     };
     const radius = (s: number): number => {

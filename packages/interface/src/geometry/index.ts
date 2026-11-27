@@ -11,6 +11,7 @@ export type { IAutoMovieAffineBoxBound } from "./IAutoMovieAffineBoxBound";
 export type { IAutoMovieArcLengthJet } from "./IAutoMovieArcLengthJet";
 export type { IAutoMovieBuildWall } from "./IAutoMovieBuildWall";
 export type { IAutoMovieCompactCurveApproximation } from "./IAutoMovieCompactCurveApproximation";
+export type { IAutoMovieCurveDomain } from "./IAutoMovieCurveDomain";
 export type { IAutoMovieConicApproximation } from "./IAutoMovieConicApproximation";
 export type { IAutoMovieCreateEllipticLoftAtlas } from "./IAutoMovieCreateEllipticLoftAtlas";
 export type { IAutoMovieCreateMeshDepthSampler } from "./IAutoMovieCreateMeshDepthSampler";

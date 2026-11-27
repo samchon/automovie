@@ -50,7 +50,8 @@ export function respondAutoMovieFilmColor(props: {
   if (grade === undefined) return c;
   const graded: number[] = c.map(
     (value: number, k: number): number =>
-      clamp(value * grade.slope[k]! + grade.offset[k]!) ** grade.power[k]!,
+      clamp(value * channel(grade.slope, k) + channel(grade.offset, k)) **
+      channel(grade.power, k),
   );
   const luma: number =
     0.2126 * graded[0]! + 0.7152 * graded[1]! + 0.0722 * graded[2]!;
@@ -89,6 +90,10 @@ function acesFilmic(
 /*
  * Clamp to [0, 1].
  */
+function channel(values: IAutoMovieFilmOptics.IChannels, index: number): number {
+  return index === 0 ? values.r : index === 1 ? values.g : values.b;
+}
+
 function clamp(value: number): number {
   return Math.min(1, Math.max(0, value));
 }

@@ -46,7 +46,12 @@ export function test_engine_geometry_surface_registry(): void {
           left: 1,
           up: 2,
           down: 2,
-          exponents: [2, 2, 2, 2],
+          exponents: {
+            upperRight: 2,
+            upperLeft: 2,
+            lowerLeft: 2,
+            lowerRight: 2,
+          },
         },
       },
     ],

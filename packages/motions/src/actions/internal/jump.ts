@@ -137,10 +137,20 @@ export namespace jump {
    */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
-      { window: ["settled", 1], kind: "inertialize", entry: 0, blend: BLEND },
+      {
+        window: { start: "settled", end: 1 },
+        kind: "inertialize",
+        entry: 0,
+        blend: BLEND,
+      },
     ],
     walk: [
-      { window: ["settled", 1], kind: "inertialize", entry: 0, blend: BLEND },
+      {
+        window: { start: "settled", end: 1 },
+        kind: "inertialize",
+        entry: 0,
+        blend: BLEND,
+      },
     ],
   };
 

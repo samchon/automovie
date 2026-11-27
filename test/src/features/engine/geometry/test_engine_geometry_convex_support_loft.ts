@@ -25,7 +25,7 @@ export function test_engine_geometry_convex_support_loft(): void {
         ],
         spans: [
           {
-            interval: [1, 4],
+            interval: { lowerY: 1, upperY: 4 },
             offsets: [
               [2, 2, 2, 2],
               [1, 1, 1, 1],

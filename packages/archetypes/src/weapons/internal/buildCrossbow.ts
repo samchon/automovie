@@ -1,3 +1,4 @@
+import type { IAutoMovieAffordanceCoupling } from "@automovie/interface";
 import { Vector3 } from "@automovie/engine";
 
 import {
@@ -103,7 +104,7 @@ export function buildCrossbow(
     extent: null,
     rides: "string",
   });
-  const table: [number, number][] = AutoMovieArchetypeBow.limbs(half, d.brace!, c.travel);
+  const table: IAutoMovieAffordanceCoupling.IPoint[] = AutoMovieArchetypeBow.limbs(half, d.brace!, c.travel);
   for (const [id, sign] of [
     ["upperLimb", 1],
     ["lowerLimb", -1],
@@ -113,7 +114,7 @@ export function buildCrossbow(
       kind: "hinge",
       frame: AutoMovieArchetypeFrame.facing(centre, v(0, sign, 0), v(0, 0, 1)),
       extent: null,
-      travel: table[table.length - 1]![1],
+      travel: table[table.length - 1]!.follower,
       parts: [id],
       follows: { id: "string", table },
     });

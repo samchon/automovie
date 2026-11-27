@@ -1,5 +1,6 @@
 import type { AutoMovieVector3Tuple } from "../geometry/AutoMovieVector3Tuple";
 import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
+import type { IAutoMovieConstructionSplit } from "./IAutoMovieConstructionSplit";
 
 /** Shared world-space seam geometry between split bands. */
 export namespace IAutoMovieConstructionSplitSeam {
@@ -78,7 +79,7 @@ export namespace IAutoMovieConstructionSplitSeam {
      * First and second host phases of the forks, radians, in the order the
      * returned seam traverses them.
      */
-    seam: [number, number];
+    seam: IAutoMovieConstructionSplit.ISeamPhases;
 
     /**
      * Host end's outward direction; its projection perpendicular to the chord
@@ -92,7 +93,7 @@ export namespace IAutoMovieConstructionSplitSeam {
      * neighbors including the implicit endpoints must differ. Traversal order
      * is retained even when along decreases.
      */
-    knots: readonly (readonly [number, number])[];
+    knots: readonly IAutoMovieConstructionSplitSeam.IProfileKnotMm[];
 
     /**
      * Optional world direction replacing normal for the seam plane; projected
@@ -118,7 +119,7 @@ export namespace IAutoMovieConstructionSplitSeam {
     station: number;
 
     /** Ordered first and second fork phases on the host, radians. */
-    seam: [number, number];
+    seam: IAutoMovieConstructionSplit.ISeamPhases;
 
     /**
      * Host end direction used with the chord to establish the straight seam's

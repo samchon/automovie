@@ -62,7 +62,7 @@ export function test_engine_geometry_split_compose_nested(): void {
     host: outer.children[0].part,
     hostFace: "f.0",
     hostEnd: "top",
-    seam: [-1, 1],
+    seam: { startPhaseRad: -1, endPhaseRad: 1 },
     count: C.COLUMNS,
     rows: 4,
     children: [

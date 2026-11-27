@@ -347,7 +347,7 @@ export namespace IAutoMovieHumanF1 {
   /** The crotch seam's shared chord-plane and fairing controls. */
   export interface ICrotchProfile {
     /** Chord distance and depth, in metres, at each knot. */
-    knots: [number, number][];
+    knots: { alongM: number; depthM: number }[];
 
     /** Corner angle, radians. */
     corner: number;

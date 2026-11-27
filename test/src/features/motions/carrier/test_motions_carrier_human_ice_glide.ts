@@ -21,7 +21,7 @@ export function test_motions_carrier_human_ice_glide(): void {
   const pivots = { left: { x: 0, y: 0, z: 0 }, right: { x: 0, y: 0, z: 0 } };
   const step = {
     side: "left" as const,
-    window: [0.5, 1] as const,
+    window: { start: 0.5, end: 1 } as const,
     offset: { x: 0.2, z: 0 },
     clearance: 0.05,
   };
@@ -40,14 +40,17 @@ export function test_motions_carrier_human_ice_glide(): void {
     [
       refused({ duration: 2, edge: { degrees: 30, pivots }, step }),
       refused({ duration: 2, edge: { degrees: 120, pivots } }),
-      refused({ duration: 2, step: { ...step, window: [0.5, 3] } }),
+      refused({
+        duration: 2,
+        step: { ...step, window: { start: 0.5, end: 3 } },
+      }),
       refused({ duration: 2, step: { ...step, offset: { x: 1, z: 0 } } }),
       refused({ duration: 2, step: { ...step, clearance: 0 } }),
     ],
     [
       undefined,
       "edge.degrees",
-      "step.window[1]",
+      "step.window.end",
       "step.offset.x",
       "step.clearance",
     ],

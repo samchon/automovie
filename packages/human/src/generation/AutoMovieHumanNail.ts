@@ -3,6 +3,7 @@ import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanConicLoft,
   IAutoMovieHumanNail,
+  IAutoMovieLoftRelief,
 } from "@automovie/interface";
 
 /**
@@ -702,8 +703,9 @@ export namespace AutoMovieHumanNail {
       }
       return [least, Math.min(skin.tip - 1e-6, greatest)];
     };
-    const net: { stations: [number, number]; phases: [number, number] } = { stations: windowed(fold - reachOut, frontMost + reachOut), phases };
-    const rows: number = Math.max(7, Math.ceil((net.stations[1] - net.stations[0]) / cell) + 3);
+    const stationBounds: [number, number] = windowed(fold - reachOut, frontMost + reachOut);
+    const net: { stations: IAutoMovieLoftRelief.IRange; phases: IAutoMovieLoftRelief.IRange } = { stations: { start: stationBounds[0], end: stationBounds[1] }, phases: { start: phases[0], end: phases[1] } };
+    const rows: number = Math.max(7, Math.ceil((net.stations.end - net.stations.start) / cell) + 3);
     let clipped: number = 0;
     let clippedAt: [number, number] = [0, 0];
     let clippedIn: [number, number, number, number, number] = [0, 0, 0, 0, 0];
@@ -714,7 +716,7 @@ export namespace AutoMovieHumanNail {
       const out: number[] = [];
       for (let i: number = 0; i < count; ++i) {
         const s: number = Math.max(skin.first, Math.min(skin.tip, from + ((to - from) * (i - 1)) / (count - 3)));
-        const points: AutoMovieVector3Tuple[] = Array.from({ length: columns }, (_: unknown, j: number): AutoMovieVector3Tuple => read.at(s, net.phases[0] + (span * (j - 1)) / (columns - 3)));
+        const points: AutoMovieVector3Tuple[] = Array.from({ length: columns }, (_: unknown, j: number): AutoMovieVector3Tuple => read.at(s, net.phases.start + (span * (j - 1)) / (columns - 3)));
         let [least, greatest]: [number, number] = [0, 0];
         for (let j: number = 1; j < columns; ++j) {
           if (points[j]![2] < points[least]![2]) least = j;
@@ -734,7 +736,7 @@ export namespace AutoMovieHumanNail {
       }
       return out;
     };
-    const heights: number[] = fill(rows, net.stations[0], net.stations[1], false);
+    const heights: number[] = fill(rows, net.stations.start, net.stations.end, false);
     // The free edge's strip: the bed's window round the digit, and along it from two ramps and three of its own cells before the
     // apex to three cells past it; its cells along are a quarter of the step's length, one thickness (the lofting skill's rule).
     const fine: number = proportions.thickness / 4;
@@ -747,8 +749,8 @@ export namespace AutoMovieHumanNail {
     const sagittas: number[] = visible.map((s: ISection): number => s.sagitta);
     return {
       plate,
-      bed: { name: bed, stations: net.stations, phases: [net.phases[0], net.phases[0] + span], axis: frame.dorsal, rows, columns, heights },
-      strip: { name: bed + ".edge", stations: band, phases: [net.phases[0], net.phases[0] + span], axis: frame.dorsal, rows: lines, columns, heights: steps },
+      bed: { name: bed, stations: net.stations, phases: { start: net.phases.start, end: net.phases.start + span }, axis: frame.dorsal, rows, columns, heights },
+      strip: { name: bed + ".edge", stations: { start: band[0], end: band[1] }, phases: { start: net.phases.start, end: net.phases.start + span }, axis: frame.dorsal, rows: lines, columns, heights: steps },
       frame,
       plan: {
         span: [fold, free],

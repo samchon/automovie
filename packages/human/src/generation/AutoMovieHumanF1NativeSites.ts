@@ -338,11 +338,11 @@ export namespace AutoMovieHumanF1NativeSites {
     // largest in magnitude. The window's middle is not the navel: the net also carries the skin above and below the pit.
     const navel: IAutoMovieLoftRelief | undefined = (trunk.reliefs ?? []).find((relief: IAutoMovieLoftRelief): boolean => relief.name === "trunk.navel");
     if (navel === undefined) throw new Error("native sites need the trunk's navel net");
-    const median: number = navel.phases[0] + AutoMovieLoftRelief.width(navel) / 2;
+    const median: number = navel.phases.start + AutoMovieLoftRelief.width(navel) / 2;
     const omphalion: number = Runs.extreme(
       (s: number): number => Math.abs(AutoMovieLoftRelief.height(navel, s, median)[0]),
-      navel.stations[0],
-      navel.stations[1],
+      navel.stations.start,
+      navel.stations.end,
       PIT_STEP_MM,
       1,
     );

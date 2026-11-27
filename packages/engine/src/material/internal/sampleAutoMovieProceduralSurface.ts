@@ -42,8 +42,8 @@ export function sampleAutoMovieProceduralSurface(
   return {
     color,
     roughness:
-      surface.roughness[0] +
-      value * (surface.roughness[1] - surface.roughness[0]),
+      surface.roughness.atZero +
+      value * (surface.roughness.atOne - surface.roughness.atZero),
     height: value * surface.relief,
     value,
   };

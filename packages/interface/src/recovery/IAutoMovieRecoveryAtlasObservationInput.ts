@@ -2,6 +2,7 @@ import type {
   AutoMovieVector3Tuple,
   IAutoMovieRecoveryAtlasTessellation,
 } from "..";
+import type { IAutoMovieRecoveryScalarWindow } from "./IAutoMovieRecoveryScalarWindow";
 
 /**
  * Evaluated source geometry, automatic levels and bounded atlas-observation
@@ -30,7 +31,7 @@ export interface IAutoMovieRecoveryAtlasObservationInput {
    * Optional millimetre scalar window selecting intersecting complete saved
    * slabs.
    */
-  scalarWindowMm?: readonly [number, number];
+  scalarWindowMm?: Readonly<IAutoMovieRecoveryScalarWindow>;
 
   /** Optional original source-face ordinals prioritized within selected work. */
   priorityFaces?: readonly number[];

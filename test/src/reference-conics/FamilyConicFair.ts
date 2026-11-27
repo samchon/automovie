@@ -268,7 +268,10 @@ export namespace FamilyConicFair {
     // The curve p(phi) = r(phi) e(phi), e = (cos, sin): its derivatives by Leibniz's rule, e's k-th derivative being e turned by k quarter turns.
     const binomial = (n: number, k: number): number =>
       k === 0 || k === n ? 1 : binomial(n - 1, k - 1) + binomial(n - 1, k);
-    const domain: readonly [number, number] = [SEAM, SEAM + 2 * Math.PI];
+    const domain: IAutoMoviePlanarCurveSource["domain"] = {
+      start: SEAM,
+      end: SEAM + 2 * Math.PI,
+    };
     const derivative = (
       phi: number,
       order: 1 | 2 | 3 | 4 | 5,
@@ -299,8 +302,8 @@ export namespace FamilyConicFair {
     };
     const steps: number = 16 * H;
     for (let i: number = 0; i < steps; ++i) {
-      let lo: number = domain[0] + (2 * Math.PI * i) / steps,
-        hi: number = domain[0] + (2 * Math.PI * (i + 1)) / steps;
+      let lo: number = domain.start + (2 * Math.PI * i) / steps,
+        hi: number = domain.start + (2 * Math.PI * (i + 1)) / steps;
       let below: number = numerator(lo);
       if (below === 0 || Math.sign(below) === Math.sign(numerator(hi)))
         continue;
@@ -312,14 +315,14 @@ export namespace FamilyConicFair {
         else hi = mid;
       }
       const root: number = (lo + hi) / 2;
-      if (root > domain[0] && root < domain[1]) breaks.push(root);
+      if (root > domain.start && root < domain.end) breaks.push(root);
     }
     // The closure's two ends: an invented closure is no skin, so no arc spans its joint with the skin.
     for (const end of (options.closures ?? []).flat()) {
       const at: number = SEAM + wrap(end - SEAM);
       if (
-        at > domain[0] + 1e-9 &&
-        at < domain[1] - 1e-9 &&
+        at > domain.start + 1e-9 &&
+        at < domain.end - 1e-9 &&
         !breaks.some((b: number): boolean => Math.abs(b - at) < 1e-6)
       )
         breaks.push(at);

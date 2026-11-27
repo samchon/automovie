@@ -104,8 +104,8 @@ export function test_human_native_root_transport(): void {
   );
   const basis: IAutoMovieLoftSectionFrame = child.axis.at(2);
   const loop: IAutoMovieConstructionPortLoop = {
-    centre: [0.002, 0],
-    semi: [0.0002, 0.01],
+    centre: { station: 0.002, phase: 0 },
+    semi: { stationMetres: 0.0002, phaseRadians: 0.01 },
     sense: 1,
   };
 
@@ -390,8 +390,8 @@ export function test_human_native_root_transport(): void {
 
   scenario("radial source clock provenance", (): void => {
     const original: IAutoMovieConstructionPortLoop = {
-      centre: [0.002, 0.4],
-      semi: [0.0002, 0.1],
+      centre: { station: 0.002, phase: 0.4 },
+      semi: { stationMetres: 0.0002, phaseRadians: 0.1 },
       sense: 1,
     };
     const rotation: number = 0.2;

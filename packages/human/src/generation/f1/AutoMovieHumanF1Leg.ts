@@ -204,8 +204,8 @@ export const AutoMovieHumanF1Leg: IAutoMovieHumanConicLoft.IFamily = {
   reliefs: [
     {
       name: "leg.hollow.0",
-      stations: [74, 164],
-      phases: [-0.2953, 5.5879],
+      stations: { start: 74, end: 164 },
+      phases: { start: -0.2953, end: 5.5879 },
       axis: AutoMovieHumanF1Placement.direction("leg.hollow.0.axis"),
       turn: AutoMovieHumanF1Placement.direction("leg.hollow.0.turn"),
       rows: 12,
@@ -231,8 +231,8 @@ export const AutoMovieHumanF1Leg: IAutoMovieHumanConicLoft.IFamily = {
     },
     {
       name: "leg.hollow.1",
-      stations: [366, 508],
-      phases: [-0.2953, 5.5879],
+      stations: { start: 366, end: 508 },
+      phases: { start: -0.2953, end: 5.5879 },
       axis: AutoMovieHumanF1Placement.direction("leg.hollow.1.axis"),
       turn: AutoMovieHumanF1Placement.direction("leg.hollow.1.turn"),
       rows: 14,
@@ -271,8 +271,8 @@ export const AutoMovieHumanF1Leg: IAutoMovieHumanConicLoft.IFamily = {
     },
     {
       name: "leg.hollow.2",
-      stations: [766, 960],
-      phases: [-0.2953, 5.5879],
+      stations: { start: 766, end: 960 },
+      phases: { start: -0.2953, end: 5.5879 },
       axis: AutoMovieHumanF1Placement.direction("leg.hollow.2.axis"),
       turn: AutoMovieHumanF1Placement.direction("leg.hollow.2.turn"),
       rows: 23,
@@ -353,8 +353,8 @@ export const AutoMovieHumanF1Leg: IAutoMovieHumanConicLoft.IFamily = {
     },
     {
       name: "leg.sole",
-      stations: [930, 960],
-      phases: [0, 6.283185307179586],
+      stations: { start: 930, end: 960 },
+      phases: { start: 0, end: 6.283185307179586 },
       axis: AutoMovieHumanF1Placement.direction("leg.sole.axis"),
       rows: 16,
       columns: 35,

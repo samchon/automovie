@@ -1,4 +1,8 @@
-import { AutoMovieGravity, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import {
+  AutoMovieEngineMotionSampling,
+  AutoMovieGravity,
+  Vector3,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
@@ -57,11 +61,46 @@ export namespace step {
    * any time.
    */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
-    step: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.1 }],
-    guard: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.15 }],
-    punch: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.1 }],
-    kick: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.1 }],
-    defend: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.1 }],
+    step: [
+      {
+        window: { start: 0, end: 1 },
+        kind: "inertialize",
+        entry: 0,
+        blend: 0.1,
+      },
+    ],
+    guard: [
+      {
+        window: { start: 0, end: 1 },
+        kind: "inertialize",
+        entry: 0,
+        blend: 0.15,
+      },
+    ],
+    punch: [
+      {
+        window: { start: 0, end: 1 },
+        kind: "inertialize",
+        entry: 0,
+        blend: 0.1,
+      },
+    ],
+    kick: [
+      {
+        window: { start: 0, end: 1 },
+        kind: "inertialize",
+        entry: 0,
+        blend: 0.1,
+      },
+    ],
+    defend: [
+      {
+        window: { start: 0, end: 1 },
+        kind: "inertialize",
+        entry: 0,
+        blend: 0.1,
+      },
+    ],
   };
 
   /*
@@ -82,11 +121,12 @@ export namespace step {
    * Parameter body: The body.
    * Returns: Seconds.
    */
-  export function period(
-    body: {
-      measure: Pick<IAutoMovieMotionHumanActionContext["body"]["measure"], "hipHeight">;
-    },
-  ): number {
+  export function period(body: {
+    measure: Pick<
+      IAutoMovieMotionHumanActionContext["body"]["measure"],
+      "hipHeight"
+    >;
+  }): number {
     return (
       PERIOD * Math.sqrt(body.measure.hipHeight / AutoMovieGravity.STANDARD)
     );
@@ -186,7 +226,9 @@ export namespace step {
       const k: number = Math.min(count - 1, Math.floor(t / stride));
       const local: number = (t - k * stride) / stride;
       const [a, b] = (k === 0 ? planted.opening : planted.windows)[side];
-      const s: number = AutoMovieEngineMotionSampling.minimumJerkShare((local - a) / (b - a));
+      const s: number = AutoMovieEngineMotionSampling.minimumJerkShare(
+        (local - a) / (b - a),
+      );
       return {
         travelled: (k + s) * length,
         swinging:
@@ -209,8 +251,14 @@ export namespace step {
       contacts: planted.contacts,
       posture: (seconds: number): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
-        const placed: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement> = { ...feet };
-        const down: Record<AutoMovieHumanSide, boolean> = { left: true, right: true };
+        const placed: Record<
+          AutoMovieHumanSide,
+          IAutoMovieMotionHumanFoot.IPlacement
+        > = { ...feet };
+        const down: Record<AutoMovieHumanSide, boolean> = {
+          left: true,
+          right: true,
+        };
         for (const side of SIDES) {
           const g = progress(side, t);
           const fromY: number = feet[side].ankle.y;
@@ -230,7 +278,9 @@ export namespace step {
           down[side] = !g.swinging;
         }
         const carried: number =
-          count * length * AutoMovieEngineMotionSampling.minimumJerkShare(t / duration);
+          count *
+          length *
+          AutoMovieEngineMotionSampling.minimumJerkShare(t / duration);
         const posture: IAutoMovieMotionHumanPosture = lowerHumanPosture(
           body,
           {
@@ -296,30 +346,38 @@ export namespace step {
     count: number,
     support?: Pick<strikingStepSupport.ISupport, "landings" | "bearing">,
   ): IPlants {
-    const windows: SwingWindows = first === "left"
-      ? { left: [0, 0.5], right: [0.45, 0.95] }
-      : { left: [0.45, 0.95], right: [0, 0.5] };
-    const cutFirst: AutoMovieHumanSide = support?.bearing === undefined
-      ? first
-      : StrikingStance.rear({ lead: support.bearing });
+    const windows: SwingWindows =
+      first === "left"
+        ? { left: [0, 0.5], right: [0.45, 0.95] }
+        : { left: [0.45, 0.95], right: [0, 0.5] };
+    const cutFirst: AutoMovieHumanSide =
+      support?.bearing === undefined
+        ? first
+        : StrikingStance.rear({ lead: support.bearing });
     const cutFollow: readonly [number, number] = [
       support?.bearing === undefined ? 0 : 0.5,
       0.95,
     ];
-    const opening: SwingWindows = support === undefined
-      ? windows
-      : cutFirst === "left"
-        ? { left: [0, 0.5], right: cutFollow }
-        : { left: cutFollow, right: [0, 0.5] };
+    const opening: SwingWindows =
+      support === undefined
+        ? windows
+        : cutFirst === "left"
+          ? { left: [0, 0.5], right: cutFollow }
+          : { left: cutFollow, right: [0, 0.5] };
     const contacts: IAutoMovieMotionHumanContactWindow[] = [];
     for (let k: number = 0; k < count; k++)
       for (const side of SIDES) {
-        const [a, b]: readonly [number, number] = (k === 0 ? opening : windows)[side];
+        const [a, b]: readonly [number, number] = (k === 0 ? opening : windows)[
+          side
+        ];
         if (k !== 0 || support?.landings[side] === undefined)
           contacts.push({
             part: `${side}Foot`,
             kind: "plant",
-            from: k === 0 ? 0 : (k - 1 + (k === 1 ? opening : windows)[side][1]) / count,
+            from:
+              k === 0
+                ? 0
+                : (k - 1 + (k === 1 ? opening : windows)[side][1]) / count,
             to: (k + a) / count,
             support: { kind: "ground" },
           });
@@ -349,4 +407,6 @@ type IPlanProgressResult = {
 /*
  * Each foot's swing interval as shares of one step.
  */
-type SwingWindows = Readonly<Record<AutoMovieHumanSide, readonly [number, number]>>;
+type SwingWindows = Readonly<
+  Record<AutoMovieHumanSide, readonly [number, number]>
+>;

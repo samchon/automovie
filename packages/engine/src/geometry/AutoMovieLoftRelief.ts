@@ -32,9 +32,10 @@ export namespace AutoMovieLoftRelief {
       const j: number[] = jet(relief, s, t);
       return [j[0]!, j[1]!, j[2]!];
     }
-    const [s0, s1] = relief.stations;
+    const s0: number = relief.stations.start;
+    const s1: number = relief.stations.end;
     const span: number = width(relief);
-    const offset: number = wrap(t - relief.phases[0]);
+    const offset: number = wrap(t - relief.phases.start);
     if (s <= s0 || s >= s1 || offset >= span) return [0, 0, 0];
     const u: number = ((s - s0) / (s1 - s0)) * (relief.rows - 3);
     const v: number = (offset / span) * (relief.columns - 3);
@@ -116,7 +117,7 @@ export namespace AutoMovieLoftRelief {
     const a: AutoMovieVector3Tuple = relief.axis;
     if (relief.turn === undefined) return [a, [0, 0, 0], [0, 0, 0]];
     const b: AutoMovieVector3Tuple = relief.turn;
-    const x: number = t - (relief.phases[0] + width(relief) / 2);
+    const x: number = t - (relief.phases.start + width(relief) / 2);
     const c: number = Math.cos(x);
     const s: number = Math.sin(x);
     const e: AutoMovieVector3Tuple = [
@@ -136,7 +137,7 @@ export namespace AutoMovieLoftRelief {
    * mean one turn.
    */
   export function width(relief: IAutoMovieLoftRelief): number {
-    const w: number = wrap(relief.phases[1] - relief.phases[0]);
+    const w: number = wrap(relief.phases.end - relief.phases.start);
     return w === 0 ? 2 * Math.PI : w;
   }
 
@@ -151,9 +152,10 @@ export namespace AutoMovieLoftRelief {
     s: number,
     t: number,
   ): number[] {
-    const [s0, s1] = relief.stations;
+    const s0: number = relief.stations.start;
+    const s1: number = relief.stations.end;
     const span: number = width(relief);
-    const offset: number = wrap(t - relief.phases[0]);
+    const offset: number = wrap(t - relief.phases.start);
     if (s <= s0 || s >= s1 || offset >= span) return [0, 0, 0, 0, 0, 0];
     const su: number = (relief.rows - 3) / (s1 - s0);
     const sv: number = (relief.columns - 3) / span;

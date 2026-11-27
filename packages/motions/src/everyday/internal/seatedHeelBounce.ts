@@ -1,4 +1,9 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
+import {
+  AutoMovieEngineKinematics,
+  AutoMovieEngineMotionSampling,
+  Quaternion,
+  Vector3,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -94,9 +99,11 @@ export namespace seatedHeelBounce {
    * A subsequent action can cut at the last heel return.
    */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
-    rise: [{ window: ["heelDown", 1], kind: "inertialize", entry: 0 }],
+    rise: [
+      { window: { start: "heelDown", end: 1 }, kind: "inertialize", entry: 0 },
+    ],
     seatedHeelBounce: [
-      { window: ["heelDown", 1], kind: "inertialize", entry: 0 },
+      { window: { start: "heelDown", end: 1 }, kind: "inertialize", entry: 0 },
     ],
   };
 
@@ -352,7 +359,10 @@ export namespace seatedHeelBounce {
         const angle: number =
           t === duration
             ? 0
-            : amplitude * AutoMovieEngineMotionSampling.minimumJerkShare(1 - Math.abs(2 * phase - 1));
+            : amplitude *
+              AutoMovieEngineMotionSampling.minimumJerkShare(
+                1 - Math.abs(2 * phase - 1),
+              );
         return at(angle);
       },
     };

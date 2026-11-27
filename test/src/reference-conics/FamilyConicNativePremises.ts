@@ -212,10 +212,10 @@ export function FamilyConicNativePremises(
         : Seam.create({
             ...host,
             into: node.hostEnd === "bottom" ? -1 : 1,
-            knots: seam.profile.knots.map(([a, d]): [number, number] => [
-              a * 1000,
-              d * 1000,
-            ]),
+            knots: seam.profile.knots.map(({ alongM, depthM }) => ({
+              alongMm: alongM * 1000,
+              depthMm: depthM * 1000,
+            })),
             ...(seam.profile.heading === undefined
               ? {}
               : { heading: seam.profile.heading }),
@@ -375,8 +375,8 @@ export function FamilyConicNativePremises(
                   host: { surface: source.surface, station, into },
                   arc:
                     index === 0
-                      ? node.seam
-                      : [node.seam[1], node.seam[0] + 2 * Math.PI],
+                      ? [node.seam.startPhaseRad, node.seam.endPhaseRad]
+                      : [node.seam.endPhaseRad, node.seam.startPhaseRad + 2 * Math.PI],
                   normal: normal(source, node.hostEnd),
                   child: side,
                   count: node.count,
@@ -423,8 +423,8 @@ export function FamilyConicNativePremises(
         } else {
           const count: number = seams.length,
             q: number = node.count / 4,
-            a = (j: number): number => seams[j]!.seam[0],
-            b = (j: number): number => seams[j]!.seam[1];
+            a = (j: number): number => seams[j]!.seam.startPhaseRad,
+            b = (j: number): number => seams[j]!.seam.endPhaseRad;
           const p = seams.find(
             (s): boolean => s.profile !== undefined,
           )?.profile;

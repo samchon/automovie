@@ -22,7 +22,7 @@ export function test_engine_film_compile_flame_flicker(): void {
   const start: number = 1 / 480;
   const end: number = 3 / 480;
   const switched: ReturnType<typeof compileAutoMovieFlameFlicker> =
-    compileAutoMovieFlameFlicker({ ...cue, on: [start, end] }, duration);
+    compileAutoMovieFlameFlicker({ ...cue, on: { start, end } }, duration);
   TestValidator.equals(
     "clock includes the exact arbitrary boundaries",
     switched.times,

@@ -1,4 +1,5 @@
 import type { AutoMovieHumanSide } from "../human/AutoMovieHumanSide";
+import type { IAutoMovieMotionHumanWrite } from "./IAutoMovieMotionHumanWrite";
 
 /**
  * Working a prop the hand already holds: its fingers drive the prop's own
@@ -115,9 +116,9 @@ export namespace IAutoMovieMotionHumanHeldWork {
     tip: string;
 
     /**
-     * The point on the writing surface it stays on, [X, Z] metres in the
-     * surface's frame.
+     * The point on the writing surface it stays on, metres in the surface's
+     * X/Z frame.
      */
-    at: readonly [number, number];
+    at: IAutoMovieMotionHumanWrite.IVertex;
   }
 }

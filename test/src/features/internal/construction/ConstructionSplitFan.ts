@@ -37,7 +37,7 @@ export namespace ConstructionSplitFan {
 
   /** The further seam enclosing seam 0. */
   export const OUTER: IAutoMovieConstructionSplit.ISeam[] = [
-    { seam: [T - Math.PI, Math.PI - T] },
+    { seam: { startPhaseRad: T - Math.PI, endPhaseRad: Math.PI - T } },
   ];
 
   /** The host. */
@@ -110,7 +110,7 @@ export namespace ConstructionSplitFan {
       host: options.host ?? host(),
       hostFace: "trunk",
       hostEnd: "top",
-      seam: [-T, T],
+      seam: { startPhaseRad: -T, endPhaseRad: T },
       ...(options.outer === undefined ? {} : { outer: options.outer }),
       ...(options.profile === undefined ? {} : { profile: options.profile }),
       count: options.count ?? COLUMNS,
@@ -122,7 +122,7 @@ export namespace ConstructionSplitFan {
   /** A curved seam 0 of one knot 4 mm deep under the heading (0.6, 0, -0.8). */
   export function headed(reach?: number): IAutoMovieConstructionSplit.IProfile {
     return {
-      knots: [[HALF / 1000, 0.004]],
+      knots: [{ alongM: HALF / 1000, depthM: 0.004 }],
       corner: 0.3,
       heading: [0.6, 0, -0.8],
       ...(reach === undefined ? {} : { reach }),

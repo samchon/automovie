@@ -16,8 +16,8 @@ export namespace IAutoMovieHumanLegLaw {
     /** Distance between the rings. */
     length: number;
 
-    /** Ankle ring centre in the canonical plane. */
-    ankle: [number, number];
+    /** Ankle ring centre in the canonical plane, millimetres. */
+    ankle: ICanonicalPlanePoint;
 
     /** The ankle ring in the canonical frame, world. */
     ankleWorld: AutoMovieVector3Tuple[];
@@ -25,11 +25,11 @@ export namespace IAutoMovieHumanLegLaw {
     /** The ring's height off its plane at each phase. */
     ankleLift: number[];
 
-    /** Offset of the law's last centre from the crotch ring's. */
-    crotchOffset: [number, number];
+    /** Offset of the law's last centre from the crotch ring's, millimetres. */
+    crotchOffset: ICanonicalPlaneOffset;
 
-    /** Centre the crotch ring is read about. */
-    crotchCentre: [number, number];
+    /** Centre the crotch ring is read about in the canonical plane. */
+    crotchCentre: ICanonicalPlanePoint;
 
     /** The tape and control inputs. */
     inputs: IAutoMovieHumanLegConstruction.IInputs;
@@ -51,6 +51,18 @@ export namespace IAutoMovieHumanLegLaw {
 
     /** The ankle ring's radius less the law's, at each phase. */
     ankleResidual: number[];
+  }
+
+  /** A point in the canonical X/Z plane: forward X and lateral Z, millimetres. */
+  export interface ICanonicalPlanePoint {
+    forward: number;
+    lateral: number;
+  }
+
+  /** A displacement in the canonical X/Z plane, millimetres. */
+  export interface ICanonicalPlaneOffset {
+    forward: number;
+    lateral: number;
   }
 
   /** Section of the law before any end residual. */

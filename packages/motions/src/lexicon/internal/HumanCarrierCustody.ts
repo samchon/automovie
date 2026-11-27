@@ -26,7 +26,7 @@ export const HumanCarrierCustody: IAutoMovieMotionHumanActionLaw<IAutoMovieMotio
       ...pickUp.interrupts,
       stand: [
         {
-          window: ["gripClosed", "lifted"],
+          window: { start: "gripClosed", end: "lifted" },
           kind: "inertialize",
           entry: 0,
           blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
@@ -38,7 +38,7 @@ export const HumanCarrierCustody: IAutoMovieMotionHumanActionLaw<IAutoMovieMotio
       // straightens and moves the carrier away from the gripped prop.
       drawFromCarrier: [
         {
-          window: ["gripClosed", 1],
+          window: { start: "gripClosed", end: 1 },
           kind: "inertialize",
           entry: 0,
           blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
@@ -49,7 +49,7 @@ export const HumanCarrierCustody: IAutoMovieMotionHumanActionLaw<IAutoMovieMotio
       // throat, both kept, as a long draw grips the scabbard first.
       takeFromCarrier: [
         {
-          window: ["gripClosed", 1],
+          window: { start: "gripClosed", end: 1 },
           kind: "inertialize",
           entry: 0,
           blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,

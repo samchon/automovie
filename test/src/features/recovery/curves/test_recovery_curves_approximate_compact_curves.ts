@@ -31,7 +31,7 @@ export function test_recovery_curves_approximate_compact_curves(): void {
     (_v: unknown, i: number): number => (i + 1) / 16,
   );
   const cubic: IAutoMoviePiecewisePlanarCurveSource = {
-    domain: [0, 1],
+    domain: { start: 0, end: 1 },
     knots,
     breaks: [],
     closed: false,
@@ -71,7 +71,7 @@ export function test_recovery_curves_approximate_compact_curves(): void {
     );
 
   const quintic: IAutoMoviePiecewisePlanarCurveSource = {
-    domain: [0, 1],
+    domain: { start: 0, end: 1 },
     knots,
     breaks: [],
     closed: false,

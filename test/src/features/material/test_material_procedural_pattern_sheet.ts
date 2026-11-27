@@ -1,4 +1,8 @@
-import { AutoMovieEngineMaterial, AutoMovieEngineArchitecture, AutoMovieEngineSurfaceMaterial } from "@automovie/engine";
+import {
+  AutoMovieEngineArchitecture,
+  AutoMovieEngineMaterial,
+  AutoMovieEngineSurfaceMaterial,
+} from "@automovie/engine";
 import type {
   AutoMovieSurfacePatternGenerator,
   IAutoMovieColor,
@@ -42,8 +46,8 @@ import { throwsError } from "../internal/throwsError";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each naming the input and the behavior it pins.
  */
 export function test_material_procedural_pattern_sheet(): void {
-  const field: IAutoMovieSurfacePatternResult = AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern(
-    {
+  const field: IAutoMovieSurfacePatternResult =
+    AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
       pattern: pattern({
         zones: [
           zone({
@@ -57,8 +61,7 @@ export function test_material_procedural_pattern_sheet(): void {
         ],
         minimumPiece: 0.05,
       }),
-    },
-  );
+    });
   const face: IAutoMovieTransformsById = transforms(field, "face");
   const module: IAutoMovieTransformsById = transforms(field, "module");
   const boards: IAutoMoviePatternPlacement[] = field.placements.filter(
@@ -221,7 +224,7 @@ function finish(
     seed: 77,
     scale: 0.01,
     colors: [color(0.2), color(0.6)],
-    roughness: [0.5, 0.7],
+    roughness: { atZero: 0.5, atOne: 0.7 },
     relief: 0.0005,
     axis: { x: 1, y: 0, z: 0 },
     piece: { sheet, tile: { u: 1, v: 1 }, transform },

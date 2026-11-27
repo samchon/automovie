@@ -1,4 +1,4 @@
-import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -65,7 +65,12 @@ export namespace footStrike {
    */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     footStrike: [
-      { window: ["impact", 1], kind: "inertialize", entry: 0, blend: 0.12 },
+      {
+        window: { start: "impact", end: 1 },
+        kind: "inertialize",
+        entry: 0,
+        blend: 0.12,
+      },
     ],
   };
 
@@ -159,7 +164,10 @@ export namespace footStrike {
     const share = (seconds: number): number =>
       seconds <= shown
         ? AutoMovieEngineMotionSampling.minimumJerkShare(seconds / shown)
-        : 1 - AutoMovieEngineMotionSampling.minimumJerkShare((seconds - shown) / recoil);
+        : 1 -
+          AutoMovieEngineMotionSampling.minimumJerkShare(
+            (seconds - shown) / recoil,
+          );
 
     // The geometry reads the target as the placed performance shows it: the
     // plan solves it when it is prepared, as the close strike's is, and each

@@ -52,9 +52,9 @@ export namespace AutoMovieConstructionSharedLoop {
       return { contract: "shared loop", detail: "the join declares no loop" };
     if (
       !(
-        loop.semi[0] > 0 &&
-        loop.semi[1] > 0 &&
-        loop.semi[1] < Math.PI &&
+        loop.semi.stationMetres > 0 &&
+        loop.semi.phaseRadians > 0 &&
+        loop.semi.phaseRadians < Math.PI &&
         (loop.shape === undefined || loop.shape.length === node.count)
       )
     )
@@ -79,7 +79,7 @@ export namespace AutoMovieConstructionSharedLoop {
     // The contact: the loop through the host, its foot on the part from the seed's part point when the seed states one.
     const start: [number, number] | undefined =
       node.seed.type === "point"
-        ? [node.seed.part[0] * S, node.seed.part[1]]
+        ? [node.seed.part.station * S, node.seed.part.phase]
         : undefined;
     const made: IAutoMovieSolidSharedCurve.IResult =
       AutoMovieSolidSharedCurve.create({

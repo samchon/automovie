@@ -49,7 +49,7 @@ export namespace pushSled {
    * Cancel table: the push may be left at any time.
    */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
-    any: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
+    any: [{ window: { start: 0, end: 1 }, kind: "inertialize", entry: 0 }],
   };
 
   /*

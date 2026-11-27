@@ -73,7 +73,7 @@ const REACH: number = 0.5;
 export const HumanLanceCouch: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLanceCouch> =
   {
     name: "lanceCouch",
-    interrupts: { any: [{ window: [0, 1], kind: "inertialize", entry: 0 }] },
+    interrupts: { any: [{ window: { start: 0, end: 1 }, kind: "inertialize", entry: 0 }] },
     plan: planHumanLanceCouch,
   };
 

@@ -1,5 +1,19 @@
 import { AutoMovieEngineKinematics, Vector3 } from "@automovie/engine";
-import type { AutoMovieHumanSide, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanCurtsy, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanFrame, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanRoot, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanCurtsy,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanRoot,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanSupportFrame } from "../../carrier/internal/HumanSupportFrame";
 import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
@@ -7,8 +21,8 @@ import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotion
 import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionHumanRoot } from "../../compose/internal/AutoMovieMotionHumanRoot";
 import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
-import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanRefusal } from "../../law/HumanRefusal";
+import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
@@ -48,10 +62,16 @@ export const curtsy: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCurtsy>
   {
     name: "curtsy",
     accepts: {
-      stand: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
+      stand: [{ window: { start: 0, end: 1 }, kind: "inertialize", entry: 0 }],
     },
     interrupts: {
-      any: [{ window: ["returned", 1], kind: "inertialize", entry: 0 }],
+      any: [
+        {
+          window: { start: "returned", end: 1 },
+          kind: "inertialize",
+          entry: 0,
+        },
+      ],
     },
     yields: ["head", "leftArm", "rightArm", "leftHand", "rightHand"],
     plan,
@@ -377,8 +397,10 @@ function solePoints(
     ),
     ...HumanFoot.outline(body, side).map(
       (frame): IAutoMovieVector3 =>
-        AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(frame, bones.get(frame.bone)!)
-          .point,
+        AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
+          frame,
+          bones.get(frame.bone)!,
+        ).point,
     ),
   ];
 }

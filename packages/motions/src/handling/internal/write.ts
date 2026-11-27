@@ -58,7 +58,9 @@ export const write: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanWrite> =
   {
     name: "write",
     interrupts: {
-      any: [{ window: ["relax", 1], kind: "inertialize", entry: 0 }],
+      any: [
+        { window: { start: "relax", end: 1 }, kind: "inertialize", entry: 0 },
+      ],
     },
     plan: planWrite,
   };
@@ -146,7 +148,7 @@ function planWrite(
     surface.frame.rotation,
   );
   const vertices: IVertex[] = [];
-  for (const [x, z] of p.stroke) {
+  for (const { x, z } of p.stroke) {
     if (
       (surface.width !== undefined && Math.abs(x) > surface.width / 2) ||
       (surface.depth !== undefined && Math.abs(z) > surface.depth / 2)

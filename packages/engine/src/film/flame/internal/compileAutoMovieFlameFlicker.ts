@@ -40,7 +40,10 @@ export function compileAutoMovieFlameFlicker(
   mean: number;
 } {
   const count: number = Math.floor(duration * KEY_RATE + 1e-9);
-  const set: Set<number> = new Set([duration, ...(cue.on ?? [])]);
+  const set: Set<number> = new Set([
+    duration,
+    ...(cue.on === undefined ? [] : [cue.on.start, cue.on.end]),
+  ]);
   for (let k: number = 0; k <= count; ++k) set.add(k / KEY_RATE);
   const times: number[] = [...set]
     .filter((time: number): boolean => time >= 0 && time <= duration)
@@ -49,7 +52,7 @@ export function compileAutoMovieFlameFlicker(
     (time: number): number => sampleAutoMovieFlame(cue, time).area,
   );
   const inside: boolean[] = times.map((time: number): boolean =>
-    cue.on === undefined ? true : cue.on[0] <= time && time < cue.on[1],
+    cue.on === undefined ? true : cue.on.start <= time && time < cue.on.end,
   );
   let sum: number = 0;
   let keys: number = 0;

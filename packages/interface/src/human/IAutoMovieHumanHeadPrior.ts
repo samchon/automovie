@@ -183,7 +183,12 @@ export namespace IAutoMovieHumanHeadPrior {
      * Burstone 1980: 3 (1), 2 (1)); section relief reuses them as explicit
      * shape priors, not achieved personal peaks or border directions.
      */
-    lips: readonly number[];
+    lips: {
+      /** Upper lip's clinical peak-protrusion prior, millimetres. */
+      upper: number;
+      /** Lower lip's clinical peak-protrusion prior, millimetres. */
+      lower: number;
+    };
 
     /**
      * Sublabiale behind the li-pg line, millimetres: Legan and Burstone 1980's

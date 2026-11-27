@@ -94,7 +94,7 @@ export namespace lieDown {
    */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     crawl: [
-      { window: ["settled", 1], kind: "inertialize", entry: 0, blend: 0.4 },
+      { window: { start: "settled", end: 1 }, kind: "inertialize", entry: 0, blend: 0.4 },
     ],
   };
 

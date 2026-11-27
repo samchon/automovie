@@ -80,7 +80,7 @@ export namespace holdInfant {
    * The hold may be left at its end.
    */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
-    any: [{ window: ["relax", 1], kind: "inertialize", entry: 0 }],
+    any: [{ window: { start: "relax", end: 1 }, kind: "inertialize", entry: 0 }],
   };
 
   /*

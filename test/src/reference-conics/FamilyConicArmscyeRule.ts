@@ -140,7 +140,7 @@ namespace FamilyConicArmscyeRule {
     const loop = AutoMovieHumanF1.mammary(1, AutoMovieHumanF1.assemble());
     const chart = trunkChart();
     const shape: number[] = loop.shape === undefined ? Array.from({ length: 64 }, (): number => 1) : [...loop.shape];
-    const targets: { station: number; phase: number }[] = shape.map((share: number, k: number) => ({ station: 1000 * (loop.centre[0] + share * loop.semi[0] * Math.cos((2 * Math.PI * k) / shape.length)), phase: loop.centre[1] + (share * loop.semi[1] * Math.sin((2 * Math.PI * k) / shape.length)) / loop.sense }));
+    const targets: { station: number; phase: number }[] = shape.map((share: number, k: number) => ({ station: 1000 * (loop.centre.station + share * loop.semi.stationMetres * Math.cos((2 * Math.PI * k) / shape.length)), phase: loop.centre.phase + (share * loop.semi.phaseRadians * Math.sin((2 * Math.PI * k) / shape.length)) / loop.sense }));
     const points: { p: V; station: number; phase: number }[] = [];
     for (let i: number = 0; i < trunk.positions.length; i += 3 * 7) {
       const p: V = [trunk.positions[i]!, trunk.positions[i + 1]!, trunk.positions[i + 2]!];
@@ -397,7 +397,7 @@ namespace FamilyConicArmscyeRule {
         pts.push({ p, station: c.station, phase: Math.atan2(c.v, c.u) });
       }
       shape.forEach((share: number, k: number): void => {
-        const t = { station: 1000 * (loop.centre[0] + share * loop.semi[0] * Math.cos((2 * Math.PI * k) / shape.length)), phase: loop.centre[1] + (share * loop.semi[1] * Math.sin((2 * Math.PI * k) / shape.length)) / loop.sense };
+        const t = { station: 1000 * (loop.centre.station + share * loop.semi.stationMetres * Math.cos((2 * Math.PI * k) / shape.length)), phase: loop.centre.phase + (share * loop.semi.phaseRadians * Math.sin((2 * Math.PI * k) / shape.length)) / loop.sense };
         todayPort.push(pts.reduce((a, b) => (Math.hypot(b.station - t.station, CLIP_MM * (b.phase - t.phase)) < Math.hypot(a.station - t.station, CLIP_MM * (a.phase - t.phase)) ? b : a)).p);
       });
     }
@@ -408,11 +408,11 @@ namespace FamilyConicArmscyeRule {
     const fold = AutoMovieHumanF1.BODY.trunk.reliefs?.find((r): boolean => r.name === "trunk.fold");
     const foldEdge: V[] = [];
     if (fold !== undefined) {
-      const loft: IAutoMovieViewLoft.IResult = H.create(AutoMovieHumanF1.BODY.trunk, [fold.stations[0], (fold.stations[0] + fold.stations[1]) / 2, fold.stations[1]]);
+      const loft: IAutoMovieViewLoft.IResult = H.create(AutoMovieHumanF1.BODY.trunk, [fold.stations.start, (fold.stations.start + fold.stations.end) / 2, fold.stations.end]);
       if (loft.chain !== null)
-        for (let s: number = fold.stations[0]; s <= fold.stations[1]; s += 2) {
+        for (let s: number = fold.stations.start; s <= fold.stations.end; s += 2) {
           const read = AutoMovieLoftChain.sampler(loft.chain, s);
-          for (let t: number = fold.phases[0]; t <= fold.phases[1]; t += 0.05) foldEdge.push(read(t) as V);
+          for (let t: number = fold.phases.start; t <= fold.phases.end; t += 0.05) foldEdge.push(read(t) as V);
         }
     }
     const capPoints: V[] = drawn.flatMap((c: N.Curve): V[] => c.points.map((p: N.Point): V => [p[0], p[1], p[2]]));
@@ -2165,7 +2165,7 @@ namespace FamilyConicArmscyeRule {
       const clock: number = (2 * Math.PI * k) / RAYS;
       const x: number = (shape.length * k) / RAYS;
       const share: number = shape[Math.floor(x) % shape.length]! + (shape[(Math.floor(x) + 1) % shape.length]! - shape[Math.floor(x) % shape.length]!) * (x - Math.floor(x));
-      return [1000 * (today.centre[0] + share * today.semi[0] * Math.cos(clock)), armpitV * (today.centre[1] + (share * today.semi[1] * Math.sin(clock)) / today.sense)];
+      return [1000 * (today.centre.station + share * today.semi.stationMetres * Math.cos(clock)), armpitV * (today.centre.phase + (share * today.semi.phaseRadians * Math.sin(clock)) / today.sense)];
     });
     const todayP: (V | null)[] = todayQ.map((q: C.P): V | null => lift(q[0], q[1] / armpitV));
     progress(`read today's loop onto the trunk's wall: ${todayP.filter((p): boolean => p !== null).length} of ${RAYS} points`);

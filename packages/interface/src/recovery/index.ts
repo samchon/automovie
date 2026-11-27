@@ -28,6 +28,7 @@ export type { IAutoMovieRecoveryImageView } from "./IAutoMovieRecoveryImageView"
 export type { IAutoMovieRecoveryInput } from "./IAutoMovieRecoveryInput";
 export type { IAutoMovieRecoveryRegistration } from "./IAutoMovieRecoveryRegistration";
 export type { IAutoMovieRecoverySupportLoft } from "./IAutoMovieRecoverySupportLoft";
+export type { IAutoMovieRecoveryScalarWindow } from "./IAutoMovieRecoveryScalarWindow";
 export type { IAutoMovieRecoverySupportLoftCoverage } from "./IAutoMovieRecoverySupportLoftCoverage";
 export type * from "./image";
 export type * from "./mesh";

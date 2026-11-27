@@ -592,12 +592,12 @@ export namespace AutoMovieHumanF1 {
    */
   const CROTCH: IAutoMovieHumanF1.ICrotchProfile = {
     knots: [
-      [0.0131, 0],
-      [0.0231, 0.0011],
-      [0.0331, 0.0028],
-      [0.0431, 0.0031],
-      [0.0531, 0.0029],
-      [0.0631, 0.0018],
+      { alongM: 0.0131, depthM: 0 },
+      { alongM: 0.0231, depthM: 0.0011 },
+      { alongM: 0.0331, depthM: 0.0028 },
+      { alongM: 0.0431, depthM: 0.0031 },
+      { alongM: 0.0531, depthM: 0.0029 },
+      { alongM: 0.0631, depthM: 0.0018 },
     ],
     corner: 0.6,
     fair: [0.35, 0.35],
@@ -1510,8 +1510,11 @@ export namespace AutoMovieHumanF1 {
       },
     );
     return {
-      centre: [centre[0] / 1000, centre[1]],
-      semi: [semi[0] / 1000, semi[1]],
+      centre: { station: centre[0] / 1000, phase: centre[1] },
+      semi: {
+        stationMetres: semi[0] / 1000,
+        phaseRadians: semi[1],
+      },
       sense,
       shape,
     };
@@ -2175,11 +2178,11 @@ export namespace AutoMovieHumanF1 {
             ...(family.reliefs ?? [])
               .filter(
                 (relief): boolean =>
-                  relief.stations[0] < s && relief.stations[1] > before,
+                  relief.stations.start < s && relief.stations.end > before,
               )
               .map(
                 (relief): number =>
-                  (relief.stations[1] - relief.stations[0]) /
+                  (relief.stations.end - relief.stations.start) /
                   ((NET_LAYER_ROWS[
                     relief.name.replace(/(\.twin)?(\.mirror)?$/, "")
                   ] ?? relief.rows) -
@@ -2551,7 +2554,7 @@ export namespace AutoMovieHumanF1 {
         ];
         const chord: number =
           Math.hypot(pb[0]! - pa[0]!, pb[1]! - pa[1]!, pb[2]! - pa[2]!) / 1000;
-        const knots: [number, number][] =
+        const knotPairs: [number, number][] =
           leaned.native === undefined
             ? fanned.webs[j]!
             : AutoMovieHumanF1NativeFanControls.profile(
@@ -2577,17 +2580,25 @@ export namespace AutoMovieHumanF1 {
         };
         return side > 0
           ? {
-              seam: [a, b],
-              profile: { knots, corner: fanned.corner, heading: h, ...tuned },
+              seam: { startPhaseRad: a, endPhaseRad: b },
+              profile: {
+                knots: knotPairs.map(([alongM, depthM]: [number, number]) => ({
+                  alongM,
+                  depthM,
+                })),
+                corner: fanned.corner,
+                heading: h,
+                ...tuned,
+              },
             }
           : {
-              seam: [-b, -a],
+              seam: { startPhaseRad: -b, endPhaseRad: -a },
               profile: {
-                knots: knots
-                  .map(([along, depth]: [number, number]): [number, number] => [
-                    chord - along,
-                    depth,
-                  ])
+                knots: knotPairs
+                  .map(([alongM, depthM]: [number, number]) => ({
+                    alongM: chord - alongM,
+                    depthM,
+                  }))
                   .reverse(),
                 corner: fanned.corner,
                 heading: [h[0], h[1], -h[2]],
@@ -2699,7 +2710,7 @@ export namespace AutoMovieHumanF1 {
       ),
       hostFace: trunk,
       hostEnd: "bottom",
-      seam: [0, Math.PI],
+      seam: { startPhaseRad: 0, endPhaseRad: Math.PI },
       profile: placed.crotchProfile,
       count: THIGH_COLUMNS,
       rows: BAND.rows,

@@ -82,10 +82,10 @@ export namespace AutoMovieHumanScapularMass {
   ): IAutoMovieLoftRelief[] {
     const mass: IAutoMovieHumanTrunkFeature = feature(input);
     const o: [number, number, number] = mass.frame.origin;
-    const stations: [number, number] = [
-      o[1] + mass.reach.v[0],
-      o[1] + mass.reach.v[1],
-    ];
+    const stations = {
+      start: o[1] + mass.reach.v[0],
+      end: o[1] + mass.reach.v[1],
+    };
 
     // On the back the phase falls as the lateral place rises.
     const lateralOf = (u: number): number => o[2] + u * mass.frame.lateral[2];
@@ -93,11 +93,12 @@ export namespace AutoMovieHumanScapularMass {
       input.phaseOf(lateralOf(mass.reach.u[0])),
       input.phaseOf(lateralOf(mass.reach.u[1])),
     ];
-    const phases: [number, number] = [Math.min(...edges), Math.max(...edges)];
-    const apex: [number, number] = [
-      (o[1] - stations[0]) / (stations[1] - stations[0]),
-      (input.phaseOf(o[2]) - phases[0]) / (phases[1] - phases[0]),
-    ];
+    const phases = { start: Math.min(...edges), end: Math.max(...edges) };
+    const apex = {
+      station: (o[1] - stations.start) / (stations.end - stations.start),
+      phase:
+        (input.phaseOf(o[2]) - phases.start) / (phases.end - phases.start),
+    };
     const left: IAutoMovieLoftRelief = AutoMovieHumanTrunkReliefNet.fromFeature(
       "trunk.scapula.left",
       mass,

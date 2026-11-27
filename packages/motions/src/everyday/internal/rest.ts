@@ -1,4 +1,8 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import {
+  AutoMovieEngineMotionSampling,
+  Quaternion,
+  Vector3,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -26,8 +30,8 @@ import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotion
 import { AutoMovieMotionHumanChannel as HumanChannels } from "../../compose/internal/AutoMovieMotionHumanChannel";
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
-import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanRefusal } from "../../law/HumanRefusal";
+import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanPreparedPlayback } from "../../perform/internal/HumanPreparedPlayback";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanHand } from "../../posture/internal/HumanHand";
@@ -97,18 +101,18 @@ export namespace rest {
    * anywhere.
    */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
-    stand: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
+    stand: [{ window: { start: 0, end: 1 }, kind: "inertialize", entry: 0 }],
     walk: [
       {
-        window: [0, 1],
+        window: { start: 0, end: 1 },
         kind: "inertialize",
         entry: 0,
         blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
       },
     ],
-    look: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
-    gesture: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
-    rest: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
+    look: [{ window: { start: 0, end: 1 }, kind: "inertialize", entry: 0 }],
+    gesture: [{ window: { start: 0, end: 1 }, kind: "inertialize", entry: 0 }],
+    rest: [{ window: { start: 0, end: 1 }, kind: "inertialize", entry: 0 }],
   };
 
   /*
@@ -351,7 +355,9 @@ export namespace rest {
       );
       if (sides.length === 0)
         return { ...posture, joints: { ...posture.joints } };
-      const s: number = AutoMovieEngineMotionSampling.minimumJerkShare(t / arrive);
+      const s: number = AutoMovieEngineMotionSampling.minimumJerkShare(
+        t / arrive,
+      );
       const kept: Pick<IAutoMovieMotionHumanPosture, PlanWriteKept> =
         holding(posture);
       const joints: IAutoMovieMotionHumanPosture["joints"] = kept.joints;

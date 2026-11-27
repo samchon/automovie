@@ -13,8 +13,8 @@ import type {
 } from "@automovie/interface";
 
 import { jump } from "../../actions/internal/jump";
-import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanRefusal } from "../../law/HumanRefusal";
+import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { AthleticsRunUp } from "./AthleticsRunUp";
 
@@ -62,7 +62,14 @@ export namespace horizontalJump {
    * (`AthleticsRunUp`).
    */
   export const accepts: IAutoMovieMotionHumanActionLaw["accepts"] = {
-    run: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.15 }],
+    run: [
+      {
+        window: { start: 0, end: 1 },
+        kind: "inertialize",
+        entry: 0,
+        blend: 0.15,
+      },
+    ],
   };
 
   /*
@@ -120,8 +127,7 @@ export namespace horizontalJump {
           axis: "pit",
           value: p.pit,
           reason: `${p.pit} declares no ${id}`,
-          fix:
-            "name a jump pit with a board and a sand surface, as AutoMovieArchetypeJumpPit.create builds",
+          fix: "name a jump pit with a board and a sand surface, as AutoMovieArchetypeJumpPit.create builds",
         });
       return found;
     };

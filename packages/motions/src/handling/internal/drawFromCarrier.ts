@@ -1,4 +1,8 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import {
+  AutoMovieEngineMotionSampling,
+  Quaternion,
+  Vector3,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -77,7 +81,7 @@ export const drawFromCarrier: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHum
     interrupts: {
       stand: [
         {
-          window: ["unseated", 1],
+          window: { start: "unseated", end: 1 },
           kind: "inertialize",
           entry: 0,
           blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
@@ -86,7 +90,7 @@ export const drawFromCarrier: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHum
       ],
       walk: [
         {
-          window: ["drawn", 1],
+          window: { start: "drawn", end: 1 },
           kind: "inertialize",
           entry: 0,
           blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
@@ -262,7 +266,9 @@ function plan(
     Vector3.distance(start.position, end.position),
   );
   const progress: (t: number) => number = (t: number): number =>
-    AutoMovieEngineMotionSampling.minimumJerk(Math.min(1, Math.max(0, t / carried))).s;
+    AutoMovieEngineMotionSampling.minimumJerk(
+      Math.min(1, Math.max(0, t / carried)),
+    ).s;
   const transport: IAutoMovieMotionHumanPrehension.ITransport =
     pivot === null
       ? HumanPrehension.transport(
@@ -389,7 +395,9 @@ function plan(
         to: 1,
         travel: (seconds: number): number =>
           Vector3.length(line) *
-          AutoMovieEngineMotionSampling.minimumJerk(Math.min(1, Math.max(0, seconds / duration))).s,
+          AutoMovieEngineMotionSampling.minimumJerk(
+            Math.min(1, Math.max(0, seconds / duration)),
+          ).s,
       },
     ],
     holds: [
@@ -408,7 +416,8 @@ function plan(
           ? held
           : StrikingBlade.turned(
               held,
-              pulled.turn * AutoMovieEngineMotionSampling.minimumJerk(t / duration).s,
+              pulled.turn *
+                AutoMovieEngineMotionSampling.minimumJerk(t / duration).s,
             );
       return {
         ...body,
@@ -433,7 +442,8 @@ function plan(
             // instead of costing the hand its attitude at the top.
             reference: {
               ...reference,
-              weight: 1 - AutoMovieEngineMotionSampling.minimumJerk(t / duration).s,
+              weight:
+                1 - AutoMovieEngineMotionSampling.minimumJerk(t / duration).s,
             },
             planted: true,
           },

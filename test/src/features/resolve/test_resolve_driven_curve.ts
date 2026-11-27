@@ -41,8 +41,8 @@ const driven: (
   type: "driven",
   output: ptr("/out"),
   source: ptr("/in"),
-  inRange: [50, 60],
-  outRange: [500, 600],
+  inRange: { from: 50, to: 60 },
+  outRange: { from: 500, to: 600 },
   clamp: true,
   ...over,
 });
@@ -67,14 +67,16 @@ function scalarMatches(actual: number[], expected: number): boolean {
 }
 
 /**
- * A nonlinear driven curve uses named source/output points and its own missing-source default; an empty or non-increasing point list rejects before interpolation.
+ * A nonlinear driven curve uses named source/output points and its own
+ * missing-source default; an empty or non-increasing point list rejects before
+ * interpolation.
  *
  * Scenarios:
  *
  * 1. Piecewise interpolation and endpoint holds use curve points, ignoring
  *    `inRange`/`outRange`/`clamp`.
  * 2. With no sampled source, a curve defaults to its first source point rather
- *    than the linear driver's `inRange[0]`.
+ *    than the linear driver's `inRange.from`.
  * 3. An empty point list and non-increasing source values reject before output.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Evaluates actual nonlinear driven channels through resolveDrivers; verifies curve interpolation/endpoint/default behavior and authoring refusal.

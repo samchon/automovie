@@ -86,7 +86,7 @@ export namespace AutoMovieHumanLegTube {
         for (const r of input.reliefs) {
           const height: number = AutoMovieLoftRelief.height(r, s, m * h)[0];
           if (height === 0) continue;
-          const middle: number = r.phases[0] + (r.phases[1] - r.phases[0]) / 2;
+          const middle: number = r.phases.start + (r.phases.end - r.phases.start) / 2;
           const additive: boolean =
             r.axis[0] * Math.cos(middle) + r.axis[2] * Math.sin(middle) > 0;
           const radial: number = height * (r.axis[0] * e[0] + r.axis[2] * e[1]);

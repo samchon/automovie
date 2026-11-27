@@ -279,7 +279,10 @@ export namespace AutoMovieHumanHeadTree {
       type: "curvature",
       share: SHARE,
       cap:
-        AutoMovieHumanSeamUnion.width(feature.size[0], feature.size[1]) *
+        AutoMovieHumanSeamUnion.width(
+          feature.size.height,
+          feature.size.halfExtent,
+        ) *
         METRES,
       end: END,
     };

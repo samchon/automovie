@@ -1,4 +1,8 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import {
+  AutoMovieEngineMotionSampling,
+  Quaternion,
+  Vector3,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -36,15 +40,15 @@ import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { placeHumanHandSurface } from "../../posture/internal/placeHumanHandSurface";
 import { poseBones } from "../../posture/internal/poseBones";
-import { precisionThrow } from "./precisionThrow";
 import { throwObjectAim } from "../throwObject/throwObjectAim";
 import { throwObjectBalance } from "../throwObject/throwObjectBalance";
-import { throwObjectCurve } from "./throwObjectCurve";
 import { throwObjectForm } from "../throwObject/throwObjectForm";
-import { throwObjectLaunch } from "./throwObjectLaunch";
 import { throwObjectLever } from "../throwObject/throwObjectLever";
 import { throwObjectRelease } from "../throwObject/throwObjectRelease";
 import { throwObjectSwing } from "../throwObject/throwObjectSwing";
+import { precisionThrow } from "./precisionThrow";
+import { throwObjectCurve } from "./throwObjectCurve";
+import { throwObjectLaunch } from "./throwObjectLaunch";
 
 /*
  * Throwing a held object to a target: overarm, underarm, or a gentle toss.
@@ -109,7 +113,12 @@ export namespace throwObject {
    */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     catchObject: [
-      { window: ["release", 1], kind: "inertialize", entry: 0, blend: 0.1 },
+      {
+        window: { start: "release", end: 1 },
+        kind: "inertialize",
+        entry: 0,
+        blend: 0.1,
+      },
     ],
     stand: [after()],
     walk: [after()],
@@ -471,7 +480,7 @@ export namespace throwObject {
    */
   function after(): IAutoMovieMotionHumanInterruptRow {
     return {
-      window: ["followThrough", 1],
+      window: { start: "followThrough", end: 1 },
       kind: "inertialize",
       entry: 0,
       blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,

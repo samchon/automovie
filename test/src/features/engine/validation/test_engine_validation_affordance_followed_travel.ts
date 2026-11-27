@@ -22,9 +22,9 @@ export function test_engine_validation_affordance_followed_travel(): void {
   const table: IAutoMovieAffordanceCoupling = {
     id: "cam",
     table: [
-      [0, 0],
-      [1, 10],
-      [3, 20],
+      { leader: 0, follower: 0 },
+      { leader: 1, follower: 10 },
+      { leader: 3, follower: 20 },
     ],
   };
   TestValidator.equals(
@@ -47,8 +47,8 @@ export function test_engine_validation_affordance_followed_travel(): void {
         {
           id: "small",
           table: [
-            [0, 0],
-            [small, small],
+            { leader: 0, follower: 0 },
+            { leader: small, follower: small },
           ],
         },
         small / 2,
@@ -64,8 +64,8 @@ export function test_engine_validation_affordance_followed_travel(): void {
         {
           id: "steep",
           table: [
-            [0, 0],
-            [2 ** 10, -(2 ** 30)],
+            { leader: 0, follower: 0 },
+            { leader: 2 ** 10, follower: -(2 ** 30) },
           ],
         },
         Number.MIN_VALUE,
@@ -82,8 +82,8 @@ export function test_engine_validation_affordance_followed_travel(): void {
           {
             id: "wide",
             table: [
-              [-high, high],
-              [high, -high],
+              { leader: -high, follower: high },
+              { leader: high, follower: -high },
             ],
           },
           leading,

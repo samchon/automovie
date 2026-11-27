@@ -1,4 +1,4 @@
-import { Quaternion, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling, Quaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -11,8 +11,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanRefusal } from "../../law/HumanRefusal";
+import { HumanBound } from "../../law/internal/HumanBound";
 import { crossAnkleEntry } from "./crossAnkleEntry";
 import { fitSeatedAnkleCross } from "./fitSeatedAnkleCross";
 
@@ -58,13 +58,25 @@ export const crossAnkleOverKnee: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
   {
     name: "crossAnkleOverKnee",
     interrupts: {
-      rise: [{ window: ["footDown", 1], kind: "inertialize", entry: 0 }],
+      rise: [
+        {
+          window: { start: "footDown", end: 1 },
+          kind: "inertialize",
+          entry: 0,
+        },
+      ],
       crossAnkleOverKnee: [
-        { window: ["footDown", 1], kind: "inertialize", entry: 0 },
+        {
+          window: { start: "footDown", end: 1 },
+          kind: "inertialize",
+          entry: 0,
+        },
       ],
     },
     accepts: {
-      sit: [{ window: ["seated", 1], kind: "inertialize", entry: 0 }],
+      sit: [
+        { window: { start: "seated", end: 1 }, kind: "inertialize", entry: 0 },
+      ],
     },
     plan: planCrossAnkleOverKnee,
   };
@@ -180,7 +192,9 @@ function planCrossAnkleOverKnee(
         path.length - 2,
         Math.floor(share * (path.length - 1)),
       );
-      const amount = AutoMovieEngineMotionSampling.minimumJerkShare(share * (path.length - 1) - phase);
+      const amount = AutoMovieEngineMotionSampling.minimumJerkShare(
+        share * (path.length - 1) - phase,
+      );
       const posed = fitSeatedAnkleCross.interpolate(
         path[phase]!,
         path[phase + 1]!,

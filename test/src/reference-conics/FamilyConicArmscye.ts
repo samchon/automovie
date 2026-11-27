@@ -5,6 +5,7 @@ import {
   AutoMovieHumanF1Joints,
 } from "@automovie/human";
 import type {
+  IAutoMovieConstructionPortLoop,
   IAutoMovieHumanConicLoft,
   IAutoMovieMillimeterMesh,
 } from "@automovie/interface";
@@ -96,12 +97,12 @@ namespace FamilyConicArmscye {
           const share: number = (1 - shrink) * (declared.shape?.[k] ?? 1);
           return host(
             1000 *
-              (declared.centre[0] +
-                share * declared.semi[0] * Math.cos((turn * k) / n)),
-            declared.centre[1] +
+              (declared.centre.station +
+                share * declared.semi.stationMetres * Math.cos((turn * k) / n)),
+            declared.centre.phase +
               share *
                 declared.sense *
-                declared.semi[1] *
+                declared.semi.phaseRadians *
                 Math.sin((turn * k) / n),
           );
         };
@@ -265,18 +266,18 @@ namespace FamilyConicArmscye {
             );
         }
         // Whether the port's loop crosses another port's on the trunk's chart (the breast's), as two polygons in station and phase.
-        const polygon = (l: {
-          centre: [number, number];
-          semi: [number, number];
-          sense: 1 | -1;
-          shape?: number[];
-        }): [number, number][] =>
+        const polygon = (l: IAutoMovieConstructionPortLoop): [number, number][] =>
           (l.shape ?? new Array<number>(96).fill(1)).map(
             (share: number, k: number, all: number[]): [number, number] => [
-              l.centre[0] +
-                share * l.semi[0] * Math.cos((turn * k) / all.length),
-              l.centre[1] +
-                share * l.sense * l.semi[1] * Math.sin((turn * k) / all.length),
+              l.centre.station +
+                share *
+                  l.semi.stationMetres *
+                  Math.cos((turn * k) / all.length),
+              l.centre.phase +
+                share *
+                  l.sense *
+                  l.semi.phaseRadians *
+                  Math.sin((turn * k) / all.length),
             ],
           );
         const crosses = (

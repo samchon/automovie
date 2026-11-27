@@ -4,6 +4,12 @@
  * AutoMovieHumanConicRelief in Human.
  */
 export namespace IAutoMovieHumanConicRelief {
+  /** An increasing phase range, radians. */
+  export interface IPhaseRange {
+    start: number;
+    end: number;
+  }
+
   /** A net stored as the reflection of an earlier one of its family's list. */
   export interface ITwin {
     /** The twin's own name. */
@@ -13,7 +19,7 @@ export namespace IAutoMovieHumanConicRelief {
     twin: string;
 
     /** The twin's own phase window, radians. */
-    phases: [number, number];
+    phases: IPhaseRange;
 
     /** The twin's own unit direction of height. */
     axis: [number, number, number];

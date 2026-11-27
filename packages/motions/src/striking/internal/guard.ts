@@ -1,4 +1,9 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineMath } from "@automovie/engine";
+import {
+  AutoMovieEngineMath,
+  AutoMovieEngineMotionSampling,
+  Quaternion,
+  Vector3,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
@@ -61,11 +66,46 @@ export namespace guard {
    * Cancel table: from a guard every striking action may start at any time.
    */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
-    guard: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.15 }],
-    punch: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.1 }],
-    kick: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.1 }],
-    defend: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.1 }],
-    step: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.1 }],
+    guard: [
+      {
+        window: { start: 0, end: 1 },
+        kind: "inertialize",
+        entry: 0,
+        blend: 0.15,
+      },
+    ],
+    punch: [
+      {
+        window: { start: 0, end: 1 },
+        kind: "inertialize",
+        entry: 0,
+        blend: 0.1,
+      },
+    ],
+    kick: [
+      {
+        window: { start: 0, end: 1 },
+        kind: "inertialize",
+        entry: 0,
+        blend: 0.1,
+      },
+    ],
+    defend: [
+      {
+        window: { start: 0, end: 1 },
+        kind: "inertialize",
+        entry: 0,
+        blend: 0.1,
+      },
+    ],
+    step: [
+      {
+        window: { start: 0, end: 1 },
+        kind: "inertialize",
+        entry: 0,
+        blend: 0.1,
+      },
+    ],
   };
 
   /*
@@ -249,7 +289,10 @@ export namespace guard {
     const head: readonly [number, number, number] = joints.head ?? [0, 0, 0];
     const faced: number = -Math.max(
       -StrikingStance.FACING,
-      Math.min(StrikingStance.FACING, 0.5 * AutoMovieEngineMath.wrapDegrees(heading - line)),
+      Math.min(
+        StrikingStance.FACING,
+        0.5 * AutoMovieEngineMath.wrapDegrees(heading - line),
+      ),
     );
     // The pelvis over the stance centre, the feet being symmetric about it on
     // the line.
@@ -372,9 +415,15 @@ export namespace guard {
       ): IAutoMovieMotionHumanPosture => {
         const resolution: ReturnType<typeof prepareHumanPoseResolution> =
           prepareHumanPoseResolution(source);
-        const s: number = AutoMovieEngineMotionSampling.minimumJerkShare(t / SET);
+        const s: number = AutoMovieEngineMotionSampling.minimumJerkShare(
+          t / SET,
+        );
         const fade: number =
-          s * (1 - AutoMovieEngineMotionSampling.minimumJerkShare((t - (duration - 0.2)) / 0.2));
+          s *
+          (1 -
+            AutoMovieEngineMotionSampling.minimumJerkShare(
+              (t - (duration - 0.2)) / 0.2,
+            ));
         const hop: number =
           bounce *
           fade *
@@ -386,7 +435,9 @@ export namespace guard {
             y: entry.root.y + (sunk - entry.root.y) * s - hop,
             z: entry.root.z + (rootAt.z - entry.root.z) * s,
           },
-          yaw: entry.yaw + AutoMovieEngineMath.wrapDegrees(heading - entry.yaw) * s,
+          yaw:
+            entry.yaw +
+            AutoMovieEngineMath.wrapDegrees(heading - entry.yaw) * s,
           pitch: entry.pitch * (1 - s),
           roll: entry.roll * (1 - s),
           joints: {

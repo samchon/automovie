@@ -94,8 +94,8 @@ export function test_human_conic_relief(): void {
   // 3. A twin reverses columns and keeps rows.
   const original: IAutoMovieLoftRelief = {
     name: "made",
-    stations: [10, 50],
-    phases: [0.3, 2],
+    stations: { start: 10, end: 50 },
+    phases: { start: 0.3, end: 2 },
     axis: [1, 0, 0],
     turn: [0, 0, 1],
     rows: 5,
@@ -104,7 +104,7 @@ export function test_human_conic_relief(): void {
   };
   const own: Omit<IAutoMovieHumanConicRelief.ITwin, "twin"> = {
     name: "made.twin",
-    phases: [-2, -0.3],
+    phases: { start: -2, end: -0.3 },
     axis: [1, 0, 0],
     turn: [0, 0, -1],
   };
@@ -116,12 +116,12 @@ export function test_human_conic_relief(): void {
   );
   same(
     "twin size and stations",
-    [twin.rows, twin.columns, ...twin.stations],
+    [twin.rows, twin.columns, twin.stations.start, twin.stations.end],
     [5, 6, 10, 50],
   );
   same(
     "twin window and directions",
-    [...twin.phases, ...twin.axis, ...(twin.turn ?? [])],
+    [twin.phases.start, twin.phases.end, ...twin.axis, ...(twin.turn ?? [])],
     [-2, -0.3, 1, 0, 0, 0, 0, -1],
   );
   if (twin.name !== "made.twin") failures.push("twin name: " + twin.name);
@@ -134,8 +134,8 @@ export function test_human_conic_relief(): void {
   );
   const median: IAutoMovieLoftRelief = {
     name: "median",
-    stations: [0, 1],
-    phases: [-1, 1],
+    stations: { start: 0, end: 1 },
+    phases: { start: -1, end: 1 },
     axis: [1, 0, 0],
     rows: 3,
     columns: 7,
@@ -143,7 +143,7 @@ export function test_human_conic_relief(): void {
   };
   same(
     "twin of a mirrored net",
-    R.twin(median, { name: "median.twin", phases: [-1, 1], axis: [1, 0, 0] })
+    R.twin(median, { name: "median.twin", phases: { start: -1, end: 1 }, axis: [1, 0, 0] })
       .heights,
     full,
   );

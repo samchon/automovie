@@ -51,7 +51,7 @@ export function approximateAutoMovieRecoveryCompactCurves(
     );
   if (
     curve.knots.some(
-      (t: number): boolean => t <= curve.domain[0] || t >= curve.domain[1],
+      (t: number): boolean => t <= curve.domain.start || t >= curve.domain.end,
     )
   )
     diagnostics.push(
@@ -125,10 +125,10 @@ export function approximateAutoMovieRecoveryCompactCurves(
   }
   const support: number[] = [
     ...new Set([
-      curve.domain[0],
+      curve.domain.start,
       ...curve.knots,
       ...curve.breaks,
-      curve.domain[1],
+      curve.domain.end,
     ]),
   ].sort((a: number, b: number): number => a - b);
 
@@ -368,14 +368,14 @@ export function approximateAutoMovieRecoveryCompactCurves(
     depth: number;
   }
   const boundaries: Set<number> = new Set([
-    curve.domain[0],
+    curve.domain.start,
     ...curve.breaks,
-    curve.domain[1],
+    curve.domain.end,
   ]);
   if (curve.closed)
     for (let i: number = 1; i < 4; ++i)
       boundaries.add(
-        curve.domain[0] + ((curve.domain[1] - curve.domain[0]) * i) / 4,
+        curve.domain.start + ((curve.domain.end - curve.domain.start) * i) / 4,
       );
   const ordered: number[] = [...boundaries].sort(
     (a: number, b: number): number => a - b,
@@ -401,7 +401,7 @@ export function approximateAutoMovieRecoveryCompactCurves(
         const conic: IAutoMovieConicApproximation.IResult =
           approximateAutoMovieRecoveryConicsAhn(
             {
-              domain: [a, b],
+              domain: { start: a, end: b },
               breaks: [],
               closed: false,
               evaluate: (t: number): Readonly<AutoMovieVector2Tuple> =>

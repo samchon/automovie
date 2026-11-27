@@ -10,6 +10,7 @@ export type * from "./human";
 export type { IAutoMovieChainFitScore } from "./IAutoMovieChainFitScore";
 export type { IAutoMovieClassifyLocomoteGroundDisplacement } from "./IAutoMovieClassifyLocomoteGroundDisplacement";
 export type { IAutoMovieContactMask } from "./IAutoMovieContactMask";
+export type { IAutoMovieCubicBezierControlPoints } from "./IAutoMovieCubicBezierControlPoints";
 export type { IAutoMovieCrowdAgent } from "./IAutoMovieCrowdAgent";
 export type { IAutoMovieFitChainToTargetProps } from "./IAutoMovieFitChainToTargetProps";
 export type { IAutoMovieFollowPathMotion } from "./IAutoMovieFollowPathMotion";

@@ -112,7 +112,7 @@ namespace FamilyConicCoarse {
   /** Whether the body's reflection maps the net's window and directions onto themselves (`FamilyConicCompact`'s rule). */
   function reflective(relief: IAutoMovieLoftRelief): boolean {
     const middle: number =
-      relief.phases[0] + AutoMovieLoftRelief.width(relief) / 2;
+      relief.phases.start + AutoMovieLoftRelief.width(relief) / 2;
     return (
       Math.abs(Math.sin(middle)) < 1e-4 &&
       Math.abs(relief.axis[2]) < 1e-9 &&

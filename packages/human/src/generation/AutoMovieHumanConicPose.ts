@@ -284,7 +284,7 @@ export namespace AutoMovieHumanConicPose {
           : {
               knots: family.knots.map(station),
               ...(family.tips === undefined ? {} : { tips: [tip(family.tips[0]), tip(family.tips[1])] as [IAutoMovieHumanConicLoft.ITip | null, IAutoMovieHumanConicLoft.ITip | null] }),
-              ...(family.reliefs === undefined ? {} : { reliefs: family.reliefs.map((relief: NonNullable<IAutoMovieHumanConicLoft.IFamily["reliefs"]>[number]): NonNullable<IAutoMovieHumanConicLoft.IFamily["reliefs"]>[number] => ({ ...relief, stations: [station(relief.stations[0]), station(relief.stations[1])] })) }),
+              ...(family.reliefs === undefined ? {} : { reliefs: family.reliefs.map((relief: NonNullable<IAutoMovieHumanConicLoft.IFamily["reliefs"]>[number]): NonNullable<IAutoMovieHumanConicLoft.IFamily["reliefs"]>[number] => ({ ...relief, stations: { start: station(relief.stations.start), end: station(relief.stations.end) } })) }),
             }),
       },
     };

@@ -329,7 +329,10 @@ export namespace AutoMovieHumanHeadInnerParts {
               source.attachment === null || source.attachment.parameter === null
                 ? INSET
                 : source.stations.at(-1)! - h + source.attachment.parameter,
-            size: [h - INSET, Math.min(...e)],
+            size: {
+              height: h - INSET,
+              halfExtent: Math.min(...e),
+            },
             parent,
             ...(host === undefined ? {} : { material: host }),
             ...(source.attachment === null

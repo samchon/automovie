@@ -11,16 +11,28 @@ export namespace AutoMovieHumanSkinCutLoop {
   /** A point, mm. */
   export type V3 = [number, number, number];
 
+  /** A point on the face's chart, in coordinates `u` and `v`. */
+  export interface IChartPoint {
+    u: number;
+    v: number;
+  }
+
+  /** The ellipse's half axes along chart coordinates `u` and `v`. */
+  export interface IChartSemiAxes {
+    u: number;
+    v: number;
+  }
+
   /** What the cut is read from. */
   export interface IInput {
     /** The face's skin at a chart point. */
     point: (u: number, v: number) => V3;
 
     /** The loop's centre on the chart, on the part's side of the surface. */
-    centre: [number, number];
+    centre: IChartPoint;
 
     /** The ellipse the shares scale, in the chart's own units, positive. */
-    semi: [number, number];
+    semi: IChartSemiAxes;
 
     /** +1 or -1: the second chart coordinate's sense of increasing clock, as the loop's. */
     sense: 1 | -1;
@@ -49,7 +61,7 @@ export namespace AutoMovieHumanSkinCutLoop {
    */
   export function shares(input: IInput): number[] | string {
     const value = (clock: number, share: number): number =>
-      input.side(input.point(input.centre[0] + share * input.semi[0] * Math.cos(clock), input.centre[1] + share * input.sense * input.semi[1] * Math.sin(clock)));
+      input.side(input.point(input.centre.u + share * input.semi.u * Math.cos(clock), input.centre.v + share * input.sense * input.semi.v * Math.sin(clock)));
     if (!(value(0, 0) < 0)) return "the loop's centre does not stand on the part's side of the surface";
     const out: number[] = [];
     for (let k: number = 0; k < input.count; ++k) {

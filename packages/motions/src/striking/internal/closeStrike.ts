@@ -1,4 +1,8 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import {
+  AutoMovieEngineMotionSampling,
+  Quaternion,
+  Vector3,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -75,12 +79,19 @@ export namespace closeStrike {
       const take: number = TAKE * shown;
       return (
         reached *
-        AutoMovieEngineMotionSampling.minimumJerkShare(Math.max(0, seconds - take) / (shown - take))
+        AutoMovieEngineMotionSampling.minimumJerkShare(
+          Math.max(0, seconds - take) / (shown - take),
+        )
       );
     }
     return seconds <= shown
-      ? reached * AutoMovieEngineMotionSampling.minimumJerkShare(seconds / shown)
-      : reached * (1 - AutoMovieEngineMotionSampling.minimumJerkShare((seconds - shown) / recoil));
+      ? reached *
+          AutoMovieEngineMotionSampling.minimumJerkShare(seconds / shown)
+      : reached *
+          (1 -
+            AutoMovieEngineMotionSampling.minimumJerkShare(
+              (seconds - shown) / recoil,
+            ));
   }
 
   /*
@@ -117,10 +128,20 @@ export namespace closeStrike {
    */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     closeStrike: [
-      { window: ["impact", 1], kind: "inertialize", entry: 0, blend: 0.12 },
+      {
+        window: { start: "impact", end: 1 },
+        kind: "inertialize",
+        entry: 0,
+        blend: 0.12,
+      },
     ],
     punch: [
-      { window: ["impact", 1], kind: "inertialize", entry: 0, blend: 0.12 },
+      {
+        window: { start: "impact", end: 1 },
+        kind: "inertialize",
+        entry: 0,
+        blend: 0.12,
+      },
     ],
   };
 
@@ -269,7 +290,10 @@ export namespace closeStrike {
       const pivoting: boolean =
         !spinning && turn !== 0 && p.technique !== "headbutt";
       const spun = (seconds: number): number =>
-        spin * AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, seconds / shown));
+        spin *
+        AutoMovieEngineMotionSampling.minimumJerkShare(
+          Math.min(1, seconds / shown),
+        );
       const motion = (
         lean: number,
         shift: IAutoMovieVector3,
@@ -400,7 +424,10 @@ export namespace closeStrike {
           ): IAutoMovieMotionHumanPosture => {
             const w: number =
               seconds <= shown
-                ? reached * AutoMovieEngineMotionSampling.minimumJerkShare(seconds / shown)
+                ? reached *
+                  AutoMovieEngineMotionSampling.minimumJerkShare(
+                    seconds / shown,
+                  )
                 : drive(seconds);
             const back: IAutoMovieVector3 = Vector3.scale(
               travel,

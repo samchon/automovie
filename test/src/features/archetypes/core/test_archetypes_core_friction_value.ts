@@ -20,6 +20,10 @@ export function test_archetypes_core_friction_value(): void {
   );
   TestValidator.predicate(
     "the middle of a range",
-    nclose(AutoMovieArchetypeFriction.value([0.2, 0.4]), 0.3, 1e-12),
+    nclose(
+      AutoMovieArchetypeFriction.value({ minimum: 0.2, maximum: 0.4 }),
+      0.3,
+      1e-12,
+    ),
   );
 }

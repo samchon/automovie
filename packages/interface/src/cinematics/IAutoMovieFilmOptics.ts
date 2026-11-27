@@ -134,18 +134,28 @@ export namespace IAutoMovieFilmOptics {
    */
   export interface IGrade {
     /** Finite per-channel gain. */
-    slope: [number, number, number];
+    slope: IAutoMovieFilmOptics.IChannels;
 
     /** Finite per-channel lift, in encoded units. */
-    offset: [number, number, number];
+    offset: IAutoMovieFilmOptics.IChannels;
 
     /** Per-channel exponent, finite and above zero. */
-    power: [number, number, number];
+    power: IAutoMovieFilmOptics.IChannels;
 
     /**
      * Finite saturation: zero gives luma grey, one keeps the colour, above one
      * exaggerates it.
      */
     saturation: number;
+  }
+
+  /** Per-channel values, named in red, green, blue order. */
+  export interface IChannels {
+    /** Red channel. */
+    r: number;
+    /** Green channel. */
+    g: number;
+    /** Blue channel. */
+    b: number;
   }
 }

@@ -62,8 +62,14 @@ export namespace IAutoMovieFormExpectation {
   /** A stand-in the expectation must tell from the form: its box or its hull. */
   export type Mutant = "box" | "hull";
 
-  /** An inclusive `[minimum, maximum]` range in metres. */
-  export type Range = [number, number];
+  /** An inclusive minimum and maximum in metres. */
+  export interface Range {
+    /** Minimum allowed value, inclusive. */
+    min: number;
+
+    /** Maximum allowed value, inclusive. */
+    max: number;
+  }
 
   /** Extent ranges for the axes that are checked. */
   export interface ISize {

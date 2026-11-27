@@ -46,7 +46,12 @@ export function test_engine_geometry_sweep_locate(): void {
           up: 1,
           left: 2,
           down: 1,
-          exponents: [2, 2, 2, 2],
+          exponents: {
+            upperRight: 2,
+            upperLeft: 2,
+            lowerLeft: 2,
+            lowerRight: 2,
+          },
         },
       }),
     ),
@@ -91,7 +96,12 @@ export function test_engine_geometry_sweep_locate(): void {
     up,
     left,
     down: up,
-    exponents: [exponent, exponent, exponent, exponent],
+    exponents: {
+      upperRight: exponent,
+      upperLeft: exponent,
+      lowerLeft: exponent,
+      lowerRight: exponent,
+    },
   });
   const straight: IAutoMovieSweepSurface = AutoMovieEngineSweep.compileSweep({
     spine: {

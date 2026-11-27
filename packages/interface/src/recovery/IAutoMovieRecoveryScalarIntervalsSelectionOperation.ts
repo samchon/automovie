@@ -1,3 +1,5 @@
+import type { IAutoMovieRecoveryScalarWindow } from "./IAutoMovieRecoveryScalarWindow";
+
 /**
  * Select complete saved scalar slabs intersecting a declared physical window.
  * Scalars are millimetres along the observation's normalized sweep direction.
@@ -20,7 +22,7 @@ export namespace IAutoMovieRecoveryScalarIntervalsSelectionOperation {
   export type Operation = (
     levelsMm: readonly number[],
     order: readonly number[],
-    windowMm?: readonly [number, number],
+    windowMm?: Readonly<IAutoMovieRecoveryScalarWindow>,
   ) => {
     /**
      * Selected adjacent saved-plane interval ordinals in deterministic source

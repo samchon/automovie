@@ -1,7 +1,7 @@
 import {
+  AutoMovieEngineMotionTrajectory,
   Quaternion,
   Vector3,
-  AutoMovieEngineMotionTrajectory,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -67,7 +67,14 @@ export namespace release {
    * Cancel table: anything may follow once the hand has opened.
    */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
-    any: [{ window: ["open", 1], kind: "inertialize", entry: 0, blend: 0.15 }],
+    any: [
+      {
+        window: { start: "open", end: 1 },
+        kind: "inertialize",
+        entry: 0,
+        blend: 0.15,
+      },
+    ],
   };
 
   /*
@@ -234,7 +241,8 @@ export namespace release {
       });
 
     // The hand's velocity at the opening, from the carrier's motion.
-    const h: number = AutoMovieEngineMotionTrajectory.integrateMotionTrajectoryStep();
+    const h: number =
+      AutoMovieEngineMotionTrajectory.integrateMotionTrajectoryStep();
     const point: (s: number) => IAutoMovieVector3 = (
       s: number,
     ): IAutoMovieVector3 =>

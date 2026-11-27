@@ -394,11 +394,24 @@ export class AutoMovieArchetypeBuilder<
         this.#inventory.cells,
       ),
       friction:
-        pair === null ? null : AutoMovieArchetypeFriction.value(pair.static),
+        pair === null
+          ? null
+          : AutoMovieArchetypeFriction.value(
+              typeof pair.static === "number"
+                ? pair.static
+                : { minimum: pair.static[0], maximum: pair.static[1] },
+            ),
       kineticFriction:
         pair === null || pair.kinetic === null
           ? null
-          : AutoMovieArchetypeFriction.value(pair.kinetic),
+          : AutoMovieArchetypeFriction.value(
+              typeof pair.kinetic === "number"
+                ? pair.kinetic
+                : {
+                    minimum: pair.kinetic[0],
+                    maximum: pair.kinetic[1],
+                  },
+            ),
       surfaces: this.#inventory.surfaces,
       material,
       restitution,

@@ -63,10 +63,20 @@ export namespace hurdleClear {
    */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     run: [
-      { window: ["touchdown", 1], kind: "inertialize", entry: 0, blend: 0.1 },
+      {
+        window: { start: "touchdown", end: 1 },
+        kind: "inertialize",
+        entry: 0,
+        blend: 0.1,
+      },
     ],
     stand: [
-      { window: ["touchdown", 1], kind: "inertialize", entry: 0, blend: 0.2 },
+      {
+        window: { start: "touchdown", end: 1 },
+        kind: "inertialize",
+        entry: 0,
+        blend: 0.2,
+      },
     ],
   };
 
@@ -74,7 +84,14 @@ export namespace hurdleClear {
    * What may be cut into a clearance: a run, at the take-off foot's footfall.
    */
   export const accepts: IAutoMovieMotionHumanActionLaw["accepts"] = {
-    run: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.1 }],
+    run: [
+      {
+        window: { start: 0, end: 1 },
+        kind: "inertialize",
+        entry: 0,
+        blend: 0.1,
+      },
+    ],
   };
 
   /*

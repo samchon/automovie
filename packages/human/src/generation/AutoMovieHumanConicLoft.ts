@@ -624,7 +624,7 @@ export namespace AutoMovieHumanConicLoft {
       family.phase ?? Infinity,
       ...(family.reliefs ?? []).map(
         (relief: IAutoMovieLoftRelief): number =>
-          (relief.phases[1] - relief.phases[0]) / (relief.columns - 3),
+          (relief.phases.end - relief.phases.start) / (relief.columns - 3),
       ),
     );
     return Math.max(
@@ -667,7 +667,7 @@ export namespace AutoMovieHumanConicLoft {
       family.phase ?? Infinity,
       ...(family.reliefs ?? []).map(
         (relief: IAutoMovieLoftRelief): number =>
-          (relief.phases[1] - relief.phases[0]) / (relief.columns - 3),
+          (relief.phases.end - relief.phases.start) / (relief.columns - 3),
       ),
     );
     const phases: number[] = spaced(
@@ -962,7 +962,7 @@ export namespace AutoMovieHumanConicLoft {
         : {
             reliefs: family.reliefs.map(
               (relief: IAutoMovieLoftRelief): IAutoMovieLoftRelief => {
-                const turn: number = relief.phases[1] > 0 ? 2 * Math.PI : 0;
+                const turn: number = relief.phases.end > 0 ? 2 * Math.PI : 0;
                 const reverse = (net: number[]): number[] =>
                   net.map(
                     (_: number, i: number): number =>
@@ -977,7 +977,10 @@ export namespace AutoMovieHumanConicLoft {
                 return {
                   ...relief,
                   name: relief.name + ".mirror",
-                  phases: [turn - relief.phases[1], turn - relief.phases[0]],
+                  phases: {
+                    start: turn - relief.phases.end,
+                    end: turn - relief.phases.start,
+                  },
                   axis: flip(relief.axis),
                   heights: reverse(relief.heights),
                   ...(relief.shift === undefined

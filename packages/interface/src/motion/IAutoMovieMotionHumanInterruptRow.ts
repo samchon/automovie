@@ -18,7 +18,7 @@
  */
 export interface IAutoMovieMotionHumanInterruptRow {
   /** The earliest and latest cut, a share or a source event name each. */
-  window: readonly [number | string, number | string];
+  window: IAutoMovieMotionHumanInterruptRow.IWindow;
 
   /** How the transition runs. */
   kind: (readonly ["inertialize", "redirect", "phase"])[number];
@@ -31,4 +31,15 @@ export interface IAutoMovieMotionHumanInterruptRow {
 
   /** Offset decay time of an inertialized transition, seconds. */
   blend?: number;
+}
+
+export namespace IAutoMovieMotionHumanInterruptRow {
+  /** The source interval in which a cut may fall. */
+  export interface IWindow {
+    /** Its first share or source event name. */
+    readonly start: number | string;
+
+    /** Its last share or source event name. */
+    readonly end: number | string;
+  }
 }

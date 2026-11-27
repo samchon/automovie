@@ -6,9 +6,9 @@ import type {
 } from "@automovie/interface";
 
 import { determinantAutoMovieMatrix3 } from "../../../math/internal/determinantAutoMovieMatrix3";
-import { createAutoMovieSupportSectionQuery } from "../../internal/createAutoMovieSupportSectionQuery";
 import { AutoMovieBernsteinAlgebra64 as B } from "../../AutoMovieBernsteinAlgebra64";
 import { rootsAutoMovieCubicBernstein64 } from "../../curve/internal/rootsAutoMovieCubicBernstein64";
+import { createAutoMovieSupportSectionQuery } from "../../internal/createAutoMovieSupportSectionQuery";
 import type { IAutoMovieSupportLoftPlan64 } from "./IAutoMovieSupportLoftPlan64";
 
 /*
@@ -251,11 +251,14 @@ export function planAutoMovieSupportLoft64(
       }
       const middle: number = before + (after - before) / 2;
       const physicalBefore: number =
-        field.interval[0] + before * (field.interval[1] - field.interval[0]);
+        field.interval.lowerY +
+        before * (field.interval.upperY - field.interval.lowerY);
       const physicalMiddle: number =
-        field.interval[0] + middle * (field.interval[1] - field.interval[0]);
+        field.interval.lowerY +
+        middle * (field.interval.upperY - field.interval.lowerY);
       const physicalAfter: number =
-        field.interval[0] + after * (field.interval[1] - field.interval[0]);
+        field.interval.lowerY +
+        after * (field.interval.upperY - field.interval.lowerY);
       if (
         !(
           before < middle &&

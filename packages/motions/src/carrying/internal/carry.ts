@@ -1,4 +1,7 @@
-import { DEFAULT_HUMANOID_ROM, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import {
+  AutoMovieEngineMotionSampling,
+  DEFAULT_HUMANOID_ROM,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -18,10 +21,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { walk } from "../../gait/internal/walk";
 import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { walk } from "../../gait/internal/walk";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanHand } from "../../posture/internal/HumanHand";
@@ -88,7 +91,7 @@ export namespace carry {
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
       {
-        window: ["lastFootfall", 1],
+        window: { start: "lastFootfall", end: 1 },
         kind: "inertialize",
         entry: 0,
         blend: 0.3,
@@ -96,7 +99,7 @@ export namespace carry {
     ],
     putDown: [
       {
-        window: ["lastFootfall", 1],
+        window: { start: "lastFootfall", end: 1 },
         kind: "inertialize",
         entry: 0,
         blend: 0.3,
@@ -104,7 +107,7 @@ export namespace carry {
     ],
     handOver: [
       {
-        window: ["lastFootfall", 1],
+        window: { start: "lastFootfall", end: 1 },
         kind: "inertialize",
         entry: 0,
         blend: 0.3,

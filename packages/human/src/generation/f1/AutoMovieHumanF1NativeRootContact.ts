@@ -92,8 +92,14 @@ export namespace AutoMovieHumanF1NativeRootContact {
     const target: AutoMovieVector3Tuple = oldSource.point(...prior.part);
     const seed: IAutoMovieConstructionPointSeed = {
       type: "point", partFace: current.name, hostFace,
-      part: [prior.part[0] / 1000, prior.part[1]],
-      host: [prior.hostAt[0] / 1000, prior.hostAt[1]],
+      part: {
+        station: prior.part[0] / 1000,
+        phase: prior.part[1],
+      },
+      host: {
+        station: prior.hostAt[0] / 1000,
+        phase: prior.hostAt[1],
+      },
     };
     return {
       seed,
@@ -135,8 +141,8 @@ export namespace AutoMovieHumanF1NativeRootContact {
     );
     const seed: IAutoMovieConstructionPointSeed = {
       type: "point", partFace: current.name, hostFace,
-      part: [found.part / 1000, old.phase],
-      host: [found.host[0] / 1000, found.host[1]],
+      part: { station: found.part / 1000, phase: old.phase },
+      host: { station: found.host[0] / 1000, phase: found.host[1] },
     };
     const original: AutoMovieVector3Tuple = oldSource.point(found.part, old.phase);
     return {

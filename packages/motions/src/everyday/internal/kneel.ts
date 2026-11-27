@@ -23,9 +23,9 @@ import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieM
 import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
 import { prepareDryKneeSupport } from "../../floor/internal/prepareDryKneeSupport";
+import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanPhysics } from "../../law/internal/HumanPhysics";
-import { HumanRefusal } from "../../law/HumanRefusal";
 import { kneelContacts } from "./kneelContacts";
 import { kneelHands } from "./kneelHands";
 import { kneelKeys } from "./kneelKeys";
@@ -86,7 +86,7 @@ export namespace kneel {
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
       {
-        window: ["settled", 1],
+        window: { start: "settled", end: 1 },
         kind: "inertialize",
         entry: 0,
         blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
@@ -94,7 +94,7 @@ export namespace kneel {
     ],
     crouch: [
       {
-        window: ["settled", 1],
+        window: { start: "settled", end: 1 },
         kind: "inertialize",
         entry: 0,
         blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
@@ -102,7 +102,7 @@ export namespace kneel {
     ],
     pickUp: [
       {
-        window: ["settled", 1],
+        window: { start: "settled", end: 1 },
         kind: "inertialize",
         entry: 0,
         blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
@@ -110,7 +110,7 @@ export namespace kneel {
     ],
     putDown: [
       {
-        window: ["settled", 1],
+        window: { start: "settled", end: 1 },
         kind: "inertialize",
         entry: 0,
         blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,

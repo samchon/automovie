@@ -4,7 +4,10 @@ import type {
   IAutoMovieMaterial,
   IAutoMovieProceduralSurface,
 } from "@automovie/interface";
-import { AutoMovieRenderMaterial, type IMaterialShaderSource } from "@automovie/render";
+import {
+  AutoMovieRenderMaterial,
+  type IMaterialShaderSource,
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -52,7 +55,9 @@ export function test_render_scene_build_material_procedural_shader(): void {
       },
     },
   };
-  const material: THREE.MeshPhysicalMaterial = AutoMovieRenderMaterial.build(record(piece));
+  const material: THREE.MeshPhysicalMaterial = AutoMovieRenderMaterial.build(
+    record(piece),
+  );
   const shader: IMaterialShaderSource = compile(material);
 
   // 1. Splices after the chunks they extend.
@@ -135,7 +140,8 @@ export function test_render_scene_build_material_procedural_shader(): void {
   // 4. Program keys.
   const key: (one: IAutoMovieProceduralSurface) => string = (
     one: IAutoMovieProceduralSurface,
-  ): string => AutoMovieRenderMaterial.build(record(one)).customProgramCacheKey();
+  ): string =>
+    AutoMovieRenderMaterial.build(record(one)).customProgramCacheKey();
   TestValidator.predicate(
     "kinds and sheet sampling separate programs, seeds do not",
     key(surface("stone", 1)) === key(surface("stone", 2)) &&
@@ -172,7 +178,7 @@ function surface(
     seed,
     scale: 0.02,
     colors: [color(0.2), color(0.6)],
-    roughness: [0.45, 0.85],
+    roughness: { atZero: 0.45, atOne: 0.85 },
     relief: 0.001,
   };
 }

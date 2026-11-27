@@ -1,4 +1,8 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import {
+  AutoMovieEngineMotionSampling,
+  Quaternion,
+  Vector3,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
@@ -85,13 +89,19 @@ export namespace shift {
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     rise: [
       {
-        window: ["seatContact", 1],
+        window: { start: "seatContact", end: 1 },
         kind: "inertialize",
         entry: 0,
         blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
       },
     ],
-    shift: [{ window: ["seatContact", 1], kind: "inertialize", entry: 0 }],
+    shift: [
+      {
+        window: { start: "seatContact", end: 1 },
+        kind: "inertialize",
+        entry: 0,
+      },
+    ],
   };
 
   /*
@@ -280,7 +290,9 @@ export namespace shift {
       seconds: number,
       corrected: boolean = true,
     ): IAutoMovieMotionHumanPosture {
-      const s: number = AutoMovieEngineMotionSampling.minimumJerkShare(seconds / slide);
+      const s: number = AutoMovieEngineMotionSampling.minimumJerkShare(
+        seconds / slide,
+      );
       const socket: IAutoMovieVector3 = {
         x: start.x + travelX * s,
         y: start.y + (corrected ? (correction?.(seconds)[0] ?? 0) : 0),

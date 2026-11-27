@@ -1,6 +1,7 @@
 import type {
   IAutoMovieConstructionKnot,
   IAutoMovieConstructionNode,
+  IAutoMovieConstructionChartPoint,
   IAutoMovieConstructionOutline,
   IAutoMovieConstructionParameter,
   IAutoMovieConstructionView,
@@ -151,8 +152,8 @@ export namespace ConstructionShapes {
     seed: {
       partFace: string;
       hostFace: string;
-      part: [number, number];
-      host: [number, number];
+      part: IAutoMovieConstructionChartPoint;
+      host: IAutoMovieConstructionChartPoint;
     },
     widths: {
       part: IAutoMovieConstructionWidth;
@@ -249,22 +250,29 @@ export namespace ConstructionShapes {
 
     // Seeds: the post's phase pi / 2 point (r, 0, R) on the beam; the finger's phase 0 point (0.005, sqrt(0.015^2 - 0.005^2), 0.06) on the post; the nail's phase 0 point (0, 0.032, 0.065) on the finger.
     const lean: number = Math.sqrt(0.015 ** 2 - 0.005 ** 2);
-    const seeds: {
-      post: [string, [number, number], [number, number]];
-      finger: [string, [number, number], [number, number]];
-      nail: [string, [number, number], [number, number]];
-    } = {
-      post: [
-        "beam",
-        [(0.03 + 0.001) * k, Math.PI / 2],
-        [(0.1 + 0.015) * k, 0.01],
-      ],
-      finger: [
-        "post",
-        [(lean + 0.001) * k, 0],
-        [0.06 * k, Math.atan2(0.005, lean) + 0.01],
-      ],
-      nail: ["finger", [0.006 * k, 0], [0.032 * k, Math.PI / 2 + 0.01]],
+    const seeds: Record<
+      "post" | "finger" | "nail",
+      {
+        face: string;
+        part: IAutoMovieConstructionChartPoint;
+        host: IAutoMovieConstructionChartPoint;
+      }
+    > = {
+      post: {
+        face: "beam",
+        part: { station: (0.03 + 0.001) * k, phase: Math.PI / 2 },
+        host: { station: (0.1 + 0.015) * k, phase: 0.01 },
+      },
+      finger: {
+        face: "post",
+        part: { station: (lean + 0.001) * k, phase: 0 },
+        host: { station: 0.06 * k, phase: Math.atan2(0.005, lean) + 0.01 },
+      },
+      nail: {
+        face: "finger",
+        part: { station: 0.006 * k, phase: 0 },
+        host: { station: 0.032 * k, phase: Math.PI / 2 + 0.01 },
+      },
     };
     const merge: (
       name: string,
@@ -286,9 +294,9 @@ export namespace ConstructionShapes {
         part,
         {
           partFace: face,
-          hostFace: seeds[face][0],
-          part: seeds[face][1],
-          host: seeds[face][2],
+          hostFace: seeds[face].face,
+          part: seeds[face].part,
+          host: seeds[face].host,
         },
         chord(r),
       );

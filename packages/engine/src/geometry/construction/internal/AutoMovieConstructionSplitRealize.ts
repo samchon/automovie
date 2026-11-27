@@ -137,7 +137,10 @@ export function AutoMovieConstructionSplitRealize(
     }
 
     // The curved seam, built once from the host so both bands read one curve.
-    const [a, b]: [number, number] = derived?.seams[0] ?? node.seam;
+    const [a, b]: [number, number] = derived?.seams[0] ?? [
+      node.seam.startPhaseRad,
+      node.seam.endPhaseRad,
+    ];
     const heading: Vec3 | undefined =
       node.profile?.heading ?? derived?.headings[0];
     let seam:
@@ -150,17 +153,17 @@ export function AutoMovieConstructionSplitRealize(
           host,
           station: hostStation,
           into: hostInto,
-          seam: [a, b],
+          seam: { startPhaseRad: a, endPhaseRad: b },
           normal,
           // A composed end's seam is its children's valley (`IAutoMovieConstructionSplitCompose.IDerived.valleys`), already in mm.
           knots:
             derived !== undefined
               ? derived.valleys[0]!
               : (node.profile?.knots ?? []).map(
-                  ([along, depth]: [number, number]): [number, number] => [
-                    along * S,
-                    depth * S,
-                  ],
+                  ({ alongM, depthM }: IAutoMovieConstructionSplit.IProfileKnot): IAutoMovieConstructionSplitSeam.IProfileKnotMm => ({
+                    alongMm: alongM * S,
+                    depthMm: depthM * S,
+                  }),
                 ),
           ...(heading === undefined ? {} : { heading }),
         });
@@ -565,7 +568,15 @@ function fan(
         s: IAutoMovieConstructionSplit.ISeam,
         j: number,
       ): IAutoMovieConstructionSplit.ISeam =>
-        derived === undefined ? s : { ...s, seam: derived.seams[j]! },
+        derived === undefined
+          ? s
+          : {
+              ...s,
+              seam: {
+                startPhaseRad: derived.seams[j]![0],
+                endPhaseRad: derived.seams[j]![1],
+              },
+            },
     );
     const S: number = seams.length;
     const curves: IAutoMovieConstructionSplitSeam.ISeam[] = [];
@@ -599,10 +610,10 @@ function fan(
                 seam: s.seam,
                 normal,
                 knots: s.profile.knots.map(
-                  ([along, depth]: [number, number]): [number, number] => [
-                    along * AutoMovieConstructionViews.SCALE,
-                    depth * AutoMovieConstructionViews.SCALE,
-                  ],
+                  ({ alongM, depthM }: IAutoMovieConstructionSplit.IProfileKnot): IAutoMovieConstructionSplitSeam.IProfileKnotMm => ({
+                    alongMm: alongM * AutoMovieConstructionViews.SCALE,
+                    depthMm: depthM * AutoMovieConstructionViews.SCALE,
+                  }),
                 ),
                 ...(heading === undefined ? {} : { heading }),
               });
@@ -623,8 +634,8 @@ function fan(
         (s: IAutoMovieConstructionSplit.ISeam): boolean =>
           s.profile !== undefined,
       )?.profile?.square === true;
-    const a = (j: number): number => seams[j]!.seam[0];
-    const b = (j: number): number => seams[j]!.seam[1];
+    const a = (j: number): number => seams[j]!.seam.startPhaseRad;
+    const b = (j: number): number => seams[j]!.seam.endPhaseRad;
 
     // Each child's loop: arcs in increasing host phase, seams between them (`IAutoMovieConstructionSplit.outer`). An arc names the fork it
     // starts at, `a` or `b` and its seam.

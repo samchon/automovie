@@ -11,8 +11,8 @@ import {
 import { channelKey } from "./channelKey";
 import { evaluateDrivenCurve } from "./evaluateDrivenCurve";
 import { lerpChannelValues } from "./lerpChannelValues";
-import { slerpChannelValues } from "./slerpChannelValues";
 import { orderValueDrivers } from "./orderValueDrivers";
+import { slerpChannelValues } from "./slerpChannelValues";
 
 /*
  * Evaluate copy and driven channels in stable dependency order, mutating
@@ -244,24 +244,6 @@ const validateDrivenSourceValue: (value: number[]) => void = (
     );
 };
 
-function validateDrivenRange(
-  inRange: [number, number],
-  outRange: [number, number],
-): void {
-  validateDrivenRangeTuple("inRange", inRange);
-  validateDrivenRangeTuple("outRange", outRange);
-}
-
-const validateDrivenRangeTuple: (
-  label: "inRange" | "outRange",
-  range: [number, number],
-) => void = (label: "inRange" | "outRange", range: [number, number]): void => {
-  if (range.length !== 2)
-    throw new Error(
-      `driven driver ${label} must contain exactly 2 entries, but had ${range.length}`,
-    );
-};
-
 const remapDriven: (
   d: IAutoMovieDrivenDriver,
   source: number | undefined,
@@ -274,9 +256,27 @@ const remapDriven: (
     throw new Error(
       "driven driver without a curve requires inRange and outRange",
     );
-  validateDrivenRange(inRange, outRange);
-  return remap(source ?? inRange[0], inRange, outRange, d.clamp ?? false);
+  validateDrivenRange("inRange", inRange);
+  validateDrivenRange("outRange", outRange);
+  return remap(
+    source ?? inRange.from,
+    [inRange.from, inRange.to],
+    [outRange.from, outRange.to],
+    d.clamp ?? false,
+  );
 };
+
+function validateDrivenRange(
+  label: "inRange" | "outRange",
+  range:
+    | IAutoMovieDrivenDriver.IInputRange
+    | IAutoMovieDrivenDriver.IOutputRange,
+): void {
+  if (!Number.isFinite(range.from) || !Number.isFinite(range.to))
+    throw new Error(
+      `driven driver ${label} endpoints must be finite numeric values`,
+    );
+}
 
 const remap: (
   x: number,

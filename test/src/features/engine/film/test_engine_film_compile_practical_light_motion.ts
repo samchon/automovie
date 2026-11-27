@@ -86,7 +86,7 @@ export function test_engine_film_compile_practical_light_motion(): void {
     emitter: { frame: { ...identity, translation: { x: 0, y: 0.5, z: 0 } } },
     objectMotions: [motion],
     sampleTimes: [0.75, 0.375, 0.75],
-    on: [0.25, 0.75],
+    on: { start: 0.25, end: 0.75 },
   };
   const clip: IAutoMovieClip = AutoMovieEngineFilm.compilePracticalLightMotion(input);
   const [position, rotation, intensity]: IAutoMovieTrack[] = clip.tracks;
@@ -182,7 +182,7 @@ export function test_engine_film_compile_practical_light_motion(): void {
     "bad sample and interval premises fail at compilation",
     throwsError(
       (): unknown =>
-        AutoMovieEngineFilm.compilePracticalLightMotion({ ...input, on: [0.75, 0.25] }),
+        AutoMovieEngineFilm.compilePracticalLightMotion({ ...input, on: { start: 0.75, end: 0.25 } }),
       "practical light interval",
     ) &&
       throwsError(

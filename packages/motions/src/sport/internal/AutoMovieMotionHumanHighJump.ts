@@ -1,11 +1,29 @@
-import { AutoMovieGravity, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
-import type { AutoMovieMotionHumanActionKey, IAutoMovieMotionEvent, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanExerciseKey, IAutoMovieMotionHumanGymnasticsTakeoff, IAutoMovieMotionHumanHighJump, IAutoMovieMotionHumanPosture, IAutoMovieResolveCenterOfMass, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  AutoMovieEngineKinematics,
+  AutoMovieGravity,
+  Vector3,
+} from "@automovie/engine";
+import type {
+  AutoMovieMotionHumanActionKey,
+  IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanExerciseKey,
+  IAutoMovieMotionHumanGymnasticsTakeoff,
+  IAutoMovieMotionHumanHighJump,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
 import { ExerciseKey } from "../../exercise/internal/ExerciseKey";
 import { lieDown } from "../../floor/internal/lieDown";
-import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanRefusal } from "../../law/HumanRefusal";
+import { HumanBound } from "../../law/internal/HumanBound";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
 import { knockdown } from "../../reaction/internal/knockdown";
@@ -87,7 +105,14 @@ export namespace AutoMovieMotionHumanHighJump {
    * (`AthleticsRunUp`).
    */
   export const accepts: IAutoMovieMotionHumanActionLaw["accepts"] = {
-    run: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.15 }],
+    run: [
+      {
+        window: { start: 0, end: 1 },
+        kind: "inertialize",
+        entry: 0,
+        blend: 0.15,
+      },
+    ],
   };
 
   /*

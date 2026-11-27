@@ -462,9 +462,9 @@ export class AutoMovieFilmResponseStage {
     const grade: IAutoMovieFilmOptics.IGrade | undefined = optics.grade;
     uniforms.uGrade!.value = grade === undefined ? 0 : 1;
     if (grade !== undefined) {
-      this.slope_.fromArray(grade.slope);
-      this.offset_.fromArray(grade.offset);
-      this.power_.fromArray(grade.power);
+      this.slope_.set(grade.slope.r, grade.slope.g, grade.slope.b);
+      this.offset_.set(grade.offset.r, grade.offset.g, grade.offset.b);
+      this.power_.set(grade.power.r, grade.power.g, grade.power.b);
       uniforms.uSaturation!.value = grade.saturation;
     }
     return targets;

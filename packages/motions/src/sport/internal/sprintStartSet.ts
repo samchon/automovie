@@ -354,12 +354,18 @@ export function sprintStartSet(
     knee:
       placedFeet === undefined
         ? sprintStartSet.FRONT
-        : [
-            sprintStartSet.FRONT - sprintStartSet.FRONT_SD,
-            sprintStartSet.FRONT + sprintStartSet.FRONT_SD,
-          ],
-    rear: sprintStartSet.REAR,
-    hip: sprintStartSet.HIP,
+        : {
+            minimum: sprintStartSet.FRONT - sprintStartSet.FRONT_SD,
+            maximum: sprintStartSet.FRONT + sprintStartSet.FRONT_SD,
+          },
+    rear: {
+      minimum: sprintStartSet.REAR[0],
+      maximum: sprintStartSet.REAR[1],
+    },
+    hip: {
+      minimum: sprintStartSet.HIP[0],
+      maximum: sprintStartSet.HIP[1],
+    },
     // The measured centre belongs to the anthropometric block setting;
     // on placed plates it follows from where the plates stand.
     centre:

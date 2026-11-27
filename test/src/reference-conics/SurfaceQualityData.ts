@@ -60,7 +60,7 @@ export namespace SurfaceQualityData {
       const source: S.Prepared = S.prepare(loop);
       if (source.refusals.length > 0)
         throw new Error("Source ROI refusal: " + source.refusals.join(";"));
-      const period: number = source.curve.domain[1] - source.curve.domain[0];
+      const period: number = source.curve.domain.end - source.curve.domain.start;
       return {
         loop,
         source,

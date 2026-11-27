@@ -98,7 +98,7 @@ export namespace IAutoMovieMotionHumanSurface {
     side: AutoMovieHumanSide;
 
     /** Action seconds at release and reacquisition. */
-    window: readonly [number, number];
+    window: IWindow;
 
     /** Metres of displacement along the moving stance's +X and forward +Z. */
     offset: Readonly<IStepOffset>;
@@ -204,10 +204,19 @@ export namespace IAutoMovieMotionHumanSurface {
     grip: string;
 
     /** Action seconds of pole catch and release, ordered inside the glide. */
-    window: readonly [number, number];
+    window: IWindow;
 
     /** Rearward distance of the kicking ski before it recovers, metres. */
     kick: number;
+  }
+
+  /** The start and end action seconds of one authored movement phase. */
+  export interface IWindow {
+    /** The phase's start, seconds from the action's beginning. */
+    readonly start: number;
+
+    /** The phase's end, seconds from the action's beginning. */
+    readonly end: number;
   }
 
   /**

@@ -157,6 +157,6 @@ export namespace AutoMovieHumanFeatureLaws {
     if (datums.along === undefined || law.along === undefined) throw new Error("feature law: " + law.name + " has one landmark and needs a long direction and a share along it");
     const outward: AutoMovieVector3Tuple = F.unit(datums.outward);
     const along: AutoMovieVector3Tuple = F.perpendicular(datums.along, outward);
-    return { name: law.name, class: law.class, segment: law.segment, centre: [...datums.from], along, across: F.unit(F.cross(outward, along)), extent: [law.along * scale, law.across * scale], height: law.height * scale };
+    return { name: law.name, class: law.class, segment: law.segment, centre: [...datums.from], along, across: F.unit(F.cross(outward, along)), extent: { along: law.along * scale, across: law.across * scale }, height: law.height * scale };
   }
 }

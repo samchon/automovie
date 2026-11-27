@@ -79,7 +79,7 @@ export namespace StrikingHeld {
   ): IAutoMovieMotionHumanActionLaw["interrupts"] => ({
     any: [
       {
-        window: [instant, 1],
+        window: { start: instant, end: 1 },
         kind: "inertialize",
         entry: 0,
         blend: 0.15,

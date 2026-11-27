@@ -26,7 +26,7 @@ export const hookSet: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHookSe
   {
     name: "hookSet",
     interrupts: {
-      any: [{ window: ["set", 1], kind: "inertialize", entry: 0 }],
+      any: [{ window: { start: "set", end: 1 }, kind: "inertialize", entry: 0 }],
     },
     plan: planHookSet,
   };

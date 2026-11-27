@@ -164,7 +164,7 @@ export namespace AutoMovieHumanHeadTapeStation {
       ]),
     ].filter(
       (station: number): boolean =>
-        station > plane.range[0] && station < plane.range[1],
+        station > plane.range.start && station < plane.range.end,
     );
     for (const station of stations) {
       const inputs: IAutoMovieLoftViewRead.IValues | string =

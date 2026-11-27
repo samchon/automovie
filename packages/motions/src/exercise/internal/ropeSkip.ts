@@ -36,8 +36,8 @@ const SIDES = ["left", "right"] as const;
 export const ropeSkip = {
   name: "ropeSkip",
   interrupts: {
-    stand: [{ window: [1, 1], kind: "inertialize", entry: 0 }],
-    ropeSkip: [{ window: [1, 1], kind: "inertialize", entry: 0 }],
+    stand: [{ window: { start: 1, end: 1 }, kind: "inertialize", entry: 0 }],
+    ropeSkip: [{ window: { start: 1, end: 1 }, kind: "inertialize", entry: 0 }],
   },
 
   /*

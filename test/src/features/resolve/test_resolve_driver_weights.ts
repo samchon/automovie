@@ -44,14 +44,16 @@ const driven: (
   type: "driven",
   output: weightsChannel("k"),
   source: { kind: "pointer", pointer: "/in", valueType: "scalar" },
-  inRange: [0, 1],
-  outRange: [0.6, 1],
+  inRange: { from: 0, to: 1 },
+  outRange: { from: 0.6, to: 1 },
   clamp: false,
   ...over,
 });
 
 /**
- * A driven scalar may create or replace singleton node weights, which resolveFrame publishes as morph output. Existing multiple weights and TRS channels reject a scalar write rather than losing components.
+ * A driven scalar may create or replace singleton node weights, which
+ * resolveFrame publishes as morph output. Existing multiple weights and TRS
+ * channels reject a scalar write rather than losing components.
  *
  * Scenarios:
  *
@@ -66,7 +68,7 @@ const driven: (
  * 4. Negative twin: a TRS output still rejects with the NaN-poisoning rationale.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs resolveDrivers and resolveFrame, observing scalar weights creation/replacement and refusal of narrowing a three-weight channel or writing one scalar into TRS.
- * @evidence contracts/development/testing.md#independent-expectations An absent source uses the authored lower input endpoint, which maps to outRange[0]=0.6; a width-one morph channel can carry that scalar while three-component scale cannot.
+ * @evidence contracts/development/testing.md#independent-expectations An absent source uses the authored input `from` endpoint, which maps to outRange.from=0.6; a width-one morph channel can carry that scalar while three-component scale cannot.
  * @evidence contracts/development/testing.md#distinguishing-cases Unsampled and sampled singleton weights are positive neighbors to existing three-weight and scale-output refusals; general curve mapping and dependency ordering belong to their driver tests.
  * @evidence contracts/development/testing.md#execution-ownership The named test_resolve_driver_weights entry directly executes portable value-driving and frame output semantics; it checks numerical morph weights without asserting rendered deformation.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: End-to-end: a driven driver writing `node:k:weights` with no sampled weights).
@@ -91,7 +93,11 @@ export function test_resolve_driver_weights(): void {
     string,
     IAutoMovieSampledChannel
   >([["node:k:weights", { channel: weightsChannel("k"), value: [0.2] }]]);
-  AutoMovieEngineResolve.resolveDrivers([driven({})], single, new Map([["k", node("k")]]));
+  AutoMovieEngineResolve.resolveDrivers(
+    [driven({})],
+    single,
+    new Map([["k", node("k")]]),
+  );
   TestValidator.predicate(
     "a width-1 sampled weights channel takes the driven value",
     single.get("node:k:weights")!.value.length === 1 &&
@@ -109,7 +115,11 @@ export function test_resolve_driver_weights(): void {
     "multi-morph sampled weights refuse a scalar driven write",
     throwsError(
       (): IAutoMovieDriver[] =>
-        AutoMovieEngineResolve.resolveDrivers([driven({})], multi, new Map([["k", node("k")]])),
+        AutoMovieEngineResolve.resolveDrivers(
+          [driven({})],
+          multi,
+          new Map([["k", node("k")]]),
+        ),
       ["node:k:weights", "3 morph targets", "narrow"],
     ),
   );

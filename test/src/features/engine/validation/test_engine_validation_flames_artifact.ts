@@ -21,7 +21,7 @@ export function test_engine_validation_flames_artifact(): void {
     emitter: "wick",
     seed: 7,
     size: { kind: "small", height: 0.125, radius: 0.03125 },
-    on: [0.5, 1],
+    on: { start: 0.5, end: 1 },
     light: "glow",
   };
   const nodes: Parameters<typeof appendFlamesArtifact>[1] = [
@@ -51,7 +51,7 @@ export function test_engine_validation_flames_artifact(): void {
         light: "point",
         prop: "lamp",
         emitter: "wick",
-        on: [0.5, 1],
+        on: { start: 0.5, end: 1 },
       },
     ],
   };

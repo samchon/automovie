@@ -16,7 +16,8 @@ const profileWith: (
 });
 
 /**
- * Profile semantic keys enumerate node references from limits and drivers in first-reference order, removing duplicates for binding admission.
+ * Profile semantic keys enumerate node references from limits and drivers in
+ * first-reference order, removing duplicates for binding admission.
  *
  * Scenarios:
  *
@@ -78,8 +79,8 @@ export function test_resolve_profile_keys(): void {
           type: "driven",
           output: { kind: "node", node: "k", path: "rotation" },
           source: { kind: "pointer", pointer: "/x", valueType: "scalar" },
-          inRange: [0, 1],
-          outRange: [0, 1],
+          inRange: { from: 0, to: 1 },
+          outRange: { from: 0, to: 1 },
           clamp: false,
         },
         {

@@ -1,4 +1,10 @@
-import { AutoMovieGravity, Quaternion, Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineMath } from "@automovie/engine";
+import {
+  AutoMovieEngineMath,
+  AutoMovieEngineMotionSampling,
+  AutoMovieGravity,
+  Quaternion,
+  Vector3,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -28,8 +34,8 @@ import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotion
 import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
 import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionHumanLeg";
 import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
-import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanRefusal } from "../../law/HumanRefusal";
+import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
@@ -71,10 +77,20 @@ export namespace fieldThrow {
    */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
-      { window: ["recover", 1], kind: "inertialize", entry: 0, blend: 0.25 },
+      {
+        window: { start: "recover", end: 1 },
+        kind: "inertialize",
+        entry: 0,
+        blend: 0.25,
+      },
     ],
     walk: [
-      { window: ["recover", 1], kind: "inertialize", entry: 0, blend: 0.25 },
+      {
+        window: { start: "recover", end: 1 },
+        kind: "inertialize",
+        entry: 0,
+        blend: 0.25,
+      },
     ],
   };
 
@@ -82,7 +98,14 @@ export namespace fieldThrow {
    * What may be cut into a throw: a run, for the javelin's approach.
    */
   export const accepts: IAutoMovieMotionHumanActionLaw["accepts"] = {
-    run: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.1 }],
+    run: [
+      {
+        window: { start: 0, end: 1 },
+        kind: "inertialize",
+        entry: 0,
+        blend: 0.1,
+      },
+    ],
   };
 
   /*
@@ -189,8 +212,7 @@ export namespace fieldThrow {
         axis: "area",
         value: p.area,
         reason: `${p.area} declares no ${id}`,
-        fix:
-          "name a throwing circle or javelin runway, as AutoMovieArchetypeThrowingCircle.create builds",
+        fix: "name a throwing circle or javelin runway, as AutoMovieArchetypeThrowingCircle.create builds",
       });
     const centre: IAutoMovieVector3 = Vector3.add(
       placed.position,
@@ -300,7 +322,10 @@ export namespace fieldThrow {
         ? yaw
         : yaw -
           spec.turn *
-            (1 - AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, Math.max(0, t / spec.seconds))));
+            (1 -
+              AutoMovieEngineMotionSampling.minimumJerkShare(
+                Math.min(1, Math.max(0, t / spec.seconds)),
+              ));
     const joints: (t: number) => IAutoMovieMotionHumanExerciseKey.IKey = (
       t: number,
     ): IAutoMovieMotionHumanExerciseKey.IKey =>
@@ -310,12 +335,16 @@ export namespace fieldThrow {
           ? fieldThrowKeys.blend(
               keys.wind,
               keys.release,
-              AutoMovieEngineMotionSampling.minimumJerkShare((t - spec.seconds) / DELIVER),
+              AutoMovieEngineMotionSampling.minimumJerkShare(
+                (t - spec.seconds) / DELIVER,
+              ),
             )
           : fieldThrowKeys.blend(
               keys.release,
               keys.stand,
-              AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, (t - release) / RECOVER)),
+              AutoMovieEngineMotionSampling.minimumJerkShare(
+                Math.min(1, (t - release) / RECOVER),
+              ),
             );
     const hipsRest: IAutoMovieVector3 = body.rest.get("hips")!;
     const hipsHeight: number =

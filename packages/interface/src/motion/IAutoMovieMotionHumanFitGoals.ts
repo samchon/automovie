@@ -9,9 +9,9 @@ import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
  */
 export namespace IAutoMovieMotionHumanFitGoals {
   /**
-   * An unsigned included angle or closed angle interval, strictly between zero
-   * and 180 degrees. A solve needs a noncollinear starting configuration for
-   * its analytic derivative; collinear or coincident rays are reported
+   * An unsigned included angle or inclusive range of angles, strictly between
+   * zero and 180 degrees. A solve needs a noncollinear starting configuration
+   * for its analytic derivative; collinear or coincident rays are reported
    * explicitly.
    */
   export interface IAngle {
@@ -22,9 +22,15 @@ export namespace IAutoMovieMotionHumanFitGoals {
       IAutoMovieMotionHumanFitGoals.Landmark,
     ];
     /** Desired included angle or ordered inclusive bounds, degrees in (0, 180). */
-    degrees: number | readonly [number, number];
+    degrees: number | IRange;
     /** Price per milliradian missed; the fit's price when absent. */
     price?: number;
+  }
+
+  /** Ordered inclusive angle bounds, each strictly between 0 and 180 degrees. */
+  export interface IRange {
+    readonly minimum: number;
+    readonly maximum: number;
   }
 
   /**

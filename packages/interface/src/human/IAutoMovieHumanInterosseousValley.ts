@@ -5,11 +5,11 @@
 export namespace IAutoMovieHumanInterosseousValley {
   /** A valley's fixed inputs. */
   export interface IInput {
-    /**
-     * The two metacarpal axes' places across the hand, mm, the thumb side
-     * first.
-     */
-    between: [number, number];
+    /** The more thumbward metacarpal axis across the hand, mm. */
+    towardThumb: number;
+
+    /** The more little-fingerward metacarpal axis across the hand, mm. */
+    towardLittleFinger: number;
 
     /** The arches' radius, mm. */
     radius: number;

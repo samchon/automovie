@@ -1,8 +1,8 @@
 import {
+  AutoMovieEngineMotionSampling,
   Quaternion,
   ROM_TOLERANCE,
   Vector3,
-  AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
@@ -30,8 +30,8 @@ import { AutoMovieMotionHumanArmJointCourse } from "../../compose/internal/AutoM
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { handGoals } from "../../everyday/internal/handGoals";
-import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanRefusal } from "../../law/HumanRefusal";
+import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { prepareHumanSampledCourse } from "../../posture/internal/prepareHumanSampledCourse";
@@ -69,7 +69,9 @@ export namespace relayPass {
    * Cancel table: either role may be left once its arm is back on the run.
    */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
-    any: [{ window: ["relax", 1], kind: "inertialize", entry: 0 }],
+    any: [
+      { window: { start: "relax", end: 1 }, kind: "inertialize", entry: 0 },
+    ],
   };
 
   /*
@@ -177,10 +179,15 @@ export namespace relayPass {
       t < at - REACH
         ? 0
         : t < at
-          ? AutoMovieEngineMotionSampling.minimumJerkShare((t - (at - REACH)) / REACH)
+          ? AutoMovieEngineMotionSampling.minimumJerkShare(
+              (t - (at - REACH)) / REACH,
+            )
           : t <= relax
             ? 1
-            : 1 - AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, (t - relax) / REACH));
+            : 1 -
+              AutoMovieEngineMotionSampling.minimumJerkShare(
+                Math.min(1, (t - relax) / REACH),
+              );
 
     // The run's own arm over each blend, solved at knots AutoKnots places
     // over the blend (Vitenti et al. 2024, arXiv:2412.13423) to the arm

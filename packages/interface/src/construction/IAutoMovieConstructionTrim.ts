@@ -1,4 +1,5 @@
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMovieConstructionChartPoint } from "./IAutoMovieConstructionChartPoint";
 import type { IAutoMovieConstructionNode } from "./IAutoMovieConstructionNode";
 
 /**
@@ -38,8 +39,8 @@ export interface IAutoMovieConstructionTrim {
   landmarks: IAutoMovieVector3[];
 
   /**
-   * Each landmark's guessed chart point `[station, phase]` on the face, metres
-   * and radians, one per landmark.
+   * Each landmark's guessed chart point on the face, with station in metres
+   * and phase in radians, one per landmark.
    */
-  guesses: [number, number][];
+  guesses: IAutoMovieConstructionChartPoint[];
 }

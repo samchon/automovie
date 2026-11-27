@@ -87,7 +87,7 @@ export namespace dress {
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
       {
-        window: ["relax", 1],
+        window: { start: "relax", end: 1 },
         kind: "inertialize",
         entry: 0,
         blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
@@ -95,7 +95,7 @@ export namespace dress {
     ],
     walk: [
       {
-        window: ["relax", 1],
+        window: { start: "relax", end: 1 },
         kind: "inertialize",
         entry: 0,
         blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,

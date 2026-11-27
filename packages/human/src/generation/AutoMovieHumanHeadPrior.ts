@@ -28,7 +28,7 @@ export namespace AutoMovieHumanHeadPrior {
       nasion: 1.9,
       subnasale: 6,
       pogonion: 0,
-      lips: [3, 2],
+      lips: { upper: 3, lower: 2 },
       sulcus: 4,
       lip: 1 / 3,
       chin: 1 / 3,

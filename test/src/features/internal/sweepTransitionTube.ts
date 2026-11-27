@@ -73,7 +73,12 @@ export function sweepTransitionTube(
     up: 0.05,
     left: 0.05,
     down: 0.05,
-    exponents: [2, 2, 2, 2],
+    exponents: {
+      upperRight: 2,
+      upperLeft: 2,
+      lowerLeft: 2,
+      lowerRight: 2,
+    },
   };
   const tube: IAutoMovieSweep = {
     spine: {
@@ -107,7 +112,7 @@ export function sweepTransitionTube(
   const bands: boolean = shape.bands ?? true;
   function part(
     name: string,
-    u: [number, number],
+    u: IAutoMovieSurfaceNetwork.IParameterRange,
     columns: IAutoMovieSurfaceNetwork.ICounts,
     n: number,
   ): IAutoMovieSurfaceNetwork.ISweepPatch {
@@ -116,14 +121,14 @@ export function sweepTransitionTube(
       name,
       sweep: "tube",
       u,
-      v: [0, 1],
+      v: { start: 0, end: 1 },
       rows: rows(n),
       columns,
     };
   }
   function band(
     name: string,
-    u: [number, number],
+    u: IAutoMovieSurfaceNetwork.IParameterRange,
     start: IAutoMovieSurfaceNetwork.ICounts,
     end: IAutoMovieSurfaceNetwork.ICounts,
   ): IAutoMovieSurfaceNetwork.IPatch {
@@ -133,7 +138,7 @@ export function sweepTransitionTube(
           name,
           sweep: "tube",
           u,
-          v: [0, 1],
+          v: { start: 0, end: 1 },
           start,
           end,
           rows: BAND,
@@ -160,11 +165,11 @@ export function sweepTransitionTube(
   return {
     sweeps: { tube },
     patches: [
-      part("start", [0, 0.3], COARSE, 3),
-      band("grow", [0.3, 0.36], COARSE, FINE),
-      part("middle", [0.36, 0.74], bands ? FINE : COARSE, 4),
-      band("shed", [0.74, 0.8], FINE, LAST),
-      part("last", [0.8, 1], bands ? LAST : COARSE, 2),
+      part("start", { start: 0, end: 0.3 }, COARSE, 3),
+      band("grow", { start: 0.3, end: 0.36 }, COARSE, FINE),
+      part("middle", { start: 0.36, end: 0.74 }, bands ? FINE : COARSE, 4),
+      band("shed", { start: 0.74, end: 0.8 }, FINE, LAST),
+      part("last", { start: 0.8, end: 1 }, bands ? LAST : COARSE, 2),
     ],
     rings: [ring(0, COARSE), ring(1, bands ? LAST : COARSE)],
   };

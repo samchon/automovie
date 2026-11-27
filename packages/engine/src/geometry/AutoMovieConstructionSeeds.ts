@@ -76,10 +76,10 @@ export namespace AutoMovieConstructionSeeds {
     const S: number = AutoMovieConstructionViews.SCALE;
     if (seed.type === "point")
       return {
-        phi: seed.part[1],
-        s: seed.part[0] * S,
-        y: seed.host[0] * S,
-        theta: seed.host[1],
+        phi: seed.part.phase,
+        s: seed.part.station * S,
+        y: seed.host.station * S,
+        theta: seed.host.phase,
         face,
       };
     if (

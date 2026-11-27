@@ -81,9 +81,9 @@ export namespace AutoMovieHumanSternalNotch {
       "trunk.sternalNotch",
       feature(at),
       {
-        stations: [y - P.LOWER, y + P.UPPER],
-        phases: [2 * Math.PI - halfPhase, 2 * Math.PI + halfPhase],
-        apex: [P.LOWER / (P.LOWER + P.UPPER), 0.5],
+        stations: { start: y - P.LOWER, end: y + P.UPPER },
+        phases: { start: 2 * Math.PI - halfPhase, end: 2 * Math.PI + halfPhase },
+        apex: { station: P.LOWER / (P.LOWER + P.UPPER), phase: 0.5 },
       },
       base,
     );

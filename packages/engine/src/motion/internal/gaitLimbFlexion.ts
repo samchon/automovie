@@ -53,6 +53,6 @@ function gaitPhaseEase(
   t: number,
 ): number {
   return curve === "cubicBezier" && bezier !== undefined && bezier !== null
-    ? cubicBezierEasing(bezier, t)
+    ? cubicBezierEasing([bezier.x1, bezier.y1, bezier.x2, bezier.y2], t)
     : ease(curve ?? "linear", t);
 }

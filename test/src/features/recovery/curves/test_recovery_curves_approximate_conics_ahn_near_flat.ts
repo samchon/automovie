@@ -35,7 +35,7 @@ export function test_recovery_curves_approximate_conics_ahn_near_flat(): void {
   const c: number = 1,
     d: number = 1e-3;
   const shallow: IAutoMoviePlanarCurveSource = {
-    domain: [-0.5, 0.5],
+    domain: { start: -0.5, end: 0.5 },
     breaks: [-d, d],
     closed: false,
     evaluate: (t: number): Readonly<AutoMovieVector2Tuple> => [
@@ -61,7 +61,7 @@ export function test_recovery_curves_approximate_conics_ahn_near_flat(): void {
     options,
   );
   TestValidator.equals("near-flat stretch complete", flat.status, "complete");
-  let reached: number = shallow.domain[0];
+  let reached: number = shallow.domain.start;
   for (const arc of flat.arcs) {
     TestValidator.predicate(
       "near-flat no source gap",
@@ -85,7 +85,7 @@ export function test_recovery_curves_approximate_conics_ahn_near_flat(): void {
   }
   TestValidator.predicate(
     "near-flat reaches final endpoint",
-    nclose(reached, shallow.domain[1], 0),
+    nclose(reached, shallow.domain.end, 0),
   );
   const middle: IAutoMovieRegisteredConicArc | undefined = flat.arcs.find(
     (arc: IAutoMovieRegisteredConicArc): boolean => arc.domain[0] === -d,

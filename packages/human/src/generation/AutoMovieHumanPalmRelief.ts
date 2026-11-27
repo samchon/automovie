@@ -84,16 +84,20 @@ export namespace AutoMovieHumanPalmRelief {
           const radius: number =
             (AutoMovieHumanMetacarpalArch.radius({
               centre: [d.centre[1], d.centre[2]],
-              root: d.width[0]![1],
+              root: d.width[0]!.halfWidth,
             }) +
               AutoMovieHumanMetacarpalArch.radius({
                 centre: [e.centre[1], e.centre[2]],
-                root: e.width[0]![1],
+                root: e.width[0]!.halfWidth,
               })) /
             2;
 
           return {
-            input: { between: [d.centre[1], e.centre[1]], radius },
+            input: {
+              towardThumb: d.centre[1],
+              towardLittleFinger: e.centre[1],
+              radius,
+            },
             head: (d.centre[0] + e.centre[0]) / 2,
           };
         },

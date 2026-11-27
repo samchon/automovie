@@ -27,6 +27,21 @@ export type IAutoMovieSweepSection =
 
 /** Data and callback contracts shared by the SweepSection operations. */
 export namespace IAutoMovieSweepSection {
+  /** Exponents for the quadrants in counterclockwise order from `+x +y`. */
+  export interface IQuadrantExponents {
+    /** Exponent in the upper-right (`+x +y`) quadrant. */
+    upperRight: number;
+
+    /** Exponent in the upper-left (`-x +y`) quadrant. */
+    upperLeft: number;
+
+    /** Exponent in the lower-left (`-x -y`) quadrant. */
+    lowerLeft: number;
+
+    /** Exponent in the lower-right (`+x -y`) quadrant. */
+    lowerRight: number;
+  }
+
   /** A point of a section plane. */
   export interface IPoint {
     /** Metres along the section plane's first axis. */
@@ -67,7 +82,7 @@ export namespace IAutoMovieSweepSection {
      * Exponent per quadrant, counterclockwise from `+x +y`: from 1 (straight)
      * through 2 (elliptic) to at most 20 (nearly square).
      */
-    exponents: [number, number, number, number];
+    exponents: IAutoMovieSweepSection.IQuadrantExponents;
 
     /**
      * Offset of the centre from the spine point; omitted, the centre is the

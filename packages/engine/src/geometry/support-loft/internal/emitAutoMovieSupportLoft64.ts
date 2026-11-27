@@ -101,11 +101,11 @@ export function emitAutoMovieSupportLoft64(
       const own: [number, number, number] = [
         B.scalar(curve.x, phase),
         phase === 0
-          ? span.field.interval[0]
+          ? span.field.interval.lowerY
           : phase === 1
-            ? span.field.interval[1]
-            : span.field.interval[0] +
-              phase * (span.field.interval[1] - span.field.interval[0]),
+            ? span.field.interval.upperY
+            : span.field.interval.lowerY +
+              phase * (span.field.interval.upperY - span.field.interval.lowerY),
         B.scalar(curve.z, phase),
       ];
       const sine: number = Math.abs(curve.determinant);
@@ -189,7 +189,7 @@ export function emitAutoMovieSupportLoft64(
         const normal: readonly [number, number] = plan.normals[face];
         const derivative: number[] = B.dScalar(
           span.field.offsets[face],
-          1 / (span.field.interval[1] - span.field.interval[0]),
+          1 / (span.field.interval.upperY - span.field.interval.lowerY),
         );
         const base: number = mesh.positions.length / 3;
         for (let row: number = 0; row <= interval.segments; row++) {

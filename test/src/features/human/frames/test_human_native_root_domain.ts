@@ -82,8 +82,12 @@ export function test_human_native_root_domain(): void {
         AutoMovieViewAxis.straight([2, entry.centre, 0], [0, 1, 0], [0, 0, 1]),
       );
       const loop: IAutoMovieConstructionPortLoop = {
-        centre: [entry.centre / 1000, 0],
-        semi: [entry.semiMetres, phaseSemi], sense: 1,
+        centre: { station: entry.centre / 1000, phase: 0 },
+        semi: {
+          stationMetres: entry.semiMetres,
+          phaseRadians: phaseSemi,
+        },
+        sense: 1,
         shape: Array.from({ length: count }, (): number => 1),
       };
       const original: IAutoMovieHumanF1NativeRoot.ICalibration = Root.calibrate({

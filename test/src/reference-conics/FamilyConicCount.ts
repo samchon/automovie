@@ -224,8 +224,8 @@ namespace FamilyConicCount {
     zeros: number;
     /** Heights of the three outer rings, which the engine's rule holds at zero. */
     ring: number;
-    stations: [number, number];
-    phases: [number, number];
+    stations: { start: number; end: number };
+    phases: { start: number; end: number };
     /** Smallest and largest height, mm. */
     amplitude: [number, number];
     cast: "fixed" | "turning";
@@ -813,8 +813,8 @@ namespace FamilyConicCount {
           pad(n.zeros, 7) +
           pad(n.ring, 6) +
           "  " +
-          lead(n.stations[0] + " .. " + n.stations[1], 18) +
-          lead(n.phases[0].toFixed(4) + " .. " + n.phases[1].toFixed(4), 20) +
+          lead(n.stations.start + " .. " + n.stations.end, 18) +
+          lead(n.phases.start.toFixed(4) + " .. " + n.phases.end.toFixed(4), 20) +
           lead(
             n.amplitude[0].toFixed(2) + " .. " + n.amplitude[1].toFixed(2),
             20,

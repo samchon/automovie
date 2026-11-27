@@ -95,16 +95,35 @@ export namespace run {
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
       {
-        window: ["lastFootfall", 1],
+        window: { start: "lastFootfall", end: 1 },
         kind: "inertialize",
         entry: 0,
         blend: BLEND,
       },
     ],
-    walk: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: BLEND }],
-    run: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: BLEND }],
+    walk: [
+      {
+        window: { start: 0, end: 1 },
+        kind: "inertialize",
+        entry: 0,
+        blend: BLEND,
+      },
+    ],
+    run: [
+      {
+        window: { start: 0, end: 1 },
+        kind: "inertialize",
+        entry: 0,
+        blend: BLEND,
+      },
+    ],
     jump: [
-      { window: [0, 1], kind: "inertialize", entry: 0, blend: TAKEOFF_BLEND },
+      {
+        window: { start: 0, end: 1 },
+        kind: "inertialize",
+        entry: 0,
+        blend: TAKEOFF_BLEND,
+      },
     ],
   };
 

@@ -195,8 +195,8 @@ export namespace AutoMovieHumanF1Nails {
     const asked: number = Math.max(
       end.rings ?? 0,
       ...nets.map((relief: IAutoMovieHumanNail.INail["bed"]): number => {
-        const far: number = Math.min(length, end.tip - relief.stations[0]);
-        return far > 0 ? Math.ceil((2 * Math.sqrt(length * far) * (relief.rows - 3)) / (relief.stations[1] - relief.stations[0])) - 1 : 0;
+        const far: number = Math.min(length, end.tip - relief.stations.start);
+        return far > 0 ? Math.ceil((2 * Math.sqrt(length * far) * (relief.rows - 3)) / (relief.stations.end - relief.stations.start)) - 1 : 0;
       }),
     );
     return { ...family, reliefs, tips: [family.tips?.[0] ?? null, asked > 0 ? { ...end, rings: asked } : end] };
@@ -216,7 +216,7 @@ export namespace AutoMovieHumanF1Nails {
     for (const made of nails)
       for (const side of [1, -1]) {
         const plate: IAutoMovieHumanConicLoft.IFamily = side > 0 ? made.nail.plate : AutoMovieHumanConicLoft.mirror(made.nail.plate, twin(made.nail.plate.name));
-        const cell: number = (made.nail.bed.stations[1] - made.nail.bed.stations[0]) / (made.nail.bed.rows - 3);
+        const cell: number = (made.nail.bed.stations.end - made.nail.bed.stations.start) / (made.nail.bed.rows - 3);
         const last: number = plate.knots[plate.knots.length - 1]!;
         const count: number = Math.ceil(last / cell) + 1;
         sources.set(plate.name, AutoMovieHumanConicLoft.part(plate, Array.from({ length: count }, (_: unknown, i: number): number => (i === count - 1 ? last : (last * i) / (count - 1)))));

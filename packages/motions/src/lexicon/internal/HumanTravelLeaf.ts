@@ -1,4 +1,8 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import {
+  AutoMovieEngineMotionSampling,
+  Quaternion,
+  Vector3,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -91,7 +95,7 @@ export namespace HumanTravelLeaf {
       interrupts: {
         walk: [
           {
-            window: [0, 1],
+            window: { start: 0, end: 1 },
             kind: "inertialize",
             entry: 0,
             blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
@@ -294,7 +298,9 @@ export namespace HumanTravelLeaf {
           lowered === null
             ? standing.posture(t, channels, resolution, projection)
             : lowered.at(
-                AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, t / TAKE)),
+                AutoMovieEngineMotionSampling.minimumJerkShare(
+                  Math.min(1, t / TAKE),
+                ),
                 resolution,
                 projection,
               );

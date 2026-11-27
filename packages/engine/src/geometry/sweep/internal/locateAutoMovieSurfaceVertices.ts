@@ -88,8 +88,12 @@ export const locateAutoMovieSurfaceVertices: (
           patch.type === "sweep" || patch.type === "transition"
             ? {
                 name: patch.sweep,
-                u: patch.u[0] + coordinate.t * (patch.u[1] - patch.u[0]),
-                v: patch.v[0] + coordinate.s * (patch.v[1] - patch.v[0]),
+                u:
+                  patch.u.start +
+                  coordinate.t * (patch.u.end - patch.u.start),
+                v:
+                  patch.v.start +
+                  coordinate.s * (patch.v.end - patch.v.start),
               }
             : null,
       };

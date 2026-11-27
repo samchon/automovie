@@ -41,7 +41,7 @@ export async function test_cli_production_check_review(): Promise<void> {
       observation: "review.json",
       viewed: "playback",
       occurrence: { entry: 1, shot: "hold" },
-      frames: [0, 2],
+      frames: { fromFrame: 0, endFrame: 2 },
     };
     const film: string = path.join(root, check.file);
     const receipt: string = path.join(root, check.observation);
@@ -112,7 +112,7 @@ export async function test_cli_production_check_review(): Promise<void> {
       title: "Inspect the still of the hold",
       scope: "second occurrence, frame 1",
       viewed: "still",
-      frames: [1, 2],
+      frames: { fromFrame: 1, endFrame: 2 },
     };
     assert.equal(await verify(still, stillCheck), "passed");
     assert.equal(
@@ -168,7 +168,10 @@ export async function test_cli_production_check_review(): Promise<void> {
     assert.equal(later.evidence, repair.observation);
     assert.match(later.message, /playback needs-repair by Director/u);
     assert.equal(
-      await verify(accepted, { ...check, frames: [1, 3] }),
+      await verify(accepted, {
+        ...check,
+        frames: { fromFrame: 1, endFrame: 3 },
+      }),
       "awaiting-review",
     );
     await fs.writeFile(film, "replacement film");

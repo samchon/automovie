@@ -1,5 +1,8 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
-import { poleVaultLean } from "./poleVaultLean";
+import {
+  AutoMovieEngineMotionSampling,
+  Quaternion,
+  Vector3,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -29,6 +32,7 @@ import { GymnasticsFlight } from "../internal/GymnasticsFlight";
 import { GymnasticsTakeoff } from "../internal/GymnasticsTakeoff";
 import { poleVaultFinish } from "./poleVaultFinish";
 import { poleVaultGrip } from "./poleVaultGrip";
+import { poleVaultLean } from "./poleVaultLean";
 import { poleVaultOnLine } from "./poleVaultOnLine";
 import { poleVaultSwinging } from "./poleVaultSwinging";
 import { poleVaultTakeoffAngle } from "./poleVaultTakeoffAngle";
@@ -107,7 +111,14 @@ export namespace AutoMovieMotionHumanPoleVault {
    * What may be cut into a vault: a run, at any instant.
    */
   export const accepts: IAutoMovieMotionHumanActionLaw["accepts"] = {
-    run: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.15 }],
+    run: [
+      {
+        window: { start: 0, end: 1 },
+        kind: "inertialize",
+        entry: 0,
+        blend: 0.15,
+      },
+    ],
   };
 
   /*

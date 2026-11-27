@@ -21,14 +21,11 @@ export interface IAutoMovieLoftRelief {
   /** Name, for diagnostics and part ids. */
   name: string;
 
-  /** Station range of the window on the base chain, mm. */
-  stations: [number, number];
+  /** Station interval of the window on the base chain, mm. */
+  stations: IAutoMovieLoftRelief.IRange;
 
-  /**
-   * Phase range of the window on the base chain, radians, from the first to the
-   * second going in increasing phase (it may wrap past 2 pi).
-   */
-  phases: [number, number];
+  /** Phase interval in increasing radians; it may pass 2 pi. */
+  phases: IAutoMovieLoftRelief.IRange;
 
   /** Unit world direction the height moves the base point along. */
   axis: [number, number, number];
@@ -63,4 +60,14 @@ export interface IAutoMovieLoftRelief {
    * vermilion borders move without the cutaneous lips. Absent means no map.
    */
   shift?: number[];
+}
+
+export namespace IAutoMovieLoftRelief {
+  /** Endpoints of one authored interval. */
+  export interface IRange {
+    /** Lower endpoint, in the owning field's unit. */
+    readonly start: number;
+    /** Upper endpoint, in the owning field's unit. */
+    readonly end: number;
+  }
 }

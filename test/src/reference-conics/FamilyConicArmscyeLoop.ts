@@ -265,8 +265,8 @@ namespace FamilyConicArmscyeLoop {
     // `armscye` always writes a share per column (`around`); a loop without one is the plain ellipse, every share 1.
     const shape: number[] = loop.shape === undefined ? Array.from({ length: 96 }, (): number => 1) : [...loop.shape];
     const columns: number = shape.length;
-    const stations: number[] = shape.map((share: number, k: number): number => 1000 * (loop.centre[0] + share * loop.semi[0] * Math.cos((2 * Math.PI * k) / columns)));
-    const phases: number[] = shape.map((share: number, k: number): number => loop.centre[1] + (share * loop.semi[1] * Math.sin((2 * Math.PI * k) / columns)) / loop.sense);
+    const stations: number[] = shape.map((share: number, k: number): number => 1000 * (loop.centre.station + share * loop.semi.stationMetres * Math.cos((2 * Math.PI * k) / columns)));
+    const phases: number[] = shape.map((share: number, k: number): number => loop.centre.phase + (share * loop.semi.phaseRadians * Math.sin((2 * Math.PI * k) / columns)) / loop.sense);
     const grid: number[] = [...new Set(stations.map((s: number): number => Math.round(s)))].sort((a: number, b: number): number => a - b);
     const loft: IAutoMovieViewLoft.IResult = H.create(trunk, [Math.min(...grid) - 2, ...grid, Math.max(...grid) + 2].filter((s: number, i: number, all: number[]): boolean => i === 0 || s > all[i - 1]!));
     if (loft.chain === null) throw new Error("the trunk does not loft at the port's stations");

@@ -1,4 +1,8 @@
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import {
+  AutoMovieEngineMotionSampling,
+  Quaternion,
+  Vector3,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -23,8 +27,8 @@ import type {
 import { stand } from "../../actions/internal/stand";
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
-import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanRefusal } from "../../law/HumanRefusal";
+import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanMountRider } from "../../lexicon/internal/HumanMountRider";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanSupportCarry } from "./HumanSupportCarry";
@@ -51,7 +55,7 @@ const REACH: number = 0.4;
  * Hand subsequent actions a settled stance after the board transfer.
  */
 const END: IAutoMovieMotionHumanActionLaw["interrupts"] = {
-  any: [{ window: [1, 1], kind: "inertialize", entry: 0 }],
+  any: [{ window: { start: 1, end: 1 }, kind: "inertialize", entry: 0 }],
 };
 
 /*
@@ -193,7 +197,9 @@ export function HumanSurfaceBoard(
   > = posture.joints;
   const holding = (at: number): IAutoMovieMotionHumanPosture => {
     if (grips.length === 0) return posture;
-    const share: number = AutoMovieEngineMotionSampling.minimumJerkShare(at / reach);
+    const share: number = AutoMovieEngineMotionSampling.minimumJerkShare(
+      at / reach,
+    );
     let held: IAutoMovieMotionHumanPosture = posture;
     for (const { side, grip } of grips) {
       const arm: IAutoMovieMotionHumanMountRider.IHoldResult =
@@ -482,7 +488,9 @@ export namespace HumanSurfaceBoard {
    * The existing minimum-jerk ease between two phase shares.
    */
   export function ease(at: number, from: number, to: number): number {
-    return AutoMovieEngineMotionSampling.minimumJerk(Math.max(0, Math.min(1, (at - from) / (to - from)))).s;
+    return AutoMovieEngineMotionSampling.minimumJerk(
+      Math.max(0, Math.min(1, (at - from) / (to - from))),
+    ).s;
   }
 
   /*

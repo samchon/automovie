@@ -139,8 +139,12 @@ export namespace AutoMovieHumanHandDigitLaw {
         .map((s: number, i: number): [number, number] => [s, kept[i]![c]!]),
       [cap, size(cap, c)],
     ];
-    tube.width = knots(3);
-    tube.depth = knots(4);
+    tube.width = knots(3).map(
+      ([length, halfWidth]: [number, number]) => ({ length, halfWidth }),
+    );
+    tube.depth = knots(4).map(
+      ([length, halfDepth]: [number, number]) => ({ length, halfDepth }),
+    );
     tube.cap = cap;
     const tip: AutoMovieVector3Tuple = lineTangent(tube, cap - 0.05);
     const reach: number = norm(sub(apex, linePoint(tube, cap)));

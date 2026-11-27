@@ -267,7 +267,10 @@ export async function renderAutoMovieDrawnVideo(props: IAutoMovieRenderDrawnVide
     ? planAutoMovieAlphaWrap({
         frameDir: props.frameDir,
         outputPath: props.outputPath,
-        frameRate: plan.frameRate,
+        frameRate: {
+          numerator: plan.frameRate[0],
+          denominator: plan.frameRate[1],
+        },
         frameCount: plan.frameCount,
       })
     : plan.args;

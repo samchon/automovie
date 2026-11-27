@@ -219,9 +219,9 @@ export namespace writeWith {
       target: Vector3.add(
         origin,
         Quaternion.rotateVector(facing, {
-          x: steady.at[0],
+          x: steady.at.x,
           y: 0,
-          z: steady.at[1],
+          z: steady.at.z,
         }),
       ),
     };

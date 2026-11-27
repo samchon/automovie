@@ -1,3 +1,4 @@
+import type { IAutoMovieAffordanceCoupling } from "@automovie/interface";
 import { AutoMovieArchetypeStageHandBowProp } from "../AutoMovieArchetypeStageHandBowProp";
 import { Vector3 } from "@automovie/engine";
 
@@ -83,7 +84,7 @@ export function createStageHandBowProp(
     });
 
     // Each limb turns about the grip's sideways axis, the upper's positive turn and the lower's bringing its tip back toward the string, by the table that keeps the tip the string's half length from the nocking point.
-    const table: [number, number][] = AutoMovieArchetypeBow.limbs(
+    const table: IAutoMovieAffordanceCoupling.IPoint[] = AutoMovieArchetypeBow.limbs(
       length / 2,
       string,
       travel,
@@ -97,7 +98,7 @@ export function createStageHandBowProp(
         kind: "hinge",
         frame: AutoMovieArchetypeFrame.facing(grip, v(sign, 0, 0), v(0, 0, 1)),
         extent: null,
-        travel: table[table.length - 1]![1],
+        travel: table[table.length - 1]!.follower,
         parts: [id],
         follows: { id: "string", table },
       });

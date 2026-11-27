@@ -176,12 +176,10 @@ namespace FamilyConicHipSupport {
             into: hostInto,
             seam: split.seam,
             normal,
-            knots: split.profile.knots.map(
-              ([along, depth]: [number, number]): [number, number] => [
-                along * scale,
-                depth * scale,
-              ],
-            ),
+            knots: split.profile.knots.map(({ alongM, depthM }) => ({
+              alongMm: alongM * scale,
+              depthMm: depthM * scale,
+            })),
             ...(split.profile.heading === undefined
               ? {}
               : { heading: split.profile.heading }),
@@ -229,8 +227,8 @@ namespace FamilyConicHipSupport {
               host: { surface: host.surface, station: layer.y, into: hostInto },
               arc:
                 index === 0
-                  ? split.seam
-                  : [split.seam[1], split.seam[0] + 2 * Math.PI],
+                  ? [split.seam.startPhaseRad, split.seam.endPhaseRad]
+                  : [split.seam.endPhaseRad, split.seam.startPhaseRad + 2 * Math.PI],
               normal,
               child: { surface: source.surface, station: rail, into },
               count: split.count,

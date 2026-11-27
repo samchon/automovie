@@ -52,7 +52,7 @@ export function test_human_feature_template(): void {
     }
     if (!thrown) failures.push(what + " was accepted");
   };
-  const made = (kind: Template.Class): Template.ITemplate => ({ name: "made", class: kind, segment: "bone", centre: [30, -200, 10], along: [0, -1, 0], across: [1, 0, 0], extent: [20, 12], height: 4 });
+  const made = (kind: Template.Class): Template.ITemplate => ({ name: "made", class: kind, segment: "bone", centre: [30, -200, 10], along: [0, -1, 0], across: [1, 0, 0], extent: { along: 20, across: 12 }, height: 4 });
   const still: Template.IChange = { along: 1, across: 1, tissue: 1.2 };
 
   // 1. Tissue alone.
@@ -60,15 +60,15 @@ export function test_human_feature_template(): void {
     const fuller: Template.ITemplate = Template.at(made(kind), still);
     close("the " + kind + "'s height under tissue", fuller.height, height);
     vector("the " + kind + "'s centre under tissue", fuller.centre, [30, -200, 10]);
-    close("the " + kind + "'s long extent under tissue", fuller.extent[0], 20);
+    close("the " + kind + "'s long extent under tissue", fuller.extent.along, 20);
   }
 
   // 2. The skeleton's ratios.
   for (const kind of ["bone", "tendon", "pad"] as const) {
     const moved: Template.ITemplate = Template.at(made(kind), { along: 1.1, across: 0.9, tissue: 1 });
     vector("the " + kind + "'s centre on a longer, narrower segment", moved.centre, [27, -220, 10]);
-    close("the " + kind + "'s long extent", moved.extent[0], 22);
-    close("the " + kind + "'s short extent", moved.extent[1], 10.8);
+    close("the " + kind + "'s long extent", moved.extent.along, 22);
+    close("the " + kind + "'s short extent", moved.extent.across, 10.8);
     close("the " + kind + "'s height on the skeleton's change", moved.height, 4);
   }
 
@@ -108,8 +108,8 @@ export function test_human_feature_template(): void {
   vector("the tendon's centre", tendon.centre, [0, -40, 0]);
   vector("the tendon's long direction", tendon.along, [0, -1, 0]);
   vector("the tendon's short direction", tendon.across, [0, 0, -1]);
-  close("the tendon's half length", tendon.extent[0], 40);
-  close("the tendon's half width", tendon.extent[1], 3);
+  close("the tendon's half length", tendon.extent.along, 40);
+  close("the tendon's half width", tendon.extent.across, 3);
   vector("the tendon's normal on its own frame", Template.place(tendon, { origin: [0, 0, 0], axes: [[1, 0, 0], [0, 1, 0], [0, 0, 1]] }).normal, [1, 0, 0]);
 
   // 5. Refusals.

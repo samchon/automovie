@@ -1,8 +1,8 @@
 import {
+  AutoMovieEngineMotionSampling,
   Quaternion,
   ROM_TOLERANCE,
   Vector3,
-  AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -27,9 +27,9 @@ import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMoti
 import { prepareHumanPostureCorrection } from "../../compose/internal/prepareHumanPostureCorrection";
 import { HumanBalance } from "../../everyday/internal/HumanBalance";
 import { prepareGroundedBalance } from "../../everyday/internal/prepareGroundedBalance";
+import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanPhysics } from "../../law/internal/HumanPhysics";
-import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanArmTrajectoryTerms } from "../../posture/internal/HumanArmTrajectoryTerms";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -74,7 +74,9 @@ export namespace legTouch {
    * Cancel table: the leg is left once it starts back.
    */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
-    any: [{ window: ["relax", 1], kind: "inertialize", entry: 0 }],
+    any: [
+      { window: { start: "relax", end: 1 }, kind: "inertialize", entry: 0 },
+    ],
   };
 
   /*
@@ -319,7 +321,10 @@ export namespace legTouch {
           ? AutoMovieEngineMotionSampling.minimumJerkShare(t / reach)
           : t <= relax
             ? 1
-            : 1 - AutoMovieEngineMotionSampling.minimumJerkShare((t - relax) / reach);
+            : 1 -
+              AutoMovieEngineMotionSampling.minimumJerkShare(
+                (t - relax) / reach,
+              );
       return moved(
         base.posture(t, undefined, source, nativeProjection),
         Vector3.scale(shift, s),

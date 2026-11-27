@@ -354,13 +354,13 @@ export namespace FamilyConicSection {
     // leaves wider stretches unconverted and they number more. Then the chain read across them is not the section (f1's ripple at a 6 mm
     // fairing: at station 28 the chain stopped at 107 degrees and the ray at phase 0 met nothing), so it is refused rather than drawn.
     const sliver: number =
-      (curve.domain[1] - curve.domain[0]) / 2 ** CONVERT.maximumDepth;
+      (curve.domain.end - curve.domain.start) / 2 ** CONVERT.maximumDepth;
     const covered: number = arcs.reduce(
       (sum: number, arc): number => sum + (arc.domain[1] - arc.domain[0]),
       0,
     );
     const slivers: number =
-      (curve.domain[1] - curve.domain[0] - covered) / sliver;
+      (curve.domain.end - curve.domain.start - covered) / sliver;
     if (arcs.length + slivers > CONVERT.maximumArcs + 0.5) {
       // The widest unconverted stretches, where they lie, how far the faired curve turns across each, and the breaks beside them.
       const heading = (phi: number): number => {
@@ -374,7 +374,7 @@ export namespace FamilyConicSection {
           next: number =
             i + 1 < arcs.length
               ? arcs[i + 1]!.domain[0]
-              : arcs[0]!.domain[0] + (curve.domain[1] - curve.domain[0]);
+              : arcs[0]!.domain[0] + (curve.domain.end - curve.domain.start);
         if (next - end > sliver * 1.5) gaps.push([end, next]);
       }
       const named: string = gaps

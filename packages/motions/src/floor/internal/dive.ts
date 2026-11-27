@@ -86,7 +86,7 @@ export namespace dive {
    * Cancel table: a dive or slide is left once it has come to rest.
    */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
-    any: [{ window: ["landed", 1], kind: "inertialize", entry: 0 }],
+    any: [{ window: { start: "landed", end: 1 }, kind: "inertialize", entry: 0 }],
   };
   /*
    * Each kind's joint angles at full extent, clinical degrees, for a dive to

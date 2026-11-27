@@ -43,7 +43,7 @@ function planHumanClasp(context: Context): IAutoMovieMotionHumanActionPlan {
 export const HumanClasp: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanClasp> =
   {
     name: "clasp",
-    interrupts: { any: [{ window: [0, 1], kind: "inertialize", entry: 0 }] },
+    interrupts: { any: [{ window: { start: 0, end: 1 }, kind: "inertialize", entry: 0 }] },
     plan: planHumanClasp,
   };
 

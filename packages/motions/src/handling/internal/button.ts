@@ -47,7 +47,9 @@ export const button: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanButton>
   {
     name: "button",
     interrupts: {
-      any: [{ window: ["relax", 1], kind: "inertialize", entry: 0 }],
+      any: [
+        { window: { start: "relax", end: 1 }, kind: "inertialize", entry: 0 },
+      ],
     },
     plan,
   };

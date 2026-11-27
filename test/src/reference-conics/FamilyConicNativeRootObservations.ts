@@ -116,11 +116,11 @@ export namespace FamilyConicNativeRootObservations {
         try {
           const first: IAutoMovieSolidSurface.IJet = host.jet(
               station,
-              definition.seam[0],
+              definition.seam.startPhaseRad,
             ),
             second: IAutoMovieSolidSurface.IJet = host.jet(
               station,
-              definition.seam[1],
+              definition.seam.endPhaseRad,
             );
           const chord: AutoMovieVector3Tuple = V.sub(second.p, first.p),
             length: number = V.norm(chord),
@@ -136,8 +136,8 @@ export namespace FamilyConicNativeRootObservations {
             station,
             definition,
             endpoints: [
-              { phase: definition.seam[0], fullPhysical2: copy(first) },
-              { phase: definition.seam[1], fullPhysical2: copy(second) },
+              { phase: definition.seam.startPhaseRad, fullPhysical2: copy(first) },
+              { phase: definition.seam.endPhaseRad, fullPhysical2: copy(second) },
             ],
             chordMm: length,
             e1,
@@ -146,11 +146,11 @@ export namespace FamilyConicNativeRootObservations {
             endNormal: normal,
             knots:
               definition.profile?.knots.map(
-                ([along, depth]: readonly [number, number]): unknown => ({
-                  alongMm: along * 1000,
-                  depthMm: depth * 1000,
-                  chordShare: (along * 1000) / length,
-                  insideActualChord: along >= 0 && along * 1000 <= length,
+                ({ alongM, depthM }: IAutoMovieConstructionSplit.IProfileKnot): unknown => ({
+                  alongMm: alongM * 1000,
+                  depthMm: depthM * 1000,
+                  chordShare: (alongM * 1000) / length,
+                  insideActualChord: alongM >= 0 && alongM * 1000 <= length,
                 }),
               ) ?? [],
             scope:

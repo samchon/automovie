@@ -58,7 +58,7 @@ import { humanSabreCharge } from "./humanSabreCharge";
 export const HumanSabre: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSabre> =
   {
     name: "sabre",
-    interrupts: { any: [{ window: [0, 1], kind: "inertialize", entry: 0 }] },
+    interrupts: { any: [{ window: { start: 0, end: 1 }, kind: "inertialize", entry: 0 }] },
     plan: planHumanSabre,
   };
 

@@ -7,6 +7,7 @@ import {
   AutoMovieHumanF1Placing as T,
 } from "@automovie/human";
 import type {
+  IAutoMovieConstructionPortLoop,
   IAutoMovieHumanConicLoft,
   IAutoMovieHumanConicPose,
   IAutoMovieHumanF1,
@@ -327,10 +328,7 @@ namespace FamilyConicNeutral {
     const boxes: Map<string, [number, number, number, number]> = new Map();
     const loops: [
       string,
-      (placed: IAutoMovieHumanF1.IAssembly) => {
-        centre: [number, number];
-        semi: [number, number];
-      },
+      (placed: IAutoMovieHumanF1.IAssembly) => IAutoMovieConstructionPortLoop,
     ][] = [
       [
         "armscye +z",
@@ -364,13 +362,13 @@ namespace FamilyConicNeutral {
         ["neutral", neutral],
       ] as [string, IAutoMovieHumanF1.IAssembly][]) {
         try {
-          const loop: { centre: [number, number]; semi: [number, number] } =
+          const loop: IAutoMovieConstructionPortLoop =
             read(placed);
           const [s, t, ds, dt]: number[] = [
-            loop.centre[0] * 1000,
-            loop.centre[1],
-            loop.semi[0] * 1000,
-            loop.semi[1],
+            loop.centre.station * 1000,
+            loop.centre.phase,
+            loop.semi.stationMetres * 1000,
+            loop.semi.phaseRadians,
           ];
           if (pose === "neutral")
             boxes.set(name, [s! - ds!, s! + ds!, t! - dt!, t! + dt!]);

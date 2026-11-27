@@ -86,7 +86,7 @@ export namespace HumanFitGoals {
     const degrees: readonly [number, number] =
       typeof target.degrees === "number"
         ? [target.degrees, target.degrees]
-        : target.degrees;
+        : [target.degrees.minimum, target.degrees.maximum];
     if (!(degrees[0] > 0 && degrees[0] <= degrees[1] && degrees[1] < 180))
       throw new Error(
         "An included-angle goal needs ordered degrees strictly between 0 and 180",

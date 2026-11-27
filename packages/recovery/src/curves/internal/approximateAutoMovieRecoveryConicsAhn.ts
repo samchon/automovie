@@ -182,7 +182,7 @@ export function approximateAutoMovieRecoveryConicsAhn(
             Number.EPSILON *
             Math.hypot(...d1) *
             (Math.hypot(...d2) +
-              Math.max(Math.abs(t), curve.domain[1] - curve.domain[0]) *
+              Math.max(Math.abs(t), curve.domain.end - curve.domain.start) *
                 Math.hypot(...jerk!))
           : 64 *
             Number.EPSILON *
@@ -376,9 +376,9 @@ export function approximateAutoMovieRecoveryConicsAhn(
   };
 
   const boundaries: number[] = [
-    curve.domain[0],
+    curve.domain.start,
     ...new Set(curve.breaks),
-    curve.domain[1],
+    curve.domain.end,
   ].sort((a: number, b: number): number => a - b);
   if (boundaries.length - 1 > options.maximumArcs) {
     diagnostics.push(

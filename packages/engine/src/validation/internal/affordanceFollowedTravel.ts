@@ -20,20 +20,20 @@ export function affordanceFollowedTravel(
   leader: number,
 ): number {
   if (follows.table === undefined) return follows.ratio * leader;
-  const table: [number, number][] = follows.table;
-  if (leader <= table[0]![0]) return table[0]![1];
-  if (leader >= table[table.length - 1]![0]) return table[table.length - 1]![1];
+  const table: IAutoMovieAffordanceCoupling.IPoint[] = follows.table;
+  if (leader <= table[0]!.leader) return table[0]!.follower;
+  if (leader >= table[table.length - 1]!.leader) return table[table.length - 1]!.follower;
 
   // The last row at or before the leader's travel, and the next.
   let low: number = 0;
   let high: number = table.length - 1;
   while (high - low > 1) {
     const middle: number = (low + high) >> 1;
-    if (table[middle]![0] <= leader) low = middle;
+    if (table[middle]!.leader <= leader) low = middle;
     else high = middle;
   }
-  const [x0, y0]: [number, number] = table[low]!;
-  const [x1, y1]: [number, number] = table[high]!;
+  const { leader: x0, follower: y0 } = table[low]!;
+  const { leader: x1, follower: y1 } = table[high]!;
   if (leader === x0) return y0;
   return interpolateAffordanceTravel(x0, x1, y0, y1, leader);
 }

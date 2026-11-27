@@ -43,7 +43,7 @@ export const shiftStandingWeight: IAutoMovieMotionHumanActionLaw<IAutoMovieMotio
   {
     name: "shiftStandingWeight",
     interrupts: {
-      any: [{ window: ["shifted", 1], kind: "inertialize", entry: 0 }],
+      any: [{ window: { start: "shifted", end: 1 }, kind: "inertialize", entry: 0 }],
     },
     yields: [
       "head",

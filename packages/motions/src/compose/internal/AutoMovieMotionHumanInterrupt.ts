@@ -66,13 +66,13 @@ export namespace AutoMovieMotionHumanInterrupt {
     const opens = (): IAutoMovieMotionHumanInterruptRow["window"] => {
       switch (window) {
         case "anytime":
-          return [0, 1];
+          return { start: 0, end: 1 };
         case "fromStroke":
-          return ["stroke", 1];
+          return { start: "stroke", end: 1 };
         case "fromStrokeEnd":
-          return ["strokeEnd", 1];
+          return { start: "strokeEnd", end: 1 };
         case "fromRelax":
-          return ["relax", 1];
+          return { start: "relax", end: 1 };
       }
     };
     return {

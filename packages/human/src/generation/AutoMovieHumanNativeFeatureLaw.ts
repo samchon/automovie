@@ -40,11 +40,11 @@ export namespace AutoMovieHumanNativeFeatureLaw {
         throw new Error("native placed feature directions absent: " + net.name);
       const [a, b]: AutoMovieVector2Tuple = scale(net);
       const window: [number, number] = [
-        station(net.stations[0]),
-        station(net.stations[1]),
+        station(net.stations.start),
+        station(net.stations.end),
       ];
       const along: number =
-        (window[1] - window[0]) / (net.stations[1] - net.stations[0]);
+        (window[1] - window[0]) / (net.stations.end - net.stations.start);
       const amplitude: number = Math.sqrt(a * b);
       if (
         ![
@@ -64,7 +64,7 @@ export namespace AutoMovieHumanNativeFeatureLaw {
         );
       return {
         ...net,
-        stations: window,
+        stations: { start: window[0], end: window[1] },
         axis: frame.axis,
         ...(frame.turn === undefined ? {} : { turn: frame.turn }),
         heights:

@@ -38,10 +38,13 @@ export namespace AutoMovieHumanF1NativeRootLevel {
         const jet: IAutoMovieSolidSurface.IJet = reader.jet(at[0], at[1]);
         const c: number = (2 * Math.PI * k) / input.count;
         const ray: V = Vector.add(
-          Vector.scale(jet.u, input.loop.semi[0] * 1000 * Math.cos(c)),
+          Vector.scale(
+            jet.u,
+            input.loop.semi.stationMetres * 1000 * Math.cos(c),
+          ),
           Vector.scale(
             jet.v,
-            input.loop.sense * input.loop.semi[1] * Math.sin(c),
+            input.loop.sense * input.loop.semi.phaseRadians * Math.sin(c),
           ),
         );
         derivatives.push(Vector.dot(field.gradient(points[k]!), ray));
@@ -102,13 +105,14 @@ export namespace AutoMovieHumanF1NativeRootLevel {
             Object.is(value, old.parent[k]![j]),
           ),
       );
-    const facing: number = oldLoop.centre[1];
+    const facing: number = oldLoop.centre.phase;
     const columns: IAutoMovieHumanF1NativeRoot.ILevelColumn[] = [];
     const shares: number[] = [];
     for (let k: number = 0; k < old.input.count; k++) {
       const c: number = (2 * Math.PI * k) / old.input.count;
-      const ds: number = oldLoop.semi[0] * 1000 * Math.cos(c);
-      const dt: number = oldLoop.sense * oldLoop.semi[1] * Math.sin(c);
+      const ds: number = oldLoop.semi.stationMetres * 1000 * Math.cos(c);
+      const dt: number =
+        oldLoop.sense * oldLoop.semi.phaseRadians * Math.sin(c);
       const q0: number = oldLoop.shape?.[k] ?? 1;
       const reference: number = prepared.levels[k]!;
       const originalDerivative: number | null = prepared.derivatives[k]!;
@@ -244,8 +248,8 @@ export namespace AutoMovieHumanF1NativeRootLevel {
         if (Math.abs(initial - reference) > budget) {
           if (
             !(
-              oldLoop.centre[1] > facing - Math.PI / 2 &&
-              oldLoop.centre[1] < facing + Math.PI / 2
+              oldLoop.centre.phase > facing - Math.PI / 2 &&
+              oldLoop.centre.phase < facing + Math.PI / 2
             )
           )
             throw new Error(

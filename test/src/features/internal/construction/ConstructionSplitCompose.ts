@@ -148,9 +148,9 @@ export namespace ConstructionSplitCompose {
       host: o.host ?? through(o.lean),
       hostFace: "trunk",
       hostEnd: "top",
-      seam: [-1, 1],
+      seam: { startPhaseRad: -1, endPhaseRad: 1 },
       ...(o.profile === undefined ? {} : { profile: o.profile }),
-      ...(o.two === true ? {} : { outer: [{ seam: [-2.4, 2.4] }] }),
+      ...(o.two === true ? {} : { outer: [{ seam: { startPhaseRad: -2.4, endPhaseRad: 2.4 } }] }),
       count: COLUMNS,
       rows: 4,
       children:

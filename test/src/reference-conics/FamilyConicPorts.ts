@@ -145,20 +145,21 @@ namespace FamilyConicPorts {
           ),
         ) / 2;
       const loop: IAutoMovieConstructionPortLoop = {
-        centre: [
-          (Math.min(...stations) + Math.max(...stations)) / 2000,
-          middle + (Math.min(...turned) + Math.max(...turned)) / 2,
-        ],
-        semi: [
-          ((Math.max(...stations) - Math.min(...stations)) / 2 +
-            Number(margin)) /
+        centre: {
+          station: (Math.min(...stations) + Math.max(...stations)) / 2000,
+          phase: middle + (Math.min(...turned) + Math.max(...turned)) / 2,
+        },
+        semi: {
+          stationMetres:
+            ((Math.max(...stations) - Math.min(...stations)) / 2 +
+              Number(margin)) /
             1000,
-          Math.min(
+          phaseRadians: Math.min(
             3,
             ((Math.max(...turned) - Math.min(...turned)) / 2) *
               (1 + Number(margin) / radius),
           ),
-        ],
+        },
         sense: 1,
       };
       loops[name] = loop;

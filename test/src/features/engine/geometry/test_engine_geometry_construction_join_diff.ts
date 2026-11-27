@@ -63,8 +63,8 @@ export function test_engine_geometry_construction_join_diff(): void {
     {
       partFace: "dimple",
       hostFace: "ball",
-      part: [-ring + 0.0005, Math.PI],
-      host: [-ring + 0.0005, 0.01],
+      part: { station: -ring + 0.0005, phase: Math.PI },
+      host: { station: -ring + 0.0005, phase: 0.01 },
     },
     {
       part: { type: "chord", value: 0.002 },

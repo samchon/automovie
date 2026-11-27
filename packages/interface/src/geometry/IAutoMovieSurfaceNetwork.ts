@@ -208,11 +208,15 @@ export namespace IAutoMovieSurfaceNetwork {
     /** Name of the sweep. */
     sweep: string;
 
-    /** Range of `u`, increasing, within 0 to 1; `t` runs along it. */
-    u: [number, number];
+    /**
+     * Increasing range of `u` within 0 to 1; `t` runs from `start` to `end`.
+     */
+    u: IAutoMovieSurfaceNetwork.IParameterRange;
 
-    /** Range of `v`, increasing, at most one turn; `s` runs along it. */
-    v: [number, number];
+    /**
+     * Increasing range of `v`, at most one turn; `s` runs from `start` to `end`.
+     */
+    v: IAutoMovieSurfaceNetwork.IParameterRange;
 
     /** Faces along `t` by tier. */
     rows: IAutoMovieSurfaceNetwork.ICounts;
@@ -224,13 +228,22 @@ export namespace IAutoMovieSurfaceNetwork {
     uv?: IAutoMovieSurfaceNetwork.IUvRect;
   }
 
+  /** Increasing start and end of a patch's parameter range. */
+  export interface IParameterRange {
+    /** Range start. */
+    start: number;
+
+    /** Range end, greater than `start`. */
+    end: number;
+  }
+
   /**
    * A band of a sweep's domain whose column count changes across it, so a sweep
    * can carry more columns where it needs detail, such as a groove, and fewer
    * where it meets a coarser ring.
    *
-   * The band runs from its start ring at `u[0]` to its end ring at `u[1]` in
-   * `rows` even rows, with `start` columns evenly spaced round the first ring
+   * The band runs from its start ring at `u.start` to its end ring at `u.end`
+   * in `rows` even rows, with `start` columns evenly spaced round the first ring
    * and `end` round the last, so it welds onto sweep patches of those counts on
    * either side. Give it rows so its middle row is about as tall as a coarse
    * column is wide: on a cylinder going from 8 to 16 columns, a middle row half
@@ -271,10 +284,12 @@ export namespace IAutoMovieSurfaceNetwork {
      * Range of `u`, increasing, within 0 to 1: the start ring and the end ring;
      * `t` runs along it.
      */
-    u: [number, number];
+    u: IAutoMovieSurfaceNetwork.IParameterRange;
 
-    /** Range of `v`, increasing, at most one turn; `s` runs along it. */
-    v: [number, number];
+    /**
+     * Increasing range of `v`, at most one turn; `s` runs from `start` to `end`.
+     */
+    v: IAutoMovieSurfaceNetwork.IParameterRange;
 
     /** Columns along the start ring by tier. */
     start: IAutoMovieSurfaceNetwork.ICounts;
@@ -405,14 +420,23 @@ export namespace IAutoMovieSurfaceNetwork {
   }
 
   /**
-   * A patch's rectangle in texture space; `s` maps linearly onto the first
-   * range and `t` onto the second.
+   * A patch's texture rectangle, with each axis naming its texture values at
+   * local coordinates zero and one. The endpoints may run in either direction.
    */
   export interface IUvRect {
-    /** Texture `u` at `s` 0 and 1. */
-    s: [number, number];
+    /** Texture `u` mapped at local coordinate `s` 0 and 1. */
+    s: IAutoMovieSurfaceNetwork.IUvAxisMapping;
 
-    /** Texture `v` at `t` 0 and 1. */
-    t: [number, number];
+    /** Texture `v` mapped at local coordinate `t` 0 and 1. */
+    t: IAutoMovieSurfaceNetwork.IUvAxisMapping;
+  }
+
+  /** Directed texture values at local axis coordinates zero and one. */
+  export interface IUvAxisMapping {
+    /** Texture value at local coordinate zero. */
+    atZero: number;
+
+    /** Texture value at local coordinate one. */
+    atOne: number;
   }
 }

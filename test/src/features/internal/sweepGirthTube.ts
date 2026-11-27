@@ -51,12 +51,12 @@ export function sweepGirthTube(shape: {
       up,
       left: right,
       down: up,
-      exponents: [
-        shape.exponent,
-        shape.exponent,
-        shape.exponent,
-        shape.exponent,
-      ],
+      exponents: {
+        upperRight: shape.exponent,
+        upperLeft: shape.exponent,
+        lowerLeft: shape.exponent,
+        lowerRight: shape.exponent,
+      },
     };
   }
   function ring(name: string, u: number): IAutoMovieSurfaceNetwork.IRing {
@@ -95,8 +95,8 @@ export function sweepGirthTube(shape: {
         type: "sweep",
         name: "tube",
         sweep: "tube",
-        u: [0, 1],
-        v: [0, 1],
+        u: { start: 0, end: 1 },
+        v: { start: 0, end: 1 },
         rows: ROWS,
         columns: COLUMNS,
       },

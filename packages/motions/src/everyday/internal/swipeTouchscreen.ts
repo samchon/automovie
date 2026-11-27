@@ -40,7 +40,7 @@ export const swipeTouchscreen: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHu
   {
     name: "swipeTouchscreen",
     interrupts: {
-      any: [{ window: [1, 1], kind: "inertialize", entry: 0 }],
+      any: [{ window: { start: 1, end: 1 }, kind: "inertialize", entry: 0 }],
     },
     plan: planSwipeTouchscreen,
   };

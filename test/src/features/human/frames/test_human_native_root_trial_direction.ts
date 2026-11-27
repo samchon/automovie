@@ -80,7 +80,9 @@ export function test_human_native_root_trial_direction(): void {
     [0, 1, 0, 0], [2, 1, 0, 0],
   ], AutoMovieViewAxis.straight([1 / 2, 0, 0], [1, 0, 0], [0, 0, 1]));
   const loop: IAutoMovieConstructionPortLoop = {
-    centre: [0.001, 0], semi: [0.001, 1 / 4], sense: 1,
+    centre: { station: 0.001, phase: 0 },
+    semi: { stationMetres: 0.001, phaseRadians: 1 / 4 },
+    sense: 1,
     shape: [1, 1, 1, 1],
   };
   const original: IAutoMovieHumanF1NativeRoot.ICalibration = Root.calibrate({
