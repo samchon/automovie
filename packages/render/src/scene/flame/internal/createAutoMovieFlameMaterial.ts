@@ -1,17 +1,17 @@
 import * as THREE from "three";
 
-import type { IMaterialShaderSource } from "../IMaterialShaderSource.js";
-import { AutoMovieRenderMaterial } from "../AutoMovieRenderMaterial.js";
+import type { IMaterialShaderSource } from "../../IMaterialShaderSource.js";
+import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial.js";
 
 /**
  * The beauty material of a flame: unlit, emissive, additive and soft at its
  * silhouette.
  *
- * The colour is the flame's linear chromaticity times its luminance in cd/m짼,
+ * The colour is the flame's linear chromaticity times its luminance in cd/m吏?
  * the radiance units the renderer's photometric lights produce, as a surface
  * graphic's emissive white is. It blends additively, writes no depth and is
  * drawn on both faces, so the flame glows over what lies behind it without
- * hiding it. A shader patch scales the outgoing light by `|n 쨌 v|^1.5`, the
+ * hiding it. A shader patch scales the outgoing light by `|n 夷?v|^1.5`, the
  * cosine between the surface normal and the view direction, so the edge seen
  * side-on fades and the flame reads as a soft volume rather than a hard shell;
  * the exponent is a provisional look choice. Guide passes replace this material

@@ -12,12 +12,12 @@ export { AutoMovieArchetypePassageSearch } from "./core/AutoMovieArchetypePassag
 export { deriveArchetypeSeed } from "./core/deriveArchetypeSeed";
 export { limitMonotoneTangents } from "./core/limitMonotoneTangents";
 export { ownArchetypeRecordKeys } from "./core/ownArchetypeRecordKeys";
-export { admitQuadrupedPhase } from "./animals/admitQuadrupedPhase";
+export { admitQuadrupedPhase } from "./animals/internal/admitQuadrupedPhase";
 export { QuadrupedPoseAngles } from "./animals/QuadrupedPoseAngles";
 export { QuadrupedRidePose } from "./animals/QuadrupedRidePose";
 export { QuadrupedSwingChord } from "./animals/QuadrupedSwingChord";
 export { selectEquineTack } from "./animals/selectEquineTack";
-export { solveQuadrupedSupportPlane } from "./animals/solveQuadrupedSupportPlane";
+export { solveQuadrupedSupportPlane } from "./animals/internal/solveQuadrupedSupportPlane";
 export { liftStopHeights } from "./environments/lifts/liftStopHeights";
 export { ArchetypeTrackProfile } from "./core/ArchetypeTrackProfile";
 export { ArchetypeCoursePath } from "./core/ArchetypeCoursePath";

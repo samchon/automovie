@@ -53,5 +53,5 @@ export * from "./stickBallModel";
 export * from "./stickBallPoint";
 export * from "./throwInRelease";
 export * from "./squatVault";
-export * from "./baseball";
+export * from "./AutoMovieMotionHumanBaseball";
 export * from "./aquatic";

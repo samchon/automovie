@@ -1,4 +1,4 @@
-import { AutoMovieArchetypeRefusal } from "../core";
+import { AutoMovieArchetypeRefusal } from "../../core";
 
 /**
  * Admit one phase-cell advance before the ride enumerates stride boundaries.

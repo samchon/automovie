@@ -42,7 +42,7 @@ import { perturb } from "../reaction/perturb";
 import { stagger } from "../reaction/stagger";
 import { athletics } from "../sport/athletics";
 import { ballSport } from "../sport/ballSport";
-import { baseball } from "../sport/baseball";
+import { AutoMovieMotionHumanBaseball as baseball } from "../sport/AutoMovieMotionHumanBaseball";
 import { chiSau } from "../sport/chiSau";
 import { gymnastics } from "../sport/gymnastics";
 import { martialArt } from "../sport/martialArt";

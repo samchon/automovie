@@ -12,10 +12,10 @@ import { HUMAN_ACROBATICS_ROUND_OFF_LEFT } from "../next/presets/HUMAN_ACROBATIC
 import { HUMAN_ACROBATICS_ROUND_OFF_RIGHT } from "../next/presets/HUMAN_ACROBATICS_ROUND_OFF_RIGHT";
 import { fieldThrow as fieldThrowLaw } from "../sport/fieldThrow";
 import { handspring } from "../sport/handspring";
-import { highJump } from "../sport/highJump";
+import { AutoMovieMotionHumanHighJump as highJump } from "../sport/AutoMovieMotionHumanHighJump";
 import { horizontalJump } from "../sport/horizontalJump";
 import { hurdleClear as hurdleClearLaw } from "../sport/hurdleClear";
-import { poleVault } from "../sport/poleVault";
+import { AutoMovieMotionHumanPoleVault as poleVault } from "../sport/AutoMovieMotionHumanPoleVault";
 import { roundOff } from "../sport/roundOff";
 import { squatVault } from "../sport/squatVault";
 import { vault } from "../sport/vault";

@@ -86,7 +86,7 @@ import { prepareGymnasticsFrame } from "./prepareGymnasticsFrame";
  * Events: `takeoff`, `apex`, optional `barCrossing`, `touchdown`, `settled`,
  * `relax`.
  */
-export namespace highJump {
+export namespace AutoMovieMotionHumanHighJump {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionKey = "highJump";
 

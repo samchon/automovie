@@ -32,7 +32,7 @@ import { launchAutoMovieChromium } from "./internal/launchAutoMovieChromium";
  * `node:fs/promises` as storage and the page's draw function as the draw, so
  * every saved picture comes from the draw function. `close` ends the browser
  * and the server and deletes the built page. `session` opens one subject for
- * any other host that draws through the page, such as `renderAutoMovieVideo`.
+ * any other host that draws through the page, such as `AutoMovieCliRender.renderVideo`.
  * The `automovie capture` and `automovie render` commands use one host for one
  * subject; a package with many subjects, such as the motion cases, uses one
  * host for all of them.

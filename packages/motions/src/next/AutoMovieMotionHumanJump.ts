@@ -1,9 +1,9 @@
 import { jump as jumpLaw } from "../actions/jump";
 import { HumanAirborneShape as HumanAirborneShapeSource } from "../lexicon/HumanAirborneShape";
-import { highJump as highJumpLaw } from "../sport/highJump";
+import { AutoMovieMotionHumanHighJump as highJumpLaw } from "../sport/AutoMovieMotionHumanHighJump";
 import { horizontalJump as horizontalJumpLaw } from "../sport/horizontalJump";
 import { hurdleClear as hurdleClearLaw } from "../sport/hurdleClear";
-import { poleVault as poleVaultLaw } from "../sport/poleVault";
+import { AutoMovieMotionHumanPoleVault as poleVaultLaw } from "../sport/AutoMovieMotionHumanPoleVault";
 
 /**
  * The flight laws: a push-off, a flight under gravity and a landing. A flight

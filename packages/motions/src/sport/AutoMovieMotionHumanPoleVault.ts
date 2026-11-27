@@ -89,7 +89,7 @@ import { preparePoleVaultPlant } from "./poleVault/preparePoleVaultPlant";
  *
  * Events: `takeoff` (the plant), `release`, `touchdown`, `settled`, `relax`.
  */
-export namespace poleVault {
+export namespace AutoMovieMotionHumanPoleVault {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionKey = "poleVault";
 

@@ -67,7 +67,7 @@ import { baseballGroundBall } from "./baseballGroundBall";
  * owner's, whose file does not exist yet), the pitch (a row of the throw law),
  * the windmill pitch, the catcher's throw and base running slides.
  */
-export namespace baseball {
+export namespace AutoMovieMotionHumanBaseball {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionName = "baseball";
 

@@ -7,7 +7,7 @@ import { AutoMovieRenderCapture } from "@automovie/render";
 import {
   AutoMovieCliCaptureHost,
   AutoMovieCliProduction,
-  renderAutoMovieVideo,
+  AutoMovieCliRender,
   AutoMovieCliFfmpeg,
 } from "automovie";
 import path from "node:path";
@@ -204,8 +204,8 @@ export async function motionCapture(): Promise<void> {
 
       // The case's whole clock as a video, drawn by the same page.
       if (ffmpeg !== null) {
-        const written: Awaited<ReturnType<typeof renderAutoMovieVideo>> =
-          await renderAutoMovieVideo({
+        const written: Awaited<ReturnType<typeof AutoMovieCliRender.renderVideo>> =
+          await AutoMovieCliRender.renderVideo({
             host,
             root: ROOT,
             subject: capture.name,

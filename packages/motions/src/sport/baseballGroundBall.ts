@@ -20,7 +20,7 @@ import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk"
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { exercise } from "../exercise/exercise";
 import { HumanBoneGroups } from "../posture/HumanBoneGroups";
-import { baseball } from "./baseball";
+import { AutoMovieMotionHumanBaseball as baseball } from "./AutoMovieMotionHumanBaseball";
 
 /**
  * A fielder's ground ball: the crouch to the ball and both hands placed, the

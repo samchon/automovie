@@ -13,7 +13,7 @@ import { lieDown } from "../floor/lieDown";
 import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 import { athletics } from "../sport/athletics";
 import { ballSport } from "../sport/ballSport";
-import { baseball } from "../sport/baseball";
+import { AutoMovieMotionHumanBaseball as baseball } from "../sport/AutoMovieMotionHumanBaseball";
 import { gymnastics } from "../sport/gymnastics";
 import { martialArt } from "../sport/martialArt";
 import { racket } from "../sport/racket";

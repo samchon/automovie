@@ -3,7 +3,7 @@ import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadru
 import { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
 import { EquineFootwork } from "./EquineFootwork";
 import type { QuadrupedRideClock } from "./QuadrupedRideClock";
-import { admitQuadrupedPhase } from "./admitQuadrupedPhase";
+import { admitQuadrupedPhase } from "./internal/admitQuadrupedPhase";
 import type { createQuadruped } from "./createQuadruped";
 
 /**

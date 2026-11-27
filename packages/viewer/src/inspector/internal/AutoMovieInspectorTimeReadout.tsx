@@ -8,9 +8,9 @@ import {
   useSyncExternalStore,
 } from "react";
 
-import type { AutoMovieInspectorPlayhead } from "./AutoMovieInspectorPlayhead.js";
-import type { IAutoMovieInspectorAction } from "./IAutoMovieInspectorAction.js";
-import { AutoMovieViewerInspector } from "./AutoMovieViewerInspector.js";
+import type { AutoMovieInspectorPlayhead } from "../AutoMovieInspectorPlayhead.js";
+import type { IAutoMovieInspectorAction } from "../IAutoMovieInspectorAction.js";
+import { AutoMovieViewerInspector } from "../AutoMovieViewerInspector.js";
 
 /**
  * The playhead's slider and clock, the one component that reads the playhead's second and so the only one a playing frame re-renders; the time panel reads only whether it plays.

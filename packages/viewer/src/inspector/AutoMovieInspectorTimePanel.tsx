@@ -1,7 +1,7 @@
 import { type ChangeEvent, type JSX, useSyncExternalStore } from "react";
 
 import type { AutoMovieInspectorPlayhead } from "./AutoMovieInspectorPlayhead.js";
-import { AutoMovieInspectorTimeReadout } from "./AutoMovieInspectorTimeReadout.js";
+import { AutoMovieInspectorTimeReadout } from "./internal/AutoMovieInspectorTimeReadout.js";
 import type { IAutoMovieInspectorAction } from "./IAutoMovieInspectorAction.js";
 
 /** Preview speeds offered, as multiples of real time. */

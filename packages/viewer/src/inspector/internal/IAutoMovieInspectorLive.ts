@@ -7,7 +7,7 @@ import type * as THREE from "three";
 
 import type { AutoMovieInspectorBeauty } from "./AutoMovieInspectorBeauty.js";
 import type { AutoMovieInspectorPlayhead } from "../AutoMovieInspectorPlayhead.js";
-import type { AutoMovieInspectorTransition } from "../AutoMovieInspectorTransition.js";
+import type { AutoMovieInspectorTransition } from "./AutoMovieInspectorTransition.js";
 import type { IAutoMovieInspectorSceneHost } from "../IAutoMovieInspectorSceneHost.js";
 
 /**

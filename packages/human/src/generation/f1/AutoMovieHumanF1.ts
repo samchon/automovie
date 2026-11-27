@@ -285,20 +285,24 @@ export namespace AutoMovieHumanF1 {
     },
   ];
 
-  /**
-   * What the F1 empty probes read from: its stored cutters, its leg family
-   * (whose twin is the other leg), and its four fingers. The thumb web is not
-   * a gap between parallel walls; the mouth is a height field over the trunk.
-   * This listing keeps the stored families by reference and is built once.
-   * @throws {Error} At load, when a finger is missing from `DIGITS`.
-   */
+  /** The four fingers in order across the hand, starting with the index. */
   const EMPTY_PROBE_FINGERS: readonly string[] = [
     "finger.index",
     "finger.middle",
     "finger.ring",
     "finger.pinky",
   ];
-  /** Empty probes for the assembled F1 cutters, leg, and fingers. */
+  /**
+   * What f1's empty probes are read from (`AutoMovieHumanEmptyProbes.list`): its
+   * stored cutters (the armpit's slit, each ear's bowl and each nostril), its leg
+   * family, whose twin is the other leg, and its four fingers across the hand.
+   * The thumb stands apart from the fingers and its web is not a gap between
+   * parallel walls, and f1's mouth is a height field over the trunk's wall with
+   * no gap between the lips, so neither has a probe.
+   *
+   * @throws {Error} At load, when a finger is missing from
+   *   `AutoMovieHumanF1.DIGITS`.
+   */
   export const EMPTY_PROBES: AutoMovieHumanEmptyProbes.IListing = {
     cutters: CUTTERS,
     leg: BODY.leg,
