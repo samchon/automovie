@@ -46,6 +46,7 @@
     }
   },
   "devDependencies": {
+    "@automovie/config": "workspace:^",
     "@automovie/recovery": "workspace:^",
     "@napi-rs/canvas": "1.0.1",
     "@automovie/render": "workspace:^",

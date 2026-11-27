@@ -1,3 +1,3 @@
-import { createPackageEvidenceConfig } from "../../config/evidence";
+import { createEvidenceConfig } from "@automovie/config";
 
-export default createPackageEvidenceConfig("engine");
+export default createEvidenceConfig();

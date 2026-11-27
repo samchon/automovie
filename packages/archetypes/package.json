@@ -110,6 +110,7 @@
     "@automovie/interface": "workspace:^"
   },
   "devDependencies": {
+    "@automovie/config": "workspace:^",
     "@automovie/render": "workspace:^",
     "@automovie/viewer": "workspace:^",
     "@ttsc/evidence": "catalog:samchon",

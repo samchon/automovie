@@ -42,6 +42,7 @@
     "@automovie/interface": "workspace:^"
   },
   "devDependencies": {
+    "@automovie/config": "workspace:^",
     "rimraf": "catalog:utils",
     "ttsc": "catalog:samchon",
     "typescript": "catalog:typescript",

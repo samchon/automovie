@@ -59,6 +59,7 @@
     "@automovie/interface": "workspace:^"
   },
   "devDependencies": {
+    "@automovie/config": "workspace:^",
     "@automovie/human": "workspace:^",
     "@automovie/render": "workspace:^",
     "@automovie/viewer": "workspace:^",

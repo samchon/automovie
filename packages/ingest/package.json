@@ -43,6 +43,7 @@
     "@gltf-transform/core": "catalog:gltf"
   },
   "devDependencies": {
+    "@automovie/config": "workspace:^",
     "rimraf": "catalog:utils",
     "ttsc": "catalog:samchon",
     "typescript": "catalog:typescript",

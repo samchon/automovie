@@ -50,6 +50,7 @@
     "three": "catalog:three"
   },
   "devDependencies": {
+    "@automovie/config": "workspace:^",
     "@types/node": "catalog:utils",
     "@types/three": "catalog:three",
     "rimraf": "catalog:utils",

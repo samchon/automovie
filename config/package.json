@@ -3,12 +3,13 @@
   "name": "@automovie/config",
   "version": "0.4.2",
   "devDependencies": {
-    "@ttsc/unplugin": "catalog:samchon",
-    "tinyglobby": "catalog:utils",
     "@ttsc/evidence": "catalog:samchon",
     "ttsc": "catalog:samchon",
     "@ttsc/lint": "catalog:samchon",
     "typescript": "catalog:typescript",
     "@wrtnlabs/evidence": "catalog:samchon"
+  },
+  "exports": {
+    ".": "./src/index.ts"
   }
 }

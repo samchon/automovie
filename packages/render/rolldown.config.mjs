@@ -1,1 +1,1 @@
-export { default } from "../../config/rolldown.config.mjs";
+export { default } from "../../scripts/rolldown.config.mjs";

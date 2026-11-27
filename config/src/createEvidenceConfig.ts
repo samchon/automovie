@@ -1,20 +1,20 @@
 import { type IEvidenceConfig } from "@wrtnlabs/evidence";
 
-import { requirePackagePublicSourceFiles } from "./publicSourceFiles";
-
 type EvidenceScope = "functions" | "types";
 
-/** Builds the shared published-contract claims while preserving package predicate ownership. */
-export function createPackageEvidenceConfig(
-  packageName: string,
+/**
+ * Builds the package Evidence claims for contracts at the root of `src` and in
+ * its topic directories.
+ */
+export function createEvidenceConfig(
   scope: EvidenceScope = "functions",
 ): IEvidenceConfig {
-  const files: string[] = requirePackagePublicSourceFiles();
+  const files: string[] = ["src/*.ts", "src/*/*.ts"];
   const documentationSymbols: "type" | ["type", "function"] =
     scope === "types" ? "type" : ["type", "function"];
   const claims: IEvidenceConfig["claims"] = [
     {
-      name: `${packageName} documentation`,
+      name: "documentation",
       type: "typescript",
       files,
       evidenceFiles: ["predicate/**/*.md"],
@@ -28,7 +28,7 @@ export function createPackageEvidenceConfig(
       },
     },
     {
-      name: `${packageName} types`,
+      name: "types",
       type: "typescript",
       files,
       evidenceFiles: ["predicate/**/*.md"],
@@ -44,7 +44,7 @@ export function createPackageEvidenceConfig(
   ];
   if (scope === "functions")
     claims.push({
-      name: `${packageName} functions`,
+      name: "functions",
       type: "typescript",
       files,
       evidenceFiles: ["predicate/**/*.md"],

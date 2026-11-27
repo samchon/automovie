@@ -54,6 +54,7 @@
     "react-dom": "catalog:react"
   },
   "devDependencies": {
+    "@automovie/config": "workspace:^",
     "@types/react": "catalog:react",
     "@types/react-dom": "catalog:react",
     "@types/three": "catalog:three",

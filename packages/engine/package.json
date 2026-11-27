@@ -47,6 +47,7 @@
     "@automovie/interface": "workspace:^"
   },
   "devDependencies": {
+    "@automovie/config": "workspace:^",
     "@ttsc/evidence": "catalog:samchon",
     "@ttsc/lint": "catalog:samchon",
     "@wrtnlabs/evidence": "catalog:samchon",
