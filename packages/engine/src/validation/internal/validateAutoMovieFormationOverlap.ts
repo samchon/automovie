@@ -16,7 +16,7 @@ import {
 
 import { formationSlotPosition } from "../../populationRuntime/formation/internal/formationSlotPosition";
 import { placeFormationSlot } from "../../populationRuntime/formation/internal/placeFormationSlot";
-import { AutoMovieEnginePopulationFormation } from "../../populationRuntime/formation/AutoMovieEnginePopulationFormation";
+import { AutoMovieEnginePopulationFormation } from "../../populationRuntime/AutoMovieEnginePopulationFormation";
 import { autoMovieModelColumns } from "./autoMovieModelColumns";
 import { engineDiagnostic } from "./engineDiagnostic";
 

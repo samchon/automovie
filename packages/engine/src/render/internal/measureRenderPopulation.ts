@@ -22,9 +22,9 @@ import type {
  */
 
 import { tessellateSurface } from "../../geometry/internal/tessellateSurface";
-import { AUTOMOVIE_INDEX_BYTES } from "../constants/AUTOMOVIE_INDEX_BYTES";
-import { AUTOMOVIE_NORMAL_BYTES } from "../constants/AUTOMOVIE_NORMAL_BYTES";
-import { AUTOMOVIE_POSITION_BYTES } from "../constants/AUTOMOVIE_POSITION_BYTES";
+import { AUTOMOVIE_INDEX_BYTES } from "../AUTOMOVIE_INDEX_BYTES";
+import { AUTOMOVIE_NORMAL_BYTES } from "../AUTOMOVIE_NORMAL_BYTES";
+import { AUTOMOVIE_POSITION_BYTES } from "../AUTOMOVIE_POSITION_BYTES";
 import { measure } from "./measure";
 
 /**

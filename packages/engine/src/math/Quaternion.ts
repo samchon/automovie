@@ -4,7 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { QUATERNION_NLERP_DOT_THRESHOLD } from "./constants/QUATERNION_NLERP_DOT_THRESHOLD";
+import { QUATERNION_NLERP_DOT_THRESHOLD } from "./QUATERNION_NLERP_DOT_THRESHOLD";
 import { quaternionNormalizationDivisor as normalizationDivisor } from "./internal/quaternionNormalizationDivisor";
 import { readNormalizedQuaternion } from "./internal/readNormalizedQuaternion";
 import { readQuaternionAngle } from "./internal/readQuaternionAngle";

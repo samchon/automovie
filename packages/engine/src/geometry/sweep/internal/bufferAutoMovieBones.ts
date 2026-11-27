@@ -4,7 +4,7 @@ import {
   type IAutoMovieResolvedBone,
 } from "@automovie/interface";
 
-import { AutoMovieSweepRotation } from "../AutoMovieSweepRotation";
+import { AutoMovieSweepRotation } from "../../AutoMovieSweepRotation";
 
 /**
  * Create the motion buffers of a rest skeleton.

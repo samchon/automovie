@@ -9,8 +9,8 @@ import {
 } from "@automovie/interface";
 
 import { appendMeshTopology } from "./appendMeshTopology";
-import { AUTOMOVIE_ARKIT_CHANNELS } from "../constants/AUTOMOVIE_ARKIT_CHANNELS";
-import { AUTOMOVIE_EXPRESSION_PRESETS } from "../constants/AUTOMOVIE_EXPRESSION_PRESETS";
+import { AUTOMOVIE_ARKIT_CHANNELS } from "../AUTOMOVIE_ARKIT_CHANNELS";
+import { AUTOMOVIE_EXPRESSION_PRESETS } from "../AUTOMOVIE_EXPRESSION_PRESETS";
 
 /**
  * Admit tuple/cardinality buffers, dense finite numeric elements, vertex

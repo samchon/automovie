@@ -7,8 +7,8 @@ import type {
   IAutoMovieViewOutline,
 } from "@automovie/interface";
 
-import { AutoMovieViewOutline } from "../AutoMovieViewOutline";
-import { AutoMovieViewParameter } from "../AutoMovieViewParameter";
+import { AutoMovieViewOutline } from "../../AutoMovieViewOutline";
+import { AutoMovieViewParameter } from "../../AutoMovieViewParameter";
 
 /**
  * Apply one explicitly requested C2 material rotation to an admitted base axis.

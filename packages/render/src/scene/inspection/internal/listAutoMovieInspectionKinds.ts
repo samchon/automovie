@@ -3,7 +3,7 @@ import type {
   IAutoMovieListInspectionKindsProps,
 } from "@automovie/interface";
 
-import { AUTO_MOVIE_INSPECTION_KINDS } from "../AUTO_MOVIE_INSPECTION_KINDS.js";
+import { AUTO_MOVIE_INSPECTION_KINDS } from "../../AUTO_MOVIE_INSPECTION_KINDS.js";
 
 /**
  * List the styled kinds for the supplied marks and the measurements available

@@ -4,8 +4,8 @@ import type {
   IAutoMovieSolidMesh,
 } from "@automovie/interface";
 
-import { AutoMovieSolidBody } from "../AutoMovieSolidBody";
-import { AutoMovieSolidMesh } from "../AutoMovieSolidMesh";
+import { AutoMovieSolidBody } from "../../AutoMovieSolidBody";
+import { AutoMovieSolidMesh } from "../../AutoMovieSolidMesh";
 
 /**
  * Close actual collapsed profile tips through the drawn source boundary.

@@ -104,8 +104,8 @@ export * from "./AutoMovieTransitionDisplays.js";
 
 export * from "./AutoMovieRenderSurfaceAppearance.js";
 
-export * from "./human-polygon/AutoMovieHumanPolygon.js";
-export * from "./human-polygon/AutoMovieHumanCartoon.js";
+export * from "./AutoMovieHumanPolygon.js";
+export * from "./AutoMovieHumanCartoon.js";
 export * from "./AutoMovieResourceRetirementScope.js";
 
 export * from "./AutoMovieSceneTexture.js";

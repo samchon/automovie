@@ -7,7 +7,7 @@ import type {
   IAutoMovieCanonicalBoundaryPhase64,
 } from "@automovie/interface";
 
-import { AutoMovieCanonicalBoundary64 as Q } from "../AutoMovieCanonicalBoundary64";
+import { AutoMovieCanonicalBoundary64 as Q } from "../../AutoMovieCanonicalBoundary64";
 /**
  * Register shared corners, exact edge phases and incidence before atlas
  * emission.

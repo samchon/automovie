@@ -1,2 +1,2 @@
-export { AutoMovieHumanPolygon } from "./AutoMovieHumanPolygon.js";
-export { AutoMovieHumanCartoon } from "./AutoMovieHumanCartoon.js";
+export { AutoMovieHumanPolygon } from "../AutoMovieHumanPolygon.js";
+export { AutoMovieHumanCartoon } from "../AutoMovieHumanCartoon.js";

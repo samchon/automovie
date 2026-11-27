@@ -1,7 +1,7 @@
 import type { IAutoMovieMark } from "@automovie/interface";
 import type { IAutoMovieReplaceDrawInspectionProps } from "../IAutoMovieReplaceDrawInspectionProps.js";
 
-import type { IAutoMovieInspectionHandle } from "../../scene/inspection/IAutoMovieInspectionHandle.js";
+import type { IAutoMovieInspectionHandle } from "../../scene/IAutoMovieInspectionHandle.js";
 import { applyAutoMovieInspection } from "../../scene/inspection/internal/applyAutoMovieInspection.js";
 
 /**

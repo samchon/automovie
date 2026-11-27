@@ -1,6 +1,6 @@
 import type { IAutoMovieSceneCollision as Collision } from "@automovie/interface";
 
-import type { AutoMovieRenderInspectionGeometry } from "../AutoMovieRenderInspectionGeometry.js";
+import type { AutoMovieRenderInspectionGeometry } from "../../AutoMovieRenderInspectionGeometry.js";
 import { findAutoMovieCollisionWitness } from "./findAutoMovieCollisionWitness.js";
 
 /**

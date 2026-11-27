@@ -35,7 +35,7 @@ import { swingTwistRange } from "../../kinematics/swingTwistRange";
 import { swivelArcs } from "../../kinematics/swivelArcs";
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
-import { ROM_TOLERANCE } from "../../rom/constants/ROM_TOLERANCE";
+import { ROM_TOLERANCE } from "../../rom/ROM_TOLERANCE";
 import { getConstraint } from "../../rom/internal/getConstraint";
 import { distalTwistRange } from "./distalTwistRange";
 import { fitHingedClosedRoots } from "./fitHingedClosedRoots";

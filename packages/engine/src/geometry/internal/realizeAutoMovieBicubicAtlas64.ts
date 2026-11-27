@@ -7,7 +7,7 @@ import type {
 } from "@automovie/interface";
 
 import { admitAutoMovieBicubicAtlas } from "./admitAutoMovieBicubicAtlas";
-import { AutoMovieEngineCurve } from "../curve/AutoMovieEngineCurve";
+import { AutoMovieEngineCurve } from "../AutoMovieEngineCurve";
 
 /**
  * Realize the public metre-valued bicubic recipe through its owning engine. The

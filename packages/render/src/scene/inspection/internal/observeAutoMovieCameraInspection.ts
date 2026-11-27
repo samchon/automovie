@@ -1,4 +1,4 @@
-import type { AutoMovieRenderInspectionCamera } from "../AutoMovieRenderInspectionCamera.js";
+import type { AutoMovieRenderInspectionCamera } from "../../AutoMovieRenderInspectionCamera.js";
 import { AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieCameraInspection,

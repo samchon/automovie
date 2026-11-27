@@ -11,8 +11,8 @@ import {
   type IAutoMovieDrawingToSvg,
 } from "@automovie/interface";
 
-import { AUTOMOVIE_DRAWING_ROLES } from "../constants/AUTOMOVIE_DRAWING_ROLES";
-import { AUTOMOVIE_DRAWING_SVG_MARGIN } from "../constants/AUTOMOVIE_DRAWING_SVG_MARGIN";
+import { AUTOMOVIE_DRAWING_ROLES } from "../AUTOMOVIE_DRAWING_ROLES";
+import { AUTOMOVIE_DRAWING_SVG_MARGIN } from "../AUTOMOVIE_DRAWING_SVG_MARGIN";
 
 /** One SVG attribute as a name and its unescaped value. */
 type Attribute = [string, string];

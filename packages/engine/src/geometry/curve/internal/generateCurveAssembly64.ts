@@ -3,8 +3,8 @@ import type {
   IAutoMovieCurveBoundaryEdge64,
 } from "@automovie/interface";
 
-import type { AutoMovieEngineCurveAssembly64 } from "../AutoMovieEngineCurveAssembly64";
-import { AutoMovieEngineCurveParentContext } from "../AutoMovieEngineCurveParentContext";
+import type { AutoMovieEngineCurveAssembly64 } from "../../AutoMovieEngineCurveAssembly64";
+import { AutoMovieEngineCurveParentContext } from "../../AutoMovieEngineCurveParentContext";
 
 /**
  * Construct caller-defined regions after their incoming boundary operators are

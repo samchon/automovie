@@ -10,11 +10,11 @@ import type {
   IAutoMovieSolidSurface,
 } from "@automovie/interface";
 
-import { AutoMovieConstructionSplitBand } from "../AutoMovieConstructionSplitBand";
-import { AutoMovieConstructionState } from "../AutoMovieConstructionState";
-import { AutoMovieConstructionViews } from "../AutoMovieConstructionViews";
-import { AutoMovieLoftAdmissionError } from "../AutoMovieLoftAdmissionError";
-import { AutoMovieSolidMesh } from "../AutoMovieSolidMesh";
+import { AutoMovieConstructionSplitBand } from "../../AutoMovieConstructionSplitBand";
+import { AutoMovieConstructionState } from "../../AutoMovieConstructionState";
+import { AutoMovieConstructionViews } from "../../AutoMovieConstructionViews";
+import { AutoMovieLoftAdmissionError } from "../../AutoMovieLoftAdmissionError";
+import { AutoMovieSolidMesh } from "../../AutoMovieSolidMesh";
 
 /**
  * Realize a continuation with a band

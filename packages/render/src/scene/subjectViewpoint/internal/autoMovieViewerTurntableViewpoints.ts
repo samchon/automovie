@@ -1,5 +1,5 @@
-import type { IAutoMovieViewerTurntableOptions } from "../IAutoMovieViewerTurntableOptions.js";
-import type { IAutoMovieViewerViewpoint } from "../IAutoMovieViewerViewpoint.js";
+import type { IAutoMovieViewerTurntableOptions } from "../../IAutoMovieViewerTurntableOptions.js";
+import type { IAutoMovieViewerViewpoint } from "../../IAutoMovieViewerViewpoint.js";
 
 /**
  * Generate fresh viewpoints in elevation-ring then azimuth order, with rounded

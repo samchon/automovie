@@ -11,7 +11,7 @@ import type {
   IAutoMovieRestFrame,
 } from "@automovie/interface";
 
-import { DEFAULT_JOINT_AXES } from "../kinematics/constants/DEFAULT_JOINT_AXES";
+import { DEFAULT_JOINT_AXES } from "../kinematics/DEFAULT_JOINT_AXES";
 import { AutoMovieEngineKinematicsJointRotation } from "../kinematics/AutoMovieEngineKinematicsJointRotation";
 import { normalizeJointAxes } from "../kinematics/internal/normalizeJointAxes";
 import { Quaternion } from "../math/Quaternion";

@@ -5,8 +5,8 @@ import {
 } from "@automovie/interface";
 
 import { describeInvalidValue } from "../../validation/internal/describeInvalidValue";
-import { CAMERA_FRAMINGS } from "../constants/CAMERA_FRAMINGS";
-import { CAMERA_MOVES } from "../constants/CAMERA_MOVES";
+import { CAMERA_FRAMINGS } from "../CAMERA_FRAMINGS";
+import { CAMERA_MOVES } from "../CAMERA_MOVES";
 
 /**
  * Refuse a camera framing or move the framing grammar cannot compile, and say

@@ -17,11 +17,11 @@ import type { IMaterialShaderPatch } from "../../IMaterialShaderPatch.js";
 import type { IMaterialShaderSource } from "../../IMaterialShaderSource.js";
 import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial.js";
 import { decodeAutoMovieImage } from "../../internal/decodeAutoMovieImage.js";
-import { AutoMovieFilmResponseStage } from "../../filmResponse/AutoMovieFilmResponseStage.js";
-import type { IAutoMovieFilmResponseRenderer } from "../../filmResponse/IAutoMovieFilmResponseRenderer.js";
-import { AUTOMOVIE_SURFACE_GRAPHIC_KEY } from "../AUTOMOVIE_SURFACE_GRAPHIC_KEY.js";
-import type { IAutoMovieSurfaceGraphicsObject } from "../IAutoMovieSurfaceGraphicsObject.js";
-import type { IPrepareAutoMovieSurfaceGraphicsProps } from "../IPrepareAutoMovieSurfaceGraphicsProps.js";
+import { AutoMovieFilmResponseStage } from "../../AutoMovieFilmResponseStage.js";
+import type { IAutoMovieFilmResponseRenderer } from "../../IAutoMovieFilmResponseRenderer.js";
+import { AUTOMOVIE_SURFACE_GRAPHIC_KEY } from "../../AUTOMOVIE_SURFACE_GRAPHIC_KEY.js";
+import type { IAutoMovieSurfaceGraphicsObject } from "../../IAutoMovieSurfaceGraphicsObject.js";
+import type { IPrepareAutoMovieSurfaceGraphicsProps } from "../../IPrepareAutoMovieSurfaceGraphicsProps.js";
 import { buildAutoMovieSurfaceGraphicKey } from "./buildAutoMovieSurfaceGraphicKey.js";
 import { createAutoMovieSurfaceGraphicMaterial } from "./createAutoMovieSurfaceGraphicMaterial.js";
 

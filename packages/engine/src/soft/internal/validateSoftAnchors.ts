@@ -6,8 +6,8 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { SOFT_MAX_ANCHORS } from "../constants/SOFT_MAX_ANCHORS";
-import { SOFT_MAX_STATES } from "../constants/SOFT_MAX_STATES";
+import { SOFT_MAX_ANCHORS } from "../SOFT_MAX_ANCHORS";
+import { SOFT_MAX_STATES } from "../SOFT_MAX_STATES";
 import { validateSoftBounded as bounded } from "./validateSoftBounded";
 import { validateSoftIdentity as identity } from "./validateSoftIdentity";
 import { validateSoftInteger as integer } from "./validateSoftInteger";

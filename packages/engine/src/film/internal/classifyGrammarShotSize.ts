@@ -1,6 +1,6 @@
 import { IAutoMovieCameraIntent } from "@automovie/interface";
 
-import { FRAMING_HEIGHT_FRACTION } from "../constants/FRAMING_HEIGHT_FRACTION";
+import { FRAMING_HEIGHT_FRACTION } from "../FRAMING_HEIGHT_FRACTION";
 
 /**
  * The framing a subject's measured frame occupancy reads as: the framing whose

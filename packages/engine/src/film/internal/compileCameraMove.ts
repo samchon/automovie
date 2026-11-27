@@ -11,8 +11,8 @@ import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 import { ease } from "../../motion/internal/ease";
 import { canonicalProductionFrameRate } from "./canonicalProductionFrameRate";
-import { FRAMING_AIM_FRACTION } from "../constants/FRAMING_AIM_FRACTION";
-import { FRAMING_HEIGHT_FRACTION } from "../constants/FRAMING_HEIGHT_FRACTION";
+import { FRAMING_AIM_FRACTION } from "../FRAMING_AIM_FRACTION";
+import { FRAMING_HEIGHT_FRACTION } from "../FRAMING_HEIGHT_FRACTION";
 import { lookRotation } from "./lookRotation";
 
 /** World up: the horizon a camera keeps level. */

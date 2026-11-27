@@ -7,10 +7,10 @@ import {
 } from "@automovie/interface";
 
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
-import { SOFT_MAX_COLLIDERS } from "../constants/SOFT_MAX_COLLIDERS";
-import { SOFT_MAX_ITERATIONS } from "../constants/SOFT_MAX_ITERATIONS";
-import { SOFT_MAX_PARTICLES } from "../constants/SOFT_MAX_PARTICLES";
-import { SOFT_MAX_STEPS } from "../constants/SOFT_MAX_STEPS";
+import { SOFT_MAX_COLLIDERS } from "../SOFT_MAX_COLLIDERS";
+import { SOFT_MAX_ITERATIONS } from "../SOFT_MAX_ITERATIONS";
+import { SOFT_MAX_PARTICLES } from "../SOFT_MAX_PARTICLES";
+import { SOFT_MAX_STEPS } from "../SOFT_MAX_STEPS";
 import { softBodyTravelNumber } from "./softBodyTravelNumber";
 import { validateSoftAnchors } from "./validateSoftAnchors";
 import { validateSoftBounded as bounded } from "./validateSoftBounded";

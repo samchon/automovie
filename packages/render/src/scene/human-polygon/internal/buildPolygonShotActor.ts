@@ -10,7 +10,7 @@ import type {
 } from "@automovie/interface";
 import { Quaternion, Vector3 } from "three";
 
-import type { AutoMovieHumanPolygon } from "../AutoMovieHumanPolygon.js";
+import type { AutoMovieHumanPolygon } from "../../AutoMovieHumanPolygon.js";
 import { buildHumanPolygon } from "./buildHumanPolygon.js";
 
 /**

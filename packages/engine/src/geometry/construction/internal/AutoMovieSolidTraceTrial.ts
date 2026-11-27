@@ -4,7 +4,7 @@ import type {
   IAutoMovieSolidTraceTrialTrial,
 } from "@automovie/interface";
 
-import { AutoMovieSolidDomain } from "../AutoMovieSolidDomain";
+import { AutoMovieSolidDomain } from "../../AutoMovieSolidDomain";
 import { AutoMovieSolidTraceObservation as Observation } from "../AutoMovieSolidTraceObservation";
 
 /**

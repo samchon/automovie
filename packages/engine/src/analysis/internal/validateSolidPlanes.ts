@@ -3,7 +3,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { AUTOMOVIE_ANALYSIS_MIN_SOLID_PLANES } from "../constants/AUTOMOVIE_ANALYSIS_MIN_SOLID_PLANES";
+import { AUTOMOVIE_ANALYSIS_MIN_SOLID_PLANES } from "../AUTOMOVIE_ANALYSIS_MIN_SOLID_PLANES";
 
 /**
  * Check the half-spaces of one convex blocker.

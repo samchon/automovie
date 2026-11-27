@@ -5,7 +5,7 @@ import type {
   IAutoMovieBicubicAtlasTessellation64,
 } from "@automovie/interface";
 
-import { AutoMovieEngineCurveBicubicAtlasEmit64 } from "../AutoMovieEngineCurveBicubicAtlasEmit64";
+import { AutoMovieEngineCurveBicubicAtlasEmit64 } from "../../AutoMovieEngineCurveBicubicAtlasEmit64";
 import { AutoMovieBicubicAtlasPlan64 } from "./AutoMovieBicubicAtlasPlan64";
 import { AutoMovieBicubicAtlasRegistry64 } from "./AutoMovieBicubicAtlasRegistry64";
 

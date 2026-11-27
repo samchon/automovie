@@ -10,7 +10,7 @@ import type {
   IAutoMovieQuaternion,
 } from "@automovie/interface";
 
-import { DEFAULT_JOINT_AXES } from "../../kinematics/constants/DEFAULT_JOINT_AXES";
+import { DEFAULT_JOINT_AXES } from "../../kinematics/DEFAULT_JOINT_AXES";
 import { normalizeJointAxes } from "../../kinematics/internal/normalizeJointAxes";
 import { skeletonJointAxes } from "../../kinematics/internal/skeletonJointAxes";
 import { Quaternion } from "../../math/Quaternion";

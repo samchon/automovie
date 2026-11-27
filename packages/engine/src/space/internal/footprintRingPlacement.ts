@@ -6,7 +6,7 @@ import {
 
 import { pointInPolygon } from "../../architecture/internal/pointInPolygon";
 import { closestPointOnSegmentXZ } from "../../math/internal/closestPointOnSegmentXZ";
-import { FOOTPRINT_EPSILON } from "../constants/FOOTPRINT_EPSILON";
+import { FOOTPRINT_EPSILON } from "../FOOTPRINT_EPSILON";
 
 /** Classify an XZ query against an authored ring with an explicit rim result. */
 export const footprintRingPlacement: (

@@ -1,4 +1,4 @@
-import type { IAutoMovieViewerViewpoint } from "../IAutoMovieViewerViewpoint.js";
+import type { IAutoMovieViewerViewpoint } from "../../IAutoMovieViewerViewpoint.js";
 
 /**
  * The eight views an inspection asks for by name: the six along the world axes

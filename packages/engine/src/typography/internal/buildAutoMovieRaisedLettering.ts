@@ -6,7 +6,7 @@ import type {
   IAutoMoviePlanarRegion,
 } from "@automovie/interface";
 
-import { AutoMovieEnginePlanarRegion } from "../../geometry/planar-region/AutoMovieEnginePlanarRegion";
+import { AutoMovieEnginePlanarRegion } from "../../geometry/AutoMovieEnginePlanarRegion";
 import { layoutAutoMovieText } from "./layoutAutoMovieText";
 import { regionsOfAutoMovieGlyph } from "./regionsOfAutoMovieGlyph";
 

@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import type { IAutoMovieUpdateComparisonCameraProps } from "../IAutoMovieUpdateComparisonCameraProps.js";
+import type { IAutoMovieUpdateComparisonCameraProps } from "../../IAutoMovieUpdateComparisonCameraProps.js";
 
 import { AUTOMOVIE_MATRIX_ELEMENT_LIMIT } from "../../internal/AUTOMOVIE_MATRIX_ELEMENT_LIMIT.js";
 

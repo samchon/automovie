@@ -6,12 +6,12 @@ import type {
   IAutoMovieSubjectBox,
 } from "@automovie/interface";
 
-import { AutoMovieRenderInspectionGeometry } from "../AutoMovieRenderInspectionGeometry.js";
+import { AutoMovieRenderInspectionGeometry } from "../../AutoMovieRenderInspectionGeometry.js";
 import { createAutoMovieCollisionFinding } from "./createAutoMovieCollisionFinding.js";
 import { findAutoMovieCollisionWitness } from "./findAutoMovieCollisionWitness.js";
 import { readAutoMovieCollisionMotion } from "./readAutoMovieCollisionMotion.js";
 import { resolveAutoMovieCollisionHit } from "./resolveAutoMovieCollisionHit.js";
-import type { AutoMovieRenderInspection } from "../AutoMovieRenderInspection.js";
+import type { AutoMovieRenderInspection } from "../../AutoMovieRenderInspection.js";
 
 type ILayer = AutoMovieRenderInspection.IPlacedSceneCollisionMotionLayer;
 type ILimits = AutoMovieRenderInspection.IPlacedSceneCollisionMotionLimits;

@@ -6,8 +6,8 @@ import {
 
 import { productionRuntimeModelId } from "../../model/internal/productionRuntimeModelId";
 import { computeModelRestExtentY } from "./computeModelRestExtentY";
-import { DEFAULT_SUBJECT_HEIGHT } from "../constants/DEFAULT_SUBJECT_HEIGHT";
-import { MIN_MEASURED_SUBJECT_HEIGHT } from "../constants/MIN_MEASURED_SUBJECT_HEIGHT";
+import { DEFAULT_SUBJECT_HEIGHT } from "../DEFAULT_SUBJECT_HEIGHT";
+import { MIN_MEASURED_SUBJECT_HEIGHT } from "../MIN_MEASURED_SUBJECT_HEIGHT";
 
 /**
  * One member's model-space vertical extent inside a compiled formation, in

@@ -1,4 +1,4 @@
-import { SUBSURFACE_TARGET } from "../SUBSURFACE_TARGET.js";
+import { SUBSURFACE_TARGET } from "../../SUBSURFACE_TARGET.js";
 import { SUBSURFACE_TEXTURE_SIZE } from "../SUBSURFACE_TEXTURE_SIZE.js";
 
 const { cosines: COSINES, blurs: BLURS }: typeof SUBSURFACE_TEXTURE_SIZE =

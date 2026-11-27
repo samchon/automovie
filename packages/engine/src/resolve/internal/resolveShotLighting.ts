@@ -8,7 +8,7 @@ import {
 
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 import { applyLightOverride } from "./applyLightOverride";
-import { LIGHT_CHANNEL_PROPERTIES } from "../constants/LIGHT_CHANNEL_PROPERTIES";
+import { LIGHT_CHANNEL_PROPERTIES } from "../LIGHT_CHANNEL_PROPERTIES";
 import { parseLightPointer } from "./parseLightPointer";
 import { sampleClip } from "./sampleClip";
 

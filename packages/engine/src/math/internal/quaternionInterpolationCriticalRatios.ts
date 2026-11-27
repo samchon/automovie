@@ -1,6 +1,6 @@
 import { IAutoMovieQuaternion } from "@automovie/interface";
 
-import { QUATERNION_NLERP_DOT_THRESHOLD } from "../constants/QUATERNION_NLERP_DOT_THRESHOLD";
+import { QUATERNION_NLERP_DOT_THRESHOLD } from "../QUATERNION_NLERP_DOT_THRESHOLD";
 
 /**
  * Interior ratios where a component of Quaternion.slerp is stationary.

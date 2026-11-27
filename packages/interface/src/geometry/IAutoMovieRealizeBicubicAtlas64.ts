@@ -1,5 +1,5 @@
 import type { IAutoMovieMesh } from "../model/IAutoMovieMesh";
-import type { IAutoMovieBicubicAtlasTessellation64 } from "./curve/IAutoMovieBicubicAtlasTessellation64";
+import type { IAutoMovieBicubicAtlasTessellation64 } from "./IAutoMovieBicubicAtlasTessellation64";
 
 /** Data and callback contracts shared by the RealizeBicubicAtlas64 operations. */
 export namespace IAutoMovieRealizeBicubicAtlas64 {

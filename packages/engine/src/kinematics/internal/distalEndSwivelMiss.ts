@@ -1,7 +1,7 @@
 import type { IAutoMovieSwivelArcs } from "@automovie/interface";
 
 import { Quaternion } from "../../math/Quaternion";
-import { ROM_TOLERANCE } from "../../rom/constants/ROM_TOLERANCE";
+import { ROM_TOLERANCE } from "../../rom/ROM_TOLERANCE";
 import { distalEndSwivelReadings } from "../distalEndSwivelReadings";
 import { sphericalBoxMiss } from "./sphericalBoxMiss";
 

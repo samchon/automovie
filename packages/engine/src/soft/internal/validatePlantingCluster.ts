@@ -5,8 +5,8 @@ import {
 } from "@automovie/interface";
 
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
-import { PLANTING_MAX_ATTEMPTS } from "../constants/PLANTING_MAX_ATTEMPTS";
-import { PLANTING_MAX_MEMBERS } from "../constants/PLANTING_MAX_MEMBERS";
+import { PLANTING_MAX_ATTEMPTS } from "../PLANTING_MAX_ATTEMPTS";
+import { PLANTING_MAX_MEMBERS } from "../PLANTING_MAX_MEMBERS";
 import { validateSoftInteger as integer } from "./validateSoftInteger";
 import { validateSoftNumeric as numeric } from "./validateSoftNumeric";
 import { validateSoftVector as vector } from "./validateSoftVector";

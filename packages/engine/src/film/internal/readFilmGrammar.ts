@@ -11,7 +11,7 @@ import {
 
 import { roundToThousandths } from "../../math/internal/roundToThousandths";
 import { assertGrammarPositive } from "./assertGrammarPositive";
-import { GRAMMAR_STYLE_SUPPRESSION } from "../constants/GRAMMAR_STYLE_SUPPRESSION";
+import { GRAMMAR_STYLE_SUPPRESSION } from "../GRAMMAR_STYLE_SUPPRESSION";
 import { inspectGrammarCut } from "./inspectGrammarCut";
 import { measureGrammarShotSize } from "./measureGrammarShotSize";
 import { normalizeGrammarShot } from "./normalizeGrammarShot";

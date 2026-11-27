@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
 import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
-import type { IAutoMovieViewerSubjectBounds } from "../../subjectViewpoint/IAutoMovieViewerSubjectBounds.js";
+import type { IAutoMovieViewerSubjectBounds } from "../../IAutoMovieViewerSubjectBounds.js";
 import { isAutoMovieFloat32Point } from "../isAutoMovieFloat32Point.js";
 
 /**

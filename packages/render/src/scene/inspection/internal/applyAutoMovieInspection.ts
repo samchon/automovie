@@ -13,24 +13,24 @@ import type { IAutoMovieSectionRenderer } from "../../IAutoMovieSectionRenderer.
 import { applyAutoMovieSectionPlanes } from "../../internal/applyAutoMovieSectionPlanes.js";
 import { restoreAutoMovieRenderModeOnce } from "../../internal/restoreAutoMovieRenderModeOnce.js";
 import { restoreAutoMovieRenderModeState } from "../../internal/restoreAutoMovieRenderModeState.js";
-import type { IAutoMovieViewerSubjectBounds } from "../../subjectViewpoint/IAutoMovieViewerSubjectBounds.js";
-import { AUTO_MOVIE_INSPECTION_PALETTE } from "../AUTO_MOVIE_INSPECTION_PALETTE.js";
-import type { IApplyAutoMovieInspectionProps } from "../IApplyAutoMovieInspectionProps.js";
-import type { IAutoMovieInspectionHandle } from "../IAutoMovieInspectionHandle.js";
-import type { IAutoMovieInspectionMarkSet } from "../IAutoMovieInspectionMarkSet.js";
-import type { IAutoMovieInspectionMeasured } from "../IAutoMovieInspectionMeasured.js";
-import type { IAutoMovieInspectionOverlay } from "../IAutoMovieInspectionOverlay.js";
-import type { IAutoMovieInspectionPath } from "../IAutoMovieInspectionPath.js";
+import type { IAutoMovieViewerSubjectBounds } from "../../IAutoMovieViewerSubjectBounds.js";
+import { AUTO_MOVIE_INSPECTION_PALETTE } from "../../AUTO_MOVIE_INSPECTION_PALETTE.js";
+import type { IApplyAutoMovieInspectionProps } from "../../IApplyAutoMovieInspectionProps.js";
+import type { IAutoMovieInspectionHandle } from "../../IAutoMovieInspectionHandle.js";
+import type { IAutoMovieInspectionMarkSet } from "../../IAutoMovieInspectionMarkSet.js";
+import type { IAutoMovieInspectionMeasured } from "../../IAutoMovieInspectionMeasured.js";
+import type { IAutoMovieInspectionOverlay } from "../../IAutoMovieInspectionOverlay.js";
+import type { IAutoMovieInspectionPath } from "../../IAutoMovieInspectionPath.js";
 import { admitAutoMovieInspectionPatterns } from "./admitAutoMovieInspectionPatterns.js";
 import { buildAutoMovieInspectionMarks } from "./buildAutoMovieInspectionMarks.js";
-import { AutoMovieRenderInspectionMarks } from "../AutoMovieRenderInspectionMarks.js";
-import { AutoMovieRenderInspection } from "../AutoMovieRenderInspection.js";
-import { AutoMovieRenderInspectionPath } from "../AutoMovieRenderInspectionPath.js";
-import { AutoMovieRenderInspectionMaterial } from "../AutoMovieRenderInspectionMaterial.js";
+import { AutoMovieRenderInspectionMarks } from "../../AutoMovieRenderInspectionMarks.js";
+import { AutoMovieRenderInspection } from "../../AutoMovieRenderInspection.js";
+import { AutoMovieRenderInspectionPath } from "../../AutoMovieRenderInspectionPath.js";
+import { AutoMovieRenderInspectionMaterial } from "../../AutoMovieRenderInspectionMaterial.js";
 import { legendAutoMovieInspectionMarks } from "./legendAutoMovieInspectionMarks.js";
 import { listAutoMovieInspectionPaths } from "./listAutoMovieInspectionPaths.js";
 import { matchAutoMovieInspectionPath } from "./matchAutoMovieInspectionPath.js";
-import { AutoMovieRenderInspectionGeometry } from "../AutoMovieRenderInspectionGeometry.js";
+import { AutoMovieRenderInspectionGeometry } from "../../AutoMovieRenderInspectionGeometry.js";
 
 
 import { mergeAutoMovieInspectionLegends } from "./mergeAutoMovieInspectionLegends.js";

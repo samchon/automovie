@@ -8,7 +8,7 @@ import {
 } from "@automovie/interface";
 
 import { Vector3 } from "../../math/Vector3";
-import { HUMANOID_JOINT_AXES } from "../constants/HUMANOID_JOINT_AXES";
+import { HUMANOID_JOINT_AXES } from "../HUMANOID_JOINT_AXES";
 import { skeletonJointAxes } from "./skeletonJointAxes";
 
 /**

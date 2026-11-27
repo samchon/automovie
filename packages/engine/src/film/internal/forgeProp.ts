@@ -11,7 +11,7 @@ import {
 
 import { profileSemanticKeys } from "../../resolve/internal/profileSemanticKeys";
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
-import { SHA256_DIGEST_PATTERN } from "../../validation/constants/SHA256_DIGEST_PATTERN";
+import { SHA256_DIGEST_PATTERN } from "../../validation/SHA256_DIGEST_PATTERN";
 import { validateModel } from "../../validation/internal/validateModel";
 
 /** The builder-sealed ingest closure of an imported appearance. */

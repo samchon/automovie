@@ -8,7 +8,7 @@ import {
 } from "@automovie/interface";
 
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
-import { SHA256_DIGEST_PATTERN } from "../../validation/constants/SHA256_DIGEST_PATTERN";
+import { SHA256_DIGEST_PATTERN } from "../../validation/SHA256_DIGEST_PATTERN";
 
 /**
  * Fold planned subject viewpoints against current observation receipts.

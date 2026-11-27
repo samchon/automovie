@@ -5,4 +5,4 @@
 
 
 
-export * from "./AutoMovieEngineFilmShading";
+export * from "../AutoMovieEngineFilmShading";

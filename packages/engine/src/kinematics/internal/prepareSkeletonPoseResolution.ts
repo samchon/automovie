@@ -14,8 +14,8 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieEngineKinematics } from "../AutoMovieEngineKinematics";
-import { DEFAULT_JOINT_AXES } from "../constants/DEFAULT_JOINT_AXES";
-import { SKELETON_ROOT_PARENT } from "../constants/SKELETON_ROOT_PARENT";
+import { DEFAULT_JOINT_AXES } from "../DEFAULT_JOINT_AXES";
+import { SKELETON_ROOT_PARENT } from "../SKELETON_ROOT_PARENT";
 import { PoseResolutionSnapshot } from "./PoseResolutionSnapshot";
 import { composePoseFrames } from "./composePoseFrames";
 import { indexSkeletonTopology } from "./indexSkeletonTopology";

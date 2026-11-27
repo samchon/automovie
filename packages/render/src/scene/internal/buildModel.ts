@@ -17,7 +17,7 @@ import { AutoMovieRenderMaterial } from "../AutoMovieRenderMaterial.js";
 import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResources.js";
 import { defaultMaterial } from "./defaultMaterial.js";
 import { AutoMovieRenderDualQuaternionSkinning } from "../dualQuaternionSkinning/index.js";
-import { AutoMovieCollisionSource } from "../inspection/AutoMovieCollisionSource.js";
+import { AutoMovieCollisionSource } from "../AutoMovieCollisionSource.js";
 import { AutoMovieRenderReliefWeightShading } from "../reliefWeightShading/index.js";
 import { AutoMovieRenderWearShading } from "../wearShading/index.js";
 

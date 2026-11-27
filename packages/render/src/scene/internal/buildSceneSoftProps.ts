@@ -8,7 +8,7 @@ import type { IAutoMovieSceneSoftProps } from "../IAutoMovieSceneSoftProps.js";
 import type { IAutoMovieSoftBodyObject } from "../IAutoMovieSoftBodyObject.js";
 import { applyAutoMovieShadowParticipation } from "./applyAutoMovieShadowParticipation.js";
 import { buildSoftBodyObject } from "./buildSoftBodyObject.js";
-import { AutoMovieCollisionSource } from "../inspection/AutoMovieCollisionSource.js";
+import { AutoMovieCollisionSource } from "../AutoMovieCollisionSource.js";
 import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 import { softPropCordSurface } from "./softPropCordSurface.js";

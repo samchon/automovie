@@ -18,13 +18,13 @@ import { FamilyConicCaseIdentity as Identity } from "../../../reference-conics/F
  */
 export function test_human_capture_transport(): void {
   const files: string[] = [
-    "packages/engine/src/geometry/construction/AutoMovieConstructionSeeds.ts",
-    "packages/engine/src/geometry/construction/AutoMovieConstructionSplitBand.ts",
+    "packages/engine/src/geometry/AutoMovieConstructionSeeds.ts",
+    "packages/engine/src/geometry/AutoMovieConstructionSplitBand.ts",
     "packages/engine/src/geometry/construction/index.ts",
   ];
   const added: string[] = [
-    "packages/engine/src/geometry/construction/AutoMovieConstructionSplitBandTrace.ts",
-    "packages/engine/src/geometry/construction/AutoMovieConstructionSeedTrace.ts",
+    "packages/engine/src/geometry/AutoMovieConstructionSplitBandTrace.ts",
+    "packages/engine/src/geometry/AutoMovieConstructionSeedTrace.ts",
   ];
   const beforeHashes: Record<string, string> = Object.fromEntries(
     files.map((file: string): [string, string] => [file, "a".repeat(64)]),

@@ -9,10 +9,10 @@ import type {
 import type * as THREE from "three";
 
 import { resolveAutoMovieCapturePatterns } from "../../capture/internal/resolveAutoMovieCapturePatterns.js";
-import type { IAutoMovieInspectionHandle } from "../../scene/inspection/IAutoMovieInspectionHandle.js";
-import type { IAutoMovieInspectionPath } from "../../scene/inspection/IAutoMovieInspectionPath.js";
+import type { IAutoMovieInspectionHandle } from "../../scene/IAutoMovieInspectionHandle.js";
+import type { IAutoMovieInspectionPath } from "../../scene/IAutoMovieInspectionPath.js";
 import { listAutoMovieInspectionPaths } from "../../scene/inspection/internal/listAutoMovieInspectionPaths.js";
-import type { AutoMovieRenderInspectionCamera } from "../../scene/inspection/AutoMovieRenderInspectionCamera.js";
+import type { AutoMovieRenderInspectionCamera } from "../../scene/AutoMovieRenderInspectionCamera.js";
 import { AutoMovieRenderSemanticMask } from "../../scene/semanticMask/index.js";
 import { encodeAutoMovieDrawPixels } from "./encodeAutoMovieDrawPixels.js";
 

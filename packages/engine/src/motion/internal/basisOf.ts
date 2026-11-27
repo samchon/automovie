@@ -1,6 +1,6 @@
 import type { IAutoMovieJointAxes } from "@automovie/interface";
 
-import { DEFAULT_JOINT_AXES } from "../../kinematics/constants/DEFAULT_JOINT_AXES";
+import { DEFAULT_JOINT_AXES } from "../../kinematics/DEFAULT_JOINT_AXES";
 import { normalizeJointAxes } from "../../kinematics/internal/normalizeJointAxes";
 
 /**

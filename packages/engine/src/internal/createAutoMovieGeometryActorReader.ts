@@ -12,7 +12,7 @@ import {
 } from "@automovie/interface";
 
 import { placeTransformedPoint } from "../film/internal/placeTransformedPoint";
-import { HUMANOID_JOINT_AXES } from "../kinematics/constants/HUMANOID_JOINT_AXES";
+import { HUMANOID_JOINT_AXES } from "../kinematics/HUMANOID_JOINT_AXES";
 import { resolvePose } from "../kinematics/internal/resolvePose";
 import { Transform } from "../math/Transform";
 import { AutoMovieEngineMotionSampling } from "../motion/AutoMovieEngineMotionSampling";

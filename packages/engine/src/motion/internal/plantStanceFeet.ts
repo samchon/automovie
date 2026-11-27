@@ -17,7 +17,7 @@ import type { prepareSkeletonPoseResolution } from "../../kinematics/internal/pr
 import type { IPlantStanceFeetProps } from "./IPlantStanceFeetProps";
 import { groundFunction } from "../../space/internal/groundFunction";
 import { assemblePlantedFeet } from "./assemblePlantedFeet";
-import { HUMANOID_LEG_CHAINS } from "../constants/HUMANOID_LEG_CHAINS";
+import { HUMANOID_LEG_CHAINS } from "../HUMANOID_LEG_CHAINS";
 import { pinStanceTargets } from "./pinStanceTargets";
 import { rekeyPlantedFeet } from "./rekeyPlantedFeet";
 import { resolveBoneMap } from "./resolveBoneMap";

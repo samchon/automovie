@@ -8,7 +8,7 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import type { IAutoMovieFilmIndirectRenderer } from "../IAutoMovieFilmIndirectRenderer.js";
+import type { IAutoMovieFilmIndirectRenderer } from "../../IAutoMovieFilmIndirectRenderer.js";
 
 /** Texels along each side of a probe's cube face. */
 const FACE: number = 32;

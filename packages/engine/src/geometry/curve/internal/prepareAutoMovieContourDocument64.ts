@@ -7,7 +7,7 @@ import type {
   IAutoMoviePreparedContourEvent64,
 } from "@automovie/interface";
 
-import { AutoMovieCurveMath64 as M } from "../AutoMovieCurveMath64";
+import { AutoMovieCurveMath64 as M } from "../../AutoMovieCurveMath64";
 import { admitAutoMovieContourEvents64 } from "./admitAutoMovieContourEvents64";
 
 /** Admit saved contour events and build the local physical section document. */

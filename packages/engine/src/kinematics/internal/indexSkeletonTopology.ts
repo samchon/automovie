@@ -6,7 +6,7 @@ import {
 } from "@automovie/interface";
 
 import { indexSkeletonTopologyChildren } from "./indexSkeletonTopologyChildren";
-import { SKELETON_ROOT_PARENT } from "../constants/SKELETON_ROOT_PARENT";
+import { SKELETON_ROOT_PARENT } from "../SKELETON_ROOT_PARENT";
 
 /**
  * Index a skeleton's parent-child topology once, for forward-kinematics work

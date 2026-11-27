@@ -2,4 +2,4 @@
 
 
 
-export * from "./AutoMovieEngineExposure";
+export * from "../AutoMovieEngineExposure";

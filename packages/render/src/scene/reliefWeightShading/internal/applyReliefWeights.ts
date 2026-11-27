@@ -1,7 +1,7 @@
 import type * as THREE from "three";
 
 import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial.js";
-import { AutoMovieRenderReliefWeightShading } from "../AutoMovieRenderReliefWeightShading.js";
+import { AutoMovieRenderReliefWeightShading } from "../../AutoMovieRenderReliefWeightShading.js";
 
 /**
  * Scale a material's normal-map slopes by each vertex's relief weight (the

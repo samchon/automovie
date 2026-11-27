@@ -1,7 +1,7 @@
 import type { IAutoMovieHumanSkeleton } from "@automovie/interface";
 
-import type { AutoMovieHumanCartoon } from "../AutoMovieHumanCartoon.js";
-import type { AutoMovieHumanPolygon } from "../AutoMovieHumanPolygon.js";
+import type { AutoMovieHumanCartoon } from "../../AutoMovieHumanCartoon.js";
+import type { AutoMovieHumanPolygon } from "../../AutoMovieHumanPolygon.js";
 import { buildHumanCartoonFace } from "./buildHumanCartoonFace.js";
 import { buildHumanPolygon } from "./buildHumanPolygon.js";
 

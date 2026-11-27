@@ -1,4 +1,4 @@
-import type { AutoMovieRenderInspectionCamera } from "../AutoMovieRenderInspectionCamera.js";
+import type { AutoMovieRenderInspectionCamera } from "../../AutoMovieRenderInspectionCamera.js";
 import { Box3, BufferAttribute, Frustum, Matrix4, Mesh, Plane, Vector3, WebGLCoordinateSystem } from "three";
 
 import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";

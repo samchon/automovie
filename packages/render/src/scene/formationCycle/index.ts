@@ -22,4 +22,4 @@ export * from "../AUTOMOVIE_FORMATION_CYCLE_PATCH_KEY.js";
 
 
 
-export * from "./AutoMovieRenderFormationCycle.js";
+export * from "../AutoMovieRenderFormationCycle.js";

@@ -1,6 +1,6 @@
-export * from "./AutoMovieMonotone";
-export * from "./AutoMovieSpline";
-export * from "./AutoMovieSweepRotation";
+export * from "../AutoMovieMonotone";
+export * from "../AutoMovieSpline";
+export * from "../AutoMovieSweepRotation";
 
 
 
@@ -47,4 +47,4 @@ export * from "./AutoMovieSweepRotation";
 
 
 
-export { AutoMovieEngineSweep } from "./AutoMovieEngineSweep";
+export { AutoMovieEngineSweep } from "../AutoMovieEngineSweep";

@@ -5,9 +5,9 @@ import type {
 import * as THREE from "three";
 
 import { AutoMovieTransitionDisplays } from "../../scene/AutoMovieTransitionDisplays.js";
-import type { AutoMovieFilmAlpha } from "../../scene/filmResponse/AutoMovieFilmAlpha.js";
-import { AutoMovieFilmResponseStage } from "../../scene/filmResponse/AutoMovieFilmResponseStage.js";
-import { AutoMovieFilmIndirectStage } from "../../scene/filmShading/AutoMovieFilmIndirectStage.js";
+import type { AutoMovieFilmAlpha } from "../../scene/AutoMovieFilmAlpha.js";
+import { AutoMovieFilmResponseStage } from "../../scene/AutoMovieFilmResponseStage.js";
+import { AutoMovieFilmIndirectStage } from "../../scene/AutoMovieFilmIndirectStage.js";
 import type { IAutoMovieDrawScene } from "../IAutoMovieDrawScene.js";
 import { accumulateAutoMovieFilmSamples } from "./accumulateAutoMovieFilmSamples.js";
 

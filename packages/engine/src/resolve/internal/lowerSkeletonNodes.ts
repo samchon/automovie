@@ -4,7 +4,7 @@ import {
 } from "@automovie/interface";
 
 import { Transform } from "../../math/Transform";
-import { MOTION_ROOT_NODE_ID } from "../constants/MOTION_ROOT_NODE_ID";
+import { MOTION_ROOT_NODE_ID } from "../MOTION_ROOT_NODE_ID";
 
 /**
  * Lower an admitted skeleton into a fresh identity group root and bone rest

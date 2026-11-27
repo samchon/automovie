@@ -2,7 +2,7 @@ import type * as THREE from "three";
 
 import type { IMaterialShaderSource } from "../../IMaterialShaderSource.js";
 import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial.js";
-import { AutoMovieRenderDetailNormalShading } from "../AutoMovieRenderDetailNormalShading.js";
+import { AutoMovieRenderDetailNormalShading } from "../../AutoMovieRenderDetailNormalShading.js";
 
 /**
  * Blend a second tangent-space normal map over a material's normal map: the

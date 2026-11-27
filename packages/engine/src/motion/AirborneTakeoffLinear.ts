@@ -1,7 +1,7 @@
 import { AutoMovieEngineKinematics } from "../kinematics/AutoMovieEngineKinematics";
 import type { AutoMovieVector3Tuple, IAutoMovieQuaternion, IAutoMovieSolveAirborneTakeoff, IAutoMovieVector3 } from "@automovie/interface";
 
-import { AutoMovieSolidVector } from "../geometry/construction/AutoMovieSolidVector";
+import { AutoMovieSolidVector } from "../geometry/AutoMovieSolidVector";
 
 import { Quaternion } from "../math/Quaternion";
 import type { physicalInertiaFactor } from "../physics/internal/physicalInertiaFactor";

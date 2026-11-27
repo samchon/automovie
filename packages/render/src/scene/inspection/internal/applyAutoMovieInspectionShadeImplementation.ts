@@ -4,7 +4,7 @@ import * as THREE from "three";
 import type { IAutoMovieRenderModeHandle } from "../../IAutoMovieRenderModeHandle.js";
 import { applyRenderMode } from "../../internal/applyRenderMode.js";
 import { overrideAutoMovieRenderModeMaterials } from "../../internal/overrideAutoMovieRenderModeMaterials.js";
-import { AUTO_MOVIE_INSPECTION_PALETTE } from "../AUTO_MOVIE_INSPECTION_PALETTE.js";
+import { AUTO_MOVIE_INSPECTION_PALETTE } from "../../AUTO_MOVIE_INSPECTION_PALETTE.js";
 
 /**
  * Vertex stage of the faces shade: three.js's own deformation, projection and

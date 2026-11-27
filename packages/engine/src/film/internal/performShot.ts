@@ -32,7 +32,7 @@ import type {
 import { prepareSkeletonPoseResolution } from "../../kinematics/internal/prepareSkeletonPoseResolution";
 import { compilePerformance } from "../../perform/internal/compilePerformance";
 import { scenePlacements } from "../../perform/internal/scenePlacements";
-import { AutoMovieEnginePopulationFormation } from "../../populationRuntime/formation/AutoMovieEnginePopulationFormation";
+import { AutoMovieEnginePopulationFormation } from "../../populationRuntime/AutoMovieEnginePopulationFormation";
 import { transformFormationPoint } from "../../populationRuntime/formation/internal/transformFormationPoint";
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";

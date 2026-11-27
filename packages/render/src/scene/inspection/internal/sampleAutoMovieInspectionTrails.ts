@@ -2,7 +2,7 @@ import type { IAutoMovieInspectionTrail } from "@automovie/interface";
 import * as THREE from "three";
 
 import { matchAutoMovieInspectionPath } from "./matchAutoMovieInspectionPath.js";
-import { AutoMovieRenderInspectionPath } from "../AutoMovieRenderInspectionPath.js";
+import { AutoMovieRenderInspectionPath } from "../../AutoMovieRenderInspectionPath.js";
 
 /**
  * Distance in metres within which every sample of a trail counts as one place:

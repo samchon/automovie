@@ -53,17 +53,12 @@ export * from "./extract";
 
 
 
-export { AutoMovieEngineMeshCrossingQuery } from "./mesh-crossing/AutoMovieEngineMeshCrossingQuery";
+export { AutoMovieEngineMeshCrossingQuery } from "./AutoMovieEngineMeshCrossingQuery";
 
 
 
 
-export { AutoMovieEnginePlanarRegion } from "./planar-region/AutoMovieEnginePlanarRegion";
-
-
-
-
-
+export { AutoMovieEnginePlanarRegion } from "./AutoMovieEnginePlanarRegion";
 
 
 
@@ -82,7 +77,12 @@ export { AutoMovieEnginePlanarRegion } from "./planar-region/AutoMovieEnginePlan
 
 
 
-export { AutoMovieEngineConvexSupportLoft } from "./support-loft/AutoMovieEngineConvexSupportLoft";
+
+
+
+
+
+export { AutoMovieEngineConvexSupportLoft } from "./AutoMovieEngineConvexSupportLoft";
 export * from "./sweep";
 
 

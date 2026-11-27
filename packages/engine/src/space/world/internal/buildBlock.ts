@@ -3,7 +3,7 @@ import type {
   IAutoMovieWorldBlock,
 } from "@automovie/interface";
 
-import { AUTOMOVIE_SUPPORT_TOLERANCE } from "../../../architecture/constants/AUTOMOVIE_SUPPORT_TOLERANCE";
+import { AUTOMOVIE_SUPPORT_TOLERANCE } from "../../../architecture/AUTOMOVIE_SUPPORT_TOLERANCE";
 import { Transform } from "../../../math/Transform";
 import { srgbHexToLinearColor } from "../../../math/internal/srgbHexToLinearColor";
 import { productionRuntimeModelId } from "../../../model/internal/productionRuntimeModelId";

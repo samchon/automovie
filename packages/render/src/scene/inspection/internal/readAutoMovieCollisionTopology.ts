@@ -1,7 +1,7 @@
 import type { IAutoMovieSubjectBox } from "@automovie/interface";
 import * as THREE from "three";
 
-import type { AutoMovieRenderInspectionGeometry } from "../AutoMovieRenderInspectionGeometry.js";
+import type { AutoMovieRenderInspectionGeometry } from "../../AutoMovieRenderInspectionGeometry.js";
 import { isAutoMovieFloat32Point } from "../isAutoMovieFloat32Point.js";
 
 /**

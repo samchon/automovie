@@ -9,7 +9,7 @@ import type {
 } from "@automovie/interface";
 
 import { cubicHermiteValue } from "../../math/internal/cubicHermiteValue";
-import { LIGHT_CHANNEL_PROPERTIES } from "../../resolve/constants/LIGHT_CHANNEL_PROPERTIES";
+import { LIGHT_CHANNEL_PROPERTIES } from "../../resolve/LIGHT_CHANNEL_PROPERTIES";
 import { parseLightPointer } from "../../resolve/internal/parseLightPointer";
 import { channelValueWidth } from "./channelValueWidth";
 import { lightClipChannelGate } from "./lightClipChannelGate";

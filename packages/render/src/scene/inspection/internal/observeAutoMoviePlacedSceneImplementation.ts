@@ -1,6 +1,6 @@
-import type { IObserveAutoMoviePlacedSceneResult } from "../IObserveAutoMoviePlacedSceneResult.js";
-import type { IObserveAutoMoviePlacedSceneProps } from "../IObserveAutoMoviePlacedSceneProps.js";
-import type { IObserveAutoMoviePlacedSceneCheck } from "../IObserveAutoMoviePlacedSceneCheck.js";
+import type { IObserveAutoMoviePlacedSceneResult } from "../../IObserveAutoMoviePlacedSceneResult.js";
+import type { IObserveAutoMoviePlacedSceneProps } from "../../IObserveAutoMoviePlacedSceneProps.js";
+import type { IObserveAutoMoviePlacedSceneCheck } from "../../IObserveAutoMoviePlacedSceneCheck.js";
 import { AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieConstraintViolation,

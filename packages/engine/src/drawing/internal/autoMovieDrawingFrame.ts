@@ -5,7 +5,7 @@ import {
 } from "@automovie/interface";
 
 import { Vector3 } from "../../math/Vector3";
-import { AUTOMOVIE_DRAWING_EPSILON } from "../constants/AUTOMOVIE_DRAWING_EPSILON";
+import { AUTOMOVIE_DRAWING_EPSILON } from "../AUTOMOVIE_DRAWING_EPSILON";
 
 /**
  * Validate one view's placement and resolve its orthonormal page basis.

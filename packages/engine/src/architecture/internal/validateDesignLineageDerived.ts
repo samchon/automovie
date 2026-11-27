@@ -11,7 +11,7 @@ import {
 
 import { appendGraphCycles } from "../../validation/internal/appendGraphCycles";
 import { collectDeclaredIds } from "../../validation/internal/collectDeclaredIds";
-import { SHA256_DIGEST_PATTERN } from "../../validation/constants/SHA256_DIGEST_PATTERN";
+import { SHA256_DIGEST_PATTERN } from "../../validation/SHA256_DIGEST_PATTERN";
 import { validateDeclaredReferences } from "../../validation/internal/validateDeclaredReferences";
 
 /**

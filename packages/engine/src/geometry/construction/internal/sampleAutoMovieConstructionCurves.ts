@@ -6,7 +6,7 @@ import type {
   IAutoMovieSolidSurface,
 } from "@automovie/interface";
 
-import { AutoMovieConstructionViews } from "../AutoMovieConstructionViews";
+import { AutoMovieConstructionViews } from "../../AutoMovieConstructionViews";
 
 /**
  * Sample the construction lines of every lofted chain of a realization as

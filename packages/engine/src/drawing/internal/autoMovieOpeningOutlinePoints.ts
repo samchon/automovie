@@ -5,7 +5,7 @@ import {
 } from "@automovie/interface";
 
 import { autoMovieOpeningArc } from "./autoMovieOpeningArc";
-import { AUTOMOVIE_DRAWING_ARC_STEP } from "../constants/AUTOMOVIE_DRAWING_ARC_STEP";
+import { AUTOMOVIE_DRAWING_ARC_STEP } from "../AUTOMOVIE_DRAWING_ARC_STEP";
 
 /**
  * Flatten a profile outline into the points a drawing drafts it through.

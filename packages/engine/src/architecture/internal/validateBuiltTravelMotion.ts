@@ -4,7 +4,7 @@ import {
 } from "@automovie/interface";
 
 import { Vector3 } from "../../math/Vector3";
-import { AUTOMOVIE_FULL_TURN_EPSILON } from "../constants/AUTOMOVIE_FULL_TURN_EPSILON";
+import { AUTOMOVIE_FULL_TURN_EPSILON } from "../AUTOMOVIE_FULL_TURN_EPSILON";
 
 /** A travel axis this short or shorter has no direction. */
 const AXIS_EPSILON: number = 1e-12;

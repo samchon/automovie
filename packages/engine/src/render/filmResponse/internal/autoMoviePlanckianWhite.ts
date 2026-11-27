@@ -1,4 +1,4 @@
-import { AUTOMOVIE_REC709_XYZ } from "../AUTOMOVIE_REC709_XYZ";
+import { AUTOMOVIE_REC709_XYZ } from "../../AUTOMOVIE_REC709_XYZ";
 
 /**
  * The colour of a black body at `kelvin`, as linear Rec. 709 RGB with luminance

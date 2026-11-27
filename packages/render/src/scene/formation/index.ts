@@ -8,5 +8,5 @@ export type { IAutoMovieFormationViewerStats } from "../IAutoMovieFormationViewe
 export type { IAutoMovieFormationViewerObject } from "../IAutoMovieFormationViewerObject.js";
 
 
-export * from "./AutoMovieRenderFormation.js";
+export * from "../AutoMovieRenderFormation.js";
 export { AutoMovieRenderFormationGeometry } from "../formationGeometry/index.js";

@@ -8,7 +8,7 @@ import * as THREE from "three";
 import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial.js";
 import type { IMaterialShaderSource } from "../../IMaterialShaderSource.js";
 import { readAutoMovieBufferAttribute } from "../../internal/readAutoMovieBufferAttribute.js";
-import { AUTOMOVIE_PROCEDURAL_NOISE_GLSL } from "../../proceduralShading/AUTOMOVIE_PROCEDURAL_NOISE_GLSL.js";
+import { AUTOMOVIE_PROCEDURAL_NOISE_GLSL } from "../../AUTOMOVIE_PROCEDURAL_NOISE_GLSL.js";
 
 /** Texels per row of the feature edge texture. */
 const ROW: number = 1024;

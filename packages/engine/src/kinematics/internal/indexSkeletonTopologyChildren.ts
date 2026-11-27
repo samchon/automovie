@@ -6,7 +6,7 @@ import {
   type IAutoMovieSkeletonTopology,
 } from "@automovie/interface";
 
-import { SKELETON_ROOT_PARENT } from "../constants/SKELETON_ROOT_PARENT";
+import { SKELETON_ROOT_PARENT } from "../SKELETON_ROOT_PARENT";
 
 /** Group declared bones by parent. Reject duplicate names before traversal. */
 export function indexSkeletonTopologyChildren(

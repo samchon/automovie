@@ -4,7 +4,7 @@ import type {
   IAutoMovieMeasureCurveLength64,
 } from "@automovie/interface";
 
-import { AutoMovieCurveLengthQuadrature64 } from "../AutoMovieCurveLengthQuadrature64";
+import { AutoMovieCurveLengthQuadrature64 } from "../../AutoMovieCurveLengthQuadrature64";
 import { overflowsBinary64 } from "../../../math/internal/overflowsBinary64";
 
 /**

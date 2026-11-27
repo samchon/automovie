@@ -1,6 +1,6 @@
 import type { IAutoMovieSemanticMaskCoverage as AutoMovieSemanticMaskCoverage } from "@automovie/interface";
 import type * as THREE from "three";
-import type { AutoMovieRenderSemanticMask } from "../AutoMovieRenderSemanticMask.js";
+import type { AutoMovieRenderSemanticMask } from "../../AutoMovieRenderSemanticMask.js";
 
 import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
 import { maskRoots } from "./maskRoots.js";

@@ -4,7 +4,7 @@ import { LineSegmentsGeometry } from "three/examples/jsm/lines/LineSegmentsGeome
 
 import type { IMaterialShaderSource } from "../../IMaterialShaderSource.js";
 import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial.js";
-import { AUTO_MOVIE_INSPECTION_DEPTH_LEAD } from "../AUTO_MOVIE_INSPECTION_DEPTH_LEAD.js";
+import { AUTO_MOVIE_INSPECTION_DEPTH_LEAD } from "../../AUTO_MOVIE_INSPECTION_DEPTH_LEAD.js";
 
 /** The line of three.js's line shader after which both ends are in view space. */
 const VIEW_SPACE_ENDS: string =

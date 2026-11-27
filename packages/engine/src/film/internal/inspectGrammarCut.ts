@@ -11,7 +11,7 @@ import {
 
 import { Vector3 } from "../../math/Vector3";
 import { roundToThousandths } from "../../math/internal/roundToThousandths";
-import { GRAMMAR_EPSILON } from "../constants/GRAMMAR_EPSILON";
+import { GRAMMAR_EPSILON } from "../GRAMMAR_EPSILON";
 import { projectToNdc } from "./projectToNdc";
 
 /** A sign on one screen axis: toward negative, none, or toward positive. */

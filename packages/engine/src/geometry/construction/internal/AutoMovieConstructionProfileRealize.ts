@@ -7,9 +7,9 @@ import type {
   IAutoMovieSolidBody,
 } from "@automovie/interface";
 
-import { AutoMovieConstructionProfile } from "../AutoMovieConstructionProfile";
-import { AutoMovieConstructionProfileBody } from "../AutoMovieConstructionProfileBody";
-import { AutoMovieConstructionState } from "../AutoMovieConstructionState";
+import { AutoMovieConstructionProfile } from "../../AutoMovieConstructionProfile";
+import { AutoMovieConstructionProfileBody } from "../../AutoMovieConstructionProfileBody";
+import { AutoMovieConstructionState } from "../../AutoMovieConstructionState";
 
 /**
  * Resolve one pure profile leaf to its actual invocation-owned original family.

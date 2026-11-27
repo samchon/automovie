@@ -34,7 +34,7 @@ import { autoMovieDrawingRange } from "./autoMovieDrawingRange";
 import { autoMovieDrawingSpaceBox } from "./autoMovieDrawingSpaceBox";
 import { autoMovieOpeningFillExtent } from "./autoMovieOpeningFillExtent";
 import { autoMovieOpeningNominalExtent } from "./autoMovieOpeningNominalExtent";
-import { AUTOMOVIE_DRAWING_SCHEDULE_MAX_MEMBERS } from "../constants/AUTOMOVIE_DRAWING_SCHEDULE_MAX_MEMBERS";
+import { AUTOMOVIE_DRAWING_SCHEDULE_MAX_MEMBERS } from "../AUTOMOVIE_DRAWING_SCHEDULE_MAX_MEMBERS";
 import { indexAutoMovieDrawingDesign } from "./indexAutoMovieDrawingDesign";
 import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
 import { roundAutoMovieDrawingVector } from "./roundAutoMovieDrawingVector";

@@ -11,7 +11,7 @@ import { formationCyclePosition } from "../../internal/formationCyclePosition.js
 import { isAutoMovieFormationCycleMaterial } from "../../internal/isAutoMovieFormationCycleMaterial.js";
 import { readMaterialShaderPatches } from "../../internal/readMaterialShaderPatches.js";
 import { sampleFormationCycleMatrix } from "../../internal/sampleFormationCycleMatrix.js";
-import { AutoMovieCollisionSource } from "../AutoMovieCollisionSource.js";
+import { AutoMovieCollisionSource } from "../../AutoMovieCollisionSource.js";
 import { isAutoMovieFloat32Point } from "../isAutoMovieFloat32Point.js";
 import type { readAutoMovieCollisionMesh } from "./readAutoMovieCollisionMesh.js";
 import { readAutoMovieCollisionTopology } from "./readAutoMovieCollisionTopology.js";

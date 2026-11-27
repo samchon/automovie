@@ -7,7 +7,7 @@ import type {
   IAutoMovieQuaternion,
 } from "@automovie/interface";
 
-import { DEFAULT_JOINT_AXES } from "../../kinematics/constants/DEFAULT_JOINT_AXES";
+import { DEFAULT_JOINT_AXES } from "../../kinematics/DEFAULT_JOINT_AXES";
 import { hingedArmSwivel } from "../../kinematics/hingedArmSwivel";
 import { jointToQuaternionOnBasis } from "../../kinematics/internal/jointToQuaternionOnBasis";
 import { Quaternion } from "../../math/Quaternion";

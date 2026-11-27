@@ -3,8 +3,8 @@ import * as THREE from "three";
 
 import type { IAutoMovieRenderModeHandle } from "../IAutoMovieRenderModeHandle.js";
 import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
-import type { IAutoMovieSemanticMaskHandle } from "../semanticMask/IAutoMovieSemanticMaskHandle.js";
-import { AutoMovieRenderSemanticMask } from "../semanticMask/AutoMovieRenderSemanticMask.js";
+import type { IAutoMovieSemanticMaskHandle } from "../IAutoMovieSemanticMaskHandle.js";
+import { AutoMovieRenderSemanticMask } from "../AutoMovieRenderSemanticMask.js";
 
 /**
  * Mask pass over the stable semantic palette the scene was handed.

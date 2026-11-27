@@ -9,7 +9,7 @@ import {
 
 import { resolvePose } from "../../kinematics/internal/resolvePose";
 import { Matrix4 } from "../../math/Matrix4";
-import { DEFAULT_KEYPOINT_BONES } from "../constants/DEFAULT_KEYPOINT_BONES";
+import { DEFAULT_KEYPOINT_BONES } from "../DEFAULT_KEYPOINT_BONES";
 import { projectToNdc } from "./projectToNdc";
 import { resolveCameraAt } from "./resolveCameraAt";
 

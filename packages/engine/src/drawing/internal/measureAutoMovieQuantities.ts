@@ -20,9 +20,9 @@ import { AutoMovieEngineSpace } from "../../space/AutoMovieEngineSpace";
 import { AutoMovieEngineCanonicalJson } from "../../text/AutoMovieEngineCanonicalJson";
 import { autoMovieDrawingCellVolume } from "./autoMovieDrawingCellVolume";
 import { autoMovieOpeningArea } from "./autoMovieOpeningArea";
-import { AUTOMOVIE_QUANTITY_CELL_UNION_APPROXIMATION } from "../constants/AUTOMOVIE_QUANTITY_CELL_UNION_APPROXIMATION";
-import { AUTOMOVIE_QUANTITY_MAX_CONTRIBUTORS } from "../constants/AUTOMOVIE_QUANTITY_MAX_CONTRIBUTORS";
-import { AUTOMOVIE_QUANTITY_SUBJECTS } from "../constants/AUTOMOVIE_QUANTITY_SUBJECTS";
+import { AUTOMOVIE_QUANTITY_CELL_UNION_APPROXIMATION } from "../AUTOMOVIE_QUANTITY_CELL_UNION_APPROXIMATION";
+import { AUTOMOVIE_QUANTITY_MAX_CONTRIBUTORS } from "../AUTOMOVIE_QUANTITY_MAX_CONTRIBUTORS";
+import { AUTOMOVIE_QUANTITY_SUBJECTS } from "../AUTOMOVIE_QUANTITY_SUBJECTS";
 import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
 
 /** The unit each subject is measured in; the mapped type covers every subject. */

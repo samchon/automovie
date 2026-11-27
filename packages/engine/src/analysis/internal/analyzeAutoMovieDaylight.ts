@@ -20,7 +20,7 @@ import { autoMovieContextSolids } from "./autoMovieContextSolids";
 import { autoMovieDaylightSettings } from "./autoMovieDaylightSettings";
 import { autoMovieRayObstructed } from "./autoMovieRayObstructed";
 import { autoMovieSkyIlluminance } from "./autoMovieSkyIlluminance";
-import { AUTOMOVIE_DAYLIGHT_SKY_MODEL } from "../constants/AUTOMOVIE_DAYLIGHT_SKY_MODEL";
+import { AUTOMOVIE_DAYLIGHT_SKY_MODEL } from "../AUTOMOVIE_DAYLIGHT_SKY_MODEL";
 import { resolveAutoMovieDaylightRequest } from "./resolveAutoMovieDaylightRequest";
 import { sealAutoMovieAnalysisRun } from "./sealAutoMovieAnalysisRun";
 import { warnAutoMovieAnalysisTargetKeys } from "./warnAutoMovieAnalysisTargetKeys";

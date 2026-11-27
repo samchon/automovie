@@ -7,10 +7,10 @@ import type {
   IAutoMoviePrepareBicubicAtlasBoundary64Binding,
 } from "@automovie/interface";
 
-import { AutoMovieBernsteinAlgebra64 as B } from "../AutoMovieBernsteinAlgebra64";
-import { AutoMovieBernsteinSubdivision64 as S } from "../AutoMovieBernsteinSubdivision64";
-import { AutoMovieCanonicalBoundary64 as Q } from "../AutoMovieCanonicalBoundary64";
-import { AutoMovieCurveMath64 as V } from "../AutoMovieCurveMath64";
+import { AutoMovieBernsteinAlgebra64 as B } from "../../AutoMovieBernsteinAlgebra64";
+import { AutoMovieBernsteinSubdivision64 as S } from "../../AutoMovieBernsteinSubdivision64";
+import { AutoMovieCanonicalBoundary64 as Q } from "../../AutoMovieCanonicalBoundary64";
+import { AutoMovieCurveMath64 as V } from "../../AutoMovieCurveMath64";
 
 /**
  * Prepare declared canonical curves, coefficient identities and complete edge

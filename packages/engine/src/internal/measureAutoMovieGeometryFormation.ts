@@ -1,4 +1,4 @@
-import { AutoMovieEnginePopulationFormation } from "../populationRuntime/formation/AutoMovieEnginePopulationFormation";
+import { AutoMovieEnginePopulationFormation } from "../populationRuntime/AutoMovieEnginePopulationFormation";
 import {
   IAutoMovieCompiledShotSource,
   type IAutoMovieDeliveryCrop,

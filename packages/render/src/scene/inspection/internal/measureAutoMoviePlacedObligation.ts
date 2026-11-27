@@ -1,6 +1,6 @@
-import type { IObserveAutoMoviePlacedSceneNativeSupport } from "../IObserveAutoMoviePlacedSceneNativeSupport.js";
-import type { IObserveAutoMoviePlacedSceneNativeGrip } from "../IObserveAutoMoviePlacedSceneNativeGrip.js";
-import type { IObserveAutoMoviePlacedSceneCheck } from "../IObserveAutoMoviePlacedSceneCheck.js";
+import type { IObserveAutoMoviePlacedSceneNativeSupport } from "../../IObserveAutoMoviePlacedSceneNativeSupport.js";
+import type { IObserveAutoMoviePlacedSceneNativeGrip } from "../../IObserveAutoMoviePlacedSceneNativeGrip.js";
+import type { IObserveAutoMoviePlacedSceneCheck } from "../../IObserveAutoMoviePlacedSceneCheck.js";
 import { AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieConstraintViolation,

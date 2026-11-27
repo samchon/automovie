@@ -4,7 +4,7 @@ import type {
   IAutoMoviePlanContourWalks64Ring,
 } from "@automovie/interface";
 
-import { AutoMovieContourLoftCurves64 } from "../AutoMovieContourLoftCurves64";
+import { AutoMovieContourLoftCurves64 } from "../../AutoMovieContourLoftCurves64";
 
 /**
  * Freezes branch slit choices before emission and expands them through shared

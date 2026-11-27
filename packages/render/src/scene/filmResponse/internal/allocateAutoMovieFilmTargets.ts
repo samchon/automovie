@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
 import { planAutoMovieFilmGlareImplementation } from "./planAutoMovieFilmGlareImplementation.js";
-import type { IAutoMovieFilmGlareKernel } from "../IAutoMovieFilmGlareKernel.js";
+import type { IAutoMovieFilmGlareKernel } from "../../IAutoMovieFilmGlareKernel.js";
 
 /**
  * Make the film response stage's targets of a raster: the linear half-float

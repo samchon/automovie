@@ -3,8 +3,8 @@ import type {
   IAutoMovieTessellation,
 } from "@automovie/interface";
 
-import { PRIMITIVE_RADIAL_SEGMENTS } from "../constants/PRIMITIVE_RADIAL_SEGMENTS";
-import { PRIMITIVE_SPHERE_RINGS } from "../constants/PRIMITIVE_SPHERE_RINGS";
+import { PRIMITIVE_RADIAL_SEGMENTS } from "../PRIMITIVE_RADIAL_SEGMENTS";
+import { PRIMITIVE_SPHERE_RINGS } from "../PRIMITIVE_SPHERE_RINGS";
 
 /**
  * Tessellate a {@link AutoMoviePrimitiveShape} into a triangle mesh.

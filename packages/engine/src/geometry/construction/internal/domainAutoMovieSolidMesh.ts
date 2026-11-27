@@ -3,7 +3,7 @@ import type {
   IAutoMovieSolidMeshConstraints,
 } from "@automovie/interface";
 
-import { AutoMovieSolidMeshConstraints } from "../AutoMovieSolidMeshConstraints";
+import { AutoMovieSolidMeshConstraints } from "../../AutoMovieSolidMeshConstraints";
 
 /**
  * Assemble finite domain sides without subdividing an authoritative trim edge.

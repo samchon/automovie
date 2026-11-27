@@ -4,7 +4,7 @@ import type {
   IAutoMovieRealizeConvexSupportLoft,
 } from "@automovie/interface";
 
-import { AutoMovieBernsteinAlgebra64 as B } from "../../curve/AutoMovieBernsteinAlgebra64";
+import { AutoMovieBernsteinAlgebra64 as B } from "../../AutoMovieBernsteinAlgebra64";
 import type { IAutoMovieSupportLoftPlan64 } from "./IAutoMovieSupportLoftPlan64";
 
 /**

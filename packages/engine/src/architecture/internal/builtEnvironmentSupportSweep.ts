@@ -12,7 +12,7 @@ import {
 
 import { builtEnvironmentPartBoxes } from "./builtEnvironmentPartBoxes";
 import { builtFootprintsOverlap } from "./builtFootprintsOverlap";
-import { AUTOMOVIE_SUPPORT_TOLERANCE } from "../constants/AUTOMOVIE_SUPPORT_TOLERANCE";
+import { AUTOMOVIE_SUPPORT_TOLERANCE } from "../AUTOMOVIE_SUPPORT_TOLERANCE";
 import { resolveBuiltPlacementBody } from "./resolveBuiltPlacementBody";
 
 /** One resolved body of the building, with the locator that names it. */

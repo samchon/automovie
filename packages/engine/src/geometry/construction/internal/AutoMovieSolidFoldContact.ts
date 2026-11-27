@@ -4,7 +4,7 @@ import type {
   IAutoMovieSolidSurface,
 } from "@automovie/interface";
 
-import { AutoMovieSolidVector } from "../AutoMovieSolidVector";
+import { AutoMovieSolidVector } from "../../AutoMovieSolidVector";
 
 /** World vector, mm. */
 type Vec3 = AutoMovieVector3Tuple;

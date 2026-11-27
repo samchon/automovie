@@ -5,8 +5,8 @@ import type {
   IAutoMovieSolidRail,
 } from "@automovie/interface";
 
-import { AutoMovieSolidBlend } from "../AutoMovieSolidBlend";
-import { AutoMovieSolidVector } from "../AutoMovieSolidVector";
+import { AutoMovieSolidBlend } from "../../AutoMovieSolidBlend";
+import { AutoMovieSolidVector } from "../../AutoMovieSolidVector";
 
 /** World vectors retain the source reader's millimetre units. */
 type Vec3 = AutoMovieVector3Tuple;

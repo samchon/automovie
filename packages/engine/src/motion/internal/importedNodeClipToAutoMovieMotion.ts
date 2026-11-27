@@ -14,13 +14,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HUMANOID_JOINT_AXES } from "../../kinematics/constants/HUMANOID_JOINT_AXES";
+import { HUMANOID_JOINT_AXES } from "../../kinematics/HUMANOID_JOINT_AXES";
 import { decomposeJointRotation } from "../../kinematics/internal/decomposeJointRotation";
 import { Quaternion } from "../../math/Quaternion";
 import { Transform } from "../../math/Transform";
 import { channelKey } from "../../resolve/internal/channelKey";
 import { sampleClip } from "../../resolve/internal/sampleClip";
-import { HUMANOID_REST_FRAME } from "../../rom/constants/HUMANOID_REST_FRAME";
+import { HUMANOID_REST_FRAME } from "../../rom/HUMANOID_REST_FRAME";
 import { getConstraint } from "../../rom/internal/getConstraint";
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 

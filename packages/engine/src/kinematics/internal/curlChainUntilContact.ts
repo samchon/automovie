@@ -13,7 +13,7 @@ import { Vector3 } from "../../math/Vector3";
 import { bracketedCrossing } from "../../math/internal/bracketedCrossing";
 import { AutoMovieEnginePhysics } from "../../physics/AutoMovieEnginePhysics";
 import { physicalShapeHull } from "../../physics/internal/physicalShapeHull";
-import { ROM_TOLERANCE } from "../../rom/constants/ROM_TOLERANCE";
+import { ROM_TOLERANCE } from "../../rom/ROM_TOLERANCE";
 import { AutoMovieEngineKinematics } from "../AutoMovieEngineKinematics";
 import type { prepareSkeletonPoseResolution } from "./prepareSkeletonPoseResolution";
 import { resolvePose } from "./resolvePose";

@@ -10,16 +10,16 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { DEFAULT_JOINT_AXES } from "../../kinematics/constants/DEFAULT_JOINT_AXES";
+import { DEFAULT_JOINT_AXES } from "../../kinematics/DEFAULT_JOINT_AXES";
 import { decomposeJointRotationOnBasis } from "../../kinematics/internal/decomposeJointRotationOnBasis";
 import { hingedArmSwivel } from "../../kinematics/hingedArmSwivel";
 import { jointToQuaternionOnBasis } from "../../kinematics/internal/jointToQuaternionOnBasis";
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 import { wrapDegrees } from "../../math/internal/wrapDegrees";
-import { ROM_TOLERANCE } from "../../rom/constants/ROM_TOLERANCE";
+import { ROM_TOLERANCE } from "../../rom/ROM_TOLERANCE";
 import type { IAutoMovieChainContinuationObserver } from "../IAutoMovieChainContinuationObserver";
-import { PLANT_RESIDUAL_EPSILON } from "../constants/PLANT_RESIDUAL_EPSILON";
+import { PLANT_RESIDUAL_EPSILON } from "../PLANT_RESIDUAL_EPSILON";
 import { orientChainEffector } from "./orientChainEffector";
 import type { prepareChainFit } from "./prepareChainFit";
 import { readHingeRange } from "./readHingeRange";

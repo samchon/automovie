@@ -1,6 +1,6 @@
 import type { IAutoMovieFilmOptics } from "@automovie/interface";
 
-import { AUTOMOVIE_REC709_XYZ } from "../AUTOMOVIE_REC709_XYZ";
+import { AUTOMOVIE_REC709_XYZ } from "../../AUTOMOVIE_REC709_XYZ";
 import { autoMoviePlanckianWhite } from "./autoMoviePlanckianWhite";
 
 /**

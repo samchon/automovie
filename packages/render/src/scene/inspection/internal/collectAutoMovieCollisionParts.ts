@@ -2,8 +2,8 @@ import type { IAutoMovieSceneCollision as Collision } from "@automovie/interface
 import * as THREE from "three";
 
 import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
-import { AutoMovieCollisionSource } from "../AutoMovieCollisionSource.js";
-import { AutoMovieRenderInspectionPath } from "../AutoMovieRenderInspectionPath.js";
+import { AutoMovieCollisionSource } from "../../AutoMovieCollisionSource.js";
+import { AutoMovieRenderInspectionPath } from "../../AutoMovieRenderInspectionPath.js";
 import { readAutoMovieCollisionCord } from "./readAutoMovieCollisionCord.js";
 import { readAutoMovieCollisionInstances } from "./readAutoMovieCollisionInstances.js";
 import { readAutoMovieCollisionMesh } from "./readAutoMovieCollisionMesh.js";

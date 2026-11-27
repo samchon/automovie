@@ -5,7 +5,7 @@ import type * as THREE from "three";
 import type { IRenderAutoMovieFilmFrameCompositors } from "./IRenderAutoMovieFilmFrameCompositors.js";
 import { renderCrossDissolveFrames } from "./renderCrossDissolveFrames.js";
 import { renderFadeToBlackFrame } from "./renderFadeToBlackFrame.js";
-import { AutoMovieFilmResponseStage } from "../filmResponse/AutoMovieFilmResponseStage.js";
+import { AutoMovieFilmResponseStage } from "../AutoMovieFilmResponseStage.js";
 
 /**
  * Render already sampled film layers through one beauty/guide boundary.

@@ -1,6 +1,6 @@
 import type { IAutoMovieFitDigitDescent } from "@automovie/interface";
 
-import { AutoMovieSolidVector } from "../../geometry/construction/AutoMovieSolidVector";
+import { AutoMovieSolidVector } from "../../geometry/AutoMovieSolidVector";
 import { AutoMovieEngineMath } from "../../math/AutoMovieEngineMath";
 
 /**

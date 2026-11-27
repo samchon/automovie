@@ -1,5 +1,5 @@
-export * from "./IAutoMovieSemanticMaskHandle.js";
+export * from "../IAutoMovieSemanticMaskHandle.js";
 
 
 
-export * from "./AutoMovieRenderSemanticMask.js";
+export * from "../AutoMovieRenderSemanticMask.js";

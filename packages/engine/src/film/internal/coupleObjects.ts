@@ -18,7 +18,7 @@ import type {
   IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { HUMANOID_JOINT_AXES } from "../../kinematics/constants/HUMANOID_JOINT_AXES";
+import { HUMANOID_JOINT_AXES } from "../../kinematics/HUMANOID_JOINT_AXES";
 import { prepareSkeletonPoseResolution } from "../../kinematics/internal/prepareSkeletonPoseResolution";
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
 import { bakedTransformFromClipsAt } from "./bakedTransformFromClipsAt";

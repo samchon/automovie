@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import type { AutoMovieRenderInspectionGeometry } from "../AutoMovieRenderInspectionGeometry.js";
+import type { AutoMovieRenderInspectionGeometry } from "../../AutoMovieRenderInspectionGeometry.js";
 
 /** Four pi steradians, the solid angle of a whole sphere. */
 const FOUR_PI: number = 4 * Math.PI;

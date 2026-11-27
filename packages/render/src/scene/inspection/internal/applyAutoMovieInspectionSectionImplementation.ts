@@ -1,6 +1,6 @@
 import type * as THREE from "three";
 
-import type { AutoMovieRenderInspection } from "../AutoMovieRenderInspection.js";
+import type { AutoMovieRenderInspection } from "../../AutoMovieRenderInspection.js";
 import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
 import { applyAutoMovieSectionPlanes } from "../../internal/applyAutoMovieSectionPlanes.js";
 

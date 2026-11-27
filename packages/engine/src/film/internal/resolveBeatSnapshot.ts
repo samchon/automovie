@@ -21,7 +21,7 @@ import { AutoMovieEngineMotionSampling } from "../../motion/AutoMovieEngineMotio
 import { channelKey } from "../../resolve/internal/channelKey";
 import { sampleClipSequence } from "../../resolve/internal/sampleClipSequence";
 import { bakedTransformFromChannels } from "./bakedTransformFromChannels";
-import { VELOCITY_DT } from "../constants/VELOCITY_DT";
+import { VELOCITY_DT } from "../VELOCITY_DT";
 import { foldRoot } from "./foldRoot";
 import { gaitPhaseOf } from "./gaitPhaseOf";
 import { plantsAtEnd } from "./plantsAtEnd";

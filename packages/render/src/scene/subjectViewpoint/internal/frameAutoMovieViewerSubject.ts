@@ -1,9 +1,9 @@
 import * as THREE from "three";
 
-import type { IAutoMovieViewerSubjectBounds } from "../IAutoMovieViewerSubjectBounds.js";
-import type { IAutoMovieViewerSubjectLens } from "../IAutoMovieViewerSubjectLens.js";
-import type { IAutoMovieViewerSubjectPose } from "../IAutoMovieViewerSubjectPose.js";
-import type { IAutoMovieViewerViewpoint } from "../IAutoMovieViewerViewpoint.js";
+import type { IAutoMovieViewerSubjectBounds } from "../../IAutoMovieViewerSubjectBounds.js";
+import type { IAutoMovieViewerSubjectLens } from "../../IAutoMovieViewerSubjectLens.js";
+import type { IAutoMovieViewerSubjectPose } from "../../IAutoMovieViewerSubjectPose.js";
+import type { IAutoMovieViewerViewpoint } from "../../IAutoMovieViewerViewpoint.js";
 
 /**
  * Frame a finite ordered world-space box using its half-diagonal sphere,

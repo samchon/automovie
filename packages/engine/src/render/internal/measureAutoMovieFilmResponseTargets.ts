@@ -1,4 +1,4 @@
-import { AUTOMOVIE_FILM_GLARE_KERNELS } from "../filmResponse/AUTOMOVIE_FILM_GLARE_KERNELS";
+import { AUTOMOVIE_FILM_GLARE_KERNELS } from "../AUTOMOVIE_FILM_GLARE_KERNELS";
 
 /** Bytes of one RGBA half-float texel. */
 const HALF: number = 8;

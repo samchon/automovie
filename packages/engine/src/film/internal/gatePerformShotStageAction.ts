@@ -11,7 +11,7 @@ import {
 
 import { armChainFault } from "../../kinematics/internal/armChainFault";
 import { classifyLocomoteGroundDisplacement } from "../../motion/internal/classifyLocomoteGroundDisplacement";
-import { POSITIONAL_TARGET_SHAPE } from "../../perform/constants/POSITIONAL_TARGET_SHAPE";
+import { POSITIONAL_TARGET_SHAPE } from "../../perform/POSITIONAL_TARGET_SHAPE";
 import { describeInvalidValue } from "../../validation/internal/describeInvalidValue";
 import { resolvePerformShotTarget } from "./resolvePerformShotTarget";
 

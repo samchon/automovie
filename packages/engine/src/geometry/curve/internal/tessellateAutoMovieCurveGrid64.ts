@@ -8,11 +8,11 @@ import type {
   IAutoMovieMesh,
 } from "@automovie/interface";
 
-import { AutoMovieBernstein64 as B } from "../AutoMovieBernstein64";
-import { AutoMovieBernsteinGrid64 as G } from "../AutoMovieBernsteinGrid64";
-import { AutoMovieBernsteinSubdivision64 as S } from "../AutoMovieBernsteinSubdivision64";
-import { AutoMovieCurveMath64 as V } from "../AutoMovieCurveMath64";
-import { AutoMovieEnginePchipField64 } from "../AutoMovieEnginePchipField64";
+import { AutoMovieBernstein64 as B } from "../../AutoMovieBernstein64";
+import { AutoMovieBernsteinGrid64 as G } from "../../AutoMovieBernsteinGrid64";
+import { AutoMovieBernsteinSubdivision64 as S } from "../../AutoMovieBernsteinSubdivision64";
+import { AutoMovieCurveMath64 as V } from "../../AutoMovieCurveMath64";
+import { AutoMovieEnginePchipField64 } from "../../AutoMovieEnginePchipField64";
 import { assertAutoMovieCurve64 } from "./assertAutoMovieCurve64";
 import { compileAutoMovieNormalizedPhases64 } from "./compileAutoMovieNormalizedPhases64";
 import { isDenseFinite } from "./isDenseFinite";

@@ -1,7 +1,7 @@
 import type { IAutoMovieQuaternion } from "@automovie/interface";
 
 import { Quaternion } from "../../math/Quaternion";
-import { ROM_TOLERANCE } from "../../rom/constants/ROM_TOLERANCE";
+import { ROM_TOLERANCE } from "../../rom/ROM_TOLERANCE";
 
 /** Lower bound over a closed swivel interval in degrees. */
 type IntervalBound = (low: number, high: number) => number;

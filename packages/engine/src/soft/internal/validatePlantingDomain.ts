@@ -9,10 +9,10 @@ import {
 } from "@automovie/interface";
 
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
-import { PLANTING_MAX_BRANCHES } from "../constants/PLANTING_MAX_BRANCHES";
-import { PLANTING_MAX_CHILDREN } from "../constants/PLANTING_MAX_CHILDREN";
-import { PLANTING_MAX_LEAVES } from "../constants/PLANTING_MAX_LEAVES";
-import { PLANTING_MAX_LEVELS } from "../constants/PLANTING_MAX_LEVELS";
+import { PLANTING_MAX_BRANCHES } from "../PLANTING_MAX_BRANCHES";
+import { PLANTING_MAX_CHILDREN } from "../PLANTING_MAX_CHILDREN";
+import { PLANTING_MAX_LEAVES } from "../PLANTING_MAX_LEAVES";
+import { PLANTING_MAX_LEVELS } from "../PLANTING_MAX_LEVELS";
 import { plantingBudget } from "./plantingBudget";
 import { validateSoftIdentity as identity } from "./validateSoftIdentity";
 import { validateSoftInteger as integer } from "./validateSoftInteger";

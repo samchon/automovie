@@ -7,7 +7,7 @@ import type {
 } from "@automovie/interface";
 import { Quaternion, Vector3 } from "three";
 
-import type { AutoMovieHumanPolygon } from "../AutoMovieHumanPolygon.js";
+import type { AutoMovieHumanPolygon } from "../../AutoMovieHumanPolygon.js";
 
 /** A complete evaluated pose in registered Human body coordinates. */
 type AutoMoviePolygonPose = Pick<IAutoMovieHumanSkeleton.IOutput, "posed">;

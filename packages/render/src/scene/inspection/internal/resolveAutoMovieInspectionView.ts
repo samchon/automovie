@@ -5,11 +5,11 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import type { AutoMovieRenderInspectionCamera } from "../AutoMovieRenderInspectionCamera.js";
+import type { AutoMovieRenderInspectionCamera } from "../../AutoMovieRenderInspectionCamera.js";
 
 import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
-import type { IAutoMovieViewerSubjectPose } from "../../subjectViewpoint/IAutoMovieViewerSubjectPose.js";
-import type { IAutoMovieViewerViewpoint } from "../../subjectViewpoint/IAutoMovieViewerViewpoint.js";
+import type { IAutoMovieViewerSubjectPose } from "../../IAutoMovieViewerSubjectPose.js";
+import type { IAutoMovieViewerViewpoint } from "../../IAutoMovieViewerViewpoint.js";
 import { autoMovieViewerNamedViewpoints } from "../../subjectViewpoint/internal/autoMovieViewerNamedViewpoints.js";
 import { frameAutoMovieViewerSubject } from "../../subjectViewpoint/internal/frameAutoMovieViewerSubject.js";
 

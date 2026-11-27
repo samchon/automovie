@@ -96,8 +96,8 @@ namespace FamilyConicNativeRootInputs {
     )
       throw new Error("completed cases/round generation hashes differ");
     const allowed: Set<string> = new Set([
-      "packages/engine/src/geometry/construction/AutoMovieConstructionSplitBand.ts",
-      "packages/engine/src/geometry/construction/AutoMovieConstructionSeeds.ts",
+      "packages/engine/src/geometry/AutoMovieConstructionSplitBand.ts",
+      "packages/engine/src/geometry/AutoMovieConstructionSeeds.ts",
       "packages/engine/src/geometry/construction/index.ts",
     ]);
     const current: Record<string, string> = {},

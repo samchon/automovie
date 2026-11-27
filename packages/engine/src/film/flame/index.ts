@@ -5,4 +5,4 @@
 
 
 
-export * from "./AutoMovieEngineFlame";
+export * from "../AutoMovieEngineFlame";

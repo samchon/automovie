@@ -8,7 +8,7 @@ import {
 } from "@automovie/interface";
 
 import { classifyGrammarShotSize } from "./classifyGrammarShotSize";
-import { GRAMMAR_EPSILON } from "../constants/GRAMMAR_EPSILON";
+import { GRAMMAR_EPSILON } from "../GRAMMAR_EPSILON";
 import { projectToNdc } from "./projectToNdc";
 
 /**

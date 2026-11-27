@@ -9,12 +9,12 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import type { AutoMovieFilmAlpha } from "../../scene/filmResponse/AutoMovieFilmAlpha.js";
-import type { IAutoMovieInspectionHandle } from "../../scene/inspection/IAutoMovieInspectionHandle.js";
+import type { AutoMovieFilmAlpha } from "../../scene/AutoMovieFilmAlpha.js";
+import type { IAutoMovieInspectionHandle } from "../../scene/IAutoMovieInspectionHandle.js";
 import { parseAutoMovieInspectionView } from "../../scene/inspection/internal/parseAutoMovieInspectionView.js";
 import { renderWithAutoMovieInspectionDiagnostics } from "../../scene/inspection/internal/renderWithAutoMovieInspectionDiagnostics.js";
-import { AutoMovieRenderInspectionCamera } from "../../scene/inspection/AutoMovieRenderInspectionCamera.js";
-import type { IAutoMovieViewerSubjectBounds } from "../../scene/subjectViewpoint/IAutoMovieViewerSubjectBounds.js";
+import { AutoMovieRenderInspectionCamera } from "../../scene/AutoMovieRenderInspectionCamera.js";
+import type { IAutoMovieViewerSubjectBounds } from "../../scene/IAutoMovieViewerSubjectBounds.js";
 import { AUTO_MOVIE_DRAW_GLOBALS } from "../AUTO_MOVIE_DRAW_GLOBALS.js";
 import { AutoMovieDrawBeauty } from "./AutoMovieDrawBeauty.js";
 import { AutoMovieDrawFilm } from "../AutoMovieDrawFilm.js";

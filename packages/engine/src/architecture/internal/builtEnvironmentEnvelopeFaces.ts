@@ -12,7 +12,7 @@ import { Vector3 } from "../../math/Vector3";
 import { compareAutoMovieRenderIds } from "../../render/internal/compareAutoMovieRenderIds";
 import { builtEnvironmentBuildingOfSpace } from "./builtEnvironmentBuildingOfSpace";
 import { builtSpaceContainsPoint } from "./builtSpaceContainsPoint";
-import { AUTOMOVIE_ENVELOPE_FACADE_LIMIT } from "../constants/AUTOMOVIE_ENVELOPE_FACADE_LIMIT";
+import { AUTOMOVIE_ENVELOPE_FACADE_LIMIT } from "../AUTOMOVIE_ENVELOPE_FACADE_LIMIT";
 import { ObservationGeometry } from "./ObservationGeometry";
 import { outlineCentroid } from "./outlineCentroid";
 

@@ -13,7 +13,7 @@ import {
 } from "@automovie/interface";
 
 import { quaternionFromAutoMovieBasis } from "../../../math/internal/quaternionFromAutoMovieBasis";
-import { AutoMovieSweepRotation } from "../AutoMovieSweepRotation";
+import { AutoMovieSweepRotation } from "../../AutoMovieSweepRotation";
 import { compileAutoMovieSweep } from "./compileAutoMovieSweep";
 import { orientAutoMovieSweep } from "./orientAutoMovieSweep";
 import { preserveAutoMovieSweepVolume } from "./preserveAutoMovieSweepVolume";

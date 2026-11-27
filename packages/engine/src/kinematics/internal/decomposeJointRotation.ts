@@ -6,7 +6,7 @@ import type {
   IAutoMovieRestFrame,
 } from "@automovie/interface";
 
-import { DEFAULT_JOINT_AXES } from "../constants/DEFAULT_JOINT_AXES";
+import { DEFAULT_JOINT_AXES } from "../DEFAULT_JOINT_AXES";
 import { decomposeJointRotationOnBasis } from "./decomposeJointRotationOnBasis";
 import { normalizeJointAxes } from "./normalizeJointAxes";
 

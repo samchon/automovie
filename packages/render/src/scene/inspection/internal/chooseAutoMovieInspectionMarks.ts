@@ -1,6 +1,6 @@
 import type { IAutoMovieMark } from "@automovie/interface";
 import type * as THREE from "three";
-import type { AutoMovieRenderInspectionMarks } from "../AutoMovieRenderInspectionMarks.js";
+import type { AutoMovieRenderInspectionMarks } from "../../AutoMovieRenderInspectionMarks.js";
 
 /**
  * Choose the supplied marks one picture draws, and group them by the scene

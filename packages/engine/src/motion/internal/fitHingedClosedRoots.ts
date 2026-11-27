@@ -18,7 +18,7 @@ import { swivelArcs } from "../../kinematics/swivelArcs";
 import { swivelJointReadings } from "../../kinematics/swivelJointReadings";
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
-import { ROM_TOLERANCE } from "../../rom/constants/ROM_TOLERANCE";
+import { ROM_TOLERANCE } from "../../rom/ROM_TOLERANCE";
 import { prepareChainPlant } from "./prepareChainPlant";
 
 /**

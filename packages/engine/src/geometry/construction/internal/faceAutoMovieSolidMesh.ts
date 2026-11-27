@@ -7,9 +7,9 @@ import type {
   IAutoMovieSolidMeshPlan,
 } from "@automovie/interface";
 
-import { AutoMovieSolidCycle } from "../AutoMovieSolidCycle";
-import { AutoMovieSolidMeshPlan } from "../AutoMovieSolidMeshPlan";
-import { AutoMovieSolidMeshWrite } from "../AutoMovieSolidMeshWrite";
+import { AutoMovieSolidCycle } from "../../AutoMovieSolidCycle";
+import { AutoMovieSolidMeshPlan } from "../../AutoMovieSolidMeshPlan";
+import { AutoMovieSolidMeshWrite } from "../../AutoMovieSolidMeshWrite";
 import { gridAutoMovieSolidMesh } from "./gridAutoMovieSolidMesh";
 import { openAutoMovieSolidMesh } from "./openAutoMovieSolidMesh";
 

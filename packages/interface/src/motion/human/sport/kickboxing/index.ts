@@ -1,1 +1,1 @@
-export type { IAutoMovieMotionHumanKickboxingRing } from "./IAutoMovieMotionHumanKickboxingRing";
+export type { IAutoMovieMotionHumanKickboxingRing } from "../../../IAutoMovieMotionHumanKickboxingRing";

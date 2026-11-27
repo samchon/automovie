@@ -11,8 +11,8 @@ import {
 
 import { autoMovieRenderDigest } from "../../render/internal/autoMovieRenderDigest";
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
-import { AUTOMOVIE_ANALYSIS_DOMAINS } from "../constants/AUTOMOVIE_ANALYSIS_DOMAINS";
-import { AUTOMOVIE_ANALYSIS_REPORT_MAX_GAPS } from "../constants/AUTOMOVIE_ANALYSIS_REPORT_MAX_GAPS";
+import { AUTOMOVIE_ANALYSIS_DOMAINS } from "../AUTOMOVIE_ANALYSIS_DOMAINS";
+import { AUTOMOVIE_ANALYSIS_REPORT_MAX_GAPS } from "../AUTOMOVIE_ANALYSIS_REPORT_MAX_GAPS";
 import { validateAutoMovieAnalysisRun } from "./validateAutoMovieAnalysisRun";
 
 /**

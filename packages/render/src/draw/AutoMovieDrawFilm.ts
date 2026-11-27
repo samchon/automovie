@@ -8,8 +8,8 @@ import type * as THREE from "three";
 
 import type { IAutoMovieRenderModeHandle } from "../scene/IAutoMovieRenderModeHandle.js";
 import { applyRenderMode } from "../scene/internal/applyRenderMode.js";
-import type { AutoMovieFilmAlpha } from "../scene/filmResponse/AutoMovieFilmAlpha.js";
-import type { IAutoMovieFilmResponseRenderer } from "../scene/filmResponse/IAutoMovieFilmResponseRenderer.js";
+import type { AutoMovieFilmAlpha } from "../scene/AutoMovieFilmAlpha.js";
+import type { IAutoMovieFilmResponseRenderer } from "../scene/IAutoMovieFilmResponseRenderer.js";
 import type { AutoMovieDrawBeauty } from "./internal/AutoMovieDrawBeauty.js";
 import { accumulateAutoMovieFilmSamples as accumulateAutoMovieFilmSamplesImplementation } from "./internal/accumulateAutoMovieFilmSamples.js";
 import type { IAutoMovieAccumulateFilmSamplesProps } from "./IAutoMovieAccumulateFilmSamplesProps.js";

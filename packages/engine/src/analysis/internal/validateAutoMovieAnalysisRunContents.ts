@@ -7,9 +7,9 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { SHA256_DIGEST_PATTERN } from "../../validation/constants/SHA256_DIGEST_PATTERN";
+import { SHA256_DIGEST_PATTERN } from "../../validation/SHA256_DIGEST_PATTERN";
 import { autoMovieAnalysisTargetMet } from "./autoMovieAnalysisTargetMet";
-import { AUTOMOVIE_ANALYSIS_MAX_SAMPLES } from "../constants/AUTOMOVIE_ANALYSIS_MAX_SAMPLES";
+import { AUTOMOVIE_ANALYSIS_MAX_SAMPLES } from "../AUTOMOVIE_ANALYSIS_MAX_SAMPLES";
 
 /**
  * Check every field of one analysis run except its seal.

@@ -7,8 +7,8 @@ import type {
   IAutoMovieSolidSurface,
 } from "@automovie/interface";
 
-import { AutoMovieLoftSectionNative } from "../AutoMovieLoftSectionNative";
-import { AutoMovieLoftViewRead } from "../AutoMovieLoftViewRead";
+import { AutoMovieLoftSectionNative } from "../../AutoMovieLoftSectionNative";
+import { AutoMovieLoftViewRead } from "../../AutoMovieLoftViewRead";
 import { AutoMovieLoftWorldJet } from "./AutoMovieLoftWorldJet";
 
 /**

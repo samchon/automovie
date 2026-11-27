@@ -1,1 +1,1 @@
-export * from "./QUATERNION_NLERP_DOT_THRESHOLD";
+export * from "../QUATERNION_NLERP_DOT_THRESHOLD";

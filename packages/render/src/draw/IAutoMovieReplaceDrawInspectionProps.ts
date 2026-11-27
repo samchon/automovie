@@ -1,7 +1,7 @@
 import type { IAutoMovieMark } from "@automovie/interface";
 
-import type { IApplyAutoMovieInspectionProps } from "../scene/inspection/IApplyAutoMovieInspectionProps.js";
-import type { IAutoMovieInspectionHandle } from "../scene/inspection/IAutoMovieInspectionHandle.js";
+import type { IApplyAutoMovieInspectionProps } from "../scene/IApplyAutoMovieInspectionProps.js";
+import type { IAutoMovieInspectionHandle } from "../scene/IAutoMovieInspectionHandle.js";
 
 /** Inputs for replacing a draw inspection after placement. */
 export interface IAutoMovieReplaceDrawInspectionProps {

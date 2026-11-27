@@ -8,4 +8,4 @@ export * from "../IAutoMovieInstanceSetViewerObject.js";
 
 
 
-export * from "./AutoMovieRenderInstanceSet.js";
+export * from "../AutoMovieRenderInstanceSet.js";

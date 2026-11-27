@@ -4,11 +4,11 @@ import type {
   IAutoMovieLoftSectionSource,
 } from "@automovie/interface";
 
-import { AutoMovieLoftFrameSource } from "../AutoMovieLoftFrameSource";
-import { AutoMovieLoftSection } from "../AutoMovieLoftSection";
-import { AutoMovieLoftSectionConnect } from "../AutoMovieLoftSectionConnect";
-import { AutoMovieLoftSectionNative } from "../AutoMovieLoftSectionNative";
-import { AutoMovieLoftSectionSource } from "../AutoMovieLoftSectionSource";
+import { AutoMovieLoftFrameSource } from "../../AutoMovieLoftFrameSource";
+import { AutoMovieLoftSection } from "../../AutoMovieLoftSection";
+import { AutoMovieLoftSectionConnect } from "../../AutoMovieLoftSectionConnect";
+import { AutoMovieLoftSectionNative } from "../../AutoMovieLoftSectionNative";
+import { AutoMovieLoftSectionSource } from "../../AutoMovieLoftSectionSource";
 
 /**
  * Admit already matching native ends without rewriting either chain.

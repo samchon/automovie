@@ -3,8 +3,8 @@ import type {
   IAutoMovieObservation,
 } from "@automovie/interface";
 
-import { AutoMovieContourLoftCurves64 } from "../AutoMovieContourLoftCurves64";
-import { AutoMovieCurveMath64 } from "../AutoMovieCurveMath64";
+import { AutoMovieContourLoftCurves64 } from "../../AutoMovieContourLoftCurves64";
+import { AutoMovieCurveMath64 } from "../../AutoMovieCurveMath64";
 
 /**
  * Finds a fixed-seam periodic tiling and reports sheet qualification separately

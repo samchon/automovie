@@ -1,5 +1,5 @@
-import type { AutoMovieViewerSubjectKind } from "../AutoMovieViewerSubjectKind.js";
-import type { IAutoMovieViewerSubject } from "../IAutoMovieViewerSubject.js";
+import type { AutoMovieViewerSubjectKind } from "../../AutoMovieViewerSubjectKind.js";
+import type { IAutoMovieViewerSubject } from "../../IAutoMovieViewerSubject.js";
 
 /**
  * Parse the first colon as category boundary and last @ as revision boundary.

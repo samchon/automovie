@@ -8,8 +8,8 @@ import type {
   IAutoMovieSolidSurface,
 } from "@automovie/interface";
 
-import { AutoMovieConstructionProfileTopology } from "../AutoMovieConstructionProfileTopology";
-import { AutoMovieLoftAdmissionError } from "../AutoMovieLoftAdmissionError";
+import { AutoMovieConstructionProfileTopology } from "../../AutoMovieConstructionProfileTopology";
+import { AutoMovieLoftAdmissionError } from "../../AutoMovieLoftAdmissionError";
 import { AutoMovieLoftWorldJet } from "./AutoMovieLoftWorldJet";
 
 /**

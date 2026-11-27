@@ -4,9 +4,9 @@ import type {
   IAutoMovieSplitContourLeaf64,
 } from "@automovie/interface";
 
-import { AutoMovieBernsteinSubdivision64 as S } from "../AutoMovieBernsteinSubdivision64";
-import { AutoMovieContourLoftCurves64 as C } from "../AutoMovieContourLoftCurves64";
-import { AutoMovieCurveMath64 as M } from "../AutoMovieCurveMath64";
+import { AutoMovieBernsteinSubdivision64 as S } from "../../AutoMovieBernsteinSubdivision64";
+import { AutoMovieContourLoftCurves64 as C } from "../../AutoMovieContourLoftCurves64";
+import { AutoMovieCurveMath64 as M } from "../../AutoMovieCurveMath64";
 
 /**
  * Split a retained source restriction at its declared interior phase and

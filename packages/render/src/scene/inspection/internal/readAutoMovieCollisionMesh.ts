@@ -7,7 +7,7 @@ import * as THREE from "three";
 
 import { AutoMovieSkinnedMesh } from "../../AutoMovieSkinnedMesh.js";
 import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
-import type { AutoMovieRenderInspectionGeometry } from "../AutoMovieRenderInspectionGeometry.js";
+import type { AutoMovieRenderInspectionGeometry } from "../../AutoMovieRenderInspectionGeometry.js";
 import { readAutoMovieCollisionTopology } from "./readAutoMovieCollisionTopology.js";
 import { readAutoMovieDisplayedBox } from "./readAutoMovieDisplayedBox.js";
 

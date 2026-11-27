@@ -9,7 +9,7 @@ import {
 
 import { AutoMovieEngineAnalysis } from "../../analysis/AutoMovieEngineAnalysis";
 import { Vector3 } from "../../math/Vector3";
-import { SHA256_DIGEST_PATTERN } from "../../validation/constants/SHA256_DIGEST_PATTERN";
+import { SHA256_DIGEST_PATTERN } from "../../validation/SHA256_DIGEST_PATTERN";
 
 /**
  * Derive a closed room-path receipt from explicit space bindings and an

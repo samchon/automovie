@@ -24,7 +24,7 @@ import { transformedBoxBounds } from "../../math/internal/transformedBoxBounds";
 import { AutoMovieEngineSpace } from "../../space/index";
 import { builtEnvironmentSupportSweep } from "./builtEnvironmentSupportSweep";
 import { builtFootprintsOverlap } from "./builtFootprintsOverlap";
-import { AUTOMOVIE_SUPPORT_TOLERANCE } from "../constants/AUTOMOVIE_SUPPORT_TOLERANCE";
+import { AUTOMOVIE_SUPPORT_TOLERANCE } from "../AUTOMOVIE_SUPPORT_TOLERANCE";
 
 /** One measured piece: its node, world box and model-local corners in world. */
 interface IMeasured {

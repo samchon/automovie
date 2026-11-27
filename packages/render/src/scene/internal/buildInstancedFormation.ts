@@ -30,7 +30,7 @@ import { describeFormationTextureSources } from "./describeFormationTextureSourc
 import { disposeFormationRepresentations } from "./disposeFormationRepresentations.js";
 import { AutoMovieRenderFormationCycle } from "../formationCycle/index.js";
 import { formationSpacingOffset } from "./formationSpacingOffset.js";
-import { AutoMovieCollisionSource } from "../inspection/AutoMovieCollisionSource.js";
+import { AutoMovieCollisionSource } from "../AutoMovieCollisionSource.js";
 import { objectTransform } from "./objectTransform.js";
 import { regenerateFormationSlot } from "./regenerateFormationSlot.js";
 import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceRetirement.js";

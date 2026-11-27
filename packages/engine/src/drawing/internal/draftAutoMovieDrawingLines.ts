@@ -21,8 +21,8 @@ import { autoMovieDrawingPlaneDistance } from "./autoMovieDrawingPlaneDistance";
 import { autoMovieDrawingRange } from "./autoMovieDrawingRange";
 import { autoMovieDrawingSilhouetteEdges } from "./autoMovieDrawingSilhouetteEdges";
 import { clipAutoMovieDrawingTriangles } from "./clipAutoMovieDrawingTriangles";
-import { AUTOMOVIE_DRAWING_EPSILON } from "../constants/AUTOMOVIE_DRAWING_EPSILON";
-import { AUTOMOVIE_DRAWING_ROLES } from "../constants/AUTOMOVIE_DRAWING_ROLES";
+import { AUTOMOVIE_DRAWING_EPSILON } from "../AUTOMOVIE_DRAWING_EPSILON";
+import { AUTOMOVIE_DRAWING_ROLES } from "../AUTOMOVIE_DRAWING_ROLES";
 import { projectAutoMovieDrawingPoint } from "./projectAutoMovieDrawingPoint";
 import { roundAutoMovieDrawingPoint } from "./roundAutoMovieDrawingPoint";
 

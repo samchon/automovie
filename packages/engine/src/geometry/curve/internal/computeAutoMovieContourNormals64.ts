@@ -1,6 +1,6 @@
 import type { AutoMovieVector3Tuple } from "@automovie/interface";
 
-import { AutoMovieCurveMath64 as M } from "../AutoMovieCurveMath64";
+import { AutoMovieCurveMath64 as M } from "../../AutoMovieCurveMath64";
 const add: typeof M.add = M.add,
   sub: typeof M.sub = M.sub,
   mul: typeof M.scale = M.scale;

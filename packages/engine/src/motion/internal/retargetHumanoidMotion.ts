@@ -16,11 +16,11 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { HUMANOID_JOINT_AXES } from "../../kinematics/constants/HUMANOID_JOINT_AXES";
+import { HUMANOID_JOINT_AXES } from "../../kinematics/HUMANOID_JOINT_AXES";
 import { resolvePose } from "../../kinematics/internal/resolvePose";
 import { skeletonJointAxes } from "../../kinematics/internal/skeletonJointAxes";
 import { validateJointAxesBasis } from "../../kinematics/internal/validateJointAxesBasis";
-import { HUMANOID_REST_FRAME } from "../../rom/constants/HUMANOID_REST_FRAME";
+import { HUMANOID_REST_FRAME } from "../../rom/HUMANOID_REST_FRAME";
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
 import { validateMotion } from "../../validation/internal/validateMotion";

@@ -1,11 +1,11 @@
-import type { IObserveAutoMoviePlacedSceneCheck } from "../IObserveAutoMoviePlacedSceneCheck.js";
-import type { ISelectAutoMoviePlacedChecksProps } from "../ISelectAutoMoviePlacedChecksProps.js";
-import type { ISelectAutoMoviePlacedChecksRule } from "../ISelectAutoMoviePlacedChecksRule.js";
-import type { ISelectAutoMoviePlacedChecksSupportPhase } from "../ISelectAutoMoviePlacedChecksSupportPhase.js";
-import type { ISelectAutoMoviePlacedChecksGripWindow } from "../ISelectAutoMoviePlacedChecksGripWindow.js";
-import type { ISelectAutoMoviePlacedChecksCustody } from "../ISelectAutoMoviePlacedChecksCustody.js";
-import type { ISelectAutoMoviePlacedChecksContinuity } from "../ISelectAutoMoviePlacedChecksContinuity.js";
-import type { ISelectAutoMoviePlacedChecksTrack } from "../ISelectAutoMoviePlacedChecksTrack.js";
+import type { IObserveAutoMoviePlacedSceneCheck } from "../../IObserveAutoMoviePlacedSceneCheck.js";
+import type { ISelectAutoMoviePlacedChecksProps } from "../../ISelectAutoMoviePlacedChecksProps.js";
+import type { ISelectAutoMoviePlacedChecksRule } from "../../ISelectAutoMoviePlacedChecksRule.js";
+import type { ISelectAutoMoviePlacedChecksSupportPhase } from "../../ISelectAutoMoviePlacedChecksSupportPhase.js";
+import type { ISelectAutoMoviePlacedChecksGripWindow } from "../../ISelectAutoMoviePlacedChecksGripWindow.js";
+import type { ISelectAutoMoviePlacedChecksCustody } from "../../ISelectAutoMoviePlacedChecksCustody.js";
+import type { ISelectAutoMoviePlacedChecksContinuity } from "../../ISelectAutoMoviePlacedChecksContinuity.js";
+import type { ISelectAutoMoviePlacedChecksTrack } from "../../ISelectAutoMoviePlacedChecksTrack.js";
 import { AutoMovieEngineFilm, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieClassifyPlaybackBoundary,

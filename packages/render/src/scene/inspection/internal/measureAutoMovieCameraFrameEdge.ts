@@ -1,5 +1,5 @@
 import type { IAutoMovieSubjectBox } from "@automovie/interface";
-import type { AutoMovieRenderInspectionCamera } from "../AutoMovieRenderInspectionCamera.js";
+import type { AutoMovieRenderInspectionCamera } from "../../AutoMovieRenderInspectionCamera.js";
 import { Box3, Frustum, Matrix4, Plane, Vector3 } from "three";
 
 import { boundAutoMovieCameraSubject } from "./boundAutoMovieCameraSubject.js";

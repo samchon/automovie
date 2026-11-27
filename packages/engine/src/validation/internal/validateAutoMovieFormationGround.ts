@@ -13,7 +13,7 @@ import {
 
 import { formationSlotPosition } from "../../populationRuntime/formation/internal/formationSlotPosition";
 import { placeFormationSlot } from "../../populationRuntime/formation/internal/placeFormationSlot";
-import { AutoMovieEnginePopulationFormation } from "../../populationRuntime/formation/AutoMovieEnginePopulationFormation";
+import { AutoMovieEnginePopulationFormation } from "../../populationRuntime/AutoMovieEnginePopulationFormation";
 import { heightAt } from "../../space/internal/heightAt";
 import { engineDiagnostic } from "./engineDiagnostic";
 

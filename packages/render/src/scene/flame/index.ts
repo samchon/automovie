@@ -1,5 +1,5 @@
-export * from "./IAutoMovieFlamesObject.js";
-export * from "./IPrepareAutoMovieFlamesProps.js";
+export * from "../IAutoMovieFlamesObject.js";
+export * from "../IPrepareAutoMovieFlamesProps.js";
 
 
-export * from "./AutoMovieRenderFlame.js";
+export * from "../AutoMovieRenderFlame.js";

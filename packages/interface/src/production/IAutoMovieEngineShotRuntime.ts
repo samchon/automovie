@@ -6,7 +6,7 @@ import type { IAutoMovieBeatEndFootPlant } from "../harness/IAutoMovieBeatEndFoo
 import type { IAutoMovieBeatEndState } from "../harness/IAutoMovieBeatEndState";
 import type { IAutoMoviePropSpec } from "../harness/IAutoMoviePropSpec";
 import type { IAutoMovieModel } from "../model/IAutoMovieModel";
-import type { IAutoMovieActionSynthesizer } from "../motion/perform/IAutoMovieActionSynthesizer";
+import type { IAutoMovieActionSynthesizer } from "../motion/IAutoMovieActionSynthesizer";
 import type { IAutoMovieRestFrame } from "../pose/IAutoMovieRestFrame";
 import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieJointAxes } from "../skeleton/IAutoMovieJointAxes";

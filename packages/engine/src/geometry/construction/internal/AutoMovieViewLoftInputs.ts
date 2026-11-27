@@ -7,7 +7,7 @@ import type {
   IAutoMovieViewPart,
 } from "@automovie/interface";
 
-import { AutoMovieViewOutline } from "../AutoMovieViewOutline";
+import { AutoMovieViewOutline } from "../../AutoMovieViewOutline";
 
 /** Prepare ViewLoft's existing value readers, reusing retained direct sources. */
 export function AutoMovieViewLoftInputs(

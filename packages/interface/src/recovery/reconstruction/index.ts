@@ -1,1 +1,1 @@
-export type { IAutoMovieRecoveryAnalyticDomainsRealizationOperation } from "./IAutoMovieRecoveryAnalyticDomainsRealizationOperation";
+export type { IAutoMovieRecoveryAnalyticDomainsRealizationOperation } from "../IAutoMovieRecoveryAnalyticDomainsRealizationOperation";

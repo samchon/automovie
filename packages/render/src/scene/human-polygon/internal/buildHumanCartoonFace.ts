@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
 import { createAutoMovieClosedSphereGeometry } from "../../internal/createAutoMovieClosedSphereGeometry.js";
-import type { AutoMovieHumanCartoon } from "../AutoMovieHumanCartoon.js";
+import type { AutoMovieHumanCartoon } from "../../AutoMovieHumanCartoon.js";
 import { mountHumanCartoonFace } from "./mountHumanCartoonFace.js";
 
 /**

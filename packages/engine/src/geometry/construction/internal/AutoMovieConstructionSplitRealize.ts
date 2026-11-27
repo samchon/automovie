@@ -16,16 +16,16 @@ import type {
   IAutoMovieSolidSurface,
 } from "@automovie/interface";
 
-import { AutoMovieConstructionSplitBand } from "../AutoMovieConstructionSplitBand";
-import { AutoMovieConstructionSplitCompose as Compose } from "../AutoMovieConstructionSplitCompose";
-import { AutoMovieConstructionSplitEdge as Edge } from "../AutoMovieConstructionSplitEdge";
-import { AutoMovieConstructionSplitSeam } from "../AutoMovieConstructionSplitSeam";
-import { AutoMovieConstructionState } from "../AutoMovieConstructionState";
-import { AutoMovieConstructionViews } from "../AutoMovieConstructionViews";
-import { AutoMovieLoftAdmissionError } from "../AutoMovieLoftAdmissionError";
-import { AutoMovieLoftFrame } from "../AutoMovieLoftFrame";
-import { AutoMovieSolidMesh } from "../AutoMovieSolidMesh";
-import { AutoMovieSolidVector } from "../AutoMovieSolidVector";
+import { AutoMovieConstructionSplitBand } from "../../AutoMovieConstructionSplitBand";
+import { AutoMovieConstructionSplitCompose as Compose } from "../../AutoMovieConstructionSplitCompose";
+import { AutoMovieConstructionSplitEdge as Edge } from "../../AutoMovieConstructionSplitEdge";
+import { AutoMovieConstructionSplitSeam } from "../../AutoMovieConstructionSplitSeam";
+import { AutoMovieConstructionState } from "../../AutoMovieConstructionState";
+import { AutoMovieConstructionViews } from "../../AutoMovieConstructionViews";
+import { AutoMovieLoftAdmissionError } from "../../AutoMovieLoftAdmissionError";
+import { AutoMovieLoftFrame } from "../../AutoMovieLoftFrame";
+import { AutoMovieSolidMesh } from "../../AutoMovieSolidMesh";
+import { AutoMovieSolidVector } from "../../AutoMovieSolidVector";
 
 /**
  * Realize a split (`IAutoMovieConstructionSplit`): the host's open end divided

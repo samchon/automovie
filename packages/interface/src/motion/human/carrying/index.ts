@@ -1,1 +1,1 @@
-export type { IAutoMovieMotionHumanCarry } from "./IAutoMovieMotionHumanCarry";
+export type { IAutoMovieMotionHumanCarry } from "../../IAutoMovieMotionHumanCarry";

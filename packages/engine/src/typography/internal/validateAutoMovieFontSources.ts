@@ -5,7 +5,7 @@ import type {
   IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { SHA256_DIGEST_PATTERN } from "../../validation/constants/SHA256_DIGEST_PATTERN";
+import { SHA256_DIGEST_PATTERN } from "../../validation/SHA256_DIGEST_PATTERN";
 
 /**
  * RFC 4648 section 4 base64: the standard alphabet in padded four-character

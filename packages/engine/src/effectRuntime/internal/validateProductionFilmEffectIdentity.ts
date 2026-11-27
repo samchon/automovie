@@ -1,6 +1,6 @@
 import type { IAutoMovieFilmEffectCurrentIdentity } from "@automovie/interface";
 
-import { SHA256_DIGEST_PATTERN } from "../../validation/constants/SHA256_DIGEST_PATTERN";
+import { SHA256_DIGEST_PATTERN } from "../../validation/SHA256_DIGEST_PATTERN";
 import { AutoMovieFilmEffectRuntimeError } from "../AutoMovieFilmEffectRuntimeError";
 
 /**

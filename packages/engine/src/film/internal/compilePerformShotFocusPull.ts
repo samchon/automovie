@@ -12,7 +12,7 @@ import type {
 } from "@automovie/interface";
 
 import { resolveTargetPoint } from "../../perform/internal/resolveTargetPoint";
-import { AutoMovieEnginePopulationFormation } from "../../populationRuntime/formation/AutoMovieEnginePopulationFormation";
+import { AutoMovieEnginePopulationFormation } from "../../populationRuntime/AutoMovieEnginePopulationFormation";
 import { transformFormationPoint } from "../../populationRuntime/formation/internal/transformFormationPoint";
 import { channelKey } from "../../resolve/internal/channelKey";
 import { sampleClipSequence } from "../../resolve/internal/sampleClipSequence";

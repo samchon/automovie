@@ -17,16 +17,16 @@ import type {
   IAutoMovieSolidSurface,
 } from "@automovie/interface";
 
-import { AutoMovieConstructionPortBand } from "../AutoMovieConstructionPortBand";
-import { AutoMovieConstructionPortCurve } from "../AutoMovieConstructionPortCurve";
-import { AutoMovieConstructionPortField as PortField } from "../AutoMovieConstructionPortField";
-import { AutoMovieConstructionSplitBand } from "../AutoMovieConstructionSplitBand";
-import { AutoMovieConstructionState } from "../AutoMovieConstructionState";
-import { AutoMovieConstructionViews } from "../AutoMovieConstructionViews";
-import { AutoMovieLoftAdmissionError } from "../AutoMovieLoftAdmissionError";
-import { AutoMovieSolidMesh } from "../AutoMovieSolidMesh";
-import { AutoMovieSolidRibbon } from "../AutoMovieSolidRibbon";
-import { AutoMovieSolidVector } from "../AutoMovieSolidVector";
+import { AutoMovieConstructionPortBand } from "../../AutoMovieConstructionPortBand";
+import { AutoMovieConstructionPortCurve } from "../../AutoMovieConstructionPortCurve";
+import { AutoMovieConstructionPortField as PortField } from "../../AutoMovieConstructionPortField";
+import { AutoMovieConstructionSplitBand } from "../../AutoMovieConstructionSplitBand";
+import { AutoMovieConstructionState } from "../../AutoMovieConstructionState";
+import { AutoMovieConstructionViews } from "../../AutoMovieConstructionViews";
+import { AutoMovieLoftAdmissionError } from "../../AutoMovieLoftAdmissionError";
+import { AutoMovieSolidMesh } from "../../AutoMovieSolidMesh";
+import { AutoMovieSolidRibbon } from "../../AutoMovieSolidRibbon";
+import { AutoMovieSolidVector } from "../../AutoMovieSolidVector";
 
 /**
  * Realize a port (`IAutoMovieConstructionPort`): the host's port curve cut out

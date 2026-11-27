@@ -4,7 +4,7 @@ import type {
   IAutoMovieMark,
 } from "@automovie/interface";
 
-import { AUTO_MOVIE_INSPECTION_PALETTE } from "../AUTO_MOVIE_INSPECTION_PALETTE.js";
+import { AUTO_MOVIE_INSPECTION_PALETTE } from "../../AUTO_MOVIE_INSPECTION_PALETTE.js";
 
 /**
  * List what the colours of a picture's marks mean: each drawn kind once, with

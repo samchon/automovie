@@ -6,7 +6,7 @@ import type {
 import * as THREE from "three";
 
 import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
-import type { IAutoMovieInspectionPath } from "../IAutoMovieInspectionPath.js";
+import type { IAutoMovieInspectionPath } from "../../IAutoMovieInspectionPath.js";
 import { measureAutoMovieInspectionBounds } from "./measureAutoMovieInspectionBounds.js";
 
 /**

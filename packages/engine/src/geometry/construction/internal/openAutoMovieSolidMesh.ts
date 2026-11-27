@@ -6,7 +6,7 @@ import type {
   IAutoMovieSolidMeshPlan,
 } from "@automovie/interface";
 
-import { AutoMovieSolidMeshIncidence } from "../AutoMovieSolidMeshIncidence";
+import { AutoMovieSolidMeshIncidence } from "../../AutoMovieSolidMeshIncidence";
 
 /** Read exposed source-domain cycles from the complete positive index plan. */
 export function openAutoMovieSolidMesh(

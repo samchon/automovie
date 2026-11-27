@@ -11,7 +11,7 @@ import {
 } from "@automovie/interface";
 
 import { createAutoMovieGeometryActorReader } from "./createAutoMovieGeometryActorReader";
-import { HUMANOID_JOINT_AXES } from "../kinematics/constants/HUMANOID_JOINT_AXES";
+import { HUMANOID_JOINT_AXES } from "../kinematics/HUMANOID_JOINT_AXES";
 import { reachPose } from "../kinematics/internal/reachPose";
 import { resolvePose } from "../kinematics/internal/resolvePose";
 import { Quaternion } from "../math/Quaternion";

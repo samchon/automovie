@@ -14,7 +14,7 @@ import { Matrix4 } from "../../math/Matrix4";
 import { Vector3 } from "../../math/Vector3";
 import { builtEnvironmentWorldMatrices } from "./builtEnvironmentWorldMatrices";
 import { builtPointBounds } from "./builtPointBounds";
-import { AUTOMOVIE_FULL_TURN_EPSILON } from "../constants/AUTOMOVIE_FULL_TURN_EPSILON";
+import { AUTOMOVIE_FULL_TURN_EPSILON } from "../AUTOMOVIE_FULL_TURN_EPSILON";
 import { requireBuiltOpening } from "./requireBuiltOpening";
 
 /**

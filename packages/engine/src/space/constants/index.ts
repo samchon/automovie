@@ -1,1 +1,1 @@
-export * from "./FOOTPRINT_EPSILON";
+export * from "../FOOTPRINT_EPSILON";

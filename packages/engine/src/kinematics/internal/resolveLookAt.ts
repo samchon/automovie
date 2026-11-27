@@ -9,7 +9,7 @@ import {
   type IAutoMovieMotionSample,
 } from "@automovie/interface";
 
-import { GAZE_PRESET_CHANNELS } from "../constants/GAZE_PRESET_CHANNELS";
+import { GAZE_PRESET_CHANNELS } from "../GAZE_PRESET_CHANNELS";
 
 /** One eye's four gaze channels. */
 interface IEyeChannels {

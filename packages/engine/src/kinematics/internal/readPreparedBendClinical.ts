@@ -7,8 +7,8 @@ import type {
 } from "@automovie/interface";
 import type { AutoMovieEngineKinematicsTypes } from "../AutoMovieEngineKinematicsTypes";
 
-import { HUMANOID_REST_FRAME } from "../../rom/constants/HUMANOID_REST_FRAME";
-import { HUMANOID_JOINT_AXES } from "../constants/HUMANOID_JOINT_AXES";
+import { HUMANOID_REST_FRAME } from "../../rom/HUMANOID_REST_FRAME";
+import { HUMANOID_JOINT_AXES } from "../HUMANOID_JOINT_AXES";
 
 /** Clinical directions and channels in their comparison order. */
 const AXES = ["flexion", "abduction", "twist"] as const;

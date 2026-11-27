@@ -1,8 +1,0 @@
-import type { IAutoMovieFileReceipt } from "../../index";
-
-/** Run-owned final model and exact bytes admitted for lossless archival. */
-
-export interface IAutoMovieRecoveryArchiveInput extends IAutoMovieFileReceipt {
-  /** Exclusive output directory owning the final model. */
-  output: string;
-}

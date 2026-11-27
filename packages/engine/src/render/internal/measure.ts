@@ -7,11 +7,11 @@ import {
 
 import { realizeAutoMovieGeometry } from "../../geometry/internal/realizeAutoMovieGeometry";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
-import { AUTOMOVIE_INDEX_BYTES } from "../constants/AUTOMOVIE_INDEX_BYTES";
-import { AUTOMOVIE_NORMAL_BYTES } from "../constants/AUTOMOVIE_NORMAL_BYTES";
-import { AUTOMOVIE_POSITION_BYTES } from "../constants/AUTOMOVIE_POSITION_BYTES";
-import { AUTOMOVIE_SKIN_BYTES } from "../constants/AUTOMOVIE_SKIN_BYTES";
-import { AUTOMOVIE_UV_BYTES } from "../constants/AUTOMOVIE_UV_BYTES";
+import { AUTOMOVIE_INDEX_BYTES } from "../AUTOMOVIE_INDEX_BYTES";
+import { AUTOMOVIE_NORMAL_BYTES } from "../AUTOMOVIE_NORMAL_BYTES";
+import { AUTOMOVIE_POSITION_BYTES } from "../AUTOMOVIE_POSITION_BYTES";
+import { AUTOMOVIE_SKIN_BYTES } from "../AUTOMOVIE_SKIN_BYTES";
+import { AUTOMOVIE_UV_BYTES } from "../AUTOMOVIE_UV_BYTES";
 
 /**
  * Exact geometry cost of one model, memoized by model id.

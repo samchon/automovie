@@ -10,12 +10,12 @@ import type {
   IAutoMovieSolidSurface,
 } from "@automovie/interface";
 
-import { AutoMovieLoftAdmissionError } from "../AutoMovieLoftAdmissionError";
-import { AutoMovieSolidCycle } from "../AutoMovieSolidCycle";
-import { AutoMovieSolidMeshAuthorities } from "../AutoMovieSolidMeshAuthorities";
-import { AutoMovieSolidMeshConstraints } from "../AutoMovieSolidMeshConstraints";
-import { AutoMovieSolidMeshLoop } from "../AutoMovieSolidMeshLoop";
-import { AutoMovieSolidVector } from "../AutoMovieSolidVector";
+import { AutoMovieLoftAdmissionError } from "../../AutoMovieLoftAdmissionError";
+import { AutoMovieSolidCycle } from "../../AutoMovieSolidCycle";
+import { AutoMovieSolidMeshAuthorities } from "../../AutoMovieSolidMeshAuthorities";
+import { AutoMovieSolidMeshConstraints } from "../../AutoMovieSolidMeshConstraints";
+import { AutoMovieSolidMeshLoop } from "../../AutoMovieSolidMeshLoop";
+import { AutoMovieSolidVector } from "../../AutoMovieSolidVector";
 import { domainAutoMovieSolidMesh } from "./domainAutoMovieSolidMesh";
 
 /** Existing vector lengths and analytic chart-cross arithmetic. */

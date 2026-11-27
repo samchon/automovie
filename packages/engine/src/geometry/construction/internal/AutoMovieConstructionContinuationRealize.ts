@@ -8,10 +8,10 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieConstructionBridgeRealize } from "./AutoMovieConstructionBridgeRealize";
-import { AutoMovieConstructionContinuation } from "../AutoMovieConstructionContinuation";
-import { AutoMovieConstructionRing } from "../AutoMovieConstructionRing";
-import { AutoMovieConstructionState } from "../AutoMovieConstructionState";
-import { AutoMovieLoftAdmissionError } from "../AutoMovieLoftAdmissionError";
+import { AutoMovieConstructionContinuation } from "../../AutoMovieConstructionContinuation";
+import { AutoMovieConstructionRing } from "../../AutoMovieConstructionRing";
+import { AutoMovieConstructionState } from "../../AutoMovieConstructionState";
+import { AutoMovieLoftAdmissionError } from "../../AutoMovieLoftAdmissionError";
 
 /**
  * Retain a continuation only while both actual open ends survive its subtree.

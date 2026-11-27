@@ -1,6 +1,6 @@
 import type { IAutoMovieInterpolateSpline } from "@automovie/interface";
 
-import { AutoMovieSpline } from "../AutoMovieSpline";
+import { AutoMovieSpline } from "../../AutoMovieSpline";
 
 /**
  * Build a C2 interpolant through knots with a sampled overshoot policy: the

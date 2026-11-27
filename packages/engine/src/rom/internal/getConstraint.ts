@@ -3,7 +3,7 @@ import {
   IAutoMovieJointConstraint,
 } from "@automovie/interface";
 
-import { DEFAULT_HUMANOID_ROM } from "../constants/DEFAULT_HUMANOID_ROM";
+import { DEFAULT_HUMANOID_ROM } from "../DEFAULT_HUMANOID_ROM";
 
 /**
  * Borrow a nonnull supplied override, otherwise the default humanoid

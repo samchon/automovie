@@ -7,9 +7,9 @@ import type {
 import * as THREE from "three";
 
 import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
-import type { IAutoMovieInspectionDiagnosticOverlay } from "../IAutoMovieInspectionDiagnosticOverlay.js";
-import type { IAutoMovieInspectionOverlay } from "../IAutoMovieInspectionOverlay.js";
-import type { IRenderAutoMovieInspectionDiagnosticsProps } from "../IRenderAutoMovieInspectionDiagnosticsProps.js";
+import type { IAutoMovieInspectionDiagnosticOverlay } from "../../IAutoMovieInspectionDiagnosticOverlay.js";
+import type { IAutoMovieInspectionOverlay } from "../../IAutoMovieInspectionOverlay.js";
+import type { IRenderAutoMovieInspectionDiagnosticsProps } from "../../IRenderAutoMovieInspectionDiagnosticsProps.js";
 import { buildAutoMovieInspectionMarks } from "./buildAutoMovieInspectionMarks.js";
 
 /** The review overlay uses red, in sRGB. */

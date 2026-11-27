@@ -7,7 +7,7 @@ import {
   type IAutoMovieViolationAppendItemsSink,
 } from "@automovie/interface";
 
-import { POSITIONAL_TARGET_SHAPE } from "../../perform/constants/POSITIONAL_TARGET_SHAPE";
+import { POSITIONAL_TARGET_SHAPE } from "../../perform/POSITIONAL_TARGET_SHAPE";
 import { positionalTargetFault } from "../../perform/internal/positionalTargetFault";
 import { resolveTargetPoint } from "../../perform/internal/resolveTargetPoint";
 

@@ -4,8 +4,8 @@ import type {
   IAutoMovieMark,
 } from "@automovie/interface";
 
-import type { IAutoMovieInspectionMeasured } from "../IAutoMovieInspectionMeasured.js";
-import type { IAutoMovieInspectionPath } from "../IAutoMovieInspectionPath.js";
+import type { IAutoMovieInspectionMeasured } from "../../IAutoMovieInspectionMeasured.js";
+import type { IAutoMovieInspectionPath } from "../../IAutoMovieInspectionPath.js";
 import { listAutoMovieInspectionKindOptions } from "./listAutoMovieInspectionKindOptions.js";
 import { matchAutoMovieInspectionPath } from "./matchAutoMovieInspectionPath.js";
 

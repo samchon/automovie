@@ -14,7 +14,7 @@ import type {
 import { jointToQuaternionOnBasis } from "../../kinematics/internal/jointToQuaternionOnBasis";
 import type { twoBoneChainArticulation } from "../../kinematics/internal/twoBoneChainArticulation";
 import { Vector3 } from "../../math/Vector3";
-import { PLANT_RESIDUAL_EPSILON } from "../constants/PLANT_RESIDUAL_EPSILON";
+import { PLANT_RESIDUAL_EPSILON } from "../PLANT_RESIDUAL_EPSILON";
 import { fitHingedChainBend } from "./fitHingedChainBend";
 import type { prepareChainFit } from "./prepareChainFit";
 import { resolvePreparedChainEffector } from "./resolvePreparedChainEffector";

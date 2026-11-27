@@ -1,6 +1,6 @@
 import { IAutoMoviePlanarPoint } from "@automovie/interface";
 
-import { PLANAR_EPSILON } from "../constants/PLANAR_EPSILON";
+import { PLANAR_EPSILON } from "../PLANAR_EPSILON";
 import { planarCross } from "./planarCross";
 
 /**

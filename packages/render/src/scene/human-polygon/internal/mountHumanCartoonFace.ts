@@ -3,7 +3,7 @@ import * as THREE from "three";
 import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
 import { isAutoMovieFloat32Point } from "../../inspection/isAutoMovieFloat32Point.js";
 import { readAutoMovieBufferAttribute } from "../../internal/readAutoMovieBufferAttribute.js";
-import type { AutoMovieHumanPolygon } from "../AutoMovieHumanPolygon.js";
+import type { AutoMovieHumanPolygon } from "../../AutoMovieHumanPolygon.js";
 
 /** Bake and mount the original cartoon marks on the actual polygon front. */
 export function mountHumanCartoonFace(

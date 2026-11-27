@@ -21,7 +21,7 @@ import { reachableBoneNames } from "../../kinematics/internal/reachableBoneNames
 import { resolvePose } from "../../kinematics/internal/resolvePose";
 import { Vector3 } from "../../math/Vector3";
 import { groundFunction } from "../../space/internal/groundFunction";
-import { HUMANOID_LEG_CHAINS } from "../constants/HUMANOID_LEG_CHAINS";
+import { HUMANOID_LEG_CHAINS } from "../HUMANOID_LEG_CHAINS";
 import { contactMask } from "./contactMask";
 import { fitSeededChainToTarget } from "./fitSeededChainToTarget";
 

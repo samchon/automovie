@@ -3,7 +3,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { BUILT_PLANAR_EPSILON } from "../constants/BUILT_PLANAR_EPSILON";
+import { BUILT_PLANAR_EPSILON } from "../BUILT_PLANAR_EPSILON";
 import { polygonDoubleArea } from "./polygonDoubleArea";
 import { polygonIsSimple } from "./polygonIsSimple";
 

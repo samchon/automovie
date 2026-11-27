@@ -6,8 +6,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieRenderInspectionGeometry } from "../AutoMovieRenderInspectionGeometry.js";
-import type { AutoMovieRenderInspection } from "../AutoMovieRenderInspection.js";
+import { AutoMovieRenderInspectionGeometry } from "../../AutoMovieRenderInspectionGeometry.js";
+import type { AutoMovieRenderInspection } from "../../AutoMovieRenderInspection.js";
 import { createAutoMovieCollisionFinding } from "./createAutoMovieCollisionFinding.js";
 import { findAutoMovieCollisionWitness } from "./findAutoMovieCollisionWitness.js";
 import { observeAutoMovieSweptCollision } from "./observeAutoMovieSweptCollision.js";

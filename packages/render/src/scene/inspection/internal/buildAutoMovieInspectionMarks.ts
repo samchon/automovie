@@ -3,9 +3,9 @@ import * as THREE from "three";
 import type { LineSegments2 } from "three/examples/jsm/lines/LineSegments2.js";
 
 import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
-import { AutoMovieRenderInspectionOverlay } from "../AutoMovieRenderInspectionOverlay.js";
-import type { IAutoMovieInspectionMarkSet } from "../IAutoMovieInspectionMarkSet.js";
-import type { IAutoMovieInspectionOverlay } from "../IAutoMovieInspectionOverlay.js";
+import { AutoMovieRenderInspectionOverlay } from "../../AutoMovieRenderInspectionOverlay.js";
+import type { IAutoMovieInspectionMarkSet } from "../../IAutoMovieInspectionMarkSet.js";
+import type { IAutoMovieInspectionOverlay } from "../../IAutoMovieInspectionOverlay.js";
 import { createAutoMovieInspectionStrokes } from "./createAutoMovieInspectionStrokes.js";
 import { followAutoMovieInspectionSource } from "./followAutoMovieInspectionSource.js";
 

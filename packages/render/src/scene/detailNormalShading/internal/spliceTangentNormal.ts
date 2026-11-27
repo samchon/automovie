@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-import { DETAIL_NORMAL_TARGET } from "../DETAIL_NORMAL_TARGET.js";
+import { DETAIL_NORMAL_TARGET } from "../../DETAIL_NORMAL_TARGET.js";
 
 /**
  * Insert code into the tangent-space branch of three's normal-map chunk, just

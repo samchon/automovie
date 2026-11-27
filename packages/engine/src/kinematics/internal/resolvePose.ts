@@ -13,7 +13,7 @@ import type {
 
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
-import { SKELETON_ROOT_PARENT } from "../constants/SKELETON_ROOT_PARENT";
+import { SKELETON_ROOT_PARENT } from "../SKELETON_ROOT_PARENT";
 import { indexSkeletonTopologyChildren } from "./indexSkeletonTopologyChildren";
 import { jointToQuaternion } from "./jointToQuaternion";
 import { AutoMovieEngineKinematics } from "../AutoMovieEngineKinematics";

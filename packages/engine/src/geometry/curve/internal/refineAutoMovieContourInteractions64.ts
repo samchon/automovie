@@ -6,9 +6,9 @@ import type {
   IAutoMovieRefineContourInteractions64Ring,
 } from "@automovie/interface";
 
-import { AutoMovieBernsteinSubdivision64 as S } from "../AutoMovieBernsteinSubdivision64";
-import { AutoMovieContourLoftCurves64 as C } from "../AutoMovieContourLoftCurves64";
-import { AutoMovieCurveMath64 as M } from "../AutoMovieCurveMath64";
+import { AutoMovieBernsteinSubdivision64 as S } from "../../AutoMovieBernsteinSubdivision64";
+import { AutoMovieContourLoftCurves64 as C } from "../../AutoMovieContourLoftCurves64";
+import { AutoMovieCurveMath64 as M } from "../../AutoMovieCurveMath64";
 
 /**
  * Refine interacting display chords from their retained Bernstein restrictions

@@ -1,5 +1,5 @@
 import { AUTOMOVIE_FILM_GLARE_KERNELS } from "@automovie/engine";
-import type { IAutoMovieFilmGlareKernel } from "../IAutoMovieFilmGlareKernel.js";
+import type { IAutoMovieFilmGlareKernel } from "../../IAutoMovieFilmGlareKernel.js";
 
 /**
  * Plan how the final pass blurs a linear frame `height` pixels tall by each

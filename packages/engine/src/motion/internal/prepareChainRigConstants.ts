@@ -11,8 +11,8 @@ import type {
   IAutoMovieRestFrame,
 } from "@automovie/interface";
 
-import { DEFAULT_JOINT_AXES } from "../../kinematics/constants/DEFAULT_JOINT_AXES";
-import { HUMANOID_JOINT_AXES } from "../../kinematics/constants/HUMANOID_JOINT_AXES";
+import { DEFAULT_JOINT_AXES } from "../../kinematics/DEFAULT_JOINT_AXES";
+import { HUMANOID_JOINT_AXES } from "../../kinematics/HUMANOID_JOINT_AXES";
 import { hingedArmSpan } from "../../kinematics/internal/hingedArmSpan";
 import { prepareJointRomOvershoot } from "../../kinematics/internal/prepareJointRomOvershoot";
 import { jointToQuaternionOnBasis } from "../../kinematics/internal/jointToQuaternionOnBasis";

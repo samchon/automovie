@@ -13,8 +13,8 @@ import type {
   IAutoMovieSplitContourLeaf64,
 } from "@automovie/interface";
 
-import { AutoMovieContourLoftCurves64 as curves } from "../AutoMovieContourLoftCurves64";
-import { AutoMovieCurveMath64 as M } from "../AutoMovieCurveMath64";
+import { AutoMovieContourLoftCurves64 as curves } from "../../AutoMovieContourLoftCurves64";
+import { AutoMovieCurveMath64 as M } from "../../AutoMovieCurveMath64";
 import { measureAutoMovieContourFace64 } from "./measureAutoMovieContourFace64";
 import { planAutoMovieContourSlabs64 } from "./planAutoMovieContourSlabs64";
 import { planAutoMovieContourWalks64 } from "./planAutoMovieContourWalks64";

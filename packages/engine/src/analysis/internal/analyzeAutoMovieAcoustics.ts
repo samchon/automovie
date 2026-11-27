@@ -16,8 +16,8 @@ import { Vector3 } from "../../math/Vector3";
 import { assertAutoMovieAnalysisTargets } from "./assertAutoMovieAnalysisTargets";
 import { autoMovieAnalysisMetric } from "./autoMovieAnalysisMetric";
 import { autoMovieAnalysisSettingsTargets } from "./autoMovieAnalysisSettingsTargets";
-import { AUTOMOVIE_ANALYSIS_MAX_SAMPLES } from "../constants/AUTOMOVIE_ANALYSIS_MAX_SAMPLES";
-import { AUTOMOVIE_SABINE_CONSTANT } from "../constants/AUTOMOVIE_SABINE_CONSTANT";
+import { AUTOMOVIE_ANALYSIS_MAX_SAMPLES } from "../AUTOMOVIE_ANALYSIS_MAX_SAMPLES";
+import { AUTOMOVIE_SABINE_CONSTANT } from "../AUTOMOVIE_SABINE_CONSTANT";
 import { sealAutoMovieAnalysisRun } from "./sealAutoMovieAnalysisRun";
 import { warnAutoMovieAnalysisTargetKeys } from "./warnAutoMovieAnalysisTargetKeys";
 

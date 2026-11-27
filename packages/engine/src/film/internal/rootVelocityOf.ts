@@ -7,7 +7,7 @@ import {
 import { Vector3 } from "../../math/Vector3";
 import { positiveModulo } from "../../math/internal/positiveModulo";
 import { AutoMovieEngineMotionSampling } from "../../motion/AutoMovieEngineMotionSampling";
-import { VELOCITY_DT } from "../constants/VELOCITY_DT";
+import { VELOCITY_DT } from "../VELOCITY_DT";
 import { foldRoot } from "./foldRoot";
 
 /**

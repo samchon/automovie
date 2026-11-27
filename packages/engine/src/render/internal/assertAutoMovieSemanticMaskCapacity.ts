@@ -1,4 +1,4 @@
-import { AUTOMOVIE_SEMANTIC_MASK_MAX_ENTRIES } from "../constants/AUTOMOVIE_SEMANTIC_MASK_MAX_ENTRIES";
+import { AUTOMOVIE_SEMANTIC_MASK_MAX_ENTRIES } from "../AUTOMOVIE_SEMANTIC_MASK_MAX_ENTRIES";
 
 /**
  * Admit the entity-claim count before allocating palette colours or instance

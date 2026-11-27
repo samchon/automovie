@@ -6,7 +6,7 @@ import type {
   IAutoMovieRestFrame,
 } from "@automovie/interface";
 
-import { DEFAULT_JOINT_AXES } from "../constants/DEFAULT_JOINT_AXES";
+import { DEFAULT_JOINT_AXES } from "../DEFAULT_JOINT_AXES";
 import { jointToQuaternionOnBasis } from "./jointToQuaternionOnBasis";
 import { normalizeJointAxes } from "./normalizeJointAxes";
 import { resolvePoseBone } from "./resolvePoseBone";

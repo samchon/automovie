@@ -1,7 +1,7 @@
 import type { IAutoMovieChannel } from "@automovie/interface";
 
-import { CHANNEL_VALUE_TYPES } from "../../validation/constants/CHANNEL_VALUE_TYPES";
-import { NODE_CHANNEL_PATHS } from "../../validation/constants/NODE_CHANNEL_PATHS";
+import { CHANNEL_VALUE_TYPES } from "../../validation/CHANNEL_VALUE_TYPES";
+import { NODE_CHANNEL_PATHS } from "../../validation/NODE_CHANNEL_PATHS";
 
 /**
  * Reject unrecognized channel tags and tag-specific values before reading a

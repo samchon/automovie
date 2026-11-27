@@ -5,7 +5,7 @@ import type {
 import * as THREE from "three";
 
 import { AutoMovieDisplayCompositor } from "./internal/AutoMovieDisplayCompositor.js";
-import { AUTOMOVIE_FILM_RESPONSE_SHADERS } from "./filmResponse/AUTOMOVIE_FILM_RESPONSE_SHADERS.js";
+import { AUTOMOVIE_FILM_RESPONSE_SHADERS } from "./AUTOMOVIE_FILM_RESPONSE_SHADERS.js";
 import { renderAutoMovieFilmFrame } from "./internal/renderAutoMovieFilmFrame.js";
 import { mixAutoMovieStraightAlpha as mixStraightAlphaImplementation } from "./internal/mixAutoMovieStraightAlpha.js";
 

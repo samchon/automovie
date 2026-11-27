@@ -18,7 +18,7 @@ import { autoMoviePatternFindings } from "./autoMoviePatternFindings";
 import { autoMoviePatternPolygonArea } from "./autoMoviePatternPolygonArea";
 import { canonicalAutoMoviePatternPolygon } from "./canonicalAutoMoviePatternPolygon";
 import { clipAutoMoviePatternPolygon } from "./clipAutoMoviePatternPolygon";
-import { AUTOMOVIE_MAX_PATTERN_CELLS } from "../constants/AUTOMOVIE_MAX_PATTERN_CELLS";
+import { AUTOMOVIE_MAX_PATTERN_CELLS } from "../AUTOMOVIE_MAX_PATTERN_CELLS";
 
 /** Domain constant separating variant draws from every other seeded decision. */
 const VARIANT_DOMAIN: number = 0x7061_7474;

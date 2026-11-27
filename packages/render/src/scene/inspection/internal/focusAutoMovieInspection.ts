@@ -4,11 +4,11 @@ import type {
 } from "@automovie/interface";
 
 
-import type { IAutoMovieViewerSubjectBounds } from "../../subjectViewpoint/IAutoMovieViewerSubjectBounds.js";
+import type { IAutoMovieViewerSubjectBounds } from "../../IAutoMovieViewerSubjectBounds.js";
 
 import { matchAutoMovieInspectionPath } from "./matchAutoMovieInspectionPath.js";
-import type { AutoMovieRenderInspection } from "../AutoMovieRenderInspection.js";
-import { AutoMovieRenderInspectionGeometry } from "../AutoMovieRenderInspectionGeometry.js";
+import type { AutoMovieRenderInspection } from "../../AutoMovieRenderInspection.js";
+import { AutoMovieRenderInspectionGeometry } from "../../AutoMovieRenderInspectionGeometry.js";
 
 /**
  * Measure the world-space box a view's focus frames: the drawn objects and

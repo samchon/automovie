@@ -1,6 +1,6 @@
 import { captureViewerSnapshot } from "./captureViewerSnapshot.js";
-import type { IAutoMovieViewerSubjectView } from "../IAutoMovieViewerSubjectView.js";
-import type { IAutoMovieViewerSubjectViewRequest } from "../IAutoMovieViewerSubjectViewRequest.js";
+import type { IAutoMovieViewerSubjectView } from "../../IAutoMovieViewerSubjectView.js";
+import type { IAutoMovieViewerSubjectViewRequest } from "../../IAutoMovieViewerSubjectViewRequest.js";
 import { applyAutoMovieViewerSubjectPose } from "./applyAutoMovieViewerSubjectPose.js";
 
 /**

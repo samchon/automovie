@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-import { RELIEF_WEIGHT_TARGET } from "../RELIEF_WEIGHT_TARGET.js";
+import { RELIEF_WEIGHT_TARGET } from "../../RELIEF_WEIGHT_TARGET.js";
 
 /**
  * Multiply base normal-map slopes by interpolated relief after their native

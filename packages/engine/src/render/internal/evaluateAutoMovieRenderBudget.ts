@@ -13,8 +13,8 @@ import {
 
 import { autoMovieRenderDigest } from "./autoMovieRenderDigest";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
-import { AUTOMOVIE_RENDER_METRICS } from "../constants/AUTOMOVIE_RENDER_METRICS";
-import { AUTOMOVIE_RENDER_REPORT_MAX_CONTRIBUTORS } from "../constants/AUTOMOVIE_RENDER_REPORT_MAX_CONTRIBUTORS";
+import { AUTOMOVIE_RENDER_METRICS } from "../AUTOMOVIE_RENDER_METRICS";
+import { AUTOMOVIE_RENDER_REPORT_MAX_CONTRIBUTORS } from "../AUTOMOVIE_RENDER_REPORT_MAX_CONTRIBUTORS";
 
 /**
  * Check one inventory against one declared budget and produce the bounded

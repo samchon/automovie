@@ -19,7 +19,7 @@ import { AutoMovieEngineSpace } from "../../space/index";
 import { builtEnvironmentElementPartBounds } from "./builtEnvironmentElementPartBounds";
 import { builtEnvironmentPlacementBounds } from "./builtEnvironmentPlacementBounds";
 import { builtFootprintsOverlap } from "./builtFootprintsOverlap";
-import { AUTOMOVIE_SUPPORT_TOLERANCE } from "../constants/AUTOMOVIE_SUPPORT_TOLERANCE";
+import { AUTOMOVIE_SUPPORT_TOLERANCE } from "../AUTOMOVIE_SUPPORT_TOLERANCE";
 import { resolveBuiltPlacementBody } from "./resolveBuiltPlacementBody";
 
 /** A resolved support: the face it bears on and how that face was derived. */

@@ -6,7 +6,7 @@ import {
   type IAutoMovieSealRenderTarget,
 } from "@automovie/interface";
 
-import { SHA256_DIGEST_PATTERN } from "../../validation/constants/SHA256_DIGEST_PATTERN";
+import { SHA256_DIGEST_PATTERN } from "../../validation/SHA256_DIGEST_PATTERN";
 import { autoMovieRenderDigest } from "./autoMovieRenderDigest";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
 import { normalizeAutoMovieShadowFilter } from "./normalizeAutoMovieShadowFilter";

@@ -3,7 +3,7 @@ import type {
   IAutoMovieSweep,
 } from "@automovie/interface";
 
-import { AutoMovieSpline } from "../AutoMovieSpline";
+import { AutoMovieSpline } from "../../AutoMovieSpline";
 import { integrateAutoMovieSweepVolume } from "./integrateAutoMovieSweepVolume";
 import { interpolateAutoMovieSpline } from "./interpolateAutoMovieSpline";
 import { momentAutoMovieSweepSections } from "./momentAutoMovieSweepSections";

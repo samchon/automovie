@@ -1,7 +1,7 @@
 import type { IAutoMovieBuiltEnvironment } from "../architecture/IAutoMovieBuiltEnvironment";
 import type { IAutoMovieStageSetPiece } from "../authoring/IAutoMovieStageSetPiece";
-import type { IAutoMovieFootprint } from "../geometry/space/IAutoMovieFootprint";
-import type { IAutoMovieHeightSurface } from "../geometry/space/IAutoMovieHeightSurface";
+import type { IAutoMovieFootprint } from "../geometry/IAutoMovieFootprint";
+import type { IAutoMovieHeightSurface } from "../geometry/IAutoMovieHeightSurface";
 import type { IAutoMoviePropRelationTarget } from "../harness/IAutoMoviePropRelationTarget";
 import type { IAutoMoviePropSpec } from "../harness/IAutoMoviePropSpec";
 

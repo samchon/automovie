@@ -1,7 +1,7 @@
 import { IAutoMovieSubjectBox } from "@automovie/interface";
 
-import { DEFAULT_SUBJECT_HEIGHT } from "../constants/DEFAULT_SUBJECT_HEIGHT";
-import { MIN_MEASURED_SUBJECT_HEIGHT } from "../constants/MIN_MEASURED_SUBJECT_HEIGHT";
+import { DEFAULT_SUBJECT_HEIGHT } from "../DEFAULT_SUBJECT_HEIGHT";
+import { MIN_MEASURED_SUBJECT_HEIGHT } from "../MIN_MEASURED_SUBJECT_HEIGHT";
 
 /**
  * The model-space box a node subject is framed and graded from: its supplied

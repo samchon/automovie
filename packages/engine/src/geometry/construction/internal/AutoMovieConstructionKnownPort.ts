@@ -7,7 +7,7 @@ import type {
   IAutoMovieSolidSurface,
 } from "@automovie/interface";
 
-import { AutoMovieLoftAdmissionError } from "../AutoMovieLoftAdmissionError";
+import { AutoMovieLoftAdmissionError } from "../../AutoMovieLoftAdmissionError";
 
 /**
  * Actual-field C2 band using a quintic partition of unity, without contact

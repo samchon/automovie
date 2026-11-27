@@ -28,11 +28,11 @@ import { AutoMovieEngineFluid } from "../../fluid/AutoMovieEngineFluid";
 import { plantingBudget } from "../../soft/internal/plantingBudget";
 import { softBodyBudget } from "../../soft/internal/softBodyBudget";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
-import { AUTOMOVIE_FLOW_BYTES } from "../constants/AUTOMOVIE_FLOW_BYTES";
-import { AUTOMOVIE_INDEX_BYTES } from "../constants/AUTOMOVIE_INDEX_BYTES";
-import { AUTOMOVIE_NORMAL_BYTES } from "../constants/AUTOMOVIE_NORMAL_BYTES";
-import { AUTOMOVIE_POSITION_BYTES } from "../constants/AUTOMOVIE_POSITION_BYTES";
-import { AUTOMOVIE_UV_BYTES } from "../constants/AUTOMOVIE_UV_BYTES";
+import { AUTOMOVIE_FLOW_BYTES } from "../AUTOMOVIE_FLOW_BYTES";
+import { AUTOMOVIE_INDEX_BYTES } from "../AUTOMOVIE_INDEX_BYTES";
+import { AUTOMOVIE_NORMAL_BYTES } from "../AUTOMOVIE_NORMAL_BYTES";
+import { AUTOMOVIE_POSITION_BYTES } from "../AUTOMOVIE_POSITION_BYTES";
+import { AUTOMOVIE_UV_BYTES } from "../AUTOMOVIE_UV_BYTES";
 
 /**
  * Extend prior counts with simulated drawable costs and explicit missing

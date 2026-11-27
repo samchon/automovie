@@ -1,7 +1,7 @@
 import type { IAutoMovieInspectionLegendEntry } from "@automovie/interface";
 
-import type { IAutoMovieInspectionDiagnosticOverlay } from "../IAutoMovieInspectionDiagnosticOverlay.js";
-import type { IRenderAutoMovieInspectionDiagnosticsProps } from "../IRenderAutoMovieInspectionDiagnosticsProps.js";
+import type { IAutoMovieInspectionDiagnosticOverlay } from "../../IAutoMovieInspectionDiagnosticOverlay.js";
+import type { IRenderAutoMovieInspectionDiagnosticsProps } from "../../IRenderAutoMovieInspectionDiagnosticsProps.js";
 import { createAutoMovieInspectionDiagnosticOverlay } from "./createAutoMovieInspectionDiagnosticOverlay.js";
 
 /**

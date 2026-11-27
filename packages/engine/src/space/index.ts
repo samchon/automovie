@@ -1,4 +1,4 @@
 export * from "./AutoMovieEngineSpace";
-export * from "./world/AutoMovieEngineWorld";
+export * from "./AutoMovieEngineWorld";
 
 export * from "./constants";

@@ -1,4 +1,4 @@
-import { AUTO_MOVIE_INSPECTION_KEYS } from "../scene/inspection/AUTO_MOVIE_INSPECTION_KEYS.js";
+import { AUTO_MOVIE_INSPECTION_KEYS } from "../scene/AUTO_MOVIE_INSPECTION_KEYS.js";
 
 /**
  * Every key `parseAutoMovieCapturePlanRequest` reads, in the order

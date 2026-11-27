@@ -1,2 +1,2 @@
-export * from "./AutoMovieMeshCourse";
-export * from "./AutoMovieMeshExtract";
+export * from "../AutoMovieMeshCourse";
+export * from "../AutoMovieMeshExtract";

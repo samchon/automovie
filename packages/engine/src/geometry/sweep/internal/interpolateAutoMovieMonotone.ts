@@ -1,6 +1,6 @@
 import type { IAutoMovieInterpolateMonotone } from "@automovie/interface";
 
-import { AutoMovieMonotone } from "../AutoMovieMonotone";
+import { AutoMovieMonotone } from "../../AutoMovieMonotone";
 
 /**
  * Build a shape-preserving piecewise cubic interpolant through knots, the

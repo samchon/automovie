@@ -1,6 +1,6 @@
 import { IAutoMoviePlanarPoint } from "@automovie/interface";
 
-import { PLANAR_EPSILON } from "../../geometry/constants/PLANAR_EPSILON";
+import { PLANAR_EPSILON } from "../../geometry/PLANAR_EPSILON";
 
 /**
  * Which side of the directed line `from -> to` a point falls on: `1` left, `-1`

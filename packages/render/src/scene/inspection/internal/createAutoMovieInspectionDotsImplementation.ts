@@ -2,7 +2,7 @@ import * as THREE from "three";
 
 import type { IMaterialShaderSource } from "../../IMaterialShaderSource.js";
 import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial.js";
-import { AUTO_MOVIE_INSPECTION_DEPTH_LEAD } from "../AUTO_MOVIE_INSPECTION_DEPTH_LEAD.js";
+import { AUTO_MOVIE_INSPECTION_DEPTH_LEAD } from "../../AUTO_MOVIE_INSPECTION_DEPTH_LEAD.js";
 
 /**
  * Make the points object inspection marks draw their places with: one

@@ -1,13 +1,13 @@
 import { AutoMovieEngineGeometry } from "@automovie/engine";
-import type { AutoMovieRenderInspectionGeometry } from "../AutoMovieRenderInspectionGeometry.js";
+import type { AutoMovieRenderInspectionGeometry } from "../../AutoMovieRenderInspectionGeometry.js";
 import type {
   IAutoMovieMark,
   IAutoMovieMeshDefect,
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AUTO_MOVIE_INSPECTION_KINDS } from "../AUTO_MOVIE_INSPECTION_KINDS.js";
-import type { IAutoMovieInspectionMeasured } from "../IAutoMovieInspectionMeasured.js";
+import { AUTO_MOVIE_INSPECTION_KINDS } from "../../AUTO_MOVIE_INSPECTION_KINDS.js";
+import type { IAutoMovieInspectionMeasured } from "../../IAutoMovieInspectionMeasured.js";
 
 /**
  * Measure a mesh's defects and return them as marks lying on the mesh as it is

@@ -6,7 +6,7 @@ import type {
 import * as THREE from "three";
 
 import { reportAutoMovieResourceRetirement } from "../../internal/reportAutoMovieResourceRetirement.js";
-import type { AutoMovieHumanPolygon } from "../AutoMovieHumanPolygon.js";
+import type { AutoMovieHumanPolygon } from "../../AutoMovieHumanPolygon.js";
 import { applyHumanPolygonPose } from "./applyHumanPolygonPose.js";
 import { buildHumanPolygonModule } from "./buildHumanPolygonModule.js";
 import { buildHumanPolygonParts } from "./buildHumanPolygonParts.js";

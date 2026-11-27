@@ -11,7 +11,7 @@ import type {
 
 import { AutoMovieEngineKinematics } from "../../kinematics/AutoMovieEngineKinematics";
 import { Quaternion } from "../../math/Quaternion";
-import { ROM_TOLERANCE } from "../../rom/constants/ROM_TOLERANCE";
+import { ROM_TOLERANCE } from "../../rom/ROM_TOLERANCE";
 
 /** Companion types and helpers of {@link samplePoseVelocity}. */
 export namespace samplePoseVelocity {

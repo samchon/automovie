@@ -1,4 +1,4 @@
-import { AutoMovieRenderInspection } from "../scene/inspection/AutoMovieRenderInspection.js";
+import { AutoMovieRenderInspection } from "../scene/AutoMovieRenderInspection.js";
 import type {
   IAutoMovieDialogueMouthTrack,
   IAutoMovieDrawCall,
@@ -11,8 +11,8 @@ import type {
 } from "@automovie/interface";
 
 import type { IAutoMovieSectionRenderer } from "../scene/IAutoMovieSectionRenderer.js";
-import type { IAutoMovieInspectionHandle } from "../scene/inspection/IAutoMovieInspectionHandle.js";
-import type { IAutoMovieViewerSubjectBounds } from "../scene/subjectViewpoint/IAutoMovieViewerSubjectBounds.js";
+import type { IAutoMovieInspectionHandle } from "../scene/IAutoMovieInspectionHandle.js";
+import type { IAutoMovieViewerSubjectBounds } from "../scene/IAutoMovieViewerSubjectBounds.js";
 import { AutoMovieDialogueMouthRecorder } from "./AutoMovieDialogueMouthRecorder.js";
 import type { IAutoMovieDrawScene } from "./IAutoMovieDrawScene.js";
 import { placeAutoMovieDrawLayer } from "./internal/placeAutoMovieDrawLayer.js";

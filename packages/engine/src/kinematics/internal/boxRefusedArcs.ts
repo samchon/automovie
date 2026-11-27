@@ -5,7 +5,7 @@ import type {
   IAutoMovieSwivelArcs,
 } from "@automovie/interface";
 
-import { ROM_TOLERANCE } from "../../rom/constants/ROM_TOLERANCE";
+import { ROM_TOLERANCE } from "../../rom/ROM_TOLERANCE";
 import { swivelArcs } from "../swivelArcs";
 import { swivelJointReadings } from "../swivelJointReadings";
 

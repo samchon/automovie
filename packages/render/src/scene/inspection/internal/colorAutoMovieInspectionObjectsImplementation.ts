@@ -3,7 +3,7 @@ import * as THREE from "three";
 import { AutoMovieRenderDualQuaternionSkinning } from "../../dualQuaternionSkinning/index.js";
 import { AutoMovieRenderFormationCycle } from "../../formationCycle/index.js";
 import { matchAutoMovieInspectionPath } from "./matchAutoMovieInspectionPath.js";
-import type { AutoMovieRenderInspectionMaterial } from "../AutoMovieRenderInspectionMaterial.js";
+import type { AutoMovieRenderInspectionMaterial } from "../../AutoMovieRenderInspectionMaterial.js";
 
 /**
  * Shade each mesh a request's colour patterns match in that colour for one

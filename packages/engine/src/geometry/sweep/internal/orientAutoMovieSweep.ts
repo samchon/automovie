@@ -3,7 +3,7 @@ import type {
   IAutoMovieSweepOrientation,
 } from "@automovie/interface";
 
-import { AutoMovieSweepRotation } from "../AutoMovieSweepRotation";
+import { AutoMovieSweepRotation } from "../../AutoMovieSweepRotation";
 
 /**
  * Create the station-rotation buffers of a sweep and the in-place computation

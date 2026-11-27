@@ -9,4 +9,4 @@
 
 
 
-export * from "./AutoMovieEngineStaging";
+export * from "../AutoMovieEngineStaging";

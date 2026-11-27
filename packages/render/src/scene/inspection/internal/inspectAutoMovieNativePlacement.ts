@@ -5,7 +5,7 @@ import type {
 import type { Matrix4, Object3D } from "three";
 
 import { AUTOMOVIE_PLACED_FRAME_TOLERANCE } from "../AUTOMOVIE_PLACED_FRAME_TOLERANCE.js";
-import { AutoMovieRenderInspectionPath } from "../AutoMovieRenderInspectionPath.js";
+import { AutoMovieRenderInspectionPath } from "../../AutoMovieRenderInspectionPath.js";
 import { isAutoMovieAffineMatrix } from "./isAutoMovieAffineMatrix.js";
 
 type IFinding = IAutoMovieInspectionDiagnostics.IFinding;

@@ -10,10 +10,10 @@ import type {
   IAutoMovieViewPart,
 } from "@automovie/interface";
 
-import { AutoMovieLoftAdmissionError } from "../AutoMovieLoftAdmissionError";
-import { AutoMovieLoftSectionNative } from "../AutoMovieLoftSectionNative";
-import { AutoMovieLoftViewRead } from "../AutoMovieLoftViewRead";
-import { AutoMovieLoftViewSource } from "../AutoMovieLoftViewSource";
+import { AutoMovieLoftAdmissionError } from "../../AutoMovieLoftAdmissionError";
+import { AutoMovieLoftSectionNative } from "../../AutoMovieLoftSectionNative";
+import { AutoMovieLoftViewRead } from "../../AutoMovieLoftViewRead";
+import { AutoMovieLoftViewSource } from "../../AutoMovieLoftViewSource";
 
 /**
  * Exact native-source adapter to the original piecewise-profile reader.

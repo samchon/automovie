@@ -4,7 +4,7 @@ import * as THREE from "three";
 
 import type { IMaterialShaderSource } from "../../IMaterialShaderSource.js";
 import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial.js";
-import { AUTOMOVIE_PROCEDURAL_NOISE_GLSL } from "../AUTOMOVIE_PROCEDURAL_NOISE_GLSL.js";
+import { AUTOMOVIE_PROCEDURAL_NOISE_GLSL } from "../../AUTOMOVIE_PROCEDURAL_NOISE_GLSL.js";
 import { proceduralPatternGlsl } from "./proceduralPatternGlsl.js";
 
 /**

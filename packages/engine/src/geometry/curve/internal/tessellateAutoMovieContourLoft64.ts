@@ -5,7 +5,7 @@ import type {
   IAutoMovieContourLoftSink64,
 } from "@automovie/interface";
 
-import { AutoMovieCurveMath64 as M } from "../AutoMovieCurveMath64";
+import { AutoMovieCurveMath64 as M } from "../../AutoMovieCurveMath64";
 import { computeAutoMovieContourNormals64 } from "./computeAutoMovieContourNormals64";
 import { generateAutoMovieContourLoft64 } from "./generateAutoMovieContourLoft64";
 

@@ -1,0 +1,425 @@
+import { type Box3, type Mesh, type Object3D, type Camera, type Plane, type Matrix4, type Scene, type PerspectiveCamera, type OrthographicCamera } from "three";
+import type { IAutoMovieCameraInspection, IAutoMovieInspectionCamera, IAutoMovieInspectionDiagnostics, IAutoMovieInspectionView, IAutoMovieSubjectBox, IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieDrawScene } from "../draw/IAutoMovieDrawScene.js";
+import type { IAutoMovieViewerSubjectBounds } from "./IAutoMovieViewerSubjectBounds.js";
+import { boundAutoMovieCameraSubject as boundAutoMovieCameraSubjectImplementation } from "./inspection/internal/boundAutoMovieCameraSubject.js";
+import { listAutoMovieCameraSubjectMeshes as listAutoMovieCameraSubjectMeshesImplementation } from "./inspection/internal/listAutoMovieCameraSubjectMeshes.js";
+import { measureAutoMovieCameraFrameEdgeSurface as measureFrameEdgeSurfaceImplementation } from "./inspection/internal/measureAutoMovieCameraFrameEdgeSurface.js";
+
+import { measureAutoMovieCameraNearClip } from "./inspection/internal/measureAutoMovieCameraNearClip.js";
+import { resolveAutoMovieInspectionView as resolveViewImplementation } from "./inspection/internal/resolveAutoMovieInspectionView.js";
+import { measureAutoMovieCameraFrameEdge } from "./inspection/internal/measureAutoMovieCameraFrameEdge.js";
+import { observeAutoMovieCameraInspection } from "./inspection/internal/observeAutoMovieCameraInspection.js";
+import { observeAutoMoviePlacedCamera } from "./inspection/internal/observeAutoMoviePlacedCamera.js";
+
+/** Public operations for Auto Movie Render Inspection Camera. */
+export namespace AutoMovieRenderInspectionCamera {
+  /** Named input and result contracts for resolving one inspection view. */
+    /** Inputs used to resolve an inspection camera and its record. */
+    export interface IResolveViewProps {
+      /** The view, as `parseAutoMovieInspectionView` read it. */
+      view: IAutoMovieInspectionView;
+      /** The view's text, kept in the record. */
+      text: string;
+      /** World box a fitted view frames, or null when nothing is drawn. */
+      bounds: IAutoMovieViewerSubjectBounds | null;
+      /**
+       * The subject's delivery camera: the film view itself, and the field of
+       * view and clips the other views take.
+       */
+      camera: PerspectiveCamera;
+      /** The subject's own views by name, each placing a camera at a second. */
+      views?: Readonly<
+        Record<
+          string,
+          (seconds: number) => {
+            position: readonly [number, number, number];
+            target: readonly [number, number, number];
+          }
+        >
+      >;
+      /** The film second drawn. */
+      seconds: number;
+      /** Picture width, pixels. */
+      width: number;
+      /** Picture height, pixels. */
+      height: number;
+    }
+
+    /** Resolved camera and its serializable inspection camera record. */
+    export interface IResolveViewResult {
+      /** Resolved camera used to draw the inspection view. */
+      camera: PerspectiveCamera | OrthographicCamera;
+      /** Serializable camera and view record for the inspection result. */
+      record: IAutoMovieInspectionCamera;
+    }
+  /** Named public input and result contracts for near-clip measurement. */
+    /** The delivery camera and a required subject's admitted meshes. */
+    export interface INearClipProps {
+      /**
+       * Delivery camera with its world matrices and projection, crop included,
+       * already current.
+       */
+      camera: Camera;
+      /**
+       * Meshes from listAutoMovieCameraSubjectMeshes with current world matrices
+       * and poses, or undefined when it refused the subject.
+       */
+      meshes: readonly Mesh[] | undefined;
+      /**
+       * Optional independently certified world envelope of the whole placed
+       * subject, metres.
+       */
+      bounds?: IAutoMovieSubjectBox;
+      /** Largest number of drawn triangles this call may examine. */
+      triangleBudget: number;
+    }
+
+    /** Clear, clipped with its deepest witness, or unmeasured with a reason. */
+    export type INearClipResult =
+      | {
+          /** Every examined triangle stays on or beyond the near plane inside the frame. */
+          status: "clear";
+          /** Drawn triangles examined. */
+          triangles: number;
+        }
+      | {
+          /** Some drawn surface inside the frame lies in front of the near plane. */
+          status: "clipped";
+          /** Drawn triangles examined. */
+          triangles: number;
+          /** Deepest intrusion in front of the near plane, world metres. */
+          depth: number;
+          /** World surface point of that intrusion, metres. */
+          point: IAutoMovieVector3;
+          /**
+           * World point on the near plane at the same delivered pixel, metres,
+           * where the cut shows in the frame.
+           */
+          cut: IAutoMovieVector3;
+          /**
+           * Whether the reported intrusion lies on an opaque stock surface;
+           * false means the cut part may be invisible anyway.
+           */
+          opaque: boolean;
+        }
+      | {
+          /**
+           * The drawn triangles in front of the near plane exceed the caller's
+           * budget; a larger budget completes the check.
+           */
+          status: "over-budget";
+          /** How far the budget fell short. */
+          reason: string;
+        }
+      | {
+          /**
+           * The surface cannot be checked: an unreadable drawable, a non-finite
+           * vertex or projection, or an invalid budget.
+           */
+          status: "unmeasured";
+          /** Why the check cannot run. */
+          reason: string;
+        };
+
+  /** Named public input and result contracts for original-camera observation. */
+    /** The delivered camera and one source-resolved requirement, after placement. */
+    export interface IObserveProps {
+      /** Original displayed scene, before inspection overlays are installed. */
+      scene: Scene;
+      /** Output camera with delivery aspect and crop already applied. */
+      camera: Camera;
+      /** Resolved displayed root of the required subject, when available. */
+      target: Object3D | undefined;
+      /** Optional independently certified full world envelope of the placed subject. */
+      targetBounds?: IAutoMovieSubjectBox;
+      /** Source-authored maximum pixel-occlusion ratio. */
+      maxOcclusionRatio?: number;
+      /** Maximum total triangles admitted to the optional, nine-ray witness pass. */
+      triangleBudget?: number;
+      /** Matching exact pixel observations, when a capture or delivery audit obtained them. */
+      pixels?: IAutoMovieCameraInspection.IPixels;
+    }
+
+    /** Independent framing and occlusion grades. */
+    export type IObserveResult = IAutoMovieCameraInspection.IResult;
+
+  /** Named public input and result contracts for placed-camera observation. */
+    /** A source requirement active in the placed sample. */
+    export interface IObservePlacedRequirement {
+      /** Stable path of the authored subject within its source scope. */
+      readonly path: string;
+      /** Source-resolved displayed object, absent when resolution failed. */
+      readonly target: Object3D | undefined;
+      /** Authored maximum fraction, inclusive, when the source requires pixel coverage. */
+      readonly maxOcclusionRatio?: number;
+      /** Optional certified envelope of the whole posed subject in world metres. */
+      readonly targetBounds?: IAutoMovieSubjectBox;
+    }
+
+    /** Settled sample and its active source requirements. */
+    export interface IObservePlacedProps {
+      /** Settled original scene and delivery projection, before inspection effects. */
+      sample: IAutoMovieDrawScene.IPlacedSample;
+      /** Source-owned requirements active at this sample's exact time. */
+      targets: readonly IObservePlacedRequirement[];
+    }
+
+    /** Independent diagnostic rows emitted by placed camera observation. */
+    export type IObservePlacedResult = Pick<IAutoMovieInspectionDiagnostics, "findings" | "coverage">;
+
+  /**
+   * Measure how far a required subject's drawn surface reaches in front of the
+   * delivery near plane inside the delivered frame.
+   *
+   * The GPU clips every triangle against the near plane, so any part of the
+   * subject's surface that lies inside the four side planes and on the camera
+   * side of the near plane is cut out of the delivered picture: the camera has
+   * entered the subject. Each drawn triangle is clipped to the four side planes
+   * (Sutherland-Hodgman); signed distance to the near plane is linear over the
+   * remaining convex polygon, so its deepest point is a polygon vertex.
+   *
+   * @param props Delivery camera, admitted subject meshes and the triangle
+   *   budget.
+   * @returns `clear` when no drawn surface crosses, `clipped` with the deepest
+   *   intrusion in metres, its world surface point and the near-plane point at
+   *   the same delivered pixel, `over-budget` when the triangles to examine
+   *   exceed the budget, or `unmeasured` with the reason the subject cannot be
+   *   checked.
+   */
+  export function measureNearClip(
+    props: INearClipProps,
+  ): INearClipResult {
+    return measureAutoMovieCameraNearClip(props);
+  }
+  /** Observes required-subject framing from the original delivered projection. */
+  export function observe(
+    props: IObserveProps,
+  ): IObserveResult {
+    return observeAutoMovieCameraInspection(props);
+  }
+
+  /**
+   * Observe active, source-owned requirements on the host's original delivery
+   * camera.
+   *
+   * The interactive Viewer checks each painted frame under fixed triangle budgets
+   * and reports a check they stop as `deferred`. Capture and delivery run every
+   * camera check without a budget, and they audit authored pixel coverage with
+   * the host renderer, so they leave nothing deferred. A check that cannot run on
+   * the subject at all is `unsupported` in every host.
+   *
+   * A subject whose bounds cross a side of the frame gets an optional
+   * `camera-frame-edge` check: a cut by the frame edge is often the intended
+   * composition, so it is a `frame-edge-cut` warning that never blocks delivery.
+   *
+   * @param props The placed sample and the requirements active at its time.
+   * @returns Findings and one coverage row per check and requirement.
+   */
+  export function observePlaced(
+    props: IObservePlacedProps,
+  ): IObservePlacedResult {
+    return observeAutoMoviePlacedCamera(props);
+  }
+  /**
+   * Measure where the sides of the delivered frame cut a required subject.
+   *
+   * The subject's world box, or its certified envelope, crosses a side plane when
+   * its outermost corner lies outside that plane beyond the 32-ulp slack the
+   * framing grade uses. For each crossed side, the extent is how far the part of
+   * the box beyond the near plane reaches past that edge, in normalized device
+   * units: the frame spans -1 to 1 on each axis, crop and aspect included. It is
+   * read at the vertices of the box clipped by the near plane, because a
+   * perspective projection of a convex solid reaches its extremes at vertices. A
+   * side crossed only on the camera side of the near plane has no extent: that
+   * part is never drawn, so it cannot be cut.
+   *
+   * When some side has an extent and the meshes are readable,
+   * `measureFrameEdgeSurface` confirms or clears the cut on the drawn surface and
+   * measures the visible fraction.
+   *
+   * @param props Delivery camera, subject bounds and meshes, and the triangle
+   *   budget.
+   * @returns `inside` when the bounds cross no side plane, `crossed` with the
+   *   crossed sides, their extents and the surface outcome, or `unmeasured` with
+   *   the reason the bounds or projection cannot be read.
+   */
+  export function measureFrameEdge(
+    props: IFrameEdgeProps,
+  ): IFrameEdgeResult {
+    return measureAutoMovieCameraFrameEdge(props);
+  }
+
+  /** Frame-edge input and outcome types shared by the camera evaluator. */
+    /** The delivery camera and a required subject's bounds and admitted meshes. */
+    export interface IFrameEdgeProps {
+      /**
+       * Delivery camera with its world matrices and projection, crop included,
+       * already current.
+       */
+      camera: Camera;
+      /**
+       * Meshes from listAutoMovieCameraSubjectMeshes with current world matrices
+       * and poses, or undefined when it refused the subject.
+       */
+      meshes: readonly Mesh[] | undefined;
+      /**
+       * Optional independently certified world envelope of the whole placed
+       * subject, metres. It replaces the mesh box for the side test.
+       */
+      bounds?: IAutoMovieSubjectBox;
+      /** Largest number of drawn triangles the surface check may examine. */
+      triangleBudget: number;
+    }
+
+    /** A side of the delivered frame. */
+    export type IAutoMovieRenderInspectionFrameEdgeSide = "left" | "right" | "bottom" | "top";
+
+    /** One side plane the subject's bounds cross. */
+    export interface IFrameEdgeCrossing {
+      /** The crossed side. */
+      side: IAutoMovieRenderInspectionFrameEdgeSide;
+      /**
+       * How far the bounds beyond the near plane reach past this edge, in
+       * normalized device units; absent when only the part before the near plane
+       * crosses.
+       */
+      extent?: number;
+    }
+
+    /** Inside every side, crossing some side, or unmeasured. */
+    export type IFrameEdgeResult =
+      | { /** The bounds lie inside all four side planes. */ status: "inside" }
+      | {
+          /** The bounds cross at least one side plane. */
+          status: "crossed";
+          /** Crossed sides in right, left, bottom, top order. */
+          crossings: IFrameEdgeCrossing[];
+          /** The surface check of the cut, or clear when no crossing has extent. */
+          surface: IFrameEdgeSurfaceResult;
+        }
+      | {
+          /** The bounds or projection cannot be read. */
+          status: "unmeasured";
+          /** Why the check cannot run. */
+          reason: string;
+        };
+  /** Inputs for one required subject's camera frame-edge surface check. */
+  export interface IFrameEdgeSurfaceProps {
+    /** Admitted meshes with current world matrices and poses. */
+    meshes: readonly Mesh[];
+    /** Four normalized inward side planes of the delivery frustum. */
+    sides: readonly Plane[];
+    /** Normalized inward near plane of the delivery frustum. */
+    near: Plane;
+    /** World-to-clip matrix with crop and aspect included. */
+    projection: Matrix4;
+    /** Largest number of drawn triangles this call may examine. */
+    triangleBudget: number;
+  }
+  /** Outcome of one camera frame-edge surface check. */
+  export type IFrameEdgeSurfaceResult = measureFrameEdgeSurfaceImplementation.IResult;
+  /**
+   * Enclose the current world geometry of a required subject's admitted meshes.
+   *
+   * A rigid mesh contributes its geometry box under its world matrix. An owned
+   * skin contributes its exact posed local extent, already grown by its float32
+   * GPU tolerance, under its world matrix; Three keeps posed skinned positions in
+   * the mesh's local frame, so the same world transform applies to both.
+   *
+   * @param meshes Meshes from listAutoMovieCameraSubjectMeshes, with current
+   *   world matrices.
+   * @returns A finite world box in metres, or undefined when the list is empty or
+   *   any contribution is empty or non-finite.
+   */
+  export function boundSubject(meshes: readonly Mesh[]): Box3 | undefined {
+    return boundAutoMovieCameraSubjectImplementation(meshes);
+  }
+
+  /**
+   * List the drawables of a required subject whose current geometry the CPU can
+   * read.
+   *
+   * Admits two vertex paths. A rigid `Mesh` keeps the stock pre-render callbacks,
+   * has no position morphs and no material that moves vertices on the GPU, so its
+   * buffer positions times its world matrix are what the delivery draws. An
+   * `AutoMovieSkinnedMesh` with a stock surface whose shader matches its skinning
+   * method reads posed positions from the skin's own CPU evaluation, which agrees
+   * with the GPU blend within the mesh's stated float32 tolerance.
+   *
+   * @param target Resolved displayed root of the required subject.
+   * @param camera Delivery camera; only objects on its layers are drawn by it.
+   * @returns Every visible drawable mesh of the subject, or undefined when one
+   *   visible drawable has a vertex path the CPU cannot reproduce. An empty list
+   *   means the subject draws no mesh.
+   */
+  export function listSubjectMeshes(target: Object3D, camera: Camera): Mesh[] | undefined {
+    return listAutoMovieCameraSubjectMeshesImplementation(target, camera);
+  }
+  /**
+   * Check a required subject's drawn surface against the sides of the delivered
+   * frame, under the caller's triangle budget.
+   *
+   * @param props Admitted meshes, the delivery frustum planes and projection,
+   *   and the triangle budget.
+   * @returns The cut, clear, over-budget or unmeasured outcome.
+   */
+  export function measureFrameEdgeSurface(
+    props: IFrameEdgeSurfaceProps,
+  ): IFrameEdgeSurfaceResult {
+    return measureFrameEdgeSurfaceImplementation(props);
+  }
+
+
+  /**
+   * Turn an inspection view into the camera that draws it and the record that
+   * repeats it, for a picture of `width` by `height` pixels at film second
+   * `seconds`.
+   *
+   * | View                                  | Camera                                                                                                                                                                                                      |
+   * | ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+   * | `film`                                | The subject's own `camera`, returned unchanged                                                                                                                                                              |
+   * | Fixed                                 | A perspective camera at the position looking at the target, with the subject camera's field of view and clips, rolled to the view's up when it states one                                                   |
+   * | Fixed with a scale                    | An orthographic camera at the position looking at the target, the picture's height spanning the scale times its pixels, with clips at a quarter and three and a half times the eye's distance to the target |
+   * | A name the subject's `views` holds    | A perspective camera where that view places it at `seconds`, with the subject camera's field of view and clips                                                                                              |
+   * | A named viewpoint                     | A perspective camera from the viewpoint's direction fitted to `bounds` by `frameAutoMovieViewerSubject`, with the subject camera's field of view                                                            |
+   * | A named viewpoint with `orthographic` | An orthographic camera from the same direction whose frame holds every corner of `bounds`, by the same margin                                                                                               |
+   *
+   * `bounds` is what the view frames: the host measures it on what is drawn, or
+   * on the focus the view names through the inspection handle's `bounds`. A
+   * subject's view wins a name over a named viewpoint, because the subject knows
+   * its own staging. A vertical named view takes the up direction its viewpoint
+   * documents, `-Z` from the top and `+Z` from the bottom; every other view takes
+   * `+Y`. The record's `metresPerPixel` is the orthographic frame's height over
+   * `height`.
+   *
+   * `@follow` changes only which seconds a host measures `bounds` over, the drawn
+   * second alone, so it resolves as the fit it modifies. A fixed camera with a
+   * scale repeats a fitted orthographic view exactly, because that view stands
+   * twice its frame's radius from its target with clips at half and seven times
+   * the radius.
+   *
+   * It throws for a size that is not positive, an unknown name with the accepted
+   * names listed, a subject view asked to be orthographic, followed or focused,
+   * and a fitted view without bounds, which means nothing is drawn to frame.
+   *
+   * ```ts
+   * const { camera, record } = AutoMovieRenderInspectionCamera.resolveView({
+   *   view: parseAutoMovieInspectionView("front@ortho"),
+   *   text: "front@ortho",
+   *   bounds: inspection.bounds(),
+   *   camera: production.camera,
+   *   views: production.views,
+   *   seconds,
+   *   width: 960,
+   *   height: 540,
+   * });
+   * ```
+   */
+  export function resolveView(
+    props: IResolveViewProps,
+  ): IResolveViewResult {
+    return resolveViewImplementation(props);
+  }
+
+}
