@@ -1,7 +1,7 @@
 import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieResolvedBone, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanChain } from "../../HumanChain";
+import { HumanChain } from "../../chain/HumanChain";
 import { AutoMovieMotionHumanAuditSkin } from "../../audit/AutoMovieMotionHumanAuditSkin";
 import { dress } from "../../dressing/internal/dress";
 import { HumanColliders } from "../../posture/HumanColliders";

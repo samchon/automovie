@@ -1,7 +1,7 @@
 import { AutoMovieEngineKinematics, Quaternion } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMoviePose, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanChain } from "../../HumanChain";
+import { HumanChain } from "../../chain/HumanChain";
 import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
 import { HumanPerformance } from "../../perform/HumanPerformance";
 import { HumanFoot } from "../../posture/HumanFoot";

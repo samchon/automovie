@@ -26,7 +26,7 @@ import type { AutoMovieEnvironment } from "../AutoMovieEnvironment";
 export function buildingDoor(
   id: string,
   opening: Extract<
-    AutoMovieEnvironment.IAutoMovieEnvironmentBuildingOpening,
+    AutoMovieEnvironment.IBuildingOpening,
     { kind: "door" }
   >,
   seed: number | undefined,
@@ -121,7 +121,7 @@ export function buildingDoor(
     clearCenter: aperture.frame.translation.x,
     clip: (rotation: IAutoMovieQuaternion): IAutoMovieClip | null => {
       const swing: Extract<
-        AutoMovieEnvironment.IAutoMovieEnvironmentBuildingOpening,
+        AutoMovieEnvironment.IBuildingOpening,
         { kind: "door" }
       >["swing"] = opening.swing;
       if (swing === undefined) return null;

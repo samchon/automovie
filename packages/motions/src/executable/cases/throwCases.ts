@@ -9,7 +9,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanChain } from "../../HumanChain";
+import { HumanChain } from "../../chain/HumanChain";
 import { catchObject } from "../../throwing/internal/catchObject";
 import { readThrowObjectLaunch } from "../../throwing/internal/readThrowObjectLaunch";
 import { throwObject } from "../../throwing/internal/throwObject";

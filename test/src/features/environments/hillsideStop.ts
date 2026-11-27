@@ -38,7 +38,7 @@ export function hillsideStop(): compileEnvironmentExample.IInput {
   const enterAt: number = 7.5;
   const swing: NonNullable<
     Extract<
-      AutoMovieEnvironment.IAutoMovieEnvironmentBuildingOpening,
+      AutoMovieEnvironment.IBuildingOpening,
       { kind: "door" }
     >["swing"]
   > = {
@@ -95,25 +95,25 @@ export function hillsideStop(): compileEnvironmentExample.IInput {
             {
               id: "ground",
               rooms: {
-                hall: [0, 0, hallWidth, cafeSize[1]],
-                cafe: [hallWidth, 0, ...cafeSize],
+                hall: { type: "rectangle", value: { x: 0, z: 0, width: hallWidth, depth: cafeSize[1] } },
+                cafe: { type: "rectangle", value: { x: hallWidth, z: 0, width: cafeSize[0], depth: cafeSize[1] } },
               },
               openings: [
                 {
                   id: "entry",
                   kind: "door",
-                  between: ["hall", null],
-                  edge: [
-                    [0, 0],
-                    [hallWidth, 0],
-                  ],
+                  between: { from: "hall", to: null },
+                  edge: {
+                    from: { x: 0, z: 0 },
+                    to: { x: hallWidth, z: 0 },
+                  },
                   door: { hinge: "right", hardware: "plate" },
                   swing,
                 },
                 {
                   id: "inside",
                   kind: "passage",
-                  between: ["hall", "cafe"],
+                  between: { from: "hall", to: "cafe" },
                   width: entryWidth,
                   height: 2.1,
                 },

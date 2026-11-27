@@ -9,8 +9,8 @@ import type {
 import {
   AutoMovieArchetypeRange,
   AutoMovieArchetypeRefrigerator,
-  AutoMovieArchetypeTable,
 } from "../../architecture";
+import { AutoMovieArchetypeTable } from "../../furniture";
 import { deriveArchetypeSeed } from "../../core/internal/deriveArchetypeSeed";
 import { ROOM_CLEARANCES } from "./ROOM_CLEARANCES";
 import { furnishRoom } from "./furnishRoom";
@@ -36,7 +36,7 @@ import type { resolveFurnishingPieces } from "./resolveFurnishingPieces";
  *   the role and the work aisle, or when `cooks` is not 1 or 2.
  */
 export function createKitchenKit(
-  params: AutoMovieEnvironmentFurnishing.IAutoMovieEnvironmentFurnishingKitchenKitParams,
+  params: AutoMovieEnvironmentFurnishing.IKitchenKitParams,
 ): IAutoMovieEnvironmentModule {
   return (
     context: IAutoMovieEnvironmentModule.IContext,

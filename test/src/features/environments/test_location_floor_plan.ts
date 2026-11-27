@@ -44,70 +44,73 @@ export function test_location_floor_plan(): void {
         {
           id: "ground",
           rooms: {
-            hall: [0, 0, 6, 4],
-            office: [6, 1, 3, 2],
+            hall: { type: "rectangle", value: { x: 0, z: 0, width: 6, depth: 4 } },
+            office: { type: "rectangle", value: { x: 6, z: 1, width: 3, depth: 2 } },
             courtyard: {
-              polygon: [
-                [0, 10],
-                [6, 10],
-                [6, 16],
-                [0, 16],
-              ],
-              holes: [
-                [
-                  [2, 12],
-                  [4, 12],
-                  [4, 14],
-                  [2, 14],
+              type: "polygon",
+              value: {
+                vertices: [
+                  { x: 0, z: 10 },
+                  { x: 6, z: 10 },
+                  { x: 6, z: 16 },
+                  { x: 0, z: 16 },
                 ],
-              ],
+                holes: [
+                  [
+                    { x: 2, z: 12 },
+                    { x: 4, z: 12 },
+                    { x: 4, z: 14 },
+                    { x: 2, z: 14 },
+                  ],
+                ],
+              },
             },
           },
           openings: [
             {
               id: "inside",
               kind: "passage",
-              between: ["hall", "office"],
+              between: { from: "hall", to: "office" },
               width: 1,
               height: 2,
             },
             {
               id: "landing",
               kind: "passage",
-              between: ["hall", null],
-              edge: [
-                [0, 0],
-                [0, 4],
-              ],
+              between: { from: "hall", to: null },
+              edge: {
+                from: { x: 0, z: 0 },
+                to: { x: 0, z: 4 },
+              },
               width: 1.4,
               height: 2.2,
             },
             {
               id: "entrance",
               kind: "door",
-              between: ["hall", null],
-              edge: [
-                [0, 0],
-                [6, 0],
-              ],
+              between: { from: "hall", to: null },
+              edge: {
+                from: { x: 0, z: 0 },
+                to: { x: 6, z: 0 },
+              },
             },
           ],
         },
         {
           id: "upper",
           elevation: 3.4,
-          rooms: { hall: [0, 0, 6, 4] },
+          rooms: { hall: { type: "rectangle", value: { x: 0, z: 0, width: 6, depth: 4 } } },
         },
       ],
       stairs: [
         {
           id: "main",
-          from: ["ground", "hall"],
-          to: ["upper", "hall"],
-          run: [
-            [1, 1.5],
-            [5, 1.5],
-          ],
+          from: { level: "ground", room: "hall" },
+          to: { level: "upper", room: "hall" },
+          run: {
+            from: { x: 1, z: 1.5 },
+            to: { x: 5, z: 1.5 },
+          },
           width: 1,
           steps: 20,
         },
@@ -119,16 +122,16 @@ export function test_location_floor_plan(): void {
       levels: [
         {
           id: "ground",
-          rooms: { hall: [0, 0, 6, 4] },
+          rooms: { hall: { type: "rectangle", value: { x: 0, z: 0, width: 6, depth: 4 } } },
           openings: [
             {
               id: "landing",
               kind: "passage",
-              between: ["hall", null],
-              edge: [
-                [6, 0],
-                [6, 4],
-              ],
+              between: { from: "hall", to: null },
+              edge: {
+                from: { x: 6, z: 0 },
+                to: { x: 6, z: 4 },
+              },
               width: 1.4,
               height: 2.2,
             },
@@ -268,7 +271,7 @@ export function test_location_floor_plan(): void {
     (): ReturnType<typeof AutoMovieEnvironment.building> =>
       AutoMovieEnvironment.building({
         type: "levels",
-        levels: [{ id: "ground", rooms: { a: [0, 0, 4, 4], b: [3, 3, 2, 2] } }],
+        levels: [{ id: "ground", rooms: { a: { type: "rectangle", value: { x: 0, z: 0, width: 4, depth: 4 } }, b: { type: "rectangle", value: { x: 3, z: 3, width: 2, depth: 2 } } } }],
       }),
     /rooms "a" and "b" have overlapping interiors/,
   );

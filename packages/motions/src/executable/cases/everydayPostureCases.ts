@@ -1,7 +1,7 @@
 import { AutoMovieEngineKinematics, Vector3 } from "@automovie/engine";
 import type { IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSeated, IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanChain } from "../../HumanChain";
+import { HumanChain } from "../../chain/HumanChain";
 import { seated } from "../../everyday/internal/seated";
 import { HumanFoot } from "../../posture/HumanFoot";
 import { HumanHand } from "../../posture/HumanHand";

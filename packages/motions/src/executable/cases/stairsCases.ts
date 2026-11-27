@@ -6,7 +6,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanChain } from "../../HumanChain";
+import { HumanChain } from "../../chain/HumanChain";
 import { HumanFoot } from "../../posture/HumanFoot";
 import { HumanFrame } from "../../posture/HumanFrame";
 import { climbStairs } from "../../terrain/internal/climbStairs";

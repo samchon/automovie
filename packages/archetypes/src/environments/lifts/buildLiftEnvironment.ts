@@ -464,7 +464,7 @@ export namespace buildLiftEnvironment {
     stops: readonly liftStopHeights.IStop[];
 
     /** Door and cab state at film second zero. */
-    first: AutoMovieEnvironment.IAutoMovieEnvironmentLiftKey;
+    first: AutoMovieEnvironment.ILiftKey;
   }
 
   /**

@@ -2,7 +2,7 @@
 import { AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, IAutoMovieMotionHumanClimbLadder, IAutoMovieMotionHumanLadder, IAutoMovieMotionHumanPerformance, IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanChain } from "../../HumanChain";
+import { HumanChain } from "../../chain/HumanChain";
 import { climbLadder } from "../../climbing/internal/climbLadder";
 import { HumanFoot } from "../../posture/HumanFoot";
 import { HumanFrame } from "../../posture/HumanFrame";

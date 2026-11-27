@@ -1,6 +1,8 @@
 import { AutoMovieEnginePlanarGeometry } from "@automovie/engine";
+import type { IAutoMovieProfilePoint } from "@automovie/interface";
 
 import type { AutoMovieEnvironment } from "../AutoMovieEnvironment";
+import type { IAutoMovieEnvironmentBuildingPoint } from "../IAutoMovieEnvironmentBuildingPoint";
 import type { buildingPlans } from "./buildingPlans";
 
 /**
@@ -49,16 +51,16 @@ export function buildingWalls(
       }
   const wallsInOrder: buildingWalls.IWall[] = [...walls.values()];
   for (const opening of level.openings) {
-    const [from, to] = opening.between;
+    const { from, to } = opening.between;
     const candidates: buildingWalls.IWall[] = wallsInOrder.filter(
       (wall: buildingWalls.IWall): boolean =>
         ((from === wall.left && to === wall.right) ||
           (from === wall.right && to === wall.left)) &&
         (opening.edge === undefined ||
-          (matches(wall.from, opening.edge[0]) &&
-            matches(wall.to, opening.edge[1])) ||
-          (matches(wall.from, opening.edge[1]) &&
-            matches(wall.to, opening.edge[0]))),
+          (matches(wall.from, opening.edge.from) &&
+            matches(wall.to, opening.edge.to)) ||
+          (matches(wall.from, opening.edge.to) &&
+            matches(wall.to, opening.edge.from))),
     );
     if (candidates.length !== 1)
       throw new Error(
@@ -96,7 +98,7 @@ export namespace buildingWalls {
   /** An authored aperture with its orientation in the chosen wall. */
   export interface IBinding {
     /** Opening in the original metre plan. */
-    readonly opening: AutoMovieEnvironment.IAutoMovieEnvironmentBuildingOpening;
+    readonly opening: AutoMovieEnvironment.IBuildingOpening;
 
     /** Whether a half-turn carries wall +Z into the requested opening direction. */
     readonly turn: boolean;
@@ -122,7 +124,7 @@ function pointKey(point: IAutoMovieProfilePoint): string {
  */
 function matches(
   point: IAutoMovieProfilePoint,
-  pair: AutoMovieEnvironment.IAutoMovieEnvironmentBuildingPoint,
+  pair: IAutoMovieEnvironmentBuildingPoint,
 ): boolean {
-  return point.x === pair[0] && point.y === pair[1];
+  return point.x === pair.x && point.y === pair.z;
 }

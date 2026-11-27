@@ -37,7 +37,7 @@ import { furnishRoom } from "./furnishRoom";
  *   clearance or `keepClear` area, naming the role and clearance.
  */
 export function createBedroomKit(
-  params: AutoMovieEnvironmentFurnishing.IAutoMovieEnvironmentFurnishingBedroomKitParams,
+  params: AutoMovieEnvironmentFurnishing.IBedroomKitParams,
   defaultGap: number,
 ): IAutoMovieEnvironmentModule {
   return (

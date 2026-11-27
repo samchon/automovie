@@ -1,7 +1,7 @@
 import { AutoMovieEngineKinematics, Vector3 } from "@automovie/engine";
 import type { IAutoMovieMotionHumanChain, IAutoMovieMotionHumanGestureStroke, IAutoMovieMotionHumanPerformance, IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanChain } from "../../HumanChain";
+import { HumanChain } from "../../chain/HumanChain";
 import { gestureStrokeTables } from "../../everyday/internal/gestureStrokeTables";
 import { HumanHand } from "../../posture/HumanHand";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";

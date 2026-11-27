@@ -1,7 +1,7 @@
 import { AutoMovieEngineKinematics, Vector3, AutoMovieEngineMath } from "@automovie/engine";
 import type { AutoMovieHumanSide, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanChain } from "../../HumanChain";
+import { HumanChain } from "../../chain/HumanChain";
 import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
 import { AutoMovieMotionHumanTouchEffector } from "../../compose/AutoMovieMotionHumanTouchEffector";
 import { HumanPerformance } from "../../perform/HumanPerformance";

@@ -26,9 +26,9 @@ import { liftObjectMotion } from "./liftObjectMotion";
  *   not aligned.
  */
 export function createLift(
-  input: AutoMovieEnvironment.IAutoMovieEnvironmentLiftProps,
-): AutoMovieEnvironment.IAutoMovieEnvironmentLiftDefinition {
-  const props: AutoMovieEnvironment.IAutoMovieEnvironmentLiftProps =
+  input: AutoMovieEnvironment.ILiftProps,
+): AutoMovieEnvironment.ILiftDefinition {
+  const props: AutoMovieEnvironment.ILiftProps =
     structuredClone(input);
   if (props.gap <= 0)
     throw new Error("Lift gap must be a positive finite number of metres.");
@@ -75,8 +75,8 @@ export function createLift(
     };
   };
   const transfer = (
-    crossing: AutoMovieEnvironment.IAutoMovieEnvironmentLiftCrossing,
-  ): AutoMovieEnvironment.IAutoMovieEnvironmentLiftTransfer => {
+    crossing: AutoMovieEnvironment.ILiftCrossing,
+  ): AutoMovieEnvironment.ILiftTransfer => {
     const { id, stop, direction, start, seconds, lead, landing } = crossing;
     if (!Object.hasOwn(props.stops, stop))
       throw new Error(`Lift ${id} has no stop named ${stop}.`);
@@ -96,11 +96,11 @@ export function createLift(
       throw new Error(
         `Lift ${id} stop ${stop} is not fully open and docked throughout the transfer.`,
       );
-    const cab: AutoMovieEnvironment.IAutoMovieEnvironmentLiftSurface = {
+    const cab: AutoMovieEnvironment.ILiftSurface = {
       prop: `${id}/cab`,
       surface: "sill",
     };
-    const pad: AutoMovieEnvironment.IAutoMovieEnvironmentLiftSurface = {
+    const pad: AutoMovieEnvironment.ILiftSurface = {
       prop: `${id}/stops/${stop}/landing`,
       surface: "sill",
     };
@@ -120,9 +120,9 @@ type Interval = { from: number; to: number };
 
 /** Admit the key clock and collect consecutive full-open windows per stop. */
 function prepareSchedule(
-  props: AutoMovieEnvironment.IAutoMovieEnvironmentLiftProps,
+  props: AutoMovieEnvironment.ILiftProps,
 ): Map<string, Interval[]> {
-  const keys: readonly AutoMovieEnvironment.IAutoMovieEnvironmentLiftKey[] =
+  const keys: readonly AutoMovieEnvironment.ILiftKey[] =
     props.schedule;
   if (keys.length < 2 || keys[0]!.seconds !== 0)
     throw new Error(
@@ -130,9 +130,9 @@ function prepareSchedule(
     );
   const byStop: Map<string, Interval[]> = new Map();
   for (let i: number = 0; i < keys.length; ++i) {
-    const key: AutoMovieEnvironment.IAutoMovieEnvironmentLiftKey = keys[i]!;
+    const key: AutoMovieEnvironment.ILiftKey = keys[i]!;
     const before:
-      | AutoMovieEnvironment.IAutoMovieEnvironmentLiftKey
+      | AutoMovieEnvironment.ILiftKey
       | undefined = keys[i - 1];
     if (!Object.hasOwn(props.stops, key.stop))
       throw new Error(

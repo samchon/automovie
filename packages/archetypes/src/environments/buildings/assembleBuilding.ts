@@ -220,7 +220,7 @@ function addOpening(
   const { opening, turn } = binding;
   const leafKey: string = `${level.id}/${opening.id}`;
   const id: string = `${context.id}/${leafKey}`;
-  const room: string = `${level.id}/${opening.between[0]}`;
+  const room: string = `${level.id}/${opening.between.from}`;
   const door: buildingDoor.IDoor | null =
     opening.kind === "door"
       ? buildingDoor(
@@ -308,7 +308,8 @@ function addOpening(
       assembly,
       leafKey,
       level.id,
-      opening.between,
+      opening.between.from,
+      opening.between.to,
       world,
       thickness,
       clearWidth,
@@ -326,7 +327,8 @@ function addThreshold(
   assembly: IAssembly,
   opening: string,
   level: string,
-  between: readonly [string, string | null],
+  fromRoom: string,
+  toRoom: string | null,
   world: IAutoMovieTransform,
   thickness: number,
   width: number,
@@ -335,7 +337,7 @@ function addThreshold(
   availableFrom: number | undefined,
 ): void {
   const id: string = `${assembly.environment.id}/${opening}/threshold`;
-  const room: string = `${level}/${between[0]}`;
+  const room: string = `${level}/${fromRoom}`;
   assembly.environment.surfaces.push({
     space: room,
     surface: {
@@ -355,12 +357,12 @@ function addThreshold(
     },
   });
   assembly.environment.walkable.push(id);
-  if (between[1] !== null && availableFrom === undefined) {
+  if (toRoom !== null && availableFrom === undefined) {
     const connector: IAutoMovieBuiltConnector = {
       id: opening,
       kind: "passage",
       from: room,
-      to: `${level}/${between[1]}`,
+      to: `${level}/${toRoom}`,
       bidirectional: true,
       route: [-thickness / 2, thickness / 2].map(
         (z: number): IAutoMovieVector3 =>

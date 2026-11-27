@@ -17,9 +17,9 @@ import { environmentLiftSchedule } from "./environmentLiftSchedule";
 export function bridgeCampus(): compileEnvironmentExample.IInput {
   const west: ReturnType<typeof tower> = tower("east");
   const east: ReturnType<typeof tower> = tower("west");
-  const schedule: readonly AutoMovieEnvironment.IAutoMovieEnvironmentLiftKey[] =
+  const schedule: readonly AutoMovieEnvironment.ILiftKey[] =
     environmentLiftSchedule;
-  const lift: AutoMovieEnvironment.IAutoMovieEnvironmentLiftDefinition =
+  const lift: AutoMovieEnvironment.ILiftDefinition =
     AutoMovieEnvironment.lift({
       car: { callHeight: 1.18 },
       stops: { ground: 0, upper: 3.4 },
@@ -158,15 +158,15 @@ function tower(
   side: "east" | "west",
 ): ReturnType<typeof AutoMovieEnvironment.building> {
   const x: number = side === "east" ? 8 : 0;
-  const liftOpening: AutoMovieEnvironment.IAutoMovieEnvironmentBuildingOpening =
+  const liftOpening: AutoMovieEnvironment.IBuildingOpening =
     {
       id: "lift",
       kind: "passage",
-      between: ["room", null],
-      edge: [
-        [0, 0],
-        [8, 0],
-      ],
+      between: { from: "room", to: null },
+      edge: {
+        from: { x: 0, z: 0 },
+        to: { x: 8, z: 0 },
+      },
       width: 1.8,
       height: 2.2,
     };
@@ -176,23 +176,23 @@ function tower(
       {
         id: "ground",
         height: 2.8,
-        rooms: { room: [0, 0, 8, 8] },
+        rooms: { room: { type: "rectangle", value: { x: 0, z: 0, width: 8, depth: 8 } } },
         openings: side === "west" ? [liftOpening] : [],
       },
       {
         id: "upper",
         elevation: 3.4,
         height: 2.8,
-        rooms: { room: [0, 0, 8, 8] },
+        rooms: { room: { type: "rectangle", value: { x: 0, z: 0, width: 8, depth: 8 } } },
         openings: [
           {
             id: "bridge",
             kind: "passage",
-            between: ["room", null],
-            edge: [
-              [x, 0],
-              [x, 8],
-            ],
+            between: { from: "room", to: null },
+            edge: {
+              from: { x: x, z: 0 },
+              to: { x: x, z: 8 },
+            },
             width: 1.8,
             height: 2.2,
           },

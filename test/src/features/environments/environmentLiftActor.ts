@@ -22,7 +22,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 
 /** A scripted transfer whose start will be read from the native schedule. */
 type Crossing = Omit<
-  AutoMovieEnvironment.IAutoMovieEnvironmentLiftCrossing,
+  AutoMovieEnvironment.ILiftCrossing,
   "id" | "start"
 >;
 
@@ -33,8 +33,8 @@ type Crossing = Omit<
 export function environmentLiftActor(input: {
   environment: IAutoMovieEnvironment;
   id: string;
-  lift: AutoMovieEnvironment.IAutoMovieEnvironmentLiftDefinition;
-  schedule: readonly AutoMovieEnvironment.IAutoMovieEnvironmentLiftKey[];
+  lift: AutoMovieEnvironment.ILiftDefinition;
+  schedule: readonly AutoMovieEnvironment.ILiftKey[];
   node?: string;
 }): { film: HumanPerformance; actor: IAutoMovieStageActor } {
   const { environment, id, lift } = input;
@@ -118,9 +118,9 @@ export function environmentLiftActor(input: {
   };
   // The rider waits in the cab until the lift's schedule has it docked at the
   // upper stop with its doors open.
-  const opened: AutoMovieEnvironment.IAutoMovieEnvironmentLiftKey | undefined =
+  const opened: AutoMovieEnvironment.ILiftKey | undefined =
     input.schedule.find(
-      (key: AutoMovieEnvironment.IAutoMovieEnvironmentLiftKey): boolean =>
+      (key: AutoMovieEnvironment.ILiftKey): boolean =>
         key.stop === "upper" && key.doors === "open",
     );
   if (opened === undefined)

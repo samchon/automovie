@@ -1,7 +1,7 @@
 import { Vector3, AutoMovieEnginePhysics, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSkill, IAutoMovieMotionHumanStrikingRecord, IAutoMovieMotionTarget, IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanChain } from "../../HumanChain";
+import { HumanChain } from "../../chain/HumanChain";
 import { AutoMovieMotionHumanVariation } from "../../compose/AutoMovieMotionHumanVariation";
 import { HumanColliders } from "../../posture/HumanColliders";
 import { HumanSkill } from "../../skill/HumanSkill";

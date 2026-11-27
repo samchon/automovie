@@ -18,7 +18,7 @@ const ALIGNMENT: number = 1e-6;
  */
 export function liftStopHeights(
   context: IAutoMovieEnvironmentModule.IContext,
-  stops: AutoMovieEnvironment.IAutoMovieEnvironmentLiftProps["stops"],
+  stops: AutoMovieEnvironment.ILiftProps["stops"],
   doorHeight: number,
 ): liftStopHeights.IStop[] {
   const up: IAutoMovieVector3 = Vector3.create(0, 1, 0);
@@ -35,7 +35,7 @@ export function liftStopHeights(
   const result: liftStopHeights.IStop[] = Object.entries(stops).map(
     ([id, value]: [
       string,
-      AutoMovieEnvironment.IAutoMovieEnvironmentLiftStop,
+      AutoMovieEnvironment.ILiftStop,
     ]): liftStopHeights.IStop => {
       const label: string = `Lift ${context.id} stop ${id}`;
       if (id.trim() !== id || id.length === 0 || id.includes("/"))

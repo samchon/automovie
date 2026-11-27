@@ -7,6 +7,9 @@ import {
   type IAutoMovieTerrainRecipe,
 } from "@automovie/interface";
 
+import type { IAutoMovieEnvironmentBuildingFootprint } from "./IAutoMovieEnvironmentBuildingFootprint";
+import type { IAutoMovieEnvironmentBuildingPoint } from "./IAutoMovieEnvironmentBuildingPoint";
+
 import type { AutoMovieArchetypeDoor } from "../architecture/AutoMovieArchetypeDoor";
 import type { AutoMovieArchetypeElevator } from "../architecture/AutoMovieArchetypeElevator";
 import { createBuilding as createBuildingImplementation } from "./buildings/createBuilding";
@@ -18,44 +21,32 @@ import { createTerrain as createTerrainImplementation } from "./terrain/internal
 
 /** Public operations for Auto Movie Environment. */
 export namespace AutoMovieEnvironment {
-  /** One XZ point in local metres. */
-  export type IAutoMovieEnvironmentBuildingPoint = readonly [
-    x: number,
-    z: number,
-  ];
 
-  /** A rectangular building footprint by origin and size. */
-  export type IAutoMovieEnvironmentBuildingRectangleFootprint = readonly [
-    x: number,
-    z: number,
-    width: number,
-    depth: number,
-  ];
 
-  /** A simple polygonal building footprint with independent holes. */
-  export interface IAutoMovieEnvironmentBuildingPolygonFootprint {
-    /** Outer footprint ring in XZ metres, without repeating the first point. */
-    readonly polygon: readonly IAutoMovieEnvironmentBuildingPoint[];
-    /** Independent interior voids, each strictly within the outer ring. */
-    readonly holes?: readonly (readonly IAutoMovieEnvironmentBuildingPoint[])[];
+  /** The room pair joined by an opening; `to` is null for outdoors. */
+  export interface IBuildingOpeningBetween {
+    /** First room, whose positive Z faces toward the second room or outdoors. */
+    readonly from: string;
+    /** Second room, or null when the opening leads outdoors. */
+    readonly to: string | null;
   }
 
-  /** A rectangular region or a simple polygon with holes. */
-  export type IAutoMovieEnvironmentBuildingFootprint =
-    | IAutoMovieEnvironmentBuildingRectangleFootprint
-    | IAutoMovieEnvironmentBuildingPolygonFootprint;
+  /** Exact XZ wall segment for openings where the room pair is ambiguous. */
+  export interface IBuildingOpeningEdge {
+    /** First endpoint of the authored segment. */
+    readonly from: IAutoMovieEnvironmentBuildingPoint;
+    /** Second endpoint of the authored segment. */
+    readonly to: IAutoMovieEnvironmentBuildingPoint;
+  }
 
   /** Shared fields for an opening between rooms or to the outdoors. */
-  export interface IAutoMovieEnvironmentBuildingOpeningBase {
+  export interface IBuildingOpeningBase {
     /** Unique within this level and distinct from its room IDs. */
     readonly id: string;
-    /** Positive Z faces from the first room to the second room or outside. */
-    readonly between: readonly [from: string, to: string | null];
+    /** Room relationship selected by this opening. */
+    readonly between: IBuildingOpeningBetween;
     /** Exact XZ wall segment when the room pair identifies multiple walls. */
-    readonly edge?: readonly [
-      IAutoMovieEnvironmentBuildingPoint,
-      IAutoMovieEnvironmentBuildingPoint,
-    ];
+    readonly edge?: IBuildingOpeningEdge;
     /**
      * Signed offset in metres from the selected wall's centre along its local
      * +X; omitted means centred.
@@ -64,7 +55,7 @@ export namespace AutoMovieEnvironment {
   }
 
   /** Hinged leaf and frame from the existing door producer. */
-  export interface IAutoMovieEnvironmentBuildingDoorOpening extends IAutoMovieEnvironmentBuildingOpeningBase {
+  export interface IBuildingDoorOpening extends IBuildingOpeningBase {
     /** Selects the hinged-door opening variant. */
     readonly kind: "door";
     /**
@@ -87,7 +78,7 @@ export namespace AutoMovieEnvironment {
   }
 
   /** Clear aperture with ground at its sill. */
-  export interface IAutoMovieEnvironmentBuildingPassageOpening extends IAutoMovieEnvironmentBuildingOpeningBase {
+  export interface IBuildingPassageOpening extends IBuildingOpeningBase {
     /** Selects a clear passage opening with its sill at floor level. */
     readonly kind: "passage";
     /** Clear opening width in metres. */
@@ -97,7 +88,7 @@ export namespace AutoMovieEnvironment {
   }
 
   /** Air opening above the floor, with no walking threshold. */
-  export interface IAutoMovieEnvironmentBuildingWindowOpening extends IAutoMovieEnvironmentBuildingOpeningBase {
+  export interface IBuildingWindowOpening extends IBuildingOpeningBase {
     /** Selects a window opening without a floor threshold. */
     readonly kind: "window";
     /** Opening width in metres. */
@@ -109,13 +100,13 @@ export namespace AutoMovieEnvironment {
   }
 
   /** A typed door, clear passage or window opening. */
-  export type IAutoMovieEnvironmentBuildingOpening =
-    | IAutoMovieEnvironmentBuildingDoorOpening
-    | IAutoMovieEnvironmentBuildingPassageOpening
-    | IAutoMovieEnvironmentBuildingWindowOpening;
+  export type IBuildingOpening =
+    | IBuildingDoorOpening
+    | IBuildingPassageOpening
+    | IBuildingWindowOpening;
 
   /** One storey with named floor regions and optional wall openings. */
-  export interface IAutoMovieEnvironmentBuildingLevel {
+  export interface IBuildingLevel {
     /** Path segment within this building. */
     readonly id: string;
 
@@ -137,28 +128,41 @@ export namespace AutoMovieEnvironment {
     >;
 
     /** Authored openings. Omission leaves walls intact. */
-    readonly openings?: readonly IAutoMovieEnvironmentBuildingOpening[];
+    readonly openings?: readonly IBuildingOpening[];
+  }
+
+  /** A named room address within one building. */
+  export interface IBuildingRoomAddress {
+    /** Level id containing the room. */
+    readonly level: string;
+    /** Room id within that level. */
+    readonly room: string;
+  }
+
+  /** The stair centreline endpoints in local XZ metres, lower first. */
+  export interface IBuildingStairRun {
+    /** Lower endpoint of the stair centreline. */
+    readonly from: IAutoMovieEnvironmentBuildingPoint;
+    /** Upper endpoint of the stair centreline. */
+    readonly to: IAutoMovieEnvironmentBuildingPoint;
   }
 
   /** One straight interior stair using two adjacent levels and one plan run. */
-  export interface IAutoMovieEnvironmentBuildingStair {
+  export interface IBuildingStair {
     /**
      * Path segment for the stair's named supports and link, unique within the
      * building.
      */
     readonly id: string;
 
-    /** Lower level and room, in that order. */
-    readonly from: readonly [level: string, room: string];
+    /** Address of the lower room. */
+    readonly from: IBuildingRoomAddress;
 
     /** The next higher level and its receiving room. */
-    readonly to: readonly [level: string, room: string];
+    readonly to: IBuildingRoomAddress;
 
     /** Centreline endpoints in the building plan, lower first. */
-    readonly run: readonly [
-      IAutoMovieEnvironmentBuildingPoint,
-      IAutoMovieEnvironmentBuildingPoint,
-    ];
+    readonly run: IBuildingStairRun;
 
     /** Clear tread width across the run, metres. */
     readonly width: number;
@@ -168,7 +172,7 @@ export namespace AutoMovieEnvironment {
   }
 
   /** Shared appearance for either building geometry source. */
-  export interface IAutoMovieEnvironmentBuildingPropsBase {
+  export interface IBuildingPropsBase {
     /**
      * SRGB exterior and partition swatch, defaulting to a neutral masonry
      * color.
@@ -177,21 +181,21 @@ export namespace AutoMovieEnvironment {
   }
 
   /** A building defined by levels, rooms and optional interior stair runs. */
-  export interface IAutoMovieEnvironmentBuildingLevelPlanProps extends IAutoMovieEnvironmentBuildingPropsBase {
+  export interface IBuildingLevelPlanProps extends IBuildingPropsBase {
     /** Selects the level-plan building variant. */
     readonly type: "levels";
     /** Levels in bottom-to-top order with nonoverlapping vertical interiors. */
-    readonly levels: readonly IAutoMovieEnvironmentBuildingLevel[];
+    readonly levels: readonly IBuildingLevel[];
     /** Wall thickness in metres; defaults to 0.15 m, centred on each plan edge. */
     readonly wallThickness?: number;
     /** Floor and top-slab thickness in metres; defaults to 0.18 m. */
     readonly slabThickness?: number;
     /** Interior stair runs; their footprints are cut into the adjoining slabs. */
-    readonly stairs?: readonly IAutoMovieEnvironmentBuildingStair[];
+    readonly stairs?: readonly IBuildingStair[];
   }
 
   /** An exterior-only building mass. */
-  export interface IAutoMovieEnvironmentBuildingExteriorProps extends IAutoMovieEnvironmentBuildingPropsBase {
+  export interface IBuildingExteriorProps extends IBuildingPropsBase {
     /** Selects the exterior-only building variant. */
     readonly type: "exterior";
     /** Footprint of an exterior-only mass. */
@@ -201,9 +205,9 @@ export namespace AutoMovieEnvironment {
   }
 
   /** Building geometry source: level plans or an exterior-only mass. */
-  export type IAutoMovieEnvironmentBuildingProps =
-    | IAutoMovieEnvironmentBuildingLevelPlanProps
-    | IAutoMovieEnvironmentBuildingExteriorProps;
+  export type IBuildingProps =
+    | IBuildingLevelPlanProps
+    | IBuildingExteriorProps;
 
   /**
    * The sill height relative to the module, or a named world sill to align.
@@ -211,22 +215,22 @@ export namespace AutoMovieEnvironment {
    * with the same upright orientation and landing direction.
    */
   /** A named world sill to align to. */
-  export interface IAutoMovieEnvironmentLiftAnchorStop {
+  export interface ILiftAnchorStop {
     /** Existing placed anchor whose upright sill the shaft must align to. */
     anchor: string;
   }
 
   /** A local metre height or a named world sill constraint. */
-  export type IAutoMovieEnvironmentLiftStop =
+  export type ILiftStop =
     | number
-    | IAutoMovieEnvironmentLiftAnchorStop;
+    | ILiftAnchorStop;
 
   /**
    * One commanded stopped position at a full door state, on the shot clock. The
    * doors stay closed while the cab travels between stops. At one stop the cab
    * stays still and the doors interpolate between the keyed states.
    */
-  export interface IAutoMovieEnvironmentLiftKey {
+  export interface ILiftKey {
     /** Finite shot-local second, strictly increasing from zero. */
     seconds: number;
 
@@ -242,15 +246,15 @@ export namespace AutoMovieEnvironment {
    * aperture for both door layers. Adjacent sills must be farther apart than
    * the door height for their openings to fit.
    */
-  export interface IAutoMovieEnvironmentLiftProps {
+  export interface ILiftProps {
     /**
      * At least two named local-height or anchor constraints on one vertical
      * shaft.
      */
-    stops: Readonly<Record<string, IAutoMovieEnvironmentLiftStop>>;
+    stops: Readonly<Record<string, ILiftStop>>;
 
     /** At least two keys from time zero, in strictly increasing seconds. */
-    schedule: readonly IAutoMovieEnvironmentLiftKey[];
+    schedule: readonly ILiftKey[];
 
     /**
      * Metres between the cab floor edge and the fixed landing edge, greater
@@ -269,14 +273,14 @@ export namespace AutoMovieEnvironment {
    * A prop surface selector of the support-transfer grammar: a prop subject id
    * and its surface affordance id.
    */
-  export type IAutoMovieEnvironmentLiftSurface =
+  export type ILiftSurface =
     IAutoMovieMotionHumanSupportTransfer.ISurface;
 
   /**
    * The foot, duration and destination station a crossing hands to the
    * support-transfer grammar unchanged.
    */
-  export type IAutoMovieEnvironmentLiftTiming = Pick<
+  export type ILiftTiming = Pick<
     IAutoMovieMotionHumanSupportTransfer,
     "lead" | "seconds" | "landing"
   >;
@@ -286,7 +290,7 @@ export namespace AutoMovieEnvironment {
    * crossing's foot, duration and station. Docking is left at its stationary
    * default.
    */
-  export type IAutoMovieEnvironmentLiftTransfer = Pick<
+  export type ILiftTransfer = Pick<
     IAutoMovieMotionHumanSupportTransfer,
     "from" | "to" | "lead" | "seconds" | "landing"
   >;
@@ -296,7 +300,7 @@ export namespace AutoMovieEnvironment {
    * stop and time select a docked window. The leading foot and optional
    * destination-surface coordinates use the existing support-transfer grammar.
    */
-  export interface IAutoMovieEnvironmentLiftCrossing extends IAutoMovieEnvironmentLiftTiming {
+  export interface ILiftCrossing extends ILiftTiming {
     /** Scoped id of the placed lift module, including the environment name. */
     id: string;
 
@@ -315,7 +319,7 @@ export namespace AutoMovieEnvironment {
    * schedule drives the placed lift and checks timing for a crossing of any
    * occurrence. The support-transfer law checks the actor's motion.
    */
-  export interface IAutoMovieEnvironmentLiftDefinition extends IAutoMovieEnvironmentModule {
+  export interface ILiftDefinition extends IAutoMovieEnvironmentModule {
     /**
      * Turn an authored crossing into an existing support-transfer input.
      *
@@ -324,27 +328,27 @@ export namespace AutoMovieEnvironment {
      * @throws When the known stop is not open and docked during that interval.
      */
     transfer(
-      crossing: IAutoMovieEnvironmentLiftCrossing,
-    ): IAutoMovieEnvironmentLiftTransfer;
+      crossing: ILiftCrossing,
+    ): ILiftTransfer;
   }
 
   /** A generated opening anchor carrying clear section frames. */
-  export interface IAutoMovieEnvironmentPassageOpeningEndpoint {
+  export interface IPassageOpeningEndpoint {
     /** Scoped opening anchor carrying generated clear section frames. */
     readonly opening: string;
   }
 
   /** A plain scenic anchor or a generated opening with a clear section. */
-  export type IAutoMovieEnvironmentPassageEndpoint =
+  export type IPassageEndpoint =
     | string
-    | IAutoMovieEnvironmentPassageOpeningEndpoint;
+    | IPassageOpeningEndpoint;
 
   /** Shared connection geometry between two scoped world anchors. */
-  export interface IAutoMovieEnvironmentPassagePropsBase {
+  export interface IPassagePropsBase {
     /** First world anchor, in centreline position at its landing surface. */
-    readonly from: IAutoMovieEnvironmentPassageEndpoint;
+    readonly from: IPassageEndpoint;
     /** Second world anchor, in centreline position at its landing surface. */
-    readonly to: IAutoMovieEnvironmentPassageEndpoint;
+    readonly to: IPassageEndpoint;
     /** Full clear deck width, in metres. */
     readonly width: number;
     /** Required headroom in metres at a fitted opening, when stated. */
@@ -356,13 +360,13 @@ export namespace AutoMovieEnvironment {
   }
 
   /** A level bridge span. */
-  export interface IAutoMovieEnvironmentPassageBridgeProps extends IAutoMovieEnvironmentPassagePropsBase {
+  export interface IPassageBridgeProps extends IPassagePropsBase {
     /** Selects a level bridge span. */
     readonly kind: "bridge";
   }
 
   /** A ramp span with an optional maximum slope. */
-  export interface IAutoMovieEnvironmentPassageRampProps extends IAutoMovieEnvironmentPassagePropsBase {
+  export interface IPassageRampProps extends IPassagePropsBase {
     /** Selects a ramp span. */
     readonly kind: "ramp";
     /** Optional maximum absolute rise divided by horizontal run. */
@@ -370,7 +374,7 @@ export namespace AutoMovieEnvironment {
   }
 
   /** A stair span with a fixed number of equal rises and treads. */
-  export interface IAutoMovieEnvironmentPassageStairsProps extends IAutoMovieEnvironmentPassagePropsBase {
+  export interface IPassageStairsProps extends IPassagePropsBase {
     /** Selects a stair span. */
     readonly kind: "stairs";
     /** Number of equal rises and treads, including the top tread. */
@@ -378,10 +382,10 @@ export namespace AutoMovieEnvironment {
   }
 
   /** Static span construction choices specific to the passage producer. */
-  export type IAutoMovieEnvironmentPassageProps =
-    | IAutoMovieEnvironmentPassageBridgeProps
-    | IAutoMovieEnvironmentPassageRampProps
-    | IAutoMovieEnvironmentPassageStairsProps;
+  export type IPassageProps =
+    | IPassageBridgeProps
+    | IPassageRampProps
+    | IPassageStairsProps;
 
   /**
    * Place typed modules and prepare the stage and runtime pieces a shot uses.
@@ -420,7 +424,7 @@ export namespace AutoMovieEnvironment {
    *   placements.
    */
   export function building(
-    props: Building.IProps,
+    props: IBuildingProps,
   ): IAutoMovieEnvironmentModule {
     return createBuildingImplementation(props);
   }
@@ -439,7 +443,9 @@ export namespace AutoMovieEnvironment {
    * @throws If the timeline is invalid, or on placement if the stops or shaft
    *   are not aligned.
    */
-  export function lift(input: Lift.IProps): Lift.IDefinition {
+  export function lift(
+    input: ILiftProps,
+  ): ILiftDefinition {
     return createLiftImplementation(input);
   }
 
@@ -458,7 +464,9 @@ export namespace AutoMovieEnvironment {
    * @throws Error for missing anchors, incompatible landing heights, an oblique
    *   fitted opening or invalid flight dimensions.
    */
-  export function passage(props: Passage.IProps): IAutoMovieEnvironmentModule {
+  export function passage(
+    props: IPassageProps,
+  ): IAutoMovieEnvironmentModule {
     return createPassageImplementation(props);
   }
 

@@ -37,7 +37,7 @@ import { furnishRoom } from "./furnishRoom";
  *   do not fit, naming the role or the `desks` count.
  */
 export function createOfficeKit(
-  params: AutoMovieEnvironmentFurnishing.IAutoMovieEnvironmentFurnishingOfficeKitParams,
+  params: AutoMovieEnvironmentFurnishing.IOfficeKitParams,
 ): IAutoMovieEnvironmentModule {
   return (
     context: IAutoMovieEnvironmentModule.IContext,

@@ -1,7 +1,7 @@
 import { AutoMovieEngineKinematics, Vector3 } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidSocket, IAutoMovieComposition, IAutoMovieMotionHumanPerformance } from "@automovie/interface";
 
-import { HumanChain } from "../../HumanChain";
+import { HumanChain } from "../../chain/HumanChain";
 import { clinch } from "../../grappling/internal/clinch";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";

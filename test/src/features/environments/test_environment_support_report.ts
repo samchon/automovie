@@ -151,7 +151,7 @@ export function test_environment_support_report(): void {
         at: { x: 22, y: 0, z: -4 },
         use: AutoMovieEnvironment.building({
           type: "levels",
-          levels: [{ id: "ground", rooms: { hall: [0, 0, 6, 6] } }],
+          levels: [{ id: "ground", rooms: { hall: { type: "rectangle", value: { x: 0, z: 0, width: 6, depth: 6 } } } }],
         }),
       },
     },

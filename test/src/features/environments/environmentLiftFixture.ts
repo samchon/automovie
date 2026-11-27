@@ -6,14 +6,14 @@ import { environmentLiftSchedule } from "./environmentLiftSchedule";
 /** Two-level authored lift whose live support reads the ordinary object clip. */
 export function environmentLiftFixture(upper: number = 3.4): {
   id: string;
-  lift: AutoMovieEnvironment.IAutoMovieEnvironmentLiftDefinition;
-  schedule: readonly AutoMovieEnvironment.IAutoMovieEnvironmentLiftKey[];
+  lift: AutoMovieEnvironment.ILiftDefinition;
+  schedule: readonly AutoMovieEnvironment.ILiftKey[];
   environment: IAutoMovieEnvironment;
 } {
   const id: string = "estate/lift";
-  const schedule: readonly AutoMovieEnvironment.IAutoMovieEnvironmentLiftKey[] =
+  const schedule: readonly AutoMovieEnvironment.ILiftKey[] =
     environmentLiftSchedule;
-  const lift: AutoMovieEnvironment.IAutoMovieEnvironmentLiftDefinition =
+  const lift: AutoMovieEnvironment.ILiftDefinition =
     AutoMovieEnvironment.lift({
       stops: { ground: 0, upper },
       gap: 0.055,

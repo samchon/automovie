@@ -4,6 +4,7 @@ import {
   Transform,
   Vector3,
 } from "@automovie/engine";
+
 import type {
   IAutoMovieEnvironmentContribution,
   IAutoMovieEnvironmentModule,
@@ -14,8 +15,9 @@ import type {
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import type { AutoMovieEnvironment } from "../AutoMovieEnvironment";
+
 import { AutoMovieArchetypeStairs } from "../../architecture/AutoMovieArchetypeStairs";
+import type { AutoMovieEnvironment } from "../AutoMovieEnvironment";
 import { buildingModel } from "./buildingModel";
 
 /**
@@ -34,9 +36,9 @@ import { buildingModel } from "./buildingModel";
  *   fitted opening or invalid flight dimensions.
  */
 export function createPassage(
-  props: AutoMovieEnvironment.IAutoMovieEnvironmentPassageProps,
+  props: AutoMovieEnvironment.IPassageProps,
 ): IAutoMovieEnvironmentModule {
-  const recipe: AutoMovieEnvironment.IAutoMovieEnvironmentPassageProps =
+  const recipe: AutoMovieEnvironment.IPassageProps =
     structuredClone(props);
   const depth: number = recipe.thickness ?? 0.18;
   const color: string = recipe.color ?? "#aaa398";
@@ -206,7 +208,7 @@ export function createPassage(
 
 /** Read the declared endpoint's exact anchor path for diagnostics. */
 function landingName(
-  endpoint: AutoMovieEnvironment.IAutoMovieEnvironmentPassageEndpoint,
+  endpoint: AutoMovieEnvironment.IPassageEndpoint,
 ): string {
   return typeof endpoint === "string" ? endpoint : endpoint.opening;
 }
@@ -217,7 +219,7 @@ function landingName(
  */
 function landing(
   context: IAutoMovieEnvironmentModule.IContext,
-  endpoint: AutoMovieEnvironment.IAutoMovieEnvironmentPassageEndpoint,
+  endpoint: AutoMovieEnvironment.IPassageEndpoint,
   width: number,
   height: number | undefined,
 ): IAutoMovieTransform {

@@ -218,8 +218,8 @@ export function starter(): IFilm {
         items: {
           hall: { use: AutoMovieEnvironment.building({ levels: [{
             id: "ground",
-            rooms: { studio: [0, 0, 6, 4] },
-            openings: [{ id: "entry", kind: "passage", between: ["studio", null], edge: [[0, 0], [6, 0]], width: 1.2, height: 2.1 }],
+            rooms: { studio: { type: "rectangle", value: { x: 0, z: 0, width: 6, depth: 4 } } },
+            openings: [{ id: "entry", kind: "passage", between: { from: "studio", to: null }, edge: { from: { x: 0, z: 0 }, to: { x: 6, z: 0 } }, width: 1.2, height: 2.1 }],
           }] }) },
           bench: { use: AutoMovieEnvironmentFurnishing.prop({ model: AutoMovieArchetypeSeat.create({ kind: "bench" }) }), at: { anchor: "hall/ground/studio" } },
           bookcase: { use: AutoMovieEnvironmentFurnishing.prop({ model: AutoMovieArchetypeBookcase.create() }), at: { x: 4.6, y: 0, z: 2.85 } },

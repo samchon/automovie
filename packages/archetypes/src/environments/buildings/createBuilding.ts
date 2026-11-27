@@ -23,7 +23,7 @@ import { buildingPlans } from "./buildingPlans";
  *   placements.
  */
 export function createBuilding(
-  props: AutoMovieEnvironment.IAutoMovieEnvironmentBuildingProps,
+  props: AutoMovieEnvironment.IBuildingProps,
 ): IAutoMovieEnvironmentModule {
   const plan: buildingPlans.IPlan = buildingPlans(props);
   return (

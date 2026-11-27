@@ -6,7 +6,7 @@ import type {
   IAutoMovieMotionTarget,
 } from "@automovie/interface";
 
-import { HumanChain } from "../../HumanChain";
+import { HumanChain } from "../../chain/HumanChain";
 import { HumanPerformance } from "../../perform/HumanPerformance";
 import { HumanColliders } from "../../posture/HumanColliders";
 import { StrikingLimb } from "./StrikingLimb";

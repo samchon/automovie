@@ -2,7 +2,7 @@
 import { AutoMovieEngineKinematics } from "@automovie/engine";
 import type { IAutoMovieMotionHumanChain, IAutoMovieMotionHumanOperate, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanWipe, IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanChain } from "../../HumanChain";
+import { HumanChain } from "../../chain/HumanChain";
 import { AutoMovieMotionInterval } from "../../compose/AutoMovieMotionInterval";
 import { wipe } from "../../tasks/internal/wipe";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";

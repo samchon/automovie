@@ -34,7 +34,7 @@ import { furnishRoom } from "./furnishRoom";
  *   `keepClear` area, naming the role.
  */
 export function createLivingRoomKit(
-  params: AutoMovieEnvironmentFurnishing.IAutoMovieEnvironmentFurnishingLivingRoomKitParams,
+  params: AutoMovieEnvironmentFurnishing.ILivingRoomKitParams,
   defaultGap: number,
 ): IAutoMovieEnvironmentModule {
   return (

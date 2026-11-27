@@ -23,10 +23,10 @@ export function liftObjectMotion(
   environment: IAutoMovieBuiltEnvironment,
   car: ReturnType<typeof AutoMovieArchetypeElevator.create>,
   stops: readonly liftStopHeights.IStop[],
-  schedule: readonly AutoMovieEnvironment.IAutoMovieEnvironmentLiftKey[],
+  schedule: readonly AutoMovieEnvironment.ILiftKey[],
   gap: number,
 ): IAutoMovieClip {
-  const firstState: AutoMovieEnvironment.IAutoMovieEnvironmentLiftKey =
+  const firstState: AutoMovieEnvironment.ILiftKey =
     schedule[0]!;
   const firstPlacement =
     AutoMovieEngineBuiltEnvironment.connectorCarriagePlacements(

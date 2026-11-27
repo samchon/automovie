@@ -23,7 +23,7 @@ import { furnishRoom } from "./furnishRoom";
  * @throws When the requested stations or their clearances do not fit.
  */
 export function createGymKit(
-  params: AutoMovieEnvironmentFurnishing.IAutoMovieEnvironmentFurnishingGymKitParams,
+  params: AutoMovieEnvironmentFurnishing.IGymKitParams,
 ): IAutoMovieEnvironmentModule {
   return (
     context: IAutoMovieEnvironmentModule.IContext,

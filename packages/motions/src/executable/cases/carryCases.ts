@@ -1,7 +1,7 @@
 import { AutoMovieEngineKinematics, Vector3 } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidSocket, IAutoMovieMotionHumanCarry, IAutoMovieMotionHumanPerformance, IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanChain } from "../../HumanChain";
+import { HumanChain } from "../../chain/HumanChain";
 import { carry } from "../../carrying/internal/carry";
 import { carryPlace } from "../../carrying/internal/carryPlace";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";

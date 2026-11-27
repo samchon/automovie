@@ -7,7 +7,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanChain } from "../../HumanChain";
+import { HumanChain } from "../../chain/HumanChain";
 import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
 import { AutoMovieMotionHumanRange } from "../../compose/AutoMovieMotionHumanRange";
 import { HumanPerformance } from "../../perform/HumanPerformance";

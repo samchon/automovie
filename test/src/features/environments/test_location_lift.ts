@@ -95,18 +95,18 @@ export function test_location_lift(): void {
   // The cab leaves the ground at the schedule's first closed key there,
   // arrives at its first upper key and opens at its first open one; the
   // rider steps out over the exit's 2 s crossing from that opening.
-  const schedule: readonly AutoMovieEnvironment.IAutoMovieEnvironmentLiftKey[] =
+  const schedule: readonly AutoMovieEnvironment.ILiftKey[] =
     fixture.schedule;
   const leaves: number = schedule.find(
-    (key: AutoMovieEnvironment.IAutoMovieEnvironmentLiftKey): boolean =>
+    (key: AutoMovieEnvironment.ILiftKey): boolean =>
       key.stop === "ground" && key.doors === "closed" && key.seconds > 0,
   )!.seconds;
   const arrives: number = schedule.find(
-    (key: AutoMovieEnvironment.IAutoMovieEnvironmentLiftKey): boolean =>
+    (key: AutoMovieEnvironment.ILiftKey): boolean =>
       key.stop === "upper",
   )!.seconds;
   const opens: number = schedule.find(
-    (key: AutoMovieEnvironment.IAutoMovieEnvironmentLiftKey): boolean =>
+    (key: AutoMovieEnvironment.ILiftKey): boolean =>
       key.stop === "upper" && key.doors === "open",
   )!.seconds;
   const rideTime: number = leaves + 0.7 * (arrives - leaves);

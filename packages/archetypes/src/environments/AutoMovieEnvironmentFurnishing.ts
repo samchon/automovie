@@ -17,13 +17,13 @@ import { createEnvironmentProp as createEnvironmentPropImplementation } from "./
 /** Public operations for Auto Movie Environment Furnishing. */
 export namespace AutoMovieEnvironmentFurnishing {
   /** The room layout and the positive integer count of the kit's repeated group. */
-  export interface IAutoMovieEnvironmentFurnishingCafeKitParams extends IAutoMovieFurnishingLayout {
+  export interface ICafeKitParams extends IAutoMovieFurnishingLayout {
     /** Positive integer count of dining groups. */
     readonly tables: number;
   }
 
   /** The room layout and the positive integer count of desks. */
-  export interface IAutoMovieEnvironmentFurnishingOfficeKitParams extends IAutoMovieFurnishingLayout {
+  export interface IOfficeKitParams extends IAutoMovieFurnishingLayout {
     /** Positive integer count of desk groups. */
     readonly desks: number;
   }
@@ -35,7 +35,7 @@ export namespace AutoMovieEnvironmentFurnishing {
   export const AUTO_MOVIE_ENVIRONMENT_FURNISHING_BEDROOM_CHEST_GAP: number = 0.1;
 
   /** The room layout, the bed size and the wardrobe-to-chest gap. */
-  export interface IAutoMovieEnvironmentFurnishingBedroomKitParams extends IAutoMovieFurnishingLayout {
+  export interface IBedroomKitParams extends IAutoMovieFurnishingLayout {
     /** The household bed size. The default is `"double"`. */
     readonly bed?: "single" | "double";
 
@@ -48,19 +48,19 @@ export namespace AutoMovieEnvironmentFurnishing {
   }
 
   /** The room layout and its ordered pieces. */
-  export interface IAutoMovieEnvironmentFurnishingFurnishedRoomParams extends IAutoMovieFurnishingLayout {
+  export interface IFurnishedRoomParams extends IAutoMovieFurnishingLayout {
     /** Pieces by role, resolved in record order. */
     readonly pieces: Readonly<Record<string, IAutoMovieFurnishingPiece>>;
   }
 
   /** The room layout and the positive integer count of the kit's repeated group. */
-  export interface IAutoMovieEnvironmentFurnishingGymKitParams extends IAutoMovieFurnishingLayout {
+  export interface IGymKitParams extends IAutoMovieFurnishingLayout {
     /** Positive integer count of free-weight stations. */
     readonly stations: number;
   }
 
   /** The room layout and the number of cooks the work aisle serves. */
-  export interface IAutoMovieEnvironmentFurnishingKitchenKitParams extends IAutoMovieFurnishingLayout {
+  export interface IKitchenKitParams extends IAutoMovieFurnishingLayout {
     /** One or two cooks, choosing the NKBA work aisle. The default is 1. */
     readonly cooks?: 1 | 2;
   }
@@ -72,7 +72,7 @@ export namespace AutoMovieEnvironmentFurnishing {
   export const AUTO_MOVIE_ENVIRONMENT_FURNISHING_LIVING_ROOM_TABLE_GAP: number = 0.45;
 
   /** The room layout and the sofa-to-table gap. */
-  export interface IAutoMovieEnvironmentFurnishingLivingRoomKitParams extends IAutoMovieFurnishingLayout {
+  export interface ILivingRoomKitParams extends IAutoMovieFurnishingLayout {
     /**
      * Clear floor in metres between the sofa's and the coffee table's front
      * faces, and between the table and the armchairs. The default is
@@ -123,7 +123,7 @@ export namespace AutoMovieEnvironmentFurnishing {
    * @throws When the room cannot accommodate the tables and clear approaches.
    */
   export function cafeKit(
-    params: IAutoMovieEnvironmentFurnishingCafeKitParams,
+    params: ICafeKitParams,
   ): IAutoMovieEnvironmentModule {
     return createCafeKitImplementation(params);
   }
@@ -150,7 +150,7 @@ export namespace AutoMovieEnvironmentFurnishing {
    *   do not fit, naming the role or the `desks` count.
    */
   export function officeKit(
-    params: IAutoMovieEnvironmentFurnishingOfficeKitParams,
+    params: IOfficeKitParams,
   ): IAutoMovieEnvironmentModule {
     return createOfficeKitImplementation(params);
   }
@@ -178,7 +178,7 @@ export namespace AutoMovieEnvironmentFurnishing {
    *   piece, clearance or `keepClear` area, naming the role and clearance.
    */
   export function bedroomKit(
-    params: IAutoMovieEnvironmentFurnishingBedroomKitParams,
+    params: IBedroomKitParams,
   ): IAutoMovieEnvironmentModule {
     return createBedroomKitImplementation(
       params,
@@ -207,7 +207,7 @@ export namespace AutoMovieEnvironmentFurnishing {
    *   names the role.
    */
   export function furnishedRoom(
-    params: IAutoMovieEnvironmentFurnishingFurnishedRoomParams,
+    params: IFurnishedRoomParams,
   ): IAutoMovieEnvironmentModule {
     return createFurnishedRoomImplementation(params);
   }
@@ -227,7 +227,7 @@ export namespace AutoMovieEnvironmentFurnishing {
    * @throws When the requested stations or their clearances do not fit.
    */
   export function gymKit(
-    params: IAutoMovieEnvironmentFurnishingGymKitParams,
+    params: IGymKitParams,
   ): IAutoMovieEnvironmentModule {
     return createGymKitImplementation(params);
   }
@@ -252,7 +252,7 @@ export namespace AutoMovieEnvironmentFurnishing {
    *   the role and the work aisle, or when `cooks` is not 1 or 2.
    */
   export function kitchenKit(
-    params: IAutoMovieEnvironmentFurnishingKitchenKitParams,
+    params: IKitchenKitParams,
   ): IAutoMovieEnvironmentModule {
     return createKitchenKitImplementation(params);
   }
@@ -278,7 +278,7 @@ export namespace AutoMovieEnvironmentFurnishing {
    *   `keepClear` area, naming the role.
    */
   export function livingRoomKit(
-    params: IAutoMovieEnvironmentFurnishingLivingRoomKitParams,
+    params: ILivingRoomKitParams,
   ): IAutoMovieEnvironmentModule {
     return createLivingRoomKitImplementation(
       params,

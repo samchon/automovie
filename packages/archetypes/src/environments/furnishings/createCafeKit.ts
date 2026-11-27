@@ -26,7 +26,7 @@ import { furnishRoom } from "./furnishRoom";
  * @throws When the room cannot accommodate the tables and clear approaches.
  */
 export function createCafeKit(
-  params: AutoMovieEnvironmentFurnishing.IAutoMovieEnvironmentFurnishingCafeKitParams,
+  params: AutoMovieEnvironmentFurnishing.ICafeKitParams,
 ): IAutoMovieEnvironmentModule {
   return (
     context: IAutoMovieEnvironmentModule.IContext,

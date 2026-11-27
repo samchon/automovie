@@ -1,7 +1,7 @@
 import { DEFAULT_HUMANOID_ROM, Quaternion, Transform, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { IAutoMovieAffordance, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanChain } from "../../HumanChain";
+import { HumanChain } from "../../chain/HumanChain";
 import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
 import { handshake } from "../../handling/internal/handshake";
 import { HumanPerformance } from "../../perform/HumanPerformance";

@@ -28,7 +28,7 @@ import type { resolveFurnishingPieces } from "./resolveFurnishingPieces";
  *   names the role.
  */
 export function createFurnishedRoom(
-  params: AutoMovieEnvironmentFurnishing.IAutoMovieEnvironmentFurnishingFurnishedRoomParams,
+  params: AutoMovieEnvironmentFurnishing.IFurnishedRoomParams,
 ): IAutoMovieEnvironmentModule {
   return (
     context: IAutoMovieEnvironmentModule.IContext,
