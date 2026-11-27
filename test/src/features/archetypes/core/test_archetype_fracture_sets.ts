@@ -2,7 +2,7 @@ import {
   AutoMovieArchetypeBuilder,
   AutoMovieArchetypeDrawSession,
   AutoMovieArchetypeFrame,
-  createDoor,
+  AutoMovieArchetypeDoor,
   createDrinkware,
 } from "@automovie/archetypes";
 import { Vector3 } from "@automovie/engine";
@@ -123,7 +123,7 @@ export function test_archetype_fracture_sets(): void {
     findings.push("a mug breaks");
 
   // A hinged door's leaf leaves its frame whole at 80 J, and not below.
-  const door: ReturnType<typeof createDoor> = createDoor({ kind: "hinged" });
+  const door: ReturnType<typeof AutoMovieArchetypeDoor.create> = AutoMovieArchetypeDoor.create({ kind: "hinged" });
   if (door.broken({ energy: 79, momentum }) !== null)
     findings.push("a door breaks below 80 J");
   const kicked: ReturnType<typeof door.broken> = door.broken({

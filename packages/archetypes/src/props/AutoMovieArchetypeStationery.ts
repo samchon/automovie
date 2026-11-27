@@ -1,43 +1,28 @@
-import { ArchetypeDraw, type AutoMovieArchetype } from "../core";
+import { type AutoMovieArchetype } from "../core/index";
+import { createStationery as createStationeryImplementation } from "./internal/createStationery";
 import { StationeryDraw } from "./StationeryDraw";
 import { AutoMovieArchetypeBook } from "./AutoMovieArchetypeBook";
-import { createClipboard } from "./createClipboard";
 import { createPaper } from "./createPaper";
 import { AutoMovieArchetypePen } from "./AutoMovieArchetypePen";
+import { createClipboard } from "./createClipboard";
 
-/**
- * Read a saved stationery recipe and call the producer for its kind.
- *
- * @param params The saved kind, fixed values, optional identifier and model
- *   when applicable.
- * @param seed The seed that draws the saved dimensions and model, or undefined
- *   for the original defaults.
- * @returns The selected prop in its original frame.
- * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies
- *   outside its admitted recipe.
- */
-export function createStationery(
-  params: createStationery.IParams,
-  seed?: number,
-): AutoMovieArchetype<createStationery.Affordance, createStationery.Dimension> {
-  const kind: createStationery.Kind = ArchetypeDraw.choice(
-    "stationery",
-    "kind",
-    params.kind,
-    createStationery.KINDS,
-  );
-  if (kind === "paper" || kind === "map")
-    return createPaper(
-      { ...params, format: createStationery.PRODUCER_VARIANTS[kind] },
-      seed,
-    );
+/** Public operations for Auto Movie Archetype Stationery. */
+export namespace AutoMovieArchetypeStationery {
+  /**
+   * Read a saved stationery recipe and call the producer for its kind.
+   *
+   * @param params The saved kind, fixed values, optional identifier and model
+   *   when applicable.
+   * @param seed The seed that draws the saved dimensions and model, or undefined
+   *   for the original defaults.
+   * @returns The selected prop in its original frame.
+   * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies
+   *   outside its admitted recipe.
+   */
+  export function create(params: AutoMovieArchetypeStationery.IParams, seed?: number): AutoMovieArchetype<AutoMovieArchetypeStationery.Affordance, AutoMovieArchetypeStationery.Dimension> {
+    return createStationeryImplementation(params, seed);
+  }
 
-  // The saved input spans every variant. The selected producer checks its original recipe.
-  return createStationery.PRODUCERS[kind](params, seed);
-}
-
-/** Compatibility tables and types for saved stationery recipes. */
-export namespace createStationery {
   /** The original kind for the saved stationery recipe. */
   export type Kind = StationeryDraw.Kind;
 
@@ -90,5 +75,4 @@ export namespace createStationery {
   export const PRODUCER_VARIANTS: Readonly<IProducerVariants> = {
     paper: "sheet",
     map: "foldedMap",
-  };
-}
+  };}

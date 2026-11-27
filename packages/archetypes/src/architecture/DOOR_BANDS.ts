@@ -4,7 +4,7 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core";
 import { ADA_RANGES } from "./ADA_RANGES";
-import type { createDoor } from "./createDoor";
+import type { AutoMovieArchetypeDoor } from "./AutoMovieArchetypeDoor";
 
 /** The accessibility standard's door clauses. */
 const ADA: string =
@@ -12,7 +12,7 @@ const ADA: string =
 
 /** The bands every door shares. */
 const LEAF: Readonly<
-  Partial<Record<createDoor.Dimension, IAutoMovieArchetypeBand>>
+  Partial<Record<AutoMovieArchetypeDoor.Dimension, IAutoMovieArchetypeBand>>
 > = {
   force: AutoMovieArchetypeBand.of(
     "N",
@@ -41,12 +41,12 @@ const SWING: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.of(
 
 /**
  * The band of each free dimension of a door, by hardware and for a sliding
- * door, with the source it was read at; `createDoor.BANDS` is this table.
+ * door, with the source it was read at; `AutoMovieArchetypeDoor.BANDS` is this table.
  */
 export const DOOR_BANDS: Readonly<
   Record<
-    createDoor.Hardware | "sliding",
-    Readonly<Partial<Record<createDoor.Dimension, IAutoMovieArchetypeBand>>>
+    AutoMovieArchetypeDoor.Hardware | "sliding",
+    Readonly<Partial<Record<AutoMovieArchetypeDoor.Dimension, IAutoMovieArchetypeBand>>>
   >
 > = {
   lever: {

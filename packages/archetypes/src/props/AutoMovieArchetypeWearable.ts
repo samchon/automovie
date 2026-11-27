@@ -1,38 +1,28 @@
-import { ArchetypeDraw, type AutoMovieArchetype } from "../core";
+import { type AutoMovieArchetype } from "../core/index";
+import { createWearable as createWearableImplementation } from "./internal/createWearable";
 import { WornPropDraw } from "./WornPropDraw";
-import { AutoMovieArchetypeCyclingHelmet } from "./AutoMovieArchetypeCyclingHelmet";
+import { AutoMovieArchetypeWatch } from "./AutoMovieArchetypeWatch";
 import { AutoMovieArchetypeHat } from "./AutoMovieArchetypeHat";
 import { AutoMovieArchetypeSpectacles } from "./AutoMovieArchetypeSpectacles";
-import { AutoMovieArchetypeWatch } from "./AutoMovieArchetypeWatch";
+import { AutoMovieArchetypeCyclingHelmet } from "./AutoMovieArchetypeCyclingHelmet";
 
-/**
- * Read a saved wearable recipe and call the producer for its kind.
- *
- * @param params The saved kind, fixed values, optional identifier and model
- *   when applicable.
- * @param seed The seed that draws the saved dimensions and model, or undefined
- *   for the original defaults.
- * @returns The selected prop in its original frame.
- * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies
- *   outside its admitted recipe.
- */
-export function createWearable(
-  params: createWearable.IParams,
-  seed?: number,
-): AutoMovieArchetype<createWearable.Affordance, createWearable.Dimension> {
-  const kind: createWearable.Kind = ArchetypeDraw.choice(
-    "wearable",
-    "kind",
-    params.kind,
-    createWearable.KINDS,
-  );
+/** Public operations for Auto Movie Archetype Wearable. */
+export namespace AutoMovieArchetypeWearable {
+  /**
+   * Read a saved wearable recipe and call the producer for its kind.
+   *
+   * @param params The saved kind, fixed values, optional identifier and model
+   *   when applicable.
+   * @param seed The seed that draws the saved dimensions and model, or undefined
+   *   for the original defaults.
+   * @returns The selected prop in its original frame.
+   * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies
+   *   outside its admitted recipe.
+   */
+  export function create(params: AutoMovieArchetypeWearable.IParams, seed?: number): AutoMovieArchetype<AutoMovieArchetypeWearable.Affordance, AutoMovieArchetypeWearable.Dimension> {
+    return createWearableImplementation(params, seed);
+  }
 
-  // The saved input spans every variant. The selected producer checks its original recipe.
-  return createWearable.PRODUCERS[kind](params, seed);
-}
-
-/** Compatibility tables and types for saved wearable recipes. */
-export namespace createWearable {
   /** The original kind for the saved wearable recipe. */
   export type Kind = WornPropDraw.Kind;
 
@@ -66,5 +56,4 @@ export namespace createWearable {
     hat: AutoMovieArchetypeHat.create,
     spectacles: AutoMovieArchetypeSpectacles.create,
     helmet: AutoMovieArchetypeCyclingHelmet.create,
-  } as const satisfies Readonly<Record<Kind, unknown>>;
-}
+  } as const satisfies Readonly<Record<Kind, unknown>>;}

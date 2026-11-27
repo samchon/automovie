@@ -5,7 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { createDoor } from "../../architecture/createDoor";
+import type { AutoMovieArchetypeDoor } from "../../architecture/AutoMovieArchetypeDoor";
 import { assembleBuilding } from "./assembleBuilding";
 import { buildingPlans } from "./buildingPlans";
 
@@ -87,7 +87,7 @@ export namespace createBuilding {
          * Nominal leaf and hardware choices; this producer owns placement
          * identity and hinge kind.
          */
-        readonly door?: Omit<createDoor.IParams, "id" | "kind">;
+        readonly door?: Omit<AutoMovieArchetypeDoor.IParams, "id" | "kind">;
 
         /**
          * Optional swing, in seconds on the compiled shot clock and positive

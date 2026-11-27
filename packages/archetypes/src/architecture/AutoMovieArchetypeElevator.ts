@@ -43,6 +43,11 @@ const ESTIMATES: Readonly<{ wall: number; leaf: number; across: number }> = {
 };
 
 /**
+ * A passenger lift car, with its construction and companion types.
+ */
+export namespace AutoMovieArchetypeElevator {
+
+/**
  * A passenger lift's car at a landing: the accessible car with a centred,
  * centre-opening door.
  *
@@ -70,37 +75,37 @@ const ESTIMATES: Readonly<{ wall: number; leaf: number; across: number }> = {
  *   a door height it does not list or one not below the car's, or a fixed
  *   dimension outside its band.
  */
-export function createElevator(
-  params: createElevator.IParams = {},
+export function create(
+  params: AutoMovieArchetypeElevator.IParams = {},
   seed?: number,
-): AutoMovieArchetype<createElevator.Affordance, createElevator.Dimension> {
-  const draw: AutoMovieArchetypeDrawSession<createElevator.Dimension> =
-    new AutoMovieArchetypeDrawSession<createElevator.Dimension>(
+): AutoMovieArchetype<AutoMovieArchetypeElevator.Affordance, AutoMovieArchetypeElevator.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<AutoMovieArchetypeElevator.Dimension> =
+    new AutoMovieArchetypeDrawSession<AutoMovieArchetypeElevator.Dimension>(
       "elevator",
-      createElevator.UNITS,
+      AutoMovieArchetypeElevator.UNITS,
       seed,
       params,
     );
   type Picked = {
-    name: createElevator.Height | undefined;
-    figures: Readonly<Partial<Record<createElevator.Dimension, number>>>;
+    name: AutoMovieArchetypeElevator.Height | undefined;
+    figures: Readonly<Partial<Record<AutoMovieArchetypeElevator.Dimension, number>>>;
   };
-  const car: Picked = draw.model<createElevator.Height>(
+  const car: Picked = draw.model<AutoMovieArchetypeElevator.Height>(
     "car",
     params.car,
-    createElevator.CARS,
+    AutoMovieArchetypeElevator.CARS,
   );
   const height: number = car.figures.height!;
   // A door is picked only among the heights below the car's, so it never reaches the roof.
-  const door: Picked = draw.model<createElevator.Height>(
+  const door: Picked = draw.model<AutoMovieArchetypeElevator.Height>(
     "doorway",
     params.doorway,
     Object.fromEntries(
-      Object.entries(createElevator.DOORS).filter(
+      Object.entries(AutoMovieArchetypeElevator.DOORS).filter(
         ([, figures]: [
           string,
           (
-            | Readonly<Partial<Record<createElevator.Dimension, number>>>
+            | Readonly<Partial<Record<AutoMovieArchetypeElevator.Dimension, number>>>
             | undefined
           ),
         ]): boolean => figures!.doorHeight! < height,
@@ -109,12 +114,12 @@ export function createElevator(
   );
   const doorHeight: number = door.figures.doorHeight!;
   const d: Record<
-    Exclude<createElevator.Dimension, "height" | "doorHeight">,
+    Exclude<AutoMovieArchetypeElevator.Dimension, "height" | "doorHeight">,
     number
-  > = draw.dimensions(createElevator.BANDS);
+  > = draw.dimensions(AutoMovieArchetypeElevator.BANDS);
   const builder: AutoMovieArchetypeBuilder<
-    createElevator.Affordance,
-    createElevator.Dimension
+    AutoMovieArchetypeElevator.Affordance,
+    AutoMovieArchetypeElevator.Dimension
   > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
@@ -237,8 +242,10 @@ export function createElevator(
   return builder.build(d.mass);
 }
 
-/** Companion types and bands of {@link createElevator}. */
-export namespace createElevator {
+}
+
+/** Companion types and bands of {@link AutoMovieArchetypeElevator}. */
+export namespace AutoMovieArchetypeElevator {
   /**
    * The affordance ids:
    *

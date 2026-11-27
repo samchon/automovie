@@ -48,12 +48,12 @@ A seat too low to sit down on from standing is refused with the least height tha
 An archetype is a coarse model made by a typed producer function from parameters and a seed. It is as plain as recognising the thing allows: a chair is a seat, a back and four legs. What a person's act reads is exact. Seat heights, handle heights, risers and treads, grip diameters and a saddle's height each come from a cited standard or measurement, and a seed varies them only inside the cited band.
 
 ```ts
-import { createDoor, createSeat } from "@automovie/archetypes";
+import { AutoMovieArchetypeDoor, createSeat } from "@automovie/archetypes";
 
 const chair = createSeat({ kind: "dining" }, "scene-3/chair-1"); // every free dimension drawn in its band
 const stool = createSeat({ kind: "barStool", seatHeight: 0.78 }); // one dimension fixed, the rest at mid-band
 
-const door = createDoor({ hinge: "left", hardware: "lever" }, 7);
+const door = AutoMovieArchetypeDoor.create({ hinge: "left", hardware: "lever" }, 7);
 const open = door.articulate({ hinge: 70 }); // the leaf, its lever and their contacts moved
 open.affordance("pull").frame; // the lever's grip on the open leaf
 ```

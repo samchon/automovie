@@ -7,7 +7,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { createElevator } from "../../architecture/createElevator";
+import type { AutoMovieArchetypeElevator } from "../../architecture/AutoMovieArchetypeElevator";
 import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
 import type { createLift } from "./createLift";
 import type { liftStopHeights } from "./liftStopHeights";
@@ -21,7 +21,7 @@ import type { liftStopHeights } from "./liftStopHeights";
  */
 export function liftObjectMotion(
   environment: IAutoMovieBuiltEnvironment,
-  car: ReturnType<typeof createElevator>,
+  car: ReturnType<typeof AutoMovieArchetypeElevator.create>,
   stops: readonly liftStopHeights.IStop[],
   schedule: readonly createLift.IKey[],
   gap: number,

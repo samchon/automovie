@@ -1,9 +1,4 @@
-import {
-  createBall,
-  createTool,
-  createVessel,
-  createWearable,
-} from "@automovie/archetypes";
+import { createBall, createTool, createVessel, AutoMovieArchetypeWearable } from "@automovie/archetypes";
 import { Quaternion } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
@@ -445,7 +440,7 @@ export const MOTION_HUMAN_LAW_STAGES_HANDLING: Readonly<
       [
         HumanObject.prop(
           "item",
-          createWearable({ kind: item === "hat" ? "hat" : "spectacles" }),
+          AutoMovieArchetypeWearable.create({ kind: item === "hat" ? "hat" : "spectacles" }),
           {
             at: { x: -0.2, y: a.measure.hipHeight, z: 0.35 },
             yaw: item === "hat" ? 0 : 180,

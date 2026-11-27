@@ -6,18 +6,18 @@ import { evaluateAutoMovieViewerCameraDepthPrecision as evaluateImplementation }
 import type { IAutoMovieDepthPrecisionRenderer } from "./IAutoMovieDepthPrecisionRenderer.js";
 import type { IAutoMovieViewerCameraDepthPrecisionReport } from "./IAutoMovieViewerCameraDepthPrecisionReport.js";
 
-/** Inputs used to compare a declared camera with the viewer's realized camera. */
-export interface IAutoMovieRenderViewerCameraDepthPrecisionProps {
-  /** Renderer whose currently bound draw framebuffer receives the shot. */
-  renderer: IAutoMovieDepthPrecisionRenderer;
-  /** Portable resolved camera declaration. */
-  source: Pick<IAutoMovieCamera, "id" | "near" | "far" | "depthPrecision">;
-  /** Three camera built from that declaration. */
-  realized: THREE.PerspectiveCamera;
-}
-
 /** Public operations for the viewer camera's declared depth precision. */
 export namespace AutoMovieRenderViewerCameraDepthPrecision {
+  /** Inputs used to compare a declared camera with the viewer's realized camera. */
+  export interface IProps {
+    /** Renderer whose currently bound draw framebuffer receives the shot. */
+    renderer: IAutoMovieDepthPrecisionRenderer;
+    /** Portable resolved camera declaration. */
+    source: Pick<IAutoMovieCamera, "id" | "near" | "far" | "depthPrecision">;
+    /** Three camera built from that declaration. */
+    realized: THREE.PerspectiveCamera;
+  }
+
   /**
    * Observe the bound draw framebuffer and compare its depth capability with a
    * resolved camera. The caller must install the declared standard projection
@@ -25,7 +25,7 @@ export namespace AutoMovieRenderViewerCameraDepthPrecision {
    * bits; it does not inspect matrix contents, shader writes or rendered error.
    */
   export function evaluate(
-    props: IAutoMovieRenderViewerCameraDepthPrecisionProps,
+    props: IProps,
   ): IAutoMovieViewerCameraDepthPrecisionReport {
     return evaluateImplementation(props);
   }
@@ -35,7 +35,7 @@ export namespace AutoMovieRenderViewerCameraDepthPrecision {
    * report or throwing with the observed status, clips, projection and bit count.
    */
   export function assert(
-    props: IAutoMovieRenderViewerCameraDepthPrecisionProps,
+    props: IProps,
   ): IAutoMovieViewerCameraDepthPrecisionReport {
     return assertImplementation(props);
   }

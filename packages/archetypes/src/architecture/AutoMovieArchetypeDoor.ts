@@ -12,6 +12,11 @@ import { createDoorMeasures as parts } from "./createDoorMeasures";
 const BAR: number = 0.011;
 
 /**
+ * A door in its frame, with its construction and companion types.
+ */
+export namespace AutoMovieArchetypeDoor {
+
+/**
  * A door in its frame: a hinged leaf with lever, knob or push-and-pull
  * hardware, or a sliding leaf.
  *
@@ -39,22 +44,22 @@ const BAR: number = 0.011;
  *   fixed dimension outside its band or one the door's hardware lacks, or
  *   hardware named for a sliding door.
  */
-export function createDoor(
-  params: createDoor.IParams = {},
+export function create(
+  params: AutoMovieArchetypeDoor.IParams = {},
   seed?: number,
-): AutoMovieArchetype<createDoor.Affordance, createDoor.Dimension> {
-  const draw: AutoMovieArchetypeDrawSession<createDoor.Dimension> =
-    new AutoMovieArchetypeDrawSession<createDoor.Dimension>(
+): AutoMovieArchetype<AutoMovieArchetypeDoor.Affordance, AutoMovieArchetypeDoor.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<AutoMovieArchetypeDoor.Dimension> =
+    new AutoMovieArchetypeDrawSession<AutoMovieArchetypeDoor.Dimension>(
       "door",
-      createDoor.UNITS,
+      AutoMovieArchetypeDoor.UNITS,
       seed,
       params,
     );
-  const kind: createDoor.Kind = ArchetypeDraw.choice(
+  const kind: AutoMovieArchetypeDoor.Kind = ArchetypeDraw.choice(
     "door",
     "kind",
     params.kind ?? "hinged",
-    createDoor.KINDS,
+    AutoMovieArchetypeDoor.KINDS,
   );
   if (kind === "sliding" && params.hardware !== undefined)
     throw new AutoMovieArchetypeRefusal({
@@ -67,14 +72,14 @@ export function createDoor(
         "a sliding door has a pull bar on each face and no other hardware",
       fix: "leave hardware out for a sliding door",
     });
-  const hardware: createDoor.Hardware =
+  const hardware: AutoMovieArchetypeDoor.Hardware =
     kind === "sliding"
       ? "plate"
       : ArchetypeDraw.choice(
           "door",
           "hardware",
           params.hardware ?? "lever",
-          createDoor.HARDWARE,
+          AutoMovieArchetypeDoor.HARDWARE,
         );
   const s: number =
     ArchetypeDraw.choice("door", "hinge", params.hinge ?? "right", [
@@ -83,7 +88,7 @@ export function createDoor(
     ]) === "right"
       ? 1
       : -1;
-  const variant: createDoor.Hardware | "sliding" =
+  const variant: AutoMovieArchetypeDoor.Hardware | "sliding" =
     kind === "sliding" ? "sliding" : hardware;
   /** One axis of the door's read sizes, given or picked whole. */
   const axis = <Name extends string>(
@@ -94,15 +99,15 @@ export function createDoor(
           Partial<
             Record<
               Name,
-              Readonly<Partial<Record<createDoor.Dimension, number>>>
+              Readonly<Partial<Record<AutoMovieArchetypeDoor.Dimension, number>>>
             >
           >
         >
       | undefined,
-  ): Readonly<Partial<Record<createDoor.Dimension, number>>> =>
+  ): Readonly<Partial<Record<AutoMovieArchetypeDoor.Dimension, number>>> =>
     draw.model<Name>(name, given, models).figures;
-  const d: Partial<Record<createDoor.Dimension, number>> = {
-    ...draw.dimensions(createDoor.BANDS[variant], createDoor.BANDS),
+  const d: Partial<Record<AutoMovieArchetypeDoor.Dimension, number>> = {
+    ...draw.dimensions(AutoMovieArchetypeDoor.BANDS[variant], AutoMovieArchetypeDoor.BANDS),
     ...axis("nominalWidth", params.nominalWidth, DOOR_SIZES.width),
     ...axis("nominalHeight", params.nominalHeight, DOOR_SIZES.height),
     ...axis("nominalThickness", params.nominalThickness, DOOR_SIZES.thickness),
@@ -113,8 +118,8 @@ export function createDoor(
   const height: number = d.height!;
   const thick: number = d.thickness!;
   const builder: AutoMovieArchetypeBuilder<
-    createDoor.Affordance,
-    createDoor.Dimension
+    AutoMovieArchetypeDoor.Affordance,
+    AutoMovieArchetypeDoor.Dimension
   > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
@@ -152,7 +157,7 @@ export function createDoor(
   const latched: string[] = [];
   const carrier: "hinge" | "slide" = kind === "sliding" ? "slide" : "hinge";
   const x: number = -s * (width / 2 - (d.backset ?? 0.07));
-  const y: number = d.hardwareHeight ?? createDoor.PULL_HEIGHT;
+  const y: number = d.hardwareHeight ?? AutoMovieArchetypeDoor.PULL_HEIGHT;
   const clear: number = kind === "sliding" ? width - 0.1 : width - thick;
   builder.affordance({
     id: "aperture",
@@ -220,12 +225,12 @@ export function createDoor(
     if (id === "push" && kind === "hinged") {
       const plate: IAutoMovieVector3 = Vector3.create(
         x,
-        createDoor.PLATE_HEIGHT,
+        AutoMovieArchetypeDoor.PLATE_HEIGHT,
         on - 0.001,
       );
       builder.box(
         "push-plate",
-        Vector3.create(createDoor.PLATE.width, createDoor.PLATE.height, 0.002),
+        Vector3.create(AutoMovieArchetypeDoor.PLATE.width, AutoMovieArchetypeDoor.PLATE.height, 0.002),
         plate,
         { color: "#8a8d91" },
       );
@@ -239,18 +244,18 @@ export function createDoor(
           Vector3.create(-z, 0, 0),
         ),
         extent: null,
-        width: createDoor.PLATE.width,
-        depth: createDoor.PLATE.height,
+        width: AutoMovieArchetypeDoor.PLATE.width,
+        depth: AutoMovieArchetypeDoor.PLATE.height,
         rides: carrier,
       });
       return;
     }
-    const off: number = on + z * (createDoor.PULL.clearance + BAR);
+    const off: number = on + z * (AutoMovieArchetypeDoor.PULL.clearance + BAR);
     builder.rod(
       `${id}-bar`,
       BAR,
-      Vector3.create(x, y - createDoor.PULL.length / 2, off),
-      Vector3.create(x, y + createDoor.PULL.length / 2, off),
+      Vector3.create(x, y - AutoMovieArchetypeDoor.PULL.length / 2, off),
+      Vector3.create(x, y + AutoMovieArchetypeDoor.PULL.length / 2, off),
       { color: "#8a8d91" },
     );
     moving.push(`${id}-bar`);
@@ -266,7 +271,7 @@ export function createDoor(
       extent: null,
       grip: "power",
       aperture: 2 * BAR,
-      length: createDoor.PULL.length,
+      length: AutoMovieArchetypeDoor.PULL.length,
       rides: carrier,
     });
   };
@@ -315,18 +320,20 @@ export function createDoor(
       travel: d.swing!,
       parts: moving,
     });
-  // A hinged leaf leaves its frame whole, with its hardware, at the energy a ram breaks an unreinforced softwood frame (`createDoor.BREAKING`); the frame stays.
+  // A hinged leaf leaves its frame whole, with its hardware, at the energy a ram breaks an unreinforced softwood frame (`AutoMovieArchetypeDoor.BREAKING`); the frame stays.
   if (kind === "hinged") {
     builder.fracture([{ id: "leaf", parts: [...moving, ...latched] }]);
     return builder.build(d.mass!, {
-      outcome: { fracture: createDoor.BREAKING },
+      outcome: { fracture: AutoMovieArchetypeDoor.BREAKING },
     });
   }
   return builder.build(d.mass!);
 }
 
-/** Companion types and bands of {@link createDoor}. */
-export namespace createDoor {
+}
+
+/** Companion types and bands of {@link AutoMovieArchetypeDoor}. */
+export namespace AutoMovieArchetypeDoor {
   /** The moved constant {@link createDoorMeasures.BREAKING}. */
   export const BREAKING: typeof parts.BREAKING = parts.BREAKING;
   /** The moved type {@link createDoorMeasures.Kind}. */

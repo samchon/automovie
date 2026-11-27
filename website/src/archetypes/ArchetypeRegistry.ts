@@ -219,8 +219,16 @@ const STABLE_PRODUCER_IDS: Readonly<Record<string, string>> = {
   AutoMovieArchetypeLoadingTower: "createLoadingTower",
   AutoMovieArchetypeObstacle: "createObstacle",
   AutoMovieArchetypeStreetFixture: "createStreetFixture",
+  AutoMovieArchetypeDoor: "createDoor",
+  AutoMovieArchetypeElevator: "createElevator",
 
   AutoMovieArchetypeStageFittedCarrier: "createStageFittedCarrier",
+
+  AutoMovieArchetypeDevice: "createDevice",
+  AutoMovieArchetypeKeyboard: "createKeyboard",
+  AutoMovieArchetypeSmoking: "createSmoking",
+  AutoMovieArchetypeStationery: "createStationery",
+  AutoMovieArchetypeWearable: "createWearable",
 };
 
 /** The website's local resolver for the installed archetype package. */

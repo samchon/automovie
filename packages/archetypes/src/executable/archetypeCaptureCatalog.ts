@@ -11,7 +11,7 @@ import {
 import type { AutoMovieArchetypeQuadrupedBody } from "../animals/AutoMovieArchetypeQuadrupedBody";
 import {
   createAppliance,
-  createDoor,
+  AutoMovieArchetypeDoor,
   createSanitary,
   createWindow,
 } from "../architecture";
@@ -28,23 +28,7 @@ import {
 } from "../gym";
 import { createInstrument, createMicrophone } from "../music";
 import { AutoMovieArchetypeFireRing, createRock, createTent, createTree } from "../nature";
-import {
-  createBag,
-  createBox,
-  createCareItem,
-  createDevice,
-  createDrinkware,
-  createFood,
-  createLight,
-  createLongTool,
-  createMobilityAid,
-  createSmoking,
-  createStationery,
-  createTableware,
-  createTool,
-  createUmbrella,
-  createVessel,
-} from "../props";
+import { createBag, createBox, createCareItem, createDrinkware, createFood, createLight, createLongTool, createMobilityAid, createTableware, createTool, createUmbrella, createVessel, AutoMovieArchetypeDevice, AutoMovieArchetypeSmoking, AutoMovieArchetypeStationery } from "../props";
 import { AutoMovieArchetypeCue, AutoMovieArchetypeCueTable, createGoal, createHighJump, createPoolEdge, createSkateboard, createSki, createStick, AutoMovieArchetypeSurfboard } from "../sport";
 import {
   AutoMovieArchetypeBicycle,
@@ -94,7 +78,7 @@ export function archetypeCaptureCatalog(): Readonly<
   const moving: typeof archetypeCaptureSubject.moving =
     archetypeCaptureSubject.moving;
 
-  const door: ReturnType<typeof createDoor> = createDoor({ hardware: "lever" });
+  const door: ReturnType<typeof AutoMovieArchetypeDoor.create> = AutoMovieArchetypeDoor.create({ hardware: "lever" });
   const chest: ReturnType<typeof createStorage> = createStorage({
     kind: "chest",
   });
@@ -144,20 +128,20 @@ export function archetypeCaptureCatalog(): Readonly<
     "small-props": still({
       ...kinds(
         "device",
-        createDevice.KINDS,
-        (kind: createDevice.Kind): AutoMovieArchetype => createDevice({ kind }),
+        AutoMovieArchetypeDevice.KINDS,
+        (kind: AutoMovieArchetypeDevice.Kind): AutoMovieArchetype => AutoMovieArchetypeDevice.create({ kind }),
       ),
       ...kinds(
         "smoking",
-        createSmoking.KINDS,
-        (kind: createSmoking.Kind): AutoMovieArchetype =>
-          createSmoking({ kind }),
+        AutoMovieArchetypeSmoking.KINDS,
+        (kind: AutoMovieArchetypeSmoking.Kind): AutoMovieArchetype =>
+          AutoMovieArchetypeSmoking.create({ kind }),
       ),
       ...kinds(
         "stationery",
-        createStationery.KINDS,
-        (kind: createStationery.Kind): AutoMovieArchetype =>
-          createStationery({ kind }),
+        AutoMovieArchetypeStationery.KINDS,
+        (kind: AutoMovieArchetypeStationery.Kind): AutoMovieArchetype =>
+          AutoMovieArchetypeStationery.create({ kind }),
       ),
       ...kinds(
         "care",
@@ -334,7 +318,7 @@ export function archetypeCaptureCatalog(): Readonly<
     ...archetypeCaptureRest(),
     articulated: still({
       "door-open": door.articulate({ hinge: 70, latch: 45 }),
-      "door-sliding-open": createDoor({ kind: "sliding" }).articulate({
+      "door-sliding-open": AutoMovieArchetypeDoor.create({ kind: "sliding" }).articulate({
         slide: 0.6,
       }),
       "chest-drawn": chest.articulate({ drawer2: 0.3, drawer3: 0.15 }),
@@ -345,7 +329,7 @@ export function archetypeCaptureCatalog(): Readonly<
       "window-open": createWindow({ kind: "casement" }).articulate({
         sash: 60,
       }),
-      "book-open": createStationery({ kind: "book" }).articulate({
+      "book-open": AutoMovieArchetypeStationery.create({ kind: "book" }).articulate({
         hinge: 150,
       }),
       "car-doors-open": car.articulate({

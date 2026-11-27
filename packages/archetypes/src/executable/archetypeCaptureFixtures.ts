@@ -5,8 +5,8 @@ import {
   AutoMovieArchetypeBoard,
   createCellFront,
   AutoMovieArchetypeControl,
-  createDoor,
-  createElevator,
+  AutoMovieArchetypeDoor,
+  AutoMovieArchetypeElevator,
   createGate,
   createHandhold,
   createHatch,
@@ -37,7 +37,7 @@ import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
  * @returns The subjects by name, in the catalog's order.
  */
 export function archetypeCaptureFixtures(
-  door: ReturnType<typeof createDoor>,
+  door: ReturnType<typeof AutoMovieArchetypeDoor.create>,
 ): Readonly<Record<string, archetypeCaptureCatalog.ISubject>> {
   const still: typeof archetypeCaptureSubject.still =
     archetypeCaptureSubject.still;
@@ -46,9 +46,9 @@ export function archetypeCaptureFixtures(
   return {
     doors: still({
       "door-lever-right": door,
-      "door-knob-left": createDoor({ hinge: "left", hardware: "knob" }),
-      "door-plate-right": createDoor({ hardware: "plate" }),
-      "door-sliding-left": createDoor({ kind: "sliding", hinge: "left" }),
+      "door-knob-left": AutoMovieArchetypeDoor.create({ hinge: "left", hardware: "knob" }),
+      "door-plate-right": AutoMovieArchetypeDoor.create({ hardware: "plate" }),
+      "door-sliding-left": AutoMovieArchetypeDoor.create({ kind: "sliding", hinge: "left" }),
       ...kinds(
         "window",
         createWindow.KINDS,
@@ -135,7 +135,7 @@ export function archetypeCaptureFixtures(
           createMachine({ kind }),
       ),
       valve: AutoMovieArchetypeValve.create(),
-      elevator: createElevator(),
+      elevator: AutoMovieArchetypeElevator.create(),
       ...kinds(
         "handhold",
         createHandhold.KINDS,

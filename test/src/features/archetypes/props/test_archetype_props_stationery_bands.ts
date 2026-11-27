@@ -1,4 +1,4 @@
-import { createStationery } from "@automovie/archetypes";
+import { AutoMovieArchetypeStationery } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../../internal/archetypeBandSweep";
@@ -21,7 +21,7 @@ export function test_archetype_props_stationery_bands(): void {
   const make = (
     kind: "clipboard" | "map",
     seed: number,
-  ): ReturnType<typeof createStationery> => createStationery({ kind }, seed);
+  ): ReturnType<typeof AutoMovieArchetypeStationery.create> => AutoMovieArchetypeStationery.create({ kind }, seed);
   const findings: string[] = archetypeBandSweep(
     (
       [
@@ -80,7 +80,7 @@ export function test_archetype_props_stationery_bands(): void {
   );
   for (const seed of [0, 1, 2])
     for (const kind of ["clipboard", "map"] as const) {
-      const slab: ReturnType<typeof createStationery> = make(kind, seed);
+      const slab: ReturnType<typeof AutoMovieArchetypeStationery.create> = make(kind, seed);
       const grip: ReturnType<typeof slab.affordance> = slab.affordance("grip");
       const face: ReturnType<typeof slab.affordance> = slab.affordance("face");
       if (

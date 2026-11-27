@@ -6,7 +6,7 @@ import type {
   IAutoMovieSubjectContribution,
 } from "@automovie/interface";
 
-import { createElevator } from "../../architecture/createElevator";
+import { AutoMovieArchetypeElevator } from "../../architecture/AutoMovieArchetypeElevator";
 import { buildLiftEnvironment } from "./buildLiftEnvironment";
 import { liftObjectMotion } from "./liftObjectMotion";
 import { liftStopHeights } from "./liftStopHeights";
@@ -37,7 +37,7 @@ export function createLift(input: createLift.IProps): createLift.IDefinition {
   const use: IAutoMovieEnvironmentModule = (
     context: IAutoMovieEnvironmentModule.IContext,
   ): IAutoMovieEnvironmentContribution => {
-    const car: ReturnType<typeof createElevator> = createElevator(
+    const car: ReturnType<typeof AutoMovieArchetypeElevator.create> = AutoMovieArchetypeElevator.create(
       props.car,
       context.seed,
     );
@@ -205,7 +205,7 @@ export namespace createLift {
     landingDepth: number;
 
     /** The catalogue car choices. The composer owns the instance id. */
-    car?: Omit<createElevator.IParams, "id">;
+    car?: Omit<AutoMovieArchetypeElevator.IParams, "id">;
   }
 
   /**

@@ -10,7 +10,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { createDoor } from "../../architecture/createDoor";
+import { AutoMovieArchetypeDoor } from "../../architecture/AutoMovieArchetypeDoor";
 import type { AutoMovieArchetype } from "../../core/AutoMovieArchetype";
 import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
 import type { createBuilding } from "./createBuilding";
@@ -27,8 +27,8 @@ export function buildingDoor(
   opening: Extract<createBuilding.Opening, { kind: "door" }>,
   seed: number | undefined,
 ): buildingDoor.IDoor {
-  const door: AutoMovieArchetype<createDoor.Affordance, createDoor.Dimension> =
-    createDoor({ ...opening.door, kind: "hinged", id }, seed);
+  const door: AutoMovieArchetype<AutoMovieArchetypeDoor.Affordance, AutoMovieArchetypeDoor.Dimension> =
+    AutoMovieArchetypeDoor.create({ ...opening.door, kind: "hinged", id }, seed);
   const hinge: IAutoMovieAffordance = door.affordance("hinge");
   const pivot: IAutoMovieVector3 = hinge.frame.translation;
   const axis: IAutoMovieVector3 = AutoMovieArchetypeFrame.axis(

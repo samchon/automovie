@@ -1,48 +1,24 @@
-import { ArchetypeDraw, type AutoMovieArchetype } from "../core";
+import { type AutoMovieArchetype } from "../core/index";
+import { createKeyboard as createKeyboardImplementation } from "./internal/createKeyboard";
 import { KeyboardHardware } from "./KeyboardHardware";
 import { createDesktopKeyboard } from "./createDesktopKeyboard";
 import { createLaptop } from "./createLaptop";
 
-/**
- * Reads a saved desktop keyboard or laptop recipe.
- *
- * @param params The saved kind, model and optional identifier.
- * @param seed The seed used by the selected producer.
- * @returns An input device with its original contact frames.
- * @throws {AutoMovieArchetypeRefusal} For an unsupported kind or model, or any
- *   dimension override.
- */
-export function createKeyboard(
-  params: createKeyboard.IParams,
-  seed?: number,
-): AutoMovieArchetype<createKeyboard.Affordance, createKeyboard.Dimension> {
-  const kind: createKeyboard.Kind = ArchetypeDraw.choice(
-    "keyboard",
-    "kind",
-    params.kind,
-    createKeyboard.KINDS,
-  );
+/** Public operations for Auto Movie Archetype Keyboard. */
+export namespace AutoMovieArchetypeKeyboard {
+  /**
+   * Reads a saved desktop keyboard or laptop recipe.
+   *
+   * @param params The saved kind, model and optional identifier.
+   * @param seed The seed used by the selected producer.
+   * @returns An input device with its original contact frames.
+   * @throws {AutoMovieArchetypeRefusal} For an unsupported kind or model, or any
+   *   dimension override.
+   */
+  export function create(params: AutoMovieArchetypeKeyboard.IParams, seed?: number): AutoMovieArchetype<AutoMovieArchetypeKeyboard.Affordance, AutoMovieArchetypeKeyboard.Dimension> {
+    return createKeyboardImplementation(params, seed);
+  }
 
-  // The saved model union is wider than each producer's model table.
-  // The saved input spans every variant, so each variant narrows its own kind
-  // and model against the lists it makes before it draws.
-  const variants: Readonly<
-    Record<
-      createKeyboard.Kind,
-      (
-        params: createKeyboard.IParams,
-        seed?: number,
-      ) => AutoMovieArchetype<createKeyboard.Affordance, createKeyboard.Dimension>
-    >
-  > = {
-    keyboard: (p, s) => createDesktopKeyboard({ ...p, model: ArchetypeDraw.admit("keyboard", "model", p.model, ["numericKeypad", "touchId"] as const) }, s),
-    laptop: (p, s) => createLaptop({ ...p, model: ArchetypeDraw.admit("keyboard", "model", p.model, ["air13", "air15"] as const) }, s),
-  };
-  return variants[kind](params, seed);
-}
-
-/** Compatibility types and manufacturer records for the saved recipe. */
-export namespace createKeyboard {
   /** The two saved kinds. */
   export type Kind = KeyboardHardware.Kind;
 
@@ -99,5 +75,4 @@ export namespace createKeyboard {
   export const PRODUCERS: Readonly<IProducers> = {
     keyboard: createDesktopKeyboard,
     laptop: createLaptop,
-  };
-}
+  };}

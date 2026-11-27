@@ -1,14 +1,14 @@
 import { AutoMovieArchetypeUnits } from "../core";
-import type { createDoor } from "./createDoor";
+import type { AutoMovieArchetypeDoor } from "./AutoMovieArchetypeDoor";
 
 /** One read size's figures, metres. */
-type Figures = Readonly<Partial<Record<createDoor.Dimension, number>>>;
+type Figures = Readonly<Partial<Record<AutoMovieArchetypeDoor.Dimension, number>>>;
 
 /**
  * A cylindrical lock's backsets, the Schlage ND's, which a lever and a knob
  * share and a sliding door's pull is set at.
  */
-const BACKSETS: Readonly<Record<createDoor.Backset, Figures>> = {
+const BACKSETS: Readonly<Record<AutoMovieArchetypeDoor.Backset, Figures>> = {
   "2-3/8in": { backset: (2 + 3 / 8) * AutoMovieArchetypeUnits.INCH },
   "2-3/4in": { backset: (2 + 3 / 4) * AutoMovieArchetypeUnits.INCH },
 };
@@ -27,22 +27,22 @@ const BACKSETS: Readonly<Record<createDoor.Backset, Figures>> = {
  * (https://cdn.shopify.com/s/files/1/0610/8813/7372/files/Schlage_ND_Series_Cut_Sheet.pdf?v=1717757895).
  */
 export const DOOR_SIZES: Readonly<{
-  width: Readonly<Record<createDoor.Width, Figures>>;
-  height: Readonly<Record<createDoor.Height, Figures>>;
-  thickness: Readonly<Record<createDoor.Thickness, Figures>>;
+  width: Readonly<Record<AutoMovieArchetypeDoor.Width, Figures>>;
+  height: Readonly<Record<AutoMovieArchetypeDoor.Height, Figures>>;
+  thickness: Readonly<Record<AutoMovieArchetypeDoor.Thickness, Figures>>;
   backset: Readonly<
     Partial<
       Record<
-        createDoor.Hardware | "sliding",
-        Readonly<Record<createDoor.Backset, Figures>>
+        AutoMovieArchetypeDoor.Hardware | "sliding",
+        Readonly<Record<AutoMovieArchetypeDoor.Backset, Figures>>
       >
     >
   >;
   lever: Readonly<
     Partial<
       Record<
-        createDoor.Hardware | "sliding",
-        Readonly<Record<createDoor.Lever, Figures>>
+        AutoMovieArchetypeDoor.Hardware | "sliding",
+        Readonly<Record<AutoMovieArchetypeDoor.Lever, Figures>>
       >
     >
   >;

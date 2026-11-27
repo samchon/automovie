@@ -1,36 +1,26 @@
-import { ArchetypeDraw, type AutoMovieArchetype } from "../core";
+import { type AutoMovieArchetype } from "../core/index";
+import { createSmoking as createSmokingImplementation } from "./internal/createSmoking";
 import { SmokingPropDraw } from "./SmokingPropDraw";
 import { AutoMovieArchetypeCigarette } from "./AutoMovieArchetypeCigarette";
 import { createLighter } from "./createLighter";
 
-/**
- * Read a saved smoking prop recipe and call the producer for its kind.
- *
- * @param params The saved kind, fixed values, optional identifier and model
- *   when applicable.
- * @param seed The seed that draws the saved dimensions and model, or undefined
- *   for the original defaults.
- * @returns The selected prop in its original frame.
- * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies
- *   outside its admitted recipe.
- */
-export function createSmoking(
-  params: createSmoking.IParams,
-  seed?: number,
-): AutoMovieArchetype<createSmoking.Affordance, createSmoking.Dimension> {
-  const kind: createSmoking.Kind = ArchetypeDraw.choice(
-    "smoking",
-    "kind",
-    params.kind,
-    createSmoking.KINDS,
-  );
+/** Public operations for Auto Movie Archetype Smoking. */
+export namespace AutoMovieArchetypeSmoking {
+  /**
+   * Read a saved smoking prop recipe and call the producer for its kind.
+   *
+   * @param params The saved kind, fixed values, optional identifier and model
+   *   when applicable.
+   * @param seed The seed that draws the saved dimensions and model, or undefined
+   *   for the original defaults.
+   * @returns The selected prop in its original frame.
+   * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies
+   *   outside its admitted recipe.
+   */
+  export function create(params: AutoMovieArchetypeSmoking.IParams, seed?: number): AutoMovieArchetype<AutoMovieArchetypeSmoking.Affordance, AutoMovieArchetypeSmoking.Dimension> {
+    return createSmokingImplementation(params, seed);
+  }
 
-  // The saved input spans every variant. The selected producer checks its original recipe.
-  return createSmoking.PRODUCERS[kind](params, seed);
-}
-
-/** Compatibility tables and types for saved smoking prop recipes. */
-export namespace createSmoking {
   /** The original kind for the saved smoking prop recipe. */
   export type Kind = SmokingPropDraw.Kind;
 
@@ -65,5 +55,4 @@ export namespace createSmoking {
   export const PRODUCERS = {
     cigarette: AutoMovieArchetypeCigarette.create,
     lighter: createLighter,
-  } as const satisfies Readonly<Record<Kind, unknown>>;
-}
+  } as const satisfies Readonly<Record<Kind, unknown>>;}

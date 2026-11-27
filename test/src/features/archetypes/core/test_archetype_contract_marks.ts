@@ -1,7 +1,7 @@
 import {
   AutoMovieArchetypeFrame,
   AutoMovieArchetypeMarks,
-  createDoor,
+  AutoMovieArchetypeDoor,
   createSeat,
   createStorage,
 } from "@automovie/archetypes";
@@ -76,7 +76,7 @@ export function test_archetype_contract_marks(): void {
     { kind: "chest" },
     4,
   );
-  const door: ReturnType<typeof createDoor> = createDoor({}, 4);
+  const door: ReturnType<typeof AutoMovieArchetypeDoor.create> = AutoMovieArchetypeDoor.create({}, 4);
   const drawer: IAutoMovieAffordance = chest.affordance("drawer2");
 
   // What each affordance must draw after its arrow: the outline's shape and its points, from the archetype's sites and articulation.

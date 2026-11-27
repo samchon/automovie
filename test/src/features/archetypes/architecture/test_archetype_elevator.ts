@@ -1,4 +1,4 @@
-import { createElevator } from "@automovie/archetypes";
+import { AutoMovieArchetypeElevator } from "@automovie/archetypes";
 import type { IAutoMovieAffordance } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -51,7 +51,7 @@ export function test_archetype_elevator(): void {
       {
         name: "lift car door clear width",
         measure: (seed: number): number =>
-          createElevator({}, seed).affordance("entrance").width!,
+          AutoMovieArchetypeElevator.create({}, seed).affordance("entrance").width!,
         minimum: ADA.door[0],
         maximum: ADA.door[1],
         source: "ADA Table 407.4.1",
@@ -61,7 +61,7 @@ export function test_archetype_elevator(): void {
       {
         name: "lift car and door heights",
         measure: (seed: number): readonly number[] => {
-          const car: ReturnType<typeof createElevator> = createElevator(
+          const car: ReturnType<typeof AutoMovieArchetypeElevator.create> = AutoMovieArchetypeElevator.create(
             {},
             seed,
           );
@@ -80,7 +80,7 @@ export function test_archetype_elevator(): void {
     ]),
   );
   for (const seed of [0, 8, 21]) {
-    const car: ReturnType<typeof createElevator> = createElevator({}, seed);
+    const car: ReturnType<typeof AutoMovieArchetypeElevator.create> = AutoMovieArchetypeElevator.create({}, seed);
     const inside: number =
       archetypeExtent(car, "x", ["side-left"]).low -
       archetypeExtent(car, "x", ["side-right"]).high;
@@ -118,7 +118,7 @@ export function test_archetype_elevator(): void {
       archetypeExtent(car, "x", ["leftDoor-leaf"]).low,
       archetypeExtent(car, "x", ["rightDoor-leaf"]).high,
     );
-    const open: ReturnType<typeof createElevator> = car.articulate({
+    const open: ReturnType<typeof AutoMovieArchetypeElevator.create> = car.articulate({
       leftDoor: car.affordance("leftDoor").travel!,
       rightDoor: car.affordance("rightDoor").travel!,
     });
@@ -139,14 +139,14 @@ export function test_archetype_elevator(): void {
       {
         name: "landing call button height",
         measure: (seed: number): number =>
-          createElevator({}, seed).affordance("call").frame.translation.y,
+          AutoMovieArchetypeElevator.create({}, seed).affordance("call").frame.translation.y,
         minimum: 0.38,
         maximum: 1.22,
         source: "ADA 407.2.1.1 and 308.2.1",
       },
     ]),
   );
-  const lift: ReturnType<typeof createElevator> = createElevator({}, 4);
+  const lift: ReturnType<typeof AutoMovieArchetypeElevator.create> = AutoMovieArchetypeElevator.create({}, 4);
   const call: IAutoMovieAffordance = lift.affordance("call");
   if (
     !(

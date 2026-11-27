@@ -15,7 +15,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { createElevator } from "../../architecture/createElevator";
+import type { AutoMovieArchetypeElevator } from "../../architecture/AutoMovieArchetypeElevator";
 import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
 import type { createLift } from "./createLift";
 import { liftLandingSpace } from "./liftLandingSpace";
@@ -452,7 +452,7 @@ export namespace buildLiftEnvironment {
     context: IAutoMovieEnvironmentModule.IContext;
 
     /** The chosen car and its resolved aperture affordances. */
-    car: ReturnType<typeof createElevator>;
+    car: ReturnType<typeof AutoMovieArchetypeElevator.create>;
 
     /** Clear sill gap, metres. */
     gap: number;
