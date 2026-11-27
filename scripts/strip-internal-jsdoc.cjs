@@ -7,13 +7,29 @@ const { run } = require("./export-refactor-worktree.cjs");
 
 const root = path.resolve(__dirname, "..");
 const provenance = /(?:copyright|SPDX-License-Identifier|@license|modified\s+(?:by|on)|https?:\/\/|www\.)/iu;
-const explanatory = /\b(?:because|so that|to avoid|otherwise|instead|therefore|as a result|for that reason|in order to|unless|preserve|keeps?|requires?|must|only|until|before|after|when|while)\b/iu;
 const narrativeTags = new Set(["remarks", "example", "deprecated", "throws", "see", "todo"]);
 
 function declarationName(node) {
   return node.name && (ts.isIdentifier(node.name) || ts.isPrivateIdentifier(node.name))
     ? node.name.text
     : undefined;
+}
+
+function declarationNames(node) {
+  if (!ts.isVariableStatement(node)) {
+    const name = declarationName(node);
+    return name ? [name] : [];
+  }
+  const names = [];
+  function visitBinding(binding) {
+    if (ts.isIdentifier(binding)) names.push(binding.text);
+    else if (ts.isObjectBindingPattern(binding) || ts.isArrayBindingPattern(binding))
+      for (const element of binding.elements)
+        if (ts.isBindingElement(element)) visitBinding(element.name);
+  }
+  for (const declaration of node.declarationList.declarations)
+    visitBinding(declaration.name);
+  return names;
 }
 
 function declarationNodes(sourceFile) {
@@ -44,13 +60,6 @@ function cleanNarrative(value) {
     .trim();
 }
 
-function meaningfulNarrative(text) {
-  if (!text) return false;
-  const nonempty = text.split(/\r?\n/u).filter((line) => line.trim());
-  const sentences = text.match(/[.!?](?:\s|$)/gu)?.length ?? 0;
-  return nonempty.length > 1 || sentences > 1 || text.length >= 140 || explanatory.test(text);
-}
-
 function provenanceLines(doc, sourceFile) {
   return commentText(doc, sourceFile)
     .split(/\r?\n/u)
@@ -73,7 +82,7 @@ function ordinaryBlock(lines) {
 function preservedComment(doc, sourceFile) {
   const narrative = [];
   const description = cleanNarrative(doc.comment);
-  if (meaningfulNarrative(description)) narrative.push(description);
+  if (description) narrative.push(description);
   for (const tag of doc.tags ?? []) {
     if (!narrativeTags.has(tag.tagName.text)) continue;
     const body = cleanNarrative(tag.comment);
@@ -95,8 +104,7 @@ function contractDeclarationNames(index) {
 function isPublicNode(node, sourceFile, publicNames) {
   let current = node;
   while (current && current !== sourceFile) {
-    const name = declarationName(current);
-    if (name && publicNames.has(name)) return true;
+    if (declarationNames(current).some((name) => publicNames.has(name))) return true;
     current = current.parent;
   }
   return false;
@@ -121,7 +129,7 @@ function planFile(sourceFile, index) {
       edits.push({ start: doc.getStart(sourceFile), end: doc.end, text: replacement });
       const description = cleanNarrative(doc.comment);
       const taggedNarrative = (doc.tags ?? []).some((tag) => narrativeTags.has(tag.tagName.text) && cleanNarrative(tag.comment));
-      if (meaningfulNarrative(description) || taggedNarrative) preservedNarrative++;
+      if (description || taggedNarrative) preservedNarrative++;
       if (provenanceLines(doc, sourceFile).length) preservedProvenance++;
       if (doc.tags?.some((tag) => tag.tagName.text === "internal")) retainedInternal++;
       count++;
