@@ -8,8 +8,8 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose, throwsError, vclose } from "../../internal/predicates";
 
 /**
- * `prepareAutoMovieSurfaceFrame` reads a triangle's own frame about its
- * centroid and `placeAutoMovieSurfaceFrame` lays it into a target frame
+ * `prepareSurfaceFrame` reads a triangle's own frame about its
+ * centroid and `placeSurfaceFrame` lays it into a target frame
  * (origin, forward, normal), keeping an explicit outward sign and tiny real
  * samples.
  *

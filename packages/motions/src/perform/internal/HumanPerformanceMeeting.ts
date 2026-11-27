@@ -11,7 +11,7 @@ import type {
   IAutoMovieMotionMeetingRole,
 } from "@automovie/interface";
 
-import { AutoMovieMotionMeeting } from "../../compose/internal/AutoMovieMotionMeeting";
+import { motionMeeting } from "../../compose/internal/motionMeeting";
 import { poseBones } from "../../posture/internal/poseBones";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 
@@ -20,7 +20,7 @@ import { HumanPerformanceRead } from "./HumanPerformanceRead";
  * record per meeting, computed by the role planned first from where every role
  * stands at its start, and read by every other role while it lies ahead of its
  * own start. Each role states whether a seat bears it then
- * (`AutoMovieMotionMeeting.IRole.seated`): this role from its entry's supports,
+ * (`motionMeeting.IRole.seated`): this role from its entry's supports,
  * a partner from the seat window its placed action holds open at that second.
  */
 export namespace HumanPerformanceMeeting {
@@ -62,7 +62,7 @@ export namespace HumanPerformanceMeeting {
       const others: readonly IAutoMovieMotionHumanActionContext.IPartner[] =
         partner === undefined ? [] : "subject" in partner ? [partner] : partner;
       if (others.length === 0)
-        return AutoMovieMotionMeeting(kind, [own], context, window);
+        return motionMeeting(kind, [own], context, window);
 
       // The role planned first computes the meeting; every other reads
       // that record while it still lies ahead of its own start. The key
@@ -83,7 +83,7 @@ export namespace HumanPerformanceMeeting {
         kept.meeting.instants.relax > start
       )
         return kept.meeting;
-      const meeting: IAutoMovieMotionMeeting = AutoMovieMotionMeeting(
+      const meeting: IAutoMovieMotionMeeting = motionMeeting(
         kind,
         [
           own,

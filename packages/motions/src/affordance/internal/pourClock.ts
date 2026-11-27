@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanPour,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
@@ -51,7 +51,7 @@ export function pourClock(
       fix: "author a tilt and lip clearance in those ranges",
     });
   for (const phase of phases) phase.seconds *= tempo;
-  return AutoMovieMotionClock.sequence(phases);
+  return motionClock.sequence(phases);
 }
 
 /*

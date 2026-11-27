@@ -20,7 +20,7 @@ import type {
 
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionHumanLeg";
-import { AutoMovieMotionPrepared } from "../../compose/internal/AutoMovieMotionPrepared";
+import { motionPrepared } from "../../compose/internal/motionPrepared";
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanBoneGroups } from "../../posture/internal/HumanBoneGroups";
@@ -270,8 +270,8 @@ function planHumanBikeGuide(
   // pelvis frame, so the hand goes with the walk without reading the
   // bicycle at a later second. It is solved when the plan is prepared, on
   // the bicycle as the placed performance shows it.
-  const taken: AutoMovieMotionPrepared.IValue<IAutoMovieHumanLimbGoal> =
-    AutoMovieMotionPrepared((): IAutoMovieHumanLimbGoal => {
+  const taken: motionPrepared.IValue<IAutoMovieHumanLimbGoal> =
+    motionPrepared((): IAutoMovieHumanLimbGoal => {
       const at: IAutoMovieMotionHumanPosture = bodyAt(HumanBikeGuideData.REACH);
       const world: IAutoMovieHumanLimbGoal = AquaticProp.hold(
         body,

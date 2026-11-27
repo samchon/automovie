@@ -1,11 +1,11 @@
 import { type IAutoMovieInspectionCamera, type IAutoMovieInspectionRequest, type IAutoMovieInspectionView, type IAutoMovieListInspectionKindsProps, type IAutoMovieInspectionKind } from "@automovie/interface";
-import { formatAutoMovieInspectionCameraView as formatAutoMovieInspectionCameraViewImplementation } from "./inspection/internal/formatAutoMovieInspectionCameraView.js";
-import { formatAutoMovieInspectionRequest as formatAutoMovieInspectionRequestImplementation } from "./inspection/internal/formatAutoMovieInspectionRequest.js";
-import { formatAutoMovieInspectionView as formatAutoMovieInspectionViewImplementation } from "./inspection/internal/formatAutoMovieInspectionView.js";
-import { listAutoMovieInspectionKindOptions as listAutoMovieInspectionKindOptionsImplementation } from "./inspection/internal/listAutoMovieInspectionKindOptions.js";
-import { listAutoMovieInspectionKinds as listAutoMovieInspectionKindsImplementation } from "./inspection/internal/listAutoMovieInspectionKinds.js";
-import { parseAutoMovieInspectionRequest as parseAutoMovieInspectionRequestImplementation } from "./inspection/internal/parseAutoMovieInspectionRequest.js";
-import { parseAutoMovieInspectionView as parseAutoMovieInspectionViewImplementation } from "./inspection/internal/parseAutoMovieInspectionView.js";
+import { formatInspectionCameraView as formatInspectionCameraViewImplementation } from "./inspection/internal/formatInspectionCameraView";
+import { formatInspectionRequest as formatInspectionRequestImplementation } from "./inspection/internal/formatInspectionRequest";
+import { formatInspectionView as formatInspectionViewImplementation } from "./inspection/internal/formatInspectionView";
+import { listInspectionKindOptions as listInspectionKindOptionsImplementation } from "./inspection/internal/listInspectionKindOptions";
+import { listInspectionKinds as listInspectionKindsImplementation } from "./inspection/internal/listInspectionKinds";
+import { parseInspectionRequest as parseInspectionRequestImplementation } from "./inspection/internal/parseInspectionRequest";
+import { parseInspectionView as parseInspectionViewImplementation } from "./inspection/internal/parseInspectionView";
 
 /** Public operations for Auto Movie Render Inspection Request. */
 export namespace AutoMovieRenderInspectionRequest {
@@ -13,7 +13,7 @@ export namespace AutoMovieRenderInspectionRequest {
    * Write the view text that draws a resolved camera again: a fixed view at its
    * eye looking at its target, with `@ortho=<metres per pixel>` for an
    * orthographic camera and `@up=` when world `+Y` would roll the picture
-   * otherwise, written by `formatAutoMovieInspectionView`.
+   * otherwise, written by `formatInspectionView`.
    *
    * A record keeps this text beside each cell's camera, so a later round copies
    * it as is and draws through the same camera even when what is drawn changes,
@@ -26,12 +26,12 @@ export namespace AutoMovieRenderInspectionRequest {
    * target, which are a fitted orthographic view's own clips.
    */
   export function formatCameraView(camera: IAutoMovieInspectionCamera): string {
-    return formatAutoMovieInspectionCameraViewImplementation(camera);
+    return formatInspectionCameraViewImplementation(camera);
   }
 
   /**
    * Write an inspection request as the named text values
-   * `parseAutoMovieInspectionRequest` reads, so a request made in one host
+   * `parseInspectionRequest` reads, so a request made in one host
    * repeats in another as an address or a command line.
    *
    * Keys come in the order of `AutoMovieRenderInspectionKeys`, and a key whose value
@@ -44,16 +44,16 @@ export namespace AutoMovieRenderInspectionRequest {
    *
    * ```ts
    * const address = new URLSearchParams(
-   *   formatAutoMovieInspectionRequest(request),
+   *   formatInspectionRequest(request),
    * );
    * ```
    */
   export function formatRequest(request: IAutoMovieInspectionRequest): [key: string, value: string][] {
-    return formatAutoMovieInspectionRequestImplementation(request);
+    return formatInspectionRequestImplementation(request);
   }
 
   /**
-   * Write an inspection view as the text `parseAutoMovieInspectionView` reads, so
+   * Write an inspection view as the text `parseInspectionView` reads, so
    * a view chosen in one host repeats in another.
    *
    * The film camera is `film`. A fixed camera is `x,y,z:tx,ty,tz`, then
@@ -65,7 +65,7 @@ export namespace AutoMovieRenderInspectionRequest {
    * the written text gives an equal view.
    */
   export function formatView(view: IAutoMovieInspectionView): string {
-    return formatAutoMovieInspectionViewImplementation(view);
+    return formatInspectionViewImplementation(view);
   }
 
   /**
@@ -75,7 +75,7 @@ export namespace AutoMovieRenderInspectionRequest {
    * default colour until a mark or measurement supplies one.
    */
   export function listKindOptions(props: IAutoMovieListInspectionKindsProps, declared?: readonly string[]): ReadonlyMap<string, number | undefined> {
-    return listAutoMovieInspectionKindOptionsImplementation(props, declared);
+    return listInspectionKindOptionsImplementation(props, declared);
   }
 
   /**
@@ -90,11 +90,11 @@ export namespace AutoMovieRenderInspectionRequest {
    * the request names a trail. A supplied kind that has an inspection kind's name
    * is listed once, as supplied.
    *
-   * `listAutoMovieInspectionKindOptions` adds lifetime declarations to these
+   * `listInspectionKindOptions` adds lifetime declarations to these
    * styled kinds for request admission and the inspector panel.
    */
   export function listKinds(props: IAutoMovieListInspectionKindsProps): IAutoMovieInspectionKind[] {
-    return listAutoMovieInspectionKindsImplementation(props);
+    return listInspectionKindsImplementation(props);
   }
 
   /**
@@ -104,7 +104,7 @@ export namespace AutoMovieRenderInspectionRequest {
    * `read` returns the text of a key, or null or undefined when the key is
    * absent. A key that is present without a value reads as the empty string,
    * which turns a switch on. `AutoMovieRenderInspectionKeys` lists every key read,
-   * and `formatAutoMovieInspectionRequest` writes a request back as these
+   * and `formatInspectionRequest` writes a request back as these
    * values.
    *
    * | Key             | Text                                                                                                                                                                     | Absent             |
@@ -126,17 +126,17 @@ export namespace AutoMovieRenderInspectionRequest {
    * A switch is on for the empty string, `1` or `true` and off for `0` or
    * `false`. Any other text, an unknown shade or a number out of range throws an
    * `Error` that names the key, the text and what is accepted. Mark kinds are not
-   * checked here, because their producers own them; `applyAutoMovieInspection`
+   * checked here, because their producers own them; `applyInspection`
    * refuses a kind pattern that matches no kind it is given.
    *
    * ```ts
-   * const request = parseAutoMovieInspectionRequest((key) =>
+   * const request = parseInspectionRequest((key) =>
    *   url.searchParams.get(key),
    * );
    * ```
    */
   export function parseRequest(read: (key: string) => string | null | undefined): IAutoMovieInspectionRequest {
-    return parseAutoMovieInspectionRequestImplementation(read);
+    return parseInspectionRequestImplementation(read);
   }
 
   /**
@@ -171,10 +171,10 @@ export namespace AutoMovieRenderInspectionRequest {
    * `@flagged`.
    *
    * ```ts
-   * const view = parseAutoMovieInspectionView("front@ortho");
+   * const view = parseInspectionView("front@ortho");
    * ```
    */
   export function parseView(text: string): IAutoMovieInspectionView {
-    return parseAutoMovieInspectionViewImplementation(text);
+    return parseInspectionViewImplementation(text);
   }
 }

@@ -24,8 +24,8 @@ import type {
 
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionHumanHeld } from "../../compose/internal/motionHumanHeld";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -86,7 +86,7 @@ export namespace pour {
       });
 
     const side: AutoMovieHumanSide = params.hand ?? "right";
-    const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
+    const held: IAutoMovieMotionHumanHeld.IHeld = motionHumanHeld(
       context,
       side,
       params.source,
@@ -112,7 +112,7 @@ export namespace pour {
       context.start,
     );
     const lip: IAutoMovieMotionHumanHeld.IPointResult =
-      AutoMovieMotionHumanHeld.point(held, "lip");
+      motionHumanHeld.point(held, "lip");
     const bones: ReturnType<typeof poseBones> = poseBones(
       context.body,
       context.entry.pose,
@@ -188,7 +188,7 @@ export namespace pour {
       end: clock.duration,
     };
     const composed: IAutoMovieMotionHumanActionPlan =
-      composeAutoMovieMotionHumanAction({
+      composeMotionHumanAction({
         base: AutoMovieMotionHumanBase.under(context, clock.duration),
         clock,
         contact: "flowStart",
@@ -281,8 +281,8 @@ export namespace pour {
     }
     return {
       ...composed,
-      contacts: [...composed.contacts, AutoMovieMotionHumanHeld.grip(held)],
-      holds: [AutoMovieMotionHumanHeld.hold(context, held)],
+      contacts: [...composed.contacts, motionHumanHeld.grip(held)],
+      holds: [motionHumanHeld.hold(context, held)],
     };
   }
 

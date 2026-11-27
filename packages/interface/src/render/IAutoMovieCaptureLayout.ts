@@ -1,6 +1,6 @@
 /**
  * How a capture's stills are laid out on contact sheets, derived from the
- * reader budget and the stills' raster by `planAutoMovieCaptureLayout`.
+ * reader budget and the stills' raster by `planCaptureLayout`.
  *
  * Every sheet holds at most `perSheet` cells in `columns` columns, each cell
  * with its caption strip under it, so it is at most `columns × cell.width` by

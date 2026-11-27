@@ -7,8 +7,8 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanTarget } from "../../compose/internal/AutoMovieMotionHumanTarget";
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
+import { motionManner } from "../../compose/internal/motionManner";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { StrikingTarget } from "../../striking/internal/StrikingTarget";
 import { ReactionSource } from "./ReactionSource";
@@ -31,8 +31,8 @@ export function staggerRecovery(
   if (!(p.speed > 0)) throw new Error("A stagger's speed is positive");
   const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
   const righting: number =
-    AutoMovieMotionManner(context, p.manner).tempo *
-    AutoMovieMotionHumanTiming.seconds(staggerBounds.RIGHTING);
+    motionManner(context, p.manner).tempo *
+    motionHumanTiming.seconds(staggerBounds.RIGHTING);
 
   // The push, read where its source is as the plan begins, the causal read
   // a reaction makes (`ReactionSource`), and the recovery it asks for.

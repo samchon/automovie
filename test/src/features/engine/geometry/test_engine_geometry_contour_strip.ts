@@ -11,7 +11,7 @@ type Observation = Omit<
 >;
 
 /**
- * `tessellateAutoMovieContourStrip64(a, b, emit, identity?, observe?)` tiles
+ * `tessellateContourStrip64(a, b, emit, identity?, observe?)` tiles
  * the strip between two contour boundaries with the fixed-seam path of least
  * unsigned area among those whose sheet incidence is admissible, qualifying it
  * by vertex identity.

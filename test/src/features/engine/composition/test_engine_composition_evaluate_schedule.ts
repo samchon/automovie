@@ -7,7 +7,7 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `evaluateAutoMovieSchedule` reads one instant: the entries running at it,
+ * `evaluateSchedule` reads one instant: the entries running at it,
  * each with its local time and phase over the half-open span [start, end), and
  * each subject's state from its latest ended entry, where of two ending
  * together the later-indexed one wins.

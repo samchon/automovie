@@ -3,7 +3,7 @@ import type { IAutoMovieAnalysisTarget } from "./IAutoMovieAnalysisTarget";
 /**
  * Everything one ventilation study is configured with.
  *
- * `analyzeAutoMovieSpaceAir` throws on a blank id, subject or revision, a
+ * `analyzeSpaceAir` throws on a blank id, subject or revision, a
  * non-positive volume, a negative or non-finite flow, a non-integer or negative
  * occupancy, a negative or non-finite carbon dioxide input, or a malformed
  * target. A null flow makes every ventilation metric a gap; a zero flow gives a

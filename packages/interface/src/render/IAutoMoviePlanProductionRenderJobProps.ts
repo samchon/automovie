@@ -1,10 +1,10 @@
-import type { AutoMovieGuidePass } from "../cinematics/AutoMovieGuidePass.js";
-import type { IAutoMovieCompiledFilmEffect } from "../production/IAutoMovieCompiledFilmEffect.js";
-import type { IAutoMovieFilmTimeline } from "../production/IAutoMovieFilmTimeline.js";
-import type { IAutoMovieProductionDesign } from "../production/IAutoMovieProductionDesign.js";
-import type { IAutoMovieProductionAudioAssetIdentity } from "./IAutoMovieProductionAudioAssetIdentity.js";
-import type { IAutoMovieProductionRenderRuntimeIdentity } from "./IAutoMovieProductionRenderRuntimeIdentity.js";
-import type { IAutoMovieProductionRenderTier } from "./IAutoMovieProductionRenderTier.js";
+import type { AutoMovieGuidePass } from "../cinematics/AutoMovieGuidePass";
+import type { IAutoMovieCompiledFilmEffect } from "../production/IAutoMovieCompiledFilmEffect";
+import type { IAutoMovieFilmTimeline } from "../production/IAutoMovieFilmTimeline";
+import type { IAutoMovieProductionDesign } from "../production/IAutoMovieProductionDesign";
+import type { IAutoMovieProductionAudioAssetIdentity } from "./IAutoMovieProductionAudioAssetIdentity";
+import type { IAutoMovieProductionRenderRuntimeIdentity } from "./IAutoMovieProductionRenderRuntimeIdentity";
+import type { IAutoMovieProductionRenderTier } from "./IAutoMovieProductionRenderTier";
 
 /**
  * Content identities and compiled timeline for one deterministic tier plan.

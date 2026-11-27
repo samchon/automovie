@@ -1,13 +1,13 @@
 import { type IAutoMovieRenderSubject, type IAutoMovieRenderSubjectOfCompiledShot, type IAutoMovieRenderSubjectOfShot } from "@automovie/interface";
-import { autoMovieRenderSubjectOfCompiledShot as autoMovieRenderSubjectOfCompiledShotImplementation } from "./internal/autoMovieRenderSubjectOfCompiledShot";
-import { autoMovieRenderSubjectOfShot as autoMovieRenderSubjectOfShotImplementation } from "./internal/autoMovieRenderSubjectOfShot";
+import { renderSubjectOfCompiledShot as renderSubjectOfCompiledShotImplementation } from "./internal/renderSubjectOfCompiledShot";
+import { renderSubjectOfShot as renderSubjectOfShotImplementation } from "./internal/renderSubjectOfShot";
 
 /** Public operations for Auto Movie Engine Render Subject. */
 export namespace AutoMovieEngineRenderSubject {
   /**
    * Read a compiled shot as the complete drawable world one frame commits to.
    *
-   * {@link autoMovieRenderSubjectOfShot} leaves the simulated drawables to its
+   * {@link renderSubjectOfShot} leaves the simulated drawables to its
    * caller, because it was written while the compiled shot carried none. It
    * carries them now: the artifact holds every fluid, cloth and planting domain
    * beside the bindings that place them, and this is the one conversion that
@@ -26,7 +26,7 @@ export namespace AutoMovieEngineRenderSubject {
    * triangle count this repository invented.
    */
   export function autoMovieRenderSubjectOfCompiledShot(props: IAutoMovieRenderSubjectOfCompiledShot.IProps): IAutoMovieRenderSubject {
-    return autoMovieRenderSubjectOfCompiledShotImplementation(props);
+    return renderSubjectOfCompiledShotImplementation(props);
   }
 
   /**
@@ -39,6 +39,6 @@ export namespace AutoMovieEngineRenderSubject {
    * artifact.
    */
   export function autoMovieRenderSubjectOfShot(props: IAutoMovieRenderSubjectOfShot.IProps): IAutoMovieRenderSubject {
-    return autoMovieRenderSubjectOfShotImplementation(props);
+    return renderSubjectOfShotImplementation(props);
   }
 }

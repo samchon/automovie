@@ -70,7 +70,9 @@ export namespace StagePeriodGunConstruction {
     mass: number;
   }
 
-  /** The shared contact ids of a period long-arm silhouette. */
+  /*
+   * The shared contact ids of a period long-arm silhouette.
+   */
   export type Contact =
     | "grip"
     | "trigger"
@@ -80,7 +82,9 @@ export namespace StagePeriodGunConstruction {
     | "slingFront"
     | "slingRear";
 
-  /** The dimensions every silhouette records. */
+  /*
+   * The dimensions every silhouette records.
+   */
   export type Dimension = "length" | "barrel" | "mass";
 
   /*

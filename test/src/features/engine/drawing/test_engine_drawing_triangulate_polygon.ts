@@ -46,7 +46,7 @@ const area: (
   );
 
 /**
- * `triangulateAutoMoviePolygon` splits a simple polygon into n - 2 triangles of
+ * `triangulatePolygon` splits a simple polygon into n - 2 triangles of
  * corner indices that together cover its area.
  *
  * Scenarios:

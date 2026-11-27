@@ -7,10 +7,10 @@ import type {
   IAutoMovieShot,
 } from "@automovie/interface";
 import type * as THREE from "three";
-import type { AutoMovieRenderHumanCartoon } from "./AutoMovieRenderHumanCartoon.js";
-import { buildHumanPolygon as buildHumanPolygonImplementation } from "./human-polygon/internal/buildHumanPolygon.js";
-import { buildPolygonShotActor as buildPolygonShotActorImplementation } from "./human-polygon/internal/buildPolygonShotActor.js";
-import { createAutoMovieHumanPolygonFigure as createFigureImplementation } from "./human-polygon/internal/createAutoMovieHumanPolygonFigure.js";
+import type { AutoMovieRenderHumanCartoon } from "./AutoMovieRenderHumanCartoon";
+import { buildHumanPolygon as buildHumanPolygonImplementation } from "./human-polygon/internal/buildHumanPolygon";
+import { buildPolygonShotActor as buildPolygonShotActorImplementation } from "./human-polygon/internal/buildPolygonShotActor";
+import { createHumanPolygonFigure as createFigureImplementation } from "./human-polygon/internal/createHumanPolygonFigure";
 
 /**
  * Actual Three drawing handles for the original polygon mannequin. Inputs use
@@ -181,7 +181,7 @@ export namespace AutoMovieRenderHumanPolygon {
    * Every module is procedural and comes from the skeleton alone: joint
    * positions, tips and skin girth radii, never the Human's skin surfaces, so the
    * polygon figure keeps working however the realistic skin is built. The
-   * engine's `resolveAutoMovieHumanoidRingModules` owns the rings and their
+   * engine's `resolveHumanoidRingModules` owns the rings and their
    * points, which the physical profile also takes its colliders from. Modules use
    * eight-sided sections at their selected levels. Joint spans set torso, palm
    * and foot breadth; girth radii set thickness; the neck runs from the neck

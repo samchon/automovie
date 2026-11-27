@@ -11,7 +11,7 @@ import {
 } from "@automovie/interface";
 
 import { productionFrameBoundaryToSeconds } from "../../film/internal/productionFrameBoundaryToSeconds";
-import { autoMovieRenderDigest } from "../../render/internal/autoMovieRenderDigest";
+import { renderDigest } from "../../render/internal/renderDigest";
 import { AutoMovieEngineCanonicalJson } from "../../text/AutoMovieEngineCanonicalJson";
 import { AutoMovieEngineFilmEffectRuntimeError } from "../AutoMovieEngineFilmEffectRuntimeError";
 import { materializeCompiledEffects } from "./materializeCompiledEffects";
@@ -145,7 +145,7 @@ export const materializeProductionFilmEffects = (
     };
     return {
       ...core,
-      digest: autoMovieRenderDigest(
+      digest: renderDigest(
         AutoMovieEngineCanonicalJson.canonicalize(core),
       ),
     };

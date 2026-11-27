@@ -8,7 +8,7 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../../internal/nclose";
 
 /**
- * `tetrahedralizeAutoMovieDelaunay` fills the convex hull of the points with
+ * `tetrahedralizeDelaunay` fills the convex hull of the points with
  * tetrahedra on those points only (Bowyer–Watson from an enclosing tetrahedron
  * whose corners are dropped), after joggling each point by at most 30000 ulps
  * of the largest coordinate so no four lie on one sphere.

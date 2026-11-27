@@ -11,14 +11,14 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanBendEnclosure } from "./AutoMovieMotionHumanBendEnclosure";
-import { AutoMovieMotionHumanBendStrain } from "./AutoMovieMotionHumanBendStrain";
+import { motionHumanBendStrain } from "./motionHumanBendStrain";
 
 /*
  * A certified lower bound, over an interval of swivels, of the hand turn's
  * unmade excess: how far the forearm's twist and the wrist's flexion and
  * abduction the hand's turn asks lie past their reserved ranges, the sum the
  * strain adds to `UNMADE` for a place whose turn the forearm and the wrist
- * cannot make (`AutoMovieMotionHumanBendStrain`). Where it is positive over a
+ * cannot make (`motionHumanBendStrain`). Where it is positive over a
  * whole arc every place there is unmade, so its strain is at least `UNMADE`
  * plus it.
  *
@@ -355,7 +355,7 @@ function reserved(
 ): IReserve | null {
   if (range === null || range === undefined) return null;
   const reserve: number =
-    AutoMovieMotionHumanBendStrain.RESERVE * (range.max - range.min);
+    motionHumanBendStrain.RESERVE * (range.max - range.min);
   return { lo: range.min + reserve, hi: range.max - reserve };
 }
 

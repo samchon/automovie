@@ -19,8 +19,8 @@ const caught = (call: () => void): unknown => {
 };
 
 /**
- * `restoreAutoMovieRenderModeState` runs every restoration and then reports the
- * failures; `reportAutoMovieResourceRetirement` words them for a retirement.
+ * `restoreRenderModeState` runs every restoration and then reports the
+ * failures; `reportResourceRetirement` words them for a retirement.
  *
  * Scenarios:
  *

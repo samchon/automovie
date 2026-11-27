@@ -1,9 +1,9 @@
 import * as THREE from "three";
 
-import type { IAutoMovieRenderPlantingObject } from "../IAutoMovieRenderPlantingObject.js";
-import type { IBuildPlantingObjectProps } from "./IBuildPlantingObjectProps.js";
-import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
-import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
+import type { IAutoMovieRenderPlantingObject } from "../IAutoMovieRenderPlantingObject";
+import type { IBuildPlantingObjectProps } from "./IBuildPlantingObjectProps";
+import { restoreRenderModeOnce } from "./restoreRenderModeOnce";
+import { restoreRenderModeState } from "./restoreRenderModeState";
 
 /*
  * Project one derived plant and its arrangement into GPU-instanced batches.
@@ -39,8 +39,8 @@ export const buildPlantingObject: (
 ): IAutoMovieRenderPlantingObject => {
   const geometryDisposals: (() => void)[] = [];
   const instanceDisposals: (() => void)[] = [];
-  const dispose: () => void = restoreAutoMovieRenderModeOnce((): void => {
-    restoreAutoMovieRenderModeState([
+  const dispose: () => void = restoreRenderModeOnce((): void => {
+    restoreRenderModeState([
       ...geometryDisposals,
       ...instanceDisposals,
     ]);
@@ -237,6 +237,6 @@ export const buildPlantingObject: (
       dispose,
     };
   } catch (error) {
-    restoreAutoMovieRenderModeState([dispose], { error });
+    restoreRenderModeState([dispose], { error });
   }
 };

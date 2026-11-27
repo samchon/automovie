@@ -3,15 +3,15 @@ import type {
   IAutoMovieModel,
 } from "@automovie/interface";
 
-import type { IAutoMovieRenderFormationCycle } from "../IAutoMovieRenderFormationCycle.js";
-import type { IAutoMovieInstancedModelRepresentation } from "../IAutoMovieInstancedModelRepresentation.js";
-import type { IBuildInstancedFormationProps } from "./IBuildInstancedFormationProps.js";
-import type { IFormationTierRepresentation } from "./IFormationTierRepresentation.js";
-import { applyFormationCycleMaterial } from "./applyFormationCycleMaterial.js";
-import { AutoMovieRenderFormationCycle } from "../AutoMovieRenderFormationCycle.js";
-import { disposeFormationRepresentations } from "./disposeFormationRepresentations.js";
-import { flattenInstancedModel } from "./flattenInstancedModel.js";
-import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceRetirement.js";
+import type { IAutoMovieRenderFormationCycle } from "../IAutoMovieRenderFormationCycle";
+import type { IAutoMovieInstancedModelRepresentation } from "../IAutoMovieInstancedModelRepresentation";
+import type { IBuildInstancedFormationProps } from "./IBuildInstancedFormationProps";
+import type { IFormationTierRepresentation } from "./IFormationTierRepresentation";
+import { applyFormationCycleMaterial } from "./applyFormationCycleMaterial";
+import { AutoMovieRenderFormationCycle } from "../AutoMovieRenderFormationCycle";
+import { disposeFormationRepresentations } from "./disposeFormationRepresentations";
+import { flattenInstancedModel } from "./flattenInstancedModel";
+import { reportResourceRetirement } from "./reportResourceRetirement";
 
 /*
  * Construct the tier resources and bind their declared repertoire once. A
@@ -84,7 +84,7 @@ export const createFormationRepresentations: (
           );
     return representations;
   } catch (error) {
-    reportAutoMovieResourceRetirement(
+    reportResourceRetirement(
       [(): void => disposeFormationRepresentations(representations.values())],
       { error },
     );

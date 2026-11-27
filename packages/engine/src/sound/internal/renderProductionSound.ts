@@ -18,7 +18,7 @@ import { AutoMovieEngineRandom } from "../../random/index";
 
 
 import { analyzeProductionSound } from "./analyzeProductionSound";
-import { applyAutoMovieInteriorAcousticResponse } from "./applyAutoMovieInteriorAcousticResponse";
+import { applyInteriorAcousticResponse } from "./applyInteriorAcousticResponse";
 import { levelProductionDialogueLine } from "./levelProductionDialogueLine";
 import { mixProductionRoomTone } from "./mixProductionRoomTone";
 import { productionScoreDuckingEnvelope } from "./productionScoreDuckingEnvelope";
@@ -93,7 +93,7 @@ export function renderProductionSound(
       const dry: Float32Array<ArrayBuffer> = new Float32Array(pcm.length);
       mixEvent(dry, props.plan, event);
       const responded: Float32Array<ArrayBufferLike> =
-        applyAutoMovieInteriorAcousticResponse({
+        applyInteriorAcousticResponse({
           samples: dry,
           channels: props.plan.channels,
           sampleRate: props.plan.sampleRate,
@@ -401,7 +401,7 @@ const edgeEnvelope: (index: number, length: number, edge: number) => number = (
 ): number => Math.min(1, index / edge, (length - index) / edge);
 
 /*
- * The cue seed's pinned counter-based Philox stream (`createAutoMovieRandom`),
+ * The cue seed's pinned counter-based Philox stream (`createRandomImplementation`),
  * prepared once per mixed cue or event; this seed stream is not content
  * identity.
  */

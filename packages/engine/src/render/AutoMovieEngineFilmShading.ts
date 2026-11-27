@@ -1,10 +1,10 @@
 import { type IAutoMovieIrradianceVolume, type IAutoMovieFilmShading, type IAutoMovieIrradianceProbe, type IAutoMovieVector3, type IAutoMovieProjectIrradianceProbe, type IAutoMovieSampleIrradianceVolume } from "@automovie/interface";
-import { autoMovieIrradianceGrid as autoMovieIrradianceGridImplementation } from "./filmShading/internal/autoMovieIrradianceGrid";
-import { autoMovieIrradianceOf as autoMovieIrradianceOfImplementation } from "./filmShading/internal/autoMovieIrradianceOf";
-import { autoMovieSliceVisibility as autoMovieSliceVisibilityImplementation } from "./filmShading/internal/autoMovieSliceVisibility";
-import { autoMovieSphericalBasis as autoMovieSphericalBasisImplementation } from "./filmShading/internal/autoMovieSphericalBasis";
-import { projectAutoMovieIrradianceProbe as projectAutoMovieIrradianceProbeImplementation } from "./filmShading/internal/projectAutoMovieIrradianceProbe";
-import { sampleAutoMovieIrradianceVolume as sampleAutoMovieIrradianceVolumeImplementation } from "./filmShading/internal/sampleAutoMovieIrradianceVolume";
+import { irradianceGrid as irradianceGridImplementation } from "./filmShading/internal/irradianceGrid";
+import { irradianceOf as irradianceOfImplementation } from "./filmShading/internal/irradianceOf";
+import { sliceVisibility as sliceVisibilityImplementation } from "./filmShading/internal/sliceVisibility";
+import { sphericalBasis as sphericalBasisImplementation } from "./filmShading/internal/sphericalBasis";
+import { projectIrradianceProbe as projectIrradianceProbeImplementation } from "./filmShading/internal/projectIrradianceProbe";
+import { sampleIrradianceVolume as sampleIrradianceVolumeImplementation } from "./filmShading/internal/sampleIrradianceVolume";
 
 /** Public operations for Auto Movie Engine Film Shading. */
 export namespace AutoMovieEngineFilmShading {
@@ -21,7 +21,7 @@ export namespace AutoMovieEngineFilmShading {
   export function autoMovieIrradianceGrid(probes: IAutoMovieFilmShading.IProbes): Omit<IAutoMovieIrradianceVolume, "probes"> & {
   positions: [number, number, number][];
 } {
-    return autoMovieIrradianceGridImplementation(probes);
+    return irradianceGridImplementation(probes);
   }
 
   /**
@@ -38,7 +38,7 @@ export namespace AutoMovieEngineFilmShading {
    * @returns `[r, g, b]` irradiance in lux.
    */
   export function autoMovieIrradianceOf(probe: Pick<IAutoMovieIrradianceProbe, "coefficients">, normal: IAutoMovieVector3): [number, number, number] {
-    return autoMovieIrradianceOfImplementation(probe, normal);
+    return irradianceOfImplementation(probe, normal);
   }
 
   /**
@@ -67,7 +67,7 @@ export namespace AutoMovieEngineFilmShading {
    * @returns The slice's visibility.
    */
   export function autoMovieSliceVisibility(normal: number, length: number, low: number, high: number): number {
-    return autoMovieSliceVisibilityImplementation(normal, length, low, high);
+    return sliceVisibilityImplementation(normal, length, low, high);
   }
 
   /**
@@ -81,13 +81,13 @@ export namespace AutoMovieEngineFilmShading {
    * @returns Nine basis values.
    */
   export function autoMovieSphericalBasis(x: number, y: number, z: number): number[] {
-    return autoMovieSphericalBasisImplementation(x, y, z);
+    return sphericalBasisImplementation(x, y, z);
   }
 
   /**
    * Bake one irradiance probe from its cube: project the radiance the six faces
    * saw onto order-2 spherical harmonics and convolve them with the clamped
-   * cosine, so `autoMovieIrradianceOf` gives the irradiance in lux of a receiver
+   * cosine, so `irradianceOf` gives the irradiance in lux of a receiver
    * at the probe facing any direction (Ramamoorthi and Hanrahan 2001, "An
    * efficient representation for irradiance environment maps", SIGGRAPH).
    *
@@ -108,7 +108,7 @@ export namespace AutoMovieEngineFilmShading {
    *   or a face's arrays are shorter than `size²` texels.
    */
   export function projectAutoMovieIrradianceProbe(props: IAutoMovieProjectIrradianceProbe.IProps): IAutoMovieIrradianceProbe {
-    return projectAutoMovieIrradianceProbeImplementation(props);
+    return projectIrradianceProbeImplementation(props);
   }
 
   /**
@@ -126,6 +126,6 @@ export namespace AutoMovieEngineFilmShading {
    * @returns `[r, g, b]` irradiance in lux.
    */
   export function sampleAutoMovieIrradianceVolume(props: IAutoMovieSampleIrradianceVolume.IProps): [number, number, number] {
-    return sampleAutoMovieIrradianceVolumeImplementation(props);
+    return sampleIrradianceVolumeImplementation(props);
   }
 }

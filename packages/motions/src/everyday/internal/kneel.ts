@@ -18,10 +18,10 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../../actions/internal/stand";
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionManner } from "../../compose/internal/motionManner";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { prepareDryKneeSupport } from "../../floor/internal/prepareDryKneeSupport";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanBound } from "../../law/internal/HumanBound";
@@ -159,7 +159,7 @@ export namespace kneel {
     const hold: number = context.params.hold ?? 1.5;
     const rise: boolean = context.params.rise ?? true;
     HumanBound.least("hold", hold, 0, "s");
-    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+    const modifiers: IAutoMovieMotionManner.IModifiers = motionManner(
       context,
       context.params.manner,
     );
@@ -204,8 +204,8 @@ export namespace kneel {
       hold,
       rise,
     );
-    const display: IAutoMovieMotionClock = AutoMovieMotionManner.time(
-      AutoMovieMotionClock.sequence(
+    const display: IAutoMovieMotionClock = motionManner.time(
+      motionClock.sequence(
         phases.map(
           (p: IPhase): IPlanDisplayResult => ({
             name: p.name,
@@ -249,7 +249,7 @@ export namespace kneel {
     const clock: IAutoMovieMotionClock =
       stationary === 0
         ? display
-        : AutoMovieMotionClock(
+        : motionClock(
             duration,
             phases.map(
               (phase: IPhase): IAutoMovieMotionClockInstant => ({
@@ -410,7 +410,7 @@ export namespace kneel {
     // leaves it kneeling (a base transition declares the base it
     // ends in).
     const course: IAutoMovieMotionHumanActionPlan =
-      composeAutoMovieMotionHumanAction({
+      composeMotionHumanAction({
         base: { ...base, contacts },
         clock,
         contact: marks[0]!,

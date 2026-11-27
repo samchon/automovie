@@ -15,7 +15,7 @@ import type {
 import { AutoMovieEngineViewAxis } from "./AutoMovieEngineViewAxis";
 import { AutoMovieEngineViewOutline } from "./AutoMovieEngineViewOutline";
 import { AutoMovieEngineViewParallelAxis } from "./AutoMovieEngineViewParallelAxis";
-import { rollAutoMovieViewAxis } from "./construction/internal/rollAutoMovieViewAxis";
+import { rollViewAxis } from "./construction/internal/rollViewAxis";
 
 /**
  * A construction tree's view part as the view-to-section operator's input
@@ -112,7 +112,7 @@ export namespace AutoMovieEngineConstructionViews {
           );
         return typeof base === "string" || axis.roll === undefined
           ? base
-          : rollAutoMovieViewAxis(
+          : rollViewAxis(
               base,
               axis.roll.from * SCALE,
               axis.roll.to * SCALE,

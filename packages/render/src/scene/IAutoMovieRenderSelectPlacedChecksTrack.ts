@@ -1,5 +1,5 @@
 import type { IAutoMoviePlacedContinuity } from "@automovie/interface";
-import type { IAutoMovieRenderSelectPlacedChecksRule } from "./IAutoMovieRenderSelectPlacedChecksRule.js";
+import type { IAutoMovieRenderSelectPlacedChecksRule } from "./IAutoMovieRenderSelectPlacedChecksRule";
 
 /** One entity track on its shot clocks. */
 export interface IAutoMovieRenderSelectPlacedChecksTrack extends IAutoMovieRenderSelectPlacedChecksRule {

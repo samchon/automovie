@@ -2,7 +2,7 @@ import { AutoMovieRenderInspectionRequest, AutoMovieRenderCapture } from "@autom
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `resolveAutoMovieCapturePatterns` resolves every pattern a request and view
+ * `resolveCapturePatterns` resolves every pattern a request and view
  * carry against the paths a scene holds.
  *
  * Scenarios:

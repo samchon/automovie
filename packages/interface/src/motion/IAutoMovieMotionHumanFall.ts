@@ -91,7 +91,7 @@ export interface IAutoMovieMotionHumanFall<Chain> {
    * performer: the body absorbs an impulse within its base, catches it with
    * capture steps, or falls, as the engine's balance outcome decides from the
    * impulse, the body's mass and its support
-   * (`resolveAutoMovieBalanceOutcome`), or as the author fixes the outcome.
+   * (`resolveBalanceOutcome`), or as the author fixes the outcome.
    *
    * @param params The `outcome`, `partner`, `fulcrum` and `on` of
    *   `IAutoMovieMotionHumanPerturb.IParams`.

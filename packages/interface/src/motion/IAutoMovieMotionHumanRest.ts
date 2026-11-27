@@ -42,7 +42,7 @@ import type { IAutoMovieMotionHumanHand } from "./IAutoMovieMotionHumanHand";
  * Each arm is carried in joint angles from where the entry left it to its place
  * on a minimum-jerk course (`AutoMovieMotionHumanArm.carry`), the fingers
  * taking the place's shape on the same course, over the free-space time of the
- * hand's distance (`AutoMovieMotionHumanTiming.transport`) and holds there; the
+ * hand's distance (`motionHumanTiming.transport`) and holds there; the
  * place follows the body, so breathing and sway carry the hands with it. A hand
  * at `side` is not moved.
  */

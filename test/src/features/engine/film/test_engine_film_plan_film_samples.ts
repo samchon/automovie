@@ -6,7 +6,7 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `planAutoMovieFilmSamples` gives each frame's samples a lens point and eye
+ * `planFilmSamples` gives each frame's samples a lens point and eye
  * offset when the optics hold a lens, and a time spread when they hold a
  * shutter.
  *

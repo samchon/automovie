@@ -4,7 +4,7 @@ import type {
   IAutoMovieScriptNode,
 } from "@automovie/interface";
 
-import { screenplaySceneSlug } from "../../screenplay/internal/screenplaySceneSlug.js";
+import { screenplaySceneSlug } from "../../screenplay/internal/screenplaySceneSlug";
 
 /*
  * Index each beat's caption and enclosing scene slug from the screenplay tree,

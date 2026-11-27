@@ -6,7 +6,7 @@ import type {
   IAutoMovieConstructionSplitBand,
 } from "@automovie/interface";
 
-import { AutoMovieConstructionPortAddress } from "./construction/internal/AutoMovieConstructionPortAddress";
+import { constructionPortAddress } from "./construction/internal/constructionPortAddress";
 import { AutoMovieEngineConstructionPortField as Field } from "./AutoMovieEngineConstructionPortField";
 import { AutoMovieEngineSolidCycle } from "./AutoMovieEngineSolidCycle";
 import { AutoMovieEngineSolidVector } from "./AutoMovieEngineSolidVector";
@@ -32,7 +32,7 @@ export namespace AutoMovieEngineConstructionPortCurve {
       { length: count },
       (_: unknown, k: number): [number, number] => {
         const share: number = loop.shape?.[k] ?? 1;
-        return AutoMovieConstructionPortAddress(loop, clock(k), share);
+        return constructionPortAddress(loop, clock(k), share);
       },
     );
     const inward: [number, number][] = Array.from(

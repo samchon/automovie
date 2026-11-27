@@ -6,7 +6,7 @@
  * through containment, the rule the environment's own connector query follows.
  *
  * Stops are from, every landing space and to, deduplicated and sorted by
- * compareAutoMovieRenderIds. Validated spaces each resolve to a building;
+ * compareRenderIds. Validated spaces each resolve to a building;
  * exactly one distinct unit yields that id and multiple units yield null. The
  * ownership query throws for undeclared or unowned spaces rather than ignoring
  * them, and the stop list does not prove route traversal or point containment.

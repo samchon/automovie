@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 import type * as THREE from "three";
 
-import type { IAutoMovieRenderModelObject } from "./IAutoMovieRenderModelObject.js";
+import type { IAutoMovieRenderModelObject } from "./IAutoMovieRenderModelObject";
 
 /**
  * One figure's rest model and ordered rigid parts used to bake its repertoire.

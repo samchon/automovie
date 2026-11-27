@@ -3,7 +3,7 @@
  * capture request grammar it takes only `subject`, the subject rendered, and
  * `passes`, the control channels drawn beside the film at every frame.
  *
- * `readAutoMovieRenderOptions` takes exactly these out of the command line, and
+ * `readRenderOptions` takes exactly these out of the command line, and
  * a test enumerates them against the render README's key table, so each option
  * the command takes is documented with the requirement it serves.
  */

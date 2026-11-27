@@ -1,51 +1,51 @@
-import { bufferAutoMovieBones as bufferAutoMovieBonesImplementation } from "./sweep/internal/bufferAutoMovieBones";
-import { compileAutoMovieSweep as compileAutoMovieSweepImplementation } from "./sweep/internal/compileAutoMovieSweep";
-import { compileAutoMovieSweepFeature as compileAutoMovieSweepFeatureImplementation } from "./sweep/internal/compileAutoMovieSweepFeature";
-import { fitAutoMovieSubdivisionLimit as fitAutoMovieSubdivisionLimitImplementation } from "./sweep/internal/fitAutoMovieSubdivisionLimit";
-import { frameAutoMovieSweepSpine as frameAutoMovieSweepSpineImplementation } from "./sweep/internal/frameAutoMovieSweepSpine";
-import { holdAutoMovieSurfaceGirths as holdAutoMovieSurfaceGirthsImplementation } from "./sweep/internal/holdAutoMovieSurfaceGirths";
-import { integrateAutoMovieSweepVolume as integrateAutoMovieSweepVolumeImplementation } from "./sweep/internal/integrateAutoMovieSweepVolume";
-import { interpolateAutoMovieMonotone as interpolateAutoMovieMonotoneImplementation } from "./sweep/internal/interpolateAutoMovieMonotone";
-import { interpolateAutoMovieSpline as interpolateAutoMovieSplineImplementation } from "./sweep/internal/interpolateAutoMovieSpline";
-import { layoutAutoMovieSurfacePatches as layoutAutoMovieSurfacePatchesImplementation } from "./sweep/internal/layoutAutoMovieSurfacePatches";
-import { layoutAutoMovieSurfaceTransition as layoutAutoMovieSurfaceTransitionImplementation } from "./sweep/internal/layoutAutoMovieSurfaceTransition";
-import { loadAutoMovieSweepSpine as loadAutoMovieSweepSpineImplementation } from "./sweep/internal/loadAutoMovieSweepSpine";
-import { locateAutoMovieSurfaceCoordinate as locateAutoMovieSurfaceCoordinateImplementation } from "./sweep/internal/locateAutoMovieSurfaceCoordinate";
-import { locateAutoMovieSurfaceVertices as locateAutoMovieSurfaceVerticesImplementation } from "./sweep/internal/locateAutoMovieSurfaceVertices";
-import { locateAutoMovieSweepPoint as locateAutoMovieSweepPointImplementation } from "./sweep/internal/locateAutoMovieSweepPoint";
-import { mapAutoMovieSurfaceTier as mapAutoMovieSurfaceTierImplementation } from "./sweep/internal/mapAutoMovieSurfaceTier";
-import { measureAutoMovieSweepVolume as measureAutoMovieSweepVolumeImplementation } from "./sweep/internal/measureAutoMovieSweepVolume";
-import { meshAutoMovieSweep as meshAutoMovieSweepImplementation } from "./sweep/internal/meshAutoMovieSweep";
-import { momentAutoMovieSweepSections as momentAutoMovieSweepSectionsImplementation } from "./sweep/internal/momentAutoMovieSweepSections";
-import { orientAutoMovieSweep as orientAutoMovieSweepImplementation } from "./sweep/internal/orientAutoMovieSweep";
-import { parameterizeAutoMovieSweepSection as parameterizeAutoMovieSweepSectionImplementation } from "./sweep/internal/parameterizeAutoMovieSweepSection";
-import { pathAutoMovieSweepTransport as pathAutoMovieSweepTransportImplementation } from "./sweep/internal/pathAutoMovieSweepTransport";
-import { poseAutoMovieSurfaceNetwork as poseAutoMovieSurfaceNetworkImplementation } from "./sweep/internal/poseAutoMovieSurfaceNetwork";
-import { poseAutoMovieSweep as poseAutoMovieSweepImplementation } from "./sweep/internal/poseAutoMovieSweep";
-import { registerAutoMovieSurfaceVertices as registerAutoMovieSurfaceVerticesImplementation } from "./sweep/internal/registerAutoMovieSurfaceVertices";
-import { rigAutoMovieSurfaceBridge as rigAutoMovieSurfaceBridgeImplementation } from "./sweep/internal/rigAutoMovieSurfaceBridge";
-import { rigAutoMovieSurfaceCoons as rigAutoMovieSurfaceCoonsImplementation } from "./sweep/internal/rigAutoMovieSurfaceCoons";
-import { rigAutoMovieSurfaceCurve as rigAutoMovieSurfaceCurveImplementation } from "./sweep/internal/rigAutoMovieSurfaceCurve";
-import { rigAutoMovieSurfaceNetwork as rigAutoMovieSurfaceNetworkImplementation } from "./sweep/internal/rigAutoMovieSurfaceNetwork";
-import { rigAutoMovieSweep as rigAutoMovieSweepImplementation } from "./sweep/internal/rigAutoMovieSweep";
-import { settleAutoMovieSweepVolume as settleAutoMovieSweepVolumeImplementation } from "./sweep/internal/settleAutoMovieSweepVolume";
-import { solveAutoMovieSubdivisionLimit as solveAutoMovieSubdivisionLimitImplementation } from "./sweep/internal/solveAutoMovieSubdivisionLimit";
-import { stencilAutoMovieSubdivisionLimit as stencilAutoMovieSubdivisionLimitImplementation } from "./sweep/internal/stencilAutoMovieSubdivisionLimit";
-import { transportAutoMovieSweepSpine as transportAutoMovieSweepSpineImplementation } from "./sweep/internal/transportAutoMovieSweepSpine";
+import { bufferBones as bufferBonesImplementation } from "./sweep/internal/bufferBones";
+import { compileSweep as compileSweepImplementation } from "./sweep/internal/compileSweep";
+import { compileSweepFeature as compileSweepFeatureImplementation } from "./sweep/internal/compileSweepFeature";
+import { fitSubdivisionLimit as fitSubdivisionLimitImplementation } from "./sweep/internal/fitSubdivisionLimit";
+import { frameSweepSpine as frameSweepSpineImplementation } from "./sweep/internal/frameSweepSpine";
+import { holdSurfaceGirths as holdSurfaceGirthsImplementation } from "./sweep/internal/holdSurfaceGirths";
+import { integrateSweepVolume as integrateSweepVolumeImplementation } from "./sweep/internal/integrateSweepVolume";
+import { interpolateMonotone as interpolateMonotoneImplementation } from "./sweep/internal/interpolateMonotone";
+import { interpolateSpline as interpolateSplineImplementation } from "./sweep/internal/interpolateSpline";
+import { layoutSurfacePatches as layoutSurfacePatchesImplementation } from "./sweep/internal/layoutSurfacePatches";
+import { layoutSurfaceTransition as layoutSurfaceTransitionImplementation } from "./sweep/internal/layoutSurfaceTransition";
+import { loadSweepSpine as loadSweepSpineImplementation } from "./sweep/internal/loadSweepSpine";
+import { locateSurfaceCoordinate as locateSurfaceCoordinateImplementation } from "./sweep/internal/locateSurfaceCoordinate";
+import { locateSurfaceVertices as locateSurfaceVerticesImplementation } from "./sweep/internal/locateSurfaceVertices";
+import { locateSweepPoint as locateSweepPointImplementation } from "./sweep/internal/locateSweepPoint";
+import { mapSurfaceTier as mapSurfaceTierImplementation } from "./sweep/internal/mapSurfaceTier";
+import { measureSweepVolume as measureSweepVolumeImplementation } from "./sweep/internal/measureSweepVolume";
+import { meshSweep as meshSweepImplementation } from "./sweep/internal/meshSweep";
+import { momentSweepSections as momentSweepSectionsImplementation } from "./sweep/internal/momentSweepSections";
+import { orientSweep as orientSweepImplementation } from "./sweep/internal/orientSweep";
+import { parameterizeSweepSection as parameterizeSweepSectionImplementation } from "./sweep/internal/parameterizeSweepSection";
+import { pathSweepTransport as pathSweepTransportImplementation } from "./sweep/internal/pathSweepTransport";
+import { poseSurfaceNetwork as poseSurfaceNetworkImplementation } from "./sweep/internal/poseSurfaceNetwork";
+import { poseSweep as poseSweepImplementation } from "./sweep/internal/poseSweep";
+import { registerSurfaceVertices as registerSurfaceVerticesImplementation } from "./sweep/internal/registerSurfaceVertices";
+import { rigSurfaceBridge as rigSurfaceBridgeImplementation } from "./sweep/internal/rigSurfaceBridge";
+import { rigSurfaceCoons as rigSurfaceCoonsImplementation } from "./sweep/internal/rigSurfaceCoons";
+import { rigSurfaceCurve as rigSurfaceCurveImplementation } from "./sweep/internal/rigSurfaceCurve";
+import { rigSurfaceNetwork as rigSurfaceNetworkImplementation } from "./sweep/internal/rigSurfaceNetwork";
+import { rigSweep as rigSweepImplementation } from "./sweep/internal/rigSweep";
+import { settleSweepVolume as settleSweepVolumeImplementation } from "./sweep/internal/settleSweepVolume";
+import { solveSubdivisionLimit as solveSubdivisionLimitImplementation } from "./sweep/internal/solveSubdivisionLimit";
+import { stencilSubdivisionLimit as stencilSubdivisionLimitImplementation } from "./sweep/internal/stencilSubdivisionLimit";
+import { transportSweepSpine as transportSweepSpineImplementation } from "./sweep/internal/transportSweepSpine";
 
-import { sampleAutoMovieSurfaceNetwork as sampleAutoMovieSurfaceNetworkImplementation } from "./sweep/internal/sampleAutoMovieSurfaceNetwork";
-import { sampleAutoMovieSweepSection as sampleAutoMovieSweepSectionImplementation } from "./sweep/internal/sampleAutoMovieSweepSection";
+import { sampleSurfaceNetwork as sampleSurfaceNetworkImplementation } from "./sweep/internal/sampleSurfaceNetwork";
+import { sampleSweepSection as sampleSweepSectionImplementation } from "./sweep/internal/sampleSweepSection";
 
-import { sampleAutoMovieParameterSweep as sampleAutoMovieParameterSweepImplementation } from "./sweep/internal/sampleAutoMovieParameterSweep";
+import { sampleParameterSweep as sampleParameterSweepImplementation } from "./sweep/internal/sampleParameterSweep";
 
 import { type IAutoMovieSweep, type IAutoMovieCompileSweepGuideOutput, type IAutoMoviePlanSurfaceRigPatchesOutput, type IAutoMoviePlanSurfaceRigPatches, type IAutoMovieSurfaceConstruction, type IAutoMoviePrepareSurfaceConstruction, type IAutoMoviePreserveSweepVolume, type IAutoMovieSampleParameterSweep, type IAutoMovieSurfaceCage, type IAutoMovieSampleSurfaceNetwork, type IAutoMovieSampleSweepSection, type IAutoMovieBoneBuffer, type IAutoMovieResolvedBone, type IAutoMovieSweepSurface, type IAutoMovieCompileSweepFeatureOutput, type IAutoMovieCompileSweepFeature, type IAutoMovieFitSubdivisionLimit, type IAutoMovieSweepPath, type IAutoMovieSweepSpine, type IAutoMovieHoldSurfaceGirths, type IAutoMovieInterpolateMonotone, type IAutoMovieInterpolateSpline, type IAutoMovieSurfaceLayout, type IAutoMovieSurfaceNetwork, type IAutoMovieSurfaceCoordinate, type IAutoMovieSweepTransport, type IAutoMovieSubdivisionParameter, type IAutoMovieLocateSurfaceCoordinate, type IAutoMovieSurfaceLocation, type IAutoMovieLocateSurfaceVertices, type IAutoMovieLocateSweepPoint, type IAutoMovieMapSurfaceTier, type IAutoMovieMesh, type IAutoMovieMeshSweep, type IAutoMovieSweepOrientation, type IAutoMovieOrientSweep, type IAutoMovieParameterizeSweepSection, type IAutoMovieSweepSection, type IAutoMoviePoseSurfaceNetwork, type IAutoMoviePoseSweep, type IAutoMovieSurfaceRegistry, type IAutoMovieSweepRig, type IAutoMovieRigSurfaceBridge, type IAutoMovieSurfaceCurveRig, type IAutoMovieRigSurfaceCurve, type IAutoMovieSurfaceRig, type IAutoMovieRigSurfaceNetwork, type IAutoMovieRigSweep, type IAutoMovieSolveSubdivisionLimit, type IAutoMovieSubdivisionStencil } from "@automovie/interface";
-import { checkAutoMovieSweepFeature as checkAutoMovieSweepFeatureImplementation } from "./sweep/internal/checkAutoMovieSweepFeature";
-import { compileAutoMovieSweepGuide as compileAutoMovieSweepGuideImplementation } from "./sweep/internal/compileAutoMovieSweepGuide";
-import { compileAutoMovieSweepProfile as compileAutoMovieSweepProfileImplementation } from "./sweep/internal/compileAutoMovieSweepProfile";
-import { planAutoMovieSurfaceRigPatches as planAutoMovieSurfaceRigPatchesImplementation } from "./sweep/internal/planAutoMovieSurfaceRigPatches";
-import { prepareAutoMovieSurfaceConstruction as prepareAutoMovieSurfaceConstructionImplementation } from "./sweep/internal/prepareAutoMovieSurfaceConstruction";
-import { preserveAutoMovieSweepVolume as preserveAutoMovieSweepVolumeImplementation } from "./sweep/internal/preserveAutoMovieSweepVolume";
-import { reachAutoMovieSurfaceCell as reachAutoMovieSurfaceCellImplementation } from "./sweep/internal/reachAutoMovieSurfaceCell";
+import { checkSweepFeature as checkSweepFeatureImplementation } from "./sweep/internal/checkSweepFeature";
+import { compileSweepGuide as compileSweepGuideImplementation } from "./sweep/internal/compileSweepGuide";
+import { compileSweepProfile as compileSweepProfileImplementation } from "./sweep/internal/compileSweepProfile";
+import { planSurfaceRigPatches as planSurfaceRigPatchesImplementation } from "./sweep/internal/planSurfaceRigPatches";
+import { prepareSurfaceConstruction as prepareSurfaceConstructionImplementation } from "./sweep/internal/prepareSurfaceConstruction";
+import { preserveSweepVolume as preserveSweepVolumeImplementation } from "./sweep/internal/preserveSweepVolume";
+import { reachSurfaceCell as reachSurfaceCellImplementation } from "./sweep/internal/reachSurfaceCell";
 
 /** Public operations for Auto Movie Engine Sweep. */
 export namespace AutoMovieEngineSweep {
@@ -59,7 +59,7 @@ export namespace AutoMovieEngineSweep {
    *   points, mixed value modes or non-finite values
    */
   export function checkSweepFeature(f: IAutoMovieSweep.IFeature, index: number): void {
-    checkAutoMovieSweepFeatureImplementation(f, index);
+    checkSweepFeatureImplementation(f, index);
   }
 
   /**
@@ -71,7 +71,7 @@ export namespace AutoMovieEngineSweep {
    * @throws Error for a non-finite angle or an invalid profile or profile query
    */
   export function compileSweepGuide(guide: IAutoMovieSweep.IGuide, index: number): IAutoMovieCompileSweepGuideOutput {
-    return compileAutoMovieSweepGuideImplementation(guide, index);
+    return compileSweepGuideImplementation(guide, index);
   }
 
   /**
@@ -90,7 +90,7 @@ export namespace AutoMovieEngineSweep {
    *   data or an invalid queried result
    */
   export function compileSweepProfile(entries: readonly IAutoMovieSweep.IKnot[], what: string): (u: number) => number {
-    return compileAutoMovieSweepProfileImplementation(entries, what);
+    return compileSweepProfileImplementation(entries, what);
   }
 
   /**
@@ -106,7 +106,7 @@ export namespace AutoMovieEngineSweep {
    *   incompatible sides or loops, or overlapping patches
    */
   export function planSurfaceRigPatches(props: IAutoMoviePlanSurfaceRigPatches.IProps): IAutoMoviePlanSurfaceRigPatchesOutput {
-    return planAutoMovieSurfaceRigPatchesImplementation(props);
+    return planSurfaceRigPatchesImplementation(props);
   }
 
   /**
@@ -128,7 +128,7 @@ export namespace AutoMovieEngineSweep {
    *   refusal
    */
   export function prepareSurfaceConstruction(props: IAutoMoviePrepareSurfaceConstruction.IProps): () => IAutoMovieSurfaceConstruction[] {
-    return prepareAutoMovieSurfaceConstructionImplementation(props);
+    return prepareSurfaceConstructionImplementation(props);
   }
 
   /**
@@ -154,7 +154,7 @@ export namespace AutoMovieEngineSweep {
    * @returns A pose writer that updates the supplied scale buffer in place
    */
   export function preserveSweepVolume(props: IAutoMoviePreserveSweepVolume.IProps): () => void {
-    return preserveAutoMovieSweepVolumeImplementation(props);
+    return preserveSweepVolumeImplementation(props);
   }
 
   /**
@@ -167,7 +167,7 @@ export namespace AutoMovieEngineSweep {
    * @returns Below and above spacing; negative steps reverse the end roles
    */
   export function reachSurfaceCell(step: number, first: boolean, last: boolean): [number, number] {
-    return reachAutoMovieSurfaceCellImplementation(step, first, last);
+    return reachSurfaceCellImplementation(step, first, last);
   }
 
   /**
@@ -178,7 +178,7 @@ export namespace AutoMovieEngineSweep {
    * The tensor trapezoid first averages the unscaled two-dimensional shape over
    * v, then its scaled points over u, in the centre frame just as the radial
    * writer does. The u-dependent scale belongs inside that second average.
-   * Direction-correspondence radius averaging remains with rigAutoMovieSweep.
+   * Direction-correspondence radius averaging remains with rigSweep.
    *
    * Each signed coordinate is normalized by its largest magnitude before the
    * weighted sum. This avoids overflow in the sum and preserves an ordinary
@@ -195,13 +195,13 @@ export namespace AutoMovieEngineSweep {
    *   write failures preserve the output buffer.
    */
   export function sampleParameterSweep(props: IAutoMovieSampleParameterSweep.IProps): (out: Float64Array, offset: number) => void {
-    return sampleAutoMovieParameterSweepImplementation(props);
+    return sampleParameterSweepImplementation(props);
   }
 
   /**
    * Sample a surface network into a quad control cage at one tier.
    *
-   * This is the rest cage of `rigAutoMovieSurfaceNetwork` without bindings, which
+   * This is the rest cage of `rigSurfaceNetwork` without bindings, which
    * states every fill rule, the welding identity, the topology guarantee, the
    * limit fit and which vertices it holds, the UV default and every refusal. A
    * caller that poses the network every frame compiles the rig once and calls its
@@ -211,10 +211,10 @@ export namespace AutoMovieEngineSweep {
    * @param props.tier The tier to sample.
    * @param props.fit Whether to fit controls to the limit surface; omitted, true.
    * @returns The cage, its targets, coordinates, patch grids and rings.
-   * @throws Error as `rigAutoMovieSurfaceNetwork` documents.
+   * @throws Error as `rigSurfaceNetwork` documents.
    */
   export function sampleSurfaceNetwork(props: IAutoMovieSampleSurfaceNetwork.IProps): IAutoMovieSurfaceCage {
-    return sampleAutoMovieSurfaceNetworkImplementation(props);
+    return sampleSurfaceNetworkImplementation(props);
   }
 
   /**
@@ -222,7 +222,7 @@ export namespace AutoMovieEngineSweep {
    *
    * Radius `k` lies along angle `2 pi k / count`, measured counterclockwise from
    * the section plane's `+x` axis. A radial section is read through its periodic
-   * spline, `interpolateAutoMovieSpline`. A superellipse centred on its origin is
+   * spline, `interpolateSpline`. A superellipse centred on its origin is
    * read in closed form: in the quadrant holding the angle, with that quadrant's
    * half-axes `a` along `x` and `b` along `y` and exponent `n`, the curve is `|x
    * / a|^n + |y / b|^n = 1`, so the radius is `(|cos a / a|^n + |sin a /
@@ -246,7 +246,7 @@ export namespace AutoMovieEngineSweep {
    *   origin, winds clockwise or is not star-shaped about it.
    */
   export function sampleSweepSection(props: IAutoMovieSampleSweepSection.IProps): number[] {
-    return sampleAutoMovieSweepSectionImplementation(props);
+    return sampleSweepSectionImplementation(props);
   }
 
   /**
@@ -262,23 +262,23 @@ export namespace AutoMovieEngineSweep {
    * @returns The buffer, every motion the identity until updated.
    */
   export function bufferBones(rest: readonly IAutoMovieResolvedBone[]): IAutoMovieBoneBuffer {
-    return bufferAutoMovieBonesImplementation(rest);
+    return bufferBonesImplementation(rest);
   }
 
   /**
    * Compile a sweep into an evaluable surface.
    *
    * Under direction correspondence, the default, each station's section is
-   * sampled at 512 directions by `sampleAutoMovieSweepSection`. For each
+   * sampled at 512 directions by `sampleSweepSection`. For each
    * direction the radii of the stations form a profile along `u`, interpolated by
-   * `interpolateAutoMovieSpline`, a C2 spline under tension, so curvature is
+   * `interpolateSpline`, a C2 spline under tension, so curvature is
    * continuous at interior stations, with its sampled overshoot policy; queried
    * non-positive radii are refused. Before the first or after the last station it
    * holds that station's radius.
    *
    * Under parameter correspondence each loop of each station, the section and
    * then its holes, is sampled at the same parameters of
-   * `parameterizeAutoMovieSweepSection`: a polygon at its corners, any other
+   * `parameterizeSweepSection`: a polygon at its corners, any other
    * curve at 512 even parameters. Each sample's two coordinates are interpolated
    * along `u` by the same spline and joined linearly round the loop, so corner
    * `k` of every station meets corner `k` of the next, as a loft between
@@ -301,7 +301,7 @@ export namespace AutoMovieEngineSweep {
    * cached by `u`.
    *
    * Features next: each feature curve is the smooth curve through its points that
-   * `compileAutoMovieSweepFeature` builds, and at a query point the radius moves
+   * `compileSweepFeature` builds, and at a query point the radius moves
    * by the feature's residual at the course point found by its dense-seeded local
    * search in the cylindrical metric approximation, the declared radius less the
    * guided radius there or the declared offset, times `(1 - (d / width)^2)^3`
@@ -321,18 +321,18 @@ export namespace AutoMovieEngineSweep {
    * linear quaternion interpolation between stations, as sweep-based deformation
    * interpolates key-ellipse orientations (Hyun et al. 2005, The Visual Computer
    * 21(8-10):542-550), and held beyond the end stations;
-   * `loadAutoMovieSweepSpine` and `orientAutoMovieSweep` compute both.
+   * `loadSweepSpine` and `orientSweep` compute both.
    *
    * @param sweep The sweep, only read and retained by the returned surface.
    * @returns The compiled surface.
-   * @throws Error when the spine is refused by `frameAutoMovieSweepSpine`, a
-   *   section by `sampleAutoMovieSweepSection`, a station, guide or feature is
+   * @throws Error when the spine is refused by `frameSweepSpine`, a
+   *   section by `sampleSweepSection`, a station, guide or feature is
    *   out of range, unordered or not finite, or two guides share a direction;
    *   and, when a row is first evaluated, when a profile, guide, feature or scale
    *   query is non-positive or not finite.
    */
   export function compileSweep(sweep: IAutoMovieSweep): IAutoMovieSweepSurface {
-    return compileAutoMovieSweepImplementation(sweep);
+    return compileSweepImplementation(sweep);
   }
 
   /**
@@ -348,7 +348,7 @@ export namespace AutoMovieEngineSweep {
    * cusp or self-intersection however unevenly its points are spaced (Yuksel,
    * Schaefer and Keyser 2011, Computer-Aided Design 43(7):747-755), and it is C1
    * in that knot parameter. Its radius or offset follows the same parameter by
-   * `interpolateAutoMovieSpline`, so it too runs smoothly along the curve. At a
+   * `interpolateSpline`, so it too runs smoothly along the curve. At a
    * query point a nearest candidate on the curve is searched in a local
    * cylindrical metric: `u` scaled by the spine's length and angle by the query's
    * radius before features. This approximates surface distance; it is not the arc
@@ -369,7 +369,7 @@ export namespace AutoMovieEngineSweep {
    *   and `angle`, given the local radius, spine length and pre-feature radius.
    */
   export function compileSweepFeature(feature: IAutoMovieSweep.IFeature, scale: IAutoMovieCompileSweepFeature.IScale): IAutoMovieCompileSweepFeatureOutput {
-    return compileAutoMovieSweepFeatureImplementation(feature, scale);
+    return compileSweepFeatureImplementation(feature, scale);
   }
 
   /**
@@ -385,7 +385,7 @@ export namespace AutoMovieEngineSweep {
    *   interpolation using Catmull-Clark surfaces"); a boundary vertex, whose
    *   boundary is an infinitely sharp crease, goes to`(A + 4 P + B) / 6`along its
    *   two boundary neighbours, the cubic B-spline
-   *   limit`subdivideAutoMovieSurface`gives boundaries. Interpolation is the
+   *   limit`subdivideSurface`gives boundaries. Interpolation is the
    *   linear system`L P = T`. It is solved by Jacobi iteration `P <- P + (T - L
    *   P)`from`P = T`, which converges when every eigenvalue of `L` lies between 0
    *   and 2; on a regular grid they lie between 1/9 and 1, and each stencil is a
@@ -410,7 +410,7 @@ export namespace AutoMovieEngineSweep {
    *   belongs to no face, or a vertex has other than zero or two boundary edges.
    */
   export function fitSubdivisionLimit(props: IAutoMovieFitSubdivisionLimit.IProps): IAutoMovieFitSubdivisionLimit.IResult {
-    return fitAutoMovieSubdivisionLimitImplementation(props);
+    return fitSubdivisionLimitImplementation(props);
   }
 
   /**
@@ -448,7 +448,7 @@ export namespace AutoMovieEngineSweep {
    *   the first tangent, or the tangent vanishes somewhere on the path.
    */
   export function frameSweepSpine(spine: IAutoMovieSweepSpine): IAutoMovieSweepPath {
-    return frameAutoMovieSweepSpineImplementation(spine);
+    return frameSweepSpineImplementation(spine);
   }
 
   /**
@@ -462,7 +462,7 @@ export namespace AutoMovieEngineSweep {
    * points are `(A + 4 P + B) / 6` for each vertex `P` and its two neighbours `A`
    * and `B` across the row; its perimeter is integrated by five-point
    * Gauss-Legendre quadrature on every span. Each sweep's factor is the
-   * sampled-overshoot-policy spline of `interpolateAutoMovieSpline` through 1 at
+   * sampled-overshoot-policy spline of `interpolateSpline` through 1 at
    * the sweep's other rings at one `u`, which meet neighbouring parts and stay,
    * and through a value at each girth ring, holding its end values beyond the
    * outermost knots; `IAutoMovieSweepRig.girth` folds it into the scale. The
@@ -498,7 +498,7 @@ export namespace AutoMovieEngineSweep {
    *   solve does not converge.
    */
   export function holdSurfaceGirths(props: IAutoMovieHoldSurfaceGirths.IProps): void {
-    holdAutoMovieSurfaceGirthsImplementation(props);
+    holdSurfaceGirthsImplementation(props);
   }
 
   /**
@@ -506,7 +506,7 @@ export namespace AutoMovieEngineSweep {
    * step midpoints and its frames at every half step.
    *
    * Step `i` of `n` contributes `s^2 A <N, dC> + s^3 (M_x <N, dX> + M_y <N,
-   * dY>)`: the area and moments from `momentAutoMovieSweepSections`, the scale
+   * dY>)`: the area and moments from `momentSweepSections`, the scale
    * `s` and normal `N` at its midpoint, and the changes `dC`, `dX`, `dY` of the
    * origin and plane axes from its start to its end. This is the flux of every
    * section point's velocity through its plane, the swept-volume formula of
@@ -521,7 +521,7 @@ export namespace AutoMovieEngineSweep {
    * @returns Cubic metres.
    */
   export function integrateSweepVolume(moments: Float64Array, scales: Float64Array, frames: Float64Array): number {
-    return integrateAutoMovieSweepVolumeImplementation(moments, scales, frames);
+    return integrateSweepVolumeImplementation(moments, scales, frames);
   }
 
   /**
@@ -559,7 +559,7 @@ export namespace AutoMovieEngineSweep {
    *   not match them, or a period does not exceed the knot span.
    */
   export function interpolateMonotone(props: IAutoMovieInterpolateMonotone.IProps): ((x: number) => number) {
-    return interpolateAutoMovieMonotoneImplementation(props);
+    return interpolateMonotoneImplementation(props);
   }
 
   /**
@@ -589,7 +589,7 @@ export namespace AutoMovieEngineSweep {
    *   not match them, or a period does not exceed the knot span.
    */
   export function interpolateSpline(props: IAutoMovieInterpolateSpline.IProps): ((x: number) => number) {
-    return interpolateAutoMovieSplineImplementation(props);
+    return interpolateSplineImplementation(props);
   }
 
   /**
@@ -609,7 +609,7 @@ export namespace AutoMovieEngineSweep {
    * @returns The empty layout.
    */
   export function layoutSurfacePatches(network: IAutoMovieSurfaceNetwork): IAutoMovieSurfaceLayout {
-    return layoutAutoMovieSurfacePatchesImplementation(network);
+    return layoutSurfacePatchesImplementation(network);
   }
 
   /**
@@ -662,7 +662,7 @@ export namespace AutoMovieEngineSweep {
     Pick<IAutoMovieSurfaceCoordinate, "s" | "t">,
   ]
 > {
-    return layoutAutoMovieSurfaceTransitionImplementation(start, end, rows);
+    return layoutSurfaceTransitionImplementation(start, end, rows);
   }
 
   /**
@@ -673,10 +673,10 @@ export namespace AutoMovieEngineSweep {
    * @param frames Whether the transport builds its frame table.
    * @returns The updated transport.
    * @throws Error when an end tangent is not finite or is zero, and whatever
-   *   `transportAutoMovieSweepSpine` and its `update` refuse.
+   *   `transportSweepSpine` and its `update` refuse.
    */
   export function loadSweepSpine(spine: IAutoMovieSweepSpine, frames: boolean): IAutoMovieSweepTransport {
-    return loadAutoMovieSweepSpineImplementation(spine, frames);
+    return loadSweepSpineImplementation(spine, frames);
   }
 
   /**
@@ -691,7 +691,7 @@ export namespace AutoMovieEngineSweep {
    * inverted by Newton's method, and the local coordinates are that map's
    * parameters. They follow `IAutoMovieSubdivisionParameter`'s quad convention:
    * `(0, 0)` at corner 0, `u` toward corner 1 along `s`, `v` toward corner 3
-   * along `t`, so the result addresses `subdivideAutoMovieSurface`'s output of
+   * along `t`, so the result addresses `subdivideSurface`'s output of
    * this cage directly.
    *
    * @param props.cage A sampled tier, only read.
@@ -702,7 +702,7 @@ export namespace AutoMovieEngineSweep {
    *   0 to 1, or a coordinate of a non-grid patch lies on none of its faces.
    */
   export function locateSurfaceCoordinate(props: IAutoMovieLocateSurfaceCoordinate.IProps): IAutoMovieSubdivisionParameter {
-    return locateAutoMovieSurfaceCoordinateImplementation(props);
+    return locateSurfaceCoordinateImplementation(props);
   }
 
   /**
@@ -712,7 +712,7 @@ export namespace AutoMovieEngineSweep {
    *
    * A vertex's cage face and quad-local coordinates give its surface coordinate,
    * the bilinear blend of the face's corner coordinates, the same chart
-   * `mapAutoMovieSurfaceTier` uses, so the coordinate is exact on a grid patch
+   * `mapSurfaceTier` uses, so the coordinate is exact on a grid patch
    * and continuous across faces inside that patch. Different patch charts can
    * assign different addresses to a shared edge; compatible fields must agree
    * there. Each vertex keeps its supplied incident-face address. A sweep or
@@ -731,7 +731,7 @@ export namespace AutoMovieEngineSweep {
    *   face is out of range or not a quad, or its coordinates leave 0 to 1.
    */
   export function locateSurfaceVertices(props: IAutoMovieLocateSurfaceVertices.IProps): IAutoMovieSurfaceLocation[] {
-    return locateAutoMovieSurfaceVerticesImplementation(props);
+    return locateSurfaceVerticesImplementation(props);
   }
 
   /**
@@ -756,7 +756,7 @@ export namespace AutoMovieEngineSweep {
    * @throws Error when the point is not finite or correspondence is parameter.
    */
   export function locateSweepPoint(props: IAutoMovieLocateSweepPoint.IProps): IAutoMovieLocateSweepPoint.IResult {
-    return locateAutoMovieSweepPointImplementation(props);
+    return locateSweepPointImplementation(props);
   }
 
   /**
@@ -767,7 +767,7 @@ export namespace AutoMovieEngineSweep {
    * exact on a grid patch because every face spans an axis-aligned rectangle of
    * it, and on a transition band is the same bilinear map the locator inverts;
    * the target tier then locates that coordinate with
-   * `locateAutoMovieSurfaceCoordinate`. Both tiers must come from the same
+   * `locateSurfaceCoordinate`. Both tiers must come from the same
    * network, whose patch list is the shared chart.
    *
    * @param props.from The tier the point is bound to, only read.
@@ -779,7 +779,7 @@ export namespace AutoMovieEngineSweep {
    *   1, or the two cages have different patch lists.
    */
   export function mapSurfaceTier(props: IAutoMovieMapSurfaceTier.IProps): IAutoMovieMapSurfaceTier.IResult {
-    return mapAutoMovieSurfaceTierImplementation(props);
+    return mapSurfaceTierImplementation(props);
   }
 
   /**
@@ -797,8 +797,8 @@ export namespace AutoMovieEngineSweep {
    * when both moments vanish. The area is `(1/2) integral r^2 da`. The integrals
    * use the midpoint rule, 400 steps along the spine and 256 directions round it,
    * with every derivative a difference over its step:
-   * `momentAutoMovieSweepSections` integrates the sections before the scale
-   * profile and `integrateAutoMovieSweepVolume` sums the flux with the scale and
+   * `momentSweepSections` integrates the sections before the scale
+   * profile and `integrateSweepVolume` sums the flux with the scale and
    * frames, the same two steps a posed sweep's volume preservation runs.
    *
    * The formula counts a region twice where neighbouring sections cross, as on
@@ -809,7 +809,7 @@ export namespace AutoMovieEngineSweep {
    * @returns Cubic metres.
    */
   export function measureSweepVolume(surface: IAutoMovieSweepSurface): number {
-    return measureAutoMovieSweepVolumeImplementation(surface);
+    return measureSweepVolumeImplementation(surface);
   }
 
   /**
@@ -848,12 +848,12 @@ export namespace AutoMovieEngineSweep {
    * @param props.caps Whether to close both ends; omitted, true.
    * @param props.shading `flat` or `smooth`; omitted, `flat`.
    * @returns A new mesh with normals and metric UVs and no skin.
-   * @throws Error when `compileAutoMovieSweep` refuses the sweep, the rows or
+   * @throws Error when `compileSweep` refuses the sweep, the rows or
    *   columns are invalid, a ring is not a valid planar region, or a ring winds
    *   the other way from the first.
    */
   export function meshSweep(props: IAutoMovieMeshSweep.IProps): IAutoMovieMesh {
-    return meshAutoMovieSweepImplementation(props);
+    return meshSweepImplementation(props);
   }
 
   /**
@@ -865,14 +865,14 @@ export namespace AutoMovieEngineSweep {
    * a da` of the radius `r = profile(u, v)`, each by the midpoint rule over 256
    * directions. A scale `s` multiplies the area by `s^2` and the moments by
    * `s^3`, so a sweep whose scale or frames change keeps these numbers;
-   * `integrateAutoMovieSweepVolume` combines them with its frames and scale.
+   * `integrateSweepVolume` combines them with its frames and scale.
    *
    * @param surface A compiled sweep, only read.
    * @returns Area, `M_x` and `M_y` per step, `3 * 400` numbers in square and
    *   cubic metres.
    */
   export function momentSweepSections(surface: IAutoMovieSweepSurface): Float64Array {
-    return momentAutoMovieSweepSectionsImplementation(surface);
+    return momentSweepSectionsImplementation(surface);
   }
 
   /**
@@ -897,7 +897,7 @@ export namespace AutoMovieEngineSweep {
    * @returns The orientation, every station without a rotation until written.
    */
   export function orientSweep(props: IAutoMovieOrientSweep.IProps): IAutoMovieSweepOrientation {
-    return orientAutoMovieSweepImplementation(props);
+    return orientSweepImplementation(props);
   }
 
   /**
@@ -922,7 +922,7 @@ export namespace AutoMovieEngineSweep {
    *   count is not a positive multiple of three.
    */
   export function parameterizeSweepSection(section: Exclude<IAutoMovieSweepSection, IAutoMovieSweepSection.IRadial>): IAutoMovieParameterizeSweepSection.IResult {
-    return parameterizeAutoMovieSweepSectionImplementation(section);
+    return parameterizeSweepSectionImplementation(section);
   }
 
   /**
@@ -935,14 +935,14 @@ export namespace AutoMovieEngineSweep {
    * @returns The path.
    */
   export function pathSweepTransport(transport: IAutoMovieSweepTransport): IAutoMovieSweepPath {
-    return pathAutoMovieSweepTransportImplementation(transport);
+    return pathSweepTransportImplementation(transport);
   }
 
   /**
    * Pose a whole surface network: re-sweep its bound sweeps and carry its free
    * points with their bones, keeping every patch, count and name.
    *
-   * Each bound sweep is posed by `poseAutoMovieSweep`. A free node, a curve's
+   * Each bound sweep is posed by `poseSweep`. A free node, a curve's
    * through points, direction and normal, and a ring's pinned positions move
    * rigidly with the bone named for them; nodes on a sweep follow that sweep by
    * construction. Anything without a binding keeps its rest position. Because the
@@ -961,7 +961,7 @@ export namespace AutoMovieEngineSweep {
    *   a sweep's posing refuses.
    */
   export function poseSurfaceNetwork(props: IAutoMoviePoseSurfaceNetwork.IProps): IAutoMovieSurfaceNetwork {
-    return poseAutoMovieSurfaceNetworkImplementation(props);
+    return poseSurfaceNetworkImplementation(props);
   }
 
   /**
@@ -985,11 +985,11 @@ export namespace AutoMovieEngineSweep {
    *
    * With `preserveVolume`, the sections of stations on two bones are scaled
    * together by one factor until the posed volume, by
-   * `measureAutoMovieSweepVolume`, equals the rest volume: the scale profile
+   * `measureSweepVolume`, equals the rest volume: the scale profile
    * gains a knot at every station, the factor at joint stations and 1 at the
    * others, multiplied into any existing profile, and the factor is found by
    * secant steps, as the paper first rescales the key section at the bent joint
-   * (Section 4.4), by `settleAutoMovieSweepVolume`. Without joint stations the
+   * (Section 4.4), by `settleSweepVolume`. Without joint stations the
    * sweep is returned unscaled. The scale applies after features, so the
    * section's shape is unchanged and only its size at the joints moves.
    *
@@ -1001,10 +1001,10 @@ export namespace AutoMovieEngineSweep {
    *   volume; omitted, false.
    * @returns The posed sweep, a new record sharing the rest sweep's sections.
    * @throws Error when the binding does not align with the sweep, a bone is
-   *   missing, or the rest sweep is refused by `compileAutoMovieSweep`.
+   *   missing, or the rest sweep is refused by `compileSweep`.
    */
   export function poseSweep(props: IAutoMoviePoseSweep.IProps): IAutoMovieSweep {
-    return poseAutoMovieSweepImplementation(props);
+    return poseSweepImplementation(props);
   }
 
   /**
@@ -1026,7 +1026,7 @@ export namespace AutoMovieEngineSweep {
    * @returns The empty registry.
    */
   export function registerSurfaceVertices(sweepRig: (name: string) => IAutoMovieSweepRig): IAutoMovieSurfaceRegistry {
-    return registerAutoMovieSurfaceVerticesImplementation(sweepRig);
+    return registerSurfaceVerticesImplementation(sweepRig);
   }
 
   /**
@@ -1064,7 +1064,7 @@ export namespace AutoMovieEngineSweep {
    *   into the same buffer.
    */
   export function rigSurfaceBridge(props: IAutoMovieRigSurfaceBridge.IProps): ((targets: Float64Array) => void) {
-    return rigAutoMovieSurfaceBridgeImplementation(props);
+    return rigSurfaceBridgeImplementation(props);
   }
 
   /**
@@ -1083,7 +1083,7 @@ export namespace AutoMovieEngineSweep {
    *   interior into the same buffer.
    */
   export function rigSurfaceCoons(grid: number[][]): ((targets: Float64Array) => void) {
-    return rigAutoMovieSurfaceCoonsImplementation(grid);
+    return rigSurfaceCoonsImplementation(grid);
   }
 
   /**
@@ -1108,10 +1108,10 @@ export namespace AutoMovieEngineSweep {
    * @param props.bones The rig's bone motions, or null for a rig without bones.
    * @returns The curve's rig.
    * @throws Error from `update` when the curve meets a sweep along its normal or
-   *   the spline is refused by `transportAutoMovieSweepSpine`.
+   *   the spline is refused by `transportSweepSpine`.
    */
   export function rigSurfaceCurve(props: IAutoMovieRigSurfaceCurve.IProps): IAutoMovieSurfaceCurveRig {
-    return rigAutoMovieSurfaceCurveImplementation(props);
+    return rigSurfaceCurveImplementation(props);
   }
 
   /**
@@ -1130,11 +1130,11 @@ export namespace AutoMovieEngineSweep {
    * depend on patch order and a mirrored layout samples to a mirrored cage; a
    * node on a sweep that no grid samples is the section point itself. A Coons
    * patch takes its four sides' points and fills the interior as
-   * `rigAutoMovieSurfaceCoons` states; a bridge fills its rows with cubic Hermite
-   * curves between its two loops, as `rigAutoMovieSurfaceBridge` states; a
-   * transition band lays its quads out by `layoutAutoMovieSurfaceTransition` and
+   * `rigSurfaceCoons` states; a bridge fills its rows with cubic Hermite
+   * curves between its two loops, as `rigSurfaceBridge` states; a
+   * transition band lays its quads out by `layoutSurfaceTransition` and
    * samples every corner on its sweep. A network curve is compiled by
-   * `rigAutoMovieSurfaceCurve`, which regenerates its whole spline from sweep
+   * `rigSurfaceCurve`, which regenerates its whole spline from sweep
    * nodes and tangent planes evaluated with the same registry-resolved cell as
    * their geometric targets. Observation-only sweep nodes keep a zero cell. This
    * is a fixed local footprint derivative, not a differential of footprint size
@@ -1150,19 +1150,19 @@ export namespace AutoMovieEngineSweep {
    *
    * With `fit` (the default) the samples of sweeps and curves are targets the
    * cage's Catmull-Clark limit passes through, solved by
-   * `solveAutoMovieSubdivisionLimit`; the interior vertices of Coons patches and
+   * `solveSubdivisionLimit`; the interior vertices of Coons patches and
    * bridges are blend controls of their own construction and keep their samples
    * as control positions, because interpolating a blend's samples makes the limit
    * surface ring between them where a loop turns sharply; pinned ring vertices
    * keep their given positions. Without, controls are the samples themselves and
    * the residual is 0. A ring that declares a perimeter is held to it at rest by
-   * `holdAutoMovieSurfaceGirths`, a radial factor along its sweep that every pose
+   * `holdSurfaceGirths`, a radial factor along its sweep that every pose
    * keeps. Every face corner carries `(patch, s, t)` and a UV value: the patch's
    * rectangle in texture space, or the band `t in [k / P, (k + 1) / P]` of the
    * unit square for patch `k` of `P`.
    *
-   * Bindings make the rig posable exactly as `poseAutoMovieSurfaceNetwork` poses
-   * the network: bound sweeps by `rigAutoMovieSweep`, free nodes, curve through
+   * Bindings make the rig posable exactly as `poseSurfaceNetwork` poses
+   * the network: bound sweeps by `rigSweep`, free nodes, curve through
    * points, normals and directions and ring positions rigidly with their bones.
    * Everything else is computed here once; `pose` refreshes only the bones, the
    * bound sweeps, the curves, the samples, the blends, the pins and the fit, into
@@ -1190,12 +1190,12 @@ export namespace AutoMovieEngineSweep {
    *   overlap, or the rest fit does not converge.
    */
   export function rigSurfaceNetwork(props: IAutoMovieRigSurfaceNetwork.IProps): IAutoMovieSurfaceRig {
-    return rigAutoMovieSurfaceNetworkImplementation(props);
+    return rigSurfaceNetworkImplementation(props);
   }
 
   /**
    * Compile one sweep of a surface rig: its rest surface, and, when it rides
-   * bones, the buffers that re-sweep it per pose as `poseAutoMovieSweep` does.
+   * bones, the buffers that re-sweep it per pose as `poseSweep` does.
    *
    * At rest every slot reads the compiled rest surface. Posed, each spine point
    * moves with its bone, the starting direction and any end tangents turn with
@@ -1205,9 +1205,9 @@ export namespace AutoMovieEngineSweep {
    * registered plane is then read from it. With volume preservation and joint
    * stations, the scale profile gains a knot at every station and rest scale
    * knot, the rest scale times a joint factor at joint stations and times 1
-   * elsewhere, and `settleAutoMovieSweepVolume` finds the factor whose volume,
+   * elsewhere, and `settleSweepVolume` finds the factor whose volume,
    * from the rest section moments and this pose's frames by
-   * `integrateAutoMovieSweepVolume`, equals the rest volume. Without either the
+   * `integrateSweepVolume`, equals the rest volume. Without either the
    * scale stays the rest profile. A girth factor set by `girth` then multiplies
    * every scale slot, at rest and after settling, so the settled volume is the
    * rest volume before that correction. Shapes before scale come directly from
@@ -1226,13 +1226,13 @@ export namespace AutoMovieEngineSweep {
    * @param props.preserveVolume Whether posing restores the rest volume at joint
    *   stations.
    * @returns The rig, open for registration.
-   * @throws Error when `compileAutoMovieSweep` refuses the sweep, the binding
+   * @throws Error when `compileSweep` refuses the sweep, the binding
    *   does not align with it, a slot is registered after `seal`, or a probe cell
    *   is negative or nonfinite; and from `pose` whatever the spine transport
    *   refuses.
    */
   export function rigSweep(props: IAutoMovieRigSweep.IProps): IAutoMovieSweepRig {
-    return rigAutoMovieSweepImplementation(props);
+    return rigSweepImplementation(props);
   }
 
   /**
@@ -1251,7 +1251,7 @@ export namespace AutoMovieEngineSweep {
    * @returns The last factor tried.
    */
   export function settleSweepVolume(target: number, volume: (factor: number) => number): number {
-    return settleAutoMovieSweepVolumeImplementation(target, volume);
+    return settleSweepVolumeImplementation(target, volume);
   }
 
   /**
@@ -1276,7 +1276,7 @@ export namespace AutoMovieEngineSweep {
    *   unit; 0 when none is free.
    */
   export function solveSubdivisionLimit(props: IAutoMovieSolveSubdivisionLimit.IProps): number {
-    return solveAutoMovieSubdivisionLimitImplementation(props);
+    return solveSubdivisionLimitImplementation(props);
   }
 
   /**
@@ -1288,7 +1288,7 @@ export namespace AutoMovieEngineSweep {
    *   (Halstead, Kass and DeRose 1993, SIGGRAPH, "Efficient, fair interpolation
    *   using Catmull-Clark surfaces"); a boundary vertex, whose boundary is an
    *   infinitely sharp crease, goes to`(A + 4 P + B) / 6`along its two boundary
-   *   neighbours, the cubic B-spline limit`subdivideAutoMovieSurface` gives
+   *   neighbours, the cubic B-spline limit`subdivideSurface` gives
    *   boundaries.
    *
    * @param faces Quads as four vertex indices, a manifold with consistent
@@ -1299,7 +1299,7 @@ export namespace AutoMovieEngineSweep {
    *   belongs to no face, or a vertex has other than zero or two boundary edges.
    */
   export function stencilSubdivisionLimit(faces: ReadonlyArray<readonly number[]>, count: number): IAutoMovieSubdivisionStencil {
-    return stencilAutoMovieSubdivisionLimitImplementation(faces, count);
+    return stencilSubdivisionLimitImplementation(faces, count);
   }
 
   /**
@@ -1333,6 +1333,6 @@ export namespace AutoMovieEngineSweep {
    *   or the tangent vanishes somewhere on the path.
    */
   export function transportSweepSpine(count: number, frames: boolean): IAutoMovieSweepTransport {
-    return transportAutoMovieSweepSpineImplementation(count, frames);
+    return transportSweepSpineImplementation(count, frames);
   }
 }

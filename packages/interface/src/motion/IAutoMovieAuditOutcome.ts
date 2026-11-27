@@ -1,5 +1,5 @@
 /**
- * Contact evidence read by auditAutoMovieOutcome without changing or retaining
+ * Contact evidence read by auditOutcome without changing or retaining
  * the input. Callers supply finite impulses and consistently based times; the
  * auditor compares values without admitting their ranges.
  */

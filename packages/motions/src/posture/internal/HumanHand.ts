@@ -254,7 +254,7 @@ export namespace HumanHand {
    * completed to a right-handed orthonormal frame (the normal, the forward's
    * component across it, and their cross product), and the rotation is the
    * world frame times the inverse of the rest frame, both read by the engine's
-   * `quaternionFromAutoMovieBasis`.
+   * `quaternionFromBasis`.
    * Parameter rest: The surface's rest normal and forward.
    * Parameter world: The requested world normal and forward.
    * Returns: The rotation.

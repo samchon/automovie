@@ -3,8 +3,8 @@ import {
   AutoMovieMotionHumanTargetGrid
 } from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanTargetGrid";
 import {
-  AutoMovieMotionManner
-} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionManner";
+  motionManner
+} from "../../../../../packages/motions/src/compose/internal/motionManner";
 import {
   MartialArtStanceForms
 } from "../../../../../packages/motions/src/sport/internal/MartialArtStanceForms";
@@ -55,7 +55,7 @@ export async function test_motions_sport_martial_art(): Promise<void> {
   const clock: IAutoMovieMotionClock = martialArtStanceClock(
     MartialArtStanceForms.FORM.taekwondoStanceReset,
     0.24,
-    AutoMovieMotionManner.NEUTRAL,
+    motionManner.NEUTRAL,
   );
   TestValidator.predicate(
     "the taekwondo marks",

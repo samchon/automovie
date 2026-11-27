@@ -2,7 +2,7 @@ import { AutoMovieEngineRenderTexture } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `measureAutoMovieTextureStorage` is the bytes of a texture, with its mip
+ * `measureTextureStorage` is the bytes of a texture, with its mip
  * chain when mipmapped, or null when the size is unrepresentable.
  *
  * Scenarios:

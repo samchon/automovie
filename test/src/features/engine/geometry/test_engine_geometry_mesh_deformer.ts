@@ -10,7 +10,7 @@ import { nclose } from "../../internal/predicates";
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * `createAutoMovieMeshDeformer` applies compact-field influences to a mesh,
+ * `createMeshDeformer` applies compact-field influences to a mesh,
  * moving each vertex by displacement (1 - |x - c|^2 / r^2)^3 and transforming
  * normals by the map's inverse transpose, keeping unit normals where the
  * geometry stays representable.

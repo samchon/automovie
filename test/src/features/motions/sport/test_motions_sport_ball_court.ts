@@ -1,7 +1,7 @@
 import type { IAutoMovieMotionClock, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanPropReader, IAutoMovieMotionManner, IAutoMoviePhysicalShape, IAutoMovieRigidTransform } from "@automovie/interface";
 import {
-  AutoMovieMotionManner
-} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionManner";
+  motionManner
+} from "../../../../../packages/motions/src/compose/internal/motionManner";
 import {
   ballCourtClock
 } from "../../../../../packages/motions/src/sport/internal/ballCourtClock";
@@ -74,18 +74,18 @@ const context = (
 export function test_motions_sport_ball_court(): void {
   // 1. The clock.
   const slow: IAutoMovieMotionManner.IModifiers = {
-    ...AutoMovieMotionManner.NEUTRAL,
+    ...motionManner.NEUTRAL,
     tempo: 2,
   };
   const pass: IAutoMovieMotionClock = ballCourtClock(
     { prepare: 0.37, attack: 0.24 },
     false,
-    AutoMovieMotionManner.NEUTRAL,
+    motionManner.NEUTRAL,
   );
   const contest: IAutoMovieMotionClock = ballCourtClock(
     { prepare: 0.34, attack: 0.55 },
     true,
-    AutoMovieMotionManner.NEUTRAL,
+    motionManner.NEUTRAL,
   );
   const late: IAutoMovieMotionClock = ballCourtClock(
     { prepare: 0.37, attack: 0.24 },

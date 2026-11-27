@@ -5,7 +5,7 @@ import type { IAutoMovieSurfaceConstruction } from "./IAutoMovieSurfaceConstruct
 
 /**
  * A surface network compiled at one tier for posing, from
- * `rigAutoMovieSurfaceNetwork`: the rest cage, and a per-pose update that
+ * `rigSurfaceNetwork`: the rest cage, and a per-pose update that
  * writes the posed cage's control positions into a caller buffer.
  *
  * Everything that does not depend on the pose is computed once when the rig
@@ -15,7 +15,7 @@ import type { IAutoMovieSurfaceConstruction } from "./IAutoMovieSurfaceConstruct
  * move: spines, section planes, joint scales, curves, blends and the fit. It
  * allocates nothing; its only caches are the rig's own buffers, fixed in size
  * by the network and tier when the rig compiles and released with the rig, and
- * each sweep's row cache of `compileAutoMovieSweep`, which the rig fills while
+ * each sweep's row cache of `compileSweep`, which the rig fills while
  * compiling and `pose` does not touch.
  */
 export interface IAutoMovieSurfaceRig {

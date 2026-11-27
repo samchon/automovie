@@ -7,7 +7,7 @@ import type { IAutoMovieFormationSlotMotion } from "../production/IAutoMovieForm
 export namespace IAutoMovieValidateFormationOverlap {
   /**
    * Borrowed admitted placements and models for
-   * validateAutoMovieFormationOverlap. The gate checks at most the first 4096
+   * validateFormationOverlap. The gate checks at most the first 4096
    * slots per formation at zero, every cue endpoint and budgeted interior
    * times. Removed members are omitted. Each unit pair, including a unit
    * against itself, receives at most its first observed overlap diagnostic.

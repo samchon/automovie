@@ -16,7 +16,7 @@ import type { IAutoMovieMotionManner } from "./IAutoMovieMotionManner";
 export namespace IAutoMovieMotionHumanLegPhrase {
   /**
    * What every leg phrase takes: the leg, the clock whose standard instants
-   * (`AutoMovieMotionClock.PHRASE`) it moves on, and where the foot stands
+   * (`motionClock.PHRASE`) it moves on, and where the foot stands
    * before and after.
    */
   export interface IPhrase {

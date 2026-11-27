@@ -23,12 +23,12 @@ import type {
 import { stand } from "../../actions/internal/stand";
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanChannel as HumanChannels } from "../../compose/internal/AutoMovieMotionHumanChannel";
+import { motionHumanChannel as HumanChannels } from "../../compose/internal/motionHumanChannel";
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
-import { AutoMovieMotionHumanVariation } from "../../compose/internal/AutoMovieMotionHumanVariation";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
+import { motionHumanVariation } from "../../compose/internal/motionHumanVariation";
 import { AutoMovieMotionHumanVariationPlace } from "../../compose/internal/AutoMovieMotionHumanVariationPlace";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
+import { motionManner } from "../../compose/internal/motionManner";
 import { HumanPhysics } from "../../law/internal/HumanPhysics";
 import { HumanHandShape } from "../../posture/internal/HumanHandShape";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
@@ -65,7 +65,7 @@ import { prepareGestureTransport } from "./prepareGestureTransport";
  * (`HumanBalance.shift`).
  *
  * Transport time is the free-space time of the distance moved
- * (`AutoMovieMotionHumanTiming.transport`), and at least the time each moving
+ * (`motionHumanTiming.transport`), and at least the time each moving
  * arm's arc takes within the audit's travel bound (`gestureHands.reaching`),
  * 0.3 s for head and shoulder gestures (no source found), and for a bow its
  * depth at the measured rates of standing bows, down in 1.21 s and up in 1.38 s
@@ -237,7 +237,7 @@ export namespace gesture {
     // from: set once the named place's transport is known, so the places are
     // as named until then.
     const source: IAutoMovieMotionHumanVariation.ISource | undefined =
-      AutoMovieMotionHumanVariation(context, p.manner);
+      motionHumanVariation(context, p.manner);
     let travel: IAutoMovieMotionHumanVariationPlace.ITravel | undefined;
 
     // The body under the gesture: the carrier's when the gesture is an
@@ -332,14 +332,14 @@ export namespace gesture {
       );
 
     // The Effort's tempo, slowed by the action's own time scale where it is
-    // replanned to take the time its motion needs (`AutoMovieMotionManner`).
+    // replanned to take the time its motion needs (`motionManner`).
     const T: number =
-      mods.tempo * AutoMovieMotionManner(context, undefined).tempo;
+      mods.tempo * motionManner(context, undefined).tempo;
     const named: number = span();
     if (source !== undefined && named > 0)
       travel = {
         distance: named,
-        seconds: T * AutoMovieMotionHumanTiming.transport(named),
+        seconds: T * motionHumanTiming.transport(named),
       };
     const transport: number = travel === undefined ? named : span();
     // The retraction keeps the named length; only the preparation varies, so
@@ -350,7 +350,7 @@ export namespace gesture {
         ? depth / BOW_DOWN
         : sides.length === 0
           ? JOINT_TRANSPORT
-          : AutoMovieMotionHumanTiming.transport(transport));
+          : motionHumanTiming.transport(transport));
 
     // Each transport lasts at least what its arms need to keep within the
     // audit's travel bound (`gestureHands.reaching`), from the entry to the
@@ -379,11 +379,11 @@ export namespace gesture {
     const back: number = p.kind === "bow" ? (timed * BOW_DOWN) / BOW_UP : timed;
     const retract: number = Math.max(back, arcs(1, rest));
     const prepare: number = Math.max(
-      AutoMovieMotionHumanVariation.duration(source, "prepare", timed),
+      motionHumanVariation.duration(source, "prepare", timed),
       arcs(0, begin),
     );
     const stroke: number =
-      T * cycles * AutoMovieMotionHumanTiming.seconds(rhythm.period);
+      T * cycles * motionHumanTiming.seconds(rhythm.period);
     const strokeEnd: number = prepare + stroke;
     const retractAt: number = strokeEnd + hold;
     const duration: number = retractAt + retract;

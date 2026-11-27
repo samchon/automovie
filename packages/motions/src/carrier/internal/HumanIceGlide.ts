@@ -19,7 +19,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanFootRelax } from "../../compose/internal/AutoMovieMotionHumanFootRelax";
+import { motionHumanFootRelax } from "../../compose/internal/motionHumanFootRelax";
 import { AutoMovieMotionHumanRange } from "../../compose/internal/AutoMovieMotionHumanRange";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
@@ -182,9 +182,9 @@ export namespace HumanIceGlide {
             side,
             moved,
             at <= step.window.start
-              ? AutoMovieMotionHumanFootRelax.load(at, step.window.start)
+              ? motionHumanFootRelax.load(at, step.window.start)
               : at >= step.window.end
-                ? AutoMovieMotionHumanFootRelax.load(
+                ? motionHumanFootRelax.load(
                     at,
                     Infinity,
                     step.window.end,
@@ -318,7 +318,7 @@ const CURL_SET: number = 0.3;
 const CURL_DELIVERY: number = 0.5;
 /*
  * A stepping blade within the dorsal range of the weight it bears
- * (`AutoMovieMotionHumanFootRelax`): as it sheds the body before it leaves, its
+ * (`motionHumanFootRelax`): as it sheds the body before it leaves, its
  * heel rises about the toes' joint, which stays on the ice, so it leaves within
  * the unloaded ankle's range and flies so; it lowers again as it takes the body
  * back.
@@ -332,7 +332,7 @@ function sheds(
 ): IAutoMovieHumanLimbGoal {
   if (goal.rotation === undefined) return goal;
   const placed: IAutoMovieMotionHumanFoot.IPlacement =
-    AutoMovieMotionHumanFootRelax(
+    motionHumanFootRelax(
       body,
       posture,
       side,

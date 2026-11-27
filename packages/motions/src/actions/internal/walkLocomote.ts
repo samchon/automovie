@@ -10,7 +10,7 @@ import type {
   IAutoMovieMotionManner,
 } from "@automovie/interface";
 
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
+import { motionManner } from "../../compose/internal/motionManner";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanArmSwing } from "../../posture/internal/HumanArmSwing";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
@@ -60,7 +60,7 @@ export function walkLocomote(
   // The manner's gait factors: its step and swing scale the authored step
   // and arm swing, and its tempo divides the speed at that step, so a weary
   // walk is slower in cadence as well as shorter in step.
-  const manner: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+  const manner: IAutoMovieMotionManner.IModifiers = motionManner(
     context,
     p.manner,
   );

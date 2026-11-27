@@ -21,12 +21,12 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../../actions/internal/stand";
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanChannel as HumanChannels } from "../../compose/internal/AutoMovieMotionHumanChannel";
+import { motionHumanChannel as HumanChannels } from "../../compose/internal/motionHumanChannel";
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionManner } from "../../compose/internal/motionManner";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { floorEntry } from "../../floor/internal/floorEntry";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanPreparedPlayback } from "../../perform/internal/HumanPreparedPlayback";
@@ -137,7 +137,7 @@ export namespace workout {
     const floor: workoutFloorStance.IEntry = workoutFloorStance(context, kind);
     const heldFloorStance: boolean = floor.held;
     const entered: IAutoMovieMotionHumanPosture | null = floor.entered;
-    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+    const modifiers: IAutoMovieMotionManner.IModifiers = motionManner(
       context,
       p.manner,
     );
@@ -187,8 +187,8 @@ export namespace workout {
         // Let the next action inherit the recovered two-foot stance.
         relax: recovery === null ? 0 : 0.12,
       });
-    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
-      AutoMovieMotionClock.sequence(phases),
+    const clock: IAutoMovieMotionClock = motionManner.time(
+      motionClock.sequence(phases),
       modifiers,
       { holds: held },
     );
@@ -447,7 +447,7 @@ export namespace workout {
         }),
       );
     const posed: IAutoMovieMotionHumanActionPlan =
-      composeAutoMovieMotionHumanAction({
+      composeMotionHumanAction({
         base: AutoMovieMotionHumanBase.still(duration, standing, contacts),
         clock,
         primitives,

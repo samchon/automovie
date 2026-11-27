@@ -1,7 +1,7 @@
 import type * as THREE from "three";
 
-import type { IFormationTierRepresentation } from "./IFormationTierRepresentation.js";
-import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceRetirement.js";
+import type { IFormationTierRepresentation } from "./IFormationTierRepresentation";
+import { reportResourceRetirement } from "./reportResourceRetirement";
 
 /*
  * Release owned tier geometry, material objects and every declared gait table.
@@ -24,7 +24,7 @@ export const disposeFormationRepresentations: (
       for (const take of representation.cycle.takes.values())
         textures.add(take.texture);
   }
-  reportAutoMovieResourceRetirement([
+  reportResourceRetirement([
     ...[...geometries].map(
       (geometry: THREE.BufferGeometry): (() => void) =>
         (): void =>

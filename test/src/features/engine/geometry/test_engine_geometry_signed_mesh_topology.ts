@@ -9,7 +9,7 @@ import { createSignedOctahedron } from "../../internal/createSignedMeshFixture";
 import { nclose, throwsError } from "../../internal/predicates";
 
 /**
- * `createAutoMovieSignedMeshQuery` signs distances only on a closed, oriented
+ * `createSignedMeshQuery` signs distances only on a closed, oriented
  * manifold, vertex links included.
  *
  * Fixture: the unit octahedron (|x| + |y| + |z| = 1) at x = 0, and copies at x

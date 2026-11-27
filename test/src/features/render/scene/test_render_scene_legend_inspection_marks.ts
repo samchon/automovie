@@ -3,7 +3,7 @@ import { AutoMovieRenderInspectionPalette, AutoMovieRenderInspectionMarks } from
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `legendAutoMovieInspectionMarks` counts marks by kind, flagged ones apart.
+ * `legendInspectionMarks` counts marks by kind, flagged ones apart.
  *
  * Scenarios:
  *

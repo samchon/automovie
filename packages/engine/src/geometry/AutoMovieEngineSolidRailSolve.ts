@@ -8,7 +8,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieEngineSolidDomain } from "./AutoMovieEngineSolidDomain";
-import { AutoMovieSolidTraceTrial } from "./construction/internal/AutoMovieSolidTraceTrial";
+import { solidTraceTrial } from "./construction/internal/solidTraceTrial";
 import { AutoMovieEngineSolidVector } from "./AutoMovieEngineSolidVector";
 
 /** Local normal-section/chord rail solves on owned surface charts. */
@@ -67,7 +67,7 @@ export namespace AutoMovieEngineSolidRailSolve {
       return fail("no positive chord or no section plane");
     let left: number = switches;
     let current: IAutoMovieSolidTraceTrialTrial | null =
-      AutoMovieSolidTraceTrial(host, face, start[0], start[1], left > 0);
+      solidTraceTrial(host, face, start[0], start[1], left > 0);
     if (current === null)
       return fail("the start chart lies on no face", {
         face,
@@ -121,7 +121,7 @@ export namespace AutoMovieEngineSolidRailSolve {
         )
           continue;
         const next: IAutoMovieSolidTraceTrialTrial | null =
-          AutoMovieSolidTraceTrial(host, foot.face, u1, v1, false);
+          solidTraceTrial(host, foot.face, u1, v1, false);
         if (next !== null && residual(next) < bound) return next;
       }
       return null;
@@ -185,7 +185,7 @@ export namespace AutoMovieEngineSolidRailSolve {
             "solved on a trimmed-away part of a face with no neighbour across",
             here,
           );
-        current = AutoMovieSolidTraceTrial(
+        current = solidTraceTrial(
           host,
           next.face,
           next.u,
@@ -250,7 +250,7 @@ export namespace AutoMovieEngineSolidRailSolve {
           }
           if (lo > 0) {
             const clipped: IAutoMovieSolidTraceTrialTrial | null =
-              AutoMovieSolidTraceTrial(
+              solidTraceTrial(
                 host,
                 face0,
                 current.u + lo * dx[0],
@@ -273,7 +273,7 @@ export namespace AutoMovieEngineSolidRailSolve {
           const reached: IAutoMovieSolidTraceTrialTrial | null =
             beyond === null
               ? null
-              : AutoMovieSolidTraceTrial(
+              : solidTraceTrial(
                   host,
                   beyond.face,
                   beyond.u,
@@ -283,7 +283,7 @@ export namespace AutoMovieEngineSolidRailSolve {
           const crossed: IAutoMovieSolidTraceTrialTrial | null =
             reached !== null
               ? { ...reached, crossed: true }
-              : AutoMovieSolidTraceTrial(host, face0, u1, v1, true);
+              : solidTraceTrial(host, face0, u1, v1, true);
           if (crossed !== null && !crossed.crossed) continue;
           if (crossed === null || crossed.face === came) continue;
           // The crossing is judged by where the solve goes on the neighbour, not by its foot: the foot is mapped by the boundary's chord
@@ -305,7 +305,7 @@ export namespace AutoMovieEngineSolidRailSolve {
           continue;
         }
         const next: IAutoMovieSolidTraceTrialTrial | null =
-          AutoMovieSolidTraceTrial(host, face0, u1, v1, false);
+          solidTraceTrial(host, face0, u1, v1, false);
         if (next === null) continue;
         if (lower(next)) {
           current = next;

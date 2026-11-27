@@ -1,29 +1,40 @@
 import { HUMAN_CAPTURE_PEOPLE } from "./HUMAN_CAPTURE_PEOPLE";
 
-/** Resolves a capture subject name to its person and pose. */
+/*
+ * Resolves a capture subject name to its person and pose.
+ */
 export namespace AutoMovieHumanCaptureSubject {
-  /** The Human capture subject name to resolve. */
+  /*
+   * The Human capture subject name to resolve.
+   */
   export interface IInput {
-    /** The person's name, optionally followed by `@pose`. */
+    /*
+     * The person's name, optionally followed by `@pose`.
+     */
     name: string;
   }
 
-  /** The person and pose selected by a subject name. */
+  /*
+   * The person and pose selected by a subject name.
+   */
   export interface IOutput {
-    /** The selected person's name. */
+    /*
+     * The selected person's name.
+     */
     person: string;
 
-    /** The selected pose name. */
+    /*
+     * The selected pose name.
+     */
     pose: string;
   }
 
-  /**
+  /*
    * Read a capture subject's name as the person and the pose it draws: `<person>` is the person in its canonical pose, and `<person>@<pose>` the person in another pose.
    *
    * It throws for a person the package does not define, listing the people it does, and for a pose the person is not drawn in, listing the poses it is.
-   *
-   * @param input The name of the person and pose to draw.
-   * @returns The person and the pose.
+   * Parameter input: The name of the person and pose to draw.
+   * Returns: The person and the pose.
    */
   export function resolve(input: IInput): IOutput {
     const { name } = input;

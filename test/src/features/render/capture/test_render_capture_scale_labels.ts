@@ -2,7 +2,7 @@ import { AutoMovieRenderCapture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `scaleAutoMovieCaptureLabels` scales labels by how many cells' short sides
+ * `scaleCaptureLabels` scales labels by how many cells' short sides
  * fit the raster's short side, rounded up and at least 1.
  *
  * Scenarios:

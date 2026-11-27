@@ -6,7 +6,7 @@ import type {
   IAutoMovieMotionMeeting,
 } from "@automovie/interface";
 
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
+import { motionManner } from "../../compose/internal/motionManner";
 import { handToFace } from "../../daily/internal/handToFace";
 import { AutoMovieMotionHumanActionRow } from "../../law/AutoMovieMotionHumanActionRow";
 import { HUMAN_TOUCH_SOCIAL_COMFORT } from "../../next/presets/HUMAN_TOUCH_SOCIAL_COMFORT";
@@ -114,7 +114,7 @@ export namespace HumanSocial {
   /*
    * A fist bump between two people: both perform `fistBump`. With `window`,
    * film seconds, the fists meet no earlier than its `from` and part at its
-   * `to` (`AutoMovieMotionMeeting.IWindow`).
+   * `to` (`motionMeeting.IWindow`).
    */
   export const bump: IAutoMovieMotionHumanMutual<IBump, Bump> = {
     name: "fistBump",
@@ -224,7 +224,7 @@ export namespace HumanSocial {
   > = AutoMovieMotionHumanActionRow.of("flickOff", touch.stroked(touch.FLICK), {
     effector: "fingertips",
     kind: "stroke",
-    manner: AutoMovieMotionManner.PRESETS.flick,
+    manner: motionManner.PRESETS.flick,
   });
 
   /*

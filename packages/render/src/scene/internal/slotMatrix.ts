@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { formationSpacingOffset } from "./formationSpacingOffset.js";
+import { formationSpacingOffset } from "./formationSpacingOffset";
 
 /*
  * Project a compiled world-space slot into an owned group-local matrix.

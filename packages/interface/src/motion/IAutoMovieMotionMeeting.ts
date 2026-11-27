@@ -64,7 +64,7 @@ export namespace IAutoMovieMotionMeeting {
   }
 
   /**
-   * The meeting of a mutual action. Input context of AutoMovieMotionMeeting.of.
+   * The meeting of a mutual action. Input context of motionMeeting.of.
    * The film second the meeting starts at.
    */
   export type IOfContext = {

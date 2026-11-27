@@ -16,7 +16,7 @@ import type { IAutoMovieFilmShading } from "../cinematics/IAutoMovieFilmShading"
  * are every member any second asks for, with the largest probe grid any second
  * bakes, so the budget holds at every second.
  *
- * `measureAutoMovieRenderFilmStage` in the engine reads it; it is not admitted
+ * `measureRenderFilmStage` in the engine reads it; it is not admitted
  * there, because the draw host admits each second's own values.
  */
 export interface IAutoMovieRenderFilm {

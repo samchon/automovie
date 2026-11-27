@@ -38,7 +38,7 @@ export namespace IAutoMovieMotionHumanArmPhrase {
    * instants immediately and propagates an unknown-instant failure.
    *
    * What every arm phrase takes: the arm, the clock whose standard instants
-   * (`AutoMovieMotionClock.PHRASE`) it moves on, and where the hand leaves from
+   * (`motionClock.PHRASE`) it moves on, and where the hand leaves from
    * and returns to.
    */
   export interface IPhrase {

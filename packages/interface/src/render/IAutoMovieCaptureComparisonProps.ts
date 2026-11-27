@@ -1,11 +1,11 @@
-import type { IAutoMovieInspectionDiagnostics } from "./IAutoMovieInspectionDiagnostics.js";
-import type { IAutoMovieCaptureBudget } from "./IAutoMovieCaptureBudget.js";
+import type { IAutoMovieInspectionDiagnostics } from "./IAutoMovieInspectionDiagnostics";
+import type { IAutoMovieCaptureBudget } from "./IAutoMovieCaptureBudget";
 import type { IAutoMovieCaptureCellRecord } from "./IAutoMovieCaptureCellRecord";
-import type { IAutoMovieCaptureFolder } from "./IAutoMovieCaptureFolder.js";
+import type { IAutoMovieCaptureFolder } from "./IAutoMovieCaptureFolder";
 
 /**
  * Current rows and an already opened reference round for pixel comparison.
- * compareAutoMovieCaptureRounds requires earlier/reference on the folder, pairs
+ * compareCaptureRounds requires earlier/reference on the folder, pairs
  * according to match, and writes comparison sheets through claimed names.
  * Different or absent backend identities produce side-by-side records instead
  * of numerical pixel differences.

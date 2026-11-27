@@ -7,7 +7,7 @@ import type { IAutoMovieSweep } from "./IAutoMovieSweep";
 export namespace IAutoMovieRigSweep {
   /**
    * Compile one sweep of a surface rig: its rest surface, and, when it rides
-   * bones, the buffers that re-sweep it per pose as `poseAutoMovieSweep` does.
+   * bones, the buffers that re-sweep it per pose as `poseSweep` does.
    *
    * At rest every slot reads the compiled rest surface. Posed, each spine point
    * moves with its bone, the starting direction and any end tangents turn with
@@ -17,9 +17,9 @@ export namespace IAutoMovieRigSweep {
    * registered plane is then read from it. With volume preservation and joint
    * stations, the scale profile gains a knot at every station and rest scale
    * knot, the rest scale times a joint factor at joint stations and times 1
-   * elsewhere, and `settleAutoMovieSweepVolume` finds the factor whose volume,
+   * elsewhere, and `settleSweepVolume` finds the factor whose volume,
    * from the rest section moments and this pose's frames by
-   * `integrateAutoMovieSweepVolume`, equals the rest volume. Without either the
+   * `integrateSweepVolume`, equals the rest volume. Without either the
    * scale stays the rest profile. A girth factor set by `girth` then multiplies
    * every scale slot, at rest and after settling, so the settled volume is the
    * rest volume before that correction. Shapes before scale come directly from
@@ -33,7 +33,7 @@ export namespace IAutoMovieRigSweep {
    */
   export type IProps = {
     /**
-     * Rest sweep in model metres, validated by compileAutoMovieSweep and
+     * Rest sweep in model metres, validated by compileSweep and
      * retained by the rig. Keep authored geometry stable while compiled slots
      * are in use.
      */

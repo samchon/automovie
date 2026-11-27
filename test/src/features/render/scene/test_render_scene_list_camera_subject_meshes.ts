@@ -3,7 +3,7 @@ import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 /**
- * `listAutoMovieCameraSubjectMeshes` lists the meshes a camera-edge measurement
+ * `listCameraSubjectMeshes` lists the meshes a camera-edge measurement
  * can read exactly, or reports that it cannot.
  *
  * Scenarios:

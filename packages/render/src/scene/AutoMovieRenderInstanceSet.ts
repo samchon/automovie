@@ -1,8 +1,8 @@
-import { type IAutoMovieRenderInstanceSetViewerObject } from "./IAutoMovieRenderInstanceSetViewerObject.js";
-import { type IAutoMovieRenderBuildInstancedInstanceSetProps } from "./IAutoMovieRenderBuildInstancedInstanceSetProps.js";
-import { buildInstancedInstanceSet as buildInstancedInstanceSetImplementation } from "./internal/buildInstancedInstanceSet.js";
+import { type IAutoMovieRenderInstanceSetViewerObject } from "./IAutoMovieRenderInstanceSetViewerObject";
+import { type IAutoMovieRenderBuildInstancedInstanceSetProps } from "./IAutoMovieRenderBuildInstancedInstanceSetProps";
+import { buildInstancedInstanceSet as buildInstancedInstanceSetImplementation } from "./internal/buildInstancedInstanceSet";
 import { type IAutoMovieInstanceSlot, type IAutoMovieCompiledInstanceSet } from "@automovie/interface";
-import { regenerateInstanceSlot as regenerateInstanceSlotImplementation } from "./internal/regenerateInstanceSlot.js";
+import { regenerateInstanceSlot as regenerateInstanceSlotImplementation } from "./internal/regenerateInstanceSlot";
 
 /** Public operations for Auto Movie Render Instance Set. */
 export namespace AutoMovieRenderInstanceSet {

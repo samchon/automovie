@@ -12,7 +12,7 @@ export namespace IAutoMovieConstructionPortCurve {
   export interface ICurve {
     /**
      * The columns' chart points, mm and radians:
-     * `AutoMovieConstructionPortAddress` at each clock with its share.
+     * `constructionPortAddress` at each clock with its share.
      */
     addresses: [number, number][];
 

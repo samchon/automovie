@@ -4,7 +4,7 @@ import * as THREE from "three";
 
 /**
  * `AutoMovieRenderInspectionPath.pathOf` joins the names from a root to an object, and
- * `listAutoMovieInspectionPaths` lists every drawn object by that path.
+ * `listInspectionPaths` lists every drawn object by that path.
  *
  * Scenarios:
  *

@@ -1,4 +1,4 @@
-import type { AutoMovieGuidePass } from "../cinematics/AutoMovieGuidePass.js";
+import type { AutoMovieGuidePass } from "../cinematics/AutoMovieGuidePass";
 
 /**
  * A surface colouring: one of the guide passes, or one of the two inspection

@@ -1,4 +1,4 @@
-import type { IAutoMovieCaptureStorage } from "./IAutoMovieCaptureStorage.js";
+import type { IAutoMovieCaptureStorage } from "./IAutoMovieCaptureStorage";
 
 /**
  * Storage and round identities used to prepare one capture folder.

@@ -1,10 +1,10 @@
 import { type IAutoMovieFlameCue, type IAutoMoviePerformShotProps, type IAutoMovieSceneNode, type IAutoMovieViolationCollector, type IAutoMovieColor, type IAutoMovieMesh } from "@automovie/interface";
 import { admitPerformShotFlames as admitPerformShotFlamesImplementation } from "./flame/internal/admitPerformShotFlames";
-import { blackbodyAutoMovieColor as blackbodyAutoMovieColorImplementation } from "./flame/internal/blackbodyAutoMovieColor";
-import { compileAutoMovieFlameFlicker as compileAutoMovieFlameFlickerImplementation } from "./flame/internal/compileAutoMovieFlameFlicker";
+import { blackbodyColor as blackbodyColorImplementation } from "./flame/internal/blackbodyColor";
+import { compileFlameFlicker as compileFlameFlickerImplementation } from "./flame/internal/compileFlameFlicker";
 import { heskestadFlameHeight as heskestadFlameHeightImplementation } from "./flame/internal/heskestadFlameHeight";
 import { puffingFrequency as puffingFrequencyImplementation } from "./flame/internal/puffingFrequency";
-import { sampleAutoMovieFlame as sampleAutoMovieFlameImplementation } from "./flame/internal/sampleAutoMovieFlame";
+import { sampleFlame as sampleFlameImplementation } from "./flame/internal/sampleFlame";
 
 /** Public operations for Auto Movie Engine Flame. */
 export namespace AutoMovieEngineFlame {
@@ -48,7 +48,7 @@ export namespace AutoMovieEngineFlame {
    * @throws {RangeError} When `kelvin` is not finite and positive.
    */
   export function blackbodyAutoMovieColor(kelvin: number): IAutoMovieColor {
-    return blackbodyAutoMovieColorImplementation(kelvin);
+    return blackbodyColorImplementation(kelvin);
   }
 
   /**
@@ -59,7 +59,7 @@ export namespace AutoMovieEngineFlame {
    * not depend on the render's frame rate; 1/120 s divides the frame period of
    * 12, 24, 30 and 60 fps, and gives at least 16 keys per flicker period up to
    * 7.5 Hz, the limit flame admission enforces. `areas[i]` is the flame's
-   * silhouette area at `times[i]` from `sampleAutoMovieFlame`. `mean` is Ā, the
+   * silhouette area at `times[i]` from `sampleFlame`. `mean` is Ā, the
    * mean area over the keys inside `on`, or over every key when `on` is omitted;
    * a light whose key inside `on` holds `I_on · A / Ā` therefore averages exactly
    * `I_on` over those keys, and the flame's luminance is `I_on / Ā` in cd/m².
@@ -77,7 +77,7 @@ export namespace AutoMovieEngineFlame {
   /** Mean area over the keys inside the interval, square metres. */
   mean: number;
 } {
-    return compileAutoMovieFlameFlickerImplementation(cue, duration);
+    return compileFlameFlickerImplementation(cue, duration);
   }
 
   /**
@@ -136,6 +136,6 @@ export namespace AutoMovieEngineFlame {
    * a flame, and the disc's area times its glow factor for an ember.
    */
   export function sampleAutoMovieFlame(cue: Pick<IAutoMovieFlameCue, "id" | "seed" | "size">, seconds: number): { mesh: IAutoMovieMesh; area: number } {
-    return sampleAutoMovieFlameImplementation(cue, seconds);
+    return sampleFlameImplementation(cue, seconds);
   }
 }

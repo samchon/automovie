@@ -17,7 +17,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
-import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
+import { motionHumanHeld } from "../../compose/internal/motionHumanHeld";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { StrikingHeld } from "../../striking/internal/StrikingHeld";
 
@@ -59,7 +59,7 @@ export namespace HumanGraspDemand {
   ): IAutoMovieMotionHumanActionLaw.IGrip {
     const held: IAutoMovieMotionHumanPropReader = context.prop(prop);
     const grasped: IAutoMovieMotionHumanHeld.IHeld =
-      AutoMovieMotionHumanHeld.grasped(
+      motionHumanHeld.grasped(
         context.body,
         side,
         prop,

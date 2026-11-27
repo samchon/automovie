@@ -1,1 +1,1 @@
-export { AutoMovieRenderSceneDeliveryCrop } from "./AutoMovieRenderSceneDeliveryCrop.js";
+export { AutoMovieRenderSceneDeliveryCrop } from "./AutoMovieRenderSceneDeliveryCrop";

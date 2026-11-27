@@ -10,9 +10,9 @@ import type {
   IAutoMovieRenderTextureCost,
 } from "@automovie/interface";
 
-import { measureAutoMovieRenderTextureClosure } from "./measureAutoMovieRenderTextureClosure";
-import { resolveAutoMovieShadowProfile } from "./resolveAutoMovieShadowProfile";
-import { sumAutoMovieRenderTextureAllocations } from "./sumAutoMovieRenderTextureAllocations";
+import { measureRenderTextureClosure } from "./measureRenderTextureClosure";
+import { resolveShadowProfile } from "./resolveShadowProfile";
+import { sumRenderTextureAllocations } from "./sumRenderTextureAllocations";
 
 /*
  * The render inventory's material and texture phase: resolve the shadow
@@ -58,7 +58,7 @@ export function measureRenderTextures(
         type: "pcf" | "vsm";
         casters: measureRenderTextures.ICaster[];
         violations?: undefined;
-      } = resolveAutoMovieShadowProfile({
+      } = resolveShadowProfile({
     lights: subject.scene.lights,
     shadows:
       subject.scene.environment?.shadows ??
@@ -98,7 +98,7 @@ export function measureRenderTextures(
       1,
     );
   const textures: IAutoMovieRenderTextureCost[] =
-    measureAutoMovieRenderTextureClosure({
+    measureRenderTextureClosure({
       materials: materials.values(),
       sources: subject.textures ?? [],
       environment: subject.scene.environment?.image ?? null,
@@ -118,7 +118,7 @@ export function measureRenderTextures(
   );
   const textureBytes: number | null = sumBytes(textures);
   const textureAllocations: number | null =
-    sumAutoMovieRenderTextureAllocations(textures);
+    sumRenderTextureAllocations(textures);
   for (const texture of textures) {
     const owner: string =
       texture.asset === null

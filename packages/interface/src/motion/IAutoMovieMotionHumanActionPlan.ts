@@ -266,7 +266,7 @@ export interface IAutoMovieMotionHumanActionPlan {
    * simultaneous-contact resolution: every active weapon of every person is
    * stopped at its first contact with another person's colliders, in time
    * order, each later weapon seeing the earlier stops
-   * (`resolveAutoMovieContactEvents`).
+   * (`resolveContactEvents`).
    */
   weapons?: readonly IAutoMovieMotionWeaponPath[];
 

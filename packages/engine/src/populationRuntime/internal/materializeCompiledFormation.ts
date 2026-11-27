@@ -19,7 +19,7 @@ import type {
 import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 import { AutoMovieEngineTransform } from "../../math/AutoMovieEngineTransform";
 import { mixSeed } from "../../math/internal/mixSeed";
-import { autoMovieRenderDigest } from "../../render/internal/autoMovieRenderDigest";
+import { renderDigest } from "../../render/internal/renderDigest";
 import { AutoMovieEngineCanonicalJson } from "../../text/AutoMovieEngineCanonicalJson";
 import { compiledPopulationRepresentation } from "./compiledPopulationRepresentation";
 import { AutoMovieEngineFormationChunkSize } from "../AutoMovieEngineFormationChunkSize";
@@ -198,7 +198,7 @@ export function materializeCompiledFormation(
   };
   return {
     ...core,
-    digest: autoMovieRenderDigest(
+    digest: renderDigest(
       AutoMovieEngineCanonicalJson.canonicalize(core),
     ),
   };

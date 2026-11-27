@@ -23,7 +23,7 @@ export interface IAutoMovieFormationMotion {
    *
    * Omitted, the cue's `action` label is tried as a gait name, and the figure's
    * first declared gait performs when nothing carries that name. Explicit
-   * validateAutoMovieFormationMotions calls reject an unknown named gait when
+   * validateFormationMotions calls reject an unknown named gait when
    * the compiled unit has a non-empty repertoire; a unit with no declared
    * repertoire has no such admission check.
    */

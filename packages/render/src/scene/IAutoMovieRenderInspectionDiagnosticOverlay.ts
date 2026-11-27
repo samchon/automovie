@@ -1,6 +1,6 @@
 import type { IAutoMovieInspectionLegendEntry } from "@automovie/interface";
 
-import type { IAutoMovieRenderInspectionDiagnosticsProps } from "./IAutoMovieRenderInspectionDiagnosticsProps.js";
+import type { IAutoMovieRenderInspectionDiagnosticsProps } from "./IAutoMovieRenderInspectionDiagnosticsProps";
 
 /** A witness-cube overlay kept across review pictures. */
 export interface IAutoMovieRenderInspectionDiagnosticOverlay {

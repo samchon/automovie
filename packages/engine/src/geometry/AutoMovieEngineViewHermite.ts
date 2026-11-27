@@ -6,7 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieEngineConstructionRelativeTolerance } from "./AutoMovieEngineConstructionRelativeTolerance";
-import { rootsAutoMovieViewPolynomial } from "./construction/internal/rootsAutoMovieViewPolynomial";
+import { rootsViewPolynomial } from "./construction/internal/rootsViewPolynomial";
 
 /**
  * Explicit C2 source jets and sufficient scalar-range filtering of shared
@@ -226,7 +226,7 @@ export namespace AutoMovieEngineViewHermite {
         const scale: number = Math.max(...c.map(Math.abs));
         return scale === 0
           ? []
-          : rootsAutoMovieViewPolynomial(
+          : rootsViewPolynomial(
               c.map((v: number, j: number): number => (j + 1) * (v / scale)),
             ).map(
               (t: number): number =>

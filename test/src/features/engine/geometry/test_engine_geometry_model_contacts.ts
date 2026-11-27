@@ -13,7 +13,7 @@ import { outwardBoxMesh } from "../../internal/outwardBoxMesh";
 import { throwsError } from "../../internal/predicates";
 
 /**
- * `measureAutoMovieModelContacts` reports every part pair of a model as
+ * `measureModelContacts` reports every part pair of a model as
  * crossing, contained, touching or apart, with its least gap and the share of
  * each part inside the other.
  *

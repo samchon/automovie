@@ -1,4 +1,4 @@
-import type { AutoMovieViewerDisplay } from "../AutoMovieViewerDisplay.js";
+import type { AutoMovieViewerDisplay } from "../AutoMovieViewerDisplay";
 
 /*
  * Set finite positive CSS dimensions on a capture canvas; leave invalid sizes unchanged.

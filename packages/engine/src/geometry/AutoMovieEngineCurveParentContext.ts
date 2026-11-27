@@ -8,7 +8,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieEngineMatrix4 } from "../math/AutoMovieEngineMatrix4";
-import { assertAutoMovieCurveBoundary64 } from "./curve/internal/assertAutoMovieCurveBoundary64";
+import { assertCurveBoundary64 } from "./curve/internal/assertCurveBoundary64";
 import { assertFiniteCurveVector } from "./curve/internal/assertFiniteCurveVector";
 import { freezeCurveBoundary } from "./curve/internal/freezeCurveBoundary";
 import { isDenseFinite } from "./curve/internal/isDenseFinite";
@@ -232,7 +232,7 @@ export class AutoMovieEngineCurveParentContext {
     bone: string,
     boundary: IAutoMovieCurveBoundary64,
   ): AutoMovieEngineCurveParentContext.IPublication {
-    assertAutoMovieCurveBoundary64(boundary);
+    assertCurveBoundary64(boundary);
     const edge: IAutoMovieCurveBoundaryEdge64 | undefined = this.edges.get(
       boundary.id,
     );

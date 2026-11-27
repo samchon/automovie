@@ -1,9 +1,9 @@
 import * as THREE from "three";
 
-import type { IAutoMovieRenderFormationCycle } from "../IAutoMovieRenderFormationCycle.js";
-import { applyFormationCycleMaterial } from "./applyFormationCycleMaterial.js";
-import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResources.js";
-import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceRetirement.js";
+import type { IAutoMovieRenderFormationCycle } from "../IAutoMovieRenderFormationCycle";
+import { applyFormationCycleMaterial } from "./applyFormationCycleMaterial";
+import { constructOwnedResources } from "./constructOwnedResources";
+import { reportResourceRetirement } from "./reportResourceRetirement";
 
 /*
  * Own the two shadow projections of one tier's already-resolved cycle.
@@ -42,7 +42,7 @@ export const createFormationCycleShadowMaterials: (
   ) => void;
   dispose: () => void;
 } => {
-  return constructAutoMovieOwnedResources(
+  return constructOwnedResources(
     (
       own: <Resource extends { dispose(): void }>(
         resource: Resource,
@@ -93,7 +93,7 @@ export const createFormationCycleShadowMaterials: (
           material.needsUpdate = true;
         },
         dispose: (): void => {
-          reportAutoMovieResourceRetirement([
+          reportResourceRetirement([
             (): void => depth.dispose(),
             (): void => distance.dispose(),
           ]);

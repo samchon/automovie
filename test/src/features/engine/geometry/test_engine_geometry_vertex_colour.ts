@@ -6,8 +6,8 @@ import { vertexColourMesh } from "../../internal/vertexColourFixture";
 
 /**
  * Vertex colour follows vertex correspondence, not world coordinates, through
- * `transformAutoMovieMesh`, `mergeAutoMovieMeshes` and a deformer
- * (`createAutoMovieMeshDeformer`).
+ * `transformMesh`, `mergeMeshes` and a deformer
+ * (`createMeshDeformer`).
  *
  * Fixture: the three-vertex coloured triangle (`vertexColourMesh`) and the same
  * mesh without colours.

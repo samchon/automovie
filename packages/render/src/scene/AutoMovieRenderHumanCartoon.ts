@@ -1,5 +1,5 @@
 import type * as THREE from "three";
-import { buildHumanCartoonFace as buildHumanCartoonFaceImplementation } from "./human-polygon/internal/buildHumanCartoonFace.js";
+import { buildHumanCartoonFace as buildHumanCartoonFaceImplementation } from "./human-polygon/internal/buildHumanCartoonFace";
 /**
  * Generator-independent inputs consumed by the original cartoon face drawing.
  * These marks express selected action units; they are not anatomical skin.

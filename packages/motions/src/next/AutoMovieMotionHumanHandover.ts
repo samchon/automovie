@@ -79,7 +79,7 @@ export namespace AutoMovieMotionHumanHandover {
    * construction.
    *
    * - Where: the object's receiving grip lands on the mutual goal of the giver's
-   *   and the receiver's acting shoulders (`resolveAutoMovieMutualGoal` with
+   *   and the receiver's acting shoulders (`resolveMutualGoal` with
    *   the handshake's comfortable reach): handovers take place midway between
    *   the partners (Hansen et al. 2017, reviewed by Kopnarski et al. 2023),
    *   with the object's middle at {@link EXCHANGE} of the partners' mean sternum

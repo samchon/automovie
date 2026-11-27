@@ -1,18 +1,18 @@
 import type { IAutoMovieModel } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind.js";
-import type { IAutoMovieRenderFormationCycle } from "../IAutoMovieRenderFormationCycle.js";
-import type { IAutoMovieRenderFormationCycleTake } from "../IAutoMovieRenderFormationCycleTake.js";
-import type { IAutoMovieInstancedGeometry } from "../IAutoMovieInstancedGeometry.js";
-import type { IAutoMovieInstancedModelRepresentation } from "../IAutoMovieInstancedModelRepresentation.js";
-import type { IAutoMovieRenderBakeFormationCycleProps } from "../IAutoMovieRenderBakeFormationCycleProps.js";
-import { bakeFormationCycle } from "./bakeFormationCycle.js";
-import { AutoMovieRenderSceneLayout } from "../AutoMovieRenderSceneLayout.js";
-import { collectAutoMovieOwnedResources } from "./collectAutoMovieOwnedResources.js";
-import { flattenRigidParts } from "./flattenRigidParts.js";
-import { instancedModelParts } from "./instancedModelParts.js";
-import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceRetirement.js";
+import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind";
+import type { IAutoMovieRenderFormationCycle } from "../IAutoMovieRenderFormationCycle";
+import type { IAutoMovieRenderFormationCycleTake } from "../IAutoMovieRenderFormationCycleTake";
+import type { IAutoMovieInstancedGeometry } from "../IAutoMovieInstancedGeometry";
+import type { IAutoMovieInstancedModelRepresentation } from "../IAutoMovieInstancedModelRepresentation";
+import type { IAutoMovieRenderBakeFormationCycleProps } from "../IAutoMovieRenderBakeFormationCycleProps";
+import { bakeFormationCycle } from "./bakeFormationCycle";
+import { AutoMovieRenderSceneLayout } from "../AutoMovieRenderSceneLayout";
+import { collectOwnedResources } from "./collectOwnedResources";
+import { flattenRigidParts } from "./flattenRigidParts";
+import { instancedModelParts } from "./instancedModelParts";
+import { reportResourceRetirement } from "./reportResourceRetirement";
 
 /*
  * Flatten one runtime model for a chunked instancing consumer.
@@ -46,7 +46,7 @@ export const flattenInstancedModel: (
 ): IAutoMovieInstancedModelRepresentation => {
   const built: ReturnType<typeof AutoMovieRenderSceneLayout.buildModel> = AutoMovieRenderSceneLayout.buildModel(model);
   const sourceResources: readonly { dispose(): void }[] =
-    collectAutoMovieOwnedResources(built.object);
+    collectOwnedResources(built.object);
   const temporary: Set<THREE.BufferGeometry | THREE.Skeleton> = new Set();
   built.object.traverse((object: THREE.Object3D): void => {
     if (!AutoMovieRenderThreeKind.isMesh(object)) return;
@@ -77,7 +77,7 @@ export const flattenInstancedModel: (
           });
   } catch (error) {
     // The source collection already holds the skinned meshes' skeletons.
-    reportAutoMovieResourceRetirement(
+    reportResourceRetirement(
       [
         ...sourceResources.map(
           (resource: { dispose(): void }): (() => void) =>
@@ -93,7 +93,7 @@ export const flattenInstancedModel: (
     throw error;
   }
   try {
-    reportAutoMovieResourceRetirement(
+    reportResourceRetirement(
       [...temporary].map(
         (resource: THREE.BufferGeometry | THREE.Skeleton): (() => void) =>
           (): void =>
@@ -110,7 +110,7 @@ export const flattenInstancedModel: (
             (take: IAutoMovieRenderFormationCycleTake): THREE.Texture => take.texture,
           )),
     ]);
-    reportAutoMovieResourceRetirement(
+    reportResourceRetirement(
       [
         ...[...transferred].map(
           (resource: { dispose(): void }): (() => void) =>

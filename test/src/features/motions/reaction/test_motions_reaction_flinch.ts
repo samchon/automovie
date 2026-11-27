@@ -3,8 +3,8 @@ import type {
   IAutoMovieMotionManner,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionManner
-} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionManner";
+  motionManner
+} from "../../../../../packages/motions/src/compose/internal/motionManner";
 import {
   flinch
 } from "../../../../../packages/motions/src/reaction/internal/flinch";
@@ -22,11 +22,11 @@ import { nclose } from "../../internal/nclose";
  */
 export function test_motions_reaction_flinch(): void {
   const slow: IAutoMovieMotionManner.IModifiers = {
-    ...AutoMovieMotionManner.NEUTRAL,
+    ...motionManner.NEUTRAL,
     tempo: 2,
   };
   const neutral: IAutoMovieMotionClock = flinch.timetable(
-    AutoMovieMotionManner.NEUTRAL,
+    motionManner.NEUTRAL,
   );
   const late: IAutoMovieMotionClock = flinch.timetable(slow);
   TestValidator.predicate(

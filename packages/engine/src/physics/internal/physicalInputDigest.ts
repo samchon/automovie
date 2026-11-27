@@ -1,6 +1,6 @@
 import type { IAutoMoviePhysicalSimulationInput } from "@automovie/interface";
 
-import { autoMovieRenderDigest } from "../../render/internal/autoMovieRenderDigest";
+import { renderDigest } from "../../render/internal/renderDigest";
 import { AutoMovieEngineCanonicalJson } from "../../text/AutoMovieEngineCanonicalJson";
 import { AutoMovieEnginePhysicsCache } from "../AutoMovieEnginePhysicsCache";
 import { physicalProfileWithoutHulls } from "./physicalProfileWithoutHulls";
@@ -28,7 +28,7 @@ export function physicalInputDigest(
         (target: (typeof body.targets)[number]): string => {
           let digest: string | undefined = targets.get(target);
           if (!digest) {
-            digest = autoMovieRenderDigest(
+            digest = renderDigest(
               AutoMovieEngineCanonicalJson.canonicalize(target),
             );
             targets.set(target, digest);
@@ -38,7 +38,7 @@ export function physicalInputDigest(
       ),
     }),
   );
-  return autoMovieRenderDigest(
+  return renderDigest(
     AutoMovieEngineCanonicalJson.canonicalize({
       protocol: AutoMovieEnginePhysicsCache.protocol,
       solver: "automovie-xpbd-1",

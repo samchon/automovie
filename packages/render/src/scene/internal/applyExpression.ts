@@ -8,11 +8,11 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AUTOMOVIE_EXPRESSION_PRESET_CHANNELS } from "./AUTOMOVIE_EXPRESSION_PRESET_CHANNELS.js";
-import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind.js";
-import type { IAutoMovieRenderModelObject } from "../IAutoMovieRenderModelObject.js";
-import { autoMovieVisemeChannelWeights } from "./autoMovieVisemeChannelWeights.js";
-import { invalidateAutoMovieSkinnedPose } from "./invalidateAutoMovieSkinnedPose.js";
+import { AUTOMOVIE_EXPRESSION_PRESET_CHANNELS } from "./AUTOMOVIE_EXPRESSION_PRESET_CHANNELS";
+import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind";
+import type { IAutoMovieRenderModelObject } from "../IAutoMovieRenderModelObject";
+import { visemeChannelWeights } from "./visemeChannelWeights";
+import { invalidateSkinnedPose } from "./invalidateSkinnedPose";
 
 /*
  * Apply a sampled automovie expression to a viewer model.
@@ -43,7 +43,7 @@ export const applyExpression: (
   applyMorphTargets(target.object, weights);
 
   // Morphs precede skinning, so a skinned mesh's bounds follow the new weights.
-  invalidateAutoMovieSkinnedPose(target.object);
+  invalidateSkinnedPose(target.object);
   for (const sink of target.expressionTargets ?? []) {
     for (const name of EXPRESSION_RESET_NAMES) sink.setExpressionValue(name, 0);
     for (const [name, weight] of weights) sink.setExpressionValue(name, weight);
@@ -68,7 +68,7 @@ const layerVisemes: (
   weights: Map<string, number>,
   visemes: IAutoMovieHumanVisemeWeights,
 ): void => {
-  for (const [name, weight] of autoMovieVisemeChannelWeights(visemes))
+  for (const [name, weight] of visemeChannelWeights(visemes))
     weights.set(name, clamp01(weight));
 };
 

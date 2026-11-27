@@ -3,7 +3,7 @@ import { AutoMovieRenderInspectionMaterial } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `resolveAutoMovieInspectionColors` settles the legend entry of each mark
+ * `resolveInspectionColors` settles the legend entry of each mark
  * kind.
  *
  * Scenarios:

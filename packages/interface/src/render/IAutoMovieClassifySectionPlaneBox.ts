@@ -20,7 +20,7 @@ export namespace IAutoMovieClassifySectionPlaneBox {
    * Throws a `RangeError` when a corner coordinate is not finite or `min`
    * exceeds `max` on an axis, because the support corners of such a box are
    * swapped and a box wholly kept would read as cut; a degenerate plane throws
-   * as {@link autoMovieSectionPlaneDistance} does.
+   * as {@link sectionPlaneDistance} does.
    *
    * This tells a reviewer which subjects a section left in view. It is not
    * folded into {@link intersectsPerspectiveFrustumBox}: an authored camera

@@ -25,7 +25,7 @@ import { HumanPrehension } from "./HumanPrehension";
 import { handshakeOffer } from "./handshakeOffer";
 
 /*
- * The meeting of a handshake (`AutoMovieMotionMeeting`): one record for both
+ * The meeting of a handshake (`motionMeeting`): one record for both
  * partners, the single owner of where the two palms meet, of the line the first
  * partner's fingers point along, and of each partner's seat. The point is
  * `handshakeOffer.point` between the two acting shoulders; a seated pair whose

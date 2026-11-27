@@ -10,7 +10,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieEngineConstructionPortCurve } from "./AutoMovieEngineConstructionPortCurve";
-import { readAutoMovieConstructionSeed } from "./internal/readAutoMovieConstructionSeed";
+import { readConstructionSeed } from "./internal/readConstructionSeed";
 import { AutoMovieEngineConstructionViews } from "./AutoMovieEngineConstructionViews";
 import { AutoMovieEngineConstructionWidths } from "./AutoMovieEngineConstructionWidths";
 import { AutoMovieEngineSolidSharedCurve } from "./AutoMovieEngineSolidSharedCurve";
@@ -48,7 +48,7 @@ export namespace AutoMovieEngineConstructionSharedLoop {
     | IAutoMovieConstructionSharedLoop.IPrepared
     | IAutoMovieConstructionSharedLoop.IRefusal {
     const S: number = AutoMovieEngineConstructionViews.SCALE;
-    const seed = readAutoMovieConstructionSeed(node.seed);
+    const seed = readConstructionSeed(node.seed);
     const loop: IAutoMovieConstructionJoin["loop"] = node.loop;
     if (loop === undefined)
       return { contract: "shared loop", detail: "the join declares no loop" };

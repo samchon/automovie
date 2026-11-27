@@ -1,8 +1,8 @@
-import type { IAutoMovieCaptureBudget } from "./IAutoMovieCaptureBudget.js";
+import type { IAutoMovieCaptureBudget } from "./IAutoMovieCaptureBudget";
 
 /**
  * Raster, reader budget and grouping inputs for contact-sheet planning.
- * planAutoMovieCaptureLayout validates positive safe-integer
+ * planCaptureLayout validates positive safe-integer
  * dimensions/count/group. The request parser admits the budget. Captions
  * determine wrapping height; an empty list reserves one line, and a group wider
  * than a row is split.

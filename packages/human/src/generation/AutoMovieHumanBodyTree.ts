@@ -20,7 +20,7 @@ import { AutoMovieHumanMassSource } from "./AutoMovieHumanMassSource";
 
 /**
  * The body's construction tree (#3044, construction step 2; #3047 to #3051)
- * and its realization by the engine (`realizeAutoMovieConstruction`): every
+ * and its realization by the engine (`realizeConstruction`): every
  * part a view node, every fold a merge join whose trace starts at a search
  * seed and whose blend is a rolling fold of the caller's radius, the host
  * always the whole subtree built so far, so a part merges onto the faces its

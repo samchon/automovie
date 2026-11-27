@@ -174,16 +174,16 @@ import { compileCameraClearanceReports as compileCameraClearanceReportsImplement
 import { evaluateCameraClearance as evaluateCameraClearanceImplementation } from "./internal/evaluateCameraClearance";
 import { stageScene as stageSceneImplementation } from "./internal/stageScene";
 
-import { autoMovieSectionPlaneDistance as autoMovieSectionPlaneDistanceImplementation } from "./internal/autoMovieSectionPlaneDistance";
-import { autoMovieSectionPlanesKeepPoint as autoMovieSectionPlanesKeepPointImplementation } from "./internal/autoMovieSectionPlanesKeepPoint";
+import { sectionPlaneDistance as sectionPlaneDistanceImplementation } from "./internal/sectionPlaneDistance";
+import { sectionPlanesKeepPoint as sectionPlanesKeepPointImplementation } from "./internal/sectionPlanesKeepPoint";
 
 
 import { admitMotionTake as admitMotionTakeImplementation } from "./internal/admitMotionTake";
 import { animatedBaseAt as animatedBaseAtImplementation } from "./internal/animatedBaseAt";
 import { assertGrammarPositive as assertGrammarPositiveImplementation } from "./internal/assertGrammarPositive";
 import { authoredRotationCriticalTimes as authoredRotationCriticalTimesImplementation } from "./internal/authoredRotationCriticalTimes";
-import { autoMovieStoryInterval as autoMovieStoryIntervalImplementation } from "./internal/autoMovieStoryInterval";
-import { autoMovieStoryTime as autoMovieStoryTimeImplementation } from "./internal/autoMovieStoryTime";
+import { storyInterval as storyIntervalImplementation } from "./internal/storyInterval";
+import { storyTime as storyTimeImplementation } from "./internal/storyTime";
 import { bakedTransformFromChannels as bakedTransformFromChannelsImplementation } from "./internal/bakedTransformFromChannels";
 import { bakedTransformFromClipsAt as bakedTransformFromClipsAtImplementation } from "./internal/bakedTransformFromClipsAt";
 import { beatNodeOf as beatNodeOfImplementation } from "./internal/beatNodeOf";
@@ -191,8 +191,8 @@ import { blockBeat as blockBeatImplementation } from "./internal/blockBeat";
 import { cameraClearanceDeformationRadius as cameraClearanceDeformationRadiusImplementation } from "./internal/cameraClearanceDeformationRadius";
 import { cameraClearanceSampleTimes as cameraClearanceSampleTimesImplementation } from "./internal/cameraClearanceSampleTimes";
 import { canonicalProductionFrameRate as canonicalProductionFrameRateImplementation } from "./internal/canonicalProductionFrameRate";
-import { classifyAutoMoviePlaybackBoundary as classifyAutoMoviePlaybackBoundaryImplementation } from "./internal/classifyAutoMoviePlaybackBoundary";
-import { classifyAutoMovieSectionPlaneBox as classifyAutoMovieSectionPlaneBoxImplementation } from "./internal/classifyAutoMovieSectionPlaneBox";
+import { classifyPlaybackBoundary as classifyPlaybackBoundaryImplementation } from "./internal/classifyPlaybackBoundary";
+import { classifySectionPlaneBox as classifySectionPlaneBoxImplementation } from "./internal/classifySectionPlaneBox";
 import { classifyGrammarShotSize as classifyGrammarShotSizeImplementation } from "./internal/classifyGrammarShotSize";
 import { compileCameraCoverage as compileCameraCoverageImplementation } from "./internal/compileCameraCoverage";
 import { compileCameraMove as compileCameraMoveImplementation } from "./internal/compileCameraMove";
@@ -209,8 +209,8 @@ import { cutSequence as cutSequenceImplementation } from "./internal/cutSequence
 import { defineShot as defineShotImplementation } from "./internal/defineShot";
 import { deliveryCropNdc as deliveryCropNdcImplementation } from "./internal/deliveryCropNdc";
 import { equalProductionFrameRates as equalProductionFrameRatesImplementation } from "./internal/equalProductionFrameRates";
-import { evaluateAutoMovieCameraDepthPrecision as evaluateAutoMovieCameraDepthPrecisionImplementation } from "./internal/evaluateAutoMovieCameraDepthPrecision";
-import { evaluateAutoMovieStorySync as evaluateAutoMovieStorySyncImplementation } from "./internal/evaluateAutoMovieStorySync";
+import { evaluateCameraDepthPrecision as evaluateCameraDepthPrecisionImplementation } from "./internal/evaluateCameraDepthPrecision";
+import { evaluateStorySync as evaluateStorySyncImplementation } from "./internal/evaluateStorySync";
 import { evaluateShotPredicate as evaluateShotPredicateImplementation } from "./internal/evaluateShotPredicate";
 import { eventTimeKey as eventTimeKeyImplementation } from "./internal/eventTimeKey";
 import { foldRoot as foldRootImplementation } from "./internal/foldRoot";
@@ -272,8 +272,8 @@ import { propSupportFace as propSupportFaceImplementation } from "./internal/pro
 import { propSupportGap as propSupportGapImplementation } from "./internal/propSupportGap";
 import { readFilmGrammar as readFilmGrammarImplementation } from "./internal/readFilmGrammar";
 import { realizeShotContract as realizeShotContractImplementation } from "./internal/realizeShotContract";
-import { resolveAutoMovieDeliveryCrop as resolveAutoMovieDeliveryCropImplementation } from "./internal/resolveAutoMovieDeliveryCrop";
-import { resolveAutoMovieLensAt as resolveAutoMovieLensAtImplementation } from "./internal/resolveAutoMovieLensAt";
+import { resolveDeliveryCrop as resolveDeliveryCropImplementation } from "./internal/resolveDeliveryCrop";
+import { resolveLensAt as resolveLensAtImplementation } from "./internal/resolveLensAt";
 import { resolveBeatEnd as resolveBeatEndImplementation } from "./internal/resolveBeatEnd";
 import { resolveBeatOpening as resolveBeatOpeningImplementation } from "./internal/resolveBeatOpening";
 import { resolveBeatSnapshot as resolveBeatSnapshotImplementation } from "./internal/resolveBeatSnapshot";
@@ -397,7 +397,7 @@ export namespace AutoMovieEngineFilm {
     pin: IAutoMovieShotStoryTime,
     localSeconds: number,
   ): number {
-    return autoMovieStoryTimeImplementation(pin, localSeconds);
+    return storyTimeImplementation(pin, localSeconds);
   }
 
   /**
@@ -423,7 +423,7 @@ export namespace AutoMovieEngineFilm {
     pin: IAutoMovieShotStoryTime,
     window: IAutoMovieStoryInterval.IWindow,
   ): IAutoMovieStoryInterval.IResult {
-    return autoMovieStoryIntervalImplementation(pin, window);
+    return storyIntervalImplementation(pin, window);
   }
 
   /** Assemble a node's baked world transform from sampled channels, or return null until both translation and rotation have started. */
@@ -582,7 +582,7 @@ export namespace AutoMovieEngineFilm {
    * @returns The relation, with both shot clocks unless it is unavailable.
    */
   export function classifyAutoMoviePlaybackBoundary(props: IAutoMovieClassifyPlaybackBoundary.IProps): IAutoMovieClassifyPlaybackBoundary.IResult {
-    return classifyAutoMoviePlaybackBoundaryImplementation(props);
+    return classifyPlaybackBoundaryImplementation(props);
   }
 
   /**
@@ -602,7 +602,7 @@ export namespace AutoMovieEngineFilm {
    * Throws a `RangeError` when a corner coordinate is not finite or `min` exceeds
    * `max` on an axis, because the support corners of such a box are swapped and a
    * box wholly kept would read as cut; a degenerate plane throws as
-   * {@link autoMovieSectionPlaneDistance} does.
+   * {@link sectionPlaneDistance} does.
    *
    * This tells a reviewer which subjects a section left in view. It is not folded
    * into {@link intersectsPerspectiveFrustumBox}: an authored camera declares no
@@ -611,7 +611,7 @@ export namespace AutoMovieEngineFilm {
    * decision.
    */
   export function classifyAutoMovieSectionPlaneBox(props: IAutoMovieClassifySectionPlaneBox.IProps): AutoMovieSectionPlaneState {
-    return classifyAutoMovieSectionPlaneBoxImplementation(props);
+    return classifySectionPlaneBoxImplementation(props);
   }
 
   /**
@@ -1019,7 +1019,7 @@ export namespace AutoMovieEngineFilm {
    * device coordinates.
    *
    * An omitted crop is the whole gate. A malformed one throws the `RangeError` of
-   * {@link resolveAutoMovieDeliveryCrop} rather than being clamped, so a frustum
+   * {@link resolveDeliveryCrop} rather than being clamped, so a frustum
    * test never silently clips against a window nobody could deliver.
    *
    * @param crop The delivery crop, or `undefined` for the whole gate.
@@ -1066,7 +1066,7 @@ export namespace AutoMovieEngineFilm {
    * sets `passed`.
    */
   export function evaluateAutoMovieCameraDepthPrecision(props: IAutoMovieEvaluateCameraDepthPrecision.IProps): IAutoMovieCameraDepthPrecisionReport {
-    return evaluateAutoMovieCameraDepthPrecisionImplementation(props);
+    return evaluateCameraDepthPrecisionImplementation(props);
   }
 
   /**
@@ -1089,7 +1089,7 @@ export namespace AutoMovieEngineFilm {
    * either way.
    */
   export function evaluateAutoMovieStorySync(props: IAutoMovieEvaluateStorySync.IProps): IAutoMovieStorySyncOutcome {
-    return evaluateAutoMovieStorySyncImplementation(props);
+    return evaluateStorySyncImplementation(props);
   }
 
   /**
@@ -1553,7 +1553,7 @@ export namespace AutoMovieEngineFilm {
    * says nothing about production light therefore renders the frames it always
    * did, and an unpinned shot is never assigned a story moment it did not claim.
    *
-   * Otherwise the production is resolved at `autoMovieStoryTime(pin, seconds)`
+   * Otherwise the production is resolved at `storyTime(pin, seconds)`
    * and merged by light id:
    *
    * - A staged light whose id a production source shares is replaced in place by
@@ -2649,7 +2649,7 @@ export namespace AutoMovieEngineFilm {
    *   window is empty or inverted on either axis.
    */
   export function resolveAutoMovieDeliveryCrop(crop: IAutoMovieDeliveryCrop | undefined): IAutoMovieDeliveryCrop {
-    return resolveAutoMovieDeliveryCropImplementation(crop);
+    return resolveDeliveryCropImplementation(crop);
   }
 
   /**
@@ -2676,7 +2676,7 @@ export namespace AutoMovieEngineFilm {
    * @returns The stop and the focused depth, or null.
    */
   export function resolveAutoMovieLensAt(props: IAutoMovieResolveLensAt.IProps): IAutoMovieFilmOptics.ILens | null {
-    return resolveAutoMovieLensAtImplementation(props);
+    return resolveLensAtImplementation(props);
   }
 
   /**
@@ -3342,7 +3342,7 @@ export namespace AutoMovieEngineFilm {
    * query point is not refused and yields `NaN`.
    */
   export function autoMovieSectionPlaneDistance(plane: IAutoMovieSectionPlane, point: IAutoMovieVector3): number {
-    return autoMovieSectionPlaneDistanceImplementation(plane, point);
+    return sectionPlaneDistanceImplementation(plane, point);
   }
 
   /**
@@ -3351,17 +3351,17 @@ export namespace AutoMovieEngineFilm {
    * The planes intersect rather than union: a point survives only when no plane
    * removes it, and a point exactly on a plane is kept. That is what `three.js`
    * applies with `clipIntersection` false, which the viewer's
-   * `applyAutoMovieSectionPlanes` writes explicitly, so a point this reports as
+   * `applySectionPlanes` writes explicitly, so a point this reports as
    * kept is a point the renderer draws. A union would let a second plane restore
    * what the first cut away.
    *
    * An empty plane list keeps everything, which makes "no section" the absence of
    * a declaration rather than a separate mode. A degenerate plane throws the
-   * `RangeError` of {@link autoMovieSectionPlaneDistance} when it is reached;
+   * `RangeError` of {@link sectionPlaneDistance} when it is reached;
    * evaluation stops at the first plane that removes the point.
    */
   export function autoMovieSectionPlanesKeepPoint(planes: readonly IAutoMovieSectionPlane[], point: IAutoMovieVector3): boolean {
-    return autoMovieSectionPlanesKeepPointImplementation(planes, point);
+    return sectionPlanesKeepPointImplementation(planes, point);
   }
 
   /**

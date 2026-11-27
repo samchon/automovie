@@ -14,7 +14,7 @@ import { projectSoftCordSelfContact as projectSoftCordSelfContactImplementation 
 import { readProductionLiveWearableSoftBodies as readProductionLiveWearableSoftBodiesImplementation } from "./internal/readProductionLiveWearableSoftBodies";
 import { selectProductionLiveWearableSoftBodies as selectProductionLiveWearableSoftBodiesImplementation } from "./internal/selectProductionLiveWearableSoftBodies";
 import { shortestRestLength as shortestRestLengthImplementation } from "./internal/shortestRestLength";
-import { simulateAutoMovieWearableSoftBody as simulateAutoMovieWearableSoftBodyImplementation } from "./internal/simulateAutoMovieWearableSoftBody";
+import { simulateWearableSoftBody as simulateWearableSoftBodyImplementation } from "./internal/simulateWearableSoftBody";
 import { softBodyBudget as softBodyBudgetImplementation } from "./internal/softBodyBudget";
 import { softBodyHeldLoads as softBodyHeldLoadsImplementation } from "./internal/softBodyHeldLoads";
 import { softBodyNeighbourOf as softBodyNeighbourOfImplementation } from "./internal/softBodyNeighbourOf";
@@ -140,7 +140,7 @@ export namespace AutoMovieEngineSoftBody {
    * currently has portable test consumers and no production/viewer live host.
    */
   export function simulateAutoMovieWearableSoftBody(props: IAutoMovieSimulateWearableSoftBody.IProps): IAutoMovieWearableSoftResult {
-    return simulateAutoMovieWearableSoftBodyImplementation(props);
+    return simulateWearableSoftBodyImplementation(props);
   }
 
   /**

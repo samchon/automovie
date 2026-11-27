@@ -6,7 +6,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
 import { StaggerPendulum } from "./StaggerPendulum";
 import { staggerAdmission } from "./staggerAdmission";
 import { staggerBounds } from "./staggerBounds";
@@ -316,7 +316,7 @@ export namespace staggerRecover {
           const result: staggerStep.IResult = staggerStep.take(
             pendulum,
             order[k]!,
-            k === 0 ? AutoMovieMotionHumanTiming.seconds(REACTION) : 0,
+            k === 0 ? motionHumanTiming.seconds(REACTION) : 0,
             k === 0 && sideways && order[0] === first,
             admit,
           );

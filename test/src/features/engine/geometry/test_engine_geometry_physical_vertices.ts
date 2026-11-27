@@ -8,7 +8,7 @@ import { TestValidator } from "@nestia/e2e";
 import { createPhysicalMesh } from "../../internal/createPhysicalMesh";
 
 /**
- * `resolveAutoMovieMeshPhysicalVertices` maps mesh vertices to physical
+ * `resolveMeshPhysicalVertices` maps mesh vertices to physical
  * vertices: source aliases share incidence while independent contact stays
  * distinct.
  *

@@ -4,9 +4,9 @@ import type {
   IAutoMovieShot,
 } from "@automovie/interface";
 
-import type { IAutoMovieRenderModelObject } from "./IAutoMovieRenderModelObject.js";
+import type { IAutoMovieRenderModelObject } from "./IAutoMovieRenderModelObject";
 
-/** What `prepareAutoMovieFlames` builds a shot's flames from. */
+/** What `prepareFlames` builds a shot's flames from. */
 export interface IAutoMovieRenderPrepareFlamesProps {
   /**
    * The admitted shot: its flame cues, its light clips (a bound flame's binding

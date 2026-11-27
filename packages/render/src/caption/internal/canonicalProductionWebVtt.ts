@@ -4,11 +4,11 @@ import type {
   IAutoMovieProductionFrameRate,
 } from "@automovie/interface";
 
-import { serializeAutoMovieWebVttCueText } from "./serializeAutoMovieWebVttCueText.js";
-import { serializeAutoMovieWebVttIdentifier } from "./serializeAutoMovieWebVttIdentifier.js";
-import { serializeAutoMovieWebVttSingleLineText } from "./serializeAutoMovieWebVttSingleLineText.js";
-import { webVttCaptionLanguage } from "./webVttCaptionLanguage.js";
-import { webVttTime } from "./webVttTime.js";
+import { serializeWebVttCueTextImplementation } from "./serializeWebVttCueTextImplementation";
+import { serializeWebVttIdentifierImplementation } from "./serializeWebVttIdentifierImplementation";
+import { serializeWebVttSingleLineTextImplementation } from "./serializeWebVttSingleLineTextImplementation";
+import { webVttCaptionLanguage } from "./webVttCaptionLanguage";
+import { webVttTime } from "./webVttTime";
 
 /*
  * Serialize a compiled timeline's caption track as the one canonical WebVTT
@@ -37,7 +37,7 @@ export const canonicalProductionWebVtt: (
       AutoMovieEngineText.compareCodeUnits(left.id, right.id),
   );
   return [
-    `WEBVTT ${serializeAutoMovieWebVttIdentifier(timeline.id)}`,
+    `WEBVTT ${serializeWebVttIdentifierImplementation(timeline.id)}`,
     "",
     ...cues.flatMap((cue: ICaptionCue): string[] => {
       const interval: { start: number; end: number } =
@@ -48,14 +48,14 @@ export const canonicalProductionWebVtt: (
           ticksPerSecond: 1_000,
           rounding: "nearest",
         });
-      const payload: string = serializeAutoMovieWebVttCueText(cue.text);
+      const payload: string = serializeWebVttCueTextImplementation(cue.text);
       return [
-        serializeAutoMovieWebVttIdentifier(cue.id),
+        serializeWebVttIdentifierImplementation(cue.id),
         `${webVttTime(interval.start)} --> ${webVttTime(interval.end)}${lineSetting(cue)}`,
         `<lang ${webVttCaptionLanguage(cue.language)}>${
           cue.speaker === undefined
             ? payload
-            : `<v ${serializeAutoMovieWebVttSingleLineText(cue.speaker)}>${payload}</v>`
+            : `<v ${serializeWebVttSingleLineTextImplementation(cue.speaker)}>${payload}</v>`
         }</lang>`,
         "",
       ];

@@ -37,7 +37,7 @@ export interface IAutoMovieMeshSkin {
    * bulges slightly on the outside of a bent joint and flips once two
    * influences differ by more than 180 degrees.
    *
-   * `skinAutoMovieMesh` in `@automovie/engine` evaluates the same formula the
+   * `skinMesh` in `@automovie/engine` evaluates the same formula the
    * viewer's shader draws. A dual quaternion skin needs its part transform to
    * scale uniformly, because a non-uniform scale makes the blended transform
    * non-rigid; admission refuses that combination.

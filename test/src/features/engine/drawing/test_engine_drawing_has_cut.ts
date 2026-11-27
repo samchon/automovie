@@ -2,7 +2,7 @@ import { AutoMovieEngineDrawing } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `autoMovieDrawingHasCut` says whether a projection cuts the model: a plan and
+ * `drawingHasCut` says whether a projection cuts the model: a plan and
  * a section do, an elevation does not.
  *
  * Scenarios:

@@ -1,4 +1,4 @@
-import type { IAutoMovieProductionFrameRate } from "../production/IAutoMovieProductionFrameRate.js";
+import type { IAutoMovieProductionFrameRate } from "../production/IAutoMovieProductionFrameRate";
 
 /** Parameters for planning a lossless transparent PNG sequence wrapper. */
 export interface IAutoMoviePlanAlphaWrapProps {

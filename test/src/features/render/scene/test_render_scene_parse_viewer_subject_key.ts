@@ -2,7 +2,7 @@ import { AutoMovieRenderSubjectViewpoint } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `parseAutoMovieViewerSubjectKey` reads "<kind>:<id>[@<revision>]", where the
+ * `parseViewerSubjectKey` reads "<kind>:<id>[@<revision>]", where the
  * last `@` starts the revision.
  *
  * Scenarios:

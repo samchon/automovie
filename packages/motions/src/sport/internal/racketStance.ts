@@ -10,7 +10,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionHumanLeg";
 import { racketStanceTransfer } from "./racketStanceTransfer";
 
@@ -51,7 +51,7 @@ export function racketStance(
   const clearance: number = CLEARANCE * body.measure.stature;
   const height: number = 0.03 * body.measure.stature * extent;
   const load: (seconds: number) => number =
-    AutoMovieMotionClock.prepareEnvelope(
+    motionClock.prepareEnvelope(
       clock,
       ["start", "ready"],
       ["relax", "end"],

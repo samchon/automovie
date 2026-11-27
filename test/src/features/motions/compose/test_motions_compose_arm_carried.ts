@@ -15,8 +15,8 @@ import {
   AutoMovieMotionHumanBend
 } from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanBend";
 import {
-  composeAutoMovieMotionHumanAction
-} from "../../../../../packages/motions/src/compose/internal/composeAutoMovieMotionHumanAction";
+  composeMotionHumanAction
+} from "../../../../../packages/motions/src/compose/internal/composeMotionHumanAction";
 import {
   poseBones
 } from "../../../../../packages/motions/src/posture/internal/poseBones";
@@ -99,7 +99,7 @@ export async function test_motions_compose_arm_carried(): Promise<void> {
     { name: "back", seconds: 1.8 },
   ]);
   const plan: IAutoMovieMotionHumanActionPlan =
-    composeAutoMovieMotionHumanAction({
+    composeMotionHumanAction({
       base: syntheticHumanPlan({ duration: 2, posture: standing }),
       clock,
       primitives: [

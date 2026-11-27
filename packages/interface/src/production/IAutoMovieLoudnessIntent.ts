@@ -3,7 +3,7 @@
  *
  * Loudness is ITU-R BS.1770-5 gated integrated loudness in LUFS and true peak
  * is its Annex 2 estimate in dBTP, both as engine's
- * `createAutoMovieLoudnessMeter` measures them. Engine's
+ * `createLoudnessMeter` measures them. Engine's
  * `renderProductionSound` levels each dialogue line to the dialogue target,
  * brings the master to `integratedLufs` and limits its true peak below
  * `maximumTruePeakDbtp`; the delivery audit checks the decoded delivered file

@@ -273,7 +273,7 @@ export namespace AutoMovieEngineViewSection {
   }
 }
 
-/**
+/*
  * Internal measured source; inspection observations are attached only to public
  * results.
  */

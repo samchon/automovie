@@ -277,11 +277,17 @@ export namespace AutoMovieEngineConicPreparation {
   }
 }
 
-/** Eight invocation-local endpoint values, indexed by their guide and side. */
+/*
+ * Eight invocation-local endpoint values, indexed by their guide and side.
+ */
 interface Own<T> {
-  /** Curvature from the previous quarter's reflected final end. */
+  /*
+   * Curvature from the previous quarter's reflected final end.
+   */
   before: T[];
 
-  /** Curvature from the next quarter's initial end. */
+  /*
+   * Curvature from the next quarter's initial end.
+   */
   after: T[];
 }

@@ -294,12 +294,18 @@ export namespace AutoMovieEngineSplineCurve {
   }
 }
 
-/** Cosine and sine of `2 pi q k / N`, row q of N entries each. */
+/*
+ * Cosine and sine of `2 pi q k / N`, row q of N entries each.
+ */
 interface ITurns {
-  /** Row-major cos(2pi_q_k/N), N entries per frequency row. */
+  /*
+   * Row-major cos(2pi_q_k/N), N entries per frequency row.
+   */
   cos: Float64Array;
 
-  /** Matching row-major sine values, independent of fitted samples. */
+  /*
+   * Matching row-major sine values, independent of fitted samples.
+   */
   sin: Float64Array;
 }
 

@@ -16,7 +16,7 @@ const subject: () => IAutoMovieRenderSubject = (): IAutoMovieRenderSubject => ({
 });
 
 /**
- * `deriveAutoMovieSemanticMask` gives every drawable of a render subject its
+ * `deriveSemanticMask` gives every drawable of a render subject its
  * own colour under its own id, so a pixel can be read back as the thing it
  * shows.
  *

@@ -13,9 +13,9 @@ import { PhysicalFixtures } from "../../internal/PhysicalFixtures";
 const ROUNDING: number = 1e-6;
 
 /**
- * `measureAutoMovieContact` measures the contact between two subjects'
+ * `measureContact` measures the contact between two subjects'
  * displayed colliders, and its record feeds the outcome audit
- * (`auditAutoMovieOutcome`) unchanged.
+ * (`auditOutcome`) unchanged.
  *
  * Scenarios, two 0.1 m spheres at 1 m height:
  *

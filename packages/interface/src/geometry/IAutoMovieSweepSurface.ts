@@ -5,7 +5,7 @@ import type { IAutoMovieSweepPath } from "./IAutoMovieSweepPath";
 import type { IAutoMovieSweepSection } from "./IAutoMovieSweepSection";
 
 /**
- * A sweep compiled for evaluation, from `compileAutoMovieSweep`.
+ * A sweep compiled for evaluation, from `compileSweep`.
  *
  * `u` is the chord-length parameter along the spine and `v` the turn around it,
  * both from 0 to 1. Under direction correspondence v is polar angle divided by
@@ -17,7 +17,7 @@ import type { IAutoMovieSweepSection } from "./IAutoMovieSweepSection";
  * guarantees. Coordinates use the authored model frame and metres. Returned
  * points and frames are fresh mutable records. The compiled surface retains its
  * source declaration and coefficients; preserve authored data while using it.
- * compileAutoMovieSweep admits authored geometry, while individual queries
+ * compileSweep admits authored geometry, while individual queries
  * refuse invalid generated radii or section coordinates; finite query arguments
  * remain the caller's responsibility.
  */

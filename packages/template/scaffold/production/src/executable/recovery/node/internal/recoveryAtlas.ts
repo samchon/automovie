@@ -7,10 +7,10 @@ import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
-import { writeAutoMovieRecoveryArtifact } from "../artifact/writeAutoMovieRecoveryArtifact";
+import { writeRecoveryArtifact } from "../artifact/writeRecoveryArtifact";
 import { observeRecoveryAtlas } from "./observeRecoveryAtlas";
 
-/**
+/*
  * Compile a source-free public atlas recipe into independently generated geometry.
  * Usage: recoveryAtlas compile atlas.json output-directory, or observe an
  * observation-spec.json into a separate new output directory. Compile input contains
@@ -18,10 +18,6 @@ import { observeRecoveryAtlas } from "./observeRecoveryAtlas";
  * Observe owns private original-mesh admission, correspondence and patch fitting.
  * Compile opens only the resulting public atlas and cannot infer replacements
  * for absent coefficients; an engine invocation never receives source incidence.
- *
- * @evidence contracts/development/implementation.md#principled-implementation The public bicubic geometry contract drives its canonical engine realizer; the recipe model and compiled mesh model retain one input-byte identity and separate actual processing qualification. Original mesh input is confined to the explicit observation command; compile reads only public coefficients and preserves its actual engine mesh without source fallback or quality-driven face deletion.
- * @evidence contracts/development/implementation.md#efficient-algorithms Separate recipe, generated geometry and compile manifests expose both viewer recipe consumption and independent evaluation without duplicating coefficient authority. Compile admission and hashing are linear in publication bytes; one engine call performs adaptive generation. The separate observation owner documents fitting costs, and bounded artifact serialization avoids a whole output string. The single engine result supplies generated mesh, primitive ownership and processing findings; camera changes consume the same recipe or compiled artifact. One input publication and explicitly vertex-bounded engine output remain live for the command; synchronous handles close, immutable output belongs to the caller and no process is spawned.
- * @evidence contracts/development/common.md#meaningful-documentation States the source-free input boundary, command, frozen epoch requirement, units, immutable files and qualification limits.
  */
 export function recoveryAtlas(args: string[], sourceEpoch: string): void {
   const [command, inputFile, outputDirectory]: string[] = args;
@@ -90,16 +86,16 @@ export function recoveryAtlas(args: string[], sourceEpoch: string): void {
   };
   const recipeFile: string = path.join(output, "recipe-model.json"),
     compiledFile: string = path.join(output, "compiled-model.json");
-  const recipePublication: ReturnType<typeof writeAutoMovieRecoveryArtifact> =
-    writeAutoMovieRecoveryArtifact(recipeFile, {
+  const recipePublication: ReturnType<typeof writeRecoveryArtifact> =
+    writeRecoveryArtifact(recipeFile, {
       schema: "automovie-recovery-engine-model-v1",
       model: generated.recipeModel,
       coverage: input.coverage,
       charts: input.charts,
       provenance,
     });
-  const compiledPublication: ReturnType<typeof writeAutoMovieRecoveryArtifact> =
-    writeAutoMovieRecoveryArtifact(compiledFile, {
+  const compiledPublication: ReturnType<typeof writeRecoveryArtifact> =
+    writeRecoveryArtifact(compiledFile, {
       schema: "automovie-recovery-engine-model-v1",
       model: generated.compiledModel,
       coverage: input.coverage,
@@ -137,8 +133,8 @@ export function recoveryAtlas(args: string[], sourceEpoch: string): void {
       processMaximumRssKiB: process.resourceUsage().maxRSS,
     },
   };
-  const publication: ReturnType<typeof writeAutoMovieRecoveryArtifact> =
-    writeAutoMovieRecoveryArtifact(path.join(output, "compile.json"), manifest);
+  const publication: ReturnType<typeof writeRecoveryArtifact> =
+    writeRecoveryArtifact(path.join(output, "compile.json"), manifest);
   console.log(
     JSON.stringify({
       phase: "atlas-engine-complete",

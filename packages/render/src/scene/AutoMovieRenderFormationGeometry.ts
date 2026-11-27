@@ -1,11 +1,11 @@
 import type * as THREE from "three";
 import type { IAutoMovieModel } from "@automovie/interface";
-import type { IAutoMovieRenderBakeFormationCycleProps } from "./IAutoMovieRenderBakeFormationCycleProps.js";
-import type { IAutoMovieInstancedModelRepresentation } from "./IAutoMovieInstancedModelRepresentation.js";
-import type { IAutoMovieRenderModelObject } from "./IAutoMovieRenderModelObject.js";
-import { flattenInstancedModel as flattenInstancedModelImplementation } from "./internal/flattenInstancedModel.js";
-import { flattenInstancedObject as flattenInstancedObjectImplementation } from "./internal/flattenInstancedObject.js";
-import { instancedModelParts as instancedModelPartsImplementation } from "./internal/instancedModelParts.js";
+import type { IAutoMovieRenderBakeFormationCycleProps } from "./IAutoMovieRenderBakeFormationCycleProps";
+import type { IAutoMovieInstancedModelRepresentation } from "./IAutoMovieInstancedModelRepresentation";
+import type { IAutoMovieRenderModelObject } from "./IAutoMovieRenderModelObject";
+import { flattenInstancedModel as flattenInstancedModelImplementation } from "./internal/flattenInstancedModel";
+import { flattenInstancedObject as flattenInstancedObjectImplementation } from "./internal/flattenInstancedObject";
+import { instancedModelParts as instancedModelPartsImplementation } from "./internal/instancedModelParts";
 
 /** Public operations for Auto Movie Render Formation Geometry. */
 export namespace AutoMovieRenderFormationGeometry {

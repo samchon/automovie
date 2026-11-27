@@ -14,27 +14,41 @@ import { AutoMovieHumanConicLoft } from "../generation/AutoMovieHumanConicLoft";
 import { AutoMovieHumanConicSection } from "../generation/AutoMovieHumanConicSection";
 import type { AutoMovieHumanEmptyProbes } from "../generation/AutoMovieHumanEmptyProbes";
 
-/** Builds empty-probe inspection marks for a Human capture figure. */
+/*
+ * Builds empty-probe inspection marks for a Human capture figure.
+ */
 export namespace AutoMovieHumanCaptureProbes {
-  /** The generated figure inputs used to evaluate every empty probe. */
+  /*
+   * The generated figure inputs used to evaluate every empty probe.
+   */
   export interface IInput {
-    /** The person's name and scene path. */
+    /*
+     * The person's name and scene path.
+     */
     person: string;
 
-    /** The person's probes in millimetres. */
+    /*
+     * The person's probes in millimetres.
+     */
     probes: readonly AutoMovieHumanEmptyProbes.IProbe[];
 
-    /** The authored families used to build the convex hull. */
+    /*
+     * The authored families used to build the convex hull.
+     */
     members: readonly IAutoMovieHumanF1.IMember[];
 
-    /** The generated pieces, in metres in the figure's frame. */
+    /*
+     * The generated pieces, in metres in the figure's frame.
+     */
     pieces: readonly IAutoMovieHumanF1.IPiece[];
   }
 
-  /** The generated empty-probe inspection marks. */
+  /*
+   * The generated empty-probe inspection marks.
+   */
   export type IOutput = IAutoMovieMark[];
 
-  /**
+  /*
    * The person's empty probes as inspection marks, each measured against the
    * generated skin and against the figure's convex hull.
    *
@@ -47,19 +61,18 @@ export namespace AutoMovieHumanCaptureProbes {
    *   the families' stored course and section points, since such a probe tests
    *   open air and must be moved;
    * - `probe/filled`, flagged, when the winding query
-   *   (`createAutoMovieMeshWindingQuery`) over the union of the generated pieces
+   *   (`createMeshWindingQuery`) over the union of the generated pieces
    *   finds the point inside the skin or on it;
    * - `probe/empty`, unflagged, otherwise.
    *
-   * The hull is built by `buildAutoMovieConvexHull` from every member family's
+   * The hull is built by `buildConvexHull` from every member family's
    * course point and section anchor points at each of its knots, and a mirrored
    * family's reflected in the median plane, never from the realized skin, whose
    * vertex count the hull's extent step would pay for twice over. A probe the law
    * could not place has no mark; its reason stays in the listing. Without a
    * generated piece every placed probe is empty.
-   *
-   * @param input The person, its probes, its authored families, and its generated pieces.
-   * @returns One mark per placed probe, in listing order.
+   * Parameter input: The person, its probes, its authored families, and its generated pieces.
+   * Returns: One mark per placed probe, in listing order.
    */
   export function mark(input: IInput): IOutput {
     const { person, probes, members, pieces } = input;

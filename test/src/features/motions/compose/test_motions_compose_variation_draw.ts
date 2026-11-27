@@ -1,7 +1,7 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanVariation
-} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanVariation";
+  motionHumanVariation
+} from "../../../../../packages/motions/src/compose/internal/motionHumanVariation";
 import {
   AutoMovieMotionHumanVariationDraw
 } from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanVariationDraw";
@@ -144,7 +144,7 @@ export function test_motions_compose_variation_draw(): void {
   }
 
   // 5. Quantity and scalar.
-  const spread = AutoMovieMotionHumanVariation.SPREADS.place;
+  const spread = motionHumanVariation.SPREADS.place;
   const novice: number = D.quantity(
     motionVariationSource({ skill: 0 }),
     "path",

@@ -34,7 +34,7 @@ export namespace IAutoMovieMeshSweep {
   export type IProps = {
     /**
      * Authored sweep in model metres, borrowed for this synchronous meshing
-     * call and admitted by compileAutoMovieSweep. Self-intersection of the
+     * call and admitted by compileSweep. Self-intersection of the
      * swept solid is not tested.
      */
     sweep: IAutoMovieSweep;

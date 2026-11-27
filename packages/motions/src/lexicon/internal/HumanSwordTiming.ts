@@ -10,9 +10,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
+import { motionManner } from "../../compose/internal/motionManner";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { HumanSkill } from "../../skill/internal/HumanSkill";
@@ -55,15 +55,15 @@ export namespace HumanSwordTiming {
       HumanSwordTiming.peak(length, carried) / speed,
     );
     const recovery: number = StrikingSkill.recovery(context.skill);
-    return AutoMovieMotionManner.time(
-      AutoMovieMotionClock.phrase({
+    return motionManner.time(
+      motionClock.phrase({
         prepare: (recovery * UNIT * ready) / speed,
         attack,
         follow: follow * attack,
         hold: 0,
         retract: (recovery * UNIT * back) / speed,
       }),
-      AutoMovieMotionManner(context, context.params.manner),
+      motionManner(context, context.params.manner),
     );
   };
 

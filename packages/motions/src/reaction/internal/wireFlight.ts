@@ -15,12 +15,12 @@ import type {
 
 import { stand } from "../../actions/internal/stand";
 import { standUpright } from "../../actions/internal/standUpright";
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanJoints } from "../../compose/internal/AutoMovieMotionHumanJoints";
 import { AutoMovieMotionHumanLean } from "../../compose/internal/AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanRoot } from "../../compose/internal/AutoMovieMotionHumanRoot";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { ReactionFeet } from "./ReactionFeet";
@@ -179,7 +179,7 @@ export namespace wireFlight {
       ...stand.relaxed(context.body),
       ...standUpright(context.body).joints,
     };
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(seconds, [
+    const clock: IAutoMovieMotionClock = motionClock(seconds, [
       { name: "takeoff", seconds: 0 },
       { name: "land", seconds },
     ]);
@@ -212,7 +212,7 @@ export namespace wireFlight {
     };
 
     const plan: IAutoMovieMotionHumanActionPlan =
-      composeAutoMovieMotionHumanAction({
+      composeMotionHumanAction({
         base: AutoMovieMotionHumanBase.still(
           seconds,
           {

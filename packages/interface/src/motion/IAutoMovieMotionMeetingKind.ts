@@ -6,7 +6,7 @@ import type { IAutoMovieMotionMeetingTiming } from "./IAutoMovieMotionMeetingTim
 
 /**
  * A reusable meeting law declaring roles, contact targets and timing, with
- * optional placement and coupling capabilities. AutoMovieMotionMeeting resolves
+ * optional placement and coupling capabilities. motionMeeting resolves
  * it against the participating performers.
  */
 export interface IAutoMovieMotionMeetingKind {

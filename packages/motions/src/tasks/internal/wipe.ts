@@ -19,16 +19,16 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../../actions/internal/stand";
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmPhrase } from "../../compose/internal/AutoMovieMotionHumanArmPhrase";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanLeanInto } from "../../compose/internal/AutoMovieMotionHumanLeanInto";
 import { AutoMovieMotionHumanTarget } from "../../compose/internal/AutoMovieMotionHumanTarget";
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
+import { motionManner } from "../../compose/internal/motionManner";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { prepareGroundedBalance } from "../../everyday/internal/prepareGroundedBalance";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanPhysics } from "../../law/internal/HumanPhysics";
@@ -181,7 +181,7 @@ export namespace wipe {
     // Three circles when the author names none, the contract's default
     // (`IAutoMovieMotionHumanWipe.IParams.cycles`).
     const cycles: number = HumanBound.whole("count", context.params.count ?? 3);
-    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+    const modifiers: IAutoMovieMotionManner.IModifiers = motionManner(
       context,
       context.params.manner,
     );
@@ -258,7 +258,7 @@ export namespace wipe {
         side,
         "palm",
       );
-    const travel: number = AutoMovieMotionHumanTiming.aimed(
+    const travel: number = motionHumanTiming.aimed(
       AutoMovieEngineVector3.length(
         AutoMovieEngineVector3.subtract(
           point(0),
@@ -268,8 +268,8 @@ export namespace wipe {
       // The palm lands on the patch it wipes, a circle's width across.
       2 * radius,
     );
-    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
-      AutoMovieMotionClock.phrase({
+    const clock: IAutoMovieMotionClock = motionManner.time(
+      motionClock.phrase({
         prepare: travel,
         // Each circle takes its length at a tool stroke's hand speed.
         attack: ((2 * Math.PI * radius) / useTool.STROKE_SPEED) * cycles,
@@ -328,7 +328,7 @@ export namespace wipe {
       ): IAutoMovieMotionHumanArmTarget.ITarget => palm(posture, progress),
     };
     const compose = (arm: typeof reachLean): IAutoMovieMotionHumanActionPlan =>
-      composeAutoMovieMotionHumanAction({
+      composeMotionHumanAction({
         base,
         clock,
         contact: "stroke",

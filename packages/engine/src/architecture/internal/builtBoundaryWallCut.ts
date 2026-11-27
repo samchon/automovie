@@ -16,7 +16,7 @@ import { polygonBounds } from "./polygonBounds";
  *
  * This is the join that stops the declared opening and the modelled hole from
  * being two unrelated facts: the returned voids carry the architectural
- * opening's own id, so `buildAutoMovieWall` cuts the wall against the same
+ * opening's own id, so `buildWall` cuts the wall against the same
  * records validation held inside the face.
  *
  * The rectangular kernel receives the bounds of the shared straight

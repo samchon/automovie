@@ -20,14 +20,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanArmPhrase } from "../../compose/internal/AutoMovieMotionHumanArmPhrase";
 import { AutoMovieMotionHumanArmTarget } from "../../compose/internal/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
-import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionHumanHeld } from "../../compose/internal/motionHumanHeld";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { requireOtherPerformer } from "../../touch/internal/requireOtherPerformer";
@@ -104,7 +104,7 @@ function planSlipRing(
     p.partner,
     "a ring is slipped onto another performer's finger",
   );
-  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
+  const held: IAutoMovieMotionHumanHeld.IHeld = motionHumanHeld(
     context,
     side,
     p.prop,
@@ -282,7 +282,7 @@ function planSlipRing(
   };
   const from = (arm: AutoMovieHumanSide): IAutoMovieVector3 =>
     AutoMovieMotionHumanArmTarget.point(entry, origins[arm]);
-  const prepare: number = AutoMovieMotionHumanTiming.transport(
+  const prepare: number = motionHumanTiming.transport(
     Math.max(
       AutoMovieEngineVector3.distance(from(side), linedGrip.point),
       AutoMovieEngineVector3.distance(from(steady), under.point),
@@ -298,20 +298,20 @@ function planSlipRing(
   // 14.8 mm inside the steadying forearm). The ring hand reaches once the
   // steadying hand holds, and the steadying hand lets go once the ring
   // hand is back.
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
+  const clock: IAutoMovieMotionClock = motionClock.phrase({
     prepare: 2 * prepare,
-    attack: AutoMovieMotionHumanTiming.transport(AutoMovieEngineVector3.length(inset)),
-    hold: AutoMovieMotionHumanTiming.seconds("beat"),
+    attack: motionHumanTiming.transport(AutoMovieEngineVector3.length(inset)),
+    hold: motionHumanTiming.seconds("beat"),
     retract: 2 * prepare,
   });
-  const steadying: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
+  const steadying: IAutoMovieMotionClock = motionClock.phrase({
     prepare,
     attack: 0,
     hold: clock.duration - 2 * prepare,
     retract: prepare,
   });
   const plan: IAutoMovieMotionHumanActionPlan =
-    composeAutoMovieMotionHumanAction({
+    composeMotionHumanAction({
       base: AutoMovieMotionHumanBase.under(context, clock.duration),
       clock,
       primitives: [

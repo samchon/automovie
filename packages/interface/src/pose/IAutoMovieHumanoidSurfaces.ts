@@ -26,7 +26,7 @@ export namespace IAutoMovieHumanoidSurfaces {
 
     /**
      * A region's extent, metres: the radius about its point that is still the
-     * region (`AutoMovieHumanoidSurfaceExtents`); absent for a socket and for a
+     * region (`humanoidSurfaceExtents`); absent for a socket and for a
      * point beside a region (`offset`).
      */
     radius?: number;

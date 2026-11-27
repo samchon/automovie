@@ -1,8 +1,8 @@
 import type * as THREE from "three";
-import { hideAutoMovieSurfaceGraphics as hideAutoMovieSurfaceGraphicsImplementation } from "./surfaceGraphic/internal/hideAutoMovieSurfaceGraphics.js";
-import { type IAutoMovieRenderSurfaceGraphicsObject } from "./IAutoMovieRenderSurfaceGraphicsObject.js";
-import { type IAutoMovieRenderPrepareSurfaceGraphicsProps } from "./IAutoMovieRenderPrepareSurfaceGraphicsProps.js";
-import { prepareAutoMovieSurfaceGraphics as prepareAutoMovieSurfaceGraphicsImplementation } from "./surfaceGraphic/internal/prepareAutoMovieSurfaceGraphics.js";
+import { hideSurfaceGraphics as hideSurfaceGraphicsImplementation } from "./surfaceGraphic/internal/hideSurfaceGraphics";
+import { type IAutoMovieRenderSurfaceGraphicsObject } from "./IAutoMovieRenderSurfaceGraphicsObject";
+import { type IAutoMovieRenderPrepareSurfaceGraphicsProps } from "./IAutoMovieRenderPrepareSurfaceGraphicsProps";
+import { prepareSurfaceGraphics as prepareSurfaceGraphicsImplementation } from "./surfaceGraphic/internal/prepareSurfaceGraphics";
 
 /** Public operations for Auto Movie Render Surface Graphic. */
 export namespace AutoMovieRenderSurfaceGraphic {
@@ -17,7 +17,7 @@ export namespace AutoMovieRenderSurfaceGraphic {
    * restore.
    */
   export function hide(scene: THREE.Scene): () => void {
-    return hideAutoMovieSurfaceGraphicsImplementation(scene);
+    return hideSurfaceGraphicsImplementation(scene);
   }
 
   /**
@@ -27,7 +27,7 @@ export namespace AutoMovieRenderSurfaceGraphic {
    * Every track becomes one group named `surface-graphic:<node>/<surface>`,
    * marked for the render-mode boundary, parented to the node's model object at
    * the surface affordance's frame and lifted half a millimetre along `+Y`. It
-   * holds one group per key, built by `buildAutoMovieSurfaceGraphicKey` and
+   * holds one group per key, built by `buildSurfaceGraphicKey` and
    * clipped to the surface's `outline` when it declares one, of which the
    * returned `apply` shows only the key in force. Because the graphic rides the
    * model object, it follows the node's placement, its object motion and its
@@ -46,6 +46,6 @@ export namespace AutoMovieRenderSurfaceGraphic {
    * track, after releasing everything already made.
    */
   export function prepare(props: IAutoMovieRenderPrepareSurfaceGraphicsProps): Promise<IAutoMovieRenderSurfaceGraphicsObject> {
-    return prepareAutoMovieSurfaceGraphicsImplementation(props);
+    return prepareSurfaceGraphicsImplementation(props);
   }
 }

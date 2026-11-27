@@ -1,6 +1,6 @@
 import type { IAutoMovieFont } from "@automovie/interface";
 
-import { decodeAutoMovieTrueTypeFont as decodeFont } from "./internal/decodeAutoMovieTrueTypeFont";
+import { decodeTrueTypeFont as decodeFont } from "./internal/decodeTrueTypeFont";
 
 /** Decodes supported TrueType font bytes into reusable outline records. */
 export namespace AutoMovieIngestFont {

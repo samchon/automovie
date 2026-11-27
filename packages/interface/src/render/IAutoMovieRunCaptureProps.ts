@@ -1,25 +1,25 @@
-import type { IAutoMovieCaptureCell } from "./IAutoMovieCaptureCell.js";
-import type { IAutoMovieCaptureDrawing } from "./IAutoMovieCaptureDrawing.js";
-import type { IAutoMovieCaptureFolder } from "./IAutoMovieCaptureFolder.js";
-import type { IAutoMovieCapturePlan } from "./IAutoMovieCapturePlan.js";
+import type { IAutoMovieCaptureCell } from "./IAutoMovieCaptureCell";
+import type { IAutoMovieCaptureDrawing } from "./IAutoMovieCaptureDrawing";
+import type { IAutoMovieCaptureFolder } from "./IAutoMovieCaptureFolder";
+import type { IAutoMovieCapturePlan } from "./IAutoMovieCapturePlan";
 import type { IAutoMovieCaptureVideoSource } from "./IAutoMovieCaptureVideoSource";
 
 /**
- * An admitted capture plan and effectful host ports. runAutoMovieCapture checks
+ * An admitted capture plan and effectful host ports. runCapture checks
  * the folder round identities, awaits one draw per cell, records draw/raster
  * failures as failed rows, and publishes the complete record after
  * still/sheet/comparison writes. Storage and publication failures reject the
  * run; optional video/section values become null in the record when absent.
  */
 export interface IAutoMovieRunCaptureProps {
-  /** The capture, planned by `planAutoMovieCapture`. */
+  /** The capture, planned by `planCapture`. */
   plan: IAutoMovieCapturePlan;
 
   /**
    * Draw one planned cell at the subject's exact raster. The returned picture
    * must be writable because capture stamps labels into its pixels; the host
    * owns drawing-resource cleanup. The capture host implements drawing;
-   * runAutoMovieCapture awaits cells sequentially and records a rejected draw
+   * runCapture awaits cells sequentially and records a rejected draw
    * or wrong raster as a failed cell.
    */
   draw: (cell: IAutoMovieCaptureCell) => Promise<IAutoMovieCaptureDrawing>;

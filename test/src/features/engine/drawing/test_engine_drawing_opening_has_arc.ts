@@ -10,7 +10,7 @@ const OUTLINE: IAutoMoviePlanarPoint[] = [
 ];
 
 /**
- * `autoMovieOpeningHasArc` says whether any edge of an opening profile bulges.
+ * `openingHasArc` says whether any edge of an opening profile bulges.
  *
  * Scenarios:
  *

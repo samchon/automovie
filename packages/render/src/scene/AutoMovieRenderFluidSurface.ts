@@ -4,14 +4,14 @@ import type {
   IAutoMovieFluidSurface,
 } from "@automovie/interface";
 import type * as THREE from "three";
-import type { IAutoMovieRenderFluidSprayObject } from "./IAutoMovieRenderFluidSprayObject.js";
-import type { IAutoMovieRenderFluidSurfaceObject } from "./IAutoMovieRenderFluidSurfaceObject.js";
+import type { IAutoMovieRenderFluidSprayObject } from "./IAutoMovieRenderFluidSprayObject";
+import type { IAutoMovieRenderFluidSurfaceObject } from "./IAutoMovieRenderFluidSurfaceObject";
 import {
   buildFluidSprayObject as buildFluidSprayObjectImplementation,
-} from "./internal/buildFluidSprayObject.js";
+} from "./internal/buildFluidSprayObject";
 import {
   buildFluidSurfaceObject as buildFluidSurfaceObjectImplementation,
-} from "./internal/buildFluidSurfaceObject.js";
+} from "./internal/buildFluidSurfaceObject";
 
 /** Public operations for Auto Movie Render Fluid Surface. */
 export namespace AutoMovieRenderFluidSurface {

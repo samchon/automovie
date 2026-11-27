@@ -2,7 +2,7 @@ import { AutoMovieEngineDrawing } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `autoMovieDrawingRange` is the least and greatest of a sequence of values.
+ * `drawingRange` is the least and greatest of a sequence of values.
  *
  * Scenarios:
  *

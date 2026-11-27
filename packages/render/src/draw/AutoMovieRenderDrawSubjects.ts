@@ -1,4 +1,4 @@
-import type { IAutoMovieRenderDrawSubject } from "./IAutoMovieRenderDrawSubject.js";
+import type { IAutoMovieRenderDrawSubject } from "./IAutoMovieRenderDrawSubject";
 
 /**
  * What a subject module exports as `subjects`: given the props the host

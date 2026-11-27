@@ -4,8 +4,8 @@ import type {
   IAutoMovieMotionHumanPrimitive,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionClock
-} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionClock";
+  motionClock
+} from "../../../../../packages/motions/src/compose/internal/motionClock";
 import {
   AutoMovieMotionHumanHand
 } from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanHand";
@@ -104,7 +104,7 @@ export function test_motions_compose_hand_shape(): void {
       primitive.write(HELD, 2).joints.leftIndexProximal![0] === index,
   );
 
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock(4, [
+  const clock: IAutoMovieMotionClock = motionClock(4, [
     { name: "open", seconds: 0.5 },
     { name: "formed", seconds: 1 },
     { name: "release", seconds: 3 },

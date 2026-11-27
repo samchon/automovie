@@ -9,12 +9,12 @@ import type {
   IAutoMovieSequenceRenderPlan,
 } from "@automovie/interface";
 
-import { ffmpegArgs } from "./ffmpegArgs.js";
-import { frameName } from "../frameName.js";
-import { framePattern } from "../framePattern.js";
-import { guidePassFramePattern } from "./guidePassFramePattern.js";
-import { normalizeGuidePasses } from "./normalizeGuidePasses.js";
-import { planGuidePassOutputs } from "./planGuidePassOutputs.js";
+import { ffmpegArgs } from "./ffmpegArgs";
+import { frameName } from "../frameName";
+import { framePattern } from "../framePattern";
+import { guidePassFramePattern } from "./guidePassFramePattern";
+import { normalizeGuidePasses } from "./normalizeGuidePasses";
+import { planGuidePassOutputs } from "./planGuidePassOutputs";
 
 /*
  * Split a `planSequenceRender` manifest into `chunkFrames`-sized, independently

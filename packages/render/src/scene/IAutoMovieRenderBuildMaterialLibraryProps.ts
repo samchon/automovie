@@ -1,6 +1,6 @@
 import type { IAutoMovieModel } from "@automovie/interface";
 
-import type { AutoMovieRenderTextureCache } from "./AutoMovieRenderTextureCache.js";
+import type { AutoMovieRenderTextureCache } from "./AutoMovieRenderTextureCache";
 
 /**
  * Model definitions, requested identities and the shot's texture owner used to

@@ -14,7 +14,7 @@ import type {
 
 import { appendLightMotionsArtifact } from "../../validation/internal/appendLightMotionsArtifact";
 import { compilePracticalLightMotion } from "./compilePracticalLightMotion";
-import { compileAutoMovieFlameFlicker } from "../flame/internal/compileAutoMovieFlameFlicker";
+import { compileFlameFlicker } from "../flame/internal/compileFlameFlicker";
 
 /*
  * Resolve practical bindings against the staged scene and models and bake them
@@ -122,7 +122,7 @@ export function compilePerformShotPracticalLights(
         ...(flame === undefined
           ? {}
           : {
-              flicker: compileAutoMovieFlameFlicker(
+              flicker: compileFlameFlicker(
                 { ...flame, on: binding.on },
                 props.performance.duration,
               ),

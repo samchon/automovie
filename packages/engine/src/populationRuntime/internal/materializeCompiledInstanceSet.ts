@@ -14,7 +14,7 @@ import type {
   IAutoMovieWorldRoute,
 } from "@automovie/interface";
 
-import { autoMovieRenderDigest } from "../../render/internal/autoMovieRenderDigest";
+import { renderDigest } from "../../render/internal/renderDigest";
 import { AutoMovieEngineCanonicalJson } from "../../text/AutoMovieEngineCanonicalJson";
 import { compiledPopulationRepresentation } from "./compiledPopulationRepresentation";
 import { AutoMovieEngineInstanceChunkSize } from "../AutoMovieEngineInstanceChunkSize";
@@ -213,7 +213,7 @@ export function materializeCompiledInstanceSet(
   };
   return {
     ...core,
-    digest: autoMovieRenderDigest(
+    digest: renderDigest(
       AutoMovieEngineCanonicalJson.canonicalize(core),
     ),
   };

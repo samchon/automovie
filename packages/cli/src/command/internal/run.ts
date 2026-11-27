@@ -7,9 +7,9 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 
 import type { AutoMovieCliCommand } from "../AutoMovieCliCommand";
-import { readAutoMovieCommandArguments } from "./readAutoMovieCommandArguments";
+import { readCommandArguments } from "./readCommandArguments";
 import { AutoMovieCliCapture } from "../../capture/AutoMovieCliCapture";
-import { checkAutoMovie } from "../../production/internal/checkAutoMovie";
+import { check } from "../../production/internal/check";
 import { AutoMovieCliInspect } from "../../inspect/AutoMovieCliInspect";
 import { AutoMovieCliRender } from "../../render/AutoMovieCliRender";
 import { AutoMovieCliReview } from "../../review/AutoMovieCliReview";
@@ -56,7 +56,7 @@ import { AutoMovieCliScaffold } from "../../scaffold/AutoMovieCliScaffold";
  */
 export async function run(argv: readonly string[]): Promise<number> {
   try {
-    const command: AutoMovieCliCommand.Request = readAutoMovieCommandArguments(
+    const command: AutoMovieCliCommand.Request = readCommandArguments(
       argv.slice(2),
     );
     if (command.command === "help") {
@@ -79,7 +79,7 @@ export async function run(argv: readonly string[]): Promise<number> {
         root: process.cwd(),
       });
     if (command.command === "check")
-      return await checkAutoMovie({
+      return await check({
         args: command.args,
         root: process.cwd(),
         env: process.env,

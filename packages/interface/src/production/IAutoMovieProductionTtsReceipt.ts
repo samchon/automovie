@@ -27,7 +27,7 @@ export interface IAutoMovieProductionTtsReceipt {
    * Content address of the request: `sha256:` and the lowercase SHA-256 of the
    * UTF-8 bytes of `[text, model, modelRevision, conditioning,
    * inferenceArguments]` encoded as automovie.canonical-json.v2 (engine's
-   * `canonicalizeAutoMovieJson`: object keys sorted by code unit, no
+   * `canonicalizeJson`: object keys sorted by code unit, no
    * whitespace). Admission recomputes it and refuses a receipt whose stored key
    * differs.
    */

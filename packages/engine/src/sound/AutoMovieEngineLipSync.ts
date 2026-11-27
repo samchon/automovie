@@ -1,5 +1,5 @@
 /**
- * Thresholds of the lip-sync lag measurement, `measureAutoMovieLipSyncLag`.
+ * Thresholds of the lip-sync lag measurement, `measureLipSyncLag`.
  *
  * `leadMilliseconds` (−45 ms) and `lagMilliseconds` (+125 ms) are ITU-R
  * BT.1359-1's detectability thresholds for sound ahead of and behind the

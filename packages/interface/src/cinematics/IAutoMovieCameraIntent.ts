@@ -37,7 +37,7 @@ export interface IAutoMovieCameraIntent {
 
   /**
    * The lens stop, finite and `> 0`, present exactly when the action authored
-   * `fNumber`. `resolveAutoMovieLensAt` reads it with `focus` and `focusPull`.
+   * `fNumber`. `resolveLensAt` reads it with `focus` and `focusPull`.
    */
   fNumber?: number;
 }

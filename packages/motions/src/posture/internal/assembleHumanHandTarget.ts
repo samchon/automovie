@@ -10,7 +10,7 @@ import type {
 
 import { AutoMovieMotionHumanArmTarget } from "../../compose/internal/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
-import { AutoMovieMotionHumanBendPreparation } from "../../compose/internal/AutoMovieMotionHumanBendPreparation";
+import { motionHumanBendPreparation } from "../../compose/internal/motionHumanBendPreparation";
 
 /*
  * Assemble a full hand target with its original default or authored elbow.
@@ -29,7 +29,7 @@ export function assembleHumanHandTarget(
 ): IAutoMovieMotionHumanArmTarget.ITarget {
   const bend: IAutoMovieVector3 =
     options.bend === undefined && options.out === undefined
-      ? AutoMovieMotionHumanBendPreparation.defaultBend({
+      ? motionHumanBendPreparation.defaultBend({
           body,
           posture,
           side,

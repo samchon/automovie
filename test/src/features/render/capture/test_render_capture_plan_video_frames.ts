@@ -2,7 +2,7 @@ import { AutoMovieRenderCapture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `planAutoMovieVideoFrames` plans the FFmpeg extraction of chosen frames.
+ * `planVideoFrames` plans the FFmpeg extraction of chosen frames.
  *
  * Scenarios:
  *

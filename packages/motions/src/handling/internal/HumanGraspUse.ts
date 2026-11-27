@@ -17,7 +17,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
-import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
+import { motionHumanHeld } from "../../compose/internal/motionHumanHeld";
 import { HumanFreedomChoice } from "../../posture/internal/HumanFreedomChoice";
 import { HumanLimbFit } from "../../posture/internal/HumanLimbFit";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -185,7 +185,7 @@ export namespace HumanGraspUse {
       props.use.line === "along"
         ? undefined
         : StrikingHeld.read(
-            AutoMovieMotionHumanHeld.grasped(
+            motionHumanHeld.grasped(
               context.body,
               props.side,
               props.prop,

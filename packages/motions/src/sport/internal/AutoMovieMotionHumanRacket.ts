@@ -16,15 +16,15 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
+import { motionHumanHeld } from "../../compose/internal/motionHumanHeld";
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanPlaced } from "../../compose/internal/AutoMovieMotionHumanPlaced";
 import { AutoMovieMotionHumanTrunk } from "../../compose/internal/AutoMovieMotionHumanTrunk";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionManner } from "../../compose/internal/motionManner";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { courtStroke } from "./courtStroke";
@@ -101,7 +101,7 @@ export namespace AutoMovieMotionHumanRacket {
       body.measure;
     const hold: number = p.hold ?? 0.6;
     HumanBound.least("hold", hold, 0, "s");
-    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+    const modifiers: IAutoMovieMotionManner.IModifiers = motionManner(
       context,
       p.manner,
     );
@@ -182,7 +182,7 @@ export namespace AutoMovieMotionHumanRacket {
       );
       contacts = stance.contacts;
       if (p.implement !== undefined)
-        held = AutoMovieMotionHumanHeld(context, side, p.implement);
+        held = motionHumanHeld(context, side, p.implement);
       primitives.push(
         ...stance.primitives,
         ...grip(
@@ -225,7 +225,7 @@ export namespace AutoMovieMotionHumanRacket {
       const waggle: (s: number) => number = (s: number): number =>
         0.05 *
         arm *
-        AutoMovieMotionClock.wave(clock, ["strokeStart", "strokeEnd"], 2, s);
+        motionClock.wave(clock, ["strokeStart", "strokeEnd"], 2, s);
       for (const hand of ["left", "right"] as const)
         primitives.push(
           ...grip(
@@ -251,7 +251,7 @@ export namespace AutoMovieMotionHumanRacket {
         );
     }
     const plan: IAutoMovieMotionHumanActionPlan =
-      composeAutoMovieMotionHumanAction({
+      composeMotionHumanAction({
         base: AutoMovieMotionHumanBase.still(clock.duration, entry, contacts),
         clock,
         primitives,
@@ -261,8 +261,8 @@ export namespace AutoMovieMotionHumanRacket {
       ? plan
       : {
           ...plan,
-          contacts: [...plan.contacts, AutoMovieMotionHumanHeld.grip(held)],
-          holds: [AutoMovieMotionHumanHeld.hold(context, held)],
+          contacts: [...plan.contacts, motionHumanHeld.grip(held)],
+          holds: [motionHumanHeld.hold(context, held)],
         };
   }
 }

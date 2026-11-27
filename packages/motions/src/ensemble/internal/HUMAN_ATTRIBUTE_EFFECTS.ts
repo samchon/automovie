@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanAttributeEffects } from "@automovie/interface";
 
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
+import { motionManner } from "../../compose/internal/motionManner";
 
 /*
  * What each group attribute moves, as one table every reader takes its numbers
@@ -30,7 +30,7 @@ import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionMan
  * - `fatigue.pace`: the factor on a steered member's desired speed
  *   (`HumanCrowd.steer`) and on the speed of a walk-family gait that draws its
  *   own tempo (`walk.locomote`; a cadenced march keeps its count), from fresh
- *   to the `weary` manner preset's pace (`AutoMovieMotionManner.PRESETS.weary`,
+ *   to the `weary` manner preset's pace (`motionManner.PRESETS.weary`,
  *   itself provisional), so one table owns weariness.
  * - `morale.latency`: the factor on a response latency's mean (hesitation,
  *   `HumanResponse.latency`); provisional.
@@ -59,7 +59,7 @@ export const HUMAN_ATTRIBUTE_EFFECTS: IAutoMovieMotionHumanAttributeEffects = {
     dress: { low: 2, high: 1 },
   },
   fatigue: {
-    pace: { low: 1, high: AutoMovieMotionManner.PRESETS.weary.pace ?? 1 },
+    pace: { low: 1, high: motionManner.PRESETS.weary.pace ?? 1 },
   },
   morale: {
     latency: { low: 1.3, high: 1 },

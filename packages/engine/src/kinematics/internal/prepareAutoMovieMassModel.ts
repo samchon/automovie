@@ -15,7 +15,7 @@ import { resolveAutoMovieCenterOfMass } from "./resolveAutoMovieCenterOfMass";
 import { resolveAutoMovieMomentum } from "./resolveAutoMovieMomentum";
 
 
-import { resolveAutoMovieMomentumRates } from "./resolveAutoMovieMomentumRates";
+import { resolveMomentumRates } from "./resolveMomentumRates";
 
 /*
  * Readers of an explicitly owned mass-model snapshot.
@@ -24,8 +24,8 @@ export namespace prepareAutoMovieMassModel {
   /*
    * Execute the operation without merging a callable with this namespace.
    */
-  export const run = prepareAutoMovieMassModelRun;
-  /**
+  export const run = prepareMassModelRun;
+  /*
    * An operation-owned handle, invalid after release; it exposes no numeric
    * cache.
    *
@@ -37,19 +37,25 @@ export namespace prepareAutoMovieMassModel {
    * released token at runtime.
    */
   export interface IPrepared {
-    /** Immutable copied bone-local SI inputs and their exact total mass. */
+    /*
+     * Immutable copied bone-local SI inputs and their exact total mass.
+     */
     readonly model: IAutoMovieResolveCenterOfMass.IModel;
 
-    /**
+    /*
      * Nested foreign reads use plain formulas instead of borrowing the shared
      * workspaces.
      */
     active: boolean;
 
-    /** Exact intrinsic workspace, made with the model. */
+    /*
+     * Exact intrinsic workspace, made with the model.
+     */
     readonly tensor: ReturnType<typeof AutoMovieEnginePhysicalInertiaTensor.prepare>;
 
-    /** Exact endpoint workspace, made with the model. */
+    /*
+     * Exact endpoint workspace, made with the model.
+     */
     readonly interval: ReturnType<
       typeof resolveAutoMovieMomentum.prepareIntervals
     >;
@@ -232,7 +238,7 @@ export namespace prepareAutoMovieMassModel {
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     rates: ReadonlyMap<AutoMovieHumanoidBone, AutoMovieEngineKinematicsTypes.IAutoMovieEngineKinematicsBoneRate>,
   ): IAutoMovieBodyMomentum {
-    return resolveAutoMovieMomentumRates(prepared.model, posed, bones, rates);
+    return resolveMomentumRates(prepared.model, posed, bones, rates);
   }
 
   /*
@@ -264,7 +270,7 @@ export namespace prepareAutoMovieMassModel {
  * getter may reenter this owner. Nested reads use the existing uncached
  * formulas instead of overwriting the outer call's frame or interval scratch.
  */
-function prepareAutoMovieMassModelRun(
+function prepareMassModelRun(
   source: IAutoMovieResolveCenterOfMass.IModel,
 ): prepareAutoMovieMassModel.IPrepared {
   const segments: IAutoMovieResolveCenterOfMass.ISegment[] =

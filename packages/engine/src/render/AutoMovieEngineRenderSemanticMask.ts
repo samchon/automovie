@@ -1,13 +1,13 @@
-import { assertAutoMovieSemanticMaskCapacity as assertAutoMovieSemanticMaskCapacityImplementation } from "./internal/assertAutoMovieSemanticMaskCapacity";
+import { assertSemanticMaskCapacity as assertSemanticMaskCapacityImplementation } from "./internal/assertSemanticMaskCapacity";
 import { type IAutoMovieSemanticMaskEntry, type IAutoMovieSemanticMask, type IAutoMovieRenderSubject, type IAutoMovieSemanticMaskResolution } from "@automovie/interface";
-import { autoMovieSemanticMaskNodeIndex as autoMovieSemanticMaskNodeIndexImplementation } from "./internal/autoMovieSemanticMaskNodeIndex";
-import { autoMovieSemanticMaskVerificationFailure as autoMovieSemanticMaskVerificationFailureImplementation } from "./internal/autoMovieSemanticMaskVerificationFailure";
-import { canonicalAutoMovieSemanticMaskPayload as canonicalAutoMovieSemanticMaskPayloadImplementation } from "./internal/canonicalAutoMovieSemanticMaskPayload";
-import { deriveAutoMovieSemanticMask as deriveAutoMovieSemanticMaskImplementation } from "./internal/deriveAutoMovieSemanticMask";
-import { digestAutoMovieSemanticMask as digestAutoMovieSemanticMaskImplementation } from "./internal/digestAutoMovieSemanticMask";
-import { renderAutoMovieSemanticMaskSidecar as renderAutoMovieSemanticMaskSidecarImplementation } from "./internal/renderAutoMovieSemanticMaskSidecar";
-import { resolveAutoMovieSemanticMask as resolveAutoMovieSemanticMaskImplementation } from "./internal/resolveAutoMovieSemanticMask";
-import { verifyAutoMovieSemanticMask as verifyAutoMovieSemanticMaskImplementation } from "./internal/verifyAutoMovieSemanticMask";
+import { semanticMaskNodeIndex as semanticMaskNodeIndexImplementation } from "./internal/semanticMaskNodeIndex";
+import { semanticMaskVerificationFailure as semanticMaskVerificationFailureImplementation } from "./internal/semanticMaskVerificationFailure";
+import { canonicalSemanticMaskPayload as canonicalSemanticMaskPayloadImplementation } from "./internal/canonicalSemanticMaskPayload";
+import { deriveSemanticMask as deriveSemanticMaskImplementation } from "./internal/deriveSemanticMask";
+import { digestSemanticMask as digestSemanticMaskImplementation } from "./internal/digestSemanticMask";
+import { renderSemanticMaskSidecar as renderSemanticMaskSidecarImplementation } from "./internal/renderSemanticMaskSidecar";
+import { resolveSemanticMask as resolveSemanticMaskImplementation } from "./internal/resolveSemanticMask";
+import { verifySemanticMask as verifySemanticMaskImplementation } from "./internal/verifySemanticMask";
 
 /** Public operations for Auto Movie Engine Render Semantic Mask. */
 export namespace AutoMovieEngineRenderSemanticMask {
@@ -20,7 +20,7 @@ export namespace AutoMovieEngineRenderSemanticMask {
    * drawable coverage or the optional slot population.
    */
   export function assertAutoMovieSemanticMaskCapacity(entities: number): void {
-    assertAutoMovieSemanticMaskCapacityImplementation(entities);
+    assertSemanticMaskCapacityImplementation(entities);
   }
 
   /**
@@ -31,7 +31,7 @@ export namespace AutoMovieEngineRenderSemanticMask {
    * every drawable in the scene once per frame.
    */
   export function autoMovieSemanticMaskNodeIndex(mask: IAutoMovieSemanticMask): Map<string, IAutoMovieSemanticMaskEntry> {
-    return autoMovieSemanticMaskNodeIndexImplementation(mask);
+    return semanticMaskNodeIndexImplementation(mask);
   }
 
   /**
@@ -41,7 +41,7 @@ export namespace AutoMovieEngineRenderSemanticMask {
    * exceptions remain distinguishable as `null`.
    */
   export function autoMovieSemanticMaskVerificationFailure(error: unknown): "unsupported" | "invalid" | "digest-mismatch" | null {
-    return autoMovieSemanticMaskVerificationFailureImplementation(error);
+    return semanticMaskVerificationFailureImplementation(error);
   }
 
   /**
@@ -49,7 +49,7 @@ export namespace AutoMovieEngineRenderSemanticMask {
    * order.
    */
   export function canonicalAutoMovieSemanticMaskPayload(mask: Omit<IAutoMovieSemanticMask, "digest">): Omit<IAutoMovieSemanticMask, "digest"> {
-    return canonicalAutoMovieSemanticMaskPayloadImplementation(mask);
+    return canonicalSemanticMaskPayloadImplementation(mask);
   }
 
   /**
@@ -88,7 +88,7 @@ export namespace AutoMovieEngineRenderSemanticMask {
    * different world than the one drawn.
    */
   export function deriveAutoMovieSemanticMask(subject: IAutoMovieRenderSubject): IAutoMovieSemanticMask {
-    return deriveAutoMovieSemanticMaskImplementation(subject);
+    return deriveSemanticMaskImplementation(subject);
   }
 
   /**
@@ -100,7 +100,7 @@ export namespace AutoMovieEngineRenderSemanticMask {
    * digest is deliberately absent from that document.
    */
   export function digestAutoMovieSemanticMask(mask: Omit<IAutoMovieSemanticMask, "digest">): string {
-    return digestAutoMovieSemanticMaskImplementation(mask);
+    return digestSemanticMaskImplementation(mask);
   }
 
   /**
@@ -115,7 +115,7 @@ export namespace AutoMovieEngineRenderSemanticMask {
    * pose-keypoint sidecars use, so a host writes all three the same way.
    */
   export function renderAutoMovieSemanticMaskSidecar(mask: IAutoMovieSemanticMask): string {
-    return renderAutoMovieSemanticMaskSidecarImplementation(mask);
+    return renderSemanticMaskSidecarImplementation(mask);
   }
 
   /**
@@ -130,7 +130,7 @@ export namespace AutoMovieEngineRenderSemanticMask {
    * An unknown or malformed colour returns `null` rather than a guess.
    */
   export function resolveAutoMovieSemanticMask(mask: IAutoMovieSemanticMask, color: string): IAutoMovieSemanticMaskResolution | null {
-    return resolveAutoMovieSemanticMaskImplementation(mask, color);
+    return resolveSemanticMaskImplementation(mask, color);
   }
 
   /**
@@ -142,6 +142,6 @@ export namespace AutoMovieEngineRenderSemanticMask {
    * evidence.
    */
   export function verifyAutoMovieSemanticMask(mask: IAutoMovieSemanticMask): void {
-    verifyAutoMovieSemanticMaskImplementation(mask);
+    verifySemanticMaskImplementation(mask);
   }
 }

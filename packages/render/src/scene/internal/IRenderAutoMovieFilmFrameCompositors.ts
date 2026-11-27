@@ -1,4 +1,4 @@
-import type { AutoMovieDisplayCompositor } from "./AutoMovieDisplayCompositor.js";
+import type { AutoMovieDisplayCompositor } from "./AutoMovieDisplayCompositor";
 
 /*
  * The caller-owned compositors a beauty frame mixes in.

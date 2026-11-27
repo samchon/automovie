@@ -2,10 +2,10 @@ import { AutoMovieEngineMaterial } from "@automovie/engine";
 import type { IAutoMovieProceduralSurface } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieRenderProceduralNoiseGlsl } from "../../AutoMovieRenderProceduralNoiseGlsl.js";
-import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial.js";
-import type { IAutoMovieRenderMaterialShaderSource } from "../../IAutoMovieRenderMaterialShaderSource.js";
-import { proceduralPatternGlsl } from "./proceduralPatternGlsl.js";
+import { AutoMovieRenderProceduralNoiseGlsl } from "../../AutoMovieRenderProceduralNoiseGlsl";
+import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial";
+import type { IAutoMovieRenderMaterialShaderSource } from "../../IAutoMovieRenderMaterialShaderSource";
+import { proceduralPatternGlsl } from "./proceduralPatternGlsl";
 
 /*
  * Shade a material from an admitted procedural surface, evaluating the engine's

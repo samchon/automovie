@@ -1,6 +1,6 @@
 import type * as THREE from "three";
 
-import type { IAutoMovieRenderFramebufferContext } from "./IAutoMovieRenderFramebufferContext.js";
+import type { IAutoMovieRenderFramebufferContext } from "./IAutoMovieRenderFramebufferContext";
 
 /**
  * The part of a `THREE.WebGLRenderer` a framebuffer save, a native attachment

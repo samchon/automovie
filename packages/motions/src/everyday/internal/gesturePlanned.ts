@@ -19,7 +19,7 @@ import type {
 
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmPlanned } from "../../compose/internal/AutoMovieMotionHumanArmPlanned";
-import { AutoMovieMotionHumanChannel as HumanChannels } from "../../compose/internal/AutoMovieMotionHumanChannel";
+import { motionHumanChannel as HumanChannels } from "../../compose/internal/motionHumanChannel";
 import { AutoMovieMotionHumanLean } from "../../compose/internal/AutoMovieMotionHumanLean";
 import { HumanPhysics } from "../../law/internal/HumanPhysics";
 import { HumanPreparedPlayback } from "../../perform/internal/HumanPreparedPlayback";

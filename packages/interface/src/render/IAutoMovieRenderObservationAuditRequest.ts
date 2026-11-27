@@ -1,5 +1,5 @@
-import type { IAutoMovieRenderObservation } from "./IAutoMovieRenderObservation.js";
-import type { IAutoMovieRenderReport } from "./IAutoMovieRenderReport.js";
+import type { IAutoMovieRenderObservation } from "./IAutoMovieRenderObservation";
+import type { IAutoMovieRenderReport } from "./IAutoMovieRenderReport";
 
 /**
  * A declared render-cost report paired with actual submitted-work observations.

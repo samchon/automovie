@@ -8,7 +8,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanDrinkingPool } from "../../compose/internal/AutoMovieMotionHumanDrinkingPool";
+import { motionHumanDrinkingPool } from "../../compose/internal/motionHumanDrinkingPool";
 import { AutoMovieMotionHumanTouchDrink } from "../../compose/internal/AutoMovieMotionHumanTouchDrink";
 import { AutoMovieMotionHumanTouchStance } from "../../compose/internal/AutoMovieMotionHumanTouchStance";
 import { AutoMovieMotionHumanTouchUpright } from "../../compose/internal/AutoMovieMotionHumanTouchUpright";
@@ -45,8 +45,8 @@ export function handToFaceVessel(
     Math.ceil(
       180 / sides.length / AutoMovieMotionHumanTouchUpright.STEP - 1e-9,
     );
-  const pool: AutoMovieMotionHumanDrinkingPool.IPool =
-    AutoMovieMotionHumanDrinkingPool(
+  const pool: motionHumanDrinkingPool.IPool =
+    motionHumanDrinkingPool(
       body,
       posture,
       side,

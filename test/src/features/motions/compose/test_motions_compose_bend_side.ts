@@ -3,8 +3,8 @@ import {
   AutoMovieMotionHumanBendSearch
 } from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanBendSearch";
 import {
-  AutoMovieMotionHumanBendSide
-} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanBendSide";
+  motionHumanBendSide
+} from "../../../../../packages/motions/src/compose/internal/motionHumanBendSide";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -31,7 +31,7 @@ function candidate(
 }
 
 /**
- * `AutoMovieMotionHumanBendSide` ranks elbow candidates by the side of the
+ * `motionHumanBendSide` ranks elbow candidates by the side of the
  * shoulder-to-wrist line the bend hint lies on: a candidate within one degree
  * of the hint's radial direction (`1 − cos` at most `1 − cos 1°`) keeps its
  * overshoot and adds that discrepancy to its strain; one outside the band
@@ -53,8 +53,8 @@ export function test_motions_compose_bend_side(): void {
   const hint: IAutoMovieVector3 = { x: 0, y: 0.3, z: 0.5 };
   const half: number = Math.PI / 360;
   const ranks: Rank[] = [
-    AutoMovieMotionHumanBendSide(shoulder, wrist, hint),
-    AutoMovieMotionHumanBendSide.prepare(shoulder, wrist, hint),
+    motionHumanBendSide(shoulder, wrist, hint),
+    motionHumanBendSide.prepare(shoulder, wrist, hint),
   ];
 
   TestValidator.predicate(
@@ -77,10 +77,10 @@ export function test_motions_compose_bend_side(): void {
         on.overshoot === 0.25
       );
     }) &&
-      AutoMovieMotionHumanBendSide(shoulder, wrist, { x: 0, y: 0, z: 0.7 })(
+      motionHumanBendSide(shoulder, wrist, { x: 0, y: 0, z: 0.7 })(
         candidate({ x: 0.2, y: 0, z: 0.4 }),
       ).deviation === 0.5 &&
-      AutoMovieMotionHumanBendSide.prepare(shoulder, wrist, {
+      motionHumanBendSide.prepare(shoulder, wrist, {
         x: 0,
         y: 0,
         z: 0.7,

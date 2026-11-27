@@ -1,5 +1,5 @@
-import { AutoMovieRenderSubsurfaceTarget } from "../../AutoMovieRenderSubsurfaceTarget.js";
-import { SUBSURFACE_TEXTURE_SIZE } from "../SUBSURFACE_TEXTURE_SIZE.js";
+import { AutoMovieRenderSubsurfaceTarget } from "../../AutoMovieRenderSubsurfaceTarget";
+import { SUBSURFACE_TEXTURE_SIZE } from "../SUBSURFACE_TEXTURE_SIZE";
 
 /*
  * Replace the supported physical direct-diffuse line with the current RGB table

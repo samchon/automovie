@@ -1,6 +1,6 @@
 import type { IAutoMovieLoudnessMeter } from "@automovie/interface";
 
-import { createAutoMovieLoudnessMeter } from "./createAutoMovieLoudnessMeter";
+import { createLoudnessMeter } from "./createLoudnessMeter";
 
 /*
  * Measure one dialogue line as the mixer places it and return the gain that
@@ -39,7 +39,7 @@ export function levelProductionDialogueLine(props: {
    */
   targetLufs: number;
 }): { measuredLufs: number; gainDb: number } {
-  const meter: IAutoMovieLoudnessMeter = createAutoMovieLoudnessMeter(2);
+  const meter: IAutoMovieLoudnessMeter = createLoudnessMeter(2);
   const placed: Float32Array = new Float32Array(props.samples.length * 2);
   for (let index: number = 0; index < props.samples.length; ++index) {
     const value: number = props.samples[index]! * props.fade(index);

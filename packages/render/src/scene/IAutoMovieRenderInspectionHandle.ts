@@ -6,7 +6,7 @@ import type {
 } from "@automovie/interface";
 import type * as THREE from "three";
 
-import type { IAutoMovieRenderViewerSubjectBounds } from "./IAutoMovieRenderViewerSubjectBounds.js";
+import type { IAutoMovieRenderViewerSubjectBounds } from "./IAutoMovieRenderViewerSubjectBounds";
 
 /**
  * An inspection applied to a scene: what its colours mean, what it selected,

@@ -5,7 +5,7 @@ import type { IAutoMovieVector3 } from "./IAutoMovieVector3";
 
 /**
  * The result of checking a form against an `IAutoMovieFormExpectation`, as
- * `checkAutoMovieFormExpectation` returns it.
+ * `checkFormExpectation` returns it.
  *
  * A form passes when `findings` holds no entry whose subject is `form` and
  * `loose` is empty. Findings on a mutant are expected: they are what shows the

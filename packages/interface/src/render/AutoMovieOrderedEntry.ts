@@ -1,4 +1,4 @@
-import type { AutoMovieOrderedScalar } from "./AutoMovieOrderedScalar.js";
+import type { AutoMovieOrderedScalar } from "./AutoMovieOrderedScalar";
 
 /**
  * One compared position in a speaker-label list or downmix matrix: a

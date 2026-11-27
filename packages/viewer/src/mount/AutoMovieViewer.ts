@@ -1,8 +1,8 @@
 import type * as THREE from "three";
-import type { AutoMovieViewerDisplay } from "../display/AutoMovieViewerDisplay.js";
+import type { AutoMovieViewerDisplay } from "../display/AutoMovieViewerDisplay";
 
-import { mountViewer } from "./internal/mountViewer.js";
-import { releaseMountedViewer } from "./internal/releaseMountedViewer.js";
+import { mountViewer } from "./internal/mountViewer";
+import { releaseMountedViewer } from "./internal/releaseMountedViewer";
 
 /** Owns the imperative browser viewer's mount and renderer retirement lifecycle. */
 export namespace AutoMovieViewer {

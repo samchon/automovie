@@ -1,5 +1,5 @@
-import type { IAutoMovieInstancedModelRepresentation } from "../IAutoMovieInstancedModelRepresentation.js";
-import type { AutoMovieRenderFormationCycle } from "../AutoMovieRenderFormationCycle.js";
+import type { IAutoMovieInstancedModelRepresentation } from "../IAutoMovieInstancedModelRepresentation";
+import type { AutoMovieRenderFormationCycle } from "../AutoMovieRenderFormationCycle";
 
 /*
  * Owned tier resources shared by all of its anonymous instance chunks. Static

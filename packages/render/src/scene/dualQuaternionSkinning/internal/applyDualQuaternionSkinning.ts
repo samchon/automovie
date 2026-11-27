@@ -1,7 +1,7 @@
 import type * as THREE from "three";
 
-import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial.js";
-import { createDualQuaternionSkinningShaderPatch } from "./createDualQuaternionSkinningShaderPatch.js";
+import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial";
+import { createDualQuaternionSkinningShaderPatch } from "./createDualQuaternionSkinningShaderPatch";
 
 /*
  * Make a material draw skinned meshes with dual quaternion skinning instead of

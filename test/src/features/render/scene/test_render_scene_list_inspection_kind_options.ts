@@ -2,7 +2,7 @@ import { AutoMovieRenderInspectionRequest } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `listAutoMovieInspectionKindOptions` lists the mark kinds an inspection may
+ * `listInspectionKindOptions` lists the mark kinds an inspection may
  * ask for, with their colours.
  *
  * Scenarios:

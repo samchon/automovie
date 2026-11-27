@@ -1,7 +1,7 @@
 import type { IAutoMovieMotionClock } from "@automovie/interface";
 import {
-  AutoMovieMotionManner
-} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionManner";
+  motionManner
+} from "../../../../../packages/motions/src/compose/internal/motionManner";
 import {
   stretch
 } from "../../../../../packages/motions/src/exercise/internal/stretch";
@@ -20,7 +20,7 @@ import { nclose } from "../../internal/nclose";
 export function test_motions_exercise_stretch_timetable(): void {
   const clock: IAutoMovieMotionClock = stretch.timetable(
     5,
-    AutoMovieMotionManner.NEUTRAL,
+    motionManner.NEUTRAL,
   );
   TestValidator.predicate(
     "the stretch's cues",

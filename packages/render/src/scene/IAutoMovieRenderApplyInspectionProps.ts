@@ -4,11 +4,11 @@ import type {
 } from "@automovie/interface";
 import type * as THREE from "three";
 
-import type { IAutoMovieRenderSectionRenderer } from "./IAutoMovieRenderSectionRenderer.js";
+import type { IAutoMovieRenderSectionRenderer } from "./IAutoMovieRenderSectionRenderer";
 
 /**
  * The built scene, request, and inputs supplied by the subject and renderer for
- * `applyAutoMovieInspection`.
+ * `applyInspection`.
  */
 export interface IAutoMovieRenderApplyInspectionProps {
   /**
@@ -17,7 +17,7 @@ export interface IAutoMovieRenderApplyInspectionProps {
    */
   scene: THREE.Scene;
 
-  /** What to show, as `parseAutoMovieInspectionRequest` returns it. */
+  /** What to show, as `parseInspectionRequest` returns it. */
   request: IAutoMovieInspectionRequest;
 
   /**

@@ -16,7 +16,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanHead } from "../../compose/internal/AutoMovieMotionHumanHead";
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
@@ -24,7 +24,7 @@ import { AutoMovieMotionHumanJoints } from "../../compose/internal/AutoMovieMoti
 import { AutoMovieMotionHumanLean } from "../../compose/internal/AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanRange } from "../../compose/internal/AutoMovieMotionHumanRange";
 import { AutoMovieMotionHumanTarget } from "../../compose/internal/AutoMovieMotionHumanTarget";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanBoneGroups } from "../../posture/internal/HumanBoneGroups";
@@ -115,7 +115,7 @@ export namespace give {
    */
   export function timetable(intensity: number): IAutoMovieMotionClock {
     HumanBound.within("intensity", intensity, 0, 1, "", "minimum");
-    return AutoMovieMotionClock.phrase({
+    return motionClock.phrase({
       prepare: 0,
       attack: RISE,
       hold: RETURN[0],
@@ -137,10 +137,10 @@ export namespace give {
     const body: IAutoMovieMotionHumanBody = context.body;
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const rise: readonly [string, string] = [
-      AutoMovieMotionClock.START,
+      motionClock.START,
       "stroke",
     ];
-    const fall: readonly [string, string] = ["relax", AutoMovieMotionClock.END];
+    const fall: readonly [string, string] = ["relax", motionClock.END];
 
     // Away from the contact in the performer's floor frame: `x` left, `z`
     // forward; reversed for a pull.
@@ -215,7 +215,7 @@ export namespace give {
               ),
           });
     return {
-      ...composeAutoMovieMotionHumanAction({
+      ...composeMotionHumanAction({
         base: AutoMovieMotionHumanBase.under(context, clock.duration),
         clock,
         primitives: [primitive],

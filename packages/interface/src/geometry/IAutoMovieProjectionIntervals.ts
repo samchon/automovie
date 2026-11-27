@@ -1,6 +1,6 @@
 /**
  * Outward-enclosed projections of represented points along a stored direction,
- * produced by `measureAutoMovieProjectionIntervals`.
+ * produced by `measureProjectionIntervals`.
  *
  * Interval i encloses point i's projection relative to the origin onto the
  * direction scaled so its largest absolute component is one, in metres of the

@@ -1,6 +1,6 @@
 /**
  * The intersection of every row of a quadratic program that has exactly the
- * same sparse coefficients, as `refineAutoMovieQuadraticProgram` groups them
+ * same sparse coefficients, as `refineQuadraticProgram` groups them
  * for polishing.
  *
  * Rows join a group only when their sorted index and weight pairs are

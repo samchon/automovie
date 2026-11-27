@@ -15,7 +15,7 @@ export namespace IAutoMovieLocateSurfaceCoordinate {
    * the coordinate, inverted by Newton's method, and the local coordinates are
    * that map's parameters. They follow `IAutoMovieSubdivisionParameter`'s quad
    * convention: `(0, 0)` at corner 0, `u` toward corner 1 along `s`, `v` toward
-   * corner 3 along `t`, so the result addresses `subdivideAutoMovieSurface`'s
+   * corner 3 along `t`, so the result addresses `subdivideSurface`'s
    * output of this cage directly.
    */
   export type IProps = {

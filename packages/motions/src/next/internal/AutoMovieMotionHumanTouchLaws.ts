@@ -49,9 +49,9 @@ export namespace AutoMovieMotionHumanTouchLaws {
    * A high five, a low five or a fist bump between two standing partners: both
    * bring one hand to one shared point between them and meet there at one
    * shared instant, the mutual goal the handshake uses
-   * (`AutoMovieMotionMeeting`).
+   * (`motionMeeting`).
    *
-   * The meeting point is the pair's mutual goal (`resolveAutoMovieMutualGoal`
+   * The meeting point is the pair's mutual goal (`resolveMutualGoal`
    * on the true wrist reach of the two opposed hand frames): the action prefers
    * the mean of the two crown heights for a high five, of their waist heights
    * for a low five and of their chest heights for a fist bump (provisional),
@@ -63,7 +63,7 @@ export namespace AutoMovieMotionHumanTouchLaws {
    * hip's flexion room (`HumanSeatedReach`, Chan and Dubey 1995); partners no
    * point lies within both arms of, leaned as far as they can, are refused,
    * never stretched. Each role's hand reaches it in the free-space transport
-   * time of its distance (`AutoMovieMotionHumanTiming.transport`), and at least
+   * time of its distance (`motionHumanTiming.transport`), and at least
    * the time its arm's arc takes within the audit's travel bound
    * (`touchReach.meeting`); the pair meets when the slower arrives, both stay
    * 0.1 s (provisional, the rebound) and go back in the reach's time. The palms

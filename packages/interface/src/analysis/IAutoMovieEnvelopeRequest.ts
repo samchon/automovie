@@ -7,7 +7,7 @@ import type { IAutoMovieIndoorCondition } from "./IAutoMovieIndoorCondition";
 /**
  * Everything one envelope study is configured with.
  *
- * `analyzeAutoMovieEnvelope` throws on a blank id, subject or revision, an
+ * `analyzeEnvelope` throws on a blank id, subject or revision, an
  * invalid context, an undeclared instant, a non-finite indoor temperature, an
  * indoor humidity outside `[0, 1]`, no assembly or more than
  * `AutoMovieEngineAnalysisMaxSamples`, a malformed assembly, layer or bridge, or a

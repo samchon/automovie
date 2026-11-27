@@ -1,2 +1,2 @@
-export { AutoMovieRenderSpaceGroupName } from "./AutoMovieRenderSpaceGroupName.js";
-export { AutoMovieRenderSceneSpace } from "./AutoMovieRenderSceneSpace.js";
+export { AutoMovieRenderSpaceGroupName } from "./AutoMovieRenderSpaceGroupName";
+export { AutoMovieRenderSceneSpace } from "./AutoMovieRenderSceneSpace";

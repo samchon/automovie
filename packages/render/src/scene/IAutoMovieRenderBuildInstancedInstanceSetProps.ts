@@ -3,7 +3,7 @@ import type {
   IAutoMovieModel,
 } from "@automovie/interface";
 
-import type { IAutoMovieRenderModelObject } from "./IAutoMovieRenderModelObject.js";
+import type { IAutoMovieRenderModelObject } from "./IAutoMovieRenderModelObject";
 
 /**
  * A compiled instance set and its prototype sources. Source objects remain

@@ -23,7 +23,7 @@ import { AutoMovieHumanHeadTree } from "./AutoMovieHumanHeadTree";
  * (`AutoMovieHumanHeadFeatures` and kin), each in the anatomical frame its own
  * generating curves define. The joins are not made here: the construction tree
  * (`AutoMovieHumanHeadTree`) names each merge and diff, and the engine realizes
- * them (`realizeAutoMovieConstruction`). A join's search may locate an
+ * them (`realizeConstruction`). A join's search may locate an
  * intersection, but cannot move a whole anatomical part or redefine an
  * independently supplied distance.
  *

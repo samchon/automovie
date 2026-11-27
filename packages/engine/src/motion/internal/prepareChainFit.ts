@@ -285,7 +285,9 @@ export namespace prepareChainFit {
     referenceAngles: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieJointPose>;
   }
 
-  /** The interface contract (`IAutoMoviePrepareChainFit.IRig`). */
+  /*
+   * The interface contract (`IAutoMoviePrepareChainFit.IRig`).
+   */
   export type IRig = IAutoMoviePrepareChainFit.IRig;
 
   /*

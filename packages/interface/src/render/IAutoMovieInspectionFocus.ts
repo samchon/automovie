@@ -3,7 +3,7 @@
  * selects, or every drawn flagged mark.
  *
  * The focus selects drawn geometry and marks for world-space bounds; it
- * contains no camera or interactive focus state. focusAutoMovieInspection
+ * contains no camera or interactive focus state. focusInspection
  * refuses a selection with no drawn bounds, including flagged focus when no
  * drawn mark is flagged.
  */

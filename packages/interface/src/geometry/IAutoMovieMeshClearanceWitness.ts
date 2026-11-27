@@ -1,12 +1,12 @@
 /**
  * An affine contact condition at one clipped overlap vertex, delivered to the
- * optional visitor of `measureAutoMovieMeshClearance`.
+ * optional visitor of `measureMeshClearance`.
  *
  * Barycentric weights belong to the original front triangle, including small
  * negative roundoff; clipping or renormalizing them would change the measured
  * plane. Advancing the three front vertices by distances `d` along the measured
  * axis changes this signed gap by `weights` dot `d`, which is how
- * `minimizeAutoMovieMeshClearance` turns witnesses into displacement
+ * `minimizeMeshClearance` turns witnesses into displacement
  * constraints. Clear witnesses are delivered too, because a coupled
  * displacement must keep them clear. Arrays are fresh per witness, independent
  * of the resident mesh, and may be retained by the visitor.

@@ -55,7 +55,7 @@ export namespace HumanPropOutcome {
   /*
    * The second a contact's time resolves to, seconds: the microsecond at which
    * the engine's contact specifications and a hit's id read it
-   * (`firstAutoMovieContactImpact` brackets a contact a thousandth of this wide
+   * (`firstContactImpact` brackets a contact a thousandth of this wide
    * so the reading does not depend on where its search stopped). Two contacts
    * nearer than this are one event at that resolution, and a struck surface's
    * velocity is read over it.

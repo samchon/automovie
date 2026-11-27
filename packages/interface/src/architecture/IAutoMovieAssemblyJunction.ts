@@ -4,7 +4,7 @@ import type { IAutoMovieAssemblyContinuity } from "./IAutoMovieAssemblyContinuit
 /**
  * What survives a junction between two build-ups and what stops there.
  *
- * Produced by `matchAutoMovieAssemblyJunction`. Every role either build-up
+ * Produced by `matchAssemblyJunction`. Every role either build-up
  * declares appears exactly once: in `continuous` when both declare it, in
  * `broken` when only one does. Order follows each role's first layer in its
  * build-up; nothing is sorted by name.

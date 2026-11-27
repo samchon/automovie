@@ -8,7 +8,7 @@ import { TestValidator } from "@nestia/e2e";
 import { createCaptureFolderDouble } from "../../internal/createCaptureFolderDouble";
 
 /**
- * `compareAutoMovieCaptureRounds` pairs this round's cells with an earlier
+ * `compareCaptureRounds` pairs this round's cells with an earlier
  * round's, measures the pairs and writes the difference images and sheets.
  *
  * Scenarios:

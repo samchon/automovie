@@ -23,7 +23,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmObservation } from "../../compose/internal/AutoMovieMotionHumanArmObservation";
 import { AutoMovieMotionHumanArmPlanned } from "../../compose/internal/AutoMovieMotionHumanArmPlanned";
@@ -32,12 +32,12 @@ import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotion
 import { AutoMovieMotionHumanHead } from "../../compose/internal/AutoMovieMotionHumanHead";
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanJoints } from "../../compose/internal/AutoMovieMotionHumanJoints";
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
 import { AutoMovieMotionHumanTouchEffector } from "../../compose/internal/AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanTouchForm } from "../../compose/internal/AutoMovieMotionHumanTouchForm";
 import { AutoMovieMotionHumanVariationDraw } from "../../compose/internal/AutoMovieMotionHumanVariationDraw";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionManner } from "../../compose/internal/motionManner";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { touchPrimitive } from "../../compose/internal/touchPrimitive";
 import { HumanHeld } from "../../handling/internal/HumanHeld";
 import { HumanHeldEffector } from "../../handling/internal/HumanHeldEffector";
@@ -168,7 +168,7 @@ export namespace handToFace {
             1,
           )[0]!;
     } else hold = HumanBound.least("hold", p.hold ?? row.hold, 0, "s");
-    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+    const modifiers: IAutoMovieMotionManner.IModifiers = motionManner(
       context,
       p.manner,
     );
@@ -373,13 +373,13 @@ export namespace handToFace {
       );
     });
     const transport: number = Math.max(
-      AutoMovieMotionHumanTiming.transport(far),
+      motionHumanTiming.transport(far),
       reach,
     );
     const repetition: number = AutoMovieMotionHumanTouchForm.period(
       body,
       row.kind,
-      AutoMovieMotionHumanTiming.seconds(
+      motionHumanTiming.seconds(
         AutoMovieMotionHumanTouchForm.FORMS[row.kind].period,
       ),
     );
@@ -387,8 +387,8 @@ export namespace handToFace {
       kept !== null && p.prop !== undefined && p.other !== undefined;
     // Present the held tool before the support starts. The extra hold
     // interval lets the support withdraw before the holding arm returns.
-    const timed: IAutoMovieMotionClock = AutoMovieMotionManner.time(
-      AutoMovieMotionClock.phrase({
+    const timed: IAutoMovieMotionClock = motionManner.time(
+      motionClock.phrase({
         prepare: transport,
         ...(support ? { wait: transport } : {}),
         attack: count * repetition,
@@ -397,7 +397,7 @@ export namespace handToFace {
       }),
       modifiers,
     );
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(timed.duration, [
+    const clock: IAutoMovieMotionClock = motionClock(timed.duration, [
       ...timed.instants,
       { name: row.at, seconds: timed.at("ready") },
       { name: "taskEnd", seconds: timed.at("strokeEnd") },
@@ -463,7 +463,7 @@ export namespace handToFace {
       // Preparation publishes the lead group's course. The final composer
       // reuses that course and adds the independently admitted support.
       const lead: IAutoMovieMotionHumanActionPlan =
-        composeAutoMovieMotionHumanAction({
+        composeMotionHumanAction({
           base,
           clock,
           primitives,
@@ -487,7 +487,7 @@ export namespace handToFace {
       );
     }
     const plan: IAutoMovieMotionHumanActionPlan =
-      composeAutoMovieMotionHumanAction({
+      composeMotionHumanAction({
         base,
         clock,
         primitives,

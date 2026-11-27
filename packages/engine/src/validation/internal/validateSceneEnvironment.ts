@@ -6,7 +6,7 @@ import type {
   IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { resolveAutoMovieShadowProfile } from "../../render/internal/resolveAutoMovieShadowProfile";
+import { resolveShadowProfile } from "../../render/internal/resolveShadowProfile";
 import { AutoMovieEngineViolationCollector } from "../AutoMovieEngineViolationCollector";
 import { validateColor } from "./validateColor";
 
@@ -40,7 +40,7 @@ export function validateSceneEnvironment(
   finiteRange(value.exposure, 0, true, "$input.exposure", "exposure", out);
   if (props.lights !== undefined) {
     const profile: IAutoMovieResolveShadowProfile.IResult =
-      resolveAutoMovieShadowProfile({
+      resolveShadowProfile({
         lights: props.lights,
         shadows: value.shadows,
       });

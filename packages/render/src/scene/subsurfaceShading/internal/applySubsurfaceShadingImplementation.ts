@@ -1,9 +1,9 @@
 import * as THREE from "three";
 
-import type { IAutoMovieRenderMaterialShaderSource } from "../../IAutoMovieRenderMaterialShaderSource.js";
-import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial.js";
-import { getSubsurfaceTexture } from "./getSubsurfaceTexture.js";
-import { subsurfaceFragment } from "./subsurfaceFragment.js";
+import type { IAutoMovieRenderMaterialShaderSource } from "../../IAutoMovieRenderMaterialShaderSource";
+import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial";
+import { getSubsurfaceTexture } from "./getSubsurfaceTexture";
+import { subsurfaceFragment } from "./subsurfaceFragment";
 
 /*
  * Register the existing direct-diffuse subsurface shader approximation on a new

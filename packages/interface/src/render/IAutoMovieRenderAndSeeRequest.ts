@@ -1,5 +1,5 @@
-import type { IAutoMovieRenderSpec } from "../cinematics/IAutoMovieRenderSpec.js";
-import type { IAutoMovieRenderAdapters } from "./IAutoMovieRenderAdapters.js";
+import type { IAutoMovieRenderSpec } from "../cinematics/IAutoMovieRenderSpec";
+import type { IAutoMovieRenderAdapters } from "./IAutoMovieRenderAdapters";
 
 /**
  * Host-supplied request for rendering a clip and returning inspectable

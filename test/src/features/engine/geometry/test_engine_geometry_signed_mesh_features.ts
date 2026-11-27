@@ -12,7 +12,7 @@ import {
 import { nclose } from "../../internal/predicates";
 
 /**
- * `createAutoMovieSignedMeshQuery` reads the nearest face, edge or vertex of the
+ * `createSignedMeshQuery` reads the nearest face, edge or vertex of the
  * actual solid, its closest point, unit pseudonormal and oriented distance.
  *
  * Fixtures: the unit octahedron |x| + |y| + |z| = 1; the L of three unit voxels

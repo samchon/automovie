@@ -2,7 +2,7 @@ import type { IAutoMovieMeasureFeatureEdges } from "./IAutoMovieMeasureFeatureEd
 import type { IAutoMovieVector3 } from "./IAutoMovieVector3";
 
 /**
- * Input and result of `autoMovieFeatureEdgeDistance`, the CPU reference of the
+ * Input and result of `featureEdgeDistance`, the CPU reference of the
  * per-fragment distances a worn material's shader computes.
  */
 export namespace IAutoMovieFeatureEdgeDistance {

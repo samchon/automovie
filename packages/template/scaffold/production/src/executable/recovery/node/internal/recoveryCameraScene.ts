@@ -2,19 +2,15 @@ import type { IAutoMovieRecoveryCameraSceneFiles } from "@automovie/interface";
 import { AutoMovieRecoveryObservation } from "@automovie/recovery";
 import { createHash } from "node:crypto";
 
-import { writeAutoMovieRecoveryArtifact } from "../artifact/writeAutoMovieRecoveryArtifact";
-import { readAutoMovieRecoveryBoundedFile } from "./readAutoMovieRecoveryBoundedFile";
+import { writeRecoveryArtifact } from "../artifact/writeRecoveryArtifact";
+import { readRecoveryBoundedFile } from "./readRecoveryBoundedFile";
 import { readRecoveryCameraImages } from "./readRecoveryCameraImages";
 
-/**
+/*
  * Publish one immutable scene artifact from a bounded fixed camera manifest.
  * Usage is cameras scene input.json new-output.json maxInputBytes. A completed
  * partial/refused geometric component has evidence; a no-value operation does
  * not publish an artifact. This host invokes the same public RGB operation.
- *
- * @evidence contracts/development/implementation.md#principled-implementation Closed source/work metadata and bounded complete-byte acquisition precede unchanged-chart decoding. The resident scene operation owns registration, point growth and joint qualification; the shared immutable writer owns final publication. No private observation injection, source scan, inferred camera, truth pose, changed policy, overwrite or installation supplies a result.
- * @evidence contracts/development/implementation.md#efficient-algorithms This Node owner handles paths, bytes, provenance and publication while all camera/point algorithms remain in resident recovery. N bounded file reads/hashes and O(P) decoding precede the resident operation's admitted feature, matching and aggregate scene work. View count and aggregate pixels are checked before retention grows. Each fixed image is acquired once and one public call supplies one complete artifact; no geometry or effectful command is repeated. Bounded file descriptors close synchronously, decoded rasters expire after the resident operation, and the shared atomic writer cleans staging on failure. No RGB or descriptor enters JSON output.
- * @evidence contracts/development/common.md#meaningful-documentation States command arguments, per-source and aggregate limits, explicit source epoch and computation versus registered-component coverage.
  */
 export function recoveryCameraScene(args: string[], sourceEpoch: string): void {
   const [command, inputPath, outputPath, byteText]: string[] = args;
@@ -29,7 +25,7 @@ export function recoveryCameraScene(args: string[], sourceEpoch: string): void {
     throw new Error(
       "Usage: cameras scene input.json new-output.json maxInputBytes",
     );
-  const bytes: Buffer = readAutoMovieRecoveryBoundedFile(
+  const bytes: Buffer = readRecoveryBoundedFile(
     inputPath,
     maxInputBytes,
   );
@@ -93,7 +89,7 @@ export function recoveryCameraScene(args: string[], sourceEpoch: string): void {
       ),
     });
   if (!("value" in outcome)) throw new Error(outcome.diagnostics.join("; "));
-  writeAutoMovieRecoveryArtifact(outputPath, {
+  writeRecoveryArtifact(outputPath, {
     schema: "automovie-recovery-camera-scene-artifact-v1",
     command,
     sourceEpoch,

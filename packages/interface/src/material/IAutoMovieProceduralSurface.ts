@@ -14,7 +14,7 @@ import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * 1978, "Simulation of wrinkled surfaces", SIGGRAPH). Lattice values come from
  * the PCG3D integer hash of the seed and the cell (Jarzynski and Olano 2020,
  * "Hash functions for GPU rendering", JCGT 9(3)), so the engine's CPU reference
- * `sampleAutoMovieProceduralSurface` and the renderer's fragment shader compute
+ * `sampleProceduralSurfaceImplementation` and the renderer's fragment shader compute
  * the same values.
  *
  * Without {@link piece} the sample point is the object-space position in metres,
@@ -79,7 +79,7 @@ export interface IAutoMovieProceduralSurface {
 
   /**
    * Present only on the material of one occurrence of a surface pattern laid by
-   * `generateAutoMovieSurfacePattern`: how that piece cuts the sheet. Absent,
+   * `generateSurfacePattern`: how that piece cuts the sheet. Absent,
    * the surface samples object space.
    */
   piece?: IAutoMovieProceduralSurface.IPiece;
@@ -129,7 +129,7 @@ export namespace IAutoMovieProceduralSurface {
     tile: IPieceTile;
 
     /**
-     * The transform `autoMoviePatternTextureTransforms` returned for this
+     * The transform `patternTextureTransforms` returned for this
      * occurrence, filled in exactly as an image binding's `transform` is.
      */
     transform: IAutoMoviePatternTextureTransform;

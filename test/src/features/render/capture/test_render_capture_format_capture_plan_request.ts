@@ -2,7 +2,7 @@ import { AutoMovieRenderCapture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `formatAutoMovieCapturePlanRequest` writes the keys that differ from the
+ * `formatCapturePlanRequest` writes the keys that differ from the
  * absent request.
  *
  * Scenarios:

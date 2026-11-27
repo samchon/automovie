@@ -2,7 +2,7 @@ import type { IAutoMovieBoneBuffer } from "./IAutoMovieBoneBuffer";
 import type { IAutoMovieSweepSurface } from "./IAutoMovieSweepSurface";
 
 /**
- * One sweep of a surface rig, from `rigAutoMovieSweep`: the frames, scale
+ * One sweep of a surface rig, from `rigSweep`: the frames, scale
  * factors and surface normals a cage reads from it, at parameters registered
  * once and refreshed per pose in place.
  *

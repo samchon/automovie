@@ -1,5 +1,5 @@
 import type { IAutoMovieClassifyPlaybackBoundary, IAutoMoviePlaybackTimeline, IAutoMovieSequence } from "@automovie/interface";
-import type { IAutoMovieRenderSelectPlacedChecksTrack } from "./IAutoMovieRenderSelectPlacedChecksTrack.js";
+import type { IAutoMovieRenderSelectPlacedChecksTrack } from "./IAutoMovieRenderSelectPlacedChecksTrack";
 
 /** Continuous tracks evaluated across the film's cut. */
 export interface IAutoMovieRenderSelectPlacedChecksContinuity {

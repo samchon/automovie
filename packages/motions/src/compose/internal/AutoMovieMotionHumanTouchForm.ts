@@ -104,7 +104,7 @@ export namespace AutoMovieMotionHumanTouchForm {
    * Parameter body: The body.
    * Parameter kind: The kind.
    * Parameter seconds: The span's seconds, from
-   * `AutoMovieMotionHumanTiming.seconds`.
+   * `motionHumanTiming.seconds`.
    * Returns: Seconds.
    */
   export function period(

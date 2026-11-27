@@ -5,7 +5,7 @@ import { TestValidator } from "@nestia/e2e";
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * `subdivideAutoMovieSurface` refuses every cage it cannot subdivide, each one
+ * `subdivideSurface` refuses every cage it cannot subdivide, each one
  * property away from a cage that subdivides.
  *
  * Fixture: two unit quads sharing the edge 1-4, one UV per vertex, a crease 1-4

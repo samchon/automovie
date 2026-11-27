@@ -1,7 +1,7 @@
 import type { IAutoMovieFilmOptics } from "./IAutoMovieFilmOptics";
 
 /**
- * Data contracts of `planAutoMovieFilmSamples`, the sub-frame samples a
+ * Data contracts of `planFilmSamples`, the sub-frame samples a
  * directly rendered frame averages for its shutter and its lens.
  */
 export namespace IAutoMoviePlanFilmSamples {

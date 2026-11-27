@@ -17,16 +17,16 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanFootRelax } from "../../compose/internal/AutoMovieMotionHumanFootRelax";
-import { AutoMovieMotionHumanFootSwing } from "../../compose/internal/AutoMovieMotionHumanFootSwing";
+import { motionHumanFootRelax } from "../../compose/internal/motionHumanFootRelax";
+import { motionHumanFootSwing } from "../../compose/internal/motionHumanFootSwing";
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionHumanPlaced } from "../../compose/internal/AutoMovieMotionHumanPlaced";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionManner } from "../../compose/internal/motionManner";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { blendHumanJoint } from "../../posture/internal/blendHumanJoint";
@@ -163,7 +163,7 @@ export namespace athletics {
     const hold: number = p.hold ?? 1.5;
     HumanBound.least("hold", hold, 0, "s");
     if (p.drive !== undefined) HumanBound.above("drive", p.drive, 0, "s");
-    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+    const modifiers: IAutoMovieMotionManner.IModifiers = motionManner(
       context,
       p.manner,
     );
@@ -194,7 +194,7 @@ export namespace athletics {
         ? 0
         : Math.max(0, Math.min(1, (seconds - gun) / (end - gun)));
     const ready: number = clock.at("ready");
-    const into: (seconds: number) => number = AutoMovieMotionClock.prepare(
+    const into: (seconds: number) => number = motionClock.prepare(
       clock,
       "start",
       "ready",
@@ -260,14 +260,14 @@ export namespace athletics {
       };
       const block: IAutoMovieMotionHumanFoot.IPlacement = target.feet[side];
       // The step back into the block leaves the floor before it travels and
-      // sets down after it stops (`AutoMovieMotionHumanFootSwing`): an arc
+      // sets down after it stops (`motionHumanFootSwing`): an arc
       // rising on the travel's own share slid the toes along the track.
       const trajectory: (
         share: number,
       ) => IAutoMovieMotionHumanFoot.IPlacement = (
         share: number,
       ): IAutoMovieMotionHumanFoot.IPlacement =>
-        AutoMovieMotionHumanFootSwing(
+        motionHumanFootSwing(
           body,
           side,
           stance,
@@ -310,7 +310,7 @@ export namespace athletics {
             // The rear foot recovering off its block bears nothing, so it
             // keeps within the passive dorsal range.
             if (recovery !== undefined && seconds > rearOff)
-              return AutoMovieMotionHumanFootRelax(
+              return motionHumanFootRelax(
                 body,
                 posture,
                 side,
@@ -322,7 +322,7 @@ export namespace athletics {
             // A foot stepping back into its block bears nothing on the way,
             // so it too keeps within the passive dorsal range.
             if (at > 0 && at < 1)
-              return AutoMovieMotionHumanFootRelax(
+              return motionHumanFootRelax(
                 body,
                 posture,
                 side,
@@ -334,12 +334,12 @@ export namespace athletics {
             // lifts, its heel rising about the toes' joint, so it leaves
             // within the passive dorsal range.
             if (recovery !== undefined && seconds > b)
-              return AutoMovieMotionHumanFootRelax(
+              return motionHumanFootRelax(
                 body,
                 posture,
                 side,
                 trajectory(at),
-                AutoMovieMotionHumanFootRelax.load(seconds, rearOff),
+                motionHumanFootRelax.load(seconds, rearOff),
               );
             return trajectory(at);
           },
@@ -412,7 +412,7 @@ export namespace athletics {
     // Feet on a placed block bear on that prop, so its frame carries them.
     const footSupport: IAutoMovieMotionHumanContactWindow["support"] =
       p.on === undefined ? { kind: "ground" } : { kind: "prop", subject: p.on };
-    return composeAutoMovieMotionHumanAction({
+    return composeMotionHumanAction({
       base: AutoMovieMotionHumanBase.still(clock.duration, entry, [
         {
           part: "leftFoot",

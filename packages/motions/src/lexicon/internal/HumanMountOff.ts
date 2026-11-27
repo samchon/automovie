@@ -22,7 +22,7 @@ import { standUpright } from "../../actions/internal/standUpright";
 import { walk } from "../../gait/internal/walk";
 import { HumanSupportFrame } from "../../carrier/internal/HumanSupportFrame";
 import { AutoMovieMotionHumanArmChain } from "../../compose/internal/AutoMovieMotionHumanArmChain";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
+import { motionManner } from "../../compose/internal/motionManner";
 import { courseHumanLegs } from "../../compose/internal/courseHumanLegs";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { prepareSeatedPalms } from "../../everyday/internal/prepareSeatedPalms";
@@ -110,7 +110,7 @@ export namespace HumanMountOff {
     const follower: AutoMovieHumanSide = leader === "left" ? "right" : "left";
     const duration: number =
       Math.min(4, 2 * (1 + 0.6 * Math.max(0, r - 1))) *
-      AutoMovieMotionManner(context, context.params.manner).tempo;
+      motionManner(context, context.params.manner).tempo;
     const seatOff: number = 0.15 * duration;
     const footOff = (side: AutoMovieHumanSide): number =>
       side === leader ? seatOff / 3 : (2 / 3) * seatOff;

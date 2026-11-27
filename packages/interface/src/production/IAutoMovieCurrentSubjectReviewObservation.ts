@@ -11,7 +11,7 @@ import type { IAutoMovieSubjectReviewObservation } from "./IAutoMovieSubjectRevi
  * (`productionId`, `target`, `revision`, `compileFingerprint`, `planIdentity`)
  * carry one type in both.
  *
- * `foldAutoMovieSubjectReviewCoverage` receives these typed records and counts
+ * `foldSubjectReviewCoverage` receives these typed records and counts
  * one only when its identities are non-blank and its target names the same
  * subject; the compiler owns the record's shape.
  */

@@ -1,7 +1,7 @@
 import type * as THREE from "three";
-import type { LineSegments2 } from "three/examples/jsm/lines/LineSegments2.js";
+import type { LineSegments2 } from "#three-addon/lines/LineSegments2";
 
-import type { AutoMovieRenderSkinnedMesh } from "./AutoMovieRenderSkinnedMesh.js";
+import type { AutoMovieRenderSkinnedMesh } from "./AutoMovieRenderSkinnedMesh";
 
 /**
  * Narrow three.js objects by the literal type flags three.js sets on each

@@ -6,7 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import { walk } from "../../gait/internal/walk";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
+import { motionManner } from "../../compose/internal/motionManner";
 import { HumanGait } from "./HumanGait";
 
 /*
@@ -18,9 +18,9 @@ export function HumanGaitMood(
   name: MoodName,
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGait.IParams>,
 ): IAutoMovieMotionHumanWalkGait {
-  const manner: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+  const manner: IAutoMovieMotionManner.IModifiers = motionManner(
     context,
-    AutoMovieMotionManner.PRESETS[name],
+    motionManner.PRESETS[name],
   );
   const walking: IAutoMovieMotionHumanWalkGait = walk.walking(
     walk.FROUDE.normal / (manner.tempo * manner.tempo),

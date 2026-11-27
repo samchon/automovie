@@ -1,6 +1,6 @@
-import type { IAutoMovieRenderMaterialShaderSource } from "../../IAutoMovieRenderMaterialShaderSource.js";
-import { reliefWeightFragment } from "./reliefWeightFragment.js";
-import { reliefWeightVertex } from "./reliefWeightVertex.js";
+import type { IAutoMovieRenderMaterialShaderSource } from "../../IAutoMovieRenderMaterialShaderSource";
+import { reliefWeightFragment } from "./reliefWeightFragment";
+import { reliefWeightVertex } from "./reliefWeightVertex";
 
 /*
  * One relief-weight operation for the material compile hook. The callback

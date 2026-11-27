@@ -7,7 +7,7 @@ import { TestValidator } from "@nestia/e2e";
 /**
  * `demandedHumanChannels` gives the posture channels some bones' frames hang
  * from: the root and the trunk always, each bone's own channel, and a hand's
- * arm, which carries it, in writing order (`AutoMovieMotionHumanChannel.ORDER`:
+ * arm, which carries it, in writing order (`motionHumanChannel.ORDER`:
  * root, trunk, head, the legs, the hands, the arms).
  *
  * Scenarios:

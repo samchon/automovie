@@ -27,7 +27,7 @@ import { walk } from "../../gait/internal/walk";
 import { walkDelayed } from "../../actions/internal/walkDelayed";
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmCourse } from "../../compose/internal/AutoMovieMotionHumanArmCourse";
-import { AutoMovieMotionHumanArmJointCourse } from "../../compose/internal/AutoMovieMotionHumanArmJointCourse";
+import { motionHumanArmJointCourse } from "../../compose/internal/motionHumanArmJointCourse";
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanTrunk } from "../../compose/internal/AutoMovieMotionHumanTrunk";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
@@ -405,8 +405,8 @@ export function pushSledPlan(
   });
   // The settle's joint-space carry, solved at its branch points once the
   // performance is prepared.
-  const carrier: AutoMovieMotionHumanArmJointCourse.ICarrier =
-    AutoMovieMotionHumanArmJointCourse.carrier(body);
+  const carrier: motionHumanArmJointCourse.ICarrier =
+    motionHumanArmJointCourse.carrier(body);
   const plan: IAutoMovieMotionHumanActionPlan = {
     duration,
     events: [

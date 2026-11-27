@@ -11,9 +11,9 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
+import { motionManner } from "../../compose/internal/motionManner";
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
@@ -233,14 +233,14 @@ export namespace HumanWeaponPresent {
             s,
             StrikingBlade.plan(context, {
               tool,
-              clock: AutoMovieMotionManner.time(
-                AutoMovieMotionClock.phrase({
+              clock: motionManner.time(
+                motionClock.phrase({
                   prepare: ready === undefined ? set : set / 2,
                   attack: ready === undefined ? 0 : set / 2,
                   hold: seconds,
                   retract: 0,
                 }),
-                AutoMovieMotionManner(context, p.manner),
+                motionManner(context, p.manner),
               ),
               path:
                 ready === undefined

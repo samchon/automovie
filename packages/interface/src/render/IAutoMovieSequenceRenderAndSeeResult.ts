@@ -1,5 +1,5 @@
-import type { IAutoMovieRenderSpec } from "../cinematics/IAutoMovieRenderSpec.js";
-import type { IAutoMovieSequenceRenderResult } from "./IAutoMovieSequenceRenderResult.js";
+import type { IAutoMovieRenderSpec } from "../cinematics/IAutoMovieRenderSpec";
+import type { IAutoMovieSequenceRenderResult } from "./IAutoMovieSequenceRenderResult";
 
 /** JSON-friendly sequence render artifact. */
 export interface IAutoMovieSequenceRenderAndSeeResult extends IAutoMovieSequenceRenderResult {

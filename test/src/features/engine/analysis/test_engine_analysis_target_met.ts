@@ -2,7 +2,7 @@ import { AutoMovieEngineAnalysis } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `autoMovieAnalysisTargetMet` meets an at-least target at or above it and an
+ * `analysisTargetMet` meets an at-least target at or above it and an
  * at-most target at or below it.
  *
  * Scenarios:

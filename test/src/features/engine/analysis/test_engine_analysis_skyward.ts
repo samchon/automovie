@@ -3,7 +3,7 @@ import type { IAutoMovieReferenceGround } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `autoMovieSkyward` holds for a direction with a positive component along the
+ * `skyward` holds for a direction with a positive component along the
  * ground's up, of any length; the horizon itself is not skyward.
  *
  * Scenarios:

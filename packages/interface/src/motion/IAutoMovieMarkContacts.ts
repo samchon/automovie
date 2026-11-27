@@ -49,13 +49,13 @@ export namespace IAutoMovieMarkContacts {
     seconds: number;
     /**
      * Arrow length per newton of mean force, metres/newton;
-     * markAutoMovieContacts rejects nonfinite or nonpositive values.
+     * markContacts rejects nonfinite or nonpositive values.
      */
     metresPerNewton: number;
     /**
      * Longest drawn arrow, metres; a longer arrow is drawn at this length as
      * `contact/clamped`. Absent, every arrow keeps its scaled length.
-     * markAutoMovieContacts rejects nonfinite or nonpositive values.
+     * markContacts rejects nonfinite or nonpositive values.
      */
     maximumLength?: number;
     /**

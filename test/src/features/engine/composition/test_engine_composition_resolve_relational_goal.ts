@@ -13,7 +13,7 @@ import { PhysicalModelFixtures } from "../../internal/PhysicalModelFixtures";
 const REACH: number = 0.01;
 
 /**
- * `resolveAutoMovieRelationalGoal` resolves a goal on another subject's named
+ * `resolveRelationalGoal` resolves a goal on another subject's named
  * region, never on a scene coordinate: within its window the performer's
  * surface is reached onto the target, read at the window's start under `freeze`
  * and at the instant under `track`; outside the window the prior pose returns

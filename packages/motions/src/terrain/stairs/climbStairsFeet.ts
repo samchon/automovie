@@ -4,7 +4,7 @@ import type {
   IAutoMovieMotionHumanFoot,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 
 /*
  * Prepare each stair foot's timed swings and select its active interval.
@@ -35,7 +35,7 @@ export function climbStairsFeet(
         off: clock.at(`toeOff${step}`),
         on: clock.at(`treadContact${step}`),
         from,
-        progress: AutoMovieMotionClock.prepare(
+        progress: motionClock.prepare(
           clock,
           `toeOff${step}`,
           `treadContact${step}`,

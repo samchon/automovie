@@ -9,7 +9,7 @@ import {
   IAutoMovieBuiltSpace,
 } from "@automovie/interface";
 
-import { compareAutoMovieRenderIds } from "../../render/internal/compareAutoMovieRenderIds";
+import { compareRenderIds } from "../../render/internal/compareRenderIds";
 import { builtConnectorStops } from "./builtConnectorStops";
 import { builtEnvelopeFaceCorners } from "./builtEnvelopeFaceCorners";
 import { builtEnvironmentEnvelopeFaces } from "./builtEnvironmentEnvelopeFaces";
@@ -82,14 +82,14 @@ export function builtEnvironmentBuildingCensus(
               envelope.has(opening.boundary),
             )
             .map((opening: IAutoMovieBuiltOpening): string => opening.id)
-            .sort(compareAutoMovieRenderIds),
+            .sort(compareRenderIds),
           spaces: environment.spaces
             .filter(
               (space: IAutoMovieBuiltSpace): boolean =>
                 owned.has(space.id) && builtSpaceStatesVolume(space),
             )
             .map((space: IAutoMovieBuiltSpace): string => space.id)
-            .sort(compareAutoMovieRenderIds),
+            .sort(compareRenderIds),
           connectors: [
             ...new Set(
               environment.connectors
@@ -102,7 +102,7 @@ export function builtEnvironmentBuildingCensus(
                   (connector: IAutoMovieBuiltConnector): string => connector.id,
                 ),
             ),
-          ].sort(compareAutoMovieRenderIds),
+          ].sort(compareRenderIds),
         };
       },
     )
@@ -110,6 +110,6 @@ export function builtEnvironmentBuildingCensus(
       (
         left: IAutoMovieBuildingObservationCensus,
         right: IAutoMovieBuildingObservationCensus,
-      ): number => compareAutoMovieRenderIds(left.building, right.building),
+      ): number => compareRenderIds(left.building, right.building),
     );
 }

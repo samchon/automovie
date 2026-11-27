@@ -1,6 +1,6 @@
 import type { IAutoMoviePeriodicCubic } from "@automovie/interface";
 
-import { adjacentAutoMovieFloat64 as adjacent } from "../math/internal/adjacentAutoMovieFloat64";
+import { adjacentFloat64 as adjacent } from "../math/internal/adjacentFloat64";
 
 /**
  * The existing periodic cubic's value reader and a local outward range.

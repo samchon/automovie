@@ -3,7 +3,7 @@ import type { IAutoMovieSweepFrame } from "./IAutoMovieSweepFrame";
 
 /**
  * A spine compiled for evaluation: its curve, unit tangent and
- * rotation-minimizing frame at any parameter, from `frameAutoMovieSweepSpine`.
+ * rotation-minimizing frame at any parameter, from `frameSweepSpine`.
  *
  * The parameter `u` runs over `[0, 1]` by chord length; values outside are
  * clamped to the ends.

@@ -1,13 +1,13 @@
 import type { IAutoMovieMedium } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind.js";
-import { AutoMovieRenderFilmResponseShaders } from "../AutoMovieRenderFilmResponseShaders.js";
-import type { AutoMovieRenderFilmAlpha } from "../AutoMovieRenderFilmAlpha.js";
-import type { IAutoMovieRenderFilmResponseRenderer } from "../IAutoMovieRenderFilmResponseRenderer.js";
-import { buildAutoMovieMediumShader } from "./internal/buildAutoMovieMediumShader.js";
-import { collectAutoMovieMediumLights } from "./internal/collectAutoMovieMediumLights.js";
-import { readAutoMovieSceneMedium } from "./internal/readAutoMovieSceneMedium.js";
+import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind";
+import { AutoMovieRenderFilmResponseShaders } from "../AutoMovieRenderFilmResponseShaders";
+import type { AutoMovieRenderFilmAlpha } from "../AutoMovieRenderFilmAlpha";
+import type { IAutoMovieRenderFilmResponseRenderer } from "../IAutoMovieRenderFilmResponseRenderer";
+import { buildMediumShader } from "./internal/buildMediumShader";
+import { collectMediumLights } from "./internal/collectMediumLights";
+import { readSceneMedium } from "./internal/readSceneMedium";
 import { AutoMovieFilmMediumPassData } from "./internal/AutoMovieFilmMediumPassData";
 
 /*
@@ -17,7 +17,7 @@ import { AutoMovieFilmMediumPassData } from "./internal/AutoMovieFilmMediumPassD
  *
  * `apply` does nothing for a scene without a medium. Otherwise it collects the
  * scene's lights and their drawn shadow maps, compiles or reuses the march
- * program for that light signature (`buildAutoMovieMediumShader`), marches into
+ * program for that light signature (`buildMediumShader`), marches into
  * its own half-float target reading the linear colour and depth, and copies the
  * result back over the linear colour and alpha, leaving the depth. The dither
  * shift of sample `index` is `index × 0.618…` modulo one, an additive
@@ -110,23 +110,23 @@ export class AutoMovieFilmMediumPass {
 
     /*
      * How the picture's alpha is kept; absent marches an opaque picture, as
-     * `buildAutoMovieMediumShader` states for each.
+     * `buildMediumShader` states for each.
      */
     alpha?: AutoMovieRenderFilmAlpha;
   }): void {
-    const medium: IAutoMovieMedium | null = readAutoMovieSceneMedium(
+    const medium: IAutoMovieMedium | null = readSceneMedium(
       props.scene,
     );
     if (medium === null) return;
     const { renderer, linear, camera }: typeof props = props;
-    const lights: collectAutoMovieMediumLights.ILight[] =
-      collectAutoMovieMediumLights(
+    const lights: collectMediumLights.ILight[] =
+      collectMediumLights(
         props.scene,
         renderer.shadowMap.enabled === true,
       );
     const signature: string = lights
       .map(
-        (light: collectAutoMovieMediumLights.ILight): string =>
+        (light: collectMediumLights.ILight): string =>
           `${light.kind}:${light.shadow?.kind ?? "none"}`,
       )
       .join(",");
@@ -151,7 +151,7 @@ export class AutoMovieFilmMediumPass {
       uMatte: { value: props.alpha === "coverage" ? 1 : 0 },
     };
     lights.forEach(
-      (light: collectAutoMovieMediumLights.ILight, i: number): void => {
+      (light: collectMediumLights.ILight, i: number): void => {
         uniforms[`uColor${i}`] = { value: light.color };
         uniforms[`uPosition${i}`] = { value: light.position };
         uniforms[`uDirection${i}`] = { value: light.direction };
@@ -178,7 +178,7 @@ export class AutoMovieFilmMediumPass {
       program = new THREE.RawShaderMaterial({
         glslVersion: THREE.GLSL3,
         vertexShader: AutoMovieRenderFilmResponseShaders.vertex,
-        fragmentShader: buildAutoMovieMediumShader(lights),
+        fragmentShader: buildMediumShader(lights),
         uniforms,
         depthTest: false,
         depthWrite: false,

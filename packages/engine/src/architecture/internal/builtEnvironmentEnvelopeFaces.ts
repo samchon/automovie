@@ -9,7 +9,7 @@ import {
 
 import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
-import { compareAutoMovieRenderIds } from "../../render/internal/compareAutoMovieRenderIds";
+import { compareRenderIds } from "../../render/internal/compareRenderIds";
 import { builtEnvironmentBuildingOfSpace } from "./builtEnvironmentBuildingOfSpace";
 import { builtSpaceContainsPoint } from "./builtSpaceContainsPoint";
 import { AutoMovieEngineEnvelopeFacadeLimit } from "../AutoMovieEngineEnvelopeFacadeLimit";
@@ -100,6 +100,6 @@ export function builtEnvironmentEnvelopeFaces(
     (
       left: IAutoMovieBuiltEnvelopeFace,
       right: IAutoMovieBuiltEnvelopeFace,
-    ): number => compareAutoMovieRenderIds(left.boundary, right.boundary),
+    ): number => compareRenderIds(left.boundary, right.boundary),
   );
 }

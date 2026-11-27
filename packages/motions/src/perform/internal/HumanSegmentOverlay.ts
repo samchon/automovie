@@ -14,7 +14,7 @@ import type {
   IAutoMovieSeededChainFit,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanChannel } from "../../compose/internal/AutoMovieMotionHumanChannel";
+import { motionHumanChannel } from "../../compose/internal/motionHumanChannel";
 import { HumanLimbFit } from "../../posture/internal/HumanLimbFit";
 import { blendHumanJoint } from "../../posture/internal/blendHumanJoint";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
@@ -170,12 +170,12 @@ export namespace HumanSegmentOverlay {
         person.overlays.indexOf(overlay),
     );
     const mergers: ReturnType<
-      typeof AutoMovieMotionHumanChannel.prepareMerge
+      typeof motionHumanChannel.prepareMerge
     >[] = live.map(
       (
         overlay: IAutoMovieMotionHumanSegment.IOverlay,
-      ): ReturnType<typeof AutoMovieMotionHumanChannel.prepareMerge> =>
-        AutoMovieMotionHumanChannel.prepareMerge(overlay.channels),
+      ): ReturnType<typeof motionHumanChannel.prepareMerge> =>
+        motionHumanChannel.prepareMerge(overlay.channels),
     );
     const blender: ReturnType<typeof blendHumanJoint.prepare> | undefined =
       live.length === 0 ? undefined : blendHumanJoint.prepare(body);
@@ -357,7 +357,7 @@ export namespace HumanSegmentOverlay {
       }
       const owned: Set<AutoMovieHumanoidBone> = new Set();
       for (const bone of joints.keys())
-        if (AutoMovieMotionHumanChannel.covers(overlay.channels, bone))
+        if (motionHumanChannel.covers(overlay.channels, bone))
           owned.add(bone);
 
       // Keep unowned records borrowed and ordered; owned joints are fresh.
@@ -400,8 +400,8 @@ export namespace HumanSegmentOverlay {
         ] = joints.get(bone)!;
         const from: readonly [number, number, number] = angles(pair[0]);
         const to: readonly [number, number, number] = angles(pair[1]);
-        const channel: ReturnType<typeof AutoMovieMotionHumanChannel> =
-          AutoMovieMotionHumanChannel(bone);
+        const channel: ReturnType<typeof motionHumanChannel> =
+          motionHumanChannel(bone);
         const side: AutoMovieHumanSide | undefined = bone.startsWith("left")
           ? "left"
           : bone.startsWith("right")

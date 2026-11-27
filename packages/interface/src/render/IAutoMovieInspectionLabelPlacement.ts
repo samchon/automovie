@@ -1,4 +1,4 @@
-import type { IAutoMovieInspectionLabel } from "./IAutoMovieInspectionLabel.js";
+import type { IAutoMovieInspectionLabel } from "./IAutoMovieInspectionLabel";
 
 /**
  * Greedy label placement result in output pixels.

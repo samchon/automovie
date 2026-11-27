@@ -12,7 +12,7 @@ import type {
 
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
-import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
+import { motionClock } from "./motionClock";
 import { AutoMovieMotionHumanTouchEffector } from "./AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanTouchForm } from "./AutoMovieMotionHumanTouchForm";
 import { AutoMovieMotionHumanTouchLaid } from "./AutoMovieMotionHumanTouchLaid";
@@ -48,7 +48,7 @@ export function touchGoal(
   const from: IAutoMovieVector3 | undefined =
     props.from === undefined ? undefined : HumanFrame.local(held, props.from);
   const oscillation: (seconds: number) => number =
-    AutoMovieMotionClock.prepareWave(
+    motionClock.prepareWave(
       clock,
       ["strokeStart", "strokeEnd"],
       props.count,

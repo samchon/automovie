@@ -22,20 +22,16 @@ import {
 import { createHash } from "node:crypto";
 import path from "node:path";
 
-import { writeAutoMovieRecoveryArtifact } from "../artifact/writeAutoMovieRecoveryArtifact";
-import { readAutoMovieRecoveryBoundedFile } from "./readAutoMovieRecoveryBoundedFile";
+import { writeRecoveryArtifact } from "../artifact/writeRecoveryArtifact";
+import { readRecoveryBoundedFile } from "./readRecoveryBoundedFile";
 
-/**
+/*
  * Run fixed-image observation, qualified fitting or recipe-only compilation.
  * Every command requires input, a new immutable output path and maxInputBytes.
  * observe consumes the P6 sRGB manifest; fit consumes {observation, policy};
  * realize consumes {recipe,budget}. Fit outputs keep dense observation evidence
  * separate from recipe coefficients. Realize reads only its supplied recipe
  * document; no source path or acquisition cache is consulted.
- *
- * @evidence contracts/development/implementation.md#principled-implementation Bounded complete-byte acquisition and SHA-256 image verification precede deterministic P6 decoding and public resident operations. Independent commands expose the observation-to-recipe-to-source-free-model boundaries. No directory scan, unknown-format fallback, unverified image bytes, source mesh, trained estimator, changed budget or output overwrite is used; a refused operation publishes nothing.
- * @evidence contracts/development/implementation.md#efficient-algorithms This Node host owns explicit paths, codec dispatch, provenance and immutable publication while recovery library operations own observation/fitting and the engine owns geometry. Reading and hashing are O(B) in admitted bytes, RGB copies O(P) in bounded pixels, and serialization O(O) in output size. Delegated observation/fitting costs retain their declared budgets; image sources are acquired once and aggregate pixels are checked before accumulating decoded arrays. One command invokes one public operation and publishes its completed value once; exact source hashes and operation/source-epoch provenance identify that effect without a hidden resume cache. Bounded reads close descriptors synchronously. Decoded arrays grow only to the manifest pixel/view budget, expire after observation and never enter recipe-only compilation; the atomic writer owns and cleans its staging file.
- * @evidence contracts/development/common.md#meaningful-documentation States command input structures, explicit per-file byte bound, raw P6 colour convention, separate evidence/recipe files, source epoch and recipe-only consumption.
  */
 export function recoveryImages(args: string[], sourceEpoch: string): void {
   const [command, inputPath, outputPath, byteText]: string[] = args;
@@ -50,7 +46,7 @@ export function recoveryImages(args: string[], sourceEpoch: string): void {
     throw new Error(
       "Usage: images observe|fit|realize input.json new-output.json maxInputBytes",
     );
-  const bytes: Buffer = readAutoMovieRecoveryBoundedFile(
+  const bytes: Buffer = readRecoveryBoundedFile(
     inputPath,
     maxInputBytes,
   );
@@ -93,7 +89,7 @@ export function recoveryImages(args: string[], sourceEpoch: string): void {
         !/^[a-f0-9]{64}$/i.test(view.sha256)
       )
         throw new Error("Every image needs an explicit path and SHA-256");
-      const image: Buffer = readAutoMovieRecoveryBoundedFile(
+      const image: Buffer = readRecoveryBoundedFile(
         path.resolve(path.dirname(inputPath), view.path),
         maxInputBytes,
       );
@@ -161,7 +157,7 @@ export function recoveryImages(args: string[], sourceEpoch: string): void {
           );
   }
   if (!("value" in outcome)) throw new Error(outcome.diagnostics.join("; "));
-  writeAutoMovieRecoveryArtifact(outputPath, {
+  writeRecoveryArtifact(outputPath, {
     command,
     sourceEpoch,
     inputSha256,

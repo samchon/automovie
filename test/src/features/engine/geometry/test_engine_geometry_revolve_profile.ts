@@ -5,7 +5,7 @@ import { TestValidator } from "@nestia/e2e";
 import { throwsError } from "../../internal/predicates";
 
 /**
- * `revolveAutoMovieProfile` turns a radius profile about the y axis into a
+ * `revolveProfile` turns a radius profile about the y axis into a
  * closed-seam ring mesh.
  *
  * Fixture: the profile (0,-1), (1,-1), (1,1), (0,1) at 8 segments.

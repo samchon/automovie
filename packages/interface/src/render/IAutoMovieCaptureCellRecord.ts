@@ -1,6 +1,6 @@
-import type { IAutoMovieCaptureResolution } from "./IAutoMovieCaptureResolution.js";
-import type { IAutoMovieCaptureSelection } from "./IAutoMovieCaptureSelection.js";
-import type { IAutoMovieCaptureTime } from "./IAutoMovieCaptureTime.js";
+import type { IAutoMovieCaptureResolution } from "./IAutoMovieCaptureResolution";
+import type { IAutoMovieCaptureSelection } from "./IAutoMovieCaptureSelection";
+import type { IAutoMovieCaptureTime } from "./IAutoMovieCaptureTime";
 
 /**
  * Records what a planned capture cell draws, its sheet position and its outcome.

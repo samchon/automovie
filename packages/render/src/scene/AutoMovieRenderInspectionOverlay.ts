@@ -1,9 +1,9 @@
-import { type IAutoMovieRenderInspectionDiagnosticOverlay } from "./IAutoMovieRenderInspectionDiagnosticOverlay.js";
+import { type IAutoMovieRenderInspectionDiagnosticOverlay } from "./IAutoMovieRenderInspectionDiagnosticOverlay";
 import type * as THREE from "three";
-import { createAutoMovieInspectionDotsImplementation } from "./inspection/internal/createAutoMovieInspectionDotsImplementation.js";
-import { createAutoMovieInspectionDiagnosticOverlay as createAutoMovieInspectionDiagnosticOverlayImplementation } from "./inspection/internal/createAutoMovieInspectionDiagnosticOverlay.js";
-import { type LineSegments2 } from "three/examples/jsm/lines/LineSegments2.js";
-import { createAutoMovieInspectionStrokes as createAutoMovieInspectionStrokesImplementation } from "./inspection/internal/createAutoMovieInspectionStrokes.js";
+import { createInspectionDotsImplementation } from "./inspection/internal/createInspectionDotsImplementation";
+import { createInspectionDiagnosticOverlay as createInspectionDiagnosticOverlayImplementation } from "./inspection/internal/createInspectionDiagnosticOverlay";
+import { type LineSegments2 } from "#three-addon/lines/LineSegments2";
+import { createInspectionStrokes as createInspectionStrokesImplementation } from "./inspection/internal/createInspectionStrokes";
 
 /** Public operations for Auto Movie Render Inspection Overlay. */
 export namespace AutoMovieRenderInspectionOverlay {
@@ -33,7 +33,7 @@ export namespace AutoMovieRenderInspectionOverlay {
    * @throws {Error} When buffer lengths differ or are not xyz triples.
    */
   export function createDots(props: ICreateDotsProps): THREE.Points {
-    return createAutoMovieInspectionDotsImplementation(
+    return createInspectionDotsImplementation(
       props.positions,
       props.colors,
       props.options,
@@ -54,7 +54,7 @@ export namespace AutoMovieRenderInspectionOverlay {
    * @returns The overlay; dispose it when the pictures end.
    */
   export function createDiagnosticOverlay(): IAutoMovieRenderInspectionDiagnosticOverlay {
-    return createAutoMovieInspectionDiagnosticOverlayImplementation();
+    return createInspectionDiagnosticOverlayImplementation();
   }
 
   /**
@@ -82,6 +82,6 @@ export namespace AutoMovieRenderInspectionOverlay {
    * the eye, so a mark on a surface is not lost to that surface.
    */
   export function createStrokes(positions: Float32Array, colors: Float32Array, options: { stroke: number; xray: boolean }): LineSegments2 {
-    return createAutoMovieInspectionStrokesImplementation(positions, colors, options);
+    return createInspectionStrokesImplementation(positions, colors, options);
   }
 }

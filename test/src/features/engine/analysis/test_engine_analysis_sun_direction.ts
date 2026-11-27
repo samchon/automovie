@@ -8,7 +8,7 @@ import { TestValidator } from "@nestia/e2e";
 import { vclose } from "../../internal/vclose";
 
 /**
- * `autoMovieSunDirection` turns azimuth (eastward from north) and elevation
+ * `sunDirection` turns azimuth (eastward from north) and elevation
  * into `cos e (cos a · N + sin a · E) + sin e · U`, with E = N × U.
  *
  * Scenarios:

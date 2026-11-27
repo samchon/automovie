@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanHeadTilt,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { HumanBound } from "../../law/internal/HumanBound";
 
 /*
@@ -24,7 +24,7 @@ export function headTiltClock(
     0.6,
     "s",
   );
-  return AutoMovieMotionClock(seconds, [
+  return motionClock(seconds, [
     { name: "ready", seconds: 0 },
     { name: "strokeStart", seconds: 0 },
     { name: "stroke", seconds: seconds / 3 },

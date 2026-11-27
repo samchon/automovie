@@ -1,13 +1,13 @@
 import type * as THREE from "three";
-import { type IAutoMovieRenderInspectionOverlay } from "./IAutoMovieRenderInspectionOverlay.js";
-import { type IAutoMovieRenderInspectionMarkSet } from "./IAutoMovieRenderInspectionMarkSet.js";
-import { buildAutoMovieInspectionMarks as buildAutoMovieInspectionMarksImplementation } from "./inspection/internal/buildAutoMovieInspectionMarks.js";
-import { chooseAutoMovieInspectionMarks as chooseAutoMovieInspectionMarksImplementation } from "./inspection/internal/chooseAutoMovieInspectionMarks.js";
+import { type IAutoMovieRenderInspectionOverlay } from "./IAutoMovieRenderInspectionOverlay";
+import { type IAutoMovieRenderInspectionMarkSet } from "./IAutoMovieRenderInspectionMarkSet";
+import { buildInspectionMarks as buildInspectionMarksImplementation } from "./inspection/internal/buildInspectionMarks";
+import { chooseInspectionMarks as chooseInspectionMarksImplementation } from "./inspection/internal/chooseInspectionMarks";
 import { type IAutoMovieInspectionSweepUnit, type IAutoMovieInspectionSweepProps, type IAutoMovieInspectionLegendEntry, type IAutoMovieMark, type IAutoMovieInspectionKindStyle, type IAutoMovieInspectionDiagnostics } from "@automovie/interface";
-import { expandAutoMovieInspectionSweep as expandAutoMovieInspectionSweepImplementation } from "./inspection/internal/expandAutoMovieInspectionSweep.js";
-import { legendAutoMovieInspectionMarks as legendAutoMovieInspectionMarksImplementation } from "./inspection/internal/legendAutoMovieInspectionMarks.js";
-import { mergeAutoMovieInspectionLegends as mergeAutoMovieInspectionLegendsImplementation } from "./inspection/internal/mergeAutoMovieInspectionLegends.js";
-import { reduceAutoMovieInspectionEpisodes as reduceAutoMovieInspectionEpisodesImplementation } from "./inspection/internal/reduceAutoMovieInspectionEpisodes.js";
+import { expandInspectionSweep as expandInspectionSweepImplementation } from "./inspection/internal/expandInspectionSweep";
+import { legendInspectionMarks as legendInspectionMarksImplementation } from "./inspection/internal/legendInspectionMarks";
+import { mergeInspectionLegends as mergeInspectionLegendsImplementation } from "./inspection/internal/mergeInspectionLegends";
+import { reduceInspectionEpisodes as reduceInspectionEpisodesImplementation } from "./inspection/internal/reduceInspectionEpisodes";
 
 /** Public operations for Auto Movie Render Inspection Marks. */
 export namespace AutoMovieRenderInspectionMarks {
@@ -48,7 +48,7 @@ export namespace AutoMovieRenderInspectionMarks {
    * object has.
    */
   export function choose(props: IChooseProps): IChooseResult {
-    return chooseAutoMovieInspectionMarksImplementation(props);
+    return chooseInspectionMarksImplementation(props);
   }
   /**
    * Build marks into drawable lines and points, one line object and one points
@@ -73,7 +73,7 @@ export namespace AutoMovieRenderInspectionMarks {
    * coordinates.
    */
   export function build(sets: readonly IAutoMovieRenderInspectionMarkSet[], options: { stroke: number; xray: boolean }): IAutoMovieRenderInspectionOverlay {
-    return buildAutoMovieInspectionMarksImplementation(sets, options);
+    return buildInspectionMarksImplementation(sets, options);
   }
 
   /**
@@ -100,7 +100,7 @@ export namespace AutoMovieRenderInspectionMarks {
    * are not finite or not ordered, and a pattern that matches no object.
    *
    * ```ts
-   * expandAutoMovieInspectionSweep({
+   * expandInspectionSweep({
    *   objects,
    *   pattern: "hero/*",
    *   margin: 0.02,
@@ -108,7 +108,7 @@ export namespace AutoMovieRenderInspectionMarks {
    * ```
    */
   export function expandSweep(props: IAutoMovieInspectionSweepProps): IAutoMovieInspectionSweepUnit[] {
-    return expandAutoMovieInspectionSweepImplementation(props);
+    return expandInspectionSweepImplementation(props);
   }
 
   /**
@@ -122,7 +122,7 @@ export namespace AutoMovieRenderInspectionMarks {
    * flag entry, because its own colour is not in the picture.
    */
   export function legend(marks: readonly IAutoMovieMark[], kinds: ReadonlyMap<string, IAutoMovieInspectionKindStyle>): IAutoMovieInspectionLegendEntry[] {
-    return legendAutoMovieInspectionMarksImplementation(marks, kinds);
+    return legendInspectionMarksImplementation(marks, kinds);
   }
 
   /**
@@ -133,7 +133,7 @@ export namespace AutoMovieRenderInspectionMarks {
    * names two different marks.
    */
   export function mergeLegends(legends: readonly (readonly IAutoMovieInspectionLegendEntry[])[]): IAutoMovieInspectionLegendEntry[] {
-    return mergeAutoMovieInspectionLegendsImplementation(legends);
+    return mergeInspectionLegendsImplementation(legends);
   }
 
   /**
@@ -151,6 +151,6 @@ export namespace AutoMovieRenderInspectionMarks {
    *   independent delivery gate facts.
    */
   export function reduceEpisodes(packets: Iterable<IAutoMovieInspectionDiagnostics>, expectedOutputFrames?: number): IAutoMovieInspectionDiagnostics.IAudit {
-    return reduceAutoMovieInspectionEpisodesImplementation(packets, expectedOutputFrames);
+    return reduceInspectionEpisodesImplementation(packets, expectedOutputFrames);
   }
 }

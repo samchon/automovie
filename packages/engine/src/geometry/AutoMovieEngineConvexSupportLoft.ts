@@ -4,8 +4,8 @@ import type {
 } from "@automovie/interface";
 
 import type { IAutoMovieSupportLoftPlan64 } from "./support-loft/internal/IAutoMovieSupportLoftPlan64";
-import { emitAutoMovieSupportLoft64 } from "./support-loft/internal/emitAutoMovieSupportLoft64";
-import { planAutoMovieSupportLoft64 } from "./support-loft/internal/planAutoMovieSupportLoft64";
+import { emitSupportLoft64 } from "./support-loft/internal/emitSupportLoft64";
+import { planSupportLoft64 } from "./support-loft/internal/planSupportLoft64";
 
 /** Realize authored cubic support fields as open lateral geometry. */
 export namespace AutoMovieEngineConvexSupportLoft {
@@ -107,14 +107,14 @@ export namespace AutoMovieEngineConvexSupportLoft {
           );
       }
     }
-    const plan: IAutoMovieSupportLoftPlan64 = planAutoMovieSupportLoft64(
+    const plan: IAutoMovieSupportLoftPlan64 = planSupportLoft64(
       input.loft,
       input.minimumDirectionSine,
       input.tolerance,
       input.maxEvents,
       input.maxCells,
     );
-    return emitAutoMovieSupportLoft64(
+    return emitSupportLoft64(
       plan,
       input.topologyDomain,
       input.maxVertices,

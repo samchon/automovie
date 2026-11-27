@@ -4,7 +4,7 @@ import { TestValidator } from "@nestia/e2e";
 import { throwsError } from "../../internal/predicates";
 
 /**
- * `selectAutoMovieDrawSubject` picks the named subject, or with no name the
+ * `selectDrawSubject` picks the named subject, or with no name the
  * only one, and otherwise refuses, listing every subject the module offers.
  *
  * Scenarios:

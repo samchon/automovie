@@ -2,7 +2,7 @@ import type { IAutoMovieVector3 } from "./IAutoMovieVector3";
 
 /**
  * A caller-owned differential mask sample at one resident mesh vertex, passed
- * to the operation `createAutoMovieMeshDeformer` returns.
+ * to the operation `createMeshDeformer` returns.
  *
  * Samples follow the mesh's vertex order, one per vertex. For displacement `d`
  * the masked map is `p + weight * d` and its Jacobian gains `outer(d,

@@ -1,9 +1,9 @@
 import * as THREE from "three";
-import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
+import { mergeGeometries } from "#three-addon/utils/BufferGeometryUtils";
 
-import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind.js";
-import type { IAutoMovieInstancedGeometry } from "../IAutoMovieInstancedGeometry.js";
-import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceRetirement.js";
+import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind";
+import type { IAutoMovieInstancedGeometry } from "../IAutoMovieInstancedGeometry";
+import { reportResourceRetirement } from "./reportResourceRetirement";
 
 /*
  * Clone rigid parts into world-rest geometry in their shared traversal order.
@@ -136,7 +136,7 @@ export const flattenRigidParts: (
     if (geometry === null || materials.length === 0)
       throw new Error(`${owner} cannot be flattened for instancing.`);
   } catch (error) {
-    reportAutoMovieResourceRetirement(
+    reportResourceRetirement(
       [
         ...geometries.map(
           (geometry: THREE.BufferGeometry): (() => void) =>
@@ -150,7 +150,7 @@ export const flattenRigidParts: (
     throw error;
   }
   try {
-    reportAutoMovieResourceRetirement(
+    reportResourceRetirement(
       geometries.map(
         (geometry: THREE.BufferGeometry): (() => void) =>
           (): void =>
@@ -158,7 +158,7 @@ export const flattenRigidParts: (
       ),
     );
   } catch (error) {
-    reportAutoMovieResourceRetirement([(): void => merged!.dispose()], {
+    reportResourceRetirement([(): void => merged!.dispose()], {
       error,
     });
     throw error;

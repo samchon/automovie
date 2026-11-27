@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-import { runAutoMovieRecoveryCommand } from "./runAutoMovieRecoveryCommand";
+import { runRecoveryCommand } from "./runRecoveryCommand";
 
 // This installed executable owns process exit state; library imports do not.
-void runAutoMovieRecoveryCommand(process.argv.slice(2))
+void runRecoveryCommand(process.argv.slice(2))
   .then((code: number): void => {
     process.exitCode = code;
   })

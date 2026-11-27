@@ -1,6 +1,6 @@
-import type { IAutoMovieRenderViewerSnapshot } from "./IAutoMovieRenderViewerSnapshot.js";
-import type { IAutoMovieRenderViewerSubject } from "./IAutoMovieRenderViewerSubject.js";
-import type { IAutoMovieRenderViewerSubjectPose } from "./IAutoMovieRenderViewerSubjectPose.js";
+import type { IAutoMovieRenderViewerSnapshot } from "./IAutoMovieRenderViewerSnapshot";
+import type { IAutoMovieRenderViewerSubject } from "./IAutoMovieRenderViewerSubject";
+import type { IAutoMovieRenderViewerSubjectPose } from "./IAutoMovieRenderViewerSubjectPose";
 
 /**
  * Metadata and encoded image returned by one inspection capture, explicitly

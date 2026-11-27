@@ -9,7 +9,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
+import { motionHumanHeld } from "../../compose/internal/motionHumanHeld";
 import { AutoMovieMotionHumanTouchEffector } from "../../compose/internal/AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
@@ -30,7 +30,7 @@ import { HumanHand } from "../../posture/internal/HumanHand";
  * Returns: The effector at a degree turn round an upright vessel's rim; a prop
  * not upright gives the same effector at every turn.
  * When the hand does not hold the prop at the entry
- * (`AutoMovieMotionHumanHeld`), no point is named, or the prop lacks the
+ * (`motionHumanHeld`), no point is named, or the prop lacks the
  * contact.
  */
 export function HumanHeldEffector(
@@ -41,7 +41,7 @@ export function HumanHeldEffector(
   point?: string,
   namedRim: boolean = false,
 ): (turn?: number) => IAutoMovieMotionHumanTouchEffector.IEffector {
-  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
+  const held: IAutoMovieMotionHumanHeld.IHeld = motionHumanHeld(
     context,
     side,
     subject,
@@ -62,8 +62,8 @@ export function HumanHeldEffector(
       fix: "name one of the prop's contacts as `point`, or perform the act without a prop",
     });
 
-  const named: ReturnType<typeof AutoMovieMotionHumanHeld.point> =
-    AutoMovieMotionHumanHeld.point(held, name);
+  const named: ReturnType<typeof motionHumanHeld.point> =
+    motionHumanHeld.point(held, name);
   const socket: IAutoMovieVector3 = HumanHand.offset(
     context.body,
     side,

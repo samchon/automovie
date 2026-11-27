@@ -12,10 +12,10 @@ import type {
 
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
-import { AutoMovieMotionHumanBendChain } from "./AutoMovieMotionHumanBendChain";
-import { AutoMovieMotionHumanBendPreparation } from "./AutoMovieMotionHumanBendPreparation";
+import { motionHumanBendChain } from "./motionHumanBendChain";
+import { motionHumanBendPreparation } from "./motionHumanBendPreparation";
 import { AutoMovieMotionHumanBendSearch } from "./AutoMovieMotionHumanBendSearch";
-import { AutoMovieMotionHumanBendTurn } from "./AutoMovieMotionHumanBendTurn";
+import { motionHumanBendTurn } from "./motionHumanBendTurn";
 import { AutoMovieMotionHumanKneeBend } from "./AutoMovieMotionHumanKneeBend";
 
 /*
@@ -36,7 +36,7 @@ import { AutoMovieMotionHumanKneeBend } from "./AutoMovieMotionHumanKneeBend";
  * preset takes the elbow place `solve` finds: the one of least joint strain
  * among the places the ranges of motion and the trunk allow. The search over
  * those places is `AutoMovieMotionHumanBendSearch`'s, on the arm chain
- * `AutoMovieMotionHumanBendChain` prepares.
+ * `motionHumanBendChain` prepares.
  */
 export namespace AutoMovieMotionHumanBend {
   /*
@@ -180,8 +180,8 @@ export namespace AutoMovieMotionHumanBend {
    */
   export function prepare(
     fixed: Pick<IAutoMovieMotionHumanBend.ISolve, PrepareFixed>,
-  ): AutoMovieMotionHumanBendPreparation.IPrepared {
-    return AutoMovieMotionHumanBendPreparation(fixed);
+  ): motionHumanBendPreparation.IPrepared {
+    return motionHumanBendPreparation(fixed);
   }
 
   /*
@@ -190,9 +190,9 @@ export namespace AutoMovieMotionHumanBend {
    */
   export function prepareBoth(
     fixed: Pick<IAutoMovieMotionHumanBend.ISolve, PrepareBothFixed>,
-    resolution?: Parameters<typeof AutoMovieMotionHumanBendPreparation.both>[1],
-  ): ReturnType<typeof AutoMovieMotionHumanBendPreparation.both> {
-    return AutoMovieMotionHumanBendPreparation.both(fixed, resolution);
+    resolution?: Parameters<typeof motionHumanBendPreparation.both>[1],
+  ): ReturnType<typeof motionHumanBendPreparation.both> {
+    return motionHumanBendPreparation.both(fixed, resolution);
   }
   /*
    * The elbow place of least joint strain for a hand goal.
@@ -241,7 +241,7 @@ export namespace AutoMovieMotionHumanBend {
     const found: LevelFound = AutoMovieMotionHumanBendSearch.search(
       props,
       (
-        chain: AutoMovieMotionHumanBendChain.IChain,
+        chain: motionHumanBendChain.IChain,
       ): ((
         candidate: AutoMovieMotionHumanBendSearch.ICandidate,
       ) => AutoMovieMotionHumanBendSearch.IScore) =>
@@ -302,7 +302,7 @@ export namespace AutoMovieMotionHumanBend {
     elbow: IAutoMovieVector3,
     degrees: number,
   ): IAutoMovieVector3 {
-    return AutoMovieMotionHumanBendTurn(props, elbow, degrees);
+    return motionHumanBendTurn(props, elbow, degrees);
   }
 
   /*

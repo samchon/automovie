@@ -1,6 +1,6 @@
-import { frameTimes as frameTimesImplementation } from "../internal/frameTimes.js";
+import { frameTimes as frameTimesImplementation } from "../internal/frameTimes";
 import { type IAutoMoviePlanViewerFrameTimesRequest } from "@automovie/interface";
-import { planViewerFrameTimes as planViewerFrameTimesImplementation } from "../internal/planViewerFrameTimes.js";
+import { planViewerFrameTimes as planViewerFrameTimesImplementation } from "../internal/planViewerFrameTimes";
 
 /** Public operations for Auto Movie Render Scrub. */
 export namespace AutoMovieRenderScrub {

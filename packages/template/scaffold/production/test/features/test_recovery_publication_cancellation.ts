@@ -8,7 +8,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-import { publishAutoMovieRecoveryArtifact } from "../../src/executable/recovery/node/publishAutoMovieRecoveryArtifact";
+import { publishRecoveryArtifact } from "../../src/executable/recovery/node/publishRecoveryArtifact";
 
 /**
  * A publication's cancellation predicate is observed before any output is created.
@@ -32,7 +32,7 @@ export function test_recovery_publication_cancellation(): void {
     for (const throws of [false, true]) {
       let calls: number = 0;
       const result: IAutoMovieRecoveryResult<IAutoMovieFileReceipt> =
-        publishAutoMovieRecoveryArtifact(output, artifact, {
+        publishRecoveryArtifact(output, artifact, {
           cancelled: (): boolean => {
             calls++;
             if (throws) throw new Error("publication predicate failed");
@@ -62,7 +62,7 @@ export function test_recovery_publication_cancellation(): void {
         { value: (): unknown => invalidResult },
       );
       const result: IAutoMovieRecoveryResult<IAutoMovieFileReceipt> =
-        publishAutoMovieRecoveryArtifact(output, artifact, options);
+        publishRecoveryArtifact(output, artifact, options);
       TestValidator.equals(
         "nonboolean predicate fails",
         result.status,
@@ -75,7 +75,7 @@ export function test_recovery_publication_cancellation(): void {
       );
     }
     const invalid: IAutoMovieRecoveryResult<IAutoMovieFileReceipt> =
-      publishAutoMovieRecoveryArtifact(
+      publishRecoveryArtifact(
         output,
         artifact,
         JSON.parse('{"cancelled":null}'),
@@ -91,7 +91,7 @@ export function test_recovery_publication_cancellation(): void {
       [],
     );
     const completed: IAutoMovieRecoveryResult<IAutoMovieFileReceipt> =
-      publishAutoMovieRecoveryArtifact(output, artifact, {
+      publishRecoveryArtifact(output, artifact, {
         cancelled: (): boolean => false,
       });
     TestValidator.equals(
@@ -106,7 +106,7 @@ export function test_recovery_publication_cancellation(): void {
       artifact,
     );
     const cancelled: IAutoMovieRecoveryResult<IAutoMovieFileReceipt> =
-      publishAutoMovieRecoveryArtifact(
+      publishRecoveryArtifact(
         output,
         { value: 99 },
         { cancelled: (): boolean => true },

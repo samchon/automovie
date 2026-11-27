@@ -1,7 +1,7 @@
-import { autoMovieFluidSurfaceNodeName as autoMovieFluidSurfaceNodeNameImplementation } from "./internal/autoMovieFluidSurfaceNodeName";
-import { autoMoviePlantingNodeName as autoMoviePlantingNodeNameImplementation } from "./internal/autoMoviePlantingNodeName";
-import { autoMovieSoftBodyNodeName as autoMovieSoftBodyNodeNameImplementation } from "./internal/autoMovieSoftBodyNodeName";
-import { autoMovieSurfaceGraphicNodeName as autoMovieSurfaceGraphicNodeNameImplementation } from "./internal/autoMovieSurfaceGraphicNodeName";
+import { fluidSurfaceNodeName as fluidSurfaceNodeNameImplementation } from "./internal/fluidSurfaceNodeName";
+import { plantingNodeName as plantingNodeNameImplementation } from "./internal/plantingNodeName";
+import { softBodyNodeName as softBodyNodeNameImplementation } from "./internal/softBodyNodeName";
+import { surfaceGraphicNodeName as surfaceGraphicNodeNameImplementation } from "./internal/surfaceGraphicNodeName";
 
 /** Public operations for Auto Movie Engine Render Node. */
 export namespace AutoMovieEngineRenderNode {
@@ -15,12 +15,12 @@ export namespace AutoMovieEngineRenderNode {
 
   /** Name of the viewer object drawing one fluid domain's free surface. */
   export function autoMovieFluidSurfaceNodeName(domain: string): string {
-    return autoMovieFluidSurfaceNodeNameImplementation(domain);
+    return fluidSurfaceNodeNameImplementation(domain);
   }
 
   /** Name of the viewer group drawing one planting cluster's batches. */
   export function autoMoviePlantingNodeName(cluster: string): string {
-    return autoMoviePlantingNodeNameImplementation(cluster);
+    return plantingNodeNameImplementation(cluster);
   }
 
   /**
@@ -32,18 +32,18 @@ export namespace AutoMovieEngineRenderNode {
    * ground's group name is.
    */
   export function autoMovieSoftBodyNodeName(domain: string): string {
-    return autoMovieSoftBodyNodeNameImplementation(domain);
+    return softBodyNodeNameImplementation(domain);
   }
 
   /**
    * Name of the viewer object drawing one surface graphic track, which is also
    * its semantic mask id: `surface-graphic:<node>/<surface>`.
    *
-   * Mirrors `prepareAutoMovieSurfaceGraphics` in `render`. The engine cannot
+   * Mirrors `prepareSurfaceGraphics` in `render`. The engine cannot
    * import the viewer and the mask has to be derivable without a renderer, so the
    * name both sides agree on lives here.
    */
   export function autoMovieSurfaceGraphicNodeName(node: string, surface: string): string {
-    return autoMovieSurfaceGraphicNodeNameImplementation(node, surface);
+    return surfaceGraphicNodeNameImplementation(node, surface);
   }
 }

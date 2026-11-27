@@ -1,8 +1,8 @@
-import { subsurfaceTable as subsurfaceTableImplementation } from "./subsurfaceShading/internal/subsurfaceTable.js";
-import { subsurfaceFragment as subsurfaceFragmentImplementation } from "./subsurfaceShading/internal/subsurfaceFragment.js";
-import { subsurfacePhysicalChunk as subsurfacePhysicalChunkImplementation } from "./subsurfaceShading/internal/subsurfacePhysicalChunk.js";
+import { subsurfaceTable as subsurfaceTableImplementation } from "./subsurfaceShading/internal/subsurfaceTable";
+import { subsurfaceFragment as subsurfaceFragmentImplementation } from "./subsurfaceShading/internal/subsurfaceFragment";
+import { subsurfacePhysicalChunk as subsurfacePhysicalChunkImplementation } from "./subsurfaceShading/internal/subsurfacePhysicalChunk";
 import * as THREE from "three";
-import { applySubsurfaceShadingImplementation } from "./subsurfaceShading/internal/applySubsurfaceShadingImplementation.js";
+import { applySubsurfaceShadingImplementation } from "./subsurfaceShading/internal/applySubsurfaceShadingImplementation";
 
 /** Public operations for Auto Movie Render Subsurface Shading. */
 export namespace AutoMovieRenderSubsurfaceShading {

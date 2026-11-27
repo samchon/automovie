@@ -12,11 +12,11 @@ import type {
   IAutoMovieSpringStep,
 } from "@automovie/interface";
 
-import type { IAutoMovieRenderModelObject } from "./IAutoMovieRenderModelObject.js";
-import type { IAutoMovieRenderSpringAxisSettlement } from "./IAutoMovieRenderSpringAxisSettlement.js";
-import type { IAutoMovieRenderSpringConfig } from "./IAutoMovieRenderSpringConfig.js";
-import { applyExpression } from "./internal/applyExpression.js";
-import { applyPose } from "./internal/applyPose.js";
+import type { IAutoMovieRenderModelObject } from "./IAutoMovieRenderModelObject";
+import type { IAutoMovieRenderSpringAxisSettlement } from "./IAutoMovieRenderSpringAxisSettlement";
+import type { IAutoMovieRenderSpringConfig } from "./IAutoMovieRenderSpringConfig";
+import { applyExpression } from "./internal/applyExpression";
+import { applyPose } from "./internal/applyPose";
 
 /**
  * Drives a motion clip onto a built model: given an elapsed time it samples the

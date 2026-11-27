@@ -1,6 +1,6 @@
 import type * as THREE from "three";
 
-import type { IAutoMovieRenderInstanceSetViewerStats } from "./IAutoMovieRenderInstanceSetViewerStats.js";
+import type { IAutoMovieRenderInstanceSetViewerStats } from "./IAutoMovieRenderInstanceSetViewerStats";
 
 /** Viewer-owned chunked object for a compiled general instance set. */
 export interface IAutoMovieRenderInstanceSetViewerObject {

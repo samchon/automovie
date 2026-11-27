@@ -4,14 +4,14 @@ import {
   IAutoMovieGeometryResult,
 } from "@automovie/interface";
 
-import { measureAutoMovieGeometryCamera } from "../internal/measureAutoMovieGeometryCamera";
-import { measureAutoMovieGeometryDistance } from "../internal/measureAutoMovieGeometryDistance";
-import { measureAutoMovieGeometryEffect } from "../internal/measureAutoMovieGeometryEffect";
-import { measureAutoMovieGeometryFilmTime } from "../internal/measureAutoMovieGeometryFilmTime";
-import { measureAutoMovieGeometryFormation } from "../internal/measureAutoMovieGeometryFormation";
-import { measureAutoMovieGeometryGround } from "../internal/measureAutoMovieGeometryGround";
-import { measureAutoMovieGeometryPose } from "../internal/measureAutoMovieGeometryPose";
-import { measureAutoMovieGeometryReach } from "../internal/measureAutoMovieGeometryReach";
+import { measureGeometryCamera } from "../internal/measureGeometryCamera";
+import { measureGeometryDistance } from "../internal/measureGeometryDistance";
+import { measureGeometryEffect } from "../internal/measureGeometryEffect";
+import { measureGeometryFilmTime } from "../internal/measureGeometryFilmTime";
+import { measureGeometryFormation } from "../internal/measureGeometryFormation";
+import { measureGeometryGround } from "../internal/measureGeometryGround";
+import { measureGeometryPose } from "../internal/measureGeometryPose";
+import { measureGeometryReach } from "../internal/measureGeometryReach";
 
 /** Measure current film geometry from caller-established records. */
 export namespace AutoMovieEngineGeometryObservation {
@@ -25,21 +25,21 @@ export namespace AutoMovieEngineGeometryObservation {
     const request: IAutoMovieGeometryQuery = props.request;
     switch (request.query) {
       case "distance":
-        return measureAutoMovieGeometryDistance(props, request);
+        return measureGeometryDistance(props, request);
       case "reach":
-        return measureAutoMovieGeometryReach(props, request);
+        return measureGeometryReach(props, request);
       case "ground":
-        return measureAutoMovieGeometryGround(props, request);
+        return measureGeometryGround(props, request);
       case "formation":
-        return measureAutoMovieGeometryFormation(props, request);
+        return measureGeometryFormation(props, request);
       case "effect":
-        return measureAutoMovieGeometryEffect(props, request);
+        return measureGeometryEffect(props, request);
       case "film-time":
-        return measureAutoMovieGeometryFilmTime(props, request);
+        return measureGeometryFilmTime(props, request);
       case "pose":
-        return measureAutoMovieGeometryPose(props, request);
+        return measureGeometryPose(props, request);
       case "camera":
-        return measureAutoMovieGeometryCamera(props, request);
+        return measureGeometryCamera(props, request);
     }
   }
 }

@@ -1,24 +1,24 @@
 import { type Box3, type Mesh, type Object3D, type Camera, type Plane, type Matrix4, type Scene, type PerspectiveCamera, type OrthographicCamera } from "three";
 import type { IAutoMovieCameraInspection, IAutoMovieInspectionCamera, IAutoMovieInspectionDiagnostics, IAutoMovieInspectionView, IAutoMovieSubjectBox, IAutoMovieVector3 } from "@automovie/interface";
-import type { IAutoMovieRenderDrawScene } from "../draw/IAutoMovieRenderDrawScene.js";
-import type { IAutoMovieRenderDrawView } from "../draw/IAutoMovieRenderDrawView.js";
-import type { IAutoMovieRenderViewerSubjectBounds } from "./IAutoMovieRenderViewerSubjectBounds.js";
-import { boundAutoMovieCameraSubject as boundAutoMovieCameraSubjectImplementation } from "./inspection/internal/boundAutoMovieCameraSubject.js";
-import { listAutoMovieCameraSubjectMeshes as listAutoMovieCameraSubjectMeshesImplementation } from "./inspection/internal/listAutoMovieCameraSubjectMeshes.js";
-import { measureAutoMovieCameraFrameEdgeSurface as measureFrameEdgeSurfaceImplementation } from "./inspection/internal/measureAutoMovieCameraFrameEdgeSurface.js";
+import type { IAutoMovieRenderDrawScene } from "../draw/IAutoMovieRenderDrawScene";
+import type { IAutoMovieRenderDrawView } from "../draw/IAutoMovieRenderDrawView";
+import type { IAutoMovieRenderViewerSubjectBounds } from "./IAutoMovieRenderViewerSubjectBounds";
+import { boundCameraSubject as boundCameraSubjectImplementation } from "./inspection/internal/boundCameraSubject";
+import { listCameraSubjectMeshes as listCameraSubjectMeshesImplementation } from "./inspection/internal/listCameraSubjectMeshes";
+import { measureCameraFrameEdgeSurface as measureFrameEdgeSurfaceImplementation } from "./inspection/internal/measureCameraFrameEdgeSurface";
 
-import { measureAutoMovieCameraNearClip } from "./inspection/internal/measureAutoMovieCameraNearClip.js";
-import { resolveAutoMovieInspectionView as resolveViewImplementation } from "./inspection/internal/resolveAutoMovieInspectionView.js";
-import { measureAutoMovieCameraFrameEdge } from "./inspection/internal/measureAutoMovieCameraFrameEdge.js";
-import { observeAutoMovieCameraInspection } from "./inspection/internal/observeAutoMovieCameraInspection.js";
-import { observeAutoMoviePlacedCamera } from "./inspection/internal/observeAutoMoviePlacedCamera.js";
+import { measureCameraNearClip } from "./inspection/internal/measureCameraNearClip";
+import { resolveInspectionView as resolveViewImplementation } from "./inspection/internal/resolveInspectionView";
+import { measureCameraFrameEdge } from "./inspection/internal/measureCameraFrameEdge";
+import { observeCameraInspection } from "./inspection/internal/observeCameraInspection";
+import { observePlacedCamera } from "./inspection/internal/observePlacedCamera";
 
 /** Public operations for Auto Movie Render Inspection Camera. */
 export namespace AutoMovieRenderInspectionCamera {
   /** Named input and result contracts for resolving one inspection view. */
     /** Inputs used to resolve an inspection camera and its record. */
     export interface IResolveViewProps {
-      /** The view, as `parseAutoMovieInspectionView` read it. */
+      /** The view, as `parseInspectionView` read it. */
       view: IAutoMovieInspectionView;
       /** The view's text, kept in the record. */
       text: string;
@@ -57,7 +57,7 @@ export namespace AutoMovieRenderInspectionCamera {
        */
       camera: Camera;
       /**
-       * Meshes from listAutoMovieCameraSubjectMeshes with current world matrices
+       * Meshes from listCameraSubjectMeshes with current world matrices
        * and poses, or undefined when it refused the subject.
        */
       meshes: readonly Mesh[] | undefined;
@@ -185,13 +185,13 @@ export namespace AutoMovieRenderInspectionCamera {
   export function measureNearClip(
     props: INearClipProps,
   ): INearClipResult {
-    return measureAutoMovieCameraNearClip(props);
+    return measureCameraNearClip(props);
   }
   /** Observes required-subject framing from the original delivered projection. */
   export function observe(
     props: IObserveProps,
   ): IObserveResult {
-    return observeAutoMovieCameraInspection(props);
+    return observeCameraInspection(props);
   }
 
   /**
@@ -214,7 +214,7 @@ export namespace AutoMovieRenderInspectionCamera {
   export function observePlaced(
     props: IObservePlacedProps,
   ): IObservePlacedResult {
-    return observeAutoMoviePlacedCamera(props);
+    return observePlacedCamera(props);
   }
   /**
    * Measure where the sides of the delivered frame cut a required subject.
@@ -242,7 +242,7 @@ export namespace AutoMovieRenderInspectionCamera {
   export function measureFrameEdge(
     props: IFrameEdgeProps,
   ): IFrameEdgeResult {
-    return measureAutoMovieCameraFrameEdge(props);
+    return measureCameraFrameEdge(props);
   }
 
   /** Frame-edge input and outcome types shared by the camera evaluator. */
@@ -254,7 +254,7 @@ export namespace AutoMovieRenderInspectionCamera {
        */
       camera: Camera;
       /**
-       * Meshes from listAutoMovieCameraSubjectMeshes with current world matrices
+       * Meshes from listCameraSubjectMeshes with current world matrices
        * and poses, or undefined when it refused the subject.
        */
       meshes: readonly Mesh[] | undefined;
@@ -322,13 +322,13 @@ export namespace AutoMovieRenderInspectionCamera {
    * GPU tolerance, under its world matrix; Three keeps posed skinned positions in
    * the mesh's local frame, so the same world transform applies to both.
    *
-   * @param meshes Meshes from listAutoMovieCameraSubjectMeshes, with current
+   * @param meshes Meshes from listCameraSubjectMeshes, with current
    *   world matrices.
    * @returns A finite world box in metres, or undefined when the list is empty or
    *   any contribution is empty or non-finite.
    */
   export function boundSubject(meshes: readonly Mesh[]): Box3 | undefined {
-    return boundAutoMovieCameraSubjectImplementation(meshes);
+    return boundCameraSubjectImplementation(meshes);
   }
 
   /**
@@ -349,7 +349,7 @@ export namespace AutoMovieRenderInspectionCamera {
    *   means the subject draws no mesh.
    */
   export function listSubjectMeshes(target: Object3D, camera: Camera): Mesh[] | undefined {
-    return listAutoMovieCameraSubjectMeshesImplementation(target, camera);
+    return listCameraSubjectMeshesImplementation(target, camera);
   }
   /**
    * Check a required subject's drawn surface against the sides of the delivered
@@ -377,7 +377,7 @@ export namespace AutoMovieRenderInspectionCamera {
    * | Fixed                                 | A perspective camera at the position looking at the target, with the subject camera's field of view and clips, rolled to the view's up when it states one                                                   |
    * | Fixed with a scale                    | An orthographic camera at the position looking at the target, the picture's height spanning the scale times its pixels, with clips at a quarter and three and a half times the eye's distance to the target |
    * | A name the subject's `views` holds    | A perspective camera where that view places it at `seconds`, with the subject camera's field of view and clips                                                                                              |
-   * | A named viewpoint                     | A perspective camera from the viewpoint's direction fitted to `bounds` by `frameAutoMovieViewerSubject`, with the subject camera's field of view                                                            |
+   * | A named viewpoint                     | A perspective camera from the viewpoint's direction fitted to `bounds` by `frameViewerSubject`, with the subject camera's field of view                                                            |
    * | A named viewpoint with `orthographic` | An orthographic camera from the same direction whose frame holds every corner of `bounds`, by the same margin                                                                                               |
    *
    * `bounds` is what the view frames: the host measures it on what is drawn, or
@@ -400,7 +400,7 @@ export namespace AutoMovieRenderInspectionCamera {
    *
    * ```ts
    * const { camera, record } = AutoMovieRenderInspectionCamera.resolveView({
-   *   view: parseAutoMovieInspectionView("front@ortho"),
+   *   view: parseInspectionView("front@ortho"),
    *   text: "front@ortho",
    *   bounds: inspection.bounds(),
    *   camera: production.camera,

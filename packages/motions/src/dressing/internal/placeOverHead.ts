@@ -21,11 +21,11 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanAuditSkin } from "../../audit/internal/AutoMovieMotionHumanAuditSkin";
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanArmTarget } from "../../compose/internal/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
-import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
+import { motionHumanHeld } from "../../compose/internal/motionHumanHeld";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
@@ -109,7 +109,7 @@ function planPlaceOverHead(
     p.partner,
     "a loop is set over another performer's head",
   );
-  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
+  const held: IAutoMovieMotionHumanHeld.IHeld = motionHumanHeld(
     context,
     side,
     p.prop,
@@ -298,17 +298,17 @@ function planPlaceOverHead(
       "grip",
     ),
   };
-  const prepare: number = AutoMovieMotionHumanTiming.transport(
+  const prepare: number = motionHumanTiming.transport(
     AutoMovieEngineVector3.distance(
       AutoMovieMotionHumanArmTarget.point(entry, origins[other]),
       grasping(presented).point,
     ),
   );
-  const phrase: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
+  const phrase: IAutoMovieMotionClock = motionClock.phrase({
     prepare,
-    attack: AutoMovieMotionHumanTiming.transport(path.length),
-    hold: AutoMovieMotionHumanTiming.seconds("beat"),
-    retract: AutoMovieMotionHumanTiming.transport(
+    attack: motionHumanTiming.transport(path.length),
+    hold: motionHumanTiming.seconds("beat"),
+    retract: motionHumanTiming.transport(
       Math.max(
         AutoMovieEngineVector3.distance(
           holding(path.worn).point,
@@ -328,7 +328,7 @@ function planPlaceOverHead(
   const clock: IAutoMovieMotionClock =
     release === undefined
       ? phrase
-      : AutoMovieMotionClock(phrase.duration, [
+      : motionClock(phrase.duration, [
           ...phrase.instants,
           { name: "assistRelease", seconds: release },
         ]);

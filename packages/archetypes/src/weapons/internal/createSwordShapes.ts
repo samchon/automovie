@@ -2,7 +2,9 @@
  * The labels and geometry records used by the sword prop catalogue.
  */
 export namespace createSwordShapes {
-  /** The kinds of blade. */
+  /*
+   * The kinds of blade.
+   */
   export type Kind =
     | "longsword"
     | "armingSword"
@@ -38,33 +40,47 @@ export namespace createSwordShapes {
     knife: "fighting knife",
   };
 
-  /** What a kind is beyond its drawn dimensions. */
+  /*
+   * What a kind is beyond its drawn dimensions.
+   */
   export interface IShape {
-    /** How many hands the grip takes. */
+    /*
+     * How many hands the grip takes.
+     */
     hands: 1 | 2;
 
-    /** Whether the back of the blade is sharpened too. */
+    /*
+     * Whether the back of the blade is sharpened too.
+     */
     double: boolean;
 
-    /** Whether the weapon is also held point down, in the reverse grip. */
+    /*
+     * Whether the weapon is also held point down, in the reverse grip.
+     */
     reverse: boolean;
 
-    /**
+    /*
      * How far the point lies back toward `-Z` from the line the blade leaves the
      * guard on, metres.
      */
     curve: number;
 
-    /** The guard's span along `Z`, or a disc guard's diameter, metres. */
+    /*
+     * The guard's span along `Z`, or a disc guard's diameter, metres.
+     */
     guard: number;
 
-    /** Whether the guard is a disc about the blade, as a katana's tsuba. */
+    /*
+     * Whether the guard is a disc about the blade, as a katana's tsuba.
+     */
     disc: boolean;
 
-    /** The pommel's radius, metres. */
+    /*
+     * The pommel's radius, metres.
+     */
     pommel: number;
 
-    /**
+    /*
      * The shares of the hilt's mass in the guard, the grip and the pommel,
      * summing to 1.
      */

@@ -7,7 +7,7 @@ export namespace IAutoMovieJoinDialogueVisemes {
   /**
    * A line, the film's speaker bindings and the line's timed visemes.
    *
-   * Engine's `joinAutoMovieDialogueVisemes` places each viseme on the emission
+   * Engine's `joinDialogueVisemes` places each viseme on the emission
    * clock: frame = `line.startFrame + sample × fps / sourceSampleRate`, without
    * propagation delay. A missing speaker, absent binding or several matching
    * bindings returns a not-run outcome with no timeline. A selected binding

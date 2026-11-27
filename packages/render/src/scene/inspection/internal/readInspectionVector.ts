@@ -1,6 +1,6 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { readInspectionNumber } from "./readInspectionNumber.js";
+import { readInspectionNumber } from "./readInspectionNumber";
 
 /*
  * Read exactly three comma-separated inspection coordinates.

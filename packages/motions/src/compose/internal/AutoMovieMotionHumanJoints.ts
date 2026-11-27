@@ -7,7 +7,7 @@ import type {
   IAutoMovieMotionHumanPrimitive,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanChannel as HumanChannels } from "./AutoMovieMotionHumanChannel";
+import { motionHumanChannel as HumanChannels } from "./motionHumanChannel";
 
 /*
  * Joint primitives: clinical angles written on the joints of a channel
@@ -19,7 +19,7 @@ export namespace AutoMovieMotionHumanJoints {
    * The channels a set of angles is written on.
    * Parameter angles: Angles by bone.
    * Returns: The channels of its bones, in
-   * AutoMovieMotionHumanChannel.ORDER.
+   * motionHumanChannel.ORDER.
    */
   export function channels(
     angles: IAutoMovieMotionHumanJoints.Angles,

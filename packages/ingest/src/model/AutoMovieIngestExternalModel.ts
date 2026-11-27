@@ -7,9 +7,9 @@ import type {
 
 import { AUTO_MOVIE_EXTERNAL_MODEL_INGEST_PROFILES as supportedProfiles } from "./internal/AUTO_MOVIE_EXTERNAL_MODEL_INGEST_PROFILES";
 import { AUTOMOVIE_GLTF_MOTION_INTERPRETATION_PROFILE as fixedMotionInterpretationProfile } from "./internal/AUTOMOVIE_GLTF_MOTION_INTERPRETATION_PROFILE";
-import { adoptAutoMovieExternalMotion as adoptExternalMotion } from "./internal/adoptAutoMovieExternalMotion";
-import { inspectAutoMovieExternalModelBytes as inspectModelBytes } from "./internal/inspectAutoMovieExternalModelBytes";
-import { isAutoMovieExternalModelIngestProfile as isSupportedProfile } from "./internal/isAutoMovieExternalModelIngestProfile";
+import { adoptExternalMotion } from "./internal/adoptExternalMotion";
+import { inspectExternalModelBytes as inspectModelBytes } from "./internal/inspectExternalModelBytes";
+import { isExternalModelIngestProfile as isSupportedProfile } from "./internal/isExternalModelIngestProfile";
 
 /** Inspects external model bytes and validates authored motion adoption. */
 export namespace AutoMovieIngestExternalModel {

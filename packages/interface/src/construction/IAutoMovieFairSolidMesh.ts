@@ -1,7 +1,7 @@
 /** Seed regions for discrete fairing of a realized solid mesh. */
 export namespace IAutoMovieFairSolidMesh {
   /**
-   * Regions read synchronously without mutation by fairAutoMovieSolidMesh. An
+   * Regions read synchronously without mutation by fairSolidMesh. An
    * empty list is a no-op. Invalid seed IDs or nonpositive/nonfinite radii
    * throw before positions change. Seeds select the union of vertices reached
    * by mesh-edge paths strictly shorter than their radius; coincident positions

@@ -1,6 +1,6 @@
 import type { IAutoMovieCompiledEffect } from "@automovie/interface";
-import type { IAutoMovieRenderEffectViewerObject } from "./IAutoMovieRenderEffectViewerObject.js";
-import { buildInstancedEffect as buildInstancedEffectImplementation } from "./internal/buildInstancedEffect.js";
+import type { IAutoMovieRenderEffectViewerObject } from "./IAutoMovieRenderEffectViewerObject";
+import { buildInstancedEffect as buildInstancedEffectImplementation } from "./internal/buildInstancedEffect";
 
 /** Public operations for Auto Movie Render Effect. */
 export namespace AutoMovieRenderEffect {

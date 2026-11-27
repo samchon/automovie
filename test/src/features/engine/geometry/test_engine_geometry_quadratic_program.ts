@@ -8,7 +8,7 @@ type Input = Parameters<typeof AutoMovieEngineMath.solveQuadraticProgram>[0];
 type Result = ReturnType<typeof AutoMovieEngineMath.solveQuadraticProgram>;
 
 /**
- * `solveAutoMovieQuadraticProgram` minimizes sum d_i x_i^2 / 2 + q.x over
+ * `solveQuadraticProgram` minimizes sum d_i x_i^2 / 2 + q.x over
  * linear rows lower <= a.x <= upper, returning status 1 solved, 2 primal
  * infeasible (with a Farkas witness) or 3 dual infeasible (with a descent
  * ray).

@@ -24,11 +24,11 @@ import type {
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
-import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
+import { motionHumanHeld } from "../../compose/internal/motionHumanHeld";
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
+import { motionManner } from "../../compose/internal/motionManner";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { HumanGrip } from "../../handling/internal/HumanGrip";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanBound } from "../../law/internal/HumanBound";
@@ -51,7 +51,7 @@ import { useToolTarget } from "./useToolTarget";
  * The tool is the prop the hand holds (`prop`, taken up before, as `pickUp`
  * does), rigid in the hand from the instant its grip closed, so its working
  * point is its own `face` contact at a fixed offset in the hand's frame
- * (`AutoMovieMotionHumanHeld`), and the goal is that point on the work, the
+ * (`motionHumanHeld`), and the goal is that point on the work, the
  * hand following from it. The tool's line runs from its `grip` to its `face`
  * (`createTool`'s contacts). The work fixes that line (a hammer's level at the
  * strike, a spoon's upright, a screwdriver's along the heading, a saw's sloping
@@ -66,7 +66,7 @@ import { useToolTarget } from "./useToolTarget";
  * (`HumanToolWork`); a screwdriver turns about its own axis into the work, the
  * forearm's pronation and supination of `TURN` degrees each way. The hand
  * reaches the working pose in the timing owner's movement time
- * (`AutoMovieMotionHumanTiming`), works `cycles` cycles (a hammer's and a saw's
+ * (`motionHumanTiming`), works `cycles` cycles (a hammer's and a saw's
  * of `PERIODS` seconds, a stir's the time its circle takes at a tool stroke's
  * speed, `STROKE_SPEED`), and returns, its fingers kept closed on the tool as
  * the grip left them. Experts vary amplitude less (Bril et al. 2010, J Exp
@@ -211,7 +211,7 @@ export namespace useTool {
     // Four cycles when the author names none, the contract's default
     // (`IAutoMovieMotionHumanUseTool.IParams.cycles`).
     const cycles: number = HumanBound.whole("count", context.params.count ?? 4);
-    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+    const modifiers: IAutoMovieMotionManner.IModifiers = motionManner(
       context,
       context.params.manner,
     );
@@ -230,15 +230,15 @@ export namespace useTool {
     );
 
     // The held tool: its working point and its line in the hand's frame.
-    const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
+    const held: IAutoMovieMotionHumanHeld.IHeld = motionHumanHeld(
       context,
       side,
       subject,
     );
-    const face: IPlanFace = AutoMovieMotionHumanHeld.point(held, "face");
+    const face: IPlanFace = motionHumanHeld.point(held, "face");
     const reach: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       face.point,
-      AutoMovieMotionHumanHeld.point(held, "grip").point,
+      motionHumanHeld.point(held, "grip").point,
     );
     const length: number = AutoMovieEngineVector3.length(reach);
 
@@ -342,8 +342,8 @@ export namespace useTool {
       );
     // The reach brings the tool's face onto the work: aimed at the face's
     // own width where the tool declares one, else the timing law's rule for
-    // a target of no measured width (`AutoMovieMotionHumanTiming`).
-    const travel: number = AutoMovieMotionHumanTiming(
+    // a target of no measured width (`motionHumanTiming`).
+    const travel: number = motionHumanTiming(
       AutoMovieEngineVector3.length(
         AutoMovieEngineVector3.subtract(
           pose.grip,
@@ -420,7 +420,7 @@ export namespace useTool {
     const compose = (
       frame: IAutoMovieMotionHumanArmTarget.Frame,
     ): IAutoMovieMotionHumanActionPlan =>
-      composeAutoMovieMotionHumanAction({
+      composeMotionHumanAction({
         base,
         clock,
         contact: "contact1",
@@ -461,8 +461,8 @@ export namespace useTool {
     });
     const plan: IAutoMovieMotionHumanUseTool.IPlan = {
       ...composed,
-      contacts: [...composed.contacts, AutoMovieMotionHumanHeld.grip(held)],
-      holds: [AutoMovieMotionHumanHeld.hold(context, held)],
+      contacts: [...composed.contacts, motionHumanHeld.grip(held)],
+      holds: [motionHumanHeld.hold(context, held)],
       wields: { prop: subject, side, tip: "face" },
       posture: (
         seconds: number,

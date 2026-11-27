@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionClock } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
@@ -34,7 +34,7 @@ export function extinguishSweep(
         "a sweep is a positive whole count over a span between 0 and 180 degrees",
       fix: "give whole sweeps and a span under a half turn",
     });
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
+  const clock: IAutoMovieMotionClock = motionClock.phrase({
     prepare: tempo * extinguishSweep.AIM,
     attack: tempo * extinguishSweep.SWEEP * count,
     retract: tempo * extinguishSweep.AIM,

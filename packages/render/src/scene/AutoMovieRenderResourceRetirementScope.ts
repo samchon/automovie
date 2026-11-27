@@ -1,4 +1,4 @@
-import { reportAutoMovieResourceRetirement } from "./internal/reportAutoMovieResourceRetirement.js";
+import { reportResourceRetirement } from "./internal/reportResourceRetirement";
 
 /**
  * Retain the actual pending and failed retirements of one resource owner.
@@ -117,7 +117,7 @@ export class AutoMovieRenderResourceRetirementScope {
         else failures.push(outcome.error);
       }
     }
-    reportAutoMovieResourceRetirement(
+    reportResourceRetirement(
       failures.map((error: unknown): (() => never) => (): never => {
         throw error;
       }),

@@ -2,7 +2,7 @@ import type { IAutoMovieMotionHumanActionPlan } from "./IAutoMovieMotionHumanAct
 import type { IAutoMovieMotionClock } from "./IAutoMovieMotionClock";
 import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrimitive";
 
-/** Contracts used by composeAutoMovieMotionHumanAction. */
+/** Contracts used by composeMotionHumanAction. */
 export namespace IAutoMovieMotionHumanComposeAutoMovieMotionHumanAction {
   /**
    * An action composed of part primitives over a base. What an action is

@@ -16,7 +16,7 @@ import type {
 import { AutoMovieMotionHumanArmTarget } from "../../compose/internal/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
 import { prepareHumanElbowPath } from "../../compose/internal/prepareHumanElbowPath";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanPropFrame } from "../../perform/internal/HumanPropFrame";
@@ -391,7 +391,7 @@ export namespace wardrobeHands {
   ): number {
     return Math.max(
       0.23,
-      AutoMovieMotionHumanTiming(AutoMovieEngineVector3.distance(a.position, b.position), {
+      motionHumanTiming(AutoMovieEngineVector3.distance(a.position, b.position), {
         solid: false,
       }),
     );

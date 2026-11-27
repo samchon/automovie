@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
-import type { AutoMovieDisplayCompositor } from "./AutoMovieDisplayCompositor.js";
-import { renderCrossDissolveFrames } from "./renderCrossDissolveFrames.js";
+import type { AutoMovieDisplayCompositor } from "./AutoMovieDisplayCompositor";
+import { renderCrossDissolveFrames } from "./renderCrossDissolveFrames";
 
 /*
  * Cross-dissolve two beauty poses of one scene through a caller-owned

@@ -8,34 +8,34 @@ import type {
 } from "@automovie/interface";
 import type * as THREE from "three";
 
-import { type IAutoMovieRenderApplySectionPlanesProps } from "./IAutoMovieRenderApplySectionPlanesProps.js";
-import { type IAutoMovieRenderBuiltPropArticulation } from "./IAutoMovieRenderBuiltPropArticulation.js";
-import { type IAutoMovieRenderMaterialLibrary } from "./IAutoMovieRenderMaterialLibrary.js";
-import type { IAutoMovieRenderModelObject } from "./IAutoMovieRenderModelObject.js";
-import type { IAutoMovieRenderPixelPoint } from "./IAutoMovieRenderPixelPoint.js";
-import { type IAutoMovieRenderPlantingObject } from "./IAutoMovieRenderPlantingObject.js";
-import type { IAutoMovieRenderSceneObject } from "./IAutoMovieRenderSceneObject.js";
-import { type IAutoMovieRenderSceneSoftProps } from "./IAutoMovieRenderSceneSoftProps.js";
-import { type IAutoMovieRenderSoftBodyObject } from "./IAutoMovieRenderSoftBodyObject.js";
-import type { IAutoMovieRenderTextureResolver } from "./IAutoMovieRenderTextureResolver.js";
-import { type IAutoMovieRenderBuildMaterialLibraryProps } from "./IAutoMovieRenderBuildMaterialLibraryProps.js";
-import { type IAutoMovieRenderBuildPropArticulationProps } from "./IAutoMovieRenderBuildPropArticulationProps.js";
-import { type IBuildPlantingObjectProps } from "./internal/IBuildPlantingObjectProps.js";
-import { type IBuildSoftBodyObjectProps } from "./internal/IBuildSoftBodyObjectProps.js";
-import { applyAutoMovieSectionPlanes as applyAutoMovieSectionPlanesImplementation } from "./internal/applyAutoMovieSectionPlanes.js";
-import { buildAutoMovieConstruction as buildConstructionImplementation } from "./internal/buildAutoMovieConstruction.js";
-import { buildAutoMovieMaterialLibrary as buildAutoMovieMaterialLibraryImplementation } from "./internal/buildAutoMovieMaterialLibrary.js";
-import { buildGeometry as buildGeometryImplementation } from "./internal/buildGeometry.js";
-import { buildLight as buildLightImplementation } from "./internal/buildLight.js";
-import { buildModel as buildModelImplementation } from "./internal/buildModel.js";
-import { buildPlantingObject as buildPlantingObjectImplementation } from "./internal/buildPlantingObject.js";
-import { buildPropArticulation as buildPropArticulationImplementation } from "./internal/buildPropArticulation.js";
-import { buildScene as buildSceneImplementation } from "./internal/buildScene.js";
-import { buildSceneSoftProps as buildSceneSoftPropsImplementation } from "./internal/buildSceneSoftProps.js";
-import { buildSoftBodyObject as buildSoftBodyObjectImplementation } from "./internal/buildSoftBodyObject.js";
-import { captureAutoMovieMetricFrame as captureMetricFrameImplementation } from "./internal/captureAutoMovieMetricFrame.js";
-import { createAutoMovieClosedSphereGeometry as createClosedSphereGeometryImplementation } from "./internal/createAutoMovieClosedSphereGeometry.js";
-import { createAutoMovieMetricOrthographicCamera as createMetricOrthographicCameraImplementation } from "./internal/createAutoMovieMetricOrthographicCamera.js";
+import { type IAutoMovieRenderApplySectionPlanesProps } from "./IAutoMovieRenderApplySectionPlanesProps";
+import { type IAutoMovieRenderBuiltPropArticulation } from "./IAutoMovieRenderBuiltPropArticulation";
+import { type IAutoMovieRenderMaterialLibrary } from "./IAutoMovieRenderMaterialLibrary";
+import type { IAutoMovieRenderModelObject } from "./IAutoMovieRenderModelObject";
+import type { IAutoMovieRenderPixelPoint } from "./IAutoMovieRenderPixelPoint";
+import { type IAutoMovieRenderPlantingObject } from "./IAutoMovieRenderPlantingObject";
+import type { IAutoMovieRenderSceneObject } from "./IAutoMovieRenderSceneObject";
+import { type IAutoMovieRenderSceneSoftProps } from "./IAutoMovieRenderSceneSoftProps";
+import { type IAutoMovieRenderSoftBodyObject } from "./IAutoMovieRenderSoftBodyObject";
+import type { IAutoMovieRenderTextureResolver } from "./IAutoMovieRenderTextureResolver";
+import { type IAutoMovieRenderBuildMaterialLibraryProps } from "./IAutoMovieRenderBuildMaterialLibraryProps";
+import { type IAutoMovieRenderBuildPropArticulationProps } from "./IAutoMovieRenderBuildPropArticulationProps";
+import { type IBuildPlantingObjectProps } from "./internal/IBuildPlantingObjectProps";
+import { type IBuildSoftBodyObjectProps } from "./internal/IBuildSoftBodyObjectProps";
+import { applySectionPlanes as applySectionPlanesImplementation } from "./internal/applySectionPlanes";
+import { buildConstruction as buildConstructionImplementation } from "./internal/buildConstruction";
+import { buildMaterialLibrary as buildMaterialLibraryImplementation } from "./internal/buildMaterialLibrary";
+import { buildGeometry as buildGeometryImplementation } from "./internal/buildGeometry";
+import { buildLight as buildLightImplementation } from "./internal/buildLight";
+import { buildModel as buildModelImplementation } from "./internal/buildModel";
+import { buildPlantingObject as buildPlantingObjectImplementation } from "./internal/buildPlantingObject";
+import { buildPropArticulation as buildPropArticulationImplementation } from "./internal/buildPropArticulation";
+import { buildScene as buildSceneImplementation } from "./internal/buildScene";
+import { buildSceneSoftProps as buildSceneSoftPropsImplementation } from "./internal/buildSceneSoftProps";
+import { buildSoftBodyObject as buildSoftBodyObjectImplementation } from "./internal/buildSoftBodyObject";
+import { captureMetricFrame as captureMetricFrameImplementation } from "./internal/captureMetricFrame";
+import { createClosedSphereGeometry as createClosedSphereGeometryImplementation } from "./internal/createClosedSphereGeometry";
+import { createMetricOrthographicCamera as createMetricOrthographicCameraImplementation } from "./internal/createMetricOrthographicCamera";
 
 /** Public operations for Auto Movie Render Scene Layout. */
 export namespace AutoMovieRenderSceneLayout {
@@ -140,7 +140,7 @@ export namespace AutoMovieRenderSceneLayout {
   export function buildMaterialLibrary(
     props: IAutoMovieRenderBuildMaterialLibraryProps,
   ): Promise<IAutoMovieRenderMaterialLibrary> {
-    return buildAutoMovieMaterialLibraryImplementation(props);
+    return buildMaterialLibraryImplementation(props);
   }
 
   /**
@@ -322,7 +322,7 @@ export namespace AutoMovieRenderSceneLayout {
   export function applySectionPlanes(
     props: IAutoMovieRenderApplySectionPlanesProps,
   ): THREE.Plane[] {
-    return applyAutoMovieSectionPlanesImplementation(props);
+    return applySectionPlanesImplementation(props);
   }
   /** Arguments for building caller-authored construction polylines. */
   export interface IBuildConstructionProps {

@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-import { reportAutoMovieResourceRetirement } from "../../internal/reportAutoMovieResourceRetirement.js";
+import { reportResourceRetirement } from "../../internal/reportResourceRetirement";
 
 /*
  * Own the optional part-colour materials beside an existing polygon drawing.
@@ -90,7 +90,7 @@ export function createHumanPolygonPalette(
     } catch (error: unknown) {
       for (const tinted of next.values()) uncertainMaterials.add(tinted);
       try {
-        reportAutoMovieResourceRetirement(
+        reportResourceRetirement(
           [...next.values()].map(
             (tinted: THREE.MeshStandardMaterial): (() => void) =>
               (): void =>
@@ -107,7 +107,7 @@ export function createHumanPolygonPalette(
     colorMaterials = next;
     for (const [mesh, selected] of assignments) mesh.material = selected;
     try {
-      reportAutoMovieResourceRetirement(
+      reportResourceRetirement(
         [...previous.values()].map(
           (tinted: THREE.MeshStandardMaterial): (() => void) =>
             (): void =>
@@ -127,7 +127,7 @@ export function createHumanPolygonPalette(
       return colorFailure;
     },
     dispose: (): void => {
-      reportAutoMovieResourceRetirement(
+      reportResourceRetirement(
         [...colorMaterials.values()].map(
           (tinted: THREE.MeshStandardMaterial): (() => void) =>
             (): void =>

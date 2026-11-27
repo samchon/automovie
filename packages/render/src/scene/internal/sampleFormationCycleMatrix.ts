@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
-import type { IAutoMovieRenderFormationCycle } from "../IAutoMovieRenderFormationCycle.js";
-import type { IAutoMovieRenderFormationCycleTake } from "../IAutoMovieRenderFormationCycleTake.js";
+import type { IAutoMovieRenderFormationCycle } from "../IAutoMovieRenderFormationCycle";
+import type { IAutoMovieRenderFormationCycleTake } from "../IAutoMovieRenderFormationCycleTake";
 
 /*
  * Read and linearly mix two neighboring canonical baked samples into a CPU

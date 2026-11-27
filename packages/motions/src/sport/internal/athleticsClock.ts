@@ -3,8 +3,8 @@ import type {
   IAutoMovieMotionManner,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
+import { motionClock } from "../../compose/internal/motionClock";
+import { motionManner } from "../../compose/internal/motionManner";
 
 /*
  * The sprint start's timetable: the crouch into the set position over
@@ -23,8 +23,8 @@ export function athleticsClock(
   drive: number | undefined,
   modifiers: IAutoMovieMotionManner.IModifiers,
 ): IAutoMovieMotionClock {
-  const timed: IAutoMovieMotionClock = AutoMovieMotionManner.time(
-    AutoMovieMotionClock.phrase({
+  const timed: IAutoMovieMotionClock = motionManner.time(
+    motionClock.phrase({
       prepare: athleticsClock.CROUCH,
       attack: 0,
       hold,
@@ -34,7 +34,7 @@ export function athleticsClock(
   );
   const gun: number = timed.at("relax");
   const end: number = timed.duration;
-  return AutoMovieMotionClock(timed.duration, [
+  return motionClock(timed.duration, [
     ...timed.instants,
     { name: "onYourMarks", seconds: 0 },
     { name: "set", seconds: timed.at("ready") },

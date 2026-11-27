@@ -2,7 +2,7 @@
  * A streaming ITU-R BS.1770-5 meter of 48 kHz PCM: K-weighted gated integrated
  * loudness and 4× oversampled true peak.
  *
- * Engine's `createAutoMovieLoudnessMeter` makes one for mono or interleaved
+ * Engine's `createLoudnessMeter` makes one for mono or interleaved
  * stereo. Samples arrive in any number of `push` calls; `measure` reads the
  * result so far without disturbing it. The sound mix measures dialogue lines
  * and the master with it, and the delivery host measures the decoded delivered

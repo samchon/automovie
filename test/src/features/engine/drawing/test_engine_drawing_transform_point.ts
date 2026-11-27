@@ -7,7 +7,7 @@ import { vclose } from "../../internal/vclose";
 const ROUNDING: number = 1e-12;
 
 /**
- * `transformAutoMovieDrawingPoint` applies a column-major 4 x 4 matrix to a
+ * `transformDrawingPoint` applies a column-major 4 x 4 matrix to a
  * point.
  *
  * Scenarios:

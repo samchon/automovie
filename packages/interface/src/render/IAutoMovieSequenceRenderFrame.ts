@@ -1,4 +1,4 @@
-import type { IAutoMovieTransition } from "../cinematics/IAutoMovieTransition.js";
+import type { IAutoMovieTransition } from "../cinematics/IAutoMovieTransition";
 
 /** A sequence frame sample ready for a render host. */
 export interface IAutoMovieSequenceRenderFrame {

@@ -3,7 +3,7 @@ import type {
   IAutoMovieSolidMeshConstraints,
 } from "@automovie/interface";
 
-import { orientAutoMovieSolidChart } from "./construction/internal/orientAutoMovieSolidChart";
+import { orientSolidChart } from "./construction/internal/orientSolidChart";
 
 /**
  * Partition existing indexed chart constraints without inventing or welding a
@@ -235,11 +235,11 @@ export namespace AutoMovieEngineSolidMeshConstraints {
             target[1] + (turn + other.turn) * (period ?? 0),
           ];
           const crosses: boolean =
-            orientAutoMovieSolidChart(a, b, c) *
-              orientAutoMovieSolidChart(a, b, d) <
+            orientSolidChart(a, b, c) *
+              orientSolidChart(a, b, d) <
               0 &&
-            orientAutoMovieSolidChart(c, d, a) *
-              orientAutoMovieSolidChart(c, d, b) <
+            orientSolidChart(c, d, a) *
+              orientSolidChart(c, d, b) <
               0;
           if (crosses)
             return `subconstraints ${i} and ${j} cross without a supplied shared vertex`;
@@ -283,7 +283,7 @@ function on(
     point[0] <= Math.max(a[0], b[0]) &&
     point[1] >= Math.min(a[1], b[1]) &&
     point[1] <= Math.max(a[1], b[1]) &&
-    orientAutoMovieSolidChart(a, b, point) === 0
+    orientSolidChart(a, b, point) === 0
   );
 }
 

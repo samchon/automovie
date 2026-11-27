@@ -317,23 +317,33 @@ export namespace AutoMovieHumanHeadTapeSource {
   }
 }
 
-/** One numerical trial and the exact source used at that station. */
+/*
+ * One numerical trial and the exact source used at that station.
+ */
 interface ILocated {
-  /** Actual selected physical station, calibration mm. */
+  /*
+   * Actual selected physical station, calibration mm.
+   */
   station: number;
 
-  /**
+  /*
    * Present after numerical inversion; exact anchors request their own station
    * directly.
    */
   source?: IAutoMovieHumanHeadTapeStation.IPrepared;
 }
 
-/** An original plane residual and its same-trial numeric source. */
+/*
+ * An original plane residual and its same-trial numeric source.
+ */
 interface IResidual {
-  /** Actual world-plane residual, calibration mm. */
+  /*
+   * Actual world-plane residual, calibration mm.
+   */
   value: number;
 
-  /** Exact scalar/native station used to compute that residual. */
+  /*
+   * Exact scalar/native station used to compute that residual.
+   */
   source: IAutoMovieHumanHeadTapeStation.IPrepared;
 }

@@ -8,10 +8,10 @@ import { HumanPrehension } from "./HumanPrehension";
 import { handshake } from "./handshake";
 
 /*
- * The meeting of a handover (`AutoMovieMotionMeeting`): one record for the
+ * The meeting of a handover (`motionMeeting`): one record for the
  * giver and the receiver, the single owner of where the object's receiving grip
  * is handed over and of each partner's seat. The place is the mutual goal of
- * both acting shoulders (`resolveAutoMovieMutualGoal` with the handshake's
+ * both acting shoulders (`resolveMutualGoal` with the handshake's
  * comfortable reach) at the exchange height (`HumanHandover.EXCHANGE`); a
  * seated pair whose arms alone cannot meet leans its trunks forward over the
  * seat by the least common share of each one's room that lets them

@@ -2,7 +2,7 @@ import { type IAutoMovieRenderViewerViewpoint, AutoMovieRenderSubjectViewpoint }
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `autoMovieViewerTurntableViewpoints` spaces viewpoints evenly round the
+ * `viewerTurntableViewpoints` spaces viewpoints evenly round the
  * subject on each elevation ring.
  *
  * Scenarios:

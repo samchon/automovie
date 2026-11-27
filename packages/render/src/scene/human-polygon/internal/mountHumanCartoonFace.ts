@@ -1,9 +1,9 @@
 import * as THREE from "three";
 
-import { AutoMovieRenderThreeKind } from "../../AutoMovieRenderThreeKind.js";
-import { isAutoMovieFloat32Point } from "../../inspection/isAutoMovieFloat32Point.js";
-import { readAutoMovieBufferAttribute } from "../../internal/readAutoMovieBufferAttribute.js";
-import type { AutoMovieRenderHumanPolygon } from "../../AutoMovieRenderHumanPolygon.js";
+import { AutoMovieRenderThreeKind } from "../../AutoMovieRenderThreeKind";
+import { isFloat32Point } from "../../inspection/isFloat32Point";
+import { readBufferAttribute } from "../../internal/readBufferAttribute";
+import type { AutoMovieRenderHumanPolygon } from "../../AutoMovieRenderHumanPolygon";
 
 /*
  * Bake and mount the original cartoon marks on the actual polygon front.
@@ -19,7 +19,7 @@ export function mountHumanCartoonFace(
     const part: THREE.Mesh = child;
     part.updateMatrix();
     part.geometry.applyMatrix4(part.matrix);
-    const positions: THREE.BufferAttribute = readAutoMovieBufferAttribute(
+    const positions: THREE.BufferAttribute = readBufferAttribute(
       part.geometry,
       "position",
     );
@@ -56,7 +56,7 @@ export function mountHumanCartoonFace(
         }
       }
       const mountedX: number = x + positions.getX(i) - head.max[0];
-      if (!isAutoMovieFloat32Point(new THREE.Vector3(mountedX, y, z)))
+      if (!isFloat32Point(new THREE.Vector3(mountedX, y, z)))
         throw new Error(
           "Cartoon attachment exceeds finite Float32 coordinates",
         );

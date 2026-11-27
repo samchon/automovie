@@ -3,8 +3,8 @@ import type {
   IAutoMovieResolveProductionVideoProfileProps,
 } from "@automovie/interface";
 
-import { AutoMovieRenderMp4SrgbColour } from "../AutoMovieRenderMp4SrgbColour.js";
-import { AutoMovieRenderMp4UnityMatrix } from "../AutoMovieRenderMp4UnityMatrix.js";
+import { AutoMovieRenderMp4SrgbColour } from "../AutoMovieRenderMp4SrgbColour";
+import { AutoMovieRenderMp4UnityMatrix } from "../AutoMovieRenderMp4UnityMatrix";
 
 /*
  * Resolve an authored raster and exact frame rate to the one H.264-in-MP4

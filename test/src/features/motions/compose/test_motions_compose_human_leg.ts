@@ -9,8 +9,8 @@ import type {
 } from "@automovie/interface";
 import { AutoMovieMotionHumanStance } from "@automovie/motions";
 import {
-  AutoMovieMotionClock
-} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionClock";
+  motionClock
+} from "../../../../../packages/motions/src/compose/internal/motionClock";
 import {
   AutoMovieMotionHumanLeg
 } from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanLeg";
@@ -42,7 +42,7 @@ import { vclose } from "../../internal/vclose";
 const REACH: number = 0.005;
 
 /** A 2 s phrase clock: ready, stroke start, stroke, stroke end, relax. */
-const CLOCK: IAutoMovieMotionClock = AutoMovieMotionClock(2, [
+const CLOCK: IAutoMovieMotionClock = motionClock(2, [
   { name: "ready", seconds: 0.25 },
   { name: "strokeStart", seconds: 0.5 },
   { name: "stroke", seconds: 1 },

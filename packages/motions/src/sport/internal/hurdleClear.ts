@@ -14,10 +14,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionHumanLeg";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { HumanObstacle } from "../../everyday/internal/HumanObstacle";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
@@ -384,7 +384,7 @@ export namespace hurdleClear {
         fix: "change the staged approach and landing",
       });
 
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(duration, [
+    const clock: IAutoMovieMotionClock = motionClock(duration, [
       { name: "takeoff", seconds: off },
       { name: "clear", seconds: crossing },
       { name: "touchdown", seconds: down },
@@ -479,7 +479,7 @@ export namespace hurdleClear {
       }),
     ];
     const plan: IAutoMovieMotionHumanActionPlan =
-      composeAutoMovieMotionHumanAction({
+      composeMotionHumanAction({
         base: AutoMovieMotionHumanBase.still(duration, entry, [
           {
             part: `${take}Foot`,

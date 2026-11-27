@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-import { AutoMovieRenderDetailNormalTarget } from "../../AutoMovieRenderDetailNormalTarget.js";
+import { AutoMovieRenderDetailNormalTarget } from "../../AutoMovieRenderDetailNormalTarget";
 
 /*
  * Insert code into the tangent-space branch of three's normal-map chunk, just

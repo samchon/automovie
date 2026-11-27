@@ -1,7 +1,7 @@
 import type { IAutoMovieMaterialWear } from "@automovie/interface";
 import * as THREE from "three";
 
-import { applyMaterialWear as applyMaterialWearImplementation } from "./wearShading/internal/applyMaterialWear.js";
+import { applyMaterialWear as applyMaterialWearImplementation } from "./wearShading/internal/applyMaterialWear";
 
 /** Operations that prepare geometry and material for authored surface wear. */
 export namespace AutoMovieRenderWearShading {

@@ -1,12 +1,12 @@
 import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieAffordance, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanHeld, IAutoMovieMotionHumanPlayWindInstrument, IAutoMovieMotionHumanPosture } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
@@ -102,7 +102,7 @@ export namespace playWindInstrument {
     const delay = HumanBound.least("delay", params.delay ?? 0, 0, "s");
     const prepare = HumanBound.above(
       "prepare",
-      params.prepare ?? AutoMovieMotionHumanTiming.transport(distance),
+      params.prepare ?? motionHumanTiming.transport(distance),
       0,
       "s",
     );
@@ -120,7 +120,7 @@ export namespace playWindInstrument {
     );
     const atMouth = delay + prepare;
     const playEnd = atMouth + seconds;
-    const clock = AutoMovieMotionClock(playEnd + retract, [
+    const clock = motionClock(playEnd + retract, [
       { name: "lift", seconds: delay },
       { name: "atMouth", seconds: atMouth },
       { name: "playEnd", seconds: playEnd },
@@ -190,7 +190,7 @@ export namespace playWindInstrument {
         );
       },
     });
-    const plan = composeAutoMovieMotionHumanAction({
+    const plan = composeMotionHumanAction({
       base,
       clock,
       primitives: [arm],

@@ -159,7 +159,7 @@ export interface IFilmProduction {
    * right after each placement, a transition shot's and a sub-frame sample's
    * included, before each picture of the Viewer, a capture or the delivered
    * video: draw the placed shot's surface feeds with `renderFeeds` of the
-   * surface graphics `prepareAutoMovieSurfaceGraphics` returned, resolving each
+   * surface graphics `prepareSurfaceGraphics` returned, resolving each
    * feed camera by id and passing the film's `optics` for the same placement,
    * so a screen shows an exposed picture rather than raw scene light. It must
    * leave the renderer's render target as it found it. Absent, no feed is drawn
@@ -273,7 +273,7 @@ export interface IFilmProduction {
   /**
    * Optional inspection marks of the film at an exact second: what its owners
    * locate, such as the construction curves of its built forms from
-   * `markAutoMovieConstructionCurves`. They are drawn only when an inspection's
+   * `markConstructionCurves`. They are drawn only when an inspection's
    * `marks` parameter names their kinds, in the Viewer and in a capture alike,
    * and are asked for right after the drawn second's last placement, the shot
    * the picture shows most of, so they describe that shot.

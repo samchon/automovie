@@ -39,46 +39,46 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { autoMovieBoundaryFacePoint as autoMovieBoundaryFacePointImplementation } from "./internal/autoMovieBoundaryFacePoint";
-import { autoMovieBoundaryShellTriangles as autoMovieBoundaryShellTrianglesImplementation } from "./internal/autoMovieBoundaryShellTriangles";
-import { autoMovieDrawingCellSection as autoMovieDrawingCellSectionImplementation } from "./internal/autoMovieDrawingCellSection";
-import { autoMovieDrawingCellVolume as autoMovieDrawingCellVolumeImplementation } from "./internal/autoMovieDrawingCellVolume";
-import { autoMovieDrawingCutEdges as autoMovieDrawingCutEdgesImplementation } from "./internal/autoMovieDrawingCutEdges";
-import { autoMovieDrawingElementTriangles as autoMovieDrawingElementTrianglesImplementation } from "./internal/autoMovieDrawingElementTriangles";
-import { autoMovieDrawingExtent as autoMovieDrawingExtentImplementation } from "./internal/autoMovieDrawingExtent";
-import { autoMovieDrawingFrame as autoMovieDrawingFrameImplementation } from "./internal/autoMovieDrawingFrame";
-import { autoMovieDrawingHasCut as autoMovieDrawingHasCutImplementation } from "./internal/autoMovieDrawingHasCut";
-import { autoMovieDrawingIncludedSpaces as autoMovieDrawingIncludedSpacesImplementation } from "./internal/autoMovieDrawingIncludedSpaces";
-import { autoMovieDrawingOpeningMark as autoMovieDrawingOpeningMarkImplementation } from "./internal/autoMovieDrawingOpeningMark";
-import { autoMovieDrawingPartTriangles as autoMovieDrawingPartTrianglesImplementation } from "./internal/autoMovieDrawingPartTriangles";
-import { autoMovieDrawingPlaneDistance as autoMovieDrawingPlaneDistanceImplementation } from "./internal/autoMovieDrawingPlaneDistance";
-import { autoMovieDrawingPolygonArea as autoMovieDrawingPolygonAreaImplementation } from "./internal/autoMovieDrawingPolygonArea";
-import { autoMovieDrawingRange as autoMovieDrawingRangeImplementation } from "./internal/autoMovieDrawingRange";
-import { autoMovieDrawingSilhouetteEdges as autoMovieDrawingSilhouetteEdgesImplementation } from "./internal/autoMovieDrawingSilhouetteEdges";
-import { autoMovieDrawingSpaceBox as autoMovieDrawingSpaceBoxImplementation } from "./internal/autoMovieDrawingSpaceBox";
-import { autoMovieDrawingToSvg as autoMovieDrawingToSvgImplementation } from "./internal/autoMovieDrawingToSvg";
-import { autoMovieOpeningArc as autoMovieOpeningArcImplementation } from "./internal/autoMovieOpeningArc";
-import { autoMovieOpeningArea as autoMovieOpeningAreaImplementation } from "./internal/autoMovieOpeningArea";
-import { autoMovieOpeningExtent as autoMovieOpeningExtentImplementation } from "./internal/autoMovieOpeningExtent";
-import { autoMovieOpeningFillExtent as autoMovieOpeningFillExtentImplementation } from "./internal/autoMovieOpeningFillExtent";
-import { autoMovieOpeningHasArc as autoMovieOpeningHasArcImplementation } from "./internal/autoMovieOpeningHasArc";
-import { autoMovieOpeningNominalExtent as autoMovieOpeningNominalExtentImplementation } from "./internal/autoMovieOpeningNominalExtent";
-import { autoMovieOpeningOutlinePoints as autoMovieOpeningOutlinePointsImplementation } from "./internal/autoMovieOpeningOutlinePoints";
-import { clipAutoMovieDrawingTriangles as clipAutoMovieDrawingTrianglesImplementation } from "./internal/clipAutoMovieDrawingTriangles";
-import { deriveAutoMovieDrawing as deriveAutoMovieDrawingImplementation } from "./internal/deriveAutoMovieDrawing";
-import { deriveAutoMovieDrawingSchedule as deriveAutoMovieDrawingScheduleImplementation } from "./internal/deriveAutoMovieDrawingSchedule";
-import { draftAutoMovieDrawingLines as draftAutoMovieDrawingLinesImplementation } from "./internal/draftAutoMovieDrawingLines";
-import { indexAutoMovieDrawingDesign as indexAutoMovieDrawingDesignImplementation } from "./internal/indexAutoMovieDrawingDesign";
-import { measureAutoMovieQuantities as measureAutoMovieQuantitiesImplementation } from "./internal/measureAutoMovieQuantities";
-import { projectAutoMovieDrawingPoint as projectAutoMovieDrawingPointImplementation } from "./internal/projectAutoMovieDrawingPoint";
-import { resolveAutoMovieDrawingFeature as resolveAutoMovieDrawingFeatureImplementation } from "./internal/resolveAutoMovieDrawingFeature";
-import { roundAutoMovieDrawingPoint as roundAutoMovieDrawingPointImplementation } from "./internal/roundAutoMovieDrawingPoint";
-import { roundAutoMovieDrawingScalar as roundAutoMovieDrawingScalarImplementation } from "./internal/roundAutoMovieDrawingScalar";
-import { roundAutoMovieDrawingVector as roundAutoMovieDrawingVectorImplementation } from "./internal/roundAutoMovieDrawingVector";
-import { sectionAutoMovieDrawingSpaces as sectionAutoMovieDrawingSpacesImplementation } from "./internal/sectionAutoMovieDrawingSpaces";
-import { transformAutoMovieDrawingPoint as transformAutoMovieDrawingPointImplementation } from "./internal/transformAutoMovieDrawingPoint";
-import { transformAutoMovieDrawingTriangles as transformAutoMovieDrawingTrianglesImplementation } from "./internal/transformAutoMovieDrawingTriangles";
-import { triangulateAutoMoviePolygon as triangulateAutoMoviePolygonImplementation } from "./internal/triangulateAutoMoviePolygon";
+import { boundaryFacePoint as boundaryFacePointImplementation } from "./internal/boundaryFacePoint";
+import { boundaryShellTriangles as boundaryShellTrianglesImplementation } from "./internal/boundaryShellTriangles";
+import { drawingCellSection as drawingCellSectionImplementation } from "./internal/drawingCellSection";
+import { drawingCellVolume as drawingCellVolumeImplementation } from "./internal/drawingCellVolume";
+import { drawingCutEdges as drawingCutEdgesImplementation } from "./internal/drawingCutEdges";
+import { drawingElementTriangles as drawingElementTrianglesImplementation } from "./internal/drawingElementTriangles";
+import { drawingExtent as drawingExtentImplementation } from "./internal/drawingExtent";
+import { drawingFrame as drawingFrameImplementation } from "./internal/drawingFrame";
+import { drawingHasCut as drawingHasCutImplementation } from "./internal/drawingHasCut";
+import { drawingIncludedSpaces as drawingIncludedSpacesImplementation } from "./internal/drawingIncludedSpaces";
+import { drawingOpeningMark as drawingOpeningMarkImplementation } from "./internal/drawingOpeningMark";
+import { drawingPartTriangles as drawingPartTrianglesImplementation } from "./internal/drawingPartTriangles";
+import { drawingPlaneDistance as drawingPlaneDistanceImplementation } from "./internal/drawingPlaneDistance";
+import { drawingPolygonArea as drawingPolygonAreaImplementation } from "./internal/drawingPolygonArea";
+import { drawingRange as drawingRangeImplementation } from "./internal/drawingRange";
+import { drawingSilhouetteEdges as drawingSilhouetteEdgesImplementation } from "./internal/drawingSilhouetteEdges";
+import { drawingSpaceBox as drawingSpaceBoxImplementation } from "./internal/drawingSpaceBox";
+import { drawingToSvg as drawingToSvgImplementation } from "./internal/drawingToSvg";
+import { openingArc as openingArcImplementation } from "./internal/openingArc";
+import { openingArea as openingAreaImplementation } from "./internal/openingArea";
+import { openingExtent as openingExtentImplementation } from "./internal/openingExtent";
+import { openingFillExtent as openingFillExtentImplementation } from "./internal/openingFillExtent";
+import { openingHasArc as openingHasArcImplementation } from "./internal/openingHasArc";
+import { openingNominalExtent as openingNominalExtentImplementation } from "./internal/openingNominalExtent";
+import { openingOutlinePoints as openingOutlinePointsImplementation } from "./internal/openingOutlinePoints";
+import { clipDrawingTriangles as clipDrawingTrianglesImplementation } from "./internal/clipDrawingTriangles";
+import { deriveDrawing as deriveDrawingImplementation } from "./internal/deriveDrawing";
+import { deriveDrawingSchedule as deriveDrawingScheduleImplementation } from "./internal/deriveDrawingSchedule";
+import { draftDrawingLines as draftDrawingLinesImplementation } from "./internal/draftDrawingLines";
+import { indexDrawingDesign as indexDrawingDesignImplementation } from "./internal/indexDrawingDesign";
+import { measureQuantities as measureQuantitiesImplementation } from "./internal/measureQuantities";
+import { projectDrawingPoint as projectDrawingPointImplementation } from "./internal/projectDrawingPoint";
+import { resolveDrawingFeature as resolveDrawingFeatureImplementation } from "./internal/resolveDrawingFeature";
+import { roundDrawingPoint as roundDrawingPointImplementation } from "./internal/roundDrawingPoint";
+import { roundDrawingScalar as roundDrawingScalarImplementation } from "./internal/roundDrawingScalar";
+import { roundDrawingVector as roundDrawingVectorImplementation } from "./internal/roundDrawingVector";
+import { sectionDrawingSpaces as sectionDrawingSpacesImplementation } from "./internal/sectionDrawingSpaces";
+import { transformDrawingPoint as transformDrawingPointImplementation } from "./internal/transformDrawingPoint";
+import { transformDrawingTriangles as transformDrawingTrianglesImplementation } from "./internal/transformDrawingTriangles";
+import { triangulatePolygon as triangulatePolygonImplementation } from "./internal/triangulatePolygon";
 
 /** Package-owned drawing and quantity operations. */
 export namespace AutoMovieEngineDrawing {
@@ -107,7 +107,7 @@ export namespace AutoMovieEngineDrawing {
     point: IAutoMoviePlanarPoint,
     depth: number = 0,
   ): IAutoMovieVector3 {
-    return autoMovieBoundaryFacePointImplementation(face, point, depth);
+    return boundaryFacePointImplementation(face, point, depth);
   }
   /**
    * The closed solid one boundary's declared face stands for, as world triangles.
@@ -119,7 +119,7 @@ export namespace AutoMovieEngineDrawing {
    * where one silhouette belongs.
    *
    * The outline may be concave, so the caps are ear-clipped by
-   * {@link triangulateAutoMoviePolygon} rather than fanned from one corner, which
+   * {@link triangulatePolygon} rather than fanned from one corner, which
    * would put triangles outside an L-shaped soffit. Every triangle is wound
    * outward, which the silhouette pass reads as facing. The face must be the
    * validated record: an outline that is not a simple polygon of at least three
@@ -132,7 +132,7 @@ export namespace AutoMovieEngineDrawing {
   export function autoMovieBoundaryShellTriangles(
     face: IAutoMovieBoundaryFace,
   ): IAutoMovieDrawingTriangle[] {
-    return autoMovieBoundaryShellTrianglesImplementation(face);
+    return boundaryShellTrianglesImplementation(face);
   }
   /**
    * Cross-section of one convex cell on the cut plane, as an unrounded page
@@ -159,7 +159,7 @@ export namespace AutoMovieEngineDrawing {
     frame: IAutoMovieDrawingFrame,
     planes: readonly IAutoMovieHalfSpacePlane[],
   ): IAutoMovieDrawingCellSection.IResult {
-    return autoMovieDrawingCellSectionImplementation(frame, planes);
+    return drawingCellSectionImplementation(frame, planes);
   }
   /**
    * Volume of one bounded convex cell in cubic metres, from its own half-spaces,
@@ -185,7 +185,7 @@ export namespace AutoMovieEngineDrawing {
   export function autoMovieDrawingCellVolume(
     planes: readonly IAutoMovieHalfSpacePlane[],
   ): number | null {
-    return autoMovieDrawingCellVolumeImplementation(planes);
+    return drawingCellVolumeImplementation(planes);
   }
   /**
    * Where the cut plane passes through a triangle soup, as world segments.
@@ -207,7 +207,7 @@ export namespace AutoMovieEngineDrawing {
     frame: IAutoMovieDrawingFrame,
     triangles: readonly IAutoMovieDrawingTriangle[],
   ): IAutoMovieDrawingEdge[] {
-    return autoMovieDrawingCutEdgesImplementation(frame, triangles);
+    return drawingCutEdgesImplementation(frame, triangles);
   }
   /**
    * World triangles of an element's model, or of a chosen subset of its parts.
@@ -229,7 +229,7 @@ export namespace AutoMovieEngineDrawing {
     model: IAutoMovieModel,
     parts: readonly IAutoMovieModelPart[] = model.parts,
   ): IAutoMovieDrawingTriangle[] {
-    return autoMovieDrawingElementTrianglesImplementation(
+    return drawingElementTrianglesImplementation(
       design,
       element,
       model,
@@ -258,7 +258,7 @@ export namespace AutoMovieEngineDrawing {
       "lines" | "regions" | "openings" | "dimensions" | "annotations"
     >,
   ): IAutoMovieDrawingExtent | null {
-    return autoMovieDrawingExtentImplementation(drawing);
+    return drawingExtentImplementation(drawing);
   }
   /**
    * Validate one view's placement and resolve its orthonormal page basis.
@@ -284,7 +284,7 @@ export namespace AutoMovieEngineDrawing {
   export function autoMovieDrawingFrame(
     view: IAutoMovieDrawingView,
   ): IAutoMovieDrawingFrame {
-    return autoMovieDrawingFrameImplementation(view);
+    return drawingFrameImplementation(view);
   }
   /**
    * Whether a projection cuts: removes the material on the viewer's side of its
@@ -301,7 +301,7 @@ export namespace AutoMovieEngineDrawing {
   export function autoMovieDrawingHasCut(
     projection: AutoMovieDrawingProjection,
   ): boolean {
-    return autoMovieDrawingHasCutImplementation(projection);
+    return drawingHasCutImplementation(projection);
   }
   /**
    * The logical spaces a view draws, descendants included, or `null` for all.
@@ -322,12 +322,12 @@ export namespace AutoMovieEngineDrawing {
     environment: IAutoMovieBuiltEnvironment,
     view: IAutoMovieDrawingView,
   ): Set<string> | null {
-    return autoMovieDrawingIncludedSpacesImplementation(environment, view);
+    return drawingIncludedSpacesImplementation(environment, view);
   }
   /**
    * One opening as a drawing can state it, and what that statement rests on.
    *
-   * The size and basis come from {@link autoMovieOpeningNominalExtent}, the rule
+   * The size and basis come from {@link openingNominalExtent}, the rule
    * the schedule also reads: an opening with its own void is marked with `basis:
    * "profile"`, its hull size, and its drafted outline placed on the host
    * boundary's face and projected onto the page on the grid; one sized by its
@@ -346,7 +346,7 @@ export namespace AutoMovieEngineDrawing {
     frame: IAutoMovieDrawingFrame,
     opening: IAutoMovieBuiltOpening,
   ): IAutoMovieDrawingOpeningMark {
-    return autoMovieDrawingOpeningMarkImplementation(design, frame, opening);
+    return drawingOpeningMarkImplementation(design, frame, opening);
   }
   /**
    * Triangles of one model part in the model's frame, with the part's own
@@ -372,7 +372,7 @@ export namespace AutoMovieEngineDrawing {
     model: IAutoMovieModel,
     part: IAutoMovieModelPart,
   ): IAutoMovieDrawingTriangle[] {
-    return autoMovieDrawingPartTrianglesImplementation(model, part);
+    return drawingPartTrianglesImplementation(model, part);
   }
   /**
    * Signed distance in metres from a view's cut plane to a world point.
@@ -389,7 +389,7 @@ export namespace AutoMovieEngineDrawing {
     frame: IAutoMovieDrawingFrame,
     point: IAutoMovieVector3,
   ): number {
-    return autoMovieDrawingPlaneDistanceImplementation(frame, point);
+    return drawingPlaneDistanceImplementation(frame, point);
   }
   /**
    * Unsigned area of a simple page polygon, in square metres.
@@ -405,7 +405,7 @@ export namespace AutoMovieEngineDrawing {
   export function autoMovieDrawingPolygonArea(
     polygon: readonly IAutoMovieDrawingPoint[],
   ): number {
-    return autoMovieDrawingPolygonAreaImplementation(polygon);
+    return drawingPolygonAreaImplementation(polygon);
   }
   /**
    * The lowest and highest of a run of numbers, folded in one pass.
@@ -426,7 +426,7 @@ export namespace AutoMovieEngineDrawing {
   export function autoMovieDrawingRange(
     values: Iterable<number>,
   ): IAutoMovieDrawingRange.IResult {
-    return autoMovieDrawingRangeImplementation(values);
+    return drawingRangeImplementation(values);
   }
   /**
    * Silhouette of a triangle soup under the view's orthographic direction.
@@ -451,7 +451,7 @@ export namespace AutoMovieEngineDrawing {
     frame: IAutoMovieDrawingFrame,
     triangles: readonly IAutoMovieDrawingTriangle[],
   ): IAutoMovieDrawingEdge[] {
-    return autoMovieDrawingSilhouetteEdgesImplementation(frame, triangles);
+    return drawingSilhouetteEdgesImplementation(frame, triangles);
   }
   /**
    * The world box a space's own declared volume fills, on the drawing grid, or
@@ -471,7 +471,7 @@ export namespace AutoMovieEngineDrawing {
   export function autoMovieDrawingSpaceBox(
     space: IAutoMovieBuiltSpace,
   ): IAutoMovieDrawingScheduleBox | null {
-    return autoMovieDrawingSpaceBoxImplementation(space);
+    return drawingSpaceBoxImplementation(space);
   }
   /**
    * Serialize one derived drawing as a self-describing SVG sheet.
@@ -504,7 +504,7 @@ export namespace AutoMovieEngineDrawing {
   export function autoMovieDrawingToSvg(
     props: IAutoMovieDrawingToSvg.IProps,
   ): string {
-    return autoMovieDrawingToSvgImplementation(props);
+    return drawingToSvgImplementation(props);
   }
   /**
    * The circular arc one opening-profile edge bulges along, or `null` when the
@@ -528,7 +528,7 @@ export namespace AutoMovieEngineDrawing {
     to: IAutoMoviePlanarPoint,
     bulge: number,
   ): IAutoMovieOpeningArc | null {
-    return autoMovieOpeningArcImplementation(from, to, bulge);
+    return openingArcImplementation(from, to, bulge);
   }
   /**
    * The exact area of an opening's void, in square metres, on the drawing grid.
@@ -547,7 +547,7 @@ export namespace AutoMovieEngineDrawing {
   export function autoMovieOpeningArea(
     profile: IAutoMovieOpeningProfile,
   ): number {
-    return autoMovieOpeningAreaImplementation(profile);
+    return openingAreaImplementation(profile);
   }
   /**
    * The width and height of an opening's void, in its host face's metres, on the
@@ -567,7 +567,7 @@ export namespace AutoMovieEngineDrawing {
   export function autoMovieOpeningExtent(
     profile: IAutoMovieOpeningProfile,
   ): IAutoMovieOpeningExtent.IResult {
-    return autoMovieOpeningExtentImplementation(profile);
+    return openingExtentImplementation(profile);
   }
   /**
    * The nominal width and height a set of world corners stands for, on the
@@ -588,13 +588,13 @@ export namespace AutoMovieEngineDrawing {
   export function autoMovieOpeningFillExtent(
     corners: readonly IAutoMovieVector3[],
   ): IAutoMovieOpeningFillExtent.IResult {
-    return autoMovieOpeningFillExtentImplementation(corners);
+    return openingFillExtentImplementation(corners);
   }
   /**
    * Whether any edge of an opening profile bulges into a visible arc.
    *
    * Uses the same {@link AutoMovieEngineOpeningBulgeEpsilon} threshold as
-   * `autoMovieOpeningArc`, so a profile reported here as arced has a bulge the
+   * `openingArc`, so a profile reported here as arced has a bulge the
    * drafted outline and the measured area also treat as curved, unless that
    * edge's ends coincide. Absent bulges mean every edge is straight.
    *
@@ -604,7 +604,7 @@ export namespace AutoMovieEngineDrawing {
   export function autoMovieOpeningHasArc(
     profile: IAutoMovieOpeningProfile,
   ): boolean {
-    return autoMovieOpeningHasArcImplementation(profile);
+    return openingHasArcImplementation(profile);
   }
   /**
    * The nominal width and height of one opening, and what they were measured
@@ -626,7 +626,7 @@ export namespace AutoMovieEngineDrawing {
     design: IAutoMovieDrawingDesignIndex,
     opening: IAutoMovieBuiltOpening,
   ): IAutoMovieOpeningNominalExtent.IResult {
-    return autoMovieOpeningNominalExtentImplementation(design, opening);
+    return openingNominalExtentImplementation(design, opening);
   }
   /**
    * Flatten a profile outline into the points a drawing drafts it through.
@@ -639,8 +639,8 @@ export namespace AutoMovieEngineDrawing {
    * and not on the size of the arc.
    *
    * This is drafting, not measurement: the schedule reads the hull through
-   * `autoMovieOpeningExtent` and the take-off reads the exact area through
-   * `autoMovieOpeningArea`, and neither reads these chords.
+   * `openingExtent` and the take-off reads the exact area through
+   * `openingArea`, and neither reads these chords.
    *
    * @param profile Opening profile with its outline and optional bulges.
    * @returns The drafted ring, in profile-frame metres.
@@ -648,7 +648,7 @@ export namespace AutoMovieEngineDrawing {
   export function autoMovieOpeningOutlinePoints(
     profile: IAutoMovieOpeningProfile,
   ): IAutoMoviePlanarPoint[] {
-    return autoMovieOpeningOutlinePointsImplementation(profile);
+    return openingOutlinePointsImplementation(profile);
   }
   /**
    * Keep only the part of a triangle soup beyond the cut plane, the side a cut
@@ -668,7 +668,7 @@ export namespace AutoMovieEngineDrawing {
     frame: IAutoMovieDrawingFrame,
     triangles: readonly IAutoMovieDrawingTriangle[],
   ): IAutoMovieDrawingTriangle[] {
-    return clipAutoMovieDrawingTrianglesImplementation(frame, triangles);
+    return clipDrawingTrianglesImplementation(frame, triangles);
   }
   /**
    * Derive one drawing from one design and one view.
@@ -676,7 +676,7 @@ export namespace AutoMovieEngineDrawing {
    * Throws an `Error` when the design fails `validateBuiltEnvironment`, naming
    * the first violation, because a drawing of a graph that does not resolve would
    * be a picture of nothing handed on as evidence. Throws when the view is
-   * degenerate, as `autoMovieDrawingFrame` describes, and when it declares two
+   * degenerate, as `drawingFrame` describes, and when it declares two
    * dimensions or two annotations with one id, since a consumer addresses them by
    * id.
    *
@@ -703,7 +703,7 @@ export namespace AutoMovieEngineDrawing {
   export function deriveAutoMovieDrawing(
     props: IAutoMovieDeriveDrawing.IProps,
   ): IAutoMovieDrawing {
-    return deriveAutoMovieDrawingImplementation(props);
+    return deriveDrawingImplementation(props);
   }
   /**
    * Schedule every declared space, opening or connector of one design.
@@ -743,7 +743,7 @@ export namespace AutoMovieEngineDrawing {
   export function deriveAutoMovieDrawingSchedule(
     props: IAutoMovieDeriveDrawingSchedule.IProps,
   ): IAutoMovieDrawingSchedule {
-    return deriveAutoMovieDrawingScheduleImplementation(props);
+    return deriveDrawingScheduleImplementation(props);
   }
   /**
    * Draft every line one view draws of one validated design, classified by its
@@ -777,7 +777,7 @@ export namespace AutoMovieEngineDrawing {
   export function draftAutoMovieDrawingLines(
     props: IAutoMovieDraftDrawingLines.IProps,
   ): IAutoMovieDraftDrawingLines.IResult {
-    return draftAutoMovieDrawingLinesImplementation(props);
+    return draftDrawingLinesImplementation(props);
   }
   /**
    * Index one validated built environment for a drawing derivation.
@@ -797,7 +797,7 @@ export namespace AutoMovieEngineDrawing {
   export function indexAutoMovieDrawingDesign(
     environment: IAutoMovieBuiltEnvironment,
   ): IAutoMovieDrawingDesignIndex {
-    return indexAutoMovieDrawingDesignImplementation(environment);
+    return indexDrawingDesignImplementation(environment);
   }
   /**
    * Measure everything the design can answer for, and name everything it cannot.
@@ -826,7 +826,7 @@ export namespace AutoMovieEngineDrawing {
   export function measureAutoMovieQuantities(
     props: IAutoMovieMeasureQuantities.IProps,
   ): IAutoMovieQuantityReport {
-    return measureAutoMovieQuantitiesImplementation(props);
+    return measureQuantitiesImplementation(props);
   }
   /**
    * Project one world point orthographically onto the view's page, unrounded.
@@ -843,7 +843,7 @@ export namespace AutoMovieEngineDrawing {
     frame: IAutoMovieDrawingFrame,
     point: IAutoMovieVector3,
   ): IAutoMovieDrawingPoint {
-    return projectAutoMovieDrawingPointImplementation(frame, point);
+    return projectDrawingPointImplementation(frame, point);
   }
   /**
    * Resolve one pinned feature against the design as it stands now.
@@ -873,11 +873,11 @@ export namespace AutoMovieEngineDrawing {
   export function resolveAutoMovieDrawingFeature(
     environment: IAutoMovieBuiltEnvironment,
     feature: IAutoMovieDrawingFeature,
-    design: IAutoMovieDrawingDesignIndex = indexAutoMovieDrawingDesignImplementation(
+    design: IAutoMovieDrawingDesignIndex = indexDrawingDesignImplementation(
       environment,
     ),
   ): IAutoMovieDrawingFeatureResolution {
-    return resolveAutoMovieDrawingFeatureImplementation(
+    return resolveDrawingFeatureImplementation(
       environment,
       feature,
       design,
@@ -896,7 +896,7 @@ export namespace AutoMovieEngineDrawing {
   export function roundAutoMovieDrawingPoint(
     point: IAutoMovieDrawingPoint,
   ): IAutoMovieDrawingPoint {
-    return roundAutoMovieDrawingPointImplementation(point);
+    return roundDrawingPointImplementation(point);
   }
   /**
    * Round one drawing scalar onto the fixed output grid of
@@ -911,7 +911,7 @@ export namespace AutoMovieEngineDrawing {
    * @returns The value on the grid, never `-0`.
    */
   export function roundAutoMovieDrawingScalar(value: number): number {
-    return roundAutoMovieDrawingScalarImplementation(value);
+    return roundDrawingScalarImplementation(value);
   }
   /**
    * Round all three components of a world vector onto the drawing grid.
@@ -926,7 +926,7 @@ export namespace AutoMovieEngineDrawing {
   export function roundAutoMovieDrawingVector(
     vector: IAutoMovieVector3,
   ): IAutoMovieVector3 {
-    return roundAutoMovieDrawingVectorImplementation(vector);
+    return roundDrawingVectorImplementation(vector);
   }
   /**
    * Section every included logical space's convex cells on a cut view's plane.
@@ -952,7 +952,7 @@ export namespace AutoMovieEngineDrawing {
   export function sectionAutoMovieDrawingSpaces(
     props: IAutoMovieSectionDrawingSpaces.IProps,
   ): IAutoMovieSectionDrawingSpaces.IResult {
-    return sectionAutoMovieDrawingSpacesImplementation(props);
+    return sectionDrawingSpacesImplementation(props);
   }
   /**
    * Apply a column-major 4x4 affine matrix to a point.
@@ -970,7 +970,7 @@ export namespace AutoMovieEngineDrawing {
     matrix: readonly number[],
     point: IAutoMovieVector3,
   ): IAutoMovieVector3 {
-    return transformAutoMovieDrawingPointImplementation(matrix, point);
+    return transformDrawingPointImplementation(matrix, point);
   }
   /**
    * Move every triangle of a list by one column-major affine matrix, usually an
@@ -989,7 +989,7 @@ export namespace AutoMovieEngineDrawing {
     matrix: readonly number[],
     triangles: readonly IAutoMovieDrawingTriangle[],
   ): IAutoMovieDrawingTriangle[] {
-    return transformAutoMovieDrawingTrianglesImplementation(matrix, triangles);
+    return transformDrawingTrianglesImplementation(matrix, triangles);
   }
   /**
    * Ear-clip one simple planar polygon into triangle index triples.
@@ -1017,6 +1017,6 @@ export namespace AutoMovieEngineDrawing {
   export function triangulateAutoMoviePolygon(
     polygon: readonly IAutoMoviePlanarPoint[],
   ): Array<[number, number, number]> {
-    return triangulateAutoMoviePolygonImplementation(polygon);
+    return triangulatePolygonImplementation(polygon);
   }
 }

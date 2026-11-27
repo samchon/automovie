@@ -58,7 +58,7 @@ import type { IAutoMovieMotionHumanTouchSite } from "./IAutoMovieMotionHumanTouc
  * hands over the ears), each item a row of `(effector, region, kind, timing)`.
  *
  * The hand reaches the region in the free-space transport time of the distance
- * (`AutoMovieMotionHumanTiming.transport`), repeats the kind's stroke `count`
+ * (`motionHumanTiming.transport`), repeats the kind's stroke `count`
  * times (`AutoMovieMotionHumanTouchForm.FORMS`), dwells for the hold and goes
  * back in the reach's time; the manner's tempo scales every span and its extent
  * the lift and the travel. The feet stay planted and the body keeps the entry

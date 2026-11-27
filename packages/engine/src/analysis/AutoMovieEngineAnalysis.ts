@@ -1,17 +1,17 @@
-import { assertAutoMovieAnalysisSolids as assertAutoMovieAnalysisSolidsImplementation } from "./internal/assertAutoMovieAnalysisSolids";
-import { assertAutoMovieAnalysisTargets as assertAutoMovieAnalysisTargetsImplementation } from "./internal/assertAutoMovieAnalysisTargets";
-import { autoMovieAnalysisRunDigest as autoMovieAnalysisRunDigestImplementation } from "./internal/autoMovieAnalysisRunDigest";
-import { autoMovieAnalysisSettingsTargets as autoMovieAnalysisSettingsTargetsImplementation } from "./internal/autoMovieAnalysisSettingsTargets";
-import { autoMovieAnalysisTargetMet as autoMovieAnalysisTargetMetImplementation } from "./internal/autoMovieAnalysisTargetMet";
-import { resolveAutoMovieDaylightRequest as resolveAutoMovieDaylightRequestImplementation } from "./internal/resolveAutoMovieDaylightRequest";
-import { resolveAutoMovieEnvelopeRequest as resolveAutoMovieEnvelopeRequestImplementation } from "./internal/resolveAutoMovieEnvelopeRequest";
-import { sealAutoMovieAnalysisRun as sealAutoMovieAnalysisRunImplementation } from "./internal/sealAutoMovieAnalysisRun";
-import { summarizeAutoMovieAnalysis as summarizeAutoMovieAnalysisImplementation } from "./internal/summarizeAutoMovieAnalysis";
-import { validateAutoMovieAnalysisRun as validateAutoMovieAnalysisRunImplementation } from "./internal/validateAutoMovieAnalysisRun";
-import { validateAutoMovieAnalysisRunContents as validateAutoMovieAnalysisRunContentsImplementation } from "./internal/validateAutoMovieAnalysisRunContents";
+import { assertAnalysisSolids as assertAnalysisSolidsImplementation } from "./internal/assertAnalysisSolids";
+import { assertAnalysisTargets as assertAnalysisTargetsImplementation } from "./internal/assertAnalysisTargets";
+import { analysisRunDigest as analysisRunDigestImplementation } from "./internal/analysisRunDigest";
+import { analysisSettingsTargets as analysisSettingsTargetsImplementation } from "./internal/analysisSettingsTargets";
+import { analysisTargetMet as analysisTargetMetImplementation } from "./internal/analysisTargetMet";
+import { resolveDaylightRequest as resolveDaylightRequestImplementation } from "./internal/resolveDaylightRequest";
+import { resolveEnvelopeRequest as resolveEnvelopeRequestImplementation } from "./internal/resolveEnvelopeRequest";
+import { sealAnalysisRun as sealAnalysisRunImplementation } from "./internal/sealAnalysisRun";
+import { summarizeAnalysis as summarizeAnalysisImplementation } from "./internal/summarizeAnalysis";
+import { validateAnalysisRun as validateAnalysisRunImplementation } from "./internal/validateAnalysisRun";
+import { validateAnalysisRunContents as validateAnalysisRunContentsImplementation } from "./internal/validateAnalysisRunContents";
 import { validateSolidPlanes as validateSolidPlanesImplementation } from "./internal/validateSolidPlanes";
-import { warnAutoMovieAnalysisTargetKeys as warnAutoMovieAnalysisTargetKeysImplementation } from "./internal/warnAutoMovieAnalysisTargetKeys";
-import { autoMovieAnalysisMetric as autoMovieAnalysisMetricImplementation } from "./internal/autoMovieAnalysisMetric";
+import { warnAnalysisTargetKeys as warnAnalysisTargetKeysImplementation } from "./internal/warnAnalysisTargetKeys";
+import { analysisMetric as analysisMetricImplementation } from "./internal/analysisMetric";
 import type {
   IAutoMovieAnalysisMetric,
   IAutoMovieAnalysisMetricInput,
@@ -41,17 +41,17 @@ import type {
 
 
 
-import { analyzeAutoMovieAcoustics } from "./internal/analyzeAutoMovieAcoustics";
-import { analyzeAutoMovieDaylight } from "./internal/analyzeAutoMovieDaylight";
-import { analyzeAutoMovieEnvelope } from "./internal/analyzeAutoMovieEnvelope";
-import { analyzeAutoMovieSpaceAir } from "./internal/analyzeAutoMovieSpaceAir";
-import { autoMovieSkyIlluminance as autoMovieSkyIlluminanceImplementation } from "./internal/autoMovieSkyIlluminance";
+import { analyzeAcoustics } from "./internal/analyzeAcoustics";
+import { analyzeDaylight } from "./internal/analyzeDaylight";
+import { analyzeEnvelope } from "./internal/analyzeEnvelope";
+import { analyzeSpaceAir } from "./internal/analyzeSpaceAir";
+import { skyIlluminance as skyIlluminanceImplementation } from "./internal/skyIlluminance";
 
 /** Deterministic analyses for declared acoustic, daylight, envelope and air studies. */
 export namespace AutoMovieEngineAnalysis {
   /** Build one metric, resolving its authored target or recording its absence. */
   export function analysisMetric(props: IAutoMovieAnalysisMetricInput.IProps): IAutoMovieAnalysisMetric {
-    return autoMovieAnalysisMetricImplementation(props);
+    return analysisMetricImplementation(props);
   }
 
   /**
@@ -92,7 +92,7 @@ export namespace AutoMovieEngineAnalysis {
   export function acoustics(
     props: IAutoMovieAnalyzeAcoustics.IProps,
   ): IAutoMovieAnalysisRun {
-    return analyzeAutoMovieAcoustics(props);
+    return analyzeAcoustics(props);
   }
 
   /**
@@ -131,7 +131,7 @@ export namespace AutoMovieEngineAnalysis {
   export function daylight(
     props: IAutoMovieAnalyzeDaylight.IProps,
   ): IAutoMovieAnalysisRun {
-    return analyzeAutoMovieDaylight(props);
+    return analyzeDaylight(props);
   }
 
   /**
@@ -151,7 +151,7 @@ export namespace AutoMovieEngineAnalysis {
    *   temperature factor `fRsi = (Tsi - Te) / (Ti - Te)` reduces exactly to `1 -
    *   U*Rsi` and needs no temperatures at all;
    * - Fabric loss is `sum(U * A) * dT` and linear bridges add `sum(psi * L) * dT`;
-   * - The dew point comes from `autoMovieDewPoint`, the Magnus form, and surface
+   * - The dew point comes from `calculateDewPoint`, the Magnus form, and surface
    *   condensation is `Tsi <= Td`.
    *
    * What it does not do, it says. Condensation inside the build-up, which needs
@@ -173,7 +173,7 @@ export namespace AutoMovieEngineAnalysis {
   export function envelope(
     props: IAutoMovieAnalyzeEnvelope.IProps,
   ): IAutoMovieAnalyzeEnvelope.IResult {
-    return analyzeAutoMovieEnvelope(props);
+    return analyzeEnvelope(props);
   }
 
   /**
@@ -206,7 +206,7 @@ export namespace AutoMovieEngineAnalysis {
   export function spaceAir(
     props: IAutoMovieAnalyzeSpaceAir.IProps,
   ): IAutoMovieAnalysisRun {
-    return analyzeAutoMovieSpaceAir(props);
+    return analyzeSpaceAir(props);
   }
 
   /**
@@ -231,7 +231,7 @@ export namespace AutoMovieEngineAnalysis {
    *   solid`.
    */
   export function assertAnalysisSolids(solids: readonly IAutoMovieAnalysisSolid[], label: string): void {
-    assertAutoMovieAnalysisSolidsImplementation(solids, label);
+    assertAnalysisSolidsImplementation(solids, label);
   }
 
   /**
@@ -245,12 +245,12 @@ export namespace AutoMovieEngineAnalysis {
    *
    * Throws an `Error` naming the first offending target in list order. Whether a
    * key names a metric the study reports is not checked here;
-   * `warnAutoMovieAnalysisTargetKeys` reports that after the metrics exist.
+   * `warnAnalysisTargetKeys` reports that after the metrics exist.
    *
    * @param targets Targets one study declares, in authored order.
    */
   export function assertAnalysisTargets(targets: readonly IAutoMovieAnalysisTarget[]): void {
-    assertAutoMovieAnalysisTargetsImplementation(targets);
+    assertAnalysisTargetsImplementation(targets);
   }
 
   /**
@@ -274,7 +274,7 @@ export namespace AutoMovieEngineAnalysis {
    * @returns The `sha256:` digest of the canonical text.
    */
   export function analysisRunDigest(run: Omit<IAutoMovieAnalysisRun, "digest">): IAutoMovieAnalysisRun["digest"] {
-    return autoMovieAnalysisRunDigestImplementation(run);
+    return analysisRunDigestImplementation(run);
   }
 
   /**
@@ -290,7 +290,7 @@ export namespace AutoMovieEngineAnalysis {
    * @returns New records holding only the four contract fields.
    */
   export function analysisSettingsTargets(targets: readonly IAutoMovieAnalysisTarget[]): IAutoMovieAnalysisTarget[] {
-    return autoMovieAnalysisSettingsTargetsImplementation(targets);
+    return analysisSettingsTargetsImplementation(targets);
   }
 
   /**
@@ -306,7 +306,7 @@ export namespace AutoMovieEngineAnalysis {
    * @returns `true` for `meets`, `false` for `misses`.
    */
   export function analysisTargetMet(value: number, target: number, comparison: AutoMovieAnalysisComparison): boolean {
-    return autoMovieAnalysisTargetMetImplementation(value, target, comparison);
+    return analysisTargetMetImplementation(value, target, comparison);
   }
 
   /**
@@ -327,7 +327,7 @@ export namespace AutoMovieEngineAnalysis {
    * @returns The resolved instant and the unit frame of the workplane.
    */
   export function resolveDaylightRequest(request: IAutoMovieDaylightRequest): IAutoMovieResolveDaylightRequest.IResult {
-    return resolveAutoMovieDaylightRequestImplementation(request);
+    return resolveDaylightRequestImplementation(request);
   }
 
   /**
@@ -345,7 +345,7 @@ export namespace AutoMovieEngineAnalysis {
    *   none.
    */
   export function resolveEnvelopeRequest(request: IAutoMovieEnvelopeRequest): IAutoMovieEnvironmentInstant | null {
-    return resolveAutoMovieEnvelopeRequestImplementation(request);
+    return resolveEnvelopeRequestImplementation(request);
   }
 
   /**
@@ -355,10 +355,10 @@ export namespace AutoMovieEngineAnalysis {
    * Building and checking are the same call on purpose. A builder that can hand
    * back an invalid artifact is a hole in exactly the contract this module exists
    * to hold, so the seal applies the same contents rules a deserialized run faces
-   * (`validateAutoMovieAnalysisRunContents`) and throws on the first violation
+   * (`validateAnalysisRunContents`) and throws on the first violation
    * rather than shipping it. The error names the run id and the first violation's
    * path and expectation. The digest it then writes is the one
-   * `validateAutoMovieAnalysisRun` recomputes, so the sealed run validates.
+   * `validateAnalysisRun` recomputes, so the sealed run validates.
    *
    * The settings text is kept only as its SHA-256 digest. The returned run holds
    * the caller's `solver` and `outcome` objects by reference rather than copying
@@ -368,7 +368,7 @@ export namespace AutoMovieEngineAnalysis {
    * proof.
    */
   export function sealAnalysisRun(props: IAutoMovieSealAnalysisRun.IProps): IAutoMovieAnalysisRun {
-    return sealAutoMovieAnalysisRunImplementation(props);
+    return sealAnalysisRunImplementation(props);
   }
 
   /**
@@ -399,13 +399,13 @@ export namespace AutoMovieEngineAnalysis {
    * twice.
    */
   export function summarizeAnalysis(props: IAutoMovieSummarizeAnalysis.IProps): IAutoMovieAnalysisReport {
-    return summarizeAutoMovieAnalysisImplementation(props);
+    return summarizeAnalysisImplementation(props);
   }
 
   /**
    * Validate one analysis run as evidence.
    *
-   * The contents follow `validateAutoMovieAnalysisRunContents`: an absent
+   * The contents follow `validateAnalysisRunContents`: an absent
    * measurement must stay visibly absent, and a spatial sample may only field a
    * metric that produced a value. On top of that the digest is recomputed, so a
    * run whose outcome was edited after sealing fails here rather than being read
@@ -422,7 +422,7 @@ export namespace AutoMovieEngineAnalysis {
    * throws a `TypeError` instead of producing a violation.
    */
   export function validateAnalysisRun(props: IAutoMovieValidateAnalysisRun.IProps): IAutoMovieValidation {
-    return validateAutoMovieAnalysisRunImplementation(props);
+    return validateAnalysisRunImplementation(props);
   }
 
   /**
@@ -438,8 +438,8 @@ export namespace AutoMovieEngineAnalysis {
    * Violations are appended to `out` with paths rooted at `$input`, in field
    * order: header, solver, settings digest, then the outcome. The `digest` field
    * and its agreement with the contents are left to the caller:
-   * `validateAutoMovieAnalysisRun` checks them for a run that arrived from
-   * elsewhere, while `sealAutoMovieAnalysisRun` calls this before it computes the
+   * `validateAnalysisRun` checks them for a run that arrived from
+   * elsewhere, while `sealAnalysisRun` calls this before it computes the
    * digest, so a seal never hashes a record it will refuse.
    *
    * Resident metric, sample and warning slots are visited by index and an absent
@@ -452,7 +452,7 @@ export namespace AutoMovieEngineAnalysis {
    * @param out Caller-owned sink the violations are appended to.
    */
   export function validateAnalysisRunContents(run: Omit<IAutoMovieAnalysisRun, "digest">, out: IAutoMovieViolationCollector): void {
-    validateAutoMovieAnalysisRunContentsImplementation(run, out);
+    validateAnalysisRunContentsImplementation(run, out);
   }
 
   /**
@@ -486,7 +486,7 @@ export namespace AutoMovieEngineAnalysis {
    * Report every declared target that names no metric the study reports.
    *
    * A target nobody can apply is the quietest way a report reads `meets`.
-   * `autoMovieAnalysisMetric` already reports a target stated in the wrong unit
+   * `analysisMetric` already reports a target stated in the wrong unit
    * as a `target-unit-mismatch` warning for exactly this reason, and a mistyped
    * or hopeful key is the same fault with the same consequence: the author
    * believes a requirement is enforced, every metric is measured, no gap is
@@ -504,11 +504,11 @@ export namespace AutoMovieEngineAnalysis {
    * merely because the thermal run has no such metric.
    */
   export function warnAnalysisTargetKeys(props: IAutoMovieWarnAnalysisTargetKeys.IProps): void {
-    warnAutoMovieAnalysisTargetKeysImplementation(props);
+    warnAnalysisTargetKeysImplementation(props);
   }
   /** Prepare the isotropic sky term and measure it at world points. */
   export function skyIlluminance(props: IAutoMovieSkyIlluminance.IProps): (point: IAutoMovieVector3) => number {
-    return autoMovieSkyIlluminanceImplementation(props);
+    return skyIlluminanceImplementation(props);
   }
 
 }

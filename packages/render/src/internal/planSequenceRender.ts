@@ -10,11 +10,11 @@ import type {
   IAutoMovieSequenceRenderTransitionSpan,
 } from "@automovie/interface";
 
-import { ffmpegArgs } from "./ffmpegArgs.js";
-import { frameName } from "../frameName.js";
-import { framePattern } from "../framePattern.js";
-import { frameTimes } from "./frameTimes.js";
-import { renderPathStem } from "../renderPathStem.js";
+import { ffmpegArgs } from "./ffmpegArgs";
+import { frameName } from "../frameName";
+import { framePattern } from "../framePattern";
+import { frameTimes } from "./frameTimes";
+import { renderPathStem } from "../renderPathStem";
 
 /*
  * Build the render-layer manifest for a committed sequence. The output FPS is

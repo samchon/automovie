@@ -9,7 +9,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanElbowPlace } from "../../compose/internal/AutoMovieMotionHumanElbowPlace";
+import { motionHumanElbowPlace } from "../../compose/internal/motionHumanElbowPlace";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
@@ -123,7 +123,7 @@ export function throwObjectSwing(
         { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
         { x: -1, y: 0, z: 0 },
       );
-      return AutoMovieMotionHumanElbowPlace(
+      return motionHumanElbowPlace(
         body,
         posture,
         side,
@@ -151,7 +151,7 @@ export function throwObjectSwing(
  *
  * An underarm bowl swings nearly straight in the plane of the delivery, so its
  * elbow names no side of the line from the shoulder to the wrist and the hand's
- * rotation may flip it. Its elbow is placed (`AutoMovieMotionHumanElbowPlace`)
+ * rotation may flip it. Its elbow is placed (`motionHumanElbowPlace`)
  * toward the olecranon, which stays behind the arm in that plane: behind it as
  * the arm hangs, below it as it swings ahead, the arm's direction crossed with
  * the performer's right. Other styles keep the elbow their own track found.

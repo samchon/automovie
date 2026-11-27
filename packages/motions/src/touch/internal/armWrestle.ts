@@ -20,10 +20,10 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
-import { AutoMovieMotionHumanArmJointCourse } from "../../compose/internal/AutoMovieMotionHumanArmJointCourse";
+import { motionHumanArmJointCourse } from "../../compose/internal/motionHumanArmJointCourse";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanLean } from "../../compose/internal/AutoMovieMotionHumanLean";
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { HumanForceTrunk } from "../../grappling/internal/HumanForceTrunk";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
@@ -373,8 +373,8 @@ export namespace armWrestle {
       AutoMovieEngineVector3.scale(up, height),
     );
     const arrive: number = Math.max(
-      AutoMovieMotionHumanTiming.transport(AutoMovieEngineVector3.distance(wrist(0), from)),
-      AutoMovieMotionHumanTiming.transport(
+      motionHumanTiming.transport(AutoMovieEngineVector3.distance(wrist(0), from)),
+      motionHumanTiming.transport(
         AutoMovieEngineVector3.distance(
           theirs,
           other.bones(context.start, requested).get(`${side}Hand`)!
@@ -434,8 +434,8 @@ export namespace armWrestle {
         : resisted;
     // The carry, solved at knots from the plan's own posture once the
     // performance is prepared.
-    const carrier: AutoMovieMotionHumanArmJointCourse.ICarrier =
-      AutoMovieMotionHumanArmJointCourse.carrier(body);
+    const carrier: motionHumanArmJointCourse.ICarrier =
+      motionHumanArmJointCourse.carrier(body);
     const plan: IAutoMovieMotionHumanActionPlan = {
       duration,
       events: [

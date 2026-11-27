@@ -5,8 +5,8 @@ import type {
   IAutoMovieMotionManner,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
+import { motionClock } from "../../compose/internal/motionClock";
+import { motionManner } from "../../compose/internal/motionManner";
 import type { HumanToolWork } from "./HumanToolWork";
 import { useTool } from "./useTool";
 
@@ -37,8 +37,8 @@ export function useToolClock(
       { name: `contact${k}`, seconds: period / 2 },
     );
   phases.push({ name: "recover", seconds: travel });
-  return AutoMovieMotionManner.time(
-    AutoMovieMotionClock.sequence(phases),
+  return motionManner.time(
+    motionClock.sequence(phases),
     modifiers,
     { holds: [] },
   );

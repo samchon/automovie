@@ -1,5 +1,5 @@
 /*
- * Default settings of the master's true-peak limiter, `limitAutoMovieTruePeak`.
+ * Default settings of the master's true-peak limiter, `limitTruePeak`.
  *
  * `ceilingMarginDb` places the limiter's ceiling below the production's maximum
  * true peak, because the delivery audit reads the decoded AAC and lossy

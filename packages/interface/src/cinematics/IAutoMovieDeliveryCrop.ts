@@ -6,7 +6,7 @@
  * with `right` and `bottom`; geometry outside those closed boundaries is not
  * delivered. The selected window is projected back onto the complete output
  * raster, so the same crop remains exact across final, proxy, and diagnostic
- * resolutions. `resolveAutoMovieDeliveryCrop` throws a `RangeError` for a
+ * resolutions. `resolveDeliveryCrop` throws a `RangeError` for a
  * malformed window instead of clamping it.
  */
 export interface IAutoMovieDeliveryCrop {

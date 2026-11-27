@@ -1,4 +1,4 @@
-import type { IAutoMoviePose } from "../pose/IAutoMoviePose.js";
+import type { IAutoMoviePose } from "../pose/IAutoMoviePose";
 
 /**
  * One cycle of a performed member's poses for the population layer to play: the

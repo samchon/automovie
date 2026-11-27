@@ -13,9 +13,9 @@ import { sweepBranchedBody } from "../../internal/sweepBranchedBody";
 import { sweepBranchedSkeleton } from "../../internal/sweepBranchedSkeleton";
 
 /**
- * A surface rig's per-pose update (`rigAutoMovieSurfaceNetwork`) writes the
- * cage that sampling the posed network (`poseAutoMovieSurfaceNetwork`, then
- * `sampleAutoMovieSurfaceNetwork`) gives.
+ * A surface rig's per-pose update (`rigSurfaceNetwork`) writes the
+ * cage that sampling the posed network (`poseSurfaceNetwork`, then
+ * `sampleSurfaceNetwork`) gives.
  *
  * Fixture: the branched body on its skeleton, posed with the spine leaning 15
  * degrees, the upper arm raised 30 and the forearm bent 90, the thigh -40 and

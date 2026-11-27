@@ -22,7 +22,7 @@ import { AutoMovieMotionHumanTouchRows } from "./internal/AutoMovieMotionHumanTo
  * - `highFive`: A high five, a low five or a fist bump between two standing
  *   partners: both bring one hand to one shared point between them and meet
  *   there at one shared instant, the mutual goal the handshake uses
- *   (`AutoMovieMotionMeeting`).
+ *   (`motionMeeting`).
  * - `kiss`: A kiss while standing: the lips brought to a partner's region (a
  *   cheek, the forehead, the crown, the lips, the back of a hand) by leaning
  *   the body from the hips and flexing the neck, the head turned to one side

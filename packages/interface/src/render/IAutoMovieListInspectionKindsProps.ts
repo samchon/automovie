@@ -1,9 +1,9 @@
-import type { IAutoMovieMark } from "../index.js";
-import type { IAutoMovieInspectionRequest } from "./IAutoMovieInspectionRequest.js";
+import type { IAutoMovieMark } from "../index";
+import type { IAutoMovieInspectionRequest } from "./IAutoMovieInspectionRequest";
 
 /**
  * Subject marks and conditional request features used to enumerate inspection
- * kinds. listAutoMovieInspectionKinds adds sliver/trail kinds only when
+ * kinds. listInspectionKinds adds sliver/trail kinds only when
  * requested and resolves supplied mark kind identities; empty marks still
  * permit built-in kinds.
  */

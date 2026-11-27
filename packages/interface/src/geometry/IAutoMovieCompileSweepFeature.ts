@@ -16,7 +16,7 @@ export namespace IAutoMovieCompileSweepFeature {
    * cusp or self-intersection however unevenly its points are spaced (Yuksel,
    * Schaefer and Keyser 2011, Computer-Aided Design 43(7):747-755), and it is
    * C1 in that knot parameter. Its radius or offset follows the same parameter
-   * by `interpolateAutoMovieSpline`, so it too runs smoothly along the curve.
+   * by `interpolateSpline`, so it too runs smoothly along the curve.
    * At a query point a nearest candidate on the curve is searched in a local
    * cylindrical metric: `u` scaled by the spine's length and angle by the
    * query's radius before features. This approximates surface distance; it is
@@ -34,7 +34,7 @@ export namespace IAutoMovieCompileSweepFeature {
     /**
      * Spine polygon length in metres, multiplying differences in normalized
      * spine u when spacing the feature's centripetal knots.
-     * compileAutoMovieSweep supplies path.length; this helper does not validate
+     * compileSweep supplies path.length; this helper does not validate
      * it.
      */
     length: number;

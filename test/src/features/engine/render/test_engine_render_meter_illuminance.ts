@@ -66,7 +66,7 @@ const DOWN: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
 );
 
 /**
- * `meterAutoMovieIlluminance` sums the illuminance a set of lights puts on a
+ * `meterIlluminance` sums the illuminance a set of lights puts on a
  * surface: intensity times luminance (0.2126, 0.7152, 0.0722) times the
  * incidence (inverse square and cosine for a point or spot, cosine alone for a
  * directional light).

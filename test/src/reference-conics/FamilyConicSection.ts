@@ -333,7 +333,7 @@ export namespace FamilyConicSection {
 
   /**
    * A section's conic conversion: its radius faired as the periodic smoothing spline of curvature penalty in phase, its half-power
-   * wavelength `FAIR_MM` of girth, converted by Ahn's conic approximation (`approximateAutoMovieRecoveryConicsAhn`), and the ends of its
+   * wavelength `FAIR_MM` of girth, converted by Ahn's conic approximation (`approximateRecoveryConicsAhn`), and the ends of its
    * arcs with their tangents.
    *
    * @param fairMm The fairing cutoff, mm: `FAIR_MM`, the trunk's, unless a region gives its own (`FamilyConicConvert.cutoff`).

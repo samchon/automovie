@@ -3,7 +3,7 @@ import type {
   IAutoMovieRasterImage,
 } from "@automovie/interface";
 
-import { AutoMovieRenderPicture } from "./AutoMovieRenderPicture.js";
+import { AutoMovieRenderPicture } from "./AutoMovieRenderPicture";
 
 /**
  * A contact sheet of pictures, filled one picture at a time: each picture is

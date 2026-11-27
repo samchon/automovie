@@ -9,7 +9,7 @@ import type {
 import { AutoMovieEngineBernsteinSubdivision64 as S } from "./AutoMovieEngineBernsteinSubdivision64";
 import { AutoMovieEngineContourSlit64 as Slit } from "./AutoMovieEngineContourSlit64";
 import { AutoMovieEngineCurveMath64 as M } from "./AutoMovieEngineCurveMath64";
-import { assertAutoMovieCurve64 } from "./curve/internal/assertAutoMovieCurve64";
+import { assertCurve64 } from "./curve/internal/assertCurve64";
 import { AutoMovieContourLoftCurves64Data } from "./internal/AutoMovieContourLoftCurves64Data";
 
 /**
@@ -225,7 +225,7 @@ export namespace AutoMovieEngineContourLoftCurves64 {
     primitive: IAutoMovieCubicBezierCurve64,
     toleranceMm: number,
   ): IAutoMovieContourLoftCurves64.Knot[] {
-    assertAutoMovieCurve64(primitive);
+    assertCurve64(primitive);
     if (!primitive.closed || toleranceMm <= 0)
       throw new Error(
         "Closed cubic and positive physical chord tolerance required",

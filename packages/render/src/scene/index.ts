@@ -1,192 +1,192 @@
-export * from "./analysisOverlay.js";
-export * from "./AutoMovieRenderTextureCache.js";
+export * from "./analysisOverlay";
+export * from "./AutoMovieRenderTextureCache";
 
-export * from "./AutoMovieRenderThreeKind.js";
-export * from "./IAutoMovieRenderDepthPrecisionRenderer.js";
-export * from "./IAutoMovieRenderFramebufferContext.js";
-export * from "./IAutoMovieRenderFramebufferRenderer.js";
-export * from "./IAutoMovieRendererFrameCounters.js";
-export * from "./IAutoMovieRenderScenePassRenderer.js";
-export * from "./IAutoMovieRenderTextureLoader.js";
-export * from "./IAutoMovieRenderTextureResolver.js";
+export * from "./AutoMovieRenderThreeKind";
+export * from "./IAutoMovieRenderDepthPrecisionRenderer";
+export * from "./IAutoMovieRenderFramebufferContext";
+export * from "./IAutoMovieRenderFramebufferRenderer";
+export * from "./IAutoMovieRendererFrameCounters";
+export * from "./IAutoMovieRenderScenePassRenderer";
+export * from "./IAutoMovieRenderTextureLoader";
+export * from "./IAutoMovieRenderTextureResolver";
 
-export * from "./AutoMovieRenderGeometryPhysicalVertices.js";
+export * from "./AutoMovieRenderGeometryPhysicalVertices";
 
-export * from "./IAutoMovieRenderMaterialShaderPatch.js";
-export * from "./IAutoMovieRenderMaterialShaderSource.js";
+export * from "./IAutoMovieRenderMaterialShaderPatch";
+export * from "./IAutoMovieRenderMaterialShaderSource";
 
-export * from "./IAutoMovieRenderMaterialLibrary.js";
-export * from "./IAutoMovieRenderBuildMaterialLibraryProps.js";
+export * from "./IAutoMovieRenderMaterialLibrary";
+export * from "./IAutoMovieRenderBuildMaterialLibraryProps";
 
-export * from "./IAutoMovieRenderExpressionTarget.js";
-export * from "./IAutoMovieRenderViewerFrame.js";
-export * from "./IAutoMovieRenderModelObject.js";
+export * from "./IAutoMovieRenderExpressionTarget";
+export * from "./IAutoMovieRenderViewerFrame";
+export * from "./IAutoMovieRenderModelObject";
 
-export * from "./AutoMovieRenderSkinnedMesh.js";
-
-
-export * from "./buildSpace.js";
-export * from "./deliveryCrop.js";
-export * from "./cameraDepthPrecision.js";
-
-export * from "./IAutoMovieRenderSceneObject.js";
-export * from "./IAutoMovieRenderSceneSoftProps.js";
+export * from "./AutoMovieRenderSkinnedMesh";
 
 
-export * from "./IAutoMovieRenderSectionRenderer.js";
-export * from "./IAutoMovieRenderApplySectionPlanesProps.js";
+export * from "./buildSpace";
+export * from "./deliveryCrop";
+export * from "./cameraDepthPrecision";
+
+export * from "./IAutoMovieRenderSceneObject";
+export * from "./IAutoMovieRenderSceneSoftProps";
 
 
-export * from "./IAutoMovieRendererEnvironmentHandle.js";
+export * from "./IAutoMovieRenderSectionRenderer";
+export * from "./IAutoMovieRenderApplySectionPlanesProps";
 
-export * from "./AutoMovieRenderScenePass.js";
 
-export * from "./IAutoMovieRenderShadowRetirement.js";
-export * from "./IAutoMovieRenderShadowRetirementHost.js";
-export * from "./IAutoMovieRenderShadowTextureHost.js";
+export * from "./IAutoMovieRendererEnvironmentHandle";
 
-export * from "./AutoMovieRenderPlayer.js";
-export * from "./IAutoMovieRenderSpringConfig.js";
-export * from "./IAutoMovieRenderSpringAxisSettlement.js";
+export * from "./AutoMovieRenderScenePass";
 
-export * from "./IAutoMovieRenderModeHandle.js";
-export * from "./AutoMovieRenderDepthNormalizationRange.js";
-export * from "./AutoMovieRenderEdgeWidth.js";
-export * from "./AutoMovieRenderEdgeShellName.js";
-export * from "./AutoMovieRenderPoseOverlayName.js";
-export * from "./IAutoMovieRenderViewerSnapshotRenderer.js";
-export * from "./IAutoMovieRenderViewerSnapshotOptions.js";
-export * from "./IAutoMovieRenderViewerSnapshot.js";
-export * from "./effect.js";
-export * from "./fluidSurface.js";
+export * from "./IAutoMovieRenderShadowRetirement";
+export * from "./IAutoMovieRenderShadowRetirementHost";
+export * from "./IAutoMovieRenderShadowTextureHost";
 
-export * from "./IAutoMovieRenderSoftBodyObject.js";
+export * from "./AutoMovieRenderPlayer";
+export * from "./IAutoMovieRenderSpringConfig";
+export * from "./IAutoMovieRenderSpringAxisSettlement";
 
-export * from "./IAutoMovieRenderPlantingObject.js";
+export * from "./IAutoMovieRenderModeHandle";
+export * from "./AutoMovieRenderDepthNormalizationRange";
+export * from "./AutoMovieRenderEdgeWidth";
+export * from "./AutoMovieRenderEdgeShellName";
+export * from "./AutoMovieRenderPoseOverlayName";
+export * from "./IAutoMovieRenderViewerSnapshotRenderer";
+export * from "./IAutoMovieRenderViewerSnapshotOptions";
+export * from "./IAutoMovieRenderViewerSnapshot";
+export * from "./effect";
+export * from "./fluidSurface";
 
-export * from "./AutoMovieRenderTransitionDisplays.js";
+export * from "./IAutoMovieRenderSoftBodyObject";
 
-export * from "./AutoMovieRenderSurfaceAppearance.js";
+export * from "./IAutoMovieRenderPlantingObject";
 
-export * from "./AutoMovieRenderHumanPolygon.js";
-export * from "./AutoMovieRenderHumanCartoon.js";
-export * from "./AutoMovieRenderResourceRetirementScope.js";
+export * from "./AutoMovieRenderTransitionDisplays";
 
-export * from "./AutoMovieRenderSceneTexture.js";
+export * from "./AutoMovieRenderSurfaceAppearance";
 
-export * from "./AutoMovieRenderSceneMotion.js";
+export * from "./AutoMovieRenderHumanPolygon";
+export * from "./AutoMovieRenderHumanCartoon";
+export * from "./AutoMovieRenderResourceRetirementScope";
 
-export * from "./AutoMovieRenderSceneLayout.js";
-export * from "./IAutoMovieRenderPixelPoint.js";
+export * from "./AutoMovieRenderSceneTexture";
 
-export * from "./AutoMovieRenderMaterial.js";
+export * from "./AutoMovieRenderSceneMotion";
 
-export * from "./AutoMovieRenderSceneResource.js";
+export * from "./AutoMovieRenderSceneLayout";
+export * from "./IAutoMovieRenderPixelPoint";
 
-export * from "./AutoMovieRenderSceneRenderMode.js";
+export * from "./AutoMovieRenderMaterial";
 
-export * from "./AutoMovieRenderSceneShadow.js";
+export * from "./AutoMovieRenderSceneResource";
 
-export * from "./AutoMovieRenderSceneFramebuffer.js";
+export * from "./AutoMovieRenderSceneRenderMode";
 
-export * from "./AutoMovieRenderSceneEnvironment.js";
+export * from "./AutoMovieRenderSceneShadow";
 
-export * from "./AutoMovieRenderSceneLighting.js";
-export * from "./AutoMovieRenderDetailNormalTarget.js";
-export * from "./AutoMovieRenderDetailNormalShading.js";
-export * from "./AutoMovieRenderDualQuaternionSkinning.js";
-export * from "./AutoMovieRenderFilmResponseShaders.js";
-export type * from "./AutoMovieRenderFilmAlpha.js";
-export * from "./AutoMovieRenderFilmResponseStage.js";
-export type * from "./IAutoMovieRenderFilmResponseRenderer.js";
-export type * from "./IAutoMovieRenderFilmGlareKernel.js";
-export * from "./AutoMovieRenderFilmOcclusionShaders.js";
-export * from "./AutoMovieRenderFilmIndirectStage.js";
-export type * from "./IAutoMovieRenderFilmIndirectRenderer.js";
-export * from "./AutoMovieRenderFilmShading.js";
-export type * from "./IAutoMovieRenderFlamesObject.js";
-export type * from "./IAutoMovieRenderPrepareFlamesProps.js";
-export * from "./AutoMovieRenderFlame.js";
-export type * from "./IAutoMovieRenderFormationViewerStats.js";
-export type * from "./IAutoMovieRenderFormationViewerObject.js";
-export * from "./AutoMovieRenderFormation.js";
-export type * from "./IAutoMovieRenderBakeFormationCycleProps.js";
-export * from "./AutoMovieRenderFormationCycleSamples.js";
-export type * from "./IAutoMovieRenderFormationCycleUniforms.js";
-export type * from "./IAutoMovieRenderFormationCycleTake.js";
-export type * from "./IAutoMovieRenderFormationCycle.js";
-export type * from "./IAutoMovieRenderFormationCadence.js";
-export * from "./AutoMovieRenderFormationCyclePatchKey.js";
-export * from "./AutoMovieRenderFormationCycle.js";
-export * from "./AutoMovieRenderFormationGeometry.js";
-export type * from "./IAutoMovieRenderImportedModelOptions.js";
-export * from "./AutoMovieRenderImportedModel.js";
-export type * from "./IAutoMovieRenderObservePlacedSceneResult.js";
-export type * from "./IAutoMovieRenderObservePlacedSceneProps.js";
-export type * from "./IAutoMovieRenderObservePlacedSceneNativeSupport.js";
-export type * from "./IAutoMovieRenderObservePlacedSceneNativeGrip.js";
-export type * from "./IAutoMovieRenderObservePlacedSceneCheck.js";
-export type * from "./IAutoMovieRenderSelectPlacedChecksProps.js";
-export type * from "./IAutoMovieRenderSelectPlacedChecksRule.js";
-export type * from "./IAutoMovieRenderSelectPlacedChecksSupport.js";
-export type * from "./IAutoMovieRenderSelectPlacedChecksSupportPhase.js";
-export type * from "./IAutoMovieRenderSelectPlacedChecksGrip.js";
-export type * from "./IAutoMovieRenderSelectPlacedChecksGripWindow.js";
-export type * from "./IAutoMovieRenderSelectPlacedChecksCustody.js";
-export type * from "./IAutoMovieRenderSelectPlacedChecksContinuity.js";
-export type * from "./IAutoMovieRenderSelectPlacedChecksTrack.js";
-export * from "./AutoMovieRenderInspectionDepthLead.js";
-export * from "./AutoMovieRenderInspectionKeys.js";
-export * from "./AutoMovieRenderInspectionKinds.js";
-export * from "./AutoMovieRenderInspectionPalette.js";
-export * from "./AutoMovieRenderCollisionSource.js";
-export * from "./AutoMovieRenderInspectionGeometry.js";
-export type * from "./IAutoMovieRenderApplyInspectionProps.js";
-export type * from "./IAutoMovieRenderInspectionDiagnosticOverlay.js";
-export type * from "./IAutoMovieRenderInspectionHandle.js";
-export type * from "./IAutoMovieRenderInspectionMarkSet.js";
-export type * from "./IAutoMovieRenderInspectionMeasured.js";
-export type * from "./IAutoMovieRenderInspectionOverlay.js";
-export type * from "./IAutoMovieRenderInspectionPath.js";
-export type * from "./IAutoMovieRenderInspectionDiagnosticsProps.js";
-export * from "./AutoMovieRenderInspection.js";
-export * from "./AutoMovieRenderInspectionCamera.js";
-export * from "./AutoMovieRenderInspectionMarks.js";
-export * from "./AutoMovieRenderInspectionOverlay.js";
-export * from "./AutoMovieRenderInspectionRequest.js";
-export * from "./AutoMovieRenderInspectionPath.js";
-export * from "./AutoMovieRenderInspectionMaterial.js";
-export type * from "./IAutoMovieRenderBuildInstancedInstanceSetProps.js";
-export type * from "./IAutoMovieRenderInstanceSetViewerStats.js";
-export type * from "./IAutoMovieRenderInstanceSetViewerObject.js";
-export * from "./AutoMovieRenderInstanceSet.js";
-export type * from "./IAutoMovieRenderMaterialOverlayShading.js";
-export type * from "./IAutoMovieRenderMaterialOverlayShape.js";
-export * from "./AutoMovieRenderMaterialOverlayShading.js";
-export * from "./AutoMovieRenderMedium.js";
-export * from "./AutoMovieRenderProceduralNoiseGlsl.js";
-export * from "./AutoMovieRenderProceduralShading.js";
-export type * from "./IAutoMovieRenderBuiltPropArticulation.js";
-export type * from "./IAutoMovieRenderBuildPropArticulationProps.js";
-export * from "./AutoMovieRenderReliefWeightTarget.js";
-export * from "./AutoMovieRenderReliefWeightShading.js";
-export type * from "./IAutoMovieRenderSemanticMaskHandle.js";
-export * from "./AutoMovieRenderSemanticMask.js";
-export type * from "./AutoMovieRenderViewerSubjectKind.js";
-export type * from "./IAutoMovieRenderViewerSubject.js";
-export type * from "./IAutoMovieRenderUpdateComparisonCameraProps.js";
-export type * from "./IAutoMovieRenderViewerSubjectBounds.js";
-export type * from "./IAutoMovieRenderViewerViewpoint.js";
-export type * from "./IAutoMovieRenderViewerSubjectLens.js";
-export type * from "./IAutoMovieRenderViewerSubjectPose.js";
-export type * from "./IAutoMovieRenderViewerTurntableOptions.js";
-export type * from "./IAutoMovieRenderViewerSubjectView.js";
-export type * from "./IAutoMovieRenderViewerSubjectViewRequest.js";
-export * from "./AutoMovieRenderSubjectViewpoint.js";
-export * from "./AutoMovieRenderSubsurfaceTarget.js";
-export * from "./AutoMovieRenderSubsurfaceShading.js";
-export * from "./AutoMovieRenderSurfaceGraphicKey.js";
-export type * from "./IAutoMovieRenderSurfaceGraphicsObject.js";
-export type * from "./IAutoMovieRenderPrepareSurfaceGraphicsProps.js";
-export * from "./AutoMovieRenderSurfaceGraphic.js";
-export * from "./AutoMovieRenderWearShading.js";
+export * from "./AutoMovieRenderSceneFramebuffer";
+
+export * from "./AutoMovieRenderSceneEnvironment";
+
+export * from "./AutoMovieRenderSceneLighting";
+export * from "./AutoMovieRenderDetailNormalTarget";
+export * from "./AutoMovieRenderDetailNormalShading";
+export * from "./AutoMovieRenderDualQuaternionSkinning";
+export * from "./AutoMovieRenderFilmResponseShaders";
+export type * from "./AutoMovieRenderFilmAlpha";
+export * from "./AutoMovieRenderFilmResponseStage";
+export type * from "./IAutoMovieRenderFilmResponseRenderer";
+export type * from "./IAutoMovieRenderFilmGlareKernel";
+export * from "./AutoMovieRenderFilmOcclusionShaders";
+export * from "./AutoMovieRenderFilmIndirectStage";
+export type * from "./IAutoMovieRenderFilmIndirectRenderer";
+export * from "./AutoMovieRenderFilmShading";
+export type * from "./IAutoMovieRenderFlamesObject";
+export type * from "./IAutoMovieRenderPrepareFlamesProps";
+export * from "./AutoMovieRenderFlame";
+export type * from "./IAutoMovieRenderFormationViewerStats";
+export type * from "./IAutoMovieRenderFormationViewerObject";
+export * from "./AutoMovieRenderFormation";
+export type * from "./IAutoMovieRenderBakeFormationCycleProps";
+export * from "./AutoMovieRenderFormationCycleSamples";
+export type * from "./IAutoMovieRenderFormationCycleUniforms";
+export type * from "./IAutoMovieRenderFormationCycleTake";
+export type * from "./IAutoMovieRenderFormationCycle";
+export type * from "./IAutoMovieRenderFormationCadence";
+export * from "./AutoMovieRenderFormationCyclePatchKey";
+export * from "./AutoMovieRenderFormationCycle";
+export * from "./AutoMovieRenderFormationGeometry";
+export type * from "./IAutoMovieRenderImportedModelOptions";
+export * from "./AutoMovieRenderImportedModel";
+export type * from "./IAutoMovieRenderObservePlacedSceneResult";
+export type * from "./IAutoMovieRenderObservePlacedSceneProps";
+export type * from "./IAutoMovieRenderObservePlacedSceneNativeSupport";
+export type * from "./IAutoMovieRenderObservePlacedSceneNativeGrip";
+export type * from "./IAutoMovieRenderObservePlacedSceneCheck";
+export type * from "./IAutoMovieRenderSelectPlacedChecksProps";
+export type * from "./IAutoMovieRenderSelectPlacedChecksRule";
+export type * from "./IAutoMovieRenderSelectPlacedChecksSupport";
+export type * from "./IAutoMovieRenderSelectPlacedChecksSupportPhase";
+export type * from "./IAutoMovieRenderSelectPlacedChecksGrip";
+export type * from "./IAutoMovieRenderSelectPlacedChecksGripWindow";
+export type * from "./IAutoMovieRenderSelectPlacedChecksCustody";
+export type * from "./IAutoMovieRenderSelectPlacedChecksContinuity";
+export type * from "./IAutoMovieRenderSelectPlacedChecksTrack";
+export * from "./AutoMovieRenderInspectionDepthLead";
+export * from "./AutoMovieRenderInspectionKeys";
+export * from "./AutoMovieRenderInspectionKinds";
+export * from "./AutoMovieRenderInspectionPalette";
+export * from "./AutoMovieRenderCollisionSource";
+export * from "./AutoMovieRenderInspectionGeometry";
+export type * from "./IAutoMovieRenderApplyInspectionProps";
+export type * from "./IAutoMovieRenderInspectionDiagnosticOverlay";
+export type * from "./IAutoMovieRenderInspectionHandle";
+export type * from "./IAutoMovieRenderInspectionMarkSet";
+export type * from "./IAutoMovieRenderInspectionMeasured";
+export type * from "./IAutoMovieRenderInspectionOverlay";
+export type * from "./IAutoMovieRenderInspectionPath";
+export type * from "./IAutoMovieRenderInspectionDiagnosticsProps";
+export * from "./AutoMovieRenderInspection";
+export * from "./AutoMovieRenderInspectionCamera";
+export * from "./AutoMovieRenderInspectionMarks";
+export * from "./AutoMovieRenderInspectionOverlay";
+export * from "./AutoMovieRenderInspectionRequest";
+export * from "./AutoMovieRenderInspectionPath";
+export * from "./AutoMovieRenderInspectionMaterial";
+export type * from "./IAutoMovieRenderBuildInstancedInstanceSetProps";
+export type * from "./IAutoMovieRenderInstanceSetViewerStats";
+export type * from "./IAutoMovieRenderInstanceSetViewerObject";
+export * from "./AutoMovieRenderInstanceSet";
+export type * from "./IAutoMovieRenderMaterialOverlayShading";
+export type * from "./IAutoMovieRenderMaterialOverlayShape";
+export * from "./AutoMovieRenderMaterialOverlayShading";
+export * from "./AutoMovieRenderMedium";
+export * from "./AutoMovieRenderProceduralNoiseGlsl";
+export * from "./AutoMovieRenderProceduralShading";
+export type * from "./IAutoMovieRenderBuiltPropArticulation";
+export type * from "./IAutoMovieRenderBuildPropArticulationProps";
+export * from "./AutoMovieRenderReliefWeightTarget";
+export * from "./AutoMovieRenderReliefWeightShading";
+export type * from "./IAutoMovieRenderSemanticMaskHandle";
+export * from "./AutoMovieRenderSemanticMask";
+export type * from "./AutoMovieRenderViewerSubjectKind";
+export type * from "./IAutoMovieRenderViewerSubject";
+export type * from "./IAutoMovieRenderUpdateComparisonCameraProps";
+export type * from "./IAutoMovieRenderViewerSubjectBounds";
+export type * from "./IAutoMovieRenderViewerViewpoint";
+export type * from "./IAutoMovieRenderViewerSubjectLens";
+export type * from "./IAutoMovieRenderViewerSubjectPose";
+export type * from "./IAutoMovieRenderViewerTurntableOptions";
+export type * from "./IAutoMovieRenderViewerSubjectView";
+export type * from "./IAutoMovieRenderViewerSubjectViewRequest";
+export * from "./AutoMovieRenderSubjectViewpoint";
+export * from "./AutoMovieRenderSubsurfaceTarget";
+export * from "./AutoMovieRenderSubsurfaceShading";
+export * from "./AutoMovieRenderSurfaceGraphicKey";
+export type * from "./IAutoMovieRenderSurfaceGraphicsObject";
+export type * from "./IAutoMovieRenderPrepareSurfaceGraphicsProps";
+export * from "./AutoMovieRenderSurfaceGraphic";
+export * from "./AutoMovieRenderWearShading";

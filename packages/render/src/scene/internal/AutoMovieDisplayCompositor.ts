@@ -1,8 +1,8 @@
 import * as THREE from "three";
 
-import { captureAutoMovieFramebufferRestore } from "./captureAutoMovieFramebufferRestore.js";
-import { AutoMovieRenderSceneFramebuffer } from "../AutoMovieRenderSceneFramebuffer.js";
-import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
+import { captureFramebufferRestore } from "./captureFramebufferRestore";
+import { AutoMovieRenderSceneFramebuffer } from "../AutoMovieRenderSceneFramebuffer";
+import { restoreRenderModeState } from "./restoreRenderModeState";
 
 /*
  * GPU composition of the same display bytes a direct canvas capture reads.
@@ -24,7 +24,7 @@ import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeSta
  *
  * The two sources mix as associated colour, colour times alpha, with alpha at
  * the same weight, and return to straight colour, as
- * `mixAutoMovieStraightAlpha` does on bytes: a transparent source's black then
+ * `mixStraightAlpha` does on bytes: a transparent source's black then
  * darkens no half-covered edge, and two opaque sources mix exactly as straight
  * colour. A fade mixes toward opaque black, or with `transparent` toward a
  * fully transparent pixel, so only alpha falls.
@@ -180,7 +180,7 @@ export class AutoMovieDisplayCompositor {
     const target: ReturnType<THREE.WebGLRenderer["getRenderTarget"]> =
       renderer.getRenderTarget();
     const restoreFramebuffer: () => void =
-      captureAutoMovieFramebufferRestore(renderer);
+      captureFramebufferRestore(renderer);
     const destinationSRGB: boolean =
       target !== null &&
       AutoMovieRenderSceneFramebuffer.readDestinationEncoding(renderer) === "srgb";
@@ -264,8 +264,8 @@ export class AutoMovieDisplayCompositor {
         renderer.toneMappingExposure = exposure;
       },
     ];
-    if (primary === undefined) restoreAutoMovieRenderModeState(operations);
-    else restoreAutoMovieRenderModeState(operations, primary);
+    if (primary === undefined) restoreRenderModeState(operations);
+    else restoreRenderModeState(operations, primary);
   }
 
   private capture(

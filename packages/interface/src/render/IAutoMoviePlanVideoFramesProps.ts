@@ -1,6 +1,6 @@
 /**
  * An encoded file and desired decoded frame indices for an FFmpeg extraction
- * plan. planAutoMovieVideoFrames refuses an empty list or
+ * plan. planVideoFrames refuses an empty list or
  * nonnegative-safe-integer violations, then deduplicates and sorts indices.
  * Output stills are numbered by extraction order as s00000.png; this contract
  * does not launch the process.

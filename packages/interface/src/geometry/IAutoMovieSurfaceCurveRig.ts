@@ -1,5 +1,5 @@
 /**
- * A network curve of a surface rig, from `rigAutoMovieSurfaceCurve`,
+ * A network curve of a surface rig, from `rigSurfaceCurve`,
  * re-evaluated per pose into its own buffers.
  *
  * `update` runs once per pose after the sweeps and bones it reads; the queries

@@ -1,0 +1,142 @@
+import { AutoMovieEngineRenderMaterial } from "@automovie/engine";
+import type {
+  IAutoMovieImage,
+  IAutoMovieMaterial,
+  IAutoMovieModel,
+} from "@automovie/interface";
+
+import type { IAutoMovieRenderMaterialLibrary } from "../IAutoMovieRenderMaterialLibrary";
+import type { IAutoMovieRenderBuildMaterialLibraryProps } from "../IAutoMovieRenderBuildMaterialLibraryProps";
+import { AutoMovieRenderMaterial } from "../AutoMovieRenderMaterial";
+import { constructOwnedResources } from "./constructOwnedResources";
+import { materialTextureBindings } from "./materialTextureBindings";
+import { reportResourceRetirement } from "./reportResourceRetirement";
+
+/*
+ * Build the exact model material identities requested by simulated surfaces.
+ *
+ * Model parts cite materials inside one model, but water, soft furnishing, and
+ * planting records cite only a material id. Such a citation therefore resolves
+ * across the compiled model population and must have exactly one definition.
+ * Repeated declarations are one definition only when their complete records are
+ * structurally equal. Missing and conflicting declarations are refused before
+ * any material is built, so model order can never decide a visible result.
+ *
+ * Each admitted id is built once and shared by every borrowing surface. Texture
+ * assets are primed through the shot cache before synchronous material
+ * construction, together with the images carried by the models that declare the
+ * requested materials; that cache owns binding-private texture clones and
+ * decoded sources, while the returned library owns only the `THREE.Material`
+ * objects. Construction refusal retires already-built materials independently.
+ * Disposal attempts every material once, retains failed ownership and preserves
+ * the same failure for repeated callers.
+ */
+export const buildMaterialLibrary: (
+  props: IAutoMovieRenderBuildMaterialLibraryProps,
+) => Promise<IAutoMovieRenderMaterialLibrary> = async (
+  props: IAutoMovieRenderBuildMaterialLibraryProps,
+): Promise<IAutoMovieRenderMaterialLibrary> => {
+  const requested: Set<string> = new Set<string>();
+  for (const id of props.materialIds) {
+    if (id === null) continue;
+    if (id.trim().length === 0)
+      throw new Error("A requested material id must not be blank.");
+    requested.add(id);
+  }
+
+  const definitions: Map<string, IAutoMovieMaterial> = new Map<
+    string,
+    IAutoMovieMaterial
+  >(
+    [...requested].map((id: string): [string, IAutoMovieMaterial] => [
+      id,
+      AutoMovieEngineRenderMaterial.resolveMaterial({ models: props.models, material: id }),
+    ]),
+  );
+
+  const bindings: ReturnType<typeof materialTextureBindings> = [
+    ...definitions.values(),
+  ].flatMap(materialTextureBindings);
+  if (bindings.length !== 0 && props.textures === undefined)
+    throw new Error(
+      "Requested materials bind texture assets but no shot texture cache was supplied.",
+    );
+  // A binding resolves against the images of the models that declare it.
+  await props.textures?.prime(
+    bindings,
+    props.models
+      .filter((model: IAutoMovieModel): boolean =>
+        model.materials.some((material: IAutoMovieMaterial): boolean =>
+          definitions.has(material.id),
+        ),
+      )
+      .flatMap(
+        (model: IAutoMovieModel): IAutoMovieImage[] => model.images ?? [],
+      ),
+  );
+
+  const materials: Map<
+    string,
+    ReturnType<typeof AutoMovieRenderMaterial.build>
+  > = constructOwnedResources(
+    (
+      own: <Resource extends { dispose(): void }>(
+        resource: Resource,
+      ) => Resource,
+    ): Map<string, ReturnType<typeof AutoMovieRenderMaterial.build>> =>
+      new Map(
+        [...definitions].map(
+          ([id, material]: [string, IAutoMovieMaterial]): readonly [
+            string,
+            ReturnType<typeof AutoMovieRenderMaterial.build>,
+          ] =>
+            [
+              id,
+              own(AutoMovieRenderMaterial.build(material, props.textures?.resolve)),
+            ] as const,
+        ),
+      ),
+  );
+  let disposed: boolean = false;
+  let disposalFailure: { error: unknown } | undefined;
+  return {
+    resolve: (
+      id: string | null,
+    ): ReturnType<typeof AutoMovieRenderMaterial.build> | undefined => {
+      if (disposed)
+        throw new Error(
+          "This shot material library has already been disposed.",
+        );
+      if (id === null) return undefined;
+      const material: ReturnType<typeof AutoMovieRenderMaterial.build> | undefined =
+        materials.get(id);
+      if (material === undefined)
+        throw new Error(`Material "${id}" was not requested by this library.`);
+      return material;
+    },
+    dispose: (): void => {
+      if (disposed) {
+        if (disposalFailure !== undefined) throw disposalFailure.error;
+        return;
+      }
+      disposed = true;
+      try {
+        reportResourceRetirement(
+          [...materials].map(
+            ([id, material]: [
+              string,
+              ReturnType<typeof AutoMovieRenderMaterial.build>,
+            ]): (() => void) =>
+              (): void => {
+                material.dispose();
+                materials.delete(id);
+              },
+          ),
+        );
+      } catch (error) {
+        disposalFailure = { error };
+        throw error;
+      }
+    },
+  };
+};

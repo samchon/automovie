@@ -8,7 +8,7 @@ import type { IAutoMovieMotionManner } from "./IAutoMovieMotionManner";
  * scratches, covers, pain holds) are rows of the `touch` law.
  *
  * Each action is a phrase: the parts rise to their place over the free-space
- * transport of the hand's travel (`AutoMovieMotionHumanTiming.transport`), and
+ * transport of the hand's travel (`motionHumanTiming.transport`), and
  * at least as long as each raised arm's path needs to keep within the audit's
  * travel bound (`AutoMovieMotionHumanArmPlanned.reaching`), or 0.4 s for the
  * head and the shoulders, perform the stroke, hold and return in the rise's

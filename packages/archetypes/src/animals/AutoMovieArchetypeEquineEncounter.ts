@@ -452,27 +452,41 @@ interface IRegion {
   along: number;
 }
 
-/** A point on a body's surface and its outward normal. */
+/*
+ * A point on a body's surface and its outward normal.
+ */
 interface ISurface {
-  /** The point, world metres. */
+  /*
+   * The point, world metres.
+   */
   point: IAutoMovieVector3;
 
-  /** The unit outward normal. */
+  /*
+   * The unit outward normal.
+   */
   normal: IAutoMovieVector3;
 }
 
 /** Two of a kind, one per horse. */
 type Pair<T> = readonly [T, T];
 
-/** A bar's ends and radius. */
+/*
+ * A bar's ends and radius.
+ */
 interface IBar {
-  /** Its start. */
+  /*
+   * Its start.
+   */
   from: IAutoMovieVector3;
 
-  /** Its end. */
+  /*
+   * Its end.
+   */
   to: IAutoMovieVector3;
 
-  /** Its radius. */
+  /*
+   * Its radius.
+   */
   radius: number;
 }
 

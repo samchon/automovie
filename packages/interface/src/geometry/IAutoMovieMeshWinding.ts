@@ -1,6 +1,6 @@
 /**
  * Whether one point is solid or empty with respect to a triangle surface, as a
- * query from `createAutoMovieMeshWindingQuery` answers it.
+ * query from `createMeshWindingQuery` answers it.
  *
  * The answer reads the generalized winding number (Jacobson, Kavan and
  * Sorkine-Hornung 2013), so it stays meaningful on surfaces that are not closed

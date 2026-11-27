@@ -10,7 +10,7 @@ import type {
   IAutoMovieScheduleEntry,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanChannel as HumanChannels } from "../../compose/internal/AutoMovieMotionHumanChannel";
+import { motionHumanChannel as HumanChannels } from "../../compose/internal/motionHumanChannel";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanPerformanceContacts } from "./HumanPerformanceContacts";
 

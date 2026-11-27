@@ -1,12 +1,12 @@
 import * as THREE from "three";
 
-import type { IAutoMovieRenderMaterialShaderSource } from "../../IAutoMovieRenderMaterialShaderSource.js";
-import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial.js";
-import type { IAutoMovieRenderMaterialOverlayShading } from "../../IAutoMovieRenderMaterialOverlayShading.js";
-import type { IAutoMovieRenderMaterialOverlayShape } from "../../IAutoMovieRenderMaterialOverlayShape.js";
-import { getOverlayFlatNormal } from "./getOverlayFlatNormal.js";
-import { materialOverlayFragment } from "./materialOverlayFragment.js";
-import { materialOverlayVertex } from "./materialOverlayVertex.js";
+import type { IAutoMovieRenderMaterialShaderSource } from "../../IAutoMovieRenderMaterialShaderSource";
+import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial";
+import type { IAutoMovieRenderMaterialOverlayShading } from "../../IAutoMovieRenderMaterialOverlayShading";
+import type { IAutoMovieRenderMaterialOverlayShape } from "../../IAutoMovieRenderMaterialOverlayShape";
+import { getOverlayFlatNormal } from "./getOverlayFlatNormal";
+import { materialOverlayFragment } from "./materialOverlayFragment";
+import { materialOverlayVertex } from "./materialOverlayVertex";
 
 /*
  * Compose overlays in order, with coverage equal to image alpha times strength.

@@ -1,10 +1,10 @@
 import type { IAutoMovieMeshSkin } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieRenderThreeKind } from "./AutoMovieRenderThreeKind.js";
-import { AutoMovieSkinBlend } from "./internal/AutoMovieSkinBlend.js";
-import { AutoMovieSkinPose } from "./internal/AutoMovieSkinPose.js";
-import { readAutoMovieBufferAttribute } from "./internal/readAutoMovieBufferAttribute.js";
+import { AutoMovieRenderThreeKind } from "./AutoMovieRenderThreeKind";
+import { AutoMovieSkinBlend } from "./internal/AutoMovieSkinBlend";
+import { AutoMovieSkinPose } from "./internal/AutoMovieSkinPose";
+import { readBufferAttribute } from "./internal/readBufferAttribute";
 
 /**
  * A skinned mesh whose CPU queries read the deformation its shaders draw.
@@ -42,7 +42,7 @@ import { readAutoMovieBufferAttribute } from "./internal/readAutoMovieBufferAttr
  * bound, so culling and framing never cut a vertex the GPU draws.
  *
  * Precision: the CPU blend runs in double precision and agrees with the
- * engine's `skinAutoMovieMesh` to double rounding; the cache stores float32,
+ * engine's `skinMesh` to double rounding; the cache stores float32,
  * which adds at most 2^-24 of a coordinate. The GPU evaluates the same blend in
  * float32 over float32 matrices, about sixty roundings per vertex, so its
  * result lies within 2^-18 of the largest local coordinate of the CPU one.
@@ -147,11 +147,11 @@ export class AutoMovieRenderSkinnedMesh<
     if (this.method !== "dual-quaternion")
       return super.applyBoneTransform(index, target);
     _index.fromBufferAttribute(
-      readAutoMovieBufferAttribute(this.geometry, "skinIndex"),
+      readBufferAttribute(this.geometry, "skinIndex"),
       index,
     );
     _weight.fromBufferAttribute(
-      readAutoMovieBufferAttribute(this.geometry, "skinWeight"),
+      readBufferAttribute(this.geometry, "skinWeight"),
       index,
     );
     for (let k: number = 0; k < 4; ++k)

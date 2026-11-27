@@ -30,7 +30,7 @@ const total: (
   )?.total ?? null;
 
 /**
- * `measureAutoMovieQuantities` takes off counts, areas and volumes from a built
+ * `measureQuantities` takes off counts, areas and volumes from a built
  * environment.
  *
  * Scenarios, on the authored atelier (6 elements; a 10 x 3 x 6 m hall and a 10

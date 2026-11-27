@@ -1,19 +1,19 @@
-import { classifyAutoMovieCameraInspection as classifyAutoMovieCameraInspectionImplementation } from "./internal/classifyAutoMovieCameraInspection";
+import { classifyCameraInspection as classifyCameraInspectionImplementation } from "./internal/classifyCameraInspection";
 import { clipTrackShapeFaults as clipTrackShapeFaultsImplementation } from "./internal/clipTrackShapeFaults";
-import { isAutoMovieMaterialExtension as isAutoMovieMaterialExtensionImplementation } from "./internal/isAutoMovieMaterialExtension";
+import { isMaterialExtension as isMaterialExtensionImplementation } from "./internal/isMaterialExtension";
 import { materialTextureSlots as materialTextureSlotsImplementation } from "./internal/materialTextureSlots";
-import { readAutoMovieImageFacts as readAutoMovieImageFactsImplementation } from "./internal/readAutoMovieImageFacts";
+import { readImageFacts as readImageFactsImplementation } from "./internal/readImageFacts";
 
 import { validateAffordance as validateAffordanceImplementation } from "./internal/validateAffordance";
-import { validateAutoMovieFormationMotions as validateAutoMovieFormationMotionsImplementation } from "./internal/validateAutoMovieFormationMotions";
+import { validateFormationMotions as validateFormationMotionsImplementation } from "./internal/validateFormationMotions";
 import { validateAffordanceArticulation as validateAffordanceArticulationImplementation } from "./internal/validateAffordanceArticulation";
-import { validateAutoMovieFormationGround as validateAutoMovieFormationGroundImplementation } from "./internal/validateAutoMovieFormationGround";
-import { validateAutoMovieFormationOverlap as validateAutoMovieFormationOverlapImplementation } from "./internal/validateAutoMovieFormationOverlap";
-import { validateAutoMovieFormationSlotMotions as validateAutoMovieFormationSlotMotionsImplementation } from "./internal/validateAutoMovieFormationSlotMotions";
+import { validateFormationGround as validateFormationGroundImplementation } from "./internal/validateFormationGround";
+import { validateFormationOverlap as validateFormationOverlapImplementation } from "./internal/validateFormationOverlap";
+import { validateFormationSlotMotions as validateFormationSlotMotionsImplementation } from "./internal/validateFormationSlotMotions";
 import { affordanceFollowedTravel as affordanceFollowedTravelImplementation } from "./internal/affordanceFollowedTravel";
 import { affordanceLeadingTravel as affordanceLeadingTravelImplementation } from "./internal/affordanceLeadingTravel";
 import { affordanceTravelRange as affordanceTravelRangeImplementation } from "./internal/affordanceTravelRange";
-import { validateAutoMovieEffects as validateAutoMovieEffectsImplementation } from "./internal/validateAutoMovieEffects";
+import { validateEffects as validateEffectsImplementation } from "./internal/validateEffects";
 import { validateBalanceSupport as validateBalanceSupportImplementation } from "./internal/validateBalanceSupport";
 import { validateClipArtifact as validateClipArtifactImplementation } from "./internal/validateClipArtifact";
 import { validateColor as validateColorImplementation } from "./internal/validateColor";
@@ -60,10 +60,10 @@ import { validateTextureScale as validateTextureScaleImplementation } from "./in
 import { detectBodyCollision as detectBodyCollisionImplementation } from "./internal/detectBodyCollision";
 import { detectFreeFall as detectFreeFallImplementation } from "./internal/detectFreeFall";
 import { detectSupportToppling as detectSupportTopplingImplementation } from "./internal/detectSupportToppling";
-import { measureAutoMoviePlacedContact as measureAutoMoviePlacedContactImplementation } from "./internal/measureAutoMoviePlacedContact";
-import { measureAutoMoviePlacedContinuity as measureAutoMoviePlacedContinuityImplementation } from "./internal/measureAutoMoviePlacedContinuity";
-import { measureAutoMovieSceneCollision as measureAutoMovieSceneCollisionImplementation } from "./internal/measureAutoMovieSceneCollision";
-import { measureAutoMovieSweptCapsuleCollision as measureAutoMovieSweptCapsuleCollisionImplementation } from "./internal/measureAutoMovieSweptCapsuleCollision";
+import { measurePlacedContact as measurePlacedContactImplementation } from "./internal/measurePlacedContact";
+import { measurePlacedContinuity as measurePlacedContinuityImplementation } from "./internal/measurePlacedContinuity";
+import { measureSceneCollision as measureSceneCollisionImplementation } from "./internal/measureSceneCollision";
+import { measureSweptCapsuleCollision as measureSweptCapsuleCollisionImplementation } from "./internal/measureSweptCapsuleCollision";
 
 /** Public operations for Auto Movie Engine Validation. */
 export namespace AutoMovieEngineValidation {
@@ -179,7 +179,7 @@ export namespace AutoMovieEngineValidation {
    * observations or limits produce findings without measurements.
    */
   export function measurePlacedContact(props: IAutoMoviePlacedContact.IProps): IAutoMoviePlacedContact.IResult {
-    return measureAutoMoviePlacedContactImplementation(props);
+    return measurePlacedContactImplementation(props);
   }
 
   /**
@@ -190,7 +190,7 @@ export namespace AutoMovieEngineValidation {
    * leave coverage unsupported.
    */
   export function measurePlacedContinuity(props: IAutoMoviePlacedContinuity.IProps): IAutoMoviePlacedContinuity.IResult {
-    return measureAutoMoviePlacedContinuityImplementation(props);
+    return measurePlacedContinuityImplementation(props);
   }
 
   /**
@@ -209,7 +209,7 @@ export namespace AutoMovieEngineValidation {
    * @returns Stable measured findings, comparison counts and remaining coverage.
    */
   export function measureSceneCollision(props: Collision.IProps): Collision.IResult {
-    return measureAutoMovieSceneCollisionImplementation(props);
+    return measureSceneCollisionImplementation(props);
   }
 
   /**
@@ -229,7 +229,7 @@ export namespace AutoMovieEngineValidation {
    *   explicitly incomplete coverage.
    */
   export function measureSweptCapsuleCollision(props: Sweep.IProps): Sweep.IResult {
-    return measureAutoMovieSweptCapsuleCollisionImplementation(props);
+    return measureSweptCapsuleCollisionImplementation(props);
   }
 
   /**
@@ -261,7 +261,7 @@ export namespace AutoMovieEngineValidation {
    * runtime gait repertoire, finite state, layout and nonoverlapping intervals.
    */
   export function validateAutoMovieFormationMotions(contract: IAutoMovieShotContract, value: IAutoMovieCompiledShotSource): IAutoMovieDiagnostic[] {
-    return validateAutoMovieFormationMotionsImplementation(contract, value);
+    return validateFormationMotionsImplementation(contract, value);
   }
 
   /**
@@ -288,7 +288,7 @@ export namespace AutoMovieEngineValidation {
    * reporting the first void or sink per formation.
    */
   export function validateAutoMovieFormationGround(contract: Pick<IAutoMovieShotContract, "id">, value: IAutoMovieValidateFormationGround.IValue): IAutoMovieDiagnostic[] {
-    return validateAutoMovieFormationGroundImplementation(contract, value);
+    return validateFormationGroundImplementation(contract, value);
   }
 
   /**
@@ -297,7 +297,7 @@ export namespace AutoMovieEngineValidation {
    * LOD pair.
    */
   export function validateAutoMovieFormationOverlap(contract: Pick<IAutoMovieShotContract, "id">, value: IAutoMovieValidateFormationOverlap.IValue): IAutoMovieDiagnostic[] {
-    return validateAutoMovieFormationOverlapImplementation(contract, value);
+    return validateFormationOverlapImplementation(contract, value);
   }
 
   /**
@@ -308,7 +308,7 @@ export namespace AutoMovieEngineValidation {
     IAutoMovieShotContract,
     "id" | "participants" | "durationSeconds"
   >, value: IAutoMovieValidateFormationSlotMotions.IValue): IAutoMovieDiagnostic[] {
-    return validateAutoMovieFormationSlotMotionsImplementation(contract, value);
+    return validateFormationSlotMotionsImplementation(contract, value);
   }
 
   /**
@@ -373,7 +373,7 @@ export namespace AutoMovieEngineValidation {
    * and inside the cue's half-open shot interval.
    */
   export function validateAutoMovieEffects(contract: IAutoMovieShotContract, value: IAutoMovieCompiledShotSource): IAutoMovieDiagnostic[] {
-    return validateAutoMovieEffectsImplementation(contract, value);
+    return validateEffectsImplementation(contract, value);
   }
 
   /**
@@ -734,7 +734,7 @@ export namespace AutoMovieEngineValidation {
    * evidence.
    */
   export function classifyAutoMovieCameraInspection(input: IAutoMovieCameraInspection): IAutoMovieCameraInspection.IResult {
-    return classifyAutoMovieCameraInspectionImplementation(input);
+    return classifyCameraInspectionImplementation(input);
   }
 
   /** Accumulate ordered keyframe-clock, finite-value and stride faults. */
@@ -747,7 +747,7 @@ export namespace AutoMovieEngineValidation {
    * material/materials/texture/textures segments case-insensitively.
    */
   export function isAutoMovieMaterialExtension(name: string): boolean {
-    return isAutoMovieMaterialExtensionImplementation(name);
+    return isMaterialExtensionImplementation(name);
   }
 
   /**
@@ -764,6 +764,6 @@ export namespace AutoMovieEngineValidation {
    * media/edge facts or null.
    */
   export function readAutoMovieImageFacts(bytes: Uint8Array | null | undefined): IAutoMovieTextureImageFacts | null {
-    return readAutoMovieImageFactsImplementation(bytes);
+    return readImageFactsImplementation(bytes);
   }
 }

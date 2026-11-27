@@ -15,7 +15,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanSupportFrame } from "../../carrier/internal/HumanSupportFrame";
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
 import { rise } from "../../everyday/internal/rise";
 import { HumanLimbFit } from "../../posture/internal/HumanLimbFit";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
@@ -137,10 +137,10 @@ export function crutchSitUp(
     entry.limbs[`${sound}Arm`];
   const takeAt: IAutoMovieHumanLimbGoal = kit.goal(sound, hB, uprightB);
   const pushedAt: IAutoMovieHumanLimbGoal = pushed ?? takeAt;
-  const reach: number = AutoMovieMotionHumanTiming.transport(
+  const reach: number = motionHumanTiming.transport(
     AutoMovieEngineVector3.distance(pushedAt.point, takeAt.point),
   );
-  const carry: number = AutoMovieMotionHumanTiming.transport(
+  const carry: number = motionHumanTiming.transport(
     Math.max(
       AutoMovieEngineVector3.distance(uprightA.position, planted(injured).position),
       AutoMovieEngineVector3.distance(uprightB.position, planted(sound).position),

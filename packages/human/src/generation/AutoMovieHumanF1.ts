@@ -2134,7 +2134,7 @@ export namespace AutoMovieHumanF1 {
    * limbs' bands leave the end square to its ring (`square`): along the station lines, which lean along the ring where the sections change
    * shape under their polar phase, the toes' bands folded more (edges folding by 60 degrees or more round the toe roots, 197 against 149),
    * and the big toe's band drew a dark slit from its top fork; the hand's are unchanged (62 against 60). Both limbs fair the skin about
-   * every fork over a disc half the seam's chord across (`fair`, `fairAutoMovieSolidMesh`): at a fork the end and two bands meet in a corner
+   * every fork over a disc half the seam's chord across (`fair`, `fairSolidMesh`): at a fork the end and two bands meet in a corner
    * no one surface owns, and the bands' ribbons turn beside it over the corner window, a share of the seam, so the marks there run as long
    * as the window (8 to 15 mm along the toes' top forks, `limbview`, a scratch render of one limb). Discs of 4 and 5 mm left every mark;
    * at half the chord, 9 to 14 mm, the top forks of the toes open into a V as the reference's do and the hand's dorsal notches soften.

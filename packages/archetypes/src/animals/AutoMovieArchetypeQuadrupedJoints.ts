@@ -285,18 +285,32 @@ export namespace AutoMovieArchetypeQuadrupedJoints {
   }
 }
 
-/** One admitted rigid bar, with independently owned geometric observations. */
+/*
+ * One admitted rigid bar, with independently owned geometric observations.
+ */
 interface Bar {
-  /** Primitive discriminator, not a reconstructed species assumption. */
+  /*
+   * Primitive discriminator, not a reconstructed species assumption.
+   */
   kind: "cylinder" | "capsule";
-  /** Source primitive radius, metres. */
+  /*
+   * Source primitive radius, metres.
+   */
   radius: number;
-  /** Source cylindrical span, excluding capsule caps, metres. */
+  /*
+   * Source cylindrical span, excluding capsule caps, metres.
+   */
   height: number;
-  /** Primitive-centre frame, admitted rigid and copied. */
+  /*
+   * Primitive-centre frame, admitted rigid and copied.
+   */
   frame: IAutoMovieTransform;
-  /** Directed upper axis endpoint, source model metres. */
+  /*
+   * Directed upper axis endpoint, source model metres.
+   */
   from: IAutoMovieVector3;
-  /** Directed lower axis endpoint, source model metres. */
+  /*
+   * Directed lower axis endpoint, source model metres.
+   */
   to: IAutoMovieVector3;
 }

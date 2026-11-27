@@ -3,7 +3,7 @@ import type {
   IAutoMovieSolveQuadraticProgram,
 } from "@automovie/interface";
 
-import { solveAutoMovieQuadraticProgram } from "../../math/internal/solveAutoMovieQuadraticProgram";
+import { solveQuadraticProgram } from "../../math/internal/solveQuadraticProgram";
 import { AutoMovieEngineXpbdSupportRows as Rows } from "../AutoMovieEngineXpbdSupportRows";
 import { AutoMovieEnginePhysics } from "../AutoMovieEnginePhysics";
 import type { solveXpbdSupportCascade } from "./solveXpbdSupportCascade";
@@ -42,7 +42,7 @@ export namespace solveXpbdSupportLevels {
       return solved.primal;
     }
     const result: IAutoMovieSolveQuadraticProgram.IResult =
-      solveAutoMovieQuadraticProgram({
+      solveQuadraticProgram({
         diagonal,
         linear,
         rows: [

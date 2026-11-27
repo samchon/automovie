@@ -1,9 +1,9 @@
 import type * as THREE from "three";
 
-import { AutoMovieRenderFormationCyclePatchKey } from "../AutoMovieRenderFormationCyclePatchKey.js";
-import type { IAutoMovieRenderFormationCycle } from "../IAutoMovieRenderFormationCycle.js";
-import type { IAutoMovieRenderMaterialShaderSource } from "../IAutoMovieRenderMaterialShaderSource.js";
-import { AutoMovieRenderMaterial } from "../AutoMovieRenderMaterial.js";
+import { AutoMovieRenderFormationCyclePatchKey } from "../AutoMovieRenderFormationCyclePatchKey";
+import type { IAutoMovieRenderFormationCycle } from "../IAutoMovieRenderFormationCycle";
+import type { IAutoMovieRenderMaterialShaderSource } from "../IAutoMovieRenderMaterialShaderSource";
+import { AutoMovieRenderMaterial } from "../AutoMovieRenderMaterial";
 
 /*
  * Teach one material to place its vertices at each member's own cycle position.

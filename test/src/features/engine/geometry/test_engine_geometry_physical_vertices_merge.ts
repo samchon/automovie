@@ -6,7 +6,7 @@ import { createPhysicalMesh } from "../../internal/createPhysicalMesh";
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * `mergeAutoMovieMeshes` keeps each member's physical source lineage, and legacy
+ * `mergeMeshes` keeps each member's physical source lineage, and legacy
  * (source-less) vertices stay a position-derived cohort.
  *
  * Fixture: triangle A (0,0,0), (1,0,0), (0,1,0) with sources 11, 12, 13 and

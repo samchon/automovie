@@ -1,5 +1,5 @@
 import { type IAutoMovieRoomVisibility, type IAutoMovieRoomVisibilityQuery, type IAutoMovieFog } from "@automovie/interface";
-import { autoMovieRoomVisibility as autoMovieRoomVisibilityImplementation } from "../render/internal/autoMovieRoomVisibility";
+import { roomVisibility as roomVisibilityImplementation } from "../render/internal/roomVisibility";
 import { sceneFogTransmittance as sceneFogTransmittanceImplementation } from "./internal/sceneFogTransmittance";
 
 /** Public operations for Auto Movie Engine Scene. */
@@ -45,7 +45,7 @@ export namespace AutoMovieEngineScene {
    *   openings issue rather than to a guess made here.
    */
   export function autoMovieRoomVisibility(props: IAutoMovieRoomVisibilityQuery): IAutoMovieRoomVisibility {
-    return autoMovieRoomVisibilityImplementation(props);
+    return roomVisibilityImplementation(props);
   }
 
   /**

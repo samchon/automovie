@@ -1,11 +1,11 @@
 import {
-  planAutoMovieShadowTextureTarget
-} from "../../../../../packages/render/src/scene/internal/planAutoMovieShadowTextureTarget";
+  planShadowTextureTarget
+} from "../../../../../packages/render/src/scene/internal/planShadowTextureTarget";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 /**
- * `planAutoMovieShadowTextureTarget` plans the target a light's shadow needs.
+ * `planShadowTextureTarget` plans the target a light's shadow needs.
  *
  * Scenarios:
  *
@@ -17,7 +17,7 @@ import * as THREE from "three";
  */
 export function test_render_scene_plan_shadow_texture_target(): void {
   const directional: THREE.LightShadow = new THREE.DirectionalLight().shadow;
-  const map = planAutoMovieShadowTextureTarget(
+  const map = planShadowTextureTarget(
     "scene",
     "key",
     directional,
@@ -43,7 +43,7 @@ export function test_render_scene_plan_shadow_texture_target(): void {
       depthTexture: true,
     },
   );
-  const blur = planAutoMovieShadowTextureTarget(
+  const blur = planShadowTextureTarget(
     "scene",
     "key",
     directional,
@@ -62,7 +62,7 @@ export function test_render_scene_plan_shadow_texture_target(): void {
     [4096, 512],
     [256, 256],
   ] as const) {
-    const target = planAutoMovieShadowTextureTarget(
+    const target = planShadowTextureTarget(
       "scene",
       "lamp",
       point,

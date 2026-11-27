@@ -1,6 +1,6 @@
 import type * as THREE from "three";
 
-import type { IAutoMovieRenderMaterialShaderPatch } from "../IAutoMovieRenderMaterialShaderPatch.js";
+import type { IAutoMovieRenderMaterialShaderPatch } from "../IAutoMovieRenderMaterialShaderPatch";
 
 /*
  * The shader patches `AutoMovieRenderMaterial.addShaderPatch` has put on a material, in the

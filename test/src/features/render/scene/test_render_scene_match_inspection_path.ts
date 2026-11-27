@@ -2,7 +2,7 @@ import { AutoMovieRenderInspectionPath } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `matchAutoMovieInspectionPath` matches an object path against a pattern.
+ * `matchInspectionPath` matches an object path against a pattern.
  *
  * A pattern of one name matches that name at any depth and so does everything
  * below it; a pattern of several names is anchored at the root and also covers

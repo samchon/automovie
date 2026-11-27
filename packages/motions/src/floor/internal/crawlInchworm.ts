@@ -15,7 +15,7 @@ import type {
 
 import { stand } from "../../actions/internal/stand";
 import { support } from "../../actions/internal/support";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
+import { motionManner } from "../../compose/internal/motionManner";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
@@ -109,7 +109,7 @@ export namespace crawlInchworm {
     const body: IAutoMovieMotionHumanBody = context.body;
     const m = body.measure;
     const cycles: number = HumanBound.whole("count", context.params.count ?? 3);
-    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+    const modifiers: IAutoMovieMotionManner.IModifiers = motionManner(
       context,
       context.params.manner,
     );

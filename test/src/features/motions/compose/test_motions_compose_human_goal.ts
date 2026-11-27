@@ -7,8 +7,8 @@ import type {
   IAutoMovieQuaternion,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionClock
-} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionClock";
+  motionClock
+} from "../../../../../packages/motions/src/compose/internal/motionClock";
 import {
   AutoMovieMotionHumanGoal
 } from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanGoal";
@@ -124,7 +124,7 @@ export function test_motions_compose_human_goal(): void {
   );
 
   // 4. A pulse.
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock(3, [
+  const clock: IAutoMovieMotionClock = motionClock(3, [
     { name: "a", seconds: 1 },
     { name: "b", seconds: 2 },
   ]);

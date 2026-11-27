@@ -364,12 +364,18 @@ const ARTICULATE_SITES: WeakMap<
   NonNullable<IAutoMovieMotionHumanProp["articulateSite"]>
 > = new WeakMap();
 
-/** Where each footrest is placed and which affordance carries it. */
+/*
+ * Where each footrest is placed and which affordance carries it.
+ */
 interface ISeatFootrests {
-  /** The footrest points from the seat reader's world frame. */
+  /*
+   * The footrest points from the seat reader's world frame.
+   */
   at: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>>;
 
-  /** The model affordance serving each footrest. */
+  /*
+   * The model affordance serving each footrest.
+   */
   ids: Partial<Record<AutoMovieHumanSide, string>>;
 }
 

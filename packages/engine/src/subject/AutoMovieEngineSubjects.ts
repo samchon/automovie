@@ -20,27 +20,27 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { autoMovieSubjectAddress } from "./internal/autoMovieSubjectAddress";
-import { autoMovieSubjectMemberSummary } from "./internal/autoMovieSubjectMemberSummary";
-import { createAutoMovieSubjectPartIndex } from "./internal/createAutoMovieSubjectPartIndex";
-import { describeAutoMovieBuildingSubject } from "./internal/describeAutoMovieBuildingSubject";
-import { describeAutoMovieInstanceSetSubject } from "./internal/describeAutoMovieInstanceSetSubject";
-import { describeAutoMovieInstanceSubject } from "./internal/describeAutoMovieInstanceSubject";
-import { describeAutoMovieSpaceSubject } from "./internal/describeAutoMovieSpaceSubject";
-import { describeAutoMovieSubject } from "./internal/describeAutoMovieSubject";
-import { describeAutoMovieSubjects } from "./internal/describeAutoMovieSubjects";
-import { diffAutoMovieSubjects } from "./internal/diffAutoMovieSubjects";
-import { foldAutoMovieSubjectReviewCoverage } from "./internal/foldAutoMovieSubjectReviewCoverage";
-import { mergeAutoMovieSubjectContributions } from "./internal/mergeAutoMovieSubjectContributions";
-import { resolveAutoMovieSubjectReviewUnit } from "./internal/resolveAutoMovieSubjectReviewUnit";
+import { subjectAddress } from "./internal/subjectAddress";
+import { subjectMemberSummary } from "./internal/subjectMemberSummary";
+import { createSubjectPartIndex } from "./internal/createSubjectPartIndex";
+import { describeBuildingSubject } from "./internal/describeBuildingSubject";
+import { describeInstanceSetSubject } from "./internal/describeInstanceSetSubject";
+import { describeInstanceSubject } from "./internal/describeInstanceSubject";
+import { describeSpaceSubject } from "./internal/describeSpaceSubject";
+import { describeSubject } from "./internal/describeSubject";
+import { describeSubjects } from "./internal/describeSubjects";
+import { diffSubjects } from "./internal/diffSubjects";
+import { foldSubjectReviewCoverage } from "./internal/foldSubjectReviewCoverage";
+import { mergeSubjectContributions } from "./internal/mergeSubjectContributions";
+import { resolveSubjectReviewUnit } from "./internal/resolveSubjectReviewUnit";
 
 /** Address, describe, compare and compose subjects in compiled shots. */
 export namespace AutoMovieEngineSubjects {
   /** Return the stable address for a subject kind and its ids. */
   export function address(
-    ...subject: Parameters<typeof autoMovieSubjectAddress>
+    ...subject: Parameters<typeof subjectAddress>
   ): string {
-    return autoMovieSubjectAddress(...subject);
+    return subjectAddress(...subject);
   }
 
   /** Page subject member addresses in render-id order. */
@@ -48,14 +48,14 @@ export namespace AutoMovieEngineSubjects {
     ids: readonly string[],
     offset: number,
   ): IAutoMovieSubjectMemberSummary {
-    return autoMovieSubjectMemberSummary(ids, offset);
+    return subjectMemberSummary(ids, offset);
   }
 
   /** Index model parts by their complete prototype-part address. */
   export function createPartIndex(
     models: ReadonlyMap<string, IAutoMovieModel>,
   ): (modelId: string, address: string) => IAutoMovieModelPart | undefined {
-    return createAutoMovieSubjectPartIndex(models);
+    return createSubjectPartIndex(models);
   }
 
   /** Describe one building unit in a built environment. */
@@ -66,7 +66,7 @@ export namespace AutoMovieEngineSubjects {
     revision: string,
     memberOffset: number,
   ): IAutoMovieSubjectDescription {
-    return describeAutoMovieBuildingSubject(
+    return describeBuildingSubject(
       environment,
       building,
       boxes,
@@ -83,7 +83,7 @@ export namespace AutoMovieEngineSubjects {
     revision: string,
     memberOffset: number,
   ): IAutoMovieSubjectDescription {
-    return describeAutoMovieInstanceSetSubject(
+    return describeInstanceSetSubject(
       set,
       models,
       space,
@@ -101,7 +101,7 @@ export namespace AutoMovieEngineSubjects {
     revision: string,
     points: (model: IAutoMovieModel) => readonly IAutoMovieVector3[],
   ): IAutoMovieSubjectDescription {
-    return describeAutoMovieInstanceSubject(
+    return describeInstanceSubject(
       set,
       slot,
       models,
@@ -118,7 +118,7 @@ export namespace AutoMovieEngineSubjects {
     revision: string,
     memberOffset: number,
   ): IAutoMovieSubjectDescription {
-    return describeAutoMovieSpaceSubject(
+    return describeSpaceSubject(
       environment,
       space,
       revision,
@@ -132,14 +132,14 @@ export namespace AutoMovieEngineSubjects {
     subjectId: string,
     props?: IAutoMovieDescribeSubject.IProps,
   ): IAutoMovieSubjectDescription {
-    return describeAutoMovieSubject(artifact, subjectId, props);
+    return describeSubject(artifact, subjectId, props);
   }
 
   /** List directly stored subjects, sorted by stable address. */
   export function describeAll(
     artifact: IAutoMovieSubjectArtifact,
   ): IAutoMovieSubjectDescription[] {
-    return describeAutoMovieSubjects(artifact);
+    return describeSubjects(artifact);
   }
 
   /** Compare two subject inventories without rendering either artifact. */
@@ -148,7 +148,7 @@ export namespace AutoMovieEngineSubjects {
     afterArtifact: IAutoMovieSubjectArtifact,
     tolerance?: number,
   ): IAutoMovieSubjectDiff {
-    return diffAutoMovieSubjects(beforeArtifact, afterArtifact, tolerance);
+    return diffSubjects(beforeArtifact, afterArtifact, tolerance);
   }
 
   /** Fold current observation receipts against a resolved review unit. */
@@ -158,7 +158,7 @@ export namespace AutoMovieEngineSubjects {
     viewpoints: readonly IAutoMovieSubjectReviewViewpoint[],
     observations: readonly IAutoMovieCurrentSubjectReviewObservation[],
   ): IAutoMovieSubjectReviewCoverage {
-    return foldAutoMovieSubjectReviewCoverage(
+    return foldSubjectReviewCoverage(
       unit,
       current,
       viewpoints,
@@ -170,7 +170,7 @@ export namespace AutoMovieEngineSubjects {
   export function mergeContributions(
     contributions: readonly IAutoMovieSubjectContribution[],
   ): IAutoMovieSubjectContribution {
-    return mergeAutoMovieSubjectContributions(contributions);
+    return mergeSubjectContributions(contributions);
   }
 
   /** Resolve a review unit with its inspection-owned description. */
@@ -178,6 +178,6 @@ export namespace AutoMovieEngineSubjects {
     artifact: IAutoMovieSubjectArtifact,
     target: IAutoMovieSubjectReviewTarget,
   ): IAutoMovieSubjectReviewUnit {
-    return resolveAutoMovieSubjectReviewUnit(artifact, target);
+    return resolveSubjectReviewUnit(artifact, target);
   }
 }

@@ -9,7 +9,7 @@ import { createBicubicPlaneRecipe } from "../../internal/createBicubicPlaneRecip
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * `realizeAutoMovieGeometry(geometry, requirement?)` resolves a geometry recipe
+ * `realizeGeometry(geometry, requirement?)` resolves a geometry recipe
  * through its owner: a primitive tessellates, a mesh is borrowed, a bicubic
  * atlas realizes, and only "complete" refuses an incomplete atlas.
  *
@@ -18,7 +18,7 @@ import { throwsError } from "../../internal/throwsError";
  * 1. A unit box primitive equals `tessellateToMesh` of it, complete, no
  *    diagnostics.
  * 2. A mesh is returned as the same object.
- * 3. The bicubic plane equals `realizeAutoMovieBicubicAtlas64` of it.
+ * 3. The bicubic plane equals `realizeBicubicAtlas64` of it.
  * 4. An eight-patch elliptic loft atlas limited to one cell is incomplete: shown
  *    for "display", refused for "complete" ("Bicubic atlas processing is
  *    incomplete").

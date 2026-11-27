@@ -4,7 +4,7 @@ import { TestValidator } from "@nestia/e2e";
 import { throwsError } from "../../internal/predicates";
 
 /**
- * `selectAutoMovieTriangleRegion({ indices, boundary })` selects the source
+ * `selectTriangleRegion({ indices, boundary })` selects the source
  * triangles an oriented loop of vertices encloses, by connectivity alone.
  *
  * Fixtures: an annulus of ten triangles, the inner square 0-1-2-3 (triangles 0

@@ -1,6 +1,6 @@
 /**
  * The Catmull-Clark limit stencil of every vertex of a quad cage, from
- * `stencilAutoMovieSubdivisionLimit`, in compressed rows.
+ * `stencilSubdivisionLimit`, in compressed rows.
  *
  * Vertex `i`'s limit point is the sum over `k` from `offsets[i]` to `offsets[i
  * + 1]` of `weights[k]` times the control position of vertex `indices[k]`. The

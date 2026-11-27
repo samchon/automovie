@@ -20,10 +20,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionManner } from "../../compose/internal/motionManner";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanPropFrame } from "../../perform/internal/HumanPropFrame";
@@ -229,16 +229,16 @@ function planLieOnSurface(
     { name: keys.at(-1)!.event, seconds: 0 },
     { name: "settled", seconds: hold },
   ];
-  const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
-    AutoMovieMotionClock.sequence(phases),
-    AutoMovieMotionManner(context, p.manner),
+  const clock: IAutoMovieMotionClock = motionManner.time(
+    motionClock.sequence(phases),
+    motionManner(context, p.manner),
     { holds: ["settled"] },
   );
-  const progress: ReturnType<typeof AutoMovieMotionClock.prepare>[] = keys
+  const progress: ReturnType<typeof motionClock.prepare>[] = keys
     .slice(1)
     .map(
-      (_k: IKey, i: number): ReturnType<typeof AutoMovieMotionClock.prepare> =>
-        AutoMovieMotionClock.prepare(
+      (_k: IKey, i: number): ReturnType<typeof motionClock.prepare> =>
+        motionClock.prepare(
           clock,
           phases[i]!.name,
           phases[i + 1]!.name,
@@ -491,7 +491,7 @@ function planLieOnSurface(
         ),
       ];
   const planned: IAutoMovieMotionHumanActionPlan =
-    composeAutoMovieMotionHumanAction({
+    composeMotionHumanAction({
       base: AutoMovieMotionHumanBase.still(duration, entry, contacts),
       clock,
       contact: "settled",

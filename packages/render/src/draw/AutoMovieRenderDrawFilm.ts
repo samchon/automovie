@@ -6,16 +6,16 @@ import type {
 } from "@automovie/interface";
 import type * as THREE from "three";
 
-import type { IAutoMovieRenderModeHandle } from "../scene/IAutoMovieRenderModeHandle.js";
-import { applyRenderMode } from "../scene/internal/applyRenderMode.js";
-import type { AutoMovieRenderFilmAlpha } from "../scene/AutoMovieRenderFilmAlpha.js";
-import type { IAutoMovieRenderFilmResponseRenderer } from "../scene/IAutoMovieRenderFilmResponseRenderer.js";
-import type { AutoMovieDrawBeauty } from "./internal/AutoMovieDrawBeauty.js";
-import { accumulateAutoMovieFilmSamples as accumulateAutoMovieFilmSamplesImplementation } from "./internal/accumulateAutoMovieFilmSamples.js";
-import type { IAutoMovieRenderAccumulateFilmSamplesProps } from "./IAutoMovieRenderAccumulateFilmSamplesProps.js";
-import type { IAutoMovieRenderDrawScene } from "./IAutoMovieRenderDrawScene.js";
-import { placeAutoMovieDrawLayer } from "./internal/placeAutoMovieDrawLayer.js";
-import { AutoMovieRenderDraw } from "./AutoMovieRenderDraw.js";
+import type { IAutoMovieRenderModeHandle } from "../scene/IAutoMovieRenderModeHandle";
+import { applyRenderMode } from "../scene/internal/applyRenderMode";
+import type { AutoMovieRenderFilmAlpha } from "../scene/AutoMovieRenderFilmAlpha";
+import type { IAutoMovieRenderFilmResponseRenderer } from "../scene/IAutoMovieRenderFilmResponseRenderer";
+import type { AutoMovieDrawBeauty } from "./internal/AutoMovieDrawBeauty";
+import { accumulateFilmSamples as accumulateFilmSamplesImplementation } from "./internal/accumulateFilmSamples";
+import type { IAutoMovieRenderAccumulateFilmSamplesProps } from "./IAutoMovieRenderAccumulateFilmSamplesProps";
+import type { IAutoMovieRenderDrawScene } from "./IAutoMovieRenderDrawScene";
+import { placeDrawLayer } from "./internal/placeDrawLayer";
+import { AutoMovieRenderDraw } from "./AutoMovieRenderDraw";
 
 /**
  * One draw call's picture of a subject: which shot it shows, and for a film
@@ -102,7 +102,7 @@ export class AutoMovieRenderDrawFilm<
   public static accumulateSamples(
     props: IAutoMovieRenderAccumulateFilmSamplesProps,
   ): Promise<IAutoMoviePlanFilmSamples.ISample[]> {
-    return accumulateAutoMovieFilmSamplesImplementation(props);
+    return accumulateFilmSamplesImplementation(props);
   }
   /** Whether the picture composites a transition's layers. */
   public get composites(): boolean {
@@ -235,7 +235,7 @@ export class AutoMovieRenderDrawFilm<
   ): (seconds: number) => Promise<void> {
     const props: AutoMovieRenderDrawFilm.IProps<TRenderer> = this.props;
     return async (at: number): Promise<void> => {
-      await placeAutoMovieDrawLayer(props.name, props.scene, layer, at);
+      await placeDrawLayer(props.name, props.scene, layer, at);
       props.scene.beforeDraw?.(props.renderer, at);
     };
   }

@@ -11,7 +11,7 @@ import {
 
 import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
-import { compareAutoMovieRenderIds } from "../../render/internal/compareAutoMovieRenderIds";
+import { compareRenderIds } from "../../render/internal/compareRenderIds";
 import { builtConvexCellVertices } from "./builtConvexCellVertices";
 import { builtSpaceContainsPoint } from "./builtSpaceContainsPoint";
 import { builtSpaceStatesVolume } from "./builtSpaceStatesVolume";
@@ -113,7 +113,7 @@ export function builtSpaceObservationStations(
     )
     .sort(
       (left: IAutoMovieBuiltOpening, right: IAutoMovieBuiltOpening): number =>
-        compareAutoMovieRenderIds(left.id, right.id),
+        compareRenderIds(left.id, right.id),
     );
   for (const opening of openings) {
     const mouth: IAutoMovieVector3 | null =

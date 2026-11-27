@@ -1,5 +1,5 @@
-import type { IAutoMovieSequenceRenderFrame } from "./IAutoMovieSequenceRenderFrame.js";
-import type { IAutoMovieSequenceRenderPlan } from "./IAutoMovieSequenceRenderPlan.js";
+import type { IAutoMovieSequenceRenderFrame } from "./IAutoMovieSequenceRenderFrame";
+import type { IAutoMovieSequenceRenderPlan } from "./IAutoMovieSequenceRenderPlan";
 
 /** The outcome of rendering a sequence through injected host I/O. */
 export interface IAutoMovieSequenceRenderResult {

@@ -1,11 +1,11 @@
 import { AutoMovieRenderInspectionRequest } from "@automovie/render";
 import {
-  changesAutoMovieObservedScene
-} from "../../../../../packages/viewer/src/inspector/internal/changesAutoMovieObservedScene";
+  changesObservedScene
+} from "../../../../../packages/viewer/src/inspector/internal/changesObservedScene";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `changesAutoMovieObservedScene` is true when an inspection changes the scene
+ * `changesObservedScene` is true when an inspection changes the scene
  * an observer would read.
  *
  * Scenarios:
@@ -29,7 +29,7 @@ export function test_viewer_inspector_changes_observed_scene(): void {
   ][][])
     TestValidator.equals(
       JSON.stringify(entries),
-      changesAutoMovieObservedScene(inspection(entries)),
+      changesObservedScene(inspection(entries)),
       false,
     );
   for (const entries of [
@@ -44,7 +44,7 @@ export function test_viewer_inspector_changes_observed_scene(): void {
   ] satisfies [string, string][][])
     TestValidator.equals(
       JSON.stringify(entries),
-      changesAutoMovieObservedScene(inspection(entries)),
+      changesObservedScene(inspection(entries)),
       true,
     );
 }

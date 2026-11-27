@@ -1,7 +1,7 @@
 import type * as THREE from "three";
 
-import type { IAutoMovieRenderFramebufferRenderer } from "./IAutoMovieRenderFramebufferRenderer.js";
-import type { IAutoMovieRenderShadowRetirementHost } from "./IAutoMovieRenderShadowRetirementHost.js";
+import type { IAutoMovieRenderFramebufferRenderer } from "./IAutoMovieRenderFramebufferRenderer";
+import type { IAutoMovieRenderShadowRetirementHost } from "./IAutoMovieRenderShadowRetirementHost";
 
 /**
  * The part of a `THREE.WebGLRenderer` one scene pass uses: drawing, tone

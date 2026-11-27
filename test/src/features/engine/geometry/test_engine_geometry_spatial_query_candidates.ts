@@ -5,7 +5,7 @@ import { TestValidator } from "@nestia/e2e";
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * `collectAutoMovieSpatialQueryCandidates(tree, subject, cell, population)`
+ * `collectSpatialQueryCandidates(tree, subject, cell, population)`
  * returns the entries whose boxes overlap the subject's ("overlap", boundaries
  * included) or share a grid cell of width `cell` with it ("shared-cell"),
  * sorted by their first shared cell in x, y, z, then by ordinal.

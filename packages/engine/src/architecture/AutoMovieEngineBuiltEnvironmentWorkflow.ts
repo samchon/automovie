@@ -2,7 +2,7 @@ import { type IAutoMoviePlanarPoint, type IAutoMovieViolationCollector, type IAu
 import { appendBuiltRegionDefects as appendBuiltRegionDefectsImplementation } from "./internal/appendBuiltRegionDefects";
 import { environmentSupportReport as environmentSupportReportImplementation } from "./internal/environmentSupportReport";
 import { lowerBuiltEnvironment as lowerBuiltEnvironmentImplementation } from "./internal/lowerBuiltEnvironment";
-import { mergeAutoMovieSpaces as mergeAutoMovieSpacesImplementation } from "./internal/mergeAutoMovieSpaces";
+import { mergeSpaces as mergeSpacesImplementation } from "./internal/mergeSpaces";
 import { requireBuiltConnector as requireBuiltConnectorImplementation } from "./internal/requireBuiltConnector";
 import { requireBuiltOpening as requireBuiltOpeningImplementation } from "./internal/requireBuiltOpening";
 import { requireBuiltSpace as requireBuiltSpaceImplementation } from "./internal/requireBuiltSpace";
@@ -107,7 +107,7 @@ export namespace AutoMovieEngineBuiltEnvironmentWorkflow {
    * @returns A new stage space holding every input's surfaces and walkable ids.
    */
   export function mergeAutoMovieSpaces(id: string, spaces: readonly IAutoMovieSpace[]): IAutoMovieSpace {
-    return mergeAutoMovieSpacesImplementation(id, spaces);
+    return mergeSpacesImplementation(id, spaces);
   }
 
   /**

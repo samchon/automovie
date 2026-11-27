@@ -1,22 +1,22 @@
-export * from "./AutoMovieRenderDrawGlobals.js";
-export * from "./AutoMovieRenderDialogueMouthRecorder.js";
-export * from "./AutoMovieRenderDrawFilm.js";
-export * from "./AutoMovieRenderDraw.js";
-export * from "./AutoMovieRenderDrawPlacement.js";
-export * from "./AutoMovieRenderDrawSession.js";
-export * from "./AutoMovieRenderDrawSubjects.js";
-export * from "./IAutoMovieRenderAccumulateFilmSamplesProps.js";
-export * from "./IAutoMovieRenderReplaceDrawInspectionProps.js";
-export * from "./IAutoMovieRenderDrawnVideoProps.js";
+export * from "./AutoMovieRenderDrawGlobals";
+export * from "./AutoMovieRenderDialogueMouthRecorder";
+export * from "./AutoMovieRenderDrawFilm";
+export * from "./AutoMovieRenderDraw";
+export * from "./AutoMovieRenderDrawPlacement";
+export * from "./AutoMovieRenderDrawSession";
+export * from "./AutoMovieRenderDrawSubjects";
+export * from "./IAutoMovieRenderAccumulateFilmSamplesProps";
+export * from "./IAutoMovieRenderReplaceDrawInspectionProps";
+export * from "./IAutoMovieRenderDrawnVideoProps";
 
 
 
 
-export * from "./IAutoMovieRenderDrawFunction.js";
-export * from "./IAutoMovieRenderDrawGlobal.js";
-export * from "./IAutoMovieRenderDrawPage.js";
-export * from "./IAutoMovieRenderDrawPageRequest.js";
-export * from "./IAutoMovieRenderDrawProps.js";
-export * from "./IAutoMovieRenderDrawScene.js";
-export * from "./IAutoMovieRenderDrawView.js";
-export * from "./IAutoMovieRenderDrawSubject.js";
+export * from "./IAutoMovieRenderDrawFunction";
+export * from "./IAutoMovieRenderDrawGlobal";
+export * from "./IAutoMovieRenderDrawPage";
+export * from "./IAutoMovieRenderDrawPageRequest";
+export * from "./IAutoMovieRenderDrawProps";
+export * from "./IAutoMovieRenderDrawScene";
+export * from "./IAutoMovieRenderDrawView";
+export * from "./IAutoMovieRenderDrawSubject";

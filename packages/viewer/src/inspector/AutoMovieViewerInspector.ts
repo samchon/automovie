@@ -4,27 +4,27 @@ import type {
 } from "@automovie/interface";
 import type { IAutoMovieRenderDrawSubject } from "@automovie/render";
 
-import type { AutoMovieViewerInspectorPlayhead } from "./AutoMovieViewerInspectorPlayhead.js";
-import type { IAutoMovieViewerInspectorAction } from "./IAutoMovieViewerInspectorAction.js";
-import type { IAutoMovieViewerInspectorPathNode } from "./IAutoMovieViewerInspectorPathNode.js";
-import type { IAutoMovieViewerInspectorProps } from "./IAutoMovieViewerInspectorProps.js";
-import type { IAutoMovieViewerInspectorScene } from "./IAutoMovieViewerInspectorScene.js";
-import type { IAutoMovieViewerInspectorSceneHost } from "./IAutoMovieViewerInspectorSceneHost.js";
-import type { IAutoMovieViewerInspectorState } from "./IAutoMovieViewerInspectorState.js";
-import { buildAutoMovieInspectorPathTree } from "./internal/buildAutoMovieInspectorPathTree.js";
-import { createAutoMovieInspectorAddressWriter } from "./internal/createAutoMovieInspectorAddressWriter.js";
-import { createAutoMovieInspectorCanvasHost } from "./internal/createAutoMovieInspectorCanvasHost.js";
-import { createAutoMovieInspectorState } from "./internal/createAutoMovieInspectorState.js";
-import { reduceAutoMovieInspectorState } from "./internal/reduceAutoMovieInspectorState.js";
-import { formatAutoMovieInspectorAddress } from "./internal/formatAutoMovieInspectorAddress.js";
-import { formatAutoMovieInspectorCommand } from "./internal/formatAutoMovieInspectorCommand.js";
-import { handleAutoMovieInspectorKey } from "./internal/handleAutoMovieInspectorKey.js";
-import { locateAutoMovieInspectorFinding } from "./internal/locateAutoMovieInspectorFinding.js";
-import { readAutoMovieInspectorAddress } from "./internal/readAutoMovieInspectorAddress.js";
-import { mountAutoMovieInspectorPage } from "./internal/mountAutoMovieInspectorPage.js";
-import { mountAutoMovieInspectorScene } from "./internal/mountAutoMovieInspectorScene.js";
-import { showAutoMovieInspectorFinding } from "./internal/showAutoMovieInspectorFinding.js";
-import { stopAutoMovieInspectorTime } from "./internal/stopAutoMovieInspectorTime.js";
+import type { AutoMovieViewerInspectorPlayhead } from "./AutoMovieViewerInspectorPlayhead";
+import type { IAutoMovieViewerInspectorAction } from "./IAutoMovieViewerInspectorAction";
+import type { IAutoMovieViewerInspectorPathNode } from "./IAutoMovieViewerInspectorPathNode";
+import type { IAutoMovieViewerInspectorProps } from "./IAutoMovieViewerInspectorProps";
+import type { IAutoMovieViewerInspectorScene } from "./IAutoMovieViewerInspectorScene";
+import type { IAutoMovieViewerInspectorSceneHost } from "./IAutoMovieViewerInspectorSceneHost";
+import type { IAutoMovieViewerInspectorState } from "./IAutoMovieViewerInspectorState";
+import { buildInspectorPathTree } from "./internal/buildInspectorPathTree";
+import { createInspectorAddressWriter } from "./internal/createInspectorAddressWriter";
+import { createInspectorCanvasHost } from "./internal/createInspectorCanvasHost";
+import { createInspectorState } from "./internal/createInspectorState";
+import { reduceInspectorState } from "./internal/reduceInspectorState";
+import { formatInspectorAddress } from "./internal/formatInspectorAddress";
+import { formatInspectorCommand } from "./internal/formatInspectorCommand";
+import { handleInspectorKey } from "./internal/handleInspectorKey";
+import { locateInspectorFinding } from "./internal/locateInspectorFinding";
+import { readInspectorAddress } from "./internal/readInspectorAddress";
+import { mountInspectorPage } from "./internal/mountInspectorPage";
+import { mountInspectorScene } from "./internal/mountInspectorScene";
+import { showInspectorFinding } from "./internal/showInspectorFinding";
+import { stopInspectorTime } from "./internal/stopInspectorTime";
 
 /**
  * Owns the imperative entry points for the Viewer inspector.
@@ -136,31 +136,31 @@ export namespace AutoMovieViewerInspector {
   export function locateFinding(
     request: IFindingLocationRequest,
   ): IAutoMovieViewerInspectorAction.ILocate {
-    return locateAutoMovieInspectorFinding(request);
+    return locateInspectorFinding(request);
   }
 
   /** Stop at a finding witness and dispatch its location edit. */
   export function showFinding(request: IShowFindingRequest): void {
-    showAutoMovieInspectorFinding(request);
+    showInspectorFinding(request);
   }
 
   /** Build the ordered path tree used by the inspector selection panel. */
   export function buildPathTree(paths: readonly string[]): IAutoMovieViewerInspectorPathNode[] {
-    return buildAutoMovieInspectorPathTree(paths);
+    return buildInspectorPathTree(paths);
   }
 
   /** Create a listener that writes request text through the supplied page history. */
   export function createAddressWriter(
     props: IAddressWriterProps,
   ): (text: string) => void {
-    return createAutoMovieInspectorAddressWriter(props);
+    return createInspectorAddressWriter(props);
   }
 
   /** Create the inspector host for a canvas, preserving its owner-window frame clock. */
   export function createCanvasHost(
     canvas: HTMLCanvasElement,
   ): IAutoMovieViewerInspectorSceneHost {
-    return createAutoMovieInspectorCanvasHost(canvas);
+    return createInspectorCanvasHost(canvas);
   }
 
   /** Return the time edit implied when a previously playing playhead stops. */
@@ -168,7 +168,7 @@ export namespace AutoMovieViewerInspector {
     playing: boolean,
     snapshot: AutoMovieViewerInspectorPlayhead.ISnapshot,
   ): IAutoMovieViewerInspectorAction.ITime | null {
-    return stopAutoMovieInspectorTime(playing, snapshot);
+    return stopInspectorTime(playing, snapshot);
   }
 
   /** Apply one action to inspector state, preserving refused requests. */
@@ -176,12 +176,12 @@ export namespace AutoMovieViewerInspector {
     state: IAutoMovieViewerInspectorState,
     action: IAutoMovieViewerInspectorAction,
   ): IAutoMovieViewerInspectorState {
-    return reduceAutoMovieInspectorState(state, action);
+    return reduceInspectorState(state, action);
   }
 
   /** Initialize inspector request state from the page's address text. */
   export function createState(text: string): IAutoMovieViewerInspectorState {
-    return createAutoMovieInspectorState(text);
+    return createInspectorState(text);
   }
 
   /** Handle one inspector playback shortcut, preserving controls and browser modifiers. */
@@ -190,16 +190,16 @@ export namespace AutoMovieViewerInspector {
     playhead: AutoMovieViewerInspectorPlayhead,
     fps: number | null,
   ): IHandleKeyResult {
-    return handleAutoMovieInspectorKey(event, playhead, fps);
+    return handleInspectorKey(event, playhead, fps);
   }
   /** Format an inspection request as readable address query text. */
   export function formatAddress(request: IAutoMovieCapturePlanRequest): string {
-    return formatAutoMovieInspectorAddress(request);
+    return formatInspectorAddress(request);
   }
 
   /** Read address query text through the capture request grammar. */
   export function readAddress(text: string): IAutoMovieCapturePlanRequest {
-    return readAutoMovieInspectorAddress(text);
+    return readInspectorAddress(text);
   }
 
   /** Format request options and an optional host command for the selected shell. */
@@ -207,16 +207,16 @@ export namespace AutoMovieViewerInspector {
     request: IAutoMovieCapturePlanRequest,
     props: IFormatCommandProps = {},
   ): IFormatCommandResult {
-    return formatAutoMovieInspectorCommand(request, props);
+    return formatInspectorCommand(request, props);
   }
 
   /** Mount the React inspector page; unmount releases its React root and scene. */
   export function mountPage(props: IPageProps): IPageHandle {
-    return mountAutoMovieInspectorPage(props);
+    return mountInspectorPage(props);
   }
 
   /** Mount one scene; disposal cancels frames, restores inspection and releases its renderer. */
   export function mountScene(props: ISceneProps): IAutoMovieViewerInspectorScene {
-    return mountAutoMovieInspectorScene(props);
+    return mountInspectorScene(props);
   }
 }

@@ -1,5 +1,5 @@
 /**
- * Data contracts of `checkAutoMovieExposureContinuity`, which compares each
+ * Data contracts of `checkExposureContinuity`, which compares each
  * cut's exposure with the previous cut of the same screenplay scene.
  */
 export namespace IAutoMovieCheckExposureContinuity {

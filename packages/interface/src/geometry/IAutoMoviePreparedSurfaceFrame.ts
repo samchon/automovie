@@ -2,7 +2,7 @@ import type { IAutoMovieSurfaceFrame } from "./IAutoMovieSurfaceFrame";
 import type { IAutoMovieVector3 } from "./IAutoMovieVector3";
 
 /**
- * Three rigid sample points prepared by prepareAutoMovieSurfaceFrame. All
+ * Three rigid sample points prepared by prepareSurfaceFrame. All
  * records and the offset tuple are frozen. Offsets are centroid-relative metres
  * along forward, normal-cross-forward, and normal, respectively. Their order is
  * the original point order; placement never refits their lengths.

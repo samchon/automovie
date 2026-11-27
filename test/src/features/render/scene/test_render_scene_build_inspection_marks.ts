@@ -3,7 +3,7 @@ import { AutoMovieRenderInspectionMarks } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `buildAutoMovieInspectionMarks` draws marks as lines and points.
+ * `buildInspectionMarks` draws marks as lines and points.
  *
  * Scenarios:
  *

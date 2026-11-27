@@ -1,4 +1,4 @@
-import type { IAutoMovieRenderDrawScene } from "./IAutoMovieRenderDrawScene.js";
+import type { IAutoMovieRenderDrawScene } from "./IAutoMovieRenderDrawScene";
 
 /**
  * One subject a draw page offers: something that prepares a fresh scene to

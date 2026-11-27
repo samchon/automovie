@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind.js";
+import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind";
 
 /*
  * The per-vertex arithmetic of AutoMovieRenderSkinnedMesh's CPU skin, over a

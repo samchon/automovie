@@ -16,10 +16,10 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
 import { AutoMovieMotionHumanArmCourse } from "./AutoMovieMotionHumanArmCourse";
 import { AutoMovieMotionHumanArmObservation } from "./AutoMovieMotionHumanArmObservation";
-import { AutoMovieMotionHumanArmPlannedProblem } from "./AutoMovieMotionHumanArmPlannedProblem";
-import { AutoMovieMotionHumanArmPlannedReads } from "./AutoMovieMotionHumanArmPlannedReads";
-import { AutoMovieMotionHumanArmPlannedSolve } from "./AutoMovieMotionHumanArmPlannedSolve";
-import { AutoMovieMotionHumanArmStated } from "./AutoMovieMotionHumanArmStated";
+import { motionHumanArmPlannedProblem } from "./motionHumanArmPlannedProblem";
+import { motionHumanArmPlannedReads } from "./motionHumanArmPlannedReads";
+import { motionHumanArmPlannedSolve } from "./motionHumanArmPlannedSolve";
+import { motionHumanArmStated } from "./motionHumanArmStated";
 import { AutoMovieMotionHumanArmPlannedData } from "./AutoMovieMotionHumanArmPlannedData";
 
 /*
@@ -145,12 +145,12 @@ export namespace AutoMovieMotionHumanArmPlanned {
 
   /*
    * The span a carry's weight states, its four instants read off the weight's
-   * crossings of 0 and 1 (`AutoMovieMotionHumanArmStated`, which states the
+   * crossings of 0 and 1 (`motionHumanArmStated`, which states the
    * precision and the weights that state no span). The alias transforms no
    * input and adds no state.
    */
-  export const stated: typeof AutoMovieMotionHumanArmStated =
-    AutoMovieMotionHumanArmStated;
+  export const stated: typeof motionHumanArmStated =
+    motionHumanArmStated;
 
   /*
    * Physical reach-duration observation, shared with touch-law planning.
@@ -269,8 +269,8 @@ export namespace AutoMovieMotionHumanArmPlanned {
       fingers,
       base,
       holding,
-    }: AutoMovieMotionHumanArmPlannedReads.IReads =
-      AutoMovieMotionHumanArmPlannedReads({
+    }: motionHumanArmPlannedReads.IReads =
+      motionHumanArmPlannedReads({
         body,
         span,
         carries,
@@ -283,8 +283,8 @@ export namespace AutoMovieMotionHumanArmPlanned {
       waypoints,
       problem,
       guess,
-    }: AutoMovieMotionHumanArmPlannedProblem.IReaders =
-      AutoMovieMotionHumanArmPlannedProblem({
+    }: motionHumanArmPlannedProblem.IReaders =
+      motionHumanArmPlannedProblem({
         body,
         span,
         carries,
@@ -347,7 +347,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
         },
         inheritedPace,
       );
-    return AutoMovieMotionHumanArmPlannedSolve({
+    return motionHumanArmPlannedSolve({
       body,
       span,
       carries,

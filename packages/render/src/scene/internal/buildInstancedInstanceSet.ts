@@ -12,19 +12,19 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind.js";
-import type { IAutoMovieRenderFormationCycle } from "../IAutoMovieRenderFormationCycle.js";
-import type { IAutoMovieRenderInstanceSetViewerObject } from "../IAutoMovieRenderInstanceSetViewerObject.js";
-import type { IAutoMovieRenderInstanceSetViewerStats } from "../IAutoMovieRenderInstanceSetViewerStats.js";
-import type { IAutoMovieInstancedModelRepresentation } from "../IAutoMovieInstancedModelRepresentation.js";
-import type { IAutoMovieRenderModelObject } from "../IAutoMovieRenderModelObject.js";
-import type { IAutoMovieRenderBuildInstancedInstanceSetProps } from "../IAutoMovieRenderBuildInstancedInstanceSetProps.js";
-import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResources.js";
-import { AutoMovieRenderSceneDeliveryCrop } from "../deliveryCrop.js";
-import { flattenInstancedModel } from "./flattenInstancedModel.js";
-import { flattenInstancedObject } from "./flattenInstancedObject.js";
-import { regenerateInstanceSlot } from "./regenerateInstanceSlot.js";
-import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceRetirement.js";
+import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind";
+import type { IAutoMovieRenderFormationCycle } from "../IAutoMovieRenderFormationCycle";
+import type { IAutoMovieRenderInstanceSetViewerObject } from "../IAutoMovieRenderInstanceSetViewerObject";
+import type { IAutoMovieRenderInstanceSetViewerStats } from "../IAutoMovieRenderInstanceSetViewerStats";
+import type { IAutoMovieInstancedModelRepresentation } from "../IAutoMovieInstancedModelRepresentation";
+import type { IAutoMovieRenderModelObject } from "../IAutoMovieRenderModelObject";
+import type { IAutoMovieRenderBuildInstancedInstanceSetProps } from "../IAutoMovieRenderBuildInstancedInstanceSetProps";
+import { constructOwnedResources } from "./constructOwnedResources";
+import { AutoMovieRenderSceneDeliveryCrop } from "../deliveryCrop";
+import { flattenInstancedModel } from "./flattenInstancedModel";
+import { flattenInstancedObject } from "./flattenInstancedObject";
+import { regenerateInstanceSlot } from "./regenerateInstanceSlot";
+import { reportResourceRetirement } from "./reportResourceRetirement";
 
 /*
  * Build one non-formation crowd, vegetation, prop, facade, or ornament set.
@@ -53,7 +53,7 @@ export const buildInstancedInstanceSet: (
 ) => IAutoMovieRenderInstanceSetViewerObject = (
   input: IAutoMovieRenderBuildInstancedInstanceSetProps,
 ): IAutoMovieRenderInstanceSetViewerObject => {
-  return constructAutoMovieOwnedResources(
+  return constructOwnedResources(
     (
       own: <Resource extends { dispose(): void }>(
         resource: Resource,
@@ -367,7 +367,7 @@ export const buildInstancedInstanceSet: (
             },
           ];
           try {
-            reportAutoMovieResourceRetirement(retirements);
+            reportResourceRetirement(retirements);
             chunks.length = 0;
             representations.clear();
             paletteColors.clear();

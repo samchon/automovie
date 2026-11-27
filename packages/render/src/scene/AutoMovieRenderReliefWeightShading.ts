@@ -1,9 +1,9 @@
 import type * as THREE from "three";
-import type { IAutoMovieRenderMaterialShaderSource } from "./IAutoMovieRenderMaterialShaderSource.js";
-import { applyReliefWeights as applyReliefWeightsImplementation } from "./reliefWeightShading/internal/applyReliefWeights.js";
-import { reliefWeightVertex as reliefWeightVertexImplementation } from "./reliefWeightShading/internal/reliefWeightVertex.js";
-import { reliefWeightFragment as reliefWeightFragmentImplementation } from "./reliefWeightShading/internal/reliefWeightFragment.js";
-import { createReliefWeightShaderPatch as createReliefWeightShaderPatchImplementation } from "./reliefWeightShading/internal/createReliefWeightShaderPatch.js";
+import type { IAutoMovieRenderMaterialShaderSource } from "./IAutoMovieRenderMaterialShaderSource";
+import { applyReliefWeights as applyReliefWeightsImplementation } from "./reliefWeightShading/internal/applyReliefWeights";
+import { reliefWeightVertex as reliefWeightVertexImplementation } from "./reliefWeightShading/internal/reliefWeightVertex";
+import { reliefWeightFragment as reliefWeightFragmentImplementation } from "./reliefWeightShading/internal/reliefWeightFragment";
+import { createReliefWeightShaderPatch as createReliefWeightShaderPatchImplementation } from "./reliefWeightShading/internal/createReliefWeightShaderPatch";
 
 /** Public operations for Auto Movie Render Relief Weight Shading. */
 export namespace AutoMovieRenderReliefWeightShading {

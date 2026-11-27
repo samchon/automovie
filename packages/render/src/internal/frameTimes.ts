@@ -1,4 +1,4 @@
-import { countEncodedFrames } from "../timing/internal/countEncodedFrames.js";
+import { countEncodedFrames } from "../timing/internal/countEncodedFrames";
 
 /*
  * The capture instants, in seconds, of a clip of `durationSeconds` sampled at

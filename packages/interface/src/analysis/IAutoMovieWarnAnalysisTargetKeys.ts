@@ -7,7 +7,7 @@ export namespace IAutoMovieWarnAnalysisTargetKeys {
    * Report every declared target that names no metric the study reports.
    *
    * A target nobody can apply is the quietest way a report reads `meets`.
-   * `autoMovieAnalysisMetric` already reports a target stated in the wrong unit
+   * `analysisMetric` already reports a target stated in the wrong unit
    * as a `target-unit-mismatch` warning for exactly this reason, and a mistyped
    * or hopeful key is the same fault with the same consequence: the author
    * believes a requirement is enforced, every metric is measured, no gap is

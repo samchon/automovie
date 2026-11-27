@@ -1,6 +1,6 @@
 /**
  * Physical vertex identity of every render vertex in one mesh, returned by
- * `resolveAutoMovieMeshPhysicalVertices`.
+ * `resolveMeshPhysicalVertices`.
  *
  * Render vertices that share an identity are one physical point split only for
  * rendering, such as at a UV or normal seam, so topology, deformation and merge

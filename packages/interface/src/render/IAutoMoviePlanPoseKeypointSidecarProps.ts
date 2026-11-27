@@ -1,9 +1,9 @@
-import type { IAutoMovieDeliveryCrop } from "../cinematics/IAutoMovieDeliveryCrop.js";
-import type { IAutoMovieSequence } from "../cinematics/IAutoMovieSequence.js";
-import type { IAutoMovieShot } from "../cinematics/IAutoMovieShot.js";
-import type { IAutoMovieMotion } from "../motion/IAutoMovieMotion.js";
-import type { IAutoMovieScene } from "../scene/IAutoMovieScene.js";
-import type { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton.js";
+import type { IAutoMovieDeliveryCrop } from "../cinematics/IAutoMovieDeliveryCrop";
+import type { IAutoMovieSequence } from "../cinematics/IAutoMovieSequence";
+import type { IAutoMovieShot } from "../cinematics/IAutoMovieShot";
+import type { IAutoMovieMotion } from "../motion/IAutoMovieMotion";
+import type { IAutoMovieScene } from "../scene/IAutoMovieScene";
+import type { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton";
 
 /**
  * Sequence clock and resolvable scene/motion/skeleton inputs for projected

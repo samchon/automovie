@@ -44,7 +44,7 @@ export namespace IAutoMovieConstructionKnownPort {
   /**
    * One original field neighborhood, its chart map and its owned rail.
    *
-   * AutoMovieConstructionKnownPort resolves field and map in the invocation
+   * constructionKnownPort resolves field and map in the invocation
    * source. The map must cover the complete band rectangle with the original C2
    * field; boundary identifies the rail whose material and binding owners must
    * agree. These strings are references, not serialized callback

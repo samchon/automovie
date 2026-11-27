@@ -17,15 +17,15 @@ import { HumanHandAttitude } from "../../posture/internal/HumanHandAttitude";
 import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
-import { AutoMovieMotionHumanArmCarryHung } from "./AutoMovieMotionHumanArmCarryHung";
-import { AutoMovieMotionHumanArmCarrySpan } from "./AutoMovieMotionHumanArmCarrySpan";
+import { motionHumanArmCarryHung } from "./motionHumanArmCarryHung";
+import { motionHumanArmCarrySpan } from "./motionHumanArmCarrySpan";
 import { AutoMovieMotionHumanArmChain } from "./AutoMovieMotionHumanArmChain";
 import { AutoMovieMotionHumanArmFollow } from "./AutoMovieMotionHumanArmFollow";
-import { AutoMovieMotionHumanArmJointCarry } from "./AutoMovieMotionHumanArmJointCarry";
-import { AutoMovieMotionHumanArmJointCourse } from "./AutoMovieMotionHumanArmJointCourse";
+import { motionHumanArmJointCarry } from "./motionHumanArmJointCarry";
+import { motionHumanArmJointCourse } from "./motionHumanArmJointCourse";
 import { AutoMovieMotionHumanArmPlanned } from "./AutoMovieMotionHumanArmPlanned";
 import { AutoMovieMotionHumanArmPlayed } from "./AutoMovieMotionHumanArmPlayed";
-import { AutoMovieMotionHumanChannel as HumanChannels } from "./AutoMovieMotionHumanChannel";
+import { motionHumanChannel as HumanChannels } from "./motionHumanChannel";
 
 /*
  * An arm carried toward a goal: the joint-space carry between held angles
@@ -36,10 +36,10 @@ import { AutoMovieMotionHumanChannel as HumanChannels } from "./AutoMovieMotionH
 export namespace AutoMovieMotionHumanArmCarry {
   /*
    * Deprecated: the joint-space carry between held angles and a goal
-   * (`AutoMovieMotionHumanArmJointCarry`).
+   * (`motionHumanArmJointCarry`).
    */
-  export const carry: typeof AutoMovieMotionHumanArmJointCarry =
-    AutoMovieMotionHumanArmJointCarry;
+  export const carry: typeof motionHumanArmJointCarry =
+    motionHumanArmJointCarry;
 
   /*
    * An arm carried toward a goal by a weight: the arm's whole action planned
@@ -87,14 +87,14 @@ export namespace AutoMovieMotionHumanArmCarry {
         ? AutoMovieMotionHumanArmPlanned.planned(
             props.body,
             // One problem over every member's span, each arm on its own hold.
-            AutoMovieMotionHumanArmCarrySpan(group.carries, span!),
+            motionHumanArmCarrySpan(group.carries, span!),
             group.carries.map(
               (
                 member: IAutoMovieMotionHumanArmCarry.ICarry,
               ): IAutoMovieMotionHumanArmCarry.ICarry =>
-                AutoMovieMotionHumanArmCarryHung(
+                motionHumanArmCarryHung(
                   member,
-                  AutoMovieMotionHumanArmCarrySpan([member], span!),
+                  motionHumanArmCarrySpan([member], span!),
                   before,
                 ),
             ),
@@ -114,7 +114,7 @@ export namespace AutoMovieMotionHumanArmCarry {
                   member.body,
                   member.span === undefined ? span! : member.span,
                   [
-                    AutoMovieMotionHumanArmCarryHung(
+                    motionHumanArmCarryHung(
                       member,
                       member.span === undefined ? span! : member.span,
                       before,
@@ -165,8 +165,8 @@ export namespace AutoMovieMotionHumanArmCarry {
       | undefined;
     let handed: HumanArmSwing.Entered | undefined;
     // The joint-space carry off the plan, solved at knots once the performance
-    // is placed (`AutoMovieMotionHumanArmJointCourse`).
-    let course: AutoMovieMotionHumanArmJointCourse.Course | undefined;
+    // is placed (`motionHumanArmJointCourse`).
+    let course: motionHumanArmJointCourse.Course | undefined;
     const goaled = (
       at: IAutoMovieMotionHumanPosture,
       t: number,
@@ -186,7 +186,7 @@ export namespace AutoMovieMotionHumanArmCarry {
       t: number,
       resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
       projector?: Parameters<typeof resolveHumanPosture.seeded>[6],
-    ): AutoMovieMotionHumanArmJointCourse.IInput => {
+    ): motionHumanArmJointCourse.IInput => {
       const weight: number = props.weight(t);
       const aimed: IAutoMovieMotionHumanPosture = goaled(
         at,
@@ -230,7 +230,7 @@ export namespace AutoMovieMotionHumanArmCarry {
             ): void => void planned(before),
           }),
       ready: (before: IAutoMovieMotionHumanPrimitive.Reader): void => {
-        handed = AutoMovieMotionHumanArmCarryHung.entering(
+        handed = motionHumanArmCarryHung.entering(
           props,
           before(props.from),
         );
@@ -264,10 +264,10 @@ export namespace AutoMovieMotionHumanArmCarry {
         course =
           stretches.length === 0
             ? undefined
-            : AutoMovieMotionHumanArmJointCourse(
+            : motionHumanArmJointCourse(
                 props.body,
                 stretches,
-                (at: number): AutoMovieMotionHumanArmJointCourse.IInput =>
+                (at: number): motionHumanArmJointCourse.IInput =>
                   input(before(at), at),
               );
       },
@@ -311,7 +311,7 @@ export namespace AutoMovieMotionHumanArmCarry {
           (seconds <= span.end || span.relax >= span.end);
         if (onPlan) out = placed(seconds);
         else {
-          const carried: AutoMovieMotionHumanArmJointCourse.IInput = input(
+          const carried: motionHumanArmJointCourse.IInput = input(
             posture,
             seconds,
             source,
@@ -343,7 +343,7 @@ export namespace AutoMovieMotionHumanArmCarry {
             projection,
             undefined,
             handed ??
-              AutoMovieMotionHumanArmCarryHung.entering(props, so(props.from)),
+              motionHumanArmCarryHung.entering(props, so(props.from)),
           );
         if (props.attitude === undefined || !(weight > 0 && weight < 1))
           return out;

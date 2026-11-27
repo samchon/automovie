@@ -1,26 +1,26 @@
 import type * as THREE from "three";
-import type { IAutoMovieRenderViewerSnapshot } from "./IAutoMovieRenderViewerSnapshot.js";
-import type { IAutoMovieRenderViewerSnapshotOptions } from "./IAutoMovieRenderViewerSnapshotOptions.js";
-import type { IAutoMovieRenderViewerSnapshotRenderer } from "./IAutoMovieRenderViewerSnapshotRenderer.js";
-import type { IAutoMovieRenderUpdateComparisonCameraProps } from "./IAutoMovieRenderUpdateComparisonCameraProps.js";
-import { captureViewerSnapshot as captureViewerSnapshotImplementation } from "./subjectViewpoint/internal/captureViewerSnapshot.js";
-import { updateAutoMovieComparisonCamera as updateAutoMovieComparisonCameraImplementation } from "./subjectViewpoint/internal/updateAutoMovieComparisonCamera.js";
-import { type IAutoMovieRenderViewerSubject } from "./IAutoMovieRenderViewerSubject.js";
-import { autoMovieViewerSubjectKey as autoMovieViewerSubjectKeyImplementation } from "./subjectViewpoint/internal/autoMovieViewerSubjectKey.js";
-import { parseAutoMovieViewerSubjectKey as parseAutoMovieViewerSubjectKeyImplementation } from "./subjectViewpoint/internal/parseAutoMovieViewerSubjectKey.js";
-import { type IAutoMovieRenderViewerViewpoint } from "./IAutoMovieRenderViewerViewpoint.js";
-import { autoMovieViewerNamedViewpoints as autoMovieViewerNamedViewpointsImplementation } from "./subjectViewpoint/internal/autoMovieViewerNamedViewpoints.js";
-import { type IAutoMovieRenderViewerTurntableOptions } from "./IAutoMovieRenderViewerTurntableOptions.js";
-import { autoMovieViewerTurntableViewpoints as autoMovieViewerTurntableViewpointsImplementation } from "./subjectViewpoint/internal/autoMovieViewerTurntableViewpoints.js";
-import { type IAutoMovieRenderViewerSubjectPose } from "./IAutoMovieRenderViewerSubjectPose.js";
-import { type IAutoMovieRenderViewerSubjectBounds } from "./IAutoMovieRenderViewerSubjectBounds.js";
-import { type IAutoMovieRenderViewerSubjectLens } from "./IAutoMovieRenderViewerSubjectLens.js";
-import { frameAutoMovieViewerSubject as frameAutoMovieViewerSubjectImplementation } from "./subjectViewpoint/internal/frameAutoMovieViewerSubject.js";
-import { applyAutoMovieViewerSubjectPose as applyAutoMovieViewerSubjectPoseImplementation } from "./subjectViewpoint/internal/applyAutoMovieViewerSubjectPose.js";
-import { type IAutoMovieRenderViewerSubjectView } from "./IAutoMovieRenderViewerSubjectView.js";
-import { type IAutoMovieRenderViewerSubjectViewRequest } from "./IAutoMovieRenderViewerSubjectViewRequest.js";
-import { captureAutoMovieViewerSubjectView as captureAutoMovieViewerSubjectViewImplementation } from "./subjectViewpoint/internal/captureAutoMovieViewerSubjectView.js";
-import { autoMovieViewerPoseFromHeadingImplementation } from "./subjectViewpoint/internal/autoMovieViewerPoseFromHeadingImplementation.js";
+import type { IAutoMovieRenderViewerSnapshot } from "./IAutoMovieRenderViewerSnapshot";
+import type { IAutoMovieRenderViewerSnapshotOptions } from "./IAutoMovieRenderViewerSnapshotOptions";
+import type { IAutoMovieRenderViewerSnapshotRenderer } from "./IAutoMovieRenderViewerSnapshotRenderer";
+import type { IAutoMovieRenderUpdateComparisonCameraProps } from "./IAutoMovieRenderUpdateComparisonCameraProps";
+import { captureViewerSnapshot as captureViewerSnapshotImplementation } from "./subjectViewpoint/internal/captureViewerSnapshot";
+import { updateComparisonCamera as updateComparisonCameraImplementation } from "./subjectViewpoint/internal/updateComparisonCamera";
+import { type IAutoMovieRenderViewerSubject } from "./IAutoMovieRenderViewerSubject";
+import { viewerSubjectKey as viewerSubjectKeyImplementation } from "./subjectViewpoint/internal/viewerSubjectKey";
+import { parseViewerSubjectKey as parseViewerSubjectKeyImplementation } from "./subjectViewpoint/internal/parseViewerSubjectKey";
+import { type IAutoMovieRenderViewerViewpoint } from "./IAutoMovieRenderViewerViewpoint";
+import { viewerNamedViewpoints as viewerNamedViewpointsImplementation } from "./subjectViewpoint/internal/viewerNamedViewpoints";
+import { type IAutoMovieRenderViewerTurntableOptions } from "./IAutoMovieRenderViewerTurntableOptions";
+import { viewerTurntableViewpoints as viewerTurntableViewpointsImplementation } from "./subjectViewpoint/internal/viewerTurntableViewpoints";
+import { type IAutoMovieRenderViewerSubjectPose } from "./IAutoMovieRenderViewerSubjectPose";
+import { type IAutoMovieRenderViewerSubjectBounds } from "./IAutoMovieRenderViewerSubjectBounds";
+import { type IAutoMovieRenderViewerSubjectLens } from "./IAutoMovieRenderViewerSubjectLens";
+import { frameViewerSubject as frameViewerSubjectImplementation } from "./subjectViewpoint/internal/frameViewerSubject";
+import { applyViewerSubjectPose as applyViewerSubjectPoseImplementation } from "./subjectViewpoint/internal/applyViewerSubjectPose";
+import { type IAutoMovieRenderViewerSubjectView } from "./IAutoMovieRenderViewerSubjectView";
+import { type IAutoMovieRenderViewerSubjectViewRequest } from "./IAutoMovieRenderViewerSubjectViewRequest";
+import { captureViewerSubjectView as captureViewerSubjectViewImplementation } from "./subjectViewpoint/internal/captureViewerSubjectView";
+import { viewerPoseFromHeadingImplementation } from "./subjectViewpoint/internal/viewerPoseFromHeadingImplementation";
 
 /** Public operations for Auto Movie Render Subject Viewpoint. */
 export namespace AutoMovieRenderSubjectViewpoint {
@@ -38,7 +38,7 @@ export namespace AutoMovieRenderSubjectViewpoint {
   export function updateComparisonCamera(
     props: IAutoMovieRenderUpdateComparisonCameraProps,
   ): void {
-    updateAutoMovieComparisonCameraImplementation(props);
+    updateComparisonCameraImplementation(props);
   }
 
   /**
@@ -47,7 +47,7 @@ export namespace AutoMovieRenderSubjectViewpoint {
    * when present, and an id without @ when revision is null.
    */
   export function autoMovieViewerSubjectKey(subject: IAutoMovieRenderViewerSubject): string {
-    return autoMovieViewerSubjectKeyImplementation(subject);
+    return viewerSubjectKeyImplementation(subject);
   }
 
   /**
@@ -57,7 +57,7 @@ export namespace AutoMovieRenderSubjectViewpoint {
    * containing @.
    */
   export function parseAutoMovieViewerSubjectKey(key: string): IAutoMovieRenderViewerSubject {
-    return parseAutoMovieViewerSubjectKeyImplementation(key);
+    return parseViewerSubjectKeyImplementation(key);
   }
 
   /**
@@ -83,7 +83,7 @@ export namespace AutoMovieRenderSubjectViewpoint {
    * is not positive and finite.
    */
   export function autoMovieViewerNamedViewpoints(distanceFactor?: number): IAutoMovieRenderViewerViewpoint[] {
-    return autoMovieViewerNamedViewpointsImplementation(distanceFactor);
+    return viewerNamedViewpointsImplementation(distanceFactor);
   }
 
   /**
@@ -93,7 +93,7 @@ export namespace AutoMovieRenderSubjectViewpoint {
    * practical output bound remain caller premises.
    */
   export function autoMovieViewerTurntableViewpoints(options: IAutoMovieRenderViewerTurntableOptions): IAutoMovieRenderViewerViewpoint[] {
-    return autoMovieViewerTurntableViewpointsImplementation(options);
+    return viewerTurntableViewpointsImplementation(options);
   }
 
   /**
@@ -104,7 +104,7 @@ export namespace AutoMovieRenderSubjectViewpoint {
    * arithmetic range remain caller premises.
    */
   export function frameAutoMovieViewerSubject(bounds: IAutoMovieRenderViewerSubjectBounds, viewpoint: IAutoMovieRenderViewerViewpoint, lens: IAutoMovieRenderViewerSubjectLens): IAutoMovieRenderViewerSubjectPose {
-    return frameAutoMovieViewerSubjectImplementation(bounds, viewpoint, lens);
+    return frameViewerSubjectImplementation(bounds, viewpoint, lens);
   }
 
   /**
@@ -114,7 +114,7 @@ export namespace AutoMovieRenderSubjectViewpoint {
    * roll back earlier mutations.
    */
   export function applyAutoMovieViewerSubjectPose(camera: THREE.PerspectiveCamera, pose: IAutoMovieRenderViewerSubjectPose): void {
-    applyAutoMovieViewerSubjectPoseImplementation(camera, pose);
+    applyViewerSubjectPoseImplementation(camera, pose);
   }
 
   /**
@@ -124,7 +124,7 @@ export namespace AutoMovieRenderSubjectViewpoint {
    * freshness or actual hardware readiness.
    */
   export function captureAutoMovieViewerSubjectView(request: IAutoMovieRenderViewerSubjectViewRequest): IAutoMovieRenderViewerSubjectView {
-    return captureAutoMovieViewerSubjectViewImplementation(request);
+    return captureViewerSubjectViewImplementation(request);
   }
 
   /**
@@ -139,7 +139,7 @@ export namespace AutoMovieRenderSubjectViewpoint {
     lens: IAutoMovieRenderViewerSubjectLens,
     clip: { near: number; far: number },
   ): IAutoMovieRenderViewerSubjectPose {
-    return autoMovieViewerPoseFromHeadingImplementation(
+    return viewerPoseFromHeadingImplementation(
       position,
       headingDeg,
       lens,

@@ -12,10 +12,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionManner } from "../../compose/internal/motionManner";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
@@ -99,17 +99,17 @@ function planLogRoll(
   );
   const halves: number = logRollTurns.count(p, from.turn, step, hips, travel);
   const target: number = from.turn + sign * 180 * halves;
-  const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
-    AutoMovieMotionClock.sequence([
+  const clock: IAutoMovieMotionClock = motionManner.time(
+    motionClock.sequence([
       { name: "rolling", seconds: LogRollData.HALF * halves },
       { name: "rolled", seconds: 0 },
       { name: "settled", seconds: 0 },
     ]),
-    AutoMovieMotionManner(context, p.manner),
+    motionManner(context, p.manner),
     { holds: ["settled"] },
   );
-  const progress: ReturnType<typeof AutoMovieMotionClock.prepare> =
-    AutoMovieMotionClock.prepare(clock, "rolling", "rolled");
+  const progress: ReturnType<typeof motionClock.prepare> =
+    motionClock.prepare(clock, "rolling", "rolled");
   const straighten: (w: number) => IAutoMovieMotionHumanPosture["joints"] =
     prepareHumanShapeBlend(entry.joints, LogRollData.LOG);
   const rest: ReturnType<typeof knockdown.prepareRest> =
@@ -207,7 +207,7 @@ function planLogRoll(
     },
   ];
   const planned: IAutoMovieMotionHumanActionPlan =
-    composeAutoMovieMotionHumanAction({
+    composeMotionHumanAction({
       base: AutoMovieMotionHumanBase.still(duration, entry, contacts),
       clock,
       contact: "settled",

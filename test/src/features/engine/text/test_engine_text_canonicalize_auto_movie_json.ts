@@ -5,7 +5,7 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `canonicalizeAutoMovieJson` encodes a value as JSON with members in code-unit
+ * `canonicalizeJson` encodes a value as JSON with members in code-unit
  * order and absent members left out.
  *
  * Scenarios:

@@ -12,8 +12,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionClock
-} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionClock";
+  motionClock
+} from "../../../../../packages/motions/src/compose/internal/motionClock";
 import {
   HumanHand
 } from "../../../../../packages/motions/src/posture/internal/HumanHand";
@@ -70,7 +70,7 @@ const HALF: IAutoMovieQuaternion = { x: 0, y: 0, z: 1, w: 0 };
  */
 export async function test_motions_music_bow_violin(): Promise<void> {
   // 1. The stroke.
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.sequence([
+  const clock: IAutoMovieMotionClock = motionClock.sequence([
     { name: "approach", seconds: 1 },
     { name: "ready", seconds: 0.2 },
     { name: "contact", seconds: 1 },

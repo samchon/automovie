@@ -2,7 +2,7 @@ import { AutoMovieRenderInspectionRequest } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `formatAutoMovieInspectionRequest` writes the keys that differ from the
+ * `formatInspectionRequest` writes the keys that differ from the
  * absent request, in the order the request lists them.
  *
  * Scenarios:

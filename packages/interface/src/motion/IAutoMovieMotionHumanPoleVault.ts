@@ -10,7 +10,7 @@
  * flight is the ballistic fall under gravity 9.80665 m/s2 to the landing
  * surface.
  *
- * The pole is a held prop (`AutoMovieMotionHumanHeld`): taken up before,
+ * The pole is a held prop (`motionHumanHeld`): taken up before,
  * typically by a pick up with a use. Its planted end is the prop's `tip`
  * affordance, or the one named; it bends on its hinges (a vaulting pole's
  * chain), and a pole with none is refused.

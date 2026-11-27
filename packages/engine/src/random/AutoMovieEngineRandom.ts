@@ -1,13 +1,13 @@
 import type { IAutoMovieRandom } from "@automovie/interface";
 
-import { createAutoMovieFractalNoise2 } from "./internal/createAutoMovieFractalNoise2";
-import { createAutoMovieFractalNoise3 } from "./internal/createAutoMovieFractalNoise3";
-import { createAutoMovieGradientNoise2 } from "./internal/createAutoMovieGradientNoise2";
-import { createAutoMovieGradientNoise3 } from "./internal/createAutoMovieGradientNoise3";
-import { createAutoMovieRandom } from "./internal/createAutoMovieRandom";
-import { deriveAutoMovieSeed } from "./internal/deriveAutoMovieSeed";
-import { hashAutoMovieFnv1a64 } from "./internal/hashAutoMovieFnv1a64";
-import { philoxAutoMovie4x32 } from "./internal/philoxAutoMovie4x32";
+import { createFractalNoise2Implementation } from "./internal/createFractalNoise2Implementation";
+import { createFractalNoise3Implementation } from "./internal/createFractalNoise3Implementation";
+import { createGradientNoise2Implementation } from "./internal/createGradientNoise2Implementation";
+import { createGradientNoise3Implementation } from "./internal/createGradientNoise3Implementation";
+import { createRandomImplementation } from "./internal/createRandomImplementation";
+import { deriveSeedValue } from "./internal/deriveSeedValue";
+import { hashFnv1a64Implementation } from "./internal/hashFnv1a64Implementation";
+import { philox4x32Implementation } from "./internal/philox4x32Implementation";
 import { AutoMovieEngineRandomBounds } from "./internal/AutoMovieEngineRandomBounds";
 
 /**
@@ -36,7 +36,7 @@ export namespace AutoMovieEngineRandom {
     octaves: number,
     roughness: number,
   ): (x: number, y: number) => number {
-    return createAutoMovieFractalNoise2(seed, octaves, roughness);
+    return createFractalNoise2Implementation(seed, octaves, roughness);
   }
 
   /**
@@ -52,7 +52,7 @@ export namespace AutoMovieEngineRandom {
     octaves: number,
     roughness: number,
   ): (x: number, y: number, z: number) => number {
-    return createAutoMovieFractalNoise3(seed, octaves, roughness);
+    return createFractalNoise3Implementation(seed, octaves, roughness);
   }
 
   /**
@@ -64,7 +64,7 @@ export namespace AutoMovieEngineRandom {
   export function createGradientNoise2(
     seed: string,
   ): (x: number, y: number) => number {
-    return createAutoMovieGradientNoise2(seed);
+    return createGradientNoise2Implementation(seed);
   }
 
   /**
@@ -76,7 +76,7 @@ export namespace AutoMovieEngineRandom {
   export function createGradientNoise3(
     seed: string,
   ): (x: number, y: number, z: number) => number {
-    return createAutoMovieGradientNoise3(seed);
+    return createGradientNoise3Implementation(seed);
   }
 
   /**
@@ -86,7 +86,7 @@ export namespace AutoMovieEngineRandom {
    * @returns A stream whose values depend on the seed and index alone.
    */
   export function createRandom(seed: string): IAutoMovieRandom {
-    return createAutoMovieRandom(seed);
+    return createRandomImplementation(seed);
   }
 
   /**
@@ -97,7 +97,7 @@ export namespace AutoMovieEngineRandom {
    * @returns Sixteen lowercase hexadecimal digits.
    */
   export function deriveSeed(filmSeed: string, ...ids: string[]): string {
-    return deriveAutoMovieSeed(filmSeed, ...ids);
+    return deriveSeedValue(filmSeed, ...ids);
   }
 
   /**
@@ -107,7 +107,7 @@ export namespace AutoMovieEngineRandom {
    * @returns Sixteen lowercase hexadecimal digits.
    */
   export function hashFnv1a64(bytes: Iterable<number>): string {
-    return hashAutoMovieFnv1a64(bytes);
+    return hashFnv1a64Implementation(bytes);
   }
 
   /**
@@ -121,6 +121,6 @@ export namespace AutoMovieEngineRandom {
     counter: readonly [number, number, number, number],
     key: readonly [number, number],
   ): [number, number, number, number] {
-    return philoxAutoMovie4x32(counter, key);
+    return philox4x32Implementation(counter, key);
   }
 }

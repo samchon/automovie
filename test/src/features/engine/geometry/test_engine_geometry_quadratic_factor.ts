@@ -2,7 +2,7 @@ import { AutoMovieEngineMath } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `createAutoMovieQuadraticFactor` owns one sparse KKT factor of a conic
+ * `createQuadraticFactor` owns one sparse KKT factor of a conic
  * program: it solves only after an update, and each owner keeps its own.
  *
  * Fixture: minimize x0^2 + 4 x1^2 (diagonal 2, 8) subject to x0 + x1 = 3. Its
@@ -19,7 +19,7 @@ import { TestValidator } from "@nestia/e2e";
  *    recovers the first one.
  * 4. A 2048-variable chain x_i = x_{i+1}, each in [-10, 10], has a tree KKT
  *    graph, so its factor keeps at most 4 x 2048 nonzeros.
- * 5. `addAutoMovieQuadraticProduct` keeps exact sums: (1 + 2^-27)(1 - 2^-27) - 1
+ * 5. `addQuadraticProduct` keeps exact sums: (1 + 2^-27)(1 - 2^-27) - 1
  *    is -2^-54, 2^1000 x 2^-1000 is 1, and MIN_VALUE x 1 stays MIN_VALUE.
  */
 export function test_engine_geometry_quadratic_factor(): void {

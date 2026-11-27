@@ -1,6 +1,6 @@
 import { IAutoMovieFilmTimeline } from "@automovie/interface";
 
-import { autoMovieRenderDigest } from "../../render/internal/autoMovieRenderDigest";
+import { renderDigest } from "../../render/internal/renderDigest";
 import { AutoMovieEngineCanonicalJson } from "../../text/AutoMovieEngineCanonicalJson";
 
 /*
@@ -18,7 +18,7 @@ import { AutoMovieEngineCanonicalJson } from "../../text/AutoMovieEngineCanonica
 export function productionFilmEffectEditFingerprint(
   timeline: IAutoMovieFilmTimeline,
 ): string {
-  return autoMovieRenderDigest(
+  return renderDigest(
     AutoMovieEngineCanonicalJson.canonicalize({
       protocol: "automovie.production-render-edit.v2",
       id: timeline.id,

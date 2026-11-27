@@ -39,7 +39,7 @@ import { HUMAN_FALL_GOALKEEPER_DIVE_RIGHT } from "./presets/HUMAN_FALL_GOALKEEPE
  *   performer: the body absorbs an impulse within its base, catches it with
  *   capture steps, or falls, as the engine's balance outcome decides from the
  *   impulse, the body's mass and its support
- *   (`resolveAutoMovieBalanceOutcome`), or as the author fixes the outcome.
+ *   (`resolveBalanceOutcome`), or as the author fixes the outcome.
  * - `wireFlight`: A wire flight along an authored path
  *   (`IAutoMovieMotionHumanWireFlight`).
  * - `vehicleHit`: A pedestrian and a moving car: struck and thrown along one of
@@ -230,7 +230,7 @@ export namespace AutoMovieMotionHumanFall {
    * performer: the body absorbs an impulse within its base, catches it with
    * capture steps, or falls, as the engine's balance outcome decides from the
    * impulse, the body's mass and its support
-   * (`resolveAutoMovieBalanceOutcome`), or as the author fixes the outcome.
+   * (`resolveBalanceOutcome`), or as the author fixes the outcome.
    *
    * The impulse is the sum of the impulses on the performer
    * (`IHumanActionContext.forces`) from one pendulum time constant `1 / ω0`

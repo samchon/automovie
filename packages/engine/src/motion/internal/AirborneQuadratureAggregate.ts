@@ -1,4 +1,4 @@
-import { adjacentAutoMovieFloat64 } from "../../math/internal/adjacentAutoMovieFloat64";
+import { adjacentFloat64 } from "../../math/internal/adjacentFloat64";
 import type { AirborneQuadratureAggregateTypes } from "./AirborneQuadratureAggregateTypes";
 
 /*
@@ -128,7 +128,7 @@ export function AirborneQuadratureAggregate<
         const bound: number =
           product === Number.MAX_VALUE
             ? Infinity
-            : adjacentAutoMovieFloat64(product, true);
+            : adjacentFloat64(product, true);
         total = upperSum(total, bound);
       }
       return total;
@@ -230,6 +230,6 @@ function upperSum(a: number, b: number): number {
   return lost > 0
     ? sum === Number.MAX_VALUE
       ? Infinity
-      : adjacentAutoMovieFloat64(sum, true)
+      : adjacentFloat64(sum, true)
     : sum;
 }

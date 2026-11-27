@@ -4,8 +4,8 @@ import type {
   IAutoMovieMotionHumanPrimitive,
 } from "@automovie/interface";
 import {
-  composeAutoMovieMotionHumanAction
-} from "../../../../../packages/motions/src/compose/internal/composeAutoMovieMotionHumanAction";
+  composeMotionHumanAction
+} from "../../../../../packages/motions/src/compose/internal/composeMotionHumanAction";
 import { TestValidator } from "@nestia/e2e";
 
 import { linearMotionClock } from "../../internal/synthetic/linearMotionClock";
@@ -13,7 +13,7 @@ import { syntheticHumanPlan } from "../../internal/synthetic/syntheticHumanPlan"
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * `composeAutoMovieMotionHumanAction` writes each primitive whose window holds
+ * `composeMotionHumanAction` writes each primitive whose window holds
  * a second onto the base's posture in channel order, plans each once when the
  * action is composed (`prepare`, in writing order), and solves what each reads
  * of other performers when the composed plan is prepared (`ready`, after the
@@ -67,7 +67,7 @@ export function test_motions_compose_human_action(): void {
   });
   // Given arm first: the composer writes in channel order.
   const plan: IAutoMovieMotionHumanActionPlan =
-    composeAutoMovieMotionHumanAction({
+    composeMotionHumanAction({
       base,
       clock: linearMotionClock(2, []),
       primitives: [
@@ -112,7 +112,7 @@ export function test_motions_compose_human_action(): void {
     "a shared channel and an outside window are refused",
     throwsError(
       (): IAutoMovieMotionHumanActionPlan =>
-        composeAutoMovieMotionHumanAction({
+        composeMotionHumanAction({
           base,
           clock: linearMotionClock(2, []),
           primitives: [
@@ -123,7 +123,7 @@ export function test_motions_compose_human_action(): void {
     ) &&
       throwsError(
         (): IAutoMovieMotionHumanActionPlan =>
-          composeAutoMovieMotionHumanAction({
+          composeMotionHumanAction({
             base,
             clock: linearMotionClock(2, []),
             primitives: [primitive("c", "head", 1, 3, "neck")],

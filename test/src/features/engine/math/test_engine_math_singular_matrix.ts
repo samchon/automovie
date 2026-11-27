@@ -9,7 +9,7 @@ import { nclose } from "../../internal/nclose";
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * `decomposeAutoMovieSingularMatrix` is a one-sided Jacobi singular value
+ * `decomposeSingularMatrix` is a one-sided Jacobi singular value
  * decomposition: singular values in descending order, unit left and right
  * columns whose largest right entry is positive, the numerical rank, and the
  * sweeps it took, refusing malformed input or an exhausted budget.

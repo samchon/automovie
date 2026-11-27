@@ -1,7 +1,7 @@
 import type { IAutoMovieMotionClock } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanTiming
-} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanTiming";
+  motionHumanTiming
+} from "../../../../../packages/motions/src/compose/internal/motionHumanTiming";
 import {
   release
 } from "../../../../../packages/motions/src/throwing/internal/release";
@@ -17,7 +17,7 @@ import { nclose } from "../../internal/nclose";
  * the release ends two in.
  */
 export function test_motions_throwing_release(): void {
-  const brief: number = AutoMovieMotionHumanTiming.PAUSES.brief;
+  const brief: number = motionHumanTiming.PAUSES.brief;
   const clock: IAutoMovieMotionClock = release.timetable();
   TestValidator.predicate(
     "hold, then open",

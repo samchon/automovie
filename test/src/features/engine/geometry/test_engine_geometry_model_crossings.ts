@@ -7,7 +7,7 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `measureAutoMovieModelCrossings` lists the pairs of a model's parts that pass
+ * `measureModelCrossings` lists the pairs of a model's parts that pass
  * through each other, where their transforms place them, and with `withinParts`
  * also a part crossing itself; touching is not crossing.
  *

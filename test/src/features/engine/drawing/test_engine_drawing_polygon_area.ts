@@ -3,7 +3,7 @@ import type { IAutoMovieDrawingPoint } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `autoMovieDrawingPolygonArea` is the shoelace area of a closed ring,
+ * `drawingPolygonArea` is the shoelace area of a closed ring,
  * unsigned.
  *
  * Scenarios:

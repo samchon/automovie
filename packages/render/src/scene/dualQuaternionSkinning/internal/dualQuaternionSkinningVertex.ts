@@ -1,6 +1,6 @@
 /*
  * Replace a vertex shader's linear blend skinning with dual quaternion
- * skinning, the formula `skinAutoMovieMesh` evaluates in the engine.
+ * skinning, the formula `skinMesh` evaluates in the engine.
  *
  * Three's bone matrix for joint `j` is `G P_j R_j^-1`, with `G` the model's
  * world placement at draw time, and its attached bind gives `bindMatrixInverse

@@ -21,7 +21,7 @@ import type {
 import { AutoMovieMotionHumanAuditTangle } from "../../audit/internal/AutoMovieMotionHumanAuditTangle";
 import { HumanSupportFrame } from "../../carrier/internal/HumanSupportFrame";
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
 import { seated } from "../../everyday/internal/seated";
 import { sit } from "../../everyday/internal/sit";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
@@ -96,7 +96,7 @@ export function crutchSitDown(
       crutchSitPath.socket(body, context.entry.pose, side),
       kit.goal(side, side === injured ? hA : hB, kit.start(side)).point,
     );
-  const take: number = AutoMovieMotionHumanTiming.transport(
+  const take: number = motionHumanTiming.transport(
     Math.max(reachOf("left"), reachOf("right")),
   );
   const lifted: IAutoMovieHumanLimbReference = HumanLimbFit.reference(
@@ -145,7 +145,7 @@ export function crutchSitDown(
     gatheredA.position,
     AutoMovieEngineQuaternion.rotateVector(gatheredA.rotation, cA.grip),
   );
-  const gather: number = AutoMovieMotionHumanTiming.transport(
+  const gather: number = motionHumanTiming.transport(
     Math.max(
       AutoMovieEngineVector3.distance(kit.start(injured).position, gatheredA.position),
       AutoMovieEngineVector3.distance(kit.start(sound).position, gatheredB.position),

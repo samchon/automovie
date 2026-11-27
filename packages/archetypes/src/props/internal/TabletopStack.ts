@@ -16,7 +16,9 @@ import {
  * the fingertips closing across the given aperture.
  */
 export namespace TabletopStack {
-  /** The contact ids every stackable tabletop prop builds. */
+  /*
+   * The contact ids every stackable tabletop prop builds.
+   */
   export type Contact = "grip" | "base" | "top";
 
   /*

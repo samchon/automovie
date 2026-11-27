@@ -1,6 +1,6 @@
 /**
  * One topmost selected inspection path and the other objects intersecting its
- * expanded world box. expandAutoMovieInspectionSweep returns alone as a
+ * expanded world box. expandInspectionSweep returns alone as a
  * singleton unit list and neighbours in source order; neighbours exclude
  * descendants already inside the unit and may be empty.
  */

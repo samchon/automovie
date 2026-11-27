@@ -13,7 +13,9 @@ export namespace createDoorMeasures {
    */
   export const BREAKING: number = 80;
 
-  /** The kinds of door. */
+  /*
+   * The kinds of door.
+   */
   export type Kind = "hinged" | "sliding";
 
   /*
@@ -21,7 +23,7 @@ export namespace createDoorMeasures {
    */
   export const KINDS: readonly Kind[] = ["hinged", "sliding"];
 
-  /**
+  /*
    * What a hand operates a hinged door by: a lever or a knob that draws a latch,
    * or a push plate and a pull bar on a door without one.
    */

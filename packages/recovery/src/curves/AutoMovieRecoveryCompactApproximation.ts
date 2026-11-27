@@ -1,4 +1,4 @@
-import { approximateAutoMovieRecoveryCompactCurves as approximateAutoMovieRecoveryCompactCurvesImplementation } from "./internal/approximateAutoMovieRecoveryCompactCurves";
+import { approximateRecoveryCompactCurves as approximateRecoveryCompactCurvesImplementation } from "./internal/approximateRecoveryCompactCurves";
 
 import { AutoMovieEngineBernstein64 as B } from "@automovie/engine";
 import { type AutoMovieVector2Tuple, type IAutoMovieRegisteredPlanarCurvePiece, type IAutoMovieCompactCurveApproximation, type IAutoMoviePiecewisePlanarCurveSource } from "@automovie/interface";
@@ -74,6 +74,6 @@ export namespace AutoMovieRecoveryCompactApproximation {
    * result.
    */
   export function approximate(curve: IAutoMoviePiecewisePlanarCurveSource, options: IAutoMovieCompactCurveApproximation.IOptions): IAutoMovieCompactCurveApproximation.IResult {
-    return approximateAutoMovieRecoveryCompactCurvesImplementation(curve, options);
+    return approximateRecoveryCompactCurvesImplementation(curve, options);
   }
 }

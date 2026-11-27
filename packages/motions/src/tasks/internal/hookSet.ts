@@ -9,7 +9,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
+import { motionHumanHeld } from "../../compose/internal/motionHumanHeld";
 import { wardrobeHands } from "../../dressing/internal/wardrobeHands";
 import { hookSetTip } from "./hookSetTip";
 
@@ -46,8 +46,8 @@ function planHookSet(
   const { body, entry, params }: typeof context = context;
   const hand: AutoMovieHumanSide =
     params.hand ?? (entry.holds.right === params.rod ? "right" : "left");
-  const held: ReturnType<typeof AutoMovieMotionHumanHeld> =
-    AutoMovieMotionHumanHeld(context, hand, params.rod);
+  const held: ReturnType<typeof motionHumanHeld> =
+    motionHumanHeld(context, hand, params.rod);
   const grip: IAutoMovieRigidTransform = wardrobeHands.grip(
     body,
     entry.posture,
@@ -86,8 +86,8 @@ function planHookSet(
   return {
     ...base,
     // The rod hand takes the rod's hold over and leaves it held.
-    contacts: [...base.contacts, AutoMovieMotionHumanHeld.grip(held)],
-    holds: [AutoMovieMotionHumanHeld.hold(context, held)],
+    contacts: [...base.contacts, motionHumanHeld.grip(held)],
+    holds: [motionHumanHeld.hold(context, held)],
     events: tip.events,
     hands: [hand],
     posture,

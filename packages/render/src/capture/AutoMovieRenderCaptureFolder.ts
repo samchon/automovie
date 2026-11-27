@@ -7,7 +7,7 @@ import type {
   IAutoMovieCaptureStorage,
 } from "@automovie/interface";
 
-import { AutoMovieRenderCaptureRecord } from "./AutoMovieRenderCaptureRecord.js";
+import { AutoMovieRenderCaptureRecord } from "./AutoMovieRenderCaptureRecord";
 
 /**
  * The folder one capture writes, and the rules of which files it owns and in

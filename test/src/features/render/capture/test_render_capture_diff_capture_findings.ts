@@ -68,7 +68,7 @@ const audit = (props: {
 });
 
 /**
- * `diffAutoMovieCaptureFindings` compares the findings of two rounds.
+ * `diffCaptureFindings` compares the findings of two rounds.
  *
  * Scenarios:
  *

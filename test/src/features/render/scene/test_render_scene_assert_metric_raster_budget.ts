@@ -1,6 +1,6 @@
 import {
-  assertAutoMovieMetricRasterBudget
-} from "../../../../../packages/render/src/scene/internal/assertAutoMovieMetricRasterBudget";
+  assertMetricRasterBudget
+} from "../../../../../packages/render/src/scene/internal/assertMetricRasterBudget";
 import { TestValidator } from "@nestia/e2e";
 import { doesNotThrow } from "node:assert/strict";
 
@@ -20,8 +20,8 @@ import { throwsError } from "../../internal/throwsError";
  * decides allocation before the host reads or allocates a native buffer.
  */
 export function test_render_scene_assert_metric_raster_budget(): void {
-  doesNotThrow((): void => assertAutoMovieMetricRasterBudget(1, 1, 1));
-  doesNotThrow((): void => assertAutoMovieMetricRasterBudget(2, 3, 6));
+  doesNotThrow((): void => assertMetricRasterBudget(1, 1, 1));
+  doesNotThrow((): void => assertMetricRasterBudget(2, 3, 6));
   const refused: [number, number, number][] = [
     [2, 3, 5],
     [0, 3, 6],
@@ -35,7 +35,7 @@ export function test_render_scene_assert_metric_raster_budget(): void {
     TestValidator.predicate(
       `raster ${shape.join(" by ")} refuses`,
       throwsError(
-        (): void => assertAutoMovieMetricRasterBudget(...shape),
+        (): void => assertMetricRasterBudget(...shape),
         "positive bounded physical pixel dimensions",
       ),
     );

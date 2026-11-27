@@ -17,15 +17,15 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionHumanLegPhrase } from "../../compose/internal/AutoMovieMotionHumanLegPhrase";
 import { AutoMovieMotionHumanPlaced } from "../../compose/internal/AutoMovieMotionHumanPlaced";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionManner } from "../../compose/internal/motionManner";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
@@ -104,8 +104,8 @@ export namespace gymnastics {
     hold: number,
     modifiers: IAutoMovieMotionManner.IModifiers,
   ): IAutoMovieMotionClock {
-    const timed: IAutoMovieMotionClock = AutoMovieMotionManner.time(
-      AutoMovieMotionClock.phrase({
+    const timed: IAutoMovieMotionClock = motionManner.time(
+      motionClock.phrase({
         prepare: ENTER,
         attack: 0,
         hold,
@@ -116,7 +116,7 @@ export namespace gymnastics {
     // The exit mirrors the entry: the legs swing down over the hands first,
     // the feet landing at `release` half way through, and the trunk unfolds
     // over the standing feet after it.
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(timed.duration, [
+    const clock: IAutoMovieMotionClock = motionClock(timed.duration, [
       ...timed.instants,
       { name: "handsDown", seconds: timed.at("ready") / 2 },
       { name: "inverted", seconds: timed.at("ready") },
@@ -141,7 +141,7 @@ export namespace gymnastics {
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const hold: number = p.hold ?? 2;
     HumanBound.least("hold", hold, 0, "s");
-    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+    const modifiers: IAutoMovieMotionManner.IModifiers = motionManner(
       context,
       p.manner,
     );
@@ -305,7 +305,7 @@ export namespace gymnastics {
         }),
       );
     }
-    return composeAutoMovieMotionHumanAction({
+    return composeMotionHumanAction({
       base: AutoMovieMotionHumanBase.still(clock.duration, entry, [
         {
           part: "leftHand",

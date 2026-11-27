@@ -1,5 +1,5 @@
-import type { IAutoMovieRasterImage } from "./IAutoMovieRasterImage.js";
-import type { IAutoMovieDrawResult } from "./IAutoMovieDrawResult.js";
+import type { IAutoMovieRasterImage } from "./IAutoMovieRasterImage";
+import type { IAutoMovieDrawResult } from "./IAutoMovieDrawResult";
 
 /**
  * Decoded host raster beside the serialized draw receipt it came from.

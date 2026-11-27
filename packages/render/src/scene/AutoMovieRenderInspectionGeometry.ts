@@ -1,19 +1,19 @@
-import type { IAutoMovieRenderInspectionMeasured } from "./IAutoMovieRenderInspectionMeasured.js";
+import type { IAutoMovieRenderInspectionMeasured } from "./IAutoMovieRenderInspectionMeasured";
 import type * as THREE from "three";
-import { measureAutoMovieInspectionDefectsImplementation } from "./inspection/internal/measureAutoMovieInspectionDefectsImplementation.js";
-import { measureAutoMovieInspectionMeshesImplementation } from "./inspection/internal/measureAutoMovieInspectionMeshesImplementation.js";
-import type { IAutoMovieRenderViewerSubjectBounds } from "./IAutoMovieRenderViewerSubjectBounds.js";
+import { measureInspectionDefectsImplementation } from "./inspection/internal/measureInspectionDefectsImplementation";
+import { measureInspectionMeshesImplementation } from "./inspection/internal/measureInspectionMeshesImplementation";
+import type { IAutoMovieRenderViewerSubjectBounds } from "./IAutoMovieRenderViewerSubjectBounds";
 import type {
   IAutoMovieInspectionDrawable,
   IAutoMovieMark,
   IAutoMovieMeshDefect,
 } from "@automovie/interface";
-import type { IAutoMovieRenderInspectionPath } from "./IAutoMovieRenderInspectionPath.js";
+import type { IAutoMovieRenderInspectionPath } from "./IAutoMovieRenderInspectionPath";
 
-import { measureAutoMovieInspectionBounds as measureBoundsImplementation } from "./inspection/internal/measureAutoMovieInspectionBounds.js";
-import { collectAutoMovieCollisionParts as collectCollisionPartsImplementation } from "./inspection/internal/collectAutoMovieCollisionParts.js";
-import { measureAutoMovieInspectionEdges as measureEdgesImplementation } from "./inspection/internal/measureAutoMovieInspectionEdges.js";
-import { measureAutoMovieInspectionPaths as measurePathsImplementation } from "./inspection/internal/measureAutoMovieInspectionPaths.js";
+import { measureInspectionBounds as measureBoundsImplementation } from "./inspection/internal/measureInspectionBounds";
+import { collectCollisionParts as collectCollisionPartsImplementation } from "./inspection/internal/collectCollisionParts";
+import { measureInspectionEdges as measureEdgesImplementation } from "./inspection/internal/measureInspectionEdges";
+import { measureInspectionPaths as measurePathsImplementation } from "./inspection/internal/measureInspectionPaths";
 
 /** Public operations for Auto Movie Render Inspection Geometry. */
 export namespace AutoMovieRenderInspectionGeometry {
@@ -143,12 +143,12 @@ export namespace AutoMovieRenderInspectionGeometry {
   export function measureDefects(
     props: IMeasureDefectsProps,
   ): IAutoMovieRenderInspectionMeasured {
-    return measureAutoMovieInspectionDefectsImplementation(props);
+    return measureInspectionDefectsImplementation(props);
   }
   /** Find and measure the meshes an inspection draws and requests. */
   export function measureMeshes(
     props: IMeasureMeshesProps,
   ): IMeasureMeshesResult {
-    return measureAutoMovieInspectionMeshesImplementation(props);
+    return measureInspectionMeshesImplementation(props);
   }
 }

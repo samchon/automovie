@@ -1,7 +1,7 @@
 /**
  * A shot's flames, built and mounted on their props.
  *
- * `prepareAutoMovieFlames` returns it. The caller owns it until `dispose`. Each
+ * `prepareFlames` returns it. The caller owns it until `dispose`. Each
  * cue's mesh is named `flame:<node>/<cue id>` and parented to its prop's model
  * object at the emitter frame, so a host finds it by that name in the scene it
  * mounted, as the semantic mask does.

@@ -7,7 +7,7 @@ import { TestValidator } from "@nestia/e2e";
 
 /**
  * The balance outcome of an impulse on a standing body (#3429):
- * `resolveAutoMovieBalanceOutcome`.
+ * `resolveBalanceOutcome`.
  *
  * Every case stands a body of mass `m` with its centre 1 m over the middle
  * of a square base of half-side `b` = 0.1 m, its pendulum `l` = 1 m long,

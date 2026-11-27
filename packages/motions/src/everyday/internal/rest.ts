@@ -25,11 +25,11 @@ import type {
 import { stand } from "../../actions/internal/stand";
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmCarryCourse } from "../../compose/internal/AutoMovieMotionHumanArmCarryCourse";
-import { AutoMovieMotionHumanArmJointCourse } from "../../compose/internal/AutoMovieMotionHumanArmJointCourse";
+import { motionHumanArmJointCourse } from "../../compose/internal/motionHumanArmJointCourse";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanChannel as HumanChannels } from "../../compose/internal/AutoMovieMotionHumanChannel";
+import { motionHumanChannel as HumanChannels } from "../../compose/internal/motionHumanChannel";
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanPreparedPlayback } from "../../perform/internal/HumanPreparedPlayback";
@@ -83,7 +83,7 @@ import { restGoals } from "./restGoals";
  * The arms are carried together in joint angles from where the entry left them
  * to their places on one minimum-jerk course (`AutoMovieMotionHumanArm.carry`),
  * the fingers taking the places' shapes on the same course, over the free-space
- * time of the farther hand's distance (`AutoMovieMotionHumanTiming.transport`),
+ * time of the farther hand's distance (`motionHumanTiming.transport`),
  * and hold there: two hands sent at once to targets of unequal distance arrive
  * together (Kelso, Southard and Goodman 1979, Science 203:1029). The places are
  * solved once, on the body as it stands when the last hand arrives, and the
@@ -213,7 +213,7 @@ export namespace rest {
         angles: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
         travel: Math.min(
           duration,
-          AutoMovieMotionHumanTiming.transport(
+          motionHumanTiming.transport(
             AutoMovieEngineVector3.distance(from, goal.point),
           ),
         ),
@@ -332,8 +332,8 @@ export namespace rest {
 
     // The carry, solved at knots from the plan's own posture once the
     // performance is prepared.
-    const carrier: AutoMovieMotionHumanArmJointCourse.ICarrier =
-      AutoMovieMotionHumanArmJointCourse.carrier(body);
+    const carrier: motionHumanArmJointCourse.ICarrier =
+      motionHumanArmJointCourse.carrier(body);
 
     /*
      * Write the live base and finger envelope before the selected arm course.

@@ -6,7 +6,7 @@ type Problem = Parameters<typeof AutoMovieEngineMath.solveQuadraticProgram>[0];
 type Result = ReturnType<typeof AutoMovieEngineMath.solveQuadraticProgram>;
 
 /**
- * `solveAutoMovieQuadraticProgram` on semidefinite feasible-direction problems
+ * `solveQuadraticProgram` on semidefinite feasible-direction problems
  * returns a complete KKT certificate and tells a normal multiplier from an
  * abnormal one.
  *

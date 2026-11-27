@@ -11,7 +11,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 
@@ -95,7 +95,7 @@ export function stageBladeFootworkSchedule(
     duration,
     first,
     travel,
-    clock: AutoMovieMotionClock(duration, instants),
+    clock: motionClock(duration, instants),
     contacts: [
       ...plants(first, firstWindow),
       ...plants(opposite(first), followingWindow),

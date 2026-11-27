@@ -17,7 +17,7 @@ import { HumanHand } from "../../posture/internal/HumanHand";
  * the hand that holds it, placed so the held item lands on the frame, and a
  * second hand closed on one of the item's handles there.
  *
- * A held item is rigid in its hand's grip frame (`AutoMovieMotionHumanHeld`:
+ * A held item is rigid in its hand's grip frame (`motionHumanHeld`:
  * its origin from the grip socket in the hand bone's axes, its rotation from
  * the hand bone's), so the item's world frame fixes the hand's: the hand's
  * rotation is the item's times the inverse of the held rotation, and the grip

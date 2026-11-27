@@ -21,7 +21,7 @@ import { HumanColliders } from "../../posture/internal/HumanColliders";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { AutoMovieMotionHumanAuditSkin } from "./AutoMovieMotionHumanAuditSkin";
-import { prepareAutoMovieMotionHumanAuditDepths } from "./prepareAutoMovieMotionHumanAuditDepths";
+import { prepareMotionHumanAuditDepths } from "./prepareMotionHumanAuditDepths";
 
 /*
  * The per-body model the tangle audit (`AutoMovieMotionHumanAuditTangle`) reads
@@ -285,7 +285,7 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
     a: IAutoMovieMotionHumanColliders.IPlaced,
     b: IAutoMovieMotionHumanColliders.IPlaced,
   ): Float64Array {
-    return prepareAutoMovieMotionHumanAuditDepths(b)(probes, a);
+    return prepareMotionHumanAuditDepths(b)(probes, a);
   }
 
   /*
@@ -315,10 +315,10 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
    * Parameter j: The segment they are read in.
    * Parameter targets: The caller's own list for this one reading of `placed`,
    * empty when first given: each segment read in is prepared into it once
-   * (`prepareAutoMovieMotionHumanAuditDepths`) and read from it after. The
+   * (`prepareMotionHumanAuditDepths`) and read from it after. The
    * caller drops it with `placed` and gives it with no other placement.
    * Parameter room: An array of the probes' length to receive each probe's room in
-   * `j` (`prepareAutoMovieMotionHumanAuditDepths`), for a caller that
+   * `j` (`prepareMotionHumanAuditDepths`), for a caller that
    * certifies how long the pair stays clear; not filled when absent.
    * Returns: Metres per probe; zero or less where it lies no deeper.
    */
@@ -328,7 +328,7 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
     i: number,
     j: number,
     targets?: (
-      | ReturnType<typeof prepareAutoMovieMotionHumanAuditDepths>
+      | ReturnType<typeof prepareMotionHumanAuditDepths>
       | undefined
     )[],
     room?: Float64Array,
@@ -336,10 +336,10 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
     const probes: IAutoMovieVector3[] = m.parts[i]!.probes;
     const baseline: Float64Array = reference(m, i, j);
     const known:
-      | ReturnType<typeof prepareAutoMovieMotionHumanAuditDepths>
+      | ReturnType<typeof prepareMotionHumanAuditDepths>
       | undefined = targets?.[j];
-    const depths: ReturnType<typeof prepareAutoMovieMotionHumanAuditDepths> =
-      known ?? prepareAutoMovieMotionHumanAuditDepths(placed[j]!);
+    const depths: ReturnType<typeof prepareMotionHumanAuditDepths> =
+      known ?? prepareMotionHumanAuditDepths(placed[j]!);
     if (targets !== undefined && known === undefined) targets[j] = depths;
     const now: Float64Array = depths(probes, placed[i]!, room);
     for (let k: number = 0; k < now.length; k++)
@@ -393,10 +393,10 @@ function baselines(
 ): Float64Array[] {
   const out: Float64Array[] = new Array(parts.length * parts.length);
   for (let j: number = 0; j < parts.length; j++) {
-    const atRest: ReturnType<typeof prepareAutoMovieMotionHumanAuditDepths> =
-      prepareAutoMovieMotionHumanAuditDepths(rest[j]!);
-    const standing: ReturnType<typeof prepareAutoMovieMotionHumanAuditDepths> =
-      prepareAutoMovieMotionHumanAuditDepths(stance[j]!);
+    const atRest: ReturnType<typeof prepareMotionHumanAuditDepths> =
+      prepareMotionHumanAuditDepths(rest[j]!);
+    const standing: ReturnType<typeof prepareMotionHumanAuditDepths> =
+      prepareMotionHumanAuditDepths(stance[j]!);
     for (let i: number = 0; i < parts.length; i++) {
       const probes: IAutoMovieVector3[] = parts[i]!.probes;
       const baseline: Float64Array = atRest(probes, rest[i]!);

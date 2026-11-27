@@ -1,4 +1,4 @@
-import type { IAutoMovieRenderViewerSubjectLens } from "./IAutoMovieRenderViewerSubjectLens.js";
+import type { IAutoMovieRenderViewerSubjectLens } from "./IAutoMovieRenderViewerSubjectLens";
 
 /**
  * Inspection eye and target in world metres, with perspective lens and positive

@@ -7,19 +7,19 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieRenderSkinnedMesh } from "../AutoMovieRenderSkinnedMesh.js";
-import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind.js";
-import type { IAutoMovieRenderModelObject } from "../IAutoMovieRenderModelObject.js";
-import type { IAutoMovieRenderTextureResolver } from "../IAutoMovieRenderTextureResolver.js";
-import { applyTransform } from "./applyTransform.js";
-import { buildGeometry } from "./buildGeometry.js";
-import { AutoMovieRenderMaterial } from "../AutoMovieRenderMaterial.js";
-import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResources.js";
-import { defaultMaterial } from "./defaultMaterial.js";
-import { AutoMovieRenderDualQuaternionSkinning } from "../AutoMovieRenderDualQuaternionSkinning.js";
-import { AutoMovieRenderCollisionSource } from "../AutoMovieRenderCollisionSource.js";
-import { AutoMovieRenderReliefWeightShading } from "../AutoMovieRenderReliefWeightShading.js";
-import { AutoMovieRenderWearShading } from "../AutoMovieRenderWearShading.js";
+import { AutoMovieRenderSkinnedMesh } from "../AutoMovieRenderSkinnedMesh";
+import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind";
+import type { IAutoMovieRenderModelObject } from "../IAutoMovieRenderModelObject";
+import type { IAutoMovieRenderTextureResolver } from "../IAutoMovieRenderTextureResolver";
+import { applyTransform } from "./applyTransform";
+import { buildGeometry } from "./buildGeometry";
+import { AutoMovieRenderMaterial } from "../AutoMovieRenderMaterial";
+import { constructOwnedResources } from "./constructOwnedResources";
+import { defaultMaterial } from "./defaultMaterial";
+import { AutoMovieRenderDualQuaternionSkinning } from "../AutoMovieRenderDualQuaternionSkinning";
+import { AutoMovieRenderCollisionSource } from "../AutoMovieRenderCollisionSource";
+import { AutoMovieRenderReliefWeightShading } from "../AutoMovieRenderReliefWeightShading";
+import { AutoMovieRenderWearShading } from "../AutoMovieRenderWearShading";
 
 /*
  * Build a renderable `three.js` object from an IAutoMovieModel.
@@ -83,7 +83,7 @@ export const buildModel: (
   model: IAutoMovieModel,
   resolveTexture?: IAutoMovieRenderTextureResolver,
 ): IAutoMovieRenderModelObject => {
-  return constructAutoMovieOwnedResources(
+  return constructOwnedResources(
     (
       own: <Resource extends { dispose(): void }>(
         resource: Resource,

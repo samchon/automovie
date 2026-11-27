@@ -1,6 +1,6 @@
-import { digestAutoMovieBytes as digestAutoMovieBytesImplementation } from "./internal/digestAutoMovieBytes";
+import { digestBytes as digestBytesImplementation } from "./internal/digestBytes";
 import { type IAutoMovieEncodePng } from "@automovie/interface";
-import { encodeAutoMoviePng as encodeAutoMoviePngImplementation } from "./internal/encodeAutoMoviePng";
+import { encodePng as encodePngImplementation } from "./internal/encodePng";
 import { utf8Bytes as utf8BytesImplementation } from "./internal/utf8Bytes";
 
 /** Public operations for Auto Movie Engine Picture. */
@@ -21,7 +21,7 @@ export namespace AutoMovieEnginePicture {
    * @returns `sha256:` followed by 64 lowercase hexadecimal digits.
    */
   export function digestAutoMovieBytes(bytes: Uint8Array): string {
-    return digestAutoMovieBytesImplementation(bytes);
+    return digestBytesImplementation(bytes);
   }
 
   /**
@@ -52,7 +52,7 @@ export namespace AutoMovieEnginePicture {
    *   is not 1 to 4, or the pixel buffer has the wrong length
    */
   export function encodeAutoMoviePng(props: IAutoMovieEncodePng.IProps): string {
-    return encodeAutoMoviePngImplementation(props);
+    return encodePngImplementation(props);
   }
 
   /**

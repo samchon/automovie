@@ -335,17 +335,33 @@ export namespace AutoMovieEngineConicArc {
   }
 }
 
-/**
+/*
  * The unchanged nearest-end inverse and physical normalization, without
  * geometry.
  */
 interface Inverse {
-  /** Selected native clock. */ t: number;
-  /** Selected chart reflection. */ reverse: boolean;
-  /** First physical extent. */ first: number;
-  /** Second physical extent. */ second: number;
-  /** Physical normalization scale. */ scale: number;
-  /** First normalized extent. */ x: number;
-  /** Second normalized extent. */ y: number;
-  /** Positive rational weight. */ w: number;
+  /*
+   * Selected native clock.
+   */ t: number;
+  /*
+   * Selected chart reflection.
+   */ reverse: boolean;
+  /*
+   * First physical extent.
+   */ first: number;
+  /*
+   * Second physical extent.
+   */ second: number;
+  /*
+   * Physical normalization scale.
+   */ scale: number;
+  /*
+   * First normalized extent.
+   */ x: number;
+  /*
+   * Second normalized extent.
+   */ y: number;
+  /*
+   * Positive rational weight.
+   */ w: number;
 }

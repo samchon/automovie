@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-import { subsurfacePhysicalChunk } from "./subsurfacePhysicalChunk.js";
+import { subsurfacePhysicalChunk } from "./subsurfacePhysicalChunk";
 
 /*
  * Expand the supported physical lighting include and add the existing

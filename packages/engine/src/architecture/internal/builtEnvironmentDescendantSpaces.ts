@@ -1,6 +1,6 @@
 import { IAutoMovieBuiltEnvironment } from "@automovie/interface";
 
-import { compareAutoMovieRenderIds } from "../../render/internal/compareAutoMovieRenderIds";
+import { compareRenderIds } from "../../render/internal/compareRenderIds";
 import { builtSpaceSubtree } from "./builtSpaceSubtree";
 import { requireBuiltSpace } from "./requireBuiltSpace";
 
@@ -23,6 +23,6 @@ export function builtEnvironmentDescendantSpaces(
 ): string[] {
   requireBuiltSpace(environment, spaceId);
   return [...builtSpaceSubtree(environment.spaces, spaceId)].sort(
-    compareAutoMovieRenderIds,
+    compareRenderIds,
   );
 }

@@ -1,13 +1,13 @@
 /**
  * Two parts of one built model whose surfaces pass through each other, as
- * `measureAutoMovieModelCrossings` reports them.
+ * `measureModelCrossings` reports them.
  *
  * Identities are the model's own part identities, so a report names the same
  * things the exporter and an editor do. Both directions are counted because
  * they answer different questions: how much of a lip is compromised is not how
  * much of the tooth row is, and a caller repairing one needs its own side.
  *
- * A part measured against itself (`measureAutoMovieModelCrossings` with
+ * A part measured against itself (`measureModelCrossings` with
  * `withinParts`) names itself as both `part` and `other`, and both counts are
  * the triangles of that part another of its own triangles crosses.
  *

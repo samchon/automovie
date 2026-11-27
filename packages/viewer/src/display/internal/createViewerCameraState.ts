@@ -1,7 +1,7 @@
 import { AutoMovieRenderThreeKind } from "@automovie/render";
 import * as THREE from "three";
 
-import type { AutoMovieViewerDisplay } from "../AutoMovieViewerDisplay.js";
+import type { AutoMovieViewerDisplay } from "../AutoMovieViewerDisplay";
 
 /*
  * Transfer detached, auto-updating Perspective/Orthographic cameras through

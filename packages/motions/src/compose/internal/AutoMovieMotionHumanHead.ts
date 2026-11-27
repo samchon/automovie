@@ -4,7 +4,7 @@ import type {
   IAutoMovieMotionHumanPrimitive,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
+import { motionClock } from "./motionClock";
 import { AutoMovieMotionHumanJoints } from "./AutoMovieMotionHumanJoints";
 
 /*
@@ -108,8 +108,8 @@ export namespace AutoMovieMotionHumanHead {
     const to: number = clock.at(window[1]);
     const span: readonly [string, string] = [window[0], window[1]];
 
-    const wave: ReturnType<typeof AutoMovieMotionClock.prepareWave> =
-      AutoMovieMotionClock.prepareWave(clock, span, cycles);
+    const wave: ReturnType<typeof motionClock.prepareWave> =
+      motionClock.prepareWave(clock, span, cycles);
     return AutoMovieMotionHumanJoints.add({
       channels: ["head"],
       from,

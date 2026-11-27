@@ -3,7 +3,7 @@ import type {
   IAutoMovieRenderAndSeeResult,
 } from "@automovie/interface";
 
-import { renderVideo } from "./renderVideo.js";
+import { renderVideo } from "./renderVideo";
 
 /*
  * Render a clip and return the encoded output plus explicit frame artifacts.

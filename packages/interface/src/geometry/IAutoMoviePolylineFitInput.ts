@@ -6,7 +6,7 @@ import type { AutoMovieVector3Tuple } from "../index";
  * and corners before fitting. RecoveryBezierFit.fit checks finite coordinates,
  * at least two open or three closed observations, noncollapsed adjacent edges,
  * corner indices and explicit positive work/tolerance limits. It throws on
- * invalid input or exhausted spans; observeAutoMovieRecoveryPolyline converts
+ * invalid input or exhausted spans; observeRecoveryPolyline converts
  * that failure into its terminal result.
  */
 export interface IAutoMoviePolylineFitInput {

@@ -1,15 +1,15 @@
 import type { IAutoMovieFilmShading, IAutoMovieIrradianceVolume } from "@automovie/interface";
 import type * as THREE from "three";
-import type { IAutoMovieRenderFilmIndirectRenderer } from "./IAutoMovieRenderFilmIndirectRenderer.js";
-import { bakeAutoMovieFilmProbesImplementation } from "./filmShading/internal/bakeAutoMovieFilmProbesImplementation.js";
-import { applyFilmIndirectPatch as applyFilmIndirectPatchImplementation } from "./filmShading/internal/applyFilmIndirectPatch.js";
+import type { IAutoMovieRenderFilmIndirectRenderer } from "./IAutoMovieRenderFilmIndirectRenderer";
+import { bakeFilmProbesImplementation } from "./filmShading/internal/bakeFilmProbesImplementation";
+import { applyFilmIndirectPatch as applyFilmIndirectPatchImplementation } from "./filmShading/internal/applyFilmIndirectPatch";
 
 /** Public operations for Auto Movie Render Film Shading. */
 export namespace AutoMovieRenderFilmShading {
   /**
    * Bake a film's irradiance probes: for each grid point of `probes`, draw the
    * static `layer` into six 32-texel cube faces and project them with
-   * `projectAutoMovieIrradianceProbe`.
+   * `projectIrradianceProbe`.
    *
    * Each face is a 90° perspective camera at the probe whose layer mask is
    * `layer` alone, so only the static set and the lights on that layer draw, with
@@ -39,7 +39,7 @@ export namespace AutoMovieRenderFilmShading {
     /** The admitted probes request. */
     probes: IAutoMovieFilmShading.IProbes;
   }): IAutoMovieIrradianceVolume {
-    return bakeAutoMovieFilmProbesImplementation(props);
+    return bakeFilmProbesImplementation(props);
   }
   /**
    * Give one lit material the film's indirect shading: the probes' one-bounce
@@ -53,7 +53,7 @@ export namespace AutoMovieRenderFilmShading {
    * The patch reads the stage's shared uniform objects, so one compiled program
    * serves every frame: `uFilmProbesOn` and `uFilmOcclusionOn` are zero outside
    * the stage's beauty draw, which leaves the material's light exactly as before.
-   * The probe term mirrors `sampleAutoMovieIrradianceVolume` over a float texture
+   * The probe term mirrors `sampleIrradianceVolume` over a float texture
    * of nine coefficient texels per probe row, validity in the first texel's
    * alpha; the world position comes from the view position by the inverse of the
    * rigid view matrix. The visibility texture is read at `gl_FragCoord.xy /

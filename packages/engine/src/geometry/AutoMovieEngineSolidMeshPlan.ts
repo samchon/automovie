@@ -7,13 +7,13 @@ import type {
 
 import { AutoMovieEngineSolidMeshConstraints } from "./AutoMovieEngineSolidMeshConstraints";
 import { AutoMovieEngineSolidMeshIncidence } from "./AutoMovieEngineSolidMeshIncidence";
-import { insertAutoMovieSolidMeshPoints } from "./construction/internal/insertAutoMovieSolidMeshPoints";
-import { legalizeAutoMovieSolidMesh } from "./construction/internal/legalizeAutoMovieSolidMesh";
-import { orientAutoMovieSolidChart } from "./construction/internal/orientAutoMovieSolidChart";
-import { probeAutoMovieSolidMesh } from "./construction/internal/probeAutoMovieSolidMesh";
-import { regionAutoMovieSolidMesh } from "./construction/internal/regionAutoMovieSolidMesh";
-import { triangulateAutoMovieSolidBoundary } from "./construction/internal/triangulateAutoMovieSolidBoundary";
-import { witnessAutoMovieSolidChartTriangle } from "./construction/internal/witnessAutoMovieSolidChartTriangle";
+import { insertSolidMeshPoints } from "./construction/internal/insertSolidMeshPoints";
+import { legalizeSolidMesh } from "./construction/internal/legalizeSolidMesh";
+import { orientSolidChart } from "./construction/internal/orientSolidChart";
+import { probeSolidMesh } from "./construction/internal/probeSolidMesh";
+import { regionSolidMesh } from "./construction/internal/regionSolidMesh";
+import { triangulateSolidBoundary } from "./construction/internal/triangulateSolidBoundary";
+import { witnessSolidChartTriangle } from "./construction/internal/witnessSolidChartTriangle";
 
 /**
  * A finite visibility triangulation of an indexed native-chart partition.
@@ -24,10 +24,10 @@ import { witnessAutoMovieSolidChartTriangle } from "./construction/internal/witn
  * passing through a third vertex; each resulting boundary is ear-triangulated,
  * kept interior points are inserted, and every free diagonal is then flipped
  * until the plan is the constrained Delaunay triangulation in the caller's
- * uniform metric (`legalizeAutoMovieSolidMesh`), so a dense rail keeps no
+ * uniform metric (`legalizeSolidMesh`), so a dense rail keeps no
  * triangle of its own consecutive vertices. The finished triangles are read
  * against the residual membership once per constraint-bounded region
- * (`regionAutoMovieSolidMesh`): each triangle with a represented strict
+ * (`regionSolidMesh`): each triangle with a represented strict
  * centroid is sampled and must be kept, and an exactly positive triangle too
  * thin for one, which an exact insertion split of ulp-collinear grid points
  * makes, takes its region's reading. A region with no sampled triangle is a
@@ -62,7 +62,7 @@ export namespace AutoMovieEngineSolidMeshPlan {
    *   radian; 1 reads the chart as given.
    * @param local A quadrilateral's own first fundamental form from its vertex
    *   IDs and chart points, `[shear, scale]`, which legalization reads in place
-   *   of `scale` (`legalizeAutoMovieSolidMesh`); absent, the free diagonals are
+   *   of `scale` (`legalizeSolidMesh`); absent, the free diagonals are
    *   legalized in `scale` too.
    * @returns Positive native-chart index triples with split-source provenance,
    *   or a named construction failure.
@@ -125,7 +125,7 @@ export namespace AutoMovieEngineSolidMeshPlan {
     const triangles: IAutoMovieSolidMeshPlan.ITriangle[] = [];
     for (const component of boundaries) {
       const made: IAutoMovieSolidMeshPlan.ITriangle[] | string =
-        triangulateAutoMovieSolidBoundary(
+        triangulateSolidBoundary(
           vertices,
           component.walk,
           period,
@@ -150,7 +150,7 @@ export namespace AutoMovieEngineSolidMeshPlan {
       }
     }
     const inserted: IAutoMovieSolidMeshPlan.ITriangle[] | string =
-      insertAutoMovieSolidMeshPoints(
+      insertSolidMeshPoints(
         vertices,
         split,
         triangles,
@@ -160,7 +160,7 @@ export namespace AutoMovieEngineSolidMeshPlan {
       );
     if (typeof inserted === "string") return inserted;
     const legal: IAutoMovieSolidMeshPlan.ITriangle[] | string =
-      legalizeAutoMovieSolidMesh(
+      legalizeSolidMesh(
         vertices,
         split,
         inserted,
@@ -172,9 +172,9 @@ export namespace AutoMovieEngineSolidMeshPlan {
       );
     if (typeof legal === "string") return legal;
 
-    // Membership is read once per constraint-bounded region (regionAutoMovieSolidMesh): every triangle with a represented strict centroid
+    // Membership is read once per constraint-bounded region (regionSolidMesh): every triangle with a represented strict centroid
     // is sampled and must be kept, and a triangle too thin for one, which an exact split may make, takes its region's sampled reading.
-    const regions: number[] = regionAutoMovieSolidMesh(legal, split);
+    const regions: number[] = regionSolidMesh(legal, split);
     const covers: Readonly<AutoMovieVector2Tuple>[][] = legal.map(
       (
         triangle: IAutoMovieSolidMeshPlan.ITriangle,
@@ -248,14 +248,14 @@ function components(
       walk.winding === 0 &&
       points.length === 3 &&
       new Set(walk.vertices).size === 3 &&
-      orientAutoMovieSolidChart(points[0]!, points[1]!, points[2]!) > 0
+      orientSolidChart(points[0]!, points[1]!, points[2]!) > 0
     ) {
       const strict: Readonly<AutoMovieVector2Tuple> | string = centroid(points);
       if (typeof strict === "string")
         return `arrangement face: ${strict}; original vertices ${walk.vertices.join("/")}; cover ${JSON.stringify(points)}`;
     }
     const probe: Readonly<AutoMovieVector2Tuple> | string =
-      probeAutoMovieSolidMesh(vertices, edges, walk, period);
+      probeSolidMesh(vertices, edges, walk, period);
     if (typeof probe === "string") return probe;
     if (!keeps(probe[0], probe[1])) continue;
     let inside: boolean = false;
@@ -266,7 +266,7 @@ function components(
           points[(k + 1) % points.length]!;
         if (
           a[1] > probe[1] !== b[1] > probe[1] &&
-          orientAutoMovieSolidChart(a, b, probe) * (b[1] > a[1] ? 1 : -1) > 0
+          orientSolidChart(a, b, probe) * (b[1] > a[1] ? 1 : -1) > 0
         )
           inside = !inside;
       }
@@ -278,7 +278,7 @@ function components(
 /*
  * The shortest visible bridge from the selected component to any other, in the
  * face's uniform metric: `du^2 + (scale dv)^2`, the same metric the free
- * diagonals are legalized in (`legalizeAutoMovieSolidMesh`; George and
+ * diagonals are legalized in (`legalizeSolidMesh`; George and
  * Borouchaki 1998), so a bridge joins its two boundaries where they stand
  * closest on the surface. On a periodic annulus (a station band between two
  * winding cycles) that is the pair at matching phase, a bridge straight across
@@ -420,7 +420,7 @@ function bridge(
       )
         continue;
       if (!on(first, end, middle)) {
-        const witness: boolean | string = witnessAutoMovieSolidChartTriangle(
+        const witness: boolean | string = witnessSolidChartTriangle(
           vertices,
           edges,
           candidate,
@@ -483,7 +483,7 @@ function centroid(
   ];
   return points.every(
     (corner: Readonly<AutoMovieVector2Tuple>, index: number): boolean =>
-      orientAutoMovieSolidChart(corner, points[(index + 1) % 3]!, point) > 0,
+      orientSolidChart(corner, points[(index + 1) % 3]!, point) > 0,
   )
     ? point
     : "visibility triangle has no represented strict centroid";
@@ -540,7 +540,7 @@ function on(
     p[0] <= Math.max(a[0], b[0]) &&
     p[1] >= Math.min(a[1], b[1]) &&
     p[1] <= Math.max(a[1], b[1]) &&
-    orientAutoMovieSolidChart(a, b, p) === 0
+    orientSolidChart(a, b, p) === 0
   );
 }
 
@@ -595,11 +595,11 @@ function clear(
         last[1] + (turn + edge.turn) * (period ?? 0),
       ];
       if (
-        orientAutoMovieSolidChart(a, b, c) *
-          orientAutoMovieSolidChart(a, b, d) <
+        orientSolidChart(a, b, c) *
+          orientSolidChart(a, b, d) <
           0 &&
-        orientAutoMovieSolidChart(c, d, a) *
-          orientAutoMovieSolidChart(c, d, b) <
+        orientSolidChart(c, d, a) *
+          orientSolidChart(c, d, b) <
           0
       )
         return false;

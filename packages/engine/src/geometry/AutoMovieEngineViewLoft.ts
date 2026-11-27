@@ -26,7 +26,7 @@ import { AutoMovieEngineSeamStation } from "./AutoMovieEngineSeamStation";
 import { AutoMovieEngineSolidChain } from "./AutoMovieEngineSolidChain";
 import { AutoMovieEngineSplineCurve } from "./AutoMovieEngineSplineCurve";
 import { AutoMovieEngineViewChain } from "./AutoMovieEngineViewChain";
-import { AutoMovieViewLoftInputs } from "./construction/internal/AutoMovieViewLoftInputs";
+import { viewLoftInputs } from "./construction/internal/viewLoftInputs";
 import { AutoMovieEngineViewSection } from "./AutoMovieEngineViewSection";
 
 /**
@@ -146,7 +146,7 @@ export namespace AutoMovieEngineViewLoft {
     const direct: IAutoMovieLoftViewSource.ISource | null =
       admitted?.source ?? null;
     const inputs: IAutoMovieViewLoftInputsInputs | null =
-      AutoMovieViewLoftInputs(part, direct, report);
+      viewLoftInputs(part, direct, report);
     if (inputs === null) return empty();
     const { lateral, medial, ahead, behind, owner, shoulders } = inputs;
     const fullness: IAutoMovieViewPart.Fullness = part.fullness;

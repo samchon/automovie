@@ -8,11 +8,11 @@ import type {
   IAutoMovieProductionSoundPlan,
 } from "@automovie/interface";
 
-import { admitAutoMovieFilmDialogue } from "./internal/admitAutoMovieFilmDialogue.js";
-import { encodeAutoMovieWavPcm16 } from "./internal/encodeAutoMovieWavPcm16.js";
-import { mixAutoMovieFilmSound } from "./internal/mixAutoMovieFilmSound.js";
-import { planAutoMovieDialogueMouths } from "./internal/planAutoMovieDialogueMouths.js";
-import { measureAutoMovieDialogueLipSync } from "./internal/measureAutoMovieDialogueLipSync.js";
+import { admitFilmDialogue } from "./internal/admitFilmDialogue";
+import { encodeWavPcm16 } from "./internal/encodeWavPcm16";
+import { mixFilmSound } from "./internal/mixFilmSound";
+import { planDialogueMouths } from "./internal/planDialogueMouths";
+import { measureDialogueLipSync } from "./internal/measureDialogueLipSync";
 
 /** Render's film audio admission, planning and encoding operations. */
 export class AutoMovieRenderAudio {
@@ -32,7 +32,7 @@ export class AutoMovieRenderAudio {
       "sound" | "frameRate" | "totalFrames" | "read"
     >,
   ): Promise<IAutoMovieMixFilmSound.ILine[]> {
-    return admitAutoMovieFilmDialogue(props);
+    return admitFilmDialogue(props);
   }
 
   /**
@@ -52,7 +52,7 @@ export class AutoMovieRenderAudio {
     right: Float32Array,
     sampleRate: number,
   ): Uint8Array {
-    return encodeAutoMovieWavPcm16(left, right, sampleRate);
+    return encodeWavPcm16(left, right, sampleRate);
   }
 
   /**
@@ -66,7 +66,7 @@ export class AutoMovieRenderAudio {
   public static mixFilmSound(
     props: IAutoMovieMixFilmSound.IProps,
   ): Promise<IAutoMovieMixFilmSound.IResult> {
-    return mixAutoMovieFilmSound(props);
+    return mixFilmSound(props);
   }
 
   /**
@@ -82,7 +82,7 @@ export class AutoMovieRenderAudio {
     speakers: readonly IAutoMovieDialogueSpeakerBinding[];
     frameRate: IAutoMovieProductionFrameRate;
   }): IAutoMovieDialogueMouthTrack {
-    return planAutoMovieDialogueMouths(props);
+    return planDialogueMouths(props);
   }
 
   /**
@@ -100,7 +100,7 @@ export class AutoMovieRenderAudio {
   public static measureDialogueLipSync(
     props: AutoMovieRenderAudio.IMeasureDialogueLipSyncProps,
   ): IAutoMovieDialogueLipSync[] {
-    return measureAutoMovieDialogueLipSync(props);
+    return measureDialogueLipSync(props);
   }
 
 }

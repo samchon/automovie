@@ -8,21 +8,31 @@ import type {
 
 import { AutoMovieHumanConicLoft } from "../generation/AutoMovieHumanConicLoft";
 
-/** Builds construction-curve inspection marks for a Human capture figure. */
+/*
+ * Builds construction-curve inspection marks for a Human capture figure.
+ */
 export namespace AutoMovieHumanCaptureCurves {
-  /** The authored figure data used to build the construction marks. */
+  /*
+   * The authored figure data used to build the construction marks.
+   */
   export interface IInput {
-    /** The person's name and scene path. */
+    /*
+     * The person's name and scene path.
+     */
     person: string;
 
-    /** The person's authored families and their mirroring. */
+    /*
+     * The person's authored families and their mirroring.
+     */
     members: readonly IAutoMovieHumanF1.IMember[];
   }
 
-  /** The generated construction-curve marks. */
+  /*
+   * The generated construction-curve marks.
+   */
   export type IOutput = IAutoMovieMark[];
 
-  /**
+  /*
    * The construction of a person as inspection marks: each authored family's
    * section rings at its knots, its four guide rails and its axis, so
    * `marks=curve/*` draws what the figure is lofted from.
@@ -43,9 +53,8 @@ export namespace AutoMovieHumanCaptureCurves {
    * path is the person, the family and the curve, such as `f1/arm/section/2` or
    * `f1/arm.mirror/guide/0`. A sewn family's surface is part of the person's
    * `body` piece, so its curves are the only paths that name it apart.
-   *
-   * @param input The person and its authored families.
-   * @returns The marks, family by family.
+   * Parameter input: The person and its authored families.
+   * Returns: The marks, family by family.
    */
   export function mark(input: IInput): IOutput {
     const { person, members } = input;

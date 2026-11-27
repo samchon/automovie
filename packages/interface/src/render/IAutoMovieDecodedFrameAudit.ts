@@ -1,4 +1,4 @@
-import type { IAutoMovieDecodedFrame } from "./IAutoMovieDecodedFrame.js";
+import type { IAutoMovieDecodedFrame } from "./IAutoMovieDecodedFrame";
 
 /**
  * A decoded stream admitted against exact half-open frame intervals.

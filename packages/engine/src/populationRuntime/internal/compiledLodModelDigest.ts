@@ -1,6 +1,6 @@
 import { IAutoMovieModel } from "@automovie/interface";
 
-import { autoMovieRenderDigest } from "../../render/internal/autoMovieRenderDigest";
+import { renderDigest } from "../../render/internal/renderDigest";
 import { AutoMovieEngineCanonicalJson } from "../../text/AutoMovieEngineCanonicalJson";
 
 /*
@@ -22,15 +22,15 @@ export function compiledLodModelDigest(
 ): string {
   const model: IAutoMovieModel | undefined = models.get(id);
   if (model === undefined)
-    return autoMovieRenderDigest(
+    return renderDigest(
       AutoMovieEngineCanonicalJson.canonicalize({ id, missing: true }),
     );
   try {
-    return autoMovieRenderDigest(
+    return renderDigest(
       AutoMovieEngineCanonicalJson.canonicalize(model),
     );
   } catch {
-    return autoMovieRenderDigest(
+    return renderDigest(
       AutoMovieEngineCanonicalJson.canonicalize({ id, unencodable: true }),
     );
   }

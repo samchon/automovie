@@ -4,18 +4,14 @@ import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
-import { writeAutoMovieRecoveryArtifact } from "../artifact/writeAutoMovieRecoveryArtifact";
+import { writeRecoveryArtifact } from "../artifact/writeRecoveryArtifact";
 
-/**
+/*
  * Compile a bounded saved polygon/path publication through the engine. Usage:
  * recoveryContourPath input.json new-output-directory, with source epoch
  * argument. The input supplies ordered evaluated curves and path instructions,
  * never faces. Each subject receives independently generated geometry and
  * actual boundary lines.
- *
- * @evidence contracts/development/implementation.md#principled-implementation The fuchs1977-pair-path-v1 publication supplies only physical polygons and combinatorial path instructions; tessellateAutoMovieContourPath64 owns every new vertex, index and normal. No source path, source geometry, external triangle list, optimizer replacement or failed-quality geometry filtering enters generation; unsupported-pair counts remain explicit.
- * @evidence contracts/development/implementation.md#efficient-algorithms The CLI checks a 32 MiB metadata limit before reading and hashing the input once. The separate whole-file read does not enforce that limit if the file grows or is replaced. Input bytes and parsed polygons stay live through the command. Subjects compile sequentially with engine O(V+T) work. Each subject reuses one engine result for geometry, construction and ownership reports and publishes it before the next subject. Synchronous file operations own their handles.
- * @evidence contracts/development/common.md#meaningful-documentation States command, source epoch, source-free publication boundary, bounded file admission and the distinction between path consumption and successful source recovery.
  */
 export function recoveryContourPath(args: string[], sourceEpoch: string): void {
   const [inputFile, outputDirectory]: string[] = args;
@@ -129,8 +125,8 @@ export function recoveryContourPath(args: string[], sourceEpoch: string): void {
       generatedAt: new Date().toISOString(),
     };
     const file: string = path.join(output, `${subject.id}.json`);
-    const published: ReturnType<typeof writeAutoMovieRecoveryArtifact> =
-      writeAutoMovieRecoveryArtifact(file, {
+    const published: ReturnType<typeof writeRecoveryArtifact> =
+      writeRecoveryArtifact(file, {
         schema: "automovie-recovery-engine-model-v1",
         model,
         construction: { units: "m", lines: generated.construction },
@@ -166,7 +162,7 @@ export function recoveryContourPath(args: string[], sourceEpoch: string): void {
       }),
     );
   }
-  writeAutoMovieRecoveryArtifact(path.join(output, "compile.json"), {
+  writeRecoveryArtifact(path.join(output, "compile.json"), {
     schema: "automovie-recovery-path-compilation-v1",
     sourceEpoch,
     inputSha256,

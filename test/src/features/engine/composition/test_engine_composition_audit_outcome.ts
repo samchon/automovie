@@ -3,7 +3,7 @@ import type { IAutoMovieAuditOutcome } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `auditAutoMovieOutcome` reports every required contact that was not measured
+ * `auditOutcome` reports every required contact that was not measured
  * or carried too little impulse, and every forbidden contact that was, without
  * rewriting either list.
  *

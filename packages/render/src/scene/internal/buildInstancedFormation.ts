@@ -15,27 +15,27 @@ import {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import type { IAutoMovieRenderFormationCycle } from "../IAutoMovieRenderFormationCycle.js";
-import type { IAutoMovieRenderFormationViewerObject } from "../IAutoMovieRenderFormationViewerObject.js";
-import type { IAutoMovieRenderFormationViewerStats } from "../IAutoMovieRenderFormationViewerStats.js";
-import type { IBuildInstancedFormationProps } from "./IBuildInstancedFormationProps.js";
-import type { IChunkObject } from "./IChunkObject.js";
-import type { IFormationTierRepresentation } from "./IFormationTierRepresentation.js";
-import type { ISlotException } from "./ISlotException.js";
-import { bindFormationTierCycle } from "./bindFormationTierCycle.js";
-import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResources.js";
-import { createFormationRepresentations } from "./createFormationRepresentations.js";
-import { AutoMovieRenderSceneDeliveryCrop } from "../deliveryCrop.js";
-import { describeFormationTextureSources } from "./describeFormationTextureSources.js";
-import { disposeFormationRepresentations } from "./disposeFormationRepresentations.js";
-import { AutoMovieRenderFormationCycle } from "../AutoMovieRenderFormationCycle.js";
-import { formationSpacingOffset } from "./formationSpacingOffset.js";
-import { AutoMovieRenderCollisionSource } from "../AutoMovieRenderCollisionSource.js";
-import { objectTransform } from "./objectTransform.js";
-import { regenerateFormationSlot } from "./regenerateFormationSlot.js";
-import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceRetirement.js";
-import { slotMatrix } from "./slotMatrix.js";
-import { vector } from "./vector.js";
+import type { IAutoMovieRenderFormationCycle } from "../IAutoMovieRenderFormationCycle";
+import type { IAutoMovieRenderFormationViewerObject } from "../IAutoMovieRenderFormationViewerObject";
+import type { IAutoMovieRenderFormationViewerStats } from "../IAutoMovieRenderFormationViewerStats";
+import type { IBuildInstancedFormationProps } from "./IBuildInstancedFormationProps";
+import type { IChunkObject } from "./IChunkObject";
+import type { IFormationTierRepresentation } from "./IFormationTierRepresentation";
+import type { ISlotException } from "./ISlotException";
+import { bindFormationTierCycle } from "./bindFormationTierCycle";
+import { constructOwnedResources } from "./constructOwnedResources";
+import { createFormationRepresentations } from "./createFormationRepresentations";
+import { AutoMovieRenderSceneDeliveryCrop } from "../deliveryCrop";
+import { describeFormationTextureSources } from "./describeFormationTextureSources";
+import { disposeFormationRepresentations } from "./disposeFormationRepresentations";
+import { AutoMovieRenderFormationCycle } from "../AutoMovieRenderFormationCycle";
+import { formationSpacingOffset } from "./formationSpacingOffset";
+import { AutoMovieRenderCollisionSource } from "../AutoMovieRenderCollisionSource";
+import { objectTransform } from "./objectTransform";
+import { regenerateFormationSlot } from "./regenerateFormationSlot";
+import { reportResourceRetirement } from "./reportResourceRetirement";
+import { slotMatrix } from "./slotMatrix";
+import { vector } from "./vector";
 
 /*
  * Build one compact formation as chunked instance batches.
@@ -61,7 +61,7 @@ export const buildInstancedFormation: (
 ) => IAutoMovieRenderFormationViewerObject = (
   input: IBuildInstancedFormationProps,
 ): IAutoMovieRenderFormationViewerObject => {
-  return constructAutoMovieOwnedResources(
+  return constructOwnedResources(
     (
       own: <Resource extends { dispose(): void }>(
         resource: Resource,
@@ -308,7 +308,7 @@ export const buildInstancedFormation: (
             },
           ];
           try {
-            reportAutoMovieResourceRetirement(retirements);
+            reportResourceRetirement(retirements);
             for (const chunk of chunks) {
               chunk.tiers.clear();
               chunk.slots.length = 0;

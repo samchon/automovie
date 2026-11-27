@@ -7,7 +7,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { createAutoMovieMeshWindingQuery } from "../../geometry/internal/createAutoMovieMeshWindingQuery";
+import { createMeshWindingQuery } from "../../geometry/internal/createMeshWindingQuery";
 
 /*
  * Does one logical space's own stated volume contain a point?
@@ -19,7 +19,7 @@ import { createAutoMovieMeshWindingQuery } from "../../geometry/internal/createA
  *
  * Boundary points are intended inside. Cell slack is 1e-9 in the plane's scale,
  * measured in metres only for unit normals. A shell is read by
- * `createAutoMovieMeshWindingQuery`: a point on a shell triangle within its
+ * `createMeshWindingQuery`: a point on a shell triangle within its
  * area-scaled slack is inside, and otherwise the winding number distinguishes
  * the outer region from inward-wound voids. Raw binary64 products and sums can
  * overflow or lose accuracy for extreme or nearly degenerate inputs; the
@@ -80,7 +80,7 @@ const spaceShellContainsPoint: (
     for (const corner of corners) positions.push(corner.x, corner.y, corner.z);
   }
   if (positions.length === 0) return false;
-  const answer: IAutoMovieMeshWinding = createAutoMovieMeshWindingQuery({
+  const answer: IAutoMovieMeshWinding = createMeshWindingQuery({
     positions,
     normals: null,
     uvs: null,

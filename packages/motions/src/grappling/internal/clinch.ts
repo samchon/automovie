@@ -25,13 +25,13 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../../actions/internal/stand";
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanTarget } from "../../compose/internal/AutoMovieMotionHumanTarget";
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
+import { motionManner } from "../../compose/internal/motionManner";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanPhysics } from "../../law/internal/HumanPhysics";
@@ -202,18 +202,18 @@ export namespace clinch {
       seconds: number,
     ): ReturnType<IAutoMovieMotionHumanPerformerReader["bones"]> =>
       partner.bones(context.start + seconds, requested);
-    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+    const modifiers: IAutoMovieMotionManner.IModifiers = motionManner(
       context,
       context.params.manner,
     );
-    const reach: number = AutoMovieMotionHumanTiming.aimed(
+    const reach: number = motionHumanTiming.aimed(
       0.85 * (body.measure.upperArm + body.measure.forearm),
       0.05,
     );
-    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
-      AutoMovieMotionClock.phrase({
+    const clock: IAutoMovieMotionClock = motionManner.time(
+      motionClock.phrase({
         prepare: reach,
-        attack: AutoMovieMotionHumanTiming.PAUSES.brief,
+        attack: motionHumanTiming.PAUSES.brief,
         hold,
         retract: reach,
       }),
@@ -371,7 +371,7 @@ export namespace clinch {
             evaluation,
           );
           const entered: number = clock.progress(
-            AutoMovieMotionClock.START,
+            motionClock.START,
             "ready",
             seconds,
           );
@@ -387,7 +387,7 @@ export namespace clinch {
       };
     }
     const composed: IAutoMovieMotionHumanActionPlan =
-      composeAutoMovieMotionHumanAction({
+      composeMotionHumanAction({
         base: entryBase(),
         clock,
         contact: "stroke",

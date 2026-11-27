@@ -72,7 +72,7 @@ export interface IAutoMovieMotionHumanActionContext<P = object> {
 
   /**
    * A factor on every span of the action that physics does not fix, over its
-   * manner's own tempo (`AutoMovieMotionManner.of`): 1 when absent, and more
+   * manner's own tempo (`motionManner.of`): 1 when absent, and more
    * where the action is replanned to take the time its planned motion needs
    * within the speed bound (Hollerbach 1984's time scaling, applied where the
    * action is placed).

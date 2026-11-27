@@ -3,8 +3,8 @@ import {
   AutoMovieMotionHumanBaseball
 } from "../../../../../packages/motions/src/sport/internal/AutoMovieMotionHumanBaseball";
 import {
-  AutoMovieMotionManner
-} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionManner";
+  motionManner
+} from "../../../../../packages/motions/src/compose/internal/motionManner";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -19,7 +19,7 @@ import { nclose } from "../../internal/nclose";
 export function test_motions_sport_baseball(): void {
   const clock: IAutoMovieMotionClock = AutoMovieMotionHumanBaseball.timetable(
     1,
-    AutoMovieMotionManner.NEUTRAL,
+    motionManner.NEUTRAL,
   );
   TestValidator.predicate(
     "the phrase",

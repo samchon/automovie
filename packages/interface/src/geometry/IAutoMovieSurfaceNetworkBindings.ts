@@ -6,8 +6,8 @@ import type { IAutoMovieSweepBinding } from "./IAutoMovieSweepBinding";
  *
  * Omitted tables or entries leave geometry at rest. Sweep-attached nodes
  * already follow their sweep; free nodes, curve controls and ring pins use the
- * separate rigid assignments. poseAutoMovieSurfaceNetwork and
- * rigAutoMovieSurfaceNetwork reject unknown component names and missing
+ * separate rigid assignments. poseSurfaceNetwork and
+ * rigSurfaceNetwork reject unknown component names and missing
  * required bones. Rig compilation retains prepared bindings; keep source
  * declarations stable for its lifetime. These are bone names, not resolved
  * buffer slots.

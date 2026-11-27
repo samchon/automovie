@@ -1,6 +1,6 @@
 import type * as THREE from "three";
 
-import type { IAutoMovieRenderFormationCycle } from "../IAutoMovieRenderFormationCycle.js";
+import type { IAutoMovieRenderFormationCycle } from "../IAutoMovieRenderFormationCycle";
 
 /*
  * Read the cycle bound by the Viewer formation owner, or null when absent. The

@@ -3,8 +3,8 @@ import type {
   IAutoMovieMotionHumanVariation,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanVariation
-} from "../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanVariation";
+  motionHumanVariation
+} from "../../../../packages/motions/src/compose/internal/motionHumanVariation";
 import {
   HumanSkill
 } from "../../../../packages/motions/src/skill/internal/HumanSkill";
@@ -38,7 +38,7 @@ export const motionVariationSource: (props?: {
     { p: props.skill ?? 0 },
     props.seed ?? "film",
   );
-  return AutoMovieMotionHumanVariation(
+  return motionHumanVariation(
     {
       skill,
       series: (channel: string) => ({

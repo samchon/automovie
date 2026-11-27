@@ -14,7 +14,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanFootRelax } from "../../compose/internal/AutoMovieMotionHumanFootRelax";
+import { motionHumanFootRelax } from "../../compose/internal/motionHumanFootRelax";
 import { HumanLimbFit } from "../../posture/internal/HumanLimbFit";
 import { blendHumanJoint } from "../../posture/internal/blendHumanJoint";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -196,7 +196,7 @@ export function FootStrikeLeg(
       // the fit's own, inside the range.
       // Near the floor, rising or setting down, the foot keeps its world
       // attitude level with it, turned toes down only as the passive dorsal
-      // range asks (`AutoMovieMotionHumanFootRelax`), so the toes leave and
+      // range asks (`motionHumanFootRelax`), so the toes leave and
       // meet the floor flat instead of pitching with the shank across it.
       if (seconds <= release || floorward)
         return {
@@ -209,7 +209,7 @@ export function FootStrikeLeg(
               rotation:
                 seconds <= release
                   ? key.attitude
-                  : AutoMovieMotionHumanFootRelax(
+                  : motionHumanFootRelax(
                       body,
                       posture,
                       side,

@@ -5,13 +5,13 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { reportAutoMovieResourceRetirement } from "../../internal/reportAutoMovieResourceRetirement.js";
-import type { AutoMovieRenderHumanPolygon } from "../../AutoMovieRenderHumanPolygon.js";
-import { applyHumanPolygonPose } from "./applyHumanPolygonPose.js";
-import { buildHumanPolygonModule } from "./buildHumanPolygonModule.js";
-import { buildHumanPolygonParts } from "./buildHumanPolygonParts.js";
-import { createHumanPolygonPalette } from "./createHumanPolygonPalette.js";
-import { prepareHumanPolygonPresentation } from "./prepareHumanPolygonPresentation.js";
+import { reportResourceRetirement } from "../../internal/reportResourceRetirement";
+import type { AutoMovieRenderHumanPolygon } from "../../AutoMovieRenderHumanPolygon";
+import { applyHumanPolygonPose } from "./applyHumanPolygonPose";
+import { buildHumanPolygonModule } from "./buildHumanPolygonModule";
+import { buildHumanPolygonParts } from "./buildHumanPolygonParts";
+import { createHumanPolygonPalette } from "./createHumanPolygonPalette";
+import { prepareHumanPolygonPresentation } from "./prepareHumanPolygonPresentation";
 
 /*
  * Draw a rigid polygon blockout from the generated skeleton, in metres.
@@ -19,7 +19,7 @@ import { prepareHumanPolygonPresentation } from "./prepareHumanPolygonPresentati
  * Every module is procedural and comes from the skeleton alone: joint
  * positions, tips and skin girth radii, never the Human's skin surfaces, so the
  * polygon figure keeps working however the realistic skin is built. The
- * engine's `resolveAutoMovieHumanoidRingModules` owns the rings and their
+ * engine's `resolveHumanoidRingModules` owns the rings and their
  * points, which the physical profile also takes its colliders from. Modules use
  * eight-sided sections at their selected levels. Joint spans set torso, palm
  * and foot breadth; girth radii set thickness; the neck runs from the neck
@@ -229,7 +229,7 @@ export function buildHumanPolygon(
     disposed = true;
     samplePresentation = undefined;
     try {
-      reportAutoMovieResourceRetirement(
+      reportResourceRetirement(
         [
           ...geometries.map(
             (geometry: THREE.BufferGeometry): (() => void) =>

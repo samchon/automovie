@@ -2,7 +2,7 @@ import { AutoMovieRenderInspectionMarks } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `expandAutoMovieInspectionSweep` lists the units a sweep pattern names and
+ * `expandInspectionSweep` lists the units a sweep pattern names and
  * the objects near each.
  *
  * Scenarios:

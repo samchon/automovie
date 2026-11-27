@@ -5,8 +5,8 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanTiming
-} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanTiming";
+  motionHumanTiming
+} from "../../../../../packages/motions/src/compose/internal/motionHumanTiming";
 import {
   AutoMovieMotionHumanRefusal
 } from "@automovie/motions";
@@ -256,8 +256,8 @@ export function test_motions_dressing_wardrobe(): void {
       wardrobeHands.duration(at(0), at(0)),
     ],
     [
-      Math.max(SHORTEST, AutoMovieMotionHumanTiming.transport(1)),
-      Math.max(SHORTEST, AutoMovieMotionHumanTiming.transport(0)),
+      Math.max(SHORTEST, motionHumanTiming.transport(1)),
+      Math.max(SHORTEST, motionHumanTiming.transport(0)),
     ],
   );
 }

@@ -4,7 +4,7 @@ import type { AutoMovieHumanoidBone, IAutoMovieBodyMomentum, IAutoMovieIntegrate
 
 import type { AutoMovieEngineKinematicsTypes } from "../../../kinematics/AutoMovieEngineKinematicsTypes";
 
-import { resolveAutoMovieMomentumRates } from "../../../kinematics/internal/resolveAutoMovieMomentumRates";
+import { resolveMomentumRates } from "../../../kinematics/internal/resolveMomentumRates";
 import { AutoMovieEngineQuaternion } from "../../../math/AutoMovieEngineQuaternion";
 import { AutoMovieEngineVector3 } from "../../../math/AutoMovieEngineVector3";
 import type { physicalInertiaFactor } from "../../../physics/internal/physicalInertiaFactor";
@@ -161,7 +161,7 @@ export function AirborneShapeHistory(
         rates === undefined || !complete
           ? undefined
           : "segments" in model
-            ? resolveAutoMovieMomentumRates(model, posed, bones, rates)
+            ? resolveMomentumRates(model, posed, bones, rates)
             : AutoMovieEngineKinematics.prepareAutoMovieMassModelRates(model, posed, bones, rates);
       node.rated = { matrix, relative: instantaneous?.angular };
     }

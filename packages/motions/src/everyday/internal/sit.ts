@@ -23,8 +23,8 @@ import { HumanSupportFrame } from "../../carrier/internal/HumanSupportFrame";
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmPlanned } from "../../compose/internal/AutoMovieMotionHumanArmPlanned";
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionManner } from "../../compose/internal/motionManner";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanPhysics } from "../../law/internal/HumanPhysics";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
@@ -198,7 +198,7 @@ export namespace sit {
     const r: number = seated.ratio(body, seat, under);
     const descent: number =
       seatedCourse.descent(r) *
-      AutoMovieMotionManner(context, context.params.manner).tempo;
+      motionManner(context, context.params.manner).tempo;
     const peak: number = seatedCourse.flexion(r);
     const contact: number = CONTACT * descent;
     const across: number = ACROSS * descent;
@@ -602,7 +602,7 @@ export namespace sit {
           true,
           context.tempo,
         );
-      return composeAutoMovieMotionHumanAction({
+      return composeMotionHumanAction({
         base: lowering(hanging),
         clock,
         primitives: [

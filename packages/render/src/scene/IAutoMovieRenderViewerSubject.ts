@@ -1,4 +1,4 @@
-import type { AutoMovieRenderViewerSubjectKind } from "./AutoMovieRenderViewerSubjectKind.js";
+import type { AutoMovieRenderViewerSubjectKind } from "./AutoMovieRenderViewerSubjectKind";
 
 /**
  * Caller-supplied authored kind, id and optional revision for an inspection

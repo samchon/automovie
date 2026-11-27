@@ -1,6 +1,6 @@
 import type { AutoMovieOrderedScalar } from "@automovie/interface";
 
-import { equalOrderedScalars } from "./equalOrderedScalars.js";
+import { equalOrderedScalars } from "./equalOrderedScalars";
 
 /*
  * Compare two ordered lists of scalar rows by value, such as a downmix matrix

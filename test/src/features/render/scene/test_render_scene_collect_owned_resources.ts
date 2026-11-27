@@ -3,7 +3,7 @@ import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 /**
- * `collectAutoMovieOwnedResources` lists what a subtree must dispose.
+ * `collectOwnedResources` lists what a subtree must dispose.
  *
  * Scenarios:
  *

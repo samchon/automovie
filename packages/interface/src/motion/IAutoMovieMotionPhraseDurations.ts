@@ -1,6 +1,6 @@
 /**
  * The durations in seconds of the six movement phases between a phrase's seven
- * synchronization instants. AutoMovieMotionClock.phrase admits and sums these
+ * synchronization instants. motionClock.phrase admits and sums these
  * lengths.
  */
 export interface IAutoMovieMotionPhraseDurations {

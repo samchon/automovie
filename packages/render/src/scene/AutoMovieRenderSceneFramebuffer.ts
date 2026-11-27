@@ -1,7 +1,7 @@
-import { type IAutoMovieRenderFramebufferRenderer } from "./IAutoMovieRenderFramebufferRenderer.js";
-import { captureAutoMovieFramebufferRestore as captureAutoMovieFramebufferRestoreImplementation } from "./internal/captureAutoMovieFramebufferRestore.js";
+import { type IAutoMovieRenderFramebufferRenderer } from "./IAutoMovieRenderFramebufferRenderer";
+import { captureFramebufferRestore as captureFramebufferRestoreImplementation } from "./internal/captureFramebufferRestore";
 import type * as THREE from "three";
-import { readAutoMovieDisplayDestinationEncoding as readDestinationEncodingImplementation } from "./internal/readAutoMovieDisplayDestinationEncoding.js";
+import { readDisplayDestinationEncoding as readDestinationEncodingImplementation } from "./internal/readDisplayDestinationEncoding";
 
 /** Public operations for Auto Movie Scene Framebuffer. */
 export namespace AutoMovieRenderSceneFramebuffer {
@@ -15,7 +15,7 @@ export namespace AutoMovieRenderSceneFramebuffer {
    * operation.
    */
   export function captureRestore(renderer: IAutoMovieRenderFramebufferRenderer): (() => void) {
-    return captureAutoMovieFramebufferRestoreImplementation(renderer);
+    return captureFramebufferRestoreImplementation(renderer);
   }
   /**
    * Read the actual selected offscreen color attachment's native transfer. The

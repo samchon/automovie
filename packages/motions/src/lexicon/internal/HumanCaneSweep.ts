@@ -21,7 +21,7 @@ import type {
 
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
-import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
+import { motionHumanHeld } from "../../compose/internal/motionHumanHeld";
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
 import { HumanWornItem } from "../../dressing/internal/HumanWornItem";
 import { HumanBound } from "../../law/internal/HumanBound";
@@ -116,7 +116,7 @@ function planHumanCaneSweep(
       reason: "a cane is swept over a walk",
       fix: "perform the sweep over a walk",
     });
-  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
+  const held: IAutoMovieMotionHumanHeld.IHeld = motionHumanHeld(
     context,
     side,
     p.prop,
@@ -276,7 +276,7 @@ function planHumanCaneSweep(
   // across actions (contacts.md, "Held objects"), as the violin's bow
   // hand writes its hold's fingers (`bowViolin`). The carrier's own
   // fingers would open the grip as the overlay comes in.
-  const hold: IAutoMovieMotionPropHold = AutoMovieMotionHumanHeld.hold(
+  const hold: IAutoMovieMotionPropHold = motionHumanHeld.hold(
     context,
     held,
   );
@@ -295,7 +295,7 @@ function planHumanCaneSweep(
         share: touch.at / duration,
       }),
     ),
-    contacts: [...under.contacts, AutoMovieMotionHumanHeld.grip(held)],
+    contacts: [...under.contacts, motionHumanHeld.grip(held)],
     holds: [hold],
     channels,
     enteredChannels: channels,

@@ -18,13 +18,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanArmPhrase } from "../../compose/internal/AutoMovieMotionHumanArmPhrase";
 import { AutoMovieMotionHumanArmTarget } from "../../compose/internal/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
@@ -202,15 +202,15 @@ function planPullCover(
       AutoMovieMotionHumanArmTarget.point(entry, origins[side]),
       at,
     );
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
-    prepare: AutoMovieMotionHumanTiming.transport(
+  const clock: IAutoMovieMotionClock = motionClock.phrase({
+    prepare: motionHumanTiming.transport(
       Math.max(reach("left", ways.left[0]!), reach("right", ways.right[0]!)),
     ),
-    attack: AutoMovieMotionHumanTiming.transport(
+    attack: motionHumanTiming.transport(
       Math.max(length(ways.left), length(ways.right)),
     ),
-    hold: AutoMovieMotionHumanTiming.seconds("beat"),
-    retract: AutoMovieMotionHumanTiming.transport(
+    hold: motionHumanTiming.seconds("beat"),
+    retract: motionHumanTiming.transport(
       Math.max(
         reach("left", ways.left.at(-1)!),
         reach("right", ways.right.at(-1)!),
@@ -235,7 +235,7 @@ function planPullCover(
     reads: ["root", `${side}Arm`, `${side}Hand`],
   });
   const plan: IAutoMovieMotionHumanActionPlan =
-    composeAutoMovieMotionHumanAction({
+    composeMotionHumanAction({
       base: AutoMovieMotionHumanBase.under(context, clock.duration),
       clock,
       primitives: [stroke("left"), stroke("right")],

@@ -26,7 +26,7 @@ import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotion
 import { AutoMovieMotionHumanTouchEffector } from "../../compose/internal/AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanTouchForm } from "../../compose/internal/AutoMovieMotionHumanTouchForm";
 import { AutoMovieMotionHumanTouchPath } from "../../compose/internal/AutoMovieMotionHumanTouchPath";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
+import { motionManner } from "../../compose/internal/motionManner";
 import { HumanPerception } from "../../law/internal/HumanPerception";
 import { HumanColliders } from "../../posture/internal/HumanColliders";
 import { StrikingBody } from "../../striking/internal/StrikingBody";
@@ -239,7 +239,7 @@ export namespace touchHold {
     const travel: number =
       AutoMovieMotionHumanTouchForm.FORMS[p.kind ?? "pat"].travel *
       context.body.measure.hand *
-      AutoMovieMotionManner(context, p.manner).extent;
+      motionManner(context, p.manner).extent;
     return (
       side: AutoMovieHumanSide,
       target: IAutoMovieMotionTarget,

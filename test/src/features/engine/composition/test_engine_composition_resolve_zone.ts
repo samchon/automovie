@@ -5,7 +5,7 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose, throwsError } from "../../internal/predicates";
 
 /**
- * `resolveAutoMovieZone` gives the world point a move goes to inside a zone.
+ * `resolveZone` gives the world point a move goes to inside a zone.
  *
  * Zone: centre (10, 0, 20), radius 4, landmark `door` at (12, 0, 21).
  *

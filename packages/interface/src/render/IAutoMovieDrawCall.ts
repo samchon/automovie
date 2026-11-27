@@ -1,11 +1,11 @@
-import type { IAutoMovieInspectionRequest } from "./IAutoMovieInspectionRequest.js";
+import type { IAutoMovieInspectionRequest } from "./IAutoMovieInspectionRequest";
 
 /**
  * One picture a host asks a draw page for: the second, the view, the inspection
  * with its pass, the raster, the seconds a fitted view is framed over, and the
  * label scale.
  *
- * `planAutoMovieDrawCall` makes one from a capture cell, and a delivery makes
+ * `planDrawCall` makes one from a capture cell, and a delivery makes
  * one per frame and pass. It crosses into the page as JSON, so it holds only
  * plain data.
  */
@@ -13,7 +13,7 @@ export interface IAutoMovieDrawCall {
   /** The second drawn, in the subject's time. */
   seconds: number;
 
-  /** The view text, read by `parseAutoMovieInspectionView`. */
+  /** The view text, read by `parseInspectionView`. */
   view: string;
 
   /** The inspection the picture is drawn with; its `shade` is the pass. */

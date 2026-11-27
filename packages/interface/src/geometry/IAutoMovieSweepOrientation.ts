@@ -1,6 +1,6 @@
 /**
  * A sweep's section planes compiled into buffers that a pose can rewrite, from
- * `orientAutoMovieSweep`.
+ * `orientSweep`.
  *
  * The caller writes each station's plane rotation and whether it gives one,
  * calls `update` after the spine's transport is current, then reads frames into

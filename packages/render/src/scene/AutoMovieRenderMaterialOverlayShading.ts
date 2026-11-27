@@ -1,9 +1,9 @@
 import type * as THREE from "three";
-import { type IAutoMovieRenderMaterialOverlayShading } from "./IAutoMovieRenderMaterialOverlayShading.js";
-import { applyMaterialOverlays as applyMaterialOverlaysImplementation } from "./materialOverlayShading/internal/applyMaterialOverlays.js";
-import { type IAutoMovieRenderMaterialOverlayShape } from "./IAutoMovieRenderMaterialOverlayShape.js";
-import { materialOverlayVertex as materialOverlayVertexImplementation } from "./materialOverlayShading/internal/materialOverlayVertex.js";
-import { materialOverlayFragment as materialOverlayFragmentImplementation } from "./materialOverlayShading/internal/materialOverlayFragment.js";
+import { type IAutoMovieRenderMaterialOverlayShading } from "./IAutoMovieRenderMaterialOverlayShading";
+import { applyMaterialOverlays as applyMaterialOverlaysImplementation } from "./materialOverlayShading/internal/applyMaterialOverlays";
+import { type IAutoMovieRenderMaterialOverlayShape } from "./IAutoMovieRenderMaterialOverlayShape";
+import { materialOverlayVertex as materialOverlayVertexImplementation } from "./materialOverlayShading/internal/materialOverlayVertex";
+import { materialOverlayFragment as materialOverlayFragmentImplementation } from "./materialOverlayShading/internal/materialOverlayFragment";
 
 /** Public operations for Auto Movie Render Material Overlay Shading. */
 export namespace AutoMovieRenderMaterialOverlayShading {

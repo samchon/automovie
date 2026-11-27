@@ -1,11 +1,11 @@
 import type { AutoMovieCliReviewTypes } from "./AutoMovieCliReviewTypes";
 import type { IAutoMovieCliReviewObservation } from "./IAutoMovieCliReviewObservation";
 import { AUTOMOVIE_REVIEW_OPTIONS } from "./internal/AUTOMOVIE_REVIEW_OPTIONS";
-import { readAutoMovieReviewObservation } from "./internal/readAutoMovieReviewObservation";
-import { readAutoMovieReviewOptions } from "./internal/readAutoMovieReviewOptions";
-import { recordAutoMoviePlayback } from "./internal/recordAutoMoviePlayback";
-import { reviewAutoMovie } from "./internal/reviewAutoMovie";
-import { reviewAutoMovieFile } from "./internal/reviewAutoMovieFile";
+import { readReviewObservation } from "./internal/readReviewObservation";
+import { readReviewOptions } from "./internal/readReviewOptions";
+import { recordPlaybackImplementation } from "./internal/recordPlaybackImplementation";
+import { reviewProduction } from "./internal/reviewProduction";
+import { reviewFileImplementation } from "./internal/reviewFileImplementation";
 
 /** Public operations for Inspector playback and file-bound review receipts. */
 export namespace AutoMovieCliReview {
@@ -16,34 +16,34 @@ export namespace AutoMovieCliReview {
   export function readOptions(
     values: ReadonlyMap<string, string>,
   ): AutoMovieCliReviewTypes.Options {
-    return readAutoMovieReviewOptions(values);
+    return readReviewOptions(values);
   }
 
   /** Run the `automovie review` command. */
   export function review(
     props: AutoMovieCliReviewTypes.ReviewProps,
   ): Promise<number> {
-    return reviewAutoMovie(props);
+    return reviewProduction(props);
   }
 
   /** Create, explicitly rebind or replay a review mark for a published file. */
   export function reviewFile(
     props: AutoMovieCliReviewTypes.ReviewFileProps,
   ): Promise<IAutoMovieCliReviewObservation> {
-    return reviewAutoMovieFile(props);
+    return reviewFileImplementation(props);
   }
 
   /** Record real-time playback of an Inspector page. */
   export function recordPlayback(
     props: AutoMovieCliReviewTypes.PlaybackProps,
   ): Promise<AutoMovieCliReviewTypes.PlaybackRecord> {
-    return recordAutoMoviePlayback(props);
+    return recordPlaybackImplementation(props);
   }
 
   /** Admit one stored review receipt and its selected scope. */
   export function readObservation(
     value: unknown,
   ): IAutoMovieCliReviewObservation {
-    return readAutoMovieReviewObservation(value);
+    return readReviewObservation(value);
   }
 }

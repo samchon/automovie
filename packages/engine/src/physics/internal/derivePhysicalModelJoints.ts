@@ -16,7 +16,7 @@ import { AutoMovieEngineHumanoidJointAxes } from "../../kinematics/AutoMovieEngi
 import { normalizeJointAxes } from "../../kinematics/internal/normalizeJointAxes";
 import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
-import { quaternionFromAutoMovieBasis } from "../../math/internal/quaternionFromAutoMovieBasis";
+import { quaternionFromBasis } from "../../math/internal/quaternionFromBasis";
 import { getConstraint } from "../../rom/internal/getConstraint";
 import { derivePhysicalActuators } from "./derivePhysicalActuators";
 
@@ -60,7 +60,7 @@ export function derivePhysicalModelJoints(
       )
         throw new Error(`Physical model axes are not orthogonal: ${bone.bone}`);
       const basis: IAutoMovieRigidTransform["rotation"] =
-        quaternionFromAutoMovieBasis(x, y, z);
+        quaternionFromBasis(x, y, z);
       const constraint: IAutoMovieJointConstraint | null = getConstraint(
         bone.bone,
         bone.constraint,

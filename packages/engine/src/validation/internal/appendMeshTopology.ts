@@ -5,7 +5,7 @@ import {
 } from "@automovie/interface";
 
 import { createMeshEdgeKey } from "../../math/internal/createMeshEdgeKey";
-import { resolveAutoMovieMeshPhysicalVertices } from "../../math/internal/resolveAutoMovieMeshPhysicalVertices";
+import { resolveMeshPhysicalVertices } from "../../math/internal/resolveMeshPhysicalVertices";
 import { weldMeshVertices } from "../../math/internal/weldMeshVertices";
 
 /*
@@ -20,7 +20,7 @@ export function appendMeshTopology(
   let physical: IAutoMovieResolvedPhysicalVertices | undefined;
   if (mesh.physicalVertices !== undefined) {
     try {
-      physical = resolveAutoMovieMeshPhysicalVertices(mesh);
+      physical = resolveMeshPhysicalVertices(mesh);
     } catch (error: unknown) {
       collector.push(
         "topology",

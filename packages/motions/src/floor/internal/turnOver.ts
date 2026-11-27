@@ -1,10 +1,10 @@
 import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
 import type { IAutoMovieAffordance, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieMotionHumanPropReader, IAutoMovieMotionHumanTurnOver, IAutoMovieVector3 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionManner } from "../../compose/internal/motionManner";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanPropFrame } from "../../perform/internal/HumanPropFrame";
@@ -78,17 +78,17 @@ function planTurnOver(
     entry.root,
     AutoMovieEngineQuaternion.rotateVector(humanPostureHeading(entry), body.rest.get("hips")!),
   );
-  const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
-    AutoMovieMotionClock.sequence([
+  const clock: IAutoMovieMotionClock = motionManner.time(
+    motionClock.sequence([
       { name: "turning", seconds: TurnOverData.QUARTER * quarters },
       { name: p.to, seconds: 0 },
       { name: "settled", seconds: hold },
     ]),
-    AutoMovieMotionManner(context, p.manner),
+    motionManner(context, p.manner),
     { holds: ["settled"] },
   );
-  const progress: ReturnType<typeof AutoMovieMotionClock.prepare> =
-    AutoMovieMotionClock.prepare(clock, "turning", p.to);
+  const progress: ReturnType<typeof motionClock.prepare> =
+    motionClock.prepare(clock, "turning", p.to);
   // The limb key at a turn: the entry's joints blended into the quarter
   // keys on the way, so the body leaves exactly as it lay.
   const key: (turn: number) => IAutoMovieMotionHumanPosture["joints"] = (
@@ -180,7 +180,7 @@ function planTurnOver(
     },
   ];
   const planned: IAutoMovieMotionHumanActionPlan =
-    composeAutoMovieMotionHumanAction({
+    composeMotionHumanAction({
       base: AutoMovieMotionHumanBase.still(duration, entry, contacts),
       clock,
       contact: "settled",

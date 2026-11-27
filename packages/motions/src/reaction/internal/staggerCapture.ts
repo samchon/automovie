@@ -4,7 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import type { StaggerPendulum } from "./StaggerPendulum";
 import { staggerBounds } from "./staggerBounds";
@@ -80,8 +80,8 @@ export function staggerCapture(
   // push does (`LATERAL.footOff` of the reaction and weight shift).
   const first: number =
     Math.min(1, staggerBounds.LATERAL.footOff) *
-      (AutoMovieMotionHumanTiming.seconds(REACTION) +
-        AutoMovieMotionHumanTiming.seconds(TRANSFER)) +
+      (motionHumanTiming.seconds(REACTION) +
+        motionHumanTiming.seconds(TRANSFER)) +
     shortest;
   const distance: (steps: number) => number = staggerCaptureDistance({
     w,

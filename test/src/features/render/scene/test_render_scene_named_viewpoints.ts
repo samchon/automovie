@@ -2,7 +2,7 @@ import { type IAutoMovieRenderViewerViewpoint, AutoMovieRenderSubjectViewpoint }
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `autoMovieViewerNamedViewpoints` lists the eight named views.
+ * `viewerNamedViewpoints` lists the eight named views.
  *
  * Scenarios:
  *

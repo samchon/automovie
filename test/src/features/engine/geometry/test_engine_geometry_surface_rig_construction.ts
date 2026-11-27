@@ -12,7 +12,7 @@ import { sweepBranchedSkeleton } from "../../internal/sweepBranchedSkeleton";
 
 /**
  * A surface rig's construction snapshot (`construction` sampling of
- * `rigAutoMovieSurfaceNetwork`) observes without changing the posed cage.
+ * `rigSurfaceNetwork`) observes without changing the posed cage.
  *
  * Fixture: the branched body at the medium tier without volume preservation,
  * posed with the upper arm turned 30 degrees, the forearm 90 and the shin 60;

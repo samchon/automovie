@@ -9,9 +9,9 @@ import { TestValidator } from "@nestia/e2e";
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * The separation bounds (`boundAutoMovieConvexSeparation`,
- * `boundAutoMovieProjectionSeparation`) and the resident query
- * (`createAutoMovieMeshSeparationQuery`) refuse unrepresentable arithmetic and
+ * The separation bounds (`boundConvexSeparation`,
+ * `boundProjectionSeparation`) and the resident query
+ * (`createMeshSeparationQuery`) refuse unrepresentable arithmetic and
  * malformed work by name instead of returning a separation a consumer could
  * accept.
  *

@@ -3,7 +3,7 @@ import type { IAutoMovieAnalysisSolid } from "./IAutoMovieAnalysisSolid";
 import type { IAutoMovieReferenceGround } from "./IAutoMovieReferenceGround";
 
 /**
- * Data contracts of `autoMovieSkyIlluminance`, the isotropic sky term shared by
+ * Data contracts of `skyIlluminance`, the isotropic sky term shared by
  * the daylight study and the illuminance meter.
  */
 export namespace IAutoMovieSkyIlluminance {

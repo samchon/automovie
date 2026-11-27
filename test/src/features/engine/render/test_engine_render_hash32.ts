@@ -2,7 +2,7 @@ import { AutoMovieEngineRenderTarget } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `autoMovieRenderHash32` is the 32-bit FNV-1a hash of the UTF-8 bytes (offset
+ * `renderHash32` is the 32-bit FNV-1a hash of the UTF-8 bytes (offset
  * 0x811c9dc5, prime 0x01000193).
  *
  * Scenarios, from the published FNV test vectors:

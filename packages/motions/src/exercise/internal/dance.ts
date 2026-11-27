@@ -18,13 +18,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanLean } from "../../compose/internal/AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionHumanLeg";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionManner } from "../../compose/internal/motionManner";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
@@ -109,7 +109,7 @@ export namespace dance {
       body.measure;
     const bpm: number = p.bpm ?? BPM;
     const beats: number = p.count ?? 8;
-    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+    const modifiers: IAutoMovieMotionManner.IModifiers = motionManner(
       context,
       p.manner,
     );
@@ -129,7 +129,7 @@ export namespace dance {
     for (let k: number = 1; k <= beats; k++)
       instants.push({ name: `beat${k}`, seconds: beatAt(k) });
     const duration: number = beatAt(beats) + period;
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(duration, [
+    const clock: IAutoMovieMotionClock = motionClock(duration, [
       ...instants,
       { name: "relax", seconds: beatAt(beats) },
     ]);
@@ -201,7 +201,7 @@ export namespace dance {
         const depth: number = BOUNCE * m.stature * modifiers.extent;
         // Rises by the first beat and falls after the last, as before.
         const settle: (seconds: number) => number =
-          AutoMovieMotionClock.prepareEnvelope(
+          motionClock.prepareEnvelope(
             clock,
             ["start", "beat1"],
             ["relax", "end"],
@@ -435,7 +435,7 @@ export namespace dance {
         break;
       }
     }
-    return composeAutoMovieMotionHumanAction({
+    return composeMotionHumanAction({
       base: AutoMovieMotionHumanBase.still(duration, entry, contacts),
       clock,
       primitives,

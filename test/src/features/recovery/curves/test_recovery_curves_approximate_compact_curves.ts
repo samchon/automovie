@@ -7,7 +7,7 @@ import { AutoMovieRecoveryCompactApproximation as C, AutoMovieRecoveryConicAppro
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `approximateAutoMovieRecoveryCompactCurves` merges source pieces into the
+ * `approximateRecoveryCompactCurves` merges source pieces into the
  * fewest polynomial pieces that meet the tolerance.
  *
  * Scenarios:

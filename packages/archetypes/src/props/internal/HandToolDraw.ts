@@ -12,7 +12,9 @@ import { TOOL_BANDS } from "../constants/TOOL_BANDS";
  * The seeded recipes originally published as `createTool`.
  */
 export namespace HandToolDraw {
-  /** The kinds of tool. */
+  /*
+   * The kinds of tool.
+   */
   export type Kind =
     | "hammer"
     | "saw"
@@ -87,7 +89,7 @@ export namespace HandToolDraw {
    */
   export const BOWL: number = 0.02;
 
-  /**
+  /*
    * The affordance ids:
    *
    * - `grip`: the handle, held at its butt end on a hammer, across the heel on a
@@ -100,7 +102,7 @@ export namespace HandToolDraw {
    */
   export type Affordance = "grip" | "face";
 
-  /**
+  /*
    * The free dimensions, metres unless stated:
    *
    * - `length`: overall, along `+Y`.
@@ -134,25 +136,35 @@ export namespace HandToolDraw {
     mass: "kg",
   };
 
-  /**
+  /*
    * The parameters: the kind, and any free dimension fixed to a value inside
    * its band.
    */
   export interface IParams extends Partial<Record<Dimension, number>> {
-    /** Which tool. */
+    /*
+     * Which tool.
+     */
     kind: Kind;
 
-    /** A table knife's model; drawn from the seed when absent. */
+    /*
+     * A table knife's model; drawn from the seed when absent.
+     */
     model?: Model;
 
-    /** The model's id, unique in a scene; `tool` when absent. */
+    /*
+     * The model's id, unique in a scene; `tool` when absent.
+     */
     id?: string;
   }
 
-  /** A model's read figures, by dimension. */
+  /*
+   * A model's read figures, by dimension.
+   */
   export type Figures = Readonly<Partial<Record<Dimension, number>>>;
 
-  /** The table knives read: Eichenlaub's Altdeutsch and Robert Welch's Malvern. */
+  /*
+   * The table knives read: Eichenlaub's Altdeutsch and Robert Welch's Malvern.
+   */
   export type Model = "eichenlaub" | "robertWelch";
 
   /*

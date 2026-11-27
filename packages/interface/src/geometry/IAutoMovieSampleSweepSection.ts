@@ -7,7 +7,7 @@ export namespace IAutoMovieSampleSweepSection {
    *
    * Radius `k` lies along angle `2 pi k / count`, measured counterclockwise
    * from the section plane's `+x` axis. A radial section is read through its
-   * periodic spline, `interpolateAutoMovieSpline`. A superellipse centred on
+   * periodic spline, `interpolateSpline`. A superellipse centred on
    * its origin is read in closed form: in the quadrant holding the angle, with
    * that quadrant's half-axes `a` along `x` and `b` along `y` and exponent `n`,
    * the curve is `|x / a|^n + |y / b|^n = 1`, so the radius is `(|cos a / a|^n
@@ -26,7 +26,7 @@ export namespace IAutoMovieSampleSweepSection {
   export type IProps = {
     /**
      * Borrowed section in metre x/y coordinates. The sampler validates radial
-     * data or delegates curve admission to parameterizeAutoMovieSweepSection;
+     * data or delegates curve admission to parameterizeSweepSection;
      * its finite walk rejects observed origin crossings and nonincreasing polar
      * angles, without certifying unsampled curve intervals.
      */

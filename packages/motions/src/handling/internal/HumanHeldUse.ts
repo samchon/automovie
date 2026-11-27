@@ -24,7 +24,7 @@ import type {
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHand } from "../../compose/internal/AutoMovieMotionHumanHand";
-import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
+import { motionHumanHeld } from "../../compose/internal/motionHumanHeld";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanColliders } from "../../posture/internal/HumanColliders";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
@@ -238,7 +238,7 @@ export namespace HumanHeldUse {
     const other: AutoMovieHumanSide = props.side === "right" ? "left" : "right";
     const place: ReturnType<typeof HumanGraspHand.prepare> =
       HumanGraspHand.prepare(body, other);
-    const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
+    const held: IAutoMovieMotionHumanHeld.IHeld = motionHumanHeld(
       context,
       props.side,
       props.prop,

@@ -1,4 +1,4 @@
-import type { IAutoMovieLoudnessIntent } from "../production/IAutoMovieLoudnessIntent.js";
+import type { IAutoMovieLoudnessIntent } from "../production/IAutoMovieLoudnessIntent";
 
 /** Timing and content evidence from decoding one hashed delivery artifact. */
 export namespace IAutoMovieDeliveryContentAudit {
@@ -118,7 +118,7 @@ export namespace IAutoMovieDeliveryContentAudit {
         /**
          * Audio only: BS.1770-5 integrated loudness in LUFS and true peak in
          * dBTP of the presented decoded samples, measured by engine's
-         * `createAutoMovieLoudnessMeter`; each is null when the samples have
+         * `createLoudnessMeter`; each is null when the samples have
          * none. Absent when the host did not measure it.
          */
         loudness?: {

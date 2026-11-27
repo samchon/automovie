@@ -1,8 +1,8 @@
 import type { IAutoMovieFormationCadenceSegment } from "@automovie/interface";
 
-import type { IAutoMovieRenderFormationCadence } from "../IAutoMovieRenderFormationCadence.js";
-import type { IAutoMovieRenderFormationCycle } from "../IAutoMovieRenderFormationCycle.js";
-import { formationCycleCadence } from "./formationCycleCadence.js";
+import type { IAutoMovieRenderFormationCadence } from "../IAutoMovieRenderFormationCadence";
+import type { IAutoMovieRenderFormationCycle } from "../IAutoMovieRenderFormationCycle";
+import { formationCycleCadence } from "./formationCycleCadence";
 
 /*
  * Write one unit's current cadence into the cells its materials read.

@@ -116,7 +116,7 @@ Read in `packages/interface/src/construction` (each interface's admission paragr
 | A join on a declared shared loop, tangent on some arcs and crossing on others, with the fold width `hypot(reach, R tan(beta / 2))`, a radius table round the loop, exact ball contact on curved walls, `cleft` refusal (`IAutoMovieConstructionJoin.loop`, `IAutoMovieConstructionFoldWidth`) | `AutoMovieEngineConstructionSharedLoop`, `AutoMovieEngineSolidSharedCurve`, `AutoMovieSolidFoldContact`, `AutoMovieEngineConstructionWidths` | No |
 | A width bounded by the normal and the geodesic curvature (`IAutoMovieConstructionCurvatureWidth`) | `AutoMovieEngineConstructionWidths` | Yes: both cutters with a closed end |
 | A port band whose start edge is the port curve itself between columns | `AutoMovieEngineConstructionPortCurve`, `PortBand` | Yes |
-| A known port record (a band pulled back from both neighbours' fields) | `AutoMovieConstructionKnownPort` | Declared in the interface; not a node of the tree |
+| A known port record (a band pulled back from both neighbours' fields) | `constructionKnownPort` | Declared in the interface; not a node of the tree |
 
 ## Premises, by operator
 

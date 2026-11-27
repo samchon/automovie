@@ -1,5 +1,5 @@
-import type { IAutoMovieRenderDrawFunction } from "./IAutoMovieRenderDrawFunction.js";
-import type { IAutoMovieRenderDrawProps } from "./IAutoMovieRenderDrawProps.js";
+import type { IAutoMovieRenderDrawFunction } from "./IAutoMovieRenderDrawFunction";
+import type { IAutoMovieRenderDrawProps } from "./IAutoMovieRenderDrawProps";
 
 /**
  * The global object a draw page and its host share, under the names

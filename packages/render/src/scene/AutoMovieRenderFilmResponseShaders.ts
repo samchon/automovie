@@ -5,7 +5,7 @@
  * Every program draws one full-frame quad whose fragments each read the texel
  * or texels at their own centre, so a fragment depends only on its pixel and
  * the stage's uniforms, never on an earlier frame. The final shader mirrors
- * `respondAutoMovieFilmColor`, the engine's CPU reference of the same response,
+ * `respondFilmColor`, the engine's CPU reference of the same response,
  * step for step.
  *
  * The linear frame holds colour associated with alpha, as blending over a

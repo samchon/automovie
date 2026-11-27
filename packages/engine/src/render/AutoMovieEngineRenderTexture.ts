@@ -1,12 +1,12 @@
 import { type IAutoMovieRenderTextureSource, type IAutoMovieRenderTextureResidency, type IAutoMovieSurfaceGraphicLayer, type AutoMovieTextureBinding, type IAutoMovieTextureReference, type IAutoMovieRenderTextureCost, type IAutoMovieMeasureRenderTextureClosure, type IAutoMovieRenderTextureTarget, type IAutoMovieMeasureTextureStorage } from "@automovie/interface";
-import { autoMovieRenderTextureDigest as autoMovieRenderTextureDigestImplementation } from "./internal/autoMovieRenderTextureDigest";
-import { autoMovieSurfaceFeedWidth as autoMovieSurfaceFeedWidthImplementation } from "./internal/autoMovieSurfaceFeedWidth";
-import { autoMovieTextureBindingStateKey as autoMovieTextureBindingStateKeyImplementation } from "./internal/autoMovieTextureBindingStateKey";
-import { autoMovieTextureFormatBytes as autoMovieTextureFormatBytesImplementation } from "./internal/autoMovieTextureFormatBytes";
-import { measureAutoMovieRenderTextureClosure as measureAutoMovieRenderTextureClosureImplementation } from "./internal/measureAutoMovieRenderTextureClosure";
-import { measureAutoMovieRenderTextureTarget as measureAutoMovieRenderTextureTargetImplementation } from "./internal/measureAutoMovieRenderTextureTarget";
-import { measureAutoMovieTextureStorage as measureAutoMovieTextureStorageImplementation } from "./internal/measureAutoMovieTextureStorage";
-import { sumAutoMovieRenderTextureAllocations as sumAutoMovieRenderTextureAllocationsImplementation } from "./internal/sumAutoMovieRenderTextureAllocations";
+import { renderTextureDigest as renderTextureDigestImplementation } from "./internal/renderTextureDigest";
+import { surfaceFeedWidth as surfaceFeedWidthImplementation } from "./internal/surfaceFeedWidth";
+import { textureBindingStateKey as textureBindingStateKeyImplementation } from "./internal/textureBindingStateKey";
+import { textureFormatBytes as textureFormatBytesImplementation } from "./internal/textureFormatBytes";
+import { measureRenderTextureClosure as measureRenderTextureClosureImplementation } from "./internal/measureRenderTextureClosure";
+import { measureRenderTextureTarget as measureRenderTextureTargetImplementation } from "./internal/measureRenderTextureTarget";
+import { measureTextureStorage as measureTextureStorageImplementation } from "./internal/measureTextureStorage";
+import { sumRenderTextureAllocations as sumRenderTextureAllocationsImplementation } from "./internal/sumRenderTextureAllocations";
 
 /** Public operations for Auto Movie Engine Render Texture. */
 export namespace AutoMovieEngineRenderTexture {
@@ -23,7 +23,7 @@ export namespace AutoMovieEngineRenderTexture {
    * consume. This proves identity, not validity or a complete memory bound.
    */
   export function autoMovieRenderTextureDigest(sources: readonly IAutoMovieRenderTextureSource[], residency?: IAutoMovieRenderTextureResidency): string {
-    return autoMovieRenderTextureDigestImplementation(sources, residency);
+    return renderTextureDigestImplementation(sources, residency);
   }
 
   /**
@@ -46,7 +46,7 @@ export namespace AutoMovieEngineRenderTexture {
     IAutoMovieSurfaceGraphicLayer.IFeed,
     "pixels" | "width" | "height"
   >, faceWidth: number, faceDepth: number): number {
-    return autoMovieSurfaceFeedWidthImplementation(layer, faceWidth, faceDepth);
+    return surfaceFeedWidthImplementation(layer, faceWidth, faceDepth);
   }
 
   /**
@@ -57,7 +57,7 @@ export namespace AutoMovieEngineRenderTexture {
    * source owner adds actual format, type and upload state to this key.
    */
   export function autoMovieTextureBindingStateKey(binding: AutoMovieTextureBinding, legacyColorSpace: "srgb" | "linear" | "linear-environment", sourceSampler?: IAutoMovieTextureReference["sampler"], sourceSamplerState?: string | null): string {
-    return autoMovieTextureBindingStateKeyImplementation(binding, legacyColorSpace, sourceSampler, sourceSamplerState);
+    return textureBindingStateKeyImplementation(binding, legacyColorSpace, sourceSampler, sourceSamplerState);
   }
 
   /**
@@ -66,7 +66,7 @@ export namespace AutoMovieEngineRenderTexture {
    * one/two/four-byte components. Unreported layout keeps storage unknown.
    */
   export function autoMovieTextureFormatBytes(format: IAutoMovieRenderTextureSource["format"]): number | null {
-    return autoMovieTextureFormatBytesImplementation(format);
+    return textureFormatBytesImplementation(format);
   }
 
   /**
@@ -94,7 +94,7 @@ export namespace AutoMovieEngineRenderTexture {
    * storage bounds.
    */
   export function measureAutoMovieRenderTextureClosure(props: IAutoMovieMeasureRenderTextureClosure.IProps): IAutoMovieRenderTextureCost[] {
-    return measureAutoMovieRenderTextureClosureImplementation(props);
+    return measureRenderTextureClosureImplementation(props);
   }
 
   /**
@@ -106,7 +106,7 @@ export namespace AutoMovieEngineRenderTexture {
    * clamping.
    */
   export function measureAutoMovieRenderTextureTarget(target: IAutoMovieRenderTextureTarget): number | null {
-    return measureAutoMovieRenderTextureTargetImplementation(target);
+    return measureRenderTextureTargetImplementation(target);
   }
 
   /**
@@ -118,7 +118,7 @@ export namespace AutoMovieEngineRenderTexture {
    * allocation overhead is outside this texel-storage quantity.
    */
   export function measureAutoMovieTextureStorage(props: IAutoMovieMeasureTextureStorage.IProps): number | null {
-    return measureAutoMovieTextureStorageImplementation(props);
+    return measureTextureStorageImplementation(props);
   }
 
   /**
@@ -127,6 +127,6 @@ export namespace AutoMovieEngineRenderTexture {
    * and unsafe aggregate integers remain unbounded rather than rounded totals.
    */
   export function sumAutoMovieRenderTextureAllocations(textures: readonly IAutoMovieRenderTextureCost[]): number | null {
-    return sumAutoMovieRenderTextureAllocationsImplementation(textures);
+    return sumRenderTextureAllocationsImplementation(textures);
   }
 }

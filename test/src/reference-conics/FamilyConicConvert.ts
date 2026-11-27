@@ -29,7 +29,7 @@ import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
  *
  * - Fair: each section's radius about its course point by the periodic smoothing spline (`FamilyConicFair`) at the region's own cutoff,
  *   the narrowest feature its source keeps (`cutoff`).
- * - Convert: the recovery converter (`approximateAutoMovieRecoveryConicsAhn`, contract `AutoMovieRecoveryConicApproximation`), unchanged,
+ * - Convert: the recovery converter (`approximateRecoveryConicsAhn`, contract `AutoMovieRecoveryConicApproximation`), unchanged,
  *   broken at the faired inflections and at an invented closure's ends.
  * - Layout: the grooves (maximal runs of inward skin arcs) per station, each tracked along the stations as a line; the source's own hollows
  *   under its hull deeper than the tolerance are each matched to a groove or named as dropped with their depth (`account`).

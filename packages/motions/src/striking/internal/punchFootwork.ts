@@ -9,7 +9,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanFootRelax } from "../../compose/internal/AutoMovieMotionHumanFootRelax";
+import { motionHumanFootRelax } from "../../compose/internal/motionHumanFootRelax";
 import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { StrikingArrest } from "./StrikingArrest";
@@ -366,7 +366,7 @@ export namespace punchFootwork {
         const weight: number = 4 * share * (1 - share);
         if (down[side] || weight <= 0 || t <= landing(side)) return foot;
         const eased: IAutoMovieMotionHumanFoot.IPlacement =
-          AutoMovieMotionHumanFootRelax(
+          motionHumanFootRelax(
             body,
             { ...written, limbs: {} },
             side,

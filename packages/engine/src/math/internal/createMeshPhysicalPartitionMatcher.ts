@@ -5,7 +5,7 @@ import {
 
 import { triangleIndicesOf } from "../../geometry/internal/triangleIndicesOf";
 import { weldedDegenerateTriangles } from "../../geometry/internal/weldedDegenerateTriangles";
-import { resolveAutoMovieMeshPhysicalVertices } from "./resolveAutoMovieMeshPhysicalVertices";
+import { resolveMeshPhysicalVertices } from "./resolveMeshPhysicalVertices";
 
 /*
  * Capture mesh connectivity, physical source meaning and the legacy partition
@@ -45,7 +45,7 @@ export function createMeshPhysicalPartitionMatcher(
       "mesh physical partition",
     ).slice();
     const resolved: IAutoMovieResolvedPhysicalVertices =
-      resolveAutoMovieMeshPhysicalVertices(input);
+      resolveMeshPhysicalVertices(input);
     const degenerate: number[] = weldedDegenerateTriangles(input);
     const sources: (string | null)[] = resolved.vertices.map(
       (identity: number, vertex: number): string | null =>

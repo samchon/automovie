@@ -33,7 +33,7 @@ import type { IAutoMovieMotionHumanHandShape } from "./IAutoMovieMotionHumanHand
  * ({@link HumanBalance}).
  *
  * Transport time is the free-space time of the distance moved
- * (`AutoMovieMotionHumanTiming.transport`), 0.3 s for head and shoulder
+ * (`motionHumanTiming.transport`), 0.3 s for head and shoulder
  * gestures and one second per 30 degrees of a bow (provisional). The Effort's
  * tempo scales every phase, its extent the gesture's size and its elbow term
  * the arm's width ({@link HumanEffort}).
@@ -233,7 +233,7 @@ export namespace IAutoMovieMotionHumanGesture {
     /**
      * Post-stroke hold, seconds, at least 0, between the stroke and the
      * retraction; 0 when absent: the hand retracts at once. A beat is
-     * `AutoMovieMotionHumanTiming.PAUSES`. The timing of the other phases is on
+     * `motionHumanTiming.PAUSES`. The timing of the other phases is on
      * the `gesture` namespace.
      */
     hold?: number;

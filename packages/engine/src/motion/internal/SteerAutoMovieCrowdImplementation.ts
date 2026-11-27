@@ -6,11 +6,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { solveAutoMovieHalfPlaneProgram } from "../../math/internal/solveAutoMovieHalfPlaneProgram";
+import { solveHalfPlaneProgram } from "../../math/internal/solveHalfPlaneProgram";
 import { AutoMovieEngineMotionTrajectory } from "../AutoMovieEngineMotionTrajectory";
-import { steerAutoMovieCrowdContacts } from "./steerAutoMovieCrowdContacts";
+import { steerCrowdContacts } from "./steerCrowdContacts";
 import { steerAutoMovieCrowdGeometry } from "./steerAutoMovieCrowdGeometry";
-import { steerAutoMovieCrowdNeighbours } from "./steerAutoMovieCrowdNeighbours";
+import { steerCrowdNeighbours } from "./steerCrowdNeighbours";
 
 /*
  * Private implementation bindings for the crowd steering owner.
@@ -46,7 +46,7 @@ export namespace SteerAutoMovieCrowdImplementation {
    * speed or its cap, so the obstacle exerts nothing and adds no half-plane, as
    * RVO2 keeps only the obstacles within imeHorizonObst * maxSpeed + radius. Each
    * evaluation finds the pairs inside that bound with a uniform grid
-   * (`steerAutoMovieCrowdNeighbours`) whose cell is the largest reach any agent
+   * (`steerCrowdNeighbours`) whose cell is the largest reach any agent
    * has, `max(NEIGHBOURHOOD, 2 (r_max + v_max t0))`, then tests each candidate
    * exactly; candidates are visited in ascending order, the order of a full scan,
    * so every sum is formed as before and the courses stay deterministic. That
@@ -70,7 +70,7 @@ export namespace SteerAutoMovieCrowdImplementation {
    * stage, the position rate comes from projecting the agent's own velocity into
    * its `maximum` speed disc and the reciprocal avoidance half-planes over the
    * horizon `t0` (van den Berg, Guy, Lin and Manocha 2011,
-   * `solveAutoMovieHalfPlaneProgram`): the anticipatory force steers, and the
+   * `solveHalfPlaneProgram`): the anticipatory force steers, and the
    * half-plane program supplies a projected position rate at each integration
    * stage. The program can return a fallback when its constraints are infeasible.
    * An obstacle takes part in the anticipatory push and also in the program. Its
@@ -104,7 +104,7 @@ export namespace SteerAutoMovieCrowdImplementation {
    * positive where it must be, a goal list is empty, or the interval is not
    * forward: a caller's defect.
    */
-  export function steerAutoMovieCrowd(
+  export function steerCrowd(
     props: IAutoMovieSteerCrowd.IProps,
   ): IAutoMovieSteerCrowd.IResult {
     const tau: number = props.law?.relaxation ?? RELAXATION;
@@ -215,8 +215,8 @@ export namespace SteerAutoMovieCrowdImplementation {
         speeds[j] = Math.hypot(x[4 * j + 2]!, x[4 * j + 3]!);
         fastest = Math.max(fastest, speeds[j]!);
       }
-      const near: steerAutoMovieCrowdNeighbours.Query =
-        steerAutoMovieCrowdNeighbours(
+      const near: steerCrowdNeighbours.Query =
+        steerCrowdNeighbours(
           x,
           n,
           Math.max(NEIGHBOURHOOD, 2 * (widest + fastest * t0)),
@@ -494,7 +494,7 @@ export namespace SteerAutoMovieCrowdImplementation {
         }
         // The obstacles' half-planes stay hard when the program is infeasible: walkers may crowd one another but not enter an obstacle.
         const moved: IAutoMovieSolveHalfPlaneProgram.IPoint =
-          solveAutoMovieHalfPlaneProgram(
+          solveHalfPlaneProgram(
             lines,
             top,
             { x: vx, y: vz },
@@ -526,8 +526,8 @@ export namespace SteerAutoMovieCrowdImplementation {
     order.forEach((i: number, k: number): void => {
       slot[i] = k;
     });
-    const { arrival, contacts }: steerAutoMovieCrowdContacts.IResult =
-      steerAutoMovieCrowdContacts(
+    const { arrival, contacts }: steerCrowdContacts.IResult =
+      steerCrowdContacts(
         agents,
         obstacles,
         slot,

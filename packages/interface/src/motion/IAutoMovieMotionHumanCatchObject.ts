@@ -23,7 +23,7 @@ import type { IAutoMovieMotionHumanActionPlan } from "./IAutoMovieMotionHumanAct
  * decides it. The ball's size is the ball's own (`ball`, `HumanBall`). The
  * hands travel there on minimum-jerk progress over the aimed movement time to
  * an object of its size (McIntosh et al. 2018,
- * `AutoMovieMotionHumanTiming.aimed`), arriving at contact; the anticipatory
+ * `motionHumanTiming.aimed`), arriving at contact; the anticipatory
  * `prepare` instant is 100 ms before impact (Lacquaniti and Maioli 1989, J
  * Neurosci 9:134). After contact the hands give `GIVE` along the object's
  * velocity over `GIVE_TIME` (the issue's 0.05 to 0.15 m, provisional), which is

@@ -1,14 +1,14 @@
-import { auditAutoMovieDecodedFrames as auditAutoMovieDecodedFramesImplementation } from "./internal/auditAutoMovieDecodedFrames.js";
-import { auditAutoMovieDeliveryContent as auditAutoMovieDeliveryContentImplementation } from "./internal/auditAutoMovieDeliveryContent.js";
-import { auditAutoMovieEncodedPresentation as auditAutoMovieEncodedPresentationImplementation } from "./internal/auditAutoMovieEncodedPresentation.js";
+import { auditDecodedFrames as auditDecodedFramesImplementation } from "./internal/auditDecodedFrames";
+import { auditDeliveryContent as auditDeliveryContentImplementation } from "./internal/auditDeliveryContent";
+import { auditEncodedPresentation as auditEncodedPresentationImplementation } from "./internal/auditEncodedPresentation";
 
 import { type IAutoMovieProductionAudioProbe, type IAutoMovieAssertProductionPngPictureProps, type IAutoMovieProductionPngProfile, type IAutoMovieResolveProductionPngProfileProps, type IAutoMovieAssertProductionVideoProfileProps, type IAutoMovieProductionVideoProfile, type IAutoMovieResolveProductionVideoProfileProps, type IAutoMovieDecodedFrameAudit, type IAutoMovieDeliveryContentAudit, type IAutoMovieAuditEncodedPresentationExpected, type IAutoMovieAuditEncodedPresentationProbe } from "@automovie/interface";
 
-import { assertProductionAacProfile } from "./internal/assertProductionAacProfile.js";
-import { assertProductionVideoProfile } from "./internal/assertProductionVideoProfile.js";
-import { resolveProductionVideoProfile } from "./internal/resolveProductionVideoProfile.js";
-import { assertProductionPngPicture } from "./internal/assertProductionPngPicture.js";
-import { resolveProductionPngProfile } from "./internal/resolveProductionPngProfile.js";
+import { assertProductionAacProfile } from "./internal/assertProductionAacProfile";
+import { assertProductionVideoProfile } from "./internal/assertProductionVideoProfile";
+import { resolveProductionVideoProfile } from "./internal/resolveProductionVideoProfile";
+import { assertProductionPngPicture } from "./internal/assertProductionPngPicture";
+import { resolveProductionPngProfile } from "./internal/resolveProductionPngProfile";
 
 /** Render-owned delivery profile and content-audit operations. */
 export class AutoMovieRenderDelivery {
@@ -27,14 +27,14 @@ export class AutoMovieRenderDelivery {
    * @returns The admitted frames and holds.
    */
   public static auditDecodedFrames(text: string, expectedFrames: number, fps: number): IAutoMovieDecodedFrameAudit {
-    return auditAutoMovieDecodedFramesImplementation(text, expectedFrames, fps);
+    return auditDecodedFramesImplementation(text, expectedFrames, fps);
   }
 
   /** Audit decoded delivery evidence against its commissioned content rules. */
   public static auditContent(
     props: IAutoMovieDeliveryContentAudit.IProps,
   ): IAutoMovieDeliveryContentAudit.IResult {
-    return auditAutoMovieDeliveryContentImplementation(props);
+    return auditDeliveryContentImplementation(props);
   }
 
   /** Audit an encoded file against its commissioned stream profile and exact duration. */
@@ -42,7 +42,7 @@ export class AutoMovieRenderDelivery {
     probe: IAutoMovieAuditEncodedPresentationProbe,
     expected: IAutoMovieAuditEncodedPresentationExpected,
   ): void {
-    auditAutoMovieEncodedPresentationImplementation(probe, expected);
+    auditEncodedPresentationImplementation(probe, expected);
   }
 
   private constructor() {}

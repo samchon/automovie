@@ -8,7 +8,7 @@ import { planarCross } from "./planarCross";
  *
  * Touching counts because a region whose rings meet at one point is not two
  * regions with a shared corner; it is a surface pinched to a line, the same
- * shape `buildAutoMovieWall` refuses when two openings meet at a corner. A
+ * shape `buildWall` refuses when two openings meet at a corner. A
  * proper crossing needs each segment's endpoints on strictly opposite sides of
  * the other's line, each side more than `AutoMovieEnginePlanarEpsilon` from zero; otherwise
  * the segments meet when an endpoint of one is collinear with the other within

@@ -2,9 +2,9 @@ import { type IAutoMovieDeliveryCrop } from "@automovie/interface";
 import type * as THREE from "three";
 
 import {
-  applyAutoMovieDeliveryCrop as applyAutoMovieDeliveryCropImplementation,
-} from "./internal/applyAutoMovieDeliveryCrop.js";
-import { readAutoMovieDeliveryCrop as readAutoMovieDeliveryCropImplementation } from "./internal/readAutoMovieDeliveryCrop.js";
+  applyDeliveryCrop as applyDeliveryCropImplementation,
+} from "./internal/applyDeliveryCrop";
+import { readDeliveryCrop as readDeliveryCropImplementation } from "./internal/readDeliveryCrop";
 
 /** Public camera operations for the normalized delivery window. */
 export namespace AutoMovieRenderSceneDeliveryCrop {
@@ -13,7 +13,7 @@ export namespace AutoMovieRenderSceneDeliveryCrop {
     camera: THREE.PerspectiveCamera,
     crop: IAutoMovieDeliveryCrop | undefined,
   ): void {
-    applyAutoMovieDeliveryCropImplementation(camera, crop);
+    applyDeliveryCropImplementation(camera, crop);
   }
 
   /**
@@ -24,6 +24,6 @@ export namespace AutoMovieRenderSceneDeliveryCrop {
   export function read(
     camera: THREE.PerspectiveCamera,
   ): IAutoMovieDeliveryCrop | undefined {
-    return readAutoMovieDeliveryCropImplementation(camera);
+    return readDeliveryCropImplementation(camera);
   }
 }

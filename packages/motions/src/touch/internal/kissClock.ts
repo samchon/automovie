@@ -4,8 +4,8 @@ import type {
   IAutoMovieMotionMeetingTiming,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
-import { AutoMovieMotionMeeting } from "../../compose/internal/AutoMovieMotionMeeting";
+import { motionClock } from "../../compose/internal/motionClock";
+import { motionMeeting } from "../../compose/internal/motionMeeting";
 
 /*
  * A phrase with the kiss's two contact events: `contact` at its `ready` and
@@ -14,7 +14,7 @@ import { AutoMovieMotionMeeting } from "../../compose/internal/AutoMovieMotionMe
  * Returns: The phrase with both events.
  */
 export function kissClock(timed: IAutoMovieMotionClock): IAutoMovieMotionClock {
-  return AutoMovieMotionClock(timed.duration, [
+  return motionClock(timed.duration, [
     ...timed.instants,
     { name: "contact", seconds: timed.at("ready") },
     { name: "part", seconds: timed.at("relax") },
@@ -36,12 +36,12 @@ export namespace kissClock {
     meeting: IAutoMovieMotionMeeting,
     start: number,
   ): IAutoMovieMotionClock {
-    const local: IAutoMovieMotionMeetingTiming = AutoMovieMotionMeeting.local(
+    const local: IAutoMovieMotionMeetingTiming = motionMeeting.local(
       meeting,
       start,
     );
     return kissClock(
-      AutoMovieMotionClock.phrase({
+      motionClock.phrase({
         prepare: local.ready,
         attack: 0,
         hold: local.relax - local.ready,

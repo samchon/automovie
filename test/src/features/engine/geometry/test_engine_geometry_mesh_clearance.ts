@@ -7,7 +7,7 @@ import { throwsError } from "../../internal/throwsError";
 type Gap = { triangle: number; minimum: number };
 
 /**
- * `measureAutoMovieMeshClearance(front, back, axis)` reads, for each front
+ * `measureMeshClearance(front, back, axis)` reads, for each front
  * triangle whose projection overlaps the back, the least signed plane depth
  * difference back - front over the overlap; the extremum may sit at a crossed
  * edge, not a source vertex.

@@ -2,8 +2,8 @@ import { AutoMovieEngineFilm } from "@automovie/engine";
 import type { IAutoMovieShot } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind.js";
-import type { IAutoMovieRenderModelObject } from "../IAutoMovieRenderModelObject.js";
+import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind";
+import type { IAutoMovieRenderModelObject } from "../IAutoMovieRenderModelObject";
 
 /*
  * Apply an admitted shot's practical surface cues to built prop instances.

@@ -141,7 +141,7 @@ export namespace StrikingBody {
 
   /*
    * A region's radius: the extent the body built for it with its surfaces
-   * (`AutoMovieHumanoidSurfaceExtents`), the disc about its point that is still
+   * (`humanoidSurfaceExtents`), the disc about its point that is still
    * that region, so a strike aimed within it lands on that region.
    * Parameter body: The body.
    * Parameter region: The region.

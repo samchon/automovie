@@ -13,7 +13,7 @@ export namespace IAutoMovieLowerServiceNetwork {
    * A run is authored as a centre line and a radius, which is the description a
    * clash and a sleeve are measured against; drawing it is the deterministic
    * derivation of that description and nothing more. Sweeping a regular polygon
-   * section along the authored line with `meshAutoMovieSweep`, one
+   * section along the authored line with `meshSweep`, one
    * smooth-shaded ring per route point and both ends capped, is therefore the
    * whole of it: no fitting library, no elbow catalogue, no per-discipline
    * appearance. A production that wants a modelled valve body authors that prop

@@ -1,8 +1,8 @@
 import * as THREE from "three";
 
-import { AutoMovieRenderFilmResponseShaders } from "../AutoMovieRenderFilmResponseShaders.js";
-import type { IAutoMovieRenderFilmResponseRenderer } from "../IAutoMovieRenderFilmResponseRenderer.js";
-import { collectAutoMovieFilmOverlays } from "./internal/collectAutoMovieFilmOverlays.js";
+import { AutoMovieRenderFilmResponseShaders } from "../AutoMovieRenderFilmResponseShaders";
+import type { IAutoMovieRenderFilmResponseRenderer } from "../IAutoMovieRenderFilmResponseRenderer";
+import { collectFilmOverlays } from "./internal/collectFilmOverlays";
 
 /*
  * The running sum of one second's sub-frame samples, which the film response
@@ -134,7 +134,7 @@ export class AutoMovieFilmSampleSum {
       exposure: renderer.toneMappingExposure,
       autoClear: renderer.autoClear,
     };
-    const overlays: Map<THREE.Object3D, number> = collectAutoMovieFilmOverlays(
+    const overlays: Map<THREE.Object3D, number> = collectFilmOverlays(
       props.scene,
     );
     const uniforms: Record<string, THREE.IUniform> = this.material_.uniforms;

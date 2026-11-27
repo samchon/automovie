@@ -11,11 +11,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
+import { motionClock } from "../../compose/internal/motionClock";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
 import { AutoMovieMotionHumanTouchEffector } from "../../compose/internal/AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanTouchForm } from "../../compose/internal/AutoMovieMotionHumanTouchForm";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
+import { motionManner } from "../../compose/internal/motionManner";
 import type { poseBones } from "../../posture/internal/poseBones";
 import type { touchCrossedSupport } from "./touchCrossedSupport";
 import type { touchHold } from "./touchHold";
@@ -70,7 +70,7 @@ export function touchClock(
   // At least as long as the arms need to keep within the audit's travel bound.
   const reach: number = Math.max(
     attempt?.reach ?? 0,
-    AutoMovieMotionHumanTiming.transport(far),
+    motionHumanTiming.transport(far),
     touchReach.duration(
       body,
       context.entry.pose,
@@ -86,12 +86,12 @@ export function touchClock(
     AutoMovieMotionHumanTouchForm.period(
       body,
       kind,
-      AutoMovieMotionHumanTiming.seconds(
+      motionHumanTiming.seconds(
         AutoMovieMotionHumanTouchForm.FORMS[kind].period,
       ),
     );
-  return AutoMovieMotionManner.time(
-    AutoMovieMotionClock.phrase({
+  return motionManner.time(
+    motionClock.phrase({
       prepare: reach,
       attack: count * repetition,
       hold,

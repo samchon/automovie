@@ -1,6 +1,6 @@
 /**
  * One axis-aligned rectangular void in a wall's local XY face, in metres from
- * the wall's lower-left corner, as `buildAutoMovieWall` cuts it.
+ * the wall's lower-left corner, as `buildWall` cuts it.
  *
  * The wall builder refuses a blank or repeated `id`, a non-finite corner, a
  * nonpositive size, an opening reaching past the wall, two openings that

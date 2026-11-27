@@ -20,13 +20,13 @@ import type {
 } from "@automovie/interface";
 
 import { HumanBall } from "../../ballStrike/internal/HumanBall";
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanPlaced } from "../../compose/internal/AutoMovieMotionHumanPlaced";
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { HumanGrip } from "../../handling/internal/HumanGrip";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
@@ -125,7 +125,7 @@ export namespace stickBall {
 
     // A hand that does not hold the stick at the entry (`entry.holds`) takes
     // its grip first, timed as a reach-to-grasp onto the shaft (McIntosh,
-    // Mon-Williams and Tresilian 2018, `AutoMovieMotionHumanTiming.aimed`),
+    // Mon-Williams and Tresilian 2018, `motionHumanTiming.aimed`),
     // while the stick waits where it stands; the stroke then runs on its own
     // shares. A hand that holds it keeps it from the entry.
     const reaching: AutoMovieHumanSide[] = [head, rear].filter(
@@ -142,7 +142,7 @@ export namespace stickBall {
       );
       taken = Math.max(
         taken,
-        AutoMovieMotionHumanTiming.aimed(
+        motionHumanTiming.aimed(
           AutoMovieEngineVector3.length(
             AutoMovieEngineVector3.subtract(
               stickBallModel.world(initial, gripOf(hand)),
@@ -285,10 +285,10 @@ export namespace stickBall {
       stickBallModel.REST,
       followSpan,
     );
-    const approach: ReturnType<typeof AutoMovieMotionClock.prepare> =
-      AutoMovieMotionClock.prepare(clock, "gripped", "stroke");
-    const follow: ReturnType<typeof AutoMovieMotionClock.prepare> =
-      AutoMovieMotionClock.prepare(clock, "stroke", "strokeEnd");
+    const approach: ReturnType<typeof motionClock.prepare> =
+      motionClock.prepare(clock, "gripped", "stroke");
+    const follow: ReturnType<typeof motionClock.prepare> =
+      motionClock.prepare(clock, "stroke", "strokeEnd");
     // The follow-through turns the stick about the top hand's grip, the
     // lever a shot is played with (the bottom hand pushes, the top hand
     // holds the pivot: Lomond, Turcotte and Pearsall 2007, Sports Biomech
@@ -359,9 +359,9 @@ export namespace stickBall {
     // The stick stays in both hands after the stroke, carried with the
     // trunk by the actions that follow until one takes a hand over.
     const holds: IAutoMovieMotionPropHold[] = [];
-    const taking: ReturnType<typeof AutoMovieMotionClock.prepare> | undefined =
+    const taking: ReturnType<typeof motionClock.prepare> | undefined =
       taken > 0
-        ? AutoMovieMotionClock.prepare(clock, "start", "gripped")
+        ? motionClock.prepare(clock, "start", "gripped")
         : undefined;
     for (const hand of [head, rear]) {
       const grip: IAutoMovieVector3 = gripOf(hand);
@@ -429,7 +429,7 @@ export namespace stickBall {
     }
 
     const action: IAutoMovieMotionHumanActionPlan =
-      composeAutoMovieMotionHumanAction({
+      composeMotionHumanAction({
         base,
         clock,
         contact: "stroke",

@@ -2,7 +2,7 @@ import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 
 /**
  * How a sweep rides a skeleton: the bone each spine point follows and the bone
- * or joint each station follows, for `poseAutoMovieSweep`.
+ * or joint each station follows, for `poseSweep`.
  *
  * A station on one bone keeps its orientation in that bone's frame, as an
  * intermediate key section follows its link. A station on two bones sits at the

@@ -50,7 +50,7 @@ const SAMPLES: Readonly<Record<string, readonly [string, string][]>> = {
  * Scenarios:
  *
  * 1. The key list is the capture's own keys followed by `AutoMovieRenderInspectionKeys`, each once, and this test has a sample for exactly those keys.
- * 2. For every key, its sample read through `URLSearchParams` and through `readAutoMovieCaptureArguments` gives equal requests.
+ * 2. For every key, its sample read through `URLSearchParams` and through `readCaptureArguments` gives equal requests.
  * 3. For every key, the request with the key differs from the request with only the keys it needs, so the key is not ignored by either host.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Reads each key through both host mappings into the public reader and compares the requests; a key that one mapping dropped, or that the reader ignored, fails scenario 2 or 3.

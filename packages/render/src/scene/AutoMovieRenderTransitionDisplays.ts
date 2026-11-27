@@ -4,10 +4,10 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieDisplayCompositor } from "./internal/AutoMovieDisplayCompositor.js";
-import { AutoMovieRenderFilmResponseShaders } from "./AutoMovieRenderFilmResponseShaders.js";
-import { renderAutoMovieFilmFrame } from "./internal/renderAutoMovieFilmFrame.js";
-import { mixAutoMovieStraightAlpha as mixStraightAlphaImplementation } from "./internal/mixAutoMovieStraightAlpha.js";
+import { AutoMovieDisplayCompositor } from "./internal/AutoMovieDisplayCompositor";
+import { AutoMovieRenderFilmResponseShaders } from "./AutoMovieRenderFilmResponseShaders";
+import { renderFilmFrame } from "./internal/renderFilmFrame";
+import { mixStraightAlpha as mixStraightAlphaImplementation } from "./internal/mixStraightAlpha";
 
 /**
  * The canvas pictures of a transition's layers, held one at a time and then
@@ -156,7 +156,7 @@ export class AutoMovieRenderTransitionDisplays {
     layers: readonly (IAutoMovieFilmBeautyLayer & { slot: number })[],
     transparent: boolean,
   ): void {
-    renderAutoMovieFilmFrame(
+    renderFilmFrame(
       renderer,
       { fade: this.fade_, dissolve: this.dissolve_ },
       layers,

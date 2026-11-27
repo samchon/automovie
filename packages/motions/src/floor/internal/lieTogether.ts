@@ -23,7 +23,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
@@ -358,7 +358,7 @@ function planLieTogether(
     context.entry.pose,
     lower,
   ).upper;
-  const folding: number = AutoMovieMotionHumanTiming.transport(
+  const folding: number = motionHumanTiming.transport(
     apart *
       Math.max(
         Math.abs(fold.upper[0] - was[0]),
@@ -368,7 +368,7 @@ function planLieTogether(
       (Math.PI / 180),
   );
   const settle: number =
-    folding + AutoMovieMotionHumanTiming.transport(AutoMovieEngineVector3.length(travel));
+    folding + motionHumanTiming.transport(AutoMovieEngineVector3.length(travel));
   const duration: number = settle + p.hold;
   const settled: IAutoMovieMotionHumanPosture = folded(
     lieTogetherNeck.apply(

@@ -3,8 +3,8 @@ import type {
   IAutoMovieSequenceRenderAndSeeResult,
 } from "@automovie/interface";
 
-import { planSequenceRender } from "./planSequenceRender.js";
-import { renderSequenceVideo } from "./renderSequenceVideo.js";
+import { planSequenceRender } from "./planSequenceRender";
+import { renderSequenceVideo } from "./renderSequenceVideo";
 
 /*
  * Build a sequence render manifest, execute it through host adapters, and

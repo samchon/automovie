@@ -16,12 +16,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanArmCourse } from "../../compose/internal/AutoMovieMotionHumanArmCourse";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { HumanArmTrajectoryTerms } from "../../posture/internal/HumanArmTrajectoryTerms";
 import { HumanLimbFit } from "../../posture/internal/HumanLimbFit";
 import { prepareHumanAdaptiveKnots } from "../../posture/internal/prepareHumanAdaptiveKnots";
@@ -208,7 +208,7 @@ export namespace stagger {
 
     // The first step's landing, the instant the clock names the catch by.
     const swing: number = recovery.steps[0]!.land;
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(
+    const clock: IAutoMovieMotionClock = motionClock(
       recovery.settled,
       [
         { name: "tipped", seconds: 0.5 * swing },
@@ -233,7 +233,7 @@ export namespace stagger {
       landing,
     );
     const settledEntry: number = feet.settle(0, feet.standing(0)).root.y;
-    const reaction: number = AutoMovieMotionHumanTiming.seconds(
+    const reaction: number = motionHumanTiming.seconds(
       staggerBounds.REACTION,
     );
 
@@ -305,7 +305,7 @@ export namespace stagger {
     // solver's own angular resolution (`AutoMovieEngineRomTolerance`); no pose query fits an
     // arm.
     const composed: IAutoMovieMotionHumanActionPlan =
-      composeAutoMovieMotionHumanAction({
+      composeMotionHumanAction({
         base: {
           ...AutoMovieMotionHumanBase.still(duration, {
             root: entry.root,

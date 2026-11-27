@@ -1,9 +1,9 @@
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AUTOMOVIE_HUMANOID_BONE_SLOTS } from "../../internal/AUTOMOVIE_HUMANOID_BONE_SLOTS.js";
-import type { IAutoMovieRenderImportedModelOptions } from "../../IAutoMovieRenderImportedModelOptions.js";
-import type { IAutoMovieRenderModelObject } from "../../IAutoMovieRenderModelObject.js";
+import { AUTOMOVIE_HUMANOID_BONE_SLOTS } from "../../internal/AUTOMOVIE_HUMANOID_BONE_SLOTS";
+import type { IAutoMovieRenderImportedModelOptions } from "../../IAutoMovieRenderImportedModelOptions";
+import type { IAutoMovieRenderModelObject } from "../../IAutoMovieRenderModelObject";
 
 /*
  * Wrap an imported runtime object as an IAutoMovieRenderModelObject.

@@ -13,7 +13,7 @@ import { vclose } from "../../internal/vclose";
 const SHOULDER: number = 1.5;
 
 /**
- * `resolveAutoMovieMutualGoal` finds where two hands meet. Without a preferred
+ * `resolveMutualGoal` finds where two hands meet. Without a preferred
  * height it is the lowest point of the circle where both comfortable-reach
  * spheres meet, both reaches scaled alike when they do not; with one it is the
  * point along the shoulder line where both arms are the same share of their

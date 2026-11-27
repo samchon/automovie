@@ -1,6 +1,6 @@
 /**
  * The native solve a refinement started from, as
- * `refineAutoMovieQuadraticProgram` records it.
+ * `refineQuadraticProgram` records it.
  *
  * The values are the kernel's own report, copied, in the caller's unscaled
  * units; polishing never calls the kernel again. The kernel's residuals are its

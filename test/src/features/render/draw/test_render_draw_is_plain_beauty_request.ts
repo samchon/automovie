@@ -2,7 +2,7 @@ import { AutoMovieRenderInspectionRequest, AutoMovieRenderDraw } from "@automovi
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `isAutoMoviePlainBeautyRequest` is true when an inspection request leaves the
+ * `isPlainBeautyRequest` is true when an inspection request leaves the
  * beauty picture as it is.
  *
  * Scenarios:

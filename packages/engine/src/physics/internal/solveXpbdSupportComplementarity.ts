@@ -34,15 +34,23 @@ export namespace solveXpbdSupportComplementarity {
     return solveXpbdSupportComplementarityImplementation(input);
   }
 
-  /** One tree's rows. */
+  /*
+   * One tree's rows.
+   */
   export interface IInput {
-    /** Each row's velocity change per unit impulse of every row. */
+    /*
+     * Each row's velocity change per unit impulse of every row.
+     */
     k: readonly number[][];
 
-    /** Each row's velocity change under the motors alone. */
+    /*
+     * Each row's velocity change under the motors alone.
+     */
     u: readonly number[];
 
-    /** The rows and patches. */
+    /*
+     * The rows and patches.
+     */
     set: Contacts.ISet;
   }
 }

@@ -1,6 +1,6 @@
 import type { AutoMovieGuidePass } from "@automovie/interface";
 
-import { AUTOMOVIE_GUIDE_PASSES } from "../AUTOMOVIE_GUIDE_PASSES.js";
+import { AUTOMOVIE_GUIDE_PASSES } from "../AUTOMOVIE_GUIDE_PASSES";
 
 /*
  * Whether a string names a guide pass, narrowing it to `AutoMovieGuidePass`.

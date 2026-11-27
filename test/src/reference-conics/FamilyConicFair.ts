@@ -17,7 +17,7 @@ import type { FamilyConicSection as C } from "./FamilyConicSection";
  * curvature penalty: harmonic n shrunk by 1 / (1 + (n / cut)^4), cut = girth / fairMm, so the harmonic whose wavelength is `fairMm` mm of
  * girth keeps half its amplitude and a ripple of half that wavelength a seventeenth. The faired curve's inflections are the converter's
  * breaks, and so are the two phases where an invented closure meets the skin. The conversion is Ahn's
- * (`approximateAutoMovieRecoveryConicsAhn`), unchanged. `FamilyConicSection.converted` reads its sections through `curve` at `FAIR_MM`.
+ * (`approximateRecoveryConicsAhn`), unchanged. `FamilyConicSection.converted` reads its sections through `curve` at `FAIR_MM`.
  */
 export namespace FamilyConicFair {
   /**

@@ -23,11 +23,11 @@ import type {
 
 import { stand } from "../../actions/internal/stand";
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
-import { AutoMovieMotionHumanArmJointCourse } from "../../compose/internal/AutoMovieMotionHumanArmJointCourse";
+import { motionHumanArmJointCourse } from "../../compose/internal/motionHumanArmJointCourse";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanChannel as HumanChannels } from "../../compose/internal/AutoMovieMotionHumanChannel";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionHumanChannel as HumanChannels } from "../../compose/internal/motionHumanChannel";
+import { motionManner } from "../../compose/internal/motionManner";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanPreparedPlayback } from "../../perform/internal/HumanPreparedPlayback";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
@@ -162,7 +162,7 @@ export namespace climbLadder {
       };
     const frame: IAutoMovieMotionHumanFrame = ladder.frame;
     const yaw: number = frame.yaw;
-    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+    const modifiers: IAutoMovieMotionManner.IModifiers = motionManner(
       context,
       context.params.manner,
     );
@@ -265,8 +265,8 @@ export namespace climbLadder {
       left: AutoMovieMotionHumanArm.angles(context.entry.pose, "left"),
       right: AutoMovieMotionHumanArm.angles(context.entry.pose, "right"),
     };
-    const carrier: AutoMovieMotionHumanArmJointCourse.ICarrier =
-      AutoMovieMotionHumanArmJointCourse.carrier(body);
+    const carrier: motionHumanArmJointCourse.ICarrier =
+      motionHumanArmJointCourse.carrier(body);
 
     // The schedule: hands on, then four beats a rung (climbLadderBeats).
     const beats: climbLadderBeats.IBeats = climbLadderBeats.prepare(
@@ -474,7 +474,7 @@ export namespace climbLadder {
     );
 
     const planned: IAutoMovieMotionHumanClimbLadder.IPlan = {
-      ...composeAutoMovieMotionHumanAction({
+      ...composeMotionHumanAction({
         base: AutoMovieMotionHumanBase.still(duration, standing, contacts),
         clock,
         contact: "handsOn",

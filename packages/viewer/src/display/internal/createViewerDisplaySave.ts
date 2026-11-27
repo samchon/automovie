@@ -1,5 +1,5 @@
-import type { AutoMovieViewerDisplay } from "../AutoMovieViewerDisplay.js";
-import { createViewerDisplayPublication } from "./createViewerDisplayPublication.js";
+import type { AutoMovieViewerDisplay } from "../AutoMovieViewerDisplay";
+import { createViewerDisplayPublication } from "./createViewerDisplayPublication";
 
 /*
  * Copy a completed display before asynchronously encoding and saving it. The

@@ -5,7 +5,7 @@
  * Only the listed variables take part; every other coefficient is zero. Equal
  * endpoints make an equality. A row with no indices constrains the constant
  * zero, so a lower endpoint above zero or an upper endpoint below zero makes
- * the program infeasible. `admitAutoMovieQuadraticProgram` refuses a row that
+ * the program infeasible. `admitQuadraticProgram` refuses a row that
  * breaks a rule stated on a member.
  */
 export interface IAutoMovieQuadraticRow {

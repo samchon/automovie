@@ -16,13 +16,13 @@ import type {
 
 import { stand } from "../../actions/internal/stand";
 import { walkRoot } from "../../actions/internal/walkRoot";
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanHand } from "../../compose/internal/AutoMovieMotionHumanHand";
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanRange } from "../../compose/internal/AutoMovieMotionHumanRange";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionManner } from "../../compose/internal/motionManner";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanPhysics } from "../../law/internal/HumanPhysics";
@@ -200,7 +200,7 @@ export namespace crouch {
       context.params.heels ?? (depth === "full" ? "up" : "flat");
     const hold: number = context.params.hold ?? 1;
     HumanBound.least("hold", hold, 0, "s");
-    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+    const modifiers: IAutoMovieMotionManner.IModifiers = motionManner(
       context,
       context.params.manner,
     );
@@ -215,8 +215,8 @@ export namespace crouch {
     // The clock: descent, hold, rise.
     const down: number =
       DESCENT[depth] * Math.sqrt(m.hipHeight / REFERENCE_HIP);
-    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
-      AutoMovieMotionClock.sequence([
+    const clock: IAutoMovieMotionClock = motionManner.time(
+      motionClock.sequence([
         { name: "descend", seconds: down },
         { name: "lowest", seconds: hold },
         { name: "ascend", seconds: down },
@@ -248,7 +248,7 @@ export namespace crouch {
     const standing: IAutoMovieMotionHumanPosture = base.posture(0);
     const yaw: number = standing.yaw;
     const share: (seconds: number) => number =
-      AutoMovieMotionClock.prepareEnvelope(
+      motionClock.prepareEnvelope(
         clock,
         ["descend", "lowest"],
         ["ascend", "end"],
@@ -333,7 +333,7 @@ export namespace crouch {
       });
 
     return {
-      ...composeAutoMovieMotionHumanAction({
+      ...composeMotionHumanAction({
         base,
         clock,
         contact: "lowest",

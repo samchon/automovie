@@ -6,7 +6,7 @@ import type { AutoMovieVector3Tuple } from "./AutoMovieVector3Tuple";
  * PrepareAutoMovieContourDocument64 copies the event's physical coordinates,
  * terminal and signed saved-loop incidence. Its link fields encode the declared
  * event kind and regularity; they are not measurements of a recovered mesh
- * link. planAutoMovieContourSlabs64 uses these same records to match groups and
+ * link. planContourSlabs64 uses these same records to match groups and
  * keeps unsupported relationships as explicit local omissions. The record and
  * copied terminal/incidence arrays belong to one generation call and remain
  * mutable work data. It carries no source-mesh vertex address.

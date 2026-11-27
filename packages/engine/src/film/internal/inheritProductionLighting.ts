@@ -3,7 +3,7 @@ import {
   IAutoMovieLight,
 } from "@automovie/interface";
 
-import { autoMovieStoryTime } from "./autoMovieStoryTime";
+import { storyTime } from "./storyTime";
 import { resolveProductionLighting } from "./resolveProductionLighting";
 
 /*
@@ -15,7 +15,7 @@ import { resolveProductionLighting } from "./resolveProductionLighting";
  * says nothing about production light therefore renders the frames it always
  * did, and an unpinned shot is never assigned a story moment it did not claim.
  *
- * Otherwise the production is resolved at `autoMovieStoryTime(pin, seconds)`
+ * Otherwise the production is resolved at `storyTime(pin, seconds)`
  * and merged by light id:
  *
  * - A staged light whose id a production source shares is replaced in place by
@@ -39,7 +39,7 @@ export function inheritProductionLighting(
 
   const resolved: IAutoMovieLight[] = resolveProductionLighting({
     lighting,
-    storySeconds: autoMovieStoryTime(pin, props.seconds),
+    storySeconds: storyTime(pin, props.seconds),
   });
   const inherited: Map<string, IAutoMovieLight> = new Map(
     resolved.map((light: IAutoMovieLight): [string, IAutoMovieLight] => [

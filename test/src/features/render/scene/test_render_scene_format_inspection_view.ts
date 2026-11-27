@@ -3,7 +3,7 @@ import { AutoMovieRenderInspectionRequest } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `formatAutoMovieInspectionView` writes a view as the `views` text the
+ * `formatInspectionView` writes a view as the `views` text the
  * inspection request reads.
  *
  * Scenarios:

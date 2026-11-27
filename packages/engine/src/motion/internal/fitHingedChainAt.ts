@@ -37,15 +37,21 @@ export namespace fitHingedChainAt {
     return placeHingedChainAt(props, swivel, branch);
   }
 
-  /** A chain placed at a swivel. */
+  /*
+   * A chain placed at a swivel.
+   */
   export interface IPlaced extends IAutoMovieSeededChainFit {
-    /** How far the target lies beyond the branch's legal shell, metres. */
+    /*
+     * How far the target lies beyond the branch's legal shell, metres.
+     */
     shortfall: number;
 
-    /** Whether the range of motion moved a joint off the swivel's own pose. */
+    /*
+     * Whether the range of motion moved a joint off the swivel's own pose.
+     */
     clamped: boolean;
 
-    /**
+    /*
      * The request's obstruction read at the swivel's own mid and end joints
      * (`IAutoMovieFitChainToTargetProps.obstruction`); 0 without one, positive
      * where the chain passes through what the fit keeps clear of.
@@ -108,27 +114,31 @@ export namespace fitHingedChainAt {
     };
   }
 
-  /**
+  /*
    * A chain's joint angles at a swivel before the range of motion applies:
    * Tolani, Goswami and Badler's theta_1 to theta_7 (2000, sections 3.2.3 and
    * 3.2.4), clinical degrees, the end joint's three read as one spherical joint
    * on its own basis.
    */
   export interface IFree {
-    /** The root joint (theta_1 to theta_3). */
+    /*
+     * The root joint (theta_1 to theta_3).
+     */
     upper: IAutoMovieJointPose;
 
-    /** The mid joint, its hinge only (theta_4). */
+    /*
+     * The mid joint, its hinge only (theta_4).
+     */
     lower: IAutoMovieJointPose;
 
-    /**
+    /*
      * The end joint relative to the hinge-only mid bone (theta_5 to theta_7),
      * its twist the distal twist the mid bone takes on a limb that twists
      * distally; null without a requested effector rotation.
      */
     effector: IAutoMovieJointPose | null;
 
-    /**
+    /*
      * Both Euler charts of the root and the end joint (Tolani, Goswami and
      * Badler 2000, section 3.3: two families of solutions for each, so four
      * combinations), each read without a range: the principal and the
@@ -137,15 +147,23 @@ export namespace fitHingedChainAt {
     charts: ICharts;
   }
 
-  /** A joint's two Euler readings: the principal chart, then the alternate. */
+  /*
+   * A joint's two Euler readings: the principal chart, then the alternate.
+   */
   export type Charts = readonly [IAutoMovieJointPose, IAutoMovieJointPose];
 
-  /** The root's and the end joint's two Euler readings. */
+  /*
+   * The root's and the end joint's two Euler readings.
+   */
   export interface ICharts {
-    /** The root joint's (theta_1 to theta_3). */
+    /*
+     * The root joint's (theta_1 to theta_3).
+     */
     upper: Charts;
 
-    /** The end joint's (theta_5 to theta_7); null without an effector rotation. */
+    /*
+     * The end joint's (theta_5 to theta_7); null without an effector rotation.
+     */
     effector: Charts | null;
   }
 }

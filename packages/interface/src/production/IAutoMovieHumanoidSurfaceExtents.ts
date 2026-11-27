@@ -7,7 +7,7 @@ export namespace IAutoMovieHumanoidSurfaceExtents {
    * Synchronous lookup of one bone's physical-segment collider bounds at
    * neutral placement, in model-rest metres.
    *
-   * AutoMovieHumanoidSurfaceExtents reads the least axis breadth, halves it,
+   * humanoidSurfaceExtents reads the least axis breadth, halves it,
    * and combines that with half the nearest same-facing region distance, then
    * applies a 0.01 m contact-radius floor. The callback therefore supplies the
    * segment box, not the resulting region disc. The surface-ray tools

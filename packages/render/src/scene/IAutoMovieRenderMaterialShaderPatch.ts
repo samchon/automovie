@@ -1,4 +1,4 @@
-import type { IAutoMovieRenderMaterialShaderSource } from "./IAutoMovieRenderMaterialShaderSource.js";
+import type { IAutoMovieRenderMaterialShaderSource } from "./IAutoMovieRenderMaterialShaderSource";
 
 /**
  * One named change to a material's compiled shader. Each operation reads and

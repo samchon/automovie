@@ -6,7 +6,7 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieRenderSpaceGroupName } from "../AutoMovieRenderSpaceGroupName.js";
+import { AutoMovieRenderSpaceGroupName } from "../AutoMovieRenderSpaceGroupName";
 
 /*
  * Build the structural ground of an IAutoMovieSpace: one `Mesh` per

@@ -4,8 +4,8 @@ import type {
   IAutoMovieRequiredMaterialTexturePurposes,
   IAutoMovieResolveMaterial,
 } from "@automovie/interface";
-import { requiredAutoMovieMaterialTexturePurposes as requiredTexturePurposesImplementation } from "./internal/requiredAutoMovieMaterialTexturePurposes";
-import { resolveAutoMovieMaterial as resolveMaterialImplementation } from "./internal/resolveAutoMovieMaterial";
+import { requiredMaterialTexturePurposes as requiredTexturePurposesImplementation } from "./internal/requiredMaterialTexturePurposes";
+import { resolveMaterial as resolveMaterialImplementation } from "./internal/resolveMaterial";
 
 /** Public operations for Auto Movie Engine Render Material. */
 export namespace AutoMovieEngineRenderMaterial {

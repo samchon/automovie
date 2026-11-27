@@ -32,11 +32,11 @@ import type {
 import { AutoMovieMotionHumanAuditSkin } from "../../audit/internal/AutoMovieMotionHumanAuditSkin";
 import { AutoMovieMotionHumanAuditTangle } from "../../audit/internal/AutoMovieMotionHumanAuditTangle";
 import { AutoMovieMotionHumanAuditTangleModel } from "../../audit/internal/AutoMovieMotionHumanAuditTangleModel";
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmPlanned } from "../../compose/internal/AutoMovieMotionHumanArmPlanned";
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
-import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
+import { motionHumanHeld } from "../../compose/internal/motionHumanHeld";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanHand } from "../../posture/internal/HumanHand";
@@ -82,7 +82,7 @@ export function planHumanHeldSupport(
     body,
     requested,
   );
-  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
+  const held: IAutoMovieMotionHumanHeld.IHeld = motionHumanHeld(
     context,
     props.side,
     props.prop,
@@ -331,7 +331,7 @@ export function planHumanHeldSupport(
     { origin: at.root, yaw: at.yaw },
     bend,
   );
-  const gesture: IAutoMovieMotionClock = AutoMovieMotionClock(clock.duration, [
+  const gesture: IAutoMovieMotionClock = motionClock(clock.duration, [
     { name: "supportStart", seconds: span.start },
     { name: "supportReady", seconds: span.ready },
     { name: "supportRelax", seconds: span.relax },

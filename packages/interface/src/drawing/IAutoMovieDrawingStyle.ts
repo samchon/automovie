@@ -9,7 +9,7 @@ import type { IAutoMovieDrawingWeights } from "./IAutoMovieDrawingWeights";
  * the scale denominator grew. The style holds authored numbers per role rather
  * than a named house style.
  *
- * Deriving a drawing never reads the style; only `autoMovieDrawingToSvg` does,
+ * Deriving a drawing never reads the style; only `drawingToSvg` does,
  * and it throws when a weight, dash entry or the text height is not a finite
  * positive number. Region fills carry no stroke, opening outlines are stroked
  * with the `cut` weight, and dimension lines with the `projected` weight.

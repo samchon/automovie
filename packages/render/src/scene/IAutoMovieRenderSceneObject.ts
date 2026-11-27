@@ -1,6 +1,6 @@
 import type * as THREE from "three";
 
-import type { IAutoMovieRenderSceneSoftProps } from "./IAutoMovieRenderSceneSoftProps.js";
+import type { IAutoMovieRenderSceneSoftProps } from "./IAutoMovieRenderSceneSoftProps";
 
 /**
  * Result of building a scene: the `three.js` scene, its cameras (first is

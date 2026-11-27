@@ -11,36 +11,58 @@ import type {
  * and convergence rules its steps share.
  */
 export namespace physicalBalanceAssessment {
-  /** The assessment's shared state. */
+  /*
+   * The assessment's shared state.
+   */
   export interface IAssessment {
-    /** The readings and limits assessed. */
+    /*
+     * The readings and limits assessed.
+     */
     input: IAutoMoviePhysicalBalance.IAssessInput;
 
-    /** The pendulum's rate, per second. */
+    /*
+     * The pendulum's rate, per second.
+     */
     omega: number;
 
-    /** The capture point, on the floor. */
+    /*
+     * The capture point, on the floor.
+     */
     capturePoint: IAutoMovieVector3;
 
-    /** The margin the stance holds its centre of pressure inside, metres. */
+    /*
+     * The margin the stance holds its centre of pressure inside, metres.
+     */
     inset: number;
 
-    /** The assessment before any step is chosen. */
+    /*
+     * The assessment before any step is chosen.
+     */
     result: IAutoMoviePhysicalBalance.IResult;
 
-    /** The supports' centroid. */
+    /*
+     * The supports' centroid.
+     */
     centroid: IAutoMovieVector3;
 
-    /** The capture point's horizontal offset from the centroid. */
+    /*
+     * The capture point's horizontal offset from the centroid.
+     */
     direction: IAutoMovieVector3;
 
-    /** The offset's squared length. */
+    /*
+     * The offset's squared length.
+     */
     denominator: number;
 
-    /** The swing's timing, when its bounds are valid. */
+    /*
+     * The swing's timing, when its bounds are valid.
+     */
     timing: IAutoMoviePhysicalBalance.IAssessInput["swing"];
 
-    /** What a swing under way has spent, seconds. */
+    /*
+     * What a swing under way has spent, seconds.
+     */
     spent: number;
   }
 

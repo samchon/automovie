@@ -1,12 +1,12 @@
 import type { IAutoMovieFilmOptics } from "@automovie/interface";
 import type * as THREE from "three";
 
-import type { IAutoMovieRenderFilmResponseRenderer } from "./IAutoMovieRenderFilmResponseRenderer.js";
+import type { IAutoMovieRenderFilmResponseRenderer } from "./IAutoMovieRenderFilmResponseRenderer";
 
 /**
  * A shot's surface graphics, built and mounted on their props.
  *
- * `prepareAutoMovieSurfaceGraphics` returns it. The caller owns it until
+ * `prepareSurfaceGraphics` returns it. The caller owns it until
  * `dispose`. Each track's root is named `surface-graphic:<node>/<surface>` and
  * parented to its prop's model object at the surface frame, so a host finds it
  * by that name in the scene it mounted, as the semantic mask does.

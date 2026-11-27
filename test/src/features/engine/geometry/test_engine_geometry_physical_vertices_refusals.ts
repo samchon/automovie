@@ -9,7 +9,7 @@ import { TestValidator } from "@nestia/e2e";
 import { createPhysicalMesh } from "../../internal/createPhysicalMesh";
 
 /**
- * `resolveAutoMovieMeshPhysicalVertices` refuses a malformed source
+ * `resolveMeshPhysicalVertices` refuses a malformed source
  * correspondence by name ("physicalVertices") instead of falling back to
  * coincidence, and `validateMeshTopology` reports it at the mesh's
  * `physicalVertices` path.

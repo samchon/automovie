@@ -1,10 +1,10 @@
 import type { AutoMovieGuidePass } from "@automovie/interface";
 import type * as THREE from "three";
-import type { IAutoMovieRenderModeHandle } from "./IAutoMovieRenderModeHandle.js";
-import { applyRenderMode as applyRenderModeImplementation } from "./internal/applyRenderMode.js";
-import { restoreAutoMovieRenderModeOnce as restoreAutoMovieRenderModeOnceImplementation } from "./internal/restoreAutoMovieRenderModeOnce.js";
-import { restoreAutoMovieRenderModeState as restoreAutoMovieRenderModeStateImplementation } from "./internal/restoreAutoMovieRenderModeState.js";
-import { guardAutoMovieRenderModeRetirement as guardAutoMovieRenderModeRetirementImplementation } from "./internal/guardAutoMovieRenderModeRetirement.js";
+import type { IAutoMovieRenderModeHandle } from "./IAutoMovieRenderModeHandle";
+import { applyRenderMode as applyRenderModeImplementation } from "./internal/applyRenderMode";
+import { restoreRenderModeOnce as restoreRenderModeOnceImplementation } from "./internal/restoreRenderModeOnce";
+import { restoreRenderModeState as restoreRenderModeStateImplementation } from "./internal/restoreRenderModeState";
+import { guardRenderModeRetirement as guardRenderModeRetirementImplementation } from "./internal/guardRenderModeRetirement";
 
 /** Public operations for Auto Movie Scene Render Mode. */
 export namespace AutoMovieRenderSceneRenderMode {
@@ -28,8 +28,8 @@ export namespace AutoMovieRenderSceneRenderMode {
     primary?: { error: unknown },
   ): void {
     if (primary === undefined)
-      return restoreAutoMovieRenderModeStateImplementation(operations);
-    return restoreAutoMovieRenderModeStateImplementation(operations, primary);
+      return restoreRenderModeStateImplementation(operations);
+    return restoreRenderModeStateImplementation(operations, primary);
   }
 
   /** Guard new mode work while a scene mode restoration is active or failed. */
@@ -37,7 +37,7 @@ export namespace AutoMovieRenderSceneRenderMode {
     scene: THREE.Scene,
     attempt?: { run: () => void; primary?: { error: unknown } },
   ): void {
-    guardAutoMovieRenderModeRetirementImplementation(scene, attempt);
+    guardRenderModeRetirementImplementation(scene, attempt);
   }
 
   /**
@@ -46,6 +46,6 @@ export namespace AutoMovieRenderSceneRenderMode {
    * resource; reentrant calls do not start a second attempt.
    */
   export function restoreOnce(fn: () => void): (() => void) {
-    return restoreAutoMovieRenderModeOnceImplementation(fn);
+    return restoreRenderModeOnceImplementation(fn);
   }
 }

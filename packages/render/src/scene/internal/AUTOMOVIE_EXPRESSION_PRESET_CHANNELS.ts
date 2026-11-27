@@ -9,7 +9,7 @@ import type {
  * with the factor its intensity is multiplied by.
  *
  * `applyExpression` writes a preset's channels at its intensity, and
- * `autoMovieVisemeChannelWeights` sums the five mouth presets' channels by
+ * `visemeChannelWeights` sums the five mouth presets' channels by
  * viseme weight, so both read one table. The gaze rows are the engine's, shared
  * with its eye-bone gaze.
  */

@@ -2,7 +2,7 @@ import { AutoMovieEngineRenderTarget } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `autoMovieRenderDigest` is the `sha256:` digest of the UTF-8 text.
+ * `renderDigest` is the `sha256:` digest of the UTF-8 text.
  *
  * Scenarios, from the FIPS 180-4 examples:
  *

@@ -2,7 +2,7 @@ import { AutoMovieEngineRenderTexture } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `autoMovieTextureFormatBytes` is the bytes per texel of a render texture
+ * `textureFormatBytes` is the bytes per texel of a render texture
  * format.
  *
  * Scenarios:

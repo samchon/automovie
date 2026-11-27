@@ -1,4 +1,4 @@
-import type { IAutoMovieCaptionEntry } from "./IAutoMovieCaptionEntry.js";
+import type { IAutoMovieCaptionEntry } from "./IAutoMovieCaptionEntry";
 
 /**
  * The per-beat caption track of one sequence render: the machine-readable

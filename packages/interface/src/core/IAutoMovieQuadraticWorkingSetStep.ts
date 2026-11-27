@@ -2,7 +2,7 @@ import type { IAutoMovieQuadraticConstraintBasis } from "./IAutoMovieQuadraticCo
 
 /**
  * One equality-constrained step of the quadratic polisher, returned by
- * `solveAutoMovieQuadraticWorkingSetStep` for the current working set.
+ * `solveQuadraticWorkingSetStep` for the current working set.
  *
  * The step minimizes the unchanged diagonal objective on the affine space where
  * every working row equals its chosen endpoint. It is a candidate only: the

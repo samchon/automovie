@@ -1,7 +1,7 @@
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
 /**
- * Joint diagnostics read by markAutoMovieRomOvershoot without retaining or
+ * Joint diagnostics read by markRomOvershoot without retaining or
  * modifying the input. Empty input yields no marks.
  */
 export namespace IAutoMovieMarkRomOvershoot {

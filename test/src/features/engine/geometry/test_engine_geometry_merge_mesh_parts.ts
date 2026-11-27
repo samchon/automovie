@@ -8,7 +8,7 @@ import { TestValidator } from "@nestia/e2e";
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * `mergeAutoMovieMeshParts(parts)` places each member by its transform, merges
+ * `mergeMeshParts(parts)` places each member by its transform, merges
  * them, and reports each member's range of the merged index buffer (an
  * unindexed member counting one index per vertex).
  *

@@ -9,7 +9,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
-import { decomposeAutoMovieSingularMatrix } from "../../math/internal/decomposeAutoMovieSingularMatrix";
+import { decomposeSingularMatrix } from "../../math/internal/decomposeSingularMatrix";
 import { physicalJointRelativeRotation } from "./physicalJointRelativeRotation";
 import { AutoMovieEnginePhysicalSingularBudget } from "../AutoMovieEnginePhysicalSingularBudget";
 import { physicalSupportPoint } from "./physicalSupportPoint";
@@ -164,7 +164,7 @@ export function resolvePhysicalSupportRedundancy(
     columns.map((column: number[]): number => column[row]!),
   );
   const decomposition: IAutoMovieSingularDecomposition =
-    decomposeAutoMovieSingularMatrix(
+    decomposeSingularMatrix(
       design,
       AutoMovieEnginePhysicalSingularBudget.DEFAULTS,
     );

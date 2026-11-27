@@ -11,7 +11,7 @@ import type { IAutoMovieSubdivisionTopology } from "@automovie/interface";
  * vertex and face indices: an edge used by more than two faces, an edge two
  * faces traverse in the same direction, a vertex in no face, and a vertex whose
  * faces form more than one fan. Rows must already hold valid, distinct vertex
- * indices per face; `subdivideAutoMovieSurface` checks that before calling.
+ * indices per face; `subdivideSurface` checks that before calling.
  * Parameter vertexCount: Number of vertices the rows index.
  * Parameter faceOffsets: Row starts, one more entry than faces.
  * Parameter faceVertices: Vertex of every corner.

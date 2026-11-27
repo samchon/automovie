@@ -59,7 +59,7 @@ const SHEET: IAutoMovieDrawing = {
 };
 
 /**
- * `autoMovieDrawingToSvg` writes a sheet as an SVG at the view's scale: 1000 /
+ * `drawingToSvg` writes a sheet as an SVG at the view's scale: 1000 /
  * scale millimetres per metre, a 10 mm margin, and y flipped so that up on the
  * page is up on the sheet.
  *

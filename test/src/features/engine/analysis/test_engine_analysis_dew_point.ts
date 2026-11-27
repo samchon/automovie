@@ -4,7 +4,7 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../../internal/nclose";
 
 /**
- * `autoMovieDewPoint` is the Magnus dew point with Sonntag's coefficients (a =
+ * `calculateDewPoint` is the Magnus dew point with Sonntag's coefficients (a =
  * 17.62, b = 243.12 °C).
  *
  * Scenarios:

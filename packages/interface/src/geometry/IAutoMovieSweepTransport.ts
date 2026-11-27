@@ -1,11 +1,11 @@
 /**
  * A spine compiled into buffers that can be rewritten and recompiled in place,
- * from `transportAutoMovieSweepSpine`.
+ * from `transportSweepSpine`.
  *
  * The caller writes the points, the starting direction and any end tangents
  * into the arrays, calls `update`, then queries. Queries write into a caller
  * array at an offset and allocate nothing, so a sweep riding a skeleton is
- * re-transported every frame into the same memory. `frameAutoMovieSweepSpine`
+ * re-transported every frame into the same memory. `frameSweepSpine`
  * wraps one of these in the object-returning `IAutoMovieSweepPath`.
  */
 export interface IAutoMovieSweepTransport {
@@ -37,7 +37,7 @@ export interface IAutoMovieSweepTransport {
    * Recompile the curve and, when the transport carries frames, the frame table
    * from the arrays.
    *
-   * @throws Error as `frameAutoMovieSweepSpine` documents
+   * @throws Error as `frameSweepSpine` documents
    */
   update(): void;
 

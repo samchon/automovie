@@ -2,7 +2,7 @@ import { AutoMovieRenderCapture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `readAutoMovieCaptureArguments` reads `--key=value`, `--key value` and a bare
+ * `readCaptureArguments` reads `--key=value`, `--key value` and a bare
  * `--key` into keys and values.
  *
  * Scenarios:

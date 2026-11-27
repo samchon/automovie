@@ -9,7 +9,7 @@ import type {
   IAutoMovieTransform,
 } from "@automovie/interface";
 
-import { evaluateAutoMovieCameraDepthPrecision } from "./evaluateAutoMovieCameraDepthPrecision";
+import { evaluateCameraDepthPrecision } from "./evaluateCameraDepthPrecision";
 import { intersectsPerspectiveFrustumBox } from "./intersectsPerspectiveFrustumBox";
 import { projectToNdc } from "./projectToNdc";
 import { resolveCameraAt } from "./resolveCameraAt";
@@ -37,7 +37,7 @@ export function realizeShotCameraOutcome(
   if (camera === undefined || frameFormat === undefined)
     return {
       time,
-      depthPrecision: evaluateAutoMovieCameraDepthPrecision({
+      depthPrecision: evaluateCameraDepthPrecision({
         camera: input.camera,
         time,
         near: Number.NaN,
@@ -109,7 +109,7 @@ export function realizeShotCameraOutcome(
       // failure may occur after its placement incremented resolvedSubjects.
     }
   const depthPrecision: realizeShotCameraOutcome.IOutcome["depthPrecision"] =
-    evaluateAutoMovieCameraDepthPrecision({
+    evaluateCameraDepthPrecision({
       camera: camera.id,
       time,
       near: camera.near,

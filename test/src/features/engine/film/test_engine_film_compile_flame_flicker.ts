@@ -1,6 +1,6 @@
 import {
-  compileAutoMovieFlameFlicker
-} from "../../../../../packages/engine/src/film/flame/internal/compileAutoMovieFlameFlicker";
+  compileFlameFlicker
+} from "../../../../../packages/engine/src/film/flame/internal/compileFlameFlicker";
 import type { IAutoMovieFlameCue } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -23,8 +23,8 @@ export function test_engine_film_compile_flame_flicker(): void {
   const duration: number = 0.0125;
   const start: number = 1 / 480;
   const end: number = 3 / 480;
-  const switched: ReturnType<typeof compileAutoMovieFlameFlicker> =
-    compileAutoMovieFlameFlicker({ ...cue, on: { start, end } }, duration);
+  const switched: ReturnType<typeof compileFlameFlicker> =
+    compileFlameFlicker({ ...cue, on: { start, end } }, duration);
   TestValidator.equals(
     "clock includes the exact arbitrary boundaries",
     switched.times,
@@ -41,8 +41,8 @@ export function test_engine_film_compile_flame_flicker(): void {
     "one contained area determines the exact mean",
     switched.mean === switched.areas[1] && switched.mean > 0,
   );
-  const open: ReturnType<typeof compileAutoMovieFlameFlicker> =
-    compileAutoMovieFlameFlicker(cue, duration);
+  const open: ReturnType<typeof compileFlameFlicker> =
+    compileFlameFlicker(cue, duration);
   TestValidator.equals(
     "every sample counts when no interval is authored",
     open.inside,

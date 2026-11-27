@@ -22,16 +22,16 @@ import type {
   IAutoMovieMotionTarget,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmPhrase } from "../../compose/internal/AutoMovieMotionHumanArmPhrase";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanLeanInto } from "../../compose/internal/AutoMovieMotionHumanLeanInto";
 import { AutoMovieMotionHumanReach } from "../../compose/internal/AutoMovieMotionHumanReach";
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
+import { motionManner } from "../../compose/internal/motionManner";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanPhysics } from "../../law/internal/HumanPhysics";
 import { HumanPreparedPlayback } from "../../perform/internal/HumanPreparedPlayback";
@@ -203,7 +203,7 @@ export namespace operate {
     const mechanism: IAutoMovieMotionHumanOperate.Mechanism =
       context.params.kind;
     const side: AutoMovieHumanSide = context.params.hand ?? "right";
-    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+    const modifiers: IAutoMovieMotionManner.IModifiers = motionManner(
       context,
       context.params.manner,
     );
@@ -279,16 +279,16 @@ export namespace operate {
         AutoMovieMotionHumanArm.point(context.entry.posture, origin),
       ),
     );
-    const reach: number = AutoMovieMotionHumanTiming.aimed(
+    const reach: number = motionHumanTiming.aimed(
       distance,
       WIDTH[mechanism.kind],
     );
-    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
-      AutoMovieMotionClock.phrase({
+    const clock: IAutoMovieMotionClock = motionManner.time(
+      motionClock.phrase({
         prepare: reach,
-        wait: AutoMovieMotionHumanTiming.PAUSES.brief,
+        wait: motionHumanTiming.PAUSES.brief,
         attack: operating,
-        hold: AutoMovieMotionHumanTiming.PAUSES.brief,
+        hold: motionHumanTiming.PAUSES.brief,
         retract: reach,
       }),
       modifiers,
@@ -383,7 +383,7 @@ export namespace operate {
     const compose = (
       arm: IAutoMovieMotionHumanPrimitive,
     ): IAutoMovieMotionHumanActionPlan =>
-      composeAutoMovieMotionHumanAction({
+      composeMotionHumanAction({
         base,
         clock,
         contact: "strokeEnd",

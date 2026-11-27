@@ -6,7 +6,7 @@ export namespace IAutoMovieSampleSurfaceNetwork {
   /**
    * Sample a surface network into a quad control cage at one tier.
    *
-   * This is the rest cage of `rigAutoMovieSurfaceNetwork` without bindings,
+   * This is the rest cage of `rigSurfaceNetwork` without bindings,
    * which states every fill rule, the welding identity, the topology guarantee,
    * the limit fit and which vertices it holds, the UV default and every
    * refusal. A caller that poses the network every frame compiles the rig once
@@ -15,7 +15,7 @@ export namespace IAutoMovieSampleSurfaceNetwork {
   export type IProps = {
     /**
      * Rest network in model metres. The sampler delegates admission and
-     * topology construction to rigAutoMovieSurfaceNetwork and returns its newly
+     * topology construction to rigSurfaceNetwork and returns its newly
      * constructed cage.
      */
     network: IAutoMovieSurfaceNetwork;

@@ -1,10 +1,10 @@
-import { textureBindingAsset as textureBindingAssetImplementation } from "./internal/textureBindingAsset.js";
+import { textureBindingAsset as textureBindingAssetImplementation } from "./internal/textureBindingAsset";
 
 import type * as THREE from "three";
 import { type IAutoMovieRenderTextureSource, type IAutoMovieRenderTextureTarget, type AutoMovieTextureBinding } from "@automovie/interface";
-import { readAutoMovieTextureSource as readAutoMovieTextureSourceImplementation } from "./internal/readAutoMovieTextureSource.js";
-import { readAutoMovieRenderTextureTarget as readAutoMovieRenderTextureTargetImplementation } from "./internal/readAutoMovieRenderTextureTarget.js";
-import { readAutoMovieTransmissionTextureTarget as readTransmissionTargetImplementation } from "./internal/readAutoMovieTransmissionTextureTarget.js";
+import { readTextureSource as readTextureSourceImplementation } from "./internal/readTextureSource";
+import { readRenderTextureTarget as readRenderTextureTargetImplementation } from "./internal/readRenderTextureTarget";
+import { readTransmissionTextureTarget as readTransmissionTargetImplementation } from "./internal/readTransmissionTextureTarget";
 
 /** Public operations for Auto Movie Scene Texture. */
 export namespace AutoMovieRenderSceneTexture {
@@ -28,7 +28,7 @@ export namespace AutoMovieRenderSceneTexture {
    * independent kernel storage.
    */
   export function readSource(asset: string, texture: THREE.Texture): IAutoMovieRenderTextureSource {
-    return readAutoMovieTextureSourceImplementation(asset, texture);
+    return readTextureSourceImplementation(asset, texture);
   }
 
   /**
@@ -43,7 +43,7 @@ export namespace AutoMovieRenderSceneTexture {
    * pixels or caller lifetime is changed.
    */
   export function readRenderTarget(owner: string, target: THREE.RenderTarget, transmissionScope?: string): IAutoMovieRenderTextureTarget {
-    return readAutoMovieRenderTextureTargetImplementation(owner, target, transmissionScope);
+    return readRenderTextureTargetImplementation(owner, target, transmissionScope);
   }
 
   /**

@@ -11,12 +11,12 @@ import type {
   IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { buildAutoMovieRaisedLettering as buildAutoMovieRaisedLetteringImplementation } from "./internal/buildAutoMovieRaisedLettering";
-import { buildAutoMovieTextGeometry as buildAutoMovieTextGeometryImplementation } from "./internal/buildAutoMovieTextGeometry";
-import { flattenAutoMovieQuadratic as flattenAutoMovieQuadraticImplementation } from "./internal/flattenAutoMovieQuadratic";
-import { layoutAutoMovieText as layoutAutoMovieTextImplementation } from "./internal/layoutAutoMovieText";
-import { regionsOfAutoMovieGlyph as regionsOfAutoMovieGlyphImplementation } from "./internal/regionsOfAutoMovieGlyph";
-import { validateAutoMovieFontSources as validateAutoMovieFontSourcesImplementation } from "./internal/validateAutoMovieFontSources";
+import { buildRaisedLettering as buildRaisedLetteringImplementation } from "./internal/buildRaisedLettering";
+import { buildTextGeometry as buildTextGeometryImplementation } from "./internal/buildTextGeometry";
+import { flattenQuadratic as flattenQuadraticImplementation } from "./internal/flattenQuadratic";
+import { layoutText as layoutTextImplementation } from "./internal/layoutText";
+import { regionsOfGlyph as regionsOfGlyphImplementation } from "./internal/regionsOfGlyph";
+import { validateFontSources as validateFontSourcesImplementation } from "./internal/validateFontSources";
 
 /** Deterministic font layout, glyph geometry and font-source admission. */
 export namespace AutoMovieEngineTypography {
@@ -33,14 +33,14 @@ export namespace AutoMovieEngineTypography {
   export function buildRaisedLettering(
     props: IAutoMovieBuildTextGeometry.IRaisedProps,
   ): IAutoMovieMesh {
-    return buildAutoMovieRaisedLetteringImplementation(props);
+    return buildRaisedLetteringImplementation(props);
   }
 
   /** Triangulates a laid-out text run as flat glyph geometry. */
   export function buildTextGeometry(
     props: IAutoMovieBuildTextGeometry.IProps,
   ): IAutoMovieTessellation {
-    return buildAutoMovieTextGeometryImplementation(props);
+    return buildTextGeometryImplementation(props);
   }
 
   /** Flattens a quadratic arc within a positive maximum chord error. */
@@ -50,7 +50,7 @@ export namespace AutoMovieEngineTypography {
     end: Readonly<AutoMovieVector2Tuple>,
     tolerance: number,
   ): AutoMovieVector2Tuple[] {
-    return flattenAutoMovieQuadraticImplementation(
+    return flattenQuadraticImplementation(
       start,
       control,
       end,
@@ -62,7 +62,7 @@ export namespace AutoMovieEngineTypography {
   export function layoutText(
     props: IAutoMovieLayoutText.IProps,
   ): IAutoMovieLayoutText.IResult {
-    return layoutAutoMovieTextImplementation(props);
+    return layoutTextImplementation(props);
   }
 
   /** Flattens and groups one glyph's contours into ink regions. */
@@ -71,7 +71,7 @@ export namespace AutoMovieEngineTypography {
     scale: number,
     tolerance: number,
   ): IAutoMoviePlanarRegion[] {
-    return regionsOfAutoMovieGlyphImplementation(glyph, scale, tolerance);
+    return regionsOfGlyphImplementation(glyph, scale, tolerance);
   }
 
   /** Admits font-source records and appends any diagnostics to the collector. */
@@ -81,7 +81,7 @@ export namespace AutoMovieEngineTypography {
     collector: IAutoMovieViolationCollector,
     ledger?: IFontSourceLedger,
   ): void {
-    return validateAutoMovieFontSourcesImplementation(
+    return validateFontSourcesImplementation(
       sources,
       path,
       collector,

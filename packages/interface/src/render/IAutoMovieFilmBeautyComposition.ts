@@ -1,4 +1,4 @@
-import type { IAutoMovieFilmBeautyLayer } from "./IAutoMovieFilmBeautyLayer.js";
+import type { IAutoMovieFilmBeautyLayer } from "./IAutoMovieFilmBeautyLayer";
 
 /**
  * Closed beauty-composition decision for one sampled film frame. A fade mixes

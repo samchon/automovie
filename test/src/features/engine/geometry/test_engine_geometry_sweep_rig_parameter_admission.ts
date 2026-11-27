@@ -5,7 +5,7 @@ import { TestValidator } from "@nestia/e2e";
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * A parameter-corresponded sweep rig (`rigAutoMovieSweep`) admits its sample
+ * A parameter-corresponded sweep rig (`rigSweep`) admits its sample
  * writers and probes numerically: a refused product publishes nothing and
  * keeps the prior state.
  *

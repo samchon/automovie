@@ -8,7 +8,7 @@ import { nclose } from "../../internal/nclose";
 const ROUNDING: number = 1e-12;
 
 /**
- * `autoMovieOpeningArc` is the circular arc a bulge puts on a chord: bulge is
+ * `openingArc` is the circular arc a bulge puts on a chord: bulge is
  * `tan(sweep / 4)`, so bulge 1 is a half circle.
  *
  * Scenarios:

@@ -1,7 +1,7 @@
 import type { IAutoMovieMotionClock } from "@automovie/interface";
 import {
-  AutoMovieMotionClock
-} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionClock";
+  motionClock
+} from "../../../../../packages/motions/src/compose/internal/motionClock";
 import {
   stretchHoldClock
 } from "../../../../../packages/motions/src/exercise/internal/stretchHoldClock";
@@ -29,7 +29,7 @@ const STEP: number = 0.25;
  * 4. A hold shorter than a grid cell, from 1.1 to 1.2 s, is not collapsed.
  */
 export function test_motions_exercise_stretch_hold_clock(): void {
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock(4, [
+  const clock: IAutoMovieMotionClock = motionClock(4, [
     { name: "reachEnd", seconds: 1.1 },
     { name: "release", seconds: 2.6 },
   ]);
@@ -62,7 +62,7 @@ export function test_motions_exercise_stretch_hold_clock(): void {
   TestValidator.equals(
     "a hold under a grid cell is kept",
     stretchHoldClock.compress(
-      AutoMovieMotionClock(4, [
+      motionClock(4, [
         { name: "reachEnd", seconds: 1.1 },
         { name: "release", seconds: 1.2 },
       ]),

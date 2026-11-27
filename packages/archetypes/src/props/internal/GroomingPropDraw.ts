@@ -15,7 +15,9 @@ import { GroomingPropDrawData } from "./GroomingPropDrawData";
  * The seeded recipes originally published as `createCareItem`.
  */
 export namespace GroomingPropDraw {
-  /** The kinds. */
+  /*
+   * The kinds.
+   */
   export type Kind =
     | "tissue"
     | "comb"
@@ -66,7 +68,7 @@ export namespace GroomingPropDraw {
    */
   export const BULLET: number = 0.015;
 
-  /**
+  /*
    * The affordance ids:
    *
    * - `grip`: the hold: a tissue pinched at its middle, a comb's spine held
@@ -80,7 +82,7 @@ export namespace GroomingPropDraw {
    */
   export type Affordance = "grip" | "face" | "cap";
 
-  /**
+  /*
    * The free dimensions, metres unless stated:
    *
    * - `length`: along `+Z`.
@@ -103,25 +105,33 @@ export namespace GroomingPropDraw {
     mass: "kg",
   };
 
-  /**
+  /*
    * The parameters: the kind, and any free dimension fixed to a value inside
    * its band.
    */
   export interface IParams extends Partial<Record<Dimension, number>> {
-    /** Which item. */
+    /*
+     * Which item.
+     */
     kind: Kind;
 
-    /** A tube's diameter or a razor's model; drawn from the seed when absent. */
+    /*
+     * A tube's diameter or a razor's model; drawn from the seed when absent.
+     */
     model?: Model;
 
-    /** The model's id, unique in a scene; `careItem` when absent. */
+    /*
+     * The model's id, unique in a scene; `careItem` when absent.
+     */
     id?: string;
   }
 
-  /** A model's read figures, by dimension. */
+  /*
+   * A model's read figures, by dimension.
+   */
   export type Figures = Readonly<Partial<Record<Dimension, number>>>;
 
-  /**
+  /*
    * The models read: Alltub's ten laminate tube diameters, and Edwin Jagger's
    * and Gillette's Mach3 razors.
    */

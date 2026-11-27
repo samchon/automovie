@@ -4,7 +4,7 @@ import { TestValidator } from "@nestia/e2e";
 type P = [number, number];
 
 /**
- * `intersectAutoMovieConvexPolygons(subject, boundary)` clips a convex subject
+ * `intersectConvexPolygons(subject, boundary)` clips a convex subject
  * by a convex boundary (Sutherland-Hodgman), keeping the subject's winding;
  * either may wind either way.
  *

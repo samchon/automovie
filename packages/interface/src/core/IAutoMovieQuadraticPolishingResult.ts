@@ -1,13 +1,13 @@
 /**
  * One polishing attempt on a solved quadratic program and its diagnostics, as
- * `polishAutoMovieQuadraticProgram` returns it inside a refinement result.
+ * `polishQuadraticProgram` returns it inside a refinement result.
  *
  * Polishing takes one of two methods, chosen by whether the native primal
  * already satisfies feasibility and complementarity on every original row: if
  * so, it keeps that primal and sweeps the signed multipliers toward
  * stationarity; otherwise it runs active-set steps on exact interval groups.
  * Every step counts against the caller's one `maximumRefinements` budget.
- * `primal` and `dual` are only a candidate: `refineAutoMovieQuadraticProgram`
+ * `primal` and `dual` are only a candidate: `refineQuadraticProgram`
  * remeasures every original row and alone sets `accepted`, and a rejected
  * candidate never replaces the native solution. Arrays are new and owned by the
  * caller.

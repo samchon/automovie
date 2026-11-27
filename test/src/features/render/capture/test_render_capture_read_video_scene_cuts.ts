@@ -2,7 +2,7 @@ import { AutoMovieRenderCapture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `readAutoMovieVideoSceneCuts` reads cut times and scores from an FFmpeg
+ * `readVideoSceneCuts` reads cut times and scores from an FFmpeg
  * metadata report.
  *
  * Scenarios:

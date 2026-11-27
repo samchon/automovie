@@ -1,0 +1,324 @@
+import type {
+  IAutoMoviePlanSurfaceRigPatches,
+  IAutoMoviePlanSurfaceRigPatchesOutput,
+  IAutoMovieSurfaceCoordinate,
+  IAutoMovieSurfaceLayout,
+  IAutoMovieSurfaceNetwork,
+  IAutoMovieSurfaceRegistry,
+  IAutoMovieSurfaceSample,
+} from "@automovie/interface";
+
+import { layoutSurfacePatches } from "./layoutSurfacePatches";
+import { layoutSurfaceTransition } from "./layoutSurfaceTransition";
+import { reachSurfaceCell } from "./reachSurfaceCell";
+import { rigSurfaceBridge } from "./rigSurfaceBridge";
+import { rigSurfaceCoons } from "./rigSurfaceCoons";
+
+/*
+ * Lay out the sweep, transition, Coons and bridge blocks of a surface rig,
+ * preserving vertex registration order and cell reaches. Bridge sweep probes
+ * bind once after registry cell resolution and before sealing, so their normals
+ * and axial derivatives use the same geometric field as their loop positions,
+ * before control pins.
+ * Parameter props: Network, registry and the rig's shared edge/sweep evaluators
+ * Returns: The checked patch layout and the blend-control vertex indices
+ * Error for duplicate names, invalid patch ranges or counts,
+ * incompatible sides or loops, or overlapping patches
+ */
+export function planSurfaceRigPatches(
+  props: IAutoMoviePlanSurfaceRigPatches.IProps,
+): IAutoMoviePlanSurfaceRigPatchesOutput {
+  const {
+    network,
+    registry,
+    sweepRig,
+    count,
+    sweepKey,
+    sample,
+    loop,
+  }: typeof props = props;
+  const { writers, reserve, admit, existing }: IAutoMovieSurfaceRegistry =
+    registry;
+  // a bridge may run along a network curve no patch samples, but a sweep point it names must be one a patch made
+  function joined(point: IAutoMovieSurfaceSample, what: string): number {
+    return point.key.startsWith("s|")
+      ? existing(point.key, what)
+      : admit(point);
+  }
+  const blend: Set<number> = new Set();
+  const layout: IAutoMovieSurfaceLayout =
+    layoutSurfacePatches(network);
+  const { emit }: IAutoMovieSurfaceLayout = layout;
+  const names: Set<string> = new Set();
+
+  const order: number[] = network.patches
+    .map((_: IAutoMovieSurfaceNetwork.IPatch, p: number): number => p)
+    .sort(
+      (a: number, b: number): number =>
+        Number(network.patches[a]!.type === "bridge") -
+          Number(network.patches[b]!.type === "bridge") || a - b,
+    );
+  for (const p of order) {
+    const patch: IAutoMovieSurfaceNetwork.IPatch = network.patches[p]!;
+    const what: string = `patch ${patch.name}`;
+    if (names.has(patch.name))
+      throw new Error(`patch name ${patch.name} repeats`);
+    names.add(patch.name);
+    if (patch.type === "sweep") {
+      const columns: number = count(patch.columns, what);
+      const rows: number = count(patch.rows, what);
+      const { start: u0, end: u1 } = patch.u;
+      const { start: v0, end: v1 } = patch.v;
+      if (!(u0 >= 0 && u1 <= 1 && u1 > u0))
+        throw new Error(`${what} u range must increase within 0 to 1`);
+      if (!(v1 > v0 && v1 - v0 <= 1))
+        throw new Error(`${what} v range must increase by at most one turn`);
+      sweepRig(patch.sweep);
+      const grid: number[][] = Array.from(
+        { length: rows + 1 },
+        (_: unknown, j: number): number[] => {
+          const u: number = j === rows ? u1 : u0 + ((u1 - u0) * j) / rows;
+          return Array.from(
+            { length: columns + 1 },
+            (__: unknown, i: number): number => {
+              const v: number =
+                i === columns ? v1 : v0 + ((v1 - v0) * i) / columns;
+              const [ub, ua]: [number, number] = reachSurfaceCell(
+                (u1 - u0) / rows,
+                j === 0,
+                j === rows,
+              );
+              const [vb, va]: [number, number] = reachSurfaceCell(
+                (v1 - v0) / columns,
+                i === 0,
+                i === columns,
+              );
+              return admit({
+                key: sweepKey(patch.sweep, u, v),
+                writer: (): ((out: Float64Array, at: number) => void) =>
+                  sweepRig(patch.sweep).sample(u, v, [0, 0, 0, 0]),
+                point: { sweep: patch.sweep, u, v, cell: [ub, ua, vb, va] },
+                sweep: null,
+                curve: null,
+              });
+            },
+          );
+        },
+      );
+      emit(p, grid, columns, rows, false);
+    } else if (patch.type === "transition") {
+      const { start: u0, end: u1 } = patch.u;
+      const { start: v0, end: v1 } = patch.v;
+      if (!(u0 >= 0 && u1 <= 1 && u1 > u0))
+        throw new Error(`${what} u range must increase within 0 to 1`);
+      if (!(v1 > v0 && v1 - v0 <= 1))
+        throw new Error(`${what} v range must increase by at most one turn`);
+      const start: number = count(patch.start, what);
+      const end: number = count(patch.end, what);
+      const rows: number = count(patch.rows, what);
+      const fine: number = Math.max(start, end);
+      // every corner is a sweep point; its cell reaches the finer ring's spacing round and half a row along
+      const quads: Array<Array<[number, number, number]>> =
+        layoutSurfaceTransition(start, end, rows).map(
+          (
+            quad: Array<
+              [
+                Pick<IAutoMovieSurfaceCoordinate, "s" | "t">,
+                Pick<IAutoMovieSurfaceCoordinate, "s" | "t">,
+                Pick<IAutoMovieSurfaceCoordinate, "s" | "t">,
+                Pick<IAutoMovieSurfaceCoordinate, "s" | "t">,
+              ]
+            >[number],
+          ): Array<[number, number, number]> =>
+            quad.map(
+              ({
+                s,
+                t,
+              }: Array<
+                [
+                  Pick<IAutoMovieSurfaceCoordinate, "s" | "t">,
+                  Pick<IAutoMovieSurfaceCoordinate, "s" | "t">,
+                  Pick<IAutoMovieSurfaceCoordinate, "s" | "t">,
+                  Pick<IAutoMovieSurfaceCoordinate, "s" | "t">,
+                ]
+              >[number][number]): [number, number, number] => {
+                const u: number = t === 1 ? u1 : u0 + (u1 - u0) * t;
+                const v: number = s === 1 ? v1 : v0 + (v1 - v0) * s;
+                const across: number = (v1 - v0) / fine;
+                const along: number = (u1 - u0) / (2 * rows);
+                return [
+                  admit({
+                    key: sweepKey(patch.sweep, u, v),
+                    writer: (): ((out: Float64Array, at: number) => void) =>
+                      sweepRig(patch.sweep).sample(u, v, [0, 0, 0, 0]),
+                    point: {
+                      sweep: patch.sweep,
+                      u,
+                      v,
+                      cell: [
+                        t === 0 ? Infinity : along,
+                        t === 1 ? Infinity : along,
+                        across,
+                        across,
+                      ],
+                    },
+                    sweep: null,
+                    curve: null,
+                  }),
+                  s,
+                  t,
+                ];
+              },
+            ),
+        );
+      layout.emitFaces(p, quads, fine, rows);
+    } else if (patch.type === "coons") {
+      const [bottom, right, top, left]: [
+        IAutoMovieSurfaceSample[],
+        IAutoMovieSurfaceSample[],
+        IAutoMovieSurfaceSample[],
+        IAutoMovieSurfaceSample[],
+      ] = patch.sides.map(
+        (
+          e: IAutoMovieSurfaceNetwork.IEdge,
+          k: number,
+        ): IAutoMovieSurfaceSample[] => sample(e, `${what} side ${k}`),
+      ) as [
+        IAutoMovieSurfaceSample[],
+        IAutoMovieSurfaceSample[],
+        IAutoMovieSurfaceSample[],
+        IAutoMovieSurfaceSample[],
+      ];
+      const columns: number = bottom.length - 1;
+      const rows: number = right.length - 1;
+      if (top.length !== bottom.length || left.length !== right.length)
+        throw new Error(`${what} opposite sides differ in count`);
+      const ends: Array<
+        [IAutoMovieSurfaceSample[], IAutoMovieSurfaceSample[]]
+      > = [
+        [bottom, right],
+        [right, top],
+        [top, left],
+        [left, bottom],
+      ];
+      ends.forEach(
+        (
+          [a, b]: [IAutoMovieSurfaceSample[], IAutoMovieSurfaceSample[]],
+          k: number,
+        ): void => {
+          if (a[a.length - 1]!.key !== b[0]!.key)
+            throw new Error(
+              `${what} side ${k} does not end where side ${(k + 1) % 4} starts`,
+            );
+        },
+      );
+      function edgeAt(i: number, j: number): IAutoMovieSurfaceSample | null {
+        return j === 0
+          ? bottom[i]!
+          : j === rows
+            ? top[columns - i]!
+            : i === 0
+              ? left[rows - j]!
+              : i === columns
+                ? right[j]!
+                : null;
+      }
+      const grid: number[][] = Array.from(
+        { length: rows + 1 },
+        (_: unknown, j: number): number[] =>
+          Array.from(
+            { length: columns + 1 },
+            (__: unknown, i: number): number => {
+              const e: IAutoMovieSurfaceSample | null = edgeAt(i, j);
+              return e === null ? -1 : admit(e);
+            },
+          ),
+      );
+      for (let j: number = 1; j < rows; ++j)
+        for (let i: number = 1; i < columns; ++i) {
+          grid[j]![i] = reserve(`p|${p}|${i}|${j}`);
+          blend.add(grid[j]![i]!);
+        }
+      writers.push(rigSurfaceCoons(grid));
+      emit(p, grid, columns, rows, false);
+    } else {
+      const rows: number = count(patch.rows, what);
+      const a: IAutoMovieSurfaceSample[] = loop(
+        patch.from.edges,
+        `${what} from loop`,
+      );
+      const b: IAutoMovieSurfaceSample[] = loop(
+        patch.to.edges,
+        `${what} to loop`,
+      );
+      if (a.length !== b.length)
+        throw new Error(
+          `${what} loops differ in count, ${a.length} and ${b.length}`,
+        );
+      const tension: number = patch.tension ?? 1;
+      if (!(tension > 0)) throw new Error(`${what} tension must be positive`);
+      const n: number = a.length;
+      const fromIndex: number[] = a.map((x: IAutoMovieSurfaceSample): number =>
+        joined(x, `${what} from loop`),
+      );
+      const toIndex: number[] = b.map((x: IAutoMovieSurfaceSample): number =>
+        joined(x, `${what} to loop`),
+      );
+      const probes: number[] = new Array<number>(2 * n).fill(-1);
+      [...a, ...b].forEach(
+        (point: IAutoMovieSurfaceSample, slot: number): void => {
+          if (point.sweep === null) return;
+          const sweep: NonNullable<IAutoMovieSurfaceSample["sweep"]> =
+            point.sweep;
+          registry.bindSweep(
+            point.key,
+            (resolved: IAutoMovieSurfaceRegistry.ISweep | null): void => {
+              if (resolved === null)
+                throw new Error(
+                  "a bridge probe needs a registered geometric sweep sample",
+                );
+              probes[slot] = sweep.rig.probe(
+                resolved.u,
+                resolved.v,
+                resolved.cell,
+              );
+            },
+          );
+        },
+      );
+      const grid: number[][] = Array.from(
+        { length: rows + 1 },
+        (): number[] => new Array<number>(n),
+      );
+      const interior: number[] = [];
+      for (let k: number = 0; k < n; ++k) {
+        grid[0]![k] = fromIndex[k]!;
+        grid[rows]![k] = toIndex[k]!;
+        for (let j: number = 1; j < rows; ++j) {
+          const target: number = reserve(`p|${p}|${k}|${j}`);
+          grid[j]![k] = target;
+          interior.push(target);
+          blend.add(target);
+        }
+      }
+      writers.push(
+        rigSurfaceBridge({
+          from: a,
+          to: b,
+          fromIndex,
+          toIndex,
+          fromRule: patch.from.tangent,
+          toRule: patch.to.tangent,
+          probes,
+          rows,
+          tension,
+          interior,
+        }),
+      );
+      emit(p, grid, n, rows, true);
+    }
+  }
+
+  layout.check();
+  return { layout, blend };
+}

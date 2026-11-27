@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import type { IAutoMovieRendererEnvironmentHandle } from "../IAutoMovieRendererEnvironmentHandle.js";
+import type { IAutoMovieRendererEnvironmentHandle } from "../IAutoMovieRendererEnvironmentHandle";
 
 /*
  * Configure exposure, tone mapping and shadow policy for one pass. Structural

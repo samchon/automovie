@@ -1,13 +1,13 @@
 import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieHumanLimbGoal, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanEntryState, IAutoMovieMotionHumanHeadRest, IAutoMovieMotionHumanJoints, IAutoMovieMotionHumanPerformerReader, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanRise, IAutoMovieMotionHumanTarget, IAutoMovieMotionManner, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanHead } from "../../compose/internal/AutoMovieMotionHumanHead";
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
+import { motionManner } from "../../compose/internal/motionManner";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanPerception } from "../../law/internal/HumanPerception";
@@ -121,15 +121,15 @@ function planHeadRest(
       fix: "sit or stand nearer, or rest on a region within the lean's reach",
     });
   }
-  const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+  const modifiers: IAutoMovieMotionManner.IModifiers = motionManner(
     context,
     p.manner,
   );
-  const approach: number = AutoMovieMotionHumanTiming.transport(
+  const approach: number = motionHumanTiming.transport(
     AutoMovieEngineVector3.distance(HumanTrunk.region(body, entry, own).point, at),
   );
-  const timed: IAutoMovieMotionClock = AutoMovieMotionManner.time(
-    AutoMovieMotionClock.phrase({
+  const timed: IAutoMovieMotionClock = motionManner.time(
+    motionClock.phrase({
       prepare: approach,
       attack: 0,
       hold: p.hold,
@@ -137,7 +137,7 @@ function planHeadRest(
     }),
     modifiers,
   );
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock(timed.duration, [
+  const clock: IAutoMovieMotionClock = motionClock(timed.duration, [
     ...timed.instants,
     { name: "contact", seconds: timed.at("ready") },
     { name: "part", seconds: timed.at("relax") },
@@ -152,7 +152,7 @@ function planHeadRest(
   );
   const duration: number = clock.duration;
   const plan: IAutoMovieMotionHumanActionPlan =
-    composeAutoMovieMotionHumanAction({
+    composeMotionHumanAction({
       base: AutoMovieMotionHumanBase.under(context, duration),
       clock,
       primitives: [

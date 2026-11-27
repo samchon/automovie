@@ -1,4 +1,4 @@
-import { SUBSURFACE_TEXTURE_SIZE } from "../SUBSURFACE_TEXTURE_SIZE.js";
+import { SUBSURFACE_TEXTURE_SIZE } from "../SUBSURFACE_TEXTURE_SIZE";
 
 /*
  * Compute a 32-by-64 diffuse lookup: the zero-blur row is a clamped cosine, and

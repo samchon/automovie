@@ -12,9 +12,9 @@ import { sweepBranchedBody } from "../../internal/sweepBranchedBody";
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * `mapAutoMovieSurfaceTier` carries a point bound to one tier's cage to another
+ * `mapSurfaceTier` carries a point bound to one tier's cage to another
  * tier through its surface coordinate (patch, s, t), and
- * `locateAutoMovieSurfaceCoordinate` admits such a coordinate.
+ * `locateSurfaceCoordinate` admits such a coordinate.
  *
  * Fixture: the branched body's four tiers; 60 points spread over faces strictly
  * inside them (local coordinates in [0.02, 0.98]).

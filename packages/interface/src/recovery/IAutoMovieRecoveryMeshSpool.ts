@@ -10,7 +10,7 @@ import type {
 /**
  * Run-owned append-only mesh channels and immutable prefix publication ports.
  * The exposed arrays are identity placeholders:
- * createAutoMovieRecoveryMeshSpool keeps generated values in pending buffers
+ * createRecoveryMeshSpool keeps generated values in pending buffers
  * and persisted fragments, and publish substitutes those fragments when
  * serializing these exact array objects. Consumers must not treat their empty
  * resident lengths as the mesh population; counts is the live mutable

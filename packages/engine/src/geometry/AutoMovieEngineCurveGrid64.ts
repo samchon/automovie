@@ -1,6 +1,6 @@
 import type { IAutoMovieCurveGrid64 } from "@automovie/interface";
 
-import { tessellateAutoMovieCurveGrid64 } from "./curve/internal/tessellateAutoMovieCurveGrid64";
+import { tessellateCurveGrid64 } from "./curve/internal/tessellateCurveGrid64";
 
 /** Deterministic interpolation and tessellation of corresponding curve courses. */
 export namespace AutoMovieEngineCurveGrid64 {
@@ -8,6 +8,6 @@ export namespace AutoMovieEngineCurveGrid64 {
   export function tessellate(
     input: IAutoMovieCurveGrid64.Input,
   ): IAutoMovieCurveGrid64.Result {
-    return tessellateAutoMovieCurveGrid64(input);
+    return tessellateCurveGrid64(input);
   }
 }

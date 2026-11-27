@@ -1,6 +1,6 @@
 import type { IAutoMovieScript } from "@automovie/interface";
 
-import { renderScreenplay } from "./internal/renderScreenplay.js";
+import { renderScreenplay } from "./internal/renderScreenplay";
 
 /** Serializes a committed screenplay as deterministic plain text. */
 export class AutoMovieRenderScreenplay {

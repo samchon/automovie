@@ -15,7 +15,7 @@ import type {
 
 import { AutoMovieMotionHumanDrinkingArm } from "./AutoMovieMotionHumanDrinkingArm";
 import { AutoMovieMotionHumanDrinkingLean } from "./AutoMovieMotionHumanDrinkingLean";
-import { AutoMovieMotionHumanDrinkingPool } from "./AutoMovieMotionHumanDrinkingPool";
+import { motionHumanDrinkingPool } from "./motionHumanDrinkingPool";
 import { AutoMovieMotionHumanDrinkingSwivel } from "./AutoMovieMotionHumanDrinkingSwivel";
 import { AutoMovieMotionHumanTouchEffector } from "./AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanTouchLaid } from "./AutoMovieMotionHumanTouchLaid";
@@ -78,7 +78,7 @@ export namespace AutoMovieMotionHumanTouchDrink {
     place: Pick<IAutoMovieMotionHumanTarget.IPlace, DrinkingPlace>,
     hint: IAutoMovieVector3,
     after?: IAutoMovieMotionHumanTouchDrink.IAfter,
-    pool: AutoMovieMotionHumanDrinkingPool.IPool = AutoMovieMotionHumanDrinkingPool(
+    pool: motionHumanDrinkingPool.IPool = motionHumanDrinkingPool(
       body,
       posture,
       side,
@@ -365,7 +365,7 @@ export namespace AutoMovieMotionHumanTouchDrink {
     // (`AutoMovieMotionHumanDrinkingSwivel`); the drinking phase keeps it.
     const bound: ReturnType<typeof AutoMovieMotionHumanDrinkingSwivel.bounded> =
       (
-        bounds ?? AutoMovieMotionHumanDrinkingPool(body, posture, side).bounds
+        bounds ?? motionHumanDrinkingPool(body, posture, side).bounds
       )();
     const laid = (
       facing: IAutoMovieVector3,

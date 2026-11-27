@@ -5,7 +5,7 @@ import * as THREE from "three";
 import { createFormationCycleLiteral } from "../../internal/createFormationCycleLiteral";
 
 /**
- * `isAutoMovieFormationCycleMaterial` finds the formation cycle's shader patch
+ * `isFormationCycleMaterial` finds the formation cycle's shader patch
  * among a material's patches.
  *
  * Scenarios:

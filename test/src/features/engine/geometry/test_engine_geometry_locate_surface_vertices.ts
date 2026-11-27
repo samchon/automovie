@@ -15,7 +15,7 @@ import { sweepTransitionTube } from "../../internal/sweepTransitionTube";
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * `locateAutoMovieSurfaceVertices` locates every vertex of a subdivided network
+ * `locateSurfaceVertices` locates every vertex of a subdivided network
  * by patch, patch coordinates and, on a sweep or transition patch, the sweep's
  * domain point, which lies on the sweep near the vertex.
  *

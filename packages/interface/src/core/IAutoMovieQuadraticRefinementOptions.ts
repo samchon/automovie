@@ -1,5 +1,5 @@
 /**
- * The admission threshold and work budget of `refineAutoMovieQuadraticProgram`.
+ * The admission threshold and work budget of `refineQuadraticProgram`.
  *
  * The threshold is compared, unchanged, with the largest original row
  * violation, the stationarity residual and the complementarity residual, each

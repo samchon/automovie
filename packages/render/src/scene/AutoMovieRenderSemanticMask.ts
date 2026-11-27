@@ -1,11 +1,11 @@
 import type * as THREE from "three";
 import { type IAutoMovieSemanticMaskBinding, type IAutoMovieSemanticMaskCoverage, type IAutoMovieScene, type IAutoMovieSemanticMask } from "@automovie/interface";
-import type { IAutoMovieRenderSemanticMaskHandle } from "./IAutoMovieRenderSemanticMaskHandle.js";
-import { auditAutoMovieSemanticMaskSceneImplementation } from "./semanticMask/internal/auditAutoMovieSemanticMaskSceneImplementation.js";
-import { applyAutoMovieSemanticMaskImplementation } from "./semanticMask/internal/applyAutoMovieSemanticMaskImplementation.js";
-import { attachAutoMovieSemanticMask as attachAutoMovieSemanticMaskImplementation } from "./semanticMask/internal/attachAutoMovieSemanticMask.js";
-import { autoMovieSemanticMaskOf as autoMovieSemanticMaskOfImplementation } from "./semanticMask/internal/autoMovieSemanticMaskOf.js";
-import { maskColor as maskColorImplementation } from "./semanticMask/internal/maskColor.js";
+import type { IAutoMovieRenderSemanticMaskHandle } from "./IAutoMovieRenderSemanticMaskHandle";
+import { auditSemanticMaskSceneImplementation } from "./semanticMask/internal/auditSemanticMaskSceneImplementation";
+import { applySemanticMaskImplementation } from "./semanticMask/internal/applySemanticMaskImplementation";
+import { attachSemanticMask as attachSemanticMaskImplementation } from "./semanticMask/internal/attachSemanticMask";
+import { semanticMaskOf as semanticMaskOfImplementation } from "./semanticMask/internal/semanticMaskOf";
+import { maskColor as maskColorImplementation } from "./semanticMask/internal/maskColor";
 
 /** Public operations for Auto Movie Render Semantic Mask. */
 export namespace AutoMovieRenderSemanticMask {
@@ -40,7 +40,7 @@ export namespace AutoMovieRenderSemanticMask {
    * changes.
    */
   export function auditScene(props: IAuditSceneProps): IAutoMovieSemanticMaskCoverage {
-    return auditAutoMovieSemanticMaskSceneImplementation(props);
+    return auditSemanticMaskSceneImplementation(props);
   }
 
   /**
@@ -56,7 +56,7 @@ export namespace AutoMovieRenderSemanticMask {
    * beauty hook. Compilation and delivered pixels remain rendering observations.
    */
   export function apply(props: IApplyProps): IAutoMovieRenderSemanticMaskHandle {
-    return applyAutoMovieSemanticMaskImplementation(props);
+    return applySemanticMaskImplementation(props);
   }
   /**
    * Hand a built scene the palette its `mask` pass must paint it with.
@@ -71,12 +71,12 @@ export namespace AutoMovieRenderSemanticMask {
    * design draw.
    */
   export function attach(scene: THREE.Scene, binding: IAutoMovieSemanticMaskBinding): void {
-    attachAutoMovieSemanticMaskImplementation(scene, binding);
+    attachSemanticMaskImplementation(scene, binding);
   }
 
   /** The palette a scene was given, or `null` when it was given none. */
   export function of(scene: THREE.Scene): IAutoMovieSemanticMaskBinding | null {
-    return autoMovieSemanticMaskOfImplementation(scene);
+    return semanticMaskOfImplementation(scene);
   }
   /**
    * The deterministic flat color of mask index `i`: golden-angle hue stepping,

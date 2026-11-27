@@ -1,6 +1,6 @@
 /**
  * Position selection within a named floor zone, consumed by
- * resolveAutoMovieZone.
+ * resolveZone.
  */
 export namespace IAutoMovieResolveZone {
   /**
@@ -17,7 +17,7 @@ export namespace IAutoMovieResolveZone {
          */
         bearing: number;
         /**
-         * Radial fraction in [0, 1], checked by resolveAutoMovieZone; zero
+         * Radial fraction in [0, 1], checked by resolveZone; zero
          * selects the centre and one the boundary. Height remains
          * zone.center.y.
          */

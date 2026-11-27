@@ -15,15 +15,15 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanJoints } from "../../compose/internal/AutoMovieMotionHumanJoints";
 import { AutoMovieMotionHumanLean } from "../../compose/internal/AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanRoot } from "../../compose/internal/AutoMovieMotionHumanRoot";
 import { AutoMovieMotionHumanTarget } from "../../compose/internal/AutoMovieMotionHumanTarget";
-import { AutoMovieMotionPrepared } from "../../compose/internal/AutoMovieMotionPrepared";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionPrepared } from "../../compose/internal/motionPrepared";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { HumanPreparedPlayback } from "../../perform/internal/HumanPreparedPlayback";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { createHumanPostureCurve } from "../../posture/internal/createHumanPostureCurve";
@@ -139,7 +139,7 @@ export namespace knockdown {
   export function timetable(hold: number | undefined): IAutoMovieMotionClock {
     const lie: number = hold ?? 1;
     if (!(lie >= 0)) throw new Error("A knockdown lies a non-negative time");
-    return AutoMovieMotionClock(DOWN + lie, [
+    return motionClock(DOWN + lie, [
       { name: "rolling", seconds: ROLLING * SEATED },
       { name: "seated", seconds: SEATED },
       { name: "stroke", seconds: SEATED },
@@ -160,12 +160,12 @@ export namespace knockdown {
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const clock: IAutoMovieMotionClock = timetable(context.params.hold);
     const duration: number = clock.duration;
-    const sit: (seconds: number) => number = AutoMovieMotionClock.prepare(
+    const sit: (seconds: number) => number = motionClock.prepare(
       clock,
-      AutoMovieMotionClock.START,
+      motionClock.START,
       "seated",
     ).progress;
-    const back: (seconds: number) => number = AutoMovieMotionClock.prepare(
+    const back: (seconds: number) => number = motionClock.prepare(
       clock,
       "rolling",
       "down",
@@ -208,8 +208,8 @@ export namespace knockdown {
     // The heading that faces the blow, so the back falls away from it: the
     // blow is read at the look before the start, solved once the performance
     // is placed (`prepare`); a read before reads it there.
-    const solved: AutoMovieMotionPrepared.IValue<number> =
-      AutoMovieMotionPrepared((): number => {
+    const solved: motionPrepared.IValue<number> =
+      motionPrepared((): number => {
         const away: IAutoMovieVector3 = AutoMovieMotionHumanTarget.away(
           ReactionSource.at(
             context,
@@ -234,7 +234,7 @@ export namespace knockdown {
         { x: 0, y: 0, z: forward },
       );
     const plan: IAutoMovieMotionHumanActionPlan =
-      composeAutoMovieMotionHumanAction({
+      composeMotionHumanAction({
         base: {
           ...AutoMovieMotionHumanBase.still(
             duration,

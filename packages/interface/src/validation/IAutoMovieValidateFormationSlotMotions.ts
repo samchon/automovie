@@ -7,7 +7,7 @@ import type { IAutoMovieFormationSlotMotion } from "../production/IAutoMovieForm
  */
 export namespace IAutoMovieValidateFormationSlotMotions {
   /**
-   * Borrowed typed populations for validateAutoMovieFormationSlotMotions. It
+   * Borrowed typed populations for validateFormationSlotMotions. It
    * checks nonblank unique cue ids, participation in the separately supplied
    * shot contract, positive intervals inside its duration, unique resident
    * slots, hero exclusion, finite bounded offsets/facing and per-slot

@@ -9,11 +9,11 @@ import type {
 } from "@automovie/interface";
 
 import {
-  compileAutoMovieRecoveryImageLoft as compileImageLoftOperation,
-} from "./internal/compileAutoMovieRecoveryImageLoft";
+  compileRecoveryImageLoft as compileImageLoftOperation,
+} from "./internal/compileRecoveryImageLoft";
 import {
-  compileAutoMovieRecoverySupportLoft as compileSupportLoftOperation,
-} from "./internal/compileAutoMovieRecoverySupportLoft";
+  compileRecoverySupportLoft as compileSupportLoftOperation,
+} from "./internal/compileRecoverySupportLoft";
 
 /** Compile saved Recovery recipes into deterministic model geometry. */
 export namespace AutoMovieRecoveryCompilation {

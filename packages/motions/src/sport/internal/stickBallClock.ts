@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionClock } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 
 /*
  * A stick stroke's timetable: the hands take the stick over `taken` seconds
@@ -15,7 +15,7 @@ export function stickBallClock(
   taken: number,
   duration: number,
 ): IAutoMovieMotionClock {
-  return AutoMovieMotionClock(taken + duration, [
+  return motionClock(taken + duration, [
     { name: "gripped", seconds: taken },
     { name: "stroke", seconds: taken + duration * 0.55 },
     { name: "strokeEnd", seconds: taken + duration * 0.85 },

@@ -1,5 +1,5 @@
 /*
- * Settings of the envelope jaw, `autoMovieDialogueEnvelopeJaw`, which opens a
+ * Settings of the envelope jaw, `dialogueEnvelopeJaw`, which opens a
  * speaker's jaw from a line's frame level when the line has no phoneme chunks.
  *
  * `floorDbfs` is −50 dBFS, the level of the quietest room-tone bed #4056

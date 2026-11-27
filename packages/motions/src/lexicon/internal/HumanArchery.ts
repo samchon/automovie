@@ -19,7 +19,7 @@ import type {
 } from "@automovie/interface";
 
 import { operate } from "../../affordance/internal/operate";
-import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
+import { motionHumanHeld } from "../../compose/internal/motionHumanHeld";
 import { pickUp } from "../../handling/internal/pickUp";
 import "../../handling/internal/putDown";
 import { AutoMovieMotionHumanActionRow } from "../../law/AutoMovieMotionHumanActionRow";
@@ -340,7 +340,7 @@ function byNock(
 /*
  * The draw's context with the bow read off the bow arm, never off the bow's
  * displayed frame. The bow is rigid in the other hand's grip frame
- * (`AutoMovieMotionHumanHeld`, read at the entry), so the string the drawing
+ * (`motionHumanHeld`, read at the entry), so the string the drawing
  * hand takes rides that grip. Over a carrier (the draw over `presentBow`), the
  * grip is the one the carrier's own bow-arm goal asks at the same instant, so
  * the string is where the raised arm puts the bow. On its own, the draw holds
@@ -366,7 +366,7 @@ function onBowArm(
     (context.params.hand ?? "right") === "left" ? "right" : "left";
   if (context.entry.holds[side] !== bow) return context;
   const reader: IAutoMovieMotionHumanPropReader = context.prop(bow);
-  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
+  const held: IAutoMovieMotionHumanHeld.IHeld = motionHumanHeld(
     context,
     side,
     bow,

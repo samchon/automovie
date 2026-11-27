@@ -54,7 +54,7 @@ export namespace AutoMovieEngineBuiltEnvironment {
    *
    * This is the join that stops the declared opening and the modelled hole from
    * being two unrelated facts: the returned voids carry the architectural
-   * opening's own id, so `buildAutoMovieWall` cuts the wall against the same
+   * opening's own id, so `buildWall` cuts the wall against the same
    * records validation held inside the face.
    *
    * The rectangular kernel receives the bounds of the shared straight
@@ -1058,7 +1058,7 @@ export namespace AutoMovieEngineBuiltEnvironment {
    *
    * Boundary points are intended inside. Cell slack is 1e-9 in the plane's scale,
    * measured in metres only for unit normals. A shell is read by
-   * `createAutoMovieMeshWindingQuery`: a point on a shell triangle within its
+   * `createMeshWindingQuery`: a point on a shell triangle within its
    * area-scaled slack is inside, and otherwise the winding number distinguishes
    * the outer region from inward-wound voids. Raw binary64 products and sums can
    * overflow or lose accuracy for extreme or nearly degenerate inputs; the

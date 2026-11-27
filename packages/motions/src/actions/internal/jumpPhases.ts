@@ -15,7 +15,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanArmCourse } from "../../compose/internal/AutoMovieMotionHumanArmCourse";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
+import { motionManner } from "../../compose/internal/motionManner";
 import { HumanPreparedPlayback } from "../../perform/internal/HumanPreparedPlayback";
 import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
@@ -89,7 +89,7 @@ export function jumpPhases(
     land,
   }: jumpPhases.IScope = scope;
   // A manner retimes what the performer does, not the flight gravity fixes.
-  const tempo: number = AutoMovieMotionManner(
+  const tempo: number = motionManner(
     context,
     context.params.manner,
   ).tempo;

@@ -2,10 +2,10 @@ import type { AutoMovieEngineSound } from "@automovie/engine";
 import type * as Render from "@automovie/render";
 import type { AutoMovieCliRenderTypes } from "./AutoMovieCliRenderTypes";
 import { AUTOMOVIE_RENDER_OPTIONS } from "./internal/AUTOMOVIE_RENDER_OPTIONS";
-import { readAutoMovieRenderOptions } from "./internal/readAutoMovieRenderOptions";
-import { renderAutoMovie } from "./internal/renderAutoMovie";
-import { renderAutoMovieVideo } from "./internal/renderAutoMovieVideo";
-import { runAutoMovieFfmpeg } from "../ffmpeg/internal/runAutoMovieFfmpeg";
+import { readRenderOptions } from "./internal/readRenderOptions";
+import { renderProduction } from "./internal/renderProduction";
+import { renderVideoImplementation } from "./internal/renderVideoImplementation";
+import { runFfmpeg } from "../ffmpeg/internal/runFfmpeg";
 import type { IAutoMovieCliCaptureSessionInput } from "../capture/IAutoMovieCliCaptureSessionInput";
 
 /** Public operations for the `automovie render` command. */
@@ -75,7 +75,7 @@ export namespace AutoMovieCliRender {
   export function readOptions(
     values: ReadonlyMap<string, string>,
   ): AutoMovieCliRenderTypes.Options {
-    return readAutoMovieRenderOptions(values);
+    return readRenderOptions(values);
   }
 
   /**
@@ -88,7 +88,7 @@ export namespace AutoMovieCliRender {
   * subject read on each drawn frame, fails the report's verdict blocks. The
   * encoded file must also carry its declared picture profile and, with a
   * soundtrack, the AAC profile, or no audio track without one
-  * (`auditAutoMovieDeliveryProfile`); a mismatch blocks like a blocking audit
+  * (`auditDeliveryProfile`); a mismatch blocks like a blocking audit
   * finding and the report's `profile` records each field with its expected and
   * observed values. A blocked attempt replaces the report and preserves the
   * former film. A failed encode still reports the frames and scene inspection
@@ -109,20 +109,20 @@ export namespace AutoMovieCliRender {
   * film's required soundtrack is not expected, none is passed to the wrap and
   * the report's `layer` says so. The black check, which reads a transparent
   * frame as black, does not block; the profile check is replaced by
-  * `auditAutoMovieAlphaSamples`, which requires one sample per drawn frame with
+  * `auditAlphaSamples`, which requires one sample per drawn frame with
   * the frame file's bytes.
   */
   export function renderVideo(
     props: AutoMovieCliRender.IRenderVideoInput,
-    run: typeof runAutoMovieFfmpeg = runAutoMovieFfmpeg,
+    run: typeof runFfmpeg = runFfmpeg,
   ): Promise<AutoMovieCliRender.IRenderVideoResult> {
-    return renderAutoMovieVideo(props, run);
+    return renderVideoImplementation(props, run);
   }
 
   /** Run `automovie render` in a production. */
   export function render(
     props: AutoMovieCliRenderTypes.RenderProps,
   ): Promise<number> {
-    return renderAutoMovie(props);
+    return renderProduction(props);
   }
 }

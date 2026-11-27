@@ -1,4 +1,4 @@
-import type { AutoMovieViewerDisplay } from "../AutoMovieViewerDisplay.js";
+import type { AutoMovieViewerDisplay } from "../AutoMovieViewerDisplay";
 
 /*
  * Notify a supported canvas subscriber from the actual draw-completion owner.

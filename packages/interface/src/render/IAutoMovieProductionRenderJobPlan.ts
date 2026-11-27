@@ -1,10 +1,10 @@
-import type { IAutoMovieCompiledFilmEffect } from "../production/IAutoMovieCompiledFilmEffect.js";
-import type { IAutoMovieFilmTimeline } from "../production/IAutoMovieFilmTimeline.js";
-import type { IAutoMovieProductionDesign } from "../production/IAutoMovieProductionDesign.js";
-import type { IAutoMovieProductionAudioAssetIdentity } from "./IAutoMovieProductionAudioAssetIdentity.js";
-import type { IAutoMovieProductionRenderChunk } from "./IAutoMovieProductionRenderChunk.js";
-import type { IAutoMovieProductionRenderRuntimeIdentity } from "./IAutoMovieProductionRenderRuntimeIdentity.js";
-import type { IAutoMovieProductionRenderTier } from "./IAutoMovieProductionRenderTier.js";
+import type { IAutoMovieCompiledFilmEffect } from "../production/IAutoMovieCompiledFilmEffect";
+import type { IAutoMovieFilmTimeline } from "../production/IAutoMovieFilmTimeline";
+import type { IAutoMovieProductionDesign } from "../production/IAutoMovieProductionDesign";
+import type { IAutoMovieProductionAudioAssetIdentity } from "./IAutoMovieProductionAudioAssetIdentity";
+import type { IAutoMovieProductionRenderChunk } from "./IAutoMovieProductionRenderChunk";
+import type { IAutoMovieProductionRenderRuntimeIdentity } from "./IAutoMovieProductionRenderRuntimeIdentity";
+import type { IAutoMovieProductionRenderTier } from "./IAutoMovieProductionRenderTier";
 
 /**
  * One tier's render plan, containing its output frame ranges and non-video

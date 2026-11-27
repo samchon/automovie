@@ -2,7 +2,7 @@ import { AutoMovieRenderCapture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `planAutoMovieVideoSceneCuts` writes the ffmpeg arguments that print each
+ * `planVideoSceneCuts` writes the ffmpeg arguments that print each
  * scene cut's time to a report file, escaping the file once as a filter option
  * and again inside the filter graph.
  *

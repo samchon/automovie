@@ -3,7 +3,7 @@ import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 /**
- * `boundAutoMovieCameraSubject` is the world box that holds every mesh.
+ * `boundCameraSubject` is the world box that holds every mesh.
  *
  * Scenarios:
  *

@@ -15,7 +15,7 @@ export namespace IAutoMovieGenerateSupportCurve64 {
    * numerical evaluations of analytic inequalities, not outward-rounded
    * binary64 certificates. The polynomial's own perimeter is not silently
    * equated to the support integral. Refusal concerns this representation, not
-   * the source object. generateAutoMovieSupportCurve64 copies coefficient pairs
+   * the source object. generateSupportCurve64 copies coefficient pairs
    * synchronously. It rejects invalid harmonic/partition data, unresolved
    * positive curvature and nonfinite arithmetic rather than altering
    * coefficients to force convexity.

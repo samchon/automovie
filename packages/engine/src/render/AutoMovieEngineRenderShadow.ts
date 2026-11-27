@@ -1,6 +1,6 @@
 import { type IAutoMovieSceneEnvironment, type IAutoMovieResolveShadowProfile } from "@automovie/interface";
-import { normalizeAutoMovieShadowFilter as normalizeAutoMovieShadowFilterImplementation } from "./internal/normalizeAutoMovieShadowFilter";
-import { resolveAutoMovieShadowProfile as resolveAutoMovieShadowProfileImplementation } from "./internal/resolveAutoMovieShadowProfile";
+import { normalizeShadowFilter as normalizeShadowFilterImplementation } from "./internal/normalizeShadowFilter";
+import { resolveShadowProfile as resolveShadowProfileImplementation } from "./internal/resolveShadowProfile";
 
 /** Public operations for Auto Movie Engine Render Shadow. */
 export namespace AutoMovieEngineRenderShadow {
@@ -10,7 +10,7 @@ export namespace AutoMovieEngineRenderShadow {
    * spelling must not manufacture a separate renderer or evidence identity.
    */
   export function normalizeAutoMovieShadowFilter(type: IAutoMovieSceneEnvironment["shadows"]["type"]): "pcf" | "vsm" {
-    return normalizeAutoMovieShadowFilterImplementation(type);
+    return normalizeShadowFilterImplementation(type);
   }
 
   /**
@@ -26,6 +26,6 @@ export namespace AutoMovieEngineRenderShadow {
    * callers with a renderer target supply that target's effective fallback.
    */
   export function resolveAutoMovieShadowProfile(props: IAutoMovieResolveShadowProfile.IProps): IAutoMovieResolveShadowProfile.IResult {
-    return resolveAutoMovieShadowProfileImplementation(props);
+    return resolveShadowProfileImplementation(props);
   }
 }

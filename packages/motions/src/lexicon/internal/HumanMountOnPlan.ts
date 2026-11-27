@@ -16,7 +16,7 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../../actions/internal/stand";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
+import { motionManner } from "../../compose/internal/motionManner";
 import { courseHumanLegs } from "../../compose/internal/courseHumanLegs";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { prepareSeatedPalms } from "../../everyday/internal/prepareSeatedPalms";
@@ -105,7 +105,7 @@ export function HumanMountOnPlan(
       : Math.min(
           4,
           2 * (1 + 0.6 * Math.max(0, seated.ratio(body, seat, under) - 1)),
-        )) * AutoMovieMotionManner(context, context.params.manner).tempo;
+        )) * motionManner(context, context.params.manner).tempo;
   const duration: number = climb + hold;
   const legged: ReturnType<typeof stand.prepareLegs> = stand.prepareLegs(
     body,

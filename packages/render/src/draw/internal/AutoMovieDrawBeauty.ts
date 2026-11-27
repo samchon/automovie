@@ -4,20 +4,20 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieRenderTransitionDisplays } from "../../scene/AutoMovieRenderTransitionDisplays.js";
-import type { AutoMovieRenderFilmAlpha } from "../../scene/AutoMovieRenderFilmAlpha.js";
-import { AutoMovieRenderFilmResponseStage } from "../../scene/AutoMovieRenderFilmResponseStage.js";
-import { AutoMovieRenderFilmIndirectStage } from "../../scene/AutoMovieRenderFilmIndirectStage.js";
-import type { IAutoMovieRenderDrawScene } from "../IAutoMovieRenderDrawScene.js";
-import { accumulateAutoMovieFilmSamples } from "./accumulateAutoMovieFilmSamples.js";
+import { AutoMovieRenderTransitionDisplays } from "../../scene/AutoMovieRenderTransitionDisplays";
+import type { AutoMovieRenderFilmAlpha } from "../../scene/AutoMovieRenderFilmAlpha";
+import { AutoMovieRenderFilmResponseStage } from "../../scene/AutoMovieRenderFilmResponseStage";
+import { AutoMovieRenderFilmIndirectStage } from "../../scene/AutoMovieRenderFilmIndirectStage";
+import type { IAutoMovieRenderDrawScene } from "../IAutoMovieRenderDrawScene";
+import { accumulateFilmSamples } from "./accumulateFilmSamples";
 
-/**
+/*
  * The draw page's film picture: the stages that give a subject's beauty pass
  * its optics and shading, and the held layers a transition composites.
  *
  * `sample` places one layer at the drawn second through the caller's placement
  * and, when the subject's optics there have `samples`, accumulates the shutter
- * and lens samples with `accumulateAutoMovieFilmSamples`, each inside
+ * and lens samples with `accumulateFilmSamples`, each inside
  * `AutoMovieRenderFilmIndirectStage` for that sample's camera. `draw` then draws the
  * layer onto the canvas: an accumulated frame through
  * `AutoMovieRenderFilmResponseStage` alone, a single sample through the response
@@ -69,10 +69,12 @@ export class AutoMovieDrawBeauty {
   private readonly displays_: AutoMovieRenderTransitionDisplays =
     new AutoMovieRenderTransitionDisplays();
 
-  /** Hold the page's renderer. */
+  /*
+   * Hold the page's renderer.
+   */
   public constructor(private readonly renderer: THREE.WebGLRenderer) {}
 
-  /**
+  /*
    * Place a layer at `seconds` and accumulate its shutter and lens samples when
    * its optics there have `samples`; returns those optics, or undefined for a
    * layer `draw` draws as one sample. The scene is placed at `seconds` again
@@ -86,7 +88,7 @@ export class AutoMovieDrawBeauty {
     const optics: IAutoMovieFilmOptics | undefined = scene.optics?.(seconds);
     if (optics?.samples === undefined) return undefined;
     const renderer: THREE.WebGLRenderer = this.renderer;
-    await accumulateAutoMovieFilmSamples({
+    await accumulateFilmSamples({
       stage: this.response_,
       renderer,
       scene: scene.scene,
@@ -124,31 +126,45 @@ export class AutoMovieDrawBeauty {
     return optics;
   }
 
-  /**
+  /*
    * Draw the placed layer onto the canvas through `camera`: the accumulated
    * frame of `sampled`, or one sample of the subject's optics and shading at
    * `seconds`.
    */
   public draw(props: {
-    /** The created subject, placed at the layer. */
+    /*
+     * The created subject, placed at the layer.
+     */
     scene: IAutoMovieRenderDrawScene<never>;
 
-    /** The camera drawn through. */
+    /*
+     * The camera drawn through.
+     */
     camera: THREE.Camera;
 
-    /** The drawn second. */
+    /*
+     * The drawn second.
+     */
     seconds: number;
 
-    /** Drawn raster width in pixels. */
+    /*
+     * Drawn raster width in pixels.
+     */
     width: number;
 
-    /** Drawn raster height in pixels. */
+    /*
+     * Drawn raster height in pixels.
+     */
     height: number;
 
-    /** The optics `sample` accumulated with, or undefined for one sample. */
+    /*
+     * The optics `sample` accumulated with, or undefined for one sample.
+     */
     sampled: IAutoMovieFilmOptics | undefined;
 
-    /** How the picture's alpha is kept; absent draws it opaque. */
+    /*
+     * How the picture's alpha is kept; absent draws it opaque.
+     */
     alpha?: AutoMovieRenderFilmAlpha;
   }): void {
     const { scene, sampled }: Parameters<AutoMovieDrawBeauty["draw"]>[0] =
@@ -192,21 +208,33 @@ export class AutoMovieDrawBeauty {
     });
   }
 
-  /** Draw the `graphics` plate of the placed scene onto the canvas. */
+  /*
+   * Draw the `graphics` plate of the placed scene onto the canvas.
+   */
   public plate(props: {
-    /** The created subject, placed at the drawn second. */
+    /*
+     * The created subject, placed at the drawn second.
+     */
     scene: IAutoMovieRenderDrawScene<never>;
 
-    /** The camera drawn through. */
+    /*
+     * The camera drawn through.
+     */
     camera: THREE.Camera;
 
-    /** The drawn second. */
+    /*
+     * The drawn second.
+     */
     seconds: number;
 
-    /** Drawn raster width in pixels. */
+    /*
+     * Drawn raster width in pixels.
+     */
     width: number;
 
-    /** Drawn raster height in pixels. */
+    /*
+     * Drawn raster height in pixels.
+     */
     height: number;
   }): void {
     const optics: IAutoMovieFilmOptics | undefined = props.scene.optics?.(
@@ -228,12 +256,16 @@ export class AutoMovieDrawBeauty {
     });
   }
 
-  /** Copy the canvas picture of one transition layer into `slot`. */
+  /*
+   * Copy the canvas picture of one transition layer into `slot`.
+   */
   public hold(slot: number): void {
     this.displays_.hold(this.renderer, slot);
   }
 
-  /** Composite the held layers of a transition onto the canvas. */
+  /*
+   * Composite the held layers of a transition onto the canvas.
+   */
   public composite(
     layers: readonly (IAutoMovieFilmBeautyLayer & { slot: number })[],
     transparent: boolean,
@@ -241,17 +273,23 @@ export class AutoMovieDrawBeauty {
     this.displays_.composite(this.renderer, layers, transparent);
   }
 
-  /** The scene a composited picture's display overlays are attached to. */
+  /*
+   * The scene a composited picture's display overlays are attached to.
+   */
   public get overlay(): THREE.Scene {
     return this.displays_.overlay;
   }
 
-  /** Draw `overlay` over the canvas through `camera`, without clearing. */
+  /*
+   * Draw `overlay` over the canvas through `camera`, without clearing.
+   */
   public over(camera: THREE.Camera): void {
     this.displays_.over(this.renderer, camera);
   }
 
-  /** Release every stage and the held layers. */
+  /*
+   * Release every stage and the held layers.
+   */
   public dispose(): void {
     this.response_.dispose();
     this.indirect_.dispose();
@@ -288,27 +326,43 @@ export class AutoMovieDrawBeauty {
  * Types of `AutoMovieDrawBeauty`.
  */
 export namespace AutoMovieDrawBeauty {
-  /** One layer of a film picture, as `sample` places and accumulates it. */
+  /*
+   * One layer of a film picture, as `sample` places and accumulates it.
+   */
   export interface ILayer {
-    /** The created subject. */
+    /*
+     * The created subject.
+     */
     scene: IAutoMovieRenderDrawScene<never>;
 
-    /** The drawn second. */
+    /*
+     * The drawn second.
+     */
     seconds: number;
 
-    /** Drawn raster width in pixels. */
+    /*
+     * Drawn raster width in pixels.
+     */
     width: number;
 
-    /** Drawn raster height in pixels. */
+    /*
+     * Drawn raster height in pixels.
+     */
     height: number;
 
-    /** Place the layer at an output second: the drawn one or a sample's. */
+    /*
+     * Place the layer at an output second: the drawn one or a sample's.
+     */
     seek: (seconds: number) => Promise<void>;
 
-    /** The drawing camera at an output second, after `seek` to it. */
+    /*
+     * The drawing camera at an output second, after `seek` to it.
+     */
     camera: (seconds: number) => THREE.Camera;
 
-    /** How the picture's alpha is kept; absent draws it opaque. */
+    /*
+     * How the picture's alpha is kept; absent draws it opaque.
+     */
     alpha?: AutoMovieRenderFilmAlpha;
   }
 }

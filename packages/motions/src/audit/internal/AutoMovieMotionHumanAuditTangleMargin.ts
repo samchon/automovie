@@ -10,20 +10,20 @@ import type {
 
 import { HumanLinkCertificate } from "../../posture/internal/HumanLinkCertificate";
 import { AutoMovieMotionHumanAuditTangleModel as M } from "./AutoMovieMotionHumanAuditTangleModel";
-import { prepareAutoMovieMotionHumanAuditDepths } from "./prepareAutoMovieMotionHumanAuditDepths";
+import { prepareMotionHumanAuditDepths } from "./prepareMotionHumanAuditDepths";
 
 /*
  * What lets the penetration audits (`AutoMovieMotionHumanAuditTangle` of one
  * body, `AutoMovieMotionHumanAuditPartner` of two) leave a pair of segments
  * unread at the grid instants a reading certifies, by conservative advancement
- * (`advanceAutoMovieGrid`): a pair's margin, how far its depth can still grow
+ * (`advanceGrid`): a pair's margin, how far its depth can still grow
  * before a reading of it could change the audit's record, and each segment's
  * travel, how far any point of it can move between two grid instants.
  *
  * A probe's depth in a segment, zero outside, is the distance to the segment's
  * surface from inside, so it grows no faster than the probe and the segment's
  * surface move toward each other. Its room
- * (`prepareAutoMovieMotionHumanAuditDepths`), the most over the segment's
+ * (`prepareMotionHumanAuditDepths`), the most over the segment's
  * shapes of a bounding sphere's radius less the probe's distance from its
  * centre, bounds the depth from above and moves no faster either. So a probe
  * read at depth `d` with room `r` lies, an instant later, no deeper than the
@@ -189,11 +189,11 @@ export namespace AutoMovieMotionHumanAuditTangleMargin {
     // Each of the other body's segments is prepared once for this placement,
     // where a pair first reaches it.
     const targets: NonNullable<Parameters<typeof M.beyond>[4]> = [];
-    type Depths = ReturnType<typeof prepareAutoMovieMotionHumanAuditDepths>;
+    type Depths = ReturnType<typeof prepareMotionHumanAuditDepths>;
     const target = (j: number): Depths => {
       const known: Depths | undefined = targets[j];
       if (known !== undefined) return known;
-      const made: Depths = prepareAutoMovieMotionHumanAuditDepths(theirs[j]!);
+      const made: Depths = prepareMotionHumanAuditDepths(theirs[j]!);
       targets[j] = made;
       return made;
     };
@@ -287,7 +287,7 @@ export namespace AutoMovieMotionHumanAuditTangleMargin {
   export function across(
     probes: readonly IAutoMovieVector3[],
     mine: IAutoMovieMotionHumanColliders.IPlaced,
-    read: ReturnType<typeof prepareAutoMovieMotionHumanAuditDepths>,
+    read: ReturnType<typeof prepareMotionHumanAuditDepths>,
   ): IAcrossResult {
     const room: Float64Array = new Float64Array(probes.length);
     const depths: Float64Array = read(probes, mine, room);

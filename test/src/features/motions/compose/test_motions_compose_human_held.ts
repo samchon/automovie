@@ -7,8 +7,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanHeld
-} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanHeld";
+  motionHumanHeld
+} from "../../../../../packages/motions/src/compose/internal/motionHumanHeld";
 import {
   HumanHand
 } from "../../../../../packages/motions/src/posture/internal/HumanHand";
@@ -34,7 +34,7 @@ const LIP: IAutoMovieAffordance = {
 };
 
 /**
- * `AutoMovieMotionHumanHeld` keeps a held prop in its hand's grip frame, the
+ * `motionHumanHeld` keeps a held prop in its hand's grip frame, the
  * grip socket's point with the hand bone's rotation: a prop not yet taken is
  * read into the frame its grip would keep (`grasped`), a contact of a held prop
  * is its translation and its `+Y` carried by that frame (`point`), a name the
@@ -65,8 +65,8 @@ export async function test_motions_compose_human_held(): Promise<void> {
     },
     affordances: [LIP],
   };
-  const lip: ReturnType<typeof AutoMovieMotionHumanHeld.point> =
-    AutoMovieMotionHumanHeld.point(held, "lip");
+  const lip: ReturnType<typeof motionHumanHeld.point> =
+    motionHumanHeld.point(held, "lip");
   TestValidator.predicate(
     "the lip in the hand's grip frame",
     vclose(lip.point, { x: -0.1, y: 0, z: 0 }, ROUNDING) &&
@@ -77,13 +77,13 @@ export async function test_motions_compose_human_held(): Promise<void> {
   TestValidator.predicate(
     "an undeclared contact is refused",
     throwsError(
-      (): unknown => AutoMovieMotionHumanHeld.point(held, "spout"),
+      (): unknown => motionHumanHeld.point(held, "spout"),
       "glass declares no contact named spout",
     ),
   );
 
   // 3. The grip window.
-  TestValidator.equals("the grip window", AutoMovieMotionHumanHeld.grip(held), {
+  TestValidator.equals("the grip window", motionHumanHeld.grip(held), {
     part: "rightHand",
     kind: "grip",
     from: 0,
@@ -106,7 +106,7 @@ export async function test_motions_compose_human_held(): Promise<void> {
     30,
   );
   const taken: IAutoMovieMotionHumanHeld.IHeld =
-    AutoMovieMotionHumanHeld.grasped(
+    motionHumanHeld.grasped(
       body,
       "right",
       "glass",

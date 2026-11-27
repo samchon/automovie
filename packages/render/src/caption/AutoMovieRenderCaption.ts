@@ -10,19 +10,19 @@ import type {
   IAutoMovieScript,
 } from "@automovie/interface";
 
-import { beatCaptions as internalBeatCaptions } from "./internal/beatCaptions.js";
-import { autoMovieCaptionLanguageComparisonKey } from "./internal/autoMovieCaptionLanguageComparisonKey.js";
-import { canonicalProductionWebVtt as internalCanonicalProductionWebVtt } from "./internal/canonicalProductionWebVtt.js";
-import { canonicalizeAutoMovieCaptionText } from "./internal/canonicalizeAutoMovieCaptionText.js";
-import { inspectAutoMovieCaptionReadabilityWithRuntime } from "./internal/inspectAutoMovieCaptionReadabilityWithRuntime.js";
-import { isAutoMovieWebVttIdentifier } from "./internal/isAutoMovieWebVttIdentifier.js";
-import { parseAutoMovieCaptionLanguage } from "./internal/parseAutoMovieCaptionLanguage.js";
-import { planCaptionSidecar } from "./internal/planCaptionSidecar.js";
-import { renderCaptionSidecar } from "./internal/renderCaptionSidecar.js";
-import { serializeAutoMovieWebVttCueText } from "./internal/serializeAutoMovieWebVttCueText.js";
-import { serializeAutoMovieWebVttIdentifier } from "./internal/serializeAutoMovieWebVttIdentifier.js";
-import { serializeAutoMovieWebVttSingleLineText } from "./internal/serializeAutoMovieWebVttSingleLineText.js";
-import { sliceCaptionSidecar } from "./internal/sliceCaptionSidecar.js";
+import { beatCaptions as internalBeatCaptions } from "./internal/beatCaptions";
+import { captionLanguageComparisonKey } from "./internal/captionLanguageComparisonKey";
+import { canonicalProductionWebVtt as internalCanonicalProductionWebVtt } from "./internal/canonicalProductionWebVtt";
+import { canonicalizeCaptionText } from "./internal/canonicalizeCaptionText";
+import { inspectCaptionReadabilityWithRuntime } from "./internal/inspectCaptionReadabilityWithRuntime";
+import { isWebVttIdentifierImplementation } from "./internal/isWebVttIdentifierImplementation";
+import { parseCaptionLanguage } from "./internal/parseCaptionLanguage";
+import { planCaptionSidecar } from "./internal/planCaptionSidecar";
+import { renderCaptionSidecar } from "./internal/renderCaptionSidecar";
+import { serializeWebVttCueTextImplementation } from "./internal/serializeWebVttCueTextImplementation";
+import { serializeWebVttIdentifierImplementation } from "./internal/serializeWebVttIdentifierImplementation";
+import { serializeWebVttSingleLineTextImplementation } from "./internal/serializeWebVttSingleLineTextImplementation";
+import { sliceCaptionSidecar } from "./internal/sliceCaptionSidecar";
 
 /** Caption planning, validation, measurement and serialization for Render. */
 export namespace AutoMovieRenderCaption {
@@ -63,7 +63,7 @@ export namespace AutoMovieRenderCaption {
    * @returns The canonical presentation text.
    */
   export function canonicalizeText(value: string): string {
-    return canonicalizeAutoMovieCaptionText(value);
+    return canonicalizeCaptionText(value);
   }
 
   /**
@@ -80,7 +80,7 @@ export namespace AutoMovieRenderCaption {
     profiles: readonly IAutoMovieCaptionReadabilityProfile[],
     runtime: IAutoMovieCaptionGraphemeRuntime,
   ): IAutoMovieCaptionReadabilityReport {
-    return inspectAutoMovieCaptionReadabilityWithRuntime(
+    return inspectCaptionReadabilityWithRuntime(
       timeline,
       profiles,
       runtime,
@@ -94,7 +94,7 @@ export namespace AutoMovieRenderCaption {
    * @returns `true` when nonempty and free of line breaks and `-->`.
    */
   export function isWebVttIdentifier(value: string): boolean {
-    return isAutoMovieWebVttIdentifier(value);
+    return isWebVttIdentifierImplementation(value);
   }
 
   /**
@@ -106,7 +106,7 @@ export namespace AutoMovieRenderCaption {
   export function parseLanguage(
     value: string,
   ): IAutoMovieCaptionLanguageIdentity | null {
-    return parseAutoMovieCaptionLanguage(value);
+    return parseCaptionLanguage(value);
   }
 
   /**
@@ -116,7 +116,7 @@ export namespace AutoMovieRenderCaption {
    * @returns Its comparison key, or `null` when malformed.
    */
   export function languageComparisonKey(value: string): string | null {
-    return autoMovieCaptionLanguageComparisonKey(value);
+    return captionLanguageComparisonKey(value);
   }
 
   /**
@@ -127,7 +127,7 @@ export namespace AutoMovieRenderCaption {
    * @returns The cue payload.
    */
   export function serializeWebVttCueText(value: string): string {
-    return serializeAutoMovieWebVttCueText(value);
+    return serializeWebVttCueTextImplementation(value);
   }
 
   /**
@@ -137,7 +137,7 @@ export namespace AutoMovieRenderCaption {
    * @returns The unchanged identifier.
    */
   export function serializeWebVttIdentifier(value: string): string {
-    return serializeAutoMovieWebVttIdentifier(value);
+    return serializeWebVttIdentifierImplementation(value);
   }
 
   /**
@@ -148,7 +148,7 @@ export namespace AutoMovieRenderCaption {
    * @returns The safe single-line annotation.
    */
   export function serializeWebVttSingleLineText(value: string): string {
-    return serializeAutoMovieWebVttSingleLineText(value);
+    return serializeWebVttSingleLineTextImplementation(value);
   }
 
   /**

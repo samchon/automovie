@@ -9,7 +9,7 @@ import type {
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanHead } from "../../compose/internal/AutoMovieMotionHumanHead";
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { headTiltClock } from "./headTiltClock";
 
@@ -55,7 +55,7 @@ function planHeadTilt(
     "degrees",
   );
   const clock: IAutoMovieMotionClock = headTiltClock(context.params);
-  return composeAutoMovieMotionHumanAction({
+  return composeMotionHumanAction({
     base: AutoMovieMotionHumanBase.under(context, clock.duration),
     clock,
     primitives: [

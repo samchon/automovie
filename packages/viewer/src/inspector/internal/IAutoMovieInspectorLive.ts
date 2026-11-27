@@ -5,10 +5,10 @@ import type {
 } from "@automovie/render";
 import type * as THREE from "three";
 
-import type { AutoMovieInspectorBeauty } from "./AutoMovieInspectorBeauty.js";
-import type { AutoMovieViewerInspectorPlayhead } from "../AutoMovieViewerInspectorPlayhead.js";
-import type { AutoMovieInspectorTransition } from "./AutoMovieInspectorTransition.js";
-import type { IAutoMovieViewerInspectorSceneHost } from "../IAutoMovieViewerInspectorSceneHost.js";
+import type { AutoMovieInspectorBeauty } from "./AutoMovieInspectorBeauty";
+import type { AutoMovieViewerInspectorPlayhead } from "../AutoMovieViewerInspectorPlayhead";
+import type { AutoMovieInspectorTransition } from "./AutoMovieInspectorTransition";
+import type { IAutoMovieViewerInspectorSceneHost } from "../IAutoMovieViewerInspectorSceneHost";
 
 /*
  * What an inspector mount holds once its subject is ready: the subject and the

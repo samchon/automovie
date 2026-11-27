@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { humanPolygonTopology as LoftMesh } from "./humanPolygonTopology.js";
+import { humanPolygonTopology as LoftMesh } from "./humanPolygonTopology";
 
 /*
  * Assemble one rigid display module from its already selected sections.

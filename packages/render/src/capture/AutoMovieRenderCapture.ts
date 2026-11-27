@@ -1,22 +1,22 @@
-import { assertAutoMovieCaptureClock as assertAutoMovieCaptureClockImplementation } from "../delivery/internal/assertAutoMovieCaptureClock.js";
-import { planAutoMovieCaptureUrl as planAutoMovieCaptureUrlImplementation } from "../delivery/internal/planAutoMovieCaptureUrl.js";
+import { assertCaptureClock as assertCaptureClockImplementation } from "../delivery/internal/assertCaptureClock";
+import { planCaptureUrl as planCaptureUrlImplementation } from "../delivery/internal/planCaptureUrl";
 
 import { type IAutoMovieCaptureComparison, type IAutoMovieCaptureComparisonProps, type IAutoMovieCaptureFindingDiff, type IAutoMovieCaptureFindingDiffProps, type IAutoMovieCaptureRequestEntry, type IAutoMovieCaptureCompleteRecord, type IAutoMovieCapturePlanRequest, type IAutoMovieCaptureRequestSource, type IAutoMovieCapturePlan, type IAutoMovieCapturePlanProps, type IAutoMovieCaptureFramePlan, type IAutoMovieCaptureFramePlanProps, type IAutoMovieCaptureLayout, type IAutoMovieCaptureLayoutProps, type IAutoMoviePlanVideoFramesProps, type IAutoMoviePlanVideoSceneCutsProps, type IAutoMovieCaptureVideoSource, type IAutoMovieCaptureResolution, type IAutoMovieResolveCapturePatternsProps, type IAutoMovieRunCaptureProps, type IAutoMovieRunVideoCaptureProps, type IAutoMovieRasterImage, type IAutoMovieAssertCaptureClockHost, type IAutoMovieAssertCaptureClockExpected } from "@automovie/interface";
-import { compareAutoMovieCaptureRounds as compareAutoMovieCaptureRoundsImplementation } from "./internal/compareAutoMovieCaptureRounds.js";
-import { diffAutoMovieCaptureFindings as diffAutoMovieCaptureFindingsImplementation } from "./internal/diffAutoMovieCaptureFindings.js";
-import { formatAutoMovieCapturePlanRequest as formatAutoMovieCapturePlanRequestImplementation } from "./internal/formatAutoMovieCapturePlanRequest.js";
-import { parseAutoMovieCapturePlanRequest as parseAutoMovieCapturePlanRequestImplementation } from "./internal/parseAutoMovieCapturePlanRequest.js";
-import { planAutoMovieCapture as planAutoMovieCaptureImplementation } from "./internal/planAutoMovieCapture.js";
-import { planAutoMovieCaptureFrames as planAutoMovieCaptureFramesImplementation } from "./internal/planAutoMovieCaptureFrames.js";
-import { planAutoMovieCaptureLayout as planAutoMovieCaptureLayoutImplementation } from "./internal/planAutoMovieCaptureLayout.js";
-import { planAutoMovieVideoFrames as planAutoMovieVideoFramesImplementation } from "./internal/planAutoMovieVideoFrames.js";
-import { planAutoMovieVideoSceneCuts as planAutoMovieVideoSceneCutsImplementation } from "./internal/planAutoMovieVideoSceneCuts.js";
-import { readAutoMovieCaptureArguments as readAutoMovieCaptureArgumentsImplementation } from "./internal/readAutoMovieCaptureArguments.js";
-import { readAutoMovieVideoSceneCuts as readAutoMovieVideoSceneCutsImplementation } from "./internal/readAutoMovieVideoSceneCuts.js";
-import { resolveAutoMovieCapturePatterns as resolveAutoMovieCapturePatternsImplementation } from "./internal/resolveAutoMovieCapturePatterns.js";
-import { runAutoMovieCapture as runAutoMovieCaptureImplementation } from "./internal/runAutoMovieCapture.js";
-import { runAutoMovieVideoCapture as runAutoMovieVideoCaptureImplementation } from "./internal/runAutoMovieVideoCapture.js";
-import { scaleAutoMovieCaptureLabels as scaleAutoMovieCaptureLabelsImplementation } from "./internal/scaleAutoMovieCaptureLabels.js";
+import { compareCaptureRounds as compareCaptureRoundsImplementation } from "./internal/compareCaptureRounds";
+import { diffCaptureFindings as diffCaptureFindingsImplementation } from "./internal/diffCaptureFindings";
+import { formatCapturePlanRequest as formatCapturePlanRequestImplementation } from "./internal/formatCapturePlanRequest";
+import { parseCapturePlanRequest as parseCapturePlanRequestImplementation } from "./internal/parseCapturePlanRequest";
+import { planCapture as planCaptureImplementation } from "./internal/planCapture";
+import { planCaptureFrames as planCaptureFramesImplementation } from "./internal/planCaptureFrames";
+import { planCaptureLayout as planCaptureLayoutImplementation } from "./internal/planCaptureLayout";
+import { planVideoFrames as planVideoFramesImplementation } from "./internal/planVideoFrames";
+import { planVideoSceneCuts as planVideoSceneCutsImplementation } from "./internal/planVideoSceneCuts";
+import { readCaptureArguments as readCaptureArgumentsImplementation } from "./internal/readCaptureArguments";
+import { readVideoSceneCuts as readVideoSceneCutsImplementation } from "./internal/readVideoSceneCuts";
+import { resolveCapturePatterns as resolveCapturePatternsImplementation } from "./internal/resolveCapturePatterns";
+import { runCapture as runCaptureImplementation } from "./internal/runCapture";
+import { runVideoCapture as runVideoCaptureImplementation } from "./internal/runVideoCapture";
+import { scaleCaptureLabels as scaleCaptureLabelsImplementation } from "./internal/scaleCaptureLabels";
 
 /** Public operations for Auto Movie Render Capture. */
 export namespace AutoMovieRenderCapture {
@@ -40,7 +40,7 @@ export namespace AutoMovieRenderCapture {
    * one capture holds and a measured pair whose rasters differ are unmatched,
    * each with the cause.
    *
-   * The findings of the two rounds are compared by diffAutoMovieCaptureFindings,
+   * The findings of the two rounds are compared by diffCaptureFindings,
    * from the earlier record's diagnostics and this round's, which the caller
    * reduces first.
    *
@@ -50,7 +50,7 @@ export namespace AutoMovieRenderCapture {
    * entries, laid out for `budget` and named `comparison-001.png` onwards.
    */
   export function compareRounds(props: IAutoMovieCaptureComparisonProps): Promise<IAutoMovieCaptureComparison> {
-    return compareAutoMovieCaptureRoundsImplementation(props);
+    return compareCaptureRoundsImplementation(props);
   }
 
   /**
@@ -59,7 +59,7 @@ export namespace AutoMovieRenderCapture {
    *
    * Each finding identity, its `scope`, `check`, `key`, `code` and ordered
    * `paths`, is summarized per round by its worst observation across its
-   * episodes, under compareAutoMovieInspectionFindings, the order the reducer
+   * episodes, under compareInspectionFindings, the order the reducer
    * keeps an episode's worst witness by.
    *
    * An identity only one round has is `fixed` or `new` only when the other round
@@ -82,12 +82,12 @@ export namespace AutoMovieRenderCapture {
    *   without diagnostics.
    */
   export function diffFindings(props: IAutoMovieCaptureFindingDiffProps): IAutoMovieCaptureFindingDiff {
-    return diffAutoMovieCaptureFindingsImplementation(props);
+    return diffCaptureFindingsImplementation(props);
   }
 
   /**
    * Write a capture plan request as the named text values
-   * `parseAutoMovieCapturePlanRequest` reads, so a request worked out in one host
+   * `parseCapturePlanRequest` reads, so a request worked out in one host
    * repeats in another as an address, a command line or props.
    *
    * Keys come in the order of `AutoMovieRenderCapturePlanKeys`, and a key whose
@@ -96,32 +96,32 @@ export namespace AutoMovieRenderCapture {
    * that reads back to the same number, lists joined by commas and views by `;`.
    * One pass is written through the inspection's `shade`, several through
    * `passes` with `shade` left out. The inspection keys come last, written by
-   * `formatAutoMovieInspectionRequest`. For every request the reader returns,
+   * `formatInspectionRequest`. For every request the reader returns,
    * reading the written values gives an equal request.
    *
    * ```ts
    * const address = new URLSearchParams(
-   *   formatAutoMovieCapturePlanRequest(request),
+   *   formatCapturePlanRequest(request),
    * );
-   * const command = formatAutoMovieCapturePlanRequest(request).flatMap(
+   * const command = formatCapturePlanRequest(request).flatMap(
    *   ([key, value]) => [`--${key}`, value],
    * );
    * ```
    */
   export function formatPlanRequest(request: IAutoMovieCapturePlanRequest): IAutoMovieCaptureRequestEntry[] {
-    return formatAutoMovieCapturePlanRequestImplementation(request);
+    return formatCapturePlanRequestImplementation(request);
   }
 
   /**
    * Read a capture plan request from named text values, the one reader every host
    * maps its source onto: the page passes its address's `URLSearchParams`, the
-   * command passes the map of `readAutoMovieCaptureArguments`, and a component
+   * command passes the map of `readCaptureArguments`, and a component
    * passes its props as text.
    *
    * A key given without a value reads as the empty string, which turns a switch
    * on. `AutoMovieRenderCapturePlanKeys` lists every key and
-   * `formatAutoMovieCapturePlanRequest` writes a request back. The inspection
-   * keys are read by `parseAutoMovieInspectionRequest`.
+   * `formatCapturePlanRequest` writes a request back. The inspection
+   * keys are read by `parseInspectionRequest`.
    *
    * | Key          | Text                                                                             | Absent                   |
    * | ------------ | -------------------------------------------------------------------------------- | ------------------------ |
@@ -147,18 +147,18 @@ export namespace AutoMovieRenderCapture {
    * twice, `at` beside `from`, `to` or `rate`, `passes` beside `shade`, `margin`
    * without `sweep`, `tolerance` without `compare`, and a round compared against
    * itself; and naming the key, the text and what is accepted for a value it
-   * cannot read. A view text is checked by `parseAutoMovieInspectionView`;
+   * cannot read. A view text is checked by `parseInspectionView`;
    * whether the subject offers that view, and whether times lie within it, is
-   * `planAutoMovieCapture`'s check.
+   * `planCapture`'s check.
    *
    * ```ts
-   * const request = parseAutoMovieCapturePlanRequest(
+   * const request = parseCapturePlanRequest(
    *   new URL(location.href).searchParams,
    * );
    * ```
    */
   export function parsePlanRequest(source: IAutoMovieCaptureRequestSource): IAutoMovieCapturePlanRequest {
-    return parseAutoMovieCapturePlanRequestImplementation(source);
+    return parseCapturePlanRequestImplementation(source);
   }
 
   /**
@@ -176,8 +176,8 @@ export namespace AutoMovieRenderCapture {
    * instant written the same to the millisecond, which the cell also carries as
    * label, then whichever of view, pass and selection vary in the plan, so a
    * caption fits its cell whatever the second's digits. Times come from
-   * `planAutoMovieCaptureFrames` and the sheet layout from
-   * `planAutoMovieCaptureLayout`, with a row's group being the views times the
+   * `planCaptureFrames` and the sheet layout from
+   * `planCaptureLayout`, with a row's group being the views times the
    * passes.
    *
    * Frames around cuts are planned like those around events, for a video file
@@ -188,11 +188,11 @@ export namespace AutoMovieRenderCapture {
    * pixels; a view the subject does not offer, listing those it does; a `marks`
    * pattern that matches none of the subject's mark kinds; a sweep that matches
    * no drawn object; times outside the subject; and two cells that would take one
-   * name. Every view text is read by `parseAutoMovieInspectionView`, which
+   * name. Every view text is read by `parseInspectionView`, which
    * refuses malformed text; `film` and a fixed camera need no name.
    */
   export function plan(props: IAutoMovieCapturePlanProps): IAutoMovieCapturePlan {
-    return planAutoMovieCaptureImplementation(props);
+    return planCaptureImplementation(props);
   }
 
   /**
@@ -215,7 +215,7 @@ export namespace AutoMovieRenderCapture {
    * number of frames.
    *
    * ```ts
-   * planAutoMovieCaptureFrames({
+   * planCaptureFrames({
    *   durationSeconds: 4,
    *   fps: 30,
    *   sampling: { kind: "even", from: 0, to: null, rate: 5 },
@@ -227,7 +227,7 @@ export namespace AutoMovieRenderCapture {
    * ```
    */
   export function planFrames(props: IAutoMovieCaptureFramePlanProps): IAutoMovieCaptureFramePlan {
-    return planAutoMovieCaptureFramesImplementation(props);
+    return planCaptureFramesImplementation(props);
   }
 
   /**
@@ -257,7 +257,7 @@ export namespace AutoMovieRenderCapture {
    * It throws for a raster, count or group that is not a positive whole number.
    *
    * ```ts
-   * planAutoMovieCaptureLayout({
+   * planCaptureLayout({
    *   width: 1280,
    *   height: 720,
    *   count: 50,
@@ -269,7 +269,7 @@ export namespace AutoMovieRenderCapture {
    * ```
    */
   export function planLayout(props: IAutoMovieCaptureLayoutProps): IAutoMovieCaptureLayout {
-    return planAutoMovieCaptureLayoutImplementation(props);
+    return planCaptureLayoutImplementation(props);
   }
 
   /**
@@ -287,7 +287,7 @@ export namespace AutoMovieRenderCapture {
    * zero or more.
    *
    * ```ts
-   * planAutoMovieVideoFrames({
+   * planVideoFrames({
    *   file: "delivery.mp4",
    *   frames: [57, 58, 59, 90],
    *   directory: "out",
@@ -296,13 +296,13 @@ export namespace AutoMovieRenderCapture {
    * ```
    */
   export function planVideoFrames(props: IAutoMoviePlanVideoFramesProps): string[] {
-    return planAutoMovieVideoFramesImplementation(props);
+    return planVideoFramesImplementation(props);
   }
 
   /**
    * Plan the FFmpeg arguments that detect a video file's scene cuts with the
    * `scdet` filter and write each cut to a report, which
-   * `readAutoMovieVideoSceneCuts` reads.
+   * `readVideoSceneCuts` reads.
    *
    * `scdet` scores how much each frame differs from the one before, from 0 to
    * 100, and marks a frame whose score reaches `threshold` as the first frame of
@@ -316,7 +316,7 @@ export namespace AutoMovieRenderCapture {
    *
    * ```ts
    * await run(
-   *   planAutoMovieVideoSceneCuts({
+   *   planVideoSceneCuts({
    *     file: "delivery.mp4",
    *     report: `${folder.directory}/scenecut.txt`,
    *     threshold: 10,
@@ -325,12 +325,12 @@ export namespace AutoMovieRenderCapture {
    * ```
    */
   export function planVideoSceneCuts(props: IAutoMoviePlanVideoSceneCutsProps): string[] {
-    return planAutoMovieVideoSceneCutsImplementation(props);
+    return planVideoSceneCutsImplementation(props);
   }
 
   /**
    * Map a command line onto the named text values
-   * `parseAutoMovieCapturePlanRequest` reads, the command's whole share of
+   * `parseCapturePlanRequest` reads, the command's whole share of
    * reading a request.
    *
    * Each option is `--<key> <value>`, `--<key>=<value>`, or `--<key>` alone,
@@ -343,17 +343,17 @@ export namespace AutoMovieRenderCapture {
    * for an option given twice, naming it.
    *
    * ```ts
-   * const request = parseAutoMovieCapturePlanRequest(
-   *   readAutoMovieCaptureArguments(process.argv.slice(2)),
+   * const request = parseCapturePlanRequest(
+   *   readCaptureArguments(process.argv.slice(2)),
    * );
    * ```
    */
   export function readArguments(argv: readonly string[]): Map<string, string> {
-    return readAutoMovieCaptureArgumentsImplementation(argv);
+    return readCaptureArgumentsImplementation(argv);
   }
 
   /**
-   * Read the report of `planAutoMovieVideoSceneCuts` into the file's scene cuts:
+   * Read the report of `planVideoSceneCuts` into the file's scene cuts:
    * the second each new scene starts and its `scdet` score, in the report's
    * order.
    *
@@ -368,7 +368,7 @@ export namespace AutoMovieRenderCapture {
    * score.
    */
   export function readVideoSceneCuts(report: string): IAutoMovieCaptureVideoSource["cuts"] {
-    return readAutoMovieVideoSceneCutsImplementation(report);
+    return readVideoSceneCutsImplementation(report);
   }
 
   /**
@@ -383,7 +383,7 @@ export namespace AutoMovieRenderCapture {
    * it also matched being counted but not listed.
    *
    * ```ts
-   * resolveAutoMovieCapturePatterns({
+   * resolveCapturePatterns({
    *   paths: ["hero", "hero/arm", "lamp"],
    *   request,
    *   view: "front@focus=hero",
@@ -392,7 +392,7 @@ export namespace AutoMovieRenderCapture {
    * ```
    */
   export function resolvePatterns(props: IAutoMovieResolveCapturePatternsProps): IAutoMovieCaptureResolution[] {
-    return resolveAutoMovieCapturePatternsImplementation(props);
+    return resolveCapturePatternsImplementation(props);
   }
 
   /**
@@ -409,7 +409,7 @@ export namespace AutoMovieRenderCapture {
    * cause and stands on the sheet as a marked cell, and the run continues. Sheets
    * are written as `sheet-001.png` onwards as each fills. Diagnostics supplied by
    * the drawn cells are reduced in film time for the record. With a `compare`
-   * round, `compareAutoMovieCaptureRounds` follows at `match` and diffs those
+   * round, `compareCaptureRounds` follows at `match` and diffs those
    * findings against the earlier record's. The record comes last.
    *
    * Files are touched in the order `AutoMovieRenderCaptureFolder` states: the host
@@ -421,14 +421,14 @@ export namespace AutoMovieRenderCapture {
    * every file written so far.
    *
    * ```ts
-   * const plan = planAutoMovieCapture({ request, subject, cuts: [] });
+   * const plan = planCapture({ request, subject, cuts: [] });
    * const folder = await AutoMovieRenderCaptureFolder.open({
    *   storage: fs,
    *   root: "media/capture",
    *   round: request.round,
    *   compare: request.compare,
    * });
-   * const record = await runAutoMovieCapture({
+   * const record = await runCapture({
    *   plan,
    *   draw,
    *   folder,
@@ -438,7 +438,7 @@ export namespace AutoMovieRenderCapture {
    * ```
    */
   export function run(props: IAutoMovieRunCaptureProps): Promise<IAutoMovieCaptureCompleteRecord> {
-    return runAutoMovieCaptureImplementation(props);
+    return runCaptureImplementation(props);
   }
 
   /**
@@ -451,12 +451,12 @@ export namespace AutoMovieRenderCapture {
    *
    * 1. Plan the request against the file's clock with no cuts, refusing what the
    *    file cannot give before the folder is touched.
-   * 2. Open the folder, run `planAutoMovieVideoSceneCuts` at `request.threshold`,
-   *    read the report with `readAutoMovieVideoSceneCuts` and delete it.
+   * 2. Open the folder, run `planVideoSceneCuts` at `request.threshold`,
+   *    read the report with `readVideoSceneCuts` and delete it.
    * 3. Plan again with the cuts, so every frame within `request.window` frames of a
    *    cut is planned as an event's are.
-   * 4. Run `planAutoMovieVideoFrames` for the planned frames, then let
-   *    `runAutoMovieCapture` read each extracted still as its cell's picture,
+   * 4. Run `planVideoFrames` for the planned frames, then let
+   *    `runCapture` read each extracted still as its cell's picture,
    *    delete the extracted file and write the still under the cell's name.
    *
    * Each still is captioned by its frame index and second. A planned frame the
@@ -471,7 +471,7 @@ export namespace AutoMovieRenderCapture {
    * between the file's frames.
    */
   export function runVideo(props: IAutoMovieRunVideoCaptureProps): Promise<IAutoMovieCaptureCompleteRecord> {
-    return runAutoMovieVideoCaptureImplementation(props);
+    return runVideoCaptureImplementation(props);
   }
 
   /**
@@ -486,7 +486,7 @@ export namespace AutoMovieRenderCapture {
    * once stamped.
    */
   export function scaleLabels(raster: Pick<IAutoMovieRasterImage, "width" | "height">, layout: Pick<IAutoMovieCaptureLayout, "cell">): number {
-    return scaleAutoMovieCaptureLabelsImplementation(raster, layout);
+    return scaleCaptureLabelsImplementation(raster, layout);
   }
 
   /**
@@ -500,7 +500,7 @@ export namespace AutoMovieRenderCapture {
    * @param expected The commissioned duration and rate.
    */
   export function assertClock(host: IAutoMovieAssertCaptureClockHost, expected: IAutoMovieAssertCaptureClockExpected): void {
-    assertAutoMovieCaptureClockImplementation(host, expected);
+    assertCaptureClockImplementation(host, expected);
   }
 
   /**
@@ -514,6 +514,6 @@ export namespace AutoMovieRenderCapture {
    * @returns The capture URL.
    */
   export function planUrl(requested: string, parameters: Readonly<Record<string, string>>): string {
-    return planAutoMovieCaptureUrlImplementation(requested, parameters);
+    return planCaptureUrlImplementation(requested, parameters);
   }
 }

@@ -27,7 +27,7 @@ import type {
 import { AutoMovieEngineFluid } from "../../fluid/AutoMovieEngineFluid";
 import { plantingBudget } from "../../soft/internal/plantingBudget";
 import { softBodyBudget } from "../../soft/internal/softBodyBudget";
-import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
+import { compareRenderIds } from "./compareRenderIds";
 import { AutoMovieEngineFlowBytes } from "../AutoMovieEngineFlowBytes";
 import { AutoMovieEngineIndexBytes } from "../AutoMovieEngineIndexBytes";
 import { AutoMovieEngineNormalBytes } from "../AutoMovieEngineNormalBytes";
@@ -266,7 +266,7 @@ export function measureRenderSimulation(
       gaps.push({
         metric,
         status: "not-run",
-        reason: `${unmeasured.length} planting cluster(s) state no drawn prototype cost, starting with "${[...unmeasured].sort(compareAutoMovieRenderIds)[0]!}"`,
+        reason: `${unmeasured.length} planting cluster(s) state no drawn prototype cost, starting with "${[...unmeasured].sort(compareRenderIds)[0]!}"`,
         remedy:
           "pass each planting cluster's branch and leaf prototype vertex and triangle counts, as the renderer builds them, in the subject's plantings list",
       });

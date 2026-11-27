@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import { walkReach } from "../../actions/internal/walkReach";
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { staggerBounds } from "./staggerBounds";
 
@@ -63,10 +63,10 @@ export function staggerLean(
   );
   const across: IAutoMovieVector3 = { x: forward.z, y: 0, z: -forward.x };
   const length: number = staggerBounds.PENDULUM * body.measure.hipHeight;
-  const onset: number = AutoMovieMotionHumanTiming.seconds(
+  const onset: number = motionHumanTiming.seconds(
     staggerBounds.REACTION,
   );
-  const rise: number = AutoMovieMotionHumanTiming.seconds(
+  const rise: number = motionHumanTiming.seconds(
     staggerBounds.TRANSFER,
   );
   const rolling: number = AutoMovieEngineVector3.dot(bend.roll, across) < 0 ? -1 : 1;

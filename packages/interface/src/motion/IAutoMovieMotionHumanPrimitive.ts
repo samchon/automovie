@@ -14,7 +14,7 @@ import type { IAutoMovieMotionHumanEvaluation } from "./IAutoMovieMotionHumanEva
  * body, another performer, a prop, the world), never as a constant of one body.
  * The composition gives it the posture the base and the channels written before
  * it produced, and keeps only the claimed channels of what it returns
- * ({@link AutoMovieMotionHumanChannel.merge}).
+ * ({@link motionHumanChannel.merge}).
  */
 export interface IAutoMovieMotionHumanPrimitive {
   /** The channels it writes. */

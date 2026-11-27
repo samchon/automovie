@@ -132,7 +132,7 @@ export namespace AutoMovieMotionHumanOperateLaws {
    * place is reached by the wrist that holds it there: the hand-to-prop offset
    * the grip keeps, read from the displayed frames at entry, inverted at the
    * place (as `putDown` places a prop). The hand reaches the place in the
-   * transport movement time over its travel (`AutoMovieMotionHumanTiming`) and
+   * transport movement time over its travel (`motionHumanTiming`) and
    * stays there, so the hold that persists afterwards carries the prop with the
    * trunk through a walk. The drives run over the work's `seconds` after the
    * transport, each from the performance's travel at the start. Events: the
@@ -152,7 +152,7 @@ export namespace AutoMovieMotionHumanOperateLaws {
    * The tool is the prop the hand holds (`prop`, taken up before, as `pickUp`
    * does), rigid in the hand from the instant its grip closed, so its working
    * point is its own `face` contact at a fixed offset in the hand's frame
-   * (`AutoMovieMotionHumanHeld`), and the goal is that point on the work, the
+   * (`motionHumanHeld`), and the goal is that point on the work, the
    * hand following from it. The tool's line runs from its `grip` to its `face`
    * (`createTool`'s contacts). The work fixes that line (a hammer's level at
    * the strike, a spoon's upright, a screwdriver's along the heading, a saw's
@@ -167,7 +167,7 @@ export namespace AutoMovieMotionHumanOperateLaws {
    * circles inside the vessel it stirs (`HumanToolWork`); a screwdriver turns
    * about its own axis into the work, the forearm's pronation and supination of
    * `TURN` degrees each way. The hand reaches the working pose in the timing
-   * owner's movement time (`AutoMovieMotionHumanTiming`), works `cycles` cycles
+   * owner's movement time (`motionHumanTiming`), works `cycles` cycles
    * (a hammer's and a saw's of `PERIODS` seconds, a stir's the time its circle
    * takes at a tool stroke's speed, `STROKE_SPEED`), and returns, its fingers
    * kept closed on the tool as the grip left them. Experts vary amplitude less
@@ -188,7 +188,7 @@ export namespace AutoMovieMotionHumanOperateLaws {
    * Work with a long tool in two hands, standing, in cycles at a work point
    * (`IAutoMovieMotionHumanLongTool`): the trailing hand holds the tool rigid
    * near the shaft's end, so the face is a fixed offset in that hand's frame
-   * (`AutoMovieMotionHumanHeld`), and each instant of the stroke
+   * (`motionHumanHeld`), and each instant of the stroke
    * (`LongToolStroke`) gives the tool's line, its face's facing and the
    * trailing grip in the world, the hand turned the least that lays the held
    * tool on them; the lead hand closes on the tool's line at the stroke's slide

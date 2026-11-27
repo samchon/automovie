@@ -8,7 +8,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
+import { motionHumanHeld } from "../../compose/internal/motionHumanHeld";
 import { StrikingHeld } from "../../striking/internal/StrikingHeld";
 import { throwObjectLaunch } from "../internal/throwObjectLaunch";
 
@@ -36,7 +36,7 @@ export function throwObjectLever(
         }).tip
       : props.prop !== undefined &&
           props.context.entry.holds[props.side] === props.prop
-        ? AutoMovieMotionHumanHeld(props.context, props.side, props.prop).frame
+        ? motionHumanHeld(props.context, props.side, props.prop).frame
             .position
         : { x: 0, y: 0, z: 0 };
 
@@ -112,7 +112,7 @@ export function throwObjectLever(
  * the launch velocity unturned, a rigid translation every point of hand and
  * prop shares, and the working point is the point that flies: the thrown prop's
  * own origin where the grip holds it (its rigid offset in the hand's grip
- * frame, `AutoMovieMotionHumanHeld`), the point the performance launches the
+ * frame, `motionHumanHeld`), the point the performance launches the
  * prop from (`HumanPropFlight`), or the grip for an empty hand. Aiming the grip
  * while the prop's origin flies shifted every landing by that offset.
  *
@@ -171,7 +171,7 @@ export namespace throwObjectLever {
    * Parameter target: The target point, world metres.
    * Returns: The engine's spin attitude.
    * When that hand does not hold the prop at the entry
-   * (`AutoMovieMotionHumanHeld`).
+   * (`motionHumanHeld`).
    */
   export function spin(
     context: Pick<IAutoMovieMotionHumanActionContext, SpinContext>,
@@ -189,7 +189,7 @@ export namespace throwObjectLever {
     );
     const frame: IAutoMovieQuaternion = AutoMovieEngineQuaternion.multiply(
       lever.rotation(0),
-      AutoMovieMotionHumanHeld(context, side, prop).frame.rotation,
+      motionHumanHeld(context, side, prop).frame.rotation,
     );
     return {
       kind: "spin",

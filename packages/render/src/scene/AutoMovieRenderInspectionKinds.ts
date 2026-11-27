@@ -1,6 +1,6 @@
 import type { IAutoMovieInspectionKindStyle } from "@automovie/interface";
 
-import { AutoMovieRenderInspectionPalette } from "./AutoMovieRenderInspectionPalette.js";
+import { AutoMovieRenderInspectionPalette } from "./AutoMovieRenderInspectionPalette";
 
 /**
  * The mark kinds the inspection itself produces, with the legend label and
@@ -9,7 +9,7 @@ import { AutoMovieRenderInspectionPalette } from "./AutoMovieRenderInspectionPal
  * `edge` and the `defect/<kind>` kinds are measured on the drawn meshes;
  * `trail` and `trail/now` are drawn from sampled trails. Every producer of
  * these kinds reads its label and colour here, and
- * `listAutoMovieInspectionKinds` lists them, so a panel, a capture plan and the
+ * `listInspectionKinds` lists them, so a panel, a capture plan and the
  * drawing agree. Supplied kinds are not listed: their producers own them.
  *
  * | Kind                  | Label                       | Colour               |

@@ -11,7 +11,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
+import { motionHumanHeld } from "../../compose/internal/motionHumanHeld";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -127,7 +127,7 @@ export namespace courtRacketWrist {
     side: AutoMovieHumanSide,
     implement: string,
   ): IAutoMovieMotionHumanStrikingHeld.ITool {
-    const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
+    const held: IAutoMovieMotionHumanHeld.IHeld = motionHumanHeld(
       context,
       side,
       implement,
@@ -142,8 +142,8 @@ export namespace courtRacketWrist {
     );
     return {
       ...tool,
-      axis: AutoMovieMotionHumanHeld.point(held, "sweetSpot").direction,
-      edge: AutoMovieMotionHumanHeld.point(held, "face").direction,
+      axis: motionHumanHeld.point(held, "sweetSpot").direction,
+      edge: motionHumanHeld.point(held, "face").direction,
     };
   }
 }

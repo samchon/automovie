@@ -1,8 +1,8 @@
-import type { IAutoMovieRenderSpec } from "../cinematics/IAutoMovieRenderSpec.js";
+import type { IAutoMovieRenderSpec } from "../cinematics/IAutoMovieRenderSpec";
 
 /**
  * One complete frame sequence and optional soundtrack for deterministic FFmpeg
- * argument planning. planAutoMovieVideoEncoding requires a whole-frame positive
+ * argument planning. planVideoEncoding requires a whole-frame positive
  * clock and an even raster before any draw; audio null disables muxing. The
  * planner returns arguments and never opens paths or starts processes.
  */

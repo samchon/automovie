@@ -7,7 +7,7 @@ import type { IAutoMovieEnvironmentContext } from "./IAutoMovieEnvironmentContex
 /**
  * Everything one daylight or artificial-light study is configured with.
  *
- * `analyzeAutoMovieDaylight` throws on a blank id, subject, revision or sky
+ * `analyzeDaylight` throws on a blank id, subject, revision or sky
  * name, an invalid environment context, an instant the context does not
  * declare, a malformed workplane, luminaire or shading solid, a sky sample
  * count that is not a positive safe integer, or a malformed target. A null

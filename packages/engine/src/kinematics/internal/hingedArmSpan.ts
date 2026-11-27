@@ -46,10 +46,14 @@ export namespace hingedArmSpan {
     hinge: IAutoMovieVector3;
   }
 
-  /** The interface contract (`IAutoMovieHingedArmSpan.IGeometry`). */
+  /*
+   * The interface contract (`IAutoMovieHingedArmSpan.IGeometry`).
+   */
   export type IGeometry = IAutoMovieHingedArmSpan.IGeometry;
 
-  /** The interface contract (`IAutoMovieHingedArmSpan.ISpan`). */
+  /*
+   * The interface contract (`IAutoMovieHingedArmSpan.ISpan`).
+   */
   export type ISpan = IAutoMovieHingedArmSpan.ISpan;
 
   /*

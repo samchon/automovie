@@ -13,7 +13,7 @@ import type {
   IAutoMovieRecoverySectionObservationOperation,
 } from "@automovie/interface";
 
-import { convertAutoMovieRecoveryCurve } from "../../curves/internal/convertAutoMovieRecoveryCurve";
+import { convertRecoveryCurve } from "../../curves/internal/convertRecoveryCurve";
 import { planeFrame } from "../../geometry/internal/planeFrame";
 import { sourceOrientation } from "../../geometry/internal/sourceOrientation";
 import { observeRecoverySection } from "../../geometry/internal/observeRecoverySection";
@@ -207,7 +207,7 @@ export function bindRecoveryOrderedFits(
           );
         const converted:
           | IAutoMovieCubicBezierCurve64
-          | IAutoMovieRecoveryHermiteCurve = convertAutoMovieRecoveryCurve(
+          | IAutoMovieRecoveryHermiteCurve = convertRecoveryCurve(
           fitted,
           target.curve.type === "cubicHermite" ? "hermite" : "bezier",
         );
@@ -261,7 +261,7 @@ export function bindRecoveryOrderedFits(
         }
         completedStages.push("accepted-sample-map");
         const hermite: IAutoMovieRecoveryHermiteCurve =
-          convertAutoMovieRecoveryCurve(target.curve, "hermite");
+          convertRecoveryCurve(target.curve, "hermite");
         const endpointJets: NonNullable<
           IAutoMovieRecoverySavedCurveBinding["endpointJets"]
         > = hermite.spans.map(

@@ -7,7 +7,7 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `measureAutoMovieSchedule` reads pacing from a schedule: actions per minute,
+ * `measureSchedule` reads pacing from a schedule: actions per minute,
  * the share of actions that follow the same subject's previous action within
  * the combination gap, each subject's lateral displacement share and idle time
  * over its presence, the share of the runtime with the camera moving (overlaps

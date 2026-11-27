@@ -1,12 +1,12 @@
 import type { IAutoMovieFfmpegSources } from "./IAutoMovieFfmpegSources";
-import { resolveAutoMovieFfmpeg } from "./internal/resolveAutoMovieFfmpeg";
-import { runAutoMovieFfmpeg } from "./internal/runAutoMovieFfmpeg";
+import { resolveFfmpeg } from "./internal/resolveFfmpeg";
+import { runFfmpeg } from "./internal/runFfmpeg";
 
 /** Operations for finding and running a production's FFmpeg binary. */
 export class AutoMovieCliFfmpeg {
   /** Resolve FFmpeg from the environment or the production's ffmpeg-static. */
   public static resolve(props: IAutoMovieFfmpegSources): string {
-    return resolveAutoMovieFfmpeg(props);
+    return resolveFfmpeg(props);
   }
 
   /** Run FFmpeg and return its captured error output. */
@@ -17,7 +17,7 @@ export class AutoMovieCliFfmpeg {
       code === 0,
     output?: AutoMovieCliFfmpeg.IOutput,
   ): Promise<string> {
-    return runAutoMovieFfmpeg(binary, args, accept, output);
+    return runFfmpeg(binary, args, accept, output);
   }
 }
 

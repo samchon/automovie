@@ -5,8 +5,8 @@
   IAutoMovieScheduleCut,
   IAutoMovieScheduleWalk,
 } from "@automovie/interface";
-import { normalizeAutoMovieScheduleCut as normalizeImplementation } from "./scheduleCut/internal/normalizeAutoMovieScheduleCut";
-import { resolveAutoMovieScheduleCut as resolveImplementation } from "./scheduleCut/internal/resolveAutoMovieScheduleCut";
+import { normalizeScheduleCut as normalizeImplementation } from "./scheduleCut/internal/normalizeScheduleCut";
+import { resolveScheduleCut as resolveImplementation } from "./scheduleCut/internal/resolveScheduleCut";
 
 /** Normalization and placement of intent schedule cuts. */
 export namespace AutoMovieEngineScheduleCut {

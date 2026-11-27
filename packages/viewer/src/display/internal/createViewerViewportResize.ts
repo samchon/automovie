@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-import type { AutoMovieViewerDisplay } from "../AutoMovieViewerDisplay.js";
+import type { AutoMovieViewerDisplay } from "../AutoMovieViewerDisplay";
 
 /*
  * Synchronize a perspective viewport with its CSS size and selected pixel

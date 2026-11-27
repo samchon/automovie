@@ -1,6 +1,6 @@
 import { type IAutoMovieAuditOutcome, type IAutoMovieResolveOutcome, type IAutoMovieIntent } from "@automovie/interface";
-import { auditAutoMovieOutcome as auditAutoMovieOutcomeImplementation } from "./internal/auditAutoMovieOutcome";
-import { resolveAutoMovieOutcome as resolveAutoMovieOutcomeImplementation } from "./internal/resolveAutoMovieOutcome";
+import { auditOutcome as auditOutcomeImplementation } from "./internal/auditOutcome";
+import { resolveOutcome as resolveOutcomeImplementation } from "./internal/resolveOutcome";
 
 /** Public operations for Auto Movie Engine Composition Outcome. */
 export namespace AutoMovieEngineCompositionOutcome {
@@ -17,7 +17,7 @@ export namespace AutoMovieEngineCompositionOutcome {
    * @returns One finding per mismatch.
    */
   export function audit(outcome: IAutoMovieAuditOutcome.IOutcome, contacts: readonly IAutoMovieAuditOutcome.IContact[]): string[] {
-    return auditAutoMovieOutcomeImplementation(outcome, contacts);
+    return auditOutcomeImplementation(outcome, contacts);
   }
 
   /**
@@ -32,6 +32,6 @@ export namespace AutoMovieEngineCompositionOutcome {
    *   default).
    */
   export function resolve<Outcome extends string>(table: IAutoMovieResolveOutcome.ITable<Outcome>, intents: readonly IAutoMovieIntent[]): IAutoMovieResolveOutcome.IResult<Outcome> {
-    return resolveAutoMovieOutcomeImplementation<Outcome>(table, intents);
+    return resolveOutcomeImplementation<Outcome>(table, intents);
   }
 }

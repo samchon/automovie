@@ -9,15 +9,15 @@ import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import type * as Playwright from "playwright-core";
 
-import { loadAutoMovieProductionModule } from "../production/internal/loadAutoMovieProductionModule";
-import { readAutoMoviePageTimeout } from "../page/internal/readAutoMoviePageTimeout";
-import { readAutoMovieRevision } from "../production/internal/readAutoMovieRevision";
-import { serveAutoMovieDrawPage } from "../page/internal/serveAutoMovieDrawPage";
+import { loadProductionModule } from "../production/internal/loadProductionModule";
+import { readPageTimeout } from "../page/internal/readPageTimeout";
+import { readRevisionImplementation } from "../production/internal/readRevisionImplementation";
+import { serveDrawPageImplementation } from "../page/internal/serveDrawPageImplementation";
 import type { AutoMovieCliCaptureBackend } from "./AutoMovieCliCaptureBackend";
 import type { IAutoMovieCliCaptureHostInput } from "./IAutoMovieCliCaptureHostInput";
 import type { IAutoMovieCliCaptureSessionInput } from "./IAutoMovieCliCaptureSessionInput";
 import type { IAutoMovieCliChromium } from "./IAutoMovieCliChromium";
-import { launchAutoMovieChromium } from "./internal/launchAutoMovieChromium";
+import { launchChromiumImplementation } from "./internal/launchChromiumImplementation";
 
 /**
  * The Node host that draws a production's subjects in headless Chromium: one
@@ -116,27 +116,27 @@ export class AutoMovieCliCaptureHost {
   public static async open(
     props: AutoMovieCliCaptureHost.OpenProps,
   ): Promise<AutoMovieCliCaptureHost> {
-    const timeout: number = readAutoMoviePageTimeout(props.timeout);
+    const timeout: number = readPageTimeout(props.timeout);
 
-    const render: typeof Render = loadAutoMovieProductionModule<typeof Render>(
+    const render: typeof Render = loadProductionModule<typeof Render>(
       props.root,
       "@automovie/render",
     );
-    const chromium: IAutoMovieCliChromium = loadAutoMovieProductionModule<
+    const chromium: IAutoMovieCliChromium = loadProductionModule<
       typeof Playwright
     >(props.root, "playwright-core").chromium;
 
     // Vite's CommonJS entry warns once per load; the command loads it on purpose.
     process.env.VITE_CJS_IGNORE_WARNING = "true";
     const page: { url: string; close: () => Promise<void> } =
-      await serveAutoMovieDrawPage({
+      await serveDrawPageImplementation({
         root: props.root,
         module: props.module,
-        vite: loadAutoMovieProductionModule(props.root, "vite"),
+        vite: loadProductionModule(props.root, "vite"),
       });
     try {
-      const launched: Awaited<ReturnType<typeof launchAutoMovieChromium>> =
-        await launchAutoMovieChromium({
+      const launched: Awaited<ReturnType<typeof launchChromiumImplementation>> =
+        await launchChromiumImplementation({
           chromium,
           backend: props.backend,
           env: props.env,
@@ -280,7 +280,7 @@ export class AutoMovieCliCaptureHost {
           cell: IAutoMovieCaptureCell,
         ): Promise<IAutoMovieCaptureDrawing> => session.drawing(cell, plan),
         folder,
-        revision: readAutoMovieRevision(this.root),
+        revision: readRevisionImplementation(this.root),
         match: "cell",
         ...(props.section === undefined ? {} : { section: props.section }),
       });

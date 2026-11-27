@@ -19,11 +19,11 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../../actions/internal/stand";
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanHand } from "../../compose/internal/AutoMovieMotionHumanHand";
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanPhysics } from "../../law/internal/HumanPhysics";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
@@ -102,7 +102,7 @@ export function planBendStrategy(
         ): IAutoMovieVector3 => goal(lowered, read).point
       : () => fixedWrist;
   // The time of a movement that stops on a target, for the hand's travel
-  // (`AutoMovieMotionHumanTiming.aimed`), scaled by skill.
+  // (`motionHumanTiming.aimed`), scaled by skill.
   const hand: IAutoMovieVector3 = HumanHand.frame(
     body,
     bones(body, upright),
@@ -111,9 +111,9 @@ export function planBendStrategy(
   ).point;
   const D: number = AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(target, hand));
   const speed: number = HumanSkill.quantity(context.skill, "speed", 1.4, 1.0);
-  const down: number = speed * AutoMovieMotionHumanTiming.aimed(D, 0);
+  const down: number = speed * motionHumanTiming.aimed(D, 0);
   const duration: number = 2 * down + hold;
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock(duration, [
+  const clock: IAutoMovieMotionClock = motionClock(duration, [
     { name: "contact", seconds: down },
     { name: "deepest", seconds: down },
     { name: "upright", seconds: duration },
@@ -411,20 +411,20 @@ export function planBendStrategy(
           weight: share,
         })
       : bendFloorHand(body, upright, hand, moving, share);
-  const travel: IAutoMovieMotionClock = AutoMovieMotionClock(moving, [
+  const travel: IAutoMovieMotionClock = motionClock(moving, [
     { name: "contact", seconds: down },
     { name: "deepest", seconds: down },
     { name: "upright", seconds: moving },
   ]);
   const armCourse: IAutoMovieMotionHumanActionPlan =
-    composeAutoMovieMotionHumanAction({
+    composeMotionHumanAction({
       base,
       clock: travel,
       contact: "contact",
       primitives: [sink, reach, brace, fingers(side), fingers(free)],
     });
   const course: IAutoMovieMotionHumanActionPlan = floorContact
-    ? composeAutoMovieMotionHumanAction({
+    ? composeMotionHumanAction({
         base: armCourse,
         clock: travel,
         contact: "contact",

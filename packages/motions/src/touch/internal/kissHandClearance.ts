@@ -10,7 +10,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { prepareAutoMovieMotionHumanAuditDepths } from "../../audit/internal/prepareAutoMovieMotionHumanAuditDepths";
+import { prepareMotionHumanAuditDepths } from "../../audit/internal/prepareMotionHumanAuditDepths";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { HumanColliders } from "../../posture/internal/HumanColliders";
 
@@ -59,13 +59,13 @@ export function kissHandClearance(
     HumanTrunk.prepareResolve(context.body, neck);
   const colliders: ReturnType<typeof HumanColliders.preparePlaced> =
     HumanColliders.preparePlaced(context.body, neck);
-  const intoHand: ReturnType<typeof prepareAutoMovieMotionHumanAuditDepths>[] =
-    placed.map((shape) => prepareAutoMovieMotionHumanAuditDepths(shape));
+  const intoHand: ReturnType<typeof prepareMotionHumanAuditDepths>[] =
+    placed.map((shape) => prepareMotionHumanAuditDepths(shape));
   return (posture: IAutoMovieMotionHumanPosture): number[] => {
     const depths: number[] = [];
     for (const skull of colliders(resolve(posture))) {
-      const inside: ReturnType<typeof prepareAutoMovieMotionHumanAuditDepths> =
-        prepareAutoMovieMotionHumanAuditDepths(skull);
+      const inside: ReturnType<typeof prepareMotionHumanAuditDepths> =
+        prepareMotionHumanAuditDepths(skull);
       for (let i: number = 0; i < placed.length; ++i) {
         const finger: IAutoMovieMotionHumanColliders.IPlaced = placed[i]!;
         depths.push(

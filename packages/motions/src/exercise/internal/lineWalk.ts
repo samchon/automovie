@@ -22,14 +22,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanFootRelax } from "../../compose/internal/AutoMovieMotionHumanFootRelax";
-import { AutoMovieMotionHumanFootSwing } from "../../compose/internal/AutoMovieMotionHumanFootSwing";
+import { motionHumanFootRelax } from "../../compose/internal/motionHumanFootRelax";
+import { motionHumanFootSwing } from "../../compose/internal/motionHumanFootSwing";
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionHumanToesOnFloor } from "../../compose/internal/AutoMovieMotionHumanToesOnFloor";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
@@ -306,7 +306,7 @@ export namespace lineWalk {
         if (t <= lift) return list[i]!.place;
         const time: number = (t - lift) / (SWING * PERIOD);
         const swung: IAutoMovieMotionHumanFoot.IPlacement =
-          AutoMovieMotionHumanFootSwing(
+          motionHumanFootSwing(
             body,
             side,
             list[i]!.place,
@@ -355,13 +355,13 @@ export namespace lineWalk {
             posture: IAutoMovieMotionHumanPosture,
             t: number,
           ): IAutoMovieMotionHumanFoot.IPlacement =>
-            AutoMovieMotionHumanFootRelax(
+            motionHumanFootRelax(
               body,
               posture,
               side,
               placementAt(t),
               planted(t)
-                ? AutoMovieMotionHumanFootRelax.load(t, lifts(t), lands(t))
+                ? motionHumanFootRelax.load(t, lifts(t), lands(t))
                 : 0,
               true,
               true,
@@ -462,7 +462,7 @@ export namespace lineWalk {
       },
     });
     events.push({ name: "relax", share: 1 });
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(
+    const clock: IAutoMovieMotionClock = motionClock(
       duration,
       events.map(
         (e: IAutoMovieMotionEvent): IAutoMovieMotionClockInstant => ({
@@ -471,7 +471,7 @@ export namespace lineWalk {
         }),
       ),
     );
-    return composeAutoMovieMotionHumanAction({
+    return composeMotionHumanAction({
       base: AutoMovieMotionHumanBase.still(duration, entry, contacts),
       clock,
       primitives,

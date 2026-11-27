@@ -14,7 +14,7 @@ export namespace IAutoMovieFitSubdivisionLimit {
    * "Efficient, fair interpolation using Catmull-Clark surfaces"); a boundary
    * vertex, whose boundary is an infinitely sharp crease, goes to `(A + 4 P +
    * B) / 6` along its two boundary neighbours, the cubic B-spline limit
-   * `subdivideAutoMovieSurface` gives boundaries. Interpolation is the linear
+   * `subdivideSurface` gives boundaries. Interpolation is the linear
    * system `L P = T`. It is solved by Jacobi iteration `P <- P + (T - L P)`
    * from `P = T`, which converges when every eigenvalue of `L` lies between 0
    * and 2; on a regular grid they lie between 1/9 and 1, for admitted regular
@@ -30,7 +30,7 @@ export namespace IAutoMovieFitSubdivisionLimit {
   export type IProps = {
     /**
      * Quad corner vertex indices, with consistent manifold winding as a caller
-     * premise. stencilAutoMovieSubdivisionLimit checks quad cardinality,
+     * premise. stencilSubdivisionLimit checks quad cardinality,
      * integer index range, unused vertices and zero/two boundary edges per
      * vertex; it does not certify full manifoldness. Inputs are borrowed only
      * during the call.

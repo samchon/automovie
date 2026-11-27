@@ -4,7 +4,7 @@ import { TestValidator } from "@nestia/e2e";
 import { throwsError } from "../../internal/predicates";
 
 /**
- * `cofactorAutoMovieJacobian` returns det(J) and the cofactor matrix det(J) *
+ * `cofactorJacobian` returns det(J) and the cofactor matrix det(J) *
  * inverse(J)^T of a positive-determinant Jacobian.
  *
  * Scenarios:

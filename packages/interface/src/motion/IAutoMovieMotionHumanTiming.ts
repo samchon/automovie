@@ -3,11 +3,11 @@
  *
  * Two rules, and which one a movement takes:
  *
- * - {@link AutoMovieMotionHumanTiming.transport}: a movement in free space (a
+ * - {@link motionHumanTiming.transport}: a movement in free space (a
  *   gesture's preparation, a hand to a rest place, a retraction) lasts `0.25 +
  *   0.5 D` seconds for `D` metres. Provisional: a gesture's preparation lasts a
  *   few tenths of a second and reaching time grows with distance (Fitts 1954).
- * - {@link AutoMovieMotionHumanTiming.aimed}: a movement that must stop on a
+ * - {@link motionHumanTiming.aimed}: a movement that must stop on a
  *   target of a given width lasts `a + b lg A + c W` for an amplitude `A` in
  *   millimetres and a width `W`, the two-factor model McIntosh, Mon-Williams
  *   and Tresilian (2018, J. Exp. Psychol. Hum. Percept. Perform. 44:1022, table
@@ -16,7 +16,7 @@
  *   study's shortest (170 mm) take its value, since the fit is not valid
  *   there.
  *
- * {@link AutoMovieMotionHumanTiming.of} chooses: a place that is solid and has a
+ * {@link motionHumanTiming.of} chooses: a place that is solid and has a
  * width is aimed at, any other is travelled to.
  */
 export namespace IAutoMovieMotionHumanTiming {
@@ -80,7 +80,7 @@ export namespace IAutoMovieMotionHumanTiming {
 
   /**
    * The time of a movement to a place, by the rule the place asks for. Input
-   * place of AutoMovieMotionHumanTiming.of. Whether the place is solid, and its
+   * place of motionHumanTiming.of. Whether the place is solid, and its
    * width when it has one.
    */
   export type IOfPlace = {

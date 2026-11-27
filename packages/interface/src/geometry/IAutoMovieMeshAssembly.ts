@@ -2,7 +2,7 @@ import type { IAutoMovieMesh } from "../model/IAutoMovieMesh";
 import type { IAutoMovieMeshGroup } from "./IAutoMovieMeshGroup";
 
 /**
- * What `mergeAutoMovieMeshParts` returns: one merged rigid mesh plus the index
+ * What `mergeMeshParts` returns: one merged rigid mesh plus the index
  * range each member occupies, so a finish, a budget or a quantity take-off can
  * still address a member after the buffers were concatenated.
  */

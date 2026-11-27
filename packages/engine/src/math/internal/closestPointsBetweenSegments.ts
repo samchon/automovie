@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieEngineVector3 } from "../AutoMovieEngineVector3";
-import { clampAutoMovieUnitInterval } from "./clampAutoMovieUnitInterval";
+import { clampUnitInterval } from "./clampUnitInterval";
 import { overflowsBinary64 } from "./overflowsBinary64";
 
 /*
@@ -123,18 +123,18 @@ export function closestPointsBetweenSegments(
       }
     };
     if (E > 0) {
-      offer(0, clampAutoMovieUnitInterval(F / E));
-      offer(1, clampAutoMovieUnitInterval((F + B) / E));
+      offer(0, clampUnitInterval(F / E));
+      offer(1, clampUnitInterval((F + B) / E));
     }
     if (A > 0) {
-      offer(clampAutoMovieUnitInterval(-C / A), 0);
-      offer(clampAutoMovieUnitInterval((B - C) / A), 1);
+      offer(clampUnitInterval(-C / A), 0);
+      offer(clampUnitInterval((B - C) / A), 1);
     }
     if (A > 0 && E > 0) {
       if (B === 0)
         offer(
-          clampAutoMovieUnitInterval(-C / A),
-          clampAutoMovieUnitInterval(F / E),
+          clampUnitInterval(-C / A),
+          clampUnitInterval(F / E),
         );
       else {
         const first: number = C / B,
@@ -142,8 +142,8 @@ export function closestPointsBetweenSegments(
         const low: number = Math.max(0, Math.min(first, last));
         const high: number = Math.min(1, Math.max(first, last));
         if (low <= high) {
-          const s0: number = clampAutoMovieUnitInterval((B * low - C) / A);
-          const s1: number = clampAutoMovieUnitInterval((B * high - C) / A);
+          const s0: number = clampUnitInterval((B * low - C) / A);
+          const s1: number = clampUnitInterval((B * high - C) / A);
           readResidual(s0, low);
           const ds: number = s1 - s0;
           const dt: number = high - low;
@@ -159,7 +159,7 @@ export function closestPointsBetweenSegments(
               y: delta.y / length,
               z: delta.z / length,
             };
-            const fraction: number = clampAutoMovieUnitInterval(
+            const fraction: number = clampUnitInterval(
               -AutoMovieEngineVector3.dot(residual, unit) / length,
             );
             offer(s0 + fraction * (s1 - s0), low + fraction * (high - low));

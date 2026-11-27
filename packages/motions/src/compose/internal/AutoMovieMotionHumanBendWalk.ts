@@ -10,7 +10,7 @@ import { AutoMovieMotionHumanBendSearch } from "./AutoMovieMotionHumanBendSearch
 /*
  * An elbow search continued along a sequence of requests, each from the seed of
  * the one before (`AutoMovieMotionHumanBendSearch.continued`): the continuation
- * a plan's knot track takes along its knots (`AutoMovieMotionHumanBendTrack`).
+ * a plan's knot track takes along its knots (`motionHumanBendTrack`).
  */
 export namespace AutoMovieMotionHumanBendWalk {
   /*

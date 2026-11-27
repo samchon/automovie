@@ -73,7 +73,7 @@ export namespace IAutoMovieMeasureMeshDefects {
    * divided by its altitude.
    *
    * Options are borrowed for one synchronous call; their numeric ranges are
-   * checked by measureAutoMovieMeshDefects before inspection. Omission uses the
+   * checked by measureMeshDefects before inspection. Omission uses the
    * documented lattice default and disables only sliver classification.
    */
   export type IOptions = {

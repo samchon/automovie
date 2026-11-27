@@ -3,7 +3,7 @@ import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 
 /**
  * Each bone's rigid motion from rest to the current pose in arrays, from
- * `bufferAutoMovieBones`, refreshed per pose without allocation.
+ * `bufferBones`, refreshed per pose without allocation.
  *
  * Bone `b` carries a point `p` to `P_b + Q_b R_b^-1 (p - O_b)` and a direction
  * by `Q_b R_b^-1` alone. This is the rigid point transform used when\n * posing a sweep.

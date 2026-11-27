@@ -7,7 +7,7 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../../internal/predicates";
 
 /**
- * `resolveAutoMovieLensAt` eases a timed focus pull between its two marks,
+ * `resolveLensAt` eases a timed focus pull between its two marks,
  * starting and landing with zero rate.
  *
  * Camera: static at the origin looking down -Z; pull from a mark 2 m deep to

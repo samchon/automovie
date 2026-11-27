@@ -10,7 +10,7 @@ export namespace IAutoMovieBicubicAtlasTessellation64 {
    * Immutable millimetre coefficient registry, bicubic charts and finite-work
    * policy. Keep the complete input unchanged until generator completion or
    * cancellation; canonical position closures read borrowed controls during
-   * emission. Admission in AutoMovieBicubicAtlasPlan64 and boundary preparation
+   * emission. Admission in bicubicAtlasPlan64 and boundary preparation
    * throws before yielding.
    */
   export type Input = {

@@ -13,7 +13,7 @@ import { throwsError } from "../../internal/throwsError";
 
 /**
  * Without a declared perimeter the subdivided limit falls short of a ring's
- * girth, and `sampleAutoMovieSurfaceNetwork` refuses a perimeter on a ring that
+ * girth, and `sampleSurfaceNetwork` refuses a perimeter on a ring that
  * cannot hold it.
  *
  * Fixture: the elliptic girth tube (exponent 2); its middle ring's section

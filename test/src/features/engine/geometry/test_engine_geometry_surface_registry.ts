@@ -9,7 +9,7 @@ import { TestValidator } from "@nestia/e2e";
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * `registerAutoMovieSurfaceVertices` binds each sweep dependent once, at
+ * `registerSurfaceVertices` binds each sweep dependent once, at
  * finalization, to the final geometric cell of its key, and writes the same
  * point the emitted vertex writes.
  *

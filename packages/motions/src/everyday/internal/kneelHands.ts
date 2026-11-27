@@ -8,7 +8,7 @@ import type {
   IAutoMovieMotionHumanPrimitive,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { bendFloorHand } from "./bendFloorHand";
 import { braceOnThigh } from "./braceOnThigh";
@@ -28,12 +28,12 @@ export function kneelHands(scope: kneelHands.IScope): kneelHands.IHands {
   // The hands come onto the thighs while the hips lower and leave them as
   // the body starts to rise.
   const firstUp: IPhase | undefined = next;
-  const handDown: ReturnType<typeof AutoMovieMotionClock.prepare> =
-    AutoMovieMotionClock.prepare(clock, "lowering", phases[2]!.name);
-  const handUp: ReturnType<typeof AutoMovieMotionClock.prepare> | undefined =
+  const handDown: ReturnType<typeof motionClock.prepare> =
+    motionClock.prepare(clock, "lowering", phases[2]!.name);
+  const handUp: ReturnType<typeof motionClock.prepare> | undefined =
     firstUp === undefined
       ? undefined
-      : AutoMovieMotionClock.prepare(clock, firstUp.name, "end");
+      : motionClock.prepare(clock, firstUp.name, "end");
   const lowered: (seconds: number) => number = (seconds: number): number =>
     handDown.progress(seconds) *
     (handUp === undefined ? 1 : 1 - handUp.progress(seconds));

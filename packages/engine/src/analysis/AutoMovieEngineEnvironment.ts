@@ -14,22 +14,22 @@ import type {
   IAutoMovieValidation,
 } from "@automovie/interface";
 
-import { validateAutoMovieEnvironmentContext as validateAutoMovieEnvironmentContextImplementation } from "./internal/validateAutoMovieEnvironmentContext";
-import { autoMovieContextSolids as autoMovieContextSolidsImplementation } from "./internal/autoMovieContextSolids";
-import { autoMovieDewPoint as autoMovieDewPointImplementation } from "./internal/autoMovieDewPoint";
-import { autoMovieEnvironmentInstant as autoMovieEnvironmentInstantImplementation } from "./internal/autoMovieEnvironmentInstant";
-import { autoMovieHemisphereDirections as autoMovieHemisphereDirectionsImplementation } from "./internal/autoMovieHemisphereDirections";
-import { autoMovieRayObstructed as autoMovieRayObstructedImplementation } from "./internal/autoMovieRayObstructed";
-import { autoMovieSkyward as autoMovieSkywardImplementation } from "./internal/autoMovieSkyward";
-import { autoMovieSolidBlocks as autoMovieSolidBlocksImplementation } from "./internal/autoMovieSolidBlocks";
-import { autoMovieSunDirection as autoMovieSunDirectionImplementation } from "./internal/autoMovieSunDirection";
-import { solveAutoMovieSunPosition as solveAutoMovieSunPositionImplementation } from "./internal/solveAutoMovieSunPosition";
+import { validateEnvironmentContext as validateEnvironmentContextImplementation } from "./internal/validateEnvironmentContext";
+import { collectContextSolids as contextSolidsImplementation } from "./internal/collectContextSolids";
+import { calculateDewPoint as dewPointImplementation } from "./internal/calculateDewPoint";
+import { environmentInstant as environmentInstantImplementation } from "./internal/environmentInstant";
+import { hemisphereDirections as hemisphereDirectionsImplementation } from "./internal/hemisphereDirections";
+import { rayObstructed as rayObstructedImplementation } from "./internal/rayObstructed";
+import { skyward as skywardImplementation } from "./internal/skyward";
+import { solidBlocks as solidBlocksImplementation } from "./internal/solidBlocks";
+import { sunDirection as sunDirectionImplementation } from "./internal/sunDirection";
+import { solveSunPosition as solveSunPositionImplementation } from "./internal/solveSunPosition";
 
 /** Public operations for Auto Movie Engine Environment. */
 export namespace AutoMovieEngineEnvironment {
   /** Validate a read-only environment context before an analysis uses it. */
   export function validateContext(props: IAutoMovieValidateEnvironmentContext.IProps): IAutoMovieValidation {
-    return validateAutoMovieEnvironmentContextImplementation(props);
+    return validateEnvironmentContextImplementation(props);
   }
 
   /**
@@ -37,13 +37,13 @@ export namespace AutoMovieEngineEnvironment {
    *
    * Keeps context order, copies each id and references (does not copy) each
    * occluder's plane array, dropping the occluder's `kind`. It validates nothing;
-   * `analyzeAutoMovieDaylight` validates the whole context before calling it.
+   * `analyzeDaylight` validates the whole context before calling it.
    *
    * @param context Environment context whose occluders become solids.
    * @returns A new array of `{ id, planes }` records, one per occluder.
    */
   export function contextSolids(context: IAutoMovieEnvironmentContext): IAutoMovieAnalysisSolid[] {
-    return autoMovieContextSolidsImplementation(context);
+    return contextSolidsImplementation(context);
   }
 
   /**
@@ -65,7 +65,7 @@ export namespace AutoMovieEngineEnvironment {
    * @returns Dew-point temperature in degrees Celsius.
    */
   export function dewPoint(temperature: number, relativeHumidity: number): number {
-    return autoMovieDewPointImplementation(temperature, relativeHumidity);
+    return dewPointImplementation(temperature, relativeHumidity);
   }
 
   /**
@@ -73,7 +73,7 @@ export namespace AutoMovieEngineEnvironment {
    *
    * Returns the first instant whose `id` equals `id` exactly, or `null` when the
    * context declares none. Ids are unique only once
-   * `validateAutoMovieEnvironmentContext` has accepted the context. The result is
+   * `validateEnvironmentContext` has accepted the context. The result is
    * the context's own instant object, not a copy.
    *
    * @param context Environment context to search.
@@ -81,7 +81,7 @@ export namespace AutoMovieEngineEnvironment {
    * @returns The matching instant, or `null` when none matches.
    */
   export function instant(context: IAutoMovieEnvironmentContext, id: string): IAutoMovieEnvironmentInstant | null {
-    return autoMovieEnvironmentInstantImplementation(context, id);
+    return environmentInstantImplementation(context, id);
   }
 
   /**
@@ -104,7 +104,7 @@ export namespace AutoMovieEngineEnvironment {
    * `count`, which has no upper bound here.
    */
   export function hemisphereDirections(props: IAutoMovieHemisphereDirections.IProps): IAutoMovieVector3[] {
-    return autoMovieHemisphereDirectionsImplementation(props);
+    return hemisphereDirectionsImplementation(props);
   }
 
   /**
@@ -113,10 +113,10 @@ export namespace AutoMovieEngineEnvironment {
    * Solids are tried in list order and the first one that blocks ends the test;
    * an empty list never obstructs. A ray that starts inside a solid is obstructed
    * at once, and one leaving a point exactly on a face is not (see
-   * `autoMovieSolidBlocks`).
+   * `solidBlocks`).
    */
   export function rayObstructed(props: IAutoMovieRayObstruction.IProps): boolean {
-    return autoMovieRayObstructedImplementation(props);
+    return rayObstructedImplementation(props);
   }
 
   /**
@@ -125,7 +125,7 @@ export namespace AutoMovieEngineEnvironment {
    *
    * A direction lying on the horizon is not skyward. Neither vector needs unit
    * length. `ground.up` must be non-zero, which
-   * `validateAutoMovieEnvironmentContext` requires; a zero up normalizes to the
+   * `validateEnvironmentContext` requires; a zero up normalizes to the
    * zero vector and makes every direction non-skyward. The ground's elevation is
    * not read, because a direction, unlike a point, has no height.
    *
@@ -134,7 +134,7 @@ export namespace AutoMovieEngineEnvironment {
    * @returns `true` when the direction rises above the horizon.
    */
   export function skyward(direction: IAutoMovieVector3, ground: IAutoMovieReferenceGround): boolean {
-    return autoMovieSkywardImplementation(direction, ground);
+    return skywardImplementation(direction, ground);
   }
 
   /**
@@ -157,7 +157,7 @@ export namespace AutoMovieEngineEnvironment {
    * and starting inside leaves the other planes to decide.
    */
   export function solidBlocks(props: IAutoMovieSolidBlockQuery.IProps): boolean {
-    return autoMovieSolidBlocksImplementation(props);
+    return solidBlocksImplementation(props);
   }
 
   /**
@@ -181,7 +181,7 @@ export namespace AutoMovieEngineEnvironment {
    *   heading on the ground plane.
    */
   export function sunDirection(props: IAutoMovieSunDirection.IProps): IAutoMovieVector3 {
-    return autoMovieSunDirectionImplementation(props);
+    return sunDirectionImplementation(props);
   }
 
   /**
@@ -218,6 +218,6 @@ export namespace AutoMovieEngineEnvironment {
    * @throws Error naming the field when an input is out of its domain.
    */
   export function solveSunPosition(props: IAutoMovieSolveSunPosition.IProps): IAutoMovieSunPosition {
-    return solveAutoMovieSunPositionImplementation(props);
+    return solveSunPositionImplementation(props);
   }
 }

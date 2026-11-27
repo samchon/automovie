@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
-import { SUBSURFACE_TEXTURE_SIZE } from "../SUBSURFACE_TEXTURE_SIZE.js";
-import { subsurfaceTable } from "./subsurfaceTable.js";
+import { SUBSURFACE_TEXTURE_SIZE } from "../SUBSURFACE_TEXTURE_SIZE";
+import { subsurfaceTable } from "./subsurfaceTable";
 
 /*
  * Return the module-shared 64-by-32 red half-float subsurface lookup wrapper.

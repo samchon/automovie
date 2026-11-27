@@ -6,7 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
-import { solveAutoMovieQuadraticProgram } from "../../math/internal/solveAutoMovieQuadraticProgram";
+import { solveQuadraticProgram } from "../../math/internal/solveQuadraticProgram";
 
 /*
  * Allocate a requested floating-base wrench at actual floor points. Unilateral
@@ -168,7 +168,7 @@ export function distributePhysicalSupportWrench(
   // select among redundant contact forces. Its resulting wrench bias remains
   // measured in the returned SI residual.
   const result: IAutoMovieSolveQuadraticProgram.IResult =
-    solveAutoMovieQuadraticProgram({
+    solveQuadraticProgram({
       diagonal: [
         ...new Array<number>(size).fill(Math.sqrt(Number.EPSILON)),
         ...new Array<number>(6).fill(1),

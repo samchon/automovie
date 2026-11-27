@@ -2,8 +2,8 @@
  * Where the sun stands in an observer's sky at one instant, after atmospheric
  * refraction.
  *
- * `solveAutoMovieSunPosition` produces it from a site and a UTC instant, and
- * `autoMovieSunDirection` turns it into a world vector through an environment
+ * `solveSunPosition` produces it from a site and a UTC instant, and
+ * `sunDirection` turns it into a world vector through an environment
  * context's north and ground. Angles are topocentric: measured from the
  * observer's position on the Earth's surface, not from the Earth's centre.
  */

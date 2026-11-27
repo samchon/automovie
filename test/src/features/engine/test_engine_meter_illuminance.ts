@@ -30,7 +30,7 @@ import { throwsError } from "../internal/throwsError";
  *    total.
  * 5. An environment with an image lists `environmentImage` as unmetered with no
  *    value; one with `image: null`, or none, lists nothing.
- * 6. `autoMovieIncidentEv100(100000)` is log2(40000) = 15.288; zero lux is
+ * 6. `incidentEv100(100000)` is log2(40000) = 15.288; zero lux is
  *    refused; a zero normal is refused.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the exported meter and EV100 function on explicit lights and reads totals, per-light contributions and unmetered entries; a wrong cosine sign, a missing range window, a cone measured from the wrong axis, an ignored colour or a dropped image entry changes a value.

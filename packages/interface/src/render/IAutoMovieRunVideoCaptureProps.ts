@@ -1,10 +1,10 @@
-import type { IAutoMovieCapturePlanRequest } from "./IAutoMovieCapturePlanRequest.js";
-import type { IAutoMovieCaptureStorage } from "./IAutoMovieCaptureStorage.js";
-import type { IAutoMovieCaptureSubject } from "./IAutoMovieCaptureSubject.js";
+import type { IAutoMovieCapturePlanRequest } from "./IAutoMovieCapturePlanRequest";
+import type { IAutoMovieCaptureStorage } from "./IAutoMovieCaptureStorage";
+import type { IAutoMovieCaptureSubject } from "./IAutoMovieCaptureSubject";
 
 /**
  * A probed video's clock/raster, capture request and host storage/process
- * operations. runAutoMovieVideoCapture refuses unsupported
+ * operations. runVideoCapture refuses unsupported
  * views/passes/inspection and off-grid instants before extraction, detects cuts
  * then extracts selected frames, and records missing frames as failed cells.
  * The host must reject run when FFmpeg fails and owns process cleanup.
@@ -34,7 +34,7 @@ export interface IAutoMovieRunVideoCaptureProps {
   /**
    * Runs FFmpeg with the given arguments and resolves when it ends
    * successfully. The host implements FFmpeg process execution;
-   * runAutoMovieVideoCapture awaits each planned command, and the host must
+   * runVideoCapture awaits each planned command, and the host must
    * reject failure and release process resources.
    */
   run: (args: readonly string[]) => Promise<void>;

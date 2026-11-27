@@ -20,7 +20,7 @@ export interface IAutoMovieProductionSoundAnalysis {
 
   /**
    * ITU-R BS.1770-5 K-weighted, gated integrated loudness in LUFS, measured by
-   * engine's `createAutoMovieLoudnessMeter`; null when no block passes the −70
+   * engine's `createLoudnessMeter`; null when no block passes the −70
    * LUFS absolute gate.
    */
   integratedLoudness: number | null;

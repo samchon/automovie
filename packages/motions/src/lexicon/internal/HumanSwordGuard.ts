@@ -8,8 +8,8 @@ import type {
   IAutoMovieMotionHumanSwordGuard,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
+import { motionClock } from "../../compose/internal/motionClock";
+import { motionManner } from "../../compose/internal/motionManner";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { StrikingBlade } from "../../striking/internal/StrikingBlade";
 import { StrikingHeld } from "../../striking/internal/StrikingHeld";
@@ -104,14 +104,14 @@ export namespace HumanSwordGuard {
           );
         return StrikingBlade.plan(context, {
           tool: s.tool,
-          clock: AutoMovieMotionManner.time(
-            AutoMovieMotionClock.phrase({
+          clock: motionManner.time(
+            motionClock.phrase({
               prepare: set,
               attack: 0,
               hold: seconds - set,
               retract: 0,
             }),
-            AutoMovieMotionManner(context, context.params.manner),
+            motionManner(context, context.params.manner),
           ),
           path: (): IAutoMovieMotionHumanStrikingHeld.IHandFrame => pose,
           back: s.tool.length,

@@ -1,7 +1,7 @@
-import type { IAutoMovieInspectionDiagnostics } from "./IAutoMovieInspectionDiagnostics.js";
-import type { IAutoMovieRasterImage } from "./IAutoMovieRasterImage.js";
-import type { IAutoMovieRasterLabel } from "./IAutoMovieRasterLabel.js";
-import type { IAutoMovieCaptureResolution } from "./IAutoMovieCaptureResolution.js";
+import type { IAutoMovieInspectionDiagnostics } from "./IAutoMovieInspectionDiagnostics";
+import type { IAutoMovieRasterImage } from "./IAutoMovieRasterImage";
+import type { IAutoMovieRasterLabel } from "./IAutoMovieRasterLabel";
+import type { IAutoMovieCaptureResolution } from "./IAutoMovieCaptureResolution";
 
 /**
  * What a host's draw function returns for one cell: the picture, the anchors of
@@ -39,14 +39,14 @@ export interface IAutoMovieCaptureDrawing {
 
   /**
    * The view text that draws the resolved camera again, a fixed view as
-   * `formatAutoMovieInspectionCameraView` writes it, which a later round copies
+   * `formatInspectionCameraView` writes it, which a later round copies
    * as is; absent when the host does not state it.
    */
   repeat?: string;
 
   /**
    * What each pattern of the cell's request and view resolved to, as
-   * `resolveAutoMovieCapturePatterns` gives it on the draw page; absent when
+   * `resolveCapturePatterns` gives it on the draw page; absent when
    * the host does not state it.
    */
   resolved?: IAutoMovieCaptureResolution[];

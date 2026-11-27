@@ -1,9 +1,9 @@
 import type { IAutoMovieInspectionDiagnostics } from "@automovie/interface";
 import type { Object3D } from "three";
-import type { IAutoMovieRenderSelectPlacedChecksSupport } from "./IAutoMovieRenderSelectPlacedChecksSupport.js";
-import type { IAutoMovieRenderSelectPlacedChecksGrip } from "./IAutoMovieRenderSelectPlacedChecksGrip.js";
-import type { IAutoMovieRenderSelectPlacedChecksCustody } from "./IAutoMovieRenderSelectPlacedChecksCustody.js";
-import type { IAutoMovieRenderSelectPlacedChecksContinuity } from "./IAutoMovieRenderSelectPlacedChecksContinuity.js";
+import type { IAutoMovieRenderSelectPlacedChecksSupport } from "./IAutoMovieRenderSelectPlacedChecksSupport";
+import type { IAutoMovieRenderSelectPlacedChecksGrip } from "./IAutoMovieRenderSelectPlacedChecksGrip";
+import type { IAutoMovieRenderSelectPlacedChecksCustody } from "./IAutoMovieRenderSelectPlacedChecksCustody";
+import type { IAutoMovieRenderSelectPlacedChecksContinuity } from "./IAutoMovieRenderSelectPlacedChecksContinuity";
 
 /** The sample and the production's declarations. */
 export interface IAutoMovieRenderSelectPlacedChecksProps {

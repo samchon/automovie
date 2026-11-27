@@ -5,7 +5,7 @@ import { TestValidator } from "@nestia/e2e";
 const POSITION_TOLERANCE: number = 1e-9;
 
 /**
- * `frameAutoMovieViewerSubject` aims a view at the box centre from the distance
+ * `frameViewerSubject` aims a view at the box centre from the distance
  * at which the bounding sphere fits the lens, times the view's factor.
  *
  * Scenarios:

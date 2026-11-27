@@ -3,11 +3,11 @@ import type {
   IAutoMovieMotionClockPhase,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 
 /*
  * Each route phase's prepared progress on the clock
- * (`AutoMovieMotionClock.prepare`), from its phase to the next.
+ * (`motionClock.prepare`), from its phase to the next.
  *
  * Part of `lieDown.plan`, which prepares it once per plan.
  * Parameter prepared: What the plan prepared for it.
@@ -15,14 +15,14 @@ import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionCloc
  */
 export function lieDownProgress(
   prepared: lieDownProgress.IPrepared,
-): ReturnType<typeof AutoMovieMotionClock.prepare>[] {
+): ReturnType<typeof motionClock.prepare>[] {
   const { route, clock, phases }: lieDownProgress.IPrepared = prepared;
   return route.map(
     (
       _: unknown,
       index: number,
-    ): ReturnType<typeof AutoMovieMotionClock.prepare> =>
-      AutoMovieMotionClock.prepare(
+    ): ReturnType<typeof motionClock.prepare> =>
+      motionClock.prepare(
         clock,
         phases[index]!.name,
         phases[index + 1]!.name,

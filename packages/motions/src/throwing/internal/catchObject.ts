@@ -24,14 +24,14 @@ import type {
 
 import { stand } from "../../actions/internal/stand";
 import { HumanBall } from "../../ballStrike/internal/HumanBall";
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmTarget } from "../../compose/internal/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanTarget } from "../../compose/internal/AutoMovieMotionHumanTarget";
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { courseArmAtPace } from "../../compose/internal/courseArmAtPace";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
@@ -62,7 +62,7 @@ import { catchObjectFingers } from "./catchObjectFingers";
  * range decides it. The ball's size is the ball's own (`ball`, `HumanBall`).
  * The hands travel there on minimum-jerk progress over the aimed movement time
  * to an object of its size (McIntosh et al. 2018,
- * `AutoMovieMotionHumanTiming.aimed`), arriving at contact; the anticipatory
+ * `motionHumanTiming.aimed`), arriving at contact; the anticipatory
  * `prepare` instant is 100 ms before impact (Lacquaniti and Maioli 1989, J
  * Neurosci 9:134). After contact the hands give `GIVE` along the object's
  * velocity over `GIVE_TIME` (the issue's 0.05 to 0.15 m, provisional), which is
@@ -254,7 +254,7 @@ export namespace catchObject {
       });
 
     // The clock on the catcher's own time, contact at the path's instant.
-    const travel: number = AutoMovieMotionHumanTiming.aimed(
+    const travel: number = motionHumanTiming.aimed(
       AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(meet, shoulders)),
       2 * radius,
     );
@@ -269,7 +269,7 @@ export namespace catchObject {
       });
     const secured: number = contact + GIVE_TIME;
     const held: number = secured + 0.4;
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(held + 0.6, [
+    const clock: IAutoMovieMotionClock = motionClock(held + 0.6, [
       { name: "reach", seconds: reach },
       { name: "prepare", seconds: Math.max(reach, contact - 0.1) },
       { name: "contact", seconds: contact },
@@ -475,7 +475,7 @@ export namespace catchObject {
           relax: duration,
           end: duration,
         }),
-      composeAutoMovieMotionHumanAction({
+      composeMotionHumanAction({
         base,
         clock,
         contact: "contact",

@@ -10,7 +10,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionInterval } from "../../compose/internal/AutoMovieMotionInterval";
 import { HumanPostureRaw } from "../../posture/internal/HumanPostureRaw";
 import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
@@ -62,9 +62,9 @@ function plan(
     stageBladeFootworkSchedule(params, body.measure, entry.yaw, feet);
   const { profile, duration, first, travel, clock } = schedule;
   const firstPath: AutoMovieMotionInterval.IPrepared =
-    AutoMovieMotionClock.prepare(clock, "firstLift", "firstSettle");
+    motionClock.prepare(clock, "firstLift", "firstSettle");
   const followingPath: AutoMovieMotionInterval.IPrepared =
-    AutoMovieMotionClock.prepare(clock, "followLift", "followSettle");
+    motionClock.prepare(clock, "followLift", "followSettle");
   return {
     duration,
     events: clock.events(),

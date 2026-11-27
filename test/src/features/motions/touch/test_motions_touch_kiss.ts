@@ -6,8 +6,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionClock
-} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionClock";
+  motionClock
+} from "../../../../../packages/motions/src/compose/internal/motionClock";
 import {
   AutoMovieMotionHumanRefusal
 } from "@automovie/motions";
@@ -81,7 +81,7 @@ export function test_motions_touch_kiss(): void {
 
   // 2. Clock.
   const clock: IAutoMovieMotionClock = kissClock(
-    AutoMovieMotionClock.phrase({
+    motionClock.phrase({
       prepare: 0.4,
       attack: 0,
       hold: 1,

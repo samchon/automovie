@@ -17,7 +17,7 @@ export namespace IAutoMovieInheritProductionLighting {
    * it always did, and an unpinned shot is never assigned a story moment it did
    * not claim.
    *
-   * Otherwise the production is resolved at `autoMovieStoryTime(pin, seconds)`
+   * Otherwise the production is resolved at `storyTime(pin, seconds)`
    * and merged by light id:
    *
    * - A staged light whose id a production source shares is replaced in place by

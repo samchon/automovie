@@ -1,6 +1,6 @@
 import type { AutoMovieCommand } from "./AutoMovieCommand";
-import { readAutoMovieCommandArguments } from "./internal/readAutoMovieCommandArguments";
-import { run as runAutoMovieCli } from "./internal/run";
+import { readCommandArguments } from "./internal/readCommandArguments";
+import { run as runCli } from "./internal/run";
 
 /** The executable command request and its argument reader. */
 export namespace AutoMovieCliCommand {
@@ -15,7 +15,7 @@ export namespace AutoMovieCliCommand {
    * @throws On an unknown command or any refusal of the delegated grammar.
    */
   export function readArguments(args: readonly string[]): Request {
-    return readAutoMovieCommandArguments(args);
+    return readCommandArguments(args);
   }
 
   /**
@@ -59,6 +59,6 @@ export namespace AutoMovieCliCommand {
    * @returns The exit code.
    */
   export function run(argv: readonly string[]): Promise<number> {
-    return runAutoMovieCli(argv);
+    return runCli(argv);
   }
 }

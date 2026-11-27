@@ -26,15 +26,15 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanTouchLaid } from "../../compose/internal/AutoMovieMotionHumanTouchLaid";
 import { AutoMovieMotionHumanTouchUpright } from "../../compose/internal/AutoMovieMotionHumanTouchUpright";
-import { AutoMovieMotionMeeting } from "../../compose/internal/AutoMovieMotionMeeting";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionMeeting } from "../../compose/internal/motionMeeting";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { touchPrimitive } from "../../compose/internal/touchPrimitive";
 import { HumanHeld } from "../../handling/internal/HumanHeld";
 import { handshake } from "../../handling/internal/handshake";
@@ -46,9 +46,9 @@ import { touchReach } from "./touchReach";
 /*
  * A high five, a low five or a fist bump between two standing partners: both
  * bring one hand to one shared point between them and meet there at one shared
- * instant, the mutual goal the handshake uses (`AutoMovieMotionMeeting`).
+ * instant, the mutual goal the handshake uses (`motionMeeting`).
  *
- * The meeting point is the pair's mutual goal (`resolveAutoMovieMutualGoal` on
+ * The meeting point is the pair's mutual goal (`resolveMutualGoal` on
  * the true wrist reach of the two opposed hand frames): the action prefers the
  * mean of the two crown heights for a high five, of their waist heights for a
  * low five and of their chest heights for a fist bump (provisional), and the
@@ -60,7 +60,7 @@ import { touchReach } from "./touchReach";
  * room (`HumanSeatedReach`, Chan and Dubey 1995); partners no point lies within
  * both arms of, leaned as far as they can, are refused, never stretched. Each
  * role's hand reaches it in the free-space transport time of its distance
- * (`AutoMovieMotionHumanTiming.transport`), and at least the time its arm's arc
+ * (`motionHumanTiming.transport`), and at least the time its arm's arc
  * takes within the audit's travel bound (`touchReach.meeting`); the pair meets
  * when the slower arrives, both stay 0.1 s (provisional, the rebound) and go
  * back in the reach's time. The palms (or the fists) face each other, each
@@ -178,12 +178,12 @@ export namespace highFive {
       { role: "slapper", subject: p.partner },
       p.window,
     );
-    const local: IAutoMovieMotionMeetingTiming = AutoMovieMotionMeeting.local(
+    const local: IAutoMovieMotionMeetingTiming = motionMeeting.local(
       met,
       context.start,
     );
     const target: IAutoMovieMotionHumanTarget.IPlace =
-      AutoMovieMotionMeeting.place(met, "meet", entry);
+      motionMeeting.place(met, "meet", entry);
     const paired: IAutoMovieMotionHumanTarget.IPlace =
       met.solid &&
       p.prop === undefined &&
@@ -230,13 +230,13 @@ export namespace highFive {
         ? 0
         : Math.max(0, local.ready - Math.max(0.05, own));
     const reach: number = Math.max(0.05, local.ready - lead);
-    const timed: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
+    const timed: IAutoMovieMotionClock = motionClock.phrase({
       prepare: reach,
       attack: 0,
       hold: Math.max(0, local.relax - local.ready),
       retract: p.window === undefined ? reach : Math.max(0.05, own),
     });
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(timed.duration, [
+    const clock: IAutoMovieMotionClock = motionClock(timed.duration, [
       ...timed.instants,
       { name: "meet", seconds: timed.at("ready") },
       { name: "rebound", seconds: timed.at("relax") },
@@ -336,7 +336,7 @@ export namespace highFive {
     const under: IAutoMovieMotionHumanActionPlan =
       AutoMovieMotionHumanBase.under(context, clock.duration);
     const plan: IAutoMovieMotionHumanActionPlan =
-      composeAutoMovieMotionHumanAction({
+      composeMotionHumanAction({
         base:
           lean.share === 0
             ? under

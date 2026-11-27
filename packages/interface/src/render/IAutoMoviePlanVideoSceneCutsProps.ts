@@ -1,6 +1,6 @@
 /**
  * A video path, report path and scene-change threshold for an FFmpeg scdet
- * plan. planAutoMovieVideoSceneCuts admits finite thresholds in [0, 100] and
+ * plan. planVideoSceneCuts admits finite thresholds in [0, 100] and
  * escapes the report as a filter-graph value. The host owns process execution
  * and output files.
  */

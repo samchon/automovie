@@ -25,7 +25,7 @@ export namespace resolveAutoMovieCenterOfMass {
   /*
    * Execute the operation without merging a callable with this namespace.
    */
-  export const run = resolveAutoMovieCenterOfMassRun;
+  export const run = resolveCenterOfMassRun;
   /*
    * Derive this profile's bone-local model against a genuine immutable rig. The
    * producer supplies actual root-null, identity-articulation rest frames with
@@ -227,7 +227,7 @@ export namespace resolveAutoMovieCenterOfMass {
  * When a segment's bone is not in the rig or the profile has no
  * positive mass.
  */
-function resolveAutoMovieCenterOfMassRun(
+function resolveCenterOfMassRun(
   skeleton: IAutoMovieSkeleton,
   profile: IAutoMoviePhysicalProfile,
 ): IAutoMovieResolveCenterOfMass.IModel {

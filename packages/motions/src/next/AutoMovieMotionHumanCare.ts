@@ -52,7 +52,7 @@ import { pulse as pulseLaw } from "../touch/care/pulse";
 export namespace AutoMovieMotionHumanCare {
   /**
    * Hold a taken-up infant (`IAutoMovieMotionHumanHoldInfant`). The infant is
-   * rigid in the holding hand from its pick-up (`AutoMovieMotionHumanHeld`), so
+   * rigid in the holding hand from its pick-up (`motionHumanHeld`), so
    * each hold is a world pose of the infant in the body's frame, read from the
    * body where it entered, and the holding hand follows from it. In the cradle
    * and the feed the infant lies across the front, face up, along the holding

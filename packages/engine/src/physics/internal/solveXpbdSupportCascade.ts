@@ -57,106 +57,136 @@ export namespace solveXpbdSupportCascade {
     return solveXpbdSupportCascadeImplementation(input);
   }
 
-  /** What the cascade reads of one support row. */
+  /*
+   * What the cascade reads of one support row.
+   */
   export type IRow = Pick<
     Contacts.IRow,
     "state" | "point" | "direction" | "velocity" | "lower" | "moment"
   >;
 
-  /** What the cascade reads of the support set. */
+  /*
+   * What the cascade reads of the support set.
+   */
   export interface ISet {
-    /** Every row. */
+    /*
+     * Every row.
+     */
     rows: readonly IRow[];
 
-    /** Every patch. */
+    /*
+     * Every patch.
+     */
     patches: readonly Contacts.IPatch[];
   }
 
-  /** One tree's program. */
+  /*
+   * One tree's program.
+   */
   export interface IInput {
-    /**
+    /*
      * Each support row's velocity change per unit impulse of every unknown,
      * rows then actuators.
      */
     k: readonly number[][];
 
-    /** Each support row's velocity change under the motors without the unknowns. */
+    /*
+     * Each support row's velocity change under the motors without the unknowns.
+     */
     u: readonly number[];
 
-    /**
+    /*
      * Each unknown's ground-reaction wrench per unit impulse, force then moment
      * over the lever, or the rows of IHMC's whole-body objective
      * (`solveXpbdArticulationContacts.objectiveRow`).
      */
     columns: readonly number[][];
 
-    /** The ground-reaction wrench the rows should add, over the substep. */
+    /*
+     * The ground-reaction wrench the rows should add, over the substep.
+     */
     target: readonly number[];
 
-    /**
+    /*
      * Each wrench row's weight in level one, IHMC's command weights; one each
      * when absent.
      */
     weights?: readonly number[];
 
-    /** The support rows and patches. */
+    /*
+     * The support rows and patches.
+     */
     set: ISet;
 
-    /** The actuated axes, in the unknowns' order after the rows. */
+    /*
+     * The actuated axes, in the unknowns' order after the rows.
+     */
     actuators: readonly Contacts.IActuator[];
 
-    /**
+    /*
      * Level two's motion rows: what the posture's rates and the root's spin
      * should be after the step.
      */
     motion: readonly IMotion[];
 
-    /** Groups of normal rows whose summed impulse is bounded; none when absent. */
+    /*
+     * Groups of normal rows whose summed impulse is bounded; none when absent.
+     */
     bounds?: readonly IBound[];
 
-    /**
+    /*
      * The tree's active sets from the previous substep, rewritten with this
      * one's.
      */
     warm: IWarm;
   }
 
-  /**
+  /*
    * One motion row: a velocity after the step, linear in the unknowns, and the
    * change in it the row asks of them.
    */
   export interface IMotion {
-    /**
+    /*
      * The velocity's change per unit impulse of every unknown, rows then
      * actuators.
      */
     weights: readonly number[];
 
-    /**
+    /*
      * The change asked: the servo's velocity less the velocity without the
      * unknowns, per second.
      */
     value: number;
   }
 
-  /** A group of normal rows whose summed added impulse is bounded. */
+  /*
+   * A group of normal rows whose summed added impulse is bounded.
+   */
   export interface IBound {
-    /** The rows' indices. */
+    /*
+     * The rows' indices.
+     */
     rows: readonly number[];
 
-    /**
+    /*
      * The largest summed impulse they may add, newton seconds; negative takes
      * back part of the contact passes'.
      */
     impulse: number;
   }
 
-  /** The keys of the inequalities each level ended active on. */
+  /*
+   * The keys of the inequalities each level ended active on.
+   */
   export interface IWarm {
-    /** Level one's. */
+    /*
+     * Level one's.
+     */
     first: string[];
 
-    /** Level two's. */
+    /*
+     * Level two's.
+     */
     second: string[];
   }
 }

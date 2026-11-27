@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionClock } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 
 /*
  * A hose team member's stand against the stream: the hands and the lean set
@@ -22,7 +22,7 @@ export function hoseLineReaction(
   const count: number = sweeps ?? hoseLineReaction.SWEEPS;
   return {
     sweeps: count,
-    clock: AutoMovieMotionClock.phrase({
+    clock: motionClock.phrase({
       prepare: tempo * hoseLineReaction.SET,
       attack: tempo * hoseLineReaction.SWEEP * count,
       retract: tempo * hoseLineReaction.SET,

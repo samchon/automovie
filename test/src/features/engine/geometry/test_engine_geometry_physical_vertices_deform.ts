@@ -6,8 +6,8 @@ import { createPhysicalMesh } from "../../internal/createPhysicalMesh";
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * Placement (`transformAutoMovieMesh`) and deformation
- * (`createAutoMovieMeshDeformer`) keep each vertex's physical source and refuse
+ * Placement (`transformMesh`) and deformation
+ * (`createMeshDeformer`) keep each vertex's physical source and refuse
  * to separate declared aliases.
  *
  * Fixture: the unit right triangle plus a fourth vertex at the origin aliasing

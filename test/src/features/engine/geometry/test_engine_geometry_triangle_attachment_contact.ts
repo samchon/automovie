@@ -12,7 +12,7 @@ import { vclose } from "../../internal/vclose";
 
 /**
  * An attachment fan's seat on a non-axis-aligned triangle differs once both are
- * rounded; the contact cap (`boundAutoMovieTriangleAttachmentContact`, read
+ * rounded; the contact cap (`boundTriangleAttachmentContact`, read
  * through a float32 separation query) bounds that registration travel.
  *
  * Fixture: the support (0.1, 0.2, 0.7), (0.6, 0.3, 0.1), (0.2, 0.7, 0.1) on the
@@ -20,7 +20,7 @@ import { vclose } from "../../internal/vclose";
  *
  * Scenarios:
  *
- * 1. The binary64 seat (`interpolateAutoMovieTrianglePoint`) is (0.375, 0.375,
+ * 1. The binary64 seat (`interpolateTrianglePoint`) is (0.375, 0.375,
  *    0.25) within 1e-15.
  * 2. The Float32-rounded support's affine height over the seat's (x, y) stands
  *    above the seat.

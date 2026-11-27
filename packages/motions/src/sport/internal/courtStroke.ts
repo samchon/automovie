@@ -15,13 +15,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionHumanPlaced } from "../../compose/internal/AutoMovieMotionHumanPlaced";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionManner } from "../../compose/internal/motionManner";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
 import { StrikingBlade } from "../../striking/internal/StrikingBlade";
@@ -58,7 +58,7 @@ export function courtStroke(
   const size: number = body.measure.stature;
   const arm: number = body.measure.upperArm + body.measure.forearm;
   const scale: number = Math.sqrt(size / REFERENCE_STATURE);
-  const manner: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+  const manner: IAutoMovieMotionManner.IModifiers = motionManner(
     context,
     context.params.manner,
   );
@@ -67,8 +67,8 @@ export function courtStroke(
   const recovery: number = profile.beats[2] * scale;
   const end: number = impact + recovery;
   const halfFlight: number = (profile.air * scale) / 2;
-  const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
-    AutoMovieMotionClock(end, [
+  const clock: IAutoMovieMotionClock = motionManner.time(
+    motionClock(end, [
       { name: "stepStart", seconds: ready * 0.18 },
       { name: "plant", seconds: ready * 0.86 },
       { name: "ready", seconds: ready },
@@ -127,18 +127,18 @@ export function courtStroke(
     airborne(s)
       ? AutoMovieEngineGravity.STANDARD * 0.5 * (s - takeoff) * (landing - s)
       : 0;
-  const extent: (s: number) => number = AutoMovieMotionClock.prepareEnvelope(
+  const extent: (s: number) => number = motionClock.prepareEnvelope(
     clock,
     ["start", "ready"],
     ["relax", "end"],
   );
-  const transfer: (s: number) => number = AutoMovieMotionClock.prepareEnvelope(
+  const transfer: (s: number) => number = motionClock.prepareEnvelope(
     clock,
     ["stepStart", "stroke"],
     ["relax", "end"],
   );
   const compression: (s: number) => number =
-    AutoMovieMotionClock.prepareEnvelope(
+    motionClock.prepareEnvelope(
       clock,
       ["start", "ready"],
       [
@@ -211,7 +211,7 @@ export function courtStroke(
       : 0;
   const settle: ((s: number) => number) | undefined =
     drop > 0
-      ? AutoMovieMotionClock.prepareEnvelope(
+      ? motionClock.prepareEnvelope(
           clock,
           ["stroke", "landing"],
           ["relax", "end"],
@@ -253,7 +253,7 @@ export function courtStroke(
   const straight = (s: number): IAutoMovieVector3 =>
     AutoMovieEngineVector3.scale(
       drive,
-      AutoMovieMotionClock.through(clock, ["ready", "stroke", "strokeEnd"], s) -
+      motionClock.through(clock, ["ready", "stroke", "strokeEnd"], s) -
         1,
     );
   const dominant: IAutoMovieVector3 = local(profile.reach, arm);
@@ -287,12 +287,12 @@ export function courtStroke(
           face,
           local([0.4, -0.5, -0.2], 1),
         );
-  const aim: (s: number) => number = AutoMovieMotionClock.prepareEnvelope(
+  const aim: (s: number) => number = motionClock.prepareEnvelope(
     clock,
     ["start", "stroke"],
     ["stroke", "relax"],
   );
-  const stow: (s: number) => number = AutoMovieMotionClock.prepare(
+  const stow: (s: number) => number = motionClock.prepare(
     clock,
     "stroke",
     "relax",
@@ -375,7 +375,7 @@ export function courtStroke(
       );
       const contactStart: number = strike - half;
       const contactEnd: number = strike + half;
-      const gripClock: IAutoMovieMotionClock = AutoMovieMotionClock(duration, [
+      const gripClock: IAutoMovieMotionClock = motionClock(duration, [
         { name: "contactStart", seconds: contactStart },
         { name: "contactEnd", seconds: contactEnd },
       ]);
@@ -386,7 +386,7 @@ export function courtStroke(
           from: 0,
           to: duration,
           rest,
-          weight: AutoMovieMotionClock.prepareEnvelope(
+          weight: motionClock.prepareEnvelope(
             gripClock,
             ["start", "contactStart"],
             ["contactEnd", "end"],
@@ -424,7 +424,7 @@ export function courtStroke(
   }
 
   const plan: IAutoMovieMotionHumanActionPlan =
-    composeAutoMovieMotionHumanAction({
+    composeMotionHumanAction({
       base: AutoMovieMotionHumanBase.still(duration, entry, contacts),
       clock,
       primitives,

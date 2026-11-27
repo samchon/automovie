@@ -1,9 +1,9 @@
 import type { IAutoMovieFilmOptics } from "@automovie/interface";
 import type * as THREE from "three";
 
-import type { AutoMovieRenderFilmAlpha } from "../scene/AutoMovieRenderFilmAlpha.js";
-import type { AutoMovieRenderFilmResponseStage } from "../scene/AutoMovieRenderFilmResponseStage.js";
-import type { IAutoMovieRenderFilmResponseRenderer } from "../scene/IAutoMovieRenderFilmResponseRenderer.js";
+import type { AutoMovieRenderFilmAlpha } from "../scene/AutoMovieRenderFilmAlpha";
+import type { AutoMovieRenderFilmResponseStage } from "../scene/AutoMovieRenderFilmResponseStage";
+import type { IAutoMovieRenderFilmResponseRenderer } from "../scene/IAutoMovieRenderFilmResponseRenderer";
 
 /** Inputs for accumulating the film samples of one frame. */
 export interface IAutoMovieRenderAccumulateFilmSamplesProps {

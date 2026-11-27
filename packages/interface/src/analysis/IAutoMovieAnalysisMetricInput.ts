@@ -21,7 +21,7 @@ export namespace IAutoMovieAnalysisMetricInput {
    *
    * Units are compared as exact strings with no conversion, so `lx` and `lux`
    * are different units. The first target with the metric's key decides;
-   * duplicate keys are refused earlier by `assertAutoMovieAnalysisTargets`.
+   * duplicate keys are refused earlier by `assertAnalysisTargets`.
    */
   export type IProps = {
     /** Open metric key, such as `workplane.total.illuminance`. */

@@ -7,8 +7,8 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieRenderGeometryPhysicalVertices } from "../AutoMovieRenderGeometryPhysicalVertices.js";
-import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResources.js";
+import { AutoMovieRenderGeometryPhysicalVertices } from "../AutoMovieRenderGeometryPhysicalVertices";
+import { constructOwnedResources } from "./constructOwnedResources";
 
 /*
  * Build a `three.js` geometry from a automovie geometry node: tessellating a
@@ -26,7 +26,7 @@ export const buildGeometry: (
 ) => THREE.BufferGeometry = (
   geometry: IAutoMovieGeometry,
 ): THREE.BufferGeometry => {
-  return constructAutoMovieOwnedResources(
+  return constructOwnedResources(
     (
       own: <Resource extends { dispose(): void }>(
         resource: Resource,

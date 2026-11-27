@@ -5,7 +5,7 @@ export namespace IAutoMovieMeasureLipSyncLag {
    *
    * The window is the line's speech span widened by `W = ceil(0.25 × fps)`
    * frames on each side and clipped to the film. Engine's
-   * `measureAutoMovieLipSyncLag` refuses series of different lengths,
+   * `measureLipSyncLag` refuses series of different lengths,
    * non-finite values and a rate that is not positive.
    */
   export interface IProps {

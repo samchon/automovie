@@ -1,8 +1,8 @@
 import type { IAutoMovieMeshSkin } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieSkinBlend } from "./AutoMovieSkinBlend.js";
-import { readAutoMovieBufferAttribute } from "./readAutoMovieBufferAttribute.js";
+import { AutoMovieSkinBlend } from "./AutoMovieSkinBlend";
+import { readBufferAttribute } from "./readBufferAttribute";
 
 /*
  * The CPU pose of one skinned mesh: posed positions under a complete dependency
@@ -98,11 +98,11 @@ export class AutoMovieSkinPose {
     const mesh: AutoMovieSkinPose.IMesh = this.mesh;
     const geometry: THREE.BufferGeometry = mesh.geometry;
     if (this.source === geometry && !this.stale) return;
-    const indices: THREE.BufferAttribute = readAutoMovieBufferAttribute(
+    const indices: THREE.BufferAttribute = readBufferAttribute(
       geometry,
       "skinIndex",
     );
-    const weights: THREE.BufferAttribute = readAutoMovieBufferAttribute(
+    const weights: THREE.BufferAttribute = readBufferAttribute(
       geometry,
       "skinWeight",
     );
@@ -269,11 +269,11 @@ export class AutoMovieSkinPose {
     const geometry: THREE.BufferGeometry = mesh.geometry;
     const position: THREE.BufferAttribute | THREE.InterleavedBufferAttribute =
       geometry.attributes.position!;
-    const indices: THREE.BufferAttribute = readAutoMovieBufferAttribute(
+    const indices: THREE.BufferAttribute = readBufferAttribute(
       geometry,
       "skinIndex",
     );
-    const weights: THREE.BufferAttribute = readAutoMovieBufferAttribute(
+    const weights: THREE.BufferAttribute = readBufferAttribute(
       geometry,
       "skinWeight",
     );

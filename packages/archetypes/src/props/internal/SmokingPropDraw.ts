@@ -10,7 +10,9 @@ import { SmokingPropDrawData } from "./SmokingPropDrawData";
  * The seeded recipes originally published as `createSmoking`.
  */
 export namespace SmokingPropDraw {
-  /** The kinds. */
+  /*
+   * The kinds.
+   */
   export type Kind = "cigarette" | "lighter";
 
   /*
@@ -18,7 +20,7 @@ export namespace SmokingPropDraw {
    */
   export const KINDS: readonly Kind[] = ["cigarette", "lighter"];
 
-  /**
+  /*
    * The affordance ids:
    *
    * - `grip`: a cigarette's pinch just beyond its filter, or the hand round a
@@ -33,7 +35,7 @@ export namespace SmokingPropDraw {
    */
   export type Affordance = "grip" | "mouth" | "flame" | "wheel" | "valve";
 
-  /**
+  /*
    * The free dimensions, metres unless stated:
    *
    * - `length`: a cigarette's length, or a lighter's height.
@@ -57,25 +59,35 @@ export namespace SmokingPropDraw {
     mass: "kg",
   };
 
-  /**
+  /*
    * The parameters: the kind, and any free dimension fixed to a value inside
    * its band.
    */
   export interface IParams extends Partial<Record<Dimension, number>> {
-    /** Which thing. */
+    /*
+     * Which thing.
+     */
     kind: Kind;
 
-    /** A lighter's model; drawn from the seed when absent. */
+    /*
+     * A lighter's model; drawn from the seed when absent.
+     */
     model?: Model;
 
-    /** The model's id, unique in a scene; `smoking` when absent. */
+    /*
+     * The model's id, unique in a scene; `smoking` when absent.
+     */
     id?: string;
   }
 
-  /** A model's read figures, by dimension. */
+  /*
+   * A model's read figures, by dimension.
+   */
   export type Figures = Readonly<Partial<Record<Dimension, number>>>;
 
-  /** The lighters read: BIC's Maxi J26 and Mini J25. */
+  /*
+   * The lighters read: BIC's Maxi J26 and Mini J25.
+   */
   export type Model = "J26" | "J25";
 
   /*

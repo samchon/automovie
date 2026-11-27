@@ -1,4 +1,4 @@
-import type { AutoMovieProductionPngRole } from "./AutoMovieProductionPngRole.js";
+import type { AutoMovieProductionPngRole } from "./AutoMovieProductionPngRole";
 
 /**
  * The exact PNG picture facts the deterministic writers emit for one role.

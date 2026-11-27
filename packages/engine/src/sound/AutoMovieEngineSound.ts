@@ -25,15 +25,15 @@ import type {
   IAutoMovieSampleDialogueMouth,
 } from "@automovie/interface";
 
-import { applyAutoMovieInteriorAcousticResponse as applyAutoMovieInteriorAcousticResponseImplementation } from "./internal/applyAutoMovieInteriorAcousticResponse";
+import { applyInteriorAcousticResponse as applyInteriorAcousticResponseImplementation } from "./internal/applyInteriorAcousticResponse";
 import { assertProductionSoundRasterInput as assertProductionSoundRasterInputImplementation } from "./internal/assertProductionSoundRasterInput";
-import { autoMovieDialogueEnvelopeJaw as autoMovieDialogueEnvelopeJawImplementation } from "./internal/autoMovieDialogueEnvelopeJaw";
-import { deriveAutoMovieInteriorAcousticResponse as deriveAutoMovieInteriorAcousticResponseImplementation } from "./internal/deriveAutoMovieInteriorAcousticResponse";
-import { deriveAutoMovieSoundPropagation as deriveAutoMovieSoundPropagationImplementation } from "./internal/deriveAutoMovieSoundPropagation";
+import { dialogueEnvelopeJaw as dialogueEnvelopeJawImplementation } from "./internal/dialogueEnvelopeJaw";
+import { deriveInteriorAcousticResponse as deriveInteriorAcousticResponseImplementation } from "./internal/deriveInteriorAcousticResponse";
+import { deriveSoundPropagation as deriveSoundPropagationImplementation } from "./internal/deriveSoundPropagation";
 import { deriveProductionSoundPlan as deriveProductionSoundPlanImplementation } from "./internal/deriveProductionSoundPlan";
-import { joinAutoMovieDialogueVisemes as joinAutoMovieDialogueVisemesImplementation } from "./internal/joinAutoMovieDialogueVisemes";
+import { joinDialogueVisemes as joinDialogueVisemesImplementation } from "./internal/joinDialogueVisemes";
 import { masterProductionSound as masterProductionSoundImplementation } from "./internal/masterProductionSound";
-import { measureAutoMovieLipSyncLag as measureAutoMovieLipSyncLagImplementation } from "./internal/measureAutoMovieLipSyncLag";
+import { measureLipSyncLag as measureLipSyncLagImplementation } from "./internal/measureLipSyncLag";
 import { productionDialogueFrameLevels as productionDialogueFrameLevelsImplementation } from "./internal/productionDialogueFrameLevels";
 import { productionPhonemesToVisemes as productionPhonemesToVisemesImplementation } from "./internal/productionPhonemesToVisemes";
 import { productionSoundEventTone as productionSoundEventToneImplementation } from "./internal/productionSoundEventTone";
@@ -41,10 +41,10 @@ import { productionSoundSpectrogram as productionSoundSpectrogramImplementation 
 import { productionSoundWaveform as productionSoundWaveformImplementation } from "./internal/productionSoundWaveform";
 import { productionSpeechEndFrame as productionSpeechEndFrameImplementation } from "./internal/productionSpeechEndFrame";
 import { renderProductionSound as renderProductionSoundImplementation } from "./internal/renderProductionSound";
-import { sampleAutoMovieDialogueExpression as sampleAutoMovieDialogueExpressionImplementation } from "./internal/sampleAutoMovieDialogueExpression";
-import { sampleAutoMovieDialogueMouth as sampleAutoMovieDialogueMouthImplementation } from "./internal/sampleAutoMovieDialogueMouth";
-import { sampleAutoMovieDialogueVisemeWeights as sampleAutoMovieDialogueVisemeWeightsImplementation } from "./internal/sampleAutoMovieDialogueVisemeWeights";
-import { createAutoMovieLoudnessMeter as createAutoMovieLoudnessMeterImplementation } from "./internal/createAutoMovieLoudnessMeter";
+import { sampleDialogueExpression as sampleDialogueExpressionImplementation } from "./internal/sampleDialogueExpression";
+import { sampleDialogueMouth as sampleDialogueMouthImplementation } from "./internal/sampleDialogueMouth";
+import { sampleDialogueVisemeWeights as sampleDialogueVisemeWeightsImplementation } from "./internal/sampleDialogueVisemeWeights";
+import { createLoudnessMeter as createLoudnessMeterImplementation } from "./internal/createLoudnessMeter";
 
 /** Deterministic sound planning, synthesis, dialogue and analysis operations. */
 export namespace AutoMovieEngineSound {
@@ -79,7 +79,7 @@ export namespace AutoMovieEngineSound {
   export function applyInteriorAcousticResponse(
     props: IAutoMovieApplyInteriorAcousticResponse.IProps,
   ): Float32Array<ArrayBufferLike> {
-    return applyAutoMovieInteriorAcousticResponseImplementation(props);
+    return applyInteriorAcousticResponseImplementation(props);
   }
 
   /** Checks raster input dimensions and PCM before a sound image is emitted. */
@@ -99,21 +99,21 @@ export namespace AutoMovieEngineSound {
 
   /** Computes a dialogue jaw opening from one frame's linear RMS level. */
   export function dialogueEnvelopeJaw(level: number): number {
-    return autoMovieDialogueEnvelopeJawImplementation(level);
+    return dialogueEnvelopeJawImplementation(level);
   }
 
   /** Derives the selected room-path response from a request and profile. */
   export function deriveInteriorAcousticResponse(
     props: IAutoMovieDeriveInteriorAcousticResponse.IProps,
   ): IAutoMovieProductionAcousticResponse {
-    return deriveAutoMovieInteriorAcousticResponseImplementation(props);
+    return deriveInteriorAcousticResponseImplementation(props);
   }
 
   /** Derives distance, arrival and spectral propagation for a sound cue. */
   export function deriveSoundPropagation(
     props: IAutoMovieDeriveSoundPropagation.IProps,
   ): NonNullable<IAutoMovieProductionSoundEvent["propagation"]> {
-    return deriveAutoMovieSoundPropagationImplementation(props);
+    return deriveSoundPropagationImplementation(props);
   }
 
   /** Lowers production events and authored cues onto the film sound clock. */
@@ -127,7 +127,7 @@ export namespace AutoMovieEngineSound {
   export function joinDialogueVisemes(
     props: IAutoMovieJoinDialogueVisemes.IProps,
   ): IAutoMovieDialogueVisemeCompilation {
-    return joinAutoMovieDialogueVisemesImplementation(props);
+    return joinDialogueVisemesImplementation(props);
   }
 
   /** Masters a rendered mix to its integrated loudness and true-peak targets. */
@@ -141,7 +141,7 @@ export namespace AutoMovieEngineSound {
   export function measureLipSyncLag(
     props: IAutoMovieMeasureLipSyncLag.IProps,
   ): IAutoMovieMeasureLipSyncLag.IResult {
-    return measureAutoMovieLipSyncLagImplementation(props);
+    return measureLipSyncLagImplementation(props);
   }
 
   /** Samples one dialogue line's linear RMS level on its film-frame clock. */
@@ -208,25 +208,25 @@ export namespace AutoMovieEngineSound {
   export function sampleDialogueExpression(
     props: IAutoMovieSampleDialogueExpression.IProps,
   ): IAutoMovieDialogueExpressionLayers {
-    return sampleAutoMovieDialogueExpressionImplementation(props);
+    return sampleDialogueExpressionImplementation(props);
   }
 
   /** Samples one actor's dialogue mouth at an arbitrary film second. */
   export function sampleDialogueMouth(
     props: IAutoMovieSampleDialogueMouth.IProps,
   ): IAutoMovieDialogueMouth {
-    return sampleAutoMovieDialogueMouthImplementation(props);
+    return sampleDialogueMouthImplementation(props);
   }
 
   /** Samples the viseme weights active at an arbitrary film second. */
   export function sampleDialogueVisemeWeights(
     props: IVisemeFrame,
   ): IAutoMovieHumanVisemeWeights {
-    return sampleAutoMovieDialogueVisemeWeightsImplementation(props);
+    return sampleDialogueVisemeWeightsImplementation(props);
   }
   /** Create a streaming ITU-R BS.1770-5 meter for mono or stereo PCM. */
   export function createLoudnessMeter(channels: 1 | 2): IAutoMovieLoudnessMeter {
-    return createAutoMovieLoudnessMeterImplementation(channels);
+    return createLoudnessMeterImplementation(channels);
   }
 
 }

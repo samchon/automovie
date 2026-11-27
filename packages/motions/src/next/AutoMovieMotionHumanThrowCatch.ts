@@ -160,7 +160,7 @@ export namespace AutoMovieMotionHumanThrowCatch {
    * (`AutoMovieMotionHumanBend.strain`), so the wrist's range decides it. The
    * ball's size is the ball's own (`ball`, `HumanBall`). The hands travel there
    * on minimum-jerk progress over the aimed movement time to an object of its
-   * size (McIntosh et al. 2018, `AutoMovieMotionHumanTiming.aimed`), arriving
+   * size (McIntosh et al. 2018, `motionHumanTiming.aimed`), arriving
    * at contact; the anticipatory `prepare` instant is 100 ms before impact
    * (Lacquaniti and Maioli 1989, J Neurosci 9:134). After contact the hands
    * give `GIVE` along the object's velocity over `GIVE_TIME` (the issue's 0.05
@@ -184,7 +184,7 @@ export namespace AutoMovieMotionHumanThrowCatch {
    * The hand stays where the hold kept it on the trunk (its grip frame at the
    * entry, read in the chest's frame and carried with the chest the carrier
    * shows), and opens at `open`, the decisive instant, a brief pause
-   * (`AutoMovieMotionHumanTiming.PAUSES.brief`, provisional) after the entry.
+   * (`motionHumanTiming.PAUSES.brief`, provisional) after the entry.
    * Until then its grip window on the prop takes the hand over from the hold;
    * at `open` the prop is launched (`IHumanActionPlan.launches`) with the
    * hand's velocity there, the central difference of the carried grip point at

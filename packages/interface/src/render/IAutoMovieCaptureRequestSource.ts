@@ -4,7 +4,7 @@
  *
  * `URLSearchParams` and `Map<string, string>` both satisfy it as they are, so
  * the page passes its address's parameters and the command passes the map
- * `readAutoMovieCaptureArguments` makes, and neither host parses an option
+ * `readCaptureArguments` makes, and neither host parses an option
  * itself.
  */
 export interface IAutoMovieCaptureRequestSource {

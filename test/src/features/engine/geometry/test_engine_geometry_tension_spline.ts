@@ -4,7 +4,7 @@ import { TestValidator } from "@nestia/e2e";
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * `interpolateAutoMovieSpline({ knots, values, period? })` is the spline under
+ * `interpolateSpline({ knots, values, period? })` is the spline under
  * tension (Schweikert 1966, Cline 1974): at tension 0 the natural cubic spline,
  * raised only until the sixteen-part scan of every segment stays within its
  * knots' range widened by a tenth of the largest value step within two

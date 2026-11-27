@@ -1,6 +1,6 @@
 import type * as THREE from "three";
 
-import type { IAutoMovieRenderShadowRetirementHost } from "./IAutoMovieRenderShadowRetirementHost.js";
+import type { IAutoMovieRenderShadowRetirementHost } from "./IAutoMovieRenderShadowRetirementHost";
 
 /**
  * Public renderer facts needed to bound its native shadow target factory. A

@@ -1,7 +1,7 @@
 import type { IAutoMovieSectionPlane } from "@automovie/interface";
 import type * as THREE from "three";
 
-import type { IAutoMovieRenderSectionRenderer } from "./IAutoMovieRenderSectionRenderer.js";
+import type { IAutoMovieRenderSectionRenderer } from "./IAutoMovieRenderSectionRenderer";
 
 /**
  * Inspection clipping applied to existing material state without deleting or

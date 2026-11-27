@@ -8,7 +8,7 @@ import type { IAutoMovieRelationalGoal } from "./IAutoMovieRelationalGoal";
  * The engine never interprets `capability`; it is the production's own
  * vocabulary (a verb a subject can perform), so the same schedule machinery
  * serves any film. Timing, outcomes and state come from the production's pure
- * functions handed to `resolveAutoMovieSchedule`.
+ * functions handed to `resolveSchedule`.
  */
 export interface IAutoMovieIntent {
   /** Stable id of the acting subject. */
@@ -38,7 +38,7 @@ export interface IAutoMovieIntent {
    *
    * - `{ type: "share", share }`: at a share of its duration in [0, 1];
    * - `{ type: "event", event }`: at one of its own named events
-   *   (`resolveAutoMovieSchedule.ITiming.events`);
+   *   (`resolveSchedule.ITiming.events`);
    * - `{ type: "anchor-event", of, event }`: when an event of the intent anchored
    *   `of`, usually another subject's action, or of a cue track named `of`,
    *   happens; `index` picks which occurrence where the name repeats;

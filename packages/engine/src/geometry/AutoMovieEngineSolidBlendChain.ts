@@ -183,7 +183,7 @@ export namespace AutoMovieEngineSolidBlendChain {
    * B-spline through the columns in phase, in the world's level frame with the
    * height as the lift; its outward sign from `outward`, the start rail's
    * outward normal at column 0. A join's blend ({@link of}) and a split's bands
-   * (`AutoMovieConstructionSplitRealize`) publish through it.
+   * (`constructionSplitRealize`) publish through it.
    *
    * A profiled strip (a port's `IAutoMovieConstructionBandProfile`) adds
    * interior layers: at a share `t` of the span, each column's point, cross

@@ -4,7 +4,7 @@ import { TestValidator } from "@nestia/e2e";
 import { throwsError } from "../../internal/predicates";
 
 /**
- * `adjacentAutoMovieFloat64` steps one binary64 encoding up or down (IEEE 754
+ * `adjacentFloat64` steps one binary64 encoding up or down (IEEE 754
  * binary64: 52 fraction bits, so the spacing just above 1 is 2^-52 and just
  * below it 2^-53).
  *

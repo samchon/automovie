@@ -3,7 +3,7 @@ import type {
   IAutoMovieRgb8Image,
 } from "@automovie/interface";
 
-import { decodeAutoMoviePpmImage as decodeImage } from "./internal/decodeAutoMoviePpmImage";
+import { decodePpmImage as decodeImage } from "./internal/decodePpmImage";
 
 /** Decodes bounded P6 RGB8 PPM images under an explicit transfer policy. */
 export namespace AutoMovieIngestPpmImage {

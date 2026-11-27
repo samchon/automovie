@@ -4,7 +4,7 @@
  *
  * `entry`, `shot`, `start`, `played`, `offset` and `playbackRate` are copied
  * from the film's `IAutoMoviePlaybackEntry`. `liveFrames` is computed by
- * `planAutoMovieDeliveredCut` against the instants the render drew, so it
+ * `planDeliveredCut` against the instants the render drew, so it
  * agrees with the drawn frames rather than with a rounding of `start`.
  *
  * A row is keyed by `entry`, because a sequence can play one shot in two

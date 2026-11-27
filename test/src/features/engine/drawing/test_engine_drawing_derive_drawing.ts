@@ -11,7 +11,7 @@ import {
 } from "../../internal/drawingFixtures";
 
 /**
- * `deriveAutoMovieDrawing` derives one sheet from a built environment and a
+ * `deriveDrawing` derives one sheet from a built environment and a
  * view.
  *
  * Scenarios, on the authored atelier of a 10 x 6 m slab cut by a downward plan

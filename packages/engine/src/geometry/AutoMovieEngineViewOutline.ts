@@ -13,8 +13,8 @@ import { AutoMovieEngineNaturalSpline } from "./AutoMovieEngineNaturalSpline";
 import { AutoMovieEngineViewHermite } from "./AutoMovieEngineViewHermite";
 import { AutoMovieEngineViewOutlineRead } from "./AutoMovieEngineViewOutlineRead";
 import { AutoMovieEngineViewParameter } from "./AutoMovieEngineViewParameter";
-import { distanceAutoMovieViewOutline } from "./construction/internal/distanceAutoMovieViewOutline";
-import { supportAutoMovieViewOutline } from "./construction/internal/supportAutoMovieViewOutline";
+import { distanceViewOutline } from "./construction/internal/distanceViewOutline";
+import { supportViewOutline } from "./construction/internal/supportViewOutline";
 
 /**
  * The scalar source shared by lofting, origin placement and inspection: a
@@ -230,7 +230,7 @@ export namespace AutoMovieEngineViewOutline {
     valueScale: number = 1,
     domain: readonly [number, number] = outline.domain,
   ): number[] | string {
-    return supportAutoMovieViewOutline(outline, slope, valueScale, domain);
+    return supportViewOutline(outline, slope, valueScale, domain);
   }
 
   /**
@@ -243,7 +243,7 @@ export namespace AutoMovieEngineViewOutline {
     targetValue: number,
     domain: readonly [number, number],
   ): number[] | string {
-    return distanceAutoMovieViewOutline(
+    return distanceViewOutline(
       outline,
       targetStation,
       targetValue,

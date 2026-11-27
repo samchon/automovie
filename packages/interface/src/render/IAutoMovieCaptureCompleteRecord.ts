@@ -1,12 +1,12 @@
-import type { IAutoMovieInspectionDiagnostics } from "./IAutoMovieInspectionDiagnostics.js";
-import type { IAutoMovieCaptureBudget } from "./IAutoMovieCaptureBudget.js";
-import type { IAutoMovieCaptureCellRecord } from "./IAutoMovieCaptureCellRecord.js";
-import type { IAutoMovieCaptureComparison } from "./IAutoMovieCaptureComparison.js";
-import type { IAutoMovieCaptureLayout } from "./IAutoMovieCaptureLayout.js";
-import type { IAutoMovieCaptureRequestEntry } from "./IAutoMovieCaptureRequestEntry.js";
-import type { IAutoMovieCaptureTime } from "./IAutoMovieCaptureTime.js";
-import type { IAutoMovieCaptureVideoSource } from "./IAutoMovieCaptureVideoSource.js";
-import type { IAutoMovieCaptureWindow } from "./IAutoMovieCaptureWindow.js";
+import type { IAutoMovieInspectionDiagnostics } from "./IAutoMovieInspectionDiagnostics";
+import type { IAutoMovieCaptureBudget } from "./IAutoMovieCaptureBudget";
+import type { IAutoMovieCaptureCellRecord } from "./IAutoMovieCaptureCellRecord";
+import type { IAutoMovieCaptureComparison } from "./IAutoMovieCaptureComparison";
+import type { IAutoMovieCaptureLayout } from "./IAutoMovieCaptureLayout";
+import type { IAutoMovieCaptureRequestEntry } from "./IAutoMovieCaptureRequestEntry";
+import type { IAutoMovieCaptureTime } from "./IAutoMovieCaptureTime";
+import type { IAutoMovieCaptureVideoSource } from "./IAutoMovieCaptureVideoSource";
+import type { IAutoMovieCaptureWindow } from "./IAutoMovieCaptureWindow";
 
 /** The final capture record, written after the last file is complete. */
 export interface IAutoMovieCaptureCompleteRecord {

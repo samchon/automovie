@@ -4,7 +4,7 @@ import { TestValidator } from "@nestia/e2e";
 type Point = [number, number];
 
 /**
- * `orientAutoMovieSolidChart(a, b, c)` returns the exact sign of det(b - a, c -
+ * `orientSolidChart(a, b, c)` returns the exact sign of det(b - a, c -
  * a) of the represented binary64 inputs, so an exact contact is told from a
  * nearby point.
  *

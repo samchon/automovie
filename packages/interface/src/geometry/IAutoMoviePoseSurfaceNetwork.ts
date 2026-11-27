@@ -8,7 +8,7 @@ export namespace IAutoMoviePoseSurfaceNetwork {
    * Pose a whole surface network: re-sweep its bound sweeps and carry its free
    * points with their bones, keeping every patch, count and name.
    *
-   * Each bound sweep is posed by `poseAutoMovieSweep`. A free node, a curve's
+   * Each bound sweep is posed by `poseSweep`. A free node, a curve's
    * through points, direction and normal, and a ring's pinned positions move
    * rigidly with the bone named for them; nodes on a sweep follow that sweep by
    * construction. Anything without a binding keeps its rest position. Because

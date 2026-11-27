@@ -29,11 +29,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
+import { motionHumanHeld } from "../../compose/internal/motionHumanHeld";
 import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionHumanLeg";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
@@ -193,7 +193,7 @@ export namespace fieldThrow {
         fix: "pick the implement up before the throw",
       });
     const other: AutoMovieHumanSide = side === "left" ? "right" : "left";
-    const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
+    const held: IAutoMovieMotionHumanHeld.IHeld = motionHumanHeld(
       context,
       side,
       p.implement,
@@ -311,7 +311,7 @@ export namespace fieldThrow {
     // The clock and the posture.
     const release: number = spec.seconds + DELIVER;
     const duration: number = release + RECOVER;
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(duration, [
+    const clock: IAutoMovieMotionClock = motionClock(duration, [
       { name: "windup", seconds: 0 },
       { name: "release", seconds: release },
       { name: "recover", seconds: duration },
@@ -464,7 +464,7 @@ export namespace fieldThrow {
       rotation: AutoMovieEngineQuaternion.multiply(hand.worldRotation, held.frame.rotation),
     };
     const plan: IAutoMovieMotionHumanActionPlan =
-      composeAutoMovieMotionHumanAction({
+      composeMotionHumanAction({
         base: AutoMovieMotionHumanBase.still(duration, context.entry.posture, [
           ...(["left", "right"] as const).map(
             (s: AutoMovieHumanSide): IAutoMovieMotionHumanContactWindow => ({

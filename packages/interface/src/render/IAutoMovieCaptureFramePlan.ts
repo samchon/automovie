@@ -1,9 +1,9 @@
-import type { IAutoMovieCaptureTime } from "./IAutoMovieCaptureTime.js";
-import type { IAutoMovieCaptureWindow } from "./IAutoMovieCaptureWindow.js";
+import type { IAutoMovieCaptureTime } from "./IAutoMovieCaptureTime";
+import type { IAutoMovieCaptureWindow } from "./IAutoMovieCaptureWindow";
 
 /**
  * Deduplicated ordered sample instants and their event/cut windows.
- * planAutoMovieCaptureFrames rounds grid samples to the nearest frame,
+ * planCaptureFrames rounds grid samples to the nearest frame,
  * preserves explicit off-grid instants, clips windows to available frames, and
  * retains each event window even when it overlaps another.
  */

@@ -4,7 +4,7 @@
  * Getters refuse once the synchronous callback ends. A retained typed view is
  * still an ordinary JS reference, so callers copy results before returning. The
  * former native positional solve ABI is retired; mathematics is called directly
- * through solveAutoMovieQuadraticKernel and its TypeScript owners.
+ * through solveQuadraticKernel and its TypeScript owners.
  */
 export interface IAutoMovieQuadraticHeap {
   /** Float64 view of the currently borrowed aligned storage. */

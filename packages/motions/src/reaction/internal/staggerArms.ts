@@ -9,7 +9,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
 import { staggerBounds } from "./staggerBounds";
 import { staggerRecover } from "./staggerRecover";
 
@@ -44,7 +44,7 @@ export function staggerArms(
     left: AutoMovieMotionHumanArm.angles(entry.pose, "left"),
     right: AutoMovieMotionHumanArm.angles(entry.pose, "right"),
   };
-  const onset: number = AutoMovieMotionHumanTiming.seconds(staggerBounds.ONSET);
+  const onset: number = motionHumanTiming.seconds(staggerBounds.ONSET);
   const raised: (seconds: number) => number = (seconds: number): number => {
     const end: number = recovery.steps.at(-1)!.land;
     const rise: number = AutoMovieEngineMotionSampling.minimumJerkShare(

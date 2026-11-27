@@ -1,5 +1,5 @@
-import { findAutoMovieFreePort } from "./internal/findAutoMovieFreePort";
-import { serveAutoMovieDrawPage } from "./internal/serveAutoMovieDrawPage";
+import { findFreePortImplementation } from "./internal/findFreePortImplementation";
+import { serveDrawPageImplementation } from "./internal/serveDrawPageImplementation";
 
 /** Public page-serving operations for the CLI. */
 export namespace AutoMovieCliPage {
@@ -8,7 +8,7 @@ export namespace AutoMovieCliPage {
    * of asking. The server listens with strictPort, so a race fails at startup.
    */
   export function findFreePort(): Promise<number> {
-    return findAutoMovieFreePort();
+    return findFreePortImplementation();
   }
 
   /** Input for serving a subject draw page. */
@@ -40,7 +40,7 @@ export namespace AutoMovieCliPage {
    * The page is generated in a scratch folder under
    * `<root>/node_modules/.cache/automovie/`: an `index.html` with no interface
    * and a script that calls `AutoMovieRenderDraw.installAutoMovieDraw` with the module's `subjects`
-   * export. The build takes `planAutoMovieModulePageViteConfig`, the one
+   * export. The build takes `planModulePageViteConfig`, the one
    * configuration both page hosts share: the production's `vite.config.ts` when
    * it has one and its `public` folder as its public files, with the generated
    * page as the only input, so a subject loads the assets and plugins the
@@ -53,6 +53,6 @@ export namespace AutoMovieCliPage {
   export function serveDrawPage(
     props: AutoMovieCliPage.IServeDrawPageInput,
   ): Promise<AutoMovieCliPage.IServeDrawPageHandle> {
-    return serveAutoMovieDrawPage(props);
+    return serveDrawPageImplementation(props);
   }
 }

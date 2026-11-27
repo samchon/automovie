@@ -24,7 +24,7 @@ export namespace measureAutoMovieHumanoidBody {
   /*
    * Execute the operation without merging a callable with this namespace.
    */
-  export const run = measureAutoMovieHumanoidBodyRun;
+  export const run = measureHumanoidBodyRun;
   /*
    * Derive measure then surfaces with one synchronous unchanged-profile scope.
    * Bound preparation performs no shape work before its original observation;
@@ -79,7 +79,7 @@ export namespace measureAutoMovieHumanoidBody {
  * Returns: The measure, metres and kilograms.
  * When a bone or segment the measure needs is missing.
  */
-function measureAutoMovieHumanoidBodyRun(
+function measureHumanoidBodyRun(
   skeleton: IAutoMovieSkeleton,
   profile: IAutoMoviePhysicalProfile,
   neutral?: AutoMovieHumanoidNeutralBounds.IPrepared,

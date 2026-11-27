@@ -1,5 +1,5 @@
 import { type IAutoMovieSurfacePatternResult, type IAutoMovieGenerateSurfacePattern } from "@automovie/interface";
-import { generateAutoMovieSurfacePattern as generateAutoMovieSurfacePatternImplementation } from "./internal/generateAutoMovieSurfacePattern";
+import { generateSurfacePattern as generateSurfacePatternImplementation } from "./internal/generateSurfacePattern";
 
 /** Public operations for Auto Movie Engine Surface Material. */
 export namespace AutoMovieEngineSurfaceMaterial {
@@ -20,7 +20,7 @@ export namespace AutoMovieEngineSurfaceMaterial {
    * the mesh, the instance slot, the finish, and the take-off all cite, so a
    * quantity can be traced back to the exact piece it counted. Quantities are
    * reported per zone and in total, and quality is judged by
-   * {@link autoMoviePatternFindings}.
+   * {@link patternFindings}.
    *
    * Coordinates are the surface's planar (u, v) metres and angles are degrees. A
    * malformed declaration throws an `Error` naming the field: duplicate ids,
@@ -37,6 +37,6 @@ export namespace AutoMovieEngineSurfaceMaterial {
    *   quality findings.
    */
   export function generateAutoMovieSurfacePattern(props: IAutoMovieGenerateSurfacePattern.IProps): IAutoMovieSurfacePatternResult {
-    return generateAutoMovieSurfacePatternImplementation(props);
+    return generateSurfacePatternImplementation(props);
   }
 }

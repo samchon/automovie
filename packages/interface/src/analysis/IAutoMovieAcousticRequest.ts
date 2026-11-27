@@ -7,7 +7,7 @@ import type { IAutoMovieAnalysisTarget } from "./IAutoMovieAnalysisTarget";
 /**
  * Everything one room-acoustic study is configured with.
  *
- * `analyzeAutoMovieAcoustics` throws on a blank id, subject or revision, a
+ * `analyzeAcoustics` throws on a blank id, subject or revision, a
  * non-positive volume, an empty surface list, any malformed or repeated member,
  * more receivers than `AutoMovieEngineAnalysisMaxSamples`, or a malformed target.
  * Every field except `id`, `subject` and `inputRevision` enters the settings

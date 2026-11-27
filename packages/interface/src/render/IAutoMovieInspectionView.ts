@@ -1,12 +1,12 @@
-import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3.js";
-import type { IAutoMovieInspectionFocus } from "./IAutoMovieInspectionFocus.js";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMovieInspectionFocus } from "./IAutoMovieInspectionFocus";
 
 /**
  * A view of an inspection as its text says it, before anything is fitted: the
  * subject's own delivery camera, a fixed camera, or a name with the switches a
  * fitted view takes.
  *
- * `parseAutoMovieInspectionView` writes it and `AutoMovieRenderInspectionCamera.resolveView`
+ * `parseInspectionView` writes it and `AutoMovieRenderInspectionCamera.resolveView`
  * turns it into a camera. A name is resolved there, because whether it names
  * one of the subject's views or a named viewpoint depends on the subject.
  */

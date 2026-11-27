@@ -4,7 +4,7 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose, throwsError } from "../../internal/predicates";
 
 /**
- * `determinantAutoMovieMatrix3` is the determinant of a row-major 3 by 3
+ * `determinantMatrix3` is the determinant of a row-major 3 by 3
  * matrix, exactly zero for a singular one.
  *
  * Scenarios:

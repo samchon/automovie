@@ -16,7 +16,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
@@ -24,8 +24,8 @@ import { AutoMovieMotionHumanLean } from "../../compose/internal/AutoMovieMotion
 import { AutoMovieMotionHumanPlaced } from "../../compose/internal/AutoMovieMotionHumanPlaced";
 import { AutoMovieMotionHumanTouchEffector } from "../../compose/internal/AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanTrunk } from "../../compose/internal/AutoMovieMotionHumanTrunk";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionManner } from "../../compose/internal/motionManner";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { ballCourt } from "./ballCourt";
@@ -176,7 +176,7 @@ export namespace ballSport {
     const m: IAutoMovieMotionHumanActionContext["body"]["measure"] =
       body.measure;
     const count: number = HumanBound.whole("count", p.count ?? 4);
-    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+    const modifiers: IAutoMovieMotionManner.IModifiers = motionManner(
       context,
       p.manner,
     );
@@ -186,8 +186,8 @@ export namespace ballSport {
         : p.kind === "throwIn"
           ? 0.35
           : 0.25;
-    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
-      AutoMovieMotionClock.phrase({
+    const clock: IAutoMovieMotionClock = motionManner.time(
+      motionClock.phrase({
         prepare: p.kind === "throwIn" ? 0.7 : READY,
         attack,
         follow: 0.2,
@@ -478,7 +478,7 @@ export namespace ballSport {
       }
     }
     const planned: IAutoMovieMotionHumanActionPlan =
-      composeAutoMovieMotionHumanAction({
+      composeMotionHumanAction({
         base: AutoMovieMotionHumanBase.still(
           clock.duration,
           entry,

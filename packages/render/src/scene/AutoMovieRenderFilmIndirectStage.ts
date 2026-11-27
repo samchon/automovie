@@ -5,13 +5,13 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieRenderThreeKind } from "./AutoMovieRenderThreeKind.js";
-import { AutoMovieRenderFilmResponseShaders } from "./AutoMovieRenderFilmResponseShaders.js";
-import { collectAutoMovieFilmOverlays } from "./filmResponse/internal/collectAutoMovieFilmOverlays.js";
-import { AutoMovieRenderFilmOcclusionShaders } from "./AutoMovieRenderFilmOcclusionShaders.js";
-import type { IAutoMovieRenderFilmIndirectRenderer } from "./IAutoMovieRenderFilmIndirectRenderer.js";
-import { applyFilmIndirectPatch } from "./filmShading/internal/applyFilmIndirectPatch.js";
-import { AutoMovieRenderFilmShading } from "./AutoMovieRenderFilmShading.js";
+import { AutoMovieRenderThreeKind } from "./AutoMovieRenderThreeKind";
+import { AutoMovieRenderFilmResponseShaders } from "./AutoMovieRenderFilmResponseShaders";
+import { collectFilmOverlays } from "./filmResponse/internal/collectFilmOverlays";
+import { AutoMovieRenderFilmOcclusionShaders } from "./AutoMovieRenderFilmOcclusionShaders";
+import type { IAutoMovieRenderFilmIndirectRenderer } from "./IAutoMovieRenderFilmIndirectRenderer";
+import { applyFilmIndirectPatch } from "./filmShading/internal/applyFilmIndirectPatch";
+import { AutoMovieRenderFilmShading } from "./AutoMovieRenderFilmShading";
 
 /**
  * The indirect light of a directly rendered film's beauty pass: measures what a
@@ -367,7 +367,7 @@ export class AutoMovieRenderFilmIndirectStage {
     // Display overlays state no scene light and are drawn after the response,
     // so they occlude nothing.
     const overlays: Map<THREE.Object3D, number> =
-      collectAutoMovieFilmOverlays(scene);
+      collectFilmOverlays(scene);
     try {
       // 4. Depth and view-space normals at the beauty raster.
       for (const object of overlays.keys()) object.layers.mask = 0;

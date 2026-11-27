@@ -15,9 +15,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionInterval } from "../../compose/internal/AutoMovieMotionInterval";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
+import { motionManner } from "../../compose/internal/motionManner";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFreedomChoice } from "../../posture/internal/HumanFreedomChoice";
@@ -222,8 +222,8 @@ export namespace HumanSwordParry {
           speed;
         const lead: number = met.lead ?? natural;
         const recovery: number = StrikingSkill.recovery(context.skill);
-        const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
-          AutoMovieMotionClock.phrase({
+        const clock: IAutoMovieMotionClock = motionManner.time(
+          motionClock.phrase({
             prepare: Math.max(0, lead - natural),
             attack: natural,
             hold: HumanBound.least(
@@ -238,7 +238,7 @@ export namespace HumanSwordParry {
                 HumanSwordTiming.travel(s.tool, closed, held)) /
               speed,
           }),
-          AutoMovieMotionManner(context, context.params.manner),
+          motionManner(context, context.params.manner),
         );
 
         // A taken blade is carried aside by one minimum-jerk unit from the

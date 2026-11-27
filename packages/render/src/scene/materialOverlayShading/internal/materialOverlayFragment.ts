@@ -1,5 +1,5 @@
-import { AutoMovieRenderDetailNormalShading } from "../../AutoMovieRenderDetailNormalShading.js";
-import type { IAutoMovieRenderMaterialOverlayShape } from "../../IAutoMovieRenderMaterialOverlayShape.js";
+import { AutoMovieRenderDetailNormalShading } from "../../AutoMovieRenderDetailNormalShading";
+import type { IAutoMovieRenderMaterialOverlayShape } from "../../IAutoMovieRenderMaterialOverlayShape";
 
 /*
  * The fragment shader compositing each overlay's colour, roughness and slopes.

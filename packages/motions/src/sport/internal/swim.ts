@@ -17,14 +17,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanHead } from "../../compose/internal/AutoMovieMotionHumanHead";
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanJoints } from "../../compose/internal/AutoMovieMotionHumanJoints";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionManner } from "../../compose/internal/motionManner";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
@@ -159,7 +159,7 @@ export namespace swim {
         );
       else instants.push({ name: `cycle${i + 1}`, seconds: i * period });
     const duration: number = cycles * period;
-    return AutoMovieMotionClock(duration, [
+    return motionClock(duration, [
       ...instants,
       { name: "relax", seconds: duration },
     ]);
@@ -177,7 +177,7 @@ export namespace swim {
     const body: IAutoMovieMotionHumanBody = context.body;
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const cycles: number = HumanBound.whole("count", p.count ?? 3);
-    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+    const modifiers: IAutoMovieMotionManner.IModifiers = motionManner(
       context,
       p.manner,
     );
@@ -451,7 +451,7 @@ export namespace swim {
         );
     }
     return connect(
-      composeAutoMovieMotionHumanAction({
+      composeMotionHumanAction({
         base: AutoMovieMotionHumanBase.still(duration, entry, []),
         clock,
         primitives,

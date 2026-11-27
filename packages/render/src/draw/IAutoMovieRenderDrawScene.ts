@@ -10,7 +10,7 @@ import type {
   IAutoMovieSequence,
 } from "@automovie/interface";
 import type * as THREE from "three";
-import type { IAutoMovieRenderDrawView } from "./IAutoMovieRenderDrawView.js";
+import type { IAutoMovieRenderDrawView } from "./IAutoMovieRenderDrawView";
 
 /**
  * A subject made ready to draw: its scene, its delivery camera, its clock and
@@ -84,7 +84,7 @@ export interface IAutoMovieRenderDrawScene<TRenderer = THREE.WebGLRenderer> {
    * layers `playbackLayersAt` gives at their second: the live entry placed by
    * `seek` and a transition's outgoing entry placed by `seekShot`, each with
    * its own optics and shading read after its placement, composited by
-   * `renderAutoMovieFilmFrame`. A cross dissolve mixes the two shots and a fade
+   * `renderFilmFrame`. A cross dissolve mixes the two shots and a fade
    * dips through black, or through alpha 0 over a transparent background and
    * for the plate, as `IAutoMovieTransition` states. Inspection pictures,
    * structural passes, marks, labels, the camera record and diagnostics follow

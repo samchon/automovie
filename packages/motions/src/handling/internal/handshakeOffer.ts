@@ -177,7 +177,7 @@ export namespace handshakeOffer {
    * Each upper arm is held `SHOULDER` forward of hanging, toward the partner in
    * the vertical plane through the two acting shoulders, and the point is the
    * lower of the two that lie one forearm (to the palm) from each elbow
-   * (`resolveAutoMovieMutualGoal` on the elbows). Partners of one size meet
+   * (`resolveMutualGoal` on the elbows). Partners of one size meet
    * with both arms in the offering shape; a difference in elbow height turns
    * the two forearms and leaves the upper arms where they were, until the
    * pump's lowest point would lie beyond reach of the partner with the

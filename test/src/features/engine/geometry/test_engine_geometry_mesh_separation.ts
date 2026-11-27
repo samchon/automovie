@@ -10,7 +10,7 @@ import { TestValidator } from "@nestia/e2e";
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * A resident separation query (`createAutoMovieMeshSeparationQuery`) certifies
+ * A resident separation query (`createMeshSeparationQuery`) certifies
  * that a complete feature (point, segment or face fan) clears the resident
  * mesh by a gap, keeping the limiting triangle's original ordinal and spending
  * one shared work budget; an attachment is admitted only for its real

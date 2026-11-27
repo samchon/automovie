@@ -1,6 +1,6 @@
-import type { IAutoMovieViewerAudioCue } from "./IAutoMovieViewerAudioCue.js";
-import { planAutoMovieAudioPlayback } from "./internal/planAutoMovieAudioPlayback.js";
-import { playAutoMovieAudioCues } from "./internal/playAutoMovieAudioCues.js";
+import type { IAutoMovieViewerAudioCue } from "./IAutoMovieViewerAudioCue";
+import { planAudioPlayback } from "./internal/planAudioPlayback";
+import { playAudioCues } from "./internal/playAudioCues";
 
 /** Owns the Viewer audio planning and Web Audio playback operations. */
 export namespace AutoMovieViewerAudio {
@@ -63,7 +63,7 @@ export namespace AutoMovieViewerAudio {
   export function planPlayback(
     request: IPlanPlaybackRequest,
   ): IStart[] {
-    return planAutoMovieAudioPlayback(request);
+    return planAudioPlayback(request);
   }
 
   /**
@@ -75,6 +75,6 @@ export namespace AutoMovieViewerAudio {
    * @returns A once-only operation that stops and disconnects started sources.
    */
   export function playCues(request: IPlayCuesRequest): IStop {
-    return playAutoMovieAudioCues(request);
+    return playAudioCues(request);
   }
 }

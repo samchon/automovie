@@ -1,9 +1,9 @@
-import { canonicalizeAutoMovieJson } from "./internal/canonicalizeAutoMovieJson";
+import { canonicalizeJson } from "./internal/canonicalizeJson";
 
 /** The Engine canonical JSON identity operation. */
 export namespace AutoMovieEngineCanonicalJson {
   /** Encode a supplied value under automovie.canonical-json.v2 for shared identity consumers. */
   export function canonicalize(value: unknown): string {
-    return canonicalizeAutoMovieJson(value);
+    return canonicalizeJson(value);
   }
 }

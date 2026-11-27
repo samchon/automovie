@@ -8,8 +8,8 @@ import type {
   IAutoMovieRecoveryTensorRealization,
 } from "@automovie/interface";
 
-import { realizeAutoMovieRecoveryAnalyticDomains } from "./realizeAutoMovieRecoveryAnalyticDomains";
-import { realizeAutoMovieRecoveryTensorFamilies } from "./realizeAutoMovieRecoveryTensorFamilies";
+import { realizeRecoveryAnalyticDomains } from "./realizeRecoveryAnalyticDomains";
+import { realizeRecoveryTensorFamilies } from "./realizeRecoveryTensorFamilies";
 
 /*
  * Generate saved ordinary tensor families and retained curve-only event or
@@ -50,9 +50,9 @@ export function reconstructRecovery(
       diagnostics.push(`${section.coordinateMm} mm: ${diagnostic}`);
   }
   const tensor: IAutoMovieRecoveryTensorRealization =
-    realizeAutoMovieRecoveryTensorFamilies(bundle);
+    realizeRecoveryTensorFamilies(bundle);
   const analytic: IAutoMovieRecoveryAnalyticRealization =
-    options.analytic ?? realizeAutoMovieRecoveryAnalyticDomains(bundle);
+    options.analytic ?? realizeRecoveryAnalyticDomains(bundle);
   const replacements: Map<string, string> = new Map(tensor.replacements);
   for (const [key, id] of analytic.closedGroups) replacements.set(key, id);
   const generated: IAutoMovieContourLoft64.IResult =

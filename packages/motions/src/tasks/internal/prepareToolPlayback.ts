@@ -16,7 +16,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanArmAngles } from "../../compose/internal/AutoMovieMotionHumanArmAngles";
-import { AutoMovieMotionHumanArmBase } from "../../compose/internal/AutoMovieMotionHumanArmBase";
+import { motionHumanArmBase } from "../../compose/internal/motionHumanArmBase";
 import { AutoMovieMotionHumanArmCourse } from "../../compose/internal/AutoMovieMotionHumanArmCourse";
 import { AutoMovieMotionHumanArmObservation } from "../../compose/internal/AutoMovieMotionHumanArmObservation";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
@@ -244,7 +244,7 @@ function course(
       times: clockTimes,
       arms: [{ side, rest, back, sites: knots.map(({ site }) => site) }],
       bases: knots.map(({ pose, goal, site }) =>
-        AutoMovieMotionHumanArmBase(pose, [goal], [site !== undefined]),
+        motionHumanArmBase(pose, [goal], [site !== undefined]),
       ),
       share: (seconds) =>
         clock.progress("reaching", "ready", seconds) -

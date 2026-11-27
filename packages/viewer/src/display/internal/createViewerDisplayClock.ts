@@ -1,4 +1,4 @@
-import type { AutoMovieViewerDisplay } from "../AutoMovieViewerDisplay.js";
+import type { AutoMovieViewerDisplay } from "../AutoMovieViewerDisplay";
 
 /*
  * Keep requested draw time separate from the last completed display clock. A

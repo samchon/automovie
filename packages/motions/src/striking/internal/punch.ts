@@ -21,8 +21,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanVariation } from "../../compose/internal/AutoMovieMotionHumanVariation";
-import { AutoMovieMotionPrepared } from "../../compose/internal/AutoMovieMotionPrepared";
+import { motionHumanVariation } from "../../compose/internal/motionHumanVariation";
+import { motionPrepared } from "../../compose/internal/motionPrepared";
 import { poseBones } from "../../posture/internal/poseBones";
 import { HumanSkill } from "../../skill/internal/HumanSkill";
 import { StrikingBody } from "./StrikingBody";
@@ -304,7 +304,7 @@ export namespace punch {
     // The punch's aim skill is the manner's consistency for this spread only.
     const manner: IAutoMovieMotionHumanPunch.IManner | undefined = p.manner;
     const source: IAutoMovieMotionHumanVariation.ISource | undefined =
-      AutoMovieMotionHumanVariation(
+      motionHumanVariation(
         context,
         manner === undefined
           ? undefined
@@ -326,7 +326,7 @@ export namespace punch {
         p.at.region,
       )
         ? undefined
-        : AutoMovieMotionHumanVariation.strike(source, "point", {
+        : motionHumanVariation.strike(source, "point", {
             radius: StrikingBody.radius(
               context.performer(p.at.subject).body,
               p.at.region,
@@ -339,8 +339,8 @@ export namespace punch {
     // each read builds it cold on the performance as placed so far.
     // What the punch reads of its own entry alone, made once for the plan.
     const launched: punchLaunch.ILaunch = punchLaunch(context, timing);
-    const shape: AutoMovieMotionPrepared.IValue<punchGeometry.IGeometry> =
-      AutoMovieMotionPrepared(
+    const shape: motionPrepared.IValue<punchGeometry.IGeometry> =
+      motionPrepared(
         (): punchGeometry.IGeometry =>
           punchGeometry.build(context, timing, fixed, aimed(), launched),
         (): Error => strikingReadBack("punch", context.subject),

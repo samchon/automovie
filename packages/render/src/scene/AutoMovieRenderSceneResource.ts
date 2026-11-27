@@ -1,9 +1,9 @@
 import type * as THREE from "three";
-import { releaseViewerRenderer as releaseViewerRendererImplementation } from "./internal/releaseViewerRenderer.js";
-import { collectAutoMovieOwnedResources as collectOwnedResourcesImplementation } from "./internal/collectAutoMovieOwnedResources.js";
-import { constructAutoMovieOwnedResources as constructOwnedResourcesImplementation } from "./internal/constructAutoMovieOwnedResources.js";
-import { createAutoMovieResourceRetirement as createRetirementImplementation } from "./internal/createAutoMovieResourceRetirement.js";
-import { reportAutoMovieResourceRetirement as reportRetirementImplementation } from "./internal/reportAutoMovieResourceRetirement.js";
+import { releaseViewerRenderer as releaseViewerRendererImplementation } from "./internal/releaseViewerRenderer";
+import { collectOwnedResources as collectOwnedResourcesImplementation } from "./internal/collectOwnedResources";
+import { constructOwnedResources as constructOwnedResourcesImplementation } from "./internal/constructOwnedResources";
+import { createResourceRetirement as createRetirementImplementation } from "./internal/createResourceRetirement";
+import { reportResourceRetirement as reportRetirementImplementation } from "./internal/reportResourceRetirement";
 
 /** Public operations for Auto Movie Scene Resource. */
 export namespace AutoMovieRenderSceneResource {

@@ -3,7 +3,7 @@ import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 /**
- * `createAutoMoviePhysicalPoseAdapter` writes solved world frames onto a
+ * `createPhysicalPoseAdapter` writes solved world frames onto a
  * model's display bones as local poses.
  *
  * Scenarios:

@@ -10,8 +10,8 @@ import type {
 } from "@automovie/interface";
 import { Quaternion, Vector3 } from "three";
 
-import type { AutoMovieRenderHumanPolygon } from "../../AutoMovieRenderHumanPolygon.js";
-import { buildHumanPolygon } from "./buildHumanPolygon.js";
+import type { AutoMovieRenderHumanPolygon } from "../../AutoMovieRenderHumanPolygon";
+import { buildHumanPolygon } from "./buildHumanPolygon";
 
 /*
  * Build a polygon actor and its source-frame sampler for a compiled shot. A

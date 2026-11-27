@@ -23,7 +23,7 @@ export namespace IAutoMovieGenerateSurfacePattern {
    * that the mesh, the instance slot, the finish, and the take-off all cite, so
    * a quantity can be traced back to the exact piece it counted. Quantities are
    * reported per zone and in total, and quality is judged by
-   * {@link autoMoviePatternFindings}.
+   * {@link patternFindings}.
    *
    * Coordinates are the surface's planar (u, v) metres and angles are degrees.
    * A malformed declaration throws an `Error` naming the field: blank or

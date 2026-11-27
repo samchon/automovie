@@ -4,7 +4,7 @@ import { TestValidator } from "@nestia/e2e";
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * `assignAutoMovieMinimumCost` gives every row its own column so the summed
+ * `assignMinimumCost` gives every row its own column so the summed
  * cost is least (the Hungarian method), and refuses an assignment it cannot
  * make or whose reduced costs overflow.
  *

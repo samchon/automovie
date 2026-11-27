@@ -1,8 +1,8 @@
 import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type { IAutoMovieMotionClock } from "@automovie/interface";
 import {
-  AutoMovieMotionClock
-} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionClock";
+  motionClock
+} from "../../../../../packages/motions/src/compose/internal/motionClock";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -30,7 +30,7 @@ const ROUNDING: number = 1e-12;
  *    held at it.
  */
 export function test_motions_compose_clock_native(): void {
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock(4, [
+  const clock: IAutoMovieMotionClock = motionClock(4, [
     { name: "b", seconds: 3 },
     { name: "a", seconds: 1 },
   ]);
@@ -69,21 +69,21 @@ export function test_motions_compose_clock_native(): void {
   // 4. Refusals.
   TestValidator.predicate(
     "invalid clocks and names are refused, a rounding past the end held",
-    throwsError((): unknown => AutoMovieMotionClock(0, [])) &&
+    throwsError((): unknown => motionClock(0, [])) &&
       throwsError((): unknown =>
-        AutoMovieMotionClock(4, [
+        motionClock(4, [
           { name: "a", seconds: 1 },
           { name: "a", seconds: 2 },
         ]),
       ) &&
       throwsError((): unknown =>
-        AutoMovieMotionClock(4, [{ name: "start", seconds: 1 }]),
+        motionClock(4, [{ name: "start", seconds: 1 }]),
       ) &&
       throwsError((): unknown =>
-        AutoMovieMotionClock(4, [{ name: "a", seconds: 5 }]),
+        motionClock(4, [{ name: "a", seconds: 5 }]),
       ) &&
       throwsError((): unknown => clock.at("c"), "no instant") &&
-      AutoMovieMotionClock(4, [{ name: "a", seconds: 4 + 1e-12 }]).at("a") ===
+      motionClock(4, [{ name: "a", seconds: 4 + 1e-12 }]).at("a") ===
         4,
   );
 }

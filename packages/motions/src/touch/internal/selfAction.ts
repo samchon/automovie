@@ -18,7 +18,7 @@ import type {
   IAutoMovieMotionManner,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmPlanned } from "../../compose/internal/AutoMovieMotionHumanArmPlanned";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
@@ -28,9 +28,9 @@ import { AutoMovieMotionHumanJoints } from "../../compose/internal/AutoMovieMoti
 import { AutoMovieMotionHumanRange } from "../../compose/internal/AutoMovieMotionHumanRange";
 import { AutoMovieMotionHumanTarget } from "../../compose/internal/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTargetGrid } from "../../compose/internal/AutoMovieMotionHumanTargetGrid";
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
+import { motionManner } from "../../compose/internal/motionManner";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
@@ -41,7 +41,7 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
  * scratches, covers, pain holds) are rows of the `touch` law.
  *
  * Each action is a phrase: the parts rise to their place over the free-space
- * transport of the hand's travel (`AutoMovieMotionHumanTiming.transport`), and
+ * transport of the hand's travel (`motionHumanTiming.transport`), and
  * at least as long as each raised arm's path needs to keep within the audit's
  * travel bound (`AutoMovieMotionHumanArmPlanned.reaching`), or 0.4 s for the
  * head and the shoulders, perform the stroke, hold and return in the rise's
@@ -106,7 +106,7 @@ export namespace selfAction {
     const count: number =
       p.count ?? (kind === "fistPump" ? 3 : kind.endsWith("Roll") ? 2 : 1);
     HumanBound.whole("count", count);
-    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+    const modifiers: IAutoMovieMotionManner.IModifiers = motionManner(
       context,
       p.manner,
     );
@@ -185,9 +185,9 @@ export namespace selfAction {
     // its arm at the entry to the arm on its place.
     const rise: number =
       kind === "neckRoll" || kind === "shoulderRoll"
-        ? AutoMovieMotionHumanTiming.PAUSES.beat
+        ? motionHumanTiming.PAUSES.beat
         : Math.max(
-            AutoMovieMotionHumanTiming.transport(arm * 1.5),
+            motionHumanTiming.transport(arm * 1.5),
             ...raised.map((r: IRaised): number =>
               AutoMovieMotionHumanArmPlanned.reaching(
                 body,
@@ -211,15 +211,15 @@ export namespace selfAction {
       kind === "stretch"
         ? Math.max(0.5, YAWN - 2 * rise)
         : kind === "victory"
-          ? AutoMovieMotionHumanTiming.PAUSES.long
+          ? motionHumanTiming.PAUSES.long
           : count *
-            AutoMovieMotionHumanTiming.seconds("beat") *
+            motionHumanTiming.seconds("beat") *
             (kind === "fistPump" ? 1 : 2.5);
-    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
-      AutoMovieMotionClock.phrase({
+    const clock: IAutoMovieMotionClock = motionManner.time(
+      motionClock.phrase({
         prepare: rise,
         attack,
-        hold: AutoMovieMotionHumanTiming.PAUSES.brief,
+        hold: motionHumanTiming.PAUSES.brief,
         retract: rise,
       }),
       modifiers,
@@ -363,7 +363,7 @@ export namespace selfAction {
         break;
       }
     }
-    return composeAutoMovieMotionHumanAction({
+    return composeMotionHumanAction({
       base: AutoMovieMotionHumanBase.under(context, clock.duration),
       clock,
       primitives,

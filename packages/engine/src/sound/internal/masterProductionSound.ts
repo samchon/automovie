@@ -9,8 +9,8 @@ import { productionFrameBoundaryToGridTick } from "../../film/internal/productio
 import { resolveProductionFrameRate } from "../../film/internal/resolveProductionFrameRate";
 import { AUTOMOVIE_TRUE_PEAK_LIMITER } from "../constants/AUTOMOVIE_TRUE_PEAK_LIMITER";
 import { analyzeProductionSound } from "./analyzeProductionSound";
-import { createAutoMovieLoudnessMeter } from "./createAutoMovieLoudnessMeter";
-import { limitAutoMovieTruePeak } from "./limitAutoMovieTruePeak";
+import { createLoudnessMeter } from "./createLoudnessMeter";
+import { limitTruePeak } from "./limitTruePeak";
 
 /*
  * Master a production mix: bring it to its integrated loudness target with one
@@ -18,7 +18,7 @@ import { limitAutoMovieTruePeak } from "./limitAutoMovieTruePeak";
  *
  * The targets are the ones the mix was levelled to (`rendered.loudness`). The
  * mix's samples are copied, multiplied by the static gain, and
- * `limitAutoMovieTruePeak` holds every true peak at or below `ceilingDbtp` with
+ * `limitTruePeak` holds every true peak at or below `ceilingDbtp` with
  * the look-ahead and release of `AUTOMOVIE_TRUE_PEAK_LIMITER`. Limiting lowers
  * loudness by an amount only the limited result shows, so the gain is solved
  * rather than guessed: it starts at the target minus the mix's loudness, and
@@ -48,7 +48,7 @@ export function masterProductionSound(
       const gain: number = 10 ** (gainDb / 20);
       for (let index: number = 0; index < mix.length; ++index)
         pcm[index] = Math.fround(mix[index]! * gain);
-      limiterGainDb = limitAutoMovieTruePeak({
+      limiterGainDb = limitTruePeak({
         pcm,
         sampleRate: 48_000,
         ceilingDbtp: loudness.ceilingDbtp,
@@ -96,7 +96,7 @@ export function masterProductionSound(
 const integrated: (pcm: Float32Array) => number | null = (
   pcm: Float32Array,
 ): number | null => {
-  const meter: IAutoMovieLoudnessMeter = createAutoMovieLoudnessMeter(2);
+  const meter: IAutoMovieLoudnessMeter = createLoudnessMeter(2);
   meter.push(pcm);
   return meter.measure().integratedLufs;
 };

@@ -1,4 +1,4 @@
-import type { IAutoMovieRenderMaterialOverlayShape } from "../../IAutoMovieRenderMaterialOverlayShape.js";
+import type { IAutoMovieRenderMaterialOverlayShape } from "../../IAutoMovieRenderMaterialOverlayShape";
 
 /*
  * The vertex shader passing each overlay image's transformed UV.

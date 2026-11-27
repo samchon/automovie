@@ -1,12 +1,12 @@
 import { type IAutoMoviePatternFinding, type IAutoMovieSurfacePattern, type IAutoMoviePatternPlacement, type IAutoMoviePatternInstancing, type IAutoMoviePatternInstanceTransforms, type IAutoMoviePatternPoint, type IAutoMoviePatternTexturing, type IAutoMoviePatternTextureTransforms, type IAutoMovieValidation, type IAutoMovieValidateMaterialAssembly, type IAutoMovieValidateMaterialSubstance, type IAutoMovieBuiltBoundaryIndex, type IAutoMovieBuiltEnvironment, type IAutoMovieViolationCollector, type IAutoMovieBuiltConnector, type IAutoMovieValidateBuiltConnectorOperation, type IAutoMovieValidateBuiltEnvironment, type IAutoMovieValidateBuiltOpeningOperation, type IAutoMoviePlanarPoint, type IAutoMovieBoundaryFace, type IAutoMovieBuiltPopulation, type IAutoMovieSpaceShell, type IAutoMovieTravelMotion, type IAutoMovieViolationAppendSink, type IAutoMovieValidateDesignEvidence, type IAutoMovieValidateDesignLineage, type IAutoMovieValidateDesignLineageBinding, type IAutoMovieValidateDesignLineageDerived, type IAutoMovieValidateDesignReference, type IAutoMovieDesignSourceFrame, type IAutoMovieValidateGeneratedAcquisition } from "@automovie/interface";
-import { autoMoviePatternFindings as autoMoviePatternFindingsImplementation } from "./internal/autoMoviePatternFindings";
-import { autoMoviePatternInstanceTransforms as autoMoviePatternInstanceTransformsImplementation } from "./internal/autoMoviePatternInstanceTransforms";
-import { autoMoviePatternPolygonArea as autoMoviePatternPolygonAreaImplementation } from "./internal/autoMoviePatternPolygonArea";
-import { autoMoviePatternTextureTransforms as autoMoviePatternTextureTransformsImplementation } from "./internal/autoMoviePatternTextureTransforms";
-import { canonicalAutoMoviePatternPolygon as canonicalAutoMoviePatternPolygonImplementation } from "./internal/canonicalAutoMoviePatternPolygon";
-import { clipAutoMoviePatternPolygon as clipAutoMoviePatternPolygonImplementation } from "./internal/clipAutoMoviePatternPolygon";
-import { validateAutoMovieMaterialAssembly as validateAutoMovieMaterialAssemblyImplementation } from "./internal/validateAutoMovieMaterialAssembly";
-import { validateAutoMovieMaterialSubstance as validateAutoMovieMaterialSubstanceImplementation } from "./internal/validateAutoMovieMaterialSubstance";
+import { patternFindings as patternFindingsImplementation } from "./internal/patternFindings";
+import { patternInstanceTransforms as patternInstanceTransformsImplementation } from "./internal/patternInstanceTransforms";
+import { patternPolygonArea as patternPolygonAreaImplementation } from "./internal/patternPolygonArea";
+import { patternTextureTransforms as patternTextureTransformsImplementation } from "./internal/patternTextureTransforms";
+import { canonicalPatternPolygon as canonicalPatternPolygonImplementation } from "./internal/canonicalPatternPolygon";
+import { clipPatternPolygon as clipPatternPolygonImplementation } from "./internal/clipPatternPolygon";
+import { validateMaterialAssembly as validateMaterialAssemblyImplementation } from "./internal/validateMaterialAssembly";
+import { validateMaterialSubstance as validateMaterialSubstanceImplementation } from "./internal/validateMaterialSubstance";
 import { validateBuiltBoundaries as validateBuiltBoundariesImplementation } from "./internal/validateBuiltBoundaries";
 import { validateBuiltBuildings as validateBuiltBuildingsImplementation } from "./internal/validateBuiltBuildings";
 import { validateBuiltCarriageService as validateBuiltCarriageServiceImplementation } from "./internal/validateBuiltCarriageService";
@@ -64,7 +64,7 @@ export namespace AutoMovieEngineArchitecture {
    * @returns Every quality finding, per-piece findings first.
    */
   export function patternFindings(pattern: IAutoMovieSurfacePattern, placements: readonly IAutoMoviePatternPlacement[]): IAutoMoviePatternFinding[] {
-    return autoMoviePatternFindingsImplementation(pattern, placements);
+    return patternFindingsImplementation(pattern, placements);
   }
 
   /**
@@ -97,7 +97,7 @@ export namespace AutoMovieEngineArchitecture {
    * repeats one, or an occurrence's variant has no entry in `prototypes`.
    */
   export function patternInstanceTransforms(props: IAutoMoviePatternInstanceTransforms.IProps): IAutoMoviePatternInstancing {
-    return autoMoviePatternInstanceTransformsImplementation(props);
+    return patternInstanceTransformsImplementation(props);
   }
 
   /**
@@ -113,7 +113,7 @@ export namespace AutoMovieEngineArchitecture {
    *   `NaN` or infinity.
    */
   export function patternPolygonArea(polygon: readonly IAutoMoviePatternPoint[]): number {
-    return autoMoviePatternPolygonAreaImplementation(polygon);
+    return patternPolygonAreaImplementation(polygon);
   }
 
   /**
@@ -156,7 +156,7 @@ export namespace AutoMovieEngineArchitecture {
    * or a face sheet's origin is not finite.
    */
   export function patternTextureTransforms(props: IAutoMoviePatternTextureTransforms.IProps): IAutoMoviePatternTexturing {
-    return autoMoviePatternTextureTransformsImplementation(props);
+    return patternTextureTransformsImplementation(props);
   }
 
   /**
@@ -176,7 +176,7 @@ export namespace AutoMovieEngineArchitecture {
    * @returns The same corners as a counter-clockwise convex outline.
    */
   export function canonicalPatternPolygon(polygon: readonly IAutoMoviePatternPoint[], label: string): IAutoMoviePatternPoint[] {
-    return canonicalAutoMoviePatternPolygonImplementation(polygon, label);
+    return canonicalPatternPolygonImplementation(polygon, label);
   }
 
   /**
@@ -196,7 +196,7 @@ export namespace AutoMovieEngineArchitecture {
    * @returns Newly allocated intersection records, possibly empty or zero-area.
    */
   export function clipPatternPolygon(subject: readonly IAutoMoviePatternPoint[], clipper: readonly IAutoMoviePatternPoint[]): IAutoMoviePatternPoint[] {
-    return clipAutoMoviePatternPolygonImplementation(subject, clipper);
+    return clipPatternPolygonImplementation(subject, clipper);
   }
 
   /**
@@ -228,7 +228,7 @@ export namespace AutoMovieEngineArchitecture {
    * @returns Success, or every violation found.
    */
   export function validateMaterialAssembly(props: IAutoMovieValidateMaterialAssembly.IProps): IAutoMovieValidation {
-    return validateAutoMovieMaterialAssemblyImplementation(props);
+    return validateMaterialAssemblyImplementation(props);
   }
 
   /**
@@ -251,7 +251,7 @@ export namespace AutoMovieEngineArchitecture {
    * @returns Success, or every violation found.
    */
   export function validateMaterialSubstance(props: IAutoMovieValidateMaterialSubstance.IProps): IAutoMovieValidation {
-    return validateAutoMovieMaterialSubstanceImplementation(props);
+    return validateMaterialSubstanceImplementation(props);
   }
 
   /**

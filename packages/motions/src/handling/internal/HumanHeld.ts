@@ -11,7 +11,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
-import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
+import { motionHumanHeld } from "../../compose/internal/motionHumanHeld";
 import { AutoMovieMotionHumanTouchLaid } from "../../compose/internal/AutoMovieMotionHumanTouchLaid";
 import { AutoMovieMotionHumanTouchUpright } from "../../compose/internal/AutoMovieMotionHumanTouchUpright";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
@@ -44,7 +44,7 @@ export namespace HumanHeld {
   /*
    * The effector that lays a held prop's point on the act's region.
    * Parameter context: The action's context; the prop is read in the hand at the
-   * action's entry (`AutoMovieMotionHumanHeld`).
+   * action's entry (`motionHumanHeld`).
    * Parameter row: The act's use of the prop.
    * Parameter side: The holding hand.
    * Parameter subject: The prop's subject id.
@@ -249,15 +249,15 @@ export namespace HumanHeld {
     side: AutoMovieHumanSide,
     subject: string,
   ): IAutoMovieMotionHumanActionPlan {
-    const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
+    const held: IAutoMovieMotionHumanHeld.IHeld = motionHumanHeld(
       context,
       side,
       subject,
     );
     return {
       ...plan,
-      contacts: [...plan.contacts, AutoMovieMotionHumanHeld.grip(held)],
-      holds: [AutoMovieMotionHumanHeld.hold(context, held)],
+      contacts: [...plan.contacts, motionHumanHeld.grip(held)],
+      holds: [motionHumanHeld.hold(context, held)],
     };
   }
 

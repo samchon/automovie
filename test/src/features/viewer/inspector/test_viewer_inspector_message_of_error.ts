@@ -1,10 +1,10 @@
 import {
-  messageOfAutoMovieInspectorError
-} from "../../../../../packages/viewer/src/inspector/internal/messageOfAutoMovieInspectorError";
+  messageOfInspectorError
+} from "../../../../../packages/viewer/src/inspector/internal/messageOfInspectorError";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `messageOfAutoMovieInspectorError` words a thrown value.
+ * `messageOfInspectorError` words a thrown value.
  *
  * Scenarios:
  *
@@ -14,9 +14,9 @@ import { TestValidator } from "@nestia/e2e";
 export function test_viewer_inspector_message_of_error(): void {
   TestValidator.equals(
     "error",
-    messageOfAutoMovieInspectorError(new Error("boom")),
+    messageOfInspectorError(new Error("boom")),
     "boom",
   );
-  TestValidator.equals("text", messageOfAutoMovieInspectorError("late"), "late");
-  TestValidator.equals("number", messageOfAutoMovieInspectorError(7), "7");
+  TestValidator.equals("text", messageOfInspectorError("late"), "late");
+  TestValidator.equals("number", messageOfInspectorError(7), "7");
 }

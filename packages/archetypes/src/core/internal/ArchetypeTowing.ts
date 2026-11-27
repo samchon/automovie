@@ -15,31 +15,43 @@ import { AutoMovieArchetypeUnits } from "../AutoMovieArchetypeUnits";
  * towing.
  */
 export namespace ArchetypeTowing {
-  /** Front steering pivot and its declared yaw articulation. */
+  /*
+   * Front steering pivot and its declared yaw articulation.
+   */
   export interface IFront<Id extends string> {
-    /** Model-space front axle centre/pivot, metres. */
+    /*
+     * Model-space front axle centre/pivot, metres.
+     */
     pivot: IAutoMovieVector3;
-    /** Source steering articulation. */
+    /*
+     * Source steering articulation.
+     */
     turn: Id;
   }
 
-  /** Producer-declared support with one pitching axle or two grounded axles. */
+  /*
+   * Producer-declared support with one pitching axle or two grounded axles.
+   */
   export type Support<Id extends string> =
     | ISingleAxleSupport
     | IFixedGroundSupport<Id>;
 
-  /**
+  /*
    * One authored ground plane under a horizontal world point: a point on it and
    * its upward unit normal.
    */
   export interface IPlane {
-    /** A point on the plane, world metres. */
+    /*
+     * A point on the plane, world metres.
+     */
     point: IAutoMovieVector3;
-    /** Its upward unit normal. */
+    /*
+     * Its upward unit normal.
+     */
     normal: IAutoMovieVector3;
   }
 
-  /**
+  /*
    * The authored ground plane under a horizontal world point, for a single axle
    * drawn over sloped ground.
    */
@@ -510,7 +522,9 @@ export namespace ArchetypeTowing {
     }
   }
 
-  /** A support that pitches freely around one axle. */
+  /*
+   * A support that pitches freely around one axle.
+   */
   interface ISingleAxleSupport {
     kind: "singleAxle";
     axle: IAutoMovieVector3;

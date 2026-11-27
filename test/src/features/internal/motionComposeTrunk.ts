@@ -14,8 +14,8 @@ import {
   AutoMovieMotionHumanStance,
 } from "@automovie/motions";
 import {
-  AutoMovieMotionClock
-} from "../../../../packages/motions/src/compose/internal/AutoMovieMotionClock";
+  motionClock
+} from "../../../../packages/motions/src/compose/internal/motionClock";
 import {
   AutoMovieMotionHumanTrunk
 } from "../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanTrunk";
@@ -433,7 +433,7 @@ export namespace motionComposeTrunk {
   }
 
   /** The phrases' clock: `ready` at 0.25 s, `relax` at 1 s and `end` at 1.25 s. */
-  export const CLOCK: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
+  export const CLOCK: IAutoMovieMotionClock = motionClock.phrase({
     prepare: 0.25,
     wait: 0.125,
     attack: 0.25,

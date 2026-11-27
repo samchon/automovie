@@ -1,6 +1,6 @@
 import type * as THREE from "three";
 import { type IAutoMovieLight } from "@automovie/interface";
-import { applyLightState as applyLightStateImplementation } from "./internal/applyLightState.js";
+import { applyLightState as applyLightStateImplementation } from "./internal/applyLightState";
 
 /** Public operations for Auto Movie Render Scene Lighting. */
 export namespace AutoMovieRenderSceneLighting {

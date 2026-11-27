@@ -4,9 +4,9 @@ import type {
   IAutoMovieRenderSpec,
 } from "@automovie/interface";
 
-import { ffmpegArgs } from "./ffmpegArgs.js";
-import { framePattern } from "../framePattern.js";
-import { frameTimes } from "./frameTimes.js";
+import { ffmpegArgs } from "./ffmpegArgs";
+import { framePattern } from "../framePattern";
+import { frameTimes } from "./frameTimes";
 
 /*
  * Render a clip of `durationSeconds` into a video, deterministically: compute

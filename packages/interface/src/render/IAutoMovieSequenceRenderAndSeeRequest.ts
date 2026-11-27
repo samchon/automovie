@@ -1,7 +1,7 @@
-import type { IAutoMovieRenderSpec } from "../cinematics/IAutoMovieRenderSpec.js";
-import type { IAutoMovieSequence } from "../cinematics/IAutoMovieSequence.js";
-import type { IAutoMovieShot } from "../cinematics/IAutoMovieShot.js";
-import type { IAutoMovieSequenceRenderAdapters } from "./IAutoMovieSequenceRenderAdapters.js";
+import type { IAutoMovieRenderSpec } from "../cinematics/IAutoMovieRenderSpec";
+import type { IAutoMovieSequence } from "../cinematics/IAutoMovieSequence";
+import type { IAutoMovieShot } from "../cinematics/IAutoMovieShot";
+import type { IAutoMovieSequenceRenderAdapters } from "./IAutoMovieSequenceRenderAdapters";
 
 /** Host-supplied request for building a sequence manifest and rendering it. */
 export interface IAutoMovieSequenceRenderAndSeeRequest {

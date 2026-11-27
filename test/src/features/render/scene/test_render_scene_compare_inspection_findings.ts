@@ -3,7 +3,7 @@ import { AutoMovieRenderInspection } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `compareAutoMovieInspectionFindings` orders two findings of one identity:
+ * `compareInspectionFindings` orders two findings of one identity:
  * confirmed before candidate, then an error before a warning, then the larger
  * witness rank, with no rank lowest.
  *

@@ -3,7 +3,7 @@ import type { IAutoMovieSubdivisionStencil } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `solveAutoMovieSubdivisionLimit` inverts a limit stencil for the controls
+ * `solveSubdivisionLimit` inverts a limit stencil for the controls
  * whose limit points meet the targets, capped at 2 000 updates, and reports
  * the error of the controls it actually returns.
  *

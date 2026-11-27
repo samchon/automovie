@@ -1,8 +1,8 @@
 import * as THREE from "three";
 
-import { createAutoMovieClosedSphereGeometry } from "../../internal/createAutoMovieClosedSphereGeometry.js";
-import type { AutoMovieRenderHumanCartoon } from "../../AutoMovieRenderHumanCartoon.js";
-import { mountHumanCartoonFace } from "./mountHumanCartoonFace.js";
+import { createClosedSphereGeometry } from "../../internal/createClosedSphereGeometry";
+import type { AutoMovieRenderHumanCartoon } from "../../AutoMovieRenderHumanCartoon";
+import { mountHumanCartoonFace } from "./mountHumanCartoonFace";
 
 /*
  * Build a deliberately exaggerated cartoon face for a posed polygon head. The
@@ -275,7 +275,7 @@ export function buildHumanCartoonFace(
     );
     const eye: THREE.Mesh = mesh(
       "eye." + name,
-      createAutoMovieClosedSphereGeometry(1, 12, 8),
+      createClosedSphereGeometry(1, 12, 8),
       white,
     );
     eye.position.set(front, eyeY, eyeZ);
@@ -289,7 +289,7 @@ export function buildHumanCartoonFace(
       | undefined = side === 0 ? pose?.eyes?.left : pose?.eyes?.right;
     const pupil: THREE.Mesh = mesh(
       "pupil." + name,
-      createAutoMovieClosedSphereGeometry(1, 10, 6),
+      createClosedSphereGeometry(1, 10, 6),
       ink,
     );
     pupil.position.set(

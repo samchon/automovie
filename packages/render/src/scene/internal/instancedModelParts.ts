@@ -1,6 +1,6 @@
 import type * as THREE from "three";
 
-import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind.js";
+import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind";
 
 /*
  * Rigid parts of a built runtime model, in the one order instancing indexes.

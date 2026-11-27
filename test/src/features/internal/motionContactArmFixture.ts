@@ -2,8 +2,8 @@ import { AutoMovieEngineVector3, AutoMovieEnginePhysics, AutoMovieEngineKinemati
 import type { AutoMovieHumanSide, AutoMovieHumanoidRegion, IAutoMovieMotionClock, IAutoMovieMotionHumanArmTarget, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieVector3 } from "@automovie/interface";
 import { AutoMovieMotionHumanStance } from "@automovie/motions";
 import {
-  AutoMovieMotionClock
-} from "../../../../packages/motions/src/compose/internal/AutoMovieMotionClock";
+  motionClock
+} from "../../../../packages/motions/src/compose/internal/motionClock";
 import {
   HumanColliders
 } from "../../../../packages/motions/src/posture/internal/HumanColliders";
@@ -30,7 +30,7 @@ export function motionContactArmFixture(): motionContactArmFixture.IInputs {
     ...AutoMovieMotionHumanStance.stand.posture(body, { x: 0, y: 0, z: 0 }, 0),
     root: { x: 0, y: 0, z: 0 },
   };
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
+  const clock: IAutoMovieMotionClock = motionClock.phrase({
     prepare: 1,
     wait: 1,
     attack: 1,

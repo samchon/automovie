@@ -4,7 +4,7 @@ import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanTiming } 
 
 import { walk } from "../../gait/internal/walk";
 import { walkFoot } from "../../actions/internal/walkFoot";
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
 
 /*
  * The measured bounds and the model's own constants of a stagger's recovery
@@ -53,8 +53,8 @@ export namespace staggerBounds {
    */
   export const LANDING: IAutoMovieMotionHumanTiming.Span = {
     seconds:
-      AutoMovieMotionHumanTiming.seconds(REACTION) +
-      AutoMovieMotionHumanTiming.seconds(TRANSFER) +
+      motionHumanTiming.seconds(REACTION) +
+      motionHumanTiming.seconds(TRANSFER) +
       STEP_TIME.forward,
     source:
       "Cyr, Moglo and Smeesters 2005, ISB XXth Congress 401; Telonio, Cyr, Moglo and Smeesters 2005, ISB XXth Congress 430",

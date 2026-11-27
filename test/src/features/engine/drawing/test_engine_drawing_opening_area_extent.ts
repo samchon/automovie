@@ -13,7 +13,7 @@ const RECTANGLE: IAutoMovieOpeningProfile = {
 };
 
 /**
- * `autoMovieOpeningArea` and `autoMovieOpeningExtent` measure an opening's
+ * `openingArea` and `openingExtent` measure an opening's
  * outline.
  *
  * Scenarios:

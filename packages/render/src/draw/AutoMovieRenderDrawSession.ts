@@ -13,15 +13,15 @@ import type {
   IAutoMovieInspectionRequest,
 } from "@automovie/interface";
 
-import { formatAutoMovieInspectionCameraView } from "../scene/inspection/internal/formatAutoMovieInspectionCameraView.js";
-import { parseAutoMovieInspectionRequest } from "../scene/inspection/internal/parseAutoMovieInspectionRequest.js";
-import { AutoMovieRenderDrawGlobals } from "./AutoMovieRenderDrawGlobals.js";
-import type { IAutoMovieRenderDrawPage } from "./IAutoMovieRenderDrawPage.js";
-import type { IAutoMovieRenderDrawPageRequest } from "./IAutoMovieRenderDrawPageRequest.js";
-import type { IAutoMovieRenderDrawProps } from "./IAutoMovieRenderDrawProps.js";
-import { decodeAutoMovieDrawPixels } from "./internal/decodeAutoMovieDrawPixels.js";
-import { AutoMovieRenderDraw } from "./AutoMovieRenderDraw.js";
-import { stampAutoMovieDrawLegend } from "./internal/stampAutoMovieDrawLegend.js";
+import { formatInspectionCameraView } from "../scene/inspection/internal/formatInspectionCameraView";
+import { parseInspectionRequest } from "../scene/inspection/internal/parseInspectionRequest";
+import { AutoMovieRenderDrawGlobals } from "./AutoMovieRenderDrawGlobals";
+import type { IAutoMovieRenderDrawPage } from "./IAutoMovieRenderDrawPage";
+import type { IAutoMovieRenderDrawPageRequest } from "./IAutoMovieRenderDrawPageRequest";
+import type { IAutoMovieRenderDrawProps } from "./IAutoMovieRenderDrawProps";
+import { decodeDrawPixels } from "./internal/decodeDrawPixels";
+import { AutoMovieRenderDraw } from "./AutoMovieRenderDraw";
+import { stampDrawLegend } from "./internal/stampDrawLegend";
 
 /**
  * A host's hold on one draw page: the props injected before it loaded, the
@@ -44,12 +44,12 @@ import { stampAutoMovieDrawLegend } from "./internal/stampAutoMovieDrawLegend.js
  *   backend: "swiftshader; Chromium 131",
  *   timeout: 120_000,
  * });
- * const plan = planAutoMovieCapture({
+ * const plan = planCapture({
  *   request,
  *   subject: session.subject,
  *   cuts: [],
  * });
- * await runAutoMovieCapture({
+ * await runCapture({
  *   plan,
  *   draw: (cell) => session.drawing(cell, plan),
  *   folder,
@@ -199,13 +199,13 @@ export class AutoMovieRenderDrawSession {
         { kind: "draw", name: AutoMovieRenderDrawGlobals.draw, call },
       ),
     );
-    return { picture: decodeAutoMovieDrawPixels(result, call), result };
+    return { picture: decodeDrawPixels(result, call), result };
   }
 
   /**
    * The capture run's draw function: draw one planned cell through
    * `AutoMovieRenderDraw.planCall`, returning its picture with the legend of its marks
-   * in the top-left corner by `stampAutoMovieDrawLegend`, the legend texts and
+   * in the top-left corner by `stampDrawLegend`, the legend texts and
    * the inspection's labels for the run to stamp, the session's backend, the
    * resolved camera as JSON with the fixed view text that draws it again, and
    * the paths each pattern resolved to.
@@ -219,12 +219,12 @@ export class AutoMovieRenderDrawSession {
     return {
       picture,
       labels: [
-        ...stampAutoMovieDrawLegend(picture, result.legend, call.scale),
+        ...stampDrawLegend(picture, result.legend, call.scale),
         ...result.labels,
       ],
       backend: this.backend,
       camera: JSON.stringify(result.camera),
-      repeat: formatAutoMovieInspectionCameraView(result.camera),
+      repeat: formatInspectionCameraView(result.camera),
       resolved: result.resolved,
       ...(result.diagnostics === undefined
         ? {}
@@ -244,7 +244,7 @@ export class AutoMovieRenderDrawSession {
     inspectionDiagnostics?: IAutoMovieDrawCall["inspectionDiagnostics"],
     background?: IAutoMovieDrawCall["background"],
   ): Promise<IAutoMovieDrawnPass[]> {
-    const plain: IAutoMovieInspectionRequest = parseAutoMovieInspectionRequest(
+    const plain: IAutoMovieInspectionRequest = parseInspectionRequest(
       (): undefined => undefined,
     );
     const pictures: IAutoMovieDrawnPass[] = [];

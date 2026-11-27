@@ -1,4 +1,4 @@
-import type { IAutoMovieCapturedFrame } from "./IAutoMovieCapturedFrame.js";
+import type { IAutoMovieCapturedFrame } from "./IAutoMovieCapturedFrame";
 
 /**
  * The outcome of a render: encoded video plus frame metadata an agent can

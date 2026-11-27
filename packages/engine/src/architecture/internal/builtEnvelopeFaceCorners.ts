@@ -5,7 +5,7 @@ import {
 } from "@automovie/interface";
 
 import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
-import { compareAutoMovieRenderIds } from "../../render/internal/compareAutoMovieRenderIds";
+import { compareRenderIds } from "../../render/internal/compareRenderIds";
 import { ObservationGeometry } from "./ObservationGeometry";
 
 /*
@@ -34,7 +34,7 @@ export function builtEnvelopeFaceCorners(
   for (let i: number = 0; i < facades.length; i++)
     for (let j: number = i + 1; j < facades.length; j++) {
       const ordered: boolean =
-        compareAutoMovieRenderIds(facades[i]!.boundary, facades[j]!.boundary) <=
+        compareRenderIds(facades[i]!.boundary, facades[j]!.boundary) <=
         0;
       const a: IAutoMovieBuiltEnvelopeFace = ordered
         ? facades[i]!
@@ -93,6 +93,6 @@ export function builtEnvelopeFaceCorners(
     (
       left: IAutoMovieBuiltEnvelopeCorner,
       right: IAutoMovieBuiltEnvelopeCorner,
-    ): number => compareAutoMovieRenderIds(left.id, right.id),
+    ): number => compareRenderIds(left.id, right.id),
   );
 }

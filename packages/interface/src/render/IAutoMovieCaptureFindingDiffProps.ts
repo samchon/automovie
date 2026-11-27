@@ -1,4 +1,4 @@
-import type { IAutoMovieInspectionDiagnostics } from "./IAutoMovieInspectionDiagnostics.js";
+import type { IAutoMovieInspectionDiagnostics } from "./IAutoMovieInspectionDiagnostics";
 
 /** The earlier and current audits compared by capture finding diagnostics. */
 export interface IAutoMovieCaptureFindingDiffProps {

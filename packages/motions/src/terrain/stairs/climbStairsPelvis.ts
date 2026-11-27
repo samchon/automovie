@@ -4,7 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 
 /*
  * The pelvis's path.
@@ -27,7 +27,7 @@ export function climbStairsPelvis(
   const lifts: ((seconds: number) => number)[] = Array.from(
     { length: steps },
     (_: unknown, i: number): ((seconds: number) => number) =>
-      AutoMovieMotionClock.prepare(
+      motionClock.prepare(
         clock,
         `toeOff${i + 1}`,
         `treadContact${i + 1}`,

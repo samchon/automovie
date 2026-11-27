@@ -3,7 +3,7 @@ import type { IAutoMoviePrepareContourDocument64Observation } from "./IAutoMovie
 /**
  * One retained saved horizontal cut in a prepared contour document. Preparation
  * creates this record and its loop list while borrowing each cubic declaration.
- * prepareAutoMovieContourDocument64 admits finite increasing cut coordinates.
+ * prepareContourDocument64 admits finite increasing cut coordinates.
  */
 export interface IAutoMoviePrepareContourDocument64Slice {
   /**

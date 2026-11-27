@@ -4,7 +4,7 @@ import type { IAutoMoviePatternPoint } from "./IAutoMoviePatternPoint";
  * One laid module occurrence: the identity geometry, finish, and take-off
  * share.
  *
- * Produced by `generateAutoMovieSurfacePattern`. The module rectangle is
+ * Produced by `generateSurfacePattern`. The module rectangle is
  * clipped to its zone region; a candidate whose clipped area, or whose area
  * after exclusions, is at most `1e-12` m² is absent rather than recorded with
  * zero area. `variant` depends only on the pattern seed, the variant count and

@@ -1,8 +1,8 @@
 import type * as THREE from "three";
 
-import type { IAutoMovieRenderViewerSnapshot } from "../../IAutoMovieRenderViewerSnapshot.js";
-import type { IAutoMovieRenderViewerSnapshotOptions } from "../../IAutoMovieRenderViewerSnapshotOptions.js";
-import type { IAutoMovieRenderViewerSnapshotRenderer } from "../../IAutoMovieRenderViewerSnapshotRenderer.js";
+import type { IAutoMovieRenderViewerSnapshot } from "../../IAutoMovieRenderViewerSnapshot";
+import type { IAutoMovieRenderViewerSnapshotOptions } from "../../IAutoMovieRenderViewerSnapshotOptions";
+import type { IAutoMovieRenderViewerSnapshotRenderer } from "../../IAutoMovieRenderViewerSnapshotRenderer";
 
 /*
  * Render synchronously through the supplied original host and immediately

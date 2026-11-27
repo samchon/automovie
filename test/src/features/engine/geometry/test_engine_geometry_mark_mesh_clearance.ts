@@ -9,7 +9,7 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../../internal/predicates";
 
 /**
- * `markAutoMovieMeshClearance` draws each clearance witness as a segment from
+ * `markMeshClearance` draws each clearance witness as a segment from
  * the front surface to the back surface along the measured axis, flagged
  * where the back stands in front.
  *

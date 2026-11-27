@@ -3,8 +3,8 @@ import {
   AthleticsSwing
 } from "../../../../../packages/motions/src/sport/internal/AthleticsSwing";
 import {
-  AutoMovieMotionManner
-} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionManner";
+  motionManner
+} from "../../../../../packages/motions/src/compose/internal/motionManner";
 import {
   athleticsClock
 } from "../../../../../packages/motions/src/sport/internal/athleticsClock";
@@ -39,12 +39,12 @@ export function test_motions_sport_athletics(): void {
   const driven: IAutoMovieMotionClock = athleticsClock(
     1,
     0.4,
-    AutoMovieMotionManner.NEUTRAL,
+    motionManner.NEUTRAL,
   );
   const held: IAutoMovieMotionClock = athleticsClock(
     1,
     undefined,
-    AutoMovieMotionManner.NEUTRAL,
+    motionManner.NEUTRAL,
   );
   TestValidator.predicate(
     "the sprint start",

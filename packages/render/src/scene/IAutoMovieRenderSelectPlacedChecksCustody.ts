@@ -1,5 +1,5 @@
 import type { Object3D } from "three";
-import type { IAutoMovieRenderSelectPlacedChecksRule } from "./IAutoMovieRenderSelectPlacedChecksRule.js";
+import type { IAutoMovieRenderSelectPlacedChecksRule } from "./IAutoMovieRenderSelectPlacedChecksRule";
 
 /** A prop's holder schedule, observed through the displayed scene graph. */
 export interface IAutoMovieRenderSelectPlacedChecksCustody extends IAutoMovieRenderSelectPlacedChecksRule {

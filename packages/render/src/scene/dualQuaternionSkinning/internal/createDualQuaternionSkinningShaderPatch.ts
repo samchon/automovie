@@ -1,5 +1,5 @@
-import type { IAutoMovieRenderMaterialShaderPatch } from "../../IAutoMovieRenderMaterialShaderPatch.js";
-import { dualQuaternionSkinningVertex } from "./dualQuaternionSkinningVertex.js";
+import type { IAutoMovieRenderMaterialShaderPatch } from "../../IAutoMovieRenderMaterialShaderPatch";
+import { dualQuaternionSkinningVertex } from "./dualQuaternionSkinningVertex";
 
 /*
  * One dual quaternion skinning operation for the material compile hook. It

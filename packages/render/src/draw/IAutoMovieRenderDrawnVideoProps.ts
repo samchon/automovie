@@ -3,7 +3,7 @@ import type {
   IAutoMovieRenderSpec,
 } from "@automovie/interface";
 
-import type { AutoMovieRenderDrawSession } from "./AutoMovieRenderDrawSession.js";
+import type { AutoMovieRenderDrawSession } from "./AutoMovieRenderDrawSession";
 
 /** Inputs for drawing and encoding one subject's video. */
 export interface IAutoMovieRenderDrawnVideoProps {

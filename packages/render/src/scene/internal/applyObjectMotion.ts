@@ -2,7 +2,7 @@ import { AutoMovieEngineSequence } from "@automovie/engine";
 import type { IAutoMovieClip } from "@automovie/interface";
 import type * as THREE from "three";
 
-import { applySampledObjectMotion } from "./applySampledObjectMotion.js";
+import { applySampledObjectMotion } from "./applySampledObjectMotion";
 
 /*
  * Drive scene objects from a world-space node clip: a shot's `objectMotion` (a

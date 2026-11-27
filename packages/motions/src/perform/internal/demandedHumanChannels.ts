@@ -3,19 +3,19 @@ import type {
   AutoMovieMotionHumanChannel,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanChannel as HumanChannels } from "../../compose/internal/AutoMovieMotionHumanChannel";
+import { motionHumanChannel as HumanChannels } from "../../compose/internal/motionHumanChannel";
 
 /*
  * The posture channels the frames of some bones depend on: the root and the
  * trunk every bone hangs from, each bone's own channel, and a digit's arm,
  * which carries its hand. A bone's world frame is the forward kinematics of its
- * ancestors' joints (`AutoMovieMotionHumanChannel`'s partition by the kinematic
+ * ancestors' joints (`motionHumanChannel`'s partition by the kinematic
  * tree), so a posture read on these channels alone gives those bones exactly as
  * the whole posture does: the demand-driven evaluation of an animation graph's
  * required bones.
  * Parameter bones: The bones demanded.
  * Returns: The channels, in writing order
- * (`AutoMovieMotionHumanChannel.ORDER`).
+ * (`motionHumanChannel.ORDER`).
  */
 export function demandedHumanChannels(
   bones: ReadonlySet<AutoMovieHumanoidBone>,

@@ -17,7 +17,9 @@ import { LongImplementDrawData } from "./LongImplementDrawData";
  * The seeded recipes originally published as `createLongTool`.
  */
 export namespace LongImplementDraw {
-  /** The kinds of tool. */
+  /*
+   * The kinds of tool.
+   */
   export type Kind =
     | "broom"
     | "mop"
@@ -71,7 +73,7 @@ export namespace LongImplementDraw {
    */
   export const D_GRIP: number = 0.11;
 
-  /**
+  /*
    * The affordance ids:
    *
    * - `shaft`: the shaft, a bar both hands hold at sites along it.
@@ -106,7 +108,7 @@ export namespace LongImplementDraw {
     | "sponge"
     | "rammer";
 
-  /**
+  /*
    * The free dimensions, metres unless stated:
    *
    * - `length`: overall, along `+Y`.
@@ -157,25 +159,33 @@ export namespace LongImplementDraw {
     mass: "kg",
   };
 
-  /**
+  /*
    * The parameters: the kind, and any free dimension fixed to a value inside
    * its band.
    */
   export interface IParams extends Partial<Record<Dimension, number>> {
-    /** Which tool. */
+    /*
+     * Which tool.
+     */
     kind: Kind;
 
-    /** A fishing rod's model; drawn from the seed when absent. */
+    /*
+     * A fishing rod's model; drawn from the seed when absent.
+     */
     model?: Model;
 
-    /** The model's id, unique in a scene; `longTool` when absent. */
+    /*
+     * The model's id, unique in a scene; `longTool` when absent.
+     */
     id?: string;
   }
 
-  /** A model's read figures, by dimension. */
+  /*
+   * A model's read figures, by dimension.
+   */
   export type Figures = Readonly<Partial<Record<Dimension, number>>>;
 
-  /**
+  /*
    * The fishing rods read: Daiwa's seven Ninja X two-piece spinning rods, by
    * length and casting weight.
    */

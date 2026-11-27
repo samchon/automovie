@@ -1,7 +1,7 @@
 import { type IAutoMovieResolveMutualGoal, type IAutoMovieResolveRelationalGoal, type IAutoMovieFramingGoal, type IAutoMovieResolveFraming, type IAutoMovieVector3 } from "@automovie/interface";
-import { resolveAutoMovieMutualGoal as resolveAutoMovieMutualGoalImplementation } from "./internal/resolveAutoMovieMutualGoal";
-import { resolveAutoMovieRelationalGoal as resolveAutoMovieRelationalGoalImplementation } from "./internal/resolveAutoMovieRelationalGoal";
-import { resolveAutoMovieFraming as resolveAutoMovieFramingImplementation } from "./internal/resolveAutoMovieFraming";
+import { resolveMutualGoal as resolveMutualGoalImplementation } from "./internal/resolveMutualGoal";
+import { resolveRelationalGoal as resolveRelationalGoalImplementation } from "./internal/resolveRelationalGoal";
+import { resolveFraming as resolveFramingImplementation } from "./internal/resolveFraming";
 
 /** Public operations for Auto Movie Engine Composition Pose. */
 export namespace AutoMovieEngineCompositionPose {
@@ -52,7 +52,7 @@ export namespace AutoMovieEngineCompositionPose {
    *   shoulders coincide, or the point lies beyond a limit.
    */
   export function mutualGoal(input: IAutoMovieResolveMutualGoal.IInput): IAutoMovieResolveMutualGoal.IGoal {
-    return resolveAutoMovieMutualGoalImplementation(input);
+    return resolveMutualGoalImplementation(input);
   }
 
   /**
@@ -71,11 +71,11 @@ export namespace AutoMovieEngineCompositionPose {
    * @returns The performer's fitted pose and residual report.
    */
   export function relationalGoal(input: IAutoMovieResolveRelationalGoal.IInput): IAutoMovieResolveRelationalGoal.IResult {
-    return resolveAutoMovieRelationalGoalImplementation(input);
+    return resolveRelationalGoalImplementation(input);
   }
   /** Resolve a camera pose that meets a framing goal. */
   export function resolveFraming(goal: IAutoMovieFramingGoal, state: Readonly<Record<string, { center: IAutoMovieVector3; radius: number }>>): IAutoMovieResolveFraming.ICamera {
-    return resolveAutoMovieFramingImplementation(goal, state);
+    return resolveFramingImplementation(goal, state);
   }
 
 }

@@ -2,7 +2,7 @@ import { AutoMovieEngineDrawing } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `roundAutoMovieDrawingScalar` rounds to six decimal places, halves upward,
+ * `roundDrawingScalar` rounds to six decimal places, halves upward,
  * and never returns −0.
  *
  * Scenarios:

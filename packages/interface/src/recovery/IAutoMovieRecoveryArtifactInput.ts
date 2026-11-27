@@ -11,7 +11,7 @@ import type {
 
 /**
  * Generated geometry, its exact coefficient binding and current run
- * observations borrowed by createAutoMovieRecoveryArtifact for one publication
+ * observations borrowed by createRecoveryArtifact for one publication
  * snapshot. Counts and memory probes run synchronously; memory updates peaks
  * before the peak record is read. The assembler retains geometry/report
  * references in its result, so publication must observe the same run state and

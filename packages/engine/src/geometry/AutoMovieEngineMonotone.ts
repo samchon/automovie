@@ -6,7 +6,7 @@ import type { IAutoMovieMonotone } from "@automovie/interface";
  * every frame, such as a posed sweep's volume scale, is rebuilt into the same
  * buffers.
  *
- * `interpolateAutoMovieMonotone` validates its knots and wraps these two
+ * `interpolateMonotone` validates its knots and wraps these two
  * functions in a closure; callers that already hold validated knots call them
  * directly. A `period` of 0 means an open curve.
  */

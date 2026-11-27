@@ -1,4 +1,4 @@
-import type { IAutoMovieRenderObservePlacedSceneCheck } from "./IAutoMovieRenderObservePlacedSceneCheck.js";
+import type { IAutoMovieRenderObservePlacedSceneCheck } from "./IAutoMovieRenderObservePlacedSceneCheck";
 
 /** Identity shared by every declaration. */
 export interface IAutoMovieRenderSelectPlacedChecksRule {

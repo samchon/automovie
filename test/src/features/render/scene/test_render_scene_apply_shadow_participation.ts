@@ -3,7 +3,7 @@ import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 /**
- * `applyAutoMovieShadowParticipation` decides which meshes cast and receive
+ * `applyShadowParticipation` decides which meshes cast and receive
  * shadows.
  *
  * Scenarios:

@@ -1,5 +1,5 @@
-import type { IAutoMovieRenderSelectPlacedChecksRule } from "./IAutoMovieRenderSelectPlacedChecksRule.js";
-import type { IAutoMovieRenderSelectPlacedChecksSupportPhase } from "./IAutoMovieRenderSelectPlacedChecksSupportPhase.js";
+import type { IAutoMovieRenderSelectPlacedChecksRule } from "./IAutoMovieRenderSelectPlacedChecksRule";
+import type { IAutoMovieRenderSelectPlacedChecksSupportPhase } from "./IAutoMovieRenderSelectPlacedChecksSupportPhase";
 
 /** A support held through consecutive phases. */
 export interface IAutoMovieRenderSelectPlacedChecksSupport extends IAutoMovieRenderSelectPlacedChecksRule {

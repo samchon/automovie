@@ -22,15 +22,15 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmReach } from "../../compose/internal/AutoMovieMotionHumanArmReach";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
-import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
+import { motionHumanHeld } from "../../compose/internal/motionHumanHeld";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
 import { AutoMovieMotionInterval } from "../../compose/internal/AutoMovieMotionInterval";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { heldDigits } from "./heldDigits";
@@ -107,7 +107,7 @@ function planWrite(
     });
   const side: AutoMovieHumanSide =
     p.hand ?? (context.entry.holds.left === p.tool ? "left" : "right");
-  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
+  const held: IAutoMovieMotionHumanHeld.IHeld = motionHumanHeld(
     context,
     side,
     p.tool,
@@ -194,7 +194,7 @@ function planWrite(
     ),
   );
   const tip: IAutoMovieMotionHumanHeld.IPointResult =
-    AutoMovieMotionHumanHeld.point(held, p.tip);
+    motionHumanHeld.point(held, p.tip);
   const contact: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     HumanHand.offset(context.body, side, "grip").point,
     tip.point,
@@ -209,16 +209,16 @@ function planWrite(
   );
   const tempo: number = context.tempo ?? 1;
   const writing: number = p.duration * tempo;
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
+  const clock: IAutoMovieMotionClock = motionClock.phrase({
     prepare:
       tempo *
-      AutoMovieMotionHumanTiming.transport(
+      motionHumanTiming.transport(
         AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(first.point, entered)),
       ),
     attack: writing,
     retract:
       tempo *
-      AutoMovieMotionHumanTiming.transport(
+      motionHumanTiming.transport(
         AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(last.point, entered)),
       ),
   });
@@ -328,7 +328,7 @@ function planWrite(
 
   // The arm trajectory takes over the existing grasp without writing new
   // finger angles or ending the hold when the stroke returns.
-  const kept: IAutoMovieMotionPropHold = AutoMovieMotionHumanHeld.hold(
+  const kept: IAutoMovieMotionPropHold = motionHumanHeld.hold(
     context,
     held,
   );
@@ -349,7 +349,7 @@ function planWrite(
     clock.duration,
   );
   const plan: IAutoMovieMotionHumanActionPlan =
-    composeAutoMovieMotionHumanAction({
+    composeMotionHumanAction({
       base: {
         ...base,
         posture: (seconds: number): IAutoMovieMotionHumanPosture => {
@@ -374,7 +374,7 @@ function planWrite(
     ...plan,
     contacts: [
       ...plan.contacts,
-      AutoMovieMotionHumanHeld.grip(held),
+      motionHumanHeld.grip(held),
       ...(steadied === undefined ? [] : [steadied.contact]),
     ],
     holds: [

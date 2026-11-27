@@ -14,7 +14,7 @@ export namespace IAutoMovieHoldSurfaceGirths {
    * whose control points are `(A + 4 P + B) / 6` for each vertex `P` and its
    * two neighbours `A` and `B` across the row; its perimeter is integrated by
    * five-point Gauss-Legendre quadrature on every span. Each sweep's factor is
-   * the sampled-overshoot-policy spline of `interpolateAutoMovieSpline` through
+   * the sampled-overshoot-policy spline of `interpolateSpline` through
    * 1 at the sweep's other rings at one `u`, which meet neighbouring parts and
    * stay, and through a value at each girth ring, holding its end values beyond
    * the outermost knots; `IAutoMovieSweepRig.girth` folds it into the scale.

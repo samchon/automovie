@@ -3,12 +3,12 @@ import type { IAutoMovieTemplateScaffoldProps } from "@automovie/template";
 import type { AutoMovieCommand } from "../command/AutoMovieCommand";
 import type { IAutoMovieCliProjectNameSelection } from "./IAutoMovieCliProjectNameSelection";
 import { AUTOMOVIE_DEFAULT_PROJECT_NAME } from "./internal/AUTOMOVIE_DEFAULT_PROJECT_NAME";
-import { deriveAutoMovieProjectName } from "./internal/deriveAutoMovieProjectName";
-import { promptAutoMovieProjectName } from "./internal/promptAutoMovieProjectName";
-import { readAutoMovieAddArguments } from "./internal/readAutoMovieAddArguments";
-import { readAutoMovieCreateArguments } from "./internal/readAutoMovieCreateArguments";
-import { renderAutoMovieScaffoldNextSteps } from "./internal/renderAutoMovieScaffoldNextSteps";
-import { selectAutoMovieProjectName } from "./internal/selectAutoMovieProjectName";
+import { deriveProjectNameImplementation } from "./internal/deriveProjectNameImplementation";
+import { promptProjectNameImplementation } from "./internal/promptProjectNameImplementation";
+import { readAddArgumentsImplementation } from "./internal/readAddArgumentsImplementation";
+import { readCreateArgumentsImplementation } from "./internal/readCreateArgumentsImplementation";
+import { renderScaffoldNextSteps } from "./internal/renderScaffoldNextSteps";
+import { selectProjectNameImplementation } from "./internal/selectProjectNameImplementation";
 
 /**
  * Public APIs for admitting create/add requests and naming and guiding a new
@@ -23,19 +23,19 @@ export namespace AutoMovieCliScaffold {
 
   /** Derive a package-safe project name from a target directory. */
   export function deriveProjectName(targetDir: string): string {
-    return deriveAutoMovieProjectName(targetDir);
+    return deriveProjectNameImplementation(targetDir);
   }
 
   /** Admit the arguments following `add`. */
   export function readAddArguments(args: readonly string[]): AutoMovieCommand {
-    return readAutoMovieAddArguments(args);
+    return readAddArgumentsImplementation(args);
   }
 
   /** Admit the arguments following `create`. */
   export function readCreateArguments(
     args: readonly string[],
   ): AutoMovieCommand {
-    return readAutoMovieCreateArguments(args);
+    return readCreateArgumentsImplementation(args);
   }
 
   /** Render the next steps printed after scaffold installation. */
@@ -43,12 +43,12 @@ export namespace AutoMovieCliScaffold {
     directory: string,
     kind: IAutoMovieTemplateScaffoldProps["kind"],
   ): string {
-    return renderAutoMovieScaffoldNextSteps(directory, kind);
+    return renderScaffoldNextSteps(directory, kind);
   }
 
   /** Ask for a project name when the create target is the current directory. */
   export function promptProjectName(): Promise<string> {
-    return promptAutoMovieProjectName();
+    return promptProjectNameImplementation();
   }
 
   /**
@@ -58,6 +58,6 @@ export namespace AutoMovieCliScaffold {
   export function selectProjectName(
     props: IAutoMovieCliProjectNameSelection,
   ): string | undefined {
-    return selectAutoMovieProjectName(props);
+    return selectProjectNameImplementation(props);
   }
 }

@@ -2,7 +2,7 @@ import type { IAutoMovieQuadraticPolishingResult } from "./IAutoMovieQuadraticPo
 import type { IAutoMovieQuadraticRefinementNativeCall } from "./IAutoMovieQuadraticRefinementNativeCall";
 
 /**
- * The solution `refineAutoMovieQuadraticProgram` returns for a diagonal
+ * The solution `refineQuadraticProgram` returns for a diagonal
  * quadratic program, with its residuals measured on every original row.
  *
  * `primal` and `dual` are the native solution unless polishing produced a

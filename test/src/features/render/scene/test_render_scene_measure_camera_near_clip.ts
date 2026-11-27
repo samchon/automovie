@@ -6,7 +6,7 @@ import * as THREE from "three";
 const DEPTH_TOLERANCE: number = 1e-6;
 
 /**
- * `measureAutoMovieCameraNearClip` measures how far a subject's surface reaches
+ * `measureCameraNearClip` measures how far a subject's surface reaches
  * in front of the delivery near plane inside the frame.
  *
  * Scenarios:

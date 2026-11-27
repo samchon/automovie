@@ -9,7 +9,7 @@ type Result = ReturnType<typeof AutoMovieEngineMath.solveBoundedDisplacement>;
 type Condition = { row: IAutoMovieQuadraticRow; group: number };
 
 /**
- * `solveAutoMovieBoundedDisplacement` finds the least mass-weighted travel in [0,
+ * `solveBoundedDisplacement` finds the least mass-weighted travel in [0,
  * upper] meeting every affine contact row, adding grouped rows round by round
  * while keeping all original rows; independent coordinates stay at zero.
  *

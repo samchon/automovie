@@ -12,8 +12,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
-import { AutoMovieMotionPrepared } from "../../compose/internal/AutoMovieMotionPrepared";
+import { motionClock } from "../../compose/internal/motionClock";
+import { motionPrepared } from "../../compose/internal/motionPrepared";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { StrikingBlade } from "../../striking/internal/StrikingBlade";
 import { StrikingHeld } from "../../striking/internal/StrikingHeld";
@@ -87,9 +87,9 @@ export namespace HumanSwordTaken {
         // The parrying blade's frame at the start and where the parry lets
         // go, solved once the performance is placed (`prepare`); a read
         // before reads them there.
-        const ends: AutoMovieMotionPrepared.IValue<
+        const ends: motionPrepared.IValue<
           readonly [IAutoMovieVector3, IAutoMovieVector3]
-        > = AutoMovieMotionPrepared(
+        > = motionPrepared(
           (): readonly [IAutoMovieVector3, IAutoMovieVector3] => [
             reader.frame(context.start).position,
             reader.frame(left).position,
@@ -113,7 +113,7 @@ export namespace HumanSwordTaken {
           context,
           {
             tool: s.tool,
-            clock: AutoMovieMotionClock.phrase({
+            clock: motionClock.phrase({
               prepare: 0,
               attack: 0,
               hold: duration,

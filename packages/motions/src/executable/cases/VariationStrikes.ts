@@ -2,7 +2,7 @@ import { AutoMovieEngineVector3, AutoMovieEnginePhysics, AutoMovieEngineKinemati
 import type { AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSkill, IAutoMovieMotionHumanStrikingRecord, IAutoMovieMotionTarget, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
-import { AutoMovieMotionHumanVariation } from "../../compose/internal/AutoMovieMotionHumanVariation";
+import { motionHumanVariation } from "../../compose/internal/motionHumanVariation";
 import { HumanColliders } from "../../posture/internal/HumanColliders";
 import { HumanSkill } from "../../skill/internal/HumanSkill";
 import { StrikingBody } from "../../striking/internal/StrikingBody";
@@ -186,8 +186,8 @@ function aimed(
     { level: "trained" },
     "variation",
   );
-  return AutoMovieMotionHumanVariation.strike(
-    AutoMovieMotionHumanVariation(
+  return motionHumanVariation.strike(
+    motionHumanVariation(
       {
         skill,
         series: (channel: string) => ({

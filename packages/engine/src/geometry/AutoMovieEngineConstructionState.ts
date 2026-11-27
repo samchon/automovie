@@ -8,7 +8,7 @@ import { AutoMovieEngineSolidCycle } from "./AutoMovieEngineSolidCycle";
 
 /**
  * What a construction's walk builds besides the body
- * (`realizeAutoMovieConstruction`), and its rollback: a snapshot of the body's
+ * (`realizeConstruction`), and its rollback: a snapshot of the body's
  * faces, cycles, mesh and the walk's lists taken before a part is built,
  * restored when the node attaching that part breaks a premise, so the part's
  * whole subtree is left out and its host stands as it was.

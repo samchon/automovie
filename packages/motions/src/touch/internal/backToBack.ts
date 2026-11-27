@@ -20,12 +20,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanHead } from "../../compose/internal/AutoMovieMotionHumanHead";
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
+import { motionManner } from "../../compose/internal/motionManner";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
@@ -192,15 +192,15 @@ function planBackToBack(
   }
   const pitch: number = gap(0) <= short ? 0 : hi;
 
-  const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+  const modifiers: IAutoMovieMotionManner.IModifiers = motionManner(
     context,
     p.manner,
   );
-  const approach: number = AutoMovieMotionHumanTiming.transport(
+  const approach: number = motionHumanTiming.transport(
     AutoMovieEngineVector3.distance(mine, meet),
   );
-  const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
-    AutoMovieMotionClock.phrase({
+  const clock: IAutoMovieMotionClock = motionManner.time(
+    motionClock.phrase({
       prepare: approach,
       attack: 0,
       hold: p.hold,
@@ -233,7 +233,7 @@ function planBackToBack(
   const share = (seconds: number): number =>
     clock.envelope(["start", "ready"], ["relax", "end"], seconds);
   const plan: IAutoMovieMotionHumanActionPlan =
-    composeAutoMovieMotionHumanAction({
+    composeMotionHumanAction({
       base: AutoMovieMotionHumanBase.under(context, duration),
       clock,
       primitives: [

@@ -21,7 +21,7 @@ import type {
 
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
-import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
+import { motionHumanHeld } from "../../compose/internal/motionHumanHeld";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanArmTrajectoryTerms } from "../../posture/internal/HumanArmTrajectoryTerms";
 import { HumanHand } from "../../posture/internal/HumanHand";
@@ -139,7 +139,7 @@ export namespace writeWith {
       context.entry.posture,
       other,
     );
-    const kept: IAutoMovieMotionPropHold = AutoMovieMotionHumanHeld.hold(
+    const kept: IAutoMovieMotionPropHold = motionHumanHeld.hold(
       context,
       held,
     );
@@ -170,7 +170,7 @@ export namespace writeWith {
           bend,
         }),
       }),
-      contact: AutoMovieMotionHumanHeld.grip(held),
+      contact: motionHumanHeld.grip(held),
       hold: kept,
     };
   }
@@ -196,7 +196,7 @@ export namespace writeWith {
     facing: IAutoMovieQuaternion,
   ): writeWith.IAim {
     const other: AutoMovieHumanSide = side === "left" ? "right" : "left";
-    const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
+    const held: IAutoMovieMotionHumanHeld.IHeld = motionHumanHeld(
       context,
       other,
       steady.tool,
@@ -214,7 +214,7 @@ export namespace writeWith {
       ),
       contact: AutoMovieEngineVector3.add(
         HumanHand.offset(context.body, other, "grip").point,
-        AutoMovieMotionHumanHeld.point(held, steady.tip).point,
+        motionHumanHeld.point(held, steady.tip).point,
       ),
       target: AutoMovieEngineVector3.add(
         origin,

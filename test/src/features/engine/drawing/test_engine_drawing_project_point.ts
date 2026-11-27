@@ -16,7 +16,7 @@ const FRAME: IAutoMovieDrawingFrame = {
 };
 
 /**
- * `projectAutoMovieDrawingPoint` lays a world point on the page: its offset
+ * `projectDrawingPoint` lays a world point on the page: its offset
  * from the frame origin along `right` and `up`.
  *
  * Scenarios:

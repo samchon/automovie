@@ -1,7 +1,7 @@
 import type { IAutoMovieFont } from "@automovie/interface";
 
-import type { IAutoMovieRenderTypographyDecodeFontSourcesProps } from "./IAutoMovieRenderTypographyDecodeFontSourcesProps.js";
-import { decodeAutoMovieFontSources } from "./internal/decodeAutoMovieFontSources.js";
+import type { IAutoMovieRenderTypographyDecodeFontSourcesProps } from "./IAutoMovieRenderTypographyDecodeFontSourcesProps";
+import { decodeFontSourcesImplementation } from "./internal/decodeFontSourcesImplementation";
 
 /** Render-owned typography preparation. */
 export namespace AutoMovieRenderTypography {
@@ -34,6 +34,6 @@ export namespace AutoMovieRenderTypography {
   export async function decodeFontSources(
     props: IAutoMovieRenderTypographyDecodeFontSourcesProps,
   ): Promise<Map<string, IAutoMovieFont>> {
-    return decodeAutoMovieFontSources(props);
+    return decodeFontSourcesImplementation(props);
   }
 }

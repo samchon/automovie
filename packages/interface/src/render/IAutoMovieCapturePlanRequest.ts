@@ -1,16 +1,16 @@
-import type { AutoMovieInspectionShade } from "./AutoMovieInspectionShade.js";
-import type { IAutoMovieInspectionRequest } from "./IAutoMovieInspectionRequest.js";
-import type { IAutoMovieCaptureBudget } from "./IAutoMovieCaptureBudget.js";
-import type { IAutoMovieCaptureSampling } from "./IAutoMovieCaptureSampling.js";
+import type { AutoMovieInspectionShade } from "./AutoMovieInspectionShade";
+import type { IAutoMovieInspectionRequest } from "./IAutoMovieInspectionRequest";
+import type { IAutoMovieCaptureBudget } from "./IAutoMovieCaptureBudget";
+import type { IAutoMovieCaptureSampling } from "./IAutoMovieCaptureSampling";
 
 /**
- * Everything one capture asks for, as `parseAutoMovieCapturePlanRequest` reads
- * it from named text values and `formatAutoMovieCapturePlanRequest` writes it
+ * Everything one capture asks for, as `parseCapturePlanRequest` reads
+ * it from named text values and `formatCapturePlanRequest` writes it
  * back: the subject, its times, views, passes and selections, the reader
  * budget, the round, and the inspection of every still.
  *
  * It names no subject's content. Which views, times and mark kinds the subject
- * actually offers is checked by `planAutoMovieCapture` against an
+ * actually offers is checked by `planCapture` against an
  * `IAutoMovieCaptureSubject`, because only the host learns those from the
  * page.
  */

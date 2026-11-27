@@ -1,7 +1,7 @@
 import type { IAutoMovieMedium } from "@automovie/interface";
 import type * as THREE from "three";
 
-import { AUTOMOVIE_SCENE_MEDIUM_KEY } from "../AUTOMOVIE_SCENE_MEDIUM_KEY.js";
+import { AUTOMOVIE_SCENE_MEDIUM_KEY } from "../AUTOMOVIE_SCENE_MEDIUM_KEY";
 
 /*
  * Attach the scene's physical haze to a built `three.js` scene, or remove it
@@ -11,7 +11,7 @@ import { AUTOMOVIE_SCENE_MEDIUM_KEY } from "../AUTOMOVIE_SCENE_MEDIUM_KEY.js";
  * a production that assembles its own scene graph attaches the film's medium
  * through this one call. The medium is stored verbatim, a copy of the three
  * coefficients, under AUTOMOVIE_SCENE_MEDIUM_KEY; the film response
- * stage reads it with `readAutoMovieSceneMedium` and draws it in the linear
+ * stage reads it with `readSceneMedium` and draws it in the linear
  * beauty target. Absent or `null` removes it, so the scene draws clear air.
  */
 export const applySceneMedium: (

@@ -14,7 +14,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
+import { motionHumanHeld } from "../../compose/internal/motionHumanHeld";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -36,7 +36,7 @@ export function walkPoleFrame(
   let at: IAutoMovieVector3 | undefined;
   for (const side of ["right", "left"] as const) {
     if (context.entry.holds[side] !== prop) continue;
-    const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
+    const held: IAutoMovieMotionHumanHeld.IHeld = motionHumanHeld(
       context,
       side,
       prop,
@@ -126,7 +126,7 @@ export function walkPoleFrame(
  * A long prop held in one hand or two, placed by its line: the carrying hand's
  * grip, the prop's axis from that grip to its end, and its roll about that
  * axis. Each hand holds the prop rigidly as it took it
- * (`AutoMovieMotionHumanHeld`), so the prop's frame fixes every holding hand's
+ * (`motionHumanHeld`), so the prop's frame fixes every holding hand's
  * rotation and grip: a vaulter's top hand and the lower hand a pole's length
  * apart along it.
  *

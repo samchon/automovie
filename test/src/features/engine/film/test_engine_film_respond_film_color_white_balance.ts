@@ -3,8 +3,8 @@ import type { IAutoMovieFilmOptics } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `respondAutoMovieFilmColor` adapts the Planckian white of the stated
- * temperature to the D65 working white, and `autoMoviePlanckianWhite` is warm
+ * `respondFilmColor` adapts the Planckian white of the stated
+ * temperature to the D65 working white, and `planckianWhite` is warm
  * below D65 and cool above.
  *
  * Scenarios:

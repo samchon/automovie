@@ -5,8 +5,8 @@ import type {
   IAutoMovieProductionWaveSourceFormat,
 } from "@automovie/interface";
 
-import { equalOrderedScalarRows } from "./equalOrderedScalarRows.js";
-import { equalOrderedScalars } from "./equalOrderedScalars.js";
+import { equalOrderedScalarRows } from "./equalOrderedScalarRows";
+import { equalOrderedScalars } from "./equalOrderedScalars";
 
 /*
  * Whether a WAVE asset's source format and processing record are exactly what

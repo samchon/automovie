@@ -440,5 +440,7 @@ const HUMANOID_RANGES: ReadonlyMap<string, AutoMovieEngineSwingTwistRange.IPrepa
     },
   ),
 );
-/** Original dimensionless disc coordinates and clinical-degree twist. */
+/*
+ * Original dimensionless disc coordinates and clinical-degree twist.
+ */
 type IChart = ReturnType<typeof AutoMovieEngineSwingTwistRange.chart>;

@@ -11,7 +11,7 @@ export namespace IAutoMovieLocateSurfaceVertices {
    *
    * A vertex's cage face and quad-local coordinates give its surface
    * coordinate, the bilinear blend of the face's corner coordinates, the same
-   * chart `mapAutoMovieSurfaceTier` uses, so the coordinate is exact on a grid
+   * chart `mapSurfaceTier` uses, so the coordinate is exact on a grid
    * patch and continuous across faces inside that patch. Different patch charts
    * can assign different addresses to a shared edge; compatible fields must
    * agree there. Each vertex keeps its supplied incident-face address. A sweep

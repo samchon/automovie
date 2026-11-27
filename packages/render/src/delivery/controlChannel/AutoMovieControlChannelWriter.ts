@@ -6,10 +6,10 @@ import type {
   IAutoMovieSemanticMask,
 } from "@automovie/interface";
 
-import { guidePassFrameName } from "../../internal/guidePassFrameName.js";
-import { guidePassFramePattern } from "../../internal/guidePassFramePattern.js";
-import { AutoMovieRenderPicture } from "../../picture/AutoMovieRenderPicture.js";
-import { autoMovieControlConvention } from "../internal/autoMovieControlConvention.js";
+import { guidePassFrameName } from "../../internal/guidePassFrameName";
+import { guidePassFramePattern } from "../../internal/guidePassFramePattern";
+import { AutoMovieRenderPicture } from "../../picture/AutoMovieRenderPicture";
+import { controlConvention } from "../internal/controlConvention";
 
 /*
  * Writes a render's control channels frame by frame and collects what
@@ -139,7 +139,7 @@ export class AutoMovieControlChannelWriter {
           .join("");
         return {
           pass,
-          convention: autoMovieControlConvention(pass, this.mask ?? null),
+          convention: controlConvention(pass, this.mask ?? null),
           inputPattern: guidePassFramePattern(pass),
           frameCount: frames.length,
           sequenceSha256: hex(

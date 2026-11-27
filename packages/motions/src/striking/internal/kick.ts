@@ -15,7 +15,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionPrepared } from "../../compose/internal/AutoMovieMotionPrepared";
+import { motionPrepared } from "../../compose/internal/motionPrepared";
 import { HumanSkill } from "../../skill/internal/HumanSkill";
 import { KickClear } from "./KickClear";
 import { KickGeometry } from "./KickGeometry";
@@ -234,8 +234,8 @@ export namespace kick {
     // kicked at, `KickClear`), the partner as shown and the committed stop;
     // before that, each read builds it cold on the performance as placed so
     // far.
-    const shape: AutoMovieMotionPrepared.IValue<IAutoMovieMotionHumanKickGeometry> =
-      AutoMovieMotionPrepared(
+    const shape: motionPrepared.IValue<IAutoMovieMotionHumanKickGeometry> =
+      motionPrepared(
         (): IAutoMovieMotionHumanKickGeometry => {
           const launched: KickLaunch.ILaunch = KickClear(
             context,

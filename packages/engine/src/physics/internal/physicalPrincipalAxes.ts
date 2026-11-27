@@ -3,7 +3,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { quaternionFromAutoMovieBasis } from "../../math/internal/quaternionFromAutoMovieBasis";
+import { quaternionFromBasis } from "../../math/internal/quaternionFromBasis";
 
 /*
  * The principal moments and axes of a symmetric 3x3 inertia tensor, by a Jacobi
@@ -129,7 +129,7 @@ export function physicalPrincipalAxes(
       y: tensor[secondIndex]![secondIndex]! * scale,
       z: tensor[thirdIndex]![thirdIndex]! * scale,
     },
-    rotation: quaternionFromAutoMovieBasis(first, second, third),
+    rotation: quaternionFromBasis(first, second, third),
   };
 }
 

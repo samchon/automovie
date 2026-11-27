@@ -1,6 +1,6 @@
 import { type IAutoMovieSoftFurnishingFrame, type IAutoMovieLowerSoftFurnishing, type IAutoMovieValidation, type IAutoMovieSoftFurnishing, type IAutoMovieValidateSoftFurnishings } from "@automovie/interface";
 import { lowerSoftFurnishing as lowerSoftFurnishingImplementation } from "./internal/lowerSoftFurnishing";
-import { validateAutoMovieSoftFurnishingDomainOwnership as validateAutoMovieSoftFurnishingDomainOwnershipImplementation } from "./internal/validateAutoMovieSoftFurnishingDomainOwnership";
+import { validateSoftFurnishingDomainOwnership as validateSoftFurnishingDomainOwnershipImplementation } from "./internal/validateSoftFurnishingDomainOwnership";
 import { validateSoftFurnishings as validateSoftFurnishingsImplementation } from "./internal/validateSoftFurnishings";
 
 /** Public operations for Auto Movie Engine Soft Furnishing. */
@@ -23,7 +23,7 @@ export namespace AutoMovieEngineSoftFurnishing {
    * rows.
    */
   export function validateAutoMovieSoftFurnishingDomainOwnership(furnishings: readonly IAutoMovieSoftFurnishing[]): IAutoMovieValidation {
-    return validateAutoMovieSoftFurnishingDomainOwnershipImplementation(furnishings);
+    return validateSoftFurnishingDomainOwnershipImplementation(furnishings);
   }
 
   /**

@@ -5,7 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { StaggerPendulum } from "./StaggerPendulum";
 import { staggerBounds } from "./staggerBounds";
@@ -91,13 +91,13 @@ export namespace staggerStep {
     // The leg a sideways push unloads leaves the floor sooner and swings
     // longer than a forward or backward step's (`LATERAL`).
     const forth: number =
-      AutoMovieMotionHumanTiming.seconds(REACTION) +
-      AutoMovieMotionHumanTiming.seconds(TRANSFER);
+      motionHumanTiming.seconds(REACTION) +
+      motionHumanTiming.seconds(TRANSFER);
     pendulum.transfer(
       stance,
       unloaded
-        ? LATERAL.footOff * forth - AutoMovieMotionHumanTiming.seconds(REACTION)
-        : AutoMovieMotionHumanTiming.seconds(TRANSFER),
+        ? LATERAL.footOff * forth - motionHumanTiming.seconds(REACTION)
+        : motionHumanTiming.seconds(TRANSFER),
     );
     const from: IAutoMovieMotionHumanFoot.IPlacement = pendulum.feet[side];
     const swing: number = unloaded
@@ -120,7 +120,7 @@ export namespace staggerStep {
     // shift (`StaggerPendulum.loaded`).
     const goal: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       centre,
-      pendulum.loaded(AutoMovieMotionHumanTiming.seconds(TRANSFER)),
+      pendulum.loaded(motionHumanTiming.seconds(TRANSFER)),
     );
     const ball: IAutoMovieVector3 = HumanFoot.point(body, side, "ball", from);
     const heel: IAutoMovieVector3 = HumanFoot.point(body, side, "heel", from);

@@ -6,7 +6,7 @@ import {
   IAutoMovieWorldEffectZone,
 } from "@automovie/interface";
 
-import { autoMovieRenderDigest } from "../../render/internal/autoMovieRenderDigest";
+import { renderDigest } from "../../render/internal/renderDigest";
 import { AutoMovieEngineCanonicalJson } from "../../text/AutoMovieEngineCanonicalJson";
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 import { admitEffectTransport } from "./admitEffectTransport";
@@ -60,7 +60,7 @@ export function materializeCompiledEffects(
         zone === undefined ? undefined : recipes.get(zone.recipe);
       if (zone === undefined || recipe === undefined) return [];
       admitEffectTransport(recipe);
-      const seedDigest: string = autoMovieRenderDigest(
+      const seedDigest: string = renderDigest(
         AutoMovieEngineCanonicalJson.canonicalize(
           props.seedOwner === undefined
             ? {
@@ -96,7 +96,7 @@ export function materializeCompiledEffects(
       return [
         {
           ...core,
-          digest: autoMovieRenderDigest(
+          digest: renderDigest(
             AutoMovieEngineCanonicalJson.canonicalize(core),
           ),
         },

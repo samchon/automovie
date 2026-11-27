@@ -1,8 +1,8 @@
 import type { IAutoMovieSceneEnvironment } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieEnvironmentTextureOwnership } from "./AutoMovieEnvironmentTextureOwnership.js";
-import { readAutoMovieEnvironmentColorSpace } from "./readAutoMovieEnvironmentColorSpace.js";
+import { AutoMovieEnvironmentTextureOwnership } from "./AutoMovieEnvironmentTextureOwnership";
+import { readEnvironmentColorSpace } from "./readEnvironmentColorSpace";
 
 /*
  * Apply image lighting and background without adding scene-graph children.
@@ -73,6 +73,6 @@ export const applySceneEnvironment: (
 const environmentColorSpace: (texture: THREE.Texture) => THREE.ColorSpace = (
   texture: THREE.Texture,
 ): THREE.ColorSpace =>
-  readAutoMovieEnvironmentColorSpace(texture) === "srgb"
+  readEnvironmentColorSpace(texture) === "srgb"
     ? THREE.SRGBColorSpace
     : THREE.LinearSRGBColorSpace;

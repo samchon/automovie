@@ -1,6 +1,6 @@
 import type { IAutoMovieFormationSlot } from "@automovie/interface";
 
-import type { IChunkObject } from "./IChunkObject.js";
+import type { IChunkObject } from "./IChunkObject";
 
 /*
  * One member a per-member cue names, found once at build rather than per frame.

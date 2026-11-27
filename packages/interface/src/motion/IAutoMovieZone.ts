@@ -3,7 +3,7 @@ import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 /**
  * A named region of a set, so a scene moves a subject "to the corner" or "to
  * the centre" without coordinates: a centre and a radius on the floor, with
- * optional named landmarks. `resolveAutoMovieZone` reads its points. The caller
+ * optional named landmarks. `resolveZone` reads its points. The caller
  * admits finite centre, nonnegative finite radius and landmark coordinates.
  * Resolution validates the requested zone/landmark and radial share, but
  * neither checks zone geometry nor landmark containment.

@@ -9,11 +9,11 @@ import type {
 import { rebindRecoveryCurveAuthorities as rebindRecoveryCurveAuthoritiesImplementation } from "./internal/rebindRecoveryCurveAuthorities";
 
 import {
-  convertAutoMovieRecoveryCurve as convertCurveOperation,
-} from "./internal/convertAutoMovieRecoveryCurve";
+  convertRecoveryCurve as convertCurveOperation,
+} from "./internal/convertRecoveryCurve";
 import {
-  convertAutoMovieRecoveryCurves as convertBundleOperation,
-} from "./internal/convertAutoMovieRecoveryCurves";
+  convertRecoveryCurves as convertBundleOperation,
+} from "./internal/convertRecoveryCurves";
 
 /** Convert saved recovery cubics between coefficient bases. */
 export namespace AutoMovieRecoveryCurveConversion {
@@ -81,7 +81,7 @@ export namespace AutoMovieRecoveryCurveConversion {
   /**
    * Copy a saved recovery record into the selected cubic coefficient basis. Every
    * cubic at the record's declared curve places is converted by
-   * `convertAutoMovieRecoveryCurve`: a fit's or override's curve, each closed
+   * `convertRecoveryCurve`: a fit's or override's curve, each closed
    * loop of its loft or sections, each open arc of its reports, and each curve
    * override. Original phase widths, directions, names and metadata survive
    * unchanged, and the returned record is a copy that shares nothing with the

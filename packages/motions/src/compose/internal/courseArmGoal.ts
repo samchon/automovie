@@ -15,10 +15,10 @@ import type {
 } from "@automovie/interface";
 
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
-import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
+import { motionClock } from "./motionClock";
 import { AutoMovieMotionHumanArm } from "./AutoMovieMotionHumanArm";
 import { AutoMovieMotionInterval } from "./AutoMovieMotionInterval";
-import { composeAutoMovieMotionHumanAction } from "./composeAutoMovieMotionHumanAction";
+import { composeMotionHumanAction } from "./composeMotionHumanAction";
 import { courseArmGoalBase } from "./courseArmGoalBase";
 import { courseArmGoalShownRests } from "./courseArmGoalShownRests";
 
@@ -220,9 +220,9 @@ export function courseArmGoal(
   );
   // Read by the base only after the span, once the composition exists.
   const composed: IAutoMovieMotionHumanActionPlan =
-    composeAutoMovieMotionHumanAction({
+    composeMotionHumanAction({
       base,
-      clock: AutoMovieMotionClock(
+      clock: motionClock(
         plan.duration,
         plan.events.map(
           (e: IAutoMovieMotionEvent): courseArmGoal.Instant => ({
@@ -453,7 +453,7 @@ export namespace courseArmGoal {
   /*
    * A named instant of the plan's clock.
    */
-  export type Instant = Parameters<typeof AutoMovieMotionClock>[1][number];
+  export type Instant = Parameters<typeof motionClock>[1][number];
 
   /*
    * What a coursed arm does after its span (`IProps.after`).

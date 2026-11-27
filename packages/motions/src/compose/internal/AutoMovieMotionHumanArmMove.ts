@@ -12,7 +12,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanFrame } from "../../posture/internal/HumanFrame";
-import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
+import { motionClock } from "./motionClock";
 import { AutoMovieMotionHumanArmTarget } from "./AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanHand } from "./AutoMovieMotionHumanHand";
 
@@ -280,13 +280,13 @@ function prepareMoveFingers(
 
 /*
  * The window's minimum-jerk progress, its two instants resolved once
- * (`AutoMovieMotionClock.prepare`).
+ * (`motionClock.prepare`).
  */
 function progressOn(
   clock: IAutoMovieMotionClock,
   window: readonly [string, string],
 ): (seconds: number) => number {
-  const read: ReturnType<typeof AutoMovieMotionClock.prepare> =
-    AutoMovieMotionClock.prepare(clock, window[0], window[1]);
+  const read: ReturnType<typeof motionClock.prepare> =
+    motionClock.prepare(clock, window[0], window[1]);
   return (seconds: number): number => read.progress(seconds);
 }

@@ -17,7 +17,7 @@ import type {
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmPlanned } from "../../compose/internal/AutoMovieMotionHumanArmPlanned";
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
 import { AutoMovieMotionHumanTouchLaid } from "../../compose/internal/AutoMovieMotionHumanTouchLaid";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
@@ -80,7 +80,7 @@ export namespace touchReach {
 
   /*
    * How long a hand's reach to a mutual meeting's point takes: the free-space
-   * time of its distance (`AutoMovieMotionHumanTiming.transport`), and at least
+   * time of its distance (`motionHumanTiming.transport`), and at least
    * what its arm's arc needs within the audit's travel bound (`place`) where
    * the performer's posture is known, so the reach the meeting's instant pins
    * meets the bound its arm is laid by.
@@ -107,7 +107,7 @@ export namespace touchReach {
       surface,
       "relaxed",
     ).point;
-    const free: number = AutoMovieMotionHumanTiming.transport(
+    const free: number = motionHumanTiming.transport(
       AutoMovieEngineVector3.distance(point, from),
     );
     return entry === undefined

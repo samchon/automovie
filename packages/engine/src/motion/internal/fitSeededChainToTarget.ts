@@ -51,7 +51,7 @@ export namespace fitSeededChainToTarget {
     return continueHingedOrientation.root(result);
   }
 
-  /**
+  /*
    * A fit operation's borrowed source dependencies and exact chain-frame
    * reader. Keep the rig, topology, source/reference poses, mappings and
    * callback dependencies unchanged for this workspace's lifetime. Results
@@ -70,7 +70,7 @@ export namespace fitSeededChainToTarget {
    * orientation/contact.
    */
   export interface IWorkspace {
-    /**
+    /*
      * Fit one target using the original source pose and unchanged search
      * policy. Keep that target's coordinate record unchanged until the fit
      * returns. An optional `near` replaces the source's cold/near mode for this
@@ -98,7 +98,7 @@ export namespace fitSeededChainToTarget {
       capture?: IAutoMovieEngineMotionChainEffectorReading,
     ): IAutoMovieSeededChainFit;
 
-    /**
+    /*
      * Evaluate an explicit continuous-curve candidate at the current target.
      * The curve owner supplies a deterministic branch/swivel with positive
      * degree-valued bracket tolerance and verifies current final effector
@@ -122,7 +122,7 @@ export namespace fitSeededChainToTarget {
       observe?: IAutoMovieChainContinuationObserver,
     ): IAutoMovieSeededChainFit;
 
-    /**
+    /*
      * Read a fit result's actual effector rotation in the same resolved model
      * frame. The pose must be this workspace's result, with its root, ancestors
      * and intermediate joints unchanged; a result with null preparation uses
@@ -136,7 +136,7 @@ export namespace fitSeededChainToTarget {
      */
     rotation(pose: IAutoMoviePose): IAutoMovieQuaternion;
 
-    /**
+    /*
      * Actual joint centre and rotation after projection, in the same model
      * frame as fit targets.
      */
@@ -204,7 +204,7 @@ export namespace fitSeededChainToTarget {
     return preparedWorkspace(workspace, resolution, poseResolution);
   }
 
-  /**
+  /*
    * Fixed rig, original pose, chain and clinical mappings of a synchronous goal
    * search.
    */
@@ -213,7 +213,7 @@ export namespace fitSeededChainToTarget {
     "skeleton" | "pose" | "chain" | "topology" | "jointAxes" | "restFrames"
   >;
 
-  /**
+  /*
    * Live goal/search fields; target points remain the bound workspace's fit
    * input.
    */

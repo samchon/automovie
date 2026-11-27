@@ -15,14 +15,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanJoints } from "../../compose/internal/AutoMovieMotionHumanJoints";
 import { AutoMovieMotionHumanLean } from "../../compose/internal/AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanRoot } from "../../compose/internal/AutoMovieMotionHumanRoot";
 import { AutoMovieMotionHumanTarget } from "../../compose/internal/AutoMovieMotionHumanTarget";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { StrikingTarget } from "../../striking/internal/StrikingTarget";
 import { CollapseFold } from "./CollapseFold";
@@ -100,17 +100,17 @@ export namespace collapse {
     const down: number = clock.at("down");
 
     const duration: number = clock.duration;
-    const sagging: (seconds: number) => number = AutoMovieMotionClock.prepare(
+    const sagging: (seconds: number) => number = motionClock.prepare(
       clock,
-      AutoMovieMotionClock.START,
+      motionClock.START,
       "sag",
     ).progress;
-    const drop: (seconds: number) => number = AutoMovieMotionClock.prepare(
+    const drop: (seconds: number) => number = motionClock.prepare(
       clock,
       "sag",
       "knees",
     ).progress;
-    const lay: (seconds: number) => number = AutoMovieMotionClock.prepare(
+    const lay: (seconds: number) => number = motionClock.prepare(
       clock,
       "knees",
       "down",
@@ -163,7 +163,7 @@ export namespace collapse {
     const landed: number = ankle(kneel);
 
     const plan: IAutoMovieMotionHumanActionPlan =
-      composeAutoMovieMotionHumanAction({
+      composeMotionHumanAction({
         base: {
           ...AutoMovieMotionHumanBase.still(
             duration,

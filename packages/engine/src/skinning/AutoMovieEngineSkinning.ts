@@ -6,7 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import { resolveMorphTargetWeights as resolveMorphTargetWeightsImplementation } from "./internal/resolveMorphTargetWeights";
-import { skinAutoMovieMesh as skinAutoMovieMeshImplementation } from "./internal/skinAutoMovieMesh";
+import { skinMesh as skinMeshImplementation } from "./internal/skinMesh";
 
 /** Public pose-driven mesh deformation operations. */
 export namespace AutoMovieEngineSkinning {
@@ -25,6 +25,6 @@ export namespace AutoMovieEngineSkinning {
     posed: readonly IAutoMovieResolvedBone[],
     morphWeights?: ReadonlyMap<string, number>,
   ): number[] {
-    return skinAutoMovieMeshImplementation(mesh, rest, posed, morphWeights);
+    return skinMeshImplementation(mesh, rest, posed, morphWeights);
   }
 }

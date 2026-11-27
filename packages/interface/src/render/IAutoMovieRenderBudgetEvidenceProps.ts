@@ -1,5 +1,5 @@
-import type { IAutoMovieRenderBudget } from "./IAutoMovieRenderBudget.js";
-import type { IAutoMovieRenderBudgetAssessment } from "./IAutoMovieRenderBudgetAssessment.js";
+import type { IAutoMovieRenderBudget } from "./IAutoMovieRenderBudget";
+import type { IAutoMovieRenderBudgetAssessment } from "./IAutoMovieRenderBudgetAssessment";
 
 /**
  * Tier budgets and supplied shot assessments for deterministic evidence

@@ -1,8 +1,8 @@
 import { materializeCompiledFormation as materializeCompiledFormationImplementation } from "./internal/materializeCompiledFormation";
 
-import { autoMovieInstanceAddress as autoMovieInstanceAddressImplementation } from "./internal/autoMovieInstanceAddress";
-import { autoMovieInstanceAddressSlot as autoMovieInstanceAddressSlotImplementation } from "./internal/autoMovieInstanceAddressSlot";
-import { createAutoMovieSourceOracle as createAutoMovieSourceOracleImplementation } from "./internal/createAutoMovieSourceOracle";
+import { instanceAddress as instanceAddressImplementation } from "./internal/instanceAddress";
+import { instanceAddressSlot as instanceAddressSlotImplementation } from "./internal/instanceAddressSlot";
+import { createSourceOracle as createSourceOracleImplementation } from "./internal/createSourceOracle";
 import { compiledPopulationRepresentation as compiledPopulationRepresentationImplementation } from "./internal/compiledPopulationRepresentation";
 import { instancePrototypeChoices as instancePrototypeChoicesImplementation } from "./internal/instancePrototypeChoices";
 
@@ -206,14 +206,14 @@ export namespace AutoMovieEnginePopulationRuntime {
    * @returns The member's address.
    */
   export function autoMovieInstanceAddress(set: IAutoMovieCompiledInstanceSet, slot: number): string {
-    return autoMovieInstanceAddressImplementation(set, slot);
+    return instanceAddressImplementation(set, slot);
   }
 
   /**
    * The slot one compact-member address names in a set, or null when it names no
    * member of that set.
    *
-   * The inverse of `autoMovieInstanceAddress` for members inside the set: an
+   * The inverse of `instanceAddress` for members inside the set: an
    * explicit layout matches its transforms' ids, any other layout parses exactly
    * six digits after `instance:<set>:slot:`. A slot at or past `set.count` is
    * null, so an address left over from a larger revision does not resolve.
@@ -223,7 +223,7 @@ export namespace AutoMovieEnginePopulationRuntime {
    * @returns The zero-based slot, or null.
    */
   export function autoMovieInstanceAddressSlot(set: IAutoMovieCompiledInstanceSet, address: string): number | null {
-    return autoMovieInstanceAddressSlotImplementation(set, address);
+    return instanceAddressSlotImplementation(set, address);
   }
 
   /**
@@ -253,7 +253,7 @@ export namespace AutoMovieEnginePopulationRuntime {
    * @returns The oracle a shot source's build context exposes.
    */
   export function createAutoMovieSourceOracle(props: IAutoMovieCreateSourceOracle.IProps): IAutoMovieSourceOracle {
-    return createAutoMovieSourceOracleImplementation(props);
+    return createSourceOracleImplementation(props);
   }
 
   /**

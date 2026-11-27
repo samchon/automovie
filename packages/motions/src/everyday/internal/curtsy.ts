@@ -16,11 +16,11 @@ import type {
 } from "@automovie/interface";
 
 import { HumanSupportFrame } from "../../carrier/internal/HumanSupportFrame";
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionHumanRoot } from "../../compose/internal/AutoMovieMotionHumanRoot";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
@@ -199,7 +199,7 @@ function plan(
   const transferDrop: number = reach(transfer, rearEntry);
   const landingDrop: number = reach(approach, crossed);
 
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock(duration, [
+  const clock: IAutoMovieMotionClock = motionClock(duration, [
     { name: "stepOff", seconds: 0.18 * duration },
     { name: "crossed", seconds: 0.35 * duration },
     { name: "dip", seconds: 0.5 * duration },
@@ -270,7 +270,7 @@ function plan(
     support: { kind: "ground" },
   });
   const planned: IAutoMovieMotionHumanActionPlan =
-    composeAutoMovieMotionHumanAction({
+    composeMotionHumanAction({
       clock,
       base: AutoMovieMotionHumanBase.still(duration, entry.posture, [
         plant(lead, "start", "end"),

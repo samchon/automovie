@@ -1,6 +1,6 @@
 import {
-  AutoMovieMotionPrepared
-} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionPrepared";
+  motionPrepared
+} from "../../../../../packages/motions/src/compose/internal/motionPrepared";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";
@@ -12,7 +12,7 @@ interface IBuilt {
 }
 
 /**
- * `AutoMovieMotionPrepared` holds a value a plan solves when it is prepared:
+ * `motionPrepared` holds a value a plan solves when it is prepared:
  * before that, each read builds it afresh and keeps nothing; once prepared,
  * reads return the prepared value; a clear drops it until the next
  * preparation.
@@ -26,7 +26,7 @@ interface IBuilt {
  */
 export function test_motions_compose_motion_prepared(): void {
   let builds: number = 0;
-  const value: AutoMovieMotionPrepared.IValue<IBuilt> = AutoMovieMotionPrepared(
+  const value: motionPrepared.IValue<IBuilt> = motionPrepared(
     (): IBuilt => ({ ordinal: ++builds }),
   );
 
@@ -54,8 +54,8 @@ export function test_motions_compose_motion_prepared(): void {
   );
 
   // 4. Re-entry.
-  const recursive: AutoMovieMotionPrepared.IValue<IBuilt> =
-    AutoMovieMotionPrepared(
+  const recursive: motionPrepared.IValue<IBuilt> =
+    motionPrepared(
       (): IBuilt => recursive.read(),
       (): Error => new Error("read back while it is being built"),
     );

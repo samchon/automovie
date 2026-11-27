@@ -2,7 +2,7 @@ import { AutoMovieEngineGeometry } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `boundAutoMovieMeshQueryPoint(node, point, cutoff?)` is the squared distance
+ * `boundMeshQueryPoint(node, point, cutoff?)` is the squared distance
  * from a point to a box, summed x, y, z, returning the partial sum as soon as
  * it strictly exceeds the cutoff.
  *

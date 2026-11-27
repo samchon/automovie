@@ -9,11 +9,11 @@ import type {
 } from "@automovie/interface";
 
 import {
-  fitAutoMovieRecoveryImageLoft as fitImageLoftOperation,
-} from "./internal/fitAutoMovieRecoveryImageLoft";
+  fitRecoveryImageLoft as fitImageLoftOperation,
+} from "./internal/fitRecoveryImageLoft";
 import {
-  fitAutoMovieRecoveryImageSupportLoft as fitSupportLoftOperation,
-} from "./internal/fitAutoMovieRecoveryImageSupportLoft";
+  fitRecoveryImageSupportLoft as fitSupportLoftOperation,
+} from "./internal/fitRecoveryImageSupportLoft";
 
 /** Fit image observations into the package's supported Recovery loft families. */
 export namespace AutoMovieRecoveryFitting {

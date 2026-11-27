@@ -22,7 +22,7 @@ import type {
  * the author.
  */
 
-import { admitAutoMovieBicubicAtlas } from "../../geometry/internal/admitAutoMovieBicubicAtlas";
+import { admitBicubicAtlas } from "../../geometry/internal/admitBicubicAtlas";
 import { validateJointAxesBasis } from "../../kinematics/internal/validateJointAxesBasis";
 import { AutoMovieEngineViolationCollector } from "../AutoMovieEngineViolationCollector";
 import { materialTextureSlots } from "./materialTextureSlots";
@@ -135,7 +135,7 @@ export function validateModel(
         break;
       case "bicubic-atlas":
         try {
-          for (const diagnostic of admitAutoMovieBicubicAtlas(part.geometry)
+          for (const diagnostic of admitBicubicAtlas(part.geometry)
             .diagnostics)
             collector.push(
               "type",

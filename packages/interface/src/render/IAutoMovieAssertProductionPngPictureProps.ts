@@ -1,5 +1,5 @@
-import type { IAutoMovieProductionPngPicture } from "../production/IAutoMovieProductionPngPicture.js";
-import type { IAutoMovieProductionPngProfile } from "./IAutoMovieProductionPngProfile.js";
+import type { IAutoMovieProductionPngPicture } from "../production/IAutoMovieProductionPngPicture";
+import type { IAutoMovieProductionPngProfile } from "./IAutoMovieProductionPngProfile";
 
 /**
  * Required PNG profile and parser-observed picture facts.

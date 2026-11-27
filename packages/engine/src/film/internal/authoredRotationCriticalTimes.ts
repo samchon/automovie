@@ -4,7 +4,7 @@ import {
   IAutoMovieTrack,
 } from "@automovie/interface";
 
-import { adjacentAutoMovieFloat64 } from "../../math/internal/adjacentAutoMovieFloat64";
+import { adjacentFloat64 } from "../../math/internal/adjacentFloat64";
 import { quaternionInterpolationCriticalRatios } from "../../math/internal/quaternionInterpolationCriticalRatios";
 
 /*
@@ -48,8 +48,8 @@ export function authoredRotationCriticalTimes(
     for (const time of phases) {
       if (time < 0 || time > shotDuration) continue;
       keep(time);
-      if (time > 0) keep(adjacentAutoMovieFloat64(time, false));
-      if (time < shotDuration) keep(adjacentAutoMovieFloat64(time, true));
+      if (time > 0) keep(adjacentFloat64(time, false));
+      if (time < shotDuration) keep(adjacentFloat64(time, true));
     }
   }
   return times;

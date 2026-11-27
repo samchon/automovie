@@ -73,9 +73,9 @@ import { validateJointRom as validateJointRomImplementation } from "../rom/inter
 import type { AutoMovieEngineKinematicsTypes } from "./AutoMovieEngineKinematicsTypes";
 import { type AutoMovieEngineDistalEndSwivelReadings } from "./AutoMovieEngineDistalEndSwivelReadings";
 import { type AutoMovieEngineDistalTwistSwivelRange } from "./AutoMovieEngineDistalTwistSwivelRange";
-import { AutoMovieHumanoidDigitSurfaces as AutoMovieHumanoidDigitSurfacesImplementation } from "./internal/AutoMovieHumanoidDigitSurfaces";
+import { humanoidDigitSurfaces as humanoidDigitSurfacesImplementation } from "./internal/humanoidDigitSurfaces";
 import type { AutoMovieHumanoidNeutralBounds } from "./internal/AutoMovieHumanoidNeutralBounds";
-import { AutoMovieHumanoidSurfaceExtents as AutoMovieHumanoidSurfaceExtentsImplementation } from "./internal/AutoMovieHumanoidSurfaceExtents";
+import { humanoidSurfaceExtents as humanoidSurfaceExtentsImplementation } from "./internal/humanoidSurfaceExtents";
 import { aimRotationImplementation } from "./internal/aimRotationImplementation";
 import { aimYawPitch as aimYawPitchImplementation } from "./internal/aimYawPitch";
 import { alternateRigJointAngles as alternateRigJointAnglesImplementation } from "./internal/alternateRigJointAngles";
@@ -97,8 +97,8 @@ import { indexSkeletonTopology as indexSkeletonTopologyImplementation } from "./
 import { indexSkeletonTopologyChildren as indexSkeletonTopologyChildrenImplementation } from "./internal/indexSkeletonTopologyChildren";
 import { jointRomOvershoot as jointRomOvershootImplementation } from "./internal/jointRomOvershoot";
 import { jointToQuaternion as jointToQuaternionImplementation } from "./internal/jointToQuaternion";
-import { markAutoMovieBalance as markAutoMovieBalanceImplementation } from "./internal/markAutoMovieBalance";
-import { markAutoMovieRomOvershoot as markAutoMovieRomOvershootImplementation } from "./internal/markAutoMovieRomOvershoot";
+import { markBalance as markBalanceImplementation } from "./internal/markBalance";
+import { markRomOvershoot as markRomOvershootImplementation } from "./internal/markRomOvershoot";
 import { measureAutoMovieHumanoidBody as measureAutoMovieHumanoidBodyImplementation } from "./internal/measureAutoMovieHumanoidBody";
 import { normalizeJointAxes as normalizeJointAxesImplementation } from "./internal/normalizeJointAxes";
 import { poseJointCodecImplementation } from "./internal/poseJointCodecImplementation";
@@ -109,13 +109,13 @@ import { preparePoseResolution as preparePoseResolutionImplementation } from "./
 import { reachPose as reachPoseImplementation } from "./internal/reachPose";
 import { reachableBoneNames as reachableBoneNamesImplementation } from "./internal/reachableBoneNames";
 import { readPreparedBendClinical as readPreparedBendClinicalImplementation } from "./internal/readPreparedBendClinical";
-import { resolveAutoMovieBalanceOutcome as resolveAutoMovieBalanceOutcomeImplementation } from "./internal/resolveAutoMovieBalanceOutcome";
-import { resolveAutoMovieBoneRates as resolveAutoMovieBoneRatesImplementation } from "./internal/resolveAutoMovieBoneRates";
+import { resolveBalanceOutcome as resolveBalanceOutcomeImplementation } from "./internal/resolveBalanceOutcome";
+import { resolveBoneRates as resolveBoneRatesImplementation } from "./internal/resolveBoneRates";
 import { resolveAutoMovieCenterOfMass as resolveAutoMovieCenterOfMassImplementation } from "./internal/resolveAutoMovieCenterOfMass";
-import { resolveAutoMovieHumanoidRingModules as resolveAutoMovieHumanoidRingModulesImplementation } from "./internal/resolveAutoMovieHumanoidRingModules";
+import { resolveHumanoidRingModules as resolveHumanoidRingModulesImplementation } from "./internal/resolveHumanoidRingModules";
 import { resolveAutoMovieHumanoidSurfaces as resolveAutoMovieHumanoidSurfacesImplementation } from "./internal/resolveAutoMovieHumanoidSurfaces";
 import { resolveAutoMovieMomentum as resolveAutoMovieMomentumImplementation } from "./internal/resolveAutoMovieMomentum";
-import { resolveAutoMovieMomentumRates as resolveAutoMovieMomentumRatesImplementation } from "./internal/resolveAutoMovieMomentumRates";
+import { resolveMomentumRates as resolveMomentumRatesImplementation } from "./internal/resolveMomentumRates";
 import { resolveLookAt as resolveLookAtImplementation } from "./internal/resolveLookAt";
 import { resolvePose as resolvePoseImplementation } from "./internal/resolvePose";
 import { skeletonJointAxes as skeletonJointAxesImplementation } from "./internal/skeletonJointAxes";
@@ -797,7 +797,7 @@ export namespace AutoMovieEngineKinematics {
   export function resolveAutoMovieBalanceOutcome(
     props: IAutoMovieResolveBalanceOutcome.IProps,
   ): IAutoMovieResolveBalanceOutcome.IOutcome {
-    return resolveAutoMovieBalanceOutcomeImplementation(props);
+    return resolveBalanceOutcomeImplementation(props);
   }
 
   /**
@@ -837,7 +837,7 @@ export namespace AutoMovieEngineKinematics {
       AutoMovieEngineKinematicsTypes.IAutoMovieEngineKinematicsBoneRate
     >,
   ): IAutoMovieBodyMomentum {
-    return resolveAutoMovieMomentumRatesImplementation(
+    return resolveMomentumRatesImplementation(
       model,
       posed,
       bones,
@@ -876,7 +876,7 @@ export namespace AutoMovieEngineKinematics {
   export function resolveAutoMovieHumanoidRingModules(
     bones: readonly IAutoMovieResolveHumanoidRingModules.IBone[],
   ): IAutoMovieResolveHumanoidRingModules.IModule[] {
-    return resolveAutoMovieHumanoidRingModulesImplementation(bones);
+    return resolveHumanoidRingModulesImplementation(bones);
   }
 
   /**
@@ -910,7 +910,7 @@ export namespace AutoMovieEngineKinematics {
   ): Partial<
     Record<AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaces.IFrame>
   > {
-    return AutoMovieHumanoidDigitSurfacesImplementation(rays, profile);
+    return humanoidDigitSurfacesImplementation(rays, profile);
   }
 
   /**
@@ -933,7 +933,7 @@ export namespace AutoMovieEngineKinematics {
     at: (bone: AutoMovieHumanoidBone) => IAutoMovieResolvedBone,
     bounds: IAutoMovieHumanoidSurfaceExtents.ReadBounds,
   ): Record<AutoMovieHumanoidRegion, number> {
-    return AutoMovieHumanoidSurfaceExtentsImplementation(regions, at, bounds);
+    return humanoidSurfaceExtentsImplementation(regions, at, bounds);
   }
 
   /**
@@ -1050,7 +1050,7 @@ export namespace AutoMovieEngineKinematics {
   export function markAutoMovieBalance(
     props: IAutoMovieMarkBalance.IProps,
   ): IAutoMovieMark[] {
-    return markAutoMovieBalanceImplementation(props);
+    return markBalanceImplementation(props);
   }
 
   /**
@@ -1073,7 +1073,7 @@ export namespace AutoMovieEngineKinematics {
   export function markAutoMovieRomOvershoot(
     entries: IAutoMovieMarkRomOvershoot.IEntries,
   ): IAutoMovieMark[] {
-    return markAutoMovieRomOvershootImplementation(entries);
+    return markRomOvershootImplementation(entries);
   }
 
   /**
@@ -1582,7 +1582,7 @@ export namespace AutoMovieEngineKinematics {
         AutoMovieEngineKinematicsTypes.IAutoMovieEngineKinematicsBoneRate
       >
     | undefined {
-    return resolveAutoMovieBoneRatesImplementation(
+    return resolveBoneRatesImplementation(
       topology,
       bones,
       localBodyAngularRates,

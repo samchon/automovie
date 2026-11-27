@@ -1,6 +1,6 @@
 import { AutoMovieRenderSceneRenderMode } from "@automovie/render";
-import type { AutoMovieViewerDisplay } from "../AutoMovieViewerDisplay.js";
-import { createViewerCameraState } from "./createViewerCameraState.js";
+import type { AutoMovieViewerDisplay } from "../AutoMovieViewerDisplay";
+import { createViewerCameraState } from "./createViewerCameraState";
 
 /*
  * Own a mounted frame's camera/time controller and nested playback freezes.

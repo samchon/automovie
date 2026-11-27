@@ -2,7 +2,7 @@
  * One partition sound passes through on its way out of the room.
  *
  * Contributes `area * 10^(-transmissionLoss / 10)` to the area-weighted
- * composite transmittance in `analyzeAutoMovieAcoustics`. A negative loss is
+ * composite transmittance in `analyzeAcoustics`. A negative loss is
  * refused, because a partition cannot transmit more energy than reaches it, and
  * a loss high enough to underflow every partition's transmittance to zero turns
  * the composite loss into a gap.

@@ -10,7 +10,7 @@ import type {
 
 import { AutoMovieMotionHumanBendEnclosure } from "./AutoMovieMotionHumanBendEnclosure";
 import type { AutoMovieMotionHumanBendSearch } from "./AutoMovieMotionHumanBendSearch";
-import { AutoMovieMotionHumanBendStrain } from "./AutoMovieMotionHumanBendStrain";
+import { motionHumanBendStrain } from "./motionHumanBendStrain";
 import { AutoMovieMotionHumanBendUnmadeBound } from "./AutoMovieMotionHumanBendUnmadeBound";
 
 /*
@@ -24,7 +24,7 @@ import { AutoMovieMotionHumanBendUnmadeBound } from "./AutoMovieMotionHumanBendU
  * decomposition reads against the hanging arm's `n_i` over each axis's half
  * range `h_i`; with a hand rotation it is `S` plus non-negative shares, or
  * `UNMADE` plus a positive excess, so at least `min(S, UNMADE)`
- * (`AutoMovieMotionHumanBendStrain.least`). This bounds `S` over an arc from
+ * (`motionHumanBendStrain.least`). This bounds `S` over an arc from
  * its swivel readings.
  *
  * Derivation. The upper arm's bone-local rotation at a swivel `ψ` is a fixed
@@ -115,8 +115,8 @@ export namespace AutoMovieMotionHumanBendBound {
   export function prepare(
     props: IProps,
   ): NonNullable<AutoMovieEngineKinematicsTypes.IAutoMovieEngineKinematicsHingedArmArticulationProps["bound"]> {
-    const halves: AutoMovieMotionHumanBendStrain.IHalves =
-      AutoMovieMotionHumanBendStrain.halvesOf(props.range);
+    const halves: motionHumanBendStrain.IHalves =
+      motionHumanBendStrain.halvesOf(props.range);
     const unmade: ReturnType<
       typeof AutoMovieMotionHumanBendUnmadeBound.prepare
     > =
@@ -141,10 +141,10 @@ export namespace AutoMovieMotionHumanBendBound {
       return (low: number, high: number): number => {
         const left: number = excess === null ? 0 : excess(low, high);
         return left > 0
-          ? AutoMovieMotionHumanBendStrain.UNMADE + left
+          ? motionHumanBendStrain.UNMADE + left
           : Math.min(
               shoulder(low, high),
-              AutoMovieMotionHumanBendStrain.UNMADE,
+              motionHumanBendStrain.UNMADE,
             );
       };
     };
@@ -157,7 +157,7 @@ export namespace AutoMovieMotionHumanBendBound {
  */
 function shoulderOf(
   props: AutoMovieMotionHumanBendBound.IProps,
-  halves: AutoMovieMotionHumanBendStrain.IHalves,
+  halves: motionHumanBendStrain.IHalves,
   upper: (swivel: number) => IAutoMovieQuaternion,
 ): (low: number, high: number) => number {
   const readings: Record<AutoMovieEngineSwivelJointReadings.Axis, AutoMovieEngineSwivelJointReadings.IRead> =
@@ -181,7 +181,7 @@ function shoulderOf(
       if (enclosed === null) return 0;
       const half: number | null = halves[i]!;
       if (half === null) continue;
-      sum += AutoMovieMotionHumanBendStrain.share(
+      sum += motionHumanBendStrain.share(
         distance(
           props.neutral[axis],
           enclosed,

@@ -5,8 +5,8 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import type { IAutoMovieRenderFluidSurfaceObject } from "../IAutoMovieRenderFluidSurfaceObject.js";
-import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceRetirement.js";
+import type { IAutoMovieRenderFluidSurfaceObject } from "../IAutoMovieRenderFluidSurfaceObject";
+import { reportResourceRetirement } from "./reportResourceRetirement";
 
 /*
  * Project one engine-derived free surface into a `three.js` mesh.
@@ -116,7 +116,7 @@ export const buildFluidSurfaceObject: (props: {
     object: mesh,
     update: upload,
     dispose: (): void => {
-      reportAutoMovieResourceRetirement([
+      reportResourceRetirement([
         (): void => {
           geometry.dispose();
         },

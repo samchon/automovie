@@ -45,43 +45,43 @@ import {
 } from "@automovie/interface";
 
 import { type AutoMovieSolidTraceObservation as Observation } from "./construction/AutoMovieSolidTraceObservation";
-import { AutoMovieConstructionBoundary as AutoMovieConstructionBoundaryImplementation } from "./construction/internal/AutoMovieConstructionBoundary";
-import { AutoMovieConstructionBridgeRealize as AutoMovieConstructionBridgeRealizeImplementation } from "./construction/internal/AutoMovieConstructionBridgeRealize";
-import { AutoMovieConstructionContinuationRealize as AutoMovieConstructionContinuationRealizeImplementation } from "./construction/internal/AutoMovieConstructionContinuationRealize";
-import { AutoMovieConstructionKnownPort as AutoMovieConstructionKnownPortImplementation } from "./construction/internal/AutoMovieConstructionKnownPort";
-import { AutoMovieConstructionNativeProfile as AutoMovieConstructionNativeProfileImplementation } from "./construction/internal/AutoMovieConstructionNativeProfile";
-import { AutoMovieConstructionPortAddress as AutoMovieConstructionPortAddressImplementation } from "./construction/internal/AutoMovieConstructionPortAddress";
-import { AutoMovieConstructionPortRadialRange as AutoMovieConstructionPortRadialRangeImplementation } from "./construction/internal/AutoMovieConstructionPortRadialRange";
-import { AutoMovieConstructionPortRealize as AutoMovieConstructionPortRealizeImplementation } from "./construction/internal/AutoMovieConstructionPortRealize";
-import { AutoMovieConstructionProfileRealize as AutoMovieConstructionProfileRealizeImplementation } from "./construction/internal/AutoMovieConstructionProfileRealize";
-import { AutoMovieConstructionProfileSkin as AutoMovieConstructionProfileSkinImplementation } from "./construction/internal/AutoMovieConstructionProfileSkin";
-import { AutoMovieConstructionProfileSurface as AutoMovieConstructionProfileSurfaceImplementation } from "./construction/internal/AutoMovieConstructionProfileSurface";
-import { AutoMovieConstructionSplitRealize as AutoMovieConstructionSplitRealizeImplementation } from "./construction/internal/AutoMovieConstructionSplitRealize";
-import { AutoMovieLoftViewWorldJet as AutoMovieLoftViewWorldJetImplementation } from "./construction/internal/AutoMovieLoftViewWorldJet";
-import { AutoMovieLoftWorldJet as AutoMovieLoftWorldJetImplementation } from "./construction/internal/AutoMovieLoftWorldJet";
-import { AutoMovieSolidTraceTrial as AutoMovieSolidTraceTrialImplementation } from "./construction/internal/AutoMovieSolidTraceTrial";
-import { AutoMovieViewHermiteDerivativeRange as AutoMovieViewHermiteDerivativeRangeImplementation } from "./construction/internal/AutoMovieViewHermiteDerivativeRange";
-import { AutoMovieViewLoftInputs as AutoMovieViewLoftInputsImplementation } from "./construction/internal/AutoMovieViewLoftInputs";
-import { distanceAutoMovieViewOutline as distanceAutoMovieViewOutlineImplementation } from "./construction/internal/distanceAutoMovieViewOutline";
-import { domainAutoMovieSolidMesh as domainAutoMovieSolidMeshImplementation } from "./construction/internal/domainAutoMovieSolidMesh";
-import { faceAutoMovieSolidMesh as faceAutoMovieSolidMeshImplementation } from "./construction/internal/faceAutoMovieSolidMesh";
-import { fairAutoMovieSolidMesh as fairAutoMovieSolidMeshImplementation } from "./construction/internal/fairAutoMovieSolidMesh";
-import { gridAutoMovieSolidMesh as gridAutoMovieSolidMeshImplementation } from "./construction/internal/gridAutoMovieSolidMesh";
-import { incircleAutoMovieSolidChart as incircleAutoMovieSolidChartImplementation } from "./construction/internal/incircleAutoMovieSolidChart";
-import { insertAutoMovieSolidMeshPoints as insertAutoMovieSolidMeshPointsImplementation } from "./construction/internal/insertAutoMovieSolidMeshPoints";
-import { legalizeAutoMovieSolidMesh as legalizeAutoMovieSolidMeshImplementation } from "./construction/internal/legalizeAutoMovieSolidMesh";
-import { markAutoMovieConstructionCurves as markAutoMovieConstructionCurvesImplementation } from "./construction/internal/markAutoMovieConstructionCurves";
-import { openAutoMovieSolidMesh as openAutoMovieSolidMeshImplementation } from "./construction/internal/openAutoMovieSolidMesh";
-import { orientAutoMovieSolidChart as orientAutoMovieSolidChartImplementation } from "./construction/internal/orientAutoMovieSolidChart";
-import { probeAutoMovieSolidMesh as probeAutoMovieSolidMeshImplementation } from "./construction/internal/probeAutoMovieSolidMesh";
-import { realizeAutoMovieConstruction as realizeAutoMovieConstructionImplementation } from "./construction/internal/realizeAutoMovieConstruction";
-import { rollAutoMovieViewAxis as rollAutoMovieViewAxisImplementation } from "./construction/internal/rollAutoMovieViewAxis";
-import { rootsAutoMovieViewPolynomial as rootsAutoMovieViewPolynomialImplementation } from "./construction/internal/rootsAutoMovieViewPolynomial";
-import { rootsAutoMovieViewSinPolynomial as rootsAutoMovieViewSinPolynomialImplementation } from "./construction/internal/rootsAutoMovieViewSinPolynomial";
-import { sampleAutoMovieConstructionCurves as sampleAutoMovieConstructionCurvesImplementation } from "./construction/internal/sampleAutoMovieConstructionCurves";
-import { supportAutoMovieViewOutline as supportAutoMovieViewOutlineImplementation } from "./construction/internal/supportAutoMovieViewOutline";
-import { triangulateAutoMovieSolidBoundary as triangulateAutoMovieSolidBoundaryImplementation } from "./construction/internal/triangulateAutoMovieSolidBoundary";
-import { witnessAutoMovieSolidChartTriangle as witnessAutoMovieSolidChartTriangleImplementation } from "./construction/internal/witnessAutoMovieSolidChartTriangle";
+import { constructionBoundary as constructionBoundaryImplementation } from "./construction/internal/constructionBoundary";
+import { constructionBridgeRealize as constructionBridgeRealizeImplementation } from "./construction/internal/constructionBridgeRealize";
+import { constructionContinuationRealize as constructionContinuationRealizeImplementation } from "./construction/internal/constructionContinuationRealize";
+import { constructionKnownPort as constructionKnownPortImplementation } from "./construction/internal/constructionKnownPort";
+import { constructionNativeProfile as constructionNativeProfileImplementation } from "./construction/internal/constructionNativeProfile";
+import { constructionPortAddress as constructionPortAddressImplementation } from "./construction/internal/constructionPortAddress";
+import { constructionPortRadialRange as constructionPortRadialRangeImplementation } from "./construction/internal/constructionPortRadialRange";
+import { constructionPortRealize as constructionPortRealizeImplementation } from "./construction/internal/constructionPortRealize";
+import { constructionProfileRealize as constructionProfileRealizeImplementation } from "./construction/internal/constructionProfileRealize";
+import { constructionProfileSkin as constructionProfileSkinImplementation } from "./construction/internal/constructionProfileSkin";
+import { constructionProfileSurface as constructionProfileSurfaceImplementation } from "./construction/internal/constructionProfileSurface";
+import { constructionSplitRealize as constructionSplitRealizeImplementation } from "./construction/internal/constructionSplitRealize";
+import { loftViewWorldJet as loftViewWorldJetImplementation } from "./construction/internal/loftViewWorldJet";
+import { loftWorldJet as loftWorldJetImplementation } from "./construction/internal/loftWorldJet";
+import { solidTraceTrial as solidTraceTrialImplementation } from "./construction/internal/solidTraceTrial";
+import { viewHermiteDerivativeRange as viewHermiteDerivativeRangeImplementation } from "./construction/internal/viewHermiteDerivativeRange";
+import { viewLoftInputs as viewLoftInputsImplementation } from "./construction/internal/viewLoftInputs";
+import { distanceViewOutline as distanceViewOutlineImplementation } from "./construction/internal/distanceViewOutline";
+import { domainSolidMesh as domainSolidMeshImplementation } from "./construction/internal/domainSolidMesh";
+import { faceSolidMesh as faceSolidMeshImplementation } from "./construction/internal/faceSolidMesh";
+import { fairSolidMesh as fairSolidMeshImplementation } from "./construction/internal/fairSolidMesh";
+import { gridSolidMesh as gridSolidMeshImplementation } from "./construction/internal/gridSolidMesh";
+import { incircleSolidChart as incircleSolidChartImplementation } from "./construction/internal/incircleSolidChart";
+import { insertSolidMeshPoints as insertSolidMeshPointsImplementation } from "./construction/internal/insertSolidMeshPoints";
+import { legalizeSolidMesh as legalizeSolidMeshImplementation } from "./construction/internal/legalizeSolidMesh";
+import { markConstructionCurves as markConstructionCurvesImplementation } from "./construction/internal/markConstructionCurves";
+import { openSolidMesh as openSolidMeshImplementation } from "./construction/internal/openSolidMesh";
+import { orientSolidChart as orientSolidChartImplementation } from "./construction/internal/orientSolidChart";
+import { probeSolidMesh as probeSolidMeshImplementation } from "./construction/internal/probeSolidMesh";
+import { realizeConstruction as realizeConstructionImplementation } from "./construction/internal/realizeConstruction";
+import { rollViewAxis as rollViewAxisImplementation } from "./construction/internal/rollViewAxis";
+import { rootsViewPolynomial as rootsViewPolynomialImplementation } from "./construction/internal/rootsViewPolynomial";
+import { rootsViewSinPolynomial as rootsViewSinPolynomialImplementation } from "./construction/internal/rootsViewSinPolynomial";
+import { sampleConstructionCurves as sampleConstructionCurvesImplementation } from "./construction/internal/sampleConstructionCurves";
+import { supportViewOutline as supportViewOutlineImplementation } from "./construction/internal/supportViewOutline";
+import { triangulateSolidBoundary as triangulateSolidBoundaryImplementation } from "./construction/internal/triangulateSolidBoundary";
+import { witnessSolidChartTriangle as witnessSolidChartTriangleImplementation } from "./construction/internal/witnessSolidChartTriangle";
 
 /** Public operations for Auto Movie Engine Construction. */
 export namespace AutoMovieEngineConstruction {
@@ -106,7 +106,7 @@ export namespace AutoMovieEngineConstruction {
   ):
     | IAutoMovieConstructionRealization.IRealization
     | IAutoMovieConstructionRealization.IWithoutSkin {
-    return realizeAutoMovieConstructionImplementation(construction, props);
+    return realizeConstructionImplementation(construction, props);
   }
 
   /**
@@ -134,7 +134,7 @@ export namespace AutoMovieEngineConstruction {
     partEnd: "bottom" | "top",
     sign: 1 | -1,
   ): string | null {
-    return AutoMovieConstructionBoundaryImplementation(
+    return constructionBoundaryImplementation(
       host,
       hostEnd,
       part,
@@ -181,7 +181,7 @@ export namespace AutoMovieEngineConstruction {
     walk: (node: IAutoMovieConstructionNode) => void,
     report: (node: string, contract: string, detail: string) => void,
   ): void {
-    AutoMovieConstructionBridgeRealizeImplementation(
+    constructionBridgeRealizeImplementation(
       node,
       body,
       state,
@@ -214,7 +214,7 @@ export namespace AutoMovieEngineConstruction {
     walk: (node: IAutoMovieConstructionNode) => void,
     report: (node: string, contract: string, detail: string) => void,
   ): void {
-    AutoMovieConstructionContinuationRealizeImplementation(
+    constructionContinuationRealizeImplementation(
       node,
       body,
       state,
@@ -244,7 +244,7 @@ export namespace AutoMovieEngineConstruction {
   export function constructionKnownPort(
     source: IAutoMovieConstructionKnownPortSource,
   ): IAutoMoviePreparedConstructionKnownPort.IPrepared {
-    return AutoMovieConstructionKnownPortImplementation(source);
+    return constructionKnownPortImplementation(source);
   }
 
   /**
@@ -259,7 +259,7 @@ export namespace AutoMovieEngineConstruction {
     part: IAutoMovieViewPart,
     identity: IAutoMovieConstructionNativeProfile.IIdentity,
   ): IAutoMovieConstructionProfileSource {
-    return AutoMovieConstructionNativeProfileImplementation(part, identity);
+    return constructionNativeProfileImplementation(part, identity);
   }
 
   /**
@@ -276,7 +276,7 @@ export namespace AutoMovieEngineConstruction {
     clock: number,
     share: number,
   ): [number, number] {
-    return AutoMovieConstructionPortAddressImplementation(loop, clock, share);
+    return constructionPortAddressImplementation(loop, clock, share);
   }
 
   /**
@@ -311,7 +311,7 @@ export namespace AutoMovieEngineConstruction {
     phase: readonly [number, number],
     originalShare: number,
   ): number {
-    return AutoMovieConstructionPortRadialRangeImplementation(
+    return constructionPortRadialRangeImplementation(
       loop,
       clock,
       station,
@@ -368,7 +368,7 @@ export namespace AutoMovieEngineConstruction {
     walk: (node: IAutoMovieConstructionNode) => void,
     report: (node: string, contract: string, detail: string) => void,
   ): void {
-    AutoMovieConstructionPortRealizeImplementation(
+    constructionPortRealizeImplementation(
       node,
       body,
       state,
@@ -398,7 +398,7 @@ export namespace AutoMovieEngineConstruction {
     state: IAutoMovieConstructionState.IState,
     tolerance: number,
   ): void {
-    AutoMovieConstructionProfileRealizeImplementation(
+    constructionProfileRealizeImplementation(
       node,
       context,
       body,
@@ -422,7 +422,7 @@ export namespace AutoMovieEngineConstruction {
     open: readonly (readonly IAutoMovieSolidMesh.IOpen[])[],
     report: (node: string, contract: string, detail: string) => void,
   ): void {
-    AutoMovieConstructionProfileSkinImplementation(body, ends, open, report);
+    constructionProfileSkinImplementation(body, ends, open, report);
   }
 
   /**
@@ -443,7 +443,7 @@ export namespace AutoMovieEngineConstruction {
     curve: IAutoMovieConstructionProfileSource.ICurve,
     originalDomain?: readonly [number, number],
   ): IAutoMovieSolidSurface {
-    return AutoMovieConstructionProfileSurfaceImplementation(
+    return constructionProfileSurfaceImplementation(
       source,
       family,
       loop,
@@ -486,7 +486,7 @@ export namespace AutoMovieEngineConstruction {
     walk: (node: IAutoMovieConstructionNode) => void,
     report: (node: string, contract: string, detail: string) => void,
   ): void {
-    AutoMovieConstructionSplitRealizeImplementation(
+    constructionSplitRealizeImplementation(
       node,
       body,
       state,
@@ -512,7 +512,7 @@ export namespace AutoMovieEngineConstruction {
     station: number,
     phase: number,
   ): IAutoMovieSolidSurface.IJet | string {
-    return AutoMovieLoftViewWorldJetImplementation(
+    return loftViewWorldJetImplementation(
       source,
       axis,
       station,
@@ -534,7 +534,7 @@ export namespace AutoMovieEngineConstruction {
     local: IAutoMovieLoftWorldJetLocal,
     f: number[][],
   ): IAutoMovieLoftWorldJetWorld {
-    return AutoMovieLoftWorldJetImplementation(local, f);
+    return loftWorldJetImplementation(local, f);
   }
 
   /**
@@ -556,7 +556,7 @@ export namespace AutoMovieEngineConstruction {
     canCross: boolean,
     observation?: Observation.IState,
   ): IAutoMovieSolidTraceTrialTrial | null {
-    return AutoMovieSolidTraceTrialImplementation(
+    return solidTraceTrialImplementation(
       host,
       face,
       u,
@@ -599,7 +599,7 @@ export namespace AutoMovieEngineConstruction {
   export function viewHermiteDerivativeRange(
     curve: IAutoMovieViewHermite.ICurve,
   ): readonly [number, number] | string {
-    return AutoMovieViewHermiteDerivativeRangeImplementation(curve);
+    return viewHermiteDerivativeRangeImplementation(curve);
   }
 
   /** Prepare ViewLoft's existing value readers, reusing retained direct sources. */
@@ -608,7 +608,7 @@ export namespace AutoMovieEngineConstruction {
     source: IAutoMovieLoftViewSource.ISource | null,
     report: (contract: string, detail: string) => void,
   ): IAutoMovieViewLoftInputsInputs | null {
-    return AutoMovieViewLoftInputsImplementation(part, source, report);
+    return viewLoftInputsImplementation(part, source, report);
   }
 
   /**
@@ -633,7 +633,7 @@ export namespace AutoMovieEngineConstruction {
     targetValue: number,
     domain: readonly [number, number],
   ): number[] | string {
-    return distanceAutoMovieViewOutlineImplementation(
+    return distanceViewOutlineImplementation(
       outline,
       targetStation,
       targetValue,
@@ -659,7 +659,7 @@ export namespace AutoMovieEngineConstruction {
     at: (i: number, j: number) => number,
     period?: number,
   ): IAutoMovieSolidMeshConstraints.ISegment[] | string {
-    return domainAutoMovieSolidMeshImplementation(
+    return domainSolidMeshImplementation(
       vertices,
       trim,
       stations,
@@ -685,7 +685,7 @@ export namespace AutoMovieEngineConstruction {
     mesh: IAutoMovieSolidMesh.IMesh,
     input: IAutoMovieSolidMesh.IFace,
   ): IAutoMovieSolidMesh.IOpen[] {
-    return faceAutoMovieSolidMeshImplementation(mesh, input);
+    return faceSolidMeshImplementation(mesh, input);
   }
 
   /**
@@ -744,7 +744,7 @@ export namespace AutoMovieEngineConstruction {
     mesh: IAutoMovieSolidMesh.IMesh,
     regions: IAutoMovieFairSolidMesh.IRegions,
   ): number {
-    return fairAutoMovieSolidMeshImplementation(mesh, regions);
+    return fairSolidMeshImplementation(mesh, regions);
   }
 
   /**
@@ -771,7 +771,7 @@ export namespace AutoMovieEngineConstruction {
     mesh: IAutoMovieSolidMesh.IMesh,
     input: IAutoMovieSolidMesh.IFace,
   ): IAutoMovieGridSolidMeshGrid | null | string {
-    return gridAutoMovieSolidMeshImplementation(mesh, input);
+    return gridSolidMeshImplementation(mesh, input);
   }
 
   /**
@@ -802,7 +802,7 @@ export namespace AutoMovieEngineConstruction {
     c: Readonly<AutoMovieVector2Tuple>,
     d: Readonly<AutoMovieVector2Tuple>,
   ): number {
-    return incircleAutoMovieSolidChartImplementation(a, b, c, d);
+    return incircleSolidChartImplementation(a, b, c, d);
   }
 
   /**
@@ -818,7 +818,7 @@ export namespace AutoMovieEngineConstruction {
    * Guibas and Stolfi's InsertSite (1985, ACM Transactions on Graphics 4(2));
    * de Berg et al. (2008, Computational Geometry, section 9.3) state the same
    * two cases. The Delaunay property is restored afterwards by the planner's
-   * flips (`legalizeAutoMovieSolidMesh`), not here.
+   * flips (`legalizeSolidMesh`), not here.
    *
    * Each new triangle is a containing triangle's side and the point, so its
    * orientation is that side's nonzero location sign. When one has no
@@ -826,7 +826,7 @@ export namespace AutoMovieEngineConstruction {
    * unconstrained sides to make a strict fan. If it reaches an authored
    * constraint, an open boundary or an original point it would remove, the
    * exact split stands and the planner reads membership from its
-   * constraint-bounded region (regionAutoMovieSolidMesh).
+   * constraint-bounded region (regionSolidMesh).
    *
    * An exact predicate is consistent only on one fixed set of represented
    * coordinates (Shewchuk 1997, Adaptive precision floating-point arithmetic
@@ -861,7 +861,7 @@ export namespace AutoMovieEngineConstruction {
     period?: number,
     indexed?: boolean,
   ): IAutoMovieSolidMeshPlan.ITriangle[] | string {
-    return insertAutoMovieSolidMeshPointsImplementation(
+    return insertSolidMeshPointsImplementation(
       vertices,
       constraints,
       triangles,
@@ -957,7 +957,7 @@ export namespace AutoMovieEngineConstruction {
       charts: readonly [number, number][],
     ) => [number, number],
   ): IAutoMovieSolidMeshPlan.ITriangle[] | string {
-    return legalizeAutoMovieSolidMeshImplementation(
+    return legalizeSolidMeshImplementation(
       vertices,
       constraints,
       triangles,
@@ -988,14 +988,14 @@ export namespace AutoMovieEngineConstruction {
    * | `curve/axis`    | `axis curve`    | Cyan `00e5ff`  |
    *
    * ```ts
-   * const marks = markAutoMovieConstructionCurves(
-   *   sampleAutoMovieConstructionCurves(realization),
+   * const marks = markConstructionCurves(
+   *   sampleConstructionCurves(realization),
    *   "hero",
    * );
    * ```
    *
    * @param curves The curves of one form, as
-   *   `sampleAutoMovieConstructionCurves` returns them.
+   *   `sampleConstructionCurves` returns them.
    * @param anchor Path of the scene object the form was built into, or the
    *   empty string for the scene root.
    * @returns One mark per curve, in the curves' order.
@@ -1004,7 +1004,7 @@ export namespace AutoMovieEngineConstruction {
     curves: readonly IAutoMovieConstructionCurve[],
     anchor: string,
   ): IAutoMovieMark[] {
-    return markAutoMovieConstructionCurvesImplementation(curves, anchor);
+    return markConstructionCurvesImplementation(curves, anchor);
   }
 
   /** Read exposed source-domain cycles from the complete positive index plan. */
@@ -1018,7 +1018,7 @@ export namespace AutoMovieEngineConstruction {
     last: number,
     period?: number,
   ): IAutoMovieOpenSolidMeshResult | string {
-    return openAutoMovieSolidMeshImplementation(
+    return openSolidMeshImplementation(
       chart,
       triangles,
       constraints,
@@ -1052,7 +1052,7 @@ export namespace AutoMovieEngineConstruction {
     b: Readonly<AutoMovieVector2Tuple>,
     c: Readonly<AutoMovieVector2Tuple>,
   ): number {
-    return orientAutoMovieSolidChartImplementation(a, b, c);
+    return orientSolidChartImplementation(a, b, c);
   }
 
   /**
@@ -1074,7 +1074,7 @@ export namespace AutoMovieEngineConstruction {
     walk: IAutoMovieSolidMeshIncidence.IWalk,
     period: number | undefined,
   ): Readonly<AutoMovieVector2Tuple> | string {
-    return probeAutoMovieSolidMeshImplementation(vertices, edges, walk, period);
+    return probeSolidMeshImplementation(vertices, edges, walk, period);
   }
 
   /**
@@ -1113,7 +1113,7 @@ export namespace AutoMovieEngineConstruction {
     to: number,
     up: AutoMovieVector3Tuple,
   ): IAutoMovieViewAxis.IAxis | string {
-    return rollAutoMovieViewAxisImplementation(base, from, to, up);
+    return rollViewAxisImplementation(base, from, to, up);
   }
 
   /**
@@ -1134,7 +1134,7 @@ export namespace AutoMovieEngineConstruction {
   export function rootsViewPolynomial(
     coefficients: readonly number[],
   ): number[] {
-    return rootsAutoMovieViewPolynomialImplementation(coefficients);
+    return rootsViewPolynomialImplementation(coefficients);
   }
 
   /**
@@ -1166,7 +1166,7 @@ export namespace AutoMovieEngineConstruction {
     amplitude: number,
     interval?: readonly [number, number],
   ): number[] | string {
-    return rootsAutoMovieViewSinPolynomialImplementation(
+    return rootsViewSinPolynomialImplementation(
       coefficients,
       offset,
       span,
@@ -1231,7 +1231,7 @@ export namespace AutoMovieEngineConstruction {
     >,
     options?: IAutoMovieSampleConstructionCurves.IOptions,
   ): IAutoMovieConstructionCurve[] {
-    return sampleAutoMovieConstructionCurvesImplementation(
+    return sampleConstructionCurvesImplementation(
       realization,
       options,
     );
@@ -1265,7 +1265,7 @@ export namespace AutoMovieEngineConstruction {
     valueScale: number,
     domain: readonly [number, number],
   ): number[] | string {
-    return supportAutoMovieViewOutlineImplementation(
+    return supportViewOutlineImplementation(
       outline,
       slope,
       valueScale,
@@ -1315,7 +1315,7 @@ export namespace AutoMovieEngineConstruction {
     indexed?: boolean,
     occupied?: ReadonlySet<string>,
   ): IAutoMovieSolidMeshPlan.ITriangle[] | string {
-    return triangulateAutoMovieSolidBoundaryImplementation(
+    return triangulateSolidBoundaryImplementation(
       vertices,
       walk,
       period,
@@ -1347,7 +1347,7 @@ export namespace AutoMovieEngineConstruction {
     probe: Readonly<AutoMovieVector2Tuple>,
     period?: number,
   ): boolean | string {
-    return witnessAutoMovieSolidChartTriangleImplementation(
+    return witnessSolidChartTriangleImplementation(
       vertices,
       edges,
       edge,

@@ -1,9 +1,9 @@
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 import type * as THREE from "three";
-import type { IAutoMovieRenderImportedModelOptions } from "./IAutoMovieRenderImportedModelOptions.js";
-import type { IAutoMovieRenderModelObject } from "./IAutoMovieRenderModelObject.js";
-import { createImportedModelObject as createImportedModelImplementation } from "./importedModel/internal/createImportedModelObject.js";
-import { mapImportedHumanoidBones as mapImportedHumanoidBonesImplementation } from "./importedModel/internal/mapImportedHumanoidBones.js";
+import type { IAutoMovieRenderImportedModelOptions } from "./IAutoMovieRenderImportedModelOptions";
+import type { IAutoMovieRenderModelObject } from "./IAutoMovieRenderModelObject";
+import { createImportedModelObject as createImportedModelImplementation } from "./importedModel/internal/createImportedModelObject";
+import { mapImportedHumanoidBones as mapImportedHumanoidBonesImplementation } from "./importedModel/internal/mapImportedHumanoidBones";
 
 /** Public operations for adopting host-loaded render models. */
 export namespace AutoMovieRenderImportedModel {

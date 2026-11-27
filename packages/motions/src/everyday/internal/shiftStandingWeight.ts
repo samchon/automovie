@@ -13,10 +13,10 @@ import type {
 } from "@automovie/interface";
 
 import { HumanSupportFrame } from "../../carrier/internal/HumanSupportFrame";
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanRoot } from "../../compose/internal/AutoMovieMotionHumanRoot";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -141,8 +141,8 @@ function plan(
 
   const instants: IAutoMovieMotionClockInstant[] =
     shiftStandingWeightSteps.instants(seconds, hold, returnSeconds);
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock(duration, instants);
-  return composeAutoMovieMotionHumanAction({
+  const clock: IAutoMovieMotionClock = motionClock(duration, instants);
+  return composeMotionHumanAction({
     clock,
     base: AutoMovieMotionHumanBase.still(
       duration,

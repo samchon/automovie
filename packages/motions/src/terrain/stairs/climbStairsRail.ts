@@ -17,7 +17,7 @@ import type {
 
 import { AutoMovieMotionHumanSignature } from "../../audit/AutoMovieMotionHumanSignature";
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
-import { AutoMovieMotionHumanArmJointCourse } from "../../compose/internal/AutoMovieMotionHumanArmJointCourse";
+import { motionHumanArmJointCourse } from "../../compose/internal/motionHumanArmJointCourse";
 import { AutoMovieMotionHumanArmTarget } from "../../compose/internal/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
@@ -99,8 +99,8 @@ export function climbStairsRail(
   const release: number = duration - transit;
   // The carry, solved at knots from the plan's own posture once the
   // performance is prepared.
-  const carrier: AutoMovieMotionHumanArmJointCourse.ICarrier =
-    AutoMovieMotionHumanArmJointCourse.carrier(body);
+  const carrier: motionHumanArmJointCourse.ICarrier =
+    motionHumanArmJointCourse.carrier(body);
   const posture: IAutoMovieMotionHumanActionPlan["posture"] = (
     seconds,
     channels,

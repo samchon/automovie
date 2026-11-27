@@ -7,18 +7,18 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import type { IAutoMovieRenderModelObject } from "../IAutoMovieRenderModelObject.js";
-import type { IAutoMovieRenderSceneObject } from "../IAutoMovieRenderSceneObject.js";
-import type { IAutoMovieRenderSceneSoftProps } from "../IAutoMovieRenderSceneSoftProps.js";
-import { applyAutoMovieShadowParticipation } from "../internal/applyAutoMovieShadowParticipation.js";
-import { applySceneEnvironment } from "../internal/applySceneEnvironment.js";
-import { applySceneFog } from "../internal/applySceneFog.js";
-import { applyTransform } from "../internal/applyTransform.js";
-import { buildLight } from "../internal/buildLight.js";
-import { buildSceneSoftProps } from "../internal/buildSceneSoftProps.js";
-import { AutoMovieRenderSceneSpace } from "../buildSpace.js";
-import { applySceneMedium } from "../medium/internal/applySceneMedium.js";
-import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
+import type { IAutoMovieRenderModelObject } from "../IAutoMovieRenderModelObject";
+import type { IAutoMovieRenderSceneObject } from "../IAutoMovieRenderSceneObject";
+import type { IAutoMovieRenderSceneSoftProps } from "../IAutoMovieRenderSceneSoftProps";
+import { applyShadowParticipation } from "./applyShadowParticipation";
+import { applySceneEnvironment } from "../internal/applySceneEnvironment";
+import { applySceneFog } from "../internal/applySceneFog";
+import { applyTransform } from "../internal/applyTransform";
+import { buildLight } from "../internal/buildLight";
+import { buildSceneSoftProps } from "../internal/buildSceneSoftProps";
+import { AutoMovieRenderSceneSpace } from "../buildSpace";
+import { applySceneMedium } from "../medium/internal/applySceneMedium";
+import { restoreRenderModeState } from "./restoreRenderModeState";
 
 /*
  * Build a `three.js` scene from an IAutoMovieScene.
@@ -124,7 +124,7 @@ export const buildScene: (
   applySceneMedium(root, scene.medium);
   applySceneEnvironment(root, scene.environment, environmentTexture);
 
-  applyAutoMovieShadowParticipation(root);
+  applyShadowParticipation(root);
 
   const cameras: THREE.PerspectiveCamera[] = scene.cameras.map(buildCamera);
   if (softFrame === undefined) return { scene: root, cameras, lights };
@@ -132,7 +132,7 @@ export const buildScene: (
   try {
     softProps.update(softFrame);
   } catch (error) {
-    restoreAutoMovieRenderModeState([softProps.dispose], { error });
+    restoreRenderModeState([softProps.dispose], { error });
   }
   return { scene: root, cameras, lights, softProps };
 };

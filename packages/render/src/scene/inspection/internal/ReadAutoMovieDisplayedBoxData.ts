@@ -1,4 +1,4 @@
-import { createDualQuaternionSkinningShaderPatch } from "../../dualQuaternionSkinning/internal/createDualQuaternionSkinningShaderPatch.js";
+import { createDualQuaternionSkinningShaderPatch } from "../../dualQuaternionSkinning/internal/createDualQuaternionSkinningShaderPatch";
 import type { IAutoMoviePreparePhysicalGeometry as Geometry } from "@automovie/interface";
 
 export namespace ReadAutoMovieDisplayedBoxData {

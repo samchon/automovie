@@ -1,9 +1,9 @@
-import type { IAutoMovieMark } from "../index.js";
+import type { IAutoMovieMark } from "../index";
 import type { IAutoMovieInspectionColorAssignment } from "./IAutoMovieInspectionColorAssignment";
 
 /**
  * Mark-kind defaults, occupied colors and ordered recoloring rules.
- * resolveAutoMovieInspectionColors rejects conflicting label/default-color
+ * resolveInspectionColors rejects conflicting label/default-color
  * declarations for one kind and rejects final color collisions with another
  * kind or reserved use. Later matching recolor entries win; returned styles are
  * fresh mutable records.

@@ -1,12 +1,12 @@
 import { GhoshConicApproximationBalance as GhoshConicApproximationBalanceImplementation } from "./internal/GhoshConicApproximationBalance";
 import { GhoshConicApproximationDisplacement as GhoshConicApproximationDisplacementImplementation } from "./internal/GhoshConicApproximationDisplacement";
 
-import { approximateAutoMovieRecoveryConicsAhn as approximateAutoMovieRecoveryConicsAhnImplementation } from "./internal/approximateAutoMovieRecoveryConicsAhn";
-import { approximateAutoMovieRecoveryConicsGhosh as approximateAutoMovieRecoveryConicsGhoshImplementation } from "./internal/approximateAutoMovieRecoveryConicsGhosh";
+import { approximateRecoveryConicsAhn as approximateRecoveryConicsAhnImplementation } from "./internal/approximateRecoveryConicsAhn";
+import { approximateRecoveryConicsGhosh as approximateRecoveryConicsGhoshImplementation } from "./internal/approximateRecoveryConicsGhosh";
 
 import { type AutoMovieVector2Tuple, type IAutoMovieConicApproximation, type IAutoMovieCubicCriticalParameters, type IAutoMoviePlanarCurveSource, type IAutoMovieRegisteredConicArc, type IAutoMovieGhoshConicApproximationBalance, type IAutoMovieGhoshConicApproximationDisplacement } from "@automovie/interface";
 
-import { findAutoMovieRecoveryCubicCriticalParameters } from "./internal/findAutoMovieRecoveryCubicCriticalParameters";
+import { findRecoveryCubicCriticalParameters } from "./internal/findRecoveryCubicCriticalParameters";
 
 /**
  * Shared planar, millimetre-valued contract for experimental conic recovery.
@@ -29,7 +29,7 @@ export namespace AutoMovieRecoveryConicApproximation {
       Readonly<AutoMovieVector2Tuple>,
     ],
   ): IAutoMovieCubicCriticalParameters {
-    return findAutoMovieRecoveryCubicCriticalParameters(controls);
+    return findRecoveryCubicCriticalParameters(controls);
   }
 
   /** Evaluate positive-weight rational Bernstein coefficients on [0,1]. */
@@ -136,7 +136,7 @@ export namespace AutoMovieRecoveryConicApproximation {
    * finite-difference displacements.
    */
   export function approximateAhn(curve: IAutoMoviePlanarCurveSource, options: IAutoMovieConicApproximation.IOptions): IAutoMovieConicApproximation.IResult {
-    return approximateAutoMovieRecoveryConicsAhnImplementation(curve, options);
+    return approximateRecoveryConicsAhnImplementation(curve, options);
   }
 
   /**
@@ -163,7 +163,7 @@ export namespace AutoMovieRecoveryConicApproximation {
    * explicitly partial coverage.
    */
   export function approximateGhosh(curve: IAutoMoviePlanarCurveSource, options: IAutoMovieConicApproximation.IOptions): IAutoMovieConicApproximation.IResult {
-    return approximateAutoMovieRecoveryConicsGhoshImplementation(curve, options);
+    return approximateRecoveryConicsGhoshImplementation(curve, options);
   }
 
   /**

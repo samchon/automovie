@@ -9,7 +9,7 @@ type Input = Parameters<
 >[0];
 
 /**
- * `createAutoMovieEllipticLoftAtlas` turns cubic ellipse profiles into an open
+ * `createEllipticLoftAtlas` turns cubic ellipse profiles into an open
  * bicubic atlas whose patches share their boundary controls, outward facing.
  *
  * Fixture: two 0.05 m spans of the constant ellipse of half axes 0.02 (x) and

@@ -23,7 +23,7 @@ import { prepareSupportCorrection } from "../../actions/internal/prepareSupportC
 import { AutoMovieMotionHumanArmCourse } from "../../compose/internal/AutoMovieMotionHumanArmCourse";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanTarget } from "../../compose/internal/AutoMovieMotionHumanTarget";
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
 import { prepareHumanPostureCorrection } from "../../compose/internal/prepareHumanPostureCorrection";
 import { HumanBalance } from "../../everyday/internal/HumanBalance";
 import { prepareGroundedBalance } from "../../everyday/internal/prepareGroundedBalance";
@@ -276,7 +276,7 @@ export namespace legTouch {
     // The clock: out, the hold, back.
     const reach: number =
       1.5 *
-      AutoMovieMotionHumanTiming.transport(
+      motionHumanTiming.transport(
         AutoMovieEngineVector3.distance(goal.point, foot.ankle),
       );
     const relax: number = reach + hold;

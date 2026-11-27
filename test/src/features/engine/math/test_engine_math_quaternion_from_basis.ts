@@ -5,7 +5,7 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../../internal/predicates";
 
 /**
- * `quaternionFromAutoMovieBasis` is the unit quaternion of the rotation whose
+ * `quaternionFromBasis` is the unit quaternion of the rotation whose
  * columns are the given axes.
  *
  * Scenarios:

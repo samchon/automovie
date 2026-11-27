@@ -14,7 +14,7 @@ const FRAME: IAutoMovieDrawingFrame = {
 };
 
 /**
- * `clipAutoMovieDrawingTriangles` keeps the part of each triangle on or behind
+ * `clipDrawingTriangles` keeps the part of each triangle on or behind
  * the plane (distance <= epsilon along the normal).
  *
  * Scenarios:

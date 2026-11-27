@@ -1,6 +1,6 @@
 import type * as THREE from "three";
 
-import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
+import { restoreRenderModeState } from "./restoreRenderModeState";
 
 /*
  * Release the renderer, preserving its failure rather than reporting successful
@@ -12,7 +12,7 @@ import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeSta
 export const releaseViewerRenderer: (renderer: THREE.WebGLRenderer) => void = (
   renderer: THREE.WebGLRenderer,
 ): void =>
-  restoreAutoMovieRenderModeState([
+  restoreRenderModeState([
     (): void => {
       renderer.dispose();
     },

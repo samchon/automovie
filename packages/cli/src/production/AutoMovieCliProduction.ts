@@ -1,7 +1,7 @@
 import type { IAutoMovieProductionCheck } from "@automovie/interface";
-import { loadAutoMovieProductionModule } from "./internal/loadAutoMovieProductionModule";
-import { readAutoMovieRevision } from "./internal/readAutoMovieRevision";
-import { runAutoMovieProductionCheck } from "./internal/runAutoMovieProductionCheck";
+import { loadProductionModule } from "./internal/loadProductionModule";
+import { readRevisionImplementation } from "./internal/readRevisionImplementation";
+import { runProductionCheck } from "./internal/runProductionCheck";
 
 /** Public production operations for the CLI. */
 export namespace AutoMovieCliProduction {
@@ -36,7 +36,7 @@ export namespace AutoMovieCliProduction {
    * when the folder is not a Git checkout or Git is unavailable.
    */
   export function readRevision(root: string): string {
-    return readAutoMovieRevision(root);
+    return readRevisionImplementation(root);
   }
 
   /**
@@ -54,7 +54,7 @@ export namespace AutoMovieCliProduction {
   export function runCheck(
     props: AutoMovieCliProduction.IRunCheckInput,
   ): Promise<IAutoMovieProductionCheck.IReport> {
-    return runAutoMovieProductionCheck(props);
+    return runProductionCheck(props);
   }
 
   /**
@@ -66,6 +66,6 @@ export namespace AutoMovieCliProduction {
    * @returns The package exports typed by T.
    */
   export function loadModule<T = unknown>(root: string, id: string): T {
-    return loadAutoMovieProductionModule<T>(root, id);
+    return loadProductionModule<T>(root, id);
   }
 }

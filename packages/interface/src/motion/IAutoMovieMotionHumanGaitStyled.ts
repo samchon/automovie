@@ -90,7 +90,7 @@ export interface IAutoMovieMotionHumanGaitStyled<Chain> {
 
   /**
    * Walk with the `sad` manner preset's speed, step and arm swing
-   * (`AutoMovieMotionManner.PRESETS`) and the trunk leaning 8 degrees forward
+   * (`motionManner.PRESETS`) and the trunk leaning 8 degrees forward
    * (`HumanGait.MOODS`, provisional; Michalak et al. 2009 give the direction).
    *
    * Registered law: `registered("sad", params)`; not a chain method.
@@ -104,7 +104,7 @@ export interface IAutoMovieMotionHumanGaitStyled<Chain> {
 
   /**
    * Walk with the `proud` manner preset's speed, step and arm swing
-   * (`AutoMovieMotionManner.PRESETS`) and the trunk upright
+   * (`motionManner.PRESETS`) and the trunk upright
    * (`HumanGait.MOODS`).
    *
    * Registered law: `registered("proud", params)`; not a chain method.

@@ -5,9 +5,9 @@ import type { IAutoMovieMotionMeeting } from "./IAutoMovieMotionMeeting";
 /**
  * A high five, a low five or a fist bump between two standing partners: both
  * bring one hand to one shared point between them and meet there at one shared
- * instant, the mutual goal the handshake uses (`AutoMovieMotionMeeting`).
+ * instant, the mutual goal the handshake uses (`motionMeeting`).
  *
- * The meeting point is the pair's mutual goal (`resolveAutoMovieMutualGoal` on
+ * The meeting point is the pair's mutual goal (`resolveMutualGoal` on
  * both acting arms as the handshake reads them, `handshake.arm`, as the
  * handover does): the action prefers the mean of the two crown heights for a
  * high five, of their waist heights for a low five and of their chest heights
@@ -19,7 +19,7 @@ import type { IAutoMovieMotionMeeting } from "./IAutoMovieMotionMeeting";
  * equal shares of each hip's flexion room (`HumanSeatedReach`, Chan and Dubey
  * 1995); partners no point lies within both arms of, leaned as far as they can,
  * are refused, never stretched. Each role's hand reaches it in the free-space
- * transport time of its distance (`AutoMovieMotionHumanTiming.transport`); the
+ * transport time of its distance (`motionHumanTiming.transport`); the
  * pair meets when the slower arrives, both stay 0.1 s (provisional, the
  * rebound) and go back in the reach's time. The palms (or the fists) face each
  * other, each surface's skin on the point.

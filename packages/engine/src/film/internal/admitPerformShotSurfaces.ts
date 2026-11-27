@@ -8,7 +8,7 @@ import type {
   IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { validateAutoMovieFontSources } from "../../typography/internal/validateAutoMovieFontSources";
+import { validateFontSources } from "../../typography/internal/validateFontSources";
 import { appendPracticalSurfacesArtifact } from "../../validation/internal/appendPracticalSurfacesArtifact";
 import { appendSurfaceGraphicsArtifact } from "../../validation/internal/appendSurfaceGraphicsArtifact";
 
@@ -49,7 +49,7 @@ export function admitPerformShotSurfaces(
     shot?: string;
   },
 ): Pick<IAutoMovieShot, "practicalSurfaces" | "surfaceGraphics" | "fonts"> {
-  validateAutoMovieFontSources(props.fonts, "$input.fonts", out);
+  validateFontSources(props.fonts, "$input.fonts", out);
   appendPracticalSurfacesArtifact(
     props.practicalSurfaces,
     nodes,

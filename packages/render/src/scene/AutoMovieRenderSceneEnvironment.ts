@@ -1,9 +1,9 @@
 import type * as THREE from "three";
-import { type IAutoMovieRendererEnvironmentHandle } from "./IAutoMovieRendererEnvironmentHandle.js";
+import { type IAutoMovieRendererEnvironmentHandle } from "./IAutoMovieRendererEnvironmentHandle";
 import { type IAutoMovieSceneEnvironment, type AutoMovieGuidePass, type IAutoMovieFog } from "@automovie/interface";
-import { applyRendererEnvironment as applyRendererEnvironmentImplementation } from "./internal/applyRendererEnvironment.js";
-import { applySceneEnvironment as applySceneEnvironmentImplementation } from "./internal/applySceneEnvironment.js";
-import { applySceneFog as applySceneFogImplementation } from "./internal/applySceneFog.js";
+import { applyRendererEnvironment as applyRendererEnvironmentImplementation } from "./internal/applyRendererEnvironment";
+import { applySceneEnvironment as applySceneEnvironmentImplementation } from "./internal/applySceneEnvironment";
+import { applySceneFog as applySceneFogImplementation } from "./internal/applySceneFog";
 
 /** Public operations for Auto Movie Render Scene Environment. */
 export namespace AutoMovieRenderSceneEnvironment {

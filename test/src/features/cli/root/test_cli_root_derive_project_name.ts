@@ -2,7 +2,7 @@ import { TestValidator } from "@nestia/e2e";
 import { AutoMovieCliScaffold } from "automovie";
 
 /**
- * `deriveAutoMovieProjectName` lowercases a directory's basename, folds each
+ * `deriveProjectNameImplementation` lowercases a directory's basename, folds each
  * run outside `a-z 0-9 . _ -` into one `-`, and trims leading `-._` and
  * trailing `-.`; nothing left falls back to the default name.
  *

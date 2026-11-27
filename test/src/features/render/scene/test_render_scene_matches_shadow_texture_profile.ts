@@ -1,11 +1,11 @@
 import type { IAutoMovieRenderTextureTarget } from "@automovie/interface";
 import {
-  matchesAutoMovieShadowTextureProfile
-} from "../../../../../packages/render/src/scene/internal/matchesAutoMovieShadowTextureProfile";
+  matchesShadowTextureProfile
+} from "../../../../../packages/render/src/scene/internal/matchesShadowTextureProfile";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `matchesAutoMovieShadowTextureProfile` compares size, faces, samples,
+ * `matchesShadowTextureProfile` compares size, faces, samples,
  * mipmapping, depth and formats of an actual target to the planned one.
  *
  * Scenarios:
@@ -31,7 +31,7 @@ export function test_render_scene_matches_shadow_texture_profile(): void {
   const planned: IAutoMovieRenderTextureTarget = target({ faces: 1 });
   TestValidator.equals(
     "same",
-    matchesAutoMovieShadowTextureProfile(target({}), planned),
+    matchesShadowTextureProfile(target({}), planned),
     true,
   );
   for (const patch of [
@@ -42,7 +42,7 @@ export function test_render_scene_matches_shadow_texture_profile(): void {
   ])
     TestValidator.equals(
       JSON.stringify(patch),
-      matchesAutoMovieShadowTextureProfile(target(patch), planned),
+      matchesShadowTextureProfile(target(patch), planned),
       false,
     );
 }

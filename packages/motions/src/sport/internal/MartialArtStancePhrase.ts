@@ -16,12 +16,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionHumanPlaced } from "../../compose/internal/AutoMovieMotionHumanPlaced";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
@@ -108,15 +108,15 @@ export function MartialArtStancePhrase(
   );
 
   const open: (seconds: number) => number =
-    AutoMovieMotionClock.prepareEnvelope(
+    motionClock.prepareEnvelope(
       clock,
       ["start", "ready"],
       ["relax", "end"],
     );
-  const fore: ReturnType<typeof AutoMovieMotionClock.prepare> =
-    AutoMovieMotionClock.prepare(clock, "strokeStart", "stroke");
-  const back: ReturnType<typeof AutoMovieMotionClock.prepare> =
-    AutoMovieMotionClock.prepare(clock, "stroke", "strokeEnd");
+  const fore: ReturnType<typeof motionClock.prepare> =
+    motionClock.prepare(clock, "strokeStart", "stroke");
+  const back: ReturnType<typeof motionClock.prepare> =
+    motionClock.prepare(clock, "stroke", "strokeEnd");
   const span: IAutoMovieMotionHumanArmPlanned.ISpan = {
     start: clock.at("start"),
     ready: clock.at("ready"),
@@ -328,7 +328,7 @@ export function MartialArtStancePhrase(
         },
       }),
     );
-  return composeAutoMovieMotionHumanAction({
+  return composeMotionHumanAction({
     base: AutoMovieMotionHumanBase.still(clock.duration, start, contact),
     clock,
     primitives,

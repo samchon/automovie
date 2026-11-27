@@ -1,8 +1,8 @@
-import type { IAutoMovieSemanticMask } from "./IAutoMovieSemanticMask.js";
+import type { IAutoMovieSemanticMask } from "./IAutoMovieSemanticMask";
 import type { AutoMovieInspectionShade } from "./AutoMovieInspectionShade";
-import type { IAutoMovieInspectionDiagnostics } from "./IAutoMovieInspectionDiagnostics.js";
-import type { IAutoMovieRasterImage } from "./IAutoMovieRasterImage.js";
-import type { IAutoMovieDrawnMouth } from "./IAutoMovieDrawnMouth.js";
+import type { IAutoMovieInspectionDiagnostics } from "./IAutoMovieInspectionDiagnostics";
+import type { IAutoMovieRasterImage } from "./IAutoMovieRasterImage";
+import type { IAutoMovieDrawnMouth } from "./IAutoMovieDrawnMouth";
 
 /**
  * One decoded pass of a sampled subject frame. AutoMovieRenderDrawSession.frame emits

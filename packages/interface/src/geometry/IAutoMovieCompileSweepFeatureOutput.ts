@@ -3,7 +3,7 @@
  * sweep evaluation and construction observations.
  *
  * The closures retain the compiled course coefficients and the feature width.
- * Treat the source feature as immutable while they live. compileAutoMovieSweep
+ * Treat the source feature as immutable while they live. compileSweep
  * admits the authored feature before compilation; these query signatures do not
  * enforce finite arguments. Returned domain records are newly allocated and
  * caller-owned.

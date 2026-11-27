@@ -5,16 +5,16 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { autoMoviePcg3d } from "./internal/autoMoviePcg3d";
-import { autoMovieProceduralCells } from "./internal/autoMovieProceduralCells";
-import { autoMovieProceduralFractal } from "./internal/autoMovieProceduralFractal";
-import { autoMovieProceduralFrame } from "./internal/autoMovieProceduralFrame";
-import { autoMovieProceduralHash } from "./internal/autoMovieProceduralHash";
-import { autoMovieProceduralNoise } from "./internal/autoMovieProceduralNoise";
-import { autoMovieProceduralPattern } from "./internal/autoMovieProceduralPattern";
-import { autoMovieProceduralPieceOffset } from "./internal/autoMovieProceduralPieceOffset";
-import { autoMovieWearWeight } from "./internal/autoMovieWearWeight";
-import { sampleAutoMovieProceduralSurface } from "./internal/sampleAutoMovieProceduralSurface";
+import { hashPcg3d } from "./internal/hashPcg3d";
+import { proceduralCellsImplementation } from "./internal/proceduralCellsImplementation";
+import { proceduralFractalImplementation } from "./internal/proceduralFractalImplementation";
+import { proceduralFrameImplementation } from "./internal/proceduralFrameImplementation";
+import { proceduralHashImplementation } from "./internal/proceduralHashImplementation";
+import { proceduralNoiseImplementation } from "./internal/proceduralNoiseImplementation";
+import { proceduralPatternImplementation } from "./internal/proceduralPatternImplementation";
+import { proceduralPieceOffsetImplementation } from "./internal/proceduralPieceOffsetImplementation";
+import { wearWeightImplementation } from "./internal/wearWeightImplementation";
+import { sampleProceduralSurfaceImplementation } from "./internal/sampleProceduralSurfaceImplementation";
 
 /** Deterministic material sampling and procedural surface calculations. */
 export namespace AutoMovieEngineMaterial {
@@ -24,7 +24,7 @@ export namespace AutoMovieEngineMaterial {
     y: number,
     z: number,
   ): [number, number, number] {
-    return autoMoviePcg3d(x, y, z);
+    return hashPcg3d(x, y, z);
   }
 
   /** Returns the nearest and second-nearest procedural cell distances. */
@@ -34,7 +34,7 @@ export namespace AutoMovieEngineMaterial {
     y: number,
     z: number,
   ): [number, number] {
-    return autoMovieProceduralCells(seed, x, y, z);
+    return proceduralCellsImplementation(seed, x, y, z);
   }
 
   /** Returns the four-octave procedural noise sum. */
@@ -44,14 +44,14 @@ export namespace AutoMovieEngineMaterial {
     y: number,
     z: number,
   ): number {
-    return autoMovieProceduralFractal(seed, x, y, z);
+    return proceduralFractalImplementation(seed, x, y, z);
   }
 
   /** Builds the normalized directional frame for a material axis. */
   export function proceduralFrame(
     axis: IAutoMovieVector3,
-  ): ReturnType<typeof autoMovieProceduralFrame> {
-    return autoMovieProceduralFrame(axis);
+  ): ReturnType<typeof proceduralFrameImplementation> {
+    return proceduralFrameImplementation(axis);
   }
 
   /** Hashes a procedural seed, salt and integer lattice cell. */
@@ -62,7 +62,7 @@ export namespace AutoMovieEngineMaterial {
     j: number,
     k: number,
   ): [number, number, number] {
-    return autoMovieProceduralHash(seed, salt, i, j, k);
+    return proceduralHashImplementation(seed, salt, i, j, k);
   }
 
   /** Samples seeded three-dimensional gradient noise. */
@@ -73,7 +73,7 @@ export namespace AutoMovieEngineMaterial {
     y: number,
     z: number,
   ): number {
-    return autoMovieProceduralNoise(seed, salt, x, y, z);
+    return proceduralNoiseImplementation(seed, salt, x, y, z);
   }
 
   /** Evaluates a procedural surface pattern at a point in sampling space. */
@@ -81,7 +81,7 @@ export namespace AutoMovieEngineMaterial {
     surface: IAutoMovieProceduralSurface,
     point: readonly [number, number, number],
   ): number {
-    return autoMovieProceduralPattern(surface, point);
+    return proceduralPatternImplementation(surface, point);
   }
 
   /** Returns the deterministic sheet-space offset for a procedural piece. */
@@ -90,7 +90,7 @@ export namespace AutoMovieEngineMaterial {
     id: string,
     scale: number,
   ): [number, number, number] {
-    return autoMovieProceduralPieceOffset(seed, id, scale);
+    return proceduralPieceOffsetImplementation(seed, id, scale);
   }
 
   /** Returns one material wear layer's weight at a bind-pose point. */
@@ -100,13 +100,13 @@ export namespace AutoMovieEngineMaterial {
     seed: number,
     point: IAutoMovieVector3,
   ): number {
-    return autoMovieWearWeight(layer, distance, seed, point);
+    return wearWeightImplementation(layer, distance, seed, point);
   }
 
   /** Samples a procedural surface's colour, roughness and height. */
   export function sampleProceduralSurface(
     props: IAutoMovieSampleProceduralSurface.IProps,
   ): IAutoMovieSampleProceduralSurface.IResult {
-    return sampleAutoMovieProceduralSurface(props);
+    return sampleProceduralSurfaceImplementation(props);
   }
 }

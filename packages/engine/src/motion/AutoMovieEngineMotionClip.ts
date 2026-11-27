@@ -13,7 +13,7 @@ import { reactMotion as reactMotionImplementation } from "./internal/reactMotion
 
 import { sequenceMotion as sequenceMotionImplementation } from "./internal/sequenceMotion";
 
-import { importedNodeClipToAutoMovieMotion as importedNodeClipToAutoMovieMotionImplementation } from "./internal/importedNodeClipToAutoMovieMotion";
+import { importedNodeClipToMotion as importedNodeClipToMotionImplementation } from "./internal/importedNodeClipToMotion";
 
 import { type IAutoMovieMotionClipBridge, type IAutoMovieMotionToClip, type IAutoMovieMotion, type IAutoMovieImportedNodeMotionProps, type IAutoMoviePose, type IAutoMovieCreateDynamicActorExtendClip, type IAutoMovieCreateDynamicActorJabClip, type IAutoMovieCreateDynamicActorPoseClip, type IAutoMoviePlacement, type IAutoMovieProfile, type IAutoMovieGait, type IAutoMovieGaitLimb, type IAutoMovieSkeleton, type IAutoMovieRecoilPush, type AutoMovieHumanoidBone } from "@automovie/interface";
 import { motionToClip as motionToClipImplementation } from "./internal/motionToClip";
@@ -50,7 +50,7 @@ export namespace AutoMovieEngineMotionClip {
    * interpolation generally differs from quaternion slerp.
    */
   export function importedNodeClipToAutoMovieMotion(props: IAutoMovieImportedNodeMotionProps): IAutoMovieMotion {
-    return importedNodeClipToAutoMovieMotionImplementation(props);
+    return importedNodeClipToMotionImplementation(props);
   }
 
   /**

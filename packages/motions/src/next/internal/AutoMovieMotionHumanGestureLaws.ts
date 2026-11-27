@@ -35,7 +35,7 @@ export namespace AutoMovieMotionHumanGestureLaws {
    * balanced over the feet (`HumanBalance.shift`).
    *
    * Transport time is the free-space time of the distance moved
-   * (`AutoMovieMotionHumanTiming.transport`), and at least the time each moving
+   * (`motionHumanTiming.transport`), and at least the time each moving
    * arm's arc takes within the audit's travel bound (`gestureHands.reaching`),
    * 0.3 s for head and shoulder gestures (no source found), and for a bow its
    * depth at the measured rates of standing bows, down in 1.21 s and up in 1.38
@@ -89,11 +89,11 @@ export namespace AutoMovieMotionHumanGestureLaws {
    * Timing: the preparation is a travel of the distance from the hand to the
    * phrase's first goal (a stroke's start, otherwise the target) and the
    * retraction one of the distance back from its last, the target
-   * (`AutoMovieMotionHumanTiming.transport`); a visit's stroke is instant and
+   * (`motionHumanTiming.transport`); a visit's stroke is instant and
    * its hold the named `hold` pause (a beat when absent); a stroke takes one
    * travel of its path's length; an oscillation takes `cycles` beats. The
    * manner's tempo scales every phase and its extent and curvature reach the
-   * phrase (`AutoMovieMotionManner`). Events: the phrase's instants.
+   * phrase (`motionManner`). Events: the phrase's instants.
    */
   export import armPhrase = armPhraseLaw;
 
@@ -232,10 +232,10 @@ export namespace AutoMovieMotionHumanGestureLaws {
    * Duration of every row (the phrase's timing, armPhrase): the hand
    * reaches its place in the free-space time of its travel and returns in as
    * long again, `0.25 + 0.5 D` seconds for `D` metres, about 0.5 s for a 0.5 m
-   * reach (AutoMovieMotionHumanTiming.transport). A visit (a hand on the
+   * reach (motionHumanTiming.transport). A visit (a hand on the
    * hip, a phone to the ear, a hat on) holds the place for a beat, 0.4 s,
    * unless `hold` names another pause
-   * (AutoMovieMotionHumanTiming.PAUSES). An oscillation (a wave, a rub,
+   * (motionHumanTiming.PAUSES). An oscillation (a wave, a rub,
    * a scratch, a stir) lasts 2 beats, 0.8 s, unless `cycles` says more.
    * `manner.pace` and the Effort `time` factor scale every phase. All of these
    * are provisional.

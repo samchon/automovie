@@ -1,6 +1,6 @@
 /*
  * One way an encoded delivery file differs from the profile it must carry, as
- * `auditAutoMovieDeliveryProfile` records it in the render report.
+ * `auditDeliveryProfile` records it in the render report.
  *
  * `field` is the profile field the asserter names after
  * `unsupported-video-profile.` or `unsupported-audio-profile.`, such as

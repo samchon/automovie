@@ -6,8 +6,8 @@ export namespace IAutoMovieSampleDialogueExpression {
   /**
    * A joined timeline, a film frame and the authored expression.
    *
-   * Engine's `sampleAutoMovieDialogueExpression` blends the timeline's visemes
-   * at the frame by coarticulation (`sampleAutoMovieDialogueVisemeWeights`) and
+   * Engine's `sampleDialogueExpression` blends the timeline's visemes
+   * at the frame by coarticulation (`sampleDialogueVisemeWeights`) and
    * returns them beside the authored expression, retained by reference. A
    * non-finite frame or a rate that is not positive throws; the timeline is
    * assumed to have passed the join and is not revalidated. Any frame may be

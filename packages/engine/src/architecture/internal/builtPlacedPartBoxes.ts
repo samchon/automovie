@@ -5,7 +5,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { realizeAutoMovieGeometry } from "../../geometry/internal/realizeAutoMovieGeometry";
+import { realizeGeometry } from "../../geometry/internal/realizeGeometry";
 import { AutoMovieEngineMatrix4 } from "../../math/AutoMovieEngineMatrix4";
 
 /*
@@ -55,7 +55,7 @@ const placedPartBox: (
   part: IAutoMovieModelPart,
   world: number[],
 ): IAutoMovieSubjectBox | null => {
-  const positions: readonly number[] = realizeAutoMovieGeometry(part.geometry)
+  const positions: readonly number[] = realizeGeometry(part.geometry)
     .mesh.positions;
   if (positions.length < 3) return null;
   const m: number[] =

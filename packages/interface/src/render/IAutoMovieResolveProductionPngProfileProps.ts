@@ -1,4 +1,4 @@
-import type { AutoMovieProductionPngRole } from "./AutoMovieProductionPngRole.js";
+import type { AutoMovieProductionPngRole } from "./AutoMovieProductionPngRole";
 
 /**
  * PNG output role and its optional authored raster. resolveProductionPngProfile

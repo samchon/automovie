@@ -6,7 +6,7 @@ import type {
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanChannel as HumanChannels } from "./AutoMovieMotionHumanChannel";
+import { motionHumanChannel as HumanChannels } from "./motionHumanChannel";
 import { courseArmGoal } from "./courseArmGoal";
 
 /*

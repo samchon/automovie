@@ -1,7 +1,7 @@
 import { AutoMovieEngineKinematics, AutoMovieEngineVector3, AutoMovieEngineMotionSampling, AutoMovieEngineMath } from "@automovie/engine";
 import type { IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanSit, IAutoMovieVector3 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanArmCourse } from "../../compose/internal/AutoMovieMotionHumanArmCourse";
 import { HumanPhysics } from "../../law/internal/HumanPhysics";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
@@ -42,7 +42,7 @@ export function prepareSitBalance(props: ISeatDescent): ISeatCourse {
   // The weight-over-the-feet course is the balance option's
   // (`IAutoMovieMotionHumanBalance`); without it the seat socket goes
   // back on its own minimum-jerk progress and no centre of mass is read.
-  const clock: ReturnType<typeof AutoMovieMotionClock> = AutoMovieMotionClock(
+  const clock: ReturnType<typeof motionClock> = motionClock(
     duration,
     [
       { name: "commit", seconds: contact },

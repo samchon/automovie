@@ -13,21 +13,33 @@ import { physicalShapeBoundsImplementation } from "../../physics/internal/physic
  * unchanged until release.
  */
 export namespace AutoMovieHumanoidNeutralBounds {
-  /** One unchanged-profile epoch with every segment's bounds measured. */
+  /*
+   * One unchanged-profile epoch with every segment's bounds measured.
+   */
   export interface IPrepared {
-    /** Borrowed unchanged source for identity admission. */
+    /*
+     * Borrowed unchanged source for identity admission.
+     */
     readonly profile: P;
 
-    /** One six-coordinate result per actual segment object; empty after release. */
+    /*
+     * One six-coordinate result per actual segment object; empty after release.
+     */
     readonly bounds: Map<IAutoMoviePhysicalSegment, IBounds>;
   }
 
-  /** Exact axis bounds in world metres; every outward copy owns its vectors. */
+  /*
+   * Exact axis bounds in world metres; every outward copy owns its vectors.
+   */
   export interface IBounds {
-    /** Axis minima, world metres. */
+    /*
+     * Axis minima, world metres.
+     */
     min: IAutoMovieVector3;
 
-    /** Axis maxima, world metres. */
+    /*
+     * Axis maxima, world metres.
+     */
     max: IAutoMovieVector3;
   }
 

@@ -243,7 +243,7 @@ export namespace HumanHabit {
   /*
    * Fanning oneself with a hand: six beats beside the face (first pass on the
    * wave's stroke, provisional). Six beats of 0.4 s, 2.4 s
-   * (`AutoMovieMotionHumanTiming.PAUSES`); heat, impatience.
+   * (`motionHumanTiming.PAUSES`); heat, impatience.
    */
   export const fanSelf: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["habit"]["fanSelf"]

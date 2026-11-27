@@ -8,7 +8,7 @@ import type { IAutoMoviePatternPoint } from "./IAutoMoviePatternPoint";
  * the piece. A slab, a board, and a panel are cut out of one sheet, so where a
  * piece sits decides what it shows, and the sheet stays where the face put it.
  *
- * `autoMoviePatternTextureTransforms` reads it: `module` makes each piece's
+ * `patternTextureTransforms` reads it: `module` makes each piece's
  * centre sample the sheet at `(0.5, 0.5)`, while `face` places each piece's
  * centre on the sheet measured from `origin`, turned by the piece's grain and
  * divided by the tile size. A non-finite `face` origin is refused with a

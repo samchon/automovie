@@ -4,7 +4,7 @@ import { TestValidator } from "@nestia/e2e";
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * `interpolateAutoMovieMonotone({ knots, values, period? })` is the
+ * `interpolateMonotone({ knots, values, period? })` is the
  * Fritsch-Carlson monotone cubic (1980); `AutoMovieEngineMonotone.slope` writes its
  * knot slopes: the mean of the two secants, 0 at a sign change or a flat
  * secant, the end secants at open ends, pairs scaled back onto the circle of

@@ -25,11 +25,11 @@ export namespace IAutoMovieRigSurfaceNetwork {
    * does not depend on patch order and a mirrored layout samples to a mirrored
    * cage; a node on a sweep that no grid samples is the section point itself. A
    * Coons patch takes its four sides' points and fills the interior as
-   * `rigAutoMovieSurfaceCoons` states; a bridge fills its rows with cubic
-   * Hermite curves between its two loops, as `rigAutoMovieSurfaceBridge`
+   * `rigSurfaceCoons` states; a bridge fills its rows with cubic
+   * Hermite curves between its two loops, as `rigSurfaceBridge`
    * states; a transition band lays its quads out by
-   * `layoutAutoMovieSurfaceTransition` and samples every corner on its sweep. A
-   * network curve is compiled by `rigAutoMovieSurfaceCurve`, which regenerates
+   * `layoutSurfaceTransition` and samples every corner on its sweep. A
+   * network curve is compiled by `rigSurfaceCurve`, which regenerates
    * its whole spline from sweep nodes and tangent planes evaluated with the
    * same registry-resolved cell as their geometric targets. Observation-only
    * sweep nodes keep a zero cell. This is a fixed local footprint derivative,
@@ -46,19 +46,19 @@ export namespace IAutoMovieRigSurfaceNetwork {
    *
    * With `fit` (the default) the samples of sweeps and curves are targets the
    * cage's Catmull-Clark limit passes through, solved by
-   * `solveAutoMovieSubdivisionLimit`; the interior vertices of Coons patches
+   * `solveSubdivisionLimit`; the interior vertices of Coons patches
    * and bridges are blend controls of their own construction and keep their
    * samples as control positions, because interpolating a blend's samples makes
    * the limit surface ring between them where a loop turns sharply; pinned ring
    * vertices keep their given positions. Without, controls are the samples
    * themselves and the residual is 0. A ring that declares a perimeter is held
-   * to it at rest by `holdAutoMovieSurfaceGirths`, a radial factor along its
+   * to it at rest by `holdSurfaceGirths`, a radial factor along its
    * sweep that every pose keeps. Every face corner carries `(patch, s, t)` and
    * a UV value: the patch's rectangle in texture space, or the band `t in [k /
    * P, (k + 1) / P]` of the unit square for patch `k` of `P`.
    *
-   * Bindings make the rig posable exactly as `poseAutoMovieSurfaceNetwork`
-   * poses the network: bound sweeps by `rigAutoMovieSweep`, free nodes, curve
+   * Bindings make the rig posable exactly as `poseSurfaceNetwork`
+   * poses the network: bound sweeps by `rigSweep`, free nodes, curve
    * through points, normals and directions and ring positions rigidly with
    * their bones. Everything else is computed here once; `pose` refreshes only
    * the bones, the bound sweeps, the curves, the samples, the blends, the pins

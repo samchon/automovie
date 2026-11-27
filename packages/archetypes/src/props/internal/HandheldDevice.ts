@@ -16,7 +16,9 @@ import { HandheldDeviceData } from "./HandheldDeviceData";
  * Shared case construction and the existing records for handheld electronics.
  */
 export namespace HandheldDevice {
-  /** The kinds of device. */
+  /*
+   * The kinds of device.
+   */
   export type Kind = "phone" | "camera" | "remote" | "tablet" | "walkieTalkie";
 
   /*
@@ -30,7 +32,7 @@ export namespace HandheldDevice {
     "walkieTalkie",
   ];
 
-  /**
+  /*
    * The affordance ids:
    *
    * - `grip`: the hold, a power grip: across the back of a phone, a remote, a
@@ -55,7 +57,7 @@ export namespace HandheldDevice {
     | "button"
     | "speaker";
 
-  /**
+  /*
    * The free dimensions, metres unless stated:
    *
    * - `width`: along `+X`.
@@ -77,28 +79,34 @@ export namespace HandheldDevice {
     mass: "kg",
   };
 
-  /**
+  /*
    * The parameters: the kind, and any free dimension fixed to a value inside
    * its band.
    */
   export interface IParams extends Partial<Record<Dimension, number>> {
-    /** Which device. */
+    /*
+     * Which device.
+     */
     kind: Kind;
 
-    /**
+    /*
      * A camera's, a tablet's or a walkie-talkie's model; drawn from the seed
      * when absent.
      */
     model?: Model;
 
-    /** The model's id, unique in a scene; `device` when absent. */
+    /*
+     * The model's id, unique in a scene; `device` when absent.
+     */
     id?: string;
   }
 
-  /** A model's read figures, by dimension. */
+  /*
+   * A model's read figures, by dimension.
+   */
   export type Figures = Readonly<Partial<Record<Dimension, number>>>;
 
-  /**
+  /*
    * The models read: Ricoh's GR III and Fujifilm's X100VI; Apple's iPad (10th
    * generation) Wi-Fi and cellular; Motorola's CP200d with each of its four
    * batteries.

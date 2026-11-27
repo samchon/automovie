@@ -1,15 +1,15 @@
-import type { IAutoMoviePlaybackTimeline } from "../production/IAutoMoviePlaybackTimeline.js";
-import type { IAutoMovieFilmSound } from "../production/IAutoMovieFilmSound.js";
-import type { IAutoMovieDeliveryContentAudit } from "./IAutoMovieDeliveryContentAudit.js";
-import type { IAutoMovieInspectionDrawable } from "./IAutoMovieInspectionDrawable.js";
-import type { IAutoMovieCaptureInstant } from "./IAutoMovieCaptureInstant.js";
+import type { IAutoMoviePlaybackTimeline } from "../production/IAutoMoviePlaybackTimeline";
+import type { IAutoMovieFilmSound } from "../production/IAutoMovieFilmSound";
+import type { IAutoMovieDeliveryContentAudit } from "./IAutoMovieDeliveryContentAudit";
+import type { IAutoMovieInspectionDrawable } from "./IAutoMovieInspectionDrawable";
+import type { IAutoMovieCaptureInstant } from "./IAutoMovieCaptureInstant";
 
 /**
  * What a host learns about a subject from the page before a capture is planned:
  * its clock, its raster, and what can be drawn of it.
  *
  * A subject is a scene, a set of identity paths and the marks its owner
- * supplies; nothing here names what kind of thing it is. `planAutoMovieCapture`
+ * supplies; nothing here names what kind of thing it is. `planCapture`
  * checks a request against it, so a view, a time, a mark kind or a sweep the
  * subject cannot give is refused before anything is drawn.
  */

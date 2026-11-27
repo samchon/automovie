@@ -10,8 +10,8 @@ import { AutoMovieEngineBernsteinAlgebra64 as B } from "./AutoMovieEngineBernste
 import { AutoMovieEngineBernsteinGrid64 as G } from "./AutoMovieEngineBernsteinGrid64";
 import { AutoMovieEngineBernsteinSubdivision64 as S } from "./AutoMovieEngineBernsteinSubdivision64";
 import { AutoMovieEngineCurveMath64 as V } from "./AutoMovieEngineCurveMath64";
-import { assertAutoMovieCurve64 } from "./curve/internal/assertAutoMovieCurve64";
-import { compileAutoMovieNormalizedPhases64 } from "./curve/internal/compileAutoMovieNormalizedPhases64";
+import { assertCurve64 } from "./curve/internal/assertCurve64";
+import { compileNormalizedPhases64 } from "./curve/internal/compileNormalizedPhases64";
 
 /**
  * Local physical-station cubic Hermite fields from complete normalized open
@@ -55,7 +55,7 @@ export namespace AutoMovieEngineLocalHermiteField64 {
       );
     const knots: number[][] = courses.map(
       (course: IAutoMovieCubicBezierCurve64): number[] => {
-        assertAutoMovieCurve64(course);
+        assertCurve64(course);
         if (
           course.type !== "cubicBezier" ||
           course.closed ||
@@ -63,7 +63,7 @@ export namespace AutoMovieEngineLocalHermiteField64 {
           course.unit !== "mm"
         )
           throw new Error("Open normalized millimetre cubic courses required");
-        const out: number[] = compileAutoMovieNormalizedPhases64(
+        const out: number[] = compileNormalizedPhases64(
           course.phaseIntervals,
           course.spans.length,
         );

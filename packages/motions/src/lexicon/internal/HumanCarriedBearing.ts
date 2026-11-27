@@ -22,12 +22,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHand } from "../../compose/internal/AutoMovieMotionHumanHand";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { bendLower } from "../../everyday/internal/bendLower";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
@@ -143,7 +143,7 @@ export namespace HumanCarriedBearing {
     const ready: number =
       transfer?.take ?? Math.min(seconds, HumanCarried.TAKE);
     const released: number = transfer?.release ?? seconds;
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(seconds, [
+    const clock: IAutoMovieMotionClock = motionClock(seconds, [
       { name: "held", seconds: ready },
       ...(transfer === undefined
         ? []
@@ -152,7 +152,7 @@ export namespace HumanCarriedBearing {
     const weight = (at: number): number =>
       (ready === 0
         ? 1
-        : clock.progress(AutoMovieMotionClock.START, "held", at)) *
+        : clock.progress(motionClock.START, "held", at)) *
       (released >= seconds
         ? 1
         : 1 - AutoMovieEngineMotionSampling.minimumJerkShare((at - released) / (seconds - released)));
@@ -426,7 +426,7 @@ export namespace HumanCarriedBearing {
             0,
           );
     const composed: IAutoMovieMotionHumanActionPlan =
-      composeAutoMovieMotionHumanAction({
+      composeMotionHumanAction({
         base: {
           ...base,
           // The coupling declares the borne side of every bearing contact.
@@ -480,7 +480,7 @@ export namespace HumanCarriedBearing {
             );
             if (!directsBody) return underlying;
             const w: number = clock.progress(
-              AutoMovieMotionClock.START,
+              motionClock.START,
               "held",
               at,
             );

@@ -5,10 +5,10 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial.js";
-import type { IAutoMovieRenderMaterialShaderSource } from "../../IAutoMovieRenderMaterialShaderSource.js";
-import { readAutoMovieBufferAttribute } from "../../internal/readAutoMovieBufferAttribute.js";
-import { AutoMovieRenderProceduralNoiseGlsl } from "../../AutoMovieRenderProceduralNoiseGlsl.js";
+import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial";
+import type { IAutoMovieRenderMaterialShaderSource } from "../../IAutoMovieRenderMaterialShaderSource";
+import { readBufferAttribute } from "../../internal/readBufferAttribute";
+import { AutoMovieRenderProceduralNoiseGlsl } from "../../AutoMovieRenderProceduralNoiseGlsl";
 
 /*
  * Wear one geometry and material pair: measure the geometry's feature edges at
@@ -16,7 +16,7 @@ import { AutoMovieRenderProceduralNoiseGlsl } from "../../AutoMovieRenderProcedu
  * fragment mixes its base colour and roughness toward the edge and grime layers
  * by its distance to the nearest convex and concave edge.
  *
- * `measureAutoMovieFeatureEdges` runs once on the `position` attribute, the
+ * `measureFeatureEdges` runs once on the `position` attribute, the
  * bind pose of a skinned mesh, with `reach` the largest layer width. The
  * returned geometry is the input drawn non-indexed (`toNonIndexed`), so each
  * triangle owns its three vertices, with a `wearList` attribute holding the
@@ -27,8 +27,8 @@ import { AutoMovieRenderProceduralNoiseGlsl } from "../../AutoMovieRenderProcedu
  * touches the values.
  *
  * The fragment stage reads its triangle's list and computes, at the
- * interpolated bind-pose position, the distances `autoMovieFeatureEdgeDistance`
- * defines; the layer weights then follow `autoMovieWearWeight`, with the noise
+ * interpolated bind-pose position, the distances `featureEdgeDistance`
+ * defines; the layer weights then follow `wearWeightImplementation`, with the noise
  * of `AutoMovieRenderProceduralNoiseGlsl`. Colour is mixed after the colour chunks
  * (and any overlay), edge first, and roughness after the roughness chunk and a
  * procedural surface's roughness. The patch is registered through
@@ -46,7 +46,7 @@ export const applyMaterialWear: (
   material: THREE.MeshStandardMaterial,
   wear: IAutoMovieMaterialWear,
 ): { geometry: THREE.BufferGeometry; texture: THREE.DataTexture } => {
-  const position: THREE.BufferAttribute = readAutoMovieBufferAttribute(
+  const position: THREE.BufferAttribute = readBufferAttribute(
     geometry,
     "position",
   );
@@ -186,7 +186,7 @@ export const applyMaterialWear: (
             `\treturn texelFetch( uWearEdges, ivec2( index % ${ROW}, index / ${ROW} ), 0 );`,
             "}",
             // Distances to the nearest convex (x) and concave (y) listed edge,
-            // capped at the reach, as autoMovieFeatureEdgeDistance computes them.
+            // capped at the reach, as featureEdgeDistance computes them.
             "vec2 autoMovieWearDistances() {",
             "\tint offset = int( vWearList.x + 0.5 );",
             "\tint count = int( vWearList.y + 0.5 );",

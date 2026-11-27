@@ -15,7 +15,7 @@ import type {
   IAutoMovieMotionHumanPunch,
 } from "@automovie/interface";
 
-import { AutoMovieMotionPrepared } from "../../compose/internal/AutoMovieMotionPrepared";
+import { motionPrepared } from "../../compose/internal/motionPrepared";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { DefenceOutcome } from "./DefenceOutcome";
 import { StrikingSkill } from "./StrikingSkill";
@@ -222,8 +222,8 @@ export namespace defend {
     // so two performers reading each other never recurse at one instant.
     // The geometry the plan solved when it was prepared; before that, each
     // read builds it cold on the performance as placed so far.
-    const shape: AutoMovieMotionPrepared.IValue<defendGeometry.IGeometry> =
-      AutoMovieMotionPrepared(
+    const shape: motionPrepared.IValue<defendGeometry.IGeometry> =
+      motionPrepared(
         (): defendGeometry.IGeometry =>
           defendGeometry.build(context, timing, support),
         (): Error => strikingReadBack("defend", context.subject),

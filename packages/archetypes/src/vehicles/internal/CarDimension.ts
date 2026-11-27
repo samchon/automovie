@@ -1,4 +1,4 @@
-/**
+/*
  * The free dimensions of a car `AutoMovieArchetypeCar` builds, metres unless
  * stated; a class lacks those of the parts it does not have:
  *

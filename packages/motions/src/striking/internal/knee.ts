@@ -1,7 +1,7 @@
 import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieMotionHumanActionName, AutoMovieMotionHumanChannel, IAutoMovieHumanLimbGoal, IAutoMovieHumanoidSurfaces, IAutoMovieMotionEvent, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanKnee, IAutoMovieMotionHumanPerformerReader, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanStrikingRecord, IAutoMovieMotionWeaponContact, IAutoMovieVector3 } from "@automovie/interface";
 
-import { AutoMovieMotionPrepared } from "../../compose/internal/AutoMovieMotionPrepared";
+import { motionPrepared } from "../../compose/internal/motionPrepared";
 import { HumanPerception } from "../../law/internal/HumanPerception";
 import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -156,8 +156,8 @@ export namespace knee {
     let shown: object = {};
     const partner: IAutoMovieMotionHumanPerformerReader | undefined =
       p.at.kind === "person" ? context.performer(p.at.subject) : undefined;
-    const key: AutoMovieMotionPrepared.IValue<KneeGeometry.IGeometry> =
-      AutoMovieMotionPrepared(
+    const key: motionPrepared.IValue<KneeGeometry.IGeometry> =
+      motionPrepared(
         (): KneeGeometry.IGeometry =>
           KneeGeometry.solve(context, side, feet, carriage),
       );

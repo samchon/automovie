@@ -1,4 +1,4 @@
-import type { IAutoMovieCaptionGraphemeSegmentationIdentity } from "../production/IAutoMovieCaptionGraphemeSegmentationIdentity.js";
+import type { IAutoMovieCaptionGraphemeSegmentationIdentity } from "../production/IAutoMovieCaptionGraphemeSegmentationIdentity";
 
 /**
  * Host-supplied deterministic grapheme iterator paired with the exact identity

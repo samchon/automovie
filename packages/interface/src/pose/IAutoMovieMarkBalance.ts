@@ -1,6 +1,6 @@
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
-/** World-space balance geometry read by markAutoMovieBalance. */
+/** World-space balance geometry read by markBalance. */
 export namespace IAutoMovieMarkBalance {
   /**
    * Turn a body's balance at one instant into inspection marks: the centre of

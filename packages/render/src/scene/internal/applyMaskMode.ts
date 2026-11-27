@@ -1,15 +1,15 @@
 import * as THREE from "three";
 
-import type { AutoMovieRenderModeMesh } from "./AutoMovieRenderModeMesh.js";
-import type { IAutoMovieRenderModeHandle } from "../IAutoMovieRenderModeHandle.js";
-import { collectAutoMovieRenderModeMeshes } from "./collectAutoMovieRenderModeMeshes.js";
-import { AutoMovieRenderDualQuaternionSkinning } from "../AutoMovieRenderDualQuaternionSkinning.js";
-import type { IAutoMovieRenderFormationCycle } from "../IAutoMovieRenderFormationCycle.js";
-import { AutoMovieRenderFormationCycle } from "../AutoMovieRenderFormationCycle.js";
-import { guardAutoMovieRenderModeRetirement } from "./guardAutoMovieRenderModeRetirement.js";
-import { AutoMovieRenderSemanticMask } from "../AutoMovieRenderSemanticMask.js";
-import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
-import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
+import type { AutoMovieRenderModeMesh } from "./AutoMovieRenderModeMesh";
+import type { IAutoMovieRenderModeHandle } from "../IAutoMovieRenderModeHandle";
+import { collectRenderModeMeshes } from "./collectRenderModeMeshes";
+import { AutoMovieRenderDualQuaternionSkinning } from "../AutoMovieRenderDualQuaternionSkinning";
+import type { IAutoMovieRenderFormationCycle } from "../IAutoMovieRenderFormationCycle";
+import { AutoMovieRenderFormationCycle } from "../AutoMovieRenderFormationCycle";
+import { guardRenderModeRetirement } from "./guardRenderModeRetirement";
+import { AutoMovieRenderSemanticMask } from "../AutoMovieRenderSemanticMask";
+import { restoreRenderModeOnce } from "./restoreRenderModeOnce";
+import { restoreRenderModeState } from "./restoreRenderModeState";
 
 /*
  * Per-top-level-node flat colors on a black background.
@@ -25,7 +25,7 @@ export const applyMaskMode: (
 ) => IAutoMovieRenderModeHandle = (
   scene: THREE.Scene,
 ): IAutoMovieRenderModeHandle => {
-  guardAutoMovieRenderModeRetirement(scene);
+  guardRenderModeRetirement(scene);
   const background:
     | THREE.Color
     | THREE.Texture<unknown, THREE.TextureEventMap>
@@ -39,7 +39,7 @@ export const applyMaskMode: (
   scene.children.forEach(
     (child: THREE.Object3D<THREE.Object3DEventMap>, index: number): void => {
       const meshes: AutoMovieRenderModeMesh[] =
-        collectAutoMovieRenderModeMeshes(child);
+        collectRenderModeMeshes(child);
       // Create only for mesh-bearing children (a camera/light child would leak
       // an unassigned material); the palette index stays the CHILD index, so the
       // deterministic node→color mapping is unchanged.
@@ -83,10 +83,10 @@ export const applyMaskMode: (
   return {
     mode: "mask",
     semantic: null,
-    restore: restoreAutoMovieRenderModeOnce((): void => {
-      guardAutoMovieRenderModeRetirement(scene, {
+    restore: restoreRenderModeOnce((): void => {
+      guardRenderModeRetirement(scene, {
         run: (): void => {
-          restoreAutoMovieRenderModeState([
+          restoreRenderModeState([
             ...originals.map(
               ({
                 mesh,

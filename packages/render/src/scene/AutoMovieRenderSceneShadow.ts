@@ -1,18 +1,18 @@
-import { applyAutoMovieShadowParticipation as applyAutoMovieShadowParticipationImplementation } from "./internal/applyAutoMovieShadowParticipation.js";
-import { assertAutoMovieSceneShadowProfile as assertAutoMovieSceneShadowProfileImplementation } from "./internal/assertAutoMovieSceneShadowProfile.js";
-import { invalidateAutoMovieSceneShadowPrograms as invalidateAutoMovieSceneShadowProgramsImplementation } from "./internal/invalidateAutoMovieSceneShadowPrograms.js";
+import { applyShadowParticipation as applyShadowParticipationImplementation } from "./internal/applyShadowParticipation";
+import { assertSceneShadowProfile as assertSceneShadowProfileImplementation } from "./internal/assertSceneShadowProfile";
+import { invalidateSceneShadowPrograms as invalidateSceneShadowProgramsImplementation } from "./internal/invalidateSceneShadowPrograms";
 
 import type * as THREE from "three";
-import { type IAutoMovieRenderFramebufferRenderer } from "./IAutoMovieRenderFramebufferRenderer.js";
-import { type IAutoMovieRenderShadowRetirementHost } from "./IAutoMovieRenderShadowRetirementHost.js";
-import { resetAutoMovieSceneShadowTargets as resetAutoMovieSceneShadowTargetsImplementation } from "./internal/resetAutoMovieSceneShadowTargets.js";
+import { type IAutoMovieRenderFramebufferRenderer } from "./IAutoMovieRenderFramebufferRenderer";
+import { type IAutoMovieRenderShadowRetirementHost } from "./IAutoMovieRenderShadowRetirementHost";
+import { resetSceneShadowTargets as resetSceneShadowTargetsImplementation } from "./internal/resetSceneShadowTargets";
 import { type IAutoMovieLight, type IAutoMovieRenderTextureTarget, type IAutoMovieSceneEnvironment } from "@automovie/interface";
-import { readAutoMovieShadowLightSource as readAutoMovieShadowLightSourceImplementation } from "./internal/readAutoMovieShadowLightSource.js";
-import { type IAutoMovieRenderShadowTextureHost } from "./IAutoMovieRenderShadowTextureHost.js";
-import { readAutoMovieShadowTextureTargets as readAutoMovieShadowTextureTargetsImplementation } from "./internal/readAutoMovieShadowTextureTargets.js";
-import { readAutoMovieCubeShadowDepth as readCubeDepthImplementation } from "./internal/readAutoMovieCubeShadowDepth.js";
-import { retireAutoMovieCubeShadowDepth as retireCubeDepthImplementation } from "./internal/retireAutoMovieCubeShadowDepth.js";
-import { guardAutoMovieSceneShadowRetirement as guardAutoMovieSceneShadowRetirementImplementation } from "./internal/guardAutoMovieSceneShadowRetirement.js";
+import { readShadowLightSource as readShadowLightSourceImplementation } from "./internal/readShadowLightSource";
+import { type IAutoMovieRenderShadowTextureHost } from "./IAutoMovieRenderShadowTextureHost";
+import { readShadowTextureTargets as readShadowTextureTargetsImplementation } from "./internal/readShadowTextureTargets";
+import { readCubeShadowDepth as readCubeDepthImplementation } from "./internal/readCubeShadowDepth";
+import { retireCubeShadowDepth as retireCubeDepthImplementation } from "./internal/retireCubeShadowDepth";
+import { guardSceneShadowRetirement as guardSceneShadowRetirementImplementation } from "./internal/guardSceneShadowRetirement";
 
 
 /** Public operations for Auto Movie Scene Shadow. */
@@ -27,7 +27,7 @@ export namespace AutoMovieRenderSceneShadow {
       run: () => void;
     },
   ): void {
-    guardAutoMovieSceneShadowRetirementImplementation(scene, renderer, attempt);
+    guardSceneShadowRetirementImplementation(scene, renderer, attempt);
   }
 
   /**
@@ -50,7 +50,7 @@ export namespace AutoMovieRenderSceneShadow {
    * this context, not manually assigned CPU-only maps dirtied with needsUpdate.
    */
   export function resetTargets(scene: THREE.Scene, renderer: IAutoMovieRenderFramebufferRenderer & IAutoMovieRenderShadowRetirementHost): void {
-    resetAutoMovieSceneShadowTargetsImplementation(scene, renderer);
+    resetSceneShadowTargetsImplementation(scene, renderer);
   }
 
   /**
@@ -61,7 +61,7 @@ export namespace AutoMovieRenderSceneShadow {
    * fabricated shadow source. Admission and allocation formulas stay in Engine.
    */
   export function readLightSource(id: string, object: THREE.Object3D): Pick<IAutoMovieLight, "id" | "type" | "castShadow"> | null {
-    return readAutoMovieShadowLightSourceImplementation(id, object);
+    return readShadowLightSourceImplementation(id, object);
   }
 
   /**
@@ -77,7 +77,7 @@ export namespace AutoMovieRenderSceneShadow {
    * include each scope once when assembling a context's renderTargets closure.
    */
   export function readTextureTargets(scope: string, renderer: IAutoMovieRenderShadowTextureHost, lights: ReadonlyMap<string, THREE.Light>, effectiveShadows?: IAutoMovieSceneEnvironment["shadows"]): IAutoMovieRenderTextureTarget[] {
-    return readAutoMovieShadowTextureTargetsImplementation(scope, renderer, lights, effectiveShadows);
+    return readShadowTextureTargetsImplementation(scope, renderer, lights, effectiveShadows);
   }
 
   /**
@@ -119,7 +119,7 @@ export namespace AutoMovieRenderSceneShadow {
    * production sees its frames change.
    */
   export function applyParticipation(root: THREE.Object3D): void {
-    applyAutoMovieShadowParticipationImplementation(root);
+    applyShadowParticipationImplementation(root);
   }
 
   /**
@@ -131,7 +131,7 @@ export namespace AutoMovieRenderSceneShadow {
    * effective renderer policy before any mutable pass state or GPU allocation.
    */
   export function assertProfile(scene: THREE.Scene, shadows: IAutoMovieSceneEnvironment["shadows"]): void {
-    assertAutoMovieSceneShadowProfileImplementation(scene, shadows);
+    assertSceneShadowProfileImplementation(scene, shadows);
   }
 
   /**
@@ -142,7 +142,7 @@ export namespace AutoMovieRenderSceneShadow {
    * touching SDK methods or caches. Shared materials are marked only once.
    */
   export function invalidatePrograms(scene: THREE.Scene): void {
-    invalidateAutoMovieSceneShadowProgramsImplementation(scene);
+    invalidateSceneShadowProgramsImplementation(scene);
   }
 
   /**

@@ -4,23 +4,23 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind.js";
-import { AutoMovieRenderDepthNormalizationRange } from "../AutoMovieRenderDepthNormalizationRange.js";
-import { AutoMovieRenderEdgeWidth } from "../AutoMovieRenderEdgeWidth.js";
-import type { IAutoMovieRenderModeHandle } from "../IAutoMovieRenderModeHandle.js";
-import { applyDepthMode } from "./applyDepthMode.js";
-import { applyEdgeMode } from "./applyEdgeMode.js";
-import { applyMaskMode } from "./applyMaskMode.js";
-import { applyPoseMode } from "./applyPoseMode.js";
-import { applySemanticMaskMode } from "./applySemanticMaskMode.js";
-import { createAutoMovieAlbedoMaterial } from "./createAutoMovieAlbedoMaterial.js";
-import { guardAutoMovieRenderModeRetirement } from "./guardAutoMovieRenderModeRetirement.js";
-import { overrideAutoMovieRenderModeMaterials } from "./overrideAutoMovieRenderModeMaterials.js";
-import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
-import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
-import { AutoMovieRenderSemanticMask } from "../AutoMovieRenderSemanticMask.js";
-import { applyAutoMovieGraphicsMode } from "../surfaceGraphic/internal/applyAutoMovieGraphicsMode.js";
-import { hideAutoMovieSurfaceGraphics } from "../surfaceGraphic/internal/hideAutoMovieSurfaceGraphics.js";
+import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind";
+import { AutoMovieRenderDepthNormalizationRange } from "../AutoMovieRenderDepthNormalizationRange";
+import { AutoMovieRenderEdgeWidth } from "../AutoMovieRenderEdgeWidth";
+import type { IAutoMovieRenderModeHandle } from "../IAutoMovieRenderModeHandle";
+import { applyDepthMode } from "./applyDepthMode";
+import { applyEdgeMode } from "./applyEdgeMode";
+import { applyMaskMode } from "./applyMaskMode";
+import { applyPoseMode } from "./applyPoseMode";
+import { applySemanticMaskMode } from "./applySemanticMaskMode";
+import { createAlbedoMaterial } from "./createAlbedoMaterial";
+import { guardRenderModeRetirement } from "./guardRenderModeRetirement";
+import { overrideRenderModeMaterials } from "./overrideRenderModeMaterials";
+import { restoreRenderModeOnce } from "./restoreRenderModeOnce";
+import { restoreRenderModeState } from "./restoreRenderModeState";
+import { AutoMovieRenderSemanticMask } from "../AutoMovieRenderSemanticMask";
+import { applyGraphicsMode } from "../surfaceGraphic/internal/applyGraphicsMode";
+import { hideSurfaceGraphics } from "../surfaceGraphic/internal/hideSurfaceGraphics";
 
 /*
  * Apply one diffusion-guide render mode to a built scene, returning the restore
@@ -51,13 +51,13 @@ import { hideAutoMovieSurfaceGraphics } from "../surfaceGraphic/internal/hideAut
  * - `pose`: meshes hidden, and a line-segment overlay of every bone→child bone
  *   connection drawn over a black background: the skeleton pose pass.
  * - `albedo`: every mesh drawn unlit in its material's base colour on black, one
- *   `createAutoMovieAlbedoMaterial` per original material: the material channel
+ *   `createAlbedoMaterial` per original material: the material channel
  *   for a neural renderer that is given lighting separately.
  *
- * Surface graphics from `prepareAutoMovieSurfaceGraphics` draw in `beauty`,
+ * Surface graphics from `prepareSurfaceGraphics` draw in `beauty`,
  * `mask` and `graphics` only; every other pass hides them for its duration.
  *
- * - `graphics`: applyAutoMovieGraphicsMode: the surface graphics as beauty
+ * - `graphics`: applyGraphicsMode: the surface graphics as beauty
  *   draws them, every other mesh writing depth only, no backdrop, with the
  *   scene's fog and image lighting kept.
  *
@@ -101,7 +101,7 @@ export const applyRenderMode: (
     edgeWidth?: number;
   },
 ): IAutoMovieRenderModeHandle => {
-  guardAutoMovieRenderModeRetirement(scene);
+  guardRenderModeRetirement(scene);
   if (mode === "beauty")
     return { mode, semantic: null, restore: (): void => {} };
   // Resolve (and validate) the structural pass builder BEFORE touching the
@@ -117,7 +117,7 @@ export const applyRenderMode: (
             );
         case "normal":
           return (): IAutoMovieRenderModeHandle =>
-            overrideAutoMovieRenderModeMaterials(
+            overrideRenderModeMaterials(
               scene,
               mode,
               (): THREE.MeshNormalMaterial => new THREE.MeshNormalMaterial(),
@@ -137,18 +137,18 @@ export const applyRenderMode: (
           return (): IAutoMovieRenderModeHandle => applyPoseMode(scene);
         case "graphics":
           return (): IAutoMovieRenderModeHandle =>
-            applyAutoMovieGraphicsMode(scene);
+            applyGraphicsMode(scene);
         case "albedo":
           return (): IAutoMovieRenderModeHandle =>
-            overrideAutoMovieRenderModeMaterials(
+            overrideRenderModeMaterials(
               scene,
               mode,
               (
                 original: THREE.Material | THREE.Material[],
               ): THREE.Material | THREE.Material[] =>
                 AutoMovieRenderThreeKind.isMaterial(original)
-                  ? createAutoMovieAlbedoMaterial(original)
-                  : original.map(createAutoMovieAlbedoMaterial),
+                  ? createAlbedoMaterial(original)
+                  : original.map(createAlbedoMaterial),
             );
         default:
           throw new Error(`unknown render mode "${String(mode)}"`);
@@ -171,7 +171,7 @@ export const applyRenderMode: (
   const restoreGraphics: () => void =
     mode === "mask" || mode === "graphics"
       ? (): void => {}
-      : hideAutoMovieSurfaceGraphics(scene);
+      : hideSurfaceGraphics(scene);
   // A builder that throws returns no handle, so the three suspensions above
   // would have no way back and the scene would keep drawing on black with its
   // atmosphere off for the rest of the session. The semantic mask pass is the
@@ -183,7 +183,7 @@ export const applyRenderMode: (
   try {
     handle = build();
   } catch (error) {
-    restoreAutoMovieRenderModeState(
+    restoreRenderModeState(
       [restoreGraphics, restoreEnvironment, restoreFog, restoreRenderables],
       { error },
     );
@@ -192,10 +192,10 @@ export const applyRenderMode: (
     mode,
     semantic: handle.semantic,
     ...(handle.update === undefined ? {} : { update: handle.update }),
-    restore: restoreAutoMovieRenderModeOnce((): void => {
-      guardAutoMovieRenderModeRetirement(scene, {
+    restore: restoreRenderModeOnce((): void => {
+      guardRenderModeRetirement(scene, {
         run: (): void => {
-          restoreAutoMovieRenderModeState([
+          restoreRenderModeState([
             handle.restore,
             restoreGraphics,
             restoreEnvironment,

@@ -1,10 +1,10 @@
-import { measureAutoMovieRenderFeeds as measureAutoMovieRenderFeedsImplementation } from "./internal/measureAutoMovieRenderFeeds";
-import { measureAutoMovieRenderFilmStage as measureAutoMovieRenderFilmStageImplementation } from "./internal/measureAutoMovieRenderFilmStage";
+import { measureRenderFeeds as measureRenderFeedsImplementation } from "./internal/measureRenderFeeds";
+import { measureRenderFilmStage as measureRenderFilmStageImplementation } from "./internal/measureRenderFilmStage";
 import type { AutoMovieEngineRenderMeasureTypes } from "./AutoMovieEngineRenderMeasureTypes";
 
 import { type IAutoMovieRenderModelCost, type IAutoMovieModel, type IAutoMovieRenderInventory, type IAutoMovieMeasureRenderInventory, type IAutoMovieMeasureRenderPopulation, type IAutoMovieMeasureRenderSimulation, type IAutoMovieRenderSubject } from "@automovie/interface";
 import { measure as measureImplementation } from "./internal/measure";
-import { measureAutoMovieRenderInventory as measureAutoMovieRenderInventoryImplementation } from "./internal/measureAutoMovieRenderInventory";
+import { measureRenderInventory as measureRenderInventoryImplementation } from "./internal/measureRenderInventory";
 import { measureRenderPopulation as measureRenderPopulationImplementation } from "./internal/measureRenderPopulation";
 import { measureRenderSimulation as measureRenderSimulationImplementation } from "./internal/measureRenderSimulation";
 
@@ -68,7 +68,7 @@ export namespace AutoMovieEngineRenderMeasure {
    * editable owner.
    */
   export function measureAutoMovieRenderInventory(props: IAutoMovieMeasureRenderInventory.IProps): IAutoMovieRenderInventory {
-    return measureAutoMovieRenderInventoryImplementation(props);
+    return measureRenderInventoryImplementation(props);
   }
 
   /**
@@ -89,10 +89,10 @@ export namespace AutoMovieEngineRenderMeasure {
 
   /**
    * Measure the render targets and passes a subject's surface-graphic feed layers
-   * commit the renderer to, as `prepareAutoMovieSurfaceGraphics` builds them.
+   * commit the renderer to, as `prepareSurfaceGraphics` builds them.
    *
    * Every feed layer of every key owns one render target for the whole shot,
-   * `pixels` high and {@link autoMovieSurfaceFeedWidth} wide, the rule `render`
+   * `pixels` high and {@link surfaceFeedWidth} wide, the rule `render`
    * allocates by, so each is one texture allocation of
    * {@link FEED_BYTES_PER_PIXEL} bytes per pixel. A shown feed redraws the scene
    * once into its target, so a frame can add as many scene passes as the feed
@@ -102,7 +102,7 @@ export namespace AutoMovieEngineRenderMeasure {
    * A directly rendered film, `subject.film`, draws each feed through its optics
    * on a film response stage of the feed's own, so every feed layer also holds
    * that stage's targets at its raster,
-   * {@link measureAutoMovieFilmResponseTargets}, and, when the scene carries a
+   * {@link measureFilmResponseTargets}, and, when the scene carries a
    * medium, the stage's half-float march target.
    *
    * The face size is the `surface` affordance the track names on the model its
@@ -112,7 +112,7 @@ export namespace AutoMovieEngineRenderMeasure {
    * @returns One row per track with feeds, in track order, and the totals.
    */
   export function measureAutoMovieRenderFeeds(subject: IAutoMovieRenderSubject): AutoMovieEngineRenderMeasureTypes.IFeedResult {
-    return measureAutoMovieRenderFeedsImplementation(subject);
+    return measureRenderFeedsImplementation(subject);
   }
 
   /**
@@ -125,7 +125,7 @@ export namespace AutoMovieEngineRenderMeasure {
    * With `subject.film`, and nothing without it, one row pair per stage under a
    * `render-pass:film-*` owner:
    *
-   * - Optics (`response`): the targets `measureAutoMovieFilmResponseTargets` counts
+   * - Optics (`response`): the targets `measureFilmResponseTargets` counts
    *   at the raster, the linear frame with its depth texture and the glare
    *   pyramid and kernel pairs, made whether or not glare is asked for. Its
    *   passes are the final full-frame quad and, with a glare strength above zero,
@@ -155,7 +155,7 @@ export namespace AutoMovieEngineRenderMeasure {
    * @returns What the stage adds to each total, null where it is unknown.
    */
   export function measureAutoMovieRenderFilmStage(props: AutoMovieEngineRenderMeasureTypes.IFilmStageProps): AutoMovieEngineRenderMeasureTypes.IFilmStageResult {
-    return measureAutoMovieRenderFilmStageImplementation(props);
+    return measureRenderFilmStageImplementation(props);
   }
 
 }

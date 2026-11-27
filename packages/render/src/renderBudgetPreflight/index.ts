@@ -1,1 +1,1 @@
-export * from "./AutoMovieRenderBudgetPreflight.js";
+export * from "./AutoMovieRenderBudgetPreflight";

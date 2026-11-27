@@ -12,7 +12,7 @@ export namespace IAutoMovieMinimizeMeshClearance {
    * The solved minimum joint forward travel of the front mesh's vertices along
    * one positive axis that restores a requested clearance over a back mesh.
    *
-   * `measureAutoMovieMeshClearance` supplies every affine overlap witness,
+   * `measureMeshClearance` supplies every affine overlap witness,
    * already-clear ones included; each becomes the linear constraint that the
    * barycentric blend of its front vertices' travel closes its deficit. The
    * objective is half the sum of lumped mass times squared travel, each

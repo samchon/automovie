@@ -12,8 +12,8 @@ import { AutoMovieEngineSolidIntersection } from "./AutoMovieEngineSolidIntersec
 import { AutoMovieEngineSolidRail } from "./AutoMovieEngineSolidRail";
 import { AutoMovieEngineSolidRibbon } from "./AutoMovieEngineSolidRibbon";
 import { AutoMovieEngineSolidVector } from "./AutoMovieEngineSolidVector";
-import { AutoMovieSolidJoinCrossing } from "./construction/internal/AutoMovieSolidJoinCrossing";
-import { AutoMovieSolidJoinNormalCheck } from "./construction/internal/AutoMovieSolidJoinNormalCheck";
+import { solidJoinCrossing } from "./construction/internal/solidJoinCrossing";
+import { solidJoinNormalCheck } from "./construction/internal/solidJoinNormalCheck";
 
 /**
  * Compose merge or diff from an intersection, kept-side rails and analytic
@@ -219,7 +219,7 @@ export namespace AutoMovieEngineSolidJoin {
     );
     const crossing: string | null = !single
       ? null
-      : AutoMovieSolidJoinCrossing(
+      : solidJoinCrossing(
           columns.map(
             (c: IAutoMovieSolidJoin.IColumn): [number, number] => c.rail.host,
           ),
@@ -232,8 +232,8 @@ export namespace AutoMovieEngineSolidJoin {
       );
 
     // Preserve the sampled predicate while reporting its already read operands.
-    const normalCheck: ReturnType<typeof AutoMovieSolidJoinNormalCheck> =
-      AutoMovieSolidJoinNormalCheck(
+    const normalCheck: ReturnType<typeof solidJoinNormalCheck> =
+      solidJoinNormalCheck(
         columns,
         column,
         period,

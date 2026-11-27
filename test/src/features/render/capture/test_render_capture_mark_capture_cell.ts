@@ -1,10 +1,10 @@
 import {
-  markAutoMovieCaptureCell
-} from "../../../../../packages/render/src/capture/internal/markAutoMovieCaptureCell";
+  markCaptureCell
+} from "../../../../../packages/render/src/capture/internal/markCaptureCell";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `markAutoMovieCaptureCell` fills a cell with the opaque mark colour.
+ * `markCaptureCell` fills a cell with the opaque mark colour.
  *
  * Scenarios:
  *
@@ -12,7 +12,7 @@ import { TestValidator } from "@nestia/e2e";
  */
 export function test_render_capture_mark_capture_cell(): void {
   const image: { width: number; height: number; pixels: Uint8ClampedArray } =
-    markAutoMovieCaptureCell({ width: 2, height: 3 });
+    markCaptureCell({ width: 2, height: 3 });
   TestValidator.equals("size", [image.width, image.height], [2, 3]);
   TestValidator.equals(
     "pixels",

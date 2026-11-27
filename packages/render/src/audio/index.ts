@@ -1,1 +1,1 @@
-export * from "./AutoMovieRenderAudio.js";
+export * from "./AutoMovieRenderAudio";

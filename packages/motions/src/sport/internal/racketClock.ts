@@ -4,8 +4,8 @@ import type {
   IAutoMovieMotionManner,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
+import { motionClock } from "../../compose/internal/motionClock";
+import { motionManner } from "../../compose/internal/motionManner";
 
 /*
  * A solo racket or golf position's timetable: into the position in 0.6 s, the
@@ -23,8 +23,8 @@ export function racketClock(
   hold: number,
   modifiers: IAutoMovieMotionManner.IModifiers,
 ): IAutoMovieMotionClock {
-  return AutoMovieMotionManner.time(
-    AutoMovieMotionClock.phrase({
+  return motionManner.time(
+    motionClock.phrase({
       prepare: 0.6,
       attack: kind === "golfAddress" ? 1.2 : 0.3,
       hold,

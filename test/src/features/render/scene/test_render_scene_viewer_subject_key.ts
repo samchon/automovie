@@ -2,7 +2,7 @@ import { AutoMovieRenderSubjectViewpoint } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `autoMovieViewerSubjectKey` writes a subject as "<kind>:<id>" and appends
+ * `viewerSubjectKey` writes a subject as "<kind>:<id>" and appends
  * "@<revision>" when it has one.
  *
  * Scenarios:

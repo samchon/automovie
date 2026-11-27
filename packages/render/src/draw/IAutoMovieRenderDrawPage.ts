@@ -3,7 +3,7 @@ import type {
   IAutoMovieDrawResult,
 } from "@automovie/interface";
 
-import type { IAutoMovieRenderDrawPageRequest } from "./IAutoMovieRenderDrawPageRequest.js";
+import type { IAutoMovieRenderDrawPageRequest } from "./IAutoMovieRenderDrawPageRequest";
 
 /**
  * The browser page a draw session drives, declared as the five Playwright

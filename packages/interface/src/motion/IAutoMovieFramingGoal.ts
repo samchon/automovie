@@ -1,7 +1,7 @@
 /**
  * What a camera must show, by subjects rather than coordinates: the named
  * subjects fill a share of the frame height, seen from a bearing and an
- * elevation about their common centre. `resolveAutoMovieFraming` turns it into
+ * elevation about their common centre. `resolveFraming` turns it into
  * a camera pose from the subjects' actual bounds. The resolver checks nonempty
  * subjects and the fill, elevation and field-of-view intervals, and rejects
  * unknown ids. The caller supplies finite bearing and finite nonnegative

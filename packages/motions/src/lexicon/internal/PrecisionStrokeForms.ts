@@ -11,7 +11,7 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../../actions/internal/stand";
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanTrunk } from "../../compose/internal/AutoMovieMotionHumanTrunk";
 import { fitClearArmPose } from "../../compose/internal/fitClearArmPose";
@@ -141,7 +141,7 @@ export namespace PrecisionStrokeForms {
 
     /*
      * The implement in the striking hand's grip frame, as the hand will hold it
-     * (`AutoMovieMotionHumanHeld.grasped`); none for a bare hand.
+     * (`motionHumanHeld.grasped`); none for a bare hand.
      */
     held?: IAutoMovieMotionHumanHeld.IHeld;
   }
@@ -441,7 +441,7 @@ export namespace PrecisionStrokeForms {
    * Returns: The clock, whose `stroke` is the contact.
    */
   export function clock(impact: number): IAutoMovieMotionClock {
-    return AutoMovieMotionClock.phrase({
+    return motionClock.phrase({
       prepare: 0.64 * impact,
       attack: 0.36 * impact,
       follow: 0.36 * impact,

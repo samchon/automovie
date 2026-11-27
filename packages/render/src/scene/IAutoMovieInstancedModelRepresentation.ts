@@ -1,5 +1,5 @@
-import type { IAutoMovieRenderFormationCycle } from "./IAutoMovieRenderFormationCycle.js";
-import type { IAutoMovieInstancedGeometry } from "./IAutoMovieInstancedGeometry.js";
+import type { IAutoMovieRenderFormationCycle } from "./IAutoMovieRenderFormationCycle";
+import type { IAutoMovieInstancedGeometry } from "./IAutoMovieInstancedGeometry";
 
 /**
  * Rigid prototype geometry with the cycle baked after its rest-space

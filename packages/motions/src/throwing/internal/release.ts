@@ -22,12 +22,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanArmTarget } from "../../compose/internal/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanBendTrack } from "../../compose/internal/AutoMovieMotionHumanBendTrack";
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionHumanBendTrack } from "../../compose/internal/motionHumanBendTrack";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanPropFrame } from "../../perform/internal/HumanPropFrame";
@@ -42,7 +42,7 @@ import { poseBones } from "../../posture/internal/poseBones";
  * The hand stays where the hold kept it on the trunk (its grip frame at the
  * entry, read in the chest's frame and carried with the chest the carrier
  * shows), and opens at `open`, the decisive instant, a brief pause
- * (`AutoMovieMotionHumanTiming.PAUSES.brief`, provisional) after the entry.
+ * (`motionHumanTiming.PAUSES.brief`, provisional) after the entry.
  * Until then its grip window on the prop takes the hand over from the hold; at
  * `open` the prop is launched (`IHumanActionPlan.launches`) with the hand's
  * velocity there, the central difference of the carried grip point at the
@@ -88,9 +88,9 @@ export namespace release {
    * Returns: The clock with `hold` and `open`.
    */
   export function timetable(): IAutoMovieMotionClock {
-    return AutoMovieMotionClock.sequence([
-      { name: "hold", seconds: AutoMovieMotionHumanTiming.PAUSES.brief },
-      { name: "open", seconds: AutoMovieMotionHumanTiming.PAUSES.brief },
+    return motionClock.sequence([
+      { name: "hold", seconds: motionHumanTiming.PAUSES.brief },
+      { name: "open", seconds: motionHumanTiming.PAUSES.brief },
     ]);
   }
   /*
@@ -176,9 +176,9 @@ export namespace release {
     };
 
     // The elbow is solved once over the span, when the action is planned,
-    // and continued through it (`AutoMovieMotionHumanBendTrack`).
-    const elbow: AutoMovieMotionHumanBendTrack.ITrack =
-      AutoMovieMotionHumanBendTrack({
+    // and continued through it (`motionHumanBendTrack`).
+    const elbow: motionHumanBendTrack.ITrack =
+      motionHumanBendTrack({
         body,
         side,
         from: 0,
@@ -233,7 +233,7 @@ export namespace release {
       },
     };
     const composed: IAutoMovieMotionHumanActionPlan =
-      composeAutoMovieMotionHumanAction({
+      composeMotionHumanAction({
         base,
         clock,
         contact: "open",

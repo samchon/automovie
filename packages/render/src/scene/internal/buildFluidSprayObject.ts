@@ -1,8 +1,8 @@
 import type { IAutoMovieFluidSpraySample } from "@automovie/interface";
 import * as THREE from "three";
 
-import type { IAutoMovieRenderFluidSprayObject } from "../IAutoMovieRenderFluidSprayObject.js";
-import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceRetirement.js";
+import type { IAutoMovieRenderFluidSprayObject } from "../IAutoMovieRenderFluidSprayObject";
+import { reportResourceRetirement } from "./reportResourceRetirement";
 
 /*
  * Project one bounded spray sample into a `three.js` point cloud.
@@ -80,7 +80,7 @@ export const buildFluidSprayObject: (props: {
     object: points,
     update: upload,
     dispose: (): void => {
-      reportAutoMovieResourceRetirement([
+      reportResourceRetirement([
         (): void => {
           geometry.dispose();
         },

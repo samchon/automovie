@@ -9,8 +9,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionClock
-} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionClock";
+  motionClock
+} from "../../../../../packages/motions/src/compose/internal/motionClock";
 import {
   HumanFoot
 } from "../../../../../packages/motions/src/posture/internal/HumanFoot";
@@ -68,7 +68,7 @@ namespace part_climb_stairs_pelvis {
     ];
     const root: (seconds: number) => IAutoMovieVector3 = climbStairsPelvis(
       stance,
-      AutoMovieMotionClock(3, [
+      motionClock(3, [
         { name: "toeOff1", seconds: 0.2 },
         { name: "treadContact1", seconds: 1 },
         { name: "toeOff2", seconds: 1.2 },
@@ -112,7 +112,7 @@ namespace part_climb_stairs_plants {
    * 3. On a prop named `deck` the right foot's second plant bears on it.
    */
   export function verify(): void {
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(2, [
+    const clock: IAutoMovieMotionClock = motionClock(2, [
       { name: "toeOff1", seconds: 0.2 },
       { name: "treadContact1", seconds: 1 },
     ]);
@@ -228,7 +228,7 @@ namespace part_climb_stairs_toes {
     const reads: number[] = [];
     const toes: ReturnType<typeof climbStairsToes> = climbStairsToes({
       duration: 2,
-      clock: AutoMovieMotionClock(2, [
+      clock: motionClock(2, [
         { name: "toeOff1", seconds: 0.2 },
         { name: "treadContact1", seconds: 1 },
       ]),

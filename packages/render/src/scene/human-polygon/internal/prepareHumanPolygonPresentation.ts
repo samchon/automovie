@@ -7,7 +7,7 @@ import type {
 } from "@automovie/interface";
 import { Quaternion, Vector3 } from "three";
 
-import type { AutoMovieRenderHumanPolygon } from "../../AutoMovieRenderHumanPolygon.js";
+import type { AutoMovieRenderHumanPolygon } from "../../AutoMovieRenderHumanPolygon";
 
 /*
  * Prepare rigid visual cues for one polygon drawing on its source clock.

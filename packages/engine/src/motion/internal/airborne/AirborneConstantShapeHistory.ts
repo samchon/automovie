@@ -3,9 +3,9 @@ import type { AutoMovieHumanoidBone, IAutoMovieBodyMomentum, IAutoMovieIntegrate
 
 import { indexSkeletonTopology } from "../../../kinematics/internal/indexSkeletonTopology";
 
-import { resolveAutoMovieBoneRates } from "../../../kinematics/internal/resolveAutoMovieBoneRates";
+import { resolveBoneRates } from "../../../kinematics/internal/resolveBoneRates";
 
-import { resolveAutoMovieMomentumRates } from "../../../kinematics/internal/resolveAutoMovieMomentumRates";
+import { resolveMomentumRates } from "../../../kinematics/internal/resolveMomentumRates";
 import { physicalInertiaFactor } from "../../../physics/internal/physicalInertiaFactor";
 import { AutoMovieEnginePhysicalInertiaTensor } from "../../../physics/AutoMovieEnginePhysicalInertiaTensor";
 import { AirborneShapeInertia } from "./AirborneShapeInertia";
@@ -43,8 +43,8 @@ export function AirborneConstantShapeHistory(
   for (const [name, bone] of source) bones.set(name, structuredClone(bone));
   const local: Map<AutoMovieHumanoidBone, IAutoMovieVector3> = new Map();
   for (const bone of bones.keys()) local.set(bone, { x: 0, y: 0, z: 0 });
-  const rates: ReturnType<typeof resolveAutoMovieBoneRates> =
-    resolveAutoMovieBoneRates(indexSkeletonTopology(rig), bones, local, {
+  const rates: ReturnType<typeof resolveBoneRates> =
+    resolveBoneRates(indexSkeletonTopology(rig), bones, local, {
       position: { x: 0, y: 0, z: 0 },
       linear: { x: 0, y: 0, z: 0 },
       angular: { x: 0, y: 0, z: 0 },
@@ -75,7 +75,7 @@ export function AirborneConstantShapeHistory(
   if (!(scale > 0)) throw new Error("Invalid aggregate inertia tensor");
   const momentum: IAutoMovieBodyMomentum =
     "segments" in model
-      ? resolveAutoMovieMomentumRates(model, posed, bones, rates)
+      ? resolveMomentumRates(model, posed, bones, rates)
       : AutoMovieEngineKinematics.prepareAutoMovieMassModelRates(model, posed, bones, rates);
   if (
     !(

@@ -10,7 +10,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
+import { motionHumanHeld } from "../../compose/internal/motionHumanHeld";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { StrikingHeld } from "../../striking/internal/StrikingHeld";
@@ -55,7 +55,7 @@ export function precisionStrokeTool(
   const face: IAutoMovieVector3 =
     held === undefined
       ? palm(body, side, entry)
-      : AutoMovieMotionHumanHeld.point(held, form.point).direction;
+      : motionHumanHeld.point(held, form.point).direction;
   const tool: IAutoMovieMotionHumanStrikingHeld.ITool =
     form.point === "tip"
       ? read

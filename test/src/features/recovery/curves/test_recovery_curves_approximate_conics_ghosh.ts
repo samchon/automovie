@@ -10,7 +10,7 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../../internal/nclose";
 
 /**
- * `approximateAutoMovieRecoveryConicsGhosh` returns the endpoint-bitangent
+ * `approximateRecoveryConicsGhosh` returns the endpoint-bitangent
  * conic of a smooth planar chart, never crossing a source break, and refuses
  * to call a chart complete when its arc budget is zero.
  *

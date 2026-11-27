@@ -9,7 +9,13 @@
     "jsx": "react-jsx",
     "types": [
       "node"
-    ]
+    ],
+    "paths": {
+      "#three-addon/*": [
+        "../packages/render/node_modules/@types/three/examples/jsm/*",
+        "../packages/render/node_modules/three/examples/jsm/*"
+      ]
+    }
   },
   "include": [
     "src"

@@ -1,6 +1,6 @@
 import type { AutoMovieCliProductionPageTypes } from "./AutoMovieCliProductionPageTypes";
-import { planAutoMovieModulePageViteConfig } from "./internal/planAutoMovieModulePageViteConfig";
-import { writeAutoMovieModulePage } from "./internal/writeAutoMovieModulePage";
+import { planModulePageViteConfig } from "./internal/planModulePageViteConfig";
+import { writeProductionModulePage } from "./internal/writeProductionModulePage";
 
 /** Public operations for generated pages inside a production. */
 export namespace AutoMovieCliProductionPage {
@@ -8,13 +8,13 @@ export namespace AutoMovieCliProductionPage {
   export function writeModulePage(
     props: AutoMovieCliProductionPageTypes.WriteProps,
   ): AutoMovieCliProductionPageTypes.WrittenPage {
-    return writeAutoMovieModulePage(props);
+    return writeProductionModulePage(props);
   }
 
   /** Plan the Vite config that serves or bundles a written module page. */
   export function planViteConfig(
     page: AutoMovieCliProductionPageTypes.PageConfig,
   ): AutoMovieCliProductionPageTypes.ViteConfig {
-    return planAutoMovieModulePageViteConfig(page);
+    return planModulePageViteConfig(page);
   }
 }

@@ -8,11 +8,11 @@ import { TestValidator } from "@nestia/e2e";
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * `transportAutoMovieSweepSpine(count, frames)` compiles a spine into the
+ * `transportSweepSpine(count, frames)` compiles a spine into the
  * centripetal Catmull-Rom curve through its points (Yuksel, Schaefer and Keyser
  * 2011), parameterized by chord-length share, and transports its first axis by
  * double reflection (Wang, Juttler, Zheng and Liu 2008);
- * `frameAutoMovieSweepSpine` does the same for an authored spine.
+ * `frameSweepSpine` does the same for an authored spine.
  *
  * Frames are written [origin, first axis, second axis, tangent], the second
  * axis tangent x first.

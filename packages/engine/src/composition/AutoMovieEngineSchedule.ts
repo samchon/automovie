@@ -1,9 +1,9 @@
-import { advanceAutoMovieGrid as advanceAutoMovieGridImplementation } from "./internal/advanceAutoMovieGrid";
+import { advanceGrid as advanceGridImplementation } from "./internal/advanceGrid";
 import { type IAutoMovieCheckLegality, type IAutoMovieSchedule, type IAutoMovieEvaluateSchedule, type IAutoMovieMeasureSchedule, type IAutoMovieComposition, type IAutoMovieScheduleLaws } from "@automovie/interface";
-import { checkAutoMovieLegality as checkAutoMovieLegalityImplementation } from "./internal/checkAutoMovieLegality";
-import { evaluateAutoMovieSchedule as evaluateAutoMovieScheduleImplementation } from "./internal/evaluateAutoMovieSchedule";
-import { measureAutoMovieSchedule as measureAutoMovieScheduleImplementation } from "./internal/measureAutoMovieSchedule";
-import { resolveAutoMovieSchedule as resolveAutoMovieScheduleImplementation } from "./internal/resolveAutoMovieSchedule";
+import { checkLegality as checkLegalityImplementation } from "./internal/checkLegality";
+import { evaluateSchedule as evaluateScheduleImplementation } from "./internal/evaluateSchedule";
+import { measureSchedule as measureScheduleImplementation } from "./internal/measureSchedule";
+import { resolveSchedule as resolveScheduleImplementation } from "./internal/resolveSchedule";
 
 /** Public operations for Auto Movie Engine Schedule. */
 export namespace AutoMovieEngineSchedule {
@@ -41,7 +41,7 @@ export namespace AutoMovieEngineSchedule {
    * @throws {RangeError} When the bound is negative or not a number.
    */
   export function advanceGrid(at: number, end: number, margin: number, travel: (from: number, to: number) => number | undefined): number {
-    return advanceAutoMovieGridImplementation(at, end, margin, travel);
+    return advanceGridImplementation(at, end, margin, travel);
   }
 
   /**
@@ -54,7 +54,7 @@ export namespace AutoMovieEngineSchedule {
    * @returns Every violation, by entry then rule order.
    */
   export function checkLegality(schedule: IAutoMovieSchedule, rules: readonly IAutoMovieCheckLegality.IRule[]): IAutoMovieCheckLegality.IViolation[] {
-    return checkAutoMovieLegalityImplementation(schedule, rules);
+    return checkLegalityImplementation(schedule, rules);
   }
 
   /**
@@ -67,7 +67,7 @@ export namespace AutoMovieEngineSchedule {
    * @returns The active entries and the subjects' states.
    */
   export function evaluate(schedule: IAutoMovieSchedule, seconds: number): IAutoMovieEvaluateSchedule.IInstant {
-    return evaluateAutoMovieScheduleImplementation(schedule, seconds);
+    return evaluateScheduleImplementation(schedule, seconds);
   }
 
   /**
@@ -83,7 +83,7 @@ export namespace AutoMovieEngineSchedule {
    * @returns The measurements.
    */
   export function measure(schedule: IAutoMovieSchedule, classify: IAutoMovieMeasureSchedule.IClassify): IAutoMovieMeasureSchedule.IMeasure {
-    return measureAutoMovieScheduleImplementation(schedule, classify);
+    return measureScheduleImplementation(schedule, classify);
   }
 
   /**
@@ -116,6 +116,6 @@ export namespace AutoMovieEngineSchedule {
    * @returns The placed entries ordered by start time and the total duration.
    */
   export function resolve(composition: IAutoMovieComposition, laws: IAutoMovieScheduleLaws): IAutoMovieSchedule {
-    return resolveAutoMovieScheduleImplementation(composition, laws);
+    return resolveScheduleImplementation(composition, laws);
   }
 }

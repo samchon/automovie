@@ -1,11 +1,11 @@
 import type { IAutoMovieSoftBodySurface } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind.js";
-import type { IAutoMovieRenderSoftBodyObject } from "../IAutoMovieRenderSoftBodyObject.js";
-import type { IBuildSoftBodyObjectProps } from "./IBuildSoftBodyObjectProps.js";
-import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
-import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
+import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind";
+import type { IAutoMovieRenderSoftBodyObject } from "../IAutoMovieRenderSoftBodyObject";
+import type { IBuildSoftBodyObjectProps } from "./IBuildSoftBodyObjectProps";
+import { restoreRenderModeOnce } from "./restoreRenderModeOnce";
+import { restoreRenderModeState } from "./restoreRenderModeState";
 
 /*
  * Project one canonical Engine cloth surface into an owned Three mesh.
@@ -32,9 +32,9 @@ export const buildSoftBodyObject: (
   let material: THREE.Material | undefined;
   const owned: boolean = props.material === undefined;
   let closed: boolean = false;
-  const dispose: () => void = restoreAutoMovieRenderModeOnce((): void => {
+  const dispose: () => void = restoreRenderModeOnce((): void => {
     closed = true;
-    restoreAutoMovieRenderModeState([
+    restoreRenderModeState([
       ...(failedRetirement === undefined ? [] : [failedRetirement]),
       retire,
       (): void => {
@@ -134,13 +134,13 @@ export const buildSoftBodyObject: (
       } catch (error) {
         if (failure === undefined) failure = { error };
         if (!transferred)
-          restoreAutoMovieRenderModeState([candidateRetire], { error });
+          restoreRenderModeState([candidateRetire], { error });
         throw error;
       }
     };
     return { object: mesh, update: upload, dispose };
   } catch (error) {
-    restoreAutoMovieRenderModeState([dispose], { error });
+    restoreRenderModeState([dispose], { error });
   }
 };
 
@@ -148,7 +148,7 @@ export const buildSoftBodyObject: (
  * A geometry incarnation shares one original public-disposal attempt.
  */
 function retirement(geometry: THREE.BufferGeometry): () => void {
-  return restoreAutoMovieRenderModeOnce((): void => {
+  return restoreRenderModeOnce((): void => {
     geometry.dispose();
   });
 }

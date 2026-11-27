@@ -1,39 +1,39 @@
-import { tessellateAutoMovieBicubicAtlas64 as tessellateAutoMovieBicubicAtlas64Implementation } from "./curve/internal/tessellateAutoMovieBicubicAtlas64";
-import { tessellateAutoMovieLocalHermite64 as tessellateAutoMovieLocalHermite64Implementation } from "./curve/internal/tessellateAutoMovieLocalHermite64";
+import { tessellateBicubicAtlas64 as tessellateBicubicAtlas64Implementation } from "./curve/internal/tessellateBicubicAtlas64";
+import { tessellateLocalHermite64 as tessellateLocalHermite64Implementation } from "./curve/internal/tessellateLocalHermite64";
 import { type IAutoMovieAdmitContourEvents64, type IAutoMovieContourLoft64, type IAutoMoviePlanContourSlabs64Props, type IAutoMovieCurvePrimitive64, type IAutoMovieCurveBoundary64, type IAutoMovieBicubicAtlasPlan64, type IAutoMovieBicubicAtlasTessellation64, type IAutoMovieBicubicAtlasRegistry64, type IAutoMovieBicubicAtlas64, type IAutoMovieCanonicalBoundaryPhase64, type IAutoMovieBicubicAtlasVertex64, type AutoMovieVector3Tuple, type IAutoMovieEvaluateBernstein64, type IAutoMovieBernsteinCurvePiece64, type IAutoMovieEvaluateCurve64, type IAutoMovieEvaluateHermiteGregory64, type IAutoMovieEvaluateImplicitProjection64, type IAutoMovieContourLoftEmission64, type IAutoMovieContourLoftSink64, type IAutoMovieGenerateSupportCurve64, type IAutoMovieMeasureContourFace64, type IAutoMovieCurveLengthMeasurement64, type IAutoMovieCubicBezierCurve64, type IAutoMovieMeasureCurveLength64, type IAutoMoviePlanContourSlabs64Slab, type IAutoMoviePlanContourWalks64Plans, type IAutoMoviePlanContourWalks64Ring, type IAutoMoviePlanLocalHermite64, type IAutoMovieLocalHermiteStream64, type IAutoMoviePrepareBicubicAtlasBoundary64, type IAutoMoviePrepareContourBoundaries64, type IAutoMovieContourLoftCurves64, type IAutoMoviePrepareContourBoundaries64Ring, type IAutoMoviePrepareContourBoundaries64Group, type IAutoMoviePrepareContourDocument64Document, type IAutoMovieRefineContourInteractions64, type IAutoMovieRefineContourInteractions64Ring, type IAutoMovieSampleContourRing64, type IAutoMovieSplitContourLeaf64, type IAutoMovieTessellateContourPath64, type IAutoMovieObservation, type IAutoMovieTessellateParametricAtlas64 } from "@automovie/interface";
-import { admitAutoMovieContourEvents64 as admitAutoMovieContourEvents64Implementation } from "./curve/internal/admitAutoMovieContourEvents64";
-import { admitAutoMovieContourIntervals64 as admitAutoMovieContourIntervals64Implementation } from "./curve/internal/admitAutoMovieContourIntervals64";
-import { assertAutoMovieCurve64 as assertAutoMovieCurve64Implementation } from "./curve/internal/assertAutoMovieCurve64";
-import { assertAutoMovieCurveBoundary64 as assertAutoMovieCurveBoundary64Implementation } from "./curve/internal/assertAutoMovieCurveBoundary64";
-import { AutoMovieBicubicAtlasPlan64 as AutoMovieBicubicAtlasPlan64Implementation } from "./curve/internal/AutoMovieBicubicAtlasPlan64";
-import { AutoMovieBicubicAtlasRegistry64 as AutoMovieBicubicAtlasRegistry64Implementation } from "./curve/internal/AutoMovieBicubicAtlasRegistry64";
-import { AutoMovieBicubicAtlasVertex64 as AutoMovieBicubicAtlasVertex64Implementation } from "./curve/internal/AutoMovieBicubicAtlasVertex64";
-import { compileAutoMovieNormalizedPhases64 as compileAutoMovieNormalizedPhases64Implementation } from "./curve/internal/compileAutoMovieNormalizedPhases64";
-import { computeAutoMovieContourNormals64 as computeAutoMovieContourNormals64Implementation } from "./curve/internal/computeAutoMovieContourNormals64";
-import { evaluateAutoMovieBernstein64 as evaluateAutoMovieBernstein64Implementation } from "./curve/internal/evaluateAutoMovieBernstein64";
-import { evaluateAutoMovieCurve64 as evaluateAutoMovieCurve64Implementation } from "./curve/internal/evaluateAutoMovieCurve64";
-import { evaluateAutoMovieHermiteGregory64 as evaluateAutoMovieHermiteGregory64Implementation } from "./curve/internal/evaluateAutoMovieHermiteGregory64";
-import { evaluateAutoMovieImplicitProjection64 as evaluateAutoMovieImplicitProjection64Implementation } from "./curve/internal/evaluateAutoMovieImplicitProjection64";
-import { generateAutoMovieContourLoft64 as generateAutoMovieContourLoft64Implementation } from "./curve/internal/generateAutoMovieContourLoft64";
-import { generateAutoMovieSupportCurve64 as generateAutoMovieSupportCurve64Implementation } from "./curve/internal/generateAutoMovieSupportCurve64";
-import { measureAutoMovieContourFace64 as measureAutoMovieContourFace64Implementation } from "./curve/internal/measureAutoMovieContourFace64";
-import { measureAutoMovieCubicCurveLength64 as measureAutoMovieCubicCurveLength64Implementation } from "./curve/internal/measureAutoMovieCubicCurveLength64";
-import { measureAutoMovieCurveLength64 as measureAutoMovieCurveLength64Implementation } from "./curve/internal/measureAutoMovieCurveLength64";
-import { planAutoMovieContourSlabs64 as planAutoMovieContourSlabs64Implementation } from "./curve/internal/planAutoMovieContourSlabs64";
-import { planAutoMovieContourWalks64 as planAutoMovieContourWalks64Implementation } from "./curve/internal/planAutoMovieContourWalks64";
-import { planAutoMovieLocalHermite64 as planAutoMovieLocalHermite64Implementation } from "./curve/internal/planAutoMovieLocalHermite64";
-import { prepareAutoMovieBicubicAtlasBoundary64 as prepareAutoMovieBicubicAtlasBoundary64Implementation } from "./curve/internal/prepareAutoMovieBicubicAtlasBoundary64";
-import { prepareAutoMovieContourBoundaries64 as prepareAutoMovieContourBoundaries64Implementation } from "./curve/internal/prepareAutoMovieContourBoundaries64";
-import { prepareAutoMovieContourDocument64 as prepareAutoMovieContourDocument64Implementation } from "./curve/internal/prepareAutoMovieContourDocument64";
-import { refineAutoMovieContourInteractions64 as refineAutoMovieContourInteractions64Implementation } from "./curve/internal/refineAutoMovieContourInteractions64";
-import { rootsAutoMovieCubicBernstein64 as rootsAutoMovieCubicBernstein64Implementation } from "./curve/internal/rootsAutoMovieCubicBernstein64";
-import { sampleAutoMovieContourRing64 as sampleAutoMovieContourRing64Implementation } from "./curve/internal/sampleAutoMovieContourRing64";
-import { splitAutoMovieContourLeaf64 as splitAutoMovieContourLeaf64Implementation } from "./curve/internal/splitAutoMovieContourLeaf64";
-import { tessellateAutoMovieContourLoft64 as tessellateAutoMovieContourLoft64Implementation } from "./curve/internal/tessellateAutoMovieContourLoft64";
-import { tessellateAutoMovieContourPath64 as tessellateAutoMovieContourPath64Implementation } from "./curve/internal/tessellateAutoMovieContourPath64";
-import { tessellateAutoMovieContourStrip64 as tessellateAutoMovieContourStrip64Implementation } from "./curve/internal/tessellateAutoMovieContourStrip64";
-import { tessellateAutoMovieParametricAtlas64 as tessellateAutoMovieParametricAtlas64Implementation } from "./curve/internal/tessellateAutoMovieParametricAtlas64";
-import { triangulateAutoMovieParameterCell64 as triangulateAutoMovieParameterCell64Implementation } from "./curve/internal/triangulateAutoMovieParameterCell64";
+import { admitContourEvents64 as admitContourEvents64Implementation } from "./curve/internal/admitContourEvents64";
+import { admitContourIntervals64 as admitContourIntervals64Implementation } from "./curve/internal/admitContourIntervals64";
+import { assertCurve64 as assertCurve64Implementation } from "./curve/internal/assertCurve64";
+import { assertCurveBoundary64 as assertCurveBoundary64Implementation } from "./curve/internal/assertCurveBoundary64";
+import { bicubicAtlasPlan64 as bicubicAtlasPlan64Implementation } from "./curve/internal/bicubicAtlasPlan64";
+import { bicubicAtlasRegistry64 as bicubicAtlasRegistry64Implementation } from "./curve/internal/bicubicAtlasRegistry64";
+import { bicubicAtlasVertex64 as bicubicAtlasVertex64Implementation } from "./curve/internal/bicubicAtlasVertex64";
+import { compileNormalizedPhases64 as compileNormalizedPhases64Implementation } from "./curve/internal/compileNormalizedPhases64";
+import { computeContourNormals64 as computeContourNormals64Implementation } from "./curve/internal/computeContourNormals64";
+import { evaluateBernstein64 as evaluateBernstein64Implementation } from "./curve/internal/evaluateBernstein64";
+import { evaluateCurve64 as evaluateCurve64Implementation } from "./curve/internal/evaluateCurve64";
+import { evaluateHermiteGregory64 as evaluateHermiteGregory64Implementation } from "./curve/internal/evaluateHermiteGregory64";
+import { evaluateImplicitProjection64 as evaluateImplicitProjection64Implementation } from "./curve/internal/evaluateImplicitProjection64";
+import { generateContourLoft64 as generateContourLoft64Implementation } from "./curve/internal/generateContourLoft64";
+import { generateSupportCurve64 as generateSupportCurve64Implementation } from "./curve/internal/generateSupportCurve64";
+import { measureContourFace64 as measureContourFace64Implementation } from "./curve/internal/measureContourFace64";
+import { measureCubicCurveLength64 as measureCubicCurveLength64Implementation } from "./curve/internal/measureCubicCurveLength64";
+import { measureCurveLength64 as measureCurveLength64Implementation } from "./curve/internal/measureCurveLength64";
+import { planContourSlabs64 as planContourSlabs64Implementation } from "./curve/internal/planContourSlabs64";
+import { planContourWalks64 as planContourWalks64Implementation } from "./curve/internal/planContourWalks64";
+import { planLocalHermite64 as planLocalHermite64Implementation } from "./curve/internal/planLocalHermite64";
+import { prepareBicubicAtlasBoundary64 as prepareBicubicAtlasBoundary64Implementation } from "./curve/internal/prepareBicubicAtlasBoundary64";
+import { prepareContourBoundaries64 as prepareContourBoundaries64Implementation } from "./curve/internal/prepareContourBoundaries64";
+import { prepareContourDocument64 as prepareContourDocument64Implementation } from "./curve/internal/prepareContourDocument64";
+import { refineContourInteractions64 as refineContourInteractions64Implementation } from "./curve/internal/refineContourInteractions64";
+import { rootsCubicBernstein64 as rootsCubicBernstein64Implementation } from "./curve/internal/rootsCubicBernstein64";
+import { sampleContourRing64 as sampleContourRing64Implementation } from "./curve/internal/sampleContourRing64";
+import { splitContourLeaf64 as splitContourLeaf64Implementation } from "./curve/internal/splitContourLeaf64";
+import { tessellateContourLoft64 as tessellateContourLoft64Implementation } from "./curve/internal/tessellateContourLoft64";
+import { tessellateContourPath64 as tessellateContourPath64Implementation } from "./curve/internal/tessellateContourPath64";
+import { tessellateContourStrip64 as tessellateContourStrip64Implementation } from "./curve/internal/tessellateContourStrip64";
+import { tessellateParametricAtlas64 as tessellateParametricAtlas64Implementation } from "./curve/internal/tessellateParametricAtlas64";
+import { triangulateParameterCell64 as triangulateParameterCell64Implementation } from "./curve/internal/triangulateParameterCell64";
 
 /** Public operations for Auto Movie Engine Curve. */
 export namespace AutoMovieEngineCurve {
@@ -46,12 +46,12 @@ export namespace AutoMovieEngineCurve {
    * selecting one owner.
    */
   export function admitContourEvents64(input: IAutoMovieContourLoft64): IAutoMovieAdmitContourEvents64.IResult {
-    return admitAutoMovieContourEvents64Implementation(input);
+    return admitContourEvents64Implementation(input);
   }
 
   /** Admit explicit adjacent intervals while retaining independent usable groups. */
   export function admitContourIntervals64(props: IAutoMoviePlanContourSlabs64Props): Map<number, IAutoMovieContourLoft64.IInterval> | undefined {
-    return admitAutoMovieContourIntervals64Implementation(props);
+    return admitContourIntervals64Implementation(props);
   }
 
   /**
@@ -65,7 +65,7 @@ export namespace AutoMovieEngineCurve {
    *   denominator conditions fail.
    */
   export function assertCurve64(curve: IAutoMovieCurvePrimitive64): void {
-    assertAutoMovieCurve64Implementation(curve);
+    assertCurve64Implementation(curve);
   }
 
   /**
@@ -79,7 +79,7 @@ export namespace AutoMovieEngineCurve {
    *   mismatch.
    */
   export function assertCurveBoundary64(boundary: IAutoMovieCurveBoundary64): void {
-    assertAutoMovieCurveBoundary64Implementation(boundary);
+    assertCurveBoundary64Implementation(boundary);
   }
 
   /**
@@ -87,7 +87,7 @@ export namespace AutoMovieEngineCurve {
    * original shared cell budget.
    */
   export function bicubicAtlasPlan64(input: IAutoMovieBicubicAtlasTessellation64.Input, SIDES: readonly (readonly number[])[], CORNERS: readonly (readonly [number, number, number])[]): IAutoMovieBicubicAtlasPlan64.IResult {
-    return AutoMovieBicubicAtlasPlan64Implementation(input, SIDES, CORNERS);
+    return bicubicAtlasPlan64Implementation(input, SIDES, CORNERS);
   }
 
   /**
@@ -95,7 +95,7 @@ export namespace AutoMovieEngineCurve {
    * emission.
    */
   export function bicubicAtlasRegistry64(input: IAutoMovieBicubicAtlasTessellation64.Input, prepared: IAutoMovieBicubicAtlasPlan64.IResult, SIDES: readonly (readonly number[])[], CORNERS: readonly (readonly [number, number, number])[]): IAutoMovieBicubicAtlasRegistry64.IResult {
-    return AutoMovieBicubicAtlasRegistry64Implementation(input, prepared, SIDES, CORNERS);
+    return bicubicAtlasRegistry64Implementation(input, prepared, SIDES, CORNERS);
   }
 
   /**
@@ -105,7 +105,7 @@ export namespace AutoMovieEngineCurve {
   export function bicubicAtlasVertex64(input: IAutoMovieBicubicAtlasTessellation64.Input, prepared: IAutoMovieBicubicAtlasPlan64.IResult, registered: IAutoMovieBicubicAtlasRegistry64.IResult, p: number, patch: IAutoMovieBicubicAtlas64.Patch, phaseMaps: Map<number, IAutoMovieCanonicalBoundaryPhase64[]>[], local: Map<string, IAutoMovieBicubicAtlas64.Vertex>, cursor: IAutoMovieBicubicAtlasVertex64.ICursor, currentChunk: () => IAutoMovieBicubicAtlasTessellation64.Chunk, jet: IAutoMovieBicubicAtlasVertex64.IJet, edgeUV: (side: number, t: number) => [number, number], SIDES: readonly (readonly number[])[]): (
   sample: IAutoMovieBicubicAtlas64.Sample,
 ) => IAutoMovieBicubicAtlas64.Vertex {
-    return AutoMovieBicubicAtlasVertex64Implementation(input, prepared, registered, p, patch, phaseMaps, local, cursor, currentChunk, jet, edgeUV, SIDES);
+    return bicubicAtlasVertex64Implementation(input, prepared, registered, p, patch, phaseMaps, local, cursor, currentChunk, jet, edgeUV, SIDES);
   }
 
   /**
@@ -114,7 +114,7 @@ export namespace AutoMovieEngineCurve {
    * the final endpoint absorbs the declared binary64 summation roundoff.
    */
   export function compileNormalizedPhases64(widths: readonly number[], count: number): number[] {
-    return compileAutoMovieNormalizedPhases64Implementation(widths, count);
+    return compileNormalizedPhases64Implementation(widths, count);
   }
 
   /**
@@ -123,7 +123,7 @@ export namespace AutoMovieEngineCurve {
    * cancel; a zero accumulated vector stays zero without a substitute normal.
    */
   export function computeContourNormals64(vertices: readonly Readonly<AutoMovieVector3Tuple>[], triangles: readonly (readonly [number, number, number])[]): number[] {
-    return computeAutoMovieContourNormals64Implementation(vertices, triangles);
+    return computeContourNormals64Implementation(vertices, triangles);
   }
 
   /**
@@ -139,7 +139,7 @@ export namespace AutoMovieEngineCurve {
    *   denominator or unresolved underflow.
    */
   export function evaluateBernstein64(piece: IAutoMovieBernsteinCurvePiece64, t: number): IAutoMovieEvaluateBernstein64.IResult {
-    return evaluateAutoMovieBernstein64Implementation(piece, t);
+    return evaluateBernstein64Implementation(piece, t);
   }
 
   /**
@@ -155,7 +155,7 @@ export namespace AutoMovieEngineCurve {
    *   unresolved.
    */
   export function evaluateCurve64(curve: IAutoMovieCurvePrimitive64, parameter: number): IAutoMovieEvaluateCurve64.IResult {
-    return evaluateAutoMovieCurve64Implementation(curve, parameter);
+    return evaluateCurve64Implementation(curve, parameter);
   }
 
   /**
@@ -174,7 +174,7 @@ export namespace AutoMovieEngineCurve {
     cross: AutoMovieVector3Tuple;
     crossTangent: AutoMovieVector3Tuple;
   })[], u: number, v: number): IAutoMovieEvaluateHermiteGregory64.IResult {
-    return evaluateAutoMovieHermiteGregory64Implementation(edges, u, v);
+    return evaluateHermiteGregory64Implementation(edges, u, v);
   }
 
   /**
@@ -191,7 +191,7 @@ export namespace AutoMovieEngineCurve {
    * existence or absence of roots between samples or on another ray.
    */
   export function evaluateImplicitProjection64(props: IAutoMovieEvaluateImplicitProjection64.IProps): IAutoMovieEvaluateImplicitProjection64.IResult {
-    return evaluateAutoMovieImplicitProjection64Implementation(props);
+    return evaluateImplicitProjection64Implementation(props);
   }
 
   /**
@@ -227,7 +227,7 @@ export namespace AutoMovieEngineCurve {
    * certified globally closest, nonintersecting or embedded.
    */
   export function generateContourLoft64(input: IAutoMovieContourLoft64, sink: IAutoMovieContourLoftSink64): IAutoMovieContourLoftEmission64 {
-    return generateAutoMovieContourLoft64Implementation(input, sink);
+    return generateContourLoft64Implementation(input, sink);
   }
 
   /**
@@ -246,12 +246,12 @@ export namespace AutoMovieEngineCurve {
    * object.
    */
   export function generateSupportCurve64(props: IAutoMovieGenerateSupportCurve64.IProps): IAutoMovieGenerateSupportCurve64.IResult {
-    return generateAutoMovieSupportCurve64Implementation(props);
+    return generateSupportCurve64Implementation(props);
   }
 
   /** Preserve the contour stage's original millimetre and metre area predicates. */
   export function measureContourFace64(p: AutoMovieVector3Tuple, q: AutoMovieVector3Tuple, r: AutoMovieVector3Tuple): IAutoMovieMeasureContourFace64.IResult {
-    return measureAutoMovieContourFace64Implementation(p, q, r);
+    return measureContourFace64Implementation(p, q, r);
   }
 
   /**
@@ -264,7 +264,7 @@ export namespace AutoMovieEngineCurve {
    * here.
    */
   export function measureCubicCurveLength64(curve: IAutoMovieCubicBezierCurve64, subdivisions?: number): IAutoMovieCurveLengthMeasurement64 {
-    return measureAutoMovieCubicCurveLength64Implementation(curve, subdivisions);
+    return measureCubicCurveLength64Implementation(curve, subdivisions);
   }
 
   /**
@@ -292,7 +292,7 @@ export namespace AutoMovieEngineCurve {
    *   callback exceptions propagate unchanged.
    */
   export function measureCurveLength64(pieces: IAutoMovieMeasureCurveLength64.IPieces, subdivisions?: number): IAutoMovieCurveLengthMeasurement64 {
-    return measureAutoMovieCurveLength64Implementation(pieces, subdivisions);
+    return measureCurveLength64Implementation(pieces, subdivisions);
   }
 
   /**
@@ -304,7 +304,7 @@ export namespace AutoMovieEngineCurve {
    * clusters and injectivity are not inferred.
    */
   export function planContourSlabs64(props: IAutoMoviePlanContourSlabs64Props): IAutoMoviePlanContourSlabs64Slab[] {
-    return planAutoMovieContourSlabs64Implementation(props);
+    return planContourSlabs64Implementation(props);
   }
 
   /**
@@ -322,12 +322,12 @@ export namespace AutoMovieEngineCurve {
     b: AutoMovieVector3Tuple,
     t: number,
   ) => void): IAutoMoviePlanContourWalks64Plans<R> {
-    return planAutoMovieContourWalks64Implementation<R>(owner, identity, inserted);
+    return planContourWalks64Implementation<R>(owner, identity, inserted);
   }
 
   /** Prepare bounded adaptive leaves for one immutable physical Hermite run. */
   export function planLocalHermite64(input: IAutoMovieLocalHermiteStream64.Input): IAutoMoviePlanLocalHermite64.IResult {
-    return planAutoMovieLocalHermite64Implementation(input);
+    return planLocalHermite64Implementation(input);
   }
 
   /**
@@ -343,7 +343,7 @@ export namespace AutoMovieEngineCurve {
    * immutable until the returned closures are released.
    */
   export function prepareBicubicAtlasBoundary64(input: IAutoMovieBicubicAtlasTessellation64.Input, sides: readonly (readonly number[])[]): IAutoMoviePrepareBicubicAtlasBoundary64.IResult {
-    return prepareAutoMovieBicubicAtlasBoundary64Implementation(input, sides);
+    return prepareBicubicAtlasBoundary64Implementation(input, sides);
   }
 
   /**
@@ -361,12 +361,12 @@ export namespace AutoMovieEngineCurve {
   export function prepareContourBoundaries64<R extends IAutoMoviePrepareContourBoundaries64Ring, G extends IAutoMoviePrepareContourBoundaries64Group>(plans: IAutoMoviePrepareContourBoundaries64.IPlans<G>, rings: R[][], coordinates: readonly number[], leaf: (
     point: AutoMovieVector3Tuple,
   ) => IAutoMovieContourLoftCurves64.Leaf | undefined, register: (ring: R, knot: IAutoMovieContourLoftCurves64.Knot) => void, prepareSlit: (rings: R[], selection: number[]) => void, toleranceMm: number, observeWork: boolean): IAutoMoviePrepareContourBoundaries64.IResult<G> {
-    return prepareAutoMovieContourBoundaries64Implementation<R, G>(plans, rings, coordinates, leaf, register, prepareSlit, toleranceMm, observeWork);
+    return prepareContourBoundaries64Implementation<R, G>(plans, rings, coordinates, leaf, register, prepareSlit, toleranceMm, observeWork);
   }
 
   /** Admit saved contour events and build the local physical section document. */
   export function prepareContourDocument64(input: IAutoMovieContourLoft64): IAutoMoviePrepareContourDocument64Document {
-    return prepareAutoMovieContourDocument64Implementation(input);
+    return prepareContourDocument64Implementation(input);
   }
 
   /**
@@ -384,7 +384,7 @@ export namespace AutoMovieEngineCurve {
   export function refineContourInteractions64<R extends IAutoMovieRefineContourInteractions64Ring>(rings: R[], selection: number[], leaf: (
     point: AutoMovieVector3Tuple,
   ) => IAutoMovieContourLoftCurves64.Leaf | undefined, register: (ring: R, knot: IAutoMovieContourLoftCurves64.Knot) => void, toleranceMm: number, observeWork?: boolean): IAutoMovieRefineContourInteractions64.IResult {
-    return refineAutoMovieContourInteractions64Implementation<R>(rings, selection, leaf, register, toleranceMm, observeWork);
+    return refineContourInteractions64Implementation<R>(rings, selection, leaf, register, toleranceMm, observeWork);
   }
 
   /**
@@ -396,7 +396,7 @@ export namespace AutoMovieEngineCurve {
    * rules, not interval certificates.
    */
   export function rootsCubicBernstein64(q: readonly number[]): number[] {
-    return rootsAutoMovieCubicBernstein64Implementation(q);
+    return rootsCubicBernstein64Implementation(q);
   }
 
   /**
@@ -408,7 +408,7 @@ export namespace AutoMovieEngineCurve {
    * obtain a period or geometry.
    */
   export function sampleContourRing64(curve: IAutoMovieCubicBezierCurve64, toleranceMm: number): IAutoMovieSampleContourRing64.IResult {
-    return sampleAutoMovieContourRing64Implementation(curve, toleranceMm);
+    return sampleContourRing64Implementation(curve, toleranceMm);
   }
 
   /**
@@ -422,7 +422,7 @@ export namespace AutoMovieEngineCurve {
    * beyond the adaptive depth limit.
    */
   export function splitContourLeaf64(source: IAutoMovieContourLoftCurves64.Leaf, phase: number, toleranceMm: number): IAutoMovieSplitContourLeaf64.IResult {
-    return splitAutoMovieContourLeaf64Implementation(source, phase, toleranceMm);
+    return splitContourLeaf64Implementation(source, phase, toleranceMm);
   }
 
   /**
@@ -432,7 +432,7 @@ export namespace AutoMovieEngineCurve {
    * source-normal fallback.
    */
   export function tessellateContourLoft64(input: IAutoMovieContourLoft64): IAutoMovieContourLoft64.IResult {
-    return tessellateAutoMovieContourLoft64Implementation(input);
+    return tessellateContourLoft64Implementation(input);
   }
 
   /**
@@ -444,7 +444,7 @@ export namespace AutoMovieEngineCurve {
    * faces are counted.
    */
   export function tessellateContourPath64(input: IAutoMovieTessellateContourPath64.IInput): IAutoMovieTessellateContourPath64.IResult {
-    return tessellateAutoMovieContourPath64Implementation(input);
+    return tessellateContourPath64Implementation(input);
   }
 
   /**
@@ -465,7 +465,7 @@ export namespace AutoMovieEngineCurve {
     b: AutoMovieVector3Tuple,
     c: AutoMovieVector3Tuple,
   ) => void, identity?: (point: AutoMovieVector3Tuple) => string | undefined, observe?: (observation: IAutoMovieObservation) => void, observeWork?: boolean): void {
-    tessellateAutoMovieContourStrip64Implementation(rawA, rawB, emit, identity, observe, observeWork);
+    tessellateContourStrip64Implementation(rawA, rawB, emit, identity, observe, observeWork);
   }
 
   /**
@@ -488,7 +488,7 @@ export namespace AutoMovieEngineCurve {
    * unique continuous surface normal.
    */
   export function tessellateParametricAtlas64(props: IAutoMovieTessellateParametricAtlas64.IProps): IAutoMovieTessellateParametricAtlas64.IResult {
-    return tessellateAutoMovieParametricAtlas64Implementation(props);
+    return tessellateParametricAtlas64Implementation(props);
   }
 
   /**
@@ -510,7 +510,7 @@ export namespace AutoMovieEngineCurve {
    * caller to count and omit.
    */
   export function triangulateParameterCell64<T>(boundary: readonly T[], coordinates: (point: T) => readonly [number, number]): [T, T, T][] {
-    return triangulateAutoMovieParameterCell64Implementation<T>(boundary, coordinates);
+    return triangulateParameterCell64Implementation<T>(boundary, coordinates);
   }
   /**
    * Tessellate complete bicubic patches with explicit shared control identities.
@@ -575,7 +575,7 @@ export namespace AutoMovieEngineCurve {
     IAutoMovieBicubicAtlasTessellation64.Summary,
     void
   > {
-    return yield* tessellateAutoMovieBicubicAtlas64Implementation(input);
+    return yield* tessellateBicubicAtlas64Implementation(input);
   }
 
   /**
@@ -614,6 +614,6 @@ export namespace AutoMovieEngineCurve {
     IAutoMovieLocalHermiteStream64.Summary,
     void
   > {
-    return yield* tessellateAutoMovieLocalHermite64Implementation(input);
+    return yield* tessellateLocalHermite64Implementation(input);
   }
 }

@@ -4,10 +4,10 @@ import type {
   IAutoMovieShot,
 } from "@automovie/interface";
 
-import type { IAutoMovieRenderModelObject } from "./IAutoMovieRenderModelObject.js";
-import type { IAutoMovieRenderTextureLoader } from "./IAutoMovieRenderTextureLoader.js";
+import type { IAutoMovieRenderModelObject } from "./IAutoMovieRenderModelObject";
+import type { IAutoMovieRenderTextureLoader } from "./IAutoMovieRenderTextureLoader";
 
-/** What `prepareAutoMovieSurfaceGraphics` builds a shot's surface graphics from. */
+/** What `prepareSurfaceGraphics` builds a shot's surface graphics from. */
 export interface IAutoMovieRenderPrepareSurfaceGraphicsProps {
   /**
    * The admitted shot: its surface graphic tracks, its duration and the font

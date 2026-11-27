@@ -25,44 +25,52 @@ export namespace resolveAutoMovieMomentum {
   /*
    * Execute the operation without merging a callable with this namespace.
    */
-  export const run = resolveAutoMovieMomentumRun;
-  /**
+  export const run = resolveMomentumRun;
+  /*
    * Linear/angular momentum at a measurement instant; the two-pose entry
    * measures at its interval's middle.
    */
   export interface IMomentum {
-    /**
+    /*
      * Whole-body centre at the measurement instant, metres; the interval entry
      * uses the mean of its two endpoint centres.
      */
     centre: IAutoMovieVector3;
 
-    /**
+    /*
      * The centre's velocity at the measurement instant, metres per second; the
      * interval entry uses its endpoint chord.
      */
     velocity: IAutoMovieVector3;
 
-    /** Whole-body linear momentum in the common frame, kg m/s. */
+    /*
+     * Whole-body linear momentum in the common frame, kg m/s.
+     */
     linear: IAutoMovieVector3;
 
-    /** Angular momentum about `centre`, kg m짼/s. */
+    /*
+     * Angular momentum about `centre`, kg m짼/s.
+     */
     angular: IAutoMovieVector3;
   }
 
-  /** A tensor's principal frame. */
+  /*
+   * A tensor's principal frame.
+   */
   export interface IPrincipal {
-    /** The principal moments in ascending order, in the tensor's unit. */
+    /*
+     * The principal moments in ascending order, in the tensor's unit.
+     */
     moments: IAutoMovieVector3;
 
-    /**
+    /*
      * The rotation from the principal frame to the tensor's frame; its columns
      * are the moments' axes.
      */
     rotation: IAutoMovieQuaternion;
   }
 
-  /**
+  /*
    * One model's parts and whole-body centre at the same posed instant.
    *
    * Both use the bones' common frame and the model's segment order. The caller
@@ -70,10 +78,14 @@ export namespace resolveAutoMovieMomentum {
    * mutate it while its interval or tensor is being read.
    */
   export interface IPosed {
-    /** Rigid parts in model order, with SI masses, centres and inertia. */
+    /*
+     * Rigid parts in model order, with SI masses, centres and inertia.
+     */
     parts: readonly IAutoMovieCombinePhysicalMassProperties.IPart[];
 
-    /** Mass-weighted centre in the parts' common frame, metres. */
+    /*
+     * Mass-weighted centre in the parts' common frame, metres.
+     */
     centre: IAutoMovieVector3;
   }
 
@@ -374,7 +386,7 @@ export namespace resolveAutoMovieMomentum {
  * When the interval is not positive or a segment's bone is not
  * posed in both.
  */
-function resolveAutoMovieMomentumRun(
+function resolveMomentumRun(
   model: IAutoMovieResolveCenterOfMass.IModel,
   before: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   after: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,

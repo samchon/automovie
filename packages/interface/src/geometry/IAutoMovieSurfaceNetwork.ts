@@ -4,7 +4,7 @@ import type { IAutoMovieSweep } from "./IAutoMovieSweep";
 
 /**
  * A surface built from sweeps and curves and divided into four-sided patches,
- * which `sampleAutoMovieSurfaceNetwork` samples into one quad control cage at
+ * which `sampleSurfaceNetwork` samples into one quad control cage at
  * any tier.
  *
  * Every patch is a grid in its own coordinates `(s, t)`, both from 0 to 1, and
@@ -256,7 +256,7 @@ export namespace IAutoMovieSurfaceNetwork {
    * after it the end count. The fine ring stays regular; the coarse ring
    * vertices at the blocks' corners take valence five beside a straight column
    * and six between two blocks. Blocks spread evenly round the band and mirror
-   * with it, as `layoutAutoMovieSurfaceTransition` states. Vertices sample the
+   * with it, as `layoutSurfaceTransition` states. Vertices sample the
    * sweep with the rig's cell averaging. With fitting enabled, free limit
    * vertices interpolate those filtered targets; the surface between them still
    * depends on subdivision topology; put the band where the sweep is gently

@@ -5,8 +5,8 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import type { IAutoMovieRenderAnalysisOverlayObject } from "../IAutoMovieRenderAnalysisOverlayObject.js";
-import { autoMovieAnalysisRampColor } from "./autoMovieAnalysisRampColor.js";
+import type { IAutoMovieRenderAnalysisOverlayObject } from "../IAutoMovieRenderAnalysisOverlayObject";
+import { analysisRampColor } from "./analysisRampColor";
 
 /*
  * Draw one analysis result as a field of coloured points.
@@ -109,7 +109,7 @@ export const buildAnalysisOverlayObject: (props: {
     // the ramp: the alternative is a division by zero that paints every sample
     // the same accidental colour.
     const color: { r: number; g: number; b: number } =
-      autoMovieAnalysisRampColor(
+      analysisRampColor(
         span === 0 ? 0.5 : (sample.value - min) / span,
       );
     colors[index * 3] = color.r;

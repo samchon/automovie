@@ -1,8 +1,8 @@
 import type * as THREE from "three";
 
-import type { IAutoMovieRenderMaterialShaderPatch } from "../IAutoMovieRenderMaterialShaderPatch.js";
-import { applyMaterialShaderPatches } from "./applyMaterialShaderPatches.js";
-import { readMaterialShaderPatches } from "./readMaterialShaderPatches.js";
+import type { IAutoMovieRenderMaterialShaderPatch } from "../IAutoMovieRenderMaterialShaderPatch";
+import { applyMaterialShaderPatches } from "./applyMaterialShaderPatches";
+import { readMaterialShaderPatches } from "./readMaterialShaderPatches";
 
 /*
  * Add a shader patch to a material, keeping the ones already on it: three calls

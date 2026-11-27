@@ -1,12 +1,12 @@
-import { autoMovieRenderDigest as autoMovieRenderDigestImplementation } from "./internal/autoMovieRenderDigest";
-import { autoMovieRenderHash32 as autoMovieRenderHash32Implementation } from "./internal/autoMovieRenderHash32";
+import { renderDigest as renderDigestImplementation } from "./internal/renderDigest";
+import { renderHash32 as renderHash32Implementation } from "./internal/renderHash32";
 import { type IAutoMovieRenderTargetAsset, type IAutoMovieCompareRenderTarget, type IAutoMovieRenderReport, type IAutoMovieEvaluateRenderBudget, type IAutoMovieRenderTarget, type IAutoMovieSealRenderTarget } from "@automovie/interface";
-import { autoMovieRenderTargetAssets as autoMovieRenderTargetAssetsImplementation } from "./internal/autoMovieRenderTargetAssets";
-import { autoMovieRenderTargetSummary as autoMovieRenderTargetSummaryImplementation } from "./internal/autoMovieRenderTargetSummary";
-import { compareAutoMovieRenderIds as compareAutoMovieRenderIdsImplementation } from "./internal/compareAutoMovieRenderIds";
-import { compareAutoMovieRenderTarget as compareAutoMovieRenderTargetImplementation } from "./internal/compareAutoMovieRenderTarget";
-import { evaluateAutoMovieRenderBudget as evaluateAutoMovieRenderBudgetImplementation } from "./internal/evaluateAutoMovieRenderBudget";
-import { sealAutoMovieRenderTarget as sealAutoMovieRenderTargetImplementation } from "./internal/sealAutoMovieRenderTarget";
+import { renderTargetAssets as renderTargetAssetsImplementation } from "./internal/renderTargetAssets";
+import { renderTargetSummary as renderTargetSummaryImplementation } from "./internal/renderTargetSummary";
+import { compareRenderIds as compareRenderIdsImplementation } from "./internal/compareRenderIds";
+import { compareRenderTarget as compareRenderTargetImplementation } from "./internal/compareRenderTarget";
+import { evaluateRenderBudget as evaluateRenderBudgetImplementation } from "./internal/evaluateRenderBudget";
+import { sealRenderTarget as sealRenderTargetImplementation } from "./internal/sealRenderTarget";
 
 /** Public operations for Auto Movie Engine Render Target. */
 export namespace AutoMovieEngineRenderTarget {
@@ -20,14 +20,14 @@ export namespace AutoMovieEngineRenderTarget {
    * context, and a digest that is sometimes a promise is a digest no synchronous
    * evidence path can use.
    *
-   * The string is encoded by `utf8Bytes` and digested by `digestAutoMovieBytes`,
+   * The string is encoded by `utf8Bytes` and digested by `digestBytes`,
    * the FIPS 180-4 algorithm with no variation, so the same text hashes to the
    * same `sha256:` digest as `createHash("sha256")` does on the capture side, and
    * the test suite proves exactly that against Node's implementation rather than
    * against a stored expectation of this code's own output.
    */
   export function autoMovieRenderDigest(text: string): string {
-    return autoMovieRenderDigestImplementation(text);
+    return renderDigestImplementation(text);
   }
 
   /**
@@ -39,17 +39,17 @@ export namespace AutoMovieEngineRenderTarget {
    * hash, is what makes the palette exact.
    */
   export function autoMovieRenderHash32(text: string): number {
-    return autoMovieRenderHash32Implementation(text);
+    return renderHash32Implementation(text);
   }
 
   /** Assets shorthand: pair paths with digests already proved elsewhere. */
   export function autoMovieRenderTargetAssets(entries: Readonly<Record<string, string>>): IAutoMovieRenderTargetAsset[] {
-    return autoMovieRenderTargetAssetsImplementation(entries);
+    return renderTargetAssetsImplementation(entries);
   }
 
   /** Read the reported and current digests, for a one-line staleness log. */
   export function autoMovieRenderTargetSummary(props: IAutoMovieCompareRenderTarget.IProps): string {
-    return autoMovieRenderTargetSummaryImplementation(props);
+    return renderTargetSummaryImplementation(props);
   }
 
   /**
@@ -60,7 +60,7 @@ export namespace AutoMovieEngineRenderTarget {
    * that order to ids extracted from records on every host.
    */
   export function compareAutoMovieRenderIds(left: string, right: string): number {
-    return compareAutoMovieRenderIdsImplementation(left, right);
+    return compareRenderIdsImplementation(left, right);
   }
 
   /**
@@ -74,7 +74,7 @@ export namespace AutoMovieEngineRenderTarget {
    * differing field is named so the drift is actionable instead of mysterious.
    */
   export function compareAutoMovieRenderTarget(props: IAutoMovieCompareRenderTarget.IProps): IAutoMovieCompareRenderTarget.IResult {
-    return compareAutoMovieRenderTargetImplementation(props);
+    return compareRenderTargetImplementation(props);
   }
 
   /**
@@ -109,7 +109,7 @@ export namespace AutoMovieEngineRenderTarget {
    * pass no production declares.
    */
   export function evaluateAutoMovieRenderBudget(props: IAutoMovieEvaluateRenderBudget.IProps): IAutoMovieRenderReport {
-    return evaluateAutoMovieRenderBudgetImplementation(props);
+    return evaluateRenderBudgetImplementation(props);
   }
 
   /**
@@ -125,6 +125,6 @@ export namespace AutoMovieEngineRenderTarget {
    * boolean field shapes are a caller structural-admission premise.
    */
   export function sealAutoMovieRenderTarget(props: IAutoMovieSealRenderTarget.IProps): IAutoMovieRenderTarget {
-    return sealAutoMovieRenderTargetImplementation(props);
+    return sealRenderTargetImplementation(props);
   }
 }

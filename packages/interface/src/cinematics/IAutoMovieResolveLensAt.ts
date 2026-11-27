@@ -2,7 +2,7 @@ import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { IAutoMovieCameraIntent } from "./IAutoMovieCameraIntent";
 
 /**
- * Data contracts of `resolveAutoMovieLensAt`, which reads a shot's lens intent
+ * Data contracts of `resolveLensAt`, which reads a shot's lens intent
  * at one second as the stop and focused depth a directly rendered frame draws.
  */
 export namespace IAutoMovieResolveLensAt {

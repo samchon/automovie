@@ -8,13 +8,13 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieRenderFormationCycleSamples } from "../AutoMovieRenderFormationCycleSamples.js";
-import type { IAutoMovieRenderFormationCycle } from "../IAutoMovieRenderFormationCycle.js";
-import type { IAutoMovieRenderFormationCycleTake } from "../IAutoMovieRenderFormationCycleTake.js";
-import type { IAutoMovieRenderBakeFormationCycleProps } from "../IAutoMovieRenderBakeFormationCycleProps.js";
-import { applyPose } from "./applyPose.js";
-import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResources.js";
-import { formationCycleStride } from "./formationCycleStride.js";
+import { AutoMovieRenderFormationCycleSamples } from "../AutoMovieRenderFormationCycleSamples";
+import type { IAutoMovieRenderFormationCycle } from "../IAutoMovieRenderFormationCycle";
+import type { IAutoMovieRenderFormationCycleTake } from "../IAutoMovieRenderFormationCycleTake";
+import type { IAutoMovieRenderBakeFormationCycleProps } from "../IAutoMovieRenderBakeFormationCycleProps";
+import { applyPose } from "./applyPose";
+import { constructOwnedResources } from "./constructOwnedResources";
+import { formationCycleStride } from "./formationCycleStride";
 
 /*
  * Bake one runtime model's whole repertoire into rigid part-matrix tables.
@@ -116,7 +116,7 @@ export const bakeFormationCycle: (
     },
   );
   const takes: IAutoMovieRenderFormationCycleTake[] =
-    constructAutoMovieOwnedResources(
+    constructOwnedResources(
       (
         own: <Resource extends { dispose(): void }>(
           resource: Resource,

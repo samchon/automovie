@@ -25,8 +25,8 @@ import type {
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
-import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionHumanHeld } from "../../compose/internal/motionHumanHeld";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { heldDigits } from "../../handling/internal/heldDigits";
 import { writeWith } from "../../handling/internal/writeWith";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
@@ -84,7 +84,7 @@ function plan(
   );
   const side: AutoMovieHumanSide =
     context.entry.holds.left === p.prop ? "left" : "right";
-  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
+  const held: IAutoMovieMotionHumanHeld.IHeld = motionHumanHeld(
     context,
     side,
     p.prop,
@@ -191,7 +191,7 @@ function plan(
     seconds: number,
   ) => Partial<Record<AutoMovieHumanDigit, IAutoMovieHumanDigitGoal>> =
     heldDigits(context, held, drive, squeeze);
-  const kept: IAutoMovieMotionPropHold = AutoMovieMotionHumanHeld.hold(
+  const kept: IAutoMovieMotionPropHold = motionHumanHeld.hold(
     context,
     held,
   );
@@ -205,7 +205,7 @@ function plan(
     clock.duration,
   );
   const composed: IAutoMovieMotionHumanActionPlan =
-    composeAutoMovieMotionHumanAction({
+    composeMotionHumanAction({
       base: {
         ...base,
         posture: (seconds: number): IAutoMovieMotionHumanPosture => {
@@ -275,7 +275,7 @@ function plan(
   return {
     ...composed,
     hands: [side],
-    contacts: [...composed.contacts, AutoMovieMotionHumanHeld.grip(held)],
+    contacts: [...composed.contacts, motionHumanHeld.grip(held)],
     holds: [...(composed.holds ?? []), { ...kept, from: 1 }],
     drives: [...squeeze, ...release],
   };

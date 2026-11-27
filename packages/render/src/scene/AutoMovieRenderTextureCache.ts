@@ -5,10 +5,10 @@ import {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { IAutoMovieRenderTextureLoader } from "./IAutoMovieRenderTextureLoader.js";
-import { decodeAutoMovieImage } from "./internal/decodeAutoMovieImage.js";
-import { readAutoMovieTextureSource } from "./internal/readAutoMovieTextureSource.js";
-import { textureBindingAsset } from "./internal/textureBindingAsset.js";
+import { IAutoMovieRenderTextureLoader } from "./IAutoMovieRenderTextureLoader";
+import { decodeImage } from "./internal/decodeImage";
+import { readTextureSource } from "./internal/readTextureSource";
+import { textureBindingAsset } from "./internal/textureBindingAsset";
 
 /**
  * One shot's decoded texture assets: loaded once, handed out per binding, and
@@ -103,7 +103,7 @@ export class AutoMovieRenderTextureCache {
    * Decode every distinct asset the given bindings name, at most once each.
    *
    * An asset id that names one of `images`, the images the binding's model
-   * carries, is decoded from those bytes by {@link decodeAutoMovieImage}; every
+   * carries, is decoded from those bytes by {@link decodeImage}; every
    * other id goes to the host loader. One id names one image for the whole
    * shot: priming it again from different carried bytes, or once carried and
    * once from the loader, rejects before anything is decoded, because
@@ -181,7 +181,7 @@ export class AutoMovieRenderTextureCache {
    *
    * Two object bindings that carry the same fields (asset, coordinate set and
    * source, colour space, UV transform and sampler) make
-   * `resolveAutoMovieMaterialTexture` write the same state onto their wrapper,
+   * `resolveMaterialTexture` write the same state onto their wrapper,
    * so they can share it; each distinct binding still receives its own wrapper,
    * issued once by {@link resolve}. A legacy string binding takes its colour
    * space from the slot it fills, which the binding does not name, so it always
@@ -219,18 +219,18 @@ export class AutoMovieRenderTextureCache {
    * source object supplies its dimensions, component width and inherited
    * sampling; material bindings still select their separate resident variants.
    * The texture token names the cache's original object. For environment
-   * derivative ownership, call {@link readAutoMovieTextureSource} on the actual
+   * derivative ownership, call {@link readTextureSource} on the actual
    * resolved environment clone instead of substituting this original object.
    * Before any clone is issued the host may prepare its decoded original. After
    * issue, this observation checks every owned wrapper's actual tuple/version;
    * clone-created shared Source.version increments do not invalidate it.
    */
-  public describeSources(): ReturnType<typeof readAutoMovieTextureSource>[] {
+  public describeSources(): ReturnType<typeof readTextureSource>[] {
     this.assertLive();
     return [...this.sources].map(
       ([asset, texture]: [string, THREE.Texture]): ReturnType<
-        typeof readAutoMovieTextureSource
-      > => readAutoMovieTextureSource(asset, texture),
+        typeof readTextureSource
+      > => readTextureSource(asset, texture),
     );
   }
 
@@ -299,7 +299,7 @@ export class AutoMovieRenderTextureCache {
     const decoding: Promise<THREE.Texture> = Promise.resolve()
       .then(
         (): Promise<THREE.Texture> =>
-          image === undefined ? this.load(asset) : decodeAutoMovieImage(image),
+          image === undefined ? this.load(asset) : decodeImage(image),
       )
       .then((texture: THREE.Texture): THREE.Texture => {
         this.sources.set(asset, texture);

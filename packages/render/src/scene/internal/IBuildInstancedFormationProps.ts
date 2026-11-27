@@ -6,22 +6,28 @@ import type {
 } from "@automovie/interface";
 import type * as THREE from "three";
 
-/**
+/*
  * Compiled formation, prototype models and sparse scene participants. Model and
  * scene-object maps stay caller-owned; construction binds compact membership
  * and motion inputs before creating persistent tier batches.
  */
 export interface IBuildInstancedFormationProps {
-  /** Compiled compact identity, layout, anchor and available tiers. */
+  /*
+   * Compiled compact identity, layout, anchor and available tiers.
+   */
   formation: IAutoMovieCompiledFormation;
 
-  /** Actual runtime models keyed by the identities referenced by those tiers. */
+  /*
+   * Actual runtime models keyed by the identities referenced by those tiers.
+   */
   models: ReadonlyMap<string, IAutoMovieModel>;
 
-  /** Authored group cues sampled for placement and shared gait cadence. */
+  /*
+   * Authored group cues sampled for placement and shared gait cadence.
+   */
   motions?: readonly IAutoMovieFormationMotion[];
 
-  /**
+  /*
    * Sparse per-member cues, so one member of a crowd can do what its neighbours
    * do not: leave, stop, step out, or stop being drawn at all.
    *
@@ -32,9 +38,13 @@ export interface IBuildInstancedFormationProps {
    */
   slotMotions?: readonly IAutoMovieFormationSlotMotion[];
 
-  /** Explicit scene wrappers keyed by promoted hero actor id. */
+  /*
+   * Explicit scene wrappers keyed by promoted hero actor id.
+   */
   heroObjects?: ReadonlyMap<string, THREE.Object3D>;
 
-  /** Pose-root objects whose actual world positions drive hero culling. */
+  /*
+   * Pose-root objects whose actual world positions drive hero culling.
+   */
   heroVisualObjects?: ReadonlyMap<string, THREE.Object3D>;
 }

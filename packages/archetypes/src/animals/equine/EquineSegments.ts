@@ -20,39 +20,59 @@ import { AutoMovieArchetypeHorse } from "../AutoMovieArchetypeHorse";
  * humerus nor the femur is measured.
  */
 export namespace EquineSegments {
-  /** One breed's mean measures, centimetres, and its sample size. */
+  /*
+   * One breed's mean measures, centimetres, and its sample size.
+   */
   export interface IBreed {
-    /** How many animals of the breed the rows hold. */
+    /*
+     * How many animals of the breed the rows hold.
+     */
     n: number;
 
-    /** The height at the withers. */
+    /*
+     * The height at the withers.
+     */
     withers: number;
 
-    /** The heart girth, directly behind the forelegs. */
+    /*
+     * The heart girth, directly behind the forelegs.
+     */
     girth: number;
 
-    /** The withers to the point of the croup, straight across the back. */
+    /*
+     * The withers to the point of the croup, straight across the back.
+     */
     back: number;
 
-    /** The point of the elbow to the back of the knee. */
+    /*
+     * The point of the elbow to the back of the knee.
+     */
     forearm: number;
 
-    /** The back of the knee to the ergot. */
+    /*
+     * The back of the knee to the ergot.
+     */
     foreCannon: number;
 
-    /**
+    /*
      * The fore pastern and hoof: the bottom of the fetlock to the coronet, and
      * the coronet to the bottom of the hoof.
      */
     foreDigit: number;
 
-    /** The stifle to the point of the hock. */
+    /*
+     * The stifle to the point of the hock.
+     */
     gaskin: number;
 
-    /** The point of the hock to the ergot. */
+    /*
+     * The point of the hock to the ergot.
+     */
     hindCannon: number;
 
-    /** The hind pastern and hoof. */
+    /*
+     * The hind pastern and hoof.
+     */
     hindDigit: number;
   }
 

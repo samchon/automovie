@@ -1,7 +1,7 @@
 import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type { IAutoMovieMotionClock } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 
 /*
  * Prepare the kneel's phase-start lookup while retaining the same eased
@@ -19,13 +19,13 @@ export function prepareKneelClock<T extends IPrepareKneelClock>(
   const starts: number[] = phases.map(
     (phase: T): number => clock.at(phase.name) - 1e-9,
   );
-  const intervals: ReturnType<typeof AutoMovieMotionClock.prepare>[] =
+  const intervals: ReturnType<typeof motionClock.prepare>[] =
     phases.map(
       (
         phase: T,
         index: number,
-      ): ReturnType<typeof AutoMovieMotionClock.prepare> =>
-        AutoMovieMotionClock.prepare(
+      ): ReturnType<typeof motionClock.prepare> =>
+        motionClock.prepare(
           clock,
           phase.name,
           index + 1 < phases.length ? phases[index + 1]!.name : "end",

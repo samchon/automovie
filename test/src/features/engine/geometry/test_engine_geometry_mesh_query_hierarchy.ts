@@ -7,10 +7,10 @@ interface IBox extends IAutoMovieMeshQueryHierarchy.IEntry {
 }
 
 /**
- * `buildAutoMovieMeshQueryHierarchy(entries)` splits boxes at the median of
+ * `buildMeshQueryHierarchy(entries)` splits boxes at the median of
  * their centres along the node's widest axis (x before y before z on ties,
  * stable among equal centres) down to leaves of at most 12, every node
- * enclosing its entries; `refitAutoMovieMeshQueryHierarchy(tree, replace)`
+ * enclosing its entries; `refitMeshQueryHierarchy(tree, replace)`
  * keeps that partition with replaced entries and recomputed boxes.
  *
  * The node union has no discriminant, so every tree is compared as its whole

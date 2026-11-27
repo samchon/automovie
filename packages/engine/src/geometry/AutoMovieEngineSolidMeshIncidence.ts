@@ -4,7 +4,7 @@ import type {
   IAutoMovieSolidMeshIncidence,
 } from "@automovie/interface";
 
-import { orientAutoMovieSolidChart } from "./construction/internal/orientAutoMovieSolidChart";
+import { orientSolidChart } from "./construction/internal/orientSolidChart";
 
 /**
  * Native-chart halfedge incidence after shared constraint subdivision.
@@ -179,5 +179,5 @@ function order(
   const halfB: number =
     b[1] > origin[1] || (b[1] === origin[1] && b[0] >= origin[0]) ? 0 : 1;
   if (halfA !== halfB) return halfA - halfB;
-  return -orientAutoMovieSolidChart(origin, a, b);
+  return -orientSolidChart(origin, a, b);
 }

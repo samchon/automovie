@@ -2,7 +2,7 @@ import { AutoMovieEngineRenderShadow } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `normalizeAutoMovieShadowFilter` folds the three declared shadow filters onto
+ * `normalizeShadowFilter` folds the three declared shadow filters onto
  * the two the renderer implements.
  *
  * Scenarios:

@@ -2,7 +2,7 @@ import type { IAutoMovieSurfaceSample } from "./IAutoMovieSurfaceSample";
 
 /**
  * The vertices of a surface rig by identity, each with the writer that
- * evaluates it per pose, from `registerAutoMovieSurfaceVertices`. Registration,
+ * evaluates it per pose, from `registerSurfaceVertices`. Registration,
  * binding and finalization are allowed only before finalization; afterward only
  * count, identity lookup and the resolved writers remain usable. A binding
  * failure leaves the registry terminal and releases its compile-only records.

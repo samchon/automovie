@@ -1,5 +1,5 @@
 import { type IAutoMovieVector3, type IAutoMovieZone, type IAutoMovieResolveZone } from "@automovie/interface";
-import { resolveAutoMovieZone as resolveAutoMovieZoneImplementation } from "./internal/resolveAutoMovieZone";
+import { resolveZone as resolveZoneImplementation } from "./internal/resolveZone";
 
 /** Public operations for Auto Movie Engine Composition Zone. */
 export namespace AutoMovieEngineCompositionZone {
@@ -15,6 +15,6 @@ export namespace AutoMovieEngineCompositionZone {
    * @returns The world point.
    */
   export function resolve(zones: readonly IAutoMovieZone[], id: string, where?: IAutoMovieResolveZone.IWhere): IAutoMovieVector3 {
-    return resolveAutoMovieZoneImplementation(zones, id, where);
+    return resolveZoneImplementation(zones, id, where);
   }
 }

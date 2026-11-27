@@ -1,6 +1,6 @@
 /**
  * A named instant measured in seconds since an action starts, distinct from a
- * phase duration. AutoMovieMotionClock.of checks names and placement within its
+ * phase duration. motionClock.of checks names and placement within its
  * duration.
  */
 export interface IAutoMovieMotionClockInstant {

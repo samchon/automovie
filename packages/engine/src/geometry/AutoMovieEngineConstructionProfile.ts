@@ -10,7 +10,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieEngineConstructionProfilePhase } from "./AutoMovieEngineConstructionProfilePhase";
-import { AutoMovieConstructionProfileSurface } from "./construction/internal/AutoMovieConstructionProfileSurface";
+import { constructionProfileSurface } from "./construction/internal/constructionProfileSurface";
 import { AutoMovieEngineConstructionProfileTopology } from "./AutoMovieEngineConstructionProfileTopology";
 import { AutoMovieEngineLoftAdmissionError } from "./AutoMovieEngineLoftAdmissionError";
 
@@ -105,7 +105,7 @@ export namespace AutoMovieEngineConstructionProfile {
           piece,
           loop,
           curve: curve!,
-          surface: AutoMovieConstructionProfileSurface(
+          surface: constructionProfileSurface(
             source,
             definition.name,
             loop,
@@ -175,7 +175,7 @@ export namespace AutoMovieEngineConstructionProfile {
     const originals: Map<string, IAutoMovieSolidSurface> = new Map(
       records.map((record: Piece): [string, IAutoMovieSolidSurface] => [
         record.piece.id,
-        AutoMovieConstructionProfileSurface(
+        constructionProfileSurface(
           source,
           definition.name,
           record.loop,

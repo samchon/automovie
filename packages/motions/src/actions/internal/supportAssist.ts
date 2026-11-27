@@ -2,7 +2,7 @@ import { AutoMovieEngineKinematics, AutoMovieEngineVector3, AutoMovieEngineCompo
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSupport, IAutoMovieMotionMeeting, IAutoMovieMotionMeetingKind, IAutoMovieMotionMeetingRole, IAutoMovieMotionMeetingTiming, IAutoMovieResolveMutualGoal, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanTarget } from "../../compose/internal/AutoMovieMotionHumanTarget";
-import { AutoMovieMotionMeeting } from "../../compose/internal/AutoMovieMotionMeeting";
+import { motionMeeting } from "../../compose/internal/motionMeeting";
 import { getUp } from "../../floor/internal/getUp";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
@@ -32,7 +32,7 @@ export function supportAssist(
   const hand: IAutoMovieMotionHumanSupport.Part = `${assist.hand}Hand`;
   const keys: readonly IAutoMovieVector3[] = SupportAssistData.CONTACTS.map(
     (phase: Phase): IAutoMovieVector3 =>
-      AutoMovieMotionMeeting.place(meeting, phase, context.entry.posture).point,
+      motionMeeting.place(meeting, phase, context.entry.posture).point,
   );
   return (
     contact: IAutoMovieMotionHumanSupport.IContact,

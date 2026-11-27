@@ -6,7 +6,7 @@ export namespace IAutoMovieEvaluateStorySync {
    * Measure one cross-shot simultaneity claim on the production story clock.
    *
    * Each addressed event is taken at its realized shot-local time, mapped
-   * through its own shot's pin by {@link autoMovieStoryTime}, and the widest gap
+   * through its own shot's pin by {@link storyTime}, and the widest gap
    * between any two resulting story times is compared against the tolerance,
    * inclusive. Nothing here consults the edit: two shots cut minutes apart pass
    * when their pins put the events together, and two adjacent shots fail when

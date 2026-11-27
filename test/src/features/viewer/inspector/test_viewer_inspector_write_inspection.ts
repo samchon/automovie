@@ -1,11 +1,11 @@
 import { AutoMovieRenderInspectionRequest } from "@automovie/render";
 import {
-  writeAutoMovieInspectorInspection
-} from "../../../../../packages/viewer/src/inspector/internal/writeAutoMovieInspectorInspection";
+  writeInspectorInspection
+} from "../../../../../packages/viewer/src/inspector/internal/writeInspectorInspection";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `writeAutoMovieInspectorInspection` writes an inspection as the text by which
+ * `writeInspectorInspection` writes an inspection as the text by which
  * the inspector tells two inspections apart.
  *
  * Scenarios:
@@ -25,15 +25,15 @@ export function test_viewer_inspector_write_inspection(): void {
       ),
     };
   };
-  TestValidator.equals("absent", writeAutoMovieInspectorInspection(request([])), "[]");
+  TestValidator.equals("absent", writeInspectorInspection(request([])), "[]");
   TestValidator.equals(
     "shade",
-    writeAutoMovieInspectorInspection(request([["shade", "depth"]])),
+    writeInspectorInspection(request([["shade", "depth"]])),
     '[["shade","depth"]]',
   );
   TestValidator.equals(
     "equal",
-    writeAutoMovieInspectorInspection(request([["shade", "depth"]])),
-    writeAutoMovieInspectorInspection(request([["shade", "depth"]])),
+    writeInspectorInspection(request([["shade", "depth"]])),
+    writeInspectorInspection(request([["shade", "depth"]])),
   );
 }

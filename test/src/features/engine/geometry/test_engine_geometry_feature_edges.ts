@@ -12,9 +12,9 @@ import { throwsError } from "../../internal/throwsError";
 type Edge = IAutoMovieMeasureFeatureEdges.IEdge;
 
 /**
- * `measureAutoMovieFeatureEdges` finds a welded mesh's sharp bends (30 degrees
+ * `measureFeatureEdges` finds a welded mesh's sharp bends (30 degrees
  * or more), independent of how finely flat faces are tessellated; the convex
- * distance (`autoMovieFeatureEdgeDistance`) follows them.
+ * distance (`featureEdgeDistance`) follows them.
  *
  * Fixtures: the unit box from `tessellate` (24 vertices, every corner split by
  * face); the same box with every face an 8 x 8 grid of quads; a 16-segment

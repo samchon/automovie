@@ -23,8 +23,8 @@ import type {
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
-import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionHumanHeld } from "../../compose/internal/motionHumanHeld";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { workHeldPush } from "../../handling/internal/workHeldPush";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -132,7 +132,7 @@ function nozzle(
     });
   const side: AutoMovieHumanSide =
     context.entry.holds.left === p.prop ? "left" : "right";
-  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
+  const held: IAutoMovieMotionHumanHeld.IHeld = motionHumanHeld(
     context,
     side,
     p.prop,
@@ -256,7 +256,7 @@ function nozzle(
     Math.PI;
   const reached: (seconds: number) => number = (seconds: number): number =>
     clock.envelope(["start", "ready"], ["relax", "end"], seconds);
-  const kept: IAutoMovieMotionPropHold = AutoMovieMotionHumanHeld.hold(
+  const kept: IAutoMovieMotionPropHold = motionHumanHeld.hold(
     context,
     held,
   );
@@ -297,7 +297,7 @@ function nozzle(
     },
   });
   const composed: IAutoMovieMotionHumanActionPlan =
-    composeAutoMovieMotionHumanAction({
+    composeMotionHumanAction({
       base: {
         ...base,
         posture: (seconds: number): IAutoMovieMotionHumanPosture => {
@@ -314,7 +314,7 @@ function nozzle(
     hands: [side, push.side],
     contacts: [
       ...composed.contacts,
-      AutoMovieMotionHumanHeld.grip(held),
+      motionHumanHeld.grip(held),
       push.contact(clock),
     ],
     holds: [...(composed.holds ?? []), { ...kept, from: 1 }],

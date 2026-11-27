@@ -1,15 +1,15 @@
-import type { IAutoMovieProductionSoundAnalysis } from "../production/IAutoMovieProductionSoundAnalysis.js";
-import type { IAutoMovieRenderedProductionSound } from "../production/IAutoMovieRenderedProductionSound.js";
-import type { IAutoMovieDialogueLipSync } from "./IAutoMovieDialogueLipSync.js";
-import type { IAutoMovieControlRecord } from "./IAutoMovieControlRecord.js";
-import type { IAutoMovieDeliveredCutEntry } from "./IAutoMovieDeliveredCutEntry.js";
-import type { IAutoMovieDeliveryContentAudit } from "./IAutoMovieDeliveryContentAudit.js";
-import type { IAutoMovieInspectionDiagnostics } from "./IAutoMovieInspectionDiagnostics.js";
-import type { IAutoMovieRenderedFrameReceipt } from "./IAutoMovieRenderedFrameReceipt.js";
+import type { IAutoMovieProductionSoundAnalysis } from "../production/IAutoMovieProductionSoundAnalysis";
+import type { IAutoMovieRenderedProductionSound } from "../production/IAutoMovieRenderedProductionSound";
+import type { IAutoMovieDialogueLipSync } from "./IAutoMovieDialogueLipSync";
+import type { IAutoMovieControlRecord } from "./IAutoMovieControlRecord";
+import type { IAutoMovieDeliveredCutEntry } from "./IAutoMovieDeliveredCutEntry";
+import type { IAutoMovieDeliveryContentAudit } from "./IAutoMovieDeliveryContentAudit";
+import type { IAutoMovieInspectionDiagnostics } from "./IAutoMovieInspectionDiagnostics";
+import type { IAutoMovieRenderedFrameReceipt } from "./IAutoMovieRenderedFrameReceipt";
 
 /**
  * Successful sequential beauty capture and encoding receipts.
- * renderAutoMovieDrawnVideo returns after the host encoder resolves, with one
+ * renderDrawnVideo returns after the host encoder resolves, with one
  * receipt per written frame, the actual encoder arguments, and an audit when
  * the subject supplied diagnostics. Failed drawing/writing/encoding rejects
  * without returning partial success; prior files remain host-owned.

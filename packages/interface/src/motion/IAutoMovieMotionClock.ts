@@ -3,7 +3,7 @@ import type { IAutoMovieMotionClockInstant } from "./IAutoMovieMotionClockInstan
 
 /**
  * An action clock resolving named instants and progress in seconds since that
- * action starts. AutoMovieMotionClock constructs and admits the clock; action
+ * action starts. motionClock constructs and admits the clock; action
  * primitives share this capability.
  */
 export interface IAutoMovieMotionClock {

@@ -1,6 +1,6 @@
 import type { IAutoMovieConstraintViolation, IAutoMoviePlacedContact, IAutoMoviePlacedContinuity } from "@automovie/interface";
-import type { IAutoMovieRenderObservePlacedSceneNativeSupport } from "./IAutoMovieRenderObservePlacedSceneNativeSupport.js";
-import type { IAutoMovieRenderObservePlacedSceneNativeGrip } from "./IAutoMovieRenderObservePlacedSceneNativeGrip.js";
+import type { IAutoMovieRenderObservePlacedSceneNativeSupport } from "./IAutoMovieRenderObservePlacedSceneNativeSupport";
+import type { IAutoMovieRenderObservePlacedSceneNativeGrip } from "./IAutoMovieRenderObservePlacedSceneNativeGrip";
 
 /** One source-selected obligation and its stable report identity. */
 export interface IAutoMovieRenderObservePlacedSceneCheck {

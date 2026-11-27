@@ -1,7 +1,7 @@
 import type { AutoMovieGuidePass } from "@automovie/interface";
 
-import { frameName } from "../frameName.js";
-import { passExtension } from "../guidePassesInternal/internal/passExtension.js";
+import { frameName } from "../frameName";
+import { passExtension } from "../guidePassesInternal/internal/passExtension";
 
 /*
  * File name of one frame of one pass: `beauty` keeps the plain `frameName`

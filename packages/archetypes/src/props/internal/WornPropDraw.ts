@@ -11,7 +11,9 @@ import { WornPropDrawData } from "./WornPropDrawData";
  * The seeded recipes originally published as `createWearable`.
  */
 export namespace WornPropDraw {
-  /** The kinds. */
+  /*
+   * The kinds.
+   */
   export type Kind = "watch" | "hat" | "spectacles" | "helmet";
 
   /*
@@ -39,7 +41,7 @@ export namespace WornPropDraw {
    */
   export const STRAP: number = 0.02;
 
-  /**
+  /*
    * The affordance ids:
    *
    * - `hold`: where the fingers take it.
@@ -49,7 +51,7 @@ export namespace WornPropDraw {
    */
   export type Affordance = "hold" | "wear" | "face";
 
-  /**
+  /*
    * The free dimensions, metres unless stated:
    *
    * - `width`: a watch case's across, a brim's diameter, the spectacles' front
@@ -72,15 +74,19 @@ export namespace WornPropDraw {
     mass: "kg",
   };
 
-  /**
+  /*
    * The parameters: the kind, and any free dimension fixed to a value inside
    * its band.
    */
   export interface IParams extends Partial<Record<Dimension, number>> {
-    /** Which thing. */
+    /*
+     * Which thing.
+     */
     kind: Kind;
 
-    /** The model's id, unique in a scene; `wearable` when absent. */
+    /*
+     * The model's id, unique in a scene; `wearable` when absent.
+     */
     id?: string;
   }
 

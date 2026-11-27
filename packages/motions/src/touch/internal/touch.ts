@@ -28,8 +28,8 @@ import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieM
 import { AutoMovieMotionHumanTouchContacts } from "../../compose/internal/AutoMovieMotionHumanTouchContacts";
 import { AutoMovieMotionHumanTouchForm } from "../../compose/internal/AutoMovieMotionHumanTouchForm";
 import { AutoMovieMotionHumanTouchLaid } from "../../compose/internal/AutoMovieMotionHumanTouchLaid";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionManner } from "../../compose/internal/motionManner";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { HumanHeld } from "../../handling/internal/HumanHeld";
 import { HumanHeldUse } from "../../handling/internal/HumanHeldUse";
 import { HumanBound } from "../../law/internal/HumanBound";
@@ -214,7 +214,7 @@ export namespace touch {
     HumanBound.least("hold", hold, 0, "s");
     if (p.clear !== undefined) HumanBound.above("clear", p.clear, 0, "hand");
     const standoff: number = (p.clear ?? 0) * body.measure.hand;
-    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+    const modifiers: IAutoMovieMotionManner.IModifiers = motionManner(
       context,
       p.manner,
     );
@@ -428,7 +428,7 @@ export namespace touch {
         laidOn(effector, laid(first, p.target)),
         clock,
         (): IAutoMovieMotionHumanActionPlan =>
-          composeAutoMovieMotionHumanAction({
+          composeMotionHumanAction({
             base: adjusted.base(context, clock),
             clock,
             primitives: stance.primitives(clock),
@@ -480,7 +480,7 @@ export namespace touch {
     for (const [side, target] of hands)
       primitives.push(...touchHand(hand, side, target));
     const plan: IAutoMovieMotionHumanActionPlan = {
-      ...composeAutoMovieMotionHumanAction({
+      ...composeMotionHumanAction({
         base: adjusted.base(context, clock),
         clock,
         primitives,

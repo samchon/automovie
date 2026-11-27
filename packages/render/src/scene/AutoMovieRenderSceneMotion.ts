@@ -1,16 +1,16 @@
-import { applyTransform as applyTransformImplementation } from "./internal/applyTransform.js";
-import { applyPose as applyPoseImplementation } from "./internal/applyPose.js";
-import { applyExpression as applyExpressionImplementation } from "./internal/applyExpression.js";
-import { applyObjectMotion as applyObjectMotionImplementation } from "./internal/applyObjectMotion.js";
-import { applyObjectMotions as applyObjectMotionsImplementation } from "./internal/applyObjectMotions.js";
-import { applyLightMotion as applyLightMotionImplementation } from "./internal/applyLightMotion.js";
+import { applyTransform as applyTransformImplementation } from "./internal/applyTransform";
+import { applyPose as applyPoseImplementation } from "./internal/applyPose";
+import { applyExpression as applyExpressionImplementation } from "./internal/applyExpression";
+import { applyObjectMotion as applyObjectMotionImplementation } from "./internal/applyObjectMotion";
+import { applyObjectMotions as applyObjectMotionsImplementation } from "./internal/applyObjectMotions";
+import { applyLightMotion as applyLightMotionImplementation } from "./internal/applyLightMotion";
 
 import type * as THREE from "three";
-import { invalidateAutoMovieSkinnedPose as invalidateAutoMovieSkinnedPoseImplementation } from "./internal/invalidateAutoMovieSkinnedPose.js";
-import { type IAutoMovieRenderModelObject } from "./IAutoMovieRenderModelObject.js";
+import { invalidateSkinnedPose as invalidateSkinnedPoseImplementation } from "./internal/invalidateSkinnedPose";
+import { type IAutoMovieRenderModelObject } from "./IAutoMovieRenderModelObject";
 import { type AutoMovieHumanoidBone, type IAutoMovieRigLocalTransform, type IAutoMovieRigidTransform, type IAutoMovieTransform, type IAutoMoviePose, type IAutoMovieSkeleton, type IAutoMovieJointAxes, type IAutoMovieRestFrame, type IAutoMovieExpression, type IAutoMovieHumanVisemeWeights, type IAutoMovieClip, type IAutoMovieLight } from "@automovie/interface";
-import { applyAutoMovieRigLocals as applyAutoMovieRigLocalsImplementation } from "./internal/applyAutoMovieRigLocals.js";
-import { createAutoMoviePhysicalPoseAdapter as createAutoMoviePhysicalPoseAdapterImplementation } from "./internal/createAutoMoviePhysicalPoseAdapter.js";
+import { applyRigLocals as applyRigLocalsImplementation } from "./internal/applyRigLocals";
+import { createPhysicalPoseAdapter as createPhysicalPoseAdapterImplementation } from "./internal/createPhysicalPoseAdapter";
 
 /** Public operations for Auto Movie Render Scene Motion. */
 export namespace AutoMovieRenderSceneMotion {
@@ -27,7 +27,7 @@ export namespace AutoMovieRenderSceneMotion {
    * @param root A built model's root, or any subtree containing skinned meshes.
    */
   export function invalidateSkinnedPose(root: THREE.Object3D): void {
-    invalidateAutoMovieSkinnedPoseImplementation(root);
+    invalidateSkinnedPoseImplementation(root);
   }
 
   /**
@@ -46,7 +46,7 @@ export namespace AutoMovieRenderSceneMotion {
    * evaluation, morph weights, imported-runtime flushing and rendering.
    */
   export function applyRigLocals(target: IAutoMovieRenderModelObject, locals: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieRigLocalTransform>, root: IAutoMovieRigLocalTransform): void {
-    applyAutoMovieRigLocalsImplementation(target, locals, root);
+    applyRigLocalsImplementation(target, locals, root);
   }
 
   /**
@@ -54,7 +54,7 @@ export namespace AutoMovieRenderSceneMotion {
    * unlisted bones' authored local transforms.
    */
   export function createPhysicalPoseAdapter(model: IAutoMovieRenderModelObject): (poses: Readonly<Record<string, IAutoMovieRigidTransform>>) => void {
-    return createAutoMoviePhysicalPoseAdapterImplementation(model);
+    return createPhysicalPoseAdapterImplementation(model);
   }
 
   /**
@@ -85,7 +85,7 @@ export namespace AutoMovieRenderSceneMotion {
    * `resolveMorphTargetWeights` computes from the same pose, so a corrective
    * follows every applied pose; expression-written targets are left alone. Every
    * skinned mesh then starts a new pose revision
-   * ({@link invalidateAutoMovieSkinnedPose}), so its bounds and vertex queries
+   * ({@link invalidateSkinnedPose}), so its bounds and vertex queries
    * follow the pose the shader draws.
    *
    * Returns the skeleton bones the FK resolved but the model's bone map does not

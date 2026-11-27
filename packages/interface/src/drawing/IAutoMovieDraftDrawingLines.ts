@@ -32,7 +32,7 @@ export namespace IAutoMovieDraftDrawingLines {
    *
    * The function reads the design synchronously; its index can populate
    * tessellation caches. Keep the environment, view and indexed geometry stable
-   * for the call. deriveAutoMovieDrawing validates the environment and resolves
+   * for the call. deriveDrawing validates the environment and resolves
    * the frame before supplying these inputs; the lower-level drafter does not
    * repeat those checks.
    */
@@ -64,7 +64,7 @@ export namespace IAutoMovieDraftDrawingLines {
 
     /**
      * Whether the view projection cuts geometry; must agree with the view's
-     * projection as resolved by autoMovieDrawingHasCut.
+     * projection as resolved by drawingHasCut.
      */
     cut: boolean;
 
@@ -73,7 +73,7 @@ export namespace IAutoMovieDraftDrawingLines {
      * spaces until one passes. Null space denotes an unassigned element. Must
      * keep inputs stable; exceptions propagate and the callback is not
      * retained. The caller implements kind/space selection;
-     * draftAutoMovieDrawingLines invokes it synchronously for elements and
+     * draftDrawingLines invokes it synchronously for elements and
      * candidate boundary spaces without retaining it.
      */
     drawn: (kind: string, space: string | null) => boolean;

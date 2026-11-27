@@ -9,7 +9,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
+import { motionClock } from "./motionClock";
 import { AutoMovieMotionHumanArmMove } from "./AutoMovieMotionHumanArmMove";
 import { AutoMovieMotionHumanArmTarget } from "./AutoMovieMotionHumanArmTarget";
 
@@ -151,7 +151,7 @@ export namespace AutoMovieMotionHumanArmPhrase {
             projection,
             evaluation,
           );
-          const p: number = AutoMovieMotionClock.through(
+          const p: number = motionClock.through(
             props.clock,
             ["strokeStart", "stroke", "strokeEnd"],
             seconds,
@@ -212,7 +212,7 @@ export namespace AutoMovieMotionHumanArmPhrase {
             posture,
             seconds,
             (props.contact === undefined ? (props.manner?.extent ?? 1) : 1) *
-              AutoMovieMotionClock.wave(
+              motionClock.wave(
                 props.clock,
                 ["strokeStart", "strokeEnd"],
                 props.cycles,

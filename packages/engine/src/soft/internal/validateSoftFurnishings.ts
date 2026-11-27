@@ -13,7 +13,7 @@ import { builtEnvironmentContainsPoint } from "../../architecture/internal/built
 import { builtSpaceStatesVolume } from "../../architecture/internal/builtSpaceStatesVolume";
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
 import { softBodyRestConfiguration } from "./softBodyRestConfiguration";
-import { validateAutoMovieSoftFurnishingDomainOwnership } from "./validateAutoMovieSoftFurnishingDomainOwnership";
+import { validateSoftFurnishingDomainOwnership } from "./validateSoftFurnishingDomainOwnership";
 import { validateSoftBodyDomain } from "./validateSoftBodyDomain";
 
 /*
@@ -29,7 +29,7 @@ export function validateSoftFurnishings(
 
   if (props.domainOwnership !== "prevalidated") {
     const ownership: IAutoMovieValidation =
-      validateAutoMovieSoftFurnishingDomainOwnership(furnishings);
+      validateSoftFurnishingDomainOwnership(furnishings);
     if (ownership.success === false) out.items.push(...ownership.violations);
   }
 

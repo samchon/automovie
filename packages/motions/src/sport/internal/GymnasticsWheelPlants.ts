@@ -12,7 +12,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanElbowPole } from "../../compose/internal/AutoMovieMotionHumanElbowPole";
+import { motionHumanElbowPole } from "../../compose/internal/motionHumanElbowPole";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanHandShape } from "../../posture/internal/HumanHandShape";
 import { HumanHandTarget } from "../../posture/internal/HumanHandTarget";
@@ -193,7 +193,7 @@ export function GymnasticsWheelPlants(
       const carriedEnd: IAutoMovieResolvedBone = carriedBones.get(l.bone)!;
       const elbow: IAutoMovieVector3 = carriedBones.get(middle)!.worldPosition;
       const bend: IAutoMovieVector3 = l.hand
-        ? AutoMovieMotionHumanElbowPole(
+        ? motionHumanElbowPole(
             body,
             free,
             middle,
@@ -386,7 +386,7 @@ export function GymnasticsWheelPlants(
  * the carried joints the end at none, so a contact taken or left mid-turn
  * neither jumps nor makes the solver choose a turn of the arm the carried pose
  * does not have. A laid arm's elbow keeps the carried one's side, a straight
- * arm's pushed out along its olecranon (`AutoMovieMotionHumanElbowPole`), so
+ * arm's pushed out along its olecranon (`motionHumanElbowPole`), so
  * the solve has a side to bend to.
  */
 export namespace GymnasticsWheelPlants {

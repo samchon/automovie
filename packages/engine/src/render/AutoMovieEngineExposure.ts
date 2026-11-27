@@ -1,7 +1,7 @@
-import { autoMovieIncidentEv100 as autoMovieIncidentEv100Implementation } from "./exposure/internal/autoMovieIncidentEv100";
+import { incidentEv100 as incidentEv100Implementation } from "./exposure/internal/incidentEv100";
 import { type IAutoMovieCheckExposureContinuity, type IAutoMovieMeterIlluminance } from "@automovie/interface";
-import { checkAutoMovieExposureContinuity as checkAutoMovieExposureContinuityImplementation } from "./exposure/internal/checkAutoMovieExposureContinuity";
-import { meterAutoMovieIlluminance as meterAutoMovieIlluminanceImplementation } from "./exposure/internal/meterAutoMovieIlluminance";
+import { checkExposureContinuity as checkExposureContinuityImplementation } from "./exposure/internal/checkExposureContinuity";
+import { meterIlluminance as meterIlluminanceImplementation } from "./exposure/internal/meterIlluminance";
 
 /** Public operations for Auto Movie Engine Exposure. */
 export namespace AutoMovieEngineExposure {
@@ -22,7 +22,7 @@ export namespace AutoMovieEngineExposure {
    *   an exposure for.
    */
   export function autoMovieIncidentEv100(lux: number): number {
-    return autoMovieIncidentEv100Implementation(lux);
+    return incidentEv100Implementation(lux);
   }
 
   /**
@@ -46,7 +46,7 @@ export namespace AutoMovieEngineExposure {
    *   an `ev100` is not finite, or the tolerance is negative or not finite.
    */
   export function checkAutoMovieExposureContinuity(props: IAutoMovieCheckExposureContinuity.IProps): IAutoMovieCheckExposureContinuity.IFinding[] {
-    return checkAutoMovieExposureContinuityImplementation(props);
+    return checkExposureContinuityImplementation(props);
   }
 
   /**
@@ -77,7 +77,7 @@ export namespace AutoMovieEngineExposure {
    * Light terms are unoccluded: no shadow or solid is tested. Image lighting is
    * listed as unmetered with no value, since an environment's intensity has no
    * photometric unit. A daylight instant's sky is listed as unmetered with its
-   * `DHI × V` value from `autoMovieSkyIlluminance` over the context's occluders;
+   * `DHI × V` value from `skyIlluminance` over the context's occluders;
    * its beam is never added, because the frame draws the sun only as a staged
    * directional light, which is already one of `lights`.
    *
@@ -87,6 +87,6 @@ export namespace AutoMovieEngineExposure {
    *   finite.
    */
   export function meterAutoMovieIlluminance(props: IAutoMovieMeterIlluminance.IProps): IAutoMovieMeterIlluminance.IResult {
-    return meterAutoMovieIlluminanceImplementation(props);
+    return meterIlluminanceImplementation(props);
   }
 }

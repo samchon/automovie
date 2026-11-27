@@ -5,7 +5,7 @@ import type { IAutoMovieVector3 } from "./IAutoMovieVector3";
 
 /**
  * A compiled resident-surface separation query, returned by
- * `createAutoMovieMeshSeparationQuery`.
+ * `createMeshSeparationQuery`.
  *
  * Calling it measures a feature, a nonempty finite run of XYZ vertices in the
  * resident metre frame taken as its convex hull, against every resident

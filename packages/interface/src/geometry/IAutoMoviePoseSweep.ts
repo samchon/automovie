@@ -28,25 +28,25 @@ export namespace IAutoMoviePoseSweep {
    *
    * With `preserveVolume`, the sections of stations on two bones are scaled
    * together by one factor until the posed volume, by
-   * `measureAutoMovieSweepVolume`, equals the rest volume: the scale profile
+   * `measureSweepVolume`, equals the rest volume: the scale profile
    * gains a knot at every station, the factor at joint stations and 1 at the
    * others, multiplied into any existing profile, and the factor is found by
    * secant steps, as the paper first rescales the key section at the bent joint
-   * (Section 4.4), by `settleAutoMovieSweepVolume`. Without joint stations the
+   * (Section 4.4), by `settleSweepVolume`. Without joint stations the
    * sweep is returned unscaled. The scale applies after features, so the
    * section's shape is unchanged and only its size at the joints moves.
    */
   export type IProps = {
     /**
      * Rest sweep in the same model-metre frame as resolved bones.
-     * compileAutoMovieSweep validates its section and spine data; the returned
+     * compileSweep validates its section and spine data; the returned
      * sweep shares unchanged section/guide/feature data.
      */
     sweep: IAutoMovieSweep;
 
     /**
      * Bone identities aligned with spine points and stations.
-     * poseAutoMovieSweep checks both array lengths and resolves every named
+     * poseSweep checks both array lengths and resolves every named
      * bone; each station tuple supplies one bone or a two-bone spherical
      * midpoint.
      */

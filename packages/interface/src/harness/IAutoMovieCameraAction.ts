@@ -66,7 +66,7 @@ export interface IAutoMovieCameraAction extends IAutoMovieActionBase {
   /**
    * The lens stop, the f-number, finite and `> 0`: how a cinematographer states
    * how much falls out of focus. Copied into `shot.cameraIntent`, where
-   * `resolveAutoMovieLensAt` turns it and the lens subject into the depth of
+   * `resolveLensAt` turns it and the lens subject into the depth of
    * field a directly rendered film draws. The blur's aperture is the camera's
    * actual field of view's full-frame focal length divided by this stop, not
    * `focalLength`. Omit for a frame drawn sharp at every depth.

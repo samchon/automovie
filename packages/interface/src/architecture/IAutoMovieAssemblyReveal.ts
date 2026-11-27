@@ -1,7 +1,7 @@
 /**
  * What a build-up does to an opening cut through its host.
  *
- * Produced by `autoMovieAssemblyOpeningReveal`. `first` and `last` sum the
+ * Produced by `assemblyOpeningReveal`. `first` and `last` sum the
  * unbroken runs of `wrapsOpening` layers from each face, so a wrapping layer
  * behind a non-wrapping one is not lining. `inset` is `first + last` and is
  * taken off each side of both the width and the height, so both face linings

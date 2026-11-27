@@ -1,5 +1,5 @@
-import type { IAutoMovieRenderSelectPlacedChecksRule } from "./IAutoMovieRenderSelectPlacedChecksRule.js";
-import type { IAutoMovieRenderSelectPlacedChecksGripWindow } from "./IAutoMovieRenderSelectPlacedChecksGripWindow.js";
+import type { IAutoMovieRenderSelectPlacedChecksRule } from "./IAutoMovieRenderSelectPlacedChecksRule";
+import type { IAutoMovieRenderSelectPlacedChecksGripWindow } from "./IAutoMovieRenderSelectPlacedChecksGripWindow";
 
 /** A grip held through consecutive windows. */
 export interface IAutoMovieRenderSelectPlacedChecksGrip extends IAutoMovieRenderSelectPlacedChecksRule {

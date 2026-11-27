@@ -1,7 +1,7 @@
 import type * as THREE from "three";
 import { type IAutoMovieMedium } from "@automovie/interface";
-import { applySceneMedium as applySceneMediumImplementation } from "./medium/internal/applySceneMedium.js";
-import { readAutoMovieSceneMedium as readAutoMovieSceneMediumImplementation } from "./medium/internal/readAutoMovieSceneMedium.js";
+import { applySceneMedium as applySceneMediumImplementation } from "./medium/internal/applySceneMedium";
+import { readSceneMedium as readSceneMediumImplementation } from "./medium/internal/readSceneMedium";
 
 /** Public operations for Auto Movie Render Medium. */
 export namespace AutoMovieRenderMedium {
@@ -13,7 +13,7 @@ export namespace AutoMovieRenderMedium {
    * a production that assembles its own scene graph attaches the film's medium
    * through this one call. The medium is stored verbatim, a copy of the three
    * coefficients, under {@link AUTOMOVIE_SCENE_MEDIUM_KEY}; the film response
-   * stage reads it with `readAutoMovieSceneMedium` and draws it in the linear
+   * stage reads it with `readSceneMedium` and draws it in the linear
    * beauty target. Absent or `null` removes it, so the scene draws clear air.
    */
   export function apply(scene: THREE.Scene, medium: IAutoMovieMedium | null | undefined): void {
@@ -25,6 +25,6 @@ export namespace AutoMovieRenderMedium {
    * carries none.
    */
   export function read(scene: THREE.Scene): IAutoMovieMedium | null {
-    return readAutoMovieSceneMediumImplementation(scene);
+    return readSceneMediumImplementation(scene);
   }
 }

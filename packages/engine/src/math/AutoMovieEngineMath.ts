@@ -46,66 +46,66 @@ import type {
   IAutoMovieWeldMeshVertices,
 } from "@automovie/interface";
 
-import { addAutoMovieQuadraticProduct as addAutoMovieQuadraticProductImplementation } from "./internal/addAutoMovieQuadraticProduct";
+import { addQuadraticProduct as addQuadraticProductImplementation } from "./internal/addQuadraticProduct";
 import { addPositiveModulo as addPositiveModuloImplementation } from "./internal/addPositiveModulo";
-import { adjacentAutoMovieFloat64 as adjacentAutoMovieFloat64Implementation } from "./internal/adjacentAutoMovieFloat64";
+import { adjacentFloat64 as adjacentFloat64Implementation } from "./internal/adjacentFloat64";
 
-import { admitAutoMovieQuadraticProgram as admitAutoMovieQuadraticProgramImplementation } from "./internal/admitAutoMovieQuadraticProgram";
-import { assembleAutoMovieQuadraticProgram as assembleAutoMovieQuadraticProgramImplementation } from "./internal/assembleAutoMovieQuadraticProgram";
-import { assignAutoMovieMinimumCost as assignAutoMovieMinimumCostImplementation } from "./internal/assignAutoMovieMinimumCost";
+import { admitQuadraticProgram as admitQuadraticProgramImplementation } from "./internal/admitQuadraticProgram";
+import { assembleQuadraticProgram as assembleQuadraticProgramImplementation } from "./internal/assembleQuadraticProgram";
+import { assignMinimumCost as assignMinimumCostImplementation } from "./internal/assignMinimumCost";
 import { bracketedBisection as bracketedBisectionImplementation } from "./internal/bracketedBisection";
 import { bracketedCrossing as bracketedCrossingImplementation } from "./internal/bracketedCrossing";
 import { bracketedMinimum as bracketedMinimumImplementation } from "./internal/bracketedMinimum";
 import { bracketedRoot as bracketedRootImplementation } from "./internal/bracketedRoot";
-import { clampAutoMovieUnitInterval as clampAutoMovieUnitIntervalImplementation } from "./internal/clampAutoMovieUnitInterval";
+import { clampUnitInterval as clampUnitIntervalImplementation } from "./internal/clampUnitInterval";
 import { closestPointOnSegmentXZ as closestPointOnSegmentXZImplementation } from "./internal/closestPointOnSegmentXZ";
 import { closestPointsBetweenSegments as closestPointsBetweenSegmentsImplementation } from "./internal/closestPointsBetweenSegments";
-import { cofactorAutoMovieJacobian as cofactorAutoMovieJacobianImplementation } from "./internal/cofactorAutoMovieJacobian";
+import { cofactorJacobian as cofactorJacobianImplementation } from "./internal/cofactorJacobian";
 import { convexHull2D as convexHull2DImplementation } from "./internal/convexHull2D";
-import { createAutoMovieQuadraticConicProgram as createAutoMovieQuadraticConicProgramImplementation } from "./internal/createAutoMovieQuadraticConicProgram";
-import { createAutoMovieQuadraticConstraintBasis as createAutoMovieQuadraticConstraintBasisImplementation } from "./internal/createAutoMovieQuadraticConstraintBasis";
-import { createAutoMovieQuadraticFactor as createAutoMovieQuadraticFactorImplementation } from "./internal/createAutoMovieQuadraticFactor";
-import { createAutoMovieQuadraticMemory as createAutoMovieQuadraticMemoryImplementation } from "./internal/createAutoMovieQuadraticMemory";
+import { createQuadraticConicProgram as createQuadraticConicProgramImplementation } from "./internal/createQuadraticConicProgram";
+import { createQuadraticConstraintBasis as createQuadraticConstraintBasisImplementation } from "./internal/createQuadraticConstraintBasis";
+import { createQuadraticFactor as createQuadraticFactorImplementation } from "./internal/createQuadraticFactor";
+import { createQuadraticMemory as createQuadraticMemoryImplementation } from "./internal/createQuadraticMemory";
 import { createMeshEdgeKey as createMeshEdgeKeyImplementation } from "./internal/createMeshEdgeKey";
 import { createMeshPhysicalPartitionMatcher as createMeshPhysicalPartitionMatcherImplementation } from "./internal/createMeshPhysicalPartitionMatcher";
 import { cubicHermiteValue as cubicHermiteValueImplementation } from "./internal/cubicHermiteValue";
-import { decomposeAutoMovieSingularMatrix as decomposeAutoMovieSingularMatrixImplementation } from "./internal/decomposeAutoMovieSingularMatrix";
-import { determinantAutoMovieMatrix3 as determinantAutoMovieMatrix3Implementation } from "./internal/determinantAutoMovieMatrix3";
-import { equilibrateAutoMovieQuadraticProgram as equilibrateAutoMovieQuadraticProgramImplementation } from "./internal/equilibrateAutoMovieQuadraticProgram";
+import { decomposeSingularMatrix as decomposeSingularMatrixImplementation } from "./internal/decomposeSingularMatrix";
+import { determinantMatrix3 as determinantMatrix3Implementation } from "./internal/determinantMatrix3";
+import { equilibrateQuadraticProgram as equilibrateQuadraticProgramImplementation } from "./internal/equilibrateQuadraticProgram";
 import { fitRigidMeshTransform as fitRigidMeshTransformImplementation } from "./internal/fitRigidMeshTransform";
-import { interpolateAutoMovieTrianglePoint as interpolateAutoMovieTrianglePointImplementation } from "./internal/interpolateAutoMovieTrianglePoint";
+import { interpolateTrianglePoint as interpolateTrianglePointImplementation } from "./internal/interpolateTrianglePoint";
 import { linearColorToSrgbHex as linearColorToSrgbHexImplementation } from "./internal/linearColorToSrgbHex";
-import { measureAutoMovieQuadraticState as measureAutoMovieQuadraticStateImplementation } from "./internal/measureAutoMovieQuadraticState";
+import { measureQuadraticState as measureQuadraticStateImplementation } from "./internal/measureQuadraticState";
 import { midpoint as midpointImplementation } from "./internal/midpoint";
-import { minimizeAutoMovieSimplexQuadratic as minimizeAutoMovieSimplexQuadraticImplementation } from "./internal/minimizeAutoMovieSimplexQuadratic";
+import { minimizeSimplexQuadratic as minimizeSimplexQuadraticImplementation } from "./internal/minimizeSimplexQuadratic";
 import { mixSeed as mixSeedImplementation } from "./internal/mixSeed";
 import { nearestAngleAlias as nearestAngleAliasImplementation } from "./internal/nearestAngleAlias";
 import { nearestHullEdge as nearestHullEdgeImplementation } from "./internal/nearestHullEdge";
-import { orderAutoMovieQuadraticMatrix as orderAutoMovieQuadraticMatrixImplementation } from "./internal/orderAutoMovieQuadraticMatrix";
+import { orderQuadraticMatrix as orderQuadraticMatrixImplementation } from "./internal/orderQuadraticMatrix";
 import { overflowsBinary64 as overflowsBinary64Implementation } from "./internal/overflowsBinary64";
 import { pointHullDistance as pointHullDistanceImplementation } from "./internal/pointHullDistance";
 import { pointInHull as pointInHullImplementation } from "./internal/pointInHull";
 import { pointSegmentDistance as pointSegmentDistanceImplementation } from "./internal/pointSegmentDistance";
-import { polishAutoMovieQuadraticProgram as polishAutoMovieQuadraticProgramImplementation } from "./internal/polishAutoMovieQuadraticProgram";
+import { polishQuadraticProgram as polishQuadraticProgramImplementation } from "./internal/polishQuadraticProgram";
 import { polynomialUnitRoots as polynomialUnitRootsImplementation } from "./internal/polynomialUnitRoots";
 import { positiveModulo as positiveModuloImplementation } from "./internal/positiveModulo";
-import { quaternionFromAutoMovieBasis as quaternionFromAutoMovieBasisImplementation } from "./internal/quaternionFromAutoMovieBasis";
+import { quaternionFromBasis as quaternionFromBasisImplementation } from "./internal/quaternionFromBasis";
 import { quaternionInterpolationCriticalRatios as quaternionInterpolationCriticalRatiosImplementation } from "./internal/quaternionInterpolationCriticalRatios";
-import { reduceAutoMovieQrDesign as reduceAutoMovieQrDesignImplementation } from "./internal/reduceAutoMovieQrDesign";
-import { refineAutoMovieQuadraticProgram as refineAutoMovieQuadraticProgramImplementation } from "./internal/refineAutoMovieQuadraticProgram";
-import { resolveAutoMovieMeshPhysicalVertices as resolveAutoMovieMeshPhysicalVerticesImplementation } from "./internal/resolveAutoMovieMeshPhysicalVertices";
+import { reduceQrDesign as reduceQrDesignImplementation } from "./internal/reduceQrDesign";
+import { refineQuadraticProgram as refineQuadraticProgramImplementation } from "./internal/refineQuadraticProgram";
+import { resolveMeshPhysicalVertices as resolveMeshPhysicalVerticesImplementation } from "./internal/resolveMeshPhysicalVertices";
 import { rigidTransformVelocity as rigidTransformVelocityImplementation } from "./internal/rigidTransformVelocity";
 import { roundToThousandths as roundToThousandthsImplementation } from "./internal/roundToThousandths";
 import { seededValue as seededValueImplementation } from "./internal/seededValue";
 import { segmentIndex as segmentIndexImplementation } from "./internal/segmentIndex";
 import { segmentSegmentDistance as segmentSegmentDistanceImplementation } from "./internal/segmentSegmentDistance";
-import { solveAutoMovieBoundedDisplacement as solveAutoMovieBoundedDisplacementImplementation } from "./internal/solveAutoMovieBoundedDisplacement";
-import { solveAutoMovieHalfPlaneProgram as solveAutoMovieHalfPlaneProgramImplementation } from "./internal/solveAutoMovieHalfPlaneProgram";
-import { solveAutoMovieQuadraticInterior as solveAutoMovieQuadraticInteriorImplementation } from "./internal/solveAutoMovieQuadraticInterior";
-import { solveAutoMovieQuadraticKernel as solveAutoMovieQuadraticKernelImplementation } from "./internal/solveAutoMovieQuadraticKernel";
-import { solveAutoMovieQuadraticProgram as solveAutoMovieQuadraticProgramImplementation } from "./internal/solveAutoMovieQuadraticProgram";
-import { solveAutoMovieQuadraticStep as solveAutoMovieQuadraticStepImplementation } from "./internal/solveAutoMovieQuadraticStep";
-import { solveAutoMovieQuadraticWorkingSetStep as solveAutoMovieQuadraticWorkingSetStepImplementation } from "./internal/solveAutoMovieQuadraticWorkingSetStep";
+import { solveBoundedDisplacement as solveBoundedDisplacementImplementation } from "./internal/solveBoundedDisplacement";
+import { solveHalfPlaneProgram as solveHalfPlaneProgramImplementation } from "./internal/solveHalfPlaneProgram";
+import { solveQuadraticInterior as solveQuadraticInteriorImplementation } from "./internal/solveQuadraticInterior";
+import { solveQuadraticKernel as solveQuadraticKernelImplementation } from "./internal/solveQuadraticKernel";
+import { solveQuadraticProgram as solveQuadraticProgramImplementation } from "./internal/solveQuadraticProgram";
+import { solveQuadraticStep as solveQuadraticStepImplementation } from "./internal/solveQuadraticStep";
+import { solveQuadraticWorkingSetStep as solveQuadraticWorkingSetStepImplementation } from "./internal/solveQuadraticWorkingSetStep";
 import { srgbHexToLinearColor as srgbHexToLinearColorImplementation } from "./internal/srgbHexToLinearColor";
 import { weldMeshVertices as weldMeshVerticesImplementation } from "./internal/weldMeshVertices";
 import { wrapDegrees as wrapDegreesImplementation } from "./internal/wrapDegrees";
@@ -128,7 +128,7 @@ export namespace AutoMovieEngineMath {
    * constraint, stabilization or convergence tolerances.
    */
   export function addQuadraticProduct(target: Float64Array, index: number, a: number, b: number): void {
-    addAutoMovieQuadraticProductImplementation(target, index, a, b);
+    addQuadraticProductImplementation(target, index, a, b);
   }
 
   /**
@@ -165,7 +165,7 @@ export namespace AutoMovieEngineMath {
    *   either direction throws instead of returning an infinity.
    */
   export function adjacentFloat64(value: number, upper: boolean): number {
-    return adjacentAutoMovieFloat64Implementation(value, upper);
+    return adjacentFloat64Implementation(value, upper);
   }
 
   /**
@@ -195,14 +195,14 @@ export namespace AutoMovieEngineMath {
    * @param input Program to check; it is only read.
    */
   export function admitQuadraticProgram(input: [IAutoMovieSolveQuadraticProgram.IInput][0]): void {
-    admitAutoMovieQuadraticProgramImplementation(input);
+    admitQuadraticProgramImplementation(input);
   }
 
   /**
    * Admits a sparse-row quadratic program and lays its constraint matrix out in
    * the compressed sparse column form the engine numerical kernel reads.
    *
-   * Admission is `admitAutoMovieQuadraticProgram`, so an inadmissible program
+   * Admission is `admitQuadraticProgram`, so an inadmissible program
    * throws before anything is built. Column `c` holds its nonzeros at
    * `columns[c]` up to `columns[c + 1]`, in ascending row order, and a weight of
    * exactly zero is kept as an explicit entry. A null row endpoint becomes
@@ -226,7 +226,7 @@ export namespace AutoMovieEngineMath {
     initial?: readonly number[];
   },
 ][0] {
-    return assembleAutoMovieQuadraticProgramImplementation(input);
+    return assembleQuadraticProgramImplementation(input);
   }
 
   /**
@@ -249,7 +249,7 @@ export namespace AutoMovieEngineMath {
    *   cannot order.
    */
   export function assignMinimumCost(cost: readonly (readonly number[])[]): number[] {
-    return assignAutoMovieMinimumCostImplementation(cost);
+    return assignMinimumCostImplementation(cost);
   }
 
   /**
@@ -378,7 +378,7 @@ export namespace AutoMovieEngineMath {
    * and blend fractions share this one owner.
    */
   export function clampUnitInterval(value: number): number {
-    return clampAutoMovieUnitIntervalImplementation(value);
+    return clampUnitIntervalImplementation(value);
   }
 
   /**
@@ -432,7 +432,7 @@ export namespace AutoMovieEngineMath {
    * unchanged by that scalar. No inverse or absolute singularity epsilon is
    * used.
    *
-   * This is the arithmetic owner used by createAutoMovieMeshDeformer's normal and
+   * This is the arithmetic owner used by createMeshDeformer's normal and
    * face-direction checks. It does not construct a deformation Jacobian, choose a
    * surface's transverse extension, or establish emitted geometry. The consumer
    * still checks every used transported vector and actual cell: cofactor entries
@@ -440,7 +440,7 @@ export namespace AutoMovieEngineMath {
    * unchanged and the returned object/matrix are owned.
    */
   export function cofactorJacobian(jacobian: readonly number[]): IAutoMovieJacobianCofactor {
-    return cofactorAutoMovieJacobianImplementation(jacobian);
+    return cofactorJacobianImplementation(jacobian);
   }
 
   /**
@@ -475,7 +475,7 @@ export namespace AutoMovieEngineMath {
       initial?: readonly number[];
     },
   ][0]): IAutoMovieQuadraticConicProgram {
-    return createAutoMovieQuadraticConicProgramImplementation(input);
+    return createQuadraticConicProgramImplementation(input);
   }
 
   /**
@@ -490,7 +490,7 @@ export namespace AutoMovieEngineMath {
    * caller's unchanged full original-row KKT and geometry admission.
    */
   export function createQuadraticConstraintBasis(rows: readonly IAutoMovieQuadraticRow[], bounds: readonly number[], free: readonly boolean[], variables: number): IAutoMovieQuadraticConstraintBasis {
-    return createAutoMovieQuadraticConstraintBasisImplementation(rows, bounds, free, variables);
+    return createQuadraticConstraintBasisImplementation(rows, bounds, free, variables);
   }
 
   /**
@@ -511,7 +511,7 @@ export namespace AutoMovieEngineMath {
    * still establish the original primal/dual residual and objective-gap tests.
    */
   export function createQuadraticFactor(data: IAutoMovieQuadraticConicProgram): IAutoMovieCreateQuadraticFactor.IResult {
-    return createAutoMovieQuadraticFactorImplementation(data);
+    return createQuadraticFactorImplementation(data);
   }
 
   /**
@@ -527,7 +527,7 @@ export namespace AutoMovieEngineMath {
    * host GC.
    */
   export function createQuadraticMemory(): IAutoMovieCreateQuadraticMemory.IResult {
-    return createAutoMovieQuadraticMemoryImplementation();
+    return createQuadraticMemoryImplementation();
   }
 
   /**
@@ -595,7 +595,7 @@ export namespace AutoMovieEngineMath {
    * https://www.netlib.org/lapack/lapack_routine/dgesvj.f
    */
   export function decomposeSingularMatrix(rows: readonly (readonly number[])[], budget: IAutoMovieSingularMatrixBudget): IAutoMovieSingularDecomposition {
-    return decomposeAutoMovieSingularMatrixImplementation(rows, budget);
+    return decomposeSingularMatrixImplementation(rows, budget);
   }
 
   /**
@@ -608,7 +608,7 @@ export namespace AutoMovieEngineMath {
    * proves the sign of the supplied doubles, not a physical measurement.
    */
   export function determinantMatrix3(matrix: readonly number[]): number {
-    return determinantAutoMovieMatrix3Implementation(matrix);
+    return determinantMatrix3Implementation(matrix);
   }
 
   /**
@@ -620,7 +620,7 @@ export namespace AutoMovieEngineMath {
    * @see {@link https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/solver/implementations/default/settings.rs}
    */
   export function equilibrateQuadraticProgram(data: IAutoMovieQuadraticConicProgram): void {
-    equilibrateAutoMovieQuadraticProgramImplementation(data);
+    equilibrateQuadraticProgramImplementation(data);
   }
 
   /**
@@ -659,7 +659,7 @@ export namespace AutoMovieEngineMath {
    * and weights remain caller-owned and the returned metre vector is owned.
    */
   export function interpolateTrianglePoint(points: readonly IAutoMovieVector3[], weights: readonly number[]): IAutoMovieVector3 {
-    return interpolateAutoMovieTrianglePointImplementation(points, weights);
+    return interpolateTrianglePointImplementation(points, weights);
   }
 
   /**
@@ -691,7 +691,7 @@ export namespace AutoMovieEngineMath {
    * @see {@link https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/solver/implementations/default/info.rs}
    */
   export function measureQuadraticState(data: IAutoMovieQuadraticConicProgram, state: IAutoMovieQuadraticState): IAutoMovieMeasureQuadraticState.IResult {
-    return measureAutoMovieQuadraticStateImplementation(data, state);
+    return measureQuadraticStateImplementation(data, state);
   }
 
   /**
@@ -717,7 +717,7 @@ export namespace AutoMovieEngineMath {
    * certificates of all dot-product rounding at a requested sub-ulp target.
    */
   export function minimizeSimplexQuadratic(width: number, atoms: readonly IAutoMovieSimplexAtom[], tolerance: number, budget: IAutoMovieSimplexBudget, charge?: (work: number) => void): IAutoMovieSimplexMinimum {
-    return minimizeAutoMovieSimplexQuadraticImplementation(width, atoms, tolerance, budget, charge);
+    return minimizeSimplexQuadraticImplementation(width, atoms, tolerance, budget, charge);
   }
 
   /**
@@ -771,7 +771,7 @@ export namespace AutoMovieEngineMath {
    * intrinsically dense graphs; the factor's actual nonzeros own that cost.
    */
   export function orderQuadraticMatrix(data: IAutoMovieQuadraticConicProgram): Int32Array {
-    return orderAutoMovieQuadraticMatrixImplementation(data);
+    return orderQuadraticMatrixImplementation(data);
   }
 
   /**
@@ -888,7 +888,7 @@ export namespace AutoMovieEngineMath {
     value: number,
     multiplier: number,
   ) => number, fixedPrimalEligible: boolean): IAutoMovieQuadraticPolishingResult {
-    return polishAutoMovieQuadraticProgramImplementation(input, native, options, groups, readMerit, readGradient, readComplementarity, fixedPrimalEligible);
+    return polishQuadraticProgramImplementation(input, native, options, groups, readMerit, readGradient, readComplementarity, fixedPrimalEligible);
   }
 
   /**
@@ -919,7 +919,7 @@ export namespace AutoMovieEngineMath {
    * orthonormal right-handed frame, which this function does not check.
    */
   export function quaternionFromBasis(x: IAutoMovieVector3, y: IAutoMovieVector3, z: IAutoMovieVector3): IAutoMovieQuaternion {
-    return quaternionFromAutoMovieBasisImplementation(x, y, z);
+    return quaternionFromBasisImplementation(x, y, z);
   }
 
   /**
@@ -943,7 +943,7 @@ export namespace AutoMovieEngineMath {
    * qualify the compressed original design independently before solving.
    */
   export function reduceQrDesign(rows: readonly (readonly number[])[], right: readonly number[], budget: IAutoMovieQrDesignBudget): IAutoMovieQrDesignReduction {
-    return reduceAutoMovieQrDesignImplementation(rows, right, budget);
+    return reduceQrDesignImplementation(rows, right, budget);
   }
 
   /**
@@ -973,7 +973,7 @@ export namespace AutoMovieEngineMath {
    * of downstream geometric, anatomical, Float32 and rendered acceptance.
    */
   export function refineQuadraticProgram(input: IAutoMovieSolveQuadraticProgram.IInput, initial: IAutoMovieSolveQuadraticProgram.IResult, options: IAutoMovieQuadraticRefinementOptions): IAutoMovieQuadraticRefinementResult {
-    return refineAutoMovieQuadraticProgramImplementation(input, initial, options);
+    return refineQuadraticProgramImplementation(input, initial, options);
   }
 
   /**
@@ -992,7 +992,7 @@ export namespace AutoMovieEngineMath {
    * independent owners' obligations, not a promise of this equivalence.
    */
   export function resolveMeshPhysicalVertices(mesh: Pick<IAutoMovieMesh, "positions" | "physicalVertices">): IAutoMovieResolvedPhysicalVertices {
-    return resolveAutoMovieMeshPhysicalVerticesImplementation(mesh);
+    return resolveMeshPhysicalVerticesImplementation(mesh);
   }
 
   /**
@@ -1082,7 +1082,7 @@ export namespace AutoMovieEngineMath {
    * bound or objective is substituted.
    */
   export function solveBoundedDisplacement(input: IAutoMovieSolveBoundedDisplacement.IInput): IAutoMovieSolveBoundedDisplacement.IResult {
-    return solveAutoMovieBoundedDisplacementImplementation(input);
+    return solveBoundedDisplacementImplementation(input);
   }
 
   /**
@@ -1122,7 +1122,7 @@ export namespace AutoMovieEngineMath {
    *   value is not finite: a caller's defect.
    */
   export function solveHalfPlaneProgram(lines: readonly IAutoMovieSolveHalfPlaneProgram.ILine[], radius: number, preferred: IAutoMovieSolveHalfPlaneProgram.IPoint, hard?: number): IAutoMovieSolveHalfPlaneProgram.IResult {
-    return solveAutoMovieHalfPlaneProgramImplementation(lines, radius, preferred, hard);
+    return solveHalfPlaneProgramImplementation(lines, radius, preferred, hard);
   }
 
   /**
@@ -1144,7 +1144,7 @@ export namespace AutoMovieEngineMath {
    * @see {@link https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/solver/implementations/default/settings.rs}
    */
   export function solveQuadraticInterior(data: IAutoMovieQuadraticConicProgram, workspace: Float64Array, originalCount: number): IAutoMovieSolveQuadraticKernel.IResult {
-    return solveAutoMovieQuadraticInteriorImplementation(data, workspace, originalCount);
+    return solveQuadraticInteriorImplementation(data, workspace, originalCount);
   }
 
   /**
@@ -1164,7 +1164,7 @@ export namespace AutoMovieEngineMath {
    * @see {@link https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/solver/core/solver.rs} for the pinned historical core.
    */
   export function solveQuadraticKernel(input: IAutoMovieSolveQuadraticKernel.IInput): IAutoMovieSolveQuadraticKernel.IResult {
-    return solveAutoMovieQuadraticKernelImplementation(input);
+    return solveQuadraticKernelImplementation(input);
   }
 
   /**
@@ -1181,7 +1181,7 @@ export namespace AutoMovieEngineMath {
    * solver status or objective decrease into a geometric validity certificate.
    */
   export function solveQuadraticProgram(input: IAutoMovieSolveQuadraticProgram.IInput): IAutoMovieSolveQuadraticProgram.IResult {
-    return solveAutoMovieQuadraticProgramImplementation(input);
+    return solveQuadraticProgramImplementation(input);
   }
 
   /**
@@ -1202,7 +1202,7 @@ export namespace AutoMovieEngineMath {
    * @see {@link https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/solver/implementations/default/settings.rs}
    */
   export function solveQuadraticStep(data: IAutoMovieQuadraticConicProgram, state: IAutoMovieQuadraticState, reading: IAutoMovieMeasureQuadraticState.IResult, factor: IAutoMovieCreateQuadraticFactor.IResult, constant: Float64Array, sigma: number, mu: number, damping: number, affine?: IAutoMovieQuadraticState): IAutoMovieQuadraticState | undefined {
-    return solveAutoMovieQuadraticStepImplementation(data, state, reading, factor, constant, sigma, mu, damping, affine);
+    return solveQuadraticStepImplementation(data, state, reading, factor, constant, sigma, mu, damping, affine);
   }
 
   /**
@@ -1225,7 +1225,7 @@ export namespace AutoMovieEngineMath {
    * have finite-memory limits, not full-row scalability.
    */
   export function solveQuadraticWorkingSetStep(diagonal: readonly number[], linear: readonly number[], rows: readonly IAutoMovieQuadraticRow[], bounds: readonly number[], free: readonly boolean[], preceding: readonly number[]): IAutoMovieQuadraticWorkingSetStep {
-    return solveAutoMovieQuadraticWorkingSetStepImplementation(diagonal, linear, rows, bounds, free, preceding);
+    return solveQuadraticWorkingSetStepImplementation(diagonal, linear, rows, bounds, free, preceding);
   }
 
   /**
@@ -1307,7 +1307,7 @@ export namespace AutoMovieEngineMath {
   export function tetrahedralizeDelaunay(
     points: readonly IAutoMovieVector3[],
   ): IAutoMovieTetrahedralizedMesh {
-    return AutoMovieEngineMathDelaunay.tetrahedralizeAutoMovieDelaunay(points);
+    return AutoMovieEngineMathDelaunay.tetrahedralizeDelaunay(points);
   }
 
   /** Each point's mesh neighbours in ascending order. */

@@ -11,10 +11,10 @@ import type {
 
 import { AutoMovieEngineBernsteinAlgebra64 as B } from "./AutoMovieEngineBernsteinAlgebra64";
 import { AutoMovieEngineBernsteinGrid64 as G } from "./AutoMovieEngineBernsteinGrid64";
-import { AutoMovieBicubicAtlasVertex64 } from "./curve/internal/AutoMovieBicubicAtlasVertex64";
+import { bicubicAtlasVertex64 } from "./curve/internal/bicubicAtlasVertex64";
 import { AutoMovieEngineCanonicalBoundary64 as Q } from "./AutoMovieEngineCanonicalBoundary64";
 import { AutoMovieEngineCurveMath64 as V } from "./AutoMovieEngineCurveMath64";
-import { triangulateAutoMovieParameterCell64 } from "./curve/internal/triangulateAutoMovieParameterCell64";
+import { triangulateParameterCell64 } from "./curve/internal/triangulateParameterCell64";
 import { overflowsBinary64 } from "../math/internal/overflowsBinary64";
 
 /**
@@ -282,7 +282,7 @@ export namespace AutoMovieEngineCurveBicubicAtlasEmit64 {
         ),
       );
       const local: Map<string, Vertex> = new Map();
-      const vertex: (sample: Sample) => Vertex = AutoMovieBicubicAtlasVertex64(
+      const vertex: (sample: Sample) => Vertex = bicubicAtlasVertex64(
         input,
         prepared,
         registered,
@@ -339,7 +339,7 @@ export namespace AutoMovieEngineCurveBicubicAtlasEmit64 {
           },
         );
         let counted: boolean = false;
-        for (const samples of triangulateAutoMovieParameterCell64(
+        for (const samples of triangulateParameterCell64(
           boundary,
           (sample: Sample): [number, number] => [sample.u, sample.v],
         )) {

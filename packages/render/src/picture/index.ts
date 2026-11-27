@@ -1,2 +1,2 @@
-export * from "./AutoMovieRenderPicture.js";
-export * from "./AutoMovieRenderRasterSheet.js";
+export * from "./AutoMovieRenderPicture";
+export * from "./AutoMovieRenderRasterSheet";

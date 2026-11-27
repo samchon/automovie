@@ -9,7 +9,7 @@ import { createSignedOctahedron } from "../../internal/createSignedMeshFixture";
 import { nclose, throwsError } from "../../internal/predicates";
 
 /**
- * `createAutoMovieSignedMeshQuery(mesh, { boundary: "open" })` reads an
+ * `createSignedMeshQuery(mesh, { boundary: "open" })` reads an
  * oriented sheet's sides, reporting where the nearest feature lies on its rim.
  *
  * Fixture: the upper half of the unit octahedron, four faces on the square rim

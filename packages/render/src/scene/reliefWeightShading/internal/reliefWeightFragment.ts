@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-import { AutoMovieRenderReliefWeightTarget } from "../../AutoMovieRenderReliefWeightTarget.js";
+import { AutoMovieRenderReliefWeightTarget } from "../../AutoMovieRenderReliefWeightTarget";
 
 /*
  * Multiply base normal-map slopes by interpolated relief after their native

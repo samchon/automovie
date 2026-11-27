@@ -5,7 +5,7 @@ import type {
 
 /**
  * One edit of the inspector's request, as a control dispatches it to
- * `reduceAutoMovieInspectorState`.
+ * `reduceInspectorState`.
  *
  * Each action names one request key of the capture plan grammar and the change
  * to its text, so the edit goes through the grammar's own reader and a refusal

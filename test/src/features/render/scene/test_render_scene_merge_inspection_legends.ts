@@ -3,7 +3,7 @@ import { AutoMovieRenderInspectionMarks } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `mergeAutoMovieInspectionLegends` adds the counts of entries that share a
+ * `mergeInspectionLegends` adds the counts of entries that share a
  * label and colour, in first-seen order, and refuses a label given two
  * colours.
  *

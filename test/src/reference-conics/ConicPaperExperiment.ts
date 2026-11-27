@@ -14,7 +14,7 @@ export async function ConicPaperExperiment(): Promise<void> {
   const id: string = new Date().toISOString().replaceAll(":", "-").replaceAll(".", "-");
   const out: string = path.join(root, "test/.shots/conic-paper-study", id);
   await fs.mkdir(out, { recursive: true });
-  const sourceFiles: string[] = ["packages/recovery/src/curves/AutoMovieRecoveryConicApproximation.ts", "packages/recovery/src/curves/internal/findAutoMovieRecoveryCubicCriticalParameters.ts", "packages/recovery/src/curves/approximateAutoMovieRecoveryConicsAhn.ts", "packages/recovery/src/curves/approximateAutoMovieRecoveryConicsGhosh.ts", ...["Input", "Fit", "Loft", "Render", "Experiment"].map((name: string): string => "test/src/reference-conics/ConicPaper" + name + ".ts")];
+  const sourceFiles: string[] = ["packages/recovery/src/curves/AutoMovieRecoveryConicApproximation.ts", "packages/recovery/src/curves/internal/findRecoveryCubicCriticalParameters.ts", "packages/recovery/src/curves/internal/approximateRecoveryConicsAhn.ts", "packages/recovery/src/curves/internal/approximateRecoveryConicsGhosh.ts", ...["Input", "Fit", "Loft", "Render", "Experiment"].map((name: string): string => "test/src/reference-conics/ConicPaper" + name + ".ts")];
   const sourceIdentity: { file: string; sha256: string }[] = [];
   for (const file of sourceFiles) sourceIdentity.push({ file, sha256: createHash("sha256").update(await fs.readFile(path.join(root, file))).digest("hex") });
   const packet: I.Packet = await I.load(root);

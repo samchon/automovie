@@ -6,7 +6,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { realizeAutoMovieGeometry } from "../../geometry/internal/realizeAutoMovieGeometry";
+import { realizeGeometry } from "../../geometry/internal/realizeGeometry";
 import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { placeTransformedPoint } from "./placeTransformedPoint";
@@ -45,7 +45,7 @@ export function computeModelRestExtent(
   const min: IAutoMovieVector3 = { x: Infinity, y: Infinity, z: Infinity };
   const max: IAutoMovieVector3 = { x: -Infinity, y: -Infinity, z: -Infinity };
   for (const part of model.parts) {
-    const positions: readonly number[] = realizeAutoMovieGeometry(part.geometry)
+    const positions: readonly number[] = realizeGeometry(part.geometry)
       .mesh.positions;
     const local: IAutoMovieTransform | null = part.transform;
     const frame:

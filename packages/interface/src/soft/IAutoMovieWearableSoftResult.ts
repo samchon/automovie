@@ -3,7 +3,7 @@ import type { IAutoMovieWearableSoftBudget } from "./IAutoMovieWearableSoftBudge
 
 /**
  * CPU cloth state and admission facts returned by
- * simulateAutoMovieWearableSoftBody.
+ * simulateWearableSoftBody.
  */
 export interface IAutoMovieWearableSoftResult {
   /** Deterministic CPU-reference cloth state. */

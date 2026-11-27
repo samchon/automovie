@@ -1,10 +1,10 @@
-import type { IAutoMovieSemanticMask } from "./IAutoMovieSemanticMask.js";
-import type { IAutoMovieCaptureResolution } from "./IAutoMovieCaptureResolution.js";
-import type { IAutoMovieInspectionCamera } from "./IAutoMovieInspectionCamera.js";
-import type { IAutoMovieInspectionDiagnostics } from "./IAutoMovieInspectionDiagnostics.js";
-import type { IAutoMovieInspectionLegendEntry } from "./IAutoMovieInspectionLegendEntry.js";
+import type { IAutoMovieSemanticMask } from "./IAutoMovieSemanticMask";
+import type { IAutoMovieCaptureResolution } from "./IAutoMovieCaptureResolution";
+import type { IAutoMovieInspectionCamera } from "./IAutoMovieInspectionCamera";
+import type { IAutoMovieInspectionDiagnostics } from "./IAutoMovieInspectionDiagnostics";
+import type { IAutoMovieInspectionLegendEntry } from "./IAutoMovieInspectionLegendEntry";
 import type { IAutoMovieRasterLabel } from "./IAutoMovieRasterLabel";
-import type { IAutoMovieDrawnMouth } from "./IAutoMovieDrawnMouth.js";
+import type { IAutoMovieDrawnMouth } from "./IAutoMovieDrawnMouth";
 
 /**
  * What a draw page returns for one `IAutoMovieDrawCall`: the picture as base64
@@ -12,7 +12,7 @@ import type { IAutoMovieDrawnMouth } from "./IAutoMovieDrawnMouth.js";
  * the camera the view resolved to, and the paths each pattern resolved to.
  *
  * It crosses out of the page as JSON, so the picture is text;
- * `decodeAutoMovieDrawPixels` turns it back into a raster on the host. A
+ * `decodeDrawPixels` turns it back into a raster on the host. A
  * production scene can attach its findings and coverage from the same evaluated
  * sample.
  */

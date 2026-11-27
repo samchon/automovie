@@ -7,7 +7,7 @@ import { sweepBranchedSkeleton } from "../../internal/sweepBranchedSkeleton";
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * A volume-preserving sweep rig (`rigAutoMovieSweep`) refuses a posed scale
+ * A volume-preserving sweep rig (`rigSweep`) refuses a posed scale
  * that overflows instead of publishing it, and keeps its prior scales.
  *
  * Fixture: the branched body's left side sweep on its skeleton, scaled by 0.5

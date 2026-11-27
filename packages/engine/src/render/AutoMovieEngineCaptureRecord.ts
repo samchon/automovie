@@ -87,7 +87,9 @@ export namespace AutoMovieEngineCaptureRecord {
  */
 const CAPTURE_FILE_NAME: RegExp = /^(?!\.{1,2}$)[^/\\:\0]+$/u;
 
-/** A JSON object's fields before admission. */
+/*
+ * A JSON object's fields before admission.
+ */
 type IFields = Readonly<Record<string, unknown>>;
 
 /*

@@ -16,7 +16,7 @@ const FRAME: IAutoMovieDrawingFrame = {
 };
 
 /**
- * `autoMovieDrawingPlaneDistance` is the signed distance of a point from the
+ * `drawingPlaneDistance` is the signed distance of a point from the
  * frame's plane, positive on the side its normal faces.
  *
  * Scenarios:

@@ -10,7 +10,7 @@ import type {
 import { AutoMovieEngineScheduleError } from "./AutoMovieEngineScheduleError";
 
 /**
- * The state of one walk of a composition (`resolveAutoMovieSchedule`) and the
+ * The state of one walk of a composition (`resolveSchedule`) and the
  * readings of it every placement shares: the instants an anchor or a cue track
  * offers, the names placed so far, the instant an event names and the intent a
  * part begins with.

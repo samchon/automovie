@@ -21,10 +21,10 @@ import type {
 import { stand } from "../../actions/internal/stand";
 import { supportBalance } from "../../actions/internal/supportBalance";
 import { HumanSupportFrame } from "../../carrier/internal/HumanSupportFrame";
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionManner } from "../../compose/internal/motionManner";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { prepareBearingTrunkBalance } from "../../everyday/internal/prepareBearingTrunkBalance";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanPhysics } from "../../law/internal/HumanPhysics";
@@ -190,7 +190,7 @@ export namespace crawl {
     const body: IAutoMovieMotionHumanBody = context.body;
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const cycles: number = HumanBound.whole("count", context.params.count ?? 3);
-    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+    const modifiers: IAutoMovieMotionManner.IModifiers = motionManner(
       context,
       context.params.manner,
     );
@@ -387,7 +387,7 @@ export namespace crawl {
           { name: `${limb}Touchdown${k}`, seconds: lift(limb, k) + swing },
         );
     const duration: number = downAt + cycles * period + 0.3;
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(
+    const clock: IAutoMovieMotionClock = motionClock(
       duration,
       instants,
     );
@@ -461,7 +461,7 @@ export namespace crawl {
     // A crawl ends on the hands and the knees, or crouched over the hands
     // and the feet, and the next act is entered on that base.
     return prepareDryKneeSupport(context, {
-      ...composeAutoMovieMotionHumanAction({
+      ...composeMotionHumanAction({
         base: AutoMovieMotionHumanBase.still(duration, standing, contacts),
         clock,
         contact: "down",

@@ -53,7 +53,7 @@ import { planBendStrategy } from "./planBendStrategy";
  *
  * The descent takes the time of a movement that stops on a target for the
  * hand's travel, the package's timing owner for aimed movements
- * (`AutoMovieMotionHumanTiming.aimed`, McIntosh et al. 2018's two-factor fit,
+ * (`motionHumanTiming.aimed`, McIntosh et al. 2018's two-factor fit,
  * the palm's target a point), scaled from 1.4 to 1.0 by the `speed` axis; the
  * hand holds for `hold` seconds and the rise takes the same time. Events:
  * `contact` and `deepest` at the bottom, `upright` at the end. A target the

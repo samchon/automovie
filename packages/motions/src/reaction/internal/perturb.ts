@@ -1,12 +1,12 @@
 import { AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieMotionHumanActionName, IAutoMovieMotionClock, IAutoMovieMotionEvent, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanEntryState, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanForce, IAutoMovieMotionHumanImpulse, IAutoMovieMotionHumanLean, IAutoMovieMotionHumanPerturb, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanStagger, IAutoMovieMotionTarget, IAutoMovieResolveBalanceOutcome, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanLean } from "../../compose/internal/AutoMovieMotionHumanLean";
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { HumanForceResponse } from "../../grappling/internal/HumanForceResponse";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanColliders } from "../../posture/internal/HumanColliders";
@@ -25,7 +25,7 @@ import { staggerRecovery } from "./staggerRecovery";
  * One perturbation law whose response follows from the forces on its performer:
  * the body absorbs an impulse within its base, catches it with capture steps,
  * or falls, as the engine's balance outcome decides from the impulse, the
- * body's mass and its support (`resolveAutoMovieBalanceOutcome`), or as the
+ * body's mass and its support (`resolveBalanceOutcome`), or as the
  * author fixes the outcome.
  *
  * The impulse is the sum of the impulses on the performer
@@ -199,7 +199,7 @@ export namespace perturb {
     // the step's landing; past the absorb, the landing is the one `stagger`
     // lays for this push, and a push it cannot catch is a fall.
     const balanced: IAutoMovieResolveBalanceOutcome.IOutcome = decide(
-      AutoMovieMotionHumanTiming.seconds(stagger.LANDING),
+      motionHumanTiming.seconds(stagger.LANDING),
     );
     const magnitude: number = Math.hypot(impulse.x, impulse.z);
     const speed: number = Math.hypot(balanced.velocity.x, balanced.velocity.z);
@@ -333,7 +333,7 @@ export namespace perturb {
     // Settled to within e^-4 (under 2 %) of the peak: x(t) / x(1 / ω0) =
     // τ e^(1 - τ) at τ = ω0 t, which falls to e^-4 where τ - ln τ = 5.
     const duration: number = SETTLED / w0;
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(duration, [
+    const clock: IAutoMovieMotionClock = motionClock(duration, [
       { name: "peak", seconds: 1 / w0 },
     ]);
     const local: IAutoMovieVector3 = HumanFrame.local(
@@ -347,7 +347,7 @@ export namespace perturb {
     const legsAt: ReturnType<typeof StrikingStance.prepareLegs> =
       StrikingStance.prepareLegs(body, feet);
     const composed: IAutoMovieMotionHumanActionPlan =
-      composeAutoMovieMotionHumanAction({
+      composeMotionHumanAction({
         base: AutoMovieMotionHumanBase.still(duration, {
           root: entry.root,
           yaw: entry.yaw,

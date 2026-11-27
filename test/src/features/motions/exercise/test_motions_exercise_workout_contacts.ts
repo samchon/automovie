@@ -3,8 +3,8 @@ import type {
   IAutoMovieMotionHumanContactWindow,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionClock
-} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionClock";
+  motionClock
+} from "../../../../../packages/motions/src/compose/internal/motionClock";
 import {
   workoutContacts
 } from "../../../../../packages/motions/src/exercise/workout/workoutContacts";
@@ -33,7 +33,7 @@ import { TestValidator } from "@nestia/e2e";
  * 5. A prop support with no prop named bears on the ground.
  */
 export function test_motions_exercise_workout_contacts(): void {
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock(4, [
+  const clock: IAutoMovieMotionClock = motionClock(4, [
     { name: "down", seconds: 1 },
     { name: "up", seconds: 2 },
     { name: "relax", seconds: 3 },

@@ -39,7 +39,7 @@ interface ICase {
 }
 
 /**
- * `AutoMovieViewHermiteDerivativeRange` bounds the derivative of a prepared
+ * `viewHermiteDerivativeRange` bounds the derivative of a prepared
  * Hermite curve from its actual coefficients and tells positive, negative and
  * mixed speed apart.
  *

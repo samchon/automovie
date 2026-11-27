@@ -1,6 +1,6 @@
-import type { AutoMovieGuidePass } from "../cinematics/AutoMovieGuidePass.js";
-import type { IAutoMovieSemanticMaskEntry } from "./IAutoMovieSemanticMaskEntry.js";
-import type { IAutoMovieDeliveryContentAudit } from "./IAutoMovieDeliveryContentAudit.js";
+import type { AutoMovieGuidePass } from "../cinematics/AutoMovieGuidePass";
+import type { IAutoMovieSemanticMaskEntry } from "./IAutoMovieSemanticMaskEntry";
+import type { IAutoMovieDeliveryContentAudit } from "./IAutoMovieDeliveryContentAudit";
 
 /**
  * The record `automovie render --passes` writes as `controls/record.json`

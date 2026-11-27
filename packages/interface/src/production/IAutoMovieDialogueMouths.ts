@@ -5,7 +5,7 @@ import type { IAutoMovieHumanVisemeWeights } from "../human/IAutoMovieHumanVisem
  * at any film second, read while the subject places that second.
  *
  * The draw page builds it over the film's `IAutoMovieDialogueMouthTrack` with
- * engine's `sampleAutoMovieDialogueMouth`, and records what each read returned,
+ * engine's `sampleDialogueMouth`, and records what each read returned,
  * so the render measures the mouth the subject was handed for the drawn second.
  * A subject reads one form per actor, the one its representation takes, and
  * layers it over the actor's authored expression.

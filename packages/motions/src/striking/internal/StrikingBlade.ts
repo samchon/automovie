@@ -16,9 +16,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
-import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
+import { motionHumanHeld } from "../../compose/internal/motionHumanHeld";
 import { AutoMovieMotionHumanTrunk } from "../../compose/internal/AutoMovieMotionHumanTrunk";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { HumanHand } from "../../posture/internal/HumanHand";
@@ -153,7 +153,7 @@ export namespace StrikingBlade {
       stroke.support !== null &&
       tool.held !== undefined &&
       context.entry.holds[other] === tool.held.prop
-        ? AutoMovieMotionHumanHeld(context, other, tool.held.prop)
+        ? motionHumanHeld(context, other, tool.held.prop)
         : undefined;
 
     // The hand as displayed at the entry, kept relative to the root so it
@@ -202,7 +202,7 @@ export namespace StrikingBlade {
     const borne = (): readonly [IAutoMovieVector3, IAutoMovieVector3] => ends;
     const progressAt = (seconds: number): number =>
       stroke.stop *
-      AutoMovieMotionClock.through(
+      motionClock.through(
         clock,
         ["strokeStart", "stroke", "strokeEnd"],
         seconds,
@@ -360,14 +360,14 @@ export namespace StrikingBlade {
         ...StrikingHeld.grips(tool),
         ...(supporting === undefined
           ? []
-          : [AutoMovieMotionHumanHeld.grip(supporting)]),
+          : [motionHumanHeld.grip(supporting)]),
       ],
       contact: clock.at(stroke.decisive ?? "stroke"),
       holds: [
         ...StrikingHeld.holds(context, tool),
         ...(supporting === undefined
           ? []
-          : [AutoMovieMotionHumanHeld.hold(context, supporting)]),
+          : [motionHumanHeld.hold(context, supporting)]),
       ],
       ...(tool.wields === undefined ? {} : { wields: tool.wields }),
       hands: stroke.support === null ? [tool.side] : [tool.side, other],

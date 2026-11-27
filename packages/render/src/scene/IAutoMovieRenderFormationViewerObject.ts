@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 import type * as THREE from "three";
 
-import type { IAutoMovieRenderFormationViewerStats } from "./IAutoMovieRenderFormationViewerStats.js";
+import type { IAutoMovieRenderFormationViewerStats } from "./IAutoMovieRenderFormationViewerStats";
 
 /** Built instance runtime consumed by a viewer host. */
 export interface IAutoMovieRenderFormationViewerObject {

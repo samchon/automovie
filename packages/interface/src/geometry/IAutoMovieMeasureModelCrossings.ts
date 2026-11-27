@@ -6,7 +6,7 @@ export namespace IAutoMovieMeasureModelCrossings {
    *
    * Each mesh part is first carried into the model frame by its own transform
    * and, when attached to a bone the rest pose resolves, by that bone's rest
-   * placement, the placement `autoMovieModelPartMatrices` owns; a part with
+   * placement, the placement `modelPartMatrices` owns; a part with
    * neither keeps its coordinates exactly. Bicubic recipes use the canonical
    * engine's retained finite mesh, including declared partial output;
    * primitives and unrecognized geometry remain outside this mesh crossing

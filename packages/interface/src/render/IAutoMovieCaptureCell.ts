@@ -1,7 +1,7 @@
 import type { AutoMovieInspectionShade } from "./AutoMovieInspectionShade";
-import type { IAutoMovieInspectionRequest } from "./IAutoMovieInspectionRequest.js";
-import type { IAutoMovieCaptureSelection } from "./IAutoMovieCaptureSelection.js";
-import type { IAutoMovieCaptureTime } from "./IAutoMovieCaptureTime.js";
+import type { IAutoMovieInspectionRequest } from "./IAutoMovieInspectionRequest";
+import type { IAutoMovieCaptureSelection } from "./IAutoMovieCaptureSelection";
+import type { IAutoMovieCaptureTime } from "./IAutoMovieCaptureTime";
 
 /**
  * One still of a capture, as data planned before anything is drawn: fixed by

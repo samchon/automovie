@@ -63,7 +63,7 @@ export namespace IAutoMovieMotionHumanHeld {
   /**
    * A prop in the grip frame of a hand that has not taken it yet: a grasp's
    * candidate wrist, the prop where it lies, the offset the grip would keep
-   * once it closed there. Input wrist of AutoMovieMotionHumanHeld.grasped. The
+   * once it closed there. Input wrist of motionHumanHeld.grasped. The
    * candidate hand's wrist, world.
    */
   export type IGraspedWrist = {
@@ -75,7 +75,7 @@ export namespace IAutoMovieMotionHumanHeld {
 
   /**
    * One of the prop's contacts in the hand's grip frame. Result returned by
-   * AutoMovieMotionHumanHeld.point. Its point from the grip socket, metres, and
+   * motionHumanHeld.point. Its point from the grip socket, metres, and
    * the unit direction its `+Y` runs, both in the hand bone's axes.
    */
   export type IPointResult = {

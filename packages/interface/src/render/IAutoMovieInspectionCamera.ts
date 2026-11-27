@@ -1,4 +1,4 @@
-import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3.js";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
 /**
  * The camera an inspection view resolved to, as a record keeps it so a later

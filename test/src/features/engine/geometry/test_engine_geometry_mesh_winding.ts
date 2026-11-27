@@ -8,7 +8,7 @@ import { TestValidator } from "@nestia/e2e";
 import { outwardBoxMesh } from "../../internal/outwardBoxMesh";
 
 /**
- * `createAutoMovieMeshWindingQuery` reads a point's generalized winding number:
+ * `createMeshWindingQuery` reads a point's generalized winding number:
  * the solid angle the surface subtends over 4 pi, telling solid from empty
  * space on closed, nearly closed, overlapping and reversed surfaces.
  *

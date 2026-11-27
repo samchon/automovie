@@ -1,9 +1,9 @@
 import type * as THREE from "three";
 
-import type { IAutoMovieRenderViewerSnapshotOptions } from "./IAutoMovieRenderViewerSnapshotOptions.js";
-import type { IAutoMovieRenderViewerSnapshotRenderer } from "./IAutoMovieRenderViewerSnapshotRenderer.js";
-import type { IAutoMovieRenderViewerSubject } from "./IAutoMovieRenderViewerSubject.js";
-import type { IAutoMovieRenderViewerSubjectPose } from "./IAutoMovieRenderViewerSubjectPose.js";
+import type { IAutoMovieRenderViewerSnapshotOptions } from "./IAutoMovieRenderViewerSnapshotOptions";
+import type { IAutoMovieRenderViewerSnapshotRenderer } from "./IAutoMovieRenderViewerSnapshotRenderer";
+import type { IAutoMovieRenderViewerSubject } from "./IAutoMovieRenderViewerSubject";
+import type { IAutoMovieRenderViewerSubjectPose } from "./IAutoMovieRenderViewerSubjectPose";
 
 /**
  * Borrowed scene, mutable camera, renderer and supplied subject/pose for

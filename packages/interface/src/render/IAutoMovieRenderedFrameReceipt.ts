@@ -1,5 +1,5 @@
 /**
- * Written beauty-frame receipt emitted by renderAutoMovieDrawnVideo after the
+ * Written beauty-frame receipt emitted by renderDrawnVideo after the
  * PNG write resolves. index and seconds preserve output order and subject time,
  * file is the host destination, and hash is the SHA-256 raster identity
  * including dimensions. This is distinct from IAutoMovieCapturedFrame's

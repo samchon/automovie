@@ -1,20 +1,20 @@
-import type { IAutoMovieSectionPlane } from "../index.js";
-import type { AutoMovieInspectionShade } from "./AutoMovieInspectionShade.js";
-import type { IAutoMovieInspectionColorAssignment } from "./IAutoMovieInspectionColorAssignment.js";
+import type { IAutoMovieSectionPlane } from "../index";
+import type { AutoMovieInspectionShade } from "./AutoMovieInspectionShade";
+import type { IAutoMovieInspectionColorAssignment } from "./IAutoMovieInspectionColorAssignment";
 
 /**
  * What one inspection picture shows of a scene: which objects and marks, under
  * which shade, which kinds of marks, which objects' travel, and where it is
  * cut.
  *
- * Every member has a value. The request `parseAutoMovieInspectionRequest`
+ * Every member has a value. The request `parseInspectionRequest`
  * returns when nothing is asked changes nothing: every object, the `beauty`
  * shade, no marks and no cut.
  */
 export interface IAutoMovieInspectionRequest {
   /**
    * Path patterns of the objects and marks to draw, read by
-   * `matchAutoMovieInspectionPath`. Empty draws every object and every mark of
+   * `matchInspectionPath`. Empty draws every object and every mark of
    * the asked kinds.
    */
   parts: string[];
@@ -32,7 +32,7 @@ export interface IAutoMovieInspectionRequest {
   surface: boolean;
 
   /**
-   * Kind patterns of the marks to draw, read by `matchAutoMovieInspectionPath`
+   * Kind patterns of the marks to draw, read by `matchInspectionPath`
    * against each mark's kind, such as `curve/section`, `defect` or `**`. Empty
    * draws no mark.
    */

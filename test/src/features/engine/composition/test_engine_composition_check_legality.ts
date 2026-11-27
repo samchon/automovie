@@ -7,7 +7,7 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `checkAutoMovieLegality` asks every rule about every entry and reports each
+ * `checkLegality` asks every rule about every entry and reports each
  * non-null answer with the rule id and the entry's index, entry by entry and
  * rule by rule in their declared order.
  *

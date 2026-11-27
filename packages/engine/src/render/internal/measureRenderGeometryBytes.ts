@@ -5,7 +5,7 @@ import type {
   IAutoMovieRenderModelCost,
 } from "@automovie/interface";
 
-import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
+import { compareRenderIds } from "./compareRenderIds";
 
 /*
  * The render inventory's geometry memory phase: the resident buffer bytes of
@@ -54,7 +54,7 @@ export function measureRenderGeometryBytes(props: {
 }): number {
   const { byId, costs, add }: typeof props = props;
   let geometryBytes: number = props.base;
-  for (const id of [...props.drawnModels].sort(compareAutoMovieRenderIds)) {
+  for (const id of [...props.drawnModels].sort(compareRenderIds)) {
     const cost: IAutoMovieRenderModelCost = costs.get(id)!;
     if (props.flattenedModels.has(id)) {
       // Flattening mixed RGB/bare parts gives every vertex a white-default RGB

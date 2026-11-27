@@ -1,10 +1,10 @@
 import type { IAutoMovieCamera } from "@automovie/interface";
 import type * as THREE from "three";
 
-import { assertAutoMovieViewerCameraDepthPrecision as assertImplementation } from "./internal/assertAutoMovieViewerCameraDepthPrecision.js";
-import { evaluateAutoMovieViewerCameraDepthPrecision as evaluateImplementation } from "./internal/evaluateAutoMovieViewerCameraDepthPrecision.js";
-import type { IAutoMovieRenderDepthPrecisionRenderer } from "./IAutoMovieRenderDepthPrecisionRenderer.js";
-import type { IAutoMovieRenderViewerCameraDepthPrecisionReport } from "./IAutoMovieRenderViewerCameraDepthPrecisionReport.js";
+import { assertViewerCameraDepthPrecision as assertImplementation } from "./internal/assertViewerCameraDepthPrecision";
+import { evaluateViewerCameraDepthPrecision as evaluateImplementation } from "./internal/evaluateViewerCameraDepthPrecision";
+import type { IAutoMovieRenderDepthPrecisionRenderer } from "./IAutoMovieRenderDepthPrecisionRenderer";
+import type { IAutoMovieRenderViewerCameraDepthPrecisionReport } from "./IAutoMovieRenderViewerCameraDepthPrecisionReport";
 
 /** Public operations for the viewer camera's declared depth precision. */
 export namespace AutoMovieRenderViewerCameraDepthPrecision {

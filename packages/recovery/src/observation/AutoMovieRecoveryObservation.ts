@@ -130,18 +130,18 @@ import { RecoveryChartCollar as RecoveryChartCollarImplementation } from "./inte
 import { extractRecoveryImageFeatures as extractImageFeaturesOperation } from "./internal/extractRecoveryImageFeatures";
 import { linkRecoveryCameraTracks as linkCameraTracksOperation } from "./internal/linkRecoveryCameraTracks";
 import { observeRecoveryCameraSet as observeCameraSetOperation } from "./internal/observeRecoveryCameraSet";
-import { estimateAutoMovieRecoveryCameraMap as estimateCameraMapOperation } from "./internal/estimateAutoMovieRecoveryCameraMap";
-import { estimateAutoMovieRecoveryCameraPair as estimateCameraPairOperation } from "./internal/estimateAutoMovieRecoveryCameraPair";
-import { estimateAutoMovieRecoveryCameraScene as estimateCameraSceneOperation } from "./internal/estimateAutoMovieRecoveryCameraScene";
-import { observeAutoMovieRecovery as observeMeshOperation } from "./internal/observeAutoMovieRecovery";
-import { observeAutoMovieRecoveryAtlas as observeAtlasOperation } from "./internal/observeAutoMovieRecoveryAtlas";
-import { observeAutoMovieRecoveryImages as observeImagesOperation } from "./internal/observeAutoMovieRecoveryImages";
-import { observeAutoMovieRecoveryPolyline as observePolylineOperation } from "./internal/observeAutoMovieRecoveryPolyline";
-import { observeAutoMovieRecoverySections as observeSectionsOperation } from "./internal/observeAutoMovieRecoverySections";
-import { observeAutoMovieRecoverySlabs as observeSlabsOperation } from "./internal/observeAutoMovieRecoverySlabs";
-import { prepareAutoMovieRecoveryInput as prepareInputOperation } from "./internal/prepareAutoMovieRecoveryInput";
-import { resumeAutoMovieRecoveryContours as resumeContoursOperation } from "./internal/resumeAutoMovieRecoveryContours";
-import { transportAutoMovieRecoveryObservationChart as transportChartOperation } from "./internal/transportAutoMovieRecoveryObservationChart";
+import { estimateRecoveryCameraMap as estimateCameraMapOperation } from "./internal/estimateRecoveryCameraMap";
+import { estimateRecoveryCameraPair as estimateCameraPairOperation } from "./internal/estimateRecoveryCameraPair";
+import { estimateRecoveryCameraScene as estimateCameraSceneOperation } from "./internal/estimateRecoveryCameraScene";
+import { observeRecovery as observeMeshOperation } from "./internal/observeRecovery";
+import { observeRecoveryAtlas as observeAtlasOperation } from "./internal/observeRecoveryAtlas";
+import { observeRecoveryImages as observeImagesOperation } from "./internal/observeRecoveryImages";
+import { observeRecoveryPolyline as observePolylineOperation } from "./internal/observeRecoveryPolyline";
+import { observeRecoverySections as observeSectionsOperation } from "./internal/observeRecoverySections";
+import { observeRecoverySlabs as observeSlabsOperation } from "./internal/observeRecoverySlabs";
+import { prepareRecoveryInput as prepareInputOperation } from "./internal/prepareRecoveryInput";
+import { resumeRecoveryContours as resumeContoursOperation } from "./internal/resumeRecoveryContours";
+import { transportRecoveryObservationChart as transportChartOperation } from "./internal/transportRecoveryObservationChart";
 
 /** Public camera, mesh, image and contour observation operations. */
 export namespace AutoMovieRecoveryObservation {

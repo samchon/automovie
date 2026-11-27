@@ -14,15 +14,15 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionHumanLegPhrase } from "../../compose/internal/AutoMovieMotionHumanLegPhrase";
 import { AutoMovieMotionHumanPlaced } from "../../compose/internal/AutoMovieMotionHumanPlaced";
 import { AutoMovieMotionHumanTrunk } from "../../compose/internal/AutoMovieMotionHumanTrunk";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionManner } from "../../compose/internal/motionManner";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanPhysics } from "../../law/internal/HumanPhysics";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
@@ -68,13 +68,13 @@ export function exercisePlan(
     0,
     "s",
   );
-  const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+  const modifiers: IAutoMovieMotionManner.IModifiers = motionManner(
     context,
     p.manner,
   );
   const top: number = 0.3;
-  const timed: IAutoMovieMotionClock = AutoMovieMotionClock.sequence([
-    ...AutoMovieMotionClock.repeat(
+  const timed: IAutoMovieMotionClock = motionClock.sequence([
+    ...motionClock.repeat(
       [
         { name: "eccentricStart", seconds: eccentricSeconds },
         { name: "bottom", seconds: bottomPauseSeconds },
@@ -84,8 +84,8 @@ export function exercisePlan(
       reps,
     ),
   ]);
-  const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
-    AutoMovieMotionClock(timed.duration, [
+  const clock: IAutoMovieMotionClock = motionManner.time(
+    motionClock(timed.duration, [
       ...timed.instants,
       { name: "relax", seconds: timed.duration },
     ]),
@@ -126,7 +126,7 @@ export function exercisePlan(
   const envelopes: ((seconds: number) => number)[] = Array.from(
     { length: reps },
     (_: unknown, index: number): ((seconds: number) => number) =>
-      AutoMovieMotionClock.prepareEnvelope(
+      motionClock.prepareEnvelope(
         clock,
         [`eccentricStart${index + 1}`, `bottom${index + 1}`],
         [`concentricStart${index + 1}`, `top${index + 1}`],
@@ -436,7 +436,7 @@ export function exercisePlan(
     }
   }
   const plan: IAutoMovieMotionHumanActionPlan =
-    composeAutoMovieMotionHumanAction({
+    composeMotionHumanAction({
       base: AutoMovieMotionHumanBase.still(clock.duration, entry, contacts),
       clock,
       primitives,

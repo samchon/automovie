@@ -13,12 +13,12 @@ import type {
   IAutoMovieProductionRenderTier,
 } from "@automovie/interface";
 
-import { AutoMovieRenderCaption } from "../../caption/AutoMovieRenderCaption.js";
-import { assertSingleGuidePass } from "./assertSingleGuidePass.js";
-import { normalizeAudioAssets } from "./normalizeAudioAssets.js";
-import { normalizeRenderTier } from "./normalizeRenderTier.js";
-import { resolveProductionRenderTierFrameFormat } from "./resolveProductionRenderTierFrameFormat.js";
-import { validDigest } from "./validDigest.js";
+import { AutoMovieRenderCaption } from "../../caption/AutoMovieRenderCaption";
+import { assertSingleGuidePass } from "./assertSingleGuidePass";
+import { normalizeAudioAssets } from "./normalizeAudioAssets";
+import { normalizeRenderTier } from "./normalizeRenderTier";
+import { resolveProductionRenderTierFrameFormat } from "./resolveProductionRenderTierFrameFormat";
+import { validDigest } from "./validDigest";
 
 /*
  * Plan the content-addressed render chunks and publication tracks of one

@@ -17,12 +17,12 @@ import type {
 } from "@automovie/interface";
 
 import { HumanBall } from "../../ballStrike/internal/HumanBall";
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanElbowPlace } from "../../compose/internal/AutoMovieMotionHumanElbowPlace";
+import { motionHumanElbowPlace } from "../../compose/internal/motionHumanElbowPlace";
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
@@ -374,9 +374,9 @@ export namespace juggle {
       ),
     ];
     const composed: IAutoMovieMotionHumanActionPlan =
-      composeAutoMovieMotionHumanAction({
+      composeMotionHumanAction({
         base: AutoMovieMotionHumanBase.still(end, entry, contacts),
-        clock: AutoMovieMotionClock(end, instants),
+        clock: motionClock(end, instants),
         primitives: (["left", "right"] as const).map(
           (side: AutoMovieHumanSide): IAutoMovieMotionHumanPrimitive => ({
             channels: [side === "left" ? "leftArm" : "rightArm"],
@@ -393,7 +393,7 @@ export namespace juggle {
                 // The elbow placed out and below the hand, so the hand's
                 // rotation cannot flip it across the arm.
                 [side === "left" ? "leftArm" : "rightArm"]:
-                  AutoMovieMotionHumanElbowPlace(
+                  motionHumanElbowPlace(
                     body,
                     posture,
                     side,

@@ -1,13 +1,13 @@
 import * as THREE from "three";
 
-import type { AutoMovieRenderModeMesh } from "./AutoMovieRenderModeMesh.js";
-import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind.js";
-import type { IAutoMovieRenderModeHandle } from "../IAutoMovieRenderModeHandle.js";
-import { AutoMovieRenderPoseOverlayName } from "../AutoMovieRenderPoseOverlayName.js";
-import { collectAutoMovieRenderModeMeshes } from "./collectAutoMovieRenderModeMeshes.js";
-import { guardAutoMovieRenderModeRetirement } from "./guardAutoMovieRenderModeRetirement.js";
-import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
-import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
+import type { AutoMovieRenderModeMesh } from "./AutoMovieRenderModeMesh";
+import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind";
+import type { IAutoMovieRenderModeHandle } from "../IAutoMovieRenderModeHandle";
+import { AutoMovieRenderPoseOverlayName } from "../AutoMovieRenderPoseOverlayName";
+import { collectRenderModeMeshes } from "./collectRenderModeMeshes";
+import { guardRenderModeRetirement } from "./guardRenderModeRetirement";
+import { restoreRenderModeOnce } from "./restoreRenderModeOnce";
+import { restoreRenderModeState } from "./restoreRenderModeState";
 
 /*
  * Hide meshes and draw actual bone-to-child-bone segments over black.
@@ -27,14 +27,14 @@ export const applyPoseMode: (
 ) => IAutoMovieRenderModeHandle = (
   scene: THREE.Scene,
 ): IAutoMovieRenderModeHandle => {
-  guardAutoMovieRenderModeRetirement(scene);
+  guardRenderModeRetirement(scene);
   const background:
     | THREE.Color
     | THREE.Texture<unknown, THREE.TextureEventMap>
     | null = scene.background;
   scene.background = new THREE.Color(0x000000);
   const hidden: { mesh: AutoMovieRenderModeMesh; visible: boolean }[] =
-    collectAutoMovieRenderModeMeshes(scene).map(
+    collectRenderModeMeshes(scene).map(
       (
         mesh: AutoMovieRenderModeMesh,
       ): { mesh: AutoMovieRenderModeMesh; visible: boolean } => {
@@ -92,10 +92,10 @@ export const applyPoseMode: (
     mode: "pose",
     semantic: null,
     update: place,
-    restore: restoreAutoMovieRenderModeOnce((): void => {
-      guardAutoMovieRenderModeRetirement(scene, {
+    restore: restoreRenderModeOnce((): void => {
+      guardRenderModeRetirement(scene, {
         run: (): void => {
-          restoreAutoMovieRenderModeState([
+          restoreRenderModeState([
             (): void => {
               scene.remove(overlay);
             },

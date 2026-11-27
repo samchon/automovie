@@ -1,10 +1,10 @@
 import type { IAutoMovieSemanticMaskBinding } from "@automovie/interface";
 import * as THREE from "three";
 
-import type { IAutoMovieRenderModeHandle } from "../IAutoMovieRenderModeHandle.js";
-import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
-import type { IAutoMovieRenderSemanticMaskHandle } from "../IAutoMovieRenderSemanticMaskHandle.js";
-import { AutoMovieRenderSemanticMask } from "../AutoMovieRenderSemanticMask.js";
+import type { IAutoMovieRenderModeHandle } from "../IAutoMovieRenderModeHandle";
+import { restoreRenderModeOnce } from "./restoreRenderModeOnce";
+import type { IAutoMovieRenderSemanticMaskHandle } from "../IAutoMovieRenderSemanticMaskHandle";
+import { AutoMovieRenderSemanticMask } from "../AutoMovieRenderSemanticMask";
 
 /*
  * Mask pass over the stable semantic palette the scene was handed.
@@ -36,6 +36,6 @@ export const applySemanticMaskMode: (
       unaddressed: handle.unaddressed,
       unresolved: handle.unresolved,
     },
-    restore: restoreAutoMovieRenderModeOnce(handle.restore),
+    restore: restoreRenderModeOnce(handle.restore),
   };
 };

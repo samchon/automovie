@@ -21,7 +21,7 @@ export namespace IAutoMovieInterpolateSpline {
   export type IProps = {
     /**
      * Nonempty finite strictly increasing abscissae, copied into compiled
-     * storage. interpolateAutoMovieSpline rejects duplicates and unsorted
+     * storage. interpolateSpline rejects duplicates and unsorted
      * values; query arguments and period use the same caller-chosen unit.
      */
     knots: readonly number[];

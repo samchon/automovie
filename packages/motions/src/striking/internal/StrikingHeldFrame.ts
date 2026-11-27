@@ -8,7 +8,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
+import { motionHumanHeld } from "../../compose/internal/motionHumanHeld";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
@@ -37,7 +37,7 @@ export namespace StrikingHeldFrame {
   ): IAutoMovieMotionHumanStrikingHeld.ITool {
     const prop: string = held.prop;
     const side: AutoMovieHumanSide = held.side;
-    const tip: IReadTip = AutoMovieMotionHumanHeld.point(held, points.tip);
+    const tip: IReadTip = motionHumanHeld.point(held, points.tip);
     // An explicit origin defines the working line separately from the
     // point's normal. Without one, a working
     // affordance whose +Y the archetype declares along the tool (a muzzle, a
@@ -51,7 +51,7 @@ export namespace StrikingHeldFrame {
         ? undefined
         : AutoMovieEngineVector3.subtract(
             tip.point,
-            AutoMovieMotionHumanHeld.point(held, points.from).point,
+            motionHumanHeld.point(held, points.from).point,
           );
     if (runFrom !== undefined && AutoMovieEngineVector3.length(runFrom) === 0)
       throw new AutoMovieMotionHumanRefusal({
@@ -80,7 +80,7 @@ export namespace StrikingHeldFrame {
       held.affordances.some(
         (a: IAutoMovieAffordance): boolean => a.id === points.edge,
       )
-        ? AutoMovieMotionHumanHeld.point(held, points.edge)
+        ? motionHumanHeld.point(held, points.edge)
         : undefined;
     const run: number | undefined = held.affordances.find(
       (a: IAutoMovieAffordance): boolean => a.id === points.edge,

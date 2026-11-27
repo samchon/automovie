@@ -1,4 +1,4 @@
-import type { IAutoMovieRenderFormationCycleTake } from "./IAutoMovieRenderFormationCycleTake.js";
+import type { IAutoMovieRenderFormationCycleTake } from "./IAutoMovieRenderFormationCycleTake";
 
 /** Cycles one unit has turned over, and the take it is performing now. */
 export interface IAutoMovieRenderFormationCadence {

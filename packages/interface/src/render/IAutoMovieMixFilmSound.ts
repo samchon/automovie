@@ -1,10 +1,10 @@
-import type { IAutoMovieProductionFrameRate } from "../production/IAutoMovieProductionFrameRate.js";
-import type { IAutoMovieProductionSoundAnalysis } from "../production/IAutoMovieProductionSoundAnalysis.js";
-import type { IAutoMovieProductionSoundPlan } from "../production/IAutoMovieProductionSoundPlan.js";
-import type { IAutoMovieProductionTtsReceipt } from "../production/IAutoMovieProductionTtsReceipt.js";
-import type { IAutoMovieFilmSound } from "../production/IAutoMovieFilmSound.js";
-import type { IAutoMovieLoudnessIntent } from "../production/IAutoMovieLoudnessIntent.js";
-import type { IAutoMovieRenderedProductionSound } from "../production/IAutoMovieRenderedProductionSound.js";
+import type { IAutoMovieProductionFrameRate } from "../production/IAutoMovieProductionFrameRate";
+import type { IAutoMovieProductionSoundAnalysis } from "../production/IAutoMovieProductionSoundAnalysis";
+import type { IAutoMovieProductionSoundPlan } from "../production/IAutoMovieProductionSoundPlan";
+import type { IAutoMovieProductionTtsReceipt } from "../production/IAutoMovieProductionTtsReceipt";
+import type { IAutoMovieFilmSound } from "../production/IAutoMovieFilmSound";
+import type { IAutoMovieLoudnessIntent } from "../production/IAutoMovieLoudnessIntent";
+import type { IAutoMovieRenderedProductionSound } from "../production/IAutoMovieRenderedProductionSound";
 
 /**
  * Inputs and result of mixing a film's sound list into its delivered
@@ -15,7 +15,7 @@ export namespace IAutoMovieMixFilmSound {
    * A film's sound list, its clock, and the host that reads the files the list
    * names.
    *
-   * Render's `mixAutoMovieFilmSound` reads every line's WAVE file and receipt
+   * Render's `mixFilmSound` reads every line's WAVE file and receipt
    * and every cue's asset through `read`, admits each receipt against its
    * bytes, decodes every file at 48 kHz, builds the sound plan on this clock
    * and mixes it with engine's `renderProductionSound`, levelling each line to
@@ -67,7 +67,7 @@ export namespace IAutoMovieMixFilmSound {
   }
 
   /**
-   * One adopted line as render's `admitAutoMovieFilmDialogue` admits and places
+   * One adopted line as render's `admitFilmDialogue` admits and places
    * it, which the mix, the dialogue mouths and the lip-sync measure share.
    */
   export interface ILine {

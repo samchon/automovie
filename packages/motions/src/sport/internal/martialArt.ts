@@ -20,7 +20,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
@@ -28,8 +28,8 @@ import { AutoMovieMotionHumanLean } from "../../compose/internal/AutoMovieMotion
 import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionHumanPlaced } from "../../compose/internal/AutoMovieMotionHumanPlaced";
 import { AutoMovieMotionHumanTargetGrid } from "../../compose/internal/AutoMovieMotionHumanTargetGrid";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionManner } from "../../compose/internal/motionManner";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanPerformanceTempo } from "../../perform/internal/HumanPerformanceTempo";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
@@ -118,7 +118,7 @@ export namespace martialArt {
     )
       return stancePhrase(context, p.kind, hold);
 
-    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+    const modifiers: IAutoMovieMotionManner.IModifiers = motionManner(
       context,
       p.manner,
     );
@@ -155,8 +155,8 @@ export namespace martialArt {
     const step: number = p.kind === "taiChiPush" ? PUSH : 0.6;
     const middle: number =
       p.kind === "chokuZuki" ? count * 2 * PUNCH + PUNCH : hold;
-    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
-      AutoMovieMotionClock.phrase({
+    const clock: IAutoMovieMotionClock = motionManner.time(
+      motionClock.phrase({
         prepare: step,
         attack: p.kind === "taiChiPush" ? PUSH : middle,
         follow: p.kind === "taiChiPush" ? PUSH : 0,
@@ -489,7 +489,7 @@ export namespace martialArt {
           }),
         );
     }
-    return composeAutoMovieMotionHumanAction({
+    return composeMotionHumanAction({
       base: AutoMovieMotionHumanBase.still(clock.duration, entry, contacts),
       clock,
       primitives,
@@ -510,7 +510,7 @@ function stancePhrase(
       at,
       kind,
       hold,
-      AutoMovieMotionManner(at, at.params.manner),
+      motionManner(at, at.params.manner),
     ),
   );
 }

@@ -16,7 +16,7 @@ import type {
 
 import { AutoMovieMotionHumanArmTarget } from "../../compose/internal/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
-import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
+import { motionHumanHeld } from "../../compose/internal/motionHumanHeld";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
@@ -63,8 +63,8 @@ export function WorkoutLoad(
     ),
   );
   if (load.other === undefined) {
-    const held: ReturnType<typeof AutoMovieMotionHumanHeld> =
-      AutoMovieMotionHumanHeld(context, side, load.prop);
+    const held: ReturnType<typeof motionHumanHeld> =
+      motionHumanHeld(context, side, load.prop);
     return {
       apply: (
         posture: IAutoMovieMotionHumanPosture,
@@ -72,8 +72,8 @@ export function WorkoutLoad(
         ...posture,
         joints: { ...posture.joints, ...closed },
       }),
-      contacts: [AutoMovieMotionHumanHeld.grip(held)],
-      holds: [AutoMovieMotionHumanHeld.hold(context, held)],
+      contacts: [motionHumanHeld.grip(held)],
+      holds: [motionHumanHeld.hold(context, held)],
       hands: [side],
     };
   }

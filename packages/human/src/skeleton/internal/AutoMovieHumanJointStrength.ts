@@ -11,13 +11,21 @@ export namespace AutoMovieHumanJointStrength {
    */
   export const AGE: number = 40;
 
-  /** The person the strength is evaluated for. */
+  /*
+   * The person the strength is evaluated for.
+   */
   export interface IPerson {
-    /** True for a man. */
+    /*
+     * True for a man.
+     */
     male: boolean;
-    /** Stature, metres. */
+    /*
+     * Stature, metres.
+     */
     height: number;
-    /** Body mass, kilograms. */
+    /*
+     * Body mass, kilograms.
+     */
     mass: number;
   }
 

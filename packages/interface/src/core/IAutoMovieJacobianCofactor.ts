@@ -1,6 +1,6 @@
 /**
  * The determinant and cofactor matrix of one 3×3 deformation Jacobian, as
- * `cofactorAutoMovieJacobian` returns them.
+ * `cofactorJacobian` returns them.
  *
  * The cofactor matrix is `det(J) · J⁻ᵀ`, in row-major order with dimensionless
  * entries, so multiplying an oriented area vector or normal by it gives the

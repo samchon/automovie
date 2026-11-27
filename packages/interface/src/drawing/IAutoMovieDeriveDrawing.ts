@@ -9,7 +9,7 @@ export namespace IAutoMovieDeriveDrawing {
    * Throws an `Error` when the design fails `validateBuiltEnvironment`, naming
    * the first violation, because a drawing of a graph that does not resolve
    * would be a picture of nothing handed on as evidence. Throws when the view
-   * is degenerate, as `autoMovieDrawingFrame` describes, and when it declares
+   * is degenerate, as `drawingFrame` describes, and when it declares
    * two dimensions or two annotations with one id, since a consumer addresses
    * them by id.
    *

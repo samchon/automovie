@@ -131,7 +131,7 @@ export namespace prepareSkeletonPoseResolution {
     return rig.resolve({ skeleton: "", root: null, joints: [] });
   }
 
-  /**
+  /*
    * Immutable prepared FK of one fixed rig
    * (`IAutoMovieSkeletonPoseResolution.IRig`).
    */

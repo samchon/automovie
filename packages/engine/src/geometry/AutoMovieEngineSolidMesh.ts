@@ -6,7 +6,7 @@ import type {
 
 import { AutoMovieEngineSolidMeshTessellate } from "./AutoMovieEngineSolidMeshTessellate";
 import { AutoMovieEngineSolidMeshWrite } from "./AutoMovieEngineSolidMeshWrite";
-import { faceAutoMovieSolidMesh } from "./construction/internal/faceAutoMovieSolidMesh";
+import { faceSolidMesh } from "./construction/internal/faceSolidMesh";
 
 /** Indexed source surfaces with authoritative shared boundary identities. */
 export namespace AutoMovieEngineSolidMesh {
@@ -50,7 +50,7 @@ export namespace AutoMovieEngineSolidMesh {
     mesh: IAutoMovieSolidMesh.IMesh,
     input: IAutoMovieSolidMesh.IFace,
   ): IAutoMovieSolidMesh.IOpen[] {
-    return faceAutoMovieSolidMesh(mesh, input);
+    return faceSolidMesh(mesh, input);
   }
 
   /**

@@ -1,10 +1,10 @@
-import { clampAutoMovieUnitInterval } from "../math/internal/clampAutoMovieUnitInterval";
+import { clampUnitInterval } from "../math/internal/clampUnitInterval";
 import { lerp as scalarLerp } from "../math/internal/lerp";
 
 /** Stateless scalar envelopes in seconds, normalized progress and radians. */
 export namespace AutoMovieEngineEnvelope {
   /** Closed-unit progress, with NaN preserved. */
-  export const unit: (value: number) => number = clampAutoMovieUnitInterval;
+  export const unit: (value: number) => number = clampUnitInterval;
   /** Endpoint-exact scalar interpolation; progress may extrapolate. */
   export function lerp(from: number, to: number, progress: number): number {
     return scalarLerp(from, to, progress);

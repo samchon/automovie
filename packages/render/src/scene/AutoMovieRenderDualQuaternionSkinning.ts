@@ -1,9 +1,9 @@
 import type * as THREE from "three";
-import { applyDualQuaternionSkinning as applyDualQuaternionSkinningImplementation } from "./dualQuaternionSkinning/internal/applyDualQuaternionSkinning.js";
-import { type IAutoMovieRenderMaterialShaderPatch } from "./IAutoMovieRenderMaterialShaderPatch.js";
-import { createDualQuaternionSkinningShaderPatch as createDualQuaternionSkinningShaderPatchImplementation } from "./dualQuaternionSkinning/internal/createDualQuaternionSkinningShaderPatch.js";
-import { dualQuaternionSkinningOf as dualQuaternionSkinningOfImplementation } from "./dualQuaternionSkinning/internal/dualQuaternionSkinningOf.js";
-import { dualQuaternionSkinningVertex as dualQuaternionSkinningVertexImplementation } from "./dualQuaternionSkinning/internal/dualQuaternionSkinningVertex.js";
+import { applyDualQuaternionSkinning as applyDualQuaternionSkinningImplementation } from "./dualQuaternionSkinning/internal/applyDualQuaternionSkinning";
+import { type IAutoMovieRenderMaterialShaderPatch } from "./IAutoMovieRenderMaterialShaderPatch";
+import { createDualQuaternionSkinningShaderPatch as createDualQuaternionSkinningShaderPatchImplementation } from "./dualQuaternionSkinning/internal/createDualQuaternionSkinningShaderPatch";
+import { dualQuaternionSkinningOf as dualQuaternionSkinningOfImplementation } from "./dualQuaternionSkinning/internal/dualQuaternionSkinningOf";
+import { dualQuaternionSkinningVertex as dualQuaternionSkinningVertexImplementation } from "./dualQuaternionSkinning/internal/dualQuaternionSkinningVertex";
 
 /** Public operations for Auto Movie Render Dual Quaternion Skinning. */
 export namespace AutoMovieRenderDualQuaternionSkinning {
@@ -38,7 +38,7 @@ export namespace AutoMovieRenderDualQuaternionSkinning {
 
   /**
    * Replace a vertex shader's linear blend skinning with dual quaternion
-   * skinning, the formula `skinAutoMovieMesh` evaluates in the engine.
+   * skinning, the formula `skinMesh` evaluates in the engine.
    *
    * Three's bone matrix for joint `j` is `G P_j R_j^-1`, with `G` the model's
    * world placement at draw time, and its attached bind gives `bindMatrixInverse

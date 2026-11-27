@@ -1,7 +1,7 @@
 import type { IAutoMovieMesh } from "@automovie/interface";
 
-import { buildAutoMovieMeshQueryHierarchy } from "../../internal/buildAutoMovieMeshQueryHierarchy";
-import { refitAutoMovieMeshQueryHierarchy } from "../../internal/refitAutoMovieMeshQueryHierarchy";
+import { buildMeshQueryHierarchy } from "../../internal/buildMeshQueryHierarchy";
+import { refitMeshQueryHierarchy } from "../../internal/refitMeshQueryHierarchy";
 import { triangleIndicesOf } from "../../internal/triangleIndicesOf";
 import type { IAutoMovieMeshCrossingSnapshot } from "./IAutoMovieMeshCrossingSnapshot";
 import type { IAutoMovieMeshCrossingTriangle } from "./IAutoMovieMeshCrossingTriangle";
@@ -45,7 +45,7 @@ export namespace AutoMovieMeshCrossingGeometry {
       hierarchy:
         triangles.length === 0
           ? undefined
-          : buildAutoMovieMeshQueryHierarchy([...triangles]),
+          : buildMeshQueryHierarchy([...triangles]),
     };
   }
 
@@ -73,7 +73,7 @@ export namespace AutoMovieMeshCrossingGeometry {
       hierarchy:
         source.hierarchy === undefined
           ? undefined
-          : refitAutoMovieMeshQueryHierarchy(
+          : refitMeshQueryHierarchy(
               source.hierarchy,
               (
                 triangle: IAutoMovieMeshCrossingTriangle,

@@ -13,9 +13,9 @@ import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * delivers, so an observation made after a wall was removed is a diagram about
  * the production rather than evidence about that image; `IAutoMovieCamera`
  * states the exclusion and the condition that reopens it.
- * `autoMovieSectionPlaneDistance`, `autoMovieSectionPlanesKeepPoint` and
- * `classifyAutoMovieSectionPlaneBox` evaluate it, and the viewer's
- * `applyAutoMovieSectionPlanes` hands the same plane to `three.js` clipping.
+ * `sectionPlaneDistance`, `sectionPlanesKeepPoint` and
+ * `classifySectionPlaneBox` evaluate it, and the viewer's
+ * `applySectionPlanes` hands the same plane to `three.js` clipping.
  */
 export interface IAutoMovieSectionPlane {
   /** A point the plane passes through, in world space, metres; finite. */

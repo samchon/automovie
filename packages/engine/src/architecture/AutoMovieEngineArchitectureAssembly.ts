@@ -1,7 +1,7 @@
 import { type IAutoMovieAssemblyReveal, type IAutoMovieAssemblyOpeningReveal, type IAutoMovieAssemblyJunction, type IAutoMovieMatchAssemblyJunction, type IAutoMovieResolvedAssembly, type IAutoMovieValidateMaterialAssembly } from "@automovie/interface";
-import { autoMovieAssemblyOpeningReveal as autoMovieAssemblyOpeningRevealImplementation } from "./internal/autoMovieAssemblyOpeningReveal";
-import { matchAutoMovieAssemblyJunction as matchAutoMovieAssemblyJunctionImplementation } from "./internal/matchAutoMovieAssemblyJunction";
-import { resolveAutoMovieMaterialAssembly as resolveAutoMovieMaterialAssemblyImplementation } from "./internal/resolveAutoMovieMaterialAssembly";
+import { assemblyOpeningReveal as assemblyOpeningRevealImplementation } from "./internal/assemblyOpeningReveal";
+import { matchAssemblyJunction as matchAssemblyJunctionImplementation } from "./internal/matchAssemblyJunction";
+import { resolveMaterialAssembly as resolveMaterialAssemblyImplementation } from "./internal/resolveMaterialAssembly";
 
 /** Public operations for Auto Movie Engine Architecture Assembly. */
 export namespace AutoMovieEngineArchitectureAssembly {
@@ -31,7 +31,7 @@ export namespace AutoMovieEngineArchitectureAssembly {
    * and when the lining leaves no positive clear width or height.
    */
   export function AssemblyOpeningReveal(props: IAutoMovieAssemblyOpeningReveal.IProps): IAutoMovieAssemblyReveal {
-    return autoMovieAssemblyOpeningRevealImplementation(props);
+    return assemblyOpeningRevealImplementation(props);
   }
 
   /**
@@ -67,7 +67,7 @@ export namespace AutoMovieEngineArchitectureAssembly {
    *   only one side carries.
    */
   export function matchAutoMovieAssemblyJunction(props: IAutoMovieMatchAssemblyJunction.IProps): IAutoMovieAssemblyJunction {
-    return matchAutoMovieAssemblyJunctionImplementation(props);
+    return matchAssemblyJunctionImplementation(props);
   }
 
   /**
@@ -78,7 +78,7 @@ export namespace AutoMovieEngineArchitectureAssembly {
    * each layer advances along the stacking axis in the declared sense, and the
    * summed thickness is the overall dimension the host must be drawn at. A caller
    * that sizes a wall from `total` and cuts an opening through it can then ask
-   * {@link autoMovieAssemblyOpeningReveal} what the opening finishes at.
+   * {@link assemblyOpeningReveal} what the opening finishes at.
    *
    * An invalid build-up is refused here rather than resolved into numbers that
    * look usable, the same way a built environment refuses to lower.
@@ -96,6 +96,6 @@ export namespace AutoMovieEngineArchitectureAssembly {
    * @returns The placed layers, the total and the assembly's signed extent.
    */
   export function resolveAutoMovieMaterialAssembly(props: IAutoMovieValidateMaterialAssembly.IProps): IAutoMovieResolvedAssembly {
-    return resolveAutoMovieMaterialAssemblyImplementation(props);
+    return resolveMaterialAssemblyImplementation(props);
   }
 }

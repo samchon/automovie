@@ -14,7 +14,7 @@ import { AutoMovieEngineLoftReliefCompose } from "./AutoMovieEngineLoftReliefCom
 import { AutoMovieEngineLoftSectionNative } from "./AutoMovieEngineLoftSectionNative";
 import { AutoMovieEngineLoftViewRead } from "./AutoMovieEngineLoftViewRead";
 import { AutoMovieEngineLoftViewSource } from "./AutoMovieEngineLoftViewSource";
-import { AutoMovieLoftViewWorldJet } from "./construction/internal/AutoMovieLoftViewWorldJet";
+import { loftViewWorldJet } from "./construction/internal/loftViewWorldJet";
 
 /**
  * Original native field values and physical2 before any loft or mesh.
@@ -114,7 +114,7 @@ export namespace AutoMovieEngineLoftViewFullSource {
             "The collapsed original pole has no regular physical2 chart.",
           );
         const bare: IAutoMovieSolidSurface.IJet | string =
-          AutoMovieLoftViewWorldJet(source, axis, s, t);
+          loftViewWorldJet(source, axis, s, t);
         if (typeof bare === "string")
           throw new AutoMovieEngineLoftAdmissionError(bare);
         const full: IAutoMovieLoftSurfaceJet = {

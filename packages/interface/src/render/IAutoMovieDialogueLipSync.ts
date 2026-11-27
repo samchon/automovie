@@ -1,10 +1,10 @@
-import type { IAutoMovieMeasureLipSyncLag } from "../production/IAutoMovieMeasureLipSyncLag.js";
+import type { IAutoMovieMeasureLipSyncLag } from "../production/IAutoMovieMeasureLipSyncLag";
 
 /**
  * One adopted line's lip-sync entry in the render report.
  *
  * A phoneme-driven line whose bound actor the drawn subject moved with visemes
- * is measured by engine's `measureAutoMovieLipSyncLag` against the mouth the
+ * is measured by engine's `measureLipSyncLag` against the mouth the
  * subject read on each drawn frame, and carries its lag, correlation and
  * verdict; a failed verdict blocks publication. Three kinds are listed as
  * unmeasured and do not block: `envelope-jaw`, a line without phoneme chunks or

@@ -4,7 +4,7 @@ import type {
   IAutoMovieLoftSectionSource,
 } from "@automovie/interface";
 
-import { AutoMovieConstructionBoundary } from "./construction/internal/AutoMovieConstructionBoundary";
+import { constructionBoundary } from "./construction/internal/constructionBoundary";
 import { AutoMovieEngineLoftAdmissionError } from "./AutoMovieEngineLoftAdmissionError";
 import { AutoMovieEngineLoftCoefficientSource } from "./AutoMovieEngineLoftCoefficientSource";
 import { AutoMovieEngineLoftFrame } from "./AutoMovieEngineLoftFrame";
@@ -89,7 +89,7 @@ export namespace AutoMovieEngineConstructionContinuation {
     if (host.order !== part.order) {
       try {
         return (
-          AutoMovieConstructionBoundary(
+          constructionBoundary(
             host,
             hostEnd,
             part,

@@ -6,7 +6,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
 import { StaggerPendulum } from "./StaggerPendulum";
 import { staggerBounds } from "./staggerBounds";
 import { staggerNearest } from "./staggerNearest";
@@ -75,7 +75,7 @@ export function staggerClose(
     across,
   );
   const caughtAt: IAutoMovieVector3 = pendulum.xi();
-  pendulum.transfer(anchor, AutoMovieMotionHumanTiming.seconds(TRANSFER));
+  pendulum.transfer(anchor, motionHumanTiming.seconds(TRANSFER));
   const start: number = pendulum.t;
 
   // The closing foot for an extrapolated centre of mass at its landing:
@@ -162,7 +162,7 @@ export function staggerClose(
     middle(entered),
   );
   const landed: IAutoMovieVector3 = pendulum.pressure();
-  const loading: number = AutoMovieMotionHumanTiming.seconds(TRANSFER);
+  const loading: number = motionHumanTiming.seconds(TRANSFER);
   const begin: IAutoMovieVector3 = pendulum.xi();
   const last: number = pendulum.t;
   const base: IAutoMovieVector3[] = pendulum.bearing(["left", "right"]);

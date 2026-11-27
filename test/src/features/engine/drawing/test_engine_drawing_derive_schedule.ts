@@ -24,7 +24,7 @@ const row: (
   ) ?? null;
 
 /**
- * `deriveAutoMovieDrawingSchedule` lists the openings (or the rooms,
+ * `deriveDrawingSchedule` lists the openings (or the rooms,
  * connectors) of a built environment as rows of one kind, with their size.
  *
  * Scenarios, on the authored atelier whose openings are a rectangular door of

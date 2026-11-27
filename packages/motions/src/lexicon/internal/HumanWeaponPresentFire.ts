@@ -15,9 +15,9 @@ import type {
 } from "@automovie/interface";
 
 import { HumanSupportFrame } from "../../carrier/internal/HumanSupportFrame";
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
+import { motionManner } from "../../compose/internal/motionManner";
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -84,14 +84,14 @@ export const HumanWeaponPresentFire: IAutoMovieMotionHumanActionLaw<IAutoMovieMo
         rise,
       );
       const { bore, about } = recoil;
-      const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
-        AutoMovieMotionClock.phrase({
+      const clock: IAutoMovieMotionClock = motionManner.time(
+        motionClock.phrase({
           prepare: 0,
           wait: HumanWeaponPresent.SHOT.press,
           attack: HumanWeaponPresent.SHOT.rise,
           retract: HumanWeaponPresent.SHOT.recover,
         }),
-        AutoMovieMotionManner(context, context.params.manner),
+        motionManner(context, context.params.manner),
       );
       const shot: IAutoMovieMotionHumanActionPlan = StrikingBlade.plan(
         context,

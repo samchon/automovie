@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanCollapse,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { knockdown } from "./knockdown";
 
@@ -42,7 +42,7 @@ export function collapseClock(
       });
   const kneel: number = sag + knockdown.SEATED;
   const down: number = sag + knockdown.DOWN;
-  return AutoMovieMotionClock(down + lie, [
+  return motionClock(down + lie, [
     { name: "sag", seconds: sag },
     { name: "knees", seconds: kneel },
     { name: "stroke", seconds: kneel },

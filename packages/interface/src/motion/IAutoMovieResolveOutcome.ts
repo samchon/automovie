@@ -1,7 +1,7 @@
 import type { IAutoMovieIntent } from "./IAutoMovieIntent";
 
 /**
- * Production-defined decisions evaluated by resolveAutoMovieOutcome in array
+ * Production-defined decisions evaluated by resolveOutcome in array
  * order. No vocabulary or rule-id validation is performed by the engine.
  */
 export namespace IAutoMovieResolveOutcome {

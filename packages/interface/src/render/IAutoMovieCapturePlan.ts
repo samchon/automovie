@@ -1,12 +1,12 @@
-import type { IAutoMovieCaptureCell } from "./IAutoMovieCaptureCell.js";
-import type { IAutoMovieCaptureLayout } from "./IAutoMovieCaptureLayout.js";
-import type { IAutoMovieCapturePlanRequest } from "./IAutoMovieCapturePlanRequest.js";
-import type { IAutoMovieCaptureSubject } from "./IAutoMovieCaptureSubject.js";
-import type { IAutoMovieCaptureTime } from "./IAutoMovieCaptureTime.js";
-import type { IAutoMovieCaptureWindow } from "./IAutoMovieCaptureWindow.js";
+import type { IAutoMovieCaptureCell } from "./IAutoMovieCaptureCell";
+import type { IAutoMovieCaptureLayout } from "./IAutoMovieCaptureLayout";
+import type { IAutoMovieCapturePlanRequest } from "./IAutoMovieCapturePlanRequest";
+import type { IAutoMovieCaptureSubject } from "./IAutoMovieCaptureSubject";
+import type { IAutoMovieCaptureTime } from "./IAutoMovieCaptureTime";
+import type { IAutoMovieCaptureWindow } from "./IAutoMovieCaptureWindow";
 
 /**
- * A whole capture as data, built by `planAutoMovieCapture` before anything is
+ * A whole capture as data, built by `planCapture` before anything is
  * drawn: every cell in drawing order, the times and windows they came from, and
  * the sheet layout.
  *

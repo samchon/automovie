@@ -4,8 +4,8 @@ import type {
 } from "@automovie/interface";
 import type * as THREE from "three";
 
-import type { IAutoMovieRenderExpressionTarget } from "./IAutoMovieRenderExpressionTarget.js";
-import type { IAutoMovieRenderViewerFrame } from "./IAutoMovieRenderViewerFrame.js";
+import type { IAutoMovieRenderExpressionTarget } from "./IAutoMovieRenderExpressionTarget";
+import type { IAutoMovieRenderViewerFrame } from "./IAutoMovieRenderViewerFrame";
 
 /** A built model: its `three.js` root object and a lookup of its bones. */
 export interface IAutoMovieRenderModelObject {

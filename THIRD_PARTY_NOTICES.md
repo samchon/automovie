@@ -4,7 +4,7 @@ AutoMovie uses the MIT License in `LICENSE`. The following notices cover Clarabe
 
 ## Clarabel.rs
 
-Five TypeScript files under `packages/engine/src/math/internal/` adapt Clarabel.rs 0.11.1 at revision `25540f559592068d0c8a80e46ded1b21760212a1`: `createAutoMovieQuadraticFactor.ts`, `equilibrateAutoMovieQuadraticProgram.ts`, `measureAutoMovieQuadraticState.ts`, `solveAutoMovieQuadraticStep.ts`, and `solveAutoMovieQuadraticInterior.ts`. Their source headers identify the upstream Rust paths, copyright, Apache-2.0 license, and AutoMovie modifications. The original Clarabel license text is reproduced below; the repository's prior vendor README recorded its SHA-256 as `6e2f382771f8aab58e4868ddd0afe0c2fefe6b54f9681493a9c3d0f32906cfe1`.
+Five TypeScript files under `packages/engine/src/math/internal/` adapt Clarabel.rs 0.11.1 at revision `25540f559592068d0c8a80e46ded1b21760212a1`: `createQuadraticFactor.ts`, `equilibrateQuadraticProgram.ts`, `measureQuadraticState.ts`, `solveQuadraticStep.ts`, and `solveQuadraticInterior.ts`. Their source headers identify the upstream Rust paths, copyright, Apache-2.0 license, and AutoMovie modifications. The original Clarabel license text is reproduced below; the repository's prior vendor README recorded its SHA-256 as `6e2f382771f8aab58e4868ddd0afe0c2fefe6b54f9681493a9c3d0f32906cfe1`.
 
 ## IHMC Open Robotics Software and Euclid
 

@@ -191,7 +191,7 @@ export namespace AutoMovieMotionHumanJump {
    * the pole, lets go as the pole stands upright, and flies on to come down
    * lying on the landing surface.
    *
-   * The pole is a held prop (`AutoMovieMotionHumanHeld`): taken up before, in
+   * The pole is a held prop (`motionHumanHeld`): taken up before, in
    * one hand or two (a vaulter's top hand and lower hand), and rigid in them.
    * Its planted end is the prop's `tip` affordance, or the one named.
    *

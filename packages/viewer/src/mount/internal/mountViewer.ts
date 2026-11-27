@@ -1,9 +1,9 @@
 import { AutoMovieRenderSceneRenderMode, AutoMovieRenderSceneResource, AutoMovieRenderSceneShadow } from "@automovie/render";
 import * as THREE from "three";
 
-import { AutoMovieViewerDisplay } from "../../display/AutoMovieViewerDisplay.js";
-import type { AutoMovieViewer } from "../AutoMovieViewer.js";
-import { releaseMountedViewer } from "./releaseMountedViewer.js";
+import { AutoMovieViewerDisplay } from "../../display/AutoMovieViewerDisplay";
+import type { AutoMovieViewer } from "../AutoMovieViewer";
+import { releaseMountedViewer } from "./releaseMountedViewer";
 
 /*
  * Mount a render loop onto a canvas: create a `WebGLRenderer`, drive

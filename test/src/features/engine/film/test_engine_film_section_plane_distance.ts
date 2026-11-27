@@ -4,7 +4,7 @@ import { TestValidator } from "@nestia/e2e";
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * `autoMovieSectionPlaneDistance` is the signed distance of a point from a
+ * `sectionPlaneDistance` is the signed distance of a point from a
  * section plane along its normal, whatever the normal's length; a zero normal
  * is refused.
  *

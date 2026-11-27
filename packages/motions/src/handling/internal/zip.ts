@@ -21,12 +21,12 @@ import type {
 } from "@automovie/interface";
 
 import { operateDrive } from "../../affordance/internal/operateDrive";
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { blendHumanJoint } from "../../posture/internal/blendHumanJoint";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -135,8 +135,8 @@ function plan(
   );
   const tempo: number = context.tempo ?? 1;
   const transport: number =
-    tempo * AutoMovieMotionHumanTiming.transport(motion);
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
+    tempo * motionHumanTiming.transport(motion);
+  const clock: IAutoMovieMotionClock = motionClock.phrase({
     prepare: transport,
     attack: tempo * p.duration,
     retract: transport,
@@ -174,7 +174,7 @@ function plan(
   const arms: IAutoMovieMotionHumanArmPlanned.ITogether =
     AutoMovieMotionHumanArm.together(context.handover, true, tempo);
   const composed: IAutoMovieMotionHumanActionPlan =
-    composeAutoMovieMotionHumanAction({
+    composeMotionHumanAction({
       base: AutoMovieMotionHumanBase.under(context, clock.duration),
       clock,
       primitives: [

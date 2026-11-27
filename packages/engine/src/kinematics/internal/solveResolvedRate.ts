@@ -1,4 +1,4 @@
-import { addAutoMovieQuadraticProduct } from "../../math/internal/addAutoMovieQuadraticProduct";
+import { addQuadraticProduct } from "../../math/internal/addQuadraticProduct";
 import { AutoMovieEngineMath } from "../../math/AutoMovieEngineMath";
 import type { AutoMovieEngineKinematicsTypes } from "../AutoMovieEngineKinematicsTypes";
 
@@ -170,9 +170,9 @@ function dot(
   scratch[0] = constant;
   if (magnitude) scratch[2] = Math.abs(constant);
   for (let column: number = 0; column < row.length; ++column) {
-    addAutoMovieQuadraticProduct(scratch, 0, row[column]!, values[column]!);
+    addQuadraticProduct(scratch, 0, row[column]!, values[column]!);
     if (magnitude)
-      addAutoMovieQuadraticProduct(
+      addQuadraticProduct(
         scratch,
         1,
         Math.abs(row[column]!),

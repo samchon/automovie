@@ -14,7 +14,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
+import { motionHumanHeld } from "../../compose/internal/motionHumanHeld";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { StrikingHeldFrame } from "./StrikingHeldFrame";
 import { StrikingHeldGoal } from "./StrikingHeldGoal";
@@ -42,7 +42,7 @@ export function StrikingHeld(
   if (prop === undefined) return StrikingHeld.bare(context.body, side);
   // The prop as the hand holds it, read by the one owner of that frame.
   return StrikingHeld.read(
-    AutoMovieMotionHumanHeld(context, side, prop),
+    motionHumanHeld(context, side, prop),
     points,
   );
 }
@@ -293,7 +293,7 @@ export namespace StrikingHeld {
   ): IAutoMovieMotionHumanContactWindow[] {
     return tool.held === undefined
       ? []
-      : [AutoMovieMotionHumanHeld.grip(tool.held)];
+      : [motionHumanHeld.grip(tool.held)];
   }
 
   /*
@@ -309,7 +309,7 @@ export namespace StrikingHeld {
   ): IAutoMovieMotionPropHold[] {
     return tool.held === undefined
       ? []
-      : [AutoMovieMotionHumanHeld.hold(context, tool.held)];
+      : [motionHumanHeld.hold(context, tool.held)];
   }
 
   /*

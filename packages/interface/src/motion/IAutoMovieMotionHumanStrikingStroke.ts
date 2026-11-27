@@ -105,7 +105,7 @@ export namespace IAutoMovieMotionHumanStrikingStroke {
 
     /**
      * The contact second the performance resolved jointly with every other
-     * weapon (`resolveAutoMovieContactEvents`), or null when it resolved that
+     * weapon (`resolveContactEvents`), or null when it resolved that
      * the weapon meets nothing; absent, as for a weapon the performance does
      * not resolve, the stroke meets nothing.
      */

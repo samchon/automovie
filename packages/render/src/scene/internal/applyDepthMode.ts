@@ -1,10 +1,10 @@
 import * as THREE from "three";
 
-import type { IAutoMovieRenderModeHandle } from "../IAutoMovieRenderModeHandle.js";
-import { guardAutoMovieRenderModeRetirement } from "./guardAutoMovieRenderModeRetirement.js";
-import { overrideAutoMovieRenderModeMaterials } from "./overrideAutoMovieRenderModeMaterials.js";
-import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
-import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
+import type { IAutoMovieRenderModeHandle } from "../IAutoMovieRenderModeHandle";
+import { guardRenderModeRetirement } from "./guardRenderModeRetirement";
+import { overrideRenderModeMaterials } from "./overrideRenderModeMaterials";
+import { restoreRenderModeOnce } from "./restoreRenderModeOnce";
+import { restoreRenderModeState } from "./restoreRenderModeState";
 
 /*
  * Depth pass: every mesh renders its normalized metric depth over a black
@@ -26,14 +26,14 @@ export const applyDepthMode: (
   scene: THREE.Scene,
   range: number,
 ): IAutoMovieRenderModeHandle => {
-  guardAutoMovieRenderModeRetirement(scene);
+  guardRenderModeRetirement(scene);
   const background:
     | THREE.Color
     | THREE.Texture<unknown, THREE.TextureEventMap>
     | null = scene.background;
   scene.background = new THREE.Color(0x000000);
   const materials: IAutoMovieRenderModeHandle =
-    overrideAutoMovieRenderModeMaterials(
+    overrideRenderModeMaterials(
       scene,
       "depth",
       (): THREE.ShaderMaterial => makeNormalizedDepthMaterial(range),
@@ -41,10 +41,10 @@ export const applyDepthMode: (
   return {
     mode: "depth",
     semantic: null,
-    restore: restoreAutoMovieRenderModeOnce((): void => {
-      guardAutoMovieRenderModeRetirement(scene, {
+    restore: restoreRenderModeOnce((): void => {
+      guardRenderModeRetirement(scene, {
         run: (): void => {
-          restoreAutoMovieRenderModeState([
+          restoreRenderModeState([
             materials.restore,
             (): void => {
               scene.background = background;

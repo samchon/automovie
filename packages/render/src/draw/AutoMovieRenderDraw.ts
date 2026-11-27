@@ -1,23 +1,23 @@
-import { bindAutoMovieDrawSceneSoftProps as bindAutoMovieDrawSceneSoftPropsImplementation } from "./internal/bindAutoMovieDrawSceneSoftProps.js";
-import { decodeAutoMovieDrawPixels as decodeAutoMovieDrawPixelsImplementation } from "./internal/decodeAutoMovieDrawPixels.js";
-import { describeAutoMovieDrawScene as describeAutoMovieDrawSceneImplementation } from "./internal/describeAutoMovieDrawScene.js";
-import { encodeAutoMovieDrawPixels as encodeAutoMovieDrawPixelsImplementation } from "./internal/encodeAutoMovieDrawPixels.js";
-import { type AutoMovieRenderDrawSubjects } from "./AutoMovieRenderDrawSubjects.js";
-import { type IAutoMovieRenderDrawGlobal } from "./IAutoMovieRenderDrawGlobal.js";
-import { installAutoMovieDraw as installAutoMovieDrawImplementation } from "./internal/installAutoMovieDraw.js";
-import { isAutoMoviePlainBeautyRequest as isAutoMoviePlainBeautyRequestImplementation } from "./internal/isAutoMoviePlainBeautyRequest.js";
-import { observeAutoMoviePlacedInspection as observeAutoMoviePlacedInspectionImplementation } from "./internal/observeAutoMoviePlacedInspection.js";
-import { placeAutoMovieDrawLayer as placeAutoMovieDrawLayerImplementation } from "./internal/placeAutoMovieDrawLayer.js";
-import { selectAutoMovieDrawSubject as selectAutoMovieDrawSubjectImplementation } from "./internal/selectAutoMovieDrawSubject.js";
-import { stampAutoMovieDrawLegend as stampAutoMovieDrawLegendImplementation } from "./internal/stampAutoMovieDrawLegend.js";
+import { bindDrawSceneSoftProps as bindDrawSceneSoftPropsImplementation } from "./internal/bindDrawSceneSoftProps";
+import { decodeDrawPixels as decodeDrawPixelsImplementation } from "./internal/decodeDrawPixels";
+import { describeDrawScene as describeDrawSceneImplementation } from "./internal/describeDrawScene";
+import { encodeDrawPixels as encodeDrawPixelsImplementation } from "./internal/encodeDrawPixels";
+import { type AutoMovieRenderDrawSubjects } from "./AutoMovieRenderDrawSubjects";
+import { type IAutoMovieRenderDrawGlobal } from "./IAutoMovieRenderDrawGlobal";
+import { installDraw as installDrawImplementation } from "./internal/installDraw";
+import { isPlainBeautyRequest as isPlainBeautyRequestImplementation } from "./internal/isPlainBeautyRequest";
+import { observePlacedInspection as observePlacedInspectionImplementation } from "./internal/observePlacedInspection";
+import { placeDrawLayer as placeDrawLayerImplementation } from "./internal/placeDrawLayer";
+import { selectDrawSubject as selectDrawSubjectImplementation } from "./internal/selectDrawSubject";
+import { stampDrawLegend as stampDrawLegendImplementation } from "./internal/stampDrawLegend";
 
 import { type AutoMovieGuidePass, type IAutoMovieCaptureCell, type IAutoMovieCaptureLayout, type IAutoMovieCaptureSubject, type IAutoMovieCaptureTime, type IAutoMovieDrawCall, type IAutoMoviePlaybackLayer, type IAutoMovieRenderSoftPropFrame, type IAutoMovieRasterImage, type IAutoMovieDrawResult, type IAutoMovieInspectionRequest, type IAutoMovieInspectionDiagnostics, type IAutoMovieRasterLabel, type IAutoMovieInspectionLegendEntry } from "@automovie/interface";
 
-import type { IAutoMovieRenderDrawScene } from "./IAutoMovieRenderDrawScene.js";
-import { planAutoMovieDrawCall } from "./internal/planAutoMovieDrawCall.js";
-import { planAutoMovieDrawLayers } from "./internal/planAutoMovieDrawLayers.js";
-import { planAutoMovieDrawPicture } from "./internal/planAutoMovieDrawPicture.js";
-import { admitAutoMovieControlPasses as admitAutoMovieControlPassesImplementation } from "./internal/admitAutoMovieControlPasses.js";
+import type { IAutoMovieRenderDrawScene } from "./IAutoMovieRenderDrawScene";
+import { planDrawCall } from "./internal/planDrawCall";
+import { planDrawLayers } from "./internal/planDrawLayers";
+import { planDrawPicture } from "./internal/planDrawPicture";
+import { admitControlPasses as admitControlPassesImplementation } from "./internal/admitControlPasses";
 
 /** Public capture and picture planning operations owned by Render's draw topic. */
 export namespace AutoMovieRenderDraw {
@@ -35,7 +35,7 @@ export namespace AutoMovieRenderDraw {
   export function admitControlPasses(
     passes: readonly string[],
   ): Exclude<AutoMovieGuidePass, "beauty">[] {
-    return admitAutoMovieControlPassesImplementation(passes);
+    return admitControlPassesImplementation(passes);
   }
 
   /**
@@ -53,7 +53,7 @@ export namespace AutoMovieRenderDraw {
     cell: Pick<IAutoMovieCaptureCell, "time" | "view" | "request">,
     plan: IPlanCallProps,
   ): IAutoMovieDrawCall {
-    return planAutoMovieDrawCall(cell, plan);
+    return planDrawCall(cell, plan);
   }
 
   /**
@@ -76,7 +76,7 @@ export namespace AutoMovieRenderDraw {
     scene: Pick<IAutoMovieRenderDrawScene, "sequence" | "cut" | "seekShot">,
     seconds: number,
   ): IAutoMoviePlaybackLayer[] | null {
-    return planAutoMovieDrawLayers(name, scene, seconds);
+    return planDrawLayers(name, scene, seconds);
   }
 
   /** The transition layers and placement selected for a picture. */
@@ -109,7 +109,7 @@ export namespace AutoMovieRenderDraw {
     scene: Pick<IAutoMovieRenderDrawScene, "sequence" | "cut" | "seekShot">,
     seconds: number,
   ): IPlanPicture {
-    return planAutoMovieDrawPicture(name, scene, seconds);
+    return planDrawPicture(name, scene, seconds);
   }
 
   /**
@@ -120,7 +120,7 @@ export namespace AutoMovieRenderDraw {
    * placed shot at its own shot-local time.
    */
   export function bindAutoMovieDrawSceneSoftProps(subject: IAutoMovieRenderDrawScene, read: (seconds: number) => readonly IAutoMovieRenderSoftPropFrame[]): IAutoMovieRenderDrawScene {
-    return bindAutoMovieDrawSceneSoftPropsImplementation(subject, read);
+    return bindDrawSceneSoftPropsImplementation(subject, read);
   }
 
   /**
@@ -132,7 +132,7 @@ export namespace AutoMovieRenderDraw {
    * not that size's, naming both.
    */
   export function decodeAutoMovieDrawPixels(result: Pick<IAutoMovieDrawResult, "pixels" | "width" | "height">, expected: Pick<IAutoMovieRasterImage, "width" | "height">): IAutoMovieRasterImage {
-    return decodeAutoMovieDrawPixelsImplementation(result, expected);
+    return decodeDrawPixelsImplementation(result, expected);
   }
 
   /**
@@ -151,7 +151,7 @@ export namespace AutoMovieRenderDraw {
    * marker at zero; its geometry still comes from `marks` at the drawn second.
    */
   export function describeAutoMovieDrawScene(name: string, scene: IAutoMovieRenderDrawScene): IAutoMovieCaptureSubject {
-    return describeAutoMovieDrawSceneImplementation(name, scene);
+    return describeDrawSceneImplementation(name, scene);
   }
 
   /**
@@ -176,7 +176,7 @@ export namespace AutoMovieRenderDraw {
    * number dividing both sides.
    */
   export function encodeAutoMovieDrawPixels(bytes: Uint8Array, width: number, height: number, factor: number): string {
-    return encodeAutoMovieDrawPixelsImplementation(bytes, width, height, factor);
+    return encodeDrawPixelsImplementation(bytes, width, height, factor);
   }
 
   /**
@@ -220,10 +220,10 @@ export namespace AutoMovieRenderDraw {
    *    their response; the `graphics` plate by its `plate`; every other pass
    *    straight to the canvas. A film picture inside a transition holds the shown
    *    layer too and composites the held layers by their weights through
-   *    `renderAutoMovieFilmFrame`, toward alpha 0 over a transparent background
+   *    `renderFilmFrame`, toward alpha 0 over a transparent background
    *    and for the plate, then draws the witness cubes of the shown shot's
    *    diagnostics over the composite at full strength;
-   * 6. Reads the picture back and assembles the result by `readAutoMovieDrawResult`.
+   * 6. Reads the picture back and assembles the result by `readDrawResult`.
    *
    * It reads the renderer's own canvas back in the same task. Without optics the
    * scene is drawn straight to the canvas, so colour conversion and tone mapping
@@ -252,7 +252,7 @@ export namespace AutoMovieRenderDraw {
    * ```
    */
   export function installAutoMovieDraw<Props = unknown>(subjects: AutoMovieRenderDrawSubjects<Props | null>, target?: IAutoMovieRenderDrawGlobal<Props | null>): void {
-    installAutoMovieDrawImplementation<Props>(subjects, target);
+    installDrawImplementation<Props>(subjects, target);
   }
 
   /**
@@ -264,7 +264,7 @@ export namespace AutoMovieRenderDraw {
    * it a sampled film's shutter and lens samples as it does a delivery draw.
    */
   export function isAutoMoviePlainBeautyRequest(request: IAutoMovieInspectionRequest): boolean {
-    return isAutoMoviePlainBeautyRequestImplementation(request);
+    return isPlainBeautyRequestImplementation(request);
   }
 
   /**
@@ -294,7 +294,7 @@ export namespace AutoMovieRenderDraw {
    * @throws {Error} If the producer returns another sample's time or frame.
    */
   export function observeAutoMoviePlacedInspection(subject: IAutoMovieRenderDrawScene, seconds: number, mode: IAutoMovieRenderDrawScene.IPlacedSample["mode"], auditRaster?: IAutoMovieRenderDrawScene.IPlacedSample["auditRaster"], byShot?: boolean): IAutoMovieInspectionDiagnostics | undefined {
-    return observeAutoMoviePlacedInspectionImplementation(subject, seconds, mode, auditRaster, byShot);
+    return observePlacedInspectionImplementation(subject, seconds, mode, auditRaster, byShot);
   }
 
   /**
@@ -330,7 +330,7 @@ export namespace AutoMovieRenderDraw {
    * @returns The subject's placement promise.
    */
   export function placeAutoMovieDrawLayer(name: string, scene: Pick<IAutoMovieRenderDrawScene, "cut" | "seek" | "seekShot">, layer: Pick<IAutoMoviePlaybackLayer, "entry" | "shot"> | null, seconds: number): Promise<void> {
-    return placeAutoMovieDrawLayerImplementation(name, scene, layer, seconds);
+    return placeDrawLayerImplementation(name, scene, layer, seconds);
   }
 
   /**
@@ -342,7 +342,7 @@ export namespace AutoMovieRenderDraw {
    * none.
    */
   export function selectAutoMovieDrawSubject(offered: readonly string[], name: string | null): string {
-    return selectAutoMovieDrawSubjectImplementation(offered, name);
+    return selectDrawSubjectImplementation(offered, name);
   }
 
   /**
@@ -363,6 +363,6 @@ export namespace AutoMovieRenderDraw {
    * legend paints nothing and returns nothing.
    */
   export function stampAutoMovieDrawLegend(picture: IAutoMovieRasterImage, legend: readonly IAutoMovieInspectionLegendEntry[], scale: number): IAutoMovieRasterLabel[] {
-    return stampAutoMovieDrawLegendImplementation(picture, legend, scale);
+    return stampDrawLegendImplementation(picture, legend, scale);
   }
 }

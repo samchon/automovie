@@ -8,7 +8,7 @@ import type { IAutoMovieSweepSpine } from "./IAutoMovieSweepSpine";
  *
  * The surface is a function of two parameters: `u` along the spine by chord
  * length from 0 to 1, and `v` around it from 0 to 1, the polar angle `2 pi v`
- * in the section plane from its first axis. `compileAutoMovieSweep` evaluates
+ * in the section plane from its first axis. `compileSweep` evaluates
  * it in four ordered layers:
  *
  * 1. Sections: every station's radius by direction, interpolated along `u` by a C2
@@ -151,7 +151,7 @@ export namespace IAutoMovieSweep {
    *
    * The course is the centripetal Catmull-Rom spline through its points in the
    * `(u, angle)` domain, with knots spaced in the sweep's mean cylindrical
-   * scale; its radius or offset follows `interpolateAutoMovieSpline` over those
+   * scale; its radius or offset follows `interpolateSpline` over those
    * same knots. The field uses a dense-seeded local Newton search in a
    * cylindrical metric approximation, not a guaranteed global nearest point or
    * an exact noncircular surface metric. A nearest-branch change inside a tight

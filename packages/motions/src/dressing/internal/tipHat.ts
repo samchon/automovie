@@ -24,12 +24,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
 import { HumanGrasp } from "../../handling/internal/HumanGrasp";
 import { HumanGrip } from "../../handling/internal/HumanGrip";
@@ -142,13 +142,13 @@ function plan(
     gap(bones.get(`${side}Hand`)!.worldPosition, fit.shown.point),
     grasp.width,
   );
-  const halfLift: number = AutoMovieMotionHumanTiming.PAUSES.beat / 2;
+  const halfLift: number = motionHumanTiming.PAUSES.beat / 2;
   const pace: number = context.tempo ?? 1;
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
+  const clock: IAutoMovieMotionClock = motionClock.phrase({
     prepare: reach * pace,
     attack: halfLift * pace,
     follow: halfLift * pace,
-    hold: AutoMovieMotionHumanTiming.PAUSES.brief * pace,
+    hold: motionHumanTiming.PAUSES.brief * pace,
     retract: reach * pace,
   });
   const entryElbow: IAutoMovieVector3 = bones.get(
@@ -193,7 +193,7 @@ function plan(
     clock.duration,
   );
   const composed: IAutoMovieMotionHumanActionPlan =
-    composeAutoMovieMotionHumanAction({
+    composeMotionHumanAction({
       base,
       clock,
       contact: "stroke",

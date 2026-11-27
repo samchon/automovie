@@ -1,5 +1,5 @@
 
 
 
-export * from "./AutoMovieRenderFilm.js";
-export * from "./AutoMovieRenderSequence.js";
+export * from "./AutoMovieRenderFilm";
+export * from "./AutoMovieRenderSequence";

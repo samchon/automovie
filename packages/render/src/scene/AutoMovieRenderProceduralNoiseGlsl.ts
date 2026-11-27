@@ -1,10 +1,10 @@
 /**
  * GLSL ES 3.00 forms of the engine's procedural lattice functions, for any
- * material shader patch that reads them: `autoMoviePcg3d`, the lattice words
+ * material shader patch that reads them: `hashPcg3d`, the lattice words
  * `autoMovieProceduralCell` under a key from `autoMovieProceduralKey`, the
- * improved gradient noise `autoMovieProceduralNoise`, its four-octave sum
- * `autoMovieProceduralFractal` and the cellular distances
- * `autoMovieProceduralCells`.
+ * improved gradient noise `proceduralNoiseImplementation`, its four-octave sum
+ * `proceduralFractalImplementation` and the cellular distances
+ * `proceduralCellsImplementation`.
  *
  * Each function mirrors the engine function of the same name step for step:
  * integer hashing is exact modulo 2³² in `uint`, `uint(int)` keeps a negative

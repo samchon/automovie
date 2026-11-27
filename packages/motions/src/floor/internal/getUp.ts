@@ -23,7 +23,7 @@ import type {
 
 import { stand } from "../../actions/internal/stand";
 import { support } from "../../actions/internal/support";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
+import { motionManner } from "../../compose/internal/motionManner";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanBoneGroups } from "../../posture/internal/HumanBoneGroups";
 import { HumanHand } from "../../posture/internal/HumanHand";
@@ -229,7 +229,7 @@ export namespace getUp {
     const trail: AutoMovieHumanSide = lead === "right" ? "left" : "right";
 
     // Each phase takes its share of a whole rise from lying.
-    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+    const modifiers: IAutoMovieMotionManner.IModifiers = motionManner(
       context,
       context.params.manner,
     );

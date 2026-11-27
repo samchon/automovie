@@ -5,7 +5,7 @@ import type {
   IAutoMovieMeshQueryHierarchy,
 } from "@automovie/interface";
 
-import { collectAutoMovieSpatialQueryCandidates } from "../../internal/collectAutoMovieSpatialQueryCandidates";
+import { collectSpatialQueryCandidates } from "../../internal/collectSpatialQueryCandidates";
 import { AutoMovieMeshCrossingGeometry } from "./AutoMovieMeshCrossingGeometry";
 import type { IAutoMovieMeshCrossingTriangle } from "./IAutoMovieMeshCrossingTriangle";
 
@@ -35,7 +35,7 @@ export function measureMeshCrossings(
   const crossings: IAutoMovieMeshCrossing[] = [];
   for (const triangle of ours) {
     const candidates: IAutoMovieMeshCrossingTriangle[] =
-      collectAutoMovieSpatialQueryCandidates(
+      collectSpatialQueryCandidates(
         hierarchy,
         triangle,
         cell,

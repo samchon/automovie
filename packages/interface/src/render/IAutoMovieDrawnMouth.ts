@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanVisemeWeights } from "../human/IAutoMovieHumanVisemeWeights.js";
+import type { IAutoMovieHumanVisemeWeights } from "../human/IAutoMovieHumanVisemeWeights";
 
 /**
  * The dialogue mouth a drawn subject read for one actor while it was placed at

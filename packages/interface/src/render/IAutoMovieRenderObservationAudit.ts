@@ -1,5 +1,5 @@
-import type { AutoMovieRenderMetric } from "./AutoMovieRenderMetric.js";
-import type { IAutoMovieRenderObservationBreach } from "./IAutoMovieRenderObservationBreach.js";
+import type { AutoMovieRenderMetric } from "./AutoMovieRenderMetric";
+import type { IAutoMovieRenderObservationBreach } from "./IAutoMovieRenderObservationBreach";
 
 /**
  * Comparison of submitted-work observations with a declared report.

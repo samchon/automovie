@@ -10,7 +10,7 @@ import type {
 
 import { AutoMovieEngineSolidDomain } from "./AutoMovieEngineSolidDomain";
 import { AutoMovieSolidTraceObservation as Observation } from "./construction/AutoMovieSolidTraceObservation";
-import { AutoMovieSolidTraceTrial } from "./construction/internal/AutoMovieSolidTraceTrial";
+import { solidTraceTrial } from "./construction/internal/solidTraceTrial";
 import { AutoMovieEngineSolidVector } from "./AutoMovieEngineSolidVector";
 
 /**
@@ -301,7 +301,7 @@ export namespace AutoMovieEngineSolidTraceSolve {
         budget: budget.left,
       });
     const initialB: IAutoMovieSolidTraceTrialTrial | null =
-      AutoMovieSolidTraceTrial(
+      solidTraceTrial(
         host,
         face,
         x[2],
@@ -371,7 +371,7 @@ export namespace AutoMovieEngineSolidTraceSolve {
           continue;
         }
         const by: IAutoMovieSolidTraceTrialTrial | null =
-          AutoMovieSolidTraceTrial(
+          solidTraceTrial(
             host,
             currentFace,
             y[2],
@@ -431,7 +431,7 @@ export namespace AutoMovieEngineSolidTraceSolve {
       const ay: IJet | null = AutoMovieEngineSolidDomain.jet(part, y[0], y[1]);
       if (ay !== null) {
         const by: IAutoMovieSolidTraceTrialTrial | null =
-          AutoMovieSolidTraceTrial(
+          solidTraceTrial(
             host,
             currentFace,
             y[2],

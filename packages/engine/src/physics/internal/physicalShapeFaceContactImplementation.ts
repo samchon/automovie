@@ -7,7 +7,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { triangulateAutoMoviePolygon } from "../../drawing/internal/triangulateAutoMoviePolygon";
+import { triangulatePolygon } from "../../drawing/internal/triangulatePolygon";
 import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { physicalShapeGjkWitness } from "./physicalShapeGjkWitness";
@@ -174,7 +174,7 @@ function partition(
   const points: readonly IAutoMoviePlanarPoint[] = outline.map(
     ({ x, z }: IAutoMovieVector3): IAutoMoviePlanarPoint => ({ x, y: z }),
   );
-  return triangulateAutoMoviePolygon(points)
+  return triangulatePolygon(points)
     .map((triangle): ISide[] =>
       polygon(triangle.map((i: number): IAutoMovieVector3 => outline[i]!)),
     )

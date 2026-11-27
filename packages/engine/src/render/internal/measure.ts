@@ -5,8 +5,8 @@ import {
   IAutoMovieRenderModelCost,
 } from "@automovie/interface";
 
-import { realizeAutoMovieGeometry } from "../../geometry/internal/realizeAutoMovieGeometry";
-import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
+import { realizeGeometry } from "../../geometry/internal/realizeGeometry";
+import { compareRenderIds } from "./compareRenderIds";
 import { AutoMovieEngineIndexBytes } from "../AutoMovieEngineIndexBytes";
 import { AutoMovieEngineNormalBytes } from "../AutoMovieEngineNormalBytes";
 import { AutoMovieEnginePositionBytes } from "../AutoMovieEnginePositionBytes";
@@ -46,7 +46,7 @@ export function measure(
   for (const part of model.parts) {
     if (part.material !== null) materials.add(part.material);
     const realized: IAutoMovieRealizeGeometry.IResult =
-      realizeAutoMovieGeometry(part.geometry);
+      realizeGeometry(part.geometry);
     if (part.geometry.type === "bicubic-atlas") {
       hasRecipe = true;
       recipeComplete &&= realized.complete;
@@ -75,7 +75,7 @@ export function measure(
     parts: model.parts.length,
     vertices,
     triangles,
-    materials: [...materials].sort(compareAutoMovieRenderIds),
+    materials: [...materials].sort(compareRenderIds),
     geometryBytes,
     ...(hasRecipe
       ? {

@@ -13,14 +13,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanFootRelax } from "../../compose/internal/AutoMovieMotionHumanFootRelax";
-import { AutoMovieMotionHumanFootSwing } from "../../compose/internal/AutoMovieMotionHumanFootSwing";
+import { motionHumanFootRelax } from "../../compose/internal/motionHumanFootRelax";
+import { motionHumanFootSwing } from "../../compose/internal/motionHumanFootSwing";
 import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionHumanToesOnFloor } from "../../compose/internal/AutoMovieMotionHumanToesOnFloor";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { pelvisReachHeight } from "../../posture/internal/pelvisReachHeight";
@@ -31,7 +31,7 @@ import { pelvisReachHeight } from "../../posture/internal/pelvisReachHeight";
  * departure and travelling to the next key between on minimum-jerk progress,
  * lifted by that key's clearance: from one bearing key to another on a half
  * sine of the swing's time, so it lifts before it travels and lands after it
- * stops (`AutoMovieMotionHumanFootSwing`), otherwise on that progress (zero
+ * stops (`motionHumanFootSwing`), otherwise on that progress (zero
  * clearance slides it along the floor, as a moonwalk's backslide). A bearing
  * dwell is a contact window: a plant, or a pivot when the key turns the foot as
  * it dwells (a pirouette's demi-pointe). The hips are carried by the caller's
@@ -102,7 +102,7 @@ export namespace DanceFootwork {
       // it stops; a brush or a gesture grazes the floor in passing, so its
       // rise follows the travel's own share, and a slide keeps to the floor.
       return next.bears && next.clearance > 0
-        ? AutoMovieMotionHumanFootSwing(
+        ? motionHumanFootSwing(
             body,
             side,
             dwelt(key, key.leave),
@@ -177,13 +177,13 @@ export namespace DanceFootwork {
         // own placement, the foot turned as the law turns it.
         gesture(t)
           ? placed(t)
-          : AutoMovieMotionHumanFootRelax(
+          : motionHumanFootRelax(
               body,
               posture,
               side,
               placed(t),
               planted(t)
-                ? AutoMovieMotionHumanFootRelax.load(
+                ? motionHumanFootRelax.load(
                     t,
                     last(keys, t) + 1 < keys.length
                       ? keys[last(keys, t)]!.leave
@@ -307,7 +307,7 @@ export namespace DanceFootwork {
       course.duration,
       support,
     );
-    return composeAutoMovieMotionHumanAction({
+    return composeMotionHumanAction({
       base: AutoMovieMotionHumanBase.still(course.duration, entry, [
         ...left.contacts,
         ...right.contacts,
@@ -323,7 +323,7 @@ export namespace DanceFootwork {
           }),
         ),
       ]),
-      clock: AutoMovieMotionClock(course.duration, course.instants),
+      clock: motionClock(course.duration, course.instants),
       primitives: [
         carry(
           body,

@@ -1,6 +1,6 @@
 import type * as THREE from "three";
 
-import type { IAutoMovieRenderFilmResponseRenderer } from "./IAutoMovieRenderFilmResponseRenderer.js";
+import type { IAutoMovieRenderFilmResponseRenderer } from "./IAutoMovieRenderFilmResponseRenderer";
 
 /**
  * The part of `THREE.WebGLRenderer` the film's indirect stage drives: the film

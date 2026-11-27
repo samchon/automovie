@@ -136,7 +136,7 @@ export namespace IAutoMovieSweepSection {
 
   /**
    * Radii at evenly spaced angles, the first along `+x`, joined by the periodic
-   * C2 spline of `interpolateAutoMovieSpline`, with continuous curvature and
+   * C2 spline of `interpolateSpline`, with continuous curvature and
    * the spline's sampled overshoot policy. Positive inputs need not give
    * positive interpolation; the section sampler refuses a non-positive or
    * non-finite sampled radius.

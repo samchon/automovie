@@ -145,7 +145,7 @@ export namespace AutoMovieEnginePhysicalProjectile {
    * The projectile is a sphere about its flight's point, or a capsule from that
    * point to a tail fixed in its body (an arrow from its point back to its nock),
    * turned by its attitude. The sweep is the engine's one contact resolver
-   * (`resolveAutoMovieContactEvents`) with the projectile as its single weapon
+   * (`resolveContactEvents`) with the projectile as its single weapon
    * and each collider as a body measured by its own nearest-point reading, so the
    * scan, root refinement and the tie rule are the resolver's. Its step is chosen
    * from the flight so that the projectile moves less than `thickness` in one

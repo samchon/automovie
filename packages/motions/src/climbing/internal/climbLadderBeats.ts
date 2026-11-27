@@ -5,7 +5,7 @@ import type {
   IAutoMovieMotionHumanClimbLadder,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 
 /*
  * The beat schedule of a rung-ladder climb: both hands reach their first rungs
@@ -148,11 +148,11 @@ export namespace climbLadderBeats {
         },
       );
     const duration: number = beat * (2 + count * 4);
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(
+    const clock: IAutoMovieMotionClock = motionClock(
       duration,
       instants,
     );
-    const reaching: (seconds: number) => number = AutoMovieMotionClock.prepare(
+    const reaching: (seconds: number) => number = motionClock.prepare(
       clock,
       "start",
       "handsOn",

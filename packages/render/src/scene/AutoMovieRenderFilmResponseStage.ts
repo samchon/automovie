@@ -6,18 +6,18 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieFilmMediumPass } from "./medium/AutoMovieFilmMediumPass.js";
-import { readAutoMovieSceneMedium } from "./medium/internal/readAutoMovieSceneMedium.js";
-import { AutoMovieRenderFilmResponseShaders } from "./AutoMovieRenderFilmResponseShaders.js";
-import type { AutoMovieRenderFilmAlpha } from "./AutoMovieRenderFilmAlpha.js";
-import { AutoMovieFilmSampleSum } from "./filmResponse/AutoMovieFilmSampleSum.js";
-import type { IAutoMovieRenderFilmResponseRenderer } from "./IAutoMovieRenderFilmResponseRenderer.js";
-import { allocateAutoMovieFilmTargets } from "./filmResponse/internal/allocateAutoMovieFilmTargets.js";
-import { collectAutoMovieFilmOverlays } from "./filmResponse/internal/collectAutoMovieFilmOverlays.js";
-import { freeAutoMovieFilmOverlayLayer } from "./filmResponse/internal/freeAutoMovieFilmOverlayLayer.js";
-import { planAutoMovieFilmGlareImplementation } from "./filmResponse/internal/planAutoMovieFilmGlareImplementation.js";
-import type { IAutoMovieRenderFilmGlareKernel } from "./IAutoMovieRenderFilmGlareKernel.js";
-import { resolveAutoMovieFilmBeautyCompositionImplementation } from "./filmResponse/internal/resolveAutoMovieFilmBeautyCompositionImplementation.js";
+import { AutoMovieFilmMediumPass } from "./medium/AutoMovieFilmMediumPass";
+import { readSceneMedium } from "./medium/internal/readSceneMedium";
+import { AutoMovieRenderFilmResponseShaders } from "./AutoMovieRenderFilmResponseShaders";
+import type { AutoMovieRenderFilmAlpha } from "./AutoMovieRenderFilmAlpha";
+import { AutoMovieFilmSampleSum } from "./filmResponse/AutoMovieFilmSampleSum";
+import type { IAutoMovieRenderFilmResponseRenderer } from "./IAutoMovieRenderFilmResponseRenderer";
+import { allocateFilmTargets } from "./filmResponse/internal/allocateFilmTargets";
+import { collectFilmOverlays } from "./filmResponse/internal/collectFilmOverlays";
+import { freeFilmOverlayLayer } from "./filmResponse/internal/freeFilmOverlayLayer";
+import { planFilmGlareImplementation } from "./filmResponse/internal/planFilmGlareImplementation";
+import type { IAutoMovieRenderFilmGlareKernel } from "./IAutoMovieRenderFilmGlareKernel";
+import { resolveFilmBeautyCompositionImplementation } from "./filmResponse/internal/resolveFilmBeautyCompositionImplementation";
 
 /**
  * The beauty stage of a directly rendered film: draw a scene's linear light
@@ -35,7 +35,7 @@ import { resolveAutoMovieFilmBeautyCompositionImplementation } from "./filmRespo
  *    `AutoMovieRenderFilmResponseStage.planGlare` gives it, rows then columns;
  * 3. Draws one full-frame quad into the target the host had set (the canvas for
  *    the draw host and the inspector) that applies the glare,
- *    `autoMovieFilmResponseMatrix`, the tone curve, the sRGB encoding and the
+ *    `filmResponseMatrix`, the tone curve, the sRGB encoding and the
  *    grade, and writes the linear frame's depth;
  * 4. Draws the display overlays last over that picture, with the scene's depth
  *    occluding them: every drawn object whose materials all set `toneMapped:
@@ -82,7 +82,7 @@ export class AutoMovieRenderFilmResponseStage {
    * Throws when `height` is not a positive safe integer.
    */
   public static planGlare(height: number): IAutoMovieRenderFilmGlareKernel[] {
-    return planAutoMovieFilmGlareImplementation(height);
+    return planFilmGlareImplementation(height);
   }
 
   /**
@@ -95,14 +95,14 @@ export class AutoMovieRenderFilmResponseStage {
   public static resolveBeautyComposition<Layer extends IAutoMovieFilmBeautyLayer>(
     layers: readonly Layer[],
   ): IAutoMovieFilmBeautyComposition<Layer> {
-    return resolveAutoMovieFilmBeautyCompositionImplementation(layers);
+    return resolveFilmBeautyCompositionImplementation(layers);
   }
 
   /*
    * The targets of the current raster, or null before the first draw with
    * optics.
    */
-  private targets_: allocateAutoMovieFilmTargets.ITargets | null = null;
+  private targets_: allocateFilmTargets.ITargets | null = null;
 
   /*
    * The full-frame quad every pass of the stage draws, carrying the pass's
@@ -290,14 +290,14 @@ export class AutoMovieRenderFilmResponseStage {
   }): void {
     const { renderer, scene, camera, optics }: typeof props = props;
     if (optics === undefined) {
-      if (readAutoMovieSceneMedium(scene) !== null)
+      if (readSceneMedium(scene) !== null)
         throw new Error(
           `At ${props.seconds} s the scene carries a medium, which needs the film's optics to draw`,
         );
       renderer.render(scene, camera);
       return;
     }
-    const targets: allocateAutoMovieFilmTargets.ITargets = this.prepare(
+    const targets: allocateFilmTargets.ITargets = this.prepare(
       props.width,
       props.height,
       optics,
@@ -321,7 +321,7 @@ export class AutoMovieRenderFilmResponseStage {
       cameraMask: camera.layers.mask,
     };
     const overlays: Map<THREE.Object3D, number> =
-      collectAutoMovieFilmOverlays(scene);
+      collectFilmOverlays(scene);
     try {
       // 1. The scene's linear light, without the display overlays.
       for (const object of overlays.keys()) object.layers.mask = 0;
@@ -345,7 +345,7 @@ export class AutoMovieRenderFilmResponseStage {
 
       // 4. Display overlays over the picture, occluded by the scene's depth.
       if (overlays.size !== 0) {
-        const bit: number = freeAutoMovieFilmOverlayLayer(
+        const bit: number = freeFilmOverlayLayer(
           scene,
           prior.cameraMask,
         );
@@ -419,16 +419,16 @@ export class AutoMovieRenderFilmResponseStage {
     width: number,
     height: number,
     optics: IAutoMovieFilmOptics,
-  ): allocateAutoMovieFilmTargets.ITargets {
+  ): allocateFilmTargets.ITargets {
     if (
       this.targets_ === null ||
       this.targets_.width !== width ||
       this.targets_.height !== height
     ) {
       this.release();
-      this.targets_ = allocateAutoMovieFilmTargets(width, height);
+      this.targets_ = allocateFilmTargets(width, height);
     }
-    const targets: allocateAutoMovieFilmTargets.ITargets = this.targets_;
+    const targets: allocateFilmTargets.ITargets = this.targets_;
     const uniforms: Record<string, THREE.IUniform> = this.final_.uniforms;
     const m: number[] = AutoMovieEngineFilmResponse.autoMovieFilmResponseMatrix(optics);
     uniforms.tLinear!.value = targets.linear.texture;
@@ -448,7 +448,7 @@ export class AutoMovieRenderFilmResponseStage {
     uniforms.uGlareStrength!.value = optics.glare?.strength ?? 0;
     targets.kernels.forEach(
       (
-        kernel: allocateAutoMovieFilmTargets.IKernelTargets,
+        kernel: allocateFilmTargets.IKernelTargets,
         index: number,
       ): void => {
         uniforms[`tGlare${index}`]!.value = kernel.output.texture;
@@ -476,7 +476,7 @@ export class AutoMovieRenderFilmResponseStage {
    */
   private glare(
     renderer: IAutoMovieRenderFilmResponseRenderer,
-    targets: allocateAutoMovieFilmTargets.ITargets,
+    targets: allocateFilmTargets.ITargets,
   ): void {
     const pass: (
       material: THREE.RawShaderMaterial,

@@ -5,7 +5,7 @@ import type { IAutoMovieDialogueMouthRange } from "./IAutoMovieDialogueMouthRang
  * phonemes.
  *
  * Before the first range and after the last the mouth is silent; engine's
- * `sampleAutoMovieDialogueVisemeWeights` treats both as `sil` targets.
+ * `sampleDialogueVisemeWeights` treats both as `sil` targets.
  */
 export interface IAutoMovieDialogueVisemeTimeline {
   /** Joined dialogue line identity. */

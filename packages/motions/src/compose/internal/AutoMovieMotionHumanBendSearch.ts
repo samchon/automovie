@@ -12,10 +12,10 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../../actions/internal/stand";
-import { AutoMovieMotionHumanBendChain } from "./AutoMovieMotionHumanBendChain";
-import { AutoMovieMotionHumanBendSide } from "./AutoMovieMotionHumanBendSide";
-import { AutoMovieMotionHumanBendStrain } from "./AutoMovieMotionHumanBendStrain";
-import { AutoMovieMotionHumanBendSweep } from "./AutoMovieMotionHumanBendSweep";
+import { motionHumanBendChain } from "./motionHumanBendChain";
+import { motionHumanBendSide } from "./motionHumanBendSide";
+import { motionHumanBendStrain } from "./motionHumanBendStrain";
+import { motionHumanBendSweep } from "./motionHumanBendSweep";
 
 /*
  * The elbow search of `AutoMovieMotionHumanBend`: the swivel sweep of a hand
@@ -73,7 +73,7 @@ export namespace AutoMovieMotionHumanBendSearch {
     /*
      * A certified lower bound of `strain` known without reading it, where the
      * hand's share of the strain is deferred
-     * (`AutoMovieMotionHumanBendStrain.least`); absent where `strain` is
+     * (`motionHumanBendStrain.least`); absent where `strain` is
      * cheap.
      */
     least?: number;
@@ -135,7 +135,7 @@ export namespace AutoMovieMotionHumanBendSearch {
     wrist: IAutoMovieVector3,
     bend: IAutoMovieVector3,
   ): (candidate: ICandidate) => IScore {
-    return AutoMovieMotionHumanBendSide(shoulder, wrist, bend);
+    return motionHumanBendSide(shoulder, wrist, bend);
   }
 
   /*
@@ -159,8 +159,8 @@ export namespace AutoMovieMotionHumanBendSearch {
         lowerWorld: IAutoMovieQuaternion,
       ) => number)
     | null {
-    const chain: AutoMovieMotionHumanBendChain.IChain | null =
-      AutoMovieMotionHumanBendChain(
+    const chain: motionHumanBendChain.IChain | null =
+      motionHumanBendChain(
         body,
         { root: { x: 0, y: 0, z: 0 }, yaw: 0 },
         side,
@@ -174,7 +174,7 @@ export namespace AutoMovieMotionHumanBendSearch {
     const strained: (
       u: IAngles,
       lowerWorld: () => IAutoMovieQuaternion,
-    ) => number = AutoMovieMotionHumanBendStrain(
+    ) => number = motionHumanBendStrain(
       chain,
       body,
       side,
@@ -210,8 +210,8 @@ export namespace AutoMovieMotionHumanBendSearch {
   export function continued(
     props: Pick<IAutoMovieMotionHumanBend.ISolve, ContinuedProps>,
   ): (near?: IAutoMovieSwivelNear) => ContinuedResult {
-    const chain: AutoMovieMotionHumanBendChain.IChain | null =
-      AutoMovieMotionHumanBendChain(props.body, props.posture, props.side);
+    const chain: motionHumanBendChain.IChain | null =
+      motionHumanBendChain(props.body, props.posture, props.side);
     const neutral: IAngles | null = props.body.hanging[props.side];
     return (near?: IAutoMovieSwivelNear): ContinuedResult2 => {
       if (chain === null || neutral === null) return "the rig has no arm chain";
@@ -221,7 +221,7 @@ export namespace AutoMovieMotionHumanBendSearch {
       )
         return "the wrist is beyond the arm's span";
       return (
-        AutoMovieMotionHumanBendSweep(
+        motionHumanBendSweep(
           chain,
           props.body,
           props.side,
@@ -251,8 +251,8 @@ export namespace AutoMovieMotionHumanBendSearch {
     side: AutoMovieHumanSide,
     hint: IAutoMovieVector3,
   ): IAngles | null {
-    const chain: AutoMovieMotionHumanBendChain.IChain | null =
-      AutoMovieMotionHumanBendChain(
+    const chain: motionHumanBendChain.IChain | null =
+      motionHumanBendChain(
         body,
         { root: { x: 0, y: 0, z: 0 }, yaw: 0 },
         side,
@@ -276,14 +276,14 @@ export namespace AutoMovieMotionHumanBendSearch {
       z: chain.shoulder.z,
     };
     return (
-      AutoMovieMotionHumanBendSweep(
+      motionHumanBendSweep(
         chain,
         body,
         side,
         point,
         undefined,
         null,
-        AutoMovieMotionHumanBendSide.prepare(chain.shoulder, point, hint),
+        motionHumanBendSide.prepare(chain.shoulder, point, hint),
       )?.candidate.angles ?? null
     );
   }
@@ -300,7 +300,7 @@ export namespace AutoMovieMotionHumanBendSearch {
   export function search(
     props: IAutoMovieMotionHumanBend.ISolve,
     rank: (
-      chain: AutoMovieMotionHumanBendChain.IChain,
+      chain: motionHumanBendChain.IChain,
     ) => (candidate: ICandidate) => IScore,
   ): SearchResult {
     return prepare(props)(props, rank);
@@ -312,13 +312,13 @@ export namespace AutoMovieMotionHumanBendSearch {
    */
   export function prepare(
     props: Pick<IAutoMovieMotionHumanBend.ISolve, PrepareProps>,
-    source?: AutoMovieMotionHumanBendChain.IPrepared,
+    source?: motionHumanBendChain.IPrepared,
   ): (
     goal: Pick<IAutoMovieMotionHumanBend.ISolve, PrepareGoalResult>,
     rank: Parameters<typeof search>[1],
   ) => PrepareResult {
-    const chain: AutoMovieMotionHumanBendChain.IChain | null =
-      AutoMovieMotionHumanBendChain(
+    const chain: motionHumanBendChain.IChain | null =
+      motionHumanBendChain(
         props.body,
         props.posture,
         props.side,
@@ -337,7 +337,7 @@ export namespace AutoMovieMotionHumanBendSearch {
         return `the wrist is ${distance.toFixed(3)} m from the shoulder and the arm is ${chain.span.toFixed(3)} m long`;
       const ranking: (candidate: ICandidate) => IScore = rank(chain);
       return (
-        AutoMovieMotionHumanBendSweep(
+        motionHumanBendSweep(
           chain,
           props.body,
           props.side,

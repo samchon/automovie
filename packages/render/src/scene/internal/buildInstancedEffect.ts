@@ -6,8 +6,8 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import type { IAutoMovieRenderEffectViewerObject } from "../IAutoMovieRenderEffectViewerObject.js";
-import type { IAutoMovieRenderEffectViewerStats } from "../IAutoMovieRenderEffectViewerStats.js";
+import type { IAutoMovieRenderEffectViewerObject } from "../IAutoMovieRenderEffectViewerObject";
+import type { IAutoMovieRenderEffectViewerStats } from "../IAutoMovieRenderEffectViewerStats";
 
 /*
  * Build a compiled effect as fixed-capacity camera-facing billboard instances.

@@ -20,7 +20,7 @@ import { readMarkPolyline } from "../../internal/readMarkPolyline";
  *
  * Scenarios:
  *
- * 1. `markAutoMovieConstructionCurves` turns a closed section ring, an open guide
+ * 1. `markConstructionCurves` turns a closed section ring, an open guide
  *    and a flagged axis of a form built into `panel` into marks of kinds
  *    `curve/section`, `curve/guide` and `curve/axis` at paths `panel/<id>`,
  *    anchored to `panel`, sharing the curves' points, flagged where the curve

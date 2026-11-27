@@ -19,7 +19,7 @@ import type { IAutoMovieSurfacePatternZone } from "./IAutoMovieSurfacePatternZon
  * that turns or a joint that fails to line up at the transition is reported
  * with both occurrence ids rather than being invisible.
  *
- * {@link generateAutoMovieSurfacePattern} throws for a declaration whose ids are
+ * {@link generateSurfacePattern} throws for a declaration whose ids are
  * blank or repeated, whose zones or exclusions overlap one another, or whose
  * numeric fields leave the ranges stated below; measured defects of a valid
  * declaration come back as findings. Lengths are face-local metres.

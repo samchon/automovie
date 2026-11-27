@@ -18,7 +18,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanHead } from "../../compose/internal/AutoMovieMotionHumanHead";
@@ -29,8 +29,8 @@ import { AutoMovieMotionHumanLegPhrase } from "../../compose/internal/AutoMovieM
 import { AutoMovieMotionHumanPlaced } from "../../compose/internal/AutoMovieMotionHumanPlaced";
 import { AutoMovieMotionHumanRange } from "../../compose/internal/AutoMovieMotionHumanRange";
 import { AutoMovieMotionHumanTouchEffector } from "../../compose/internal/AutoMovieMotionHumanTouchEffector";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionManner } from "../../compose/internal/motionManner";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
@@ -123,8 +123,8 @@ export namespace stretch {
     hold: number,
     modifiers: IAutoMovieMotionManner.IModifiers,
   ): IAutoMovieMotionClock {
-    const timed: IAutoMovieMotionClock = AutoMovieMotionManner.time(
-      AutoMovieMotionClock.phrase({
+    const timed: IAutoMovieMotionClock = motionManner.time(
+      motionClock.phrase({
         prepare: ENTER,
         attack: 0,
         hold,
@@ -132,7 +132,7 @@ export namespace stretch {
       }),
       modifiers,
     );
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(timed.duration, [
+    const clock: IAutoMovieMotionClock = motionClock(timed.duration, [
       ...timed.instants,
       { name: "enter", seconds: 0 },
       { name: "reachEnd", seconds: timed.at("ready") },
@@ -165,7 +165,7 @@ export namespace stretch {
     HumanBound.least("hold", hold, 0, "s");
     const level: IAutoMovieMotionHumanRange.Level =
       INTENSITY[p.depth ?? "moderate"];
-    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+    const modifiers: IAutoMovieMotionManner.IModifiers = motionManner(
       context,
       p.manner,
     );
@@ -192,7 +192,7 @@ export namespace stretch {
     const body = context.body;
     const m = body.measure;
     const weight: (seconds: number) => number =
-      AutoMovieMotionClock.prepareEnvelope(
+      motionClock.prepareEnvelope(
         clock,
         ["start", "ready"],
         ["relax", "end"],
@@ -258,7 +258,7 @@ export namespace stretch {
     ): IAutoMovieMotionHumanPrimitive => {
       const offset: IAutoMovieVector3 = over(standing);
       const envelope: (seconds: number) => number =
-        AutoMovieMotionClock.prepareEnvelope(
+        motionClock.prepareEnvelope(
           clock,
           ["start", "shifted"],
           ["lowered", "end"],
@@ -281,7 +281,7 @@ export namespace stretch {
       };
     };
     const raising: (seconds: number) => number =
-      AutoMovieMotionClock.prepareEnvelope(
+      motionClock.prepareEnvelope(
         clock,
         ["shifted", "reachEnd"],
         ["release", "lowered"],
@@ -498,7 +498,7 @@ export namespace stretch {
         break;
       }
     }
-    return composeAutoMovieMotionHumanAction({
+    return composeMotionHumanAction({
       base: AutoMovieMotionHumanBase.still(clock.duration, entry, contacts),
       clock,
       primitives,

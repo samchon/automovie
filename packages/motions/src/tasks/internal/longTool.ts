@@ -19,7 +19,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
-import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
+import { motionHumanHeld } from "../../compose/internal/motionHumanHeld";
 import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionHumanLeg";
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
@@ -33,7 +33,7 @@ import { LongToolStroke } from "./LongToolStroke";
  * Work with a long tool in two hands, standing, in cycles at a work point
  * (`IAutoMovieMotionHumanLongTool`): the trailing hand holds the tool rigid
  * near the shaft's end, so the face is a fixed offset in that hand's frame
- * (`AutoMovieMotionHumanHeld`), and each instant of the stroke
+ * (`motionHumanHeld`), and each instant of the stroke
  * (`LongToolStroke`) gives the tool's line, its face's facing and the trailing
  * grip in the world, the hand turned the least that lays the held tool on them;
  * the lead hand closes on the tool's line at the stroke's slide from the
@@ -86,13 +86,13 @@ export namespace longTool {
       HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw }, v);
 
     // The held tool: its face and line in the trailing hand's frame.
-    const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
+    const held: IAutoMovieMotionHumanHeld.IHeld = motionHumanHeld(
       context,
       trail,
       params.prop,
     );
     const face: IAutoMovieMotionHumanHeld.IPointResult =
-      AutoMovieMotionHumanHeld.point(held, "face");
+      motionHumanHeld.point(held, "face");
     const length: number = AutoMovieEngineVector3.length(face.point);
     const line: IAutoMovieVector3 = AutoMovieEngineVector3.scale(face.point, 1 / length);
     const align: ReturnType<typeof HumanHand.prepareAlignment> =

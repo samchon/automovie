@@ -26,7 +26,7 @@ import { standUpright } from "../../actions/internal/standUpright";
 import { HumanSupportFrame } from "../../carrier/internal/HumanSupportFrame";
 import { AutoMovieMotionHumanArmCourse } from "../../compose/internal/AutoMovieMotionHumanArmCourse";
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
+import { motionManner } from "../../compose/internal/motionManner";
 import { prepareHumanPostureCorrection } from "../../compose/internal/prepareHumanPostureCorrection";
 import { HumanPhysics } from "../../law/internal/HumanPhysics";
 import { HumanMountOff } from "../../lexicon/internal/HumanMountOff";
@@ -180,7 +180,7 @@ export namespace rise {
     }
     const rising: number =
       seatedCourse.descent(r) *
-      AutoMovieMotionManner(context, context.params.manner).tempo;
+      motionManner(context, context.params.manner).tempo;
     const yaw: number = context.entry.posture.yaw;
     const legged: ReturnType<typeof stand.prepareLegs> = stand.prepareLegs(
       body,

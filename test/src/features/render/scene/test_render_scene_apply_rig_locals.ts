@@ -4,7 +4,7 @@ import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 /**
- * `applyAutoMovieRigLocals` writes each mapped bone's local transform and the
+ * `applyRigLocals` writes each mapped bone's local transform and the
  * root's, with unit scale.
  *
  * Scenarios:

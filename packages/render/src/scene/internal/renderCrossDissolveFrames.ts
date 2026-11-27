@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
-import { AutoMovieDisplayCompositor } from "./AutoMovieDisplayCompositor.js";
-import { isAutoMovieDisplayBlendWeight } from "./isAutoMovieDisplayBlendWeight.js";
+import { AutoMovieDisplayCompositor } from "./AutoMovieDisplayCompositor";
+import { isDisplayBlendWeight } from "./isDisplayBlendWeight";
 
 /*
  * Combine two independently resolved display frames with complementary byte
@@ -34,7 +34,7 @@ export const renderCrossDissolveFrames: (
   renderIncoming: () => void,
   alpha: number,
 ): void => {
-  if (!isAutoMovieDisplayBlendWeight(alpha))
+  if (!isDisplayBlendWeight(alpha))
     throw new Error("Cross-dissolve alpha must be finite and inside [0, 1].");
   const size: THREE.Vector2 = renderer.getDrawingBufferSize(
     new THREE.Vector2(),

@@ -12,40 +12,57 @@ import type { AutoMovieArchetypeConvexCell } from "../AutoMovieArchetypeConvexCe
 import { AutoMovieArchetypeFrame } from "../AutoMovieArchetypeFrame";
 import type { AutoMovieArchetypeFriction } from "../AutoMovieArchetypeFriction";
 
-/** One builder's parts and the shared material/mass records they use. */
+/*
+ * One builder's parts and the shared material/mass records they use.
+ */
 export class ArchetypeBuilderParts {
-  /** The existing default optical swatch, shared by the public builder alias. */
+  /*
+   * The existing default optical swatch, shared by the public builder alias.
+   */
   public static readonly NEUTRAL: string = "#9a9a9a";
-  /** Local parts, handed to the built archetype. */
+  /*
+   * Local parts, handed to the built archetype.
+   */
   public readonly parts: IAutoMovieModelPart[] = [];
-  /** One optical material per normalized colour. */
+  /*
+   * One optical material per normalized colour.
+   */
   public readonly materials: Map<string, IAutoMovieMaterial> = new Map();
-  /** Authored relative densities by part id. */
+  /*
+   * Authored relative densities by part id.
+   */
   public readonly density: Record<string, number> = {};
-  /** Authored mass weights by part id. */
+  /*
+   * Authored mass weights by part id.
+   */
   public readonly shares: Record<string, number> = {};
-  /** Declared physical surfaces by part id. */
+  /*
+   * Declared physical surfaces by part id.
+   */
   public readonly surfaces: Record<
     string,
     AutoMovieArchetypeFriction.Material
   > = {};
-  /** Explicit convex cells; primitive parts need no extra record. */
+  /*
+   * Explicit convex cells; primitive parts need no extra record.
+   */
   public readonly cells: Map<string, AutoMovieArchetypeConvexCell.ICell> =
     new Map();
 
-  /** @param archetype Producer name used only in duplicate-id diagnostics. */
+  /*
+   * Parameter archetype: Producer name used only in duplicate-id diagnostics.
+   */
   public constructor(private readonly archetype: string) {}
 
-  /**
+  /*
    * Record a primitive, admitted convex cell or visual mesh and its material.
-   *
-   * @param id Unique part id.
-   * @param geometry Local geometry; no bounding representation is substituted.
-   * @param at Local origin in model metres.
-   * @param rotation Unit local-to-model quaternion, or identity when absent.
-   * @param options Optical colour and opacity, relative density/weight and
-   *   physical surface.
-   * @throws {Error} For a repeated part id.
+   * Parameter id: Unique part id.
+   * Parameter geometry: Local geometry; no bounding representation is substituted.
+   * Parameter at: Local origin in model metres.
+   * Parameter rotation: Unit local-to-model quaternion, or identity when absent.
+   * Parameter options: Optical colour and opacity, relative density/weight and
+   * physical surface.
+   * For a repeated part id.
    */
   public add(
     id: string,

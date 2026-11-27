@@ -13,7 +13,9 @@ import { StationeryDrawData } from "./StationeryDrawData";
  * The seeded recipes originally published as `createStationery`.
  */
 export namespace StationeryDraw {
-  /** The kinds. */
+  /*
+   * The kinds.
+   */
   export type Kind = "book" | "paper" | "pen" | "clipboard" | "map";
 
   /*
@@ -27,7 +29,7 @@ export namespace StationeryDraw {
     "map",
   ];
 
-  /**
+  /*
    * The affordance ids:
    *
    * - `grip`: the hold: a book by the middle of its spine, the hand closing
@@ -59,7 +61,7 @@ export namespace StationeryDraw {
     | "fold-edge"
     | "support-grip";
 
-  /**
+  /*
    * The free dimensions, metres unless stated:
    *
    * - `width`: along `+X`; a pen has none.
@@ -81,25 +83,35 @@ export namespace StationeryDraw {
     mass: "kg",
   };
 
-  /**
+  /*
    * The parameters: the kind, and any free dimension fixed to a value inside
    * its band.
    */
   export interface IParams extends Partial<Record<Dimension, number>> {
-    /** Which thing. */
+    /*
+     * Which thing.
+     */
     kind: Kind;
 
-    /** A clipboard's model; drawn from the seed when absent. */
+    /*
+     * A clipboard's model; drawn from the seed when absent.
+     */
     model?: Model;
 
-    /** The model's id, unique in a scene; `stationery` when absent. */
+    /*
+     * The model's id, unique in a scene; `stationery` when absent.
+     */
     id?: string;
   }
 
-  /** A model's read figures, by dimension. */
+  /*
+   * A model's read figures, by dimension.
+   */
   export type Figures = Readonly<Partial<Record<Dimension, number>>>;
 
-  /** The clipboards read: Esselte's 56055 and 604037, both A4. */
+  /*
+   * The clipboards read: Esselte's 56055 and 604037, both A4.
+   */
   export type Model = "56055" | "604037";
 
   /*

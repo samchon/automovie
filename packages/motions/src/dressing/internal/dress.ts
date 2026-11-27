@@ -23,15 +23,15 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmTarget } from "../../compose/internal/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
+import { motionHumanHeld } from "../../compose/internal/motionHumanHeld";
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
+import { motionManner } from "../../compose/internal/motionManner";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { prepareHumanElbowPath } from "../../compose/internal/prepareHumanElbowPath";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { HumanGrip } from "../../handling/internal/HumanGrip";
@@ -49,7 +49,7 @@ import { dressTurn } from "./dressTurn";
  *
  * The item is the wearable prop the hand holds since a pick-up (`prop`, by its
  * `hold`): that hand carries it, rigid in the hand
- * (`AutoMovieMotionHumanHeld`), so that its own `wear` socket comes onto the
+ * (`motionHumanHeld`), so that its own `wear` socket comes onto the
  * head's region it is worn on (`HumanWorn`: a hat's on the crown, a pair of
  * glasses' on the nose's bridge), spectacles facing the way the body faces and
  * a hat, round about its crown, at whichever turn the arm, fitted within its
@@ -63,9 +63,9 @@ import { dressTurn } from "./dressTurn";
  * to a place a quarter of the forearm before the item's final place in front of
  * the face (the item held up), then move it onto the head in a stroke, hold it
  * a moment and return. The reach takes the free-space movement time
- * (`AutoMovieMotionHumanTiming.transport`) of the farther hand's way from where
+ * (`motionHumanTiming.transport`) of the farther hand's way from where
  * it starts to where it holds the item up, in free space before the face, the
- * stroke a beat (`AutoMovieMotionHumanTiming.PAUSES`). The shoulder's elevation
+ * stroke a beat (`motionHumanTiming.PAUSES`). The shoulder's elevation
  * stays within the functional ranges of daily tasks (flexion 121, abduction 128
  * degrees, Namdari et al. 2012, J Shoulder Elbow Surg 21:1177), which the
  * capture checks. Events: the phrase's `ready` (item held up), `strokeStart`,
@@ -235,7 +235,7 @@ export namespace dress {
       context.entry.holds.right !== subject
         ? "left"
         : "right");
-    const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
+    const held: IAutoMovieMotionHumanHeld.IHeld = motionHumanHeld(
       context,
       holder,
       subject,
@@ -245,7 +245,7 @@ export namespace dress {
     const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
       held.frame.rotation,
     );
-    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+    const modifiers: IAutoMovieMotionManner.IModifiers = motionManner(
       context,
       context.params.manner,
     );
@@ -305,7 +305,7 @@ export namespace dress {
       holder,
       "grip",
     ).point;
-    const wear: IAutoMovieVector3 = AutoMovieMotionHumanHeld.point(
+    const wear: IAutoMovieVector3 = motionHumanHeld.point(
       held,
       "wear",
     ).point;
@@ -328,7 +328,7 @@ export namespace dress {
     // The reach lasts the movement time of the farther hand's way, from
     // where it starts to where it holds the item up, the lead before its
     // place on the entry's head: a place in free space, so it takes the
-    // free-space rule, not an aimed one (`AutoMovieMotionHumanTiming`).
+    // free-space rule, not an aimed one (`motionHumanTiming`).
     const up: (point: IAutoMovieVector3) => IAutoMovieVector3 = (
       point: IAutoMovieVector3,
     ): IAutoMovieVector3 => AutoMovieEngineVector3.add(point, AutoMovieEngineVector3.scale(forward, lead));
@@ -346,12 +346,12 @@ export namespace dress {
         ),
       ),
     );
-    const reach: number = AutoMovieMotionHumanTiming(far, { solid: false });
-    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
-      AutoMovieMotionClock.phrase({
+    const reach: number = motionHumanTiming(far, { solid: false });
+    const clock: IAutoMovieMotionClock = motionManner.time(
+      motionClock.phrase({
         prepare: reach,
-        attack: AutoMovieMotionHumanTiming.PAUSES.beat,
-        hold: AutoMovieMotionHumanTiming.PAUSES.brief,
+        attack: motionHumanTiming.PAUSES.beat,
+        hold: motionHumanTiming.PAUSES.brief,
         retract: reach,
       }),
       modifiers,
@@ -522,7 +522,7 @@ export namespace dress {
         });
       };
     const composed: IAutoMovieMotionHumanActionPlan =
-      composeAutoMovieMotionHumanAction({
+      composeMotionHumanAction({
         base,
         clock,
         contact: "stroke",
@@ -542,7 +542,7 @@ export namespace dress {
       ...composed,
       contacts: [
         ...composed.contacts,
-        { ...AutoMovieMotionHumanHeld.grip(held), to: on },
+        { ...motionHumanHeld.grip(held), to: on },
       ],
       wears: [{ prop: subject, bone: "head", from: on }],
       posture: (

@@ -3,7 +3,7 @@ import { AutoMovieRenderCapture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `planAutoMovieCaptureLayout` lays captured stills into contact sheets within
+ * `planCaptureLayout` lays captured stills into contact sheets within
  * a longest-edge budget.
  *
  * Scenarios:

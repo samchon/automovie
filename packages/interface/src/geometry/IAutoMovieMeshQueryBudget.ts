@@ -2,7 +2,7 @@
  * A caller-owned, mutable count of geometry work a bounded query may still
  * spend.
  *
- * `createAutoMovieMeshSeparationQuery` spends one unit per visited box and per
+ * `createMeshSeparationQuery` spends one unit per visited box and per
  * tested triangle, normal triple, projection axis or edge pair before doing
  * that work, and throws by name when the count is exhausted or is not a
  * nonnegative safe integer. The same object may be shared across many queries

@@ -9,7 +9,7 @@ import type {
   IAutoMovieRandom,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionInterval } from "../../compose/internal/AutoMovieMotionInterval";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { affectHeldHands } from "./affectHeldHands";
@@ -399,14 +399,14 @@ const INHALATION_END: number = 0.4;
 /*
  * One normalized clock for the sigh and yawn, independent of their lengths.
  */
-const BREATH_DISPLAY_CLOCK: IAutoMovieMotionClock = AutoMovieMotionClock(1, [
+const BREATH_DISPLAY_CLOCK: IAutoMovieMotionClock = motionClock(1, [
   { name: "inhaled", seconds: INHALATION_END },
 ]);
 
 /*
  * Minimum-jerk progress up to the end of inhalation.
  */
-const INHALE: AutoMovieMotionInterval.IPrepared = AutoMovieMotionClock.prepare(
+const INHALE: AutoMovieMotionInterval.IPrepared = motionClock.prepare(
   BREATH_DISPLAY_CLOCK,
   "start",
   "inhaled",
@@ -415,7 +415,7 @@ const INHALE: AutoMovieMotionInterval.IPrepared = AutoMovieMotionClock.prepare(
 /*
  * Minimum-jerk progress from the end of inhalation to the display's end.
  */
-const EXHALE: AutoMovieMotionInterval.IPrepared = AutoMovieMotionClock.prepare(
+const EXHALE: AutoMovieMotionInterval.IPrepared = motionClock.prepare(
   BREATH_DISPLAY_CLOCK,
   "inhaled",
   "end",

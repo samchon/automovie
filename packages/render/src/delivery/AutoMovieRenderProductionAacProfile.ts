@@ -3,7 +3,7 @@ import type { IAutoMovieProductionAacProfile } from "@automovie/interface";
 /**
  * The AAC-in-MP4 profile the delivery encoder writes: AAC-LC (audio object type
  * 2) at 48 kHz in two channels, the `-c:a aac -ar 48000 -ac 2` of
- * `planAutoMovieVideoEncoding`.
+ * `planVideoEncoding`.
  */
 export const AutoMovieRenderProductionAacProfile: Readonly<IAutoMovieProductionAacProfile> =
   {

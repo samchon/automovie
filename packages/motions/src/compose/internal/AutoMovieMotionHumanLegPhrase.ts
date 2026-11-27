@@ -10,7 +10,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanFoot } from "../../posture/internal/HumanFoot";
-import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
+import { motionClock } from "./motionClock";
 import { AutoMovieMotionHumanLeg } from "./AutoMovieMotionHumanLeg";
 
 /*
@@ -205,7 +205,7 @@ export namespace AutoMovieMotionHumanLegPhrase {
             posture,
             seconds,
           );
-          const p: number = AutoMovieMotionClock.through(
+          const p: number = motionClock.through(
             clock,
             ["strokeStart", "stroke", "strokeEnd"],
             seconds,

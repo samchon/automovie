@@ -1,8 +1,8 @@
-import type { IAutoMovieInspectionRequest } from "./IAutoMovieInspectionRequest.js";
+import type { IAutoMovieInspectionRequest } from "./IAutoMovieInspectionRequest";
 
 /**
  * Inspection patterns and current scene paths for a capture-resolution receipt.
- * resolveAutoMovieCapturePatterns applies the same path grammar as drawing,
+ * resolveCapturePatterns applies the same path grammar as drawing,
  * reporting topmost matched paths and counts without retaining scene objects.
  */
 export interface IAutoMovieResolveCapturePatternsProps {

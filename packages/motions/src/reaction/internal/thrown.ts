@@ -14,14 +14,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanJoints } from "../../compose/internal/AutoMovieMotionHumanJoints";
 import { AutoMovieMotionHumanLean } from "../../compose/internal/AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanRoot } from "../../compose/internal/AutoMovieMotionHumanRoot";
 import { AutoMovieMotionHumanTarget } from "../../compose/internal/AutoMovieMotionHumanTarget";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { StrikingTarget } from "../../striking/internal/StrikingTarget";
@@ -214,7 +214,7 @@ export namespace thrown {
       : 0;
     const impact: number = takeoff + flown;
     const land: number = impact + slide;
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(land + lie, [
+    const clock: IAutoMovieMotionClock = motionClock(land + lie, [
       { name: "takeoff", seconds: takeoff },
       ...(struck ? [{ name: "impact", seconds: impact }] : []),
       { name: "land", seconds: land },
@@ -272,7 +272,7 @@ export namespace thrown {
     };
 
     const plan: IAutoMovieMotionHumanActionPlan =
-      composeAutoMovieMotionHumanAction({
+      composeMotionHumanAction({
         base: {
           ...AutoMovieMotionHumanBase.still(
             duration,

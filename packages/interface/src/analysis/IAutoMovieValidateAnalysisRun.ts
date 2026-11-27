@@ -5,7 +5,7 @@ export namespace IAutoMovieValidateAnalysisRun {
   /**
    * Validate one analysis run as evidence.
    *
-   * The contents follow `validateAutoMovieAnalysisRunContents`: an absent
+   * The contents follow `validateAnalysisRunContents`: an absent
    * measurement must stay visibly absent, and a spatial sample may only field a
    * metric that produced a value. On top of that the digest is recomputed, so a
    * run whose outcome was edited after sealing fails here rather than being

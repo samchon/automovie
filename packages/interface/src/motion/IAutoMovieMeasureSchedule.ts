@@ -1,7 +1,7 @@
 import type { IAutoMovieScheduleEntry } from "./IAutoMovieScheduleEntry";
 
 /**
- * Classifiers and measurements for measureAutoMovieSchedule. Callbacks run
+ * Classifiers and measurements for measureSchedule. Callbacks run
  * synchronously over borrowed entries, are not retained, and propagate
  * exceptions; callers own numeric validity and must not mutate the schedule.
  * Results are fresh, mutable records.

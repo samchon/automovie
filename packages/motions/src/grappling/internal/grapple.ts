@@ -13,7 +13,7 @@ import type {
 } from "@automovie/interface";
 
 import { support } from "../../actions/internal/support";
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanBound } from "../../law/internal/HumanBound";
@@ -206,7 +206,7 @@ export namespace grapple {
 
     const regions: ReturnType<typeof grappleStances.regions> =
       grappleStances.regions(p.kind, p.side ?? "right");
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(floor.duration, [
+    const clock: IAutoMovieMotionClock = motionClock(floor.duration, [
       { name: "reach", seconds: floor.duration * timing.reach },
       { name: "take", seconds: floor.duration * timing.take },
       { name: "release", seconds: floor.duration * timing.release },

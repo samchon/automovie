@@ -2,7 +2,7 @@ import type { IAutoMovieSurfaceCage } from "./IAutoMovieSurfaceCage";
 
 /**
  * The faces, UVs, corner coordinates and patch grids of a surface rig's cage as
- * its patches are laid out, from `layoutAutoMovieSurfacePatches`.
+ * its patches are laid out, from `layoutSurfacePatches`.
  */
 export interface IAutoMovieSurfaceLayout {
   /** Quads as four vertex indices, counterclockwise seen from outside. */

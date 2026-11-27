@@ -4,8 +4,8 @@ import { TestValidator } from "@nestia/e2e";
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * `rootsAutoMovieViewPolynomial(coefficients)` lists the roots inside (0, 1) of
- * a polynomial of degree at most nine, and `rootsAutoMovieViewSinPolynomial`
+ * `rootsViewPolynomial(coefficients)` lists the roots inside (0, 1) of
+ * a polynomial of degree at most nine, and `rootsViewSinPolynomial`
  * those of P(t) + a sin(offset + span t) on a subinterval.
  *
  * Scenarios:

@@ -6,11 +6,11 @@ import type {
   IAutoMovieRandom,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionClock
-} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionClock";
+  motionClock
+} from "../../../../../packages/motions/src/compose/internal/motionClock";
 import {
-  AutoMovieMotionManner
-} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionManner";
+  motionManner
+} from "../../../../../packages/motions/src/compose/internal/motionManner";
 import {
   HumanSkill
 } from "../../../../../packages/motions/src/skill/internal/HumanSkill";
@@ -44,7 +44,7 @@ const UNREAD: IAutoMovieRandom = {
 };
 
 /**
- * A manner's time scaling: `AutoMovieMotionManner.resolve` turns a pace into
+ * A manner's time scaling: `motionManner.resolve` turns a pace into
  * the tempo `Effort.tempo / pace`, Laban's Time Effort giving `1 − 0.3 time`,
  * and a hold factor `tempo (1 + 0.3 flow)`; `time` stretches the action's clock
  * span by span. Played at a pace, an action keeps its instants' names and
@@ -52,7 +52,7 @@ const UNREAD: IAutoMovieRandom = {
  * its second times the tempo, and a quantity read at equal phase is equal and
  * changes at the rate divided by the tempo (the chain rule).
  *
- * A clock (`AutoMovieMotionClock`) of 3 s with instants `lift` at 1 s, `plant`
+ * A clock (`motionClock`) of 3 s with instants `lift` at 1 s, `plant`
  * at 2 s.
  *
  * Scenarios:
@@ -69,7 +69,7 @@ const UNREAD: IAutoMovieRandom = {
  *    extent spreads. Explicit consistency replaces both spreads.
  */
 export function test_motions_compose_manner_pace(): void {
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock(3, [
+  const clock: IAutoMovieMotionClock = motionClock(3, [
     { name: "lift", seconds: 1 },
     { name: "plant", seconds: 2 },
   ]);
@@ -77,10 +77,10 @@ export function test_motions_compose_manner_pace(): void {
     c.instants.map((i: IAutoMovieMotionClockInstant): string => i.name);
 
   // 1. The tempo of a pace.
-  const fast: ReturnType<typeof AutoMovieMotionManner.resolve> =
-    AutoMovieMotionManner.resolve({ pace: 2 }, UNREAD);
-  const usual: ReturnType<typeof AutoMovieMotionManner.resolve> =
-    AutoMovieMotionManner.resolve({ pace: 1 }, UNREAD);
+  const fast: ReturnType<typeof motionManner.resolve> =
+    motionManner.resolve({ pace: 2 }, UNREAD);
+  const usual: ReturnType<typeof motionManner.resolve> =
+    motionManner.resolve({ pace: 1 }, UNREAD);
   TestValidator.predicate(
     "a pace's tempo",
     nclose(fast.tempo, 0.5, ROUNDING) &&
@@ -89,7 +89,7 @@ export function test_motions_compose_manner_pace(): void {
   );
 
   // 2. The scaled clock.
-  const played: IAutoMovieMotionClock = AutoMovieMotionManner.time(
+  const played: IAutoMovieMotionClock = motionManner.time(
     clock,
     fast,
     {
@@ -119,28 +119,28 @@ export function test_motions_compose_manner_pace(): void {
   );
 
   // 4. The weary preset.
-  const weary: ReturnType<typeof AutoMovieMotionManner.resolve> =
-    AutoMovieMotionManner.resolve(AutoMovieMotionManner.PRESETS.weary, UNREAD);
+  const weary: ReturnType<typeof motionManner.resolve> =
+    motionManner.resolve(motionManner.PRESETS.weary, UNREAD);
   TestValidator.predicate(
     "weary's tempo and hold, its instants kept",
     nclose(weary.tempo, 1.21 / 0.8, ROUNDING) &&
       nclose(weary.hold, (1.21 / 0.8) * 1.09, ROUNDING) &&
-      names(AutoMovieMotionManner.time(clock, weary)).join() ===
+      names(motionManner.time(clock, weary)).join() ===
         names(clock).join(),
   );
 
   const random: IAutoMovieRandom = AutoMovieEngineRandom.createRandom("manner-axes");
-  const context: Parameters<typeof AutoMovieMotionManner>[0] = {
+  const context: Parameters<typeof motionManner>[0] = {
     skill: HumanSkill.resolve(
       { level: "trained", axes: { timing: 1, path: 0 } },
       "manner-axes",
     ),
     random: (): IAutoMovieRandom => random,
   };
-  const varied: ReturnType<typeof AutoMovieMotionManner> =
-    AutoMovieMotionManner(context, { variation: 1 });
-  const consistent: ReturnType<typeof AutoMovieMotionManner> =
-    AutoMovieMotionManner(context, { variation: 1, consistency: 1 });
+  const varied: ReturnType<typeof motionManner> =
+    motionManner(context, { variation: 1 });
+  const consistent: ReturnType<typeof motionManner> =
+    motionManner(context, { variation: 1, consistency: 1 });
   const tempo: number = 1 + 0.05 * (2 * random.float(0) - 1);
   const extent: number = 2 * random.float(1) - 1;
   TestValidator.predicate(

@@ -23,8 +23,8 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
-import { AutoMovieMotionHumanArmBase } from "./AutoMovieMotionHumanArmBase";
-import { AutoMovieMotionHumanTiming } from "./AutoMovieMotionHumanTiming";
+import { motionHumanArmBase } from "./motionHumanArmBase";
+import { motionHumanTiming } from "./motionHumanTiming";
 
 /*
  * Physical observations used by arm planning and target feedback: travel
@@ -35,7 +35,7 @@ export namespace AutoMovieMotionHumanArmObservation {
    * The time a reach on the joint-space blend from one arm to another takes:
    * its wrist's arc timed as a reach-to-grasp to a point by the two-factor
    * movement-time model (McIntosh, Mon-Williams and Tresilian 2018,
-   * `AutoMovieMotionHumanTiming.aimed`). The arm planner paces the reach by the
+   * `motionHumanTiming.aimed`). The arm planner paces the reach by the
    * peak that timing gives its straight course (Flash and Hogan 1985's
    * minimum-jerk peak, `HumanArmTrajectoryModel.UNIT`), so a detour takes
    * proportionally longer.
@@ -105,11 +105,11 @@ export namespace AutoMovieMotionHumanArmObservation {
     maximumSpeed?: number,
   ): number {
     // The wrist's travel timed as a reach-to-grasp to a point (McIntosh,
-    // Mon-Williams and Tresilian 2018, `AutoMovieMotionHumanTiming.aimed`);
+    // Mon-Williams and Tresilian 2018, `motionHumanTiming.aimed`);
     // the longest arc is the planner's to pace by (`longest`).
     const rate = maximumSpeed === undefined ? undefined : { peak: 0 };
     const wrist: number = arcs(body, base, side, from, to, source, rate)[1]!;
-    const aimed: number = AutoMovieMotionHumanTiming.aimed(wrist, 0);
+    const aimed: number = motionHumanTiming.aimed(wrist, 0);
     return maximumSpeed === undefined
       ? aimed
       : Math.max(aimed, rate!.peak / maximumSpeed);
@@ -308,10 +308,10 @@ export namespace AutoMovieMotionHumanArmObservation {
 
   /*
    * What the arms are read against at an instant
-   * (`AutoMovieMotionHumanArmBase`).
+   * (`motionHumanArmBase`).
    */
-  export const based: typeof AutoMovieMotionHumanArmBase =
-    AutoMovieMotionHumanArmBase;
+  export const based: typeof motionHumanArmBase =
+    motionHumanArmBase;
 
   /*
    * Convert an arm goal to its physical contact site on the actual pose.

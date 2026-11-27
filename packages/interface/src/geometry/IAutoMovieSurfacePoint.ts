@@ -2,8 +2,8 @@ import type { IAutoMovieSweepRig } from "./IAutoMovieSweepRig";
 
 /**
  * A point of a surface rig that is written per pose: a node, a sweep sample or
- * a curve's control point. rigAutoMovieSurfaceNetwork creates these records and
- * rigAutoMovieSurfaceCurve reads their current writers and probes. Sweep-node
+ * a curve's control point. rigSurfaceNetwork creates these records and
+ * rigSurfaceCurve reads their current writers and probes. Sweep-node
  * records are resolved during registry finalization; reading their placeholder
  * writer before that throws.
  */

@@ -1,7 +1,7 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { createAutoMovieSurfaceAppearance as createImplementation } from "./internal/createAutoMovieSurfaceAppearance.js";
+import { createSurfaceAppearance as createImplementation } from "./internal/createSurfaceAppearance";
 
 /** Public operations for Auto Movie Render Surface Appearance. */
 export namespace AutoMovieRenderSurfaceAppearance {

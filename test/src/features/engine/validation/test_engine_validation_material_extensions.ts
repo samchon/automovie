@@ -4,8 +4,8 @@ import {
   AutoMovieEngineValidation,
 } from "@automovie/engine";
 import {
-  unsupportedAutoMovieMaterialExtensions
-} from "../../../../../packages/engine/src/validation/internal/unsupportedAutoMovieMaterialExtensions";
+  unsupportedMaterialExtensions
+} from "../../../../../packages/engine/src/validation/internal/unsupportedMaterialExtensions";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -16,11 +16,11 @@ import { TestValidator } from "@nestia/e2e";
  *
  * 1. `AutoMovieEngineSupportedMaterialExtensions` is exactly the clearcoat, ior,
  *    transmission and texture-transform extensions.
- * 2. `unsupportedAutoMovieMaterialExtensions` of none, or of those four beside
+ * 2. `unsupportedMaterialExtensions` of none, or of those four beside
  *    geometry, compression, lighting and container extensions, is empty.
  * 3. Every other material or texture extension is reported once, sorted, with
  *    repeats folded.
- * 4. `isAutoMovieMaterialExtension` reads the identity's own segments: material,
+ * 4. `isMaterialExtension` reads the identity's own segments: material,
  *    materials, texture and textures (case-folded) are material extensions;
  *    draco, lights and a mere substring (`immaterialism`) are not.
  */
@@ -43,8 +43,8 @@ export function test_engine_validation_material_extensions(): void {
   TestValidator.equals(
     "parity only",
     [
-      unsupportedAutoMovieMaterialExtensions([]),
-      unsupportedAutoMovieMaterialExtensions([
+      unsupportedMaterialExtensions([]),
+      unsupportedMaterialExtensions([
         "KHR_texture_transform",
         "KHR_materials_ior",
         "KHR_materials_transmission",
@@ -62,7 +62,7 @@ export function test_engine_validation_material_extensions(): void {
   // 3.
   TestValidator.equals(
     "reported once, sorted",
-    unsupportedAutoMovieMaterialExtensions([
+    unsupportedMaterialExtensions([
       "VRMC_materials_mtoon",
       "KHR_materials_sheen",
       "KHR_materials_volume",

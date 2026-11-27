@@ -1,18 +1,18 @@
-import { defaultMaterial as defaultMaterialImplementation } from "./internal/defaultMaterial.js";
-import { materialTextureBindings as materialTextureBindingsImplementation } from "./internal/materialTextureBindings.js";
+import { defaultMaterial as defaultMaterialImplementation } from "./internal/defaultMaterial";
+import { materialTextureBindings as materialTextureBindingsImplementation } from "./internal/materialTextureBindings";
 
 import type * as THREE from "three";
 import { type IAutoMovieShot, type AutoMovieTextureBinding, type IAutoMovieMaterial, type IAutoMovieRenderTextureResidency } from "@automovie/interface";
-import { type IAutoMovieRenderModelObject } from "./IAutoMovieRenderModelObject.js";
-import type { IAutoMovieRenderTextureResolver } from "./IAutoMovieRenderTextureResolver.js";
-import type { IAutoMovieRenderMaterialShaderPatch } from "./IAutoMovieRenderMaterialShaderPatch.js";
-import { buildMaterial as buildMaterialImplementation } from "./internal/buildMaterial.js";
-import { addMaterialShaderPatch as addMaterialShaderPatchImplementation } from "./internal/addMaterialShaderPatch.js";
-import { applyMaterialShaderPatches as applyMaterialShaderPatchesImplementation } from "./internal/applyMaterialShaderPatches.js";
+import { type IAutoMovieRenderModelObject } from "./IAutoMovieRenderModelObject";
+import type { IAutoMovieRenderTextureResolver } from "./IAutoMovieRenderTextureResolver";
+import type { IAutoMovieRenderMaterialShaderPatch } from "./IAutoMovieRenderMaterialShaderPatch";
+import { buildMaterial as buildMaterialImplementation } from "./internal/buildMaterial";
+import { addMaterialShaderPatch as addMaterialShaderPatchImplementation } from "./internal/addMaterialShaderPatch";
+import { applyMaterialShaderPatches as applyMaterialShaderPatchesImplementation } from "./internal/applyMaterialShaderPatches";
 
-import { applyPracticalSurfaceMaterials as applyPracticalSurfaceMaterialsImplementation } from "./internal/applyPracticalSurfaceMaterials.js";
-import { readAutoMovieMaterialTextureSources as readMaterialTextureSourcesImplementation } from "./internal/readAutoMovieMaterialTextureSources.js";
-import { readMaterialShaderPatches as readShaderPatchesImplementation } from "./internal/readMaterialShaderPatches.js";
+import { applyPracticalSurfaceMaterials as applyPracticalSurfaceMaterialsImplementation } from "./internal/applyPracticalSurfaceMaterials";
+import { readMaterialTextureSources as readMaterialTextureSourcesImplementation } from "./internal/readMaterialTextureSources";
+import { readMaterialShaderPatches as readShaderPatchesImplementation } from "./internal/readMaterialShaderPatches";
 
 /** Public operations for Auto Movie Render Material. */
 export namespace AutoMovieRenderMaterial {

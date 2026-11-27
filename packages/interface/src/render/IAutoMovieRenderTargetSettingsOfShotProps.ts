@@ -1,5 +1,5 @@
-import type { IAutoMovieCompiledShotSource } from "../production/IAutoMovieCompiledShotSource.js";
-import type { IAutoMovieRenderTargetSettings } from "./IAutoMovieRenderTargetSettings.js";
+import type { IAutoMovieCompiledShotSource } from "../production/IAutoMovieCompiledShotSource";
+import type { IAutoMovieRenderTargetSettings } from "./IAutoMovieRenderTargetSettings";
 
 /**
  * Compiled-shot appearance and host raster settings for a target identity.

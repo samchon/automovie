@@ -21,7 +21,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
+import { motionHumanHeld } from "../../compose/internal/motionHumanHeld";
 import { AutoMovieMotionInterval } from "../../compose/internal/AutoMovieMotionInterval";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanSegment } from "../../perform/internal/HumanSegment";
@@ -52,7 +52,7 @@ export function manipulateHeld(
 ): IAutoMovieMotionHumanActionPlan {
   const side: AutoMovieHumanSide =
     context.entry.holds.left === context.params.prop ? "left" : "right";
-  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
+  const held: IAutoMovieMotionHumanHeld.IHeld = motionHumanHeld(
     context,
     side,
     context.params.prop,
@@ -177,7 +177,7 @@ export function manipulateHeld(
         fix: "use the thumb of the hand holding the prop",
       });
     const site: IAutoMovieMotionHumanHeld.IPointResult =
-      AutoMovieMotionHumanHeld.point(held, contact.site);
+      motionHumanHeld.point(held, contact.site);
     const affordance: IAutoMovieAffordance = held.affordances.find(
       (candidate: IAutoMovieAffordance): boolean =>
         candidate.id === contact.site,

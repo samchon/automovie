@@ -18,7 +18,7 @@ export namespace IAutoMovieDrawingCellSection {
    * side of it the plane lies on.
    *
    * The polygon and result are fresh mutable values owned by the caller.
-   * sectionAutoMovieDrawingSpaces discards false-bounded sections and sections
+   * sectionDrawingSpaces discards false-bounded sections and sections
    * with fewer than three points, then rounds the remaining polygons. Input
    * plane validity and a finite orthonormal frame belong to the caller's
    * validated design/view; the section helper does not validate them.

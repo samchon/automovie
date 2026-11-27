@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanTouch } from "@automovie/interface";
 
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
+import { motionManner } from "../../compose/internal/motionManner";
 
 /*
  * The values the `firmPress` row of `HumanSocial` fixes on `touch`, spread into
@@ -13,5 +13,5 @@ export const HUMAN_TOUCH_SOCIAL_FIRM_PRESS: IAutoMovieMotionHumanTouch.ITouchEff
   {
     effector: "palm",
     kind: "press",
-    manner: AutoMovieMotionManner.PRESETS.press,
+    manner: motionManner.PRESETS.press,
   };

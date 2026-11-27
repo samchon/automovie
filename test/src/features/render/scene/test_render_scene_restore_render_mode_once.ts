@@ -2,7 +2,7 @@ import { AutoMovieRenderSceneRenderMode } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `restoreAutoMovieRenderModeOnce` runs a restore on its first call only; a
+ * `restoreRenderModeOnce` runs a restore on its first call only; a
  * restore that failed throws the same error on every later call.
  *
  * Scenarios:

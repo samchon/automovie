@@ -20,7 +20,7 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
  * with its leg, so at an end of its window it stands rolled; where that roll
  * passes the ankle's (`AutoMovieEngineDefaultHumanoidRom`'s foot abduction), the laid foot
  * bears on the edge the roll lowers (`HumanFoot.edge`) and turns about it
- * (`AutoMovieMotionHumanFootRelax`), so the window declares that edge as the
+ * (`motionHumanFootRelax`), so the window declares that edge as the
  * point held and the plant audits read the point the foot bears on. Read once
  * per plan.
  * Parameter body: The body.

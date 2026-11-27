@@ -1,10 +1,10 @@
 import type * as THREE from "three";
-import type { IAutoMovieRenderMaterialShaderSource } from "./IAutoMovieRenderMaterialShaderSource.js";
-import { applyDetailNormal as applyDetailNormalImplementation } from "./detailNormalShading/internal/applyDetailNormal.js";
-import { detailNormalVertex as detailNormalVertexImplementation } from "./detailNormalShading/internal/detailNormalVertex.js";
-import { detailNormalFragment as detailNormalFragmentImplementation } from "./detailNormalShading/internal/detailNormalFragment.js";
-import { spliceTangentNormal as spliceTangentNormalImplementation } from "./detailNormalShading/internal/spliceTangentNormal.js";
-import { createDetailNormalShaderPatch as createDetailNormalShaderPatchImplementation } from "./detailNormalShading/internal/createDetailNormalShaderPatch.js";
+import type { IAutoMovieRenderMaterialShaderSource } from "./IAutoMovieRenderMaterialShaderSource";
+import { applyDetailNormal as applyDetailNormalImplementation } from "./detailNormalShading/internal/applyDetailNormal";
+import { detailNormalVertex as detailNormalVertexImplementation } from "./detailNormalShading/internal/detailNormalVertex";
+import { detailNormalFragment as detailNormalFragmentImplementation } from "./detailNormalShading/internal/detailNormalFragment";
+import { spliceTangentNormal as spliceTangentNormalImplementation } from "./detailNormalShading/internal/spliceTangentNormal";
+import { createDetailNormalShaderPatch as createDetailNormalShaderPatchImplementation } from "./detailNormalShading/internal/createDetailNormalShaderPatch";
 
 /** Public operations for Auto Movie Render Detail Normal Shading. */
 export namespace AutoMovieRenderDetailNormalShading {

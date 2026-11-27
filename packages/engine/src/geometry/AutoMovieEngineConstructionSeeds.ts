@@ -8,7 +8,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieEngineConstructionSeedTrace as Trace } from "./AutoMovieEngineConstructionSeedTrace";
-import { readAutoMovieConstructionSeed } from "./internal/readAutoMovieConstructionSeed";
+import { readConstructionSeed } from "./internal/readConstructionSeed";
 import { AutoMovieEngineConstructionViews } from "./AutoMovieEngineConstructionViews";
 import { AutoMovieEngineSolidDomain } from "./AutoMovieEngineSolidDomain";
 import { AutoMovieEngineSolidFoot } from "./AutoMovieEngineSolidFoot";
@@ -61,7 +61,7 @@ export namespace AutoMovieEngineConstructionSeeds {
     tolerance: number,
     trace?: IAutoMovieConstructionSeedTrace.Sink,
   ): IAutoMovieSolidIntersection.IInput["seed"] | string {
-    seed = readAutoMovieConstructionSeed(seed);
+    seed = readConstructionSeed(seed);
     const S: number = AutoMovieEngineConstructionViews.SCALE;
     if (seed.type === "point")
       return {

@@ -19,7 +19,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
-import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
+import { motionHumanHeld } from "../../compose/internal/motionHumanHeld";
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
@@ -33,7 +33,7 @@ import { holdInfantSway } from "./holdInfantSway";
 
 /*
  * Hold a taken-up infant (`IAutoMovieMotionHumanHoldInfant`). The infant is
- * rigid in the holding hand from its pick-up (`AutoMovieMotionHumanHeld`), so
+ * rigid in the holding hand from its pick-up (`motionHumanHeld`), so
  * each hold is a world pose of the infant in the body's frame, read from the
  * body where it entered, and the holding hand follows from it. In the cradle
  * and the feed the infant lies across the front, face up, along the holding
@@ -92,7 +92,7 @@ export namespace holdInfant {
       y: 0,
       z: 0,
     });
-    const infant: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
+    const infant: IAutoMovieMotionHumanHeld.IHeld = motionHumanHeld(
       context,
       side,
       params.prop,
@@ -101,7 +101,7 @@ export namespace holdInfant {
       params.kind === "feed"
         ? params.bottle === undefined
           ? refuse("feed", "a feed holds a bottle in the other hand")
-          : AutoMovieMotionHumanHeld(context, other, params.bottle)
+          : motionHumanHeld(context, other, params.bottle)
         : undefined;
     const site: (
       held: IAutoMovieMotionHumanHeld.IHeld,

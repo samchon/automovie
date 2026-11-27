@@ -1,6 +1,6 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { determinantAutoMovieMatrix3 } from "./determinantAutoMovieMatrix3";
+import { determinantMatrix3 } from "./determinantMatrix3";
 
 /*
  * The SO(3) right Jacobian and its inverse for body rotation vectors.
@@ -89,11 +89,11 @@ export namespace rotationVectorJacobian {
   function commuting(r: IAutoMovieVector3, v: IAutoMovieVector3): boolean {
     try {
       return (
-        determinantAutoMovieMatrix3([r.y, r.z, 0, v.y, v.z, 0, 0, 0, 1]) ===
+        determinantMatrix3([r.y, r.z, 0, v.y, v.z, 0, 0, 0, 1]) ===
           0 &&
-        determinantAutoMovieMatrix3([r.z, r.x, 0, v.z, v.x, 0, 0, 0, 1]) ===
+        determinantMatrix3([r.z, r.x, 0, v.z, v.x, 0, 0, 0, 1]) ===
           0 &&
-        determinantAutoMovieMatrix3([r.x, r.y, 0, v.x, v.y, 0, 0, 0, 1]) === 0
+        determinantMatrix3([r.x, r.y, 0, v.x, v.y, 0, 0, 0, 1]) === 0
       );
     } catch {
       return false;

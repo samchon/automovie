@@ -50,7 +50,7 @@ import { prepareHumanSegment } from "./prepareHumanSegment";
  * HumanLunge (two), HumanMounted, HumanSabre and HumanTendHorse the prop they
  * ride (`params.on`), while the props they hold are a lance, a sabre, a whip
  * and a tool (`params.tool.prop`), none of them `on`. A law reads a held prop
- * (`AutoMovieMotionHumanHeld.of`) only while it plans.
+ * (`motionHumanHeld.of`) only while it plans.
  *
  * Step 5 solves the hand courses one span at a time. A span whose course is not
  * yet filled is read on its holder's live hand, and that hand is the holder's

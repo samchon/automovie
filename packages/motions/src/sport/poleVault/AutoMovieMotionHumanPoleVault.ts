@@ -23,7 +23,7 @@ import type {
 
 import { walkPoleFrame } from "../../actions/internal/walkPoleFrame";
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
-import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
+import { motionHumanHeld } from "../../compose/internal/motionHumanHeld";
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
@@ -45,7 +45,7 @@ import { preparePoleVaultPlant } from "./preparePoleVaultPlant";
  * the pole, lets go as the pole stands upright, and flies on to come down lying
  * on the landing surface.
  *
- * The pole is a held prop (`AutoMovieMotionHumanHeld`): taken up before, in one
+ * The pole is a held prop (`motionHumanHeld`): taken up before, in one
  * hand or two (a vaulter's top hand and lower hand), and rigid in them. Its
  * planted end is the prop's `tip` affordance, or the one named.
  *
@@ -161,12 +161,12 @@ export namespace AutoMovieMotionHumanPoleVault {
           ? "right"
           : "left"
         : found.hands[0]!.side;
-    const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
+    const held: IAutoMovieMotionHumanHeld.IHeld = motionHumanHeld(
       context,
       side,
       p.pole,
     );
-    const end: IAutoMovieVector3 = AutoMovieMotionHumanHeld.point(
+    const end: IAutoMovieVector3 = motionHumanHeld.point(
       held,
       p.end ?? "tip",
     ).point;

@@ -5,7 +5,7 @@ import { TestValidator } from "@nestia/e2e";
 import { throwsError } from "../../internal/predicates";
 
 /**
- * `createAutoMovieQuadraticMemory().withWorkspace(bytes, callback)` lends a
+ * `createQuadraticMemory().withWorkspace(bytes, callback)` lends a
  * fresh, aligned, zeroed workspace for the callback only.
  *
  * Scenarios:

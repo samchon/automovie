@@ -5,7 +5,7 @@ import type {
   IAutoMovieProductionRenderTier,
 } from "@automovie/interface";
 
-import { normalizeRenderTier } from "./normalizeRenderTier.js";
+import { normalizeRenderTier } from "./normalizeRenderTier";
 
 /*
  * Project a production's frame format through a render tier.

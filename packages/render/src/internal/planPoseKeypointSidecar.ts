@@ -17,8 +17,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { frameTimes } from "./frameTimes.js";
-import { shotBeat } from "../shotBeat.js";
+import { frameTimes } from "./frameTimes";
+import { shotBeat } from "../shotBeat";
 
 /*
  * Plan the pose-keypoint sidecar of one sequence render.

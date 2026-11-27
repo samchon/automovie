@@ -1,4 +1,4 @@
-import type { IAutoMovieRenderBudgetAssessment } from "./IAutoMovieRenderBudgetAssessment.js";
+import type { IAutoMovieRenderBudgetAssessment } from "./IAutoMovieRenderBudgetAssessment";
 
 /**
  * One caller-supplied tier's budget evidence over its supplied shot

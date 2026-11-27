@@ -13,9 +13,9 @@ import { throwsError } from "../../internal/throwsError";
 type Corner = { s: number; t: number };
 
 /**
- * `layoutAutoMovieSurfaceTransition` changes a sweep's column count with quads
- * only, and the sampled cage (`sampleAutoMovieSurfaceNetwork`) and tier map
- * (`mapAutoMovieSurfaceTier`) keep it a closed manifold that holds its
+ * `layoutSurfaceTransition` changes a sweep's column count with quads
+ * only, and the sampled cage (`sampleSurfaceNetwork`) and tier map
+ * (`mapSurfaceTier`) keep it a closed manifold that holds its
  * cylinder.
  *
  * Fixture: the straight tube going from 8 to 16 columns and from 16 to 12

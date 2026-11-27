@@ -5,7 +5,7 @@ import { TestValidator } from "@nestia/e2e";
 import { throwsError, vclose } from "../../internal/predicates";
 
 /**
- * `interpolateAutoMovieTrianglePoint` seats a point by barycentric weights, `Σ
+ * `interpolateTrianglePoint` seats a point by barycentric weights, `Σ
  * wᵢ pᵢ` with nonnegative weights summing to one.
  *
  * Scenarios:

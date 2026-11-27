@@ -122,7 +122,9 @@ export namespace createScenicContainer {
     },
   };
 
-  /** The four historical scene forms and one fictional design. */
+  /*
+   * The four historical scene forms and one fictional design.
+   */
   export type Kind =
     | "coilBasket"
     | "woodenFishBasket"
@@ -146,7 +148,7 @@ export namespace createScenicContainer {
    */
   export type Affordance = "top" | "inside";
 
-  /**
+  /*
    * Overall width along X, depth along Z, height along Y in metres, and
    * estimated prop mass in kilograms.
    */
@@ -164,12 +166,18 @@ export namespace createScenicContainer {
     mass: "kg",
   };
 
-  /** A selected silhouette and optional fixed members of its dimension bands. */
+  /*
+   * A selected silhouette and optional fixed members of its dimension bands.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
-    /** The selected silhouette. */
+    /*
+     * The selected silhouette.
+     */
     kind: Kind;
 
-    /** The model id in the scene. Defaults to scenicContainer. */
+    /*
+     * The model id in the scene. Defaults to scenicContainer.
+     */
     id?: string;
   }
 

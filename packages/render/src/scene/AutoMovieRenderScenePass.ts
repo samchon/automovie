@@ -1,7 +1,7 @@
 import type { AutoMovieGuidePass, IAutoMovieSceneEnvironment } from "@automovie/interface";
 import type * as THREE from "three";
-import type { IAutoMovieRenderScenePassRenderer } from "./IAutoMovieRenderScenePassRenderer.js";
-import { renderAutoMovieScenePassImplementation } from "./internal/renderAutoMovieScenePassImplementation.js";
+import type { IAutoMovieRenderScenePassRenderer } from "./IAutoMovieRenderScenePassRenderer";
+import { renderScenePassImplementation } from "./internal/renderScenePassImplementation";
 
 /** Public operations for Auto Movie Render Scene Pass. */
 export namespace AutoMovieRenderScenePass {
@@ -21,7 +21,7 @@ export namespace AutoMovieRenderScenePass {
     pass: AutoMovieGuidePass,
     delivery?: IAutoMovieSceneEnvironment["toneMapping"],
   ): void {
-    renderAutoMovieScenePassImplementation(
+    renderScenePassImplementation(
       renderer,
       scene,
       camera,

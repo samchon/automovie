@@ -1,6 +1,6 @@
 import type * as THREE from "three";
 
-import type { IAutoMovieRenderEffectViewerStats } from "./IAutoMovieRenderEffectViewerStats.js";
+import type { IAutoMovieRenderEffectViewerStats } from "./IAutoMovieRenderEffectViewerStats";
 
 /** Built deterministic billboard emitter. */
 export interface IAutoMovieRenderEffectViewerObject {

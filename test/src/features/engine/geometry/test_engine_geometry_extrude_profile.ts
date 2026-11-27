@@ -9,7 +9,7 @@ import { PROCEDURAL_TEST_SQUARE as square } from "../../internal/PROCEDURAL_TEST
 import { throwsError } from "../../internal/predicates";
 
 /**
- * `extrudeAutoMovieProfile` extrudes a convex profile into one closed prism
+ * `extrudeProfile` extrudes a convex profile into one closed prism
  * centred on its depth.
  *
  * Fixture: the 2 m procedural test square, depth 0.5 m.

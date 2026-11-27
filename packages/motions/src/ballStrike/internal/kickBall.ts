@@ -21,13 +21,13 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../../actions/internal/stand";
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanJoints } from "../../compose/internal/AutoMovieMotionHumanJoints";
 import { AutoMovieMotionHumanLegPhrase } from "../../compose/internal/AutoMovieMotionHumanLegPhrase";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionManner } from "../../compose/internal/motionManner";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
@@ -145,15 +145,15 @@ export namespace kickBall {
     const m = body.measure;
     const side: AutoMovieHumanSide = context.params.foot ?? "right";
 
-    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+    const modifiers: IAutoMovieMotionManner.IModifiers = motionManner(
       context,
       context.params.manner,
     );
     const standing: IAutoMovieMotionHumanPosture = stand
       .plan({ ...context, params: { hold: 1 } })
       .posture(0);
-    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
-      AutoMovieMotionClock.phrase({
+    const clock: IAutoMovieMotionClock = motionManner.time(
+      motionClock.phrase({
         prepare: 0.35,
         attack: 0.1,
         follow: 0.15,
@@ -270,7 +270,7 @@ export namespace kickBall {
       side,
     );
     const plan: IAutoMovieMotionHumanActionPlan =
-      composeAutoMovieMotionHumanAction({
+      composeMotionHumanAction({
         // The kicking foot stands on its stance at the two ends of the swing
         // (`AutoMovieMotionHumanLegPhrase.swing`), so it is planted there:
         // the action after the kick keeps it where it landed.
@@ -313,7 +313,7 @@ export namespace kickBall {
               // progress p; the target is set so that point lies on the
               // leg's arc about the hip, turned on by the swing's own angle
               // per unit of progress.
-              const p: number = AutoMovieMotionClock.through(
+              const p: number = motionClock.through(
                 clock,
                 ["strokeStart", "stroke", "strokeEnd"],
                 seconds,

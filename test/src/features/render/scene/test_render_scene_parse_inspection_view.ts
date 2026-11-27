@@ -2,7 +2,7 @@ import { AutoMovieRenderInspectionRequest } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `parseAutoMovieInspectionView` reads the film camera, a fixed camera
+ * `parseInspectionView` reads the film camera, a fixed camera
  * "x,y,z:tx,ty,tz" with `@ortho=<m>` and `@up=x,y,z`, or a named view with
  * `@ortho`, `@follow`, `@focus=<pattern>` and `@flagged`.
  *

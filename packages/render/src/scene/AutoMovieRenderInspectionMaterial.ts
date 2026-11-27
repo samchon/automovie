@@ -1,7 +1,7 @@
 import { type IAutoMovieInspectionKindStyle, type IAutoMovieResolveInspectionColorsProps, type IAutoMovieInspectionColorAssignment, type AutoMovieInspectionShade } from "@automovie/interface";
 import type * as THREE from "three";
-import { colorAutoMovieInspectionObjectsImplementation } from "./inspection/internal/colorAutoMovieInspectionObjectsImplementation.js";
-import { resolveAutoMovieInspectionColors as resolveAutoMovieInspectionColorsImplementation } from "./inspection/internal/resolveAutoMovieInspectionColors.js";
+import { colorInspectionObjectsImplementation } from "./inspection/internal/colorInspectionObjectsImplementation";
+import { resolveInspectionColors as resolveInspectionColorsImplementation } from "./inspection/internal/resolveInspectionColors";
 
 /** Public operations for Auto Movie Render Inspection Material. */
 export namespace AutoMovieRenderInspectionMaterial {
@@ -30,7 +30,7 @@ export namespace AutoMovieRenderInspectionMaterial {
    * encode quantities, so a colour match throws rather than hiding that data.
    */
   export function colorObjects(props: IColorObjectsProps): () => void {
-    return colorAutoMovieInspectionObjectsImplementation(props);
+    return colorInspectionObjectsImplementation(props);
   }
   /**
    * Decide the legend text and colour of every mark kind drawn in one picture,
@@ -45,6 +45,6 @@ export namespace AutoMovieRenderInspectionMaterial {
    * their first mark appears.
    */
   export function resolveColors(props: IAutoMovieResolveInspectionColorsProps): Map<string, IAutoMovieInspectionKindStyle> {
-    return resolveAutoMovieInspectionColorsImplementation(props);
+    return resolveInspectionColorsImplementation(props);
   }
 }

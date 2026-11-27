@@ -56,7 +56,7 @@ import { manoeuvreWheel as manoeuvreWheelLaw } from "../ensemble/internal/manoeu
  * - `HumanCrowd`: A crowd that keeps no formation, steered: each member (or each
  *   walking group, as one agent) heads for its goals at its own drawn speed and
  *   avoids the others and the obstacles, by one plan-time pass of the engine's
- *   `steerAutoMovieCrowd`.
+ *   `steerCrowd`.
  *
  * A member here is the shipped law, preset or row itself, bound to its owner by
  * `typeof` and never wrapped, so its parameters, units, frames and refusals are
@@ -121,7 +121,7 @@ export namespace AutoMovieMotionHumanEnsemble {
    *   (`HumanCrowd.steer`) and on the speed of a walk-family gait that draws
    *   its own tempo (`walk.locomote`; a cadenced march keeps its count), from
    *   fresh to the `weary` manner preset's pace
-   *   (`AutoMovieMotionManner.PRESETS.weary`, itself provisional), so one table
+   *   (`motionManner.PRESETS.weary`, itself provisional), so one table
    *   owns weariness.
    * - `morale.latency`: the factor on a response latency's mean (hesitation,
    *   `HumanResponse.latency`); provisional.
@@ -365,7 +365,7 @@ export namespace AutoMovieMotionHumanEnsemble {
    * A crowd that keeps no formation, steered: each member (or each walking
    * group, as one agent) heads for its goals at its own drawn speed and avoids
    * the others and the obstacles, by one plan-time pass of the engine's
-   * `steerAutoMovieCrowd`. The pass gives each member a course; the member's
+   * `steerCrowd`. The pass gives each member a course; the member's
    * own walk or run then keeps station on it (`walkStation`), so its feet are
    * still whole steps.
    *

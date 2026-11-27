@@ -9,7 +9,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { transformAutoMovieDrawingPoint } from "../../drawing/internal/transformAutoMovieDrawingPoint";
+import { transformDrawingPoint } from "../../drawing/internal/transformDrawingPoint";
 import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { builtEnvironmentWorldMatrices } from "./builtEnvironmentWorldMatrices";
@@ -78,7 +78,7 @@ export function validateBuiltPanelFit(
               const local: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
                 inverse,
                 AutoMovieEngineVector3.subtract(
-                  transformAutoMovieDrawingPoint(world, corner),
+                  transformDrawingPoint(world, corner),
                   face.origin,
                 ),
               );

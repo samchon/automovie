@@ -2,7 +2,7 @@ import { AutoMovieRenderCapture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `planAutoMovieCaptureUrl` sets the capture's parameters on a local review
+ * `planCaptureUrl` sets the capture's parameters on a local review
  * page's address and drops its autoplay.
  *
  * Scenarios:

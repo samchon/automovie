@@ -17,9 +17,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -88,7 +88,7 @@ export namespace chiSau {
   ): IAutoMovieMotionClock {
     const duration: number = p.duration ?? (p.count ?? 4) * CYCLE;
     const blend: number = Math.min(BLEND, duration / 4);
-    return AutoMovieMotionClock(duration, [
+    return motionClock(duration, [
       { name: "joined", seconds: blend },
       { name: "parted", seconds: duration - blend },
     ]);
@@ -301,7 +301,7 @@ export namespace chiSau {
       },
     ];
     const composed: IAutoMovieMotionHumanActionPlan =
-      composeAutoMovieMotionHumanAction({
+      composeMotionHumanAction({
         base: AutoMovieMotionHumanBase.still(duration, entry, contacts),
         clock,
         primitives: [arm("left"), arm("right")],

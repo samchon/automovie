@@ -1,7 +1,7 @@
 import type { IAutoMovieMotionClock } from "@automovie/interface";
 import {
-  AutoMovieMotionManner
-} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionManner";
+  motionManner
+} from "../../../../../packages/motions/src/compose/internal/motionManner";
 import {
   gymnastics
 } from "../../../../../packages/motions/src/sport/internal/gymnastics";
@@ -20,7 +20,7 @@ import { nclose } from "../../internal/nclose";
 export function test_motions_sport_gymnastics_timetable(): void {
   const clock: IAutoMovieMotionClock = gymnastics.timetable(
     2,
-    AutoMovieMotionManner.NEUTRAL,
+    motionManner.NEUTRAL,
   );
   TestValidator.predicate(
     "the skill's cues",

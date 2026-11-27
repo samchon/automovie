@@ -1,5 +1,5 @@
 /**
- * Every key `parseAutoMovieInspectionRequest` reads, in the order its table
+ * Every key `parseInspectionRequest` reads, in the order its table
  * lists them.
  *
  * A host that reads other options from the same address or command line uses it

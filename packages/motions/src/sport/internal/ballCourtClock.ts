@@ -3,14 +3,14 @@ import type {
   IAutoMovieMotionManner,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
+import { motionClock } from "../../compose/internal/motionClock";
+import { motionManner } from "../../compose/internal/motionManner";
 
 /*
  * A court phrase's timetable: its own preparation and attack, a 0.22 s
  * follow-through, the held finish and a 0.34 s return. A contest's raised hands
  * hold 0.24 s; a release holds its finish 0.85 s while the ball leaves. The
- * manner scales the spans (`AutoMovieMotionManner.time`). The spans are
+ * manner scales the spans (`motionManner.time`). The spans are
  * provisional.
  * Parameter phrase: The phrase's preparation and attack, seconds.
  * Parameter contest: Whether the phrase is a high-hand contest rather than a
@@ -23,8 +23,8 @@ export function ballCourtClock(
   contest: boolean,
   modifiers: IAutoMovieMotionManner.IModifiers,
 ): IAutoMovieMotionClock {
-  return AutoMovieMotionManner.time(
-    AutoMovieMotionClock.phrase({
+  return motionManner.time(
+    motionClock.phrase({
       prepare: phrase.prepare,
       attack: phrase.attack,
       follow: 0.22,

@@ -21,11 +21,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { HumanGrasp } from "../../handling/internal/HumanGrasp";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
@@ -202,7 +202,7 @@ export function operateLongInsert(
         s.kind === "slideA"
           ? Math.abs(s.to.uA - s.from.uA)
           : Math.abs(s.to.uB - s.from.uB);
-      return AutoMovieMotionHumanTiming.aimed(travel, props.width);
+      return motionHumanTiming.aimed(travel, props.width);
     },
   );
   const held: IAutoMovieResolvedBone = bones.get(`${A}Hand`)!;
@@ -213,15 +213,15 @@ export function operateLongInsert(
       HumanHand.offset(body, A, "grip").point,
     ),
   );
-  const reaching: number = AutoMovieMotionHumanTiming.aimed(
+  const reaching: number = motionHumanTiming.aimed(
     AutoMovieEngineVector3.distance(entrySocket, presentation.point),
     props.width,
   );
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
+  const clock: IAutoMovieMotionClock = motionClock.phrase({
     prepare: (opening?.duration ?? 0) + reaching,
-    wait: AutoMovieMotionHumanTiming.PAUSES.brief,
+    wait: motionHumanTiming.PAUSES.brief,
     attack: lengths.reduce((a: number, b: number): number => a + b, 0),
-    hold: AutoMovieMotionHumanTiming.PAUSES.brief,
+    hold: motionHumanTiming.PAUSES.brief,
     retract: reaching,
   });
   const duration: number = clock.duration;
@@ -400,7 +400,7 @@ export function operateLongInsert(
     support: { kind: "prop", subject: mechanism.prop, carries: false },
   });
   const composed: IAutoMovieMotionHumanActionPlan =
-    composeAutoMovieMotionHumanAction({
+    composeMotionHumanAction({
       base,
       clock,
       contact: "strokeEnd",

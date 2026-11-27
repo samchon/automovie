@@ -18,7 +18,7 @@ import type {
  * Forces only inform the reactions a composition places, as layers never start
  * actions: a law reads the forces on its performer in its span through its
  * context (`IHumanActionContext.forces`), and the balance outcome of an impulse
- * is the engine's (`resolveAutoMovieBalanceOutcome`). A hit becomes an impulse
+ * is the engine's (`resolveBalanceOutcome`). A hit becomes an impulse
  * here and only here (`ofHit`), so a melee stop, a projectile and a blast reach
  * the body the same way.
  */

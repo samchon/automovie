@@ -1,9 +1,9 @@
-import type { AutoMovieQuaternionTuple } from "../geometry/AutoMovieQuaternionTuple.js";
-import type { AutoMovieVector3Tuple } from "../geometry/AutoMovieVector3Tuple.js";
+import type { AutoMovieQuaternionTuple } from "../geometry/AutoMovieQuaternionTuple";
+import type { AutoMovieVector3Tuple } from "../geometry/AutoMovieVector3Tuple";
 
 /**
  * An absolute rig transform in the parent frame, without scale. Deterministic
- * rig evaluators supply this borrowed tuple view to applyAutoMovieRigLocals.
+ * rig evaluators supply this borrowed tuple view to applyRigLocals.
  * The transform replaces the previous local pose; it is not a rest-pose delta.
  * The adapter requires exact tuple lengths, finite components and squared
  * quaternion norm within 1e-6 of one before mutating any bone, and writes unit

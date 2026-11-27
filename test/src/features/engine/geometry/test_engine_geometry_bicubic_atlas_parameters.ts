@@ -5,7 +5,7 @@ import { TestValidator } from "@nestia/e2e";
 import { createBicubicPlaneRecipe } from "../../internal/createBicubicPlaneRecipe";
 
 /**
- * `realizeAutoMovieBicubicAtlas64(atlas, { retainTriangleParameters })` keeps
+ * `realizeBicubicAtlas64(atlas, { retainTriangleParameters })` keeps
  * each triangle corner's own chart parameters, through shared vertices and
  * local omissions.
  *

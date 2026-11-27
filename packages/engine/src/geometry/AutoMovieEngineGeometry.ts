@@ -1,15 +1,15 @@
 import { admitSubdivisionCage as admitSubdivisionCageImplementation } from "./internal/admitSubdivisionCage";
-import { buildAutoMovieConvexHull as buildAutoMovieConvexHullImplementation } from "./internal/buildAutoMovieConvexHull";
-import { buildAutoMovieWall as buildAutoMovieWallImplementation } from "./internal/buildAutoMovieWall";
+import { buildConvexHull as buildConvexHullImplementation } from "./internal/buildConvexHull";
+import { buildWall as buildWallImplementation } from "./internal/buildWall";
 import { buildSubdivisionTopology as buildSubdivisionTopologyImplementation } from "./internal/buildSubdivisionTopology";
-import { checkAutoMovieFormExpectation as checkAutoMovieFormExpectationImplementation } from "./internal/checkAutoMovieFormExpectation";
+import { checkFormExpectation as checkFormExpectationImplementation } from "./internal/checkFormExpectation";
 import { countAtLeast as countAtLeastImplementation } from "./internal/countAtLeast";
-import { createAutoMovieMeshWindingQuery as createAutoMovieMeshWindingQueryImplementation } from "./internal/createAutoMovieMeshWindingQuery";
+import { createMeshWindingQuery as createMeshWindingQueryImplementation } from "./internal/createMeshWindingQuery";
 import { decaySubdivisionSharpness as decaySubdivisionSharpnessImplementation } from "./internal/decaySubdivisionSharpness";
 import { emptyMeshTarget as emptyMeshTargetImplementation } from "./internal/emptyMeshTarget";
 import { limitSubdivisionLevel as limitSubdivisionLevelImplementation } from "./internal/limitSubdivisionLevel";
 import { limitSubdivisionRing as limitSubdivisionRingImplementation } from "./internal/limitSubdivisionRing";
-import { measureAutoMovieModelContacts as measureAutoMovieModelContactsImplementation } from "./internal/measureAutoMovieModelContacts";
+import { measureModelContacts as measureModelContactsImplementation } from "./internal/measureModelContacts";
 import { meshOf as meshOfImplementation } from "./internal/meshOf";
 import { planarCross as planarCrossImplementation } from "./internal/planarCross";
 import { planarSegmentsMeet as planarSegmentsMeetImplementation } from "./internal/planarSegmentsMeet";
@@ -26,60 +26,60 @@ import { subdivisionVertexMask as subdivisionVertexMaskImplementation } from "./
 import { tessellate as tessellateImplementation } from "./internal/tessellate";
 import { tessellateSurface as tessellateSurfaceImplementation } from "./internal/tessellateSurface";
 import { tessellateToMesh as tessellateToMeshImplementation } from "./internal/tessellateToMesh";
-import { transformAutoMovieMesh as transformAutoMovieMeshImplementation } from "./internal/transformAutoMovieMesh";
+import { transformMesh as transformMeshImplementation } from "./internal/transformMesh";
 
-import { buildAutoMoviePolyhedron as buildAutoMoviePolyhedronImplementation } from "./internal/buildAutoMoviePolyhedron";
-import { displaceAutoMovieSurface as displaceAutoMovieSurfaceImplementation } from "./internal/displaceAutoMovieSurface";
-import { extrudeAutoMovieProfile as extrudeAutoMovieProfileImplementation } from "./internal/extrudeAutoMovieProfile";
-import { inspectAutoMovieMeshTopology as inspectAutoMovieMeshTopologyImplementation } from "./internal/inspectAutoMovieMeshTopology";
-import { measureAutoMovieMeshPieces as measureAutoMovieMeshPiecesImplementation } from "./internal/measureAutoMovieMeshPieces";
-import { mergeAutoMovieMeshParts as mergeAutoMovieMeshPartsImplementation } from "./internal/mergeAutoMovieMeshParts";
-import { mergeAutoMovieMeshes as mergeAutoMovieMeshesImplementation } from "./internal/mergeAutoMovieMeshes";
-import { revolveAutoMovieProfile as revolveAutoMovieProfileImplementation } from "./internal/revolveAutoMovieProfile";
+import { buildPolyhedron as buildPolyhedronImplementation } from "./internal/buildPolyhedron";
+import { displaceSurface as displaceSurfaceImplementation } from "./internal/displaceSurface";
+import { extrudeProfile as extrudeProfileImplementation } from "./internal/extrudeProfile";
+import { inspectMeshTopology as inspectMeshTopologyImplementation } from "./internal/inspectMeshTopology";
+import { measureMeshPieces as measureMeshPiecesImplementation } from "./internal/measureMeshPieces";
+import { mergeMeshParts as mergeMeshPartsImplementation } from "./internal/mergeMeshParts";
+import { mergeMeshes as mergeMeshesImplementation } from "./internal/mergeMeshes";
+import { revolveProfile as revolveProfileImplementation } from "./internal/revolveProfile";
 
-import { countAutoMovieMeshComponents as countAutoMovieMeshComponentsImplementation } from "./internal/countAutoMovieMeshComponents";
-import { measureAutoMovieMeshDefects as measureAutoMovieMeshDefectsImplementation } from "./internal/measureAutoMovieMeshDefects";
-import { measureAutoMovieModelCrossings as measureAutoMovieModelCrossingsImplementation } from "./internal/measureAutoMovieModelCrossings";
-import { separateAutoMovieMeshSequence as separateAutoMovieMeshSequenceImplementation } from "./internal/separateAutoMovieMeshSequence";
-import { subdivideAutoMovieSurface as subdivideAutoMovieSurfaceImplementation } from "./internal/subdivideAutoMovieSurface";
+import { countMeshComponents as countMeshComponentsImplementation } from "./internal/countMeshComponents";
+import { measureMeshDefects as measureMeshDefectsImplementation } from "./internal/measureMeshDefects";
+import { measureModelCrossings as measureModelCrossingsImplementation } from "./internal/measureModelCrossings";
+import { separateMeshSequence as separateMeshSequenceImplementation } from "./internal/separateMeshSequence";
+import { subdivideSurface as subdivideSurfaceImplementation } from "./internal/subdivideSurface";
 import { weldedDegenerateTriangles as weldedDegenerateTrianglesImplementation } from "./internal/weldedDegenerateTriangles";
 
 import { type IAutoMovieAdmitBicubicAtlas, type IAutoMovieBicubicAtlasGeometry, type IAutoMovieFeatureEdgeDistance, type IAutoMovieVector3, type IAutoMovieSpatialQueryEntry, type IAutoMovieTriangleAttachmentContactBound, type IAutoMovieMeshQueryHierarchy, type IAutoMovieCreateEllipticLoftAtlas, type IAutoMovieMesh, type IAutoMovieMeshDeformationInfluence, type IAutoMovieMeshDeformationField, type IAutoMovieCreateMeshDepthSampler, type IAutoMovieMeshRayCaster, type IAutoMovieMeshSeparationQuery, type IAutoMovieSignedMeshQueryHit, type IAutoMovieSignedMeshQueryOptions, type IAutoMovieCreateSupportSectionQuery, type IAutoMovieEvaluateSupportSection, type IAutoMovieSubdivisionSurface, type IAutoMovieSubdivisionLevel, type IAutoMovieFitSubdivisionDomain, type IAutoMovieFitSubdivisionRegions, type IAutoMovieIntegrateRadialField, type IAutoMovieMark, type IAutoMovieMarkMeshClearance, type IAutoMovieMeasureFeatureEdges, type IAutoMovieMeasureMeshClearance, type IAutoMovieMeshClearanceWitness, type IAutoMovieProjectionIntervals, type IAutoMovieMinimizeMeshClearance, type IAutoMovieSweepFrame, type IAutoMovieSurfaceFrame, type IAutoMoviePreparedSurfaceFrame, type IAutoMovieRealizeBicubicAtlas64, type IAutoMovieRealizeGeometry, type IAutoMovieGeometry, type IAutoMovieSubdivisionTopology, type IAutoMovieSelectTriangleRegion, type IAutoMovieMeshDefect, type IAutoMovieMeasureMeshDefects, type IAutoMovieModelCrossing, type IAutoMovieModel, type IAutoMovieMeasureModelCrossings, type IAutoMovieSubdivideSurface, type IAutoMovieDisplaceSurface, type IAutoMovieExtrudeProfile, type IAutoMovieMeshTopology, type IAutoMovieMeshPiece, type IAutoMovieMeshAssembly, type IAutoMovieMeshPart, type IAutoMovieRevolveProfile, type IAutoMovieSubdivisionCage, type IAutoMovieBuildWall, type IAutoMovieFormCheck, type IAutoMovieFormExpectation, type IAutoMovieMeshWinding, type IAutoMovieMeshTarget, type IAutoMovieLimitSubdivisionLevel, type IAutoMovieLimitSubdivisionRing, type IAutoMovieSubdivisionRing, type IAutoMovieModelContact, type IAutoMovieMeasureModelContacts, type IAutoMoviePlanarPoint, type IAutoMovieRefineSubdivisionPoints, type IAutoMovieRefineSubdivisionUvs, type IAutoMovieSubdivisionVertexMask, type IAutoMovieProfilePoint, type IAutoMovieSubdivisionRingEigenbasis, type IAutoMovieTessellation, type IAutoMoviePrimitiveShape, type IAutoMovieSurface, type IAutoMovieMeshTransform } from "@automovie/interface";
-import { admitAutoMovieBicubicAtlas as admitAutoMovieBicubicAtlasImplementation } from "./internal/admitAutoMovieBicubicAtlas";
-import { assertAutoMovieDeformedTriangles as assertAutoMovieDeformedTrianglesImplementation } from "./internal/assertAutoMovieDeformedTriangles";
-import { autoMovieFeatureEdgeDistance as autoMovieFeatureEdgeDistanceImplementation } from "./internal/autoMovieFeatureEdgeDistance";
-import { boundAutoMovieConvexSeparation as boundAutoMovieConvexSeparationImplementation } from "./internal/boundAutoMovieConvexSeparation";
-import { boundAutoMovieMeshQueryPoint as boundAutoMovieMeshQueryPointImplementation } from "./internal/boundAutoMovieMeshQueryPoint";
-import { boundAutoMovieProjectionSeparation as boundAutoMovieProjectionSeparationImplementation } from "./internal/boundAutoMovieProjectionSeparation";
-import { boundAutoMovieTriangleAttachmentContact as boundAutoMovieTriangleAttachmentContactImplementation } from "./internal/boundAutoMovieTriangleAttachmentContact";
-import { buildAutoMovieMeshQueryHierarchy as buildAutoMovieMeshQueryHierarchyImplementation } from "./internal/buildAutoMovieMeshQueryHierarchy";
-import { collectAutoMovieSpatialQueryCandidates as collectAutoMovieSpatialQueryCandidatesImplementation } from "./internal/collectAutoMovieSpatialQueryCandidates";
-import { createAutoMovieEllipticLoftAtlas as createAutoMovieEllipticLoftAtlasImplementation } from "./internal/createAutoMovieEllipticLoftAtlas";
-import { createAutoMovieMeshDeformer as createAutoMovieMeshDeformerImplementation } from "./internal/createAutoMovieMeshDeformer";
-import { createAutoMovieMeshDepthSampler as createAutoMovieMeshDepthSamplerImplementation } from "./internal/createAutoMovieMeshDepthSampler";
-import { createAutoMovieMeshRayCaster as createAutoMovieMeshRayCasterImplementation } from "./internal/createAutoMovieMeshRayCaster";
-import { createAutoMovieMeshSeparationQuery as createAutoMovieMeshSeparationQueryImplementation } from "./internal/createAutoMovieMeshSeparationQuery";
-import { createAutoMovieSignedMeshQuery as createAutoMovieSignedMeshQueryImplementation } from "./internal/createAutoMovieSignedMeshQuery";
-import { createAutoMovieSupportSectionQuery as createAutoMovieSupportSectionQueryImplementation } from "./internal/createAutoMovieSupportSectionQuery";
-import { evaluateAutoMovieSupportSection as evaluateAutoMovieSupportSectionImplementation } from "./internal/evaluateAutoMovieSupportSection";
+import { admitBicubicAtlas as admitBicubicAtlasImplementation } from "./internal/admitBicubicAtlas";
+import { assertDeformedTriangles as assertDeformedTrianglesImplementation } from "./internal/assertDeformedTriangles";
+import { featureEdgeDistance as featureEdgeDistanceImplementation } from "./internal/featureEdgeDistance";
+import { boundConvexSeparation as boundConvexSeparationImplementation } from "./internal/boundConvexSeparation";
+import { boundMeshQueryPoint as boundMeshQueryPointImplementation } from "./internal/boundMeshQueryPoint";
+import { boundProjectionSeparation as boundProjectionSeparationImplementation } from "./internal/boundProjectionSeparation";
+import { boundTriangleAttachmentContact as boundTriangleAttachmentContactImplementation } from "./internal/boundTriangleAttachmentContact";
+import { buildMeshQueryHierarchy as buildMeshQueryHierarchyImplementation } from "./internal/buildMeshQueryHierarchy";
+import { collectSpatialQueryCandidates as collectSpatialQueryCandidatesImplementation } from "./internal/collectSpatialQueryCandidates";
+import { createEllipticLoftAtlas as createEllipticLoftAtlasImplementation } from "./internal/createEllipticLoftAtlas";
+import { createMeshDeformer as createMeshDeformerImplementation } from "./internal/createMeshDeformer";
+import { createMeshDepthSampler as createMeshDepthSamplerImplementation } from "./internal/createMeshDepthSampler";
+import { createMeshRayCaster as createMeshRayCasterImplementation } from "./internal/createMeshRayCaster";
+import { createMeshSeparationQuery as createMeshSeparationQueryImplementation } from "./internal/createMeshSeparationQuery";
+import { createSignedMeshQuery as createSignedMeshQueryImplementation } from "./internal/createSignedMeshQuery";
+import { createSupportSectionQuery as createSupportSectionQueryImplementation } from "./internal/createSupportSectionQuery";
+import { evaluateSupportSection as evaluateSupportSectionImplementation } from "./internal/evaluateSupportSection";
 import { evaluateSubdivisionLevel as evaluateSubdivisionLevelImplementation } from "./internal/evaluateSubdivisionLevel";
-import { fitAutoMovieSubdivisionDomain as fitAutoMovieSubdivisionDomainImplementation } from "./internal/fitAutoMovieSubdivisionDomain";
-import { fitAutoMovieSubdivisionRegions as fitAutoMovieSubdivisionRegionsImplementation } from "./internal/fitAutoMovieSubdivisionRegions";
-import { integrateAutoMovieRadialField as integrateAutoMovieRadialFieldImplementation } from "./internal/integrateAutoMovieRadialField";
-import { intersectAutoMovieConvexPolygons as intersectAutoMovieConvexPolygonsImplementation } from "./internal/intersectAutoMovieConvexPolygons";
-import { markAutoMovieMeshClearance as markAutoMovieMeshClearanceImplementation } from "./internal/markAutoMovieMeshClearance";
-import { measureAutoMovieFeatureEdges as measureAutoMovieFeatureEdgesImplementation } from "./internal/measureAutoMovieFeatureEdges";
-import { measureAutoMovieMeshClearance as measureAutoMovieMeshClearanceImplementation } from "./internal/measureAutoMovieMeshClearance";
-import { measureAutoMovieProjectionIntervals as measureAutoMovieProjectionIntervalsImplementation } from "./internal/measureAutoMovieProjectionIntervals";
-import { minimizeAutoMovieMeshClearance as minimizeAutoMovieMeshClearanceImplementation } from "./internal/minimizeAutoMovieMeshClearance";
-import { normalizeAutoMovieSurfaceFrame as normalizeAutoMovieSurfaceFrameImplementation } from "./internal/normalizeAutoMovieSurfaceFrame";
-import { placeAutoMovieSurfaceFrame as placeAutoMovieSurfaceFrameImplementation } from "./internal/placeAutoMovieSurfaceFrame";
-import { prepareAutoMovieSurfaceFrame as prepareAutoMovieSurfaceFrameImplementation } from "./internal/prepareAutoMovieSurfaceFrame";
-import { realizeAutoMovieBicubicAtlas64 as realizeAutoMovieBicubicAtlas64Implementation } from "./internal/realizeAutoMovieBicubicAtlas64";
-import { realizeAutoMovieGeometry as realizeAutoMovieGeometryImplementation } from "./internal/realizeAutoMovieGeometry";
+import { fitSubdivisionDomain as fitSubdivisionDomainImplementation } from "./internal/fitSubdivisionDomain";
+import { fitSubdivisionRegions as fitSubdivisionRegionsImplementation } from "./internal/fitSubdivisionRegions";
+import { integrateRadialField as integrateRadialFieldImplementation } from "./internal/integrateRadialField";
+import { intersectConvexPolygons as intersectConvexPolygonsImplementation } from "./internal/intersectConvexPolygons";
+import { markMeshClearance as markMeshClearanceImplementation } from "./internal/markMeshClearance";
+import { measureFeatureEdges as measureFeatureEdgesImplementation } from "./internal/measureFeatureEdges";
+import { measureMeshClearance as measureMeshClearanceImplementation } from "./internal/measureMeshClearance";
+import { measureProjectionIntervals as measureProjectionIntervalsImplementation } from "./internal/measureProjectionIntervals";
+import { minimizeMeshClearance as minimizeMeshClearanceImplementation } from "./internal/minimizeMeshClearance";
+import { normalizeSurfaceFrame as normalizeSurfaceFrameImplementation } from "./internal/normalizeSurfaceFrame";
+import { placeSurfaceFrame as placeSurfaceFrameImplementation } from "./internal/placeSurfaceFrame";
+import { prepareSurfaceFrame as prepareSurfaceFrameImplementation } from "./internal/prepareSurfaceFrame";
+import { realizeBicubicAtlas64 as realizeBicubicAtlas64Implementation } from "./internal/realizeBicubicAtlas64";
+import { realizeGeometry as realizeGeometryImplementation } from "./internal/realizeGeometry";
 import { refineSubdivisionStencils as refineSubdivisionStencilsImplementation } from "./internal/refineSubdivisionStencils";
-import { refitAutoMovieMeshQueryHierarchy as refitAutoMovieMeshQueryHierarchyImplementation } from "./internal/refitAutoMovieMeshQueryHierarchy";
-import { selectAutoMovieTriangleRegion as selectAutoMovieTriangleRegionImplementation } from "./internal/selectAutoMovieTriangleRegion";
+import { refitMeshQueryHierarchy as refitMeshQueryHierarchyImplementation } from "./internal/refitMeshQueryHierarchy";
+import { selectTriangleRegion as selectTriangleRegionImplementation } from "./internal/selectTriangleRegion";
 import { subdivisionBendingRows as subdivisionBendingRowsImplementation } from "./internal/subdivisionBendingRows";
 import { triangleIndicesOf as triangleIndicesOfImplementation } from "./internal/triangleIndicesOf";
 
@@ -95,7 +95,7 @@ export namespace AutoMovieEngineGeometry {
    * incomplete generated domain.
    */
   export function admitBicubicAtlas(input: IAutoMovieBicubicAtlasGeometry): IAutoMovieAdmitBicubicAtlas.IResult {
-    return admitAutoMovieBicubicAtlasImplementation(input);
+    return admitBicubicAtlasImplementation(input);
   }
 
   /**
@@ -109,7 +109,7 @@ export namespace AutoMovieEngineGeometry {
    * positively with the sum of the three unit transported normals. Positions are
    * flat XYZ in one frame. A failure throws and names the triangle ordinal, and
    * for a transport failure the vertex; inputs are read only. Every index must
-   * address a vertex of all four arrays, which `createAutoMovieMeshDeformer`
+   * address a vertex of all four arrays, which `createMeshDeformer`
    * checks before calling.
    *
    * Compare a straight output face with the differential orientation of its
@@ -125,7 +125,7 @@ export namespace AutoMovieEngineGeometry {
    * field, even when all of its endpoint Jacobians remain positive.
    */
   export function assertDeformedTriangles(source: readonly number[], target: readonly number[], indices: readonly number[], cofactors: readonly (readonly number[])[]): void {
-    assertAutoMovieDeformedTrianglesImplementation(source, target, indices, cofactors);
+    assertDeformedTrianglesImplementation(source, target, indices, cofactors);
   }
 
   /**
@@ -143,7 +143,7 @@ export namespace AutoMovieEngineGeometry {
    * @throws When `triangle` is not an index of the measured triangles.
    */
   export function featureEdgeDistance(props: IAutoMovieFeatureEdgeDistance.IProps): IAutoMovieFeatureEdgeDistance.IResult {
-    return autoMovieFeatureEdgeDistanceImplementation(props);
+    return featureEdgeDistanceImplementation(props);
   }
 
   /**
@@ -183,7 +183,7 @@ export namespace AutoMovieEngineGeometry {
    * resident triangle as `b`.
    */
   export function boundConvexSeparation(a: readonly IAutoMovieVector3[], b: readonly IAutoMovieVector3[], sufficient?: number, spend?: () => void): number {
-    return boundAutoMovieConvexSeparationImplementation(a, b, sufficient, spend);
+    return boundConvexSeparationImplementation(a, b, sufficient, spend);
   }
 
   /**
@@ -201,7 +201,7 @@ export namespace AutoMovieEngineGeometry {
    * cutoff and therefore receives the unchanged complete distance.
    */
   export function boundMeshQueryPoint(node: Readonly<Pick<IAutoMovieSpatialQueryEntry, "low" | "high">>, point: readonly number[], cutoff?: number): number {
-    return boundAutoMovieMeshQueryPointImplementation(node, point, cutoff);
+    return boundMeshQueryPointImplementation(node, point, cutoff);
   }
 
   /**
@@ -217,9 +217,9 @@ export namespace AutoMovieEngineGeometry {
    * an analytic surface, a signed side or a contact manifold. Nothing is
    * mutated.
    *
-   * Throws on an empty run and, through `measureAutoMovieProjectionIntervals`, on
+   * Throws on an empty run and, through `measureProjectionIntervals`, on
    * a non-finite coordinate or an overflowing enclosure.
-   * `boundAutoMovieConvexSeparation` and the resident separation query's box
+   * `boundConvexSeparation` and the resident separation query's box
    * pruning are the consumers; their approximate witnesses only choose the
    * direction.
    *
@@ -229,7 +229,7 @@ export namespace AutoMovieEngineGeometry {
    * @returns A nonnegative separation lower bound in metres.
    */
   export function boundProjectionSeparation(a: readonly IAutoMovieVector3[], b: readonly IAutoMovieVector3[], raw: IAutoMovieVector3): number {
-    return boundAutoMovieProjectionSeparationImplementation(a, b, raw);
+    return boundProjectionSeparationImplementation(a, b, raw);
   }
 
   /**
@@ -263,7 +263,7 @@ export namespace AutoMovieEngineGeometry {
    *   it.
    */
   export function boundTriangleAttachmentContact(fan: readonly IAutoMovieVector3[], support: readonly IAutoMovieVector3[]): IAutoMovieTriangleAttachmentContactBound {
-    return boundAutoMovieTriangleAttachmentContactImplementation(fan, support);
+    return boundTriangleAttachmentContactImplementation(fan, support);
   }
 
   /**
@@ -290,14 +290,14 @@ export namespace AutoMovieEngineGeometry {
    * @returns The hierarchy's root node.
    */
   export function buildMeshQueryHierarchy<T extends IAutoMovieMeshQueryHierarchy.IEntry>(entries: T[]): IAutoMovieMeshQueryHierarchy<T> {
-    return buildAutoMovieMeshQueryHierarchyImplementation<T>(entries);
+    return buildMeshQueryHierarchyImplementation<T>(entries);
   }
 
   /**
    * Collect the hierarchy entries whose boxes can meet a subject box, ordered by
    * the first cell of an XYZ grid they share with the subject.
    *
-   * `hierarchy` is the tree `buildAutoMovieMeshQueryHierarchy` built from the
+   * `hierarchy` is the tree `buildMeshQueryHierarchy` built from the
    * owner's resident entries, and `subject` is a box in the same metre frame.
    * `overlap` keeps entries whose actual boxes overlap the subject's, boundaries
    * included. `shared-cell` keeps the wider population whose boxes occupy a
@@ -320,7 +320,7 @@ export namespace AutoMovieEngineGeometry {
    * @returns Qualifying entries by reference, in cell then ordinal order.
    */
   export function collectSpatialQueryCandidates<T extends IAutoMovieSpatialQueryEntry>(hierarchy: IAutoMovieMeshQueryHierarchy<T>, subject: IAutoMovieSpatialQueryEntry, cell: number, population: "overlap" | "shared-cell"): T[] {
-    return collectAutoMovieSpatialQueryCandidatesImplementation<T>(hierarchy, subject, cell, population);
+    return collectSpatialQueryCandidatesImplementation<T>(hierarchy, subject, cell, population);
   }
 
   /**
@@ -339,7 +339,7 @@ export namespace AutoMovieEngineGeometry {
    *    inferred property.
    */
   export function createEllipticLoftAtlas(input: IAutoMovieCreateEllipticLoftAtlas.IInput): IAutoMovieCreateEllipticLoftAtlas.IResult {
-    return createAutoMovieEllipticLoftAtlasImplementation(input);
+    return createEllipticLoftAtlasImplementation(input);
   }
 
   /**
@@ -367,7 +367,7 @@ export namespace AutoMovieEngineGeometry {
    * call throws on a malformed index buffer, a non-finite position or normal, a
    * normal buffer not aligned to the positions, a wrong influence count or an
    * influence outside its domain, a Jacobian that reverses orientation at a
-   * vertex, a non-finite result, and, through `assertAutoMovieDeformedTriangles`,
+   * vertex, a non-finite result, and, through `assertDeformedTriangles`,
    * an emitted triangle that collapses or disagrees with its source orientation
    * transported by its three vertex Jacobians. That is a tessellation check, not
    * a global self-intersection test or a proof of the field between vertices.
@@ -379,7 +379,7 @@ export namespace AutoMovieEngineGeometry {
   mesh: IAutoMovieMesh,
   influence?: readonly IAutoMovieMeshDeformationInfluence[],
 ) => IAutoMovieMesh {
-    return createAutoMovieMeshDeformerImplementation(fields);
+    return createMeshDeformerImplementation(fields);
   }
 
   /**
@@ -404,7 +404,7 @@ export namespace AutoMovieEngineGeometry {
    * @returns The depth query.
    */
   export function createMeshDepthSampler(mesh: IAutoMovieMesh, axis: "x" | "y" | "z"): IAutoMovieCreateMeshDepthSampler.IResult {
-    return createAutoMovieMeshDepthSamplerImplementation(mesh, axis);
+    return createMeshDepthSamplerImplementation(mesh, axis);
   }
 
   /**
@@ -444,7 +444,7 @@ export namespace AutoMovieEngineGeometry {
    * @returns The three ray queries over one shared index.
    */
   export function createMeshRayCaster(mesh: IAutoMovieMesh): IAutoMovieMeshRayCaster {
-    return createAutoMovieMeshRayCasterImplementation(mesh);
+    return createMeshRayCasterImplementation(mesh);
   }
 
   /**
@@ -464,7 +464,7 @@ export namespace AutoMovieEngineGeometry {
    * caller-owned work budget. It bounds the feature's separation from every
    * resident triangle: a hierarchy box is skipped only when an enclosed axis
    * projection already proves the requested clearance, and every remaining
-   * triangle is bounded by `boundAutoMovieConvexSeparation`. This is neither ray
+   * triangle is bounded by `boundConvexSeparation`. This is neither ray
    * sampling nor a nearest-corner test. `certified` means the complete feature is
    * at least the clearance away, and at zero clearance strictly positive; false
    * means unproved, including touches, crossings and rounding at an exact limit,
@@ -479,7 +479,7 @@ export namespace AutoMovieEngineGeometry {
    * triangles incident to that seat. The root must equal that seat exactly, in
    * the snapshot's representation, and each support must contain the seat's
    * supporting corners. Each support must then bound the whole fan's contact
-   * through `boundAutoMovieTriangleAttachmentContact`, reported as an
+   * through `boundTriangleAttachmentContact`, reported as an
    * `attachmentCaps` entry, and every other triangle still needs strict positive
    * separation. Such a result reports `lowerBound` zero, because certification is
    * that combined proof and not positive separation. Without metadata a fan
@@ -501,7 +501,7 @@ export namespace AutoMovieEngineGeometry {
    * @returns The compiled query.
    */
   export function createMeshSeparationQuery(mesh: IAutoMovieMesh, representation?: "source" | "float32"): IAutoMovieMeshSeparationQuery {
-    return createAutoMovieMeshSeparationQueryImplementation(mesh, representation);
+    return createMeshSeparationQueryImplementation(mesh, representation);
   }
 
   /**
@@ -548,7 +548,7 @@ export namespace AutoMovieEngineGeometry {
    * @returns The query for one XYZ point.
    */
   export function createSignedMeshQuery(mesh: IAutoMovieMesh, options?: IAutoMovieSignedMeshQueryOptions): (point: readonly number[]) => IAutoMovieSignedMeshQueryHit {
-    return createAutoMovieSignedMeshQueryImplementation(mesh, options);
+    return createSignedMeshQueryImplementation(mesh, options);
   }
 
   /**
@@ -565,7 +565,7 @@ export namespace AutoMovieEngineGeometry {
    * Callers bound the plane population and supply bounded section charts.
    */
   export function createSupportSectionQuery(input: IAutoMovieCreateSupportSectionQuery.IInput): IAutoMovieCreateSupportSectionQuery.IResult {
-    return createAutoMovieSupportSectionQueryImplementation(input);
+    return createSupportSectionQueryImplementation(input);
   }
 
   /**
@@ -579,7 +579,7 @@ export namespace AutoMovieEngineGeometry {
    * section.
    */
   export function evaluateSupportSection(input: IAutoMovieEvaluateSupportSection.IInput): IAutoMovieEvaluateSupportSection.IResult {
-    return evaluateAutoMovieSupportSectionImplementation(input);
+    return evaluateSupportSectionImplementation(input);
   }
 
   /**
@@ -620,7 +620,7 @@ export namespace AutoMovieEngineGeometry {
    * pose guarantee is made.
    */
   export function fitSubdivisionDomain(props: IAutoMovieFitSubdivisionDomain.IProps): IAutoMovieFitSubdivisionDomain.IResult {
-    return fitAutoMovieSubdivisionDomainImplementation(props);
+    return fitSubdivisionDomainImplementation(props);
   }
 
   /**
@@ -642,7 +642,7 @@ export namespace AutoMovieEngineGeometry {
    * requires the caller's physical measurement, intersection and pose checks.
    */
   export function fitSubdivisionRegions(props: IAutoMovieFitSubdivisionRegions.IProps): IAutoMovieFitSubdivisionRegions.IResult {
-    return fitAutoMovieSubdivisionRegionsImplementation(props);
+    return fitSubdivisionRegionsImplementation(props);
   }
 
   /**
@@ -668,7 +668,7 @@ export namespace AutoMovieEngineGeometry {
    * zero after input admission.
    */
   export function integrateRadialField(props: IAutoMovieIntegrateRadialField.IProps): IAutoMovieIntegrateRadialField.IOutput {
-    return integrateAutoMovieRadialFieldImplementation(props);
+    return integrateRadialFieldImplementation(props);
   }
 
   /**
@@ -681,7 +681,7 @@ export namespace AutoMovieEngineGeometry {
    * arithmetic has no directed rounding or independent convexity validation.
    */
   export function intersectConvexPolygons(subject: readonly (readonly [number, number])[], boundary: readonly (readonly [number, number])[]): [number, number][] {
-    return intersectAutoMovieConvexPolygonsImplementation(subject, boundary);
+    return intersectConvexPolygonsImplementation(subject, boundary);
   }
 
   /**
@@ -704,14 +704,14 @@ export namespace AutoMovieEngineGeometry {
    * @param props.path The front object's path, which the marks extend.
    * @param props.front The front mesh the witnesses were measured on.
    * @param props.axis The depth axis the clearance was measured along.
-   * @param props.witnesses Witnesses as `measureAutoMovieMeshClearance` hands
+   * @param props.witnesses Witnesses as `measureMeshClearance` hands
    *   them to its visitor.
    * @param props.anchor Path of the object whose frame the meshes share, or null
    *   for world space.
    * @returns One mark per witness, in the witnesses' order.
    */
   export function markMeshClearance(props: IAutoMovieMarkMeshClearance.IProps): IAutoMovieMark[] {
-    return markAutoMovieMeshClearanceImplementation(props);
+    return markMeshClearanceImplementation(props);
   }
 
   /**
@@ -749,7 +749,7 @@ export namespace AutoMovieEngineGeometry {
    *   range.
    */
   export function measureFeatureEdges(props: IAutoMovieMeasureFeatureEdges.IProps): IAutoMovieMeasureFeatureEdges.IResult {
-    return measureAutoMovieFeatureEdgesImplementation(props);
+    return measureFeatureEdgesImplementation(props);
   }
 
   /**
@@ -779,7 +779,7 @@ export namespace AutoMovieEngineGeometry {
    * @returns Minimum depth gap per overlapping front triangle, in ordinal order.
    */
   export function measureMeshClearance(front: IAutoMovieMesh, back: IAutoMovieMesh, axis: "x" | "y" | "z", visit?: (witness: IAutoMovieMeshClearanceWitness) => void): IAutoMovieMeasureMeshClearance.IResult {
-    return measureAutoMovieMeshClearanceImplementation(front, back, axis, visit);
+    return measureMeshClearanceImplementation(front, back, axis, visit);
   }
 
   /**
@@ -796,7 +796,7 @@ export namespace AutoMovieEngineGeometry {
    * The origin defaults to the first point.
    *
    * Throws on an empty point run, a missing or non-finite coordinate in a point,
-   * the origin or the direction, and, through `adjacentAutoMovieFloat64`, on a
+   * the origin or the direction, and, through `adjacentFloat64`, on a
    * difference or enclosure step that overflows. Projection separation and
    * attachment contact are the two consumers.
    *
@@ -806,14 +806,14 @@ export namespace AutoMovieEngineGeometry {
    * @returns One owned interval per point and the norm enclosure.
    */
   export function measureProjectionIntervals(points: readonly IAutoMovieVector3[], raw: IAutoMovieVector3, origin?: IAutoMovieVector3): IAutoMovieProjectionIntervals {
-    return measureAutoMovieProjectionIntervalsImplementation(points, raw, origin);
+    return measureProjectionIntervalsImplementation(points, raw, origin);
   }
 
   /**
    * Find the smallest joint forward travel of the front mesh's vertices along one
    * positive axis that restores a requested clearance over a back mesh.
    *
-   * `measureAutoMovieMeshClearance` supplies every affine overlap witness,
+   * `measureMeshClearance` supplies every affine overlap witness,
    * already-clear ones included; each becomes the linear constraint that the
    * barycentric blend of its front vertices' travel closes its deficit. The
    * objective is half the sum of lumped mass times squared travel, each vertex's
@@ -841,7 +841,7 @@ export namespace AutoMovieEngineGeometry {
    * @returns Travel per moved front vertex.
    */
   export function minimizeMeshClearance(front: IAutoMovieMesh, back: IAutoMovieMesh, axis: "x" | "y" | "z", clearance?: number): IAutoMovieMinimizeMeshClearance.IResult {
-    return minimizeAutoMovieMeshClearanceImplementation(front, back, axis, clearance);
+    return minimizeMeshClearanceImplementation(front, back, axis, clearance);
   }
 
   /**
@@ -868,7 +868,7 @@ export namespace AutoMovieEngineGeometry {
    *   directions.
    */
   export function normalizeSurfaceFrame(frame: IAutoMovieSurfaceFrame): IAutoMovieSweepFrame {
-    return normalizeAutoMovieSurfaceFrameImplementation(frame);
+    return normalizeSurfaceFrameImplementation(frame);
   }
 
   /**
@@ -882,7 +882,7 @@ export namespace AutoMovieEngineGeometry {
    * reachability, which remain with the actual consumer.
    */
   export function placeSurfaceFrame(prepared: IAutoMoviePreparedSurfaceFrame, target: IAutoMovieSurfaceFrame): [IAutoMovieVector3, IAutoMovieVector3, IAutoMovieVector3] {
-    return placeAutoMovieSurfaceFrameImplementation(prepared, target);
+    return placeSurfaceFrameImplementation(prepared, target);
   }
 
   /**
@@ -895,7 +895,7 @@ export namespace AutoMovieEngineGeometry {
    * overflow refuse; near-collinearity remains a binary64 conditioning limit.
    */
   export function prepareSurfaceFrame(points: readonly IAutoMovieVector3[], referenceNormal?: IAutoMovieVector3): IAutoMoviePreparedSurfaceFrame {
-    return prepareAutoMovieSurfaceFrameImplementation(points, referenceNormal);
+    return prepareSurfaceFrameImplementation(points, referenceNormal);
   }
 
   /**
@@ -921,7 +921,7 @@ export namespace AutoMovieEngineGeometry {
    * flags reject before work.
    */
   export function realizeBicubicAtlas64(input: IAutoMovieBicubicAtlasGeometry, options?: IAutoMovieRealizeBicubicAtlas64.IOptions): IAutoMovieRealizeBicubicAtlas64.IResult {
-    return realizeAutoMovieBicubicAtlas64Implementation(input, options);
+    return realizeBicubicAtlas64Implementation(input, options);
   }
 
   /**
@@ -933,7 +933,7 @@ export namespace AutoMovieEngineGeometry {
    * output; display never opts into that gate.
    */
   export function realizeGeometry(geometry: IAutoMovieGeometry, requirement?: "complete" | "display"): IAutoMovieRealizeGeometry.IResult {
-    return realizeAutoMovieGeometryImplementation(geometry, requirement);
+    return realizeGeometryImplementation(geometry, requirement);
   }
 
   /**
@@ -959,7 +959,7 @@ export namespace AutoMovieEngineGeometry {
    * neither mutates a resident tree nor caches a previous world placement.
    */
   export function refitMeshQueryHierarchy<T extends IAutoMovieMeshQueryHierarchy.IEntry, U extends IAutoMovieMeshQueryHierarchy.IEntry>(source: IAutoMovieMeshQueryHierarchy<T>, replace: (entry: T) => U): IAutoMovieMeshQueryHierarchy<U> {
-    return refitAutoMovieMeshQueryHierarchyImplementation<T, U>(source, replace);
+    return refitMeshQueryHierarchyImplementation<T, U>(source, replace);
   }
 
   /**
@@ -986,7 +986,7 @@ export namespace AutoMovieEngineGeometry {
    *   any rule above.
    */
   export function selectTriangleRegion(props: IAutoMovieSelectTriangleRegion.IProps): number[] {
-    return selectAutoMovieTriangleRegionImplementation(props);
+    return selectTriangleRegionImplementation(props);
   }
 
   /**
@@ -1039,7 +1039,7 @@ export namespace AutoMovieEngineGeometry {
    *   for this graph.
    */
   export function countMeshComponents(mesh: IAutoMovieMesh): number {
-    return countAutoMovieMeshComponentsImplementation(mesh);
+    return countMeshComponentsImplementation(mesh);
   }
 
   /**
@@ -1091,7 +1091,7 @@ export namespace AutoMovieEngineGeometry {
    *   degenerate triangles.
    */
   export function measureMeshDefects(mesh: IAutoMovieMeasureMeshDefects.IMesh, options?: IAutoMovieMeasureMeshDefects.IOptions): IAutoMovieMeshDefect[] {
-    return measureAutoMovieMeshDefectsImplementation(mesh, options);
+    return measureMeshDefectsImplementation(mesh, options);
   }
 
   /**
@@ -1100,7 +1100,7 @@ export namespace AutoMovieEngineGeometry {
    *
    * Each mesh part is first carried into the model frame by its own transform
    * and, when attached to a bone the rest pose resolves, by that bone's rest
-   * placement, the placement `autoMovieModelPartMatrices` owns; a part with
+   * placement, the placement `modelPartMatrices` owns; a part with
    * neither keeps its coordinates exactly. Bicubic recipes use the canonical
    * engine's retained finite mesh, including declared partial output; primitives
    * and unrecognized geometry remain outside this mesh crossing query. A pair
@@ -1133,7 +1133,7 @@ export namespace AutoMovieEngineGeometry {
    * @returns One entry per crossing pair, empty when nothing crosses.
    */
   export function measureModelCrossings(model: IAutoMovieModel, options?: IAutoMovieMeasureModelCrossings.IOptions): IAutoMovieModelCrossing[] {
-    return measureAutoMovieModelCrossingsImplementation(model, options);
+    return measureModelCrossingsImplementation(model, options);
   }
 
   /**
@@ -1148,7 +1148,7 @@ export namespace AutoMovieEngineGeometry {
    *
    * Mesh coordinates and nonnegative clearance use metres. Input order is the
    * requested order, not an inferred spatial sort. The same ray-parallel limit as
-   * measureAutoMovieMeshClearance applies; this does not pack arbitrary volumes
+   * measureMeshClearance applies; this does not pack arbitrary volumes
    * around corners or preserve an external path after separation.
    *
    * @throws Error for malformed triangles, non-finite coordinates or clearance,
@@ -1156,7 +1156,7 @@ export namespace AutoMovieEngineGeometry {
    *   positions.
    */
   export function separateMeshSequence(meshes: readonly IAutoMovieMesh[], axis: "x" | "y" | "z", clearance?: number): IAutoMovieMesh[] {
-    return separateAutoMovieMeshSequenceImplementation(meshes, axis, clearance);
+    return separateMeshSequenceImplementation(meshes, axis, clearance);
   }
 
   /**
@@ -1197,7 +1197,7 @@ export namespace AutoMovieEngineGeometry {
    *   parameters.
    */
   export function subdivideSurface(props: IAutoMovieSubdivideSurface.IProps): IAutoMovieSubdivisionSurface {
-    return subdivideAutoMovieSurfaceImplementation(props);
+    return subdivideSurfaceImplementation(props);
   }
 
   /**
@@ -1254,7 +1254,7 @@ export namespace AutoMovieEngineGeometry {
    * corner; and a ring that turns around more than once, such as a pentagram,
    * whose fan would cover ground the face does not. Convexity is required because
    * the face is fanned from its first corner. Whether the result is a closed
-   * shell is the caller's to declare and `inspectAutoMovieMeshTopology`'s to
+   * shell is the caller's to declare and `inspectMeshTopology`'s to
    * measure.
    *
    * @param faces Each face's corners in metres, counter-clockwise seen from
@@ -1262,7 +1262,7 @@ export namespace AutoMovieEngineGeometry {
    * @returns A mesh with flat normals and metric UVs.
    */
   export function buildPolyhedron(faces: ReadonlyArray<readonly IAutoMovieVector3[]>): IAutoMovieMesh {
-    return buildAutoMoviePolyhedronImplementation(faces);
+    return buildPolyhedronImplementation(faces);
   }
 
   /**
@@ -1284,7 +1284,7 @@ export namespace AutoMovieEngineGeometry {
    * level. The orientation check is local to each normal group's aggregate area;
    * it does not certify every face orientation or global absence of
    * self-intersections. The heights usually come from a field evaluated at each
-   * vertex's `locateAutoMovieSurfaceVertices` location, which depends on no pose,
+   * vertex's `locateSurfaceVertices` location, which depends on no pose,
    * so a posed surface takes the same heights.
    *
    * @param props.surface The subdivided surface, only read; the result shares its
@@ -1296,7 +1296,7 @@ export namespace AutoMovieEngineGeometry {
    *   or a displacement turns the quads around a normal over.
    */
   export function displaceSurface(props: IAutoMovieDisplaceSurface.IProps): IAutoMovieSubdivisionSurface {
-    return displaceAutoMovieSurfaceImplementation(props);
+    return displaceSurfaceImplementation(props);
   }
 
   /**
@@ -1321,7 +1321,7 @@ export namespace AutoMovieEngineGeometry {
    * @returns A closed mesh with normals and no UVs.
    */
   export function extrudeProfile(props: IAutoMovieExtrudeProfile.IProps): IAutoMovieMesh {
-    return extrudeAutoMovieProfileImplementation(props);
+    return extrudeProfileImplementation(props);
   }
 
   /**
@@ -1351,15 +1351,15 @@ export namespace AutoMovieEngineGeometry {
    * @returns Counts, degenerate ordinals, closure and volume.
    */
   export function inspectMeshTopology(mesh: IAutoMovieMesh): IAutoMovieMeshTopology {
-    return inspectAutoMovieMeshTopologyImplementation(mesh);
+    return inspectMeshTopologyImplementation(mesh);
   }
 
   /**
    * Report the topology of each piece of a mesh: its counts, boundary loops,
    * Euler characteristic, manifoldness, orientability, stored winding and genus.
    *
-   * Corners are welded exactly as `inspectAutoMovieMeshTopology` welds them,
-   * through the shared `weldAutoMovieMeshCorners`: on the `AutoMovieEngineMeshWeldGrid`
+   * Corners are welded exactly as `inspectMeshTopology` welds them,
+   * through the shared `weldMeshCorners`: on the `AutoMovieEngineMeshWeldGrid`
    * lattice, or by declared physical sources. Degenerate triangles are skipped as
    * that report skips them. The remaining triangles split into pieces connected
    * through shared edges, so a cube whose faces carry their own corners is one
@@ -1383,13 +1383,13 @@ export namespace AutoMovieEngineGeometry {
    * Pieces are ordered by their lowest triangle ordinal. A mesh without
    * non-degenerate triangles has no piece. The mesh is only read. A malformed
    * index buffer and invalid physical correspondence throw the same refusals as
-   * `inspectAutoMovieMeshTopology`.
+   * `inspectMeshTopology`.
    *
    * @param mesh Mesh to measure.
    * @returns One record per piece, in first-triangle order.
    */
   export function measureMeshPieces(mesh: IAutoMovieMesh): IAutoMovieMeshPiece[] {
-    return measureAutoMovieMeshPiecesImplementation(mesh);
+    return measureMeshPiecesImplementation(mesh);
   }
 
   /**
@@ -1401,8 +1401,8 @@ export namespace AutoMovieEngineGeometry {
    * order; `start` and `count` address the merged index buffer, and an unindexed
    * member counts one index per vertex.
    *
-   * Each member is placed through `transformAutoMovieMesh` and concatenated by
-   * `mergeAutoMovieMeshes`, so both of their coordinate rules apply here. One
+   * Each member is placed through `transformMesh` and concatenated by
+   * `mergeMeshes`, so both of their coordinate rules apply here. One
    * member without UVs costs the whole assembly its atlas, and a member placed
    * with a scale keeps coordinates that no longer measure its surface. Reuse is
    * where that bites: placing one built member at several sizes is the economy
@@ -1417,7 +1417,7 @@ export namespace AutoMovieEngineGeometry {
    * @returns The merged mesh and one group per member.
    */
   export function mergeMeshParts(parts: readonly IAutoMovieMeshPart[]): IAutoMovieMeshAssembly {
-    return mergeAutoMovieMeshPartsImplementation(parts);
+    return mergeMeshPartsImplementation(parts);
   }
 
   /**
@@ -1433,7 +1433,7 @@ export namespace AutoMovieEngineGeometry {
    * together, so a wall less its openings or a plate less its cut-outs is one
    * solid from one description. A subtraction along a direction the section does
    * not run in, such as a niche stopping partway into a wall, is not offered at
-   * all, and `buildAutoMovieWall` refuses the pinched case by name.
+   * all, and `buildWall` refuses the pinched case by name.
    *
    * Normals and texture coordinates survive only when every member carries them.
    * A merged buffer is read by vertex index, so a member without coordinates has
@@ -1456,7 +1456,7 @@ export namespace AutoMovieEngineGeometry {
    * @returns One mesh with every member's triangles.
    */
   export function mergeMeshes(meshes: readonly IAutoMovieMesh[]): IAutoMovieMesh {
-    return mergeAutoMovieMeshesImplementation(meshes);
+    return mergeMeshesImplementation(meshes);
   }
 
   /**
@@ -1537,9 +1537,9 @@ export namespace AutoMovieEngineGeometry {
    * A directional finish therefore wants a meridian within a few degrees of the
    * axis, which is a drum, a shaft, a turret barrel. A sloped or domed form that
    * must carry one is authored as flat faces through
-   * {@link buildAutoMoviePolyhedron}, whose per-face frame is isometric, or as a
+   * {@link buildPolyhedron}, whose per-face frame is isometric, or as a
    * flat cap through {@link AutoMovieEnginePlanarRegion.extrude}, and a spire
-   * built as facets is how a spire is built anyway. {@link meshAutoMovieSweep} is
+   * built as facets is how a spire is built anyway. {@link meshSweep} is
    * not the escape here that it is for the coordinate-less builders. It measures
    * this same pair, a tapered loft shears the same way, and it gives up something
    * this one keeps: the map here is exactly equiareal, while a loft's `v` is path
@@ -1559,7 +1559,7 @@ export namespace AutoMovieEngineGeometry {
    *   least 3.
    */
   export function revolveProfile(props: IAutoMovieRevolveProfile.IProps): IAutoMovieMesh {
-    return revolveAutoMovieProfileImplementation(props);
+    return revolveProfileImplementation(props);
   }
 
   /**
@@ -1587,7 +1587,7 @@ export namespace AutoMovieEngineGeometry {
    *
    * The hull's faces are the supporting planes `physicalHullFaces` finds, each
    * with its loop counter-clockwise seen from outside, and
-   * `buildAutoMoviePolyhedron` fans each loop from its first corner with a flat
+   * `buildPolyhedron` fans each loop from its first corner with a flat
    * normal and metric UVs. Archetype convex cells and the form expectation
    * check's hull mutant are both this mesh. Points within the hull's coplanarity
    * tolerance of a face lie on it, so a flat ring of many points makes one face.
@@ -1601,7 +1601,7 @@ export namespace AutoMovieEngineGeometry {
    *   hull search no finite tolerance.
    */
   export function buildConvexHull(points: readonly IAutoMovieVector3[]): IAutoMovieMesh {
-    return buildAutoMovieConvexHullImplementation(points);
+    return buildConvexHullImplementation(points);
   }
 
   /**
@@ -1643,7 +1643,7 @@ export namespace AutoMovieEngineGeometry {
    * @returns A closed mesh with flat normals and no UVs.
    */
   export function buildWall(props: IAutoMovieBuildWall.IProps): IAutoMovieMesh {
-    return buildAutoMovieWallImplementation(props);
+    return buildWallImplementation(props);
   }
 
   /**
@@ -1657,7 +1657,7 @@ export namespace AutoMovieEngineGeometry {
    * vertex and face indices: an edge used by more than two faces, an edge two
    * faces traverse in the same direction, a vertex in no face, and a vertex whose
    * faces form more than one fan. Rows must already hold valid, distinct vertex
-   * indices per face; `subdivideAutoMovieSurface` checks that before calling.
+   * indices per face; `subdivideSurface` checks that before calling.
    *
    * @param vertexCount Number of vertices the rows index.
    * @param faceOffsets Row starts, one more entry than faces.
@@ -1675,18 +1675,18 @@ export namespace AutoMovieEngineGeometry {
    * reject.
    *
    * Every part is realized and placed in the model frame as
-   * `measureAutoMovieModelContacts` places it, and the placed parts are merged
+   * `measureModelContacts` places it, and the placed parts are merged
    * into one mesh by concatenation. Each given field is then measured: `size`
    * from the merged positions' axis-aligned extents, `pieces` and `genera` from
-   * `measureAutoMovieMeshPieces`, `solid` and `empty` from
-   * `createAutoMovieMeshWindingQuery`, and `pairs` from
-   * `measureAutoMovieModelContacts` with the expectation's `contact`. Each
+   * `measureMeshPieces`, `solid` and `empty` from
+   * `createMeshWindingQuery`, and `pairs` from
+   * `measureModelContacts` with the expectation's `contact`. Each
    * failure becomes one finding naming its field, its subject and the measured
    * value against the expected one.
    *
    * The shape fields, every field but `pairs` and `contact`, also run on two
    * one-part mutants built from every placed vertex: the 12-triangle axis-aligned
-   * box and the convex hull from `buildAutoMovieConvexHull`. Their failures are
+   * box and the convex hull from `buildConvexHull`. Their failures are
    * findings with subject `box` or `hull`. A mutant that fails no given shape
    * field and is not listed in `matches` is `loose`: the expectation cannot tell
    * it from the form, so it says too little. An expectation with no shape field
@@ -1703,7 +1703,7 @@ export namespace AutoMovieEngineGeometry {
    * @returns The findings and the loose mutants.
    */
   export function checkFormExpectation(model: IAutoMovieModel, expectation: IAutoMovieFormExpectation): IAutoMovieFormCheck {
-    return checkAutoMovieFormExpectationImplementation(model, expectation);
+    return checkFormExpectationImplementation(model, expectation);
   }
 
   /**
@@ -1731,7 +1731,7 @@ export namespace AutoMovieEngineGeometry {
    * 2013, "Robust Inside-Outside Segmentation using Generalized Winding
    * Numbers"); each triangle's solid angle is the closed form of Van Oosterom and
    * Strackee (1983). Unlike the pseudonormal sign of
-   * `createAutoMovieSignedMeshQuery`, it needs no closed, embedded manifold: an
+   * `createSignedMeshQuery`, it needs no closed, embedded manifold: an
    * open tube, overlapping shells in one index buffer, an edge shared by more
    * than two triangles and a nearly closed surface all read as the share of the
    * view they cover. A point counts as `inside` when it is not on the surface and
@@ -1756,7 +1756,7 @@ export namespace AutoMovieEngineGeometry {
    * @returns The query for one XYZ point in metres.
    */
   export function createMeshWindingQuery(mesh: IAutoMovieMesh): ((point: readonly number[]) => IAutoMovieMeshWinding) {
-    return createAutoMovieMeshWindingQueryImplementation(mesh);
+    return createMeshWindingQueryImplementation(mesh);
   }
 
   /**
@@ -1865,17 +1865,17 @@ export namespace AutoMovieEngineGeometry {
    * or apart, with the least gap between their surfaces and how much of each lies
    * inside the other.
    *
-   * Every part is realized through `realizeAutoMovieGeometry`, primitives
-   * included, and carried into the model frame by `placeAutoMovieModelPartMesh`
-   * with its `autoMovieModelPartMatrices` entry, as
-   * `measureAutoMovieModelCrossings` places its parts. One record follows for
+   * Every part is realized through `realizeGeometry`, primitives
+   * included, and carried into the model frame by `placeModelPartMesh`
+   * with its `modelPartMatrices` entry, as
+   * `measureModelCrossings` places its parts. One record follows for
    * every unordered pair, in model part order. A pair crosses when
    * `AutoMovieEngineMeshCrossingQuery.measure` finds a transverse or coplanar
    * crossing in either direction, which it can only where the two placed boxes
    * overlap. The gap is 0 for a crossing pair and otherwise the least distance
-   * between the surfaces by `measureAutoMovieMeshGap`, for every pair however far
+   * between the surfaces by `measureMeshGap`, for every pair however far
    * apart. Each share is the area of one part's triangles whose centroids the
-   * other part's winding query, `createAutoMovieMeshWindingQuery`, finds
+   * other part's winding query, `createMeshWindingQuery`, finds
    * `inside`, divided by the part's whole area; one centroid stands for each
    * triangle, so a share resolves at the triangle size. A centroid too far from
    * the other part for its winding number to reach 0.5, by an exact solid-angle
@@ -1896,7 +1896,7 @@ export namespace AutoMovieEngineGeometry {
    * @returns One record per unordered part pair, in model part order.
    */
   export function measureModelContacts(model: IAutoMovieModel, options: IAutoMovieMeasureModelContacts.IOptions): IAutoMovieModelContact[] {
-    return measureAutoMovieModelContactsImplementation(model, options);
+    return measureModelContactsImplementation(model, options);
   }
 
   /**
@@ -1946,7 +1946,7 @@ export namespace AutoMovieEngineGeometry {
    *
    * Touching counts because a region whose rings meet at one point is not two
    * regions with a shared corner; it is a surface pinched to a line, the same
-   * shape `buildAutoMovieWall` refuses when two openings meet at a corner. A
+   * shape `buildWall` refuses when two openings meet at a corner. A
    * proper crossing needs each segment's endpoints on strictly opposite sides of
    * the other's line, each side more than `AutoMovieEnginePlanarEpsilon` from zero; otherwise
    * the segments meet when an endpoint of one is collinear with the other within
@@ -2231,7 +2231,7 @@ export namespace AutoMovieEngineGeometry {
    * The mesh is indexed, carries the primitive's own normals, and has no UVs and
    * no skin, because a primitive states no atlas and rides its part's bone as a
    * rigid whole. Callers use it where a mesh is required, such as placing a
-   * primitive with {@link transformAutoMovieMesh} or merging it with authored
+   * primitive with {@link transformMesh} or merging it with authored
    * parts.
    *
    * @param shape Primitive to tessellate.
@@ -2258,7 +2258,7 @@ export namespace AutoMovieEngineGeometry {
    *
    * That is what makes a placed member's coordinates local rather than global,
    * and it is the one thing to know before rotating an atlas-bearing member.
-   * {@link buildAutoMoviePolyhedron} decides each face's frame from world up in
+   * {@link buildPolyhedron} decides each face's frame from world up in
    * the frame the mesh was built in, so a panel built upright and then laid down
    * by a rotation keeps the upright face's frame while presenting a level face.
    * Build the member in the orientation it will be seen in, or accept that its
@@ -2290,6 +2290,6 @@ export namespace AutoMovieEngineGeometry {
    *   scale component is zero.
    */
   export function transformMesh(mesh: IAutoMovieMesh, transform: IAutoMovieMeshTransform): IAutoMovieMesh {
-    return transformAutoMovieMeshImplementation(mesh, transform);
+    return transformMeshImplementation(mesh, transform);
   }
 }

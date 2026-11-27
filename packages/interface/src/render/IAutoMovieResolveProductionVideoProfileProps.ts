@@ -1,4 +1,4 @@
-import type { IAutoMovieProductionFrameRate } from "../production/IAutoMovieProductionFrameRate.js";
+import type { IAutoMovieProductionFrameRate } from "../production/IAutoMovieProductionFrameRate";
 
 /**
  * Already admitted video dimensions and rational frame rate.

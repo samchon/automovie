@@ -8,7 +8,7 @@ import type {
 
 /*
  * The kickboxing ruleset a performance's schedule must keep, in the engine's
- * `checkAutoMovieLegality` form, for the motions vocabulary's `punch`, `kick`,
+ * `checkLegality` form, for the motions vocabulary's `punch`, `kick`,
  * `defend` and `knockdown` actions.
  *
  * From the GLORY Official Rules V2.2, §5.07 (as inspected in the kickboxing

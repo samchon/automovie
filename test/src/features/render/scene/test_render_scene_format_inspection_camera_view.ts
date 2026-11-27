@@ -2,7 +2,7 @@ import { AutoMovieRenderInspectionRequest } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `formatAutoMovieInspectionCameraView` writes a recorded camera as a fixed view
+ * `formatInspectionCameraView` writes a recorded camera as a fixed view
  * text that draws it again.
  *
  * Scenarios:

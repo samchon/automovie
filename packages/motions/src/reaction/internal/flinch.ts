@@ -19,7 +19,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
@@ -28,10 +28,10 @@ import { AutoMovieMotionHumanJoints } from "../../compose/internal/AutoMovieMoti
 import { AutoMovieMotionHumanLean } from "../../compose/internal/AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanRange } from "../../compose/internal/AutoMovieMotionHumanRange";
 import { AutoMovieMotionHumanTarget } from "../../compose/internal/AutoMovieMotionHumanTarget";
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
-import { AutoMovieMotionPrepared } from "../../compose/internal/AutoMovieMotionPrepared";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
+import { motionManner } from "../../compose/internal/motionManner";
+import { motionPrepared } from "../../compose/internal/motionPrepared";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { HumanBoneGroups } from "../../posture/internal/HumanBoneGroups";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { StrikingBody } from "../../striking/internal/StrikingBody";
@@ -128,9 +128,9 @@ export namespace flinch {
   export function timetable(
     modifiers: IAutoMovieMotionManner.IModifiers,
   ): IAutoMovieMotionClock {
-    return AutoMovieMotionManner.time(
-      AutoMovieMotionClock.phrase(
-        AutoMovieMotionHumanTiming.phrase({
+    return motionManner.time(
+      motionClock.phrase(
+        motionHumanTiming.phrase({
           prepare: "none",
           attack: RISE,
           retract: RETURN,
@@ -151,7 +151,7 @@ export namespace flinch {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanFlinch.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const p: IAutoMovieMotionHumanFlinch.IParams = context.params;
-    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+    const modifiers: IAutoMovieMotionManner.IModifiers = motionManner(
       context,
       {
         ...(p.intensity === undefined ? {} : { intensity: p.intensity }),
@@ -170,10 +170,10 @@ export namespace flinch {
 
     const duration: number = clock.duration;
     const rise: readonly [string, string] = [
-      AutoMovieMotionClock.START,
+      motionClock.START,
       "stroke",
     ];
-    const fall: readonly [string, string] = ["relax", AutoMovieMotionClock.END];
+    const fall: readonly [string, string] = ["relax", motionClock.END];
     const share: (seconds: number) => number = (seconds: number): number =>
       intensity * clock.envelope(rise, fall, seconds);
     const lean: number = AutoMovieMotionHumanRange.lean(LEAN);
@@ -187,8 +187,8 @@ export namespace flinch {
     // Away from the threat in the performer's floor frame: `x` left, `z`
     // forward. The threat is read at the look before the start, solved once
     // the performance is placed (`prepare`); a read before reads it there.
-    const solved: AutoMovieMotionPrepared.IValue<IAutoMovieVector3> =
-      AutoMovieMotionPrepared(
+    const solved: motionPrepared.IValue<IAutoMovieVector3> =
+      motionPrepared(
         (): IAutoMovieVector3 =>
           HumanFrame.local(
             { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw },
@@ -314,7 +314,7 @@ export namespace flinch {
         ];
       }
 
-    return composeAutoMovieMotionHumanAction({
+    return composeMotionHumanAction({
       base: {
         ...AutoMovieMotionHumanBase.still(
           duration,

@@ -39,81 +39,99 @@ import { physicalShapePenetration } from "./physicalShapePenetration";
  * substeps, and to rest otherwise.
  */
 export namespace solveXpbdContacts {
-  /**
+  /*
    * One contact of a step: the pair, its normal and witnesses, and its
    * multipliers.
    */
   export interface IContact {
-    /** The first collider. */
+    /*
+     * The first collider.
+     */
     a: AutoMovieEngineXpbdCollider;
 
-    /** The second collider. */
+    /*
+     * The second collider.
+     */
     b: AutoMovieEngineXpbdCollider;
 
-    /**
+    /*
      * Index of the collider pair among the step's touching pairs; the points of
      * one manifold share it.
      */
     pair: number;
 
-    /**
+    /*
      * Unit world normal from the first collider toward the second, fixed for
      * the step.
      */
     normal: IAutoMovieVector3;
 
-    /** The first witness in the first body's frame, from its centre, metres. */
+    /*
+     * The first witness in the first body's frame, from its centre, metres.
+     */
     localA: IAutoMovieVector3;
 
-    /** The second witness in the second body's frame, from its centre, metres. */
+    /*
+     * The second witness in the second body's frame, from its centre, metres.
+     */
     localB: IAutoMovieVector3;
 
-    /** Combined Coulomb friction coefficient. */
+    /*
+     * Combined Coulomb friction coefficient.
+     */
     friction: number;
 
-    /** Combined restitution coefficient. */
+    /*
+     * Combined restitution coefficient.
+     */
     restitution: number;
 
-    /** Normal multiplier accumulated this step, newton seconds squared. */
+    /*
+     * Normal multiplier accumulated this step, newton seconds squared.
+     */
     normalLambda: number;
 
-    /**
+    /*
      * Tangential multiplier vector accumulated this step, newton seconds
      * squared.
      */
     tangentLambda: IAutoMovieVector3;
-    /**
+    /*
      * Dynamic friction impulse accumulated over this step's velocity passes,
      * newton seconds.
      */
     tangentImpulse: number;
 
-    /**
+    /*
      * The same dynamic friction as a vector, the impulse the first body
      * received, newton seconds.
      */
     frictionImpulse: IAutoMovieVector3;
 
-    /** Normal approach speed at detection, metres per second; positive closing. */
+    /*
+     * Normal approach speed at detection, metres per second; positive closing.
+     */
     approach: number;
 
-    /** Signed distance at the end of the step, metres. */
+    /*
+     * Signed distance at the end of the step, metres.
+     */
     separation: number;
 
-    /**
+    /*
      * Signed distance where the step found the contact, before any correction,
      * metres.
      */
     detected: number;
 
-    /**
+    /*
      * Normal impulse of the velocity passes, newton seconds; positive pushing
      * the pair apart.
      */
     velocityImpulse: number;
   }
 
-  /**
+  /*
    * Whether two colliders may touch; false excludes the pair from response and
    * overlap reports.
    */

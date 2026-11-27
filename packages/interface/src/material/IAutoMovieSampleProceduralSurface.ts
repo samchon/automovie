@@ -3,7 +3,7 @@ import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { IAutoMovieProceduralSurface } from "./IAutoMovieProceduralSurface";
 
 /**
- * Input and result of `sampleAutoMovieProceduralSurface`, the engine's CPU
+ * Input and result of `sampleProceduralSurfaceImplementation`, the engine's CPU
  * reference of a procedural surface, which the renderer's fragment shader
  * mirrors.
  */

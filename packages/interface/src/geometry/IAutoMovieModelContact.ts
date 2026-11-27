@@ -1,5 +1,5 @@
 /**
- * How two parts of one built model meet, as `measureAutoMovieModelContacts`
+ * How two parts of one built model meet, as `measureModelContacts`
  * reports it for every unordered pair of parts.
  *
  * Both parts are measured where they sit in the model's frame, so the gap is in

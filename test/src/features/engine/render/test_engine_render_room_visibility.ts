@@ -29,7 +29,7 @@ const sealed: () => IAutoMovieBuiltEnvironment =
   });
 
 /**
- * `autoMovieRoomVisibility` hides the spaces that no declared sight line can
+ * `roomVisibility` hides the spaces that no declared sight line can
  * reach from the camera's cell, conservatively.
  *
  * Scenarios, on the atelier (a hall and a roof deck under a building, a stair

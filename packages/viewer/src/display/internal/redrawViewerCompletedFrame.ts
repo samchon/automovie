@@ -1,4 +1,4 @@
-import type { AutoMovieViewerDisplay } from "../AutoMovieViewerDisplay.js";
+import type { AutoMovieViewerDisplay } from "../AutoMovieViewerDisplay";
 
 /*
  * Admit an original synchronous redraw only from a new completed observation.

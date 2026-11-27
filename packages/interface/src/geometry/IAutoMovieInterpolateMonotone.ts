@@ -31,7 +31,7 @@ export namespace IAutoMovieInterpolateMonotone {
     /**
      * Nonempty finite strictly increasing abscissae, copied at construction.
      * Their unit is chosen by the caller and must match each query and period;
-     * interpolateAutoMovieMonotone rejects duplicate or unsorted knots.
+     * interpolateMonotone rejects duplicate or unsorted knots.
      */
     knots: readonly number[];
 

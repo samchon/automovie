@@ -5,7 +5,7 @@ import { TestValidator } from "@nestia/e2e";
 import { throwsError } from "../../internal/predicates";
 
 /**
- * `mergeAutoMovieMeshes` concatenates meshes, rebasing each member's indices by
+ * `mergeMeshes` concatenates meshes, rebasing each member's indices by
  * the vertices before it, without passing the buffers as an argument list.
  *
  * Member: 48004 vertices and 216000 indices, index i addressing vertex i mod

@@ -1,8 +1,8 @@
-import { AutoMovieRenderInspectionKeys } from "../scene/AutoMovieRenderInspectionKeys.js";
+import { AutoMovieRenderInspectionKeys } from "../scene/AutoMovieRenderInspectionKeys";
 
 /**
- * Every key `parseAutoMovieCapturePlanRequest` reads, in the order
- * `formatAutoMovieCapturePlanRequest` writes them: the capture's own keys, then
+ * Every key `parseCapturePlanRequest` reads, in the order
+ * `formatCapturePlanRequest` writes them: the capture's own keys, then
  * `AutoMovieRenderInspectionKeys`.
  *
  * A host maps its source of text onto these names and nothing else, so the

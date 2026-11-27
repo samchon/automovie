@@ -1,8 +1,8 @@
 import { type IAutoMovieMeasureContact, type IAutoMovieResolveContactEvents, type IAutoMovieMark, type IAutoMovieMarkContacts, type IAutoMovieMarkSupportWrenches } from "@automovie/interface";
-import { measureAutoMovieContact as measureAutoMovieContactImplementation } from "./internal/measureAutoMovieContact";
-import { resolveAutoMovieContactEvents as resolveAutoMovieContactEventsImplementation } from "./internal/resolveAutoMovieContactEvents";
-import { markAutoMovieContacts as markAutoMovieContactsImplementation } from "./internal/markAutoMovieContacts";
-import { markAutoMovieSupportWrenches as markAutoMovieSupportWrenchesImplementation } from "./internal/markAutoMovieSupportWrenches";
+import { measureContact as measureContactImplementation } from "./internal/measureContact";
+import { resolveContactEvents as resolveContactEventsImplementation } from "./internal/resolveContactEvents";
+import { markContacts as markContactsImplementation } from "./internal/markContacts";
+import { markSupportWrenches as markSupportWrenchesImplementation } from "./internal/markSupportWrenches";
 
 /** Public operations for Auto Movie Engine Composition Contact. */
 export namespace AutoMovieEngineCompositionContact {
@@ -16,11 +16,11 @@ export namespace AutoMovieEngineCompositionContact {
    * landmarks, so a refused contact means the bodies did not meet.
    *
    * @returns The least separation and its colliders, and the contact record
-   *   `auditAutoMovieOutcome` reads when the separation is within `tolerance` (an
+   *   `auditOutcome` reads when the separation is within `tolerance` (an
    *   impulse of zero: a geometric touch, not a solved one).
    */
   export function measure(input: IAutoMovieMeasureContact.IInput): IAutoMovieMeasureContact.IResult {
-    return measureAutoMovieContactImplementation(input);
+    return measureContactImplementation(input);
   }
 
   /**
@@ -46,7 +46,7 @@ export namespace AutoMovieEngineCompositionContact {
    * other weapon against the poses that stop produces, until no weapon meets
    * anything. Each first impact is found by a fixed-step scan of the signed gap
    * and a bracketed root search of the first crossing to a nanosecond
-   * (`firstAutoMovieContactImpact`), so the result is deterministic; a contact
+   * (`firstContactImpact`), so the result is deterministic; a contact
    * shorter than one step (a weapon and a body passing through each other within
    * it) is the scan's stated blind spot, so the step must stay below the time
    * either needs to cross the other's thickness. A weapon that states the span it
@@ -108,7 +108,7 @@ export namespace AutoMovieEngineCompositionContact {
    *   weapon that is not its own.
    */
   export function resolveEvents(input: IAutoMovieResolveContactEvents.IInput): IAutoMovieResolveContactEvents.IEvent[] {
-    return resolveAutoMovieContactEventsImplementation(input);
+    return resolveContactEventsImplementation(input);
   }
 
   /**
@@ -162,7 +162,7 @@ export namespace AutoMovieEngineCompositionContact {
    * @returns Two marks per acting contact, in the receipts' order.
    */
   export function markContacts(props: IAutoMovieMarkContacts.IProps): IAutoMovieMark[] {
-    return markAutoMovieContactsImplementation(props);
+    return markContactsImplementation(props);
   }
 
   /**
@@ -181,7 +181,7 @@ export namespace AutoMovieEngineCompositionContact {
    * arrow's tip, so the two arrows add up to the requested force. A body with no
    * witnesses therefore draws only its whole request as shortfall. Moments are
    * not drawn. Both quantities are motor demand before native caps and
-   * integration, not measured load; `markAutoMovieContacts` draws the force
+   * integration, not measured load; `markContacts` draws the force
    * contacts actually transferred.
    *
    * The allocated mark has kind `support/allocated`, label `allocated support
@@ -201,6 +201,6 @@ export namespace AutoMovieEngineCompositionContact {
    * @returns Up to two marks per governed body.
    */
   export function markSupportWrenches(props: IAutoMovieMarkSupportWrenches.IProps): IAutoMovieMark[] {
-    return markAutoMovieSupportWrenchesImplementation(props);
+    return markSupportWrenchesImplementation(props);
   }
 }

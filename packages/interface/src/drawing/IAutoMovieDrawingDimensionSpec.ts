@@ -4,7 +4,7 @@ import type { IAutoMovieDrawingFeature } from "./IAutoMovieDrawingFeature";
  * What a dimension measures, and between which two features.
  *
  * Every derivation resolves both features against the current design and
- * measures between their points. `deriveAutoMovieDrawing` refuses a view in
+ * measures between their points. `deriveDrawing` refuses a view in
  * which two dimensions share an id.
  */
 export interface IAutoMovieDrawingDimensionSpec {

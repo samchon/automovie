@@ -13,26 +13,26 @@ import type {
 } from "@automovie/interface";
 
 import {
-  auditAutoMovieRenderObservation,
-} from "./internal/auditAutoMovieRenderObservation.js";
+  auditRenderObservation,
+} from "./internal/auditRenderObservation";
 import {
-  assessAutoMovieRenderBudget,
-} from "./internal/assessAutoMovieRenderBudget.js";
+  assessRenderBudget,
+} from "./internal/assessRenderBudget";
 import {
-  autoMovieRenderBudgetEvidence,
-} from "./internal/autoMovieRenderBudgetEvidence.js";
+  renderBudgetEvidence,
+} from "./internal/renderBudgetEvidence";
 import {
-  autoMovieRenderBudgetRefusal,
-} from "./internal/autoMovieRenderBudgetRefusal.js";
+  renderBudgetRefusal,
+} from "./internal/renderBudgetRefusal";
 import {
-  autoMovieRenderTargetRendererOfGraphics,
-} from "./internal/autoMovieRenderTargetRendererOfGraphics.js";
+  renderTargetRendererOfGraphics,
+} from "./internal/renderTargetRendererOfGraphics";
 import {
-  autoMovieRenderTargetSettingsOfShot,
-} from "./internal/autoMovieRenderTargetSettingsOfShot.js";
+  renderTargetSettingsOfShot,
+} from "./internal/renderTargetSettingsOfShot";
 import {
-  selectAutoMovieRenderBudget,
-} from "./internal/selectAutoMovieRenderBudget.js";
+  selectRenderBudget,
+} from "./internal/selectRenderBudget";
 
 /** Projects caller-supplied inputs into Render budget preflight results. */
 export class AutoMovieRenderBudgetPreflight {
@@ -42,7 +42,7 @@ export class AutoMovieRenderBudgetPreflight {
   public static auditObservation(
     props: IAutoMovieRenderObservationAuditRequest,
   ): IAutoMovieRenderObservationAudit {
-    return auditAutoMovieRenderObservation(props);
+    return auditRenderObservation(props);
   }
 
   /**
@@ -55,7 +55,7 @@ export class AutoMovieRenderBudgetPreflight {
   public static targetRendererOfGraphics(
     graphics: IAutoMovieRenderGraphicsIdentity | null | undefined,
   ): IAutoMovieRenderTargetRenderer | null {
-    return autoMovieRenderTargetRendererOfGraphics(graphics);
+    return renderTargetRendererOfGraphics(graphics);
   }
 
   /**
@@ -70,7 +70,7 @@ export class AutoMovieRenderBudgetPreflight {
   public static targetSettingsOfShot(
     props: IAutoMovieRenderTargetSettingsOfShotProps,
   ): IAutoMovieRenderTargetSettings {
-    return autoMovieRenderTargetSettingsOfShot(props);
+    return renderTargetSettingsOfShot(props);
   }
 
   /**
@@ -85,7 +85,7 @@ export class AutoMovieRenderBudgetPreflight {
     budgets: readonly IAutoMovieRenderBudget[] | undefined,
     tier: string,
   ): IAutoMovieRenderBudget | null {
-    return selectAutoMovieRenderBudget(budgets, tier);
+    return selectRenderBudget(budgets, tier);
   }
 
   /**
@@ -99,7 +99,7 @@ export class AutoMovieRenderBudgetPreflight {
   public static assessBudget(
     props: IAutoMovieAssessRenderBudgetProps,
   ): IAutoMovieRenderBudgetAssessment {
-    return assessAutoMovieRenderBudget(props);
+    return assessRenderBudget(props);
   }
 
   /**
@@ -112,7 +112,7 @@ export class AutoMovieRenderBudgetPreflight {
   public static budgetEvidence(
     props: IAutoMovieRenderBudgetEvidenceProps,
   ): IAutoMovieRenderBudgetEvidence {
-    return autoMovieRenderBudgetEvidence(props);
+    return renderBudgetEvidence(props);
   }
 
   /**
@@ -125,6 +125,6 @@ export class AutoMovieRenderBudgetPreflight {
   public static budgetRefusal(
     evidence: IAutoMovieRenderBudgetEvidence,
   ): string | null {
-    return autoMovieRenderBudgetRefusal(evidence);
+    return renderBudgetRefusal(evidence);
   }
 }

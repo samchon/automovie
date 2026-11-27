@@ -1,8 +1,8 @@
 /**
  * A box hierarchy over resident entries, initially median-partitioned by
- * buildAutoMovieMeshQueryHierarchy and optionally given fresh entries/bounds by
- * refitAutoMovieMeshQueryHierarchy while preserving that partition. Signed and
- * separation queries, collectAutoMovieSpatialQueryCandidates and the human
+ * buildMeshQueryHierarchy and optionally given fresh entries/bounds by
+ * refitMeshQueryHierarchy while preserving that partition. Signed and
+ * separation queries, collectSpatialQueryCandidates and the human
  * nearest-centre envelope walk the same node representation.
  *
  * Every node carries the componentwise XYZ extrema of every entry below it, in

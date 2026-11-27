@@ -8,7 +8,7 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose, throwsError } from "../../internal/predicates";
 
 /**
- * `locateAutoMovieSweepPoint` inverts a swept surface point to its parameters
+ * `locateSweepPoint` inverts a swept surface point to its parameters
  * and offset, and admits only direction-corresponded sweeps.
  *
  * Sweep: a spine from (0,0,0) to (0,2,0) with the normal +Z and two stations of

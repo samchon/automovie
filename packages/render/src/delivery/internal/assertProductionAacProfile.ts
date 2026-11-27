@@ -3,7 +3,7 @@ import type {
   IAutoMovieProductionAudioProbe,
 } from "@automovie/interface";
 
-import { AutoMovieRenderProductionAacProfile } from "../AutoMovieRenderProductionAacProfile.js";
+import { AutoMovieRenderProductionAacProfile } from "../AutoMovieRenderProductionAacProfile";
 
 /*
  * Refuse a probed MP4 audio track that is not the AAC profile the delivery

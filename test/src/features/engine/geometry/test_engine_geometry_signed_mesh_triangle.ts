@@ -5,7 +5,7 @@ import { closestTriangleDistanceSquaredOracle } from "../../internal/closestTria
 import { nclose } from "../../internal/predicates";
 
 /**
- * `createAutoMovieSignedMeshQuery` measures the distance to a triangle across
+ * `createSignedMeshQuery` measures the distance to a triangle across
  * all seven Voronoi regions, checked against an exhaustive oracle.
  *
  * Triangle: A (0,0,0), B (2,0,0), C (0,2,0), an open surface.

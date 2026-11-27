@@ -257,7 +257,7 @@ export namespace HumanGait {
    * The trunk's forward lean of each mood's walk, degrees (provisional): a sad
    * walker is more slumped than a neutral one (Michalak et al. 2009, Psychosom
    * Med 71:580, give the direction) and a proud one upright. The rest of a mood
-   * is the manner preset of its name (`AutoMovieMotionManner.PRESETS`): its
+   * is the manner preset of its name (`motionManner.PRESETS`): its
    * tempo sets the speed, its step and swing factors the step and the arms, so
    * one table owns the moods for every act.
    */

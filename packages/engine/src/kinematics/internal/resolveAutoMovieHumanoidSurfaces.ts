@@ -14,9 +14,9 @@ import type {
 import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { AutoMovieEngineHumanoidSurfaceRays } from "../AutoMovieEngineHumanoidSurfaceRays";
 import { AutoMovieEngineHumanoidSurfaceRegions } from "../AutoMovieEngineHumanoidSurfaceRegions";
-import { AutoMovieHumanoidDigitSurfaces } from "./AutoMovieHumanoidDigitSurfaces";
+import { humanoidDigitSurfaces } from "./humanoidDigitSurfaces";
 import type { AutoMovieHumanoidNeutralBounds } from "./AutoMovieHumanoidNeutralBounds";
-import { AutoMovieHumanoidSurfaceExtents } from "./AutoMovieHumanoidSurfaceExtents";
+import { humanoidSurfaceExtents } from "./humanoidSurfaceExtents";
 import { AutoMovieHumanoidSurfacePlacement } from "./AutoMovieHumanoidSurfacePlacement";
 
 /*
@@ -26,7 +26,7 @@ export namespace resolveAutoMovieHumanoidSurfaces {
   /*
    * Execute the operation without merging a callable with this namespace.
    */
-  export const run = resolveAutoMovieHumanoidSurfacesRun;
+  export const run = resolveHumanoidSurfacesRun;
   /*
    * Fresh world point, metres, without normal/forward reads or rotations. Uses
    * place's original local-to-world expression; inputs are admitted.
@@ -239,7 +239,7 @@ export namespace resolveAutoMovieHumanoidSurfaces {
  * generalised so the offset comes from the body's own shapes and fits any size.
  * The palm, sole, heel and seat regions share their sockets' points, and every
  * digit's tip and pad ride its distal phalanx
- * (`AutoMovieHumanoidDigitSurfaces`): the tip the exit of a ray along the
+ * (`humanoidDigitSurfaces`): the tip the exit of a ray along the
  * phalanx, the pad that of a ray from its middle toward the palm. Sockets of
  * the foot, seat and back are read from the exact axis bounds of their
  * segment's colliders at rest (heel at the back of the sole, ball under the toe
@@ -269,7 +269,7 @@ export namespace resolveAutoMovieHumanoidSurfaces {
  * When a bone or segment a definition needs is missing, or a
  * ray misses its colliders.
  */
-function resolveAutoMovieHumanoidSurfacesRun(
+function resolveHumanoidSurfacesRun(
   skeleton: IAutoMovieSkeleton,
   profile: IAutoMoviePhysicalProfile,
   neutral?: AutoMovieHumanoidNeutralBounds.IPrepared,
@@ -402,7 +402,7 @@ function resolveAutoMovieHumanoidSurfacesRun(
   }
   Object.assign(
     regions,
-    AutoMovieHumanoidDigitSurfaces({ at, local, surface }, profile),
+    humanoidDigitSurfaces({ at, local, surface }, profile),
   );
   const thorax = bounds("chest");
   sockets.back = local(
@@ -413,7 +413,7 @@ function resolveAutoMovieHumanoidSurfacesRun(
   );
   // Each region's extent about its point.
   const radii: Record<AutoMovieHumanoidRegion, number> =
-    AutoMovieHumanoidSurfaceExtents(regions, at, bounds);
+    humanoidSurfaceExtents(regions, at, bounds);
   for (const name of Object.keys(regions) as AutoMovieHumanoidRegion[])
     regions[name] = { ...regions[name], radius: radii[name] };
   // The body's left is the mirror of its right: each left region and socket

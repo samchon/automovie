@@ -14,8 +14,8 @@ import type {
 import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
 import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
 import { AutoMovieMotionHumanTarget } from "../../compose/internal/AutoMovieMotionHumanTarget";
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
-import { AutoMovieMotionHumanVariation } from "../../compose/internal/AutoMovieMotionHumanVariation";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
+import { motionHumanVariation } from "../../compose/internal/motionHumanVariation";
 import { AutoMovieMotionHumanVariationPlace } from "../../compose/internal/AutoMovieMotionHumanVariationPlace";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanHand } from "../../posture/internal/HumanHand";
@@ -388,7 +388,7 @@ function reached(
     "variation",
   );
   const source: IAutoMovieMotionHumanVariation.ISource | undefined =
-    AutoMovieMotionHumanVariation(
+    motionHumanVariation(
       {
         skill,
         series: (channel: string) => ({
@@ -409,7 +409,7 @@ function reached(
       record,
       {
         distance,
-        seconds: AutoMovieMotionHumanTiming.transport(distance),
+        seconds: motionHumanTiming.transport(distance),
       },
     ),
   ).point;

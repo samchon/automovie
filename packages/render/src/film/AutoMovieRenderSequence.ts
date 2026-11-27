@@ -1,8 +1,8 @@
 import { type IAutoMovieSequenceRenderPlan, type IAutoMoviePlanSequenceRenderProps, type IAutoMovieSequenceRenderResult, type IAutoMovieSequenceRenderAdapters, type IAutoMovieSequenceRenderAndSeeResult, type IAutoMovieSequenceRenderAndSeeRequest, type IAutoMovieRenderChunkPlan, type IAutoMoviePlanChunkedSequenceRenderProps } from "@automovie/interface";
-import { planSequenceRender as planSequenceRenderImplementation } from "../internal/planSequenceRender.js";
-import { renderSequenceVideo as renderSequenceVideoImplementation } from "../internal/renderSequenceVideo.js";
-import { renderSequenceAndSee as renderSequenceAndSeeImplementation } from "../internal/renderSequenceAndSee.js";
-import { planChunkedSequenceRender as planChunkedSequenceRenderImplementation } from "../internal/planChunkedSequenceRender.js";
+import { planSequenceRender as planSequenceRenderImplementation } from "../internal/planSequenceRender";
+import { renderSequenceVideo as renderSequenceVideoImplementation } from "../internal/renderSequenceVideo";
+import { renderSequenceAndSee as renderSequenceAndSeeImplementation } from "../internal/renderSequenceAndSee";
+import { planChunkedSequenceRender as planChunkedSequenceRenderImplementation } from "../internal/planChunkedSequenceRender";
 
 /** Public operations for Auto Movie Render Sequence. */
 export namespace AutoMovieRenderSequence {

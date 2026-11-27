@@ -22,11 +22,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
-import { AutoMovieMotionPrepared } from "../../compose/internal/AutoMovieMotionPrepared";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionPrepared } from "../../compose/internal/motionPrepared";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { HumanLimbFit } from "../../posture/internal/HumanLimbFit";
 import { blendHumanJoint } from "../../posture/internal/blendHumanJoint";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -227,7 +227,7 @@ export namespace closeStrike {
         ? StrikingSkill.HAND_RECOVERY * StrikingSkill.recovery(context.skill)
         : shown;
     const duration: number = shown + recoil;
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(duration, [
+    const clock: IAutoMovieMotionClock = motionClock(duration, [
       { name: "launch", seconds: 0 },
       { name: p.feint === undefined ? "impact" : "shown", seconds: shown },
       { name: "recovered", seconds: duration },
@@ -538,14 +538,14 @@ export namespace closeStrike {
         primitives.push(...held.primitives);
         contacts.push(...held.contacts);
       }
-      return composeAutoMovieMotionHumanAction({
+      return composeMotionHumanAction({
         base: AutoMovieMotionHumanBase.still(duration, entry, contacts),
         clock,
         primitives,
       });
     };
-    const shape: AutoMovieMotionPrepared.IValue<IAutoMovieMotionHumanActionPlan> =
-      AutoMovieMotionPrepared(make);
+    const shape: motionPrepared.IValue<IAutoMovieMotionHumanActionPlan> =
+      motionPrepared(make);
     const build = (): IAutoMovieMotionHumanActionPlan => shape.read();
     const events: IAutoMovieMotionHumanActionPlan["events"] = clock.events();
     return {

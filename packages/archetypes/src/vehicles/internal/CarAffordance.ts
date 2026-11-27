@@ -1,4 +1,4 @@
-/**
+/*
  * The affordance ids of a car `AutoMovieArchetypeCar` builds; a class lacks the
  * ids of the parts it does not have:
  *

@@ -1,9 +1,9 @@
 import type { IAutoMovieAnalysisRun, IAutoMovieColor } from "@automovie/interface";
 import type * as THREE from "three";
 
-import { autoMovieAnalysisRampColor as autoMovieAnalysisRampColorImplementation } from "./internal/autoMovieAnalysisRampColor.js";
-import { buildAnalysisOverlayObject as buildAnalysisOverlayObjectImplementation } from "./internal/buildAnalysisOverlayObject.js";
-import type { IAutoMovieRenderAnalysisOverlayObject } from "./IAutoMovieRenderAnalysisOverlayObject.js";
+import { analysisRampColor as analysisRampColorImplementation } from "./internal/analysisRampColor";
+import { buildAnalysisOverlayObject as buildAnalysisOverlayObjectImplementation } from "./internal/buildAnalysisOverlayObject";
+import type { IAutoMovieRenderAnalysisOverlayObject } from "./IAutoMovieRenderAnalysisOverlayObject";
 
 /** Public operations for an analysis result's point overlay. */
 export namespace AutoMovieRenderAnalysisOverlay {
@@ -28,7 +28,7 @@ export namespace AutoMovieRenderAnalysisOverlay {
   export function rampColor(
     position: number,
   ): Pick<IAutoMovieColor, "r" | "g" | "b"> {
-    return autoMovieAnalysisRampColorImplementation(position);
+    return analysisRampColorImplementation(position);
   }
 
   /** Build and return a drawable point field for one solved analysis metric. */

@@ -2,7 +2,7 @@ import { AutoMovieEngineMath } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
 import type * as THREE from "three";
 
-import { AutoMovieRenderThreeKind } from "./AutoMovieRenderThreeKind.js";
+import { AutoMovieRenderThreeKind } from "./AutoMovieRenderThreeKind";
 
 /**
  * Owned physical source correspondence on generated geometry, or readonly

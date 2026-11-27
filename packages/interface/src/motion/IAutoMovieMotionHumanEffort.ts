@@ -33,7 +33,7 @@
 export namespace IAutoMovieMotionHumanEffort {
   /**
    * Laban's eight basic Effort action names. HumanEffort.ACTIONS supplies the
-   * corresponding weight, time and space factors; AutoMovieMotionManner accepts
+   * corresponding weight, time and space factors; motionManner accepts
    * these keys alongside its mood presets. Flow is neutral for these actions.
    */
   export type Action =

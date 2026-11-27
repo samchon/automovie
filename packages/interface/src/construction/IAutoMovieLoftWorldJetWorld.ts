@@ -3,7 +3,7 @@ import type { AutoMovieVector3Tuple } from "../geometry/AutoMovieVector3Tuple";
 /**
  * World point and all partials through total order two after frame placement.
  *
- * AutoMovieLoftWorldJet computes P = origin + local.u * frame.u + local.v *
+ * loftWorldJet computes P = origin + local.u * frame.u + local.v *
  * frame.v from local derivatives and three physical-station frame rows. Station
  * uses millimetres. Phase retains the caller's clock: radians for a loft/view,
  * or the normalized piece coordinate after ConstructionProfileSurface applies

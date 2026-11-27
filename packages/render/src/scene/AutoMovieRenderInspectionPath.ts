@@ -1,10 +1,10 @@
 import type * as THREE from "three";
-import { type IAutoMovieRenderInspectionPath } from "./IAutoMovieRenderInspectionPath.js";
-import { listAutoMovieInspectionPaths as listAutoMovieInspectionPathsImplementation } from "./inspection/internal/listAutoMovieInspectionPaths.js";
+import { type IAutoMovieRenderInspectionPath } from "./IAutoMovieRenderInspectionPath";
+import { listInspectionPaths as listInspectionPathsImplementation } from "./inspection/internal/listInspectionPaths";
 
-import { matchAutoMovieInspectionPath as matchAutoMovieInspectionPathImplementation } from "./inspection/internal/matchAutoMovieInspectionPath.js";
-import { autoMovieInspectionPathOfImplementation } from "./inspection/internal/autoMovieInspectionPathOfImplementation.js";
-import { autoMovieInspectionEntityPathOfImplementation } from "./inspection/internal/autoMovieInspectionEntityPathOfImplementation.js";
+import { matchInspectionPath as matchInspectionPathImplementation } from "./inspection/internal/matchInspectionPath";
+import { inspectionPathOfImplementation } from "./inspection/internal/inspectionPathOfImplementation";
+import { inspectionEntityPathOfImplementation } from "./inspection/internal/inspectionEntityPathOfImplementation";
 
 /** Public operations for Auto Movie Render Inspection Path. */
 export namespace AutoMovieRenderInspectionPath {
@@ -34,7 +34,7 @@ export namespace AutoMovieRenderInspectionPath {
    * @throws {Error} When the object is not the root or beneath it.
    */
   export function pathOf(props: IPathOfProps): string {
-    return autoMovieInspectionPathOfImplementation(props.root, props.object);
+    return inspectionPathOfImplementation(props.root, props.object);
   }
   /**
    * Return a unique identity below root. Repeated named siblings take #k in
@@ -46,7 +46,7 @@ export namespace AutoMovieRenderInspectionPath {
   export function entityPathOf(
     props: IEntityPathOfProps,
   ): string {
-    return autoMovieInspectionEntityPathOfImplementation(props.root, props.object, props.frontiers);
+    return inspectionEntityPathOfImplementation(props.root, props.object, props.frontiers);
   }
   /**
    * Decide whether a path pattern selects an object path.
@@ -73,7 +73,7 @@ export namespace AutoMovieRenderInspectionPath {
    * An empty pattern throws.
    */
   export function matchPath(path: string, pattern: string): boolean {
-    return matchAutoMovieInspectionPathImplementation(path, pattern);
+    return matchInspectionPathImplementation(path, pattern);
   }
 
   /**
@@ -86,11 +86,11 @@ export namespace AutoMovieRenderInspectionPath {
    * paths beneath them.
    *
    * ```ts
-   * for (const { path } of listAutoMovieInspectionPaths(scene))
+   * for (const { path } of listInspectionPaths(scene))
    *   console.log(path);
    * ```
    */
   export function list(root: THREE.Object3D): IAutoMovieRenderInspectionPath[] {
-    return listAutoMovieInspectionPathsImplementation(root);
+    return listInspectionPathsImplementation(root);
   }
 }

@@ -5,9 +5,9 @@ import type {
   IAutoMovieModelPartPoints,
 } from "@automovie/interface";
 
-import { autoMovieModelGaits } from "../internal/autoMovieModelGaits";
-import { autoMovieModelPartMatrices } from "../internal/autoMovieModelPartMatrices";
-import { autoMovieModelPartPoints } from "../internal/autoMovieModelPartPoints";
+import { modelGaits } from "../internal/modelGaits";
+import { modelPartMatrices } from "../internal/modelPartMatrices";
+import { modelPartPoints } from "../internal/modelPartPoints";
 
 /** Reads the motion repertoire and rest-frame geometry of an admitted model. */
 export namespace AutoMovieEngineModel {
@@ -34,7 +34,7 @@ export namespace AutoMovieEngineModel {
   export function gaits(
     model: Pick<IAutoMovieModel, "profiles">,
   ): readonly IAutoMovieGait[] {
-    return autoMovieModelGaits(model);
+    return modelGaits(model);
   }
 
   /**
@@ -55,7 +55,7 @@ export namespace AutoMovieEngineModel {
   export function partMatrices(
     model: IAutoMovieModel,
   ): Map<IAutoMovieModelPart, number[] | null> {
-    return autoMovieModelPartMatrices(model);
+    return modelPartMatrices(model);
   }
 
   /**
@@ -76,6 +76,6 @@ export namespace AutoMovieEngineModel {
    * @returns Each part's model-frame points, and all of them together.
    */
   export function partPoints(model: IAutoMovieModel): IAutoMovieModelPartPoints.IResult {
-    return autoMovieModelPartPoints(model);
+    return modelPartPoints(model);
   }
 }

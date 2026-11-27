@@ -65,8 +65,8 @@ export async function CompactCurveReplay(): Promise<void> {
     "test/src/reference-conics/ConicPaperRender.ts",
     "packages/recovery/src/curves/AutoMovieRecoveryCompactApproximation.ts",
     "packages/recovery/src/curves/AutoMovieRecoveryConicApproximation.ts",
-    "packages/human/src/inspection/NodeCanvasCamera.ts",
-    "packages/human/src/executable/NodeCanvasRaster.ts",
+    "test/src/reference-conics/render/NodeCanvasCamera.ts",
+    "test/src/reference-conics/render/NodeCanvasRaster.ts",
   ];
   const hashes = async (): Promise<object[]> =>
     Promise.all(

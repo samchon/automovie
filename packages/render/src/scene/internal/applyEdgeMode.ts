@@ -1,17 +1,17 @@
 import * as THREE from "three";
 
-import type { AutoMovieRenderModeMesh } from "./AutoMovieRenderModeMesh.js";
-import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind.js";
-import { AutoMovieRenderEdgeShellName } from "../AutoMovieRenderEdgeShellName.js";
-import type { IAutoMovieRenderModeHandle } from "../IAutoMovieRenderModeHandle.js";
-import { collectAutoMovieRenderModeMeshes } from "./collectAutoMovieRenderModeMeshes.js";
-import { AutoMovieRenderDualQuaternionSkinning } from "../AutoMovieRenderDualQuaternionSkinning.js";
-import type { IAutoMovieRenderFormationCycle } from "../IAutoMovieRenderFormationCycle.js";
-import { AutoMovieRenderFormationCycle } from "../AutoMovieRenderFormationCycle.js";
-import { guardAutoMovieRenderModeRetirement } from "./guardAutoMovieRenderModeRetirement.js";
-import { overrideAutoMovieRenderModeMaterials } from "./overrideAutoMovieRenderModeMaterials.js";
-import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
-import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
+import type { AutoMovieRenderModeMesh } from "./AutoMovieRenderModeMesh";
+import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind";
+import { AutoMovieRenderEdgeShellName } from "../AutoMovieRenderEdgeShellName";
+import type { IAutoMovieRenderModeHandle } from "../IAutoMovieRenderModeHandle";
+import { collectRenderModeMeshes } from "./collectRenderModeMeshes";
+import { AutoMovieRenderDualQuaternionSkinning } from "../AutoMovieRenderDualQuaternionSkinning";
+import type { IAutoMovieRenderFormationCycle } from "../IAutoMovieRenderFormationCycle";
+import { AutoMovieRenderFormationCycle } from "../AutoMovieRenderFormationCycle";
+import { guardRenderModeRetirement } from "./guardRenderModeRetirement";
+import { overrideRenderModeMaterials } from "./overrideRenderModeMaterials";
+import { restoreRenderModeOnce } from "./restoreRenderModeOnce";
+import { restoreRenderModeState } from "./restoreRenderModeState";
 
 /*
  * Inverted-hull outline pass: each mesh gets a white back-face shell extruded
@@ -43,7 +43,7 @@ export const applyEdgeMode: (
   scene: THREE.Scene,
   edgeWidth: number,
 ): IAutoMovieRenderModeHandle => {
-  guardAutoMovieRenderModeRetirement(scene);
+  guardRenderModeRetirement(scene);
   const background:
     | THREE.Color
     | THREE.Texture<unknown, THREE.TextureEventMap>
@@ -59,7 +59,7 @@ export const applyEdgeMode: (
     IAutoMovieRenderFormationCycle | null,
     THREE.ShaderMaterial
   > = new Map<IAutoMovieRenderFormationCycle | null, THREE.ShaderMaterial>();
-  const fill: IAutoMovieRenderModeHandle = overrideAutoMovieRenderModeMaterials(
+  const fill: IAutoMovieRenderModeHandle = overrideRenderModeMaterials(
     scene,
     "outline",
     (): THREE.MeshBasicMaterial =>
@@ -73,7 +73,7 @@ export const applyEdgeMode: (
     mesh: AutoMovieRenderModeMesh;
     shell: AutoMovieRenderModeMesh;
   }[] = [];
-  for (const mesh of collectAutoMovieRenderModeMeshes(scene)) {
+  for (const mesh of collectRenderModeMeshes(scene)) {
     const cycle: IAutoMovieRenderFormationCycle | null = AutoMovieRenderFormationCycle.formationCycleOf(mesh);
     const dual: boolean = AutoMovieRenderDualQuaternionSkinning.of(mesh);
     const cache: Map<IAutoMovieRenderFormationCycle | null, THREE.ShaderMaterial> =
@@ -97,10 +97,10 @@ export const applyEdgeMode: (
     update: (): void => {
       for (const { mesh, shell } of shells) followEdgeShell(mesh, shell);
     },
-    restore: restoreAutoMovieRenderModeOnce((): void => {
-      guardAutoMovieRenderModeRetirement(scene, {
+    restore: restoreRenderModeOnce((): void => {
+      guardRenderModeRetirement(scene, {
         run: (): void => {
-          restoreAutoMovieRenderModeState([
+          restoreRenderModeState([
             ...shells.map(
               ({ shell }: { shell: AutoMovieRenderModeMesh }): (() => void) =>
                 (): void => {

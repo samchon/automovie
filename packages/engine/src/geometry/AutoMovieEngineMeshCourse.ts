@@ -627,5 +627,7 @@ export namespace AutoMovieEngineMeshCourse {
   }
 }
 
-/** A polyline segment, chart millimetres, start then end. */
+/*
+ * A polyline segment, chart millimetres, start then end.
+ */
 type Segment = readonly [AutoMovieVector2Tuple, AutoMovieVector2Tuple];

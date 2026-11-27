@@ -12,7 +12,7 @@ import { tessellate } from "./tessellate";
  * The mesh is indexed, carries the primitive's own normals, and has no UVs and
  * no skin, because a primitive states no atlas and rides its part's bone as a
  * rigid whole. Callers use it where a mesh is required, such as placing a
- * primitive with transformAutoMovieMesh or merging it with authored
+ * primitive with transformMesh or merging it with authored
  * parts.
  * Parameter shape: Primitive to tessellate.
  * Returns: A new mesh whose arrays are owned by the caller.

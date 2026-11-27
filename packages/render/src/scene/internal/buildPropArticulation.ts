@@ -5,10 +5,10 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import type { IAutoMovieRenderBuiltPropArticulation } from "../IAutoMovieRenderBuiltPropArticulation.js";
-import type { IAutoMovieRenderModelObject } from "../IAutoMovieRenderModelObject.js";
-import type { IAutoMovieRenderBuildPropArticulationProps } from "../IAutoMovieRenderBuildPropArticulationProps.js";
-import { applyTransform } from "./applyTransform.js";
+import type { IAutoMovieRenderBuiltPropArticulation } from "../IAutoMovieRenderBuiltPropArticulation";
+import type { IAutoMovieRenderModelObject } from "../IAutoMovieRenderModelObject";
+import type { IAutoMovieRenderBuildPropArticulationProps } from "../IAutoMovieRenderBuildPropArticulationProps";
+import { applyTransform } from "./applyTransform";
 
 /*
  * Build the moving parts of a shot's props into the scene a host assembled.

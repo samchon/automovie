@@ -16,7 +16,7 @@ export namespace IAutoMovieMapSurfaceTier {
    * exact on a grid patch because every face spans an axis-aligned rectangle of
    * it, and on a transition band is the same bilinear map the locator inverts;
    * the target tier then locates that coordinate with
-   * `locateAutoMovieSurfaceCoordinate`. Both tiers must come from the same
+   * `locateSurfaceCoordinate`. Both tiers must come from the same
    * network, whose patch list is the shared chart.
    */
   export type IProps = {

@@ -14,7 +14,7 @@ import { throwsError } from "../internal/predicates";
  * 3. A command line value that starts with one dash, such as the axis cut `-x:0.2` or `-1`, is a value, and `--key=` gives the empty string.
  * 4. A command line argument that is not an option and an option given twice are refused naming them.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Parses `URLSearchParams` and `readAutoMovieCaptureArguments` output through the public reader and compares the requests; a host mapping that dropped, renamed or reinterpreted a key, or an argument reader that swallowed a dash value, fails.
+ * @evidence contracts/development/testing.md#behavioral-verification Parses `URLSearchParams` and `readCaptureArguments` output through the public reader and compares the requests; a host mapping that dropped, renamed or reinterpreted a key, or an argument reader that swallowed a dash value, fails.
  * @evidence contracts/development/testing.md#independent-expectations The expected request members are the values this test writes, with units and defaults from the reader's documented table; equality of the two hosts' requests needs no oracle beyond the shared text.
  * @evidence contracts/development/testing.md#distinguishing-cases Every switch form, dash-leading values against option-like arguments, an empty `=` value, and both argument refusals. Unknown keys, malformed values and the round trip are owned by `test_capture_request_unknown_key`, `test_capture_request_malformed_value` and `test_capture_request_round_trip`.
  * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_capture_request_host_parity`; it builds its text in memory and starts no host.

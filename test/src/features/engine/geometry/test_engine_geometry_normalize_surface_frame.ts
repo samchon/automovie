@@ -9,7 +9,7 @@ import { TestValidator } from "@nestia/e2e";
 import { throwsError, vclose } from "../../internal/predicates";
 
 /**
- * `normalizeAutoMovieSurfaceFrame` turns an (origin, forward, normal) request
+ * `normalizeSurfaceFrame` turns an (origin, forward, normal) request
  * into the normal-priority orthonormal basis: the normal kept, the forward
  * projected off it, never scaled.
  *

@@ -6,7 +6,7 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `resolveAutoMovieOutcome` decides by the first rule whose condition holds,
+ * `resolveOutcome` decides by the first rule whose condition holds,
  * naming that rule, and otherwise by the table's default, naming none.
  *
  * Scenarios, rules `dodged` then `guarded`, default `lands`:

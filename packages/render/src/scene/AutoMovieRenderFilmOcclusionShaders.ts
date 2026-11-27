@@ -11,7 +11,7 @@
  * steps eight times per side out to `uRadius` metres projected to the screen,
  * keeps the highest horizon among samples nearer than the radius, and adds the
  * slice's closed-form cosine-weighted visibility, which
- * `autoMovieSliceVisibility` states on the CPU. `blur` averages the 4 × 4 block
+ * `sliceVisibility` states on the CPU. `blur` averages the 4 × 4 block
  * the pattern repeats over, keeping only neighbours whose view depth lies
  * within 5 % of the pixel's, so every rotation contributes once and edges stay
  * sharp. Every fragment reads only its own block of texels and the uniforms of

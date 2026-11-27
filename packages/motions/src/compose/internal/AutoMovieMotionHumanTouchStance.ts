@@ -13,8 +13,8 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { AutoMovieMotionHumanLeanInto } from "./AutoMovieMotionHumanLeanInto";
 import { AutoMovieMotionHumanRange } from "./AutoMovieMotionHumanRange";
 import { AutoMovieMotionHumanReach } from "./AutoMovieMotionHumanReach";
-import { AutoMovieMotionHumanTouchStanceMoves } from "./AutoMovieMotionHumanTouchStanceMoves";
-import { AutoMovieMotionHumanTouchStancePrimitives } from "./AutoMovieMotionHumanTouchStancePrimitives";
+import { motionHumanTouchStanceMoves } from "./motionHumanTouchStanceMoves";
+import { motionHumanTouchStancePrimitives } from "./motionHumanTouchStancePrimitives";
 
 /*
  * What the body behind the arm does so a hand reaches a region its arm alone
@@ -78,8 +78,8 @@ export namespace AutoMovieMotionHumanTouchStance {
       angleTo,
       shoulders,
       planted,
-    }: AutoMovieMotionHumanTouchStanceMoves.IMoves =
-      AutoMovieMotionHumanTouchStanceMoves({
+    }: motionHumanTouchStanceMoves.IMoves =
+      motionHumanTouchStanceMoves({
         props,
         body,
         feet,
@@ -204,7 +204,7 @@ export namespace AutoMovieMotionHumanTouchStance {
       leaning,
       risen,
       reached,
-      primitives: AutoMovieMotionHumanTouchStancePrimitives({
+      primitives: motionHumanTouchStancePrimitives({
         props,
         body,
         feet,

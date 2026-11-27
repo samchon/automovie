@@ -1,6 +1,6 @@
 /**
  * What a mesh's triangle topology actually is, measured by
- * `inspectAutoMovieMeshTopology` rather than assumed.
+ * `inspectMeshTopology` rather than assumed.
  *
  * Corners are identified by position welded on the `AutoMovieEngineMeshWeldGrid` nanometre
  * grid, or, when the mesh declares physical vertices, by that physical identity

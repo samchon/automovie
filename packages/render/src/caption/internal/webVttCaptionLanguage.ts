@@ -1,4 +1,4 @@
-import { parseAutoMovieCaptionLanguage } from "./parseAutoMovieCaptionLanguage.js";
+import { parseCaptionLanguage } from "./parseCaptionLanguage";
 
 /*
  * Return one caption language tag, in its authored spelling, for a WebVTT
@@ -12,8 +12,8 @@ import { parseAutoMovieCaptionLanguage } from "./parseAutoMovieCaptionLanguage.j
 export const webVttCaptionLanguage: (value: string) => string = (
   value: string,
 ): string => {
-  const identity: ReturnType<typeof parseAutoMovieCaptionLanguage> =
-    parseAutoMovieCaptionLanguage(value);
+  const identity: ReturnType<typeof parseCaptionLanguage> =
+    parseCaptionLanguage(value);
   if (identity === null)
     throw new Error(
       `Caption language "${value}" is not a well-formed RFC 5646 tag.`,

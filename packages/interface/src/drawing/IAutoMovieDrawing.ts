@@ -11,14 +11,14 @@ import type { IAutoMovieDrawingRegion } from "./IAutoMovieDrawingRegion";
 /**
  * One drawing record derived from a built-environment snapshot and a view.
  *
- * `deriveAutoMovieDrawing` validates the built environment, derives static CPU
+ * `deriveDrawing` validates the built environment, derives static CPU
  * geometry and feature positions, and copies authored view identity and note
  * text. It does not pin a revision digest, authenticate a rendered frame or
  * apply edits back to building source. Current operating states affect element
  * geometry, while declared gaps record omitted capabilities.
  *
  * Page coordinates are world metres along the frame's axes, rounded to six
- * decimals; `scale` is applied only when `autoMovieDrawingToSvg` prints the
+ * decimals; `scale` is applied only when `drawingToSvg` prints the
  * sheet. Lines, regions, openings and gaps are sorted into a canonical order
  * independent of the order the design declares things in, and dimensions and
  * notes keep the view's authored order, so the same design and view produce the

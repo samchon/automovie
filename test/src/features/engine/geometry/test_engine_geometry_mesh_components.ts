@@ -3,7 +3,7 @@ import type { IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `countAutoMovieMeshComponents` counts triangle connectivity by shared
+ * `countMeshComponents` counts triangle connectivity by shared
  * indices, not by coincident positions.
  *
  * Scenarios:

@@ -5,7 +5,7 @@ import {
 } from "@automovie/render";
 import type * as THREE from "three";
 
-import type { IAutoMovieViewerInspectorSceneHost } from "../IAutoMovieViewerInspectorSceneHost.js";
+import type { IAutoMovieViewerInspectorSceneHost } from "../IAutoMovieViewerInspectorSceneHost";
 
 /*
  * The inspector's beauty picture: a subject's optics and indirect shading

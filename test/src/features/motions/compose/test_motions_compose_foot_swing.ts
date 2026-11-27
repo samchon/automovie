@@ -4,8 +4,8 @@ import type {
   IAutoMovieMotionHumanFoot,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanFootSwing
-} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanFootSwing";
+  motionHumanFootSwing
+} from "../../../../../packages/motions/src/compose/internal/motionHumanFootSwing";
 import {
   HumanFoot
 } from "../../../../../packages/motions/src/posture/internal/HumanFoot";
@@ -22,7 +22,7 @@ const ROUNDING: number = 1e-9;
 const CLEARANCE: number = 0.05;
 
 /**
- * `AutoMovieMotionHumanFootSwing` places a stepping foot through its swing: it
+ * `motionHumanFootSwing` places a stepping foot through its swing: it
  * travels and turns on the minimum-jerk share of the swing's time, and its
  * sole's lowest point rises `clearance sin(πu)` above the line joining that
  * point's heights at the ends, the ankle raised further by however far the
@@ -53,7 +53,7 @@ export async function test_motions_compose_foot_swing(): Promise<void> {
     end: IAutoMovieMotionHumanFoot.IPlacement,
     u: number,
   ): IAutoMovieMotionHumanFoot.IPlacement =>
-    AutoMovieMotionHumanFootSwing(body, "left", from, end, CLEARANCE, u);
+    motionHumanFootSwing(body, "left", from, end, CLEARANCE, u);
 
   // 1. The ends.
   TestValidator.predicate(

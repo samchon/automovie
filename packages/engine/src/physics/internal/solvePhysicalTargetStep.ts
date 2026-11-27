@@ -3,7 +3,7 @@ import type {
   IAutoMovieSolvePhysicalTargetStep,
 } from "@automovie/interface";
 
-import { decomposeAutoMovieSingularMatrix } from "../../math/internal/decomposeAutoMovieSingularMatrix";
+import { decomposeSingularMatrix } from "../../math/internal/decomposeSingularMatrix";
 import { AutoMovieEnginePhysicalSingularBudget } from "../AutoMovieEnginePhysicalSingularBudget";
 
 /*
@@ -62,7 +62,7 @@ export function solvePhysicalTargetStep(
       free.map((index: number): number => input.columns[index]![row]!),
     );
     const decomposition: IAutoMovieSingularDecomposition =
-      decomposeAutoMovieSingularMatrix(
+      decomposeSingularMatrix(
       design,
       AutoMovieEnginePhysicalSingularBudget.DEFAULTS,
     );

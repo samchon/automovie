@@ -1,10 +1,10 @@
 import {
-  firstAutoMovieInspectorSecond
-} from "../../../../../packages/viewer/src/inspector/internal/firstAutoMovieInspectorSecond";
+  firstInspectorSecond
+} from "../../../../../packages/viewer/src/inspector/internal/firstInspectorSecond";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `firstAutoMovieInspectorSecond` names the first second a request samples.
+ * `firstInspectorSecond` names the first second a request samples.
  *
  * Scenarios:
  *
@@ -14,12 +14,12 @@ import { TestValidator } from "@nestia/e2e";
 export function test_viewer_inspector_first_second(): void {
   TestValidator.equals(
     "at",
-    firstAutoMovieInspectorSecond({ sampling: { kind: "at", seconds: [4, 9] } }),
+    firstInspectorSecond({ sampling: { kind: "at", seconds: [4, 9] } }),
     4,
   );
   TestValidator.equals(
     "even",
-    firstAutoMovieInspectorSecond({
+    firstInspectorSecond({
       sampling: { kind: "even", from: 2.5, to: null, rate: 1 },
     }),
     2.5,

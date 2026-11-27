@@ -1,7 +1,7 @@
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 
-import { readAutoMovieErrorCode } from "../../file/internal/readAutoMovieErrorCode";
+import { readErrorCode } from "../../file/internal/readErrorCode";
 
 /*
  * The publish lock of one render output folder: a `.render-publish` directory
@@ -34,7 +34,7 @@ export class AutoMovieRenderOutputReservation {
         const entries: string[] = await fs
           .readdir(reservation)
           .catch((error: unknown): string[] => {
-            if (readAutoMovieErrorCode(error) !== "ENOENT") throw cause;
+            if (readErrorCode(error) !== "ENOENT") throw cause;
             return [];
           });
         const owner: string | undefined =
@@ -71,7 +71,7 @@ export class AutoMovieRenderOutputReservation {
     await fs
       .unlink(path.join(reservation, ticket))
       .catch((error: unknown): void => {
-        if (readAutoMovieErrorCode(error) !== "ENOENT") throw error;
+        if (readErrorCode(error) !== "ENOENT") throw error;
       });
     await AutoMovieRenderOutputReservation.removeEmpty(reservation);
   }
@@ -97,7 +97,7 @@ export class AutoMovieRenderOutputReservation {
    */
   private static async removeEmpty(reservation: string): Promise<void> {
     await fs.rmdir(reservation).catch((error: unknown): void => {
-      const code: unknown = readAutoMovieErrorCode(error);
+      const code: unknown = readErrorCode(error);
       if (code !== "ENOENT" && code !== "ENOTEMPTY" && code !== "EEXIST")
         throw error;
     });

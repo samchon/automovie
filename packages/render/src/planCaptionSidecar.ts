@@ -10,9 +10,9 @@ import type {
   IAutoMovieShot,
 } from "@automovie/interface";
 
-import { beatCaptions } from "./caption/internal/beatCaptions.js";
-import { frameTimes } from "./internal/frameTimes.js";
-import { shotBeat } from "./shotBeat.js";
+import { beatCaptions } from "./caption/internal/beatCaptions";
+import { frameTimes } from "./internal/frameTimes";
+import { shotBeat } from "./shotBeat";
 
 /*
  * Plan the caption sidecar of one sequence render: which beat's shot is live at

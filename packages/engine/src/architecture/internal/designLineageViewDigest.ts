@@ -9,7 +9,7 @@ import {
   IAutoMovieDesignVariant,
 } from "@automovie/interface";
 
-import { autoMovieRenderDigest } from "../../render/internal/autoMovieRenderDigest";
+import { renderDigest } from "../../render/internal/renderDigest";
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 import { designLineagePhaseSnapshot } from "./designLineagePhaseSnapshot";
 import { designLineageRecord } from "./designLineageRecord";
@@ -88,5 +88,5 @@ export function designLineageViewDigest(
       ),
     ),
   ];
-  return autoMovieRenderDigest(lines.join("\n"));
+  return renderDigest(lines.join("\n"));
 }

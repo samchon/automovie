@@ -1,5 +1,5 @@
-import type { IAutoMovieProductionFrameRate } from "../production/IAutoMovieProductionFrameRate.js";
-import type { IAutoMovieProductionVideoProbe } from "../production/IAutoMovieProductionVideoProbe.js";
+import type { IAutoMovieProductionFrameRate } from "../production/IAutoMovieProductionFrameRate";
+import type { IAutoMovieProductionVideoProbe } from "../production/IAutoMovieProductionVideoProbe";
 
 /**
  * The exact H.264-in-MP4 picture profile one video deliverable must carry,

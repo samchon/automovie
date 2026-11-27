@@ -55,5 +55,8 @@
   },
   "engines": {
     "node": ">=22.23.2"
+  },
+  "imports": {
+    "#three-addon/*": "three/examples/jsm/*.js"
   }
 }

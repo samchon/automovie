@@ -1,7 +1,7 @@
 import type { IAutoMoviePropSpec, IAutoMovieScene } from "@automovie/interface";
 import type * as THREE from "three";
 
-import type { IAutoMovieRenderModelObject } from "./IAutoMovieRenderModelObject.js";
+import type { IAutoMovieRenderModelObject } from "./IAutoMovieRenderModelObject";
 
 /**
  * Compiled prop declarations and already-built scene objects used to lower

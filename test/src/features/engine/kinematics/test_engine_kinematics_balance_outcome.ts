@@ -8,7 +8,7 @@ import { TestValidator } from "@nestia/e2e";
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * `resolveAutoMovieBalanceOutcome(props)` classifies a push on a standing
+ * `resolveBalanceOutcome(props)` classifies a push on a standing
  * linear inverted pendulum: the extrapolated centre x + v / w0 inside the base
  * absorbs it (Hof 2005), outside it the capture point diverges as d0 exp(w0 t)
  * until a foot lands within reach + margin, and past the fixed point d* =

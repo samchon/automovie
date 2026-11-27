@@ -1,4 +1,4 @@
-import type { IAutoMovieRasterImage } from "./IAutoMovieRasterImage.js";
+import type { IAutoMovieRasterImage } from "./IAutoMovieRasterImage";
 
 /**
  * What `AutoMovieRenderPicture.compareRasters` found between two pictures of one size: a

@@ -1,4 +1,4 @@
-import { spliceTangentNormal } from "./spliceTangentNormal.js";
+import { spliceTangentNormal } from "./spliceTangentNormal";
 
 /*
  * Blend detail slopes into the base tangent-space normal by whiteout blending.

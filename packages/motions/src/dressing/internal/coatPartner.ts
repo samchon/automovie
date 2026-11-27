@@ -3,7 +3,7 @@ import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieAffordance, I
 
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
+import { motionHumanHeld } from "../../compose/internal/motionHumanHeld";
 import { AutoMovieMotionHumanPartnerClear } from "../../compose/internal/AutoMovieMotionHumanPartnerClear";
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
 import { HumanPropFrame } from "../../perform/internal/HumanPropFrame";
@@ -59,7 +59,7 @@ function planCoatPartner(
     );
   const hand: AutoMovieHumanSide =
     params.hand ?? (entry.holds.right === params.prop ? "right" : "left");
-  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
+  const held: IAutoMovieMotionHumanHeld.IHeld = motionHumanHeld(
     context,
     hand,
     params.prop,

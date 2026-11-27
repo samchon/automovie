@@ -12,7 +12,7 @@ import type {
  * analytic publication each conforms. Every other field of the record passes
  * through a conversion unchanged.
  *
- * The runtime admission owner is `convertAutoMovieRecoveryCurves` in
+ * The runtime admission owner is `convertRecoveryCurves` in
  * `@automovie/recovery`, which refuses a cubic without one positive phase
  * width per span.
  */

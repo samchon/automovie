@@ -85,7 +85,7 @@ export namespace AutoMovieMotionHumanAuditTangle {
    * (pose at each instant, each pair keeping its deepest, first instant
    * on a tie), from fewer pair readings: a pair read at an instant is read
    * again only at the first instant its margin does not certify
-   * (`AutoMovieMotionHumanAuditTangleMargin`, `advanceAutoMovieGrid`), the
+   * (`AutoMovieMotionHumanAuditTangleMargin`, `advanceGrid`), the
    * margin being how far its depth can grow before it would add to the pair's
    * record and the bound how far its two segments can have moved, measured from
    * the motion's own poses on the grid.
@@ -109,7 +109,7 @@ export namespace AutoMovieMotionHumanAuditTangle {
 
     // Every instant's placed segments and each segment's travel to it, so a
     // pair read at an instant is next read at the first instant its margin
-    // does not certify (`advanceAutoMovieGrid`); `due` holds that instant
+    // does not certify (`advanceGrid`); `due` holds that instant
     // per pair, by the pair's index.
     const frames: IAutoMovieMotionHumanColliders.IPlaced[][] = times.map(
       (t: number): IAutoMovieMotionHumanColliders.IPlaced[] =>
@@ -259,7 +259,7 @@ export namespace AutoMovieMotionHumanAuditTangle {
    * same unchanged evaluation, in original profile order; computed here when
    * absent.
    * Parameter targets: The caller's list of the segments already prepared as
-   * read-in targets (`prepareAutoMovieMotionHumanAuditDepths`), by index in
+   * read-in targets (`prepareMotionHumanAuditDepths`), by index in
    * `prepared`; an entry must belong to the very placed segment at its index,
    * so a caller that replaces a placed segment between reads clears that
    * entry. A list of this read's own when absent.

@@ -1,4 +1,4 @@
-import type { IAutoMovieInspectionRequest } from "./IAutoMovieInspectionRequest.js";
+import type { IAutoMovieInspectionRequest } from "./IAutoMovieInspectionRequest";
 
 /**
  * A subject-local drawn instant and already parsed trail reach/tick rate.

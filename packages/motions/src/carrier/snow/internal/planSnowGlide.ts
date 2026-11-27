@@ -25,9 +25,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../../compose/internal/motionClock";
 import { AutoMovieMotionHumanArm } from "../../../compose/internal/AutoMovieMotionHumanArm";
-import { composeAutoMovieMotionHumanAction } from "../../../compose/internal/composeAutoMovieMotionHumanAction";
+import { composeMotionHumanAction } from "../../../compose/internal/composeMotionHumanAction";
 import { AutoMovieMotionHumanRefusal } from "../../../law/AutoMovieMotionHumanRefusal";
 import { HumanBound } from "../../../law/internal/HumanBound";
 import { HumanMountRider } from "../../../lexicon/internal/HumanMountRider";
@@ -280,9 +280,9 @@ export function planSnowGlide(
         .arm,
   });
   const composed: IAutoMovieMotionHumanActionPlan =
-    composeAutoMovieMotionHumanAction({
+    composeMotionHumanAction({
       base: kicked,
-      clock: AutoMovieMotionClock(
+      clock: motionClock(
         duration,
         events.map(
           (event: IAutoMovieMotionEvent): IAutoMovieMotionClockInstant => ({

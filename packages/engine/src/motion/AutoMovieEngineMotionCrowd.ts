@@ -33,6 +33,6 @@ export namespace AutoMovieEngineMotionCrowd {
   export function steer(
     props: IAutoMovieSteerCrowd.IProps,
   ): IAutoMovieSteerCrowd.IResult {
-    return SteerAutoMovieCrowdImplementation.steerAutoMovieCrowd(props);
+    return SteerAutoMovieCrowdImplementation.steerCrowd(props);
   }
 }

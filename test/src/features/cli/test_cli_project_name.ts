@@ -16,7 +16,7 @@ import * as path from "node:path";
  * 5. Only the basename counts, and a basename with no valid character falls back
  *    to `automovie-examples`.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls `deriveAutoMovieProjectName`, the function `run` uses to name the scaffold, and asserts the returned names, catching an uppercase, leading-underscore, over-long or empty npm name while allowing any valid name to pass unchanged.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `deriveProjectNameImplementation`, the function `run` uses to name the scaffold, and asserts the returned names, catching an uppercase, leading-underscore, over-long or empty npm name while allowing any valid name to pass unchanged.
  * @evidence contracts/development/testing.md#independent-expectations Expected names follow npm's published package-name rules for new packages (lowercase, URL-safe, no leading `.` or `_`, at most 214 characters) and the documented fallback, written out by hand rather than computed by the function under test.
  * @evidence contracts/development/testing.md#distinguishing-cases Covers an input that must stay, inputs that must change in each rule, the 214-character limit with a longer input, a parent directory that must not count, and the empty fallback; publication of the named scaffold belongs to the template package.
  * @evidence contracts/development/testing.md#execution-ownership A unit test discovered by the `test_` prefix that calls a pure function in-process, touching no filesystem or child process and registering no dynamic cases.

@@ -4,14 +4,14 @@ import type {
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionClock
-} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionClock";
+  motionClock
+} from "../../../../../packages/motions/src/compose/internal/motionClock";
 import {
   AutoMovieMotionHumanBase
 } from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanBase";
 import {
-  composeAutoMovieMotionHumanAction
-} from "../../../../../packages/motions/src/compose/internal/composeAutoMovieMotionHumanAction";
+  composeMotionHumanAction
+} from "../../../../../packages/motions/src/compose/internal/composeMotionHumanAction";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -24,7 +24,7 @@ import { TestValidator } from "@nestia/e2e";
  * 2. Only the explicitly requested optional contact appears on the plan.
  */
 export function test_motions_compose_root_event_receipts(): void {
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock(4, [
+  const clock: IAutoMovieMotionClock = motionClock(4, [
     { name: "release", seconds: 3 },
     { name: "depart", seconds: 1 },
     { name: "signal", seconds: 1 },
@@ -42,9 +42,9 @@ export function test_motions_compose_root_event_receipts(): void {
     posture,
   );
   const unmarked: IAutoMovieMotionHumanActionPlan =
-    composeAutoMovieMotionHumanAction({ base, clock, primitives: [] });
+    composeMotionHumanAction({ base, clock, primitives: [] });
   const marked: IAutoMovieMotionHumanActionPlan =
-    composeAutoMovieMotionHumanAction({
+    composeMotionHumanAction({
       base,
       clock,
       primitives: [],

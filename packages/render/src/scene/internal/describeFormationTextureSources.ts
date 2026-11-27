@@ -4,8 +4,8 @@ import type {
   IAutoMovieRenderTextureSource,
 } from "@automovie/interface";
 
-import type { IFormationTierRepresentation } from "./IFormationTierRepresentation.js";
-import { readAutoMovieTextureSource } from "./readAutoMovieTextureSource.js";
+import type { IFormationTierRepresentation } from "./IFormationTierRepresentation";
+import { readTextureSource } from "./readTextureSource";
 
 /*
  * Describe every retained, reachable gait table from its actual owned texture.
@@ -39,7 +39,7 @@ export const describeFormationTextureSources: (
     for (const take of representation.cycle.takes.values()) {
       const owner: string = `formation-cycle:${JSON.stringify([formation, tier, take.gait])}`;
       const { asset: _asset, ...texture }: IAutoMovieRenderTextureSource =
-        readAutoMovieTextureSource(owner, take.texture);
+        readTextureSource(owner, take.texture);
       sources.push({ owner, texture });
     }
   }

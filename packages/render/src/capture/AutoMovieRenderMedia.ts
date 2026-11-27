@@ -1,14 +1,14 @@
 import { type AutoMovieGuidePass, type IAutoMovieGuidePassOutput, type IAutoMoviePlanGuidePassOutputsProps } from "@automovie/interface";
-import { isGuidePass as isGuidePassImplementation } from "../internal/isGuidePass.js";
-import { guidePassFramePattern as guidePassFramePatternImplementation } from "../internal/guidePassFramePattern.js";
-import { normalizeGuidePasses as normalizeGuidePassesImplementation } from "../internal/normalizeGuidePasses.js";
-import { planGuidePassOutputs as planGuidePassOutputsImplementation } from "../internal/planGuidePassOutputs.js";
-import { guidePassFrameName as guidePassFrameNameImplementation } from "../internal/guidePassFrameName.js";
-import { AUTOMOVIE_GUIDE_PASSES } from "../AUTOMOVIE_GUIDE_PASSES.js";
+import { isGuidePass as isGuidePassImplementation } from "../internal/isGuidePass";
+import { guidePassFramePattern as guidePassFramePatternImplementation } from "../internal/guidePassFramePattern";
+import { normalizeGuidePasses as normalizeGuidePassesImplementation } from "../internal/normalizeGuidePasses";
+import { planGuidePassOutputs as planGuidePassOutputsImplementation } from "../internal/planGuidePassOutputs";
+import { guidePassFrameName as guidePassFrameNameImplementation } from "../internal/guidePassFrameName";
+import { AUTOMOVIE_GUIDE_PASSES } from "../AUTOMOVIE_GUIDE_PASSES";
 
-import { frameName as frameNameImpl } from "../frameName.js";
-import { framePattern as framePatternImpl } from "../framePattern.js";
-import { renderPathStem as renderPathStemImpl } from "../renderPathStem.js";
+import { frameName as frameNameImpl } from "../frameName";
+import { framePattern as framePatternImpl } from "../framePattern";
+import { renderPathStem as renderPathStemImpl } from "../renderPathStem";
 
 /** Utilities that name rendered media and output locations. */
 export namespace AutoMovieRenderMedia {

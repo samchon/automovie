@@ -1,9 +1,9 @@
-import type { IAutoMovieCapturePlanRequest } from "./IAutoMovieCapturePlanRequest.js";
-import type { IAutoMovieCaptureSubject } from "./IAutoMovieCaptureSubject.js";
+import type { IAutoMovieCapturePlanRequest } from "./IAutoMovieCapturePlanRequest";
+import type { IAutoMovieCaptureSubject } from "./IAutoMovieCaptureSubject";
 
 /**
  * A parsed capture request, host description and detected cut instants.
- * planAutoMovieCapture resolves named events and views, computes the sampling
+ * planCapture resolves named events and views, computes the sampling
  * windows and cell product, and refuses unsupported selections before the host
  * begins drawing. Inputs remain caller-owned.
  */

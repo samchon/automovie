@@ -10,7 +10,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
+import { motionHumanHeld } from "../../compose/internal/motionHumanHeld";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanPropFrame } from "../../perform/internal/HumanPropFrame";
 import { HumanPropHold } from "../../perform/internal/HumanPropHold";
@@ -70,7 +70,7 @@ export function admitPuckContact(
     hand: HumanPropHold.frame(body, impact, { side }),
     offset:
       context.entry.holds[side] === context.params.stick
-        ? AutoMovieMotionHumanHeld(context, side, context.params.stick).frame
+        ? motionHumanHeld(context, side, context.params.stick).frame
         : HumanPropFrame.relative(
             HumanPropHold.frame(body, entry, { side }),
             initial,

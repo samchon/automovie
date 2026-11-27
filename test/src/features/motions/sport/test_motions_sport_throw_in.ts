@@ -6,8 +6,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionClock
-} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionClock";
+  motionClock
+} from "../../../../../packages/motions/src/compose/internal/motionClock";
 import {
   throwInRelease
 } from "../../../../../packages/motions/src/sport/internal/throwInRelease";
@@ -33,7 +33,7 @@ import { throwsError } from "../../internal/throwsError";
  * 4. Without an aimed point, or with one above the rising line, it is refused.
  */
 export function test_motions_sport_throw_in(): void {
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.sequence([
+  const clock: IAutoMovieMotionClock = motionClock.sequence([
     { name: "ready", seconds: 0.5 },
     { name: "stroke", seconds: 0.5 },
   ]);

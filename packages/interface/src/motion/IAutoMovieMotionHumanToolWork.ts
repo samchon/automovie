@@ -5,7 +5,7 @@
  * The tool is the prop the hand holds (`prop`, taken up before, as `pickUp`
  * does), rigid in the hand from the instant its grip closed, so its working
  * point is its own `face` contact at a fixed offset in the hand's frame
- * (`AutoMovieMotionHumanHeld`), and the goal is that point on the work, the
+ * (`motionHumanHeld`), and the goal is that point on the work, the
  * hand following from it. The tool's line runs from its `grip` to its `face`
  * (`createTool`'s contacts). The work fixes that line (a hammer's level at the
  * strike, a spoon's upright, a screwdriver's along the heading, a saw's sloping

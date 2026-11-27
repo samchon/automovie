@@ -11,7 +11,9 @@ import {
  * Shared key field and the manufacturer records used by saved keyboard recipes.
  */
 export namespace KeyboardHardware {
-  /** The kinds: a full-size keyboard and a laptop. */
+  /*
+   * The kinds: a full-size keyboard and a laptop.
+   */
   export type Kind = "keyboard" | "laptop";
 
   /*
@@ -42,7 +44,7 @@ export namespace KeyboardHardware {
    */
   export const LID_THICKNESS: number = 0.006;
 
-  /**
+  /*
    * The affordance ids:
    *
    * - `keys`: the key field's top, facing up.
@@ -52,7 +54,7 @@ export namespace KeyboardHardware {
    */
   export type Affordance = "keys" | "homeRow" | "screen" | "lid";
 
-  /**
+  /*
    * The free dimensions, metres unless stated:
    *
    * - `width`, `depth`, `height`: the base's.
@@ -72,25 +74,33 @@ export namespace KeyboardHardware {
     mass: "kg",
   };
 
-  /**
+  /*
    * The parameters: the kind, and any free dimension fixed to a value inside
    * its band.
    */
   export interface IParams extends Partial<Record<Dimension, number>> {
-    /** Which keyboard. */
+    /*
+     * Which keyboard.
+     */
     kind: Kind;
 
-    /** The kind's model; drawn from the seed when absent. */
+    /*
+     * The kind's model; drawn from the seed when absent.
+     */
     model?: Model;
 
-    /** The model's id, unique in a scene; `keyboard` when absent. */
+    /*
+     * The model's id, unique in a scene; `keyboard` when absent.
+     */
     id?: string;
   }
 
-  /** A model's read figures, by dimension. */
+  /*
+   * A model's read figures, by dimension.
+   */
   export type Figures = Readonly<Partial<Record<Dimension, number>>>;
 
-  /**
+  /*
    * The models read: Apple's Magic Keyboard with Numeric Keypad and its Touch
    * ID (USB-C) version, and the MacBook Air M4 in its 13 and 15 inch sizes.
    */

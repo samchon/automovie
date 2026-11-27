@@ -4,7 +4,7 @@ import type { AutoMovieHumanoidRegion } from "../skeleton/AutoMovieHumanoidRegio
  * One perturbation law whose response follows from the forces on its performer:
  * the body absorbs an impulse within its base, catches it with capture steps,
  * or falls, as the engine's balance outcome decides from the impulse, the
- * body's mass and its support (`resolveAutoMovieBalanceOutcome`), or as the
+ * body's mass and its support (`resolveBalanceOutcome`), or as the
  * author fixes the outcome.
  *
  * The impulse is the sum of the impulses on the performer

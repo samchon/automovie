@@ -5,13 +5,13 @@ import {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { IAutoMovieRenderTextureResolver } from "../IAutoMovieRenderTextureResolver.js";
-import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResources.js";
-import { AutoMovieRenderDetailNormalShading } from "../AutoMovieRenderDetailNormalShading.js";
-import { AutoMovieRenderMaterialOverlayShading } from "../AutoMovieRenderMaterialOverlayShading.js";
-import { AutoMovieRenderProceduralShading } from "../AutoMovieRenderProceduralShading.js";
-import { resolveAutoMovieMaterialTexture } from "./resolveAutoMovieMaterialTexture.js";
-import { AutoMovieRenderSubsurfaceShading } from "../AutoMovieRenderSubsurfaceShading.js";
+import { IAutoMovieRenderTextureResolver } from "../IAutoMovieRenderTextureResolver";
+import { constructOwnedResources } from "./constructOwnedResources";
+import { AutoMovieRenderDetailNormalShading } from "../AutoMovieRenderDetailNormalShading";
+import { AutoMovieRenderMaterialOverlayShading } from "../AutoMovieRenderMaterialOverlayShading";
+import { AutoMovieRenderProceduralShading } from "../AutoMovieRenderProceduralShading";
+import { resolveMaterialTexture } from "./resolveMaterialTexture";
+import { AutoMovieRenderSubsurfaceShading } from "../AutoMovieRenderSubsurfaceShading";
 
 /*
  * Build a `three.js` physical PBR material from an automovie material, mapping
@@ -32,7 +32,7 @@ export const buildMaterial: (
   material: IAutoMovieMaterial,
   resolveTexture?: IAutoMovieRenderTextureResolver,
 ): THREE.MeshPhysicalMaterial => {
-  return constructAutoMovieOwnedResources(
+  return constructOwnedResources(
     (
       own: <Resource extends { dispose(): void }>(
         resource: Resource,
@@ -83,7 +83,7 @@ export const buildMaterial: (
         AutoMovieRenderSubsurfaceShading.apply(std, material.subsurfaceRadius);
       if (material.procedural !== undefined)
         AutoMovieRenderProceduralShading.applySurface(std, material.procedural);
-      std.map = resolveAutoMovieMaterialTexture(
+      std.map = resolveMaterialTexture(
         material.baseColorTexture,
         "srgb",
         resolveTexture,
@@ -91,14 +91,14 @@ export const buildMaterial: (
       const metallicRoughness: THREE.Texture<
         unknown,
         THREE.TextureEventMap
-      > | null = resolveAutoMovieMaterialTexture(
+      > | null = resolveMaterialTexture(
         material.metallicRoughnessTexture,
         "linear",
         resolveTexture,
       );
       std.metalnessMap = metallicRoughness;
       std.roughnessMap = metallicRoughness;
-      std.normalMap = resolveAutoMovieMaterialTexture(
+      std.normalMap = resolveMaterialTexture(
         material.normalTexture,
         "linear",
         resolveTexture,
@@ -106,7 +106,7 @@ export const buildMaterial: (
       if (material.normalScale !== undefined)
         std.normalScale.setScalar(material.normalScale);
       const detailNormal: THREE.Texture<unknown, THREE.TextureEventMap> | null =
-        resolveAutoMovieMaterialTexture(
+        resolveMaterialTexture(
           material.detailNormalTexture,
           "linear",
           resolveTexture,
@@ -140,7 +140,7 @@ export const buildMaterial: (
           normalScale: number;
           strength: number;
         } => ({
-          color: resolveAutoMovieMaterialTexture(
+          color: resolveMaterialTexture(
             overlay.baseColorTexture,
             "srgb",
             resolveTexture,
@@ -148,7 +148,7 @@ export const buildMaterial: (
           blend: overlay.blend,
           colorFactor: overlay.colorFactor ?? { r: 1, g: 1, b: 1 },
           roughness: overlay.roughness ?? null,
-          normal: resolveAutoMovieMaterialTexture(
+          normal: resolveMaterialTexture(
             overlay.normalTexture,
             "linear",
             resolveTexture,
@@ -184,23 +184,23 @@ export const buildMaterial: (
               : [{ ...overlay, color: overlay.color }],
         ),
       );
-      std.thicknessMap = resolveAutoMovieMaterialTexture(
+      std.thicknessMap = resolveMaterialTexture(
         material.thicknessTexture,
         "linear",
         resolveTexture,
       );
-      std.anisotropyMap = resolveAutoMovieMaterialTexture(
+      std.anisotropyMap = resolveMaterialTexture(
         material.anisotropy?.texture,
         "linear",
         resolveTexture,
       );
-      std.aoMap = resolveAutoMovieMaterialTexture(
+      std.aoMap = resolveMaterialTexture(
         material.occlusionTexture,
         "linear",
         resolveTexture,
       );
       std.aoMapIntensity = material.occlusionStrength ?? 1;
-      std.emissiveMap = resolveAutoMovieMaterialTexture(
+      std.emissiveMap = resolveMaterialTexture(
         material.emissiveTexture,
         "srgb",
         resolveTexture,

@@ -22,7 +22,7 @@ import type {
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmCourse } from "../../compose/internal/AutoMovieMotionHumanArmCourse";
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { HumanGrasp } from "../../handling/internal/HumanGrasp";
 import { HumanGraspRoll } from "../../handling/internal/HumanGraspRoll";
 import { heldDigits } from "../../handling/internal/heldDigits";
@@ -218,7 +218,7 @@ export function hoseBackup(
     },
   );
   const composed: IAutoMovieMotionHumanActionPlan =
-    composeAutoMovieMotionHumanAction({
+    composeMotionHumanAction({
       base,
       clock,
       primitives: arms,

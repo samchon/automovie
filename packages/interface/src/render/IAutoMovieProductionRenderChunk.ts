@@ -1,5 +1,5 @@
-import type { AutoMovieGuidePass } from "../cinematics/AutoMovieGuidePass.js";
-import type { IAutoMovieProductionRenderFrame } from "../index.js";
+import type { AutoMovieGuidePass } from "../cinematics/AutoMovieGuidePass";
+import type { IAutoMovieProductionRenderFrame } from "../index";
 
 /**
  * One content-addressed planned range of tier output frames for a moving-image

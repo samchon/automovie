@@ -4,7 +4,7 @@ import { TestValidator } from "@nestia/e2e";
 import { throwsError } from "../../internal/predicates";
 
 /**
- * `advanceAutoMovieGrid` returns the first grid index after a read one that a
+ * `advanceGrid` returns the first grid index after a read one that a
  * movement bound does not certify.
  *
  * Bound: travel(at, j) = j - at, so with margin 5 the indices 1..4 are

@@ -3,7 +3,7 @@ import type { IAutoMoviePatternPoint } from "./IAutoMoviePatternPoint";
 /**
  * One module a zone's own program proposes, before any clipping.
  *
- * `generateAutoMovieSurfacePattern` forms the module's four corners by turning
+ * `generateSurfacePattern` forms the module's four corners by turning
  * `±size / 2` by `rotationDeg` about `center`, and throws on the first
  * candidate whose id is blank or repeated in its zone, whose centre, rotation
  * or grain is not finite, whose size is not above zero, or whose corners reach
@@ -42,7 +42,7 @@ export interface IAutoMoviePatternCandidate {
    * unchanged by that flip, so the piece keeps the same footprint and the same
    * instance slot; what reverses is the material across it, which is why the
    * flip only becomes visible through
-   * {@link autoMoviePatternTextureTransforms}.
+   * {@link patternTextureTransforms}.
    *
    * It is not the grain turned. {@link grainDeg} states the direction the grain
    * runs on the surface either way, so a mirrored pair whose grain runs one way

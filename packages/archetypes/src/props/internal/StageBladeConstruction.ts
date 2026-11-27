@@ -164,7 +164,9 @@ export namespace StageBladeConstruction {
     profile: IProfile,
   ) => void;
 
-  /** A striking part as shares of the length from the handle's end: from, to. */
+  /*
+   * A striking part as shares of the length from the handle's end: from, to.
+   */
   export type Span = readonly [from: number, to: number];
 
   /*

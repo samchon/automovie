@@ -16,9 +16,9 @@ import type {
 } from "@automovie/interface";
 
 import { readHumanBone } from "../../body/internal/readHumanBone";
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
 import { AutoMovieMotionHumanTouchStance } from "../../compose/internal/AutoMovieMotionHumanTouchStance";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
+import { motionManner } from "../../compose/internal/motionManner";
 import { HumanArmTrajectoryPace } from "../../posture/internal/HumanArmTrajectoryPace";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
@@ -126,10 +126,10 @@ export namespace touchCrossedSupport {
       }
       return Math.max(...arcs);
     };
-    const reach: number = AutoMovieMotionHumanTiming.transport(
+    const reach: number = motionHumanTiming.transport(
       Math.max(longest(0, ready), longest(relax, first.duration)),
     );
-    return reach * AutoMovieMotionManner(context, p.manner).tempo > ready
+    return reach * motionManner(context, p.manner).tempo > ready
       ? build(context, { assist, reach })
       : first;
   }

@@ -6,10 +6,10 @@ import type {
 
 import type { IAutoMovieCliDeliveryProbe } from "./IAutoMovieCliDeliveryProbe";
 import type { IAutoMovieCliDeliveryReferenceDecode } from "./IAutoMovieCliDeliveryReferenceDecode";
-import { readAutoMovieDeliveryProbe } from "./internal/readAutoMovieDeliveryProbe";
-import { runAutoMovieDeliveryDecode } from "./internal/runAutoMovieDeliveryDecode";
-import { runAutoMovieDeliveryReferenceDecode } from "./internal/runAutoMovieDeliveryReferenceDecode";
-import { runAutoMovieFfmpeg } from "../ffmpeg/internal/runAutoMovieFfmpeg";
+import { readDeliveryProbe } from "./internal/readDeliveryProbe";
+import { runDeliveryDecode } from "./internal/runDeliveryDecode";
+import { runDeliveryReferenceDecode } from "./internal/runDeliveryReferenceDecode";
+import { runFfmpeg } from "../ffmpeg/internal/runFfmpeg";
 
 /** Node CLI delivery file probes and FFmpeg decode evidence. */
 export namespace AutoMovieCliDelivery {
@@ -18,7 +18,7 @@ export namespace AutoMovieCliDelivery {
     path: string,
     srgb: Readonly<IAutoMovieProductionVideoProfile["color"]>,
   ): Promise<IAutoMovieCliDeliveryProbe> {
-    return readAutoMovieDeliveryProbe(path, srgb);
+    return readDeliveryProbe(path, srgb);
   }
 
   /** Decodes an encoded delivery for native stream audit evidence. */
@@ -27,10 +27,10 @@ export namespace AutoMovieCliDelivery {
     artifact: string,
     expected: Expected,
     thresholds: Thresholds,
-    run: typeof runAutoMovieFfmpeg = runAutoMovieFfmpeg,
+    run: typeof runFfmpeg = runFfmpeg,
     meter?: (channels: 1 | 2) => IAutoMovieLoudnessMeter,
   ): Promise<Audit["streams"]> {
-    return runAutoMovieDeliveryDecode(
+    return runDeliveryDecode(
       binary,
       artifact,
       expected,
@@ -46,9 +46,9 @@ export namespace AutoMovieCliDelivery {
     encoder: readonly string[],
     expected: Expected,
     thresholds: Thresholds,
-    run: typeof runAutoMovieFfmpeg = runAutoMovieFfmpeg,
+    run: typeof runFfmpeg = runFfmpeg,
   ): Promise<IAutoMovieCliDeliveryReferenceDecode> {
-    return runAutoMovieDeliveryReferenceDecode(
+    return runDeliveryReferenceDecode(
       binary,
       encoder,
       expected,

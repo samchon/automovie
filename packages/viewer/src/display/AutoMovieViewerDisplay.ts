@@ -1,14 +1,14 @@
 import type * as THREE from "three";
-import { applyCaptureCanvasSize as applyViewerCaptureCanvasSize } from "./internal/applyCaptureCanvasSize.js";
-import { createViewerCameraState } from "./internal/createViewerCameraState.js";
-import { createViewerViewportResize } from "./internal/createViewerViewportResize.js";
+import { applyCaptureCanvasSize as applyViewerCaptureCanvasSize } from "./internal/applyCaptureCanvasSize";
+import { createViewerCameraState } from "./internal/createViewerCameraState";
+import { createViewerViewportResize } from "./internal/createViewerViewportResize";
 
-import { createViewerDisplayClock } from "./internal/createViewerDisplayClock.js";
-import { createViewerDisplayPublication } from "./internal/createViewerDisplayPublication.js";
-import { createViewerDisplaySave } from "./internal/createViewerDisplaySave.js";
-import { createViewerFrameControl } from "./internal/createViewerFrameControl.js";
-import { publishViewerCompletedFrame } from "./internal/publishViewerCompletedFrame.js";
-import { redrawViewerCompletedFrame } from "./internal/redrawViewerCompletedFrame.js";
+import { createViewerDisplayClock } from "./internal/createViewerDisplayClock";
+import { createViewerDisplayPublication } from "./internal/createViewerDisplayPublication";
+import { createViewerDisplaySave } from "./internal/createViewerDisplaySave";
+import { createViewerFrameControl } from "./internal/createViewerFrameControl";
+import { publishViewerCompletedFrame } from "./internal/publishViewerCompletedFrame";
+import { redrawViewerCompletedFrame } from "./internal/redrawViewerCompletedFrame";
 
 /** Owns Viewer display clocks, completed-frame publication and saving. */
 export namespace AutoMovieViewerDisplay {

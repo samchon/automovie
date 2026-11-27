@@ -31,12 +31,12 @@ export namespace IAutoMovieMarkSupportWrenches {
     seconds: number;
     /**
      * Cache step each record governs, seconds: the reciprocal of the cache
-     * rate; markAutoMovieSupportWrenches rejects nonfinite or nonpositive
+     * rate; markSupportWrenches rejects nonfinite or nonpositive
      * values.
      */
     interval: number;
     /**
-     * Arrow length per newton, metres/newton; markAutoMovieSupportWrenches
+     * Arrow length per newton, metres/newton; markSupportWrenches
      * rejects nonfinite or nonpositive values.
      */
     metresPerNewton: number;

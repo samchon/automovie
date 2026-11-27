@@ -16,7 +16,7 @@ import type {
 import { AutoMovieMotionHumanArmPhrase } from "../../compose/internal/AutoMovieMotionHumanArmPhrase";
 import { AutoMovieMotionHumanArmTarget } from "../../compose/internal/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { HumanTrunkLean } from "../../handling/internal/HumanTrunkLean";
 import { pickUpAdjust } from "../../handling/internal/pickUpAdjust";
 import type { pickUpPosture } from "../../handling/internal/pickUpPosture";
@@ -81,7 +81,7 @@ export function placeOverHeadLean(
             ),
         };
   const plan: IAutoMovieMotionHumanActionPlan =
-    composeAutoMovieMotionHumanAction({
+    composeMotionHumanAction({
       base,
       clock,
       primitives: [side, other].map(

@@ -10,7 +10,7 @@ import type {
 
 import { stand } from "../../actions/internal/stand";
 import { walkRoot } from "../../actions/internal/walkRoot";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
+import { motionManner } from "../../compose/internal/motionManner";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFootRotation } from "../../posture/internal/HumanFootRotation";
@@ -171,7 +171,7 @@ export function stepOverPath(
   const duration: number =
     2.4 *
     Math.sqrt(m.hipHeight / walkRoot.REFERENCE_HIP) *
-    AutoMovieMotionManner(context, context.params.manner).tempo;
+    motionManner(context, context.params.manner).tempo;
   const leading: [number, number] = [
     WINDOWS[0] * duration,
     WINDOWS[1] * duration,

@@ -4,9 +4,9 @@ import type {
   IAutoMoviePlanGuidePassOutputsProps,
 } from "@automovie/interface";
 
-import { guidePassFrameName } from "./guidePassFrameName.js";
-import { guidePassFramePattern } from "./guidePassFramePattern.js";
-import { normalizeGuidePasses } from "./normalizeGuidePasses.js";
+import { guidePassFrameName } from "./guidePassFrameName";
+import { guidePassFramePattern } from "./guidePassFramePattern";
+import { normalizeGuidePasses } from "./normalizeGuidePasses";
 
 /*
  * Plan where each requested pass writes its frames inside one frame directory:

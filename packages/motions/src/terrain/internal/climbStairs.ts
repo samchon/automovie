@@ -22,11 +22,11 @@ import { standUpright } from "../../actions/internal/standUpright";
 import { walkRoot } from "../../actions/internal/walkRoot";
 import { HumanSupportCarry } from "../../carrier/internal/HumanSupportCarry";
 import { swungArms } from "../../carrier/internal/swungArms";
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanLean } from "../../compose/internal/AutoMovieMotionHumanLean";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionManner } from "../../compose/internal/motionManner";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { walk } from "../../gait/internal/walk";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
@@ -198,7 +198,7 @@ export namespace climbStairs {
     );
     const framed: HumanFrame.IPrepared = HumanFrame.prepare(stairs.frame);
     const sign: number = stairs.direction === "up" ? 1 : -1;
-    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+    const modifiers: IAutoMovieMotionManner.IModifiers = motionManner(
       context,
       p.manner,
     );
@@ -246,8 +246,8 @@ export namespace climbStairs {
       );
     });
     instants.push({ name: "arrived", seconds: steps.length * period });
-    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
-      AutoMovieMotionClock(
+    const clock: IAutoMovieMotionClock = motionManner.time(
+      motionClock(
         (steps.length + climbStairsBounds.SETTLE) * period,
         instants,
       ),
@@ -455,7 +455,7 @@ export namespace climbStairs {
     );
 
     const plan: IAutoMovieMotionHumanActionPlan =
-      composeAutoMovieMotionHumanAction({
+      composeMotionHumanAction({
         base: AutoMovieMotionHumanBase.still(duration, standing, contacts),
         clock,
         contact: "arrived",

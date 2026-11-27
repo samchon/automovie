@@ -2,8 +2,8 @@ import { AutoMovieRenderDraw } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `encodeAutoMovieDrawPixels` flips a drawn target to rows from the top,
- * averages supersampled blocks and writes base64; `decodeAutoMovieDrawPixels`
+ * `encodeDrawPixels` flips a drawn target to rows from the top,
+ * averages supersampled blocks and writes base64; `decodeDrawPixels`
  * reads it back.
  *
  * Scenarios:

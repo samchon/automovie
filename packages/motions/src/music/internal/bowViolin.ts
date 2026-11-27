@@ -18,13 +18,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmTarget } from "../../compose/internal/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionHumanHeld } from "../../compose/internal/motionHumanHeld";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
 import { prepareHumanElbowPath } from "../../compose/internal/prepareHumanElbowPath";
 import { HumanGrip } from "../../handling/internal/HumanGrip";
@@ -81,7 +81,7 @@ function planStroke(
     0,
     "s",
   );
-  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
+  const held: IAutoMovieMotionHumanHeld.IHeld = motionHumanHeld(
     context,
     "right",
     params.bow,
@@ -138,9 +138,9 @@ function planStroke(
     params.string,
   );
   const frog: IAutoMovieMotionHumanHeld.IPointResult =
-    AutoMovieMotionHumanHeld.point(held, "hairFrog");
+    motionHumanHeld.point(held, "hairFrog");
   const tip: IAutoMovieMotionHumanHeld.IPointResult =
-    AutoMovieMotionHumanHeld.point(held, "hairTip");
+    motionHumanHeld.point(held, "hairTip");
   const hair: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(tip.point, frog.point);
   const length: number = AutoMovieEngineVector3.length(hair);
   if (
@@ -170,7 +170,7 @@ function planStroke(
       "right",
       "grip",
     );
-  const reach: number = AutoMovieMotionHumanTiming.aimed(
+  const reach: number = motionHumanTiming.aimed(
     AutoMovieEngineVector3.length(
       AutoMovieEngineVector3.subtract(
         grip(bowViolinStroke.from(params.direction), BowViolinData.CLEARANCE),
@@ -179,7 +179,7 @@ function planStroke(
     ),
     0.03,
   );
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.sequence([
+  const clock: IAutoMovieMotionClock = motionClock.sequence([
     { name: "approach", seconds: reach },
     { name: "ready", seconds: 0.2 },
     { name: "contact", seconds: stroke },
@@ -244,7 +244,7 @@ function planStroke(
       clock.progress("approach", "ready", seconds),
   });
   const composed: IAutoMovieMotionHumanActionPlan =
-    composeAutoMovieMotionHumanAction({
+    composeMotionHumanAction({
       base,
       clock,
       contact: "contact",
@@ -262,8 +262,8 @@ function planStroke(
   }));
   const goals: IAutoMovieMotionHumanActionPlan = {
     ...composed,
-    contacts: [...composed.contacts, AutoMovieMotionHumanHeld.grip(held)],
-    holds: [AutoMovieMotionHumanHeld.hold(context, held)],
+    contacts: [...composed.contacts, motionHumanHeld.grip(held)],
+    holds: [motionHumanHeld.hold(context, held)],
     posture: (
       ...args: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>
     ): IAutoMovieMotionHumanPosture => {

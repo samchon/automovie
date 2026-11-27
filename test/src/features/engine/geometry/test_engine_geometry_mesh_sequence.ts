@@ -5,7 +5,7 @@ import { TestValidator } from "@nestia/e2e";
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * `separateAutoMovieMeshSequence(meshes, axis, gap)` translates an ordered
+ * `separateMeshSequence(meshes, axis, gap)` translates an ordered
  * sequence rigidly along the axis so each mesh stands at least `gap` in front
  * of every earlier one where their projections overlap, in one pass.
  *

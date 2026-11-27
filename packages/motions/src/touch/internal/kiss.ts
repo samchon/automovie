@@ -19,16 +19,16 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanHead } from "../../compose/internal/AutoMovieMotionHumanHead";
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanJoints } from "../../compose/internal/AutoMovieMotionHumanJoints";
 import { AutoMovieMotionHumanRise } from "../../compose/internal/AutoMovieMotionHumanRise";
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
-import { AutoMovieMotionMeeting } from "../../compose/internal/AutoMovieMotionMeeting";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
+import { motionManner } from "../../compose/internal/motionManner";
+import { motionMeeting } from "../../compose/internal/motionMeeting";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
@@ -362,7 +362,7 @@ export namespace kiss {
     const hold: number = p.hold ?? HOLD;
     HumanBound.least("hold", hold, 0, "s");
     const hand: AutoMovieHumanSide | undefined = handFor(p.region, p.handRole);
-    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+    const modifiers: IAutoMovieMotionManner.IModifiers = motionManner(
       context,
       p.manner,
     );
@@ -399,7 +399,7 @@ export namespace kiss {
     const surface: Pick<IAutoMovieMotionHumanTarget.IPlace, PlanSurface> =
       meeting === undefined
         ? context.aim(target, context.start)
-        : AutoMovieMotionMeeting.place(meeting, "contact", entry);
+        : motionMeeting.place(meeting, "contact", entry);
     const at: IAutoMovieVector3 = surface.point;
     const twist: number = turned ? (p.side === "left" ? TURN : -TURN) : 0;
     const stance: IAutoMovieMotionHumanRise.Stance = {
@@ -458,10 +458,10 @@ export namespace kiss {
         HumanTrunk.region(body, entry, "mouth").point,
         at,
       );
-      const approach: number = AutoMovieMotionHumanTiming.transport(travel);
+      const approach: number = motionHumanTiming.transport(travel);
       return kissClock(
-        AutoMovieMotionManner.time(
-          AutoMovieMotionClock.phrase({
+        motionManner.time(
+          motionClock.phrase({
             prepare: approach,
             attack: 0,
             hold,
@@ -475,7 +475,7 @@ export namespace kiss {
       clock.envelope(["start", "ready"], ["relax", "end"], seconds);
     const head = AutoMovieMotionHumanHead.share(0, solved.flexion);
     const turn = AutoMovieMotionHumanHead.share(2, solved.twist ?? twist);
-    return composeAutoMovieMotionHumanAction({
+    return composeMotionHumanAction({
       base: AutoMovieMotionHumanBase.under(context, clock.duration),
       clock,
       primitives: [

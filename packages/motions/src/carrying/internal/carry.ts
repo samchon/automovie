@@ -21,9 +21,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { walk } from "../../gait/internal/walk";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
@@ -237,7 +237,7 @@ export namespace carry {
       },
     });
     const duration: number = base.duration;
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(
+    const clock: IAutoMovieMotionClock = motionClock(
       duration,
       base.events.map(
         (
@@ -429,7 +429,7 @@ export namespace carry {
         ? [loaded === "left" ? "right" : "left"]
         : [];
     return {
-      ...composeAutoMovieMotionHumanAction({
+      ...composeMotionHumanAction({
         base,
         clock,
         primitives: [trunk, ...arms],

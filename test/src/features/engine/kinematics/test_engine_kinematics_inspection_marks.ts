@@ -5,8 +5,8 @@ import { TestValidator } from "@nestia/e2e";
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * Kinematic inspection marks: `markAutoMovieRomOvershoot(entries)` flags each
- * joint past its range at `<path>/rom`; `markAutoMovieBalance(props)` draws the
+ * Kinematic inspection marks: `markRomOvershoot(entries)` flags each
+ * joint past its range at `<path>/rom`; `markBalance(props)` draws the
  * centre at `<path>/com`, flagged when it lies outside the base of support, and
  * that base, the XZ convex hull of the support points, at `<path>/support`.
  *

@@ -1,9 +1,9 @@
 import type { IAutoMovieLight } from "@automovie/interface";
 import * as THREE from "three";
-import { RectAreaLightUniformsLib } from "three/examples/jsm/lights/RectAreaLightUniformsLib.js";
+import { RectAreaLightUniformsLib } from "#three-addon/lights/RectAreaLightUniformsLib";
 
-import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind.js";
-import { applyLightState } from "./applyLightState.js";
+import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind";
+import { applyLightState } from "./applyLightState";
 
 /*
  * Build the `three.js` light one staged light plays on, aimed the way the

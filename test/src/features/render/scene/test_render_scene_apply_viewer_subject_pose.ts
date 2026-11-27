@@ -6,7 +6,7 @@ import * as THREE from "three";
 const DIRECTION_TOLERANCE: number = 1e-9;
 
 /**
- * `applyAutoMovieViewerSubjectPose` writes a pose onto a perspective camera.
+ * `applyViewerSubjectPose` writes a pose onto a perspective camera.
  *
  * Scenarios:
  *

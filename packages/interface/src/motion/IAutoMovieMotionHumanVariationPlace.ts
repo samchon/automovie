@@ -4,7 +4,7 @@ import type { IAutoMovieMotionHumanTargetGrid } from "./IAutoMovieMotionHumanTar
  * The seeded offset of a place of the air: where a hand arrives within what its
  * named place allows.
  *
- * `AutoMovieMotionHumanVariation` states what a slot, a spread and a source are
+ * `motionHumanVariation` states what a slot, a spread and a source are
  * and owns `SPREADS` and `ACROSS`; `AutoMovieMotionHumanVariationDraw` owns
  * `TRUNCATE` and the cell rule. A place is the one slot whose offset has three
  * components and whose bound differs by axis, so it reads how the hand arrives

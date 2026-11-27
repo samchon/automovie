@@ -3,7 +3,7 @@ import type { IAutoMoviePatternPlacement } from "./IAutoMoviePatternPlacement";
 import type { IAutoMoviePatternQuantities } from "./IAutoMoviePatternQuantities";
 
 /**
- * Everything one run of {@link generateAutoMovieSurfacePattern} produces.
+ * Everything one run of {@link generateSurfacePattern} produces.
  *
  * Stable inputs and a pure generator repeat within the same numerical runtime.
  * Mesh/instance/texture consumers cite the placements by occurrence id;

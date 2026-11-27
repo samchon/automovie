@@ -3,7 +3,7 @@ import { AutoMovieRenderInspectionRequest } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `parseAutoMovieInspectionRequest` reads an inspection request from named
+ * `parseInspectionRequest` reads an inspection request from named
  * text values.
  *
  * Scenarios:

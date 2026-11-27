@@ -34,7 +34,7 @@ import { surfaceTriangleOf } from "../../internal/surfaceTriangleOf";
  * 2. The texture's first texels hold each measured edge as `a.xyz, convex` and
  *    `b.xyz, 0`.
  * 3. Decoding the texture as the shader does, the distances at 200 surface points
- *    equal `autoMovieFeatureEdgeDistance` within 1e-12, and the edge weight
+ *    equal `featureEdgeDistance` within 1e-12, and the edge weight
  *    `AutoMovieEngineMaterial.wearWeight` is zero at and beyond the layer width
  *    and positive on an edge.
  * 4. The compile hook on three's physical program reads the list and the bind-pose

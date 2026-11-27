@@ -29,7 +29,7 @@ export namespace IAutoMovieOrientSweep {
     /**
      * Borrowed, nonempty, increasing normalized station-u buffer. It fixes
      * rotation-buffer sizes at construction and is read during later updates
-     * and queries; preserve length and ordering. compileAutoMovieSweep admits
+     * and queries; preserve length and ordering. compileSweep admits
      * station knots; this kernel does not.
      */
     knots: Float64Array;

@@ -10,7 +10,7 @@ import { createSignedVoxelUnion } from "../../internal/createSignedMeshFixture";
 import { nclose } from "../../internal/predicates";
 
 /**
- * The bounding-box hierarchy of `createAutoMovieSignedMeshQuery`, including the
+ * The bounding-box hierarchy of `createSignedMeshQuery`, including the
  * per-triangle box test inside a leaf, returns the distance an exhaustive
  * search over every triangle finds, and reports a triangle that attains it.
  *

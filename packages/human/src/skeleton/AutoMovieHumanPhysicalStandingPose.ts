@@ -380,7 +380,9 @@ const BEARING: number = 0.006;
  */
 const KNEE: number = Math.PI / 6;
 
-/** Segment frames borrowed for one standing transfer. */
+/*
+ * Segment frames borrowed for one standing transfer.
+ */
 type Poses = Readonly<Record<string, IAutoMovieRigidTransform>>;
 
 /** The public standing transfer outcome. */

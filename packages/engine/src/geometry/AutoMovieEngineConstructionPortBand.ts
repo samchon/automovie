@@ -551,12 +551,16 @@ export namespace AutoMovieEngineConstructionPortBand {
 const { combine, norm, sub }: typeof AutoMovieEngineSolidVector =
   AutoMovieEngineSolidVector;
 
-/** World point or derivative, mm. */
+/*
+ * World point or derivative, mm.
+ */
 type Vec3 = AutoMovieVector3Tuple;
 
-/** A chart point or chart derivative. */
+/*
+ * A chart point or chart derivative.
+ */
 type V2 = [number, number];
-/**
+/*
  * A chart curve's point with its first and second derivatives in the band's
  * clock.
  */
@@ -566,7 +570,9 @@ interface ICurve2 {
   d2: V2;
 }
 
-/** A field's 2-jet in its cross parameter `s` and the band's clock `v`. */
+/*
+ * A field's 2-jet in its cross parameter `s` and the band's clock `v`.
+ */
 interface IJet2 {
   p: Vec3;
   s: Vec3;

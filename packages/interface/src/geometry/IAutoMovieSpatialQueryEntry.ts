@@ -1,7 +1,7 @@
 /**
  * One resident object's actual bounding box and stable population ordinal, the
- * entry `buildAutoMovieMeshQueryHierarchy` partitions and
- * `collectAutoMovieSpatialQueryCandidates` returns.
+ * entry `buildMeshQueryHierarchy` partitions and
+ * `collectSpatialQueryCandidates` returns.
  *
  * The box encloses its geometry in the query's shared metre frame; its centre
  * chooses median partitions and never substitutes for that geometry. Mesh

@@ -277,7 +277,7 @@ export namespace HumanFormation {
     /*
      * Which slot each member takes: in member order, or the assignment of least
      * total distance from where the members stand to the slots at a second
-     * (Kuhn's Hungarian method, the engine's `assignAutoMovieMinimumCost`).
+     * (Kuhn's Hungarian method, the engine's `assignMinimumCost`).
      * Parameter members: Where each member stands, world metres.
      * Parameter rule: `order` keeps member order; `nearest` minimises the total
      * distance.

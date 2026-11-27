@@ -1,8 +1,8 @@
 import { type IAutoMovieFilmOptics, type IAutoMoviePlanFilmSamples } from "@automovie/interface";
-import { autoMovieFilmResponseMatrix as autoMovieFilmResponseMatrixImplementation } from "./filmResponse/internal/autoMovieFilmResponseMatrix";
-import { autoMoviePlanckianWhite as autoMoviePlanckianWhiteImplementation } from "./filmResponse/internal/autoMoviePlanckianWhite";
-import { planAutoMovieFilmSamples as planAutoMovieFilmSamplesImplementation } from "./filmResponse/internal/planAutoMovieFilmSamples";
-import { respondAutoMovieFilmColor as respondAutoMovieFilmColorImplementation } from "./filmResponse/internal/respondAutoMovieFilmColor";
+import { filmResponseMatrix as filmResponseMatrixImplementation } from "./filmResponse/internal/filmResponseMatrix";
+import { planckianWhite as planckianWhiteImplementation } from "./filmResponse/internal/planckianWhite";
+import { planFilmSamples as planFilmSamplesImplementation } from "./filmResponse/internal/planFilmSamples";
+import { respondFilmColor as respondFilmColorImplementation } from "./filmResponse/internal/respondFilmColor";
 
 /** Public operations for Auto Movie Engine Film Response. */
 export namespace AutoMovieEngineFilmResponse {
@@ -14,7 +14,7 @@ export namespace AutoMovieEngineFilmResponse {
    * The exposure scale is `1 / (1.2 × 2^ev100)`, the saturation-based mapping of
    * ISO 12232:2019 with its 78 / (100 × 0.65) factor written as 1.2. With a
    * `whiteBalance`, the matrix also maps the Planckian white of that temperature
-   * ({@link autoMoviePlanckianWhite}) to the D65 working white by complete von
+   * ({@link planckianWhite}) to the D65 working white by complete von
    * Kries adaptation in the CAT02 cone space (CIE 159:2004): `RGB ← XYZ · CAT02⁻¹
    * · diag(LMS_D65 / LMS_K) · CAT02 · XYZ ← RGB`. Both whites have unit
    * luminance, so a neutral surface keeps its luminance when it is balanced.
@@ -22,10 +22,10 @@ export namespace AutoMovieEngineFilmResponse {
    * Exposure and white balance are both linear, and so is the glare that follows
    * them in the final pass, so the final pass applies this one matrix to the
    * scene value and to its glare alike. The caller admits `optics` first; an
-   * out-of-range temperature throws from {@link autoMoviePlanckianWhite}.
+   * out-of-range temperature throws from {@link planckianWhite}.
    */
   export function autoMovieFilmResponseMatrix(optics: Pick<IAutoMovieFilmOptics, "ev100" | "whiteBalance">): number[] {
-    return autoMovieFilmResponseMatrixImplementation(optics);
+    return filmResponseMatrixImplementation(optics);
   }
 
   /**
@@ -45,7 +45,7 @@ export namespace AutoMovieEngineFilmResponse {
    * approximation's range.
    */
   export function autoMoviePlanckianWhite(kelvin: number): [number, number, number] {
-    return autoMoviePlanckianWhiteImplementation(kelvin);
+    return planckianWhiteImplementation(kelvin);
   }
 
   /**
@@ -80,7 +80,7 @@ export namespace AutoMovieEngineFilmResponse {
    *   range.
    */
   export function planAutoMovieFilmSamples(props: IAutoMoviePlanFilmSamples.IProps): IAutoMoviePlanFilmSamples.ISample[] {
-    return planAutoMovieFilmSamplesImplementation(props);
+    return planFilmSamplesImplementation(props);
   }
 
   /**
@@ -90,7 +90,7 @@ export namespace AutoMovieEngineFilmResponse {
    *
    * Steps, in the final pass's order without its spatial glare step:
    *
-   * 1. Exposure and white balance by {@link autoMovieFilmResponseMatrix};
+   * 1. Exposure and white balance by {@link filmResponseMatrix};
    * 2. The tone curve: `"none"` passes the value on, and `"acesFilmic"` is the
    *    renderer's fit of the ACES reference rendering and output transforms,
    *    `saturate(Out · RRTAndODT(In · c / 0.6))` with its input and output
@@ -114,6 +114,6 @@ export namespace AutoMovieEngineFilmResponse {
   /** The film's optics at the drawn second. */
   optics: IAutoMovieFilmOptics;
 }): [number, number, number] {
-    return respondAutoMovieFilmColorImplementation(props);
+    return respondFilmColorImplementation(props);
   }
 }

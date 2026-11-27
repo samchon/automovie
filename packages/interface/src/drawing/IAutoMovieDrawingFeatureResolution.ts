@@ -3,7 +3,7 @@ import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 /**
  * What resolving one annotation target against the current design produced.
  *
- * `resolveAutoMovieDrawingFeature` returns one per target. A resolved target
+ * `resolveDrawingFeature` returns one per target. A resolved target
  * carries a world point in metres and a null `reason`; a stale one carries a
  * null point and direction and the sentence explaining why, so a drawing can
  * keep the note visible as stale instead of dropping it or pinning it to a

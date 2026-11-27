@@ -2,7 +2,7 @@ import type { AutoMovieViseme } from "@automovie/interface";
 
 /*
  * Dominance parameters of the coarticulation sampler,
- * `sampleAutoMovieDialogueVisemeWeights` (Cohen and Massaro, "Modeling
+ * `sampleDialogueVisemeWeights` (Cohen and Massaro, "Modeling
  * coarticulation in synthetic visual speech", 1993).
  *
  * A phoneme's dominance is `magnitude × exp(−|t − centre| / τ)`, rising toward

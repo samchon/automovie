@@ -1,4 +1,4 @@
-import type { IAutoMovieCaptureSubject } from "./IAutoMovieCaptureSubject.js";
+import type { IAutoMovieCaptureSubject } from "./IAutoMovieCaptureSubject";
 
 /**
  * What a draw page says about itself before anything is drawn: the subject a

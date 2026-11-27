@@ -4,7 +4,7 @@ import {
 } from "@automovie/interface";
 
 import { productionFrameBoundaryToSeconds } from "../../film/internal/productionFrameBoundaryToSeconds";
-import { autoMovieRenderDigest } from "../../render/internal/autoMovieRenderDigest";
+import { renderDigest } from "../../render/internal/renderDigest";
 import { AutoMovieEngineCanonicalJsonError } from "../../text/AutoMovieEngineCanonicalJsonError";
 import { AutoMovieEngineCanonicalJson } from "../../text/AutoMovieEngineCanonicalJson";
 import { AutoMovieEngineFilmEffectRuntimeError } from "../AutoMovieEngineFilmEffectRuntimeError";
@@ -97,7 +97,7 @@ function recomputedDigest(
   value: object,
 ): string {
   try {
-    return autoMovieRenderDigest(
+    return renderDigest(
       AutoMovieEngineCanonicalJson.canonicalize(value),
     );
   } catch (error) {

@@ -165,7 +165,9 @@ export namespace AutoMovieEngineLoftSectionBoundary {
   }
 }
 
-/** Actual or explicitly generated scalar value/physical-station derivatives. */
+/*
+ * Actual or explicitly generated scalar value/physical-station derivatives.
+ */
 type Scalar = IAutoMovieViewSectionField.IStationJet;
 
 /*

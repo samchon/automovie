@@ -35,7 +35,7 @@ export interface IAutoMovieMotionHumanAttributeEffects {
   fatigue: {
     /**
      * The factor on a gait's speed: 1 fresh at fatigue 0 to 0.8 exhausted at 1,
-     * the `weary` manner's pace (`AutoMovieMotionManner.PRESETS`).
+     * the `weary` manner's pace (`motionManner.PRESETS`).
      */
     pace: IAutoMovieMotionHumanAttributeEffects.IEffect;
   };

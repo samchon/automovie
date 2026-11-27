@@ -30,7 +30,7 @@ import { transformFormationPoint } from "../../populationRuntime/formation/inter
 import { sampleClipSequence } from "../../resolve/internal/sampleClipSequence";
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 import { assertProductionScoreDucking } from "./assertProductionScoreDucking";
-import { deriveAutoMovieSoundPropagation } from "./deriveAutoMovieSoundPropagation";
+import { deriveSoundPropagation } from "./deriveSoundPropagation";
 import { productionCaptionDialogueLine } from "./productionCaptionDialogueLine";
 import { resolveProductionSoundEventCues } from "./resolveProductionSoundEventCues";
 
@@ -132,7 +132,7 @@ export function deriveProductionSoundPlan(
           ...(props.propagationProfile === undefined
             ? {}
             : {
-                propagation: deriveAutoMovieSoundPropagation({
+                propagation: deriveSoundPropagation({
                   distanceMeters: rmsDistanceMeters,
                   emissionFrame: frame,
                   segmentEndFrame: segment.endFrame,

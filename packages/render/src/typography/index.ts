@@ -1,2 +1,2 @@
-export * from "./AutoMovieRenderTypography.js";
-export type * from "./IAutoMovieRenderTypographyDecodeFontSourcesProps.js";
+export * from "./AutoMovieRenderTypography";
+export type * from "./IAutoMovieRenderTypographyDecodeFontSourcesProps";

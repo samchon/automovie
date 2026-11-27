@@ -4,7 +4,7 @@ import type { IAutoMovieSurfaceCoordinate } from "./IAutoMovieSurfaceCoordinate"
 
 /**
  * A surface network sampled at one tier: a quad control cage ready for
- * `subdivideAutoMovieSurface`, with the surface coordinate of every face
+ * `subdivideSurface`, with the surface coordinate of every face
  * corner, the per-patch grids and the named rings.
  *
  * Within a tier the cage's connectivity, UV layout and coordinates depend only
@@ -12,7 +12,7 @@ import type { IAutoMovieSurfaceCoordinate } from "./IAutoMovieSurfaceCoordinate"
  * sweeps and curves, so every input of one network yields the same topology and
  * only positions change. Every tier addresses the same coordinates, `(patch, s,
  * t)`, so a point bound on one tier is found on another by
- * `mapAutoMovieSurfaceTier`.
+ * `mapSurfaceTier`.
  */
 export interface IAutoMovieSurfaceCage {
   /** The tier sampled. */

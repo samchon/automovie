@@ -2,7 +2,7 @@ import { AutoMovieRenderCapture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `assertAutoMovieCaptureClock` accepts a ready page with the commissioned
+ * `assertCaptureClock` accepts a ready page with the commissioned
  * clock and a frame count of duration times rate.
  *
  * Scenarios:

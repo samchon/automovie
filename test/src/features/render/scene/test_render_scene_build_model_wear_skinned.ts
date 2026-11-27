@@ -30,7 +30,7 @@ import { singleMaterial } from "../../internal/singleMaterial";
  *    mesh drawn non-indexed, carrying its skin indices and weights for every
  *    corner and a `wearList` per vertex.
  * 2. The wear texture holds exactly the feature edges
- *    `measureAutoMovieFeatureEdges` finds on the authored bind-pose mesh.
+ *    `measureFeatureEdges` finds on the authored bind-pose mesh.
  * 3. Bending the spine bone 90° moves the skinned vertices (three's CPU skinning
  *    moves them by more than 0.1 m) while the `position` attribute the wear
  *    distances read stays at bind pose, so each fragment's distances, and its

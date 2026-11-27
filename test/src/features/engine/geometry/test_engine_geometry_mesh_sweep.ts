@@ -10,7 +10,7 @@ import { PROCEDURAL_TEST_SQUARE as square } from "../../internal/PROCEDURAL_TEST
 import { throwsError } from "../../internal/predicates";
 
 /**
- * `meshAutoMovieSweep` sweeps one constant polygon section along a path, one
+ * `meshSweep` sweeps one constant polygon section along a path, one
  * smooth ring per path point, capped.
  *
  * Fixture: the 2 m procedural test square, and the same square scaled by 0.1.

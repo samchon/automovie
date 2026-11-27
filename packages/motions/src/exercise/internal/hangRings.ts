@@ -16,7 +16,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
-import { AutoMovieMotionHumanElbowPole } from "../../compose/internal/AutoMovieMotionHumanElbowPole";
+import { motionHumanElbowPole } from "../../compose/internal/motionHumanElbowPole";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
@@ -28,7 +28,7 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
  * spread differs from the grips'. Here each fist is laid on its own grip while
  * the plan declares that hand's grip window, turned as the keyed arm holds it
  * and with the keyed elbow's side (its pole out along the olecranon,
- * `AutoMovieMotionHumanElbowPole`), so a hang and a dip keep their own grips;
+ * `motionHumanElbowPole`), so a hang and a dip keep their own grips;
  * over `REACH` seconds before the window and after it the fist moves from where
  * the keyed arm holds it to the grip and back. A support of one grip leaves the
  * writer as it is.
@@ -149,7 +149,7 @@ export function hangRings(
           shape: "fist",
           point: fist.grip,
           rotation: from.worldRotation,
-          bend: AutoMovieMotionHumanElbowPole(
+          bend: motionHumanElbowPole(
             context.body,
             free,
             fist.lower,

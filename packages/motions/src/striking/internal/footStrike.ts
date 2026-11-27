@@ -16,10 +16,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
-import { AutoMovieMotionPrepared } from "../../compose/internal/AutoMovieMotionPrepared";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionPrepared } from "../../compose/internal/motionPrepared";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
@@ -155,7 +155,7 @@ export namespace footStrike {
     const duration: number = shown + recoil;
     const chamber: number =
       spinTime * strike + 0.5 * (shown - spinTime * strike);
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(duration, [
+    const clock: IAutoMovieMotionClock = motionClock(duration, [
       { name: "launch", seconds: 0 },
       { name: "chamber", seconds: chamber },
       { name: "impact", seconds: shown },
@@ -466,14 +466,14 @@ export namespace footStrike {
           flight,
         },
       );
-      return composeAutoMovieMotionHumanAction({
+      return composeMotionHumanAction({
         base: AutoMovieMotionHumanBase.still(duration, entry, contacts),
         clock,
         primitives: [lower, leg],
       });
     };
-    const shape: AutoMovieMotionPrepared.IValue<IAutoMovieMotionHumanActionPlan> =
-      AutoMovieMotionPrepared(build);
+    const shape: motionPrepared.IValue<IAutoMovieMotionHumanActionPlan> =
+      motionPrepared(build);
     return {
       duration,
       events: clock.events(),

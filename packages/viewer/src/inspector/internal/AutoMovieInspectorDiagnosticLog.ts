@@ -1,6 +1,6 @@
 import type { IAutoMovieInspectionDiagnostics as Diagnostics } from "@automovie/interface";
 
-import type { IAutoMovieViewerInspectorScene } from "../IAutoMovieViewerInspectorScene.js";
+import type { IAutoMovieViewerInspectorScene } from "../IAutoMovieViewerInspectorScene";
 
 /*
  * Report confirmed problems when first seen and summarize observed multi-sample

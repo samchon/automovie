@@ -12,7 +12,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
-import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
+import { motionHumanHeld } from "../../compose/internal/motionHumanHeld";
 import { poseBones } from "../../posture/internal/poseBones";
 
 /*
@@ -52,13 +52,13 @@ export function HeldRideArms(
     const angles: IAutoMovieMotionHumanArmAngles.IAngles =
       AutoMovieMotionHumanArm.angles(context.entry.pose, side);
     joints = { ...joints, ...angles.fingers };
-    const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
+    const held: IAutoMovieMotionHumanHeld.IHeld = motionHumanHeld(
       context,
       side,
       prop,
     );
-    contacts.push(AutoMovieMotionHumanHeld.grip(held));
-    holds.push(AutoMovieMotionHumanHeld.hold(context, held));
+    contacts.push(motionHumanHeld.grip(held));
+    holds.push(motionHumanHeld.hold(context, held));
   }
   return {
     posture: holds.length === 0 ? posture : { ...posture, limbs, joints },

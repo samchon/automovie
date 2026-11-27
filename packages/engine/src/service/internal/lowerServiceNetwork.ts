@@ -10,7 +10,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { meshAutoMovieSweep } from "../../geometry/sweep/internal/meshAutoMovieSweep";
+import { meshSweep } from "../../geometry/sweep/internal/meshSweep";
 import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { validateServiceNetwork } from "./validateServiceNetwork";
 import { validateWetZones } from "./validateWetZones";
@@ -21,7 +21,7 @@ import { validateWetZones } from "./validateWetZones";
  * A run is authored as a centre line and a radius, which is the description a
  * clash and a sleeve are measured against; drawing it is the deterministic
  * derivation of that description and nothing more. Sweeping a regular polygon
- * section along the authored line with `meshAutoMovieSweep`, one smooth-shaded
+ * section along the authored line with `meshSweep`, one smooth-shaded
  * ring per route point and both ends capped, is therefore the whole of it: no
  * fitting library, no elbow catalogue, no per-discipline appearance. A
  * production that wants a modelled valve body authors that prop and places it
@@ -75,7 +75,7 @@ export function lowerServiceNetwork(
           name: null,
           geometry: {
             type: "mesh",
-            mesh: meshAutoMovieSweep({
+            mesh: meshSweep({
               sweep: {
                 spine: { points: segment.route, normal: across(segment.route) },
                 stations: [

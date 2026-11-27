@@ -24,7 +24,7 @@ import type { IAutoMoviePatternPoint } from "./IAutoMoviePatternPoint";
  * and the neighbour scan already measures across it.
  *
  * An occurrence centre `c` of the facet's zone lands at `frame.origin + U·(c.u
- * - anchor.u) + V·(c.v - anchor.v)`. `autoMoviePatternInstanceTransforms`
+ * - anchor.u) + V·(c.v - anchor.v)`. `patternInstanceTransforms`
  * throws when a facet names a zone the pattern does not declare or a zone
  * another facet already names, and accepts a declared zone that laid no piece;
  * zones without a facet stay on the call's main frame.

@@ -17,22 +17,22 @@ import {
   useState,
 } from "react";
 
-import { AutoMovieInspectorDiagnosticsPanel } from "./internal/panels/AutoMovieInspectorDiagnosticsPanel.js";
-import { AutoMovieInspectorMarksPanel } from "./internal/panels/AutoMovieInspectorMarksPanel.js";
-import { AutoMovieViewerInspectorPlayhead } from "./AutoMovieViewerInspectorPlayhead.js";
-import { AutoMovieInspectorRequestPanel } from "./internal/panels/AutoMovieInspectorRequestPanel.js";
-import { AutoMovieInspectorSelectionPanel } from "./internal/panels/AutoMovieInspectorSelectionPanel.js";
-import { AutoMovieInspectorShadePanel } from "./internal/panels/AutoMovieInspectorShadePanel.js";
-import { AutoMovieInspectorTimePanel } from "./internal/panels/AutoMovieInspectorTimePanel.js";
-import { AutoMovieInspectorViewPanel } from "./internal/panels/AutoMovieInspectorViewPanel.js";
-import type { IAutoMovieViewerInspectorProps } from "./IAutoMovieViewerInspectorProps.js";
-import type { IAutoMovieViewerInspectorScene } from "./IAutoMovieViewerInspectorScene.js";
-import type { IAutoMovieViewerInspectorState } from "./IAutoMovieViewerInspectorState.js";
+import { InspectorDiagnosticsPanel } from "./internal/panels/InspectorDiagnosticsPanel";
+import { InspectorMarksPanel } from "./internal/panels/InspectorMarksPanel";
+import { AutoMovieViewerInspectorPlayhead } from "./AutoMovieViewerInspectorPlayhead";
+import { InspectorRequestPanel } from "./internal/panels/InspectorRequestPanel";
+import { InspectorSelectionPanel } from "./internal/panels/InspectorSelectionPanel";
+import { InspectorShadePanel } from "./internal/panels/InspectorShadePanel";
+import { InspectorTimePanel } from "./internal/panels/InspectorTimePanel";
+import { InspectorViewPanel } from "./internal/panels/InspectorViewPanel";
+import type { IAutoMovieViewerInspectorProps } from "./IAutoMovieViewerInspectorProps";
+import type { IAutoMovieViewerInspectorScene } from "./IAutoMovieViewerInspectorScene";
+import type { IAutoMovieViewerInspectorState } from "./IAutoMovieViewerInspectorState";
 
 
 
 
-import { AutoMovieViewerInspector } from "./AutoMovieViewerInspector.js";
+import { AutoMovieViewerInspector } from "./AutoMovieViewerInspector";
 
 /**
  * The inspection page as a React component: one canvas showing a subject
@@ -61,7 +61,7 @@ import { AutoMovieViewerInspector } from "./AutoMovieViewerInspector.js";
  * control answering it itself.
  *
  * The mount effect depends on the chosen subject object only, which
- * selectAutoMovieDrawSubject picks by the request's subject key, so each
+ * selectDrawSubject picks by the request's subject key, so each
  * subject must keep its identity across renders; the request reaches a mounted
  * scene through its `apply`, and a request the scene refuses is set back to the
  * one it still draws, with the reason shown. Under StrictMode the mount effect
@@ -291,7 +291,7 @@ export function AutoMovieViewerInspectorPage(
             {diagnosticMessage}
           </p>
         )}
-        <AutoMovieInspectorTimePanel
+        <InspectorTimePanel
           playhead={playhead}
           fps={facts?.fps ?? null}
           dispatch={dispatch}
@@ -343,14 +343,14 @@ export function AutoMovieViewerInspectorPage(
           </label>
         ) : null}
         <Section title="View" open>
-          <AutoMovieInspectorViewPanel
+          <InspectorViewPanel
             request={request}
             views={facts?.views ?? []}
             dispatch={dispatch}
           />
         </Section>
         <Section title="Shade" open>
-          <AutoMovieInspectorShadePanel request={request} dispatch={dispatch} />
+          <InspectorShadePanel request={request} dispatch={dispatch} />
         </Section>
         <Section
           title="Marks"
@@ -360,7 +360,7 @@ export function AutoMovieViewerInspectorPage(
               : `${inspection.marks.length} on`
           }
         >
-          <AutoMovieInspectorMarksPanel
+          <InspectorMarksPanel
             request={request}
             marks={facts?.marks ?? []}
             markKinds={facts?.markKinds ?? []}
@@ -380,7 +380,7 @@ export function AutoMovieViewerInspectorPage(
               : `${inspection.parts.length} selected, ${inspection.hide.length} hidden, ${inspection.label.length} labelled`
           }
         >
-          <AutoMovieInspectorSelectionPanel
+          <InspectorSelectionPanel
             request={request}
             paths={facts?.paths ?? []}
             dispatch={dispatch}
@@ -395,7 +395,7 @@ export function AutoMovieViewerInspectorPage(
               : `${incidents.length} reported`
           }
         >
-          <AutoMovieInspectorDiagnosticsPanel
+          <InspectorDiagnosticsPanel
             incidents={incidents}
             paths={facts?.paths ?? []}
             witnesses={witnesses}
@@ -408,7 +408,7 @@ export function AutoMovieViewerInspectorPage(
           title="Request"
           note={props.captureCommand ? "address and capture command" : "address"}
         >
-          <AutoMovieInspectorRequestPanel
+          <InspectorRequestPanel
             request={request}
             dispatch={dispatch}
             captureCommand={props.captureCommand}

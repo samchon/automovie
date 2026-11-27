@@ -17,12 +17,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmTarget } from "../../compose/internal/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanHand } from "../../compose/internal/AutoMovieMotionHumanHand";
 import { AutoMovieMotionHumanTarget } from "../../compose/internal/AutoMovieMotionHumanTarget";
-import { AutoMovieMotionPrepared } from "../../compose/internal/AutoMovieMotionPrepared";
+import { motionPrepared } from "../../compose/internal/motionPrepared";
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { HumanPerception } from "../../law/internal/HumanPerception";
@@ -71,7 +71,7 @@ export function grappleArms(
   const release: number = clock.at("release");
   const rest: number = clock.at("rest");
   // The hold's clock in the touch's names, for the partner's colliders.
-  const held: IAutoMovieMotionClock = AutoMovieMotionClock(floor.duration, [
+  const held: IAutoMovieMotionClock = motionClock(floor.duration, [
     { name: "ready", seconds: take },
     { name: "relax", seconds: release },
   ]);
@@ -299,8 +299,8 @@ export function grappleArms(
   };
   // The course is laid when the plan is prepared; a read before lays it
   // afresh and keeps nothing.
-  const coursed: AutoMovieMotionPrepared.IValue<IAutoMovieMotionHumanActionPlan> =
-    AutoMovieMotionPrepared(laid);
+  const coursed: motionPrepared.IValue<IAutoMovieMotionHumanActionPlan> =
+    motionPrepared(laid);
   const plan: IAutoMovieMotionHumanActionPlan = {
     ...floor,
     posture: (

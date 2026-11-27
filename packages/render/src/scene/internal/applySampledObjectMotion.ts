@@ -1,7 +1,7 @@
 import type { IAutoMovieSampledChannel } from "@automovie/interface";
 import type * as THREE from "three";
 
-import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind.js";
+import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind";
 
 /*
  * Write an already-authoritative sample table to borrowed Three scene objects.

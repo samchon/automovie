@@ -1,8 +1,8 @@
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 import type * as THREE from "three";
 
-import type { IAutoMovieRenderExpressionTarget } from "./IAutoMovieRenderExpressionTarget.js";
-import type { IAutoMovieRenderViewerFrame } from "./IAutoMovieRenderViewerFrame.js";
+import type { IAutoMovieRenderExpressionTarget } from "./IAutoMovieRenderExpressionTarget";
+import type { IAutoMovieRenderViewerFrame } from "./IAutoMovieRenderViewerFrame";
 
 /**
  * Runtime adapter for an already-loaded `three.js`/VRM/glTF object.

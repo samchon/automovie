@@ -20,7 +20,7 @@ import type {
 import { HumanBall } from "../../ballStrike/internal/HumanBall";
 import { AutoMovieMotionHumanArmTarget } from "../../compose/internal/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
-import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
+import { motionHumanHeld } from "../../compose/internal/motionHumanHeld";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -85,7 +85,7 @@ export function createPrecisionSportStroke<P extends Stroke>(
       const held: IAutoMovieMotionHumanHeld.IHeld | undefined =
         form.bare === true
           ? undefined
-          : AutoMovieMotionHumanHeld(context, side, implement(params));
+          : motionHumanHeld(context, side, implement(params));
       const entryBones: ReturnType<typeof poseBones> = poseBones(
         body,
         context.entry.pose,

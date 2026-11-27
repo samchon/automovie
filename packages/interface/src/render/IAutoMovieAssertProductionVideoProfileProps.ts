@@ -1,5 +1,5 @@
-import type { IAutoMovieProductionVideoProbe } from "../production/IAutoMovieProductionVideoProbe.js";
-import type { IAutoMovieProductionVideoProfile } from "./IAutoMovieProductionVideoProfile.js";
+import type { IAutoMovieProductionVideoProbe } from "../production/IAutoMovieProductionVideoProbe";
+import type { IAutoMovieProductionVideoProfile } from "./IAutoMovieProductionVideoProfile";
 
 /**
  * Required H.264 delivery profile and observed MP4 video facts.

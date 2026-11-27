@@ -28,14 +28,14 @@ import type {
 } from "@automovie/interface";
 
 import { HumanSupportFrame } from "../../carrier/internal/HumanSupportFrame";
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmTarget } from "../../compose/internal/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanBendTrack } from "../../compose/internal/AutoMovieMotionHumanBendTrack";
+import { motionHumanBendTrack } from "../../compose/internal/motionHumanBendTrack";
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionManner } from "../../compose/internal/motionManner";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { placeHumanHandSurface } from "../../posture/internal/placeHumanHandSurface";
@@ -157,7 +157,7 @@ export namespace throwObject {
     const side: AutoMovieHumanSide = context.params.hand ?? "right";
     const outward: number = side === "left" ? 1 : -1;
     const arm: number = m.upperArm + m.forearm;
-    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+    const modifiers: IAutoMovieMotionManner.IModifiers = motionManner(
       context,
       context.params.manner,
     );
@@ -186,8 +186,8 @@ export namespace throwObject {
     );
 
     // The styled windup leads into the fixed acceleration and release phases.
-    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
-      AutoMovieMotionClock.sequence([
+    const clock: IAutoMovieMotionClock = motionManner.time(
+      motionClock.sequence([
         { name: "windup", seconds: throwObjectForm.WINDUP[style] },
         { name: "cocked", seconds: accelerate },
         { name: "release", seconds: 2 * accelerate },
@@ -327,8 +327,8 @@ export namespace throwObject {
       const g: GripFrame = grip(posture, seconds);
       return placeHumanHandSurface(gripOffset, g.point, g.rotation);
     }
-    const elbow: AutoMovieMotionHumanBendTrack.ITrack =
-      AutoMovieMotionHumanBendTrack({
+    const elbow: motionHumanBendTrack.ITrack =
+      motionHumanBendTrack({
         body,
         side,
         from: 0,
@@ -349,7 +349,7 @@ export namespace throwObject {
           : throwObjectLaunch.held(implement.prop, side, 1),
 
       // The elbow is solved once over the span, when the action is planned,
-      // and continued through it (`AutoMovieMotionHumanBendTrack`).
+      // and continued through it (`motionHumanBendTrack`).
       prepare: (before: IAutoMovieMotionHumanPrimitive.Reader): void =>
         elbow.prepare(before),
       write: (
@@ -428,7 +428,7 @@ export namespace throwObject {
           ? undefined
           : throwObjectLever.spin(context, side, prop, lever, target);
     const composed: IAutoMovieMotionHumanActionPlan =
-      composeAutoMovieMotionHumanAction({
+      composeMotionHumanAction({
         base,
         clock,
         contact: "release",

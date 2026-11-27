@@ -9,7 +9,7 @@ import { nclose } from "../../internal/predicates";
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * A deformation is admitted per triangle (`assertAutoMovieDeformedTriangles`):
+ * A deformation is admitted per triangle (`assertDeformedTriangles`):
  * endpoint Jacobians cannot certify the face between them, and orientation is
  * the transported one, not the source normal's.
  *

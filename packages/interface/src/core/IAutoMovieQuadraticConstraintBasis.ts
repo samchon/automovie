@@ -1,6 +1,6 @@
 /**
  * An orthogonal factorization of one working set of affine equations `aᵢ · x =
- * boundᵢ`, as `createAutoMovieQuadraticConstraintBasis` returns it.
+ * boundᵢ`, as `createQuadraticConstraintBasis` returns it.
  *
  * Each working row is normalized and the normals are factored by column-pivoted
  * Householder QR, `[a₁/d₁ … aₖ/dₖ] P = Q R`. Rows are identified by their

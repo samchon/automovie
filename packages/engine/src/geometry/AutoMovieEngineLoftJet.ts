@@ -15,7 +15,7 @@ import { AutoMovieEngineLoftCoefficientSource } from "./AutoMovieEngineLoftCoeff
 import { AutoMovieEngineLoftFrameSource } from "./AutoMovieEngineLoftFrameSource";
 import { AutoMovieEngineLoftReliefCompose } from "./AutoMovieEngineLoftReliefCompose";
 import { AutoMovieEngineLoftSection } from "./AutoMovieEngineLoftSection";
-import { AutoMovieLoftWorldJet } from "./construction/internal/AutoMovieLoftWorldJet";
+import { loftWorldJet } from "./construction/internal/loftWorldJet";
 import { AutoMovieEngineSplineCurve } from "./AutoMovieEngineSplineCurve";
 import { AutoMovieEngineStationHermite } from "./AutoMovieEngineStationHermite";
 
@@ -85,7 +85,7 @@ export namespace AutoMovieEngineLoftJet {
       station.native === null
         ? section(station.controls!, n, t)
         : station.native(t);
-    const jet: IAutoMovieLoftSurfaceJet = AutoMovieLoftWorldJet(local, f);
+    const jet: IAutoMovieLoftSurfaceJet = loftWorldJet(local, f);
 
     // The lift a shape law writes moves points along w = v x u by the station
     // Hermite of its values, quintic where it carries curvatures, as in AutoMovieEngineLoftChain.ring.

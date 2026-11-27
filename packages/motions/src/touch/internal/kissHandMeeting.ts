@@ -23,11 +23,11 @@ import type {
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanReach } from "../../compose/internal/AutoMovieMotionHumanReach";
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
 import { AutoMovieMotionHumanTouchEffector } from "../../compose/internal/AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanTouchLaid } from "../../compose/internal/AutoMovieMotionHumanTouchLaid";
-import { AutoMovieMotionMeeting } from "../../compose/internal/AutoMovieMotionMeeting";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionMeeting } from "../../compose/internal/motionMeeting";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { touchPrimitive } from "../../compose/internal/touchPrimitive";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
@@ -68,7 +68,7 @@ export namespace kissHandMeeting {
         const ready: number =
           role.name === "presenter"
             ? Math.max(
-                AutoMovieMotionHumanTiming.transport(
+                motionHumanTiming.transport(
                   AutoMovieEngineVector3.distance(
                     point,
                     AutoMovieMotionHumanTouchEffector.point(
@@ -91,7 +91,7 @@ export namespace kissHandMeeting {
                       across(point, role.posture.root),
                     ),
               )
-            : AutoMovieMotionHumanTiming.transport(
+            : motionHumanTiming.transport(
                 AutoMovieEngineVector3.distance(point, neutralMouth(role)),
               );
         return { ready, stroke: ready, relax: ready + hold };
@@ -116,7 +116,7 @@ export namespace kissHandMeeting {
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
     const placed: IAutoMovieMotionHumanTarget.IPlace =
-      AutoMovieMotionMeeting.place(meeting, "contact", entry);
+      motionMeeting.place(meeting, "contact", entry);
     const bend: IAutoMovieVector3 = AutoMovieMotionHumanTouchLaid.bend(
       body,
       entry,
@@ -126,7 +126,7 @@ export namespace kissHandMeeting {
       "across",
       "tangent",
     );
-    return composeAutoMovieMotionHumanAction({
+    return composeMotionHumanAction({
       base: AutoMovieMotionHumanBase.under(context, clock.duration),
       clock,
       primitives: touchPrimitive({

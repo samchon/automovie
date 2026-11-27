@@ -39,7 +39,7 @@ import { throwsError } from "../internal/throwsError";
  * 4. A sample whose form does not match the surface, a point for a piece or a UV
  *    for a surface without one, throws.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Lays a real pattern with `generateAutoMovieSurfacePattern`, takes each board's transform from `autoMoviePatternTextureTransforms` and samples through `sampleAutoMovieProceduralSurface`; a face sheet that added a per-piece offset, a module sheet that did not, or an id that entered a face sample fails.
+ * @evidence contracts/development/testing.md#behavioral-verification Lays a real pattern with `generateSurfacePattern`, takes each board's transform from `patternTextureTransforms` and samples through `sampleProceduralSurfaceImplementation`; a face sheet that added a per-piece offset, a module sheet that did not, or an id that entered a face sample fails.
  * @evidence contracts/development/testing.md#independent-expectations A face point is mapped to each board's own UV from the board's placement alone, `(point − corner) / size`, without the transform; continuity across joints then follows from the face sheet's definition, and module differences from its per-occurrence offset.
  * @evidence contracts/development/testing.md#distinguishing-cases End joints and long joints, face against module, and a renamed id; admission of zero tiles and missing UV0 is owned by `test_material_procedural_admission`.
  * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_material_procedural_pattern_sheet`, with in-memory inputs only.

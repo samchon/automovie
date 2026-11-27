@@ -1,15 +1,15 @@
 import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineKinematics, AutoMovieEngineSwivelArcs } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaces, IAutoMovieHumanLimbGoal, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanArmTarget, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanColliders, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanEmbraceFromBehind, IAutoMovieMotionHumanFrame, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPerformerReader, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieMotionHumanRise, IAutoMovieMotionHumanStrikingBody, IAutoMovieMotionManner, IAutoMovieResolvedBone, IAutoMovieSwivelArcs, IAutoMovieVector3 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanArmPhrase } from "../../compose/internal/AutoMovieMotionHumanArmPhrase";
 import { AutoMovieMotionHumanArmTarget } from "../../compose/internal/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanRise } from "../../compose/internal/AutoMovieMotionHumanRise";
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
+import { motionManner } from "../../compose/internal/motionManner";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { HumanBound } from "../../law/internal/HumanBound";
@@ -263,15 +263,15 @@ function planEmbraceFromBehind(
 
   const chin = (): IAutoMovieVector3 =>
     HumanTrunk.region(body, entry, "chin").point;
-  const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+  const modifiers: IAutoMovieMotionManner.IModifiers = motionManner(
     context,
     p.manner,
   );
-  const approach: number = AutoMovieMotionHumanTiming.transport(
+  const approach: number = motionHumanTiming.transport(
     AutoMovieEngineVector3.distance(chin(), rest),
   );
-  const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
-    AutoMovieMotionClock.phrase({
+  const clock: IAutoMovieMotionClock = motionManner.time(
+    motionClock.phrase({
       prepare: approach,
       attack: 0,
       hold: p.hold,
@@ -329,7 +329,7 @@ function planEmbraceFromBehind(
     };
   };
   const plan: IAutoMovieMotionHumanActionPlan =
-    composeAutoMovieMotionHumanAction({
+    composeMotionHumanAction({
       base: AutoMovieMotionHumanBase.under(context, duration),
       clock,
       primitives: [

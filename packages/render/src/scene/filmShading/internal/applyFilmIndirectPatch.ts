@@ -1,8 +1,8 @@
 import * as THREE from "three";
 
-import { AutoMovieRenderThreeKind } from "../../AutoMovieRenderThreeKind.js";
-import type { IAutoMovieRenderMaterialShaderSource } from "../../IAutoMovieRenderMaterialShaderSource.js";
-import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial.js";
+import { AutoMovieRenderThreeKind } from "../../AutoMovieRenderThreeKind";
+import type { IAutoMovieRenderMaterialShaderSource } from "../../IAutoMovieRenderMaterialShaderSource";
+import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial";
 
 /*
  * Give one lit material the film's indirect shading: the probes' one-bounce
@@ -16,7 +16,7 @@ import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial.js";
  * The patch reads the stage's shared uniform objects, so one compiled program
  * serves every frame: `uFilmProbesOn` and `uFilmOcclusionOn` are zero outside
  * the stage's beauty draw, which leaves the material's light exactly as before.
- * The probe term mirrors `sampleAutoMovieIrradianceVolume` over a float texture
+ * The probe term mirrors `sampleIrradianceVolume` over a float texture
  * of nine coefficient texels per probe row, validity in the first texel's
  * alpha; the world position comes from the view position by the inverse of the
  * rigid view matrix. The visibility texture is read at `gl_FragCoord.xy /
@@ -69,14 +69,14 @@ export function applyFilmIndirectPatch(
             "uniform vec3 uFilmProbeMin;",
             "uniform float uFilmProbeSpacing;",
             "uniform vec3 uFilmProbeCounts;",
-            // One probe's irradiance at a world normal, as autoMovieIrradianceOf.
+            // One probe's irradiance at a world normal, as irradianceOf.
             "vec3 autoMovieProbeAt( int index, vec3 n ) {",
             "\tfloat basis[ 9 ] = float[ 9 ]( 0.282095, 0.488603 * n.y, 0.488603 * n.z, 0.488603 * n.x, 1.092548 * n.x * n.y, 1.092548 * n.y * n.z, 0.315392 * ( 3.0 * n.z * n.z - 1.0 ), 1.092548 * n.x * n.z, 0.546274 * ( n.x * n.x - n.y * n.y ) );",
             "\tvec3 e = vec3( 0.0 );",
             "\tfor ( int k = 0; k < 9; ++ k ) e += texelFetch( uFilmProbes, ivec2( k, index ), 0 ).rgb * basis[ k ];",
             "\treturn e;",
             "}",
-            // Trilinear over the eight valid neighbours, as sampleAutoMovieIrradianceVolume.
+            // Trilinear over the eight valid neighbours, as sampleIrradianceVolume.
             "vec3 autoMovieProbeIrradiance( vec3 p, vec3 n ) {",
             "\tvec3 g = clamp( ( p - uFilmProbeMin ) / uFilmProbeSpacing, vec3( 0.0 ), uFilmProbeCounts - 1.0 );",
             "\tvec3 low = min( floor( g ), max( uFilmProbeCounts - 2.0, vec3( 0.0 ) ) );",

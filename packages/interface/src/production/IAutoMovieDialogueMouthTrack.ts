@@ -4,10 +4,10 @@ import type { IAutoMovieDialogueMouthRange } from "./IAutoMovieDialogueMouthRang
  * A film's dialogue mouths: for each adopted line whose speaker binds to one
  * actor, the mouth values that line gives the actor over its speech span.
  *
- * Render's `planAutoMovieDialogueMouths` builds it from the admitted lines on
+ * Render's `planDialogueMouths` builds it from the admitted lines on
  * the film clock. A draw host hands it to the drawn subject once, before the
  * first picture, and it crosses into the draw page as JSON. Engine's
- * `sampleAutoMovieDialogueMouth` reads one actor's mouth from it at any
+ * `sampleDialogueMouth` reads one actor's mouth from it at any
  * second.
  */
 export interface IAutoMovieDialogueMouthTrack {
@@ -41,7 +41,7 @@ export namespace IAutoMovieDialogueMouthTrack {
     /**
      * The envelope jaw opening in millimetres at the incisors, one per frame
      * from `startFrame` to `endFrame − 1`, from the line's own frame level
-     * (engine's `autoMovieDialogueEnvelopeJaw`).
+     * (engine's `dialogueEnvelopeJaw`).
      */
     jaw: number[];
 

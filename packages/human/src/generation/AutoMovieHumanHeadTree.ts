@@ -25,7 +25,7 @@ import { AutoMovieHumanSeamUnion } from "../lofting/AutoMovieHumanSeamUnion";
 
 /**
  * The composed head as a construction tree (`IAutoMovieConstruction`), which
- * the engine realizes (`realizeAutoMovieConstruction`): every part a source
+ * the engine realizes (`realizeConstruction`): every part a source
  * node, every merge and diff a join node, an inner part joined to its parent
  * nested inside that parent's join, all joined in build order onto the head
  * mass.

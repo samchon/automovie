@@ -25,13 +25,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
-import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionHumanHeld } from "../../compose/internal/motionHumanHeld";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -60,7 +60,7 @@ import { WorkHeldData } from "./WorkHeldData";
  * place is reached by the wrist that holds it there: the hand-to-prop offset
  * the grip keeps, read from the displayed frames at entry, inverted at the
  * place (as `putDown` places a prop). The hand reaches the place in the
- * transport movement time over its travel (`AutoMovieMotionHumanTiming`) and
+ * transport movement time over its travel (`motionHumanTiming`) and
  * stays there, so the hold that persists afterwards carries the prop with the
  * trunk through a walk. A take with no place is reached the same way: the wrist
  * first carries the held prop's take socket onto the prop it takes, the hand
@@ -101,12 +101,12 @@ function plan(
   admitHeldWork(p);
   const side: AutoMovieHumanSide =
     p.hand ?? (context.entry.holds.left === p.prop ? "left" : "right");
-  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
+  const held: IAutoMovieMotionHumanHeld.IHeld = motionHumanHeld(
     context,
     side,
     p.prop,
   );
-  const kept: IAutoMovieMotionPropHold = AutoMovieMotionHumanHeld.hold(
+  const kept: IAutoMovieMotionPropHold = motionHumanHeld.hold(
     context,
     held,
   );
@@ -131,17 +131,17 @@ function plan(
       ? undefined
       : workHeldPush(context, p.prop, p.push, side, p.drive ?? []);
   const tempo: number = context.tempo ?? 1;
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
+  const clock: IAutoMovieMotionClock = motionClock.phrase({
     prepare:
       tempo *
-      AutoMovieMotionHumanTiming.transport(
+      motionHumanTiming.transport(
         Math.max(goal?.travel ?? 0, push?.travel ?? 0),
       ),
     attack: tempo * p.duration,
     retract:
       push === undefined
         ? 0
-        : tempo * AutoMovieMotionHumanTiming.transport(push.travel),
+        : tempo * motionHumanTiming.transport(push.travel),
   });
   const ready: number = clock.at("strokeStart");
   const done: number = clock.at("strokeEnd");
@@ -168,7 +168,7 @@ function plan(
     clock.duration,
   );
   const composed: IAutoMovieMotionHumanActionPlan =
-    composeAutoMovieMotionHumanAction({
+    composeMotionHumanAction({
       base: {
         ...base,
         posture: (seconds: number): IAutoMovieMotionHumanPosture => {
@@ -189,7 +189,7 @@ function plan(
     hands: push === undefined ? [side] : [side, push.side],
     contacts: [
       ...composed.contacts,
-      AutoMovieMotionHumanHeld.grip(held),
+      motionHumanHeld.grip(held),
       ...(push === undefined ? [] : [push.contact(clock)]),
     ],
     holds: [...(composed.holds ?? []), { ...kept, from: 1 }],

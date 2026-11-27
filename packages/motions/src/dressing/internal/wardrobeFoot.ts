@@ -15,7 +15,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
-import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
+import { motionHumanHeld } from "../../compose/internal/motionHumanHeld";
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
 import { HumanPropFrame } from "../../perform/internal/HumanPropFrame";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
@@ -135,7 +135,7 @@ export function wardrobeFoot(
   );
   const picked: IAutoMovieMotionHumanHeld.IHeld | undefined = remove
     ? undefined
-    : AutoMovieMotionHumanHeld(context, hand, params.prop);
+    : motionHumanHeld(context, hand, params.prop);
 
   // A worn foot determines the approach frame without asking the hand that will take over.
   const worn: IAutoMovieRigidTransform = remove

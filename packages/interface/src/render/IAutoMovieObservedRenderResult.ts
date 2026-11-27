@@ -1,4 +1,4 @@
-import type { IAutoMovieRenderObservation } from "./IAutoMovieRenderObservation.js";
+import type { IAutoMovieRenderObservation } from "./IAutoMovieRenderObservation";
 
 /**
  * A synchronous drawing operation's unchanged result paired with measured

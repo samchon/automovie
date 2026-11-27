@@ -19,10 +19,10 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../../actions/internal/stand";
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionManner } from "../../compose/internal/motionManner";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
@@ -133,7 +133,7 @@ export namespace lieDown {
       context.params.kind ?? "supine";
     const hold: number = context.params.hold ?? 2;
     HumanBound.least("hold", hold, 0, "s");
-    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+    const modifiers: IAutoMovieMotionManner.IModifiers = motionManner(
       context,
       context.params.manner,
     );
@@ -168,13 +168,13 @@ export namespace lieDown {
       route,
       hold,
     });
-    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
-      AutoMovieMotionClock.sequence(phases),
+    const clock: IAutoMovieMotionClock = motionManner.time(
+      motionClock.sequence(phases),
       modifiers,
       { holds: ["settled"] },
     );
     const duration: number = clock.duration;
-    const progress: ReturnType<typeof AutoMovieMotionClock.prepare>[] =
+    const progress: ReturnType<typeof motionClock.prepare>[] =
       lieDownProgress({ route, clock, phases });
 
     // The pelvis's place over the floor, kept as the body goes down.
@@ -479,7 +479,7 @@ export namespace lieDown {
         support: { kind: "ground" },
       });
     const planned: IAutoMovieMotionHumanActionPlan =
-      composeAutoMovieMotionHumanAction({
+      composeMotionHumanAction({
         base: AutoMovieMotionHumanBase.still(duration, standing, contacts),
         clock,
         contact: "settled",

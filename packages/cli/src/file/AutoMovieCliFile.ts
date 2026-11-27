@@ -1,4 +1,4 @@
-import { hashAutoMovieFile } from "./internal/hashAutoMovieFile";
+import { hashFileContents } from "./internal/hashFileContents";
 
 /** Public file operations for the CLI. */
 export namespace AutoMovieCliFile {
@@ -7,6 +7,6 @@ export namespace AutoMovieCliFile {
    * the file fails.
    */
   export function hash(file: string): Promise<string> {
-    return hashAutoMovieFile(file);
+    return hashFileContents(file);
   }
 }

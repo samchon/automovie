@@ -237,12 +237,26 @@ export namespace AutoMovieEngineConicArcField {
   }
 }
 
-/** Invocation-local normalized positive Bernstein terms, before velocity work. */
+/*
+ * Invocation-local normalized positive Bernstein terms, before velocity work.
+ */
 interface Basis<T> {
-  /** Normalized first extent. */ a: T;
-  /** Normalized second extent. */ b: T;
-  /** Frozen primal scaling gauge. */ gauge: T;
-  /** First coordinate numerator basis. */ left: T;
-  /** Second coordinate numerator basis. */ right: T;
-  /** Shared positive rational denominator. */ denominator: T;
+  /*
+   * Normalized first extent.
+   */ a: T;
+  /*
+   * Normalized second extent.
+   */ b: T;
+  /*
+   * Frozen primal scaling gauge.
+   */ gauge: T;
+  /*
+   * First coordinate numerator basis.
+   */ left: T;
+  /*
+   * Second coordinate numerator basis.
+   */ right: T;
+  /*
+   * Shared positive rational denominator.
+   */ denominator: T;
 }

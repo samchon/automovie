@@ -4,8 +4,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
+import { motionClock } from "../../compose/internal/motionClock";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { SwipeTouchscreenStrokeData } from "./SwipeTouchscreenStrokeData";
@@ -31,8 +31,8 @@ export function swipeTouchscreenStroke(
     tempo,
   }: swipeTouchscreenStroke.IProps = props;
   const travel = (point: IAutoMovieVector3): number =>
-    tempo * AutoMovieMotionHumanTiming.transport(AutoMovieEngineVector3.distance(point, rest));
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
+    tempo * motionHumanTiming.transport(AutoMovieEngineVector3.distance(point, rest));
+  const clock: IAutoMovieMotionClock = motionClock.phrase({
     prepare: travel(first),
     attack: (tempo * seconds) / 2,
     follow: (tempo * seconds) / 2,

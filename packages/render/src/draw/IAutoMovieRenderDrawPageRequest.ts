@@ -3,7 +3,7 @@ import type {
   IAutoMovieDrawCall,
 } from "@automovie/interface";
 
-import type { AutoMovieRenderDrawGlobals } from "./AutoMovieRenderDrawGlobals.js";
+import type { AutoMovieRenderDrawGlobals } from "./AutoMovieRenderDrawGlobals";
 
 /**
  * One request a draw session hands the page's installed draw function, named by

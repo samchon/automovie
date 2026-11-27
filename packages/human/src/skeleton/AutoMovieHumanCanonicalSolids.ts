@@ -11,7 +11,7 @@ import type {
  * The convex solids of a polygon man at the canonical T-pose rest: the
  * convex hulls of the ring points its drawing is lofted through.
  *
- * The rings come from `resolveAutoMovieHumanoidRingModules`, the one owner
+ * The rings come from `resolveHumanoidRingModules`, the one owner
  * the drawing reads too, so a solid's vertices are the drawn vertices. The
  * owner works in Human's frame, so the canonical joints are reflected into
  * it by `(x, y, z) -> (z, y, x)` and every ring point reflected back; a

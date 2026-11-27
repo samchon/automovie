@@ -8,7 +8,7 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose, throwsError } from "../../internal/predicates";
 
 /**
- * `buildAutoMovieConvexHull` makes one closed outward mesh of a point set.
+ * `buildConvexHull` makes one closed outward mesh of a point set.
  *
  * Scenarios:
  *

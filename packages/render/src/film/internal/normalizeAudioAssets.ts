@@ -4,8 +4,8 @@ import type {
   IAutoMovieProductionSoundPlan,
 } from "@automovie/interface";
 
-import { validDigest } from "./validDigest.js";
-import { validWaveAudioIdentity } from "./validWaveAudioIdentity.js";
+import { validDigest } from "./validDigest";
+import { validWaveAudioIdentity } from "./validWaveAudioIdentity";
 
 /*
  * Copy the planned audio asset identities sorted by path, refusing any that is

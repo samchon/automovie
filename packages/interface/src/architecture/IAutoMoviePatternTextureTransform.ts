@@ -2,7 +2,7 @@
  * One occurrence's sampling of its material, in the PBR record's own UV
  * transform.
  *
- * Produced by `autoMoviePatternTextureTransforms` for normalized unit-square
+ * Produced by `patternTextureTransforms` for normalized unit-square
  * UVs. At zero texture centre the viewer/Three matrix is `diag(scale) ·
  * R(-rotationDeg) · uv + offset`: column vectors rotate first and then scale
  * per axis. Offset is in sheet turns, and a mirrored piece uses negative

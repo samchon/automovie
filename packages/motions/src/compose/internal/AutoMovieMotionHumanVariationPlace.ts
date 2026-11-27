@@ -11,14 +11,14 @@ import type {
 
 import { HumanSkill } from "../../skill/internal/HumanSkill";
 import { AutoMovieMotionHumanTargetGrid } from "./AutoMovieMotionHumanTargetGrid";
-import { AutoMovieMotionHumanVariation } from "./AutoMovieMotionHumanVariation";
+import { motionHumanVariation } from "./motionHumanVariation";
 import { AutoMovieMotionHumanVariationDraw } from "./AutoMovieMotionHumanVariationDraw";
 
 /*
  * The seeded offset of a place of the air: where a hand arrives within what its
  * named place allows.
  *
- * `AutoMovieMotionHumanVariation` states what a slot, a spread and a source are
+ * `motionHumanVariation` states what a slot, a spread and a source are
  * and owns `SPREADS` and `ACROSS`; `AutoMovieMotionHumanVariationDraw` owns
  * `TRUNCATE` and the cell rule. A place is the one slot whose offset has three
  * components and whose bound differs by axis, so it reads how the hand arrives
@@ -62,7 +62,7 @@ export namespace AutoMovieMotionHumanVariationPlace {
     const intent: number = AutoMovieMotionHumanVariationDraw.quantity(
       source,
       "path",
-      AutoMovieMotionHumanVariation.SPREADS.place,
+      motionHumanVariation.SPREADS.place,
     );
     const miss: number =
       travel === undefined
@@ -71,8 +71,8 @@ export namespace AutoMovieMotionHumanVariationPlace {
           arm;
     const spreads: number[] = [
       1,
-      AutoMovieMotionHumanVariation.ACROSS,
-      AutoMovieMotionHumanVariation.ACROSS,
+      motionHumanVariation.ACROSS,
+      motionHumanVariation.ACROSS,
     ].map(
       (a: number): number => source.variation * Math.hypot(intent, a * miss),
     );

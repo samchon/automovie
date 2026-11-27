@@ -16,13 +16,13 @@ import { HumanSkill } from "../../skill/internal/HumanSkill";
  * values truncated at `TRUNCATE` spreads, or a point of a disc of `TRUNCATE`
  * spreads. A bound rule turns a slot's room into the largest offset: the cell
  * rule keeps a value in its name's cell, and the scalar offset shrinks a spread
- * until `TRUNCATE` spreads fit a bound. `AutoMovieMotionHumanVariation` states
+ * until `TRUNCATE` spreads fit a bound. `motionHumanVariation` states
  * what a slot, a spread and a stream are.
  */
 export namespace AutoMovieMotionHumanVariationDraw {
   /*
    * How many spreads from its mean a component may lie (provisional; the two
-   * spreads `AutoMovieMotionManner.BOUNDS` uses, checked by
+   * spreads `motionManner.BOUNDS` uses, checked by
    * `test_motion_compose_variation_bounded`).
    */
   export const TRUNCATE: number = 2;

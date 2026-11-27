@@ -1,7 +1,7 @@
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
 /**
- * Input of `projectAutoMovieIrradianceProbe`: the six faces of one probe's cube
+ * Input of `projectIrradianceProbe`: the six faces of one probe's cube
  * as the renderer drew and read them back.
  */
 export namespace IAutoMovieProjectIrradianceProbe {

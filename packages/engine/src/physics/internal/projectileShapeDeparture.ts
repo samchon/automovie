@@ -10,7 +10,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
-import { adjacentAutoMovieFloat64 } from "../../math/internal/adjacentAutoMovieFloat64";
+import { adjacentFloat64 } from "../../math/internal/adjacentFloat64";
 import { physicalShapeNearest } from "./physicalShapeNearest";
 import { projectileAt } from "./projectileAt";
 
@@ -251,7 +251,7 @@ function oneNorm(vector: IAutoMovieVector3): number {
  */
 function upper(rounded: number): number {
   return rounded < Number.MAX_VALUE
-    ? adjacentAutoMovieFloat64(rounded, true)
+    ? adjacentFloat64(rounded, true)
     : Infinity;
 }
 

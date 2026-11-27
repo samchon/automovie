@@ -1,4 +1,4 @@
-import type { IAutoMovieCaptureRecord } from "./IAutoMovieCaptureRecord.js";
+import type { IAutoMovieCaptureRecord } from "./IAutoMovieCaptureRecord";
 
 /**
  * Opened capture storage with explicit ownership of file names and publication

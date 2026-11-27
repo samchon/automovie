@@ -19,17 +19,17 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanArmPhrase } from "../../compose/internal/AutoMovieMotionHumanArmPhrase";
 import { AutoMovieMotionHumanArmReach } from "../../compose/internal/AutoMovieMotionHumanArmReach";
 import { AutoMovieMotionHumanArmTarget } from "../../compose/internal/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
-import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
+import { motionHumanHeld } from "../../compose/internal/motionHumanHeld";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
 import { AutoMovieMotionHumanTouchEffector } from "../../compose/internal/AutoMovieMotionHumanTouchEffector";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionManner } from "../../compose/internal/motionManner";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { handToFaceMirrored } from "../../daily/internal/handToFaceMirrored";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
@@ -73,11 +73,11 @@ import { armPhraseFacing } from "./armPhraseFacing";
  * Timing: the preparation is a travel of the distance from the hand to the
  * phrase's first goal (a stroke's start, otherwise the target) and the
  * retraction one of the distance back from its last, the target
- * (`AutoMovieMotionHumanTiming.transport`); a visit's stroke is instant and its
+ * (`motionHumanTiming.transport`); a visit's stroke is instant and its
  * hold the named `hold` pause (a beat when absent); a stroke takes one travel
  * of its path's length; an oscillation takes `cycles` beats. The manner's tempo
  * scales every phase and its extent and curvature reach the phrase
- * (`AutoMovieMotionManner`). Events: the phrase's instants.
+ * (`motionManner`). Events: the phrase's instants.
  */
 export namespace armPhrase {
   /*
@@ -154,7 +154,7 @@ export namespace armPhrase {
     const hold: IAutoMovieMotionHumanPosture = context.entry.posture;
     const reach: number =
       body.measure.upperArm + body.measure.forearm + body.measure.hand;
-    const mods: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+    const mods: IAutoMovieMotionManner.IModifiers = motionManner(
       context,
       p.manner,
     );
@@ -223,8 +223,8 @@ export namespace armPhrase {
         const named: IPlanArmsNamed | null =
           p.point === undefined || p.held === undefined
             ? null
-            : AutoMovieMotionHumanHeld.point(
-                AutoMovieMotionHumanHeld(context, side, p.held),
+            : motionHumanHeld.point(
+                motionHumanHeld(context, side, p.held),
                 p.point,
               );
         // The elbow hangs as the entry posture hangs it, the target being read
@@ -353,26 +353,26 @@ export namespace armPhrase {
     // The phases: travels of the farthest arm's distance to its first goal
     // and back from its last, a beat-long stroke or hold, scaled by the
     // manner's tempo, one clock for both arms so two hands meet together.
-    const prepared: number = AutoMovieMotionHumanTiming.transport(
+    const prepared: number = motionHumanTiming.transport(
       Math.max(...arms.map((a: IArmPhraseArm): number => a.prepare)),
     );
-    const retracted: number = AutoMovieMotionHumanTiming.transport(
+    const retracted: number = motionHumanTiming.transport(
       Math.max(...arms.map((a: IArmPhraseArm): number => a.retract)),
     );
-    const beat: number = AutoMovieMotionHumanTiming.seconds("beat");
+    const beat: number = motionHumanTiming.seconds("beat");
     const cycles: number = p.count ?? 2;
     const path: number = AutoMovieEngineVector3.length(arms[0]!.from);
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
+    const clock: IAutoMovieMotionClock = motionClock.phrase({
       prepare: mods.tempo * prepared,
       attack:
         p.phrase === "oscillate"
           ? mods.tempo * cycles * beat
           : p.phrase === "stroke"
-            ? mods.tempo * AutoMovieMotionHumanTiming.transport(path)
+            ? mods.tempo * motionHumanTiming.transport(path)
             : 0,
       hold:
         p.phrase === "visit"
-          ? mods.tempo * AutoMovieMotionHumanTiming.seconds(p.hold ?? "beat")
+          ? mods.tempo * motionHumanTiming.seconds(p.hold ?? "beat")
           : 0,
       retract: mods.tempo * retracted,
     });
@@ -426,7 +426,7 @@ export namespace armPhrase {
     );
     const side: AutoMovieHumanSide = sides[0]!;
     const composed: IAutoMovieMotionHumanActionPlan =
-      composeAutoMovieMotionHumanAction({
+      composeMotionHumanAction({
         base: AutoMovieMotionHumanBase.under(context, clock.duration),
         clock,
         primitives,

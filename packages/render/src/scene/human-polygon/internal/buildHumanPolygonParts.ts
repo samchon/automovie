@@ -7,8 +7,8 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieRenderThreeKind } from "../../AutoMovieRenderThreeKind.js";
-import type { buildHumanPolygonModule } from "./buildHumanPolygonModule.js";
+import { AutoMovieRenderThreeKind } from "../../AutoMovieRenderThreeKind";
+import type { buildHumanPolygonModule } from "./buildHumanPolygonModule";
 
 /*
  * Emit the mannequin's rigid modules from the engine's ring modules, the one

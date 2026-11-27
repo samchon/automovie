@@ -19,7 +19,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
-import { AutoMovieMotionHumanArmJointCourse } from "../../compose/internal/AutoMovieMotionHumanArmJointCourse";
+import { motionHumanArmJointCourse } from "../../compose/internal/motionHumanArmJointCourse";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
@@ -128,13 +128,13 @@ export namespace carryHang {
     const arm: number = body.measure.upperArm + body.measure.forearm;
     const entryYaw: number = context.entry.posture.yaw;
     // The carry's inputs at a second, which the knot course is solved from
-    // once the performance is prepared (`AutoMovieMotionHumanArmJointCourse`).
-    let course: AutoMovieMotionHumanArmJointCourse.Course | undefined;
+    // once the performance is prepared (`motionHumanArmJointCourse`).
+    let course: motionHumanArmJointCourse.Course | undefined;
     const inputs = (
       t: number,
       resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
       projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
-    ): AutoMovieMotionHumanArmJointCourse.IInput => {
+    ): motionHumanArmJointCourse.IInput => {
       const posture: IAutoMovieMotionHumanPosture = base.posture(
         t,
         undefined,
@@ -264,7 +264,7 @@ export namespace carryHang {
         projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
       ): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
-        const input: AutoMovieMotionHumanArmJointCourse.IInput = inputs(
+        const input: motionHumanArmJointCourse.IInput = inputs(
           t,
           resolution,
           projection,
@@ -284,7 +284,7 @@ export namespace carryHang {
       prepare: (): void => {
         base.prepare?.();
         // The settle, the stretch the arms are carried on.
-        course = AutoMovieMotionHumanArmJointCourse(
+        course = motionHumanArmJointCourse(
           body,
           [[0, Math.min(duration, SETTLE)]],
           inputs,

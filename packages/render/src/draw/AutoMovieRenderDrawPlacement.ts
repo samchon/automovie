@@ -1,4 +1,4 @@
-import { AutoMovieRenderInspection } from "../scene/AutoMovieRenderInspection.js";
+import { AutoMovieRenderInspection } from "../scene/AutoMovieRenderInspection";
 import type {
   IAutoMovieDialogueMouthTrack,
   IAutoMovieDrawCall,
@@ -10,22 +10,22 @@ import type {
   IAutoMoviePlaybackLayer,
 } from "@automovie/interface";
 
-import type { IAutoMovieRenderSectionRenderer } from "../scene/IAutoMovieRenderSectionRenderer.js";
-import type { IAutoMovieRenderInspectionHandle } from "../scene/IAutoMovieRenderInspectionHandle.js";
-import type { IAutoMovieRenderViewerSubjectBounds } from "../scene/IAutoMovieRenderViewerSubjectBounds.js";
-import { AutoMovieRenderDialogueMouthRecorder } from "./AutoMovieRenderDialogueMouthRecorder.js";
-import type { IAutoMovieRenderDrawScene } from "./IAutoMovieRenderDrawScene.js";
-import { placeAutoMovieDrawLayer } from "./internal/placeAutoMovieDrawLayer.js";
-import { AutoMovieRenderDraw } from "./AutoMovieRenderDraw.js";
-import { replaceAutoMovieDrawInspection as replaceAutoMovieDrawInspectionImplementation } from "./internal/replaceAutoMovieDrawInspection.js";
-import type { IAutoMovieRenderReplaceDrawInspectionProps } from "./IAutoMovieRenderReplaceDrawInspectionProps.js";
+import type { IAutoMovieRenderSectionRenderer } from "../scene/IAutoMovieRenderSectionRenderer";
+import type { IAutoMovieRenderInspectionHandle } from "../scene/IAutoMovieRenderInspectionHandle";
+import type { IAutoMovieRenderViewerSubjectBounds } from "../scene/IAutoMovieRenderViewerSubjectBounds";
+import { AutoMovieRenderDialogueMouthRecorder } from "./AutoMovieRenderDialogueMouthRecorder";
+import type { IAutoMovieRenderDrawScene } from "./IAutoMovieRenderDrawScene";
+import { placeDrawLayer } from "./internal/placeDrawLayer";
+import { AutoMovieRenderDraw } from "./AutoMovieRenderDraw";
+import { replaceDrawInspection as replaceDrawInspectionImplementation } from "./internal/replaceDrawInspection";
+import type { IAutoMovieRenderReplaceDrawInspectionProps } from "./IAutoMovieRenderReplaceDrawInspectionProps";
 
 /**
  * The draw page's placement of its subject: the current inspection, the framing
  * boxes of fitted views and the dialogue mouths handed to the subject.
  *
  * Every placement it makes is a shot planned by `AutoMovieRenderDraw.planPicture` and
- * placed on its own entry clock by `placeAutoMovieDrawLayer`: the drawn second
+ * placed on its own entry clock by `placeDrawLayer`: the drawn second
  * and each of its trail times as the shot the drawn second's picture shows, and
  * each framing second as the shot its own picture shows. So a trail at a cut's
  * first frame traces only the incoming shot, a trail of a transition's outgoing
@@ -55,7 +55,7 @@ export class AutoMovieRenderDrawPlacement {
   public static replaceInspection(
     props: IAutoMovieRenderReplaceDrawInspectionProps,
   ): Promise<IAutoMovieRenderInspectionHandle> {
-    return replaceAutoMovieDrawInspectionImplementation(props);
+    return replaceDrawInspectionImplementation(props);
   }
   /*
    * The current inspection, or null when none is applied.
@@ -172,7 +172,7 @@ export class AutoMovieRenderDrawPlacement {
     const placed: Pick<IAutoMoviePlaybackLayer, "entry" | "shot"> | null =
       AutoMovieRenderDraw.planPicture(this.name, scene, seconds).placed;
     const seek: (at: number) => Promise<void> = (at: number): Promise<void> =>
-      placeAutoMovieDrawLayer(this.name, scene, placed, at);
+      placeDrawLayer(this.name, scene, placed, at);
     const trails: IAutoMovieInspectionTrail[] = [];
     if (request.trail.length !== 0) {
       const times: number[] = AutoMovieRenderInspection.planTrailTimes({

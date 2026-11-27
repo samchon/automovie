@@ -2,7 +2,7 @@ import { AutoMovieEngineDrawing } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `roundAutoMovieDrawingPoint` rounds both page coordinates to the drawing grid
+ * `roundDrawingPoint` rounds both page coordinates to the drawing grid
  * of six decimals, a negative zero becoming 0.
  *
  * Scenarios:

@@ -9,7 +9,7 @@ import { createSignedOctahedron } from "../../internal/createSignedMeshFixture";
 import { throwsError } from "../../internal/predicates";
 
 /**
- * `createAutoMovieSignedMeshQuery` refuses a surface it cannot measure, and a
+ * `createSignedMeshQuery` refuses a surface it cannot measure, and a
  * query that is not an xyz point, instead of returning a misleading distance.
  *
  * Scenarios:

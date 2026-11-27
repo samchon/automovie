@@ -6,7 +6,7 @@ import type {
   IAutoMovieMotionHumanStretch,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanArmCourse } from "../../compose/internal/AutoMovieMotionHumanArmCourse";
 import { HumanPreparedPlayback } from "../../perform/internal/HumanPreparedPlayback";
 import { stretchHoldInputs } from "./stretchHoldInputs";
@@ -69,7 +69,7 @@ export namespace stretchHoldClock {
       first,
       last,
       local,
-      clock: AutoMovieMotionClock(
+      clock: motionClock(
         local(clock.duration),
         clock.instants.map(
           (

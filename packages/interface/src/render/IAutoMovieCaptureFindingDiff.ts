@@ -1,8 +1,8 @@
-import type { IAutoMovieInspectionDiagnostics } from "./IAutoMovieInspectionDiagnostics.js";
+import type { IAutoMovieInspectionDiagnostics } from "./IAutoMovieInspectionDiagnostics";
 
 /**
  * How one capture's inspection findings changed from an earlier round's, as
- * `diffAutoMovieCaptureFindings` writes it into the comparison.
+ * `diffCaptureFindings` writes it into the comparison.
  *
  * A finding is identified by its `scope`, `check`, `key`, `code` and ordered
  * `paths`. Within one round its severity is its worst observation across all

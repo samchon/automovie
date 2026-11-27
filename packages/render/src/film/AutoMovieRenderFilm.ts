@@ -1,9 +1,9 @@
 import { type IAutoMovieProductionRenderJobPlan, type IAutoMoviePlanProductionRenderJobProps, type IAutoMovieProductionDesign, type IAutoMovieProductionRenderTier, type IAutoMovieFilmTimeline, type AutoMovieOrderedScalar } from "@automovie/interface";
-import { planProductionRenderJob as planProductionRenderJobImplementation } from "./internal/planProductionRenderJob.js";
-import { resolveProductionRenderTierFrameFormat as resolveProductionRenderTierFrameFormatImplementation } from "./internal/resolveProductionRenderTierFrameFormat.js";
-import { equalOrderedScalarRows as equalOrderedScalarRowsImplementation } from "./internal/equalOrderedScalarRows.js";
-import { equalOrderedScalars as equalOrderedScalarsImplementation } from "./internal/equalOrderedScalars.js";
-import { productionVisualDeliveryOccurrence as productionVisualDeliveryOccurrenceImplementation } from "./internal/productionVisualDeliveryOccurrence.js";
+import { planProductionRenderJob as planProductionRenderJobImplementation } from "./internal/planProductionRenderJob";
+import { resolveProductionRenderTierFrameFormat as resolveProductionRenderTierFrameFormatImplementation } from "./internal/resolveProductionRenderTierFrameFormat";
+import { equalOrderedScalarRows as equalOrderedScalarRowsImplementation } from "./internal/equalOrderedScalarRows";
+import { equalOrderedScalars as equalOrderedScalarsImplementation } from "./internal/equalOrderedScalars";
+import { productionVisualDeliveryOccurrence as productionVisualDeliveryOccurrenceImplementation } from "./internal/productionVisualDeliveryOccurrence";
 
 /** Public operations for Auto Movie Render Film. */
 export namespace AutoMovieRenderFilm {

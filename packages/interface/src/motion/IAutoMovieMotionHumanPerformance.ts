@@ -341,7 +341,7 @@ export namespace IAutoMovieMotionHumanPerformance {
 
     /**
      * The production's legality rules, such as `KickboxingRules.rules`, checked
-     * against the placed schedule with the engine's `checkAutoMovieLegality`;
+     * against the placed schedule with the engine's `checkLegality`;
      * any violation refuses the performance with every broken rule in the
      * message. None when absent.
      */

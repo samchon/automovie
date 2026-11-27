@@ -32,7 +32,7 @@ export namespace AutoMovieMotionHumanAuditPartner {
    * pair keeping its deepest, first instant on a tie), from fewer pair
    * readings: a directed pair read at an instant is read again only at the
    * first instant its margin does not certify
-   * (`AutoMovieMotionHumanAuditTangleMargin`, `advanceAutoMovieGrid`).
+   * (`AutoMovieMotionHumanAuditTangleMargin`, `advanceGrid`).
    * Parameter motion: The motion.
    * Parameter one: One person.
    * Parameter other: The other person.
@@ -52,7 +52,7 @@ export namespace AutoMovieMotionHumanAuditPartner {
 
     // Each person's placed segments at every instant and each segment's
     // travel to it: a directed pair read at an instant is next read at the
-    // first instant its margin does not certify (`advanceAutoMovieGrid`).
+    // first instant its margin does not certify (`advanceGrid`).
     const people: IPerson[] = [one, other].map(
       (person: IAutoMovieMotionHumanAuditPartner.IPerson): IPerson => {
         const model: IAutoMovieMotionHumanAuditTangleModel.IModel =

@@ -15,12 +15,12 @@ import { triangulateRegion } from "./triangulateRegion";
  * Extrude a free-form planar region, holes and all, into a closed prism along
  * local Z spanning `-depth / 2` to `+depth / 2`.
  *
- * `extrudeAutoMovieProfile` hulls its profile, so an L-shaped section, a
+ * `extrudeProfile` hulls its profile, so an L-shaped section, a
  * channel, a frame section and a hollow tube are all refused there. This
  * operation takes any region `AutoMovieEnginePlanarRegion.triangulate` accepts,
  * which also makes it the kernel's arbitrary-shape opening: a wall whose outer
  * ring is the panel and whose holes are an arch, an oculus or any authored
- * outline is one extrusion with real holes, where `buildAutoMovieWall` cuts
+ * outline is one extrusion with real holes, where `buildWall` cuts
  * only rectangles.
  *
  * Every triangle owns its corners, so the crease where a cap meets a side stays
@@ -30,7 +30,7 @@ import { triangulateRegion } from "./triangulateRegion";
  * is developed from its canonical first point, from zero to its full perimeter,
  * so the side's texture phases meet at that point only when the declared repeat
  * divides the perimeter. That developed frame differs from
- * `buildAutoMoviePolyhedron`'s projected one because a side following an arc is
+ * `buildPolyhedron`'s projected one because a side following an arc is
  * metric only when measured along the arc; both are metres, so one declared
  * scale reads the same on both.
  *

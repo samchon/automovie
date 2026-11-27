@@ -3,7 +3,7 @@ import type { IAutoMovieScheduleEntry } from "./IAutoMovieScheduleEntry";
 /**
  * A composition resolved on the film clock: frozen, ordered entries a renderer,
  * a physics pass or a measurement reads without re-resolving.
- * resolveAutoMovieSchedule freezes the schedule, entries array and individual
+ * resolveSchedule freezes the schedule, entries array and individual
  * entry records only. Intent, state, cut records and event arrays are not
  * recursively frozen; intent and state remain shared with their producers.
  */

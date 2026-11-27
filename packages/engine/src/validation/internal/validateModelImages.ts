@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieEngineMaxTextureEdge } from "../AutoMovieEngineMaxTextureEdge";
-import { readAutoMovieImageFacts } from "./readAutoMovieImageFacts";
+import { readImageFacts } from "./readImageFacts";
 import { validateUniqueValues } from "./validateUniqueValues";
 
 /*
@@ -45,7 +45,7 @@ export function validateModelImages(
       (character: string): number => character.charCodeAt(0),
     );
     const facts: IAutoMovieTextureImageFacts | null =
-      bytes.length < 29 ? null : readAutoMovieImageFacts(bytes);
+      bytes.length < 29 ? null : readImageFacts(bytes);
     if (facts === null || facts.mediaType !== "image/png") {
       collector.push(
         "type",

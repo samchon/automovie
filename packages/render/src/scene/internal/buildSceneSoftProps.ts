@@ -4,14 +4,14 @@ import type {
 } from "@automovie/interface";
 import type * as THREE from "three";
 
-import type { IAutoMovieRenderSceneSoftProps } from "../IAutoMovieRenderSceneSoftProps.js";
-import type { IAutoMovieRenderSoftBodyObject } from "../IAutoMovieRenderSoftBodyObject.js";
-import { applyAutoMovieShadowParticipation } from "./applyAutoMovieShadowParticipation.js";
-import { buildSoftBodyObject } from "./buildSoftBodyObject.js";
-import { AutoMovieRenderCollisionSource } from "../AutoMovieRenderCollisionSource.js";
-import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
-import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
-import { softPropCordSurface } from "./softPropCordSurface.js";
+import type { IAutoMovieRenderSceneSoftProps } from "../IAutoMovieRenderSceneSoftProps";
+import type { IAutoMovieRenderSoftBodyObject } from "../IAutoMovieRenderSoftBodyObject";
+import { applyShadowParticipation } from "./applyShadowParticipation";
+import { buildSoftBodyObject } from "./buildSoftBodyObject";
+import { AutoMovieRenderCollisionSource } from "../AutoMovieRenderCollisionSource";
+import { restoreRenderModeOnce } from "./restoreRenderModeOnce";
+import { restoreRenderModeState } from "./restoreRenderModeState";
+import { softPropCordSurface } from "./softPropCordSurface";
 
 /*
  * Own a scene's soft props without retaining film samples. Each update supplies
@@ -55,7 +55,7 @@ export function buildSceneSoftProps(
             buildSoftBodyObject(frame);
           projection.object.name = `soft:${subject}`;
           mounted.set(subject, projection);
-          applyAutoMovieShadowParticipation(projection.object);
+          applyShadowParticipation(projection.object);
           scene.add(projection.object);
         }
         // Placed collision checks read the same particles the tube was drawn through.
@@ -73,9 +73,9 @@ export function buildSceneSoftProps(
             scene.remove(projection.object);
           }, projection.dispose);
         }
-      restoreAutoMovieRenderModeState(removals);
+      restoreRenderModeState(removals);
     },
-    dispose: restoreAutoMovieRenderModeOnce((): void => {
+    dispose: restoreRenderModeOnce((): void => {
       closed = true;
       const removals: (() => void)[] = [];
       for (const projection of mounted.values())
@@ -83,7 +83,7 @@ export function buildSceneSoftProps(
           scene.remove(projection.object);
         }, projection.dispose);
       mounted.clear();
-      restoreAutoMovieRenderModeState(removals);
+      restoreRenderModeState(removals);
     }),
   };
 }

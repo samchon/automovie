@@ -19,8 +19,8 @@ import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionH
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanPlaced } from "../../compose/internal/AutoMovieMotionHumanPlaced";
 import { AutoMovieMotionHumanTrunk } from "../../compose/internal/AutoMovieMotionHumanTrunk";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionManner } from "../../compose/internal/motionManner";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { lookPrimitive } from "../../compose/internal/lookPrimitive";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
@@ -51,7 +51,7 @@ export function ballCourt(
   const { body, params }: typeof context = context;
   const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
   const row: (typeof PHRASES)[Kind] = PHRASES[kind];
-  const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+  const modifiers: IAutoMovieMotionManner.IModifiers = motionManner(
     context,
     params.manner,
   );
@@ -168,7 +168,7 @@ export function ballCourt(
       }),
     );
   const plan: IAutoMovieMotionHumanActionPlan =
-    composeAutoMovieMotionHumanAction({
+    composeMotionHumanAction({
       base: AutoMovieMotionHumanBase.still(
         clock.duration,
         entry,

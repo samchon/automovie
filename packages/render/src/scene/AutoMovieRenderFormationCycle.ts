@@ -1,22 +1,22 @@
 import { type IAutoMovieGait, type IAutoMovieModel, type IAutoMovieFormationCadenceSegment } from "@automovie/interface";
-import { formationCycleGait as formationCycleGaitImplementation } from "./internal/formationCycleGait.js";
-import { type IAutoMovieRenderFormationCycle } from "./IAutoMovieRenderFormationCycle.js";
-import { type IAutoMovieRenderBakeFormationCycleProps } from "./IAutoMovieRenderBakeFormationCycleProps.js";
-import { bakeFormationCycle as bakeFormationCycleImplementation } from "./internal/bakeFormationCycle.js";
-import { formationCycleStride as formationCycleStrideImplementation } from "./internal/formationCycleStride.js";
-import { type IAutoMovieRenderFormationCadence } from "./IAutoMovieRenderFormationCadence.js";
-import { formationCycleCadence as formationCycleCadenceImplementation } from "./internal/formationCycleCadence.js";
-import { applyFormationCycleCadence as applyFormationCycleCadenceImplementation } from "./internal/applyFormationCycleCadence.js";
-import { formationCyclePosition as formationCyclePositionImplementation } from "./internal/formationCyclePosition.js";
-import { type IAutoMovieRenderFormationCycleTake } from "./IAutoMovieRenderFormationCycleTake.js";
-import { sampleFormationCycleMatrix as sampleFormationCycleMatrixImplementation } from "./internal/sampleFormationCycleMatrix.js";
-import { formationCycleOf as formationCycleOfImplementation } from "./internal/formationCycleOf.js";
-import { applyFormationCycleMaterial as applyFormationCycleMaterialImplementation } from "./internal/applyFormationCycleMaterial.js";
+import { formationCycleGait as formationCycleGaitImplementation } from "./internal/formationCycleGait";
+import { type IAutoMovieRenderFormationCycle } from "./IAutoMovieRenderFormationCycle";
+import { type IAutoMovieRenderBakeFormationCycleProps } from "./IAutoMovieRenderBakeFormationCycleProps";
+import { bakeFormationCycle as bakeFormationCycleImplementation } from "./internal/bakeFormationCycle";
+import { formationCycleStride as formationCycleStrideImplementation } from "./internal/formationCycleStride";
+import { type IAutoMovieRenderFormationCadence } from "./IAutoMovieRenderFormationCadence";
+import { formationCycleCadence as formationCycleCadenceImplementation } from "./internal/formationCycleCadence";
+import { applyFormationCycleCadence as applyFormationCycleCadenceImplementation } from "./internal/applyFormationCycleCadence";
+import { formationCyclePosition as formationCyclePositionImplementation } from "./internal/formationCyclePosition";
+import { type IAutoMovieRenderFormationCycleTake } from "./IAutoMovieRenderFormationCycleTake";
+import { sampleFormationCycleMatrix as sampleFormationCycleMatrixImplementation } from "./internal/sampleFormationCycleMatrix";
+import { formationCycleOf as formationCycleOfImplementation } from "./internal/formationCycleOf";
+import { applyFormationCycleMaterial as applyFormationCycleMaterialImplementation } from "./internal/applyFormationCycleMaterial";
 
 import type * as THREE from "three";
-import { isAutoMovieFormationCycleMaterial as isAutoMovieFormationCycleMaterialImplementation } from "./internal/isAutoMovieFormationCycleMaterial.js";
-import { selectFormationShadowPalette as selectFormationShadowPaletteImplementation } from "./internal/selectFormationShadowPalette.js";
-import { createFormationCycleShadowMaterials as createFormationCycleShadowMaterialsImplementation } from "./internal/createFormationCycleShadowMaterials.js";
+import { isFormationCycleMaterial as isFormationCycleMaterialImplementation } from "./internal/isFormationCycleMaterial";
+import { selectFormationShadowPalette as selectFormationShadowPaletteImplementation } from "./internal/selectFormationShadowPalette";
+import { createFormationCycleShadowMaterials as createFormationCycleShadowMaterialsImplementation } from "./internal/createFormationCycleShadowMaterials";
 
 /** Public operations for Auto Movie Render Formation Cycle. */
 export namespace AutoMovieRenderFormationCycle {
@@ -51,7 +51,7 @@ export namespace AutoMovieRenderFormationCycle {
    * patches it carries beside it.
    */
   export function isAutoMovieFormationCycleMaterial(material: THREE.Material): boolean {
-    return isAutoMovieFormationCycleMaterialImplementation(material);
+    return isFormationCycleMaterialImplementation(material);
   }
 
   /**

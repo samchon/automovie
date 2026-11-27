@@ -83,7 +83,7 @@ export interface IAutoMovieFilmOptics {
    * unchanged. The aperture diameter is the full-frame equivalent focal length
    * of the camera's field of view, `12 mm / tan(fovY / 2)`, divided by
    * `fNumber`. Absent keeps the eye at the camera centre. The film fills it
-   * from `resolveAutoMovieLensAt`.
+   * from `resolveLensAt`.
    */
   lens?: IAutoMovieFilmOptics.ILens;
 }

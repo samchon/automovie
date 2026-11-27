@@ -1,7 +1,7 @@
-import type { IAutoMovieRenderObservePlacedSceneResult } from "./IAutoMovieRenderObservePlacedSceneResult.js";
-import type { IAutoMovieRenderObservePlacedSceneProps } from "./IAutoMovieRenderObservePlacedSceneProps.js";
-import type { IAutoMovieRenderObservePlacedSceneCheck } from "./IAutoMovieRenderObservePlacedSceneCheck.js";
-import type { IAutoMovieRenderSelectPlacedChecksProps } from "./IAutoMovieRenderSelectPlacedChecksProps.js";
+import type { IAutoMovieRenderObservePlacedSceneResult } from "./IAutoMovieRenderObservePlacedSceneResult";
+import type { IAutoMovieRenderObservePlacedSceneProps } from "./IAutoMovieRenderObservePlacedSceneProps";
+import type { IAutoMovieRenderObservePlacedSceneCheck } from "./IAutoMovieRenderObservePlacedSceneCheck";
+import type { IAutoMovieRenderSelectPlacedChecksProps } from "./IAutoMovieRenderSelectPlacedChecksProps";
 import {
   type IAutoMovieMark,
   type IAutoMovieInspectionTrail,
@@ -20,30 +20,30 @@ import {
 } from "@automovie/interface";
 
 import type * as THREE from "three";
-import type { IAutoMovieRenderSectionRenderer } from "./IAutoMovieRenderSectionRenderer.js";
-import type { IAutoMovieRenderInspectionPath } from "./IAutoMovieRenderInspectionPath.js";
-import type { AutoMovieRenderInspectionGeometry } from "./AutoMovieRenderInspectionGeometry.js";
-import type { IAutoMovieRendererFrameCounters } from "./IAutoMovieRendererFrameCounters.js";
-import { observeAutoMovieRendererFrameImplementation } from "./inspection/internal/observeAutoMovieRendererFrameImplementation.js";
-import { selectAutoMoviePlacedChecks as selectAutoMoviePlacedChecksImplementation } from "./inspection/internal/selectAutoMoviePlacedChecks.js";
-import { observeAutoMoviePlacedSceneImplementation } from "./inspection/internal/observeAutoMoviePlacedSceneImplementation.js";
-import { observeAutoMovieSceneCollisionImplementation } from "./inspection/internal/observeAutoMovieSceneCollisionImplementation.js";
-import { observeAutoMovieCollisionMotionImplementation } from "./inspection/internal/observeAutoMovieCollisionMotionImplementation.js";
-import type { IAutoMovieRenderViewerSubjectBounds } from "./IAutoMovieRenderViewerSubjectBounds.js";
-import { focusAutoMovieInspection as focusAutoMovieInspectionImplementation } from "./inspection/internal/focusAutoMovieInspection.js";
-import { applyAutoMovieInspectionSectionImplementation } from "./inspection/internal/applyAutoMovieInspectionSectionImplementation.js";
-import { applyAutoMovieInspectionShadeImplementation } from "./inspection/internal/applyAutoMovieInspectionShadeImplementation.js";
-import { markAutoMovieInspectionTrails as markAutoMovieInspectionTrailsImplementation } from "./inspection/internal/markAutoMovieInspectionTrails.js";
-import { type IAutoMovieRenderInspectionHandle } from "./IAutoMovieRenderInspectionHandle.js";
-import { type IAutoMovieRenderApplyInspectionProps } from "./IAutoMovieRenderApplyInspectionProps.js";
-import { applyAutoMovieInspection as applyAutoMovieInspectionImplementation } from "./inspection/internal/applyAutoMovieInspection.js";
-import { compareAutoMovieInspectionFindings as compareAutoMovieInspectionFindingsImplementation } from "./inspection/internal/compareAutoMovieInspectionFindings.js";
-import { type IAutoMovieRenderInspectionDiagnosticsProps } from "./IAutoMovieRenderInspectionDiagnosticsProps.js";
-import { renderWithAutoMovieInspectionDiagnostics as renderWithAutoMovieInspectionDiagnosticsImplementation } from "./inspection/internal/renderWithAutoMovieInspectionDiagnostics.js";
+import type { IAutoMovieRenderSectionRenderer } from "./IAutoMovieRenderSectionRenderer";
+import type { IAutoMovieRenderInspectionPath } from "./IAutoMovieRenderInspectionPath";
+import type { AutoMovieRenderInspectionGeometry } from "./AutoMovieRenderInspectionGeometry";
+import type { IAutoMovieRendererFrameCounters } from "./IAutoMovieRendererFrameCounters";
+import { observeRendererFrameImplementation } from "./inspection/internal/observeRendererFrameImplementation";
+import { selectPlacedChecks as selectPlacedChecksImplementation } from "./inspection/internal/selectPlacedChecks";
+import { observePlacedSceneImplementation } from "./inspection/internal/observePlacedSceneImplementation";
+import { observeSceneCollisionImplementation } from "./inspection/internal/observeSceneCollisionImplementation";
+import { observeCollisionMotionImplementation } from "./inspection/internal/observeCollisionMotionImplementation";
+import type { IAutoMovieRenderViewerSubjectBounds } from "./IAutoMovieRenderViewerSubjectBounds";
+import { focusInspection as focusInspectionImplementation } from "./inspection/internal/focusInspection";
+import { applyInspectionSectionImplementation } from "./inspection/internal/applyInspectionSectionImplementation";
+import { applyInspectionShadeImplementation } from "./inspection/internal/applyInspectionShadeImplementation";
+import { markInspectionTrails as markInspectionTrailsImplementation } from "./inspection/internal/markInspectionTrails";
+import { type IAutoMovieRenderInspectionHandle } from "./IAutoMovieRenderInspectionHandle";
+import { type IAutoMovieRenderApplyInspectionProps } from "./IAutoMovieRenderApplyInspectionProps";
+import { applyInspection as applyInspectionImplementation } from "./inspection/internal/applyInspection";
+import { compareInspectionFindings as compareInspectionFindingsImplementation } from "./inspection/internal/compareInspectionFindings";
+import { type IAutoMovieRenderInspectionDiagnosticsProps } from "./IAutoMovieRenderInspectionDiagnosticsProps";
+import { renderWithInspectionDiagnostics as renderWithInspectionDiagnosticsImplementation } from "./inspection/internal/renderWithInspectionDiagnostics";
 
-import { planAutoMovieInspectionTrailTimes as planAutoMovieInspectionTrailTimesImplementation } from "./inspection/internal/planAutoMovieInspectionTrailTimes.js";
-import { sampleAutoMovieInspectionTrails as sampleAutoMovieInspectionTrailsImplementation } from "./inspection/internal/sampleAutoMovieInspectionTrails.js";
-import { placeAutoMovieInspectionLabels as placeAutoMovieInspectionLabelsImplementation } from "./inspection/internal/placeAutoMovieInspectionLabels.js";
+import { planInspectionTrailTimes as planInspectionTrailTimesImplementation } from "./inspection/internal/planInspectionTrailTimes";
+import { sampleInspectionTrails as sampleInspectionTrailsImplementation } from "./inspection/internal/sampleInspectionTrails";
+import { placeInspectionLabels as placeInspectionLabelsImplementation } from "./inspection/internal/placeInspectionLabels";
 
 /** Public operations for Auto Movie Render Inspection. */
 export namespace AutoMovieRenderInspection {
@@ -72,7 +72,7 @@ export namespace AutoMovieRenderInspection {
   export function observeRendererFrame<Output>(
     props: IObserveRendererFrameProps<Output>,
   ): IAutoMovieObservedRenderResult<Output> {
-    return observeAutoMovieRendererFrameImplementation(
+    return observeRendererFrameImplementation(
       props.renderer,
       props.draw,
     );
@@ -104,11 +104,11 @@ export namespace AutoMovieRenderInspection {
     }
   /** Cut drawn scene materials and return a restoration callback. */
   export function applySection(props: IApplySectionProps): () => void {
-    return applyAutoMovieInspectionSectionImplementation(props);
+    return applyInspectionSectionImplementation(props);
   }
   /** Apply a named inspection shade and return update and restore operations. */
   export function applyShade(props: IApplyShadeProps): IApplyShadeResult {
-    return applyAutoMovieInspectionShadeImplementation(props.scene, props.shade);
+    return applyInspectionShadeImplementation(props.scene, props.shade);
   }
   /** Named input contract for the focus operation. */
     /** A mark and the object whose frame it belongs to, when anchored. */
@@ -138,7 +138,7 @@ export namespace AutoMovieRenderInspection {
    * focus finds no flagged mark, saying no mark is flagged.
    */
   export function focus(props: IFocusProps): IAutoMovieRenderViewerSubjectBounds {
-    return focusAutoMovieInspectionImplementation(props);
+    return focusInspectionImplementation(props);
   }
   /** Operations for production policy active on a placed scene. */
     /** Named inputs for checking collisions between consecutive placed frames. */
@@ -271,7 +271,7 @@ export namespace AutoMovieRenderInspection {
     export function selectPlacedChecks(
       props: IAutoMovieRenderSelectPlacedChecksProps,
     ): IAutoMovieRenderObservePlacedSceneCheck[] {
-      return selectAutoMoviePlacedChecksImplementation(props);
+      return selectPlacedChecksImplementation(props);
     }
     /**
      * Observe displayed native placement and the source checks selected for a
@@ -284,7 +284,7 @@ export namespace AutoMovieRenderInspection {
     export function observePlacedScene(
       props: IAutoMovieRenderObservePlacedSceneProps,
     ): IAutoMovieRenderObservePlacedSceneResult {
-      return observeAutoMoviePlacedSceneImplementation(props);
+      return observePlacedSceneImplementation(props);
     }
     /**
      * Observe one already placed scene frame for external contact and certified
@@ -298,7 +298,7 @@ export namespace AutoMovieRenderInspection {
     export function observePlacedSceneCollisions(
       props: IPlacedSceneCollisionProps,
     ): IPlacedSceneCollisionResult {
-      return observeAutoMovieSceneCollisionImplementation(props);
+      return observeSceneCollisionImplementation(props);
     }
     /**
      * Check the motion between the preceding output instant and the placed one for
@@ -323,7 +323,7 @@ export namespace AutoMovieRenderInspection {
     export function observePlacedSceneCollisionMotion(
       props: IPlacedSceneCollisionMotionProps,
     ): IPlacedSceneCollisionResult {
-      return observeAutoMovieCollisionMotionImplementation(props);
+      return observeCollisionMotionImplementation(props);
     }
   /**
    * Draw sampled trails as marks for one drawn second: each moving object's path
@@ -347,7 +347,7 @@ export namespace AutoMovieRenderInspection {
    *   emphasised tick.
    */
   export function markTrails(trails: readonly IAutoMovieInspectionTrail[], seconds: number): IAutoMovieMark[] {
-    return markAutoMovieInspectionTrailsImplementation(trails, seconds);
+    return markInspectionTrailsImplementation(trails, seconds);
   }
 
   /**
@@ -358,7 +358,7 @@ export namespace AutoMovieRenderInspection {
    * The applied scene is drawn by three.js like any other, so the inspector page
    * and the draw-only function show the same picture. In order:
    *
-   * 1. **Kinds.** `listAutoMovieInspectionKindOptions` admits lifetime declarations,
+   * 1. **Kinds.** `listInspectionKindOptions` admits lifetime declarations,
    *    supplied kinds, and kinds the inspection measures under the request. A
    *    `marks` pattern that matches none throws and lists the available names.
    *    Matching supplied or measured marks provide the geometry to draw.
@@ -406,7 +406,7 @@ export namespace AutoMovieRenderInspection {
    * refusal while measuring a mesh is rethrown naming the mesh's path.
    *
    * ```ts
-   * const inspection = applyAutoMovieInspection({
+   * const inspection = applyInspection({
    *   scene,
    *   request,
    *   marks: production.marks?.(2.4),
@@ -421,7 +421,7 @@ export namespace AutoMovieRenderInspection {
    * ```
    */
   export function apply(props: IAutoMovieRenderApplyInspectionProps): IAutoMovieRenderInspectionHandle {
-    return applyAutoMovieInspectionImplementation(props);
+    return applyInspectionImplementation(props);
   }
 
   /**
@@ -439,14 +439,14 @@ export namespace AutoMovieRenderInspection {
    *   is better, and zero when neither is.
    */
   export function compareFindings(current: IAutoMovieInspectionDiagnostics.IFinding, previous: IAutoMovieInspectionDiagnostics.IFinding): number {
-    return compareAutoMovieInspectionFindingsImplementation(current, previous);
+    return compareInspectionFindingsImplementation(current, previous);
   }
 
   /**
    * Render one review picture with translucent red wire cubes for confirmed
    * errors and amber cubes for possible errors.
    *
-   * A one-shot use of `createAutoMovieInspectionDiagnosticOverlay`: the cubes are
+   * A one-shot use of `createInspectionDiagnosticOverlay`: the cubes are
    * built for this picture and released before returning, including on render
    * failure.
    *
@@ -455,7 +455,7 @@ export namespace AutoMovieRenderInspection {
    * @returns Legend entries for the kinds of witnesses drawn.
    */
   export function renderDiagnostics(props: IAutoMovieRenderInspectionDiagnosticsProps): IAutoMovieInspectionLegendEntry[] {
-    return renderWithAutoMovieInspectionDiagnosticsImplementation(props);
+    return renderWithInspectionDiagnosticsImplementation(props);
   }
   /**
    * Return ascending sample seconds around the drawn second, clipped to the
@@ -466,7 +466,7 @@ export namespace AutoMovieRenderInspection {
   export function planTrailTimes(
     props: IAutoMoviePlanInspectionTrailTimesProps,
   ): number[] {
-    return planAutoMovieInspectionTrailTimesImplementation(props);
+    return planInspectionTrailTimesImplementation(props);
   }
 
   /** Explicit input for sequential scene-trail sampling. */
@@ -490,7 +490,7 @@ export namespace AutoMovieRenderInspection {
   export function sampleTrails(
     props: ISampleTrailsProps,
   ): Promise<IAutoMovieInspectionTrail[]> {
-    return sampleAutoMovieInspectionTrailsImplementation(props);
+    return sampleInspectionTrailsImplementation(props);
   }
 
   /** Explicit input for projected inspection labels. */
@@ -515,6 +515,6 @@ export namespace AutoMovieRenderInspection {
   export function placeLabels(
     props: IPlaceLabelsProps,
   ): IAutoMovieInspectionLabelPlacement {
-    return placeAutoMovieInspectionLabelsImplementation(props);
+    return placeInspectionLabelsImplementation(props);
   }
 }

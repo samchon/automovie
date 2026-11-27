@@ -5,7 +5,7 @@
 } from "@automovie/interface";
 
 /*
- * The geometry the crowd steering pass reads (`steerAutoMovieCrowd`): an
+ * The geometry the crowd steering pass reads (`steerCrowd`): an
  * agent's goal path and the point it heads for, the time to collision of two
  * discs and of a disc with a convex obstacle, the reciprocal half-plane of
  * velocities that keeps two discs apart, the half-plane that keeps a disc clear

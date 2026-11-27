@@ -166,24 +166,28 @@ export namespace solveXpbdArticulationContacts {
     return combine(base, responses, lambda, set);
   }
 
-  /**
+  /*
    * One actuated axis between a pressed support and the root: a joint-impulse
    * unknown.
    */
   export interface IActuator {
-    /** The edge's index in the tree's edges. */
+    /*
+     * The edge's index in the tree's edges.
+     */
     edge: number;
 
-    /** The axis's index in the edge's axes. */
+    /*
+     * The axis's index in the edge's axes.
+     */
     axis: number;
 
-    /**
+    /*
      * Its motor's cap toward the axis's positive direction over the substep,
      * newton metre seconds.
      */
     cap: number;
 
-    /**
+    /*
      * Its motor's cap toward the axis's negative direction over the substep,
      * newton metre seconds.
      */
@@ -254,118 +258,154 @@ export namespace solveXpbdArticulationContacts {
       else record.contact.tangentImpulse += record.impulse;
   }
 
-  /**
+  /*
    * A support solve: the combined response and the impulses to record on the
    * contacts once it is final.
    */
   export interface IHeld {
-    /** The motors' response with the supports' impulses added. */
+    /*
+     * The motors' response with the supports' impulses added.
+     */
     response: AutoMovieEngineXpbdArticulation.IResponse;
 
-    /** The supports' impulses to record on their contacts. */
+    /*
+     * The supports' impulses to record on their contacts.
+     */
     records: IRecord[];
   }
 
-  /** One support impulse to record. */
+  /*
+   * One support impulse to record.
+   */
   export interface IRecord {
-    /** The contact recorded on. */
+    /*
+     * The contact recorded on.
+     */
     contact: solveXpbdContacts.IContact;
 
-    /**
+    /*
      * Whether the impulse is a normal row's; a patch's tangential magnitude
      * otherwise.
      */
     normal: boolean;
 
-    /** The impulse, newton seconds. */
+    /*
+     * The impulse, newton seconds.
+     */
     impulse: number;
   }
 
-  /**
+  /*
    * One contact row: a unit force along a direction at a point of one tree
    * body.
    */
   export interface IRow {
-    /** The body's index in the tree's states. */
+    /*
+     * The body's index in the tree's states.
+     */
     state: number;
 
-    /** The point relative to the tree's origin, metres. */
+    /*
+     * The point relative to the tree's origin, metres.
+     */
     point: IAutoMovieVector3;
 
-    /** Unit world direction of the force on the tree body. */
+    /*
+     * Unit world direction of the force on the tree body.
+     */
     direction: IAutoMovieVector3;
 
-    /**
+    /*
      * The least impulse of a normal row, newton seconds; absent for a
      * tangential or torsional row.
      */
     lower?: number;
 
-    /**
+    /*
      * Whether the row is a unit moment about the direction, a patch's torsional
      * friction, rather than a force at the point.
      */
     moment?: boolean;
 
-    /**
+    /*
      * The present velocity along the direction relative to the other side,
      * metres per second.
      */
     velocity: number;
 
-    /**
+    /*
      * The contact the row records on: its point for a normal row, its patch's
      * first otherwise.
      */
     contact: solveXpbdContacts.IContact;
   }
 
-  /** One taking-part patch's rows and friction. */
+  /*
+   * One taking-part patch's rows and friction.
+   */
   export interface IPatch {
-    /** The patch's Coulomb coefficient. */
+    /*
+     * The patch's Coulomb coefficient.
+     */
     friction: number;
 
-    /**
+    /*
      * The normal impulse the contact passes gave the patch this substep, `sum
      * (lambda_n / h + velocity impulse)`, the part of the normal its whole
      * friction is bounded by that the rows do not add, newton seconds.
      */
     normal: number;
 
-    /**
+    /*
      * The friction the contact passes already gave the tree body, on the two
      * tangential rows' directions, newton seconds.
      */
     prior: ISlip;
 
-    /** Its normal rows' indices. */
+    /*
+     * Its normal rows' indices.
+     */
     normals: number[];
 
-    /** Its two tangential rows' indices. */
+    /*
+     * Its two tangential rows' indices.
+     */
     tangents: number[];
 
-    /** Its torsional row's index, when the set carries one. */
+    /*
+     * Its torsional row's index, when the set carries one.
+     */
     torsion?: number;
   }
 
-  /** The rows and patches of one tree. */
+  /*
+   * The rows and patches of one tree.
+   */
   export interface ISet {
-    /** Every row. */
+    /*
+     * Every row.
+     */
     rows: IRow[];
 
-    /** Every patch. */
+    /*
+     * Every patch.
+     */
     patches: IPatch[];
   }
 
-  /**
+  /*
    * A pair of values on a patch's two tangential rows: a sliding direction or a
    * friction impulse.
    */
   export interface ISlip {
-    /** Along the first tangential row. */
+    /*
+     * Along the first tangential row.
+     */
     first: number;
 
-    /** Along the second tangential row. */
+    /*
+     * Along the second tangential row.
+     */
     second: number;
   }
 

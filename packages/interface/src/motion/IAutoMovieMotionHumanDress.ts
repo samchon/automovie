@@ -118,7 +118,7 @@ export interface IAutoMovieMotionHumanDress<Chain> {
  *
  * The item is the wearable prop the hand holds since a pick-up (`prop`, by its
  * `hold`): that hand carries it, rigid in the hand
- * (`AutoMovieMotionHumanHeld`), so that its own `wear` socket comes onto the
+ * (`motionHumanHeld`), so that its own `wear` socket comes onto the
  * head's region it is worn on (`HumanWorn`: a hat's on the crown, a pair of
  * glasses' on the nose's bridge), spectacles facing the way the body faces and
  * a hat, round about its crown, at whichever turn the arm, fitted within its

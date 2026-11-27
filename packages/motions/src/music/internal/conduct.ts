@@ -17,11 +17,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
-import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionHumanHeld } from "../../compose/internal/motionHumanHeld";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { courseArmAtPace } from "../../compose/internal/courseArmAtPace";
 import { prepareDanceBeats } from "../../exercise/internal/prepareDanceBeats";
 import { writeWith } from "../../handling/internal/writeWith";
@@ -80,7 +80,7 @@ function plan(
   );
   const side: AutoMovieHumanSide =
     p.hand ?? (context.entry.holds.left === p.baton ? "left" : "right");
-  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
+  const held: IAutoMovieMotionHumanHeld.IHeld = motionHumanHeld(
     context,
     side,
     p.baton,
@@ -96,7 +96,7 @@ function plan(
   );
   const contact: IAutoMovieVector3 = AutoMovieEngineVector3.add(
     HumanHand.offset(context.body, side, "grip").point,
-    AutoMovieMotionHumanHeld.point(held, "tip").point,
+    motionHumanHeld.point(held, "tip").point,
   );
   const lever: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(rotation, contact);
 
@@ -114,7 +114,7 @@ function plan(
   writeWith.reach(context, side, [...ictus, top], lever);
   const first: number = beats.at(1);
   const last: number = beats.at(beats.count);
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
+  const clock: IAutoMovieMotionClock = motionClock.phrase({
     prepare: first,
     attack: last - first,
     retract: beats.period,
@@ -130,7 +130,7 @@ function plan(
     posture,
     side,
   );
-  const kept: IAutoMovieMotionPropHold = AutoMovieMotionHumanHeld.hold(
+  const kept: IAutoMovieMotionPropHold = motionHumanHeld.hold(
     context,
     held,
   );
@@ -139,7 +139,7 @@ function plan(
     clock.duration,
   );
   const composed: IAutoMovieMotionHumanActionPlan =
-    composeAutoMovieMotionHumanAction({
+    composeMotionHumanAction({
       base: {
         ...base,
         posture: (seconds: number): IAutoMovieMotionHumanPosture => {
@@ -183,7 +183,7 @@ function plan(
   return {
     ...coursed,
     hands: [side],
-    contacts: [...coursed.contacts, AutoMovieMotionHumanHeld.grip(held)],
+    contacts: [...coursed.contacts, motionHumanHeld.grip(held)],
     holds: [...(coursed.holds ?? []), { ...kept, from: 1 }],
   };
 }

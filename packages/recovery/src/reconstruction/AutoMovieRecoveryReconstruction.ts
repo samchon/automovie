@@ -6,32 +6,32 @@ import { type AutoMovieRecoveryCurveData, type IAutoMovieBicubicAtlasGeometry, t
 import { reconstructRecovery as reconstructRecoveryImplementation } from "./internal/reconstructRecovery";
 
 import {
-  applyAutoMovieRecoveryAnalyticPublication as applyPublication,
-} from "./internal/applyAutoMovieRecoveryAnalyticPublication";
+  applyRecoveryAnalyticPublication as applyPublication,
+} from "./internal/applyRecoveryAnalyticPublication";
 import {
-  assembleAutoMovieRecoveryFieldComplex as assembleComplex,
-} from "./internal/assembleAutoMovieRecoveryFieldComplex";
+  assembleRecoveryFieldComplex as assembleComplex,
+} from "./internal/assembleRecoveryFieldComplex";
 import {
-  compileAutoMovieRecoveryAtlas as compileAtlasOperation,
-} from "./internal/compileAutoMovieRecoveryAtlas";
+  compileRecoveryAtlas as compileAtlasOperation,
+} from "./internal/compileRecoveryAtlas";
 import {
-  compileAutoMovieRecoveryEventDomain as compileEventDomainOperation,
-} from "./internal/compileAutoMovieRecoveryEventDomain";
+  compileRecoveryEventDomain as compileEventDomainOperation,
+} from "./internal/compileRecoveryEventDomain";
 import {
-  compileAutoMovieRecoveryNativeNamedChart as compileNativeChart,
-} from "./internal/compileAutoMovieRecoveryNativeNamedChart";
+  compileRecoveryNativeNamedChart as compileNativeChart,
+} from "./internal/compileRecoveryNativeNamedChart";
 import {
-  prepareAutoMovieRecoveryAnnularChart as prepareAnnularChartOperation,
-} from "./internal/prepareAutoMovieRecoveryAnnularChart";
+  prepareRecoveryAnnularChart as prepareAnnularChartOperation,
+} from "./internal/prepareRecoveryAnnularChart";
 import {
-  realizeAutoMovieRecoveryAnalyticDomains as realizeAnalyticDomainsOperation,
-} from "./internal/realizeAutoMovieRecoveryAnalyticDomains";
+  realizeRecoveryAnalyticDomains as realizeAnalyticDomainsOperation,
+} from "./internal/realizeRecoveryAnalyticDomains";
 import {
-  realizeAutoMovieRecoveryTensorFamilies as realizeTensorFamiliesOperation,
-} from "./internal/realizeAutoMovieRecoveryTensorFamilies";
+  realizeRecoveryTensorFamilies as realizeTensorFamiliesOperation,
+} from "./internal/realizeRecoveryTensorFamilies";
 import {
-  reconstructAutoMovieRecoveryModel as reconstructModelOperation,
-} from "./internal/reconstructAutoMovieRecoveryModel";
+  reconstructRecoveryModel as reconstructModelOperation,
+} from "./internal/reconstructRecoveryModel";
 
 /**
  * Public operations for compiling coefficient charts and reconstructing saved

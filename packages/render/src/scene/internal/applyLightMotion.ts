@@ -2,7 +2,7 @@ import { AutoMovieEngineResolve } from "@automovie/engine";
 import type { IAutoMovieClip, IAutoMovieLight } from "@automovie/interface";
 import type * as THREE from "three";
 
-import { applyLightState } from "./applyLightState.js";
+import { applyLightState } from "./applyLightState";
 
 /*
  * Drive scene lights from a shot's `lightMotions`: evaluate the clips at

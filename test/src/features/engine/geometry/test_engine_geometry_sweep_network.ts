@@ -12,7 +12,7 @@ import { sweepHoledNetwork } from "../../internal/sweepHoledNetwork";
 import { sweepManifold } from "../../internal/sweepManifold";
 
 /**
- * `sampleAutoMovieSurfaceNetwork` samples a surface network into a cage that is
+ * `sampleSurfaceNetwork` samples a surface network into a cage that is
  * a closed 2-manifold except at its declared rings, at every tier.
  *
  * Scenarios:

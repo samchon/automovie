@@ -79,7 +79,7 @@ export interface IAutoMovieMotionHumanWalkParams {
   elbows?: number;
 
   /**
-   * How the walk is performed (`AutoMovieMotionManner`), a preset such as
+   * How the walk is performed (`motionManner`), a preset such as
    * `weary` or `brisk` or a manner of its own: its step factor scales the step
    * with `stride`, its swing factor the arm swing with `armSwing`, and its
    * tempo divides the speed. `pace: 1.5` makes the speed 1.5 times the `pace`

@@ -10,7 +10,7 @@ import type { IAutoMovieLocalHermiteStream64FaceRange } from "./IAutoMovieLocalH
 export namespace IAutoMovieLocalHermiteStream64 {
   /**
    * Immutable normalized millimetre courses at increasing physical stations.
-   * planAutoMovieLocalHermite64 admits names, tolerance and safe budgets, then
+   * planLocalHermite64 admits names, tolerance and safe budgets, then
    * AutoMovieEngineLocalHermiteField64.prepare admits matching stations and open
    * continuous courses. Keep the input unchanged until completion or
    * cancellation because field and planning closures retain these arrays and

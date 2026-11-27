@@ -6,27 +6,41 @@ import { AutoMovieHumanCaptureCurves } from "./AutoMovieHumanCaptureCurves";
 import { AutoMovieHumanCaptureProbes } from "./AutoMovieHumanCaptureProbes";
 import { AutoMovieHumanCaptureSubject } from "./AutoMovieHumanCaptureSubject";
 
-/** Builds the inspection figure and marks for one capture subject. */
+/*
+ * Builds the inspection figure and marks for one capture subject.
+ */
 export namespace AutoMovieHumanCaptureFigure {
-  /** The selected Human subject to build. */
+  /*
+   * The selected Human subject to build.
+   */
   export interface IInput {
-    /** The person's name, such as `f1`. */
+    /*
+     * The person's name, such as `f1`.
+     */
     name: string;
   }
 
-  /** The generated figure and its inspection marks. */
+  /*
+   * The generated figure and its inspection marks.
+   */
   export interface IOutput {
-    /** The person's meshes, grouped under the subject name. */
+    /*
+     * The person's meshes, grouped under the subject name.
+     */
     object: THREE.Group;
 
-    /** Construction and empty-probe marks attached to the person. */
+    /*
+     * Construction and empty-probe marks attached to the person.
+     */
     marks: IAutoMovieMark[];
 
-    /** Releases the geometry and material created for the figure. */
+    /*
+     * Releases the geometry and material created for the figure.
+     */
     dispose: () => void;
   }
 
-  /**
+  /*
    * Build one capture subject's figure: the person's generated surface as
    * three.js meshes named by the pieces the generator emits, its construction as
    * marks named by its families, and its empty probes as marks under
@@ -45,10 +59,9 @@ export namespace AutoMovieHumanCaptureFigure {
    * build has no mesh.
    *
    * It throws as `AutoMovieHumanCaptureSubject.resolve` does for an unknown person or pose.
-   *
-   * @param input The name of the subject to draw.
-   * @returns The figure's object, its marks, and the call that releases its
-   *   geometry and material.
+   * Parameter input: The name of the subject to draw.
+   * Returns: The figure's object, its marks, and the call that releases its
+   * geometry and material.
    */
   export function build(input: IInput): IOutput {
     const { name } = input;

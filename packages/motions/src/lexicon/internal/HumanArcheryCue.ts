@@ -11,10 +11,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
@@ -45,9 +45,9 @@ export function HumanArcheryCue(
       "the animation carrier must declare the selected socket",
     );
 
-  const beat: number = AutoMovieMotionHumanTiming.PAUSES.brief;
+  const beat: number = motionHumanTiming.PAUSES.brief;
   const cue: string = crossbow ? "strokeStart" : "open";
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock(3 * beat, [
+  const clock: IAutoMovieMotionClock = motionClock(3 * beat, [
     { name: cue, seconds: beat },
     { name: "relax", seconds: 2 * beat },
   ]);
@@ -130,7 +130,7 @@ export function HumanArcheryCue(
       );
     const travel: number = trigger.travel;
     const press: (seconds: number) => number =
-      AutoMovieMotionClock.prepareEnvelope(
+      motionClock.prepareEnvelope(
         clock,
         ["start", cue],
         ["relax", "end"],
@@ -145,7 +145,7 @@ export function HumanArcheryCue(
   }
 
   return {
-    ...composeAutoMovieMotionHumanAction({
+    ...composeMotionHumanAction({
       base: AutoMovieMotionHumanBase.under(context, clock.duration),
       clock,
       contact: cue,

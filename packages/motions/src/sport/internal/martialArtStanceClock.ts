@@ -3,8 +3,8 @@ import type {
   IAutoMovieMotionManner,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
-import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
+import { motionClock } from "../../compose/internal/motionClock";
+import { motionManner } from "../../compose/internal/motionManner";
 import type { MartialArtStanceForms } from "./MartialArtStanceForms";
 
 /*
@@ -22,8 +22,8 @@ export function martialArtStanceClock(
   hold: number,
   manner: IAutoMovieMotionManner.IModifiers,
 ): IAutoMovieMotionClock {
-  return AutoMovieMotionManner.time(
-    AutoMovieMotionClock.phrase({
+  return motionManner.time(
+    motionClock.phrase({
       prepare: form.step,
       attack: form.shift[0],
       follow: form.shift[1],

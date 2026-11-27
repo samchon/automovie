@@ -10,11 +10,11 @@ import {
 } from "@automovie/interface";
 import type * as THREE from "three";
 
-import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind.js";
-import type { IAutoMovieRenderModelObject } from "../IAutoMovieRenderModelObject.js";
-import { applyTransform } from "./applyTransform.js";
-import { invalidateAutoMovieSkinnedPose } from "./invalidateAutoMovieSkinnedPose.js";
-import { morphTargetDriversOf } from "./morphTargetDriversOf.js";
+import { AutoMovieRenderThreeKind } from "../AutoMovieRenderThreeKind";
+import type { IAutoMovieRenderModelObject } from "../IAutoMovieRenderModelObject";
+import { applyTransform } from "./applyTransform";
+import { invalidateSkinnedPose } from "./invalidateSkinnedPose";
+import { morphTargetDriversOf } from "./morphTargetDriversOf";
 
 /*
  * Apply a IAutoMoviePose to a built model by running the engine's
@@ -35,7 +35,7 @@ import { morphTargetDriversOf } from "./morphTargetDriversOf.js";
  * `resolveMorphTargetWeights` computes from the same pose, so a corrective
  * follows every applied pose; expression-written targets are left alone. Every
  * skinned mesh then starts a new pose revision
- * (invalidateAutoMovieSkinnedPose), so its bounds and vertex queries
+ * (invalidateSkinnedPose), so its bounds and vertex queries
  * follow the pose the shader draws.
  *
  * Returns the skeleton bones the FK resolved but the model's bone map does not
@@ -91,7 +91,7 @@ export const applyPose: (
 
   // Bones and correctives moved: skinned bounds and vertex queries take a new
   // pose revision, so culling, shadows and picking read this pose.
-  invalidateAutoMovieSkinnedPose(target.object);
+  invalidateSkinnedPose(target.object);
 
   // A null root means "at the node's staged base", the engine's convention
   // (`resolvePose`/`animatedBaseAt` default it to identity, #1046). Keeping

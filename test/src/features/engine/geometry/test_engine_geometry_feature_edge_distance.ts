@@ -9,8 +9,8 @@ import { surfaceTriangleOf } from "../../internal/surfaceTriangleOf";
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * `measureAutoMovieFeatureEdges` signs each sharp edge convex or concave, and
- * `autoMovieFeatureEdgeDistance` measures a surface point to the nearest of
+ * `measureFeatureEdges` signs each sharp edge convex or concave, and
+ * `featureEdgeDistance` measures a surface point to the nearest of
  * each sign, capped at the reach.
  *
  * Fixture: the L profile (0,0), (2,0), (2,1), (1,1), (1,2), (0,2) extruded 1 m

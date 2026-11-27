@@ -11,13 +11,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanArmPhrase } from "../../compose/internal/AutoMovieMotionHumanArmPhrase";
 import { AutoMovieMotionHumanArmTarget } from "../../compose/internal/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanHand } from "../../posture/internal/HumanHand";
@@ -90,21 +90,21 @@ function planPresentHand(
       }),
       bend: AutoMovieMotionHumanBend.hang(body, entry, side),
     });
-  const travel: number = AutoMovieMotionHumanTiming.transport(
+  const travel: number = motionHumanTiming.transport(
     Math.hypot(
       place.x - AutoMovieMotionHumanArmTarget.point(entry, origin).x,
       place.y - AutoMovieMotionHumanArmTarget.point(entry, origin).y,
       place.z - AutoMovieMotionHumanArmTarget.point(entry, origin).z,
     ),
   );
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
+  const clock: IAutoMovieMotionClock = motionClock.phrase({
     prepare: travel,
     attack: 0,
     hold: p.hold,
     retract: travel,
   });
   const plan: IAutoMovieMotionHumanActionPlan =
-    composeAutoMovieMotionHumanAction({
+    composeMotionHumanAction({
       base: AutoMovieMotionHumanBase.under(context, clock.duration),
       clock,
       primitives: [

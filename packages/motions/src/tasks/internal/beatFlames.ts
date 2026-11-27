@@ -15,13 +15,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
-import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
-import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
-import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { motionHumanHeld } from "../../compose/internal/motionHumanHeld";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { HumanTrunkLean } from "../../handling/internal/HumanTrunkLean";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { beatFlamesBeats } from "./beatFlamesBeats";
@@ -70,7 +70,7 @@ function plan(
   const p: IAutoMovieMotionHumanFirefight.IBeatFlames = context.params;
   const side: AutoMovieHumanSide =
     context.entry.holds.left === p.prop ? "left" : "right";
-  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
+  const held: IAutoMovieMotionHumanHeld.IHeld = motionHumanHeld(
     context,
     side,
     p.prop,
@@ -91,7 +91,7 @@ function plan(
     ),
   );
   const working: IAutoMovieMotionHumanHeld.IPointResult =
-    AutoMovieMotionHumanHeld.point(held, "face");
+    motionHumanHeld.point(held, "face");
   const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
     AutoMovieEngineQuaternion.multiply(
       AutoMovieEngineMath.rotationBetween(
@@ -123,16 +123,16 @@ function plan(
     ),
   );
   const tempo: number = context.tempo ?? 1;
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
+  const clock: IAutoMovieMotionClock = motionClock.phrase({
     prepare:
       tempo *
-      AutoMovieMotionHumanTiming.transport(
+      motionHumanTiming.transport(
         AutoMovieEngineVector3.distance(up, frame.position),
       ),
     attack: tempo * BeatFlamesData.BEAT * count,
     retract:
       tempo *
-      AutoMovieMotionHumanTiming.transport(
+      motionHumanTiming.transport(
         AutoMovieEngineVector3.distance(up, frame.position),
       ),
   });
@@ -142,7 +142,7 @@ function plan(
   const face: (seconds: number) => IAutoMovieVector3 = (
     seconds: number,
   ): IAutoMovieVector3 => beats.at((seconds - ready) / (done - ready));
-  const kept: IAutoMovieMotionPropHold = AutoMovieMotionHumanHeld.hold(
+  const kept: IAutoMovieMotionPropHold = motionHumanHeld.hold(
     context,
     held,
   );
@@ -161,7 +161,7 @@ function plan(
     side === "left" ? "right" : "left",
   );
   const composed: IAutoMovieMotionHumanActionPlan =
-    composeAutoMovieMotionHumanAction({
+    composeMotionHumanAction({
       base: {
         ...HumanTrunkLean.moving(base, forward),
         posture: (seconds: number): IAutoMovieMotionHumanPosture => {
@@ -209,7 +209,7 @@ function plan(
   return {
     ...composed,
     hands: [side],
-    contacts: [...composed.contacts, AutoMovieMotionHumanHeld.grip(held)],
+    contacts: [...composed.contacts, motionHumanHeld.grip(held)],
     holds: [...(composed.holds ?? []), { ...kept, from: 1 }],
   };
 }

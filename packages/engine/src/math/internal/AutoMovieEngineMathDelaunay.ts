@@ -26,7 +26,7 @@ export namespace AutoMovieEngineMathDelaunay {
  * Returns: The mesh, each tetrahedron positively oriented on the joggled
  * points.
  */
-export function tetrahedralizeAutoMovieDelaunay(
+export function tetrahedralizeDelaunay(
   points: readonly IAutoMovieVector3[],
 ): IAutoMovieTetrahedralizedMesh {
   const n: number = points.length;

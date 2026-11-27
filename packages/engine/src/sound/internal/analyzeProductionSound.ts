@@ -7,7 +7,7 @@ import type {
 } from "@automovie/interface";
 
 import { resolveProductionFrameRate } from "../../film/internal/resolveProductionFrameRate";
-import { createAutoMovieLoudnessMeter } from "./createAutoMovieLoudnessMeter";
+import { createLoudnessMeter } from "./createLoudnessMeter";
 
 /*
  * Analyze the exact limited stereo master and measure mixed peaks near expected
@@ -37,7 +37,7 @@ export function analyzeProductionSound(
       longestSilence = Math.max(longestSilence, silence);
     } else silence = 0;
   }
-  const meter: IAutoMovieLoudnessMeter = createAutoMovieLoudnessMeter(2);
+  const meter: IAutoMovieLoudnessMeter = createLoudnessMeter(2);
   meter.push(pcm);
   const measured: IAutoMovieLoudnessMeter.IMeasurement = meter.measure();
   const sampleFrames: number = pcm.length / 2;

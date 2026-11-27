@@ -5,7 +5,7 @@ import type {
 
 /** Input for capturing one subject through the CLI capture host. */
 export interface IAutoMovieCliCaptureHostInput {
-  /** The request, as `parseAutoMovieCapturePlanRequest` read it. */
+  /** The request, as `parseCapturePlanRequest` read it. */
   request: IAutoMovieCapturePlanRequest;
 
   /** Data the subject module reads, as JSON, or null. */

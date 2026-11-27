@@ -153,7 +153,7 @@ export namespace HumanArmClearing {
    * a hand's way).
    *
    * Under the minimum-jerk profile every carry's weight follows
-   * (`AutoMovieMotionClock.envelope`), the first tenth of the way takes a fifth
+   * (`motionClock.envelope`), the first tenth of the way takes a fifth
    * of the carry's time, about three frames of a 0.7 s carry, where the middle
    * tenth takes one. A hand at rest lies against the thigh and leaves it over
    * that first tenth, so the tenth is halved: a blown kiss's fingertips, the

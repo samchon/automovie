@@ -222,9 +222,17 @@ export namespace AutoMovieEngineConicHermite {
   }
 }
 
-/** A final projective reading of the unchanged bounded numeric inverse. */
+/*
+ * A final projective reading of the unchanged bounded numeric inverse.
+ */
 interface Located {
-  /** Same final point/log probabilities. */ reading: IAutoMovieConicHermiteField.IProjective<number>;
-  /** Null only for an explicit endpoint. */ clock: number | null;
-  /** Explicit selected position. */ position: "first" | "interior" | "last";
+  /*
+   * Same final point/log probabilities.
+   */ reading: IAutoMovieConicHermiteField.IProjective<number>;
+  /*
+   * Null only for an explicit endpoint.
+   */ clock: number | null;
+  /*
+   * Explicit selected position.
+   */ position: "first" | "interior" | "last";
 }

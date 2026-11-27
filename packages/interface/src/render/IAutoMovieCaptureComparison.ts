@@ -1,9 +1,9 @@
-import type { IAutoMovieCaptureCellComparison } from "./IAutoMovieCaptureCellComparison.js";
-import type { IAutoMovieCaptureFindingDiff } from "./IAutoMovieCaptureFindingDiff.js";
+import type { IAutoMovieCaptureCellComparison } from "./IAutoMovieCaptureCellComparison";
+import type { IAutoMovieCaptureFindingDiff } from "./IAutoMovieCaptureFindingDiff";
 
 /**
  * How one capture compared against an earlier round, cell by cell and finding
- * by finding, as `compareAutoMovieCaptureRounds` writes it to `comparison.json`
+ * by finding, as `compareCaptureRounds` writes it to `comparison.json`
  * and the record keeps it.
  *
  * `.agents/skills/visual-debugging/comparison.md` pairs two cells only when

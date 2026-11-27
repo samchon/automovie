@@ -251,17 +251,29 @@ export function continueHingedOrientation(
  * Read-only provenance of the actual uniquely admitted root return.
  */
 export namespace continueHingedOrientation {
-  /** Actual local uniqueness and work facts; no trajectory or goal is certified. */
+  /*
+   * Actual local uniqueness and work facts; no trajectory or goal is certified.
+   */
   export interface IRoot {
-    /** Selected hinge branch of this actual result. */
+    /*
+     * Selected hinge branch of this actual result.
+     */
     readonly branch: number;
-    /** Selected swivel in degrees, including its original zero sign. */
+    /*
+     * Selected swivel in degrees, including its original zero sign.
+     */
     readonly swivel: number;
-    /** Finite isolated roots proposed over the full swivel turn. */
+    /*
+     * Finite isolated roots proposed over the full swivel turn.
+     */
     readonly proposals: number;
-    /** In-bracket roots actually sent through physical verification. */
+    /*
+     * In-bracket roots actually sent through physical verification.
+     */
     readonly trials: number;
-    /** Physically admitted in-bracket candidates; always one for an issued read. */
+    /*
+     * Physically admitted in-bracket candidates; always one for an issued read.
+     */
     readonly accepted: number;
   }
 
@@ -275,9 +287,13 @@ export namespace continueHingedOrientation {
     return result.rooted === undefined ? undefined : { ...result.rooted };
   }
 
-  /** A uniquely admitted root return carries its facts. */
+  /*
+   * A uniquely admitted root return carries its facts.
+   */
   export interface IRooted {
-    /** Set by the continuation on the one result it admits. */
+    /*
+     * Set by the continuation on the one result it admits.
+     */
     rooted?: IRoot;
   }
 }

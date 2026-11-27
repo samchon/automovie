@@ -294,7 +294,7 @@ export namespace IntegrateAirborneRotationImplementation {
    */
   export const DELTA: number = 1e-3;
 
-  /**
+  /*
    * A shape history with an explicitly owned numeric memo.
    *
    * It is the same seconds-to-root-frame-instant reader, with a clear operation
@@ -308,7 +308,7 @@ export namespace IntegrateAirborneRotationImplementation {
    * operation.
    */
   export type ICachedHistory = IAutoMovieIntegrateAirborneRotation.IHistory & {
-    /**
+    /*
      * Release all I/h instants, numeric mass nodes and their rated
      * tensor/derivative packets, boundary moments and inverse preparation; a new
      * query recomputes them while completed flights remain valid.

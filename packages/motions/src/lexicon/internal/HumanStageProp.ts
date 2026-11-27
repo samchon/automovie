@@ -13,8 +13,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
-import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
+import { motionClock } from "../../compose/internal/motionClock";
+import { motionHumanHeld } from "../../compose/internal/motionHumanHeld";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { StrikingBlade } from "../../striking/internal/StrikingBlade";
@@ -56,8 +56,8 @@ function plan(
       fix: "give it a positive duration in seconds",
     });
   const at: IAutoMovieVector3 | undefined = params.at;
-  const clock: ReturnType<typeof AutoMovieMotionClock.phrase> =
-    AutoMovieMotionClock.phrase({
+  const clock: ReturnType<typeof motionClock.phrase> =
+    motionClock.phrase({
       prepare: 0.19 * seconds,
       attack: 0.57 * seconds,
       hold: 0.06 * seconds,
@@ -77,8 +77,8 @@ function plan(
   const marker: IAutoMovieAffordance = held.affordances.find(
     (site: IAutoMovieAffordance): boolean => site.id === mark,
   )!;
-  const gripToMark: ReturnType<typeof AutoMovieMotionHumanHeld.point> =
-    AutoMovieMotionHumanHeld.point(held, mark);
+  const gripToMark: ReturnType<typeof motionHumanHeld.point> =
+    motionHumanHeld.point(held, mark);
   const roll: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
     AutoMovieEngineQuaternion.multiply(held.frame.rotation, marker.frame.rotation),
     AutoMovieEngineVector3.create(1, 0, 0),
@@ -186,7 +186,7 @@ function heldAtStroke(
   mark: string,
   stroke: number,
 ): IAutoMovieMotionHumanHeld.IHeld {
-  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
+  const held: IAutoMovieMotionHumanHeld.IHeld = motionHumanHeld(
     context,
     hand,
     context.params.prop,
@@ -238,7 +238,7 @@ function supportGrip(
       reason: "both hands hold the prop but no support site is declared",
       fix: "name the support hand's grip on the stage prop",
     });
-  const point: IAutoMovieVector3 = AutoMovieMotionHumanHeld.point(
+  const point: IAutoMovieVector3 = motionHumanHeld.point(
     held,
     site,
   ).point;

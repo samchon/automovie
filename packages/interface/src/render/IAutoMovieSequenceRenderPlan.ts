@@ -1,7 +1,7 @@
-import type { IAutoMoviePlaybackEditorialMarker } from "../production/IAutoMoviePlaybackEditorialMarker.js";
-import type { IAutoMovieSequenceRenderFrame } from "./IAutoMovieSequenceRenderFrame.js";
-import type { IAutoMovieSequenceRenderShotSpan } from "./IAutoMovieSequenceRenderShotSpan.js";
-import type { IAutoMovieSequenceRenderTransitionSpan } from "./IAutoMovieSequenceRenderTransitionSpan.js";
+import type { IAutoMoviePlaybackEditorialMarker } from "../production/IAutoMoviePlaybackEditorialMarker";
+import type { IAutoMovieSequenceRenderFrame } from "./IAutoMovieSequenceRenderFrame";
+import type { IAutoMovieSequenceRenderShotSpan } from "./IAutoMovieSequenceRenderShotSpan";
+import type { IAutoMovieSequenceRenderTransitionSpan } from "./IAutoMovieSequenceRenderTransitionSpan";
 
 /**
  * Public sequence render manifest: editorial timeline, transition spans,

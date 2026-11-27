@@ -6,8 +6,8 @@ import type {
   IAutoMovieMotionHumanBody,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanArmCarrySpan
-} from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanArmCarrySpan";
+  motionHumanArmCarrySpan
+} from "../../../../../packages/motions/src/compose/internal/motionHumanArmCarrySpan";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -21,7 +21,7 @@ const REST: IAutoMovieMotionHumanArmAngles.IAngles = {
 };
 
 /**
- * `AutoMovieMotionHumanArmCarrySpan` is the span one group problem is solved
+ * `motionHumanArmCarrySpan` is the span one group problem is solved
  * over: the group's span where every member's own span is it, else from the
  * earliest start and reach to the latest release and end; its knots every
  * member's, once each and sorted, absent where no member has any.
@@ -63,13 +63,13 @@ export async function test_motions_compose_arm_carry_span(): Promise<void> {
   // 1. The group's span.
   TestValidator.predicate(
     "no own spans, the group's",
-    AutoMovieMotionHumanArmCarrySpan([member(), member()], span) === span,
+    motionHumanArmCarrySpan([member(), member()], span) === span,
   );
 
   // 2. The knots merged.
   TestValidator.equals(
     "every member's knots once, sorted",
-    AutoMovieMotionHumanArmCarrySpan(
+    motionHumanArmCarrySpan(
       [
         member({ ...span, knots: [2, 0.5] }),
         member({ ...span, knots: [0.5, 1.5] }),
@@ -82,7 +82,7 @@ export async function test_motions_compose_arm_carry_span(): Promise<void> {
   // 3. A hold handed over.
   TestValidator.equals(
     "the hull of the members' spans",
-    AutoMovieMotionHumanArmCarrySpan(
+    motionHumanArmCarrySpan(
       [
         member({ start: 0, ready: 1, relax: 1.5, end: 2 }),
         member({ start: 0.5, ready: 1.2, relax: 2.5, end: 3 }),

@@ -3,9 +3,9 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `boundAutoMovieConvexSeparation(a, b, target?)` returns a lower bound on the
+ * `boundConvexSeparation(a, b, target?)` returns a lower bound on the
  * distance between two convex point sets' hulls from complete feature
- * projections, never above the true gap; `boundAutoMovieProjectionSeparation`
+ * projections, never above the true gap; `boundProjectionSeparation`
  * reads one direction's projection gap.
  *
  * Fixture: the triangle A (0,0,0), (2,0,0), (0,2,0) and its copy at z = 1. A

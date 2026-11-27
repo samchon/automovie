@@ -1,7 +1,7 @@
 import type { IAutoMovieSpace } from "@automovie/interface";
 import type * as THREE from "three";
 
-import { buildSpaceObject as buildSpaceObjectImplementation } from "./internal/buildSpaceObject.js";
+import { buildSpaceObject as buildSpaceObjectImplementation } from "./internal/buildSpaceObject";
 
 /** Public operations for structural scene space geometry. */
 export namespace AutoMovieRenderSceneSpace {

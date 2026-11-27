@@ -1,6 +1,6 @@
 import type { IAutoMovieInspectionDiagnostics, IAutoMoviePhysicalFrame } from "@automovie/interface";
 import type { Camera, Scene } from "three";
-import type { IAutoMovieRenderObservePlacedSceneCheck } from "./IAutoMovieRenderObservePlacedSceneCheck.js";
+import type { IAutoMovieRenderObservePlacedSceneCheck } from "./IAutoMovieRenderObservePlacedSceneCheck";
 
 /** The original placed scene and source-owned checks at the selected clock. */
 export interface IAutoMovieRenderObservePlacedSceneProps {
