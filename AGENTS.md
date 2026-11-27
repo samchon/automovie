@@ -55,6 +55,6 @@ Open the applicable skill and only the pages it routes you to for this task.
 | [prompting](.agents/skills/prompting/SKILL.md) | Change `AGENTS.md`, `CLAUDE.md` or a skill |
 | [pull-request](.agents/skills/pull-request/SKILL.md) | Push, open, update or merge a PR on request or under a delivery mandate |
 | [review](.agents/skills/review/SKILL.md) | Review or self-review |
-| [scaffold-prompting](.agents/skills/scaffold-prompting/SKILL.md) | Change `packages/template` or shipped skills, or work on production content |
+| [scaffold-prompting](.agents/skills/scaffold-prompting/SKILL.md) | Change instructions shipped to productions |
 | [visual-debugging](.agents/skills/visual-debugging/SKILL.md) | Inspect pictures, verify visual changes or change a viewer or capture |
 | [website](.agents/skills/website/SKILL.md) | Change public website pages, design, docs or baked takes |

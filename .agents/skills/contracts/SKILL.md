@@ -44,4 +44,4 @@ Review files the adapter cannot address, including default-export configs and gl
 
 Adding, renaming or removing an H2 requires an authorized migration of its Evidence references.
 
-The common, design and implementation checklists ship to productions through scaffold placeholders, where declarations answer in their doc comments, so they follow [shared skills](../prompting/structure.md#shared-skills) and the scaffold's [distribution](../scaffold-prompting/verification.md#distribution) rules.
+The common, design and implementation checklists ship to productions through scaffold placeholders, where declarations answer in their doc comments, so they follow [shared skills](../prompting/structure.md#shared-skills) and [scaffold distribution](../development/validation.md#scaffold-distribution).

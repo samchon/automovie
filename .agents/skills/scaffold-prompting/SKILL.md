@@ -1,16 +1,10 @@
 ---
 name: scaffold-prompting
-description: Designs the skills, contracts and routers a production receives.
+description: Guides writing instructions shipped to productions.
 ---
 
 # Scaffold prompting
 
-Apply [prompting](../prompting/SKILL.md) and the [writing rules](../documentation/SKILL.md) to shipped instructions.
+Apply [prompting](../prompting/SKILL.md) to shipped instructions. Keep production-specific rules in the scaffold and follow the [shared skill rules](../prompting/structure.md#shared-skills) when reusing instructions.
 
-Put a section's sources on one `<!-- @source ... -->` line directly below its heading, with one blank line above and below the comment. The installer omits the comment. Keep limits and links the production needs in the text.
-
-| Read | To |
-| --- | --- |
-| [Task design](task-design.md) | Change production tasks or handoffs |
-| [Contract design](contract-design.md) | Change production contracts or their selectors |
-| [Verification](verification.md) | Check distribution or production behavior |
+Put section sources on one `<!-- @source ... -->` line below the heading with a blank line on either side. The installer removes the note, so keep any limits and links the production needs in the instructions.
