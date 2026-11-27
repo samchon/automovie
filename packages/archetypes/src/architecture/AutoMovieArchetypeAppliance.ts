@@ -4,7 +4,7 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core/index";
 import { APPLIANCE_BANDS } from "./constants/APPLIANCE_BANDS";
-import { FixtureDraw } from "./FixtureDraw";
+import { FixtureDraw } from "./internal/FixtureDraw";
 import { AutoMovieArchetypeMicrowave } from "./AutoMovieArchetypeMicrowave";
 import { AutoMovieArchetypeRange } from "./AutoMovieArchetypeRange";
 import { AutoMovieArchetypeRefrigerator } from "./AutoMovieArchetypeRefrigerator";

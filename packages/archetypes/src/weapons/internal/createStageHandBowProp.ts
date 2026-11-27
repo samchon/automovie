@@ -6,7 +6,7 @@ import {
   type AutoMovieArchetype,
   AutoMovieArchetypeFrame,
 } from "../../core/index";
-import { StageBowConstruction } from "../StageBowConstruction";
+import { StageBowConstruction } from "./StageBowConstruction";
 import { AutoMovieArchetypeBow } from "../AutoMovieArchetypeBow";
 
 /**

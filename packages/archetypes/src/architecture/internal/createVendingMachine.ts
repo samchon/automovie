@@ -1,6 +1,6 @@
 import type { AutoMovieArchetypeVendingMachine } from "../AutoMovieArchetypeVendingMachine";
 import { type AutoMovieArchetype } from "../../core/index";
-import { ServiceCabinet } from "../ServiceCabinet";
+import { ServiceCabinet } from "./ServiceCabinet";
 
 
 /**

@@ -1,5 +1,5 @@
 import type { AutoMovieArchetype } from "../core";
-import { VesselConstruction } from "./VesselConstruction";
+import { VesselConstruction } from "./internal/VesselConstruction";
 import type { AutoMovieArchetypeVessel } from "./AutoMovieArchetypeVessel";
 
 /** Canonical producer and authoring contract for Bowl. */

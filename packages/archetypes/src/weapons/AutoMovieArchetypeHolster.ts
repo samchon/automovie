@@ -5,13 +5,13 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import { HOLSTER_BANDS } from "./HOLSTER_BANDS";
-import { HOLSTER_BLADES } from "./HOLSTER_BLADES";
+import { HOLSTER_BANDS } from "./constants/HOLSTER_BANDS";
+import { HOLSTER_BLADES } from "./constants/HOLSTER_BLADES";
 import { AutoMovieArchetypeStageBladeCarrier } from "./AutoMovieArchetypeStageBladeCarrier";
 import { AutoMovieArchetypeStageHolster } from "./AutoMovieArchetypeStageHolster";
 import { AutoMovieArchetypeStagePouch } from "./AutoMovieArchetypeStagePouch";
 import { AutoMovieArchetypeStageQuiver } from "./AutoMovieArchetypeStageQuiver";
-import type { IArchetypeDispatch } from "../core/IArchetypeDispatch";
+import type { IArchetypeDispatch } from "../core/internal/IArchetypeDispatch";
 
 /** Constructs the holster archetype from its recipe. */
 export namespace AutoMovieArchetypeHolster {

@@ -1,6 +1,6 @@
 import type { AutoMovieArchetypeInfusionStand } from "../AutoMovieArchetypeInfusionStand";
 import type { AutoMovieArchetype } from "../../core/index";
-import { MobilityAidConstruction } from "../MobilityAidConstruction";
+import { MobilityAidConstruction } from "./MobilityAidConstruction";
 
 
 /**

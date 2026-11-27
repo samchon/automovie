@@ -2,7 +2,7 @@ import type { AutoMovieArchetypeStageHolster } from "../AutoMovieArchetypeStageH
 import { Vector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
-import { StageCarrierConstruction } from "../StageCarrierConstruction";
+import { StageCarrierConstruction } from "./StageCarrierConstruction";
 
 
 /**

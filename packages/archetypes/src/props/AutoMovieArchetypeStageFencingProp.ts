@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createStageFencingProp as createStageFencingPropImplementation } from "./internal/createStageFencingProp";
-import { StageBladeConstruction } from "./StageBladeConstruction";
+import { StageBladeConstruction } from "./internal/StageBladeConstruction";
 import { type AutoMovieArchetypeStageBladeProp } from "./AutoMovieArchetypeStageBladeProp";
 
 /** Public operations for Auto Movie Archetype Stage Fencing Prop. */

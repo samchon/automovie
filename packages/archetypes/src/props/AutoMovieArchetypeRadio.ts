@@ -1,5 +1,5 @@
 import type { AutoMovieArchetype } from "../core";
-import { HandheldDevice } from "./HandheldDevice";
+import { HandheldDevice } from "./internal/HandheldDevice";
 
 /** A handheld two-way radio with grasp and speaker surfaces. */
 export namespace AutoMovieArchetypeRadio {

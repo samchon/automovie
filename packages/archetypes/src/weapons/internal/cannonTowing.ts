@@ -1,5 +1,5 @@
 import type { AutoMovieArchetype } from "../../core/index";
-import type { ArchetypeTowing } from "../../core/ArchetypeTowing";
+import type { ArchetypeTowing } from "../../core/internal/ArchetypeTowing";
 import { towingAxle } from "../../core/internal/towingAxle";
 import type { AutoMovieArchetypeCannon } from "../AutoMovieArchetypeCannon";
 

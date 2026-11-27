@@ -7,7 +7,7 @@ import {
   AutoMovieArchetypeDrawSession,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import { PaddleBlade } from "./PaddleBlade";
+import { PaddleBlade } from "./internal/PaddleBlade";
 
 const SOURCE: string =
   "Werner Skagit FG adjustable straight shaft: https://wernerpaddles.com/products/werner-skagit-fg-adjustable-straight-shaft-kayak-paddle";

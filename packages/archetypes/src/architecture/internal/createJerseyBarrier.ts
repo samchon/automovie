@@ -2,7 +2,7 @@ import { AutoMovieArchetypeJerseyBarrier } from "../AutoMovieArchetypeJerseyBarr
 import { Vector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeUnits } from "../../core/index";
-import { ObstacleDraw } from "../ObstacleDraw";
+import { ObstacleDraw } from "./ObstacleDraw";
 
 /**
  * A concrete road barrier with its base, upper face and front edge retained for

@@ -1,6 +1,6 @@
 import type { AutoMovieArchetypeWalker } from "../AutoMovieArchetypeWalker";
 import type { AutoMovieArchetype } from "../../core/index";
-import { MobilityAidConstruction } from "../MobilityAidConstruction";
+import { MobilityAidConstruction } from "./MobilityAidConstruction";
 
 
 /**

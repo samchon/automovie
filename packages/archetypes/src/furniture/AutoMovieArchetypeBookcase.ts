@@ -1,5 +1,5 @@
 import type { AutoMovieArchetype } from "../core";
-import { StorageMechanisms } from "./StorageMechanisms";
+import { StorageMechanisms } from "./internal/StorageMechanisms";
 import type { AutoMovieArchetypeStorage } from "./AutoMovieArchetypeStorage";
 
 /** An open bookcase with named shelf supports. */

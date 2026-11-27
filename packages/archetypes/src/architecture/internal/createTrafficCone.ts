@@ -2,7 +2,7 @@ import type { AutoMovieArchetypeTrafficCone } from "../AutoMovieArchetypeTraffic
 import { Vector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
-import { StreetFixtureDraw } from "../StreetFixtureDraw";
+import { StreetFixtureDraw } from "./StreetFixtureDraw";
 
 /** The shape of {@link CONE}. */
 interface ICone {

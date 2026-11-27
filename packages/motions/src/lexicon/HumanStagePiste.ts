@@ -13,7 +13,7 @@ import type {
   IAutoMovieScheduleEntry,
 } from "@automovie/interface";
 
-import { HumanChain } from "../HumanChain";
+import { HumanChain } from "../chain/HumanChain";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanBlade } from "./HumanBlade";

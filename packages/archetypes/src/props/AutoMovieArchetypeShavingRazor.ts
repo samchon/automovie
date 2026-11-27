@@ -1,5 +1,5 @@
 import { type AutoMovieArchetype } from "../core";
-import { GroomingPropDraw } from "./GroomingPropDraw";
+import { GroomingPropDraw } from "./internal/GroomingPropDraw";
 
 /** Creates a razor archetype with a grip and a cartridge face. */
 export namespace AutoMovieArchetypeShavingRazor {

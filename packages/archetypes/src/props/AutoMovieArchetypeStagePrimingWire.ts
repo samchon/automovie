@@ -1,5 +1,5 @@
 import { type AutoMovieArchetype } from "../core/index";
-import { type HandToolDraw } from "./HandToolDraw";
+import { type HandToolDraw } from "./internal/HandToolDraw";
 import { createStagePrimingWire as createStagePrimingWireImplementation } from "./internal/createStagePrimingWire";
 
 /** Public operations for Auto Movie Archetype Stage Priming Wire. */

@@ -2,7 +2,7 @@ import type { AutoMovieArchetypeStageCartridgeProp } from "../AutoMovieArchetype
 import { Vector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
-import { StageTokenConstruction } from "../StageTokenConstruction";
+import { StageTokenConstruction } from "./StageTokenConstruction";
 
 
 /**

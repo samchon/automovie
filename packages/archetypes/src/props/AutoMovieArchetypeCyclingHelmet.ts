@@ -1,5 +1,5 @@
 import { type AutoMovieArchetype } from "../core/index";
-import { type WornPropDraw } from "./WornPropDraw";
+import { type WornPropDraw } from "./internal/WornPropDraw";
 import { createCyclingHelmet as createCyclingHelmetImplementation } from "./internal/createCyclingHelmet";
 
 /** Public operations for Auto Movie Archetype Cycling Helmet. */

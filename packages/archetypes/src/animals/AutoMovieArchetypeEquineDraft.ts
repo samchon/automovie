@@ -9,7 +9,7 @@ import {
   AutoMovieArchetypeRefusal,
   AutoMovieArchetypeRide,
 } from "../core";
-import type { ArchetypeTowing } from "../core/ArchetypeTowing";
+import type { ArchetypeTowing } from "../core/internal/ArchetypeTowing";
 import { AutoMovieArchetypeCart } from "../vehicles/AutoMovieArchetypeCart";
 import { type AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
 import type { AutoMovieArchetypeEquineDraftPlan } from "./AutoMovieArchetypeEquineDraftPlan";

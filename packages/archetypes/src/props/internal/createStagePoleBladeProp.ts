@@ -8,7 +8,7 @@ import {
   type AutoMovieArchetypeBuilder,
   AutoMovieArchetypeFrame,
 } from "../../core/index";
-import { StageShaftConstruction } from "../StageShaftConstruction";
+import { StageShaftConstruction } from "./StageShaftConstruction";
 import type { AutoMovieArchetypeStageWeaponProp } from "../AutoMovieArchetypeStageWeaponProp";
 
 /**

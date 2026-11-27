@@ -1,5 +1,5 @@
 import { type AutoMovieArchetype } from "../core/index";
-import { type LongImplementDraw } from "./LongImplementDraw";
+import { type LongImplementDraw } from "./internal/LongImplementDraw";
 import { createBroom as createBroomImplementation } from "./internal/createBroom";
 
 /** Public operations for Auto Movie Archetype Broom. */

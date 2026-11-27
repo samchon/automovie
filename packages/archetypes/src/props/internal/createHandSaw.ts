@@ -3,7 +3,7 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
-import { HandToolDraw } from "../HandToolDraw";
+import { HandToolDraw } from "./HandToolDraw";
 
 /**
  * Hand saw with a blade ledge and a grip across its heel.

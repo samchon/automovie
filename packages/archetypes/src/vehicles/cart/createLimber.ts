@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../../core";
-import { CartConstruction } from "../CartConstruction";
-import { CartLimber } from "../CartLimber";
+import { CartConstruction } from "../internal/CartConstruction";
+import { CartLimber } from "../internal/CartLimber";
 import type { AutoMovieArchetypeLimber } from "../AutoMovieArchetypeLimber";
 
 /**

@@ -1,9 +1,9 @@
 import { ArchetypeDraw, type AutoMovieArchetype } from "../core/index";
-import { BallBuild } from "./BallBuild";
+import { BallBuild } from "./internal/BallBuild";
 import { AutoMovieArchetypeOvalBall } from "./AutoMovieArchetypeOvalBall";
 import { AutoMovieArchetypePuck } from "./AutoMovieArchetypePuck";
 import { AutoMovieArchetypeSphericalBall } from "./AutoMovieArchetypeSphericalBall";
-import type { IArchetypeDispatch } from "../core/IArchetypeDispatch";
+import type { IArchetypeDispatch } from "../core/internal/IArchetypeDispatch";
 
 /** Constructs the ball archetype from its recipe. */
 export namespace AutoMovieArchetypeBall {

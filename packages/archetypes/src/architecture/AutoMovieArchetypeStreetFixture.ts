@@ -1,5 +1,5 @@
 import { ArchetypeDraw, type AutoMovieArchetype, type IAutoMovieArchetypeBand, } from "../core";
-import { FixtureDraw } from "./FixtureDraw";
+import { FixtureDraw } from "./internal/FixtureDraw";
 import { STREET_FIXTURE_BANDS } from "./constants/STREET_FIXTURE_BANDS";
 import { STREET_FIXTURE_MODELS } from "./constants/STREET_FIXTURE_MODELS";
 import { AutoMovieArchetypeBollard } from "./AutoMovieArchetypeBollard";

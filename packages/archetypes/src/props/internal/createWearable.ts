@@ -1,6 +1,6 @@
 import { AutoMovieArchetypeWearable } from "../AutoMovieArchetypeWearable";
 import { ArchetypeDraw, type AutoMovieArchetype } from "../../core/index";
-import "../WornPropDraw";
+import "./WornPropDraw";
 import "../AutoMovieArchetypeCyclingHelmet";
 import "../AutoMovieArchetypeHat";
 import "../AutoMovieArchetypeSpectacles";

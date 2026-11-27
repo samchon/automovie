@@ -1,7 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
-import { GroomingPropDraw } from "./GroomingPropDraw";
+import { GroomingPropDraw } from "./internal/GroomingPropDraw";
 
 /** Creates a squeeze tube archetype with a body grip and an operable cap. */
 export namespace AutoMovieArchetypeSqueezeTube {

@@ -1,6 +1,6 @@
 import { AutoMovieArchetypeStationery } from "../AutoMovieArchetypeStationery";
 import { ArchetypeDraw, type AutoMovieArchetype } from "../../core/index";
-import "../StationeryDraw";
+import "./StationeryDraw";
 import "../AutoMovieArchetypeBook";
 import "../AutoMovieArchetypeClipboard";
 import { AutoMovieArchetypePaper } from "../AutoMovieArchetypePaper";

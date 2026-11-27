@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import type { AutoMovieArchetypeBuilder } from "../core";
-import { ArchetypeMassPrimitive } from "../core/ArchetypeMassPrimitive";
+import { ArchetypeMassPrimitive } from "../core/internal/ArchetypeMassPrimitive";
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { AutoMovieArchetypeQuadrupedHeadAttachment } from "./AutoMovieArchetypeQuadrupedHeadAttachment";
 

@@ -1,5 +1,5 @@
 import { type AutoMovieArchetype } from "../core/index";
-import { type GroomingPropDraw } from "./GroomingPropDraw";
+import { type GroomingPropDraw } from "./internal/GroomingPropDraw";
 import { createToothbrush as createToothbrushImplementation } from "./internal/createToothbrush";
 
 /** Public operations for Auto Movie Archetype Toothbrush. */

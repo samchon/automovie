@@ -6,7 +6,7 @@ import {
   AutoMovieArchetypeBuilder,
   AutoMovieArchetypeDrawSession,
 } from "../../core/index";
-import { TabletopStack } from "../TabletopStack";
+import { TabletopStack } from "./TabletopStack";
 
 /**
  * A casino gaming chip: "The chips used in United States casinos typically

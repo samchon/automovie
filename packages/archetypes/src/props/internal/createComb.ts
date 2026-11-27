@@ -2,7 +2,7 @@ import type { AutoMovieArchetypeComb } from "../AutoMovieArchetypeComb";
 import { Vector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
-import { GroomingPropDraw } from "../GroomingPropDraw";
+import { GroomingPropDraw } from "./GroomingPropDraw";
 
 /**
  * Pocket comb with a sideways spine grip and a working edge along the teeth.

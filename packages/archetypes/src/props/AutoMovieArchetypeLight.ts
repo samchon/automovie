@@ -5,13 +5,13 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import { LIGHT_BANDS } from "./LIGHT_BANDS";
+import { LIGHT_BANDS } from "./constants/LIGHT_BANDS";
 import { AutoMovieArchetypeCandle } from "./AutoMovieArchetypeCandle";
 import { AutoMovieArchetypeFireTorch } from "./AutoMovieArchetypeFireTorch";
 import { AutoMovieArchetypeLantern } from "./AutoMovieArchetypeLantern";
 import { AutoMovieArchetypePendantLamp } from "./AutoMovieArchetypePendantLamp";
 import { AutoMovieArchetypeStandingLamp } from "./AutoMovieArchetypeStandingLamp";
-import type { IArchetypeDispatch } from "../core/IArchetypeDispatch";
+import type { IArchetypeDispatch } from "../core/internal/IArchetypeDispatch";
 
 /** Constructs the light archetype from its recipe. */
 export namespace AutoMovieArchetypeLight {

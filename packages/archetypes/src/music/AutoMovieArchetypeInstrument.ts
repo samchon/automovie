@@ -1,5 +1,5 @@
 import { ArchetypeDraw, type AutoMovieArchetype } from "../core/index";
-import { InstrumentBuild } from "./InstrumentBuild";
+import { InstrumentBuild } from "./internal/InstrumentBuild";
 import { createCymbal as createCymbalImplementation } from "./internal/createCymbal";
 import { createDrumstick as createDrumstickImplementation } from "./internal/createDrumstick";
 import { createViolinBow as createViolinBowImplementation } from "./internal/createViolinBow";

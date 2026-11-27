@@ -3,7 +3,7 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
-import { WornPropDraw } from "../WornPropDraw";
+import { WornPropDraw } from "./WornPropDraw";
 
 /**
  * Cycling helmet with a rim hold and a shell socket. It rests on its rim, shell

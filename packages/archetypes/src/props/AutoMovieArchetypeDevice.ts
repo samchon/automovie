@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createDevice as createDeviceImplementation } from "./internal/createDevice";
-import { HandheldDevice } from "./HandheldDevice";
+import { HandheldDevice } from "./internal/HandheldDevice";
 import { AutoMovieArchetypePhone } from "./AutoMovieArchetypePhone";
 import { AutoMovieArchetypeCamera } from "./AutoMovieArchetypeCamera";
 import { AutoMovieArchetypeRemote } from "./AutoMovieArchetypeRemote";

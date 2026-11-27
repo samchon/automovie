@@ -1,7 +1,7 @@
 import type { AutoMovieArchetypeCostumeVambrace } from "../AutoMovieArchetypeCostumeVambrace";
 import { type AutoMovieArchetype } from "../../core/index";
-import { ArmourLimb } from "../ArmourLimb";
-import { CostumeConstruction } from "../CostumeConstruction";
+import { ArmourLimb } from "./ArmourLimb";
+import { CostumeConstruction } from "./CostumeConstruction";
 
 
 /**

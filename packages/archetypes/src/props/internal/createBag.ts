@@ -2,7 +2,7 @@ import { AutoMovieArchetypeBag } from "../AutoMovieArchetypeBag";
 import { Vector3 } from "@automovie/engine";
 
 import { ArchetypeDraw, AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame, AutoMovieArchetypeRefusal } from "../../core";
-import "../BAG_BANDS";
+import "../constants/BAG_BANDS";
 
 /**
  * HSE's guideline load for a load held close to the body below the elbow by a

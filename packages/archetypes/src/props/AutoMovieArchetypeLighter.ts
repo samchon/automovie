@@ -1,7 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
-import { SmokingPropDraw } from "./SmokingPropDraw";
+import { SmokingPropDraw } from "./internal/SmokingPropDraw";
 
 /** Constructs the digital pocket lighter from its recipe. */
 export namespace AutoMovieArchetypeLighter {

@@ -1,7 +1,7 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createBag as createBagImplementation } from "./internal/createBag";
 import { AutoMovieArchetypeDrawSession, type IAutoMovieArchetypeBand } from "../core";
-import { BAG_BANDS } from "./BAG_BANDS";
+import { BAG_BANDS } from "./constants/BAG_BANDS";
 
 /** Public operations for Auto Movie Archetype Bag. */
 export namespace AutoMovieArchetypeBag {

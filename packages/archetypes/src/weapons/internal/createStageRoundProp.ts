@@ -1,6 +1,6 @@
 import type { AutoMovieArchetypeStageRoundProp } from "../AutoMovieArchetypeStageRoundProp";
 import { type AutoMovieArchetype } from "../../core/index";
-import { StageTokenConstruction } from "../StageTokenConstruction";
+import { StageTokenConstruction } from "./StageTokenConstruction";
 
 import { stageTokenSphere } from "./stageTokenSphere";
 

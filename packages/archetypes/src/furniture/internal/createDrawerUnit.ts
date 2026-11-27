@@ -1,6 +1,6 @@
 import { AutoMovieArchetypeDrawerUnit } from "../AutoMovieArchetypeDrawerUnit";
 import { ArchetypeDraw, type AutoMovieArchetype } from "../../core/index";
-import { StorageMechanisms } from "../StorageMechanisms";
+import { StorageMechanisms } from "./StorageMechanisms";
 
 
 /**

@@ -6,7 +6,7 @@ import type {
   IAutoMovieTransform,
 } from "@automovie/interface";
 
-import { ArchetypeMassArithmetic } from "./ArchetypeMassArithmetic";
+import { ArchetypeMassArithmetic } from "./internal/ArchetypeMassArithmetic";
 import { AutoMovieArchetype } from "./AutoMovieArchetype";
 import { AutoMovieArchetypeArticulation } from "./AutoMovieArchetypeArticulation";
 import type { AutoMovieArchetypeConvexCell } from "./AutoMovieArchetypeConvexCell";

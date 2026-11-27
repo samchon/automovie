@@ -3,7 +3,7 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
-import { StreetFixtureDraw } from "../StreetFixtureDraw";
+import { StreetFixtureDraw } from "./StreetFixtureDraw";
 
 /** The estimated thickness of the sign blank, metres. */
 const BLANK_THICKNESS: number = 0.003;

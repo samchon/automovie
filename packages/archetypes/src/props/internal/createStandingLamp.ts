@@ -1,6 +1,6 @@
 import { AutoMovieArchetypeStandingLamp } from "../AutoMovieArchetypeStandingLamp";
 import { ArchetypeDraw, type AutoMovieArchetype } from "../../core/index";
-import { PracticalLightConstruction } from "../PracticalLightConstruction";
+import { PracticalLightConstruction } from "./PracticalLightConstruction";
 
 
 /**

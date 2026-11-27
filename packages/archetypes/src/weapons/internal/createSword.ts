@@ -2,8 +2,8 @@ import { AutoMovieArchetypeSword } from "../AutoMovieArchetypeSword";
 import { Vector3, AutoMovieEngineMath } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { ArchetypeDraw, AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame } from "../../core/index";
-import "../SWORD_BANDS";
-import "../SWORD_MODELS";
+import "../constants/SWORD_BANDS";
+import "../constants/SWORD_MODELS";
 import "./createSwordShapes";
 
 /**

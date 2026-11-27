@@ -1,9 +1,9 @@
 import type { AutoMovieArchetypeRowboat } from "../AutoMovieArchetypeRowboat";
 import { type AutoMovieArchetype } from "../../core/index";
 import { AutoMovieArchetypeBoat } from "../AutoMovieArchetypeBoat";
-import { BoatConstruction } from "../BoatConstruction";
-import { BoatHull } from "../BoatHull";
-import { BoatOars } from "../BoatOars";
+import { BoatConstruction } from "./BoatConstruction";
+import { BoatHull } from "./BoatHull";
+import { BoatOars } from "./BoatOars";
 
 /**
  * Fixed-seat rowboat.

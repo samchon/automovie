@@ -1,6 +1,6 @@
 import { AutoMovieArchetypeSmoking } from "../AutoMovieArchetypeSmoking";
 import { ArchetypeDraw, type AutoMovieArchetype } from "../../core/index";
-import "../SmokingPropDraw";
+import "./SmokingPropDraw";
 import "../AutoMovieArchetypeCigarette";
 import "../AutoMovieArchetypeLighter";
 

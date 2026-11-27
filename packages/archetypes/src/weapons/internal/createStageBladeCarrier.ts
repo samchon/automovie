@@ -6,7 +6,7 @@ import {
   type AutoMovieArchetype,
   AutoMovieArchetypeFrame,
 } from "../../core/index";
-import { StageCarrierConstruction } from "../StageCarrierConstruction";
+import { StageCarrierConstruction } from "./StageCarrierConstruction";
 import { AutoMovieArchetypeHolster } from "../AutoMovieArchetypeHolster";
 
 /**

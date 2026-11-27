@@ -22,16 +22,9 @@ import { AutoMovieViewerInspector } from "../../AutoMovieViewerInspector.js";
  * Copying reports success in a live status region, or tells the reader to
  * select the text if clipboard access is unavailable.
  */
-export function AutoMovieInspectorRequestPanel(props: {
-  /** The request shown. */
-  request: IAutoMovieCapturePlanRequest;
-
-  /** Where an edited text goes. */
-  dispatch: (action: IAutoMovieInspectorAction) => void;
-
-  /** Executable and fixed arguments from the host for the optional command. */
-  captureCommand?: IAutoMovieInspectorProps["captureCommand"];
-}): JSX.Element {
+export function AutoMovieInspectorRequestPanel(
+  props: AutoMovieInspectorRequestPanel.IProps,
+): JSX.Element {
   const [typed, setTyped] = useState<string | null>(null);
   const [shell, setShell] = useState<"posix" | "powershell">("posix");
   const [copied, setCopied]: [
@@ -149,4 +142,17 @@ export function AutoMovieInspectorRequestPanel(props: {
       </p>
     </div>
   );
+}
+
+export namespace AutoMovieInspectorRequestPanel {
+  export interface IProps {
+    /** The request shown. */
+    request: IAutoMovieCapturePlanRequest;
+
+    /** Where an edited text goes. */
+    dispatch: (action: IAutoMovieInspectorAction) => void;
+
+    /** Executable and fixed arguments from the host for the optional command. */
+    captureCommand?: IAutoMovieInspectorProps["captureCommand"];
+  }
 }

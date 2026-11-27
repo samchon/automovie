@@ -1,7 +1,7 @@
 import type { AutoMovieArchetypeStageSpongeRammer } from "../AutoMovieArchetypeStageSpongeRammer";
 import { type AutoMovieArchetype } from "../../core/index";
-import { FIELD_IMPLEMENTS } from "../FIELD_IMPLEMENTS";
-import { LongImplementDraw } from "../LongImplementDraw";
+import { FIELD_IMPLEMENTS } from "../constants/FIELD_IMPLEMENTS";
+import { LongImplementDraw } from "./LongImplementDraw";
 
 /**
  * Inert sponge-and-rammer prop with visible end markers and a shaft hold.

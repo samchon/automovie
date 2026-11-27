@@ -2,7 +2,7 @@ import { ArchetypeDraw, type AutoMovieArchetype } from "../core/index";
 import { AutoMovieArchetypeStageFencingProp } from "./AutoMovieArchetypeStageFencingProp";
 import { AutoMovieArchetypeStagePracticeSwordProp } from "./AutoMovieArchetypeStagePracticeSwordProp";
 import { AutoMovieArchetypeStageTwoHandedSwordProp } from "./AutoMovieArchetypeStageTwoHandedSwordProp";
-import type { IArchetypeDispatch } from "../core/IArchetypeDispatch";
+import type { IArchetypeDispatch } from "../core/internal/IArchetypeDispatch";
 
 /** Constructs the stage blade prop archetype from its recipe. */
 export namespace AutoMovieArchetypeStageBladeProp {

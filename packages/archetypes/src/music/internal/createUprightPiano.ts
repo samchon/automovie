@@ -1,7 +1,7 @@
 import type { AutoMovieArchetypeUprightPiano } from "../AutoMovieArchetypeUprightPiano";
 import type { AutoMovieArchetype } from "../../core/index";
-import { InstrumentBuild } from "../InstrumentBuild";
-import { KeyboardConstruction } from "../KeyboardConstruction";
+import { InstrumentBuild } from "./InstrumentBuild";
+import { KeyboardConstruction } from "./KeyboardConstruction";
 
 
 /**

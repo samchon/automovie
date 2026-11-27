@@ -1,7 +1,7 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { ArchetypeDraw, type AutoMovieArchetype, type AutoMovieArchetypeDrawSession, type AutoMovieArchetypeFriction, type AutoMovieArchetypeRide, type IAutoMovieArchetypeBand } from "../core/index";
-import { CART_BANDS } from "./CART_BANDS";
-import { CartFit } from "./CartFit";
+import { CART_BANDS } from "./constants/CART_BANDS";
+import { CartFit } from "./internal/CartFit";
 import { cartTowing } from "./internal/cartTowing";
 import { AutoMovieArchetypeCarriage } from "./AutoMovieArchetypeCarriage";
 import { AutoMovieArchetypeChariot } from "./AutoMovieArchetypeChariot";

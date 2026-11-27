@@ -6,7 +6,7 @@ import {
   AutoMovieArchetypeFrame,
   AutoMovieArchetypeUnits,
 } from "../../core/index";
-import { StreetFixtureDraw } from "../StreetFixtureDraw";
+import { StreetFixtureDraw } from "./StreetFixtureDraw";
 
 /** The shape of {@link HYDRANT}. */
 interface IHydrant {

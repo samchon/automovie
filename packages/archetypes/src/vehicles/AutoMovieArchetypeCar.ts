@@ -8,13 +8,13 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core";
-import { CAR_BANDS } from "./CAR_BANDS";
-import { CAR_MODELS } from "./CAR_MODELS";
-import type { CarAffordance } from "./CarAffordance";
-import { CarBody } from "./CarBody";
-import { CarCabin } from "./CarCabin";
-import type { CarDimension } from "./CarDimension";
-import { CarRear } from "./CarRear";
+import { CAR_BANDS } from "./constants/CAR_BANDS";
+import { CAR_MODELS } from "./constants/CAR_MODELS";
+import type { CarAffordance } from "./internal/CarAffordance";
+import { CarBody } from "./internal/CarBody";
+import { CarCabin } from "./internal/CarCabin";
+import type { CarDimension } from "./internal/CarDimension";
+import { CarRear } from "./internal/CarRear";
 import { driveCar } from "./internal/driveCar";
 
 /** The canonical producer and authoring contract for cars. */

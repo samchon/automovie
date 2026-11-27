@@ -8,7 +8,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import { PaddleBlade } from "./PaddleBlade";
+import { PaddleBlade } from "./internal/PaddleBlade";
 
 const SOURCE: string =
   "Bending Branches Expedition Plus product specifications: https://www.bendingbranches.com/products/expedition-plus";

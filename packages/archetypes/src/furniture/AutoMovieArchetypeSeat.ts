@@ -8,7 +8,7 @@ import {
   AutoMovieArchetypeFrame,
   AutoMovieArchetypeRefusal,
 } from "../core";
-import { SEAT_BANDS } from "./SEAT_BANDS";
+import { SEAT_BANDS } from "./constants/SEAT_BANDS";
 
 /** The readable name of each kind. */
 const NAMES: Readonly<Record<AutoMovieArchetypeSeat.Kind, string>> = {

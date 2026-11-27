@@ -1,5 +1,5 @@
 import { type AutoMovieArchetype } from "../core/index";
-import { type HandToolDraw } from "./HandToolDraw";
+import { type HandToolDraw } from "./internal/HandToolDraw";
 import { createScrewdriver as createScrewdriverImplementation } from "./internal/createScrewdriver";
 
 /** Public operations for Auto Movie Archetype Screwdriver. */

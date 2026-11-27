@@ -1,5 +1,5 @@
 import { ArchetypeDraw, type AutoMovieArchetype } from "../core/index";
-import { StickBuild } from "./StickBuild";
+import { StickBuild } from "./internal/StickBuild";
 import { AutoMovieArchetypeCricketBat } from "./AutoMovieArchetypeCricketBat";
 import { AutoMovieArchetypeFieldHockeyStick } from "./AutoMovieArchetypeFieldHockeyStick";
 import { AutoMovieArchetypeIceHockeyStick } from "./AutoMovieArchetypeIceHockeyStick";

@@ -1,7 +1,7 @@
 import type { AutoMovieArchetypeStageSling } from "../AutoMovieArchetypeStageSling";
 import { type AutoMovieArchetype } from "../../core/index";
-import { LongImplementDraw } from "../LongImplementDraw";
-import { Throwers } from "../Throwers";
+import { LongImplementDraw } from "./LongImplementDraw";
+import { Throwers } from "./Throwers";
 
 /**
  * Inert sling prop with its original display pouch and hand contacts.

@@ -1,7 +1,7 @@
 import type { AutoMovieArchetypeBugle } from "../AutoMovieArchetypeBugle";
 import type { AutoMovieArchetype } from "../../core/index";
-import { InstrumentBuild } from "../InstrumentBuild";
-import { MarchingConstruction } from "../MarchingConstruction";
+import { InstrumentBuild } from "./InstrumentBuild";
+import { MarchingConstruction } from "./MarchingConstruction";
 
 
 /**

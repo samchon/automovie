@@ -2,8 +2,8 @@ import { AutoMovieArchetypeSiegeEngine } from "../AutoMovieArchetypeSiegeEngine"
 
 
 import { ArchetypeDraw, AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession } from "../../core";
-import "../SIEGE_BANDS";
-import { SiegeArm } from "../SiegeArm";
+import "../constants/SIEGE_BANDS";
+import { SiegeArm } from "./SiegeArm";
 
 /**
  * A siege engine that throws a stone: a counterweight trebuchet, its arm swung

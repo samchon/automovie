@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createStagePercussionRifle as createStagePercussionRifleImplementation } from "./internal/createStagePercussionRifle";
-import { StagePeriodGunConstruction } from "./StagePeriodGunConstruction";
+import { StagePeriodGunConstruction } from "./internal/StagePeriodGunConstruction";
 
 /** Public operations for Auto Movie Archetype Stage Percussion Rifle. */
 export namespace AutoMovieArchetypeStagePercussionRifle {

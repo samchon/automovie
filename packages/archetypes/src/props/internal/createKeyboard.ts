@@ -1,6 +1,6 @@
 import { AutoMovieArchetypeKeyboard } from "../AutoMovieArchetypeKeyboard";
 import { ArchetypeDraw, type AutoMovieArchetype } from "../../core/index";
-import "../KeyboardHardware";
+import "./KeyboardHardware";
 import { AutoMovieArchetypeDesktopKeyboard } from "../AutoMovieArchetypeDesktopKeyboard";
 import { AutoMovieArchetypeLaptop } from "../AutoMovieArchetypeLaptop";
 

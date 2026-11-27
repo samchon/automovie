@@ -2,7 +2,7 @@ import type { AutoMovieArchetypeBollard } from "../AutoMovieArchetypeBollard";
 import { Vector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
-import { StreetFixtureDraw } from "../StreetFixtureDraw";
+import { StreetFixtureDraw } from "./StreetFixtureDraw";
 
 /**
  * A ground-standing steel bollard with a shaft grip and a top surface.

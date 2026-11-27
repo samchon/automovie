@@ -1,5 +1,5 @@
 import { ArchetypeDraw, type AutoMovieArchetype } from "../core/index";
-import { GroomingPropDraw } from "./GroomingPropDraw";
+import { GroomingPropDraw } from "./internal/GroomingPropDraw";
 import { AutoMovieArchetypeComb } from "./AutoMovieArchetypeComb";
 import { AutoMovieArchetypeLipstick } from "./AutoMovieArchetypeLipstick";
 import { AutoMovieArchetypeShavingRazor } from "./AutoMovieArchetypeShavingRazor";

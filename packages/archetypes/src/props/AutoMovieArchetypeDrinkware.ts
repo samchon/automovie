@@ -1,7 +1,7 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createDrinkware as createDrinkwareImplementation } from "./internal/createDrinkware";
 import { AutoMovieArchetypeDrawSession, type IAutoMovieArchetypeBand } from "../core";
-import { DRINKWARE_BANDS } from "./DRINKWARE_BANDS";
+import { DRINKWARE_BANDS } from "./constants/DRINKWARE_BANDS";
 
 /** Public operations for Auto Movie Archetype Drinkware. */
 export namespace AutoMovieArchetypeDrinkware {

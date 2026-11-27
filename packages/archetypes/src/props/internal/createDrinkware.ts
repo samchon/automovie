@@ -2,7 +2,7 @@ import { AutoMovieArchetypeDrinkware } from "../AutoMovieArchetypeDrinkware";
 import { Vector3 } from "@automovie/engine";
 
 import { ArchetypeDraw, AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame, AutoMovieArchetypeRefusal } from "../../core";
-import "../DRINKWARE_BANDS";
+import "../constants/DRINKWARE_BANDS";
 
 /** The readable name of each kind. */
 const NAMES: Readonly<Record<AutoMovieArchetypeDrinkware.Kind, string>> = {

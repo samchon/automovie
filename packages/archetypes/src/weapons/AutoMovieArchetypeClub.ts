@@ -1,6 +1,6 @@
 import { ArchetypeDraw, type AutoMovieArchetype } from "../core/index";
 import { AutoMovieArchetypeBaseballBat } from "../sport/AutoMovieArchetypeBaseballBat";
-import { ClubBuild } from "./ClubBuild";
+import { ClubBuild } from "./internal/ClubBuild";
 import { AutoMovieArchetypePracticeBaton } from "./AutoMovieArchetypePracticeBaton";
 
 /** Constructs the club archetype from its recipe. */

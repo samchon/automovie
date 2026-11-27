@@ -1,5 +1,5 @@
 import { ArchetypeDraw, type AutoMovieArchetype } from "../core/index";
-import { LongImplementDraw } from "./LongImplementDraw";
+import { LongImplementDraw } from "./internal/LongImplementDraw";
 import { AutoMovieArchetypeBroom } from "./AutoMovieArchetypeBroom";
 import { AutoMovieArchetypeFishingRod } from "./AutoMovieArchetypeFishingRod";
 import { AutoMovieArchetypeForestAxe } from "./AutoMovieArchetypeForestAxe";

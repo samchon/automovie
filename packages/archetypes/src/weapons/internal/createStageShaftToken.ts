@@ -6,7 +6,7 @@ import {
   type AutoMovieArchetype,
   AutoMovieArchetypeFrame,
 } from "../../core/index";
-import { StageTokenConstruction } from "../StageTokenConstruction";
+import { StageTokenConstruction } from "./StageTokenConstruction";
 import { AutoMovieArchetypeProjectile } from "../AutoMovieArchetypeProjectile";
 
 /**

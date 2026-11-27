@@ -2,7 +2,7 @@ import type { AutoMovieArchetypeTissue } from "../AutoMovieArchetypeTissue";
 import { Vector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
-import { GroomingPropDraw } from "../GroomingPropDraw";
+import { GroomingPropDraw } from "./GroomingPropDraw";
 
 /**
  * Flat tissue sheet with a centered pinch and a wiping surface above it.

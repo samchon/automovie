@@ -1,5 +1,5 @@
 import { type AutoMovieArchetype } from "../core/index";
-import { type GroomingPropDraw } from "./GroomingPropDraw";
+import { type GroomingPropDraw } from "./internal/GroomingPropDraw";
 import { createComb as createCombImplementation } from "./internal/createComb";
 
 /** Public operations for Auto Movie Archetype Comb. */

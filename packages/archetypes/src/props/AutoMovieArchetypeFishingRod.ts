@@ -1,7 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
-import { LongImplementDraw } from "./LongImplementDraw";
+import { LongImplementDraw } from "./internal/LongImplementDraw";
 
 /** Creates a Daiwa Ninja X spinning rod archetype standing on its butt. */
 export namespace AutoMovieArchetypeFishingRod {

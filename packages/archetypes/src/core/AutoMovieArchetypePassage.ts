@@ -3,7 +3,7 @@ import type { IAutoMovieComputeModelRestExtent, IAutoMovieCrowdAgent, IAutoMovie
 import type { AutoMovieArchetypeCourse } from "./AutoMovieArchetypeCourse";
 import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
 import type { AutoMovieArchetypeRide } from "./AutoMovieArchetypeRide";
-import { AutoMovieArchetypePassageSearch } from "./AutoMovieArchetypePassageSearch";
+import { AutoMovieArchetypePassageSearch } from "./internal/AutoMovieArchetypePassageSearch";
 
 const { admitWindow, admitBody, place, separation, scan, mitre } = AutoMovieArchetypePassageSearch;
 type IObstaclePlacement = AutoMovieArchetypePassageSearch.IObstaclePlacement;

@@ -9,8 +9,8 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import { CannonPieces } from "./CannonPieces";
-import { FIELD_GUN } from "./FIELD_GUN";
+import { CannonPieces } from "./internal/CannonPieces";
+import { FIELD_GUN } from "./constants/FIELD_GUN";
 import { buildFieldGun } from "./internal/buildFieldGun";
 import { cannonLaunch } from "./internal/cannonLaunch";
 import { cannonRecoil } from "./internal/cannonRecoil";

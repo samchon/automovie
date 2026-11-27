@@ -6,7 +6,7 @@ import {
   type AutoMovieArchetypeBuilder,
   AutoMovieArchetypeFrame,
 } from "../../core/index";
-import { StagePeriodGunConstruction } from "../StagePeriodGunConstruction";
+import { StagePeriodGunConstruction } from "./StagePeriodGunConstruction";
 
 /**
  * The Metropolitan Museum of Art 1974.10, Carl Stiegele, Munich, percussion

@@ -1,8 +1,8 @@
 import { Vector3 } from "@automovie/engine";
 
 import type { AutoMovieArchetypeBuilder } from "../core";
-import { ArchetypeMassArithmetic } from "../core/ArchetypeMassArithmetic";
-import { ArchetypeMassPrimitive } from "../core/ArchetypeMassPrimitive";
+import { ArchetypeMassArithmetic } from "../core/internal/ArchetypeMassArithmetic";
+import { ArchetypeMassPrimitive } from "../core/internal/ArchetypeMassPrimitive";
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { AutoMovieArchetypeQuadrupedEars } from "./AutoMovieArchetypeQuadrupedEars";
 import { QuadrupedJaw } from "./quadruped/QuadrupedJaw";

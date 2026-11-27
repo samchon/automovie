@@ -2,8 +2,8 @@ import type { AutoMovieArchetypeStagePrimingWire } from "../AutoMovieArchetypeSt
 import { Vector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
-import { HandToolDraw } from "../HandToolDraw";
-import { PRIMING_WIRE } from "../PRIMING_WIRE";
+import { HandToolDraw } from "./HandToolDraw";
+import { PRIMING_WIRE } from "../constants/PRIMING_WIRE";
 
 /**
  * Inert priming-wire display prop with a ring pinch and a tip locator.

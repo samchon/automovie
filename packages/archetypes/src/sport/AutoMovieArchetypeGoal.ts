@@ -1,10 +1,10 @@
 import { ArchetypeDraw, type AutoMovieArchetype } from "../core/index";
-import { GoalBuild } from "./GoalBuild";
+import { GoalBuild } from "./internal/GoalBuild";
 import { AutoMovieArchetypeBasketballHoop } from "./AutoMovieArchetypeBasketballHoop";
 import { AutoMovieArchetypeFieldGoal } from "./AutoMovieArchetypeFieldGoal";
 import { AutoMovieArchetypeTennisNet } from "./AutoMovieArchetypeTennisNet";
 import { AutoMovieArchetypeVolleyballNet } from "./AutoMovieArchetypeVolleyballNet";
-import type { IArchetypeDispatch } from "../core/IArchetypeDispatch";
+import type { IArchetypeDispatch } from "../core/internal/IArchetypeDispatch";
 
 /** Constructs the goal archetype from its recipe. */
 export namespace AutoMovieArchetypeGoal {

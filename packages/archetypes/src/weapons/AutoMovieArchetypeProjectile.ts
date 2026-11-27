@@ -6,7 +6,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import { PROJECTILE_BANDS } from "./PROJECTILE_BANDS";
+import { PROJECTILE_BANDS } from "./constants/PROJECTILE_BANDS";
 import { AutoMovieArchetypeStageBallProp } from "./AutoMovieArchetypeStageBallProp";
 import { AutoMovieArchetypeStageCartridgeProp } from "./AutoMovieArchetypeStageCartridgeProp";
 import { AutoMovieArchetypeStageGrenadeProp } from "./AutoMovieArchetypeStageGrenadeProp";

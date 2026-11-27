@@ -1,7 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
-import { HandToolDraw } from "./HandToolDraw";
+import { HandToolDraw } from "./internal/HandToolDraw";
 
 /** Constructs the table knife archetype from its recipe. */
 export namespace AutoMovieArchetypeTableKnife {

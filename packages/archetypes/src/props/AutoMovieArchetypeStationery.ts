@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createStationery as createStationeryImplementation } from "./internal/createStationery";
-import { StationeryDraw } from "./StationeryDraw";
+import { StationeryDraw } from "./internal/StationeryDraw";
 import { AutoMovieArchetypeBook } from "./AutoMovieArchetypeBook";
 import { AutoMovieArchetypePaper } from "./AutoMovieArchetypePaper";
 import { AutoMovieArchetypePen } from "./AutoMovieArchetypePen";

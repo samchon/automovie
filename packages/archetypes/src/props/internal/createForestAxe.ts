@@ -1,7 +1,7 @@
 import type { AutoMovieArchetypeForestAxe } from "../AutoMovieArchetypeForestAxe";
 import { type AutoMovieArchetype } from "../../core/index";
-import { ForestAxe } from "../ForestAxe";
-import { LongImplementDraw } from "../LongImplementDraw";
+import { ForestAxe } from "./ForestAxe";
+import { LongImplementDraw } from "./LongImplementDraw";
 
 /**
  * Forest axe with a shaft hold and a head-face marker.

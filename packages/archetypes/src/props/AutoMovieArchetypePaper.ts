@@ -5,7 +5,7 @@ import {
   type AutoMovieArchetype,
   AutoMovieArchetypeFrame,
 } from "../core";
-import { StationeryDraw } from "./StationeryDraw";
+import { StationeryDraw } from "./internal/StationeryDraw";
 
 /** Constructs the paper sheet or folded map according to its recipe. */
 export namespace AutoMovieArchetypePaper {

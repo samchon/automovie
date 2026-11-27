@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createStagePracticeSwordProp as createStagePracticeSwordPropImplementation } from "./internal/createStagePracticeSwordProp";
-import { StageBladeConstruction } from "./StageBladeConstruction";
+import { StageBladeConstruction } from "./internal/StageBladeConstruction";
 import { type AutoMovieArchetypeStageBladeProp } from "./AutoMovieArchetypeStageBladeProp";
 
 /** Public operations for Auto Movie Archetype Stage Practice Sword Prop. */

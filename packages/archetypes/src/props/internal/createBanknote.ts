@@ -6,7 +6,7 @@ import {
   AutoMovieArchetypeBuilder,
   AutoMovieArchetypeDrawSession,
 } from "../../core/index";
-import { TabletopStack } from "../TabletopStack";
+import { TabletopStack } from "./TabletopStack";
 
 /**
  * A United States banknote: "6.14 length × 2.61 width × 0.0043 in thickness =

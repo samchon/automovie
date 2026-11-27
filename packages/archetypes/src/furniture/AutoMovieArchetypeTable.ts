@@ -1,7 +1,7 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createTable as createTableImplementation } from "./internal/createTable";
 import { AutoMovieArchetypeUnits, AutoMovieArchetypeDrawSession, type IAutoMovieArchetypeBand } from "../core";
-import { TABLE_BANDS } from "./TABLE_BANDS";
+import { TABLE_BANDS } from "./constants/TABLE_BANDS";
 
 /** Public operations for Auto Movie Archetype Table. */
 export namespace AutoMovieArchetypeTable {

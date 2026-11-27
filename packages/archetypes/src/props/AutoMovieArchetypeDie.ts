@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createDie as createDieImplementation } from "./internal/createDie";
-import { TabletopStack } from "./TabletopStack";
+import { TabletopStack } from "./internal/TabletopStack";
 
 /** Public operations for Auto Movie Archetype Die. */
 export namespace AutoMovieArchetypeDie {

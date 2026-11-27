@@ -9,8 +9,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { ArchetypeBody } from "./ArchetypeBody";
-import { ArchetypeShapes } from "./ArchetypeShapes";
+import { ArchetypeBody } from "./internal/ArchetypeBody";
+import { ArchetypeShapes } from "./internal/ArchetypeShapes";
 import { AutoMovieArchetypeArticulation } from "./AutoMovieArchetypeArticulation";
 import type { AutoMovieArchetypeConvexCell } from "./AutoMovieArchetypeConvexCell";
 import type { AutoMovieArchetypeDrawSession } from "./AutoMovieArchetypeDrawSession";

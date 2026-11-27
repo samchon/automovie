@@ -11,8 +11,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { ArchetypeBuilderParts } from "./ArchetypeBuilderParts";
-import type { ArchetypeBuilderTypes } from "./ArchetypeBuilderTypes";
+import { ArchetypeBuilderParts } from "./internal/ArchetypeBuilderParts";
+import type { ArchetypeBuilderTypes } from "./internal/ArchetypeBuilderTypes";
 import type { AutoMovieArchetype } from "./AutoMovieArchetype";
 import { AutoMovieArchetypeConvexCell } from "./AutoMovieArchetypeConvexCell";
 import type { AutoMovieArchetypeFracture } from "./AutoMovieArchetypeFracture";

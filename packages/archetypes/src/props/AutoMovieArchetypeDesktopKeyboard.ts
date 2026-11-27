@@ -1,5 +1,5 @@
 import type { AutoMovieArchetype } from "../core";
-import { KeyboardHardware } from "./KeyboardHardware";
+import { KeyboardHardware } from "./internal/KeyboardHardware";
 
 /** A desktop keyboard with measured layouts and interaction surfaces. */
 export namespace AutoMovieArchetypeDesktopKeyboard {

@@ -6,7 +6,7 @@ import {
   AutoMovieArchetypeFrame,
   AutoMovieArchetypeUnits,
 } from "../core";
-import { KeyboardHardware } from "./KeyboardHardware";
+import { KeyboardHardware } from "./internal/KeyboardHardware";
 
 /** A laptop from the measured Air models and their input contacts. */
 export namespace AutoMovieArchetypeLaptop {

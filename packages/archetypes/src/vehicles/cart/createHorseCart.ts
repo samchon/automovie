@@ -1,7 +1,7 @@
 import { type AutoMovieArchetype } from "../../core";
-import { CartConstruction } from "../CartConstruction";
-import { CartDrawn } from "../CartDrawn";
-import { CartFit } from "../CartFit";
+import { CartConstruction } from "../internal/CartConstruction";
+import { CartDrawn } from "../internal/CartDrawn";
+import { CartFit } from "../internal/CartFit";
 import type { AutoMovieArchetypeHorseCart } from "../AutoMovieArchetypeHorseCart";
 
 /**

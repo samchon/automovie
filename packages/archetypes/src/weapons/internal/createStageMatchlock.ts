@@ -6,7 +6,7 @@ import {
   type AutoMovieArchetypeBuilder,
   AutoMovieArchetypeFrame,
 } from "../../core/index";
-import { StagePeriodGunConstruction } from "../StagePeriodGunConstruction";
+import { StagePeriodGunConstruction } from "./StagePeriodGunConstruction";
 
 /**
  * Detroit Institute of Arts 53.220, German matchlock gun, late 16th century and

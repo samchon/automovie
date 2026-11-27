@@ -1,7 +1,7 @@
 import { AutoMovieEngineRandom } from "@automovie/engine";
 
 
-import { ArchetypeDraw } from "./ArchetypeDraw";
+import { ArchetypeDraw } from "./internal/ArchetypeDraw";
 import type { AutoMovieArchetypeBandUnit } from "./AutoMovieArchetypeBandUnit";
 import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
 import type { IAutoMovieArchetypeBand } from "./IAutoMovieArchetypeBand";

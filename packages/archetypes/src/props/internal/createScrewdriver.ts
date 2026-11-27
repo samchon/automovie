@@ -2,7 +2,7 @@ import type { AutoMovieArchetypeScrewdriver } from "../AutoMovieArchetypeScrewdr
 import { Vector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
-import { HandToolDraw } from "../HandToolDraw";
+import { HandToolDraw } from "./HandToolDraw";
 
 /**
  * Screwdriver with a round grip and an axial tip along +Y.

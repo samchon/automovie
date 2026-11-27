@@ -1,5 +1,5 @@
 import { type AutoMovieArchetype } from "../core/index";
-import { type LongImplementDraw } from "./LongImplementDraw";
+import { type LongImplementDraw } from "./internal/LongImplementDraw";
 import { createStageSling as createStageSlingImplementation } from "./internal/createStageSling";
 
 /** Public operations for Auto Movie Archetype Stage Sling. */

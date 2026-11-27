@@ -1,6 +1,6 @@
 import type { AutoMovieArchetypeStageStoneProp } from "../AutoMovieArchetypeStageStoneProp";
 import { type AutoMovieArchetype } from "../../core/index";
-import { StageTokenConstruction } from "../StageTokenConstruction";
+import { StageTokenConstruction } from "./StageTokenConstruction";
 
 import { stageTokenSphere } from "./stageTokenSphere";
 

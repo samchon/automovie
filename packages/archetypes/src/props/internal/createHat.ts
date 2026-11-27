@@ -2,7 +2,7 @@ import type { AutoMovieArchetypeHat } from "../AutoMovieArchetypeHat";
 import { Vector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
-import { WornPropDraw } from "../WornPropDraw";
+import { WornPropDraw } from "./WornPropDraw";
 
 /**
  * Hat with a brim pinch and a crown socket.

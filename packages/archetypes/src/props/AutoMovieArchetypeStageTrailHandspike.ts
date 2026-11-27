@@ -1,5 +1,5 @@
 import { type AutoMovieArchetype } from "../core/index";
-import { type LongImplementDraw } from "./LongImplementDraw";
+import { type LongImplementDraw } from "./internal/LongImplementDraw";
 import { createStageTrailHandspike as createStageTrailHandspikeImplementation } from "./internal/createStageTrailHandspike";
 
 /** Public operations for Auto Movie Archetype Stage Trail Handspike. */

@@ -1,5 +1,5 @@
 import type { AutoMovieArchetype } from "../core";
-import { HandheldDevice } from "./HandheldDevice";
+import { HandheldDevice } from "./internal/HandheldDevice";
 
 /** The canonical producer and authoring contract for a remote control. */
 export namespace AutoMovieArchetypeRemote {

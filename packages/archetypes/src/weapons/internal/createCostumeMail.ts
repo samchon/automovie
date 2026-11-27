@@ -1,7 +1,7 @@
 import type { AutoMovieArchetypeCostumeMail } from "../AutoMovieArchetypeCostumeMail";
 import { type AutoMovieArchetype } from "../../core/index";
-import { ArmourTorso } from "../ArmourTorso";
-import { CostumeConstruction } from "../CostumeConstruction";
+import { ArmourTorso } from "./ArmourTorso";
+import { CostumeConstruction } from "./CostumeConstruction";
 
 
 /**

@@ -2,7 +2,7 @@ import type { AutoMovieArchetypePayStation } from "../AutoMovieArchetypePayStati
 import { Vector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype } from "../../core/index";
-import { ServiceCabinet } from "../ServiceCabinet";
+import { ServiceCabinet } from "./ServiceCabinet";
 
 /**
  * A pay station's head on its body, metres: the StradaPAL's 90 mm spacer and

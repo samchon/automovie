@@ -3,7 +3,7 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { ArchetypeDraw, type AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame, AutoMovieArchetypeUnits } from "../../core";
-import "../WHEELCHAIR_SHEET";
+import "../constants/WHEELCHAIR_SHEET";
 
 /**
  * A manual wheelchair: a self-propelled chair on large rear wheels with

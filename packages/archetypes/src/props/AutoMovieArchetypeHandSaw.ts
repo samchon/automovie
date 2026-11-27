@@ -1,5 +1,5 @@
 import { type AutoMovieArchetype } from "../core/index";
-import { type HandToolDraw } from "./HandToolDraw";
+import { type HandToolDraw } from "./internal/HandToolDraw";
 import { createHandSaw as createHandSawImplementation } from "./internal/createHandSaw";
 
 /** Public operations for Auto Movie Archetype Hand Saw. */

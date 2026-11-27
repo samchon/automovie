@@ -1,5 +1,5 @@
 import { type AutoMovieArchetype } from "../core/index";
-import { type StationeryDraw } from "./StationeryDraw";
+import { type StationeryDraw } from "./internal/StationeryDraw";
 import { createPen as createPenImplementation } from "./internal/createPen";
 
 /** Public operations for Auto Movie Archetype Pen. */

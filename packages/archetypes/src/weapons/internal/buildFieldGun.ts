@@ -5,7 +5,7 @@ import {
   type AutoMovieArchetypeBuilder,
   AutoMovieArchetypeFrame,
 } from "../../core/index";
-import { FIELD_GUN } from "../FIELD_GUN";
+import { FIELD_GUN } from "../constants/FIELD_GUN";
 import type { AutoMovieArchetypeCannon } from "../AutoMovieArchetypeCannon";
 
 /**

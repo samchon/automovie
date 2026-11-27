@@ -2,7 +2,7 @@ import type { AutoMovieArchetypeMop } from "../AutoMovieArchetypeMop";
 import { Vector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
-import { LongImplementDraw } from "../LongImplementDraw";
+import { LongImplementDraw } from "./LongImplementDraw";
 
 /** The pad block's height, metres. */
 const PAD: number = 0.03;

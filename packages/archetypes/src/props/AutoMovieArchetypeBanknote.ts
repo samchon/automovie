@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createBanknote as createBanknoteImplementation } from "./internal/createBanknote";
-import { TabletopStack } from "./TabletopStack";
+import { TabletopStack } from "./internal/TabletopStack";
 
 /** Public operations for Auto Movie Archetype Banknote. */
 export namespace AutoMovieArchetypeBanknote {

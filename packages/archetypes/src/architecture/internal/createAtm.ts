@@ -7,7 +7,7 @@ import {
   AutoMovieArchetypeFrame,
   AutoMovieArchetypeUnits,
 } from "../../core/index";
-import { ServiceCabinet } from "../ServiceCabinet";
+import { ServiceCabinet } from "./ServiceCabinet";
 import type { AutoMovieArchetypeMachine } from "../AutoMovieArchetypeMachine";
 
 /** The shape of {@link SHELF}. */

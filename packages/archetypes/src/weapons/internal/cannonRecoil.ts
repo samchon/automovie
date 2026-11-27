@@ -3,8 +3,8 @@ import {
   AutoMovieArchetypeRefusal,
   type AutoMovieArchetypeTrack,
 } from "../../core/index";
-import { ArchetypeTrackTime } from "../../core/ArchetypeTrackTime";
-import { FIELD_GUN } from "../FIELD_GUN";
+import { ArchetypeTrackTime } from "../../core/internal/ArchetypeTrackTime";
+import { FIELD_GUN } from "../constants/FIELD_GUN";
 import type { AutoMovieArchetypeCannon } from "../AutoMovieArchetypeCannon";
 
 /**

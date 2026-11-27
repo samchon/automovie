@@ -2,7 +2,7 @@ import type { AutoMovieArchetypeLampPost } from "../AutoMovieArchetypeLampPost";
 import { Vector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype } from "../../core/index";
-import { StreetFixtureDraw } from "../StreetFixtureDraw";
+import { StreetFixtureDraw } from "./StreetFixtureDraw";
 
 /**
  * A lamp post with a ground base, upright grip and post-top luminaire.

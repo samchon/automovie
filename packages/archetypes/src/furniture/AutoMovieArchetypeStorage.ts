@@ -4,11 +4,11 @@ import {
   AutoMovieArchetypeDrawSession,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import { STORAGE_BANDS } from "./STORAGE_BANDS";
+import { STORAGE_BANDS } from "./constants/STORAGE_BANDS";
 import { AutoMovieArchetypeBookcase } from "./AutoMovieArchetypeBookcase";
 import { AutoMovieArchetypeDrawerUnit } from "./AutoMovieArchetypeDrawerUnit";
 import { AutoMovieArchetypeHingedCabinet } from "./AutoMovieArchetypeHingedCabinet";
-import type { IArchetypeDispatch } from "../core/IArchetypeDispatch";
+import type { IArchetypeDispatch } from "../core/internal/IArchetypeDispatch";
 
 /** Constructs the storage archetype from its recipe. */
 export namespace AutoMovieArchetypeStorage {

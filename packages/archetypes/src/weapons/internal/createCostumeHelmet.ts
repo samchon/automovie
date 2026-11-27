@@ -1,7 +1,7 @@
 import { AutoMovieArchetypeCostumeHelmet } from "../AutoMovieArchetypeCostumeHelmet";
 import { ArchetypeDraw, type AutoMovieArchetype } from "../../core/index";
-import { ArmourHelmet } from "../ArmourHelmet";
-import { CostumeConstruction } from "../CostumeConstruction";
+import { ArmourHelmet } from "./ArmourHelmet";
+import { CostumeConstruction } from "./CostumeConstruction";
 
 
 /**

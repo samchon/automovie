@@ -2,8 +2,7 @@ import { evidence } from "@ttsc/evidence";
 import type { ITtscLintBoundariesElement, ITtscLintConfig } from "@ttsc/lint";
 
 interface ICreateLintConfigOptions {
-  extends: string;
-  documented: "public" | "all";
+  documented: boolean;
 }
 
 /**
@@ -15,16 +14,6 @@ interface ICreateLintConfigOptions {
 export function createLintConfig(
   options?: ICreateLintConfigOptions,
 ): ITtscLintConfig {
-  if (options !== undefined) {
-    return {
-      extends: options.extends,
-      ...(options.documented === "public"
-        ? { files: ["src/*.ts", "src/*/*.ts"] }
-        : {}),
-      rules: { "evidence/documented": "error" },
-    };
-  }
-
   const elements: readonly ITtscLintBoundariesElement[] = [
     { type: "package", pattern: "packages/*/src/**", entry: "*/src/index.ts" },
     { type: "test", pattern: "test/**" },
@@ -83,6 +72,9 @@ export function createLintConfig(
 
       "evidence/singular": "error",
       "evidence/todo": "error",
+      ...(options?.documented
+        ? { "evidence/documented": "error" as const }
+        : {}),
 
       // ESLint core: runtime correctness and low-noise modern JavaScript.
       "default-param-last": "error",

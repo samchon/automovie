@@ -4,8 +4,8 @@ import {
   AutoMovieArchetypeDrawSession,
   type IAutoMovieArchetypeBand,
 } from "../../core";
-import { SCENIC_CONTAINER_BANDS } from "../SCENIC_CONTAINER_BANDS";
-import { ScenicContainerConstruction } from "../ScenicContainerConstruction";
+import { SCENIC_CONTAINER_BANDS } from "../constants/SCENIC_CONTAINER_BANDS";
+import { ScenicContainerConstruction } from "./ScenicContainerConstruction";
 import { AutoMovieArchetypeCargoPod } from "../AutoMovieArchetypeCargoPod";
 import { AutoMovieArchetypeMoldedCrate } from "../AutoMovieArchetypeMoldedCrate";
 import { AutoMovieArchetypePlankCoffer } from "../AutoMovieArchetypePlankCoffer";

@@ -5,9 +5,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { ArchetypeMassArithmetic } from "./ArchetypeMassArithmetic";
-import { ArchetypeMassLocal } from "./ArchetypeMassLocal";
-import { ArchetypeMassRecord } from "./ArchetypeMassRecord";
+import { ArchetypeMassArithmetic } from "./internal/ArchetypeMassArithmetic";
+import { ArchetypeMassLocal } from "./internal/ArchetypeMassLocal";
+import { ArchetypeMassRecord } from "./internal/ArchetypeMassRecord";
 import type { AutoMovieArchetypeConvexCell } from "./AutoMovieArchetypeConvexCell";
 import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
 

@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../../core";
-import { CartCoach } from "../CartCoach";
-import { CartConstruction } from "../CartConstruction";
+import { CartCoach } from "../internal/CartCoach";
+import { CartConstruction } from "../internal/CartConstruction";
 import type { AutoMovieArchetypeCarriage } from "../AutoMovieArchetypeCarriage";
 
 /**

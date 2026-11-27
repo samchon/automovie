@@ -2,7 +2,7 @@ import type { AutoMovieArchetypeStageMaceProp } from "../AutoMovieArchetypeStage
 import { Vector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype } from "../../core/index";
-import { StageShaftConstruction } from "../StageShaftConstruction";
+import { StageShaftConstruction } from "./StageShaftConstruction";
 
 
 /**

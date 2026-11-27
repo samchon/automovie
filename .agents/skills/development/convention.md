@@ -27,8 +27,22 @@ Name object types. Give each object variant in a union a named interface with a 
 
 ## Comments
 
-Document public declarations and public members with JSDoc. [Documentation](../documentation/SKILL.md) applies to all JSDoc.
-
-Private declarations need neither JSDoc nor Evidence. Use ordinary comments to explain non-obvious logic and why it takes that approach. Record the assumptions and invariants future changes must preserve.
+[Documentation](../documentation/SKILL.md) applies to all JSDoc.
 
 Keep upstream references next to the code that uses them.
+
+### Public JSDoc
+
+Document public declarations and public members with JSDoc.
+
+Open public SDK JSDoc with a brief, standalone summary of the contract. In later paragraphs, preserve details callers need to use it correctly, including applicable constraints, units, defaults, observable effects and failure conditions.
+
+Readers can scan the summary to find the right API, then use the details to call it correctly.
+
+### Private comments
+
+Private declarations need neither JSDoc nor Evidence.
+
+Use ordinary comments to explain non-obvious logic and why it takes that approach. Record the assumptions and invariants future changes must preserve.
+
+These comments help maintainers preserve decisions the code does not reveal.

@@ -2,7 +2,7 @@ import type { AutoMovieArchetypeLadle } from "../AutoMovieArchetypeLadle";
 import { Vector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
-import { HandToolDraw } from "../HandToolDraw";
+import { HandToolDraw } from "./HandToolDraw";
 
 /**
  * Ladle with a pinch grip and a bowl facing +Z.

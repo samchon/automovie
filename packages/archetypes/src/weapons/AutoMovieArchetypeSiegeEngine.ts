@@ -1,9 +1,9 @@
 import { AutoMovieArchetype } from "../core/index";
 import { createSiegeEngine as createSiegeEngineImplementation } from "./internal/createSiegeEngine";
 import { AutoMovieArchetypeDrawSession, type IAutoMovieArchetypeBand, AutoMovieArchetypeTrack, AutoMovieArchetypeUnits } from "../core";
-import { SIEGE_BANDS } from "./SIEGE_BANDS";
+import { SIEGE_BANDS } from "./constants/SIEGE_BANDS";
 import { type IAutoMovieVector3 } from "@automovie/interface";
-import { SiegeArm } from "./SiegeArm";
+import { SiegeArm } from "./internal/SiegeArm";
 
 /** Public operations for Auto Movie Archetype Siege Engine. */
 export namespace AutoMovieArchetypeSiegeEngine {

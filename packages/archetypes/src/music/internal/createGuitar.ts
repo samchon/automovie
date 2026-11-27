@@ -1,7 +1,7 @@
 import type { AutoMovieArchetypeGuitar } from "../AutoMovieArchetypeGuitar";
 import type { AutoMovieArchetype } from "../../core/index";
-import { InstrumentBuild } from "../InstrumentBuild";
-import { StringedConstruction } from "../StringedConstruction";
+import { InstrumentBuild } from "./InstrumentBuild";
+import { StringedConstruction } from "./StringedConstruction";
 
 
 /**

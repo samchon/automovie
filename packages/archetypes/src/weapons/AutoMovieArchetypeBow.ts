@@ -8,12 +8,12 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import { BOW_BANDS } from "./BOW_BANDS";
+import { BOW_BANDS } from "./constants/BOW_BANDS";
 import { bowLaunchSpeed } from "./internal/bowLaunchSpeed";
 import { bowLimbs } from "./internal/bowLimbs";
 import { AutoMovieArchetypeStageHandBowProp } from "./AutoMovieArchetypeStageHandBowProp";
 import { AutoMovieArchetypeStageStockBowProp } from "./AutoMovieArchetypeStageStockBowProp";
-import type { IArchetypeDispatch } from "../core/IArchetypeDispatch";
+import type { IArchetypeDispatch } from "../core/internal/IArchetypeDispatch";
 
 /** The Olympic recurve's maker's chart. */
 const HOYT: string =

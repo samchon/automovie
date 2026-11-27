@@ -6,7 +6,7 @@ import {
   type AutoMovieArchetypeBuilder,
   AutoMovieArchetypeFrame,
 } from "../../core/index";
-import { GoalBuild } from "../GoalBuild";
+import { GoalBuild } from "./GoalBuild";
 import type { AutoMovieArchetypeGoal } from "../AutoMovieArchetypeGoal";
 
 /** The builder for this field or court apparatus. */

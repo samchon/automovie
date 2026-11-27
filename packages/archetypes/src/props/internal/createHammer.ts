@@ -2,7 +2,7 @@ import type { AutoMovieArchetypeHammer } from "../AutoMovieArchetypeHammer";
 import { Vector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
-import { HandToolDraw } from "../HandToolDraw";
+import { HandToolDraw } from "./HandToolDraw";
 
 /**
  * Hammer with a power grip near the butt and a head face toward +Z.

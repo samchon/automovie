@@ -1,7 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
-import { HandheldDevice } from "./HandheldDevice";
+import { HandheldDevice } from "./internal/HandheldDevice";
 
 /** The canonical producer and authoring contract for a compact camera. */
 export namespace AutoMovieArchetypeCamera {

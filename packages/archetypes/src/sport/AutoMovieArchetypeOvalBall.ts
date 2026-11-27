@@ -1,7 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 
 import { ArchetypeDraw, type AutoMovieArchetype } from "../core";
-import { BallBuild } from "./BallBuild";
+import { BallBuild } from "./internal/BallBuild";
 import type { AutoMovieArchetypeBall } from "./AutoMovieArchetypeBall";
 
 /** Canonical producer and authoring contract for Oval Ball. */

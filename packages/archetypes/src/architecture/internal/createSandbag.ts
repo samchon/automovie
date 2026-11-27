@@ -2,7 +2,7 @@ import type { AutoMovieArchetypeSandbag } from "../AutoMovieArchetypeSandbag";
 import { Vector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
-import { ObstacleDraw } from "../ObstacleDraw";
+import { ObstacleDraw } from "./ObstacleDraw";
 
 /**
  * A filled sandbag with a low crossing surface and a grasp at each end.

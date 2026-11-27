@@ -2,7 +2,7 @@ import type { AutoMovieArchetypePen } from "../AutoMovieArchetypePen";
 import { Vector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
-import { StationeryDraw } from "../StationeryDraw";
+import { StationeryDraw } from "./StationeryDraw";
 
 /**
  * Pen with a precision pinch and an axial writing tip along +Z.

@@ -1,6 +1,6 @@
 import type { AutoMovieArchetypeAshtray } from "../AutoMovieArchetypeAshtray";
 import type { AutoMovieArchetype } from "../../core/index";
-import { VesselConstruction } from "../VesselConstruction";
+import { VesselConstruction } from "./VesselConstruction";
 
 
 /**

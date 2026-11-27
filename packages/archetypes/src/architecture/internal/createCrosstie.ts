@@ -2,7 +2,7 @@ import type { AutoMovieArchetypeCrosstie } from "../AutoMovieArchetypeCrosstie";
 import { Vector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype } from "../../core/index";
-import { ObstacleDraw } from "../ObstacleDraw";
+import { ObstacleDraw } from "./ObstacleDraw";
 
 
 /**

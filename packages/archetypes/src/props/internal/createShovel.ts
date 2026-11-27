@@ -2,7 +2,7 @@ import type { AutoMovieArchetypeShovel } from "../AutoMovieArchetypeShovel";
 import { Vector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
-import { LongImplementDraw } from "../LongImplementDraw";
+import { LongImplementDraw } from "./LongImplementDraw";
 
 /**
  * Shovel resting on its blade edge with a two-hand shaft and top D grip.

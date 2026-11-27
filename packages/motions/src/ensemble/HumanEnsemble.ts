@@ -10,7 +10,7 @@ import type {
   IAutoMovieRandom,
 } from "@automovie/interface";
 
-import { HumanChain } from "../HumanChain";
+import { HumanChain } from "../chain/HumanChain";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HUMAN_ATTRIBUTE_EFFECTS } from "./HUMAN_ATTRIBUTE_EFFECTS";
 import { HumanAttribute } from "./HumanAttribute";

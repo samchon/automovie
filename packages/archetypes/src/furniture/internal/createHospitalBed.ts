@@ -1,6 +1,6 @@
 import type { AutoMovieArchetypeHospitalBed } from "../AutoMovieArchetypeHospitalBed";
 import type { AutoMovieArchetype } from "../../core/index";
-import { BedConstruction } from "../BedConstruction";
+import { BedConstruction } from "./BedConstruction";
 
 
 /**

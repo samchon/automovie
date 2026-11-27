@@ -2,7 +2,7 @@ import { AutoMovieArchetypeStageFencingProp } from "../AutoMovieArchetypeStageFe
 import { Vector3 } from "@automovie/engine";
 
 import { ArchetypeDraw, type AutoMovieArchetype } from "../../core/index";
-import { StageBladeConstruction } from "../StageBladeConstruction";
+import { StageBladeConstruction } from "./StageBladeConstruction";
 
 
 /**

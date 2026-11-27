@@ -2,7 +2,7 @@ import type { AutoMovieArchetypeWatch } from "../AutoMovieArchetypeWatch";
 import { Vector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
-import { WornPropDraw } from "../WornPropDraw";
+import { WornPropDraw } from "./WornPropDraw";
 
 /**
  * Wristwatch resting dial up with a straight band.

@@ -10,7 +10,7 @@ import {
 import * as THREE from "three";
 
 import { AutoMovieArchetypeMarks } from "../core";
-import { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
+import { archetypeCaptureCatalog } from "./internal/archetypeCaptureCatalog";
 import { archetypeQuadrupedMarks } from "./internal/archetypeQuadrupedMarks";
 
 /**

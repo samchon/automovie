@@ -2,7 +2,7 @@ import { type AutoMovieArchetype } from "../core/index";
 import type { AutoMovieHumanSide, IAutoMovieTransform } from "@automovie/interface";
 import { createWheelchair as createWheelchairImplementation } from "./internal/createWheelchair";
 import { AutoMovieArchetypeDrawSession, AutoMovieArchetypeUnits, type IAutoMovieArchetypeBand, AutoMovieArchetypeBand, AutoMovieArchetypeCourse, AutoMovieArchetypeRide } from "../core";
-import { WHEELCHAIR_SHEET } from "./WHEELCHAIR_SHEET";
+import { WHEELCHAIR_SHEET } from "./constants/WHEELCHAIR_SHEET";
 import { handrimContacts as handrimContactsImplementation } from "./internal/handrimContacts";
 import { rideWheelchair } from "./internal/rideWheelchair";
 import { wheelchairHandrimFrame as wheelchairHandrimFrameImplementation } from "./internal/wheelchairHandrimFrame";

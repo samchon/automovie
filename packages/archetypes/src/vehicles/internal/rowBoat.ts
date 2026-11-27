@@ -9,8 +9,8 @@ import {
   type AutoMovieArchetypeRide,
   AutoMovieArchetypeSea,
 } from "../../core";
-import { ArchetypeCourseLegs } from "../../core/ArchetypeCourseLegs";
-import { BoatOars } from "../BoatOars";
+import { ArchetypeCourseLegs } from "../../core/internal/ArchetypeCourseLegs";
+import { BoatOars } from "./BoatOars";
 import { AutoMovieArchetypeBoat } from "../AutoMovieArchetypeBoat";
 
 /** Complete rowboat state at a film second. */

@@ -12,7 +12,7 @@ import { AutoMovieArchetypeDog } from "../../animals/AutoMovieArchetypeDog";
 import { AutoMovieArchetypeHorse } from "../../animals/AutoMovieArchetypeHorse";
 import { AutoMovieArchetypeQuadruped } from "../../animals/AutoMovieArchetypeQuadruped";
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
-import type { archetypeCaptureCatalog } from "../archetypeCaptureCatalog";
+import type { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
 
 /**
  * Draw canonical dog and saddle-horse authored rest cycles.

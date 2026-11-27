@@ -2,7 +2,7 @@ import type { AutoMovieArchetypeStageTwoHandedSwordProp } from "../AutoMovieArch
 import { Vector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype } from "../../core/index";
-import { StageBladeConstruction } from "../StageBladeConstruction";
+import { StageBladeConstruction } from "./StageBladeConstruction";
 
 
 /**

@@ -2,7 +2,7 @@ import type { AutoMovieArchetypeCigarette } from "../AutoMovieArchetypeCigarette
 import { Vector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
-import { SmokingPropDraw } from "../SmokingPropDraw";
+import { SmokingPropDraw } from "./SmokingPropDraw";
 
 /**
  * Inert cigarette proxy with a pinch, filter contact and lit-end locator.

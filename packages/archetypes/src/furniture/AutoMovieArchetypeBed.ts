@@ -4,14 +4,14 @@ import {
   AutoMovieArchetypeDrawSession,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import { BED_BANDS } from "./BED_BANDS";
+import { BED_BANDS } from "./constants/BED_BANDS";
 import { AutoMovieArchetypeBunkBed } from "./AutoMovieArchetypeBunkBed";
 import { AutoMovieArchetypeCrib } from "./AutoMovieArchetypeCrib";
 import { AutoMovieArchetypeGurney } from "./AutoMovieArchetypeGurney";
 import { AutoMovieArchetypeHospitalBed } from "./AutoMovieArchetypeHospitalBed";
 import { AutoMovieArchetypeMattress } from "./AutoMovieArchetypeMattress";
 import { AutoMovieArchetypePlatformBed } from "./AutoMovieArchetypePlatformBed";
-import type { IArchetypeDispatch } from "../core/IArchetypeDispatch";
+import type { IArchetypeDispatch } from "../core/internal/IArchetypeDispatch";
 
 /** Constructs the bed archetype from its recipe. */
 export namespace AutoMovieArchetypeBed {

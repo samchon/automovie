@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createWearable as createWearableImplementation } from "./internal/createWearable";
-import { WornPropDraw } from "./WornPropDraw";
+import { WornPropDraw } from "./internal/WornPropDraw";
 import { AutoMovieArchetypeWatch } from "./AutoMovieArchetypeWatch";
 import { AutoMovieArchetypeHat } from "./AutoMovieArchetypeHat";
 import { AutoMovieArchetypeSpectacles } from "./AutoMovieArchetypeSpectacles";

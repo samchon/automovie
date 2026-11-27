@@ -1,5 +1,5 @@
 import { type AutoMovieArchetype } from "../core/index";
-import { type GroomingPropDraw } from "./GroomingPropDraw";
+import { type GroomingPropDraw } from "./internal/GroomingPropDraw";
 import { createLipstick as createLipstickImplementation } from "./internal/createLipstick";
 
 /** Public operations for Auto Movie Archetype Lipstick. */

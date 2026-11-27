@@ -1,7 +1,7 @@
 import type { AutoMovieArchetypeStageAtlatl } from "../AutoMovieArchetypeStageAtlatl";
 import { type AutoMovieArchetype } from "../../core/index";
-import { LongImplementDraw } from "../LongImplementDraw";
-import { Throwers } from "../Throwers";
+import { LongImplementDraw } from "./LongImplementDraw";
+import { Throwers } from "./Throwers";
 
 /**
  * Inert atlatl prop with its original display grip and end locator.

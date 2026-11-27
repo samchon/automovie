@@ -1,5 +1,5 @@
 import { type AutoMovieArchetype } from "../core/index";
-import { type LongImplementDraw } from "./LongImplementDraw";
+import { type LongImplementDraw } from "./internal/LongImplementDraw";
 import { createShovel as createShovelImplementation } from "./internal/createShovel";
 
 /** Public operations for Auto Movie Archetype Shovel. */

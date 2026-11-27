@@ -31,16 +31,9 @@ const DISCLOSURE: number = 16;
  *
  * A node with children is folded until opened, with the number of paths under it, so a figure's dozens of bones do not fill the panel. Its disclosure button, between the controls and the name, opens and folds it and states whether it is open; it sits beside the controls, never around them, so no control is nested in another. The filter keeps the nodes whose path contains the typed text, with their ancestors, and opens them; while it does, their disclosure buttons are disabled.
  */
-export function AutoMovieInspectorSelectionPanel(props: {
-  /** The request shown. */
-  request: IAutoMovieCapturePlanRequest;
-
-  /** The subject's identity paths in scene order. */
-  paths: readonly string[];
-
-  /** Where edits go. */
-  dispatch: (action: IAutoMovieInspectorAction) => void;
-}): JSX.Element {
+export function AutoMovieInspectorSelectionPanel(
+  props: AutoMovieInspectorSelectionPanel.IProps,
+): JSX.Element {
   const tree: IAutoMovieInspectorPathNode[] = useMemo(
     (): IAutoMovieInspectorPathNode[] =>
       AutoMovieViewerInspector.buildPathTree(props.paths),
@@ -106,6 +99,19 @@ export function AutoMovieInspectorSelectionPanel(props: {
       </ul>
     </div>
   );
+}
+
+export namespace AutoMovieInspectorSelectionPanel {
+  export interface IProps {
+    /** The request shown. */
+    request: IAutoMovieCapturePlanRequest;
+
+    /** The subject's identity paths in scene order. */
+    paths: readonly string[];
+
+    /** Where edits go. */
+    dispatch: (action: IAutoMovieInspectorAction) => void;
+  }
 }
 
 /** Whether a node or any node under it matches the filter. */

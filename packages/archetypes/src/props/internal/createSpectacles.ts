@@ -2,7 +2,7 @@ import type { AutoMovieArchetypeSpectacles } from "../AutoMovieArchetypeSpectacl
 import { Vector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
-import { WornPropDraw } from "../WornPropDraw";
+import { WornPropDraw } from "./WornPropDraw";
 
 /**
  * Spectacles with a bridge hold and a nose socket.

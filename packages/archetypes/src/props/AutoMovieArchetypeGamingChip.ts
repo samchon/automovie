@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createGamingChip as createGamingChipImplementation } from "./internal/createGamingChip";
-import { TabletopStack } from "./TabletopStack";
+import { TabletopStack } from "./internal/TabletopStack";
 
 /** Public operations for Auto Movie Archetype Gaming Chip. */
 export namespace AutoMovieArchetypeGamingChip {

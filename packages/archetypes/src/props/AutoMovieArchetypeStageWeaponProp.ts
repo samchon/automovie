@@ -4,7 +4,7 @@ import { AutoMovieArchetypeStageLinkedProp } from "./AutoMovieArchetypeStageLink
 import { AutoMovieArchetypeStageMaceProp } from "./AutoMovieArchetypeStageMaceProp";
 import { AutoMovieArchetypeStagePoleBladeProp } from "./AutoMovieArchetypeStagePoleBladeProp";
 import { AutoMovieArchetypeStageShaftProp } from "./AutoMovieArchetypeStageShaftProp";
-import type { IArchetypeDispatch } from "../core/IArchetypeDispatch";
+import type { IArchetypeDispatch } from "../core/internal/IArchetypeDispatch";
 
 /** Constructs the stage weapon prop archetype from its recipe. */
 export namespace AutoMovieArchetypeStageWeaponProp {

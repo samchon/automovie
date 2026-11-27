@@ -6,7 +6,7 @@ import {
   AutoMovieArchetypeBuilder,
   AutoMovieArchetypeDrawSession,
 } from "../../core/index";
-import { TabletopStack } from "../TabletopStack";
+import { TabletopStack } from "./TabletopStack";
 
 /**
  * A poker-size playing card: 3½ × 2½ in, Bicycle's poker deck listed as 88 × 63

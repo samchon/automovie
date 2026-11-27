@@ -1,6 +1,6 @@
 import type { IAutoMovieMesh } from "@automovie/interface";
 
-import { TennisMesh } from "../TennisMesh";
+import { TennisMesh } from "./TennisMesh";
 
 /**
  * Representative 45 mm pitch and 3.5 mm twine in metres (Edwards doubles tennis

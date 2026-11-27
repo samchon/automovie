@@ -11,7 +11,7 @@ import {
   AutoMovieArchetypeSea,
   type IAutoMovieArchetypeBand,
 } from "../core";
-import { BOAT_BANDS } from "./BOAT_BANDS";
+import { BOAT_BANDS } from "./constants/BOAT_BANDS";
 import { AutoMovieArchetypeCanoe } from "./AutoMovieArchetypeCanoe";
 import { AutoMovieArchetypePullingBoat } from "./AutoMovieArchetypePullingBoat";
 import { AutoMovieArchetypeRowboat } from "./AutoMovieArchetypeRowboat";

@@ -1,5 +1,5 @@
 import { type AutoMovieArchetype } from "../core/index";
-import { type WornPropDraw } from "./WornPropDraw";
+import { type WornPropDraw } from "./internal/WornPropDraw";
 import { createHat as createHatImplementation } from "./internal/createHat";
 
 /** Public operations for Auto Movie Archetype Hat. */

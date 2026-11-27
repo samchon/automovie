@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createPlayingCard as createPlayingCardImplementation } from "./internal/createPlayingCard";
-import { TabletopStack } from "./TabletopStack";
+import { TabletopStack } from "./internal/TabletopStack";
 
 /** Public operations for Auto Movie Archetype Playing Card. */
 export namespace AutoMovieArchetypePlayingCard {

@@ -3,7 +3,7 @@ import {
   AutoMovieArchetypeCourse,
   AutoMovieArchetypeRide,
 } from "../../core";
-import { CourseWheelTravel } from "../CourseWheelTravel";
+import { CourseWheelTravel } from "./CourseWheelTravel";
 import type { AutoMovieArchetypeWheelchair } from "../AutoMovieArchetypeWheelchair";
 
 /**

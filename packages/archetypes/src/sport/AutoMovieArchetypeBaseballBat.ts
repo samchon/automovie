@@ -1,7 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 
 import type { AutoMovieArchetype } from "../core";
-import { ClubBuild } from "../weapons/ClubBuild";
+import { ClubBuild } from "../weapons/internal/ClubBuild";
 import type { AutoMovieArchetypeClub } from "../weapons/AutoMovieArchetypeClub";
 
 /** Canonical producer and authoring contract for BaseballBat. */

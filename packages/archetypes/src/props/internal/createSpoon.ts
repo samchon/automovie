@@ -2,7 +2,7 @@ import type { AutoMovieArchetypeSpoon } from "../AutoMovieArchetypeSpoon";
 import { Vector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
-import { HandToolDraw } from "../HandToolDraw";
+import { HandToolDraw } from "./HandToolDraw";
 
 /**
  * Spoon with a pinch grip and an bowl facing +Z in its tool frame.

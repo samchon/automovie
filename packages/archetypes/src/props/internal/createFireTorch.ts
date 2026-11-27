@@ -1,6 +1,6 @@
 import type { AutoMovieArchetypeFireTorch } from "../AutoMovieArchetypeFireTorch";
 import type { AutoMovieArchetype } from "../../core/index";
-import { PracticalLightConstruction } from "../PracticalLightConstruction";
+import { PracticalLightConstruction } from "./PracticalLightConstruction";
 
 
 /**

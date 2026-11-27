@@ -1,5 +1,5 @@
 import { type AutoMovieArchetype } from "../core/index";
-import { type LongImplementDraw } from "./LongImplementDraw";
+import { type LongImplementDraw } from "./internal/LongImplementDraw";
 import { createForestAxe as createForestAxeImplementation } from "./internal/createForestAxe";
 
 /** Public operations for Auto Movie Archetype Forest Axe. */

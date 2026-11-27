@@ -12,16 +12,9 @@ const FIXED: string = "0,1.6,4:0,1,0";
  *
  * The panel shows the request's first view, the one the page draws, and writes every change back as one view text through render's `formatAutoMovieInspectionView`, which the reducer replaces the request's views with. A fixed camera and a focus pattern are typed and dispatched when the field is left or Enter is pressed.
  */
-export function AutoMovieInspectorViewPanel(props: {
-  /** The request shown. */
-  request: IAutoMovieCapturePlanRequest;
-
-  /** View names the subject offers: its own, then the fitted viewpoints. */
-  views: readonly string[];
-
-  /** Where edits go. */
-  dispatch: (action: IAutoMovieInspectorAction) => void;
-}): JSX.Element {
+export function AutoMovieInspectorViewPanel(
+  props: AutoMovieInspectorViewPanel.IProps,
+): JSX.Element {
   const text: string = props.request.views[0]!;
   const view: IAutoMovieInspectionView = AutoMovieRenderInspectionRequest.parseView(text);
   const [typed, setTyped] = useState<string | null>(null);
@@ -159,4 +152,17 @@ export function AutoMovieInspectorViewPanel(props: {
       ) : null}
     </fieldset>
   );
+}
+
+export namespace AutoMovieInspectorViewPanel {
+  export interface IProps {
+    /** The request shown. */
+    request: IAutoMovieCapturePlanRequest;
+
+    /** View names the subject offers: its own, then the fitted viewpoints. */
+    views: readonly string[];
+
+    /** Where edits go. */
+    dispatch: (action: IAutoMovieInspectorAction) => void;
+  }
 }

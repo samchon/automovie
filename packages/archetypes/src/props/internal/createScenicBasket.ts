@@ -1,6 +1,6 @@
 import { AutoMovieArchetypeScenicBasket } from "../AutoMovieArchetypeScenicBasket";
 import { ArchetypeDraw, type AutoMovieArchetype } from "../../core/index";
-import { ScenicContainerConstruction } from "../ScenicContainerConstruction";
+import { ScenicContainerConstruction } from "./ScenicContainerConstruction";
 
 
 /**

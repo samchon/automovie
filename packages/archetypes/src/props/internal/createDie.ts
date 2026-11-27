@@ -6,7 +6,7 @@ import {
   AutoMovieArchetypeBuilder,
   AutoMovieArchetypeDrawSession,
 } from "../../core/index";
-import { TabletopStack } from "../TabletopStack";
+import { TabletopStack } from "./TabletopStack";
 
 /**
  * A six-sided die: "Common dice are small cubes, most often 1.6 cm (0.63 in)

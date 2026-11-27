@@ -2,9 +2,9 @@ import { AutoMovieArchetypeLongGun } from "../AutoMovieArchetypeLongGun";
 import { Vector3 } from "@automovie/engine";
 
 import { ArchetypeDraw, AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame } from "../../core";
-import "../LONG_GUN_BANDS";
-import "../LONG_GUN_MODELS";
-import { LongGunLock } from "../LongGunLock";
+import "../constants/LONG_GUN_BANDS";
+import "../constants/LONG_GUN_MODELS";
+import { LongGunLock } from "./LongGunLock";
 
 /**
  * A long gun as a film prop: a carbine with a sliding stock, a pump shotgun, a

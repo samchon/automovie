@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createKeyboard as createKeyboardImplementation } from "./internal/createKeyboard";
-import { KeyboardHardware } from "./KeyboardHardware";
+import { KeyboardHardware } from "./internal/KeyboardHardware";
 import { AutoMovieArchetypeDesktopKeyboard } from "./AutoMovieArchetypeDesktopKeyboard";
 import { AutoMovieArchetypeLaptop } from "./AutoMovieArchetypeLaptop";
 

@@ -2,7 +2,7 @@ import { AutoMovieArchetypeRopeStanchions } from "../AutoMovieArchetypeRopeStanc
 import { Vector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
-import { ObstacleDraw } from "../ObstacleDraw";
+import { ObstacleDraw } from "./ObstacleDraw";
 
 /**
  * Two freestanding stanchions with grip frames on their shafts and the rope

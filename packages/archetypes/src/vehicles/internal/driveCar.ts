@@ -8,8 +8,8 @@ import {
   AutoMovieArchetypeUnits,
 } from "../../core";
 import type { AutoMovieArchetypeCar } from "../AutoMovieArchetypeCar";
-import { CarSteering } from "../CarSteering";
-import { CourseWheelTravel } from "../CourseWheelTravel";
+import { CarSteering } from "./CarSteering";
+import { CourseWheelTravel } from "./CourseWheelTravel";
 
 /**
  * A car driven along a course: its root on the path, its steering wheel turned

@@ -1,6 +1,6 @@
 import type { AutoMovieArchetypePlankCoffer } from "../AutoMovieArchetypePlankCoffer";
 import type { AutoMovieArchetype } from "../../core/index";
-import { ScenicContainerConstruction } from "../ScenicContainerConstruction";
+import { ScenicContainerConstruction } from "./ScenicContainerConstruction";
 
 
 /**

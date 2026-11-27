@@ -1,5 +1,5 @@
 import type { AutoMovieArchetype } from "../core";
-import { PracticalLightConstruction } from "./PracticalLightConstruction";
+import { PracticalLightConstruction } from "./internal/PracticalLightConstruction";
 import type { AutoMovieArchetypeLight } from "./AutoMovieArchetypeLight";
 
 /** Canonical producer and authoring contract for Candle. */

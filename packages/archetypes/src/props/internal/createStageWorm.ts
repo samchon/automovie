@@ -1,7 +1,7 @@
 import type { AutoMovieArchetypeStageWorm } from "../AutoMovieArchetypeStageWorm";
 import { type AutoMovieArchetype } from "../../core/index";
-import { FIELD_IMPLEMENTS } from "../FIELD_IMPLEMENTS";
-import { LongImplementDraw } from "../LongImplementDraw";
+import { FIELD_IMPLEMENTS } from "../constants/FIELD_IMPLEMENTS";
+import { LongImplementDraw } from "./LongImplementDraw";
 
 /**
  * Inert worm display prop with a shaft hold and an end marker.

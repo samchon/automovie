@@ -1,5 +1,5 @@
 import type { AutoMovieArchetype } from "../core";
-import { ScenicContainerConstruction } from "./ScenicContainerConstruction";
+import { ScenicContainerConstruction } from "./internal/ScenicContainerConstruction";
 import type { createScenicContainer } from "./internal/createScenicContainer";
 
 /** A cargo pod with a mounting socket and a stacking footprint. */

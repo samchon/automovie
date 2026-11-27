@@ -1,8 +1,8 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createHandgun as createHandgunImplementation } from "./internal/createHandgun";
 import { AutoMovieArchetypeUnits, AutoMovieArchetypeDrawSession, type IAutoMovieArchetypeBand } from "../core";
-import { HANDGUN_MODELS } from "./HANDGUN_MODELS";
-import { HANDGUN_BANDS } from "./HANDGUN_BANDS";
+import { HANDGUN_MODELS } from "./constants/HANDGUN_MODELS";
+import { HANDGUN_BANDS } from "./constants/HANDGUN_BANDS";
 
 /** Public operations for Auto Movie Archetype Handgun. */
 export namespace AutoMovieArchetypeHandgun {

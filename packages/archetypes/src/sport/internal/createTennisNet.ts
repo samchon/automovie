@@ -7,7 +7,7 @@ import {
   type AutoMovieArchetypeBuilder,
   AutoMovieArchetypeFrame,
 } from "../../core/index";
-import { GoalBuild } from "../GoalBuild";
+import { GoalBuild } from "./GoalBuild";
 import { buildTennisNet } from "./buildTennisNet";
 import type { AutoMovieArchetypeGoal } from "../AutoMovieArchetypeGoal";
 

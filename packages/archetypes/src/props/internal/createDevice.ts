@@ -4,7 +4,7 @@ import { AutoMovieArchetypeCamera } from "../AutoMovieArchetypeCamera";
 import { AutoMovieArchetypePhone } from "../AutoMovieArchetypePhone";
 import { AutoMovieArchetypeRemote } from "../AutoMovieArchetypeRemote";
 import { AutoMovieArchetypeTablet } from "../AutoMovieArchetypeTablet";
-import "../HandheldDevice";
+import "./HandheldDevice";
 import { AutoMovieArchetypeRadio } from "../AutoMovieArchetypeRadio";
 
 /**

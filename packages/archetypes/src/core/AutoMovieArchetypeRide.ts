@@ -9,8 +9,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { ArchetypeTowedGeometry } from "./ArchetypeTowedGeometry";
-import { ArchetypeTowing } from "./ArchetypeTowing";
+import type { ArchetypeTowedGeometry } from "./internal/ArchetypeTowedGeometry";
+import { ArchetypeTowing } from "./internal/ArchetypeTowing";
 import type { AutoMovieArchetype } from "./AutoMovieArchetype";
 import { AutoMovieArchetypeCourse } from "./AutoMovieArchetypeCourse";
 import { AutoMovieArchetypeFrame } from "./AutoMovieArchetypeFrame";

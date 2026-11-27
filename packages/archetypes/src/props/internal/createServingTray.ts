@@ -1,6 +1,6 @@
 import type { AutoMovieArchetypeServingTray } from "../AutoMovieArchetypeServingTray";
 import type { AutoMovieArchetype } from "../../core/index";
-import { TrayConstruction } from "../TrayConstruction";
+import { TrayConstruction } from "./TrayConstruction";
 
 
 /**

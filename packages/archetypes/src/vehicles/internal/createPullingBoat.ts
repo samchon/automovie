@@ -1,8 +1,8 @@
 import type { AutoMovieArchetypePullingBoat } from "../AutoMovieArchetypePullingBoat";
 import { type AutoMovieArchetype } from "../../core/index";
 import { AutoMovieArchetypeBoat } from "../AutoMovieArchetypeBoat";
-import { BoatConstruction } from "../BoatConstruction";
-import { BoatHull } from "../BoatHull";
+import { BoatConstruction } from "./BoatConstruction";
+import { BoatHull } from "./BoatHull";
 
 /**
  * Pulling boat.

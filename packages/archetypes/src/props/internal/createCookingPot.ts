@@ -1,6 +1,6 @@
 import { AutoMovieArchetypeCookingPot } from "../AutoMovieArchetypeCookingPot";
 import { ArchetypeDraw, type AutoMovieArchetype } from "../../core/index";
-import { VesselConstruction } from "../VesselConstruction";
+import { VesselConstruction } from "./VesselConstruction";
 
 
 /**

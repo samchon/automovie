@@ -1,6 +1,6 @@
 import { AutoMovieArchetypePlatformBed } from "../AutoMovieArchetypePlatformBed";
 import { ArchetypeDraw, type AutoMovieArchetype } from "../../core/index";
-import { BedConstruction } from "../BedConstruction";
+import { BedConstruction } from "./BedConstruction";
 
 
 /**

@@ -2,9 +2,9 @@ import { AutoMovieArchetypeHandgun } from "../AutoMovieArchetypeHandgun";
 import { Vector3 } from "@automovie/engine";
 
 import { ArchetypeDraw, AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame } from "../../core";
-import "../HANDGUN_BANDS";
-import "../HANDGUN_MODELS";
-import { HandgunActions } from "../HandgunActions";
+import "../constants/HANDGUN_BANDS";
+import "../constants/HANDGUN_MODELS";
+import { HandgunActions } from "./HandgunActions";
 
 /**
  * A handgun as a film prop: a self-loading pistol, a slide over a frame with a

@@ -1,6 +1,6 @@
 import { AutoMovieArchetypeHingedCabinet } from "../AutoMovieArchetypeHingedCabinet";
 import { ArchetypeDraw, type AutoMovieArchetype } from "../../core/index";
-import { StorageMechanisms } from "../StorageMechanisms";
+import { StorageMechanisms } from "./StorageMechanisms";
 
 
 /**

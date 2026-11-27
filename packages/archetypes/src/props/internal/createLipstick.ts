@@ -2,7 +2,7 @@ import type { AutoMovieArchetypeLipstick } from "../AutoMovieArchetypeLipstick";
 import { Vector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
-import { GroomingPropDraw } from "../GroomingPropDraw";
+import { GroomingPropDraw } from "./GroomingPropDraw";
 
 /**
  * Lipstick case with a precision grip and an exposed tip along +Z.

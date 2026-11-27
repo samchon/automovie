@@ -1,6 +1,6 @@
 import { ArchetypeDraw, type AutoMovieArchetype } from "../core/index";
-import { FixtureDraw } from "./FixtureDraw";
-import { ServiceCabinet } from "./ServiceCabinet";
+import { FixtureDraw } from "./internal/FixtureDraw";
+import { ServiceCabinet } from "./internal/ServiceCabinet";
 import { AutoMovieArchetypeAtm } from "./AutoMovieArchetypeAtm";
 import { AutoMovieArchetypePayStation } from "./AutoMovieArchetypePayStation";
 import { AutoMovieArchetypeVendingMachine } from "./AutoMovieArchetypeVendingMachine";

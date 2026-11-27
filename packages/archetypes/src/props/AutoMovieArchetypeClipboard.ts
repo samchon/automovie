@@ -1,7 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype } from "../core";
-import { StationeryDraw } from "./StationeryDraw";
+import { StationeryDraw } from "./internal/StationeryDraw";
 
 /** Creates an Esselte clipboard archetype with a writing face and an edge grip. */
 export namespace AutoMovieArchetypeClipboard {

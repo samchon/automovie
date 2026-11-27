@@ -8,11 +8,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { ArchetypeMassArithmetic } from "./ArchetypeMassArithmetic";
-import { ArchetypePendulumFrequency } from "./ArchetypePendulumFrequency";
-import { ArchetypeTrackEase } from "./ArchetypeTrackEase";
-import { ArchetypeTrackRange } from "./ArchetypeTrackRange";
-import { ArchetypeTrackTime } from "./ArchetypeTrackTime";
+import { ArchetypeMassArithmetic } from "./internal/ArchetypeMassArithmetic";
+import { ArchetypePendulumFrequency } from "./internal/ArchetypePendulumFrequency";
+import { ArchetypeTrackEase } from "./internal/ArchetypeTrackEase";
+import { ArchetypeTrackRange } from "./internal/ArchetypeTrackRange";
+import { ArchetypeTrackTime } from "./internal/ArchetypeTrackTime";
 import type { AutoMovieArchetype } from "./AutoMovieArchetype";
 import { AutoMovieArchetypeFrame } from "./AutoMovieArchetypeFrame";
 import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";

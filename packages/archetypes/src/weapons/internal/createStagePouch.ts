@@ -1,7 +1,7 @@
 import type { AutoMovieArchetypeStagePouch } from "../AutoMovieArchetypeStagePouch";
 import { type AutoMovieArchetype } from "../../core/index";
-import { CartridgeBox } from "../CartridgeBox";
-import { StageCarrierConstruction } from "../StageCarrierConstruction";
+import { CartridgeBox } from "./CartridgeBox";
+import { StageCarrierConstruction } from "./StageCarrierConstruction";
 
 
 /**

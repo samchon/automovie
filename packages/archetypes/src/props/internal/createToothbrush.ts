@@ -1,6 +1,6 @@
 import type { AutoMovieArchetypeToothbrush } from "../AutoMovieArchetypeToothbrush";
 import { type AutoMovieArchetype } from "../../core/index";
-import { GroomingPropDraw } from "../GroomingPropDraw";
+import { GroomingPropDraw } from "./GroomingPropDraw";
 
 /**
  * Toothbrush with a handle and a +Y bristle face near its far end.

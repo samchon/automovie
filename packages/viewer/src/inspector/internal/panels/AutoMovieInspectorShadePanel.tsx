@@ -32,13 +32,9 @@ const OPTIONS: AutoMovieInspectionShade[] = Object.values(SHADES);
  * The page draws the request's first pass, so the shade shown is `passes[0]`;
  * choosing one replaces every pass with it.
  */
-export function AutoMovieInspectorShadePanel(props: {
-  /** The request shown. */
-  request: IAutoMovieCapturePlanRequest;
-
-  /** Where edits go. */
-  dispatch: (action: IAutoMovieInspectorAction) => void;
-}): JSX.Element {
+export function AutoMovieInspectorShadePanel(
+  props: AutoMovieInspectorShadePanel.IProps,
+): JSX.Element {
   return (
     <fieldset style={{ border: 0, padding: 0, margin: 0, minWidth: 0 }}>
       <legend
@@ -86,4 +82,14 @@ export function AutoMovieInspectorShadePanel(props: {
       </label>
     </fieldset>
   );
+}
+
+export namespace AutoMovieInspectorShadePanel {
+  export interface IProps {
+    /** The request shown. */
+    request: IAutoMovieCapturePlanRequest;
+
+    /** Where edits go. */
+    dispatch: (action: IAutoMovieInspectorAction) => void;
+  }
 }

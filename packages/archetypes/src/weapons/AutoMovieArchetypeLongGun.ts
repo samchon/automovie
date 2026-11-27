@@ -1,8 +1,8 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createLongGun as createLongGunImplementation } from "./internal/createLongGun";
 import { AutoMovieArchetypeDrawSession, type IAutoMovieArchetypeBand } from "../core";
-import { LONG_GUN_MODELS } from "./LONG_GUN_MODELS";
-import { LONG_GUN_BANDS } from "./LONG_GUN_BANDS";
+import { LONG_GUN_MODELS } from "./constants/LONG_GUN_MODELS";
+import { LONG_GUN_BANDS } from "./constants/LONG_GUN_BANDS";
 
 /** Public operations for Auto Movie Archetype Long Gun. */
 export namespace AutoMovieArchetypeLongGun {

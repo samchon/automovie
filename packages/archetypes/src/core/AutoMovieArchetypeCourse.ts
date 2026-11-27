@@ -1,8 +1,8 @@
 import { AutoMovieGravity, Quaternion } from "@automovie/engine";
 import type { IAutoMovieTransform } from "@automovie/interface";
 
-import { ArchetypeCourseLegs } from "./ArchetypeCourseLegs";
-import { ArchetypeCourseTimed } from "./ArchetypeCourseTimed";
+import { ArchetypeCourseLegs } from "./internal/ArchetypeCourseLegs";
+import { ArchetypeCourseTimed } from "./internal/ArchetypeCourseTimed";
 import { AutoMovieArchetypeFrame } from "./AutoMovieArchetypeFrame";
 import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
 import { AutoMovieArchetypeUnits } from "./AutoMovieArchetypeUnits";

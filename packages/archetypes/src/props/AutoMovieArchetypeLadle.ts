@@ -1,5 +1,5 @@
 import { type AutoMovieArchetype } from "../core/index";
-import { type HandToolDraw } from "./HandToolDraw";
+import { type HandToolDraw } from "./internal/HandToolDraw";
 import { createLadle as createLadleImplementation } from "./internal/createLadle";
 
 /** Public operations for Auto Movie Archetype Ladle. */

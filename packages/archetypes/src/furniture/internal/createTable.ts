@@ -2,7 +2,7 @@ import { AutoMovieArchetypeTable } from "../AutoMovieArchetypeTable";
 import { Vector3 } from "@automovie/engine";
 
 import { ArchetypeDraw, AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame } from "../../core";
-import "../TABLE_BANDS";
+import "../constants/TABLE_BANDS";
 
 /** The readable name of each kind. */
 const NAMES: Readonly<Record<AutoMovieArchetypeTable.Kind, string>> = {

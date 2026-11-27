@@ -1,5 +1,5 @@
 import { type AutoMovieArchetype } from "../core/index";
-import { type SmokingPropDraw } from "./SmokingPropDraw";
+import { type SmokingPropDraw } from "./internal/SmokingPropDraw";
 import { createCigarette as createCigaretteImplementation } from "./internal/createCigarette";
 
 /** Public operations for Auto Movie Archetype Cigarette. */

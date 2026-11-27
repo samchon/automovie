@@ -4,7 +4,7 @@ import type {
   IAutoMovieProfilePoint,
 } from "@automovie/interface";
 
-import { TennisMesh } from "../TennisMesh";
+import { TennisMesh } from "./TennisMesh";
 
 /** Number of samples around each oval, with stations on both axes. */
 const RIM_STATIONS: number = 32;

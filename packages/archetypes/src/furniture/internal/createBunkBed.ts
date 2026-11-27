@@ -1,6 +1,6 @@
 import type { AutoMovieArchetypeBunkBed } from "../AutoMovieArchetypeBunkBed";
 import type { AutoMovieArchetype } from "../../core/index";
-import { BedConstruction } from "../BedConstruction";
+import { BedConstruction } from "./BedConstruction";
 
 
 /**

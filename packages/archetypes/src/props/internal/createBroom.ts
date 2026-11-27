@@ -1,6 +1,6 @@
 import type { AutoMovieArchetypeBroom } from "../AutoMovieArchetypeBroom";
 import { type AutoMovieArchetype } from "../../core/index";
-import { LongImplementDraw } from "../LongImplementDraw";
+import { LongImplementDraw } from "./LongImplementDraw";
 
 /**
  * Broom with a low brushing head and a two-hand shaft.

@@ -5,8 +5,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { ArchetypeFractureEnergy } from "./ArchetypeFractureEnergy";
-import { ArchetypeMassArithmetic } from "./ArchetypeMassArithmetic";
+import { ArchetypeFractureEnergy } from "./internal/ArchetypeFractureEnergy";
+import { ArchetypeMassArithmetic } from "./internal/ArchetypeMassArithmetic";
 import type { AutoMovieArchetype } from "./AutoMovieArchetype";
 import type { AutoMovieArchetypeConvexCell } from "./AutoMovieArchetypeConvexCell";
 import type { AutoMovieArchetypeFriction } from "./AutoMovieArchetypeFriction";

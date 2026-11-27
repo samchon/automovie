@@ -2,7 +2,7 @@ import type { AutoMovieArchetypeBook } from "../AutoMovieArchetypeBook";
 import { Vector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
-import { StationeryDraw } from "../StationeryDraw";
+import { StationeryDraw } from "./StationeryDraw";
 
 /**
  * Book with a spine grip, a hinged cover and a separately turning leaf.

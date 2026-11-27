@@ -2,7 +2,7 @@ import type { AutoMovieArchetypePracticeBaton } from "../AutoMovieArchetypePract
 import { Vector3 } from "@automovie/engine";
 
 import type { AutoMovieArchetype } from "../../core/index";
-import { ClubBuild } from "../ClubBuild";
+import { ClubBuild } from "./ClubBuild";
 
 
 /**

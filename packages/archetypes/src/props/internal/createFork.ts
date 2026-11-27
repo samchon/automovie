@@ -2,7 +2,7 @@ import type { AutoMovieArchetypeFork } from "../AutoMovieArchetypeFork";
 import { Vector3 } from "@automovie/engine";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
-import { HandToolDraw } from "../HandToolDraw";
+import { HandToolDraw } from "./HandToolDraw";
 
 /**
  * Fork with a pinch grip and a working tip along +Y.

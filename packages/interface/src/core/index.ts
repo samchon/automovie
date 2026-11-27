@@ -9,6 +9,7 @@ export type { IAutoMovieChannelLimit } from "./IAutoMovieChannelLimit";
 export type { IAutoMovieClip } from "./IAutoMovieClip";
 export type { IAutoMovieCopyDriver } from "./IAutoMovieCopyDriver";
 export type { IAutoMovieDestructibleTrait } from "./IAutoMovieDestructibleTrait";
+export type { IAutoMovieDiscriminated } from "./IAutoMovieDiscriminated";
 export type { IAutoMovieDrivenCurve } from "./IAutoMovieDrivenCurve";
 export type { IAutoMovieDrivenCurvePoint } from "./IAutoMovieDrivenCurvePoint";
 export type { IAutoMovieDrivenDriver } from "./IAutoMovieDrivenDriver";
