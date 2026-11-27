@@ -6,22 +6,12 @@ These conventions apply to `packages/`.
 
 Use PascalCase for top-level public names with the owning package in the prefix, as in `AutoMovieEngine`. Only `@automovie/interface` omits the package name.
 
-Use camelCase for methods and utility functions, and PascalCase for React components.
-
-Prefix interfaces and other public object contracts with `I`.
+Use camelCase for methods and utility functions, and PascalCase for React components. Prefix interfaces and other public object contracts with `I`.
 
 ## Folders
 
 - Put public declarations in `packages/*/src/<topic>/<name>.ts`.
 - Put private code and types in `packages/*/src/<topic>/<folder>/<name>.ts`.
-
-## Exports
-
-Outside barrels, export one symbol named after its file.
-
-Export private declarations only for cross-module imports. Keep them out of public entry points.
-
-Use `export *` in public barrels for matching single-export files.
 
 ## Owners
 

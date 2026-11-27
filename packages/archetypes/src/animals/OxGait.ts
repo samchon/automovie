@@ -1,6 +1,6 @@
 import { AutoMovieArchetypeEquineGait } from "./AutoMovieArchetypeEquineGait";
 import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
-import { OX_BODY_MEASURES } from "./ox/internal/constants/OX_BODY_MEASURES";
+import { OX_BODY_MEASURES } from "./ox/constants/OX_BODY_MEASURES";
 
 /**
  * An ox walk with one observed species-specific speed and clock.

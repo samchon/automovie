@@ -25,7 +25,7 @@ import { EquineHarness } from "./EquineHarness";
 import { EquineIcelandicProfile } from "./EquineIcelandicProfile";
 import { OxGait } from "./OxGait";
 import type { QuadrupedProportions } from "./QuadrupedProportions";
-import { buildCamelBody } from "./camel/internal/buildCamelBody";
+import { buildCamelBody } from "./camel/buildCamelBody";
 import { AutoMovieArchetypeCamel } from "./AutoMovieArchetypeCamel";
 import { AutoMovieArchetypeCat } from "./AutoMovieArchetypeCat";
 import type { createCohortQuadruped } from "./quadruped/createCohortQuadruped";
@@ -38,7 +38,7 @@ import { AutoMovieArchetypeOx } from "./AutoMovieArchetypeOx";
 import { AutoMovieArchetypePony } from "./AutoMovieArchetypePony";
 import { buildDeerBody } from "./deer/buildDeerBody";
 import { buildDogBody } from "./dog/buildDogBody";
-import { buildOxBody } from "./ox/internal/buildOxBody";
+import { buildOxBody } from "./ox/buildOxBody";
 
 /**
  * Constructs the quadruped archetype from its recipe.
@@ -143,6 +143,7 @@ export function create(
 
   /** Parameters for the horse kind. */
   export interface IHorseParams extends AutoMovieArchetypeHorse.IParams {
+    /** The animal kind: `horse`. */
     kind: "horse";
   }
 
@@ -150,6 +151,7 @@ export function create(
   export interface IPonyParams
     extends AutoMovieArchetypePony.IParams,
       AutoMovieArchetypeMule.IParams {
+    /** The animal kind: `pony`. */
     kind: "pony";
   }
 
@@ -157,6 +159,7 @@ export function create(
   export interface IDonkeyParams
     extends AutoMovieArchetypePony.IParams,
       AutoMovieArchetypeMule.IParams {
+    /** The animal kind: `donkey`. */
     kind: "donkey";
   }
 
@@ -164,31 +167,37 @@ export function create(
   export interface IMuleParams
     extends AutoMovieArchetypePony.IParams,
       AutoMovieArchetypeMule.IParams {
+    /** The animal kind: `mule`. */
     kind: "mule";
   }
 
   /** Parameters for the dog kind. */
   export interface IDogParams extends AutoMovieArchetypeDog.IParams {
+    /** The animal kind: `dog`. */
     kind: "dog";
   }
 
   /** Parameters for the cat kind. */
   export interface ICatParams extends AutoMovieArchetypeCat.IParams {
+    /** The animal kind: `cat`. */
     kind: "cat";
   }
 
   /** Parameters for the ox kind. */
   export interface IOxParams extends AutoMovieArchetypeOx.IParams {
+    /** The animal kind: `ox`. */
     kind: "ox";
   }
 
   /** Parameters for the camel kind. */
   export interface ICamelParams extends AutoMovieArchetypeCamel.IParams {
+    /** The animal kind: `camel`. */
     kind: "camel";
   }
 
   /** Parameters for the deer kind. */
   export interface IDeerParams extends AutoMovieArchetypeDeer.IParams {
+    /** The animal kind: `deer`. */
     kind: "deer";
   }
 

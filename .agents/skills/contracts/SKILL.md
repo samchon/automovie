@@ -5,43 +5,71 @@ description: Defines the evidence checklists maintained declarations and tests a
 
 # Contracts
 
-Each selected declaration answers one checklist item per H2. A test function answers in its doc comment, and a package declaration in the package's evidence document, so its doc comment stays the documentation its users read. `evidence.config.ts` selects items. `pnpm run evidence` checks coverage. Review checks truth and completeness.
+Answer one checklist item per H2. Package declarations answer in Evidence
+documents so their JSDoc stays focused on users. Tests answer in JSDoc.
 
-An evidence document's path is its source file's path under `src/` with `.md` for `.ts`, so archetypes' `src/nature/createRock.ts` answers in `predicate/nature/createRock.md`. Each H1 there is a declaration's address in its defining file, such as `# src/nature/createRock.ts#createRock` or, for a method, `# src/animals/QuadrupedEquipmentPlan.ts#QuadrupedEquipmentPlan.prototype.emit`.
+`pnpm run evidence` checks coverage. Review checks truth and completeness.
 
-| Checklist | Answered by |
+| Checklist | Selected declarations |
 | --- | --- |
-| [development/common.md](development/common.md) | Every exported declaration, tests included |
-| [development/design.md](development/design.md) | Each exported type, interface, type alias and class |
-| [development/implementation.md](development/implementation.md) | Each exported function and class method |
-| [development/testing.md](development/testing.md) | Each exported test function |
+| [Common](development/common.md) | Package declarations and tests |
+| [Design](development/design.md) | Types, interfaces, aliases and classes |
+| [Implementation](development/implementation.md) | Functions and methods |
+| [Testing](development/testing.md) | Test functions |
 
 ## Answering
 
-Answer each item from the code:
-
 1. Read the declaration and the dependencies the item asks about.
-2. Answer every fact the item asks for, from what the code does.
-3. Fix the code where it falls short of the item, and state any gap that remains instead of claiming it is met.
-4. Write the answer as below.
+2. Answer every fact the item asks for from what the code does.
+3. Fix gaps in the code and state any that remain.
 
-In an evidence document, write `## @evidence contracts/development/<file>.md#<anchor>` under the declaration's H1, with the reason as the paragraph below it. Put a reason that opens with inline code on the heading line after the target, because Evidence 0.11.0 drops a reason line that starts with a backtick. In a test's doc comment, write `@evidence contracts/development/<file>.md#<anchor> <reason>` after a blank comment line.
+Mirror the source path under `predicate/`, replacing `src/` and using `.md`
+instead of `.ts`. For example, `src/nature/AutoMovieArchetypeRock.ts` uses
+`predicate/nature/AutoMovieArchetypeRock.md`. Each H1 is the declaration's address
+in its defining file, such as
+`# src/nature/AutoMovieArchetypeRock.ts#AutoMovieArchetypeRock.create`.
 
-For an item that does not apply, write `@evidenceExclude` the same way, as a heading in an evidence document and a tag in a test, never for a whole file. A change to a declaration updates its evidence document in the same commit.
+Under the declaration's H1, write
+`## @evidence contracts/development/<file>.md#<anchor>` and put the reason in the
+paragraph below. If the reason opens with inline code, put it on the heading
+line after the target. Evidence 0.11.0 drops reason lines that start with a
+backtick.
+
+In a test's doc comment, write
+`@evidence contracts/development/<file>.md#<anchor> <reason>` after a blank
+comment line.
+
+Use `@evidenceExclude` in the same format when a selected item does not apply.
+Exclude individual items only. Update the declaration's Evidence document in
+the same commit as the declaration.
 
 ## Selection
 
-From a package run `pnpm exec evidence list` or `pnpm exec evidence inspect '<target>'`. An inactive claim indicates an unmatched selector, which can lack a diagnostic. Coverage counts checklist sections.
+Package `evidence.config.ts` selects files through the published export map
+and its barrels. It includes files for published owner members and types their
+signatures expose. Claims select declaration kinds within those files. Test
+configuration selects tests and maintained test helpers separately.
 
-Never narrow a selector or lower a severity to pass the check. Exclude only:
+From a package, run `pnpm exec evidence list` or
+`pnpm exec evidence inspect '<target>'`. An inactive claim indicates an
+unmatched selector, which may lack a diagnostic. Coverage counts checklist
+sections.
 
-- generated, copied, or dependency material with verified provenance;
-- files the adapter cannot address.
+Never narrow a selector or lower severity to pass the check. Exclude only:
 
-Review files the adapter cannot address, including default-export configs and global augmentations.
+- Generated, copied, or dependency material with verified provenance.
+- Files the adapter cannot address.
+
+Review files the adapter cannot address, including default-export configs and
+global augmentations.
 
 ## Editing the checklists
 
-Adding, renaming or removing an H2 requires an authorized migration of its Evidence references.
+Adding, renaming or removing an H2 requires an authorized migration of its
+Evidence references.
 
-The common, design and implementation checklists ship to productions through scaffold placeholders, where declarations answer in their doc comments, so they follow [shared skills](../prompting/structure.md#shared-skills) and [scaffold distribution](../development/validation.md#scaffold-distribution).
+The common, design and implementation checklists ship through scaffold
+placeholders. Productions answer in doc comments. Follow the
+[shared skills](../prompting/structure.md#shared-skills) and
+[scaffold distribution](../development/validation.md#scaffold-distribution)
+rules.

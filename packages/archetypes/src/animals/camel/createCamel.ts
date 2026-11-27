@@ -2,8 +2,8 @@ import { AutoMovieArchetypeCamel } from "../AutoMovieArchetypeCamel";
 import type { AutoMovieArchetype, AutoMovieArchetypeBuilder } from "../../core/index";
 import type { AutoMovieArchetypeQuadrupedBody } from "../AutoMovieArchetypeQuadrupedBody";
 import { AutoMovieArchetypeQuadrupedEquipment } from "../AutoMovieArchetypeQuadrupedEquipment";
-import { CamelCohorts } from "./internal/CamelCohorts";
-import { buildCamelBody } from "./internal/buildCamelBody";
+import { CamelCohorts } from "./CamelCohorts";
+import { buildCamelBody } from "./buildCamelBody";
 import { createCohortQuadruped } from "../quadruped/createCohortQuadruped";
 
 /**

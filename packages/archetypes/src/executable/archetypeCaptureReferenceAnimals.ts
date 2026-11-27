@@ -4,12 +4,12 @@ import { AutoMovieArchetypeQuadrupedBody } from "../animals/AutoMovieArchetypeQu
 import type { AutoMovieArchetypeQuadrupedEquipment } from "../animals/AutoMovieArchetypeQuadrupedEquipment";
 import type { AutoMovieArchetypeQuadrupedLead } from "../animals/AutoMovieArchetypeQuadrupedLead";
 import { AutoMovieArchetypeQuadrupedLocomotion } from "../animals/AutoMovieArchetypeQuadrupedLocomotion";
-import { buildCamelBody } from "../animals/camel/internal/buildCamelBody";
+import { buildCamelBody } from "../animals/camel/buildCamelBody";
 import { AutoMovieArchetypeCamel } from "../animals/AutoMovieArchetypeCamel";
 import { AutoMovieArchetypeDeer } from "../animals/AutoMovieArchetypeDeer";
 import { AutoMovieArchetypeOx } from "../animals/AutoMovieArchetypeOx";
 import { buildDeerBody } from "../animals/deer/buildDeerBody";
-import { buildOxBody } from "../animals/ox/internal/buildOxBody";
+import { buildOxBody } from "../animals/ox/buildOxBody";
 import { AutoMovieArchetypeQuadruped } from "../animals/AutoMovieArchetypeQuadruped";
 import type { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
 import { archetypeCaptureSubject } from "./archetypeCaptureSubject";

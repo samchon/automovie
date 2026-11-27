@@ -65,6 +65,7 @@ export namespace AutoMovieEnvironment {
 
   /** Hinged leaf and frame from the existing door producer. */
   export interface IAutoMovieEnvironmentBuildingDoorOpening extends IAutoMovieEnvironmentBuildingOpeningBase {
+    /** Selects the hinged-door opening variant. */
     readonly kind: "door";
     /**
      * Nominal leaf and hardware choices; this producer owns placement identity
@@ -76,24 +77,34 @@ export namespace AutoMovieEnvironment {
      * degrees about the door's own hinge.
      */
     readonly swing?: {
+      /** Shot-local second when the swing starts. */
       readonly from: number;
+      /** Shot-local second when the swing reaches its final angle. */
       readonly to: number;
+      /** Positive hinge rotation in degrees, below 180 and within travel. */
       readonly degrees: number;
     };
   }
 
   /** Clear aperture with ground at its sill. */
   export interface IAutoMovieEnvironmentBuildingPassageOpening extends IAutoMovieEnvironmentBuildingOpeningBase {
+    /** Selects a clear passage opening with its sill at floor level. */
     readonly kind: "passage";
+    /** Clear opening width in metres. */
     readonly width: number;
+    /** Clear opening height in metres. */
     readonly height: number;
   }
 
   /** Air opening above the floor, with no walking threshold. */
   export interface IAutoMovieEnvironmentBuildingWindowOpening extends IAutoMovieEnvironmentBuildingOpeningBase {
+    /** Selects a window opening without a floor threshold. */
     readonly kind: "window";
+    /** Opening width in metres. */
     readonly width: number;
+    /** Opening height in metres. */
     readonly height: number;
+    /** Height of the window sill above the finished floor, in metres. */
     readonly sill: number;
   }
 
@@ -167,6 +178,7 @@ export namespace AutoMovieEnvironment {
 
   /** A building defined by levels, rooms and optional interior stair runs. */
   export interface IAutoMovieEnvironmentBuildingLevelPlanProps extends IAutoMovieEnvironmentBuildingPropsBase {
+    /** Selects the level-plan building variant. */
     readonly type: "levels";
     /** Levels in bottom-to-top order with nonoverlapping vertical interiors. */
     readonly levels: readonly IAutoMovieEnvironmentBuildingLevel[];
@@ -180,6 +192,7 @@ export namespace AutoMovieEnvironment {
 
   /** An exterior-only building mass. */
   export interface IAutoMovieEnvironmentBuildingExteriorProps extends IAutoMovieEnvironmentBuildingPropsBase {
+    /** Selects the exterior-only building variant. */
     readonly type: "exterior";
     /** Footprint of an exterior-only mass. */
     readonly footprint: IAutoMovieEnvironmentBuildingFootprint;
@@ -199,6 +212,7 @@ export namespace AutoMovieEnvironment {
    */
   /** A named world sill to align to. */
   export interface IAutoMovieEnvironmentLiftAnchorStop {
+    /** Existing placed anchor whose upright sill the shaft must align to. */
     anchor: string;
   }
 
@@ -343,11 +357,13 @@ export namespace AutoMovieEnvironment {
 
   /** A level bridge span. */
   export interface IAutoMovieEnvironmentPassageBridgeProps extends IAutoMovieEnvironmentPassagePropsBase {
+    /** Selects a level bridge span. */
     readonly kind: "bridge";
   }
 
   /** A ramp span with an optional maximum slope. */
   export interface IAutoMovieEnvironmentPassageRampProps extends IAutoMovieEnvironmentPassagePropsBase {
+    /** Selects a ramp span. */
     readonly kind: "ramp";
     /** Optional maximum absolute rise divided by horizontal run. */
     readonly maximumSlope?: number;
@@ -355,6 +371,7 @@ export namespace AutoMovieEnvironment {
 
   /** A stair span with a fixed number of equal rises and treads. */
   export interface IAutoMovieEnvironmentPassageStairsProps extends IAutoMovieEnvironmentPassagePropsBase {
+    /** Selects a stair span. */
     readonly kind: "stairs";
     /** Number of equal rises and treads, including the top tread. */
     readonly steps: number;

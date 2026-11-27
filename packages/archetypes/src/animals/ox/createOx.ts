@@ -10,8 +10,8 @@ import { AutoMovieArchetypeOx } from "../AutoMovieArchetypeOx";
 import type { AutoMovieArchetypeQuadrupedBody } from "../AutoMovieArchetypeQuadrupedBody";
 import { AutoMovieArchetypeQuadrupedEquipment } from "../AutoMovieArchetypeQuadrupedEquipment";
 import { AutoMovieArchetypeQuadrupedHeadAttachment } from "../AutoMovieArchetypeQuadrupedHeadAttachment";
-import { buildOxBody } from "./internal/buildOxBody";
-import { OX_BODY_MEASURES } from "./internal/constants/OX_BODY_MEASURES";
+import { buildOxBody } from "./buildOxBody";
+import { OX_BODY_MEASURES } from "./constants/OX_BODY_MEASURES";
 import { createCohortQuadruped } from "../quadruped/createCohortQuadruped";
 
 /**

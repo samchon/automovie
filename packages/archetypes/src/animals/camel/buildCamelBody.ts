@@ -1,5 +1,5 @@
-import type { AutoMovieArchetypeQuadrupedBody } from "../../AutoMovieArchetypeQuadrupedBody";
-import { QuadrupedBodyProfile } from "../../QuadrupedBodyProfile";
+import type { AutoMovieArchetypeQuadrupedBody } from "../AutoMovieArchetypeQuadrupedBody";
+import { QuadrupedBodyProfile } from "../QuadrupedBodyProfile";
 import { CamelCohorts } from "./CamelCohorts";
 
 /**
