@@ -1,4 +1,6 @@
-import { type Box3, type Mesh, type Object3D, type Camera, type Plane, type Matrix4 } from "three";
+import { type Box3, type Mesh, type Object3D, type Camera, type Plane, type Matrix4, type Scene } from "three";
+import type { IAutoMovieCameraInspection, IAutoMovieInspectionDiagnostics, IAutoMovieSubjectBox, IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieDrawScene } from "../../draw/IAutoMovieDrawScene.js";
 import { boundAutoMovieCameraSubject as boundAutoMovieCameraSubjectImplementation } from "./internal/boundAutoMovieCameraSubject.js";
 import { listAutoMovieCameraSubjectMeshes as listAutoMovieCameraSubjectMeshesImplementation } from "./internal/listAutoMovieCameraSubjectMeshes.js";
 import { measureAutoMovieCameraFrameEdgeSurface as measureFrameEdgeSurfaceImplementation } from "./internal/measureAutoMovieCameraFrameEdgeSurface.js";
@@ -9,6 +11,127 @@ import { observeAutoMoviePlacedCamera } from "./internal/observeAutoMoviePlacedC
 
 /** Public operations for Auto Movie Render Inspection Camera. */
 export namespace AutoMovieRenderInspectionCamera {
+  /** Named public input and result contracts for near-clip measurement. */
+  export namespace NearClip {
+    /** The delivery camera and a required subject's admitted meshes. */
+    export interface IProps {
+      /**
+       * Delivery camera with its world matrices and projection, crop included,
+       * already current.
+       */
+      camera: Camera;
+      /**
+       * Meshes from listAutoMovieCameraSubjectMeshes with current world matrices
+       * and poses, or undefined when it refused the subject.
+       */
+      meshes: readonly Mesh[] | undefined;
+      /**
+       * Optional independently certified world envelope of the whole placed
+       * subject, metres.
+       */
+      bounds?: IAutoMovieSubjectBox;
+      /** Largest number of drawn triangles this call may examine. */
+      triangleBudget: number;
+    }
+
+    /** Clear, clipped with its deepest witness, or unmeasured with a reason. */
+    export type IResult =
+      | {
+          /** Every examined triangle stays on or beyond the near plane inside the frame. */
+          status: "clear";
+          /** Drawn triangles examined. */
+          triangles: number;
+        }
+      | {
+          /** Some drawn surface inside the frame lies in front of the near plane. */
+          status: "clipped";
+          /** Drawn triangles examined. */
+          triangles: number;
+          /** Deepest intrusion in front of the near plane, world metres. */
+          depth: number;
+          /** World surface point of that intrusion, metres. */
+          point: IAutoMovieVector3;
+          /**
+           * World point on the near plane at the same delivered pixel, metres,
+           * where the cut shows in the frame.
+           */
+          cut: IAutoMovieVector3;
+          /**
+           * Whether the reported intrusion lies on an opaque stock surface;
+           * false means the cut part may be invisible anyway.
+           */
+          opaque: boolean;
+        }
+      | {
+          /**
+           * The drawn triangles in front of the near plane exceed the caller's
+           * budget; a larger budget completes the check.
+           */
+          status: "over-budget";
+          /** How far the budget fell short. */
+          reason: string;
+        }
+      | {
+          /**
+           * The surface cannot be checked: an unreadable drawable, a non-finite
+           * vertex or projection, or an invalid budget.
+           */
+          status: "unmeasured";
+          /** Why the check cannot run. */
+          reason: string;
+        };
+  }
+
+  /** Named public input and result contracts for original-camera observation. */
+  export namespace Observe {
+    /** The delivered camera and one source-resolved requirement, after placement. */
+    export interface IProps {
+      /** Original displayed scene, before inspection overlays are installed. */
+      scene: Scene;
+      /** Output camera with delivery aspect and crop already applied. */
+      camera: Camera;
+      /** Resolved displayed root of the required subject, when available. */
+      target: Object3D | undefined;
+      /** Optional independently certified full world envelope of the placed subject. */
+      targetBounds?: IAutoMovieSubjectBox;
+      /** Source-authored maximum pixel-occlusion ratio. */
+      maxOcclusionRatio?: number;
+      /** Maximum total triangles admitted to the optional, nine-ray witness pass. */
+      triangleBudget?: number;
+      /** Matching exact pixel observations, when a capture or delivery audit obtained them. */
+      pixels?: IAutoMovieCameraInspection.IPixels;
+    }
+
+    /** Independent framing and occlusion grades. */
+    export type IResult = IAutoMovieCameraInspection.IResult;
+  }
+
+  /** Named public input and result contracts for placed-camera observation. */
+  export namespace ObservePlaced {
+    /** A source requirement active in the placed sample. */
+    export interface IRequirement {
+      /** Stable path of the authored subject within its source scope. */
+      readonly path: string;
+      /** Source-resolved displayed object, absent when resolution failed. */
+      readonly target: Object3D | undefined;
+      /** Authored maximum fraction, inclusive, when the source requires pixel coverage. */
+      readonly maxOcclusionRatio?: number;
+      /** Optional certified envelope of the whole posed subject in world metres. */
+      readonly targetBounds?: IAutoMovieSubjectBox;
+    }
+
+    /** Settled sample and its active source requirements. */
+    export interface IProps {
+      /** Settled original scene and delivery projection, before inspection effects. */
+      sample: IAutoMovieDrawScene.IPlacedSample;
+      /** Source-owned requirements active at this sample's exact time. */
+      targets: readonly IRequirement[];
+    }
+
+    /** Independent diagnostic rows emitted by placed camera observation. */
+    export type IResult = Pick<IAutoMovieInspectionDiagnostics, "findings" | "coverage">;
+  }
+
   /**
    * Measure how far a required subject's drawn surface reaches in front of the
    * delivery near plane inside the delivered frame.
@@ -29,14 +152,14 @@ export namespace AutoMovieRenderInspectionCamera {
    *   checked.
    */
   export function measureNearClip(
-    props: Parameters<typeof measureAutoMovieCameraNearClip>[0],
-  ): ReturnType<typeof measureAutoMovieCameraNearClip> {
+    props: NearClip.IProps,
+  ): NearClip.IResult {
     return measureAutoMovieCameraNearClip(props);
   }
   /** Observes required-subject framing from the original delivered projection. */
   export function observe(
-    props: Parameters<typeof observeAutoMovieCameraInspection>[0],
-  ): ReturnType<typeof observeAutoMovieCameraInspection> {
+    props: Observe.IProps,
+  ): Observe.IResult {
     return observeAutoMovieCameraInspection(props);
   }
 
@@ -58,8 +181,8 @@ export namespace AutoMovieRenderInspectionCamera {
    * @returns Findings and one coverage row per check and requirement.
    */
   export function observePlaced(
-    props: Parameters<typeof observeAutoMoviePlacedCamera>[0],
-  ): ReturnType<typeof observeAutoMoviePlacedCamera> {
+    props: ObservePlaced.IProps,
+  ): ObservePlaced.IResult {
     return observeAutoMoviePlacedCamera(props);
   }
   /** Inputs for one required subject's camera frame-edge surface check. */

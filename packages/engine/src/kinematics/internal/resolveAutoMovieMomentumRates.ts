@@ -8,7 +8,7 @@ import type {
 } from "@automovie/interface";
 
 import { physicalInertiaTensor } from "../../physics/physicalInertiaTensor";
-import type { resolveAutoMovieBoneRates } from "./resolveAutoMovieBoneRates";
+import type { AutoMovieEngineKinematicsTypes } from "../AutoMovieEngineKinematicsTypes";
 import type { resolveAutoMovieMomentum } from "../resolveAutoMovieMomentum";
 
 /**
@@ -42,7 +42,7 @@ export function resolveAutoMovieMomentumRates(
   model: IAutoMovieResolveCenterOfMass.IModel,
   posed: resolveAutoMovieMomentum.IPosed,
   bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-  rates: ReadonlyMap<AutoMovieHumanoidBone, resolveAutoMovieBoneRates.IRate>,
+  rates: ReadonlyMap<AutoMovieHumanoidBone, AutoMovieEngineKinematicsTypes.ResolveAutoMovieBoneRates.IRate>,
 ): IAutoMovieBodyMomentum {
   if (!(model.mass > 0))
     throw new Error("Instantaneous momentum needs finite positive total mass");
@@ -60,7 +60,7 @@ export function resolveAutoMovieMomentumRates(
     const segment: IAutoMovieResolveCenterOfMass.ISegment = model.segments[i]!;
     const part: IAutoMovieCombinePhysicalMassProperties.IPart = posed.parts[i]!;
     const bone: IAutoMovieResolvedBone | undefined = bones.get(segment.bone);
-    const rate: resolveAutoMovieBoneRates.IRate | undefined = rates.get(
+    const rate: AutoMovieEngineKinematicsTypes.ResolveAutoMovieBoneRates.IRate | undefined = rates.get(
       segment.bone,
     );
     if (bone === undefined || rate === undefined)

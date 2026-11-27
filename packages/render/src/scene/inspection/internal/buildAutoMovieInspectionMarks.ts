@@ -7,7 +7,7 @@ import type { IAutoMovieInspectionMarkSet } from "../IAutoMovieInspectionMarkSet
 import type { IAutoMovieInspectionOverlay } from "../IAutoMovieInspectionOverlay.js";
 import { createAutoMovieInspectionDots } from "../createAutoMovieInspectionDots.js";
 import { createAutoMovieInspectionStrokes } from "./createAutoMovieInspectionStrokes.js";
-import { followAutoMovieInspectionSource } from "../followAutoMovieInspectionSource.js";
+import { followAutoMovieInspectionSource } from "./followAutoMovieInspectionSource.js";
 
 /**
  * Build marks into drawable lines and points, one line object and one points

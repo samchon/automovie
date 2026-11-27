@@ -1,2 +1,2 @@
-export { applyAutoMovieDeliveryCrop } from "./applyAutoMovieDeliveryCrop.js";
+export { applyAutoMovieDeliveryCrop } from "./internal/applyAutoMovieDeliveryCrop.js";
 export { AutoMovieRenderSceneDeliveryCrop } from "./AutoMovieRenderSceneDeliveryCrop.js";

@@ -7,10 +7,10 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieRenderInspectionGeometry } from "./AutoMovieRenderInspectionGeometry.js";
-import { createAutoMovieCollisionFinding } from "./createAutoMovieCollisionFinding.js";
-import { findAutoMovieCollisionWitness } from "./findAutoMovieCollisionWitness.js";
-import { readAutoMovieCollisionMotion } from "./readAutoMovieCollisionMotion.js";
-import { resolveAutoMovieCollisionHit } from "./resolveAutoMovieCollisionHit.js";
+import { createAutoMovieCollisionFinding } from "./internal/createAutoMovieCollisionFinding.js";
+import { findAutoMovieCollisionWitness } from "./internal/findAutoMovieCollisionWitness.js";
+import { readAutoMovieCollisionMotion } from "./internal/readAutoMovieCollisionMotion.js";
+import { resolveAutoMovieCollisionHit } from "./internal/resolveAutoMovieCollisionHit.js";
 
 /** One placed instant: the collected parts and their memoized solids per layer. */
 interface IInstant {

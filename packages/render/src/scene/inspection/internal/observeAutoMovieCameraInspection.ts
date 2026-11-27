@@ -1,55 +1,19 @@
+import type { AutoMovieRenderInspectionCamera } from "../AutoMovieRenderInspectionCamera.js";
 import { classifyAutoMovieCameraInspection } from "@automovie/engine";
 import type {
   IAutoMovieCameraInspection,
   IAutoMovieSubjectBox,
 } from "@automovie/interface";
-import {
-  Box3,
-  Camera,
-  Frustum,
-  Matrix4,
-  Mesh,
-  Object3D,
-  Plane,
-  Scene,
-  Vector3,
-} from "three";
+import { Box3, Frustum, Matrix4, Mesh, Object3D, Plane, Scene, Vector3 } from "three";
 
 import { boundAutoMovieCameraSubject } from "./boundAutoMovieCameraSubject.js";
 import { crossesAutoMovieFrustumPlane } from "./crossesAutoMovieFrustumPlane.js";
 import { listAutoMovieCameraSubjectMeshes } from "./listAutoMovieCameraSubjectMeshes.js";
-import { sampleAutoMovieCameraOcclusion } from "../sampleAutoMovieCameraOcclusion.js";
-
-/** The delivered camera and one source-resolved requirement, after placement. */
-interface IProps {
-  /** Original displayed scene, before inspection overlays are installed. */
-  scene: Scene;
-
-  /** Output camera with delivery aspect and crop already applied. */
-  camera: Camera;
-
-  /** Resolved displayed root of the required subject, when available. */
-  target: Object3D | undefined;
-
-  /** Optional independently certified full world envelope of the placed subject. */
-  targetBounds?: IAutoMovieSubjectBox;
-
-  /** Source-authored maximum pixel-occlusion ratio. */
-  maxOcclusionRatio?: number;
-
-  /** Maximum total triangles admitted to the optional, nine-ray witness pass. */
-  triangleBudget?: number;
-
-  /**
-   * Matching exact pixel observations, when a capture or delivery audit
-   * obtained them.
-   */
-  pixels?: IAutoMovieCameraInspection.IPixels;
-}
+import { sampleAutoMovieCameraOcclusion } from "./sampleAutoMovieCameraOcclusion.js";
 
 /** Observes required-subject framing from the original delivered projection. */
 export function observeAutoMovieCameraInspection(
-  props: IProps,
+  props: AutoMovieRenderInspectionCamera.Observe.IProps,
 ): IAutoMovieCameraInspection.IResult {
   const { camera, scene, target, maxOcclusionRatio, pixels } = props;
   if (target === undefined || !isDisplayed(scene, target))

@@ -8,9 +8,9 @@ import { AUTOMOVIE_FILM_RESPONSE_SHADERS } from "./AUTOMOVIE_FILM_RESPONSE_SHADE
 import type { AutoMovieFilmAlpha } from "./AutoMovieFilmAlpha.js";
 import { AutoMovieFilmSampleSum } from "./AutoMovieFilmSampleSum.js";
 import type { IAutoMovieFilmResponseRenderer } from "./IAutoMovieFilmResponseRenderer.js";
-import { allocateAutoMovieFilmTargets } from "./allocateAutoMovieFilmTargets.js";
-import { collectAutoMovieFilmOverlays } from "./collectAutoMovieFilmOverlays.js";
-import { freeAutoMovieFilmOverlayLayer } from "./freeAutoMovieFilmOverlayLayer.js";
+import { allocateAutoMovieFilmTargets } from "./internal/allocateAutoMovieFilmTargets.js";
+import { collectAutoMovieFilmOverlays } from "./internal/collectAutoMovieFilmOverlays.js";
+import { freeAutoMovieFilmOverlayLayer } from "./internal/freeAutoMovieFilmOverlayLayer.js";
 
 /**
  * The beauty stage of a directly rendered film: draw a scene's linear light

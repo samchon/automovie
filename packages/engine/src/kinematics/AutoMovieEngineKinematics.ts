@@ -41,6 +41,8 @@ import { type AutoMovieHumanoidBone, type IAutoMovieJointAxes, type IAutoMovieLo
 import { resolveLookAt as resolveLookAtImplementation } from "./resolveLookAt";
 import { resolvePose as resolvePoseImplementation } from "./resolvePose";
 
+import type { AutoMovieEngineKinematicsTypes } from "./AutoMovieEngineKinematicsTypes";
+
 /** Pure forward-kinematics and authored-gaze operations for AutoMovie poses. */
 export namespace AutoMovieEngineKinematics {
   /**
@@ -512,7 +514,7 @@ export namespace AutoMovieEngineKinematics {
    *   positive, part count/masses do not match, or a segment's bone/rate is
    *   missing.
    */
-  export function resolveAutoMovieMomentumRates(model: IAutoMovieResolveCenterOfMass.IModel, posed: resolveAutoMovieMomentum.IPosed, bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>, rates: ReadonlyMap<AutoMovieHumanoidBone, resolveAutoMovieBoneRates.IRate>): IAutoMovieBodyMomentum {
+  export function resolveAutoMovieMomentumRates(model: IAutoMovieResolveCenterOfMass.IModel, posed: resolveAutoMovieMomentum.IPosed, bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>, rates: ReadonlyMap<AutoMovieHumanoidBone, AutoMovieEngineKinematicsTypes.ResolveAutoMovieBoneRates.IRate>): IAutoMovieBodyMomentum {
     return resolveAutoMovieMomentumRatesImplementation(model, posed, bones, rates);
   }
 
@@ -1121,17 +1123,8 @@ export namespace AutoMovieEngineKinematics {
    * `1e-6`, or `R` below `1e-9`, a hinge parallel to the far segment that cannot
    * change the span ({@link armChainFault} reports that rig).
    */
-  export function hingedArmArticulation(props: hingedArmArticulation.IProps): IAutoMovieHingedArticulation | null {
+  export function hingedArmArticulation(props: AutoMovieEngineKinematicsTypes.HingedArmArticulation.IProps): IAutoMovieHingedArticulation | null {
     return hingedArmArticulationImplementation(props);
-  }
-
-  /** Companion types of {@link hingedArmArticulation}. */
-  export namespace hingedArmArticulation {
-    /**
-       * The solver's props: the interface chain and target with the engine's
-       * certificates and prepared geometry.
-       */
-    export type IProps = hingedArmArticulationImplementation.IProps;
   }
 
   /**
@@ -1154,25 +1147,8 @@ export namespace AutoMovieEngineKinematics {
    * can retain its generic sampled path. Inputs are read without modification;
    * the successful map and every velocity record are fresh and caller-owned.
    */
-  export function resolveAutoMovieBoneRates(topology: IAutoMovieSkeletonTopology, bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>, localBodyAngularRates: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieVector3>, root: resolveAutoMovieBoneRates.IRoot): Map<AutoMovieHumanoidBone, resolveAutoMovieBoneRates.IRate> | undefined {
+  export function resolveAutoMovieBoneRates(topology: IAutoMovieSkeletonTopology, bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>, localBodyAngularRates: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieVector3>, root: AutoMovieEngineKinematicsTypes.ResolveAutoMovieBoneRates.IRoot): Map<AutoMovieHumanoidBone, AutoMovieEngineKinematicsTypes.ResolveAutoMovieBoneRates.IRate> | undefined {
     return resolveAutoMovieBoneRatesImplementation(topology, bones, localBodyAngularRates, root);
-  }
-
-  /** Rate records exchanged by native derivative producers and mass reduction. */
-  export namespace resolveAutoMovieBoneRates {
-    /**
-       * One rigid frame's velocity in the resolved bones' common coordinate frame.
-       * Angular and linear rates are simultaneous, with explicit zero vectors for a
-       * producer-proven fixed frame. Finite admission belongs to propagation.
-       */
-    export type IRate = resolveAutoMovieBoneRatesImplementation.IRate;
-
-    /**
-       * The FK root placement's instantaneous common-frame motion. Position is the
-       * actual pose.root translation, or the common origin for null placement; the
-       * derivative producer must independently prove its supplied rates.
-       */
-    export type IRoot = resolveAutoMovieBoneRatesImplementation.IRoot;
   }
 
   /**
@@ -1206,22 +1182,9 @@ export namespace AutoMovieEngineKinematics {
    * @returns Fresh rates/diagnostics, or an explicit unsupported, pivot-refused
    *   or unrepresentable result.
    */
-  export function solveResolvedRate(jacobian: readonly (readonly number[])[], goalRate: readonly number[], rowScale: readonly number[]): solveResolvedRate.IResult {
+  export function solveResolvedRate(jacobian: readonly (readonly number[])[], goalRate: readonly number[], rowScale: readonly number[]): AutoMovieEngineKinematicsTypes.SolveResolvedRate.IResult {
     return solveResolvedRateImplementation(jacobian, goalRate, rowScale);
   }
 
-  /** Numerical differential-equality outcomes without curve-admission flags. */
-  export namespace solveResolvedRate {
-    /**
-       * Actual solved relation and diagnostics, or the precise numerical refusal
-       * category.
-       */
-    export type IResult = solveResolvedRateImplementation.IResult;
 
-    /**
-       * All arrays are fresh; no returned diagnostic is a certified physical error
-       * bound.
-       */
-    export type ISolved = solveResolvedRateImplementation.ISolved;
-  }
 }

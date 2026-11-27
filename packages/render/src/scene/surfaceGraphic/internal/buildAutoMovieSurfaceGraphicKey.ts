@@ -6,7 +6,7 @@ import type {
 import * as THREE from "three";
 
 import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
-import { clipAutoMovieSurfaceGraphicGeometry } from "../clipAutoMovieSurfaceGraphicGeometry.js";
+import { clipAutoMovieSurfaceGraphicGeometry } from "./clipAutoMovieSurfaceGraphicGeometry.js";
 import { createAutoMovieSurfaceGraphicMaterial } from "../createAutoMovieSurfaceGraphicMaterial.js";
 import { createAutoMovieSurfaceGraphicQuad } from "./createAutoMovieSurfaceGraphicQuad.js";
 import { createAutoMovieSurfaceGraphicText } from "./createAutoMovieSurfaceGraphicText.js";

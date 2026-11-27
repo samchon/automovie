@@ -1,3 +1,4 @@
+export type { AutoMovieEngineKinematicsTypes } from "./AutoMovieEngineKinematicsTypes";
 export * from "./RigidCarrierSample";
 export * from "./AutoMovieEngineKinematics";
 export * from "./aimRotation";

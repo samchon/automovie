@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import { compareAutoMovieInspectionFindings } from "../../scene/inspection/internal/compareAutoMovieInspectionFindings.js";
-import { sameAutoMovieInspectionShotClock } from "../../scene/inspection/sameAutoMovieInspectionShotClock.js";
+import { sameAutoMovieInspectionShotClock } from "../../scene/inspection/internal/sameAutoMovieInspectionShotClock.js";
 
 /** The reducer's saved clocks and sample count for one finding episode. */
 type IEpisode = IAutoMovieInspectionDiagnostics.IEpisode;

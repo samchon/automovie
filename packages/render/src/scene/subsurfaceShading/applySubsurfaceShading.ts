@@ -2,7 +2,7 @@ import * as THREE from "three";
 
 import type { IMaterialShaderSource } from "../IMaterialShaderSource.js";
 import { AutoMovieRenderMaterial } from "../AutoMovieRenderMaterial.js";
-import { getSubsurfaceTexture } from "./getSubsurfaceTexture.js";
+import { getSubsurfaceTexture } from "./internal/getSubsurfaceTexture.js";
 import { subsurfaceFragment } from "./internal/subsurfaceFragment.js";
 
 /**

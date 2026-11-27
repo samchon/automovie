@@ -15,7 +15,7 @@ import type {
 
 import { AutoMovieRenderCaption } from "../../caption/AutoMovieRenderCaption.js";
 import { assertSingleGuidePass } from "./assertSingleGuidePass.js";
-import { normalizeAudioAssets } from "../normalizeAudioAssets.js";
+import { normalizeAudioAssets } from "./normalizeAudioAssets.js";
 import { normalizeRenderTier } from "./normalizeRenderTier.js";
 import { resolveProductionRenderTierFrameFormat } from "./resolveProductionRenderTierFrameFormat.js";
 import { validDigest } from "./validDigest.js";

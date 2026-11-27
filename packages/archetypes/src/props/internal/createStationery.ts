@@ -2,7 +2,7 @@ import { AutoMovieArchetypeStationery } from "../AutoMovieArchetypeStationery";
 import { ArchetypeDraw, type AutoMovieArchetype } from "../../core/index";
 import "../StationeryDraw";
 import "../AutoMovieArchetypeBook";
-import "../createClipboard";
+import "../AutoMovieArchetypeClipboard";
 import { createPaper } from "../createPaper";
 import "../AutoMovieArchetypePen";
 

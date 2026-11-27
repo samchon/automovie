@@ -2,7 +2,7 @@ import * as THREE from "three";
 
 import { createAutoMovieClosedSphereGeometry } from "../createAutoMovieClosedSphereGeometry.js";
 import type { AutoMovieHumanCartoon } from "./AutoMovieHumanCartoon.js";
-import { mountHumanCartoonFace } from "./mountHumanCartoonFace.js";
+import { mountHumanCartoonFace } from "./internal/mountHumanCartoonFace.js";
 
 /**
  * Build a deliberately exaggerated cartoon face for a posed polygon head. The

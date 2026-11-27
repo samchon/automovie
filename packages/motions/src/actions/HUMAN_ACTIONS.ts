@@ -46,7 +46,7 @@ import { AutoMovieMotionHumanBaseball as baseball } from "../sport/AutoMovieMoti
 import { chiSau } from "../sport/chiSau";
 import { gymnastics } from "../sport/gymnastics";
 import { martialArt } from "../sport/martialArt";
-import { racket } from "../sport/racket";
+import { AutoMovieMotionHumanRacket as racket } from "../sport/AutoMovieMotionHumanRacket";
 import { swim } from "../sport/swim";
 import { closeStrike } from "../striking/closeStrike";
 import { defend } from "../striking/defend";

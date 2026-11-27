@@ -12,9 +12,9 @@ import { guardAutoMovieRenderModeRetirement } from "../guardAutoMovieRenderModeR
 import { restoreAutoMovieRenderModeOnce } from "../internal/restoreAutoMovieRenderModeOnce.js";
 import { restoreAutoMovieRenderModeState } from "../restoreAutoMovieRenderModeState.js";
 import type { IAutoMovieSemanticMaskHandle } from "./IAutoMovieSemanticMaskHandle.js";
-import { maskRoots } from "./maskRoots.js";
-import { nearest } from "./nearest.js";
-import { unresolvedOf } from "./unresolvedOf.js";
+import { maskRoots } from "./internal/maskRoots.js";
+import { nearest } from "./internal/nearest.js";
+import { unresolvedOf } from "./internal/unresolvedOf.js";
 
 /**
  * Paint a built scene with its stable semantic palette.

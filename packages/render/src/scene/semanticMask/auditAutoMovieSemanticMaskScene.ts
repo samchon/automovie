@@ -6,9 +6,9 @@ import type {
 import type * as THREE from "three";
 
 import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
-import { maskRoots } from "./maskRoots.js";
-import { nearest } from "./nearest.js";
-import { unresolvedOf } from "./unresolvedOf.js";
+import { maskRoots } from "./internal/maskRoots.js";
+import { nearest } from "./internal/nearest.js";
+import { unresolvedOf } from "./internal/unresolvedOf.js";
 
 /**
  * Join a supplied palette to assembled scene roots in both directions without

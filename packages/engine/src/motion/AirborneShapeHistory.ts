@@ -9,7 +9,7 @@ import type {
 } from "@automovie/interface";
 
 import { prepareAutoMovieMassModel } from "../kinematics/prepareAutoMovieMassModel";
-import type { resolveAutoMovieBoneRates } from "../kinematics/internal/resolveAutoMovieBoneRates";
+import type { AutoMovieEngineKinematicsTypes } from "../kinematics/AutoMovieEngineKinematicsTypes";
 import { resolveAutoMovieMomentum } from "../kinematics/resolveAutoMovieMomentum";
 import { resolveAutoMovieMomentumRates } from "../kinematics/internal/resolveAutoMovieMomentumRates";
 import { Quaternion } from "../math/Quaternion";
@@ -297,7 +297,7 @@ export namespace AirborneShapeHistory {
     seconds: number,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ) =>
-    | ReadonlyMap<AutoMovieHumanoidBone, resolveAutoMovieBoneRates.IRate>
+    | ReadonlyMap<AutoMovieHumanoidBone, AutoMovieEngineKinematicsTypes.ResolveAutoMovieBoneRates.IRate>
     | undefined;
 
   /**

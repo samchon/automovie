@@ -9,7 +9,7 @@ import {
 } from "@automovie/interface";
 
 import { describeInvalidValue } from "../../validation/describeInvalidValue";
-import { resolvePerformShotTarget } from "../resolvePerformShotTarget";
+import { resolvePerformShotTarget } from "./resolvePerformShotTarget";
 import { validatePerformShotFraming } from "./validatePerformShotFraming";
 
 /**

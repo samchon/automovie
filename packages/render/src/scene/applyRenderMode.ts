@@ -19,7 +19,7 @@ import { overrideAutoMovieRenderModeMaterials } from "./internal/overrideAutoMov
 import { restoreAutoMovieRenderModeOnce } from "./internal/restoreAutoMovieRenderModeOnce.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 import { AutoMovieRenderSemanticMask } from "./semanticMask/index.js";
-import { applyAutoMovieGraphicsMode } from "./surfaceGraphic/applyAutoMovieGraphicsMode.js";
+import { applyAutoMovieGraphicsMode } from "./surfaceGraphic/internal/applyAutoMovieGraphicsMode.js";
 import { hideAutoMovieSurfaceGraphics } from "./surfaceGraphic/internal/hideAutoMovieSurfaceGraphics.js";
 
 /** A renderable that is NOT a mesh: a line/grid/helper, points, or a sprite. */

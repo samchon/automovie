@@ -2,8 +2,8 @@ import { ArchetypeDraw, type AutoMovieArchetype } from "../core/index";
 import { GroomingPropDraw } from "./GroomingPropDraw";
 import { AutoMovieArchetypeComb } from "./AutoMovieArchetypeComb";
 import { AutoMovieArchetypeLipstick } from "./AutoMovieArchetypeLipstick";
-import { createShavingRazor } from "./createShavingRazor";
-import { createSqueezeTube } from "./createSqueezeTube";
+import { AutoMovieArchetypeShavingRazor } from "./AutoMovieArchetypeShavingRazor";
+import { AutoMovieArchetypeSqueezeTube } from "./AutoMovieArchetypeSqueezeTube";
 import { AutoMovieArchetypeTissue } from "./AutoMovieArchetypeTissue";
 import { AutoMovieArchetypeToothbrush } from "./AutoMovieArchetypeToothbrush";
 
@@ -46,8 +46,8 @@ export function create(
     tissue: ({ model: _model, ...rest }, s) => AutoMovieArchetypeTissue.create(rest, s),
     comb: ({ model: _model, ...rest }, s) => AutoMovieArchetypeComb.create(rest, s),
     toothbrush: ({ model: _model, ...rest }, s) => AutoMovieArchetypeToothbrush.create(rest, s),
-    tube: (p, s) => createSqueezeTube({ ...p, model: ArchetypeDraw.admit("careItem", "model", p.model, ["alltub13_5", "alltub19", "alltub22", "alltub25", "alltub28", "alltub30", "alltub35", "alltub38", "alltub40", "alltub50"] as const) }, s),
-    razor: (p, s) => createShavingRazor({ ...p, model: ArchetypeDraw.admit("careItem", "model", p.model, ["edwinJagger", "gilletteMach3"] as const) }, s),
+    tube: (p, s) => AutoMovieArchetypeSqueezeTube.create({ ...p, model: ArchetypeDraw.admit("careItem", "model", p.model, ["alltub13_5", "alltub19", "alltub22", "alltub25", "alltub28", "alltub30", "alltub35", "alltub38", "alltub40", "alltub50"] as const) }, s),
+    razor: (p, s) => AutoMovieArchetypeShavingRazor.create({ ...p, model: ArchetypeDraw.admit("careItem", "model", p.model, ["edwinJagger", "gilletteMach3"] as const) }, s),
     lipstick: ({ model: _model, ...rest }, s) => AutoMovieArchetypeLipstick.create(rest, s),
   };
   return variants[kind](params, seed);
@@ -102,8 +102,8 @@ export namespace AutoMovieArchetypeCareItem {
     tissue: AutoMovieArchetypeTissue.create,
     comb: AutoMovieArchetypeComb.create,
     toothbrush: AutoMovieArchetypeToothbrush.create,
-    tube: createSqueezeTube,
-    razor: createShavingRazor,
+    tube: AutoMovieArchetypeSqueezeTube.create,
+    razor: AutoMovieArchetypeShavingRazor.create,
     lipstick: AutoMovieArchetypeLipstick.create,
   } as const satisfies Readonly<Record<Kind, unknown>>;
 }

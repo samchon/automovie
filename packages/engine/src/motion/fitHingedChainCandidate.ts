@@ -958,7 +958,7 @@ export function fitHingedChainCandidate(
       // its pole and is answered there when legal, whether or not the
       // rotation is met: the place was searched once, by that search. Where
       // it is not legal, the legal swivel nearest it answers, and a continued
-      // fit follows it from its seed (`hingedArmArticulation.IProps.placed`).
+      // fit follows it from its seed (`AutoMovieEngineKinematicsTypes.HingedArmArticulation.IProps.placed`).
       ...(strain !== undefined
         ? {}
         : props.placed === true && side !== null

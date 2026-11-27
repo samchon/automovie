@@ -1,7 +1,7 @@
 import { ArchetypeDraw, type AutoMovieArchetype } from "../core/index";
 import { LongImplementDraw } from "./LongImplementDraw";
 import { AutoMovieArchetypeBroom } from "./AutoMovieArchetypeBroom";
-import { createFishingRod } from "./createFishingRod";
+import { AutoMovieArchetypeFishingRod } from "./AutoMovieArchetypeFishingRod";
 import { AutoMovieArchetypeForestAxe } from "./AutoMovieArchetypeForestAxe";
 import { AutoMovieArchetypeMop } from "./AutoMovieArchetypeMop";
 import { AutoMovieArchetypeShovel } from "./AutoMovieArchetypeShovel";
@@ -95,7 +95,7 @@ export namespace AutoMovieArchetypeLongTool {
     mop: AutoMovieArchetypeMop.create,
     shovel: AutoMovieArchetypeShovel.create,
     forestAxe: AutoMovieArchetypeForestAxe.create,
-    fishingRod: createFishingRod,
+    fishingRod: AutoMovieArchetypeFishingRod.create,
     spongeRammer: AutoMovieArchetypeStageSpongeRammer.create,
     worm: AutoMovieArchetypeStageWorm.create,
     trailHandspike: AutoMovieArchetypeStageTrailHandspike.create,

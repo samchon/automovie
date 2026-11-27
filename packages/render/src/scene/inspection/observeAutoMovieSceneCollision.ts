@@ -7,10 +7,10 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieRenderInspectionGeometry } from "./AutoMovieRenderInspectionGeometry.js";
-import { createAutoMovieCollisionFinding } from "./createAutoMovieCollisionFinding.js";
-import { findAutoMovieCollisionWitness } from "./findAutoMovieCollisionWitness.js";
-import { observeAutoMovieSweptCollision } from "./observeAutoMovieSweptCollision.js";
-import { resolveAutoMovieCollisionHit } from "./resolveAutoMovieCollisionHit.js";
+import { createAutoMovieCollisionFinding } from "./internal/createAutoMovieCollisionFinding.js";
+import { findAutoMovieCollisionWitness } from "./internal/findAutoMovieCollisionWitness.js";
+import { observeAutoMovieSweptCollision } from "./internal/observeAutoMovieSweptCollision.js";
+import { resolveAutoMovieCollisionHit } from "./internal/resolveAutoMovieCollisionHit.js";
 
 /** Work one observation may spend, by kind. */
 type ILimits = {

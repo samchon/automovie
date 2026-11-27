@@ -6,6 +6,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import type { AutoMovieEngineKinematicsTypes } from "../AutoMovieEngineKinematicsTypes";
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 import { SKELETON_ROOT_PARENT } from "../constants/SKELETON_ROOT_PARENT";
@@ -34,18 +35,18 @@ export function resolveAutoMovieBoneRates(
   topology: IAutoMovieSkeletonTopology,
   bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   localBodyAngularRates: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieVector3>,
-  root: resolveAutoMovieBoneRates.IRoot,
-): Map<AutoMovieHumanoidBone, resolveAutoMovieBoneRates.IRate> | undefined {
-  const resolved: Map<AutoMovieHumanoidBone, resolveAutoMovieBoneRates.IRate> =
+  root: AutoMovieEngineKinematicsTypes.ResolveAutoMovieBoneRates.IRoot,
+): Map<AutoMovieHumanoidBone, AutoMovieEngineKinematicsTypes.ResolveAutoMovieBoneRates.IRate> | undefined {
+  const resolved: Map<AutoMovieHumanoidBone, AutoMovieEngineKinematicsTypes.ResolveAutoMovieBoneRates.IRate> =
     new Map();
   const walk: (
     definition: IAutoMovieBone,
     parentPosition: IAutoMovieVector3,
-    parentRate: resolveAutoMovieBoneRates.IRate,
+    parentRate: AutoMovieEngineKinematicsTypes.ResolveAutoMovieBoneRates.IRate,
   ) => boolean = (
     definition: IAutoMovieBone,
     parentPosition: IAutoMovieVector3,
-    parentRate: resolveAutoMovieBoneRates.IRate,
+    parentRate: AutoMovieEngineKinematicsTypes.ResolveAutoMovieBoneRates.IRate,
   ): boolean => {
     const bone: IAutoMovieResolvedBone | undefined = bones.get(definition.bone);
     if (bone === undefined) return true;
@@ -73,7 +74,7 @@ export function resolveAutoMovieBoneRates(
       Quaternion.rotateVector(bone.worldRotation, local),
     );
 
-    const rate: resolveAutoMovieBoneRates.IRate = { linear, angular };
+    const rate: AutoMovieEngineKinematicsTypes.ResolveAutoMovieBoneRates.IRate = { linear, angular };
     resolved.set(definition.bone, rate);
     for (const child of topology.childrenByParent.get(definition.bone) ?? [])
       if (!walk(child, bone.worldPosition, rate)) return false;
@@ -88,30 +89,4 @@ export function resolveAutoMovieBoneRates(
   // A supplied descendant below a missing ancestor or a detached subtree was
   // never visited and cannot receive an inferred parent rate.
   return resolved.size === bones.size ? resolved : undefined;
-}
-
-/** Rate records exchanged by native derivative producers and mass reduction. */
-export namespace resolveAutoMovieBoneRates {
-  /**
-   * One rigid frame's velocity in the resolved bones' common coordinate frame.
-   * Angular and linear rates are simultaneous, with explicit zero vectors for a
-   * producer-proven fixed frame. Finite admission belongs to propagation.
-   */
-  export interface IRate {
-    /** Velocity at the bone origin, common-frame metres per second. */
-    linear: IAutoMovieVector3;
-
-    /** World angular velocity, common-frame radians per second. */
-    angular: IAutoMovieVector3;
-  }
-
-  /**
-   * The FK root placement's instantaneous common-frame motion. Position is the
-   * actual pose.root translation, or the common origin for null placement; the
-   * derivative producer must independently prove its supplied rates.
-   */
-  export interface IRoot extends IRate {
-    /** Reference point for linear velocity, common-frame metres. */
-    position: IAutoMovieVector3;
-  }
 }

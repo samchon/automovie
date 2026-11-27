@@ -1,3 +1,84 @@
+import { RecoveryChartBatch as assembleChartBatchImplementation } from "./internal/RecoveryChartBatch";
+import { RecoveryChartFitRows as streamChartFitRowsImplementation } from "./internal/RecoveryChartFitRows";
+import type {
+  IAutoMovieRecoveryChartBatch,
+  IAutoMovieRecoveryChartFitRows,
+  AutoMovieRecoveryCurveData,
+  AutoMovieRecoveryCurveFormat,
+  IAutoMovieRecoveryAtlasObservation,
+  IAutoMovieRecoveryAtlasObservationInput,
+  IAutoMovieRecoveryCameraMapEstimate,
+  IAutoMovieRecoveryCameraSetObservationOperation,
+  IAutoMovieRecoveryImageFeaturesExtractionOperation,
+  IAutoMovieRecoveryCameraTracksLinkageOperation,
+  IAutoMovieRecoveryCameraMapInput,
+  IAutoMovieRecoveryCameraPairEstimate,
+  IAutoMovieRecoveryCameraPairInput,
+  IAutoMovieRecoveryCameraSceneEstimate,
+  IAutoMovieRecoveryCameraSceneInput,
+  IAutoMovieRecoveryContourResume,
+  IAutoMovieRecoveryContourResumeInput,
+  IAutoMovieRecoveryDefaultObservationOptions,
+  IAutoMovieRecoveryImageInput,
+  IAutoMovieRecoveryImageObservation,
+  IAutoMovieRecoveryInput,
+  IAutoMovieRecoveryMeshSections,
+  IAutoMovieRecoveryObservationChart,
+  IAutoMovieRecoveryObservationChartSeed,
+  IAutoMovieRecoveryObservationOptions,
+  IAutoMovieRecoveryObservationTransport,
+  IAutoMovieRecoveryOptions,
+  IAutoMovieRecoveryPreparedInput,
+  IAutoMovieRecoveryRegisteredInput,
+  IAutoMovieRecoveryResult,
+  IAutoMovieRecoverySections,
+  IAutoMovieRecoverySectionsInput,
+  IAutoMovieRecoverySlabs,
+  IAutoMovieRecoverySlabsInput,
+  IAutoMoviePolylineFit,
+  IAutoMoviePolylineFitInput,
+  IAutoMovieRecoveryAtlasObservationSource,
+  IAutoMovieRecoveryAtlasObservationCreases,
+  IAutoMovieRecoveryAtlasObservationFeatures,
+  IAutoMovieRecoveryAtlasObservationChart,
+  IAutoMovieRecoveryAtlasObservationPublish,
+  IAutoMovieRecoveryChartBoundaryNetwork,
+  IAutoMovieRecoveryAnnularChartPreparation,
+  IAutoMovieRecoveryDiskChart,
+  IAutoMovieRecoveryMultiBoundaryChart,
+  IAutoMovieRecoveryChartCollar,
+  IAutoMovieRecoveryChartAreaObservations,
+  IAutoMovieRecoveryChartAssembly,
+  IAutoMovieRecoveryChartBoundary,
+  IAutoMovieRecoveryChartBoundaryNetworkAugment,
+  IAutoMovieRecoveryChartBoundaryNetworkBindings,
+  IAutoMovieRecoveryChartBoundaryNetworkRegistry,
+  IAutoMovieRecoveryChartBoxSolve,
+  IAutoMovieRecoveryChartControlRelations,
+  IAutoMovieRecoveryChartFitPrepare,
+  IAutoMovieRecoveryChartFitReport,
+  IAutoMovieRecoveryFeatureChartCuts,
+  IAutoMovieRecoveryChartFitSolve,
+  IAutoMovieRecoveryChartFitSystem,
+  IAutoMovieRecoveryChartLeafAssembly,
+  IAutoMovieRecoveryChartLeafControls,
+  IAutoMovieRecoveryChartLeafFit,
+  IAutoMovieRecoveryChartPhysicalJet,
+  IAutoMovieRecoveryChartRefinementClosure,
+  IAutoMovieRecoveryEventRegion,
+  IAutoMovieRecoveryEventRegionCells,
+  IAutoMovieRecoveryEventRegionPorts,
+  IAutoMovieRecoveryEventRegionSource,
+  IAutoMovieRecoveryEventRegionTopology,
+  IAutoMovieRecoveryFeatureChartCutsSeams,
+  IAutoMovieRecoveryFeatureChartCutsSubdivide,
+  AutoMovieVector3Tuple,
+  IAutoMovieRecoveryObservedMeshTopology,
+  IAutoMovieRecoveryFeatureChartPreparation,
+  AutoMovieDiagnosticNumber,
+  IAutoMovieAffineBoxBound,
+} from "@automovie/interface";
+
 import { createRecoveryObservationPolicy as createRecoveryObservationPolicyImplementation } from "./internal/createRecoveryObservationPolicy";
 import { encodeRecoveryDiagnosticNumber as encodeRecoveryDiagnosticNumberImplementation } from "./internal/encodeRecoveryDiagnosticNumber";
 import { filterRecoveryImageGaussian as filterRecoveryImageGaussianImplementation } from "./internal/filterRecoveryImageGaussian";
@@ -44,7 +125,7 @@ import { RecoveryDiskChart as RecoveryDiskChartImplementation } from "./internal
 import { RecoveryMultiBoundaryChart as RecoveryMultiBoundaryChartImplementation } from "./internal/RecoveryMultiBoundaryChart";
 import { RecoveryChartCollar as RecoveryChartCollarImplementation } from "./internal/RecoveryChartCollar";
 
-import { type AutoMovieRecoveryCurveData, type AutoMovieRecoveryCurveFormat, type IAutoMovieRecoveryAtlasObservation, type IAutoMovieRecoveryAtlasObservationInput, type IAutoMovieRecoveryCameraMapEstimate, type IAutoMovieRecoveryCameraSetObservationOperation, type IAutoMovieRecoveryImageFeaturesExtractionOperation, type IAutoMovieRecoveryCameraTracksLinkageOperation, type IAutoMovieRecoveryCameraMapInput, type IAutoMovieRecoveryCameraPairEstimate, type IAutoMovieRecoveryCameraPairInput, type IAutoMovieRecoveryCameraSceneEstimate, type IAutoMovieRecoveryCameraSceneInput, type IAutoMovieRecoveryContourResume, type IAutoMovieRecoveryContourResumeInput, type IAutoMovieRecoveryDefaultObservationOptions, type IAutoMovieRecoveryImageInput, type IAutoMovieRecoveryImageObservation, type IAutoMovieRecoveryInput, type IAutoMovieRecoveryMeshSections, type IAutoMovieRecoveryObservationChart, type IAutoMovieRecoveryObservationChartSeed, type IAutoMovieRecoveryObservationOptions, type IAutoMovieRecoveryObservationTransport, type IAutoMovieRecoveryOptions, type IAutoMovieRecoveryPreparedInput, type IAutoMovieRecoveryRegisteredInput, type IAutoMovieRecoveryResult, type IAutoMovieRecoverySections, type IAutoMovieRecoverySectionsInput, type IAutoMovieRecoverySlabs, type IAutoMovieRecoverySlabsInput, type IAutoMoviePolylineFit, type IAutoMoviePolylineFitInput, type IAutoMovieRecoveryAtlasObservationSource, type IAutoMovieRecoveryAtlasObservationCreases, type IAutoMovieRecoveryAtlasObservationFeatures, type IAutoMovieRecoveryAtlasObservationChart, type IAutoMovieRecoveryAtlasObservationPublish, type IAutoMovieRecoveryChartBoundaryNetwork, type IAutoMovieRecoveryAnnularChartPreparation, type IAutoMovieRecoveryDiskChart, type IAutoMovieRecoveryMultiBoundaryChart, type IAutoMovieRecoveryChartCollar, type IAutoMovieRecoveryChartAreaObservations, type IAutoMovieRecoveryChartAssembly, type IAutoMovieRecoveryChartBoundary, type IAutoMovieRecoveryChartBoundaryNetworkAugment, type IAutoMovieRecoveryChartBoundaryNetworkBindings, type IAutoMovieRecoveryChartBoundaryNetworkRegistry, type IAutoMovieRecoveryChartBoxSolve, type IAutoMovieRecoveryChartControlRelations, type IAutoMovieRecoveryChartFitPrepare, type IAutoMovieRecoveryChartFitReport, type IAutoMovieRecoveryFeatureChartCuts, type IAutoMovieRecoveryChartFitSolve, type IAutoMovieRecoveryChartFitSystem, type IAutoMovieRecoveryChartLeafAssembly, type IAutoMovieRecoveryChartLeafControls, type IAutoMovieRecoveryChartLeafFit, type IAutoMovieRecoveryChartPhysicalJet, type IAutoMovieRecoveryChartRefinementClosure, type IAutoMovieRecoveryEventRegion, type IAutoMovieRecoveryEventRegionCells, type IAutoMovieRecoveryEventRegionPorts, type IAutoMovieRecoveryEventRegionSource, type IAutoMovieRecoveryEventRegionTopology, type IAutoMovieRecoveryFeatureChartCutsSeams, type IAutoMovieRecoveryFeatureChartCutsSubdivide, type AutoMovieVector3Tuple, type IAutoMovieRecoveryObservedMeshTopology, type IAutoMovieRecoveryFeatureChartPreparation, type AutoMovieDiagnosticNumber, type IAutoMovieAffineBoxBound } from "@automovie/interface";
+
 
 import { extractRecoveryImageFeatures as extractImageFeaturesOperation } from "./internal/extractRecoveryImageFeatures";
 import { linkRecoveryCameraTracks as linkCameraTracksOperation } from "./internal/linkRecoveryCameraTracks";
@@ -363,6 +444,20 @@ export namespace AutoMovieRecoveryObservation {
    * endpoint has one evaluation owner; its binary64 restriction difference is
    * measured against the fitted field below.
    */
+  /** Stream chart batch fit records lazily. */
+  export function* assembleChartBatch(
+    input: Parameters<IAutoMovieRecoveryChartBatch.Operation>[0],
+  ): ReturnType<IAutoMovieRecoveryChartBatch.Operation> {
+    yield* assembleChartBatchImplementation(input);
+  }
+
+  /** Stream position and physical-gradient fit rows lazily. */
+  export function* streamChartFitRows(
+    sample: Parameters<IAutoMovieRecoveryChartFitRows.Operation>[0],
+  ): ReturnType<IAutoMovieRecoveryChartFitRows.Operation> {
+    yield* streamChartFitRowsImplementation(sample);
+  }
+  /** Yield the batches used to assemble an observation chart. */
   export function assembleRecoveryChart(charts: Parameters<IAutoMovieRecoveryChartAssembly.Operation>[0]): ReturnType<IAutoMovieRecoveryChartAssembly.Operation> {
     return RecoveryChartAssemblyImplementation(charts);
   }

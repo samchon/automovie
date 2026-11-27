@@ -1,7 +1,7 @@
 import type { IAutoMovieInspectionDiagnostics } from "@automovie/interface";
 
 import { compareAutoMovieInspectionFindings } from "./compareAutoMovieInspectionFindings.js";
-import { sameAutoMovieInspectionShotClock } from "../sameAutoMovieInspectionShotClock.js";
+import { sameAutoMovieInspectionShotClock } from "./sameAutoMovieInspectionShotClock.js";
 
 /** An episode while its end and worst witness can still advance. */
 type IMutableEpisode = {

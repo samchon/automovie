@@ -5,8 +5,8 @@ import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 import { AUTOMOVIE_FILM_RESPONSE_SHADERS } from "../filmResponse/AUTOMOVIE_FILM_RESPONSE_SHADERS.js";
 import type { AutoMovieFilmAlpha } from "../filmResponse/AutoMovieFilmAlpha.js";
 import type { IAutoMovieFilmResponseRenderer } from "../filmResponse/IAutoMovieFilmResponseRenderer.js";
-import { buildAutoMovieMediumShader } from "./buildAutoMovieMediumShader.js";
-import { collectAutoMovieMediumLights } from "./collectAutoMovieMediumLights.js";
+import { buildAutoMovieMediumShader } from "./internal/buildAutoMovieMediumShader.js";
+import { collectAutoMovieMediumLights } from "./internal/collectAutoMovieMediumLights.js";
 import { readAutoMovieSceneMedium } from "./internal/readAutoMovieSceneMedium.js";
 
 /** The golden ratio's conjugate, the step of the dither shift per sample. */

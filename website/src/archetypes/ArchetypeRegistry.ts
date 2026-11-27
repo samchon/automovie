@@ -369,6 +369,10 @@ const STABLE_PRODUCER_IDS: Readonly<Record<string, string>> = {
   AutoMovieArchetypeBow: "createBow",
   AutoMovieArchetypePell: "createPell",
   AutoMovieArchetypeDragged: "createDragged",
+  AutoMovieArchetypeClipboard: "createClipboard",
+  AutoMovieArchetypeFishingRod: "createFishingRod",
+  AutoMovieArchetypeShavingRazor: "createShavingRazor",
+  AutoMovieArchetypeSqueezeTube: "createSqueezeTube",
 };
 
 /** The website's local resolver for the installed archetype package. */

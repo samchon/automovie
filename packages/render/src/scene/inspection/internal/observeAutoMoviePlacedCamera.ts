@@ -1,35 +1,14 @@
+import type { AutoMovieRenderInspectionCamera } from "../AutoMovieRenderInspectionCamera.js";
 import { classifyAutoMovieCameraInspection } from "@automovie/engine";
-import type {
-  IAutoMovieCameraInspection,
-  IAutoMovieInspectionDiagnostics,
-  IAutoMovieSubjectBox,
-} from "@automovie/interface";
-import type { Mesh, Object3D } from "three";
+import type { IAutoMovieCameraInspection, IAutoMovieInspectionDiagnostics } from "@automovie/interface";
+import type { Mesh } from "three";
 
 import type { IAutoMovieDrawScene } from "../../../draw/IAutoMovieDrawScene.js";
 import { listAutoMovieCameraSubjectMeshes } from "./listAutoMovieCameraSubjectMeshes.js";
 import { measureAutoMovieCameraFrameEdge } from "../measureAutoMovieCameraFrameEdge.js";
 import { measureAutoMovieCameraNearClip } from "./measureAutoMovieCameraNearClip.js";
-import { measureAutoMovieCameraOcclusionPixels } from "../measureAutoMovieCameraOcclusionPixels.js";
+import { measureAutoMovieCameraOcclusionPixels } from "./measureAutoMovieCameraOcclusionPixels.js";
 import { observeAutoMovieCameraInspection } from "./observeAutoMovieCameraInspection.js";
-
-/** A source requirement active in the placed sample. */
-interface ICameraRequirement {
-  /** Stable path of the authored subject within its source scope. */
-  readonly path: string;
-
-  /** Source-resolved displayed object, absent when resolution failed. */
-  readonly target: Object3D | undefined;
-
-  /**
-   * Authored maximum fraction, inclusive, when the source requires pixel
-   * coverage.
-   */
-  readonly maxOcclusionRatio?: number;
-
-  /** Optional certified envelope of the whole posed subject in world metres. */
-  readonly targetBounds?: IAutoMovieSubjectBox;
-}
 
 /**
  * Viewer-only cap, per painted frame and shared by its subjects, on candidate
@@ -47,8 +26,6 @@ const PREVIEW_RAY_TRIANGLE_BUDGET: number = 3_000;
 const PREVIEW_NEAR_CLIP_TRIANGLE_BUDGET: number = 200_000;
 
 /** Independent diagnostic rows emitted by the placed camera observation. */
-type IResult = Pick<IAutoMovieInspectionDiagnostics, "findings" | "coverage">;
-
 /** A coverage row's identity before its outcome. */
 type IRow = Pick<
   IAutoMovieInspectionDiagnostics.ICoverage,
@@ -93,19 +70,15 @@ const FRAMING_FAILURES: Readonly<
  * @param props The placed sample and the requirements active at its time.
  * @returns Findings and one coverage row per check and requirement.
  */
-export function observeAutoMoviePlacedCamera(props: {
-  /** Settled original scene and delivery projection, before inspection effects. */
-  sample: IAutoMovieDrawScene.IPlacedSample;
-
-  /** Source-owned requirements active at this sample's exact time. */
-  targets: readonly ICameraRequirement[];
-}): IResult {
+export function observeAutoMoviePlacedCamera(
+  props: AutoMovieRenderInspectionCamera.ObservePlaced.IProps,
+): AutoMovieRenderInspectionCamera.ObservePlaced.IResult {
   const { sample, targets } = props;
   const findings: IAutoMovieInspectionDiagnostics.IFinding[] = [];
   const coverage: IAutoMovieInspectionDiagnostics.ICoverage[] = [];
-  const distinct: Map<string, ICameraRequirement> = new Map(
+  const distinct: Map<string, AutoMovieRenderInspectionCamera.ObservePlaced.IRequirement> = new Map(
     targets.map(
-      (requirement: ICameraRequirement): [string, ICameraRequirement] => [
+      (requirement: AutoMovieRenderInspectionCamera.ObservePlaced.IRequirement): [string, AutoMovieRenderInspectionCamera.ObservePlaced.IRequirement] => [
         requirement.path,
         requirement,
       ],
@@ -121,7 +94,7 @@ export function observeAutoMoviePlacedCamera(props: {
   const clipTriangles: number = share(PREVIEW_NEAR_CLIP_TRIANGLE_BUDGET);
   for (const requirement of distinct.values()) {
     const { path, target, targetBounds, maxOcclusionRatio } = requirement;
-    const input: Parameters<typeof observeAutoMovieCameraInspection>[0] = {
+    const input: AutoMovieRenderInspectionCamera.Observe.IProps = {
       scene: sample.scene,
       camera: sample.camera,
       target,
@@ -193,7 +166,7 @@ export function observeAutoMoviePlacedCamera(props: {
       target === undefined || sample.scene.overrideMaterial !== null
         ? undefined
         : listAutoMovieCameraSubjectMeshes(target, sample.camera);
-    const clip: measureAutoMovieCameraNearClip.IResult =
+    const clip: AutoMovieRenderInspectionCamera.NearClip.IResult =
       measureAutoMovieCameraNearClip({
         camera: sample.camera,
         meshes,

@@ -7,11 +7,11 @@ import * as THREE from "three";
 
 import { reportAutoMovieResourceRetirement } from "../reportAutoMovieResourceRetirement.js";
 import type { AutoMovieHumanPolygon } from "./AutoMovieHumanPolygon.js";
-import { applyHumanPolygonPose } from "./applyHumanPolygonPose.js";
-import { buildHumanPolygonModule } from "./buildHumanPolygonModule.js";
-import { buildHumanPolygonParts } from "./buildHumanPolygonParts.js";
-import { createHumanPolygonPalette } from "./createHumanPolygonPalette.js";
-import { prepareHumanPolygonPresentation } from "./prepareHumanPolygonPresentation.js";
+import { applyHumanPolygonPose } from "./internal/applyHumanPolygonPose.js";
+import { buildHumanPolygonModule } from "./internal/buildHumanPolygonModule.js";
+import { buildHumanPolygonParts } from "./internal/buildHumanPolygonParts.js";
+import { createHumanPolygonPalette } from "./internal/createHumanPolygonPalette.js";
+import { prepareHumanPolygonPresentation } from "./internal/prepareHumanPolygonPresentation.js";
 
 /**
  * Draw a rigid polygon blockout from the generated skeleton, in metres.

@@ -1,49 +1,12 @@
-import type {
-  IAutoMovieSubjectBox,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  Box3,
-  BufferAttribute,
-  Camera,
-  Frustum,
-  Matrix4,
-  Mesh,
-  Plane,
-  Vector3,
-  WebGLCoordinateSystem,
-} from "three";
+import type { AutoMovieRenderInspectionCamera } from "../AutoMovieRenderInspectionCamera.js";
+import { Box3, BufferAttribute, Frustum, Matrix4, Mesh, Plane, Vector3, WebGLCoordinateSystem } from "three";
 
 import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
 import { clipInspectionPolygon } from "./clipInspectionPolygon.js";
 import { inspectionPlaneRoundingSlack } from "./inspectionPlaneRoundingSlack.js";
 import { isAutoMovieFloat32Point } from "../isAutoMovieFloat32Point.js";
-import { readAutoMovieDisplayedBox } from "../readAutoMovieDisplayedBox.js";
-import { readAutoMovieDrawnRanges } from "../readAutoMovieDrawnRanges.js";
-
-/** The delivery camera and a required subject's admitted meshes. */
-interface IProps {
-  /**
-   * Delivery camera with its world matrices and projection, crop included,
-   * already current.
-   */
-  camera: Camera;
-
-  /**
-   * Meshes from listAutoMovieCameraSubjectMeshes with current world matrices
-   * and poses, or undefined when it refused the subject.
-   */
-  meshes: readonly Mesh[] | undefined;
-
-  /**
-   * Optional independently certified world envelope of the whole placed
-   * subject, metres.
-   */
-  bounds?: IAutoMovieSubjectBox;
-
-  /** Largest number of drawn triangles this call may examine. */
-  triangleBudget: number;
-}
+import { readAutoMovieDisplayedBox } from "./readAutoMovieDisplayedBox.js";
+import { readAutoMovieDrawnRanges } from "./readAutoMovieDrawnRanges.js";
 
 /**
  * Measure how far a required subject's drawn surface reaches in front of the
@@ -65,8 +28,8 @@ interface IProps {
  *   checked.
  */
 export function measureAutoMovieCameraNearClip(
-  props: IProps,
-): measureAutoMovieCameraNearClip.IResult {
+  props: AutoMovieRenderInspectionCamera.NearClip.IProps,
+): AutoMovieRenderInspectionCamera.NearClip.IResult {
   const { camera, meshes, triangleBudget } = props;
   if (triangleBudget < 0)
     return {
@@ -221,67 +184,6 @@ export function measureAutoMovieCameraNearClip(
     cut: { x: cut.x, y: cut.y, z: cut.z },
     opaque: deepest.opaque,
   };
-}
-
-/** Outcomes of one near-plane clip measurement. */
-export namespace measureAutoMovieCameraNearClip {
-  /** Clear, clipped with its deepest witness, or unmeasured with a reason. */
-  export type IResult =
-    | {
-        /**
-         * Every examined triangle stays on or beyond the near plane inside the
-         * frame.
-         */
-        status: "clear";
-
-        /** Drawn triangles examined. */
-        triangles: number;
-      }
-    | {
-        /** Some drawn surface inside the frame lies in front of the near plane. */
-        status: "clipped";
-
-        /** Drawn triangles examined. */
-        triangles: number;
-
-        /** Deepest intrusion in front of the near plane, world metres. */
-        depth: number;
-
-        /** World surface point of that intrusion, metres. */
-        point: IAutoMovieVector3;
-
-        /**
-         * World point on the near plane at the same delivered pixel, metres,
-         * where the cut shows in the frame.
-         */
-        cut: IAutoMovieVector3;
-
-        /**
-         * Whether the reported intrusion lies on an opaque stock surface; false
-         * means the cut part may be invisible anyway.
-         */
-        opaque: boolean;
-      }
-    | {
-        /**
-         * The drawn triangles in front of the near plane exceed the caller's
-         * budget; a larger budget completes the check.
-         */
-        status: "over-budget";
-
-        /** How far the budget fell short. */
-        reason: string;
-      }
-    | {
-        /**
-         * The surface cannot be checked: an unreadable drawable, a non-finite
-         * vertex or projection, or an invalid budget.
-         */
-        status: "unmeasured";
-
-        /** Why the check cannot run. */
-        reason: string;
-      };
 }
 
 /** Signed distance from the plane to the box corner deepest against its normal. */

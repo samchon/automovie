@@ -2,7 +2,7 @@ import * as THREE from "three";
 
 import { AUTOMOVIE_FILM_RESPONSE_SHADERS } from "./AUTOMOVIE_FILM_RESPONSE_SHADERS.js";
 import type { IAutoMovieFilmResponseRenderer } from "./IAutoMovieFilmResponseRenderer.js";
-import { collectAutoMovieFilmOverlays } from "./collectAutoMovieFilmOverlays.js";
+import { collectAutoMovieFilmOverlays } from "./internal/collectAutoMovieFilmOverlays.js";
 
 /**
  * The running sum of one second's sub-frame samples, which the film response

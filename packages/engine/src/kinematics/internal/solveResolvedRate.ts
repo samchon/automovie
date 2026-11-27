@@ -1,5 +1,6 @@
 import { addAutoMovieQuadraticProduct } from "../../math/internal/addAutoMovieQuadraticProduct";
 import { prepareLinearSystem } from "../../math/prepareLinearSystem";
+import type { AutoMovieEngineKinematicsTypes } from "../AutoMovieEngineKinematicsTypes";
 
 /**
  * Solve the current square differential kinematics J(q) qdot = goalRate. Rows
@@ -36,7 +37,7 @@ export function solveResolvedRate(
   jacobian: readonly (readonly number[])[],
   goalRate: readonly number[],
   rowScale: readonly number[],
-): solveResolvedRate.IResult {
+): AutoMovieEngineKinematicsTypes.SolveResolvedRate.IResult {
   const size: number = jacobian.length;
   if (size === 0 || goalRate.length !== size || rowScale.length !== size)
     return { status: "unsupported" };
@@ -153,56 +154,6 @@ export function solveResolvedRate(
     componentwiseBackwardError,
     normwiseBackwardError,
   };
-}
-
-/** Numerical differential-equality outcomes without curve-admission flags. */
-export namespace solveResolvedRate {
-  /**
-   * Actual solved relation and diagnostics, or the precise numerical refusal
-   * category.
-   */
-  export type IResult =
-    | ISolved
-    | {
-        /**
-         * Unsupported means invalid/non-square inputs; singular is the existing
-         * LU pivot gate; unrepresentable means arithmetic or diagnostics lost
-         * finite/nonzero data.
-         */
-        status: "unsupported" | "singular" | "unrepresentable";
-      };
-
-  /**
-   * All arrays are fresh; no returned diagnostic is a certified physical error
-   * bound.
-   */
-  export interface ISolved {
-    /**
-     * Actual completed square numerical solve, subject to the measured
-     * diagnostics.
-     */
-    status: "solved";
-    /** Coordinate units/second, in the supplied Jacobian's column order. */
-    velocity: number[];
-    /** J*velocity-goalRate, in each original task row's units/second. */
-    residual: number[];
-    /** (J/rowScale)*velocity-goalRate/rowScale, in scaled row units/second. */
-    scaledResidual: number[];
-    /** ||A||inf times the computed inverse's infinity norm, A=J/rowScale; an estimate, not a certified upper bound. */
-    conditionEstimate: number;
-    /**
-     * Computed ||A*computedInverse-I||inf, without a rigorous rounding
-     * enclosure.
-     */
-    inverseDefect: number;
-    /**
-     * Max_i abs(originalResidual_i)/(abs(J)*abs(velocity)+abs(goalRate))_i;
-     * exact 0/0 is represented by zero.
-     */
-    componentwiseBackwardError: number;
-    /** ||scaledResidual||inf/(||A||inf\*||velocity||inf+||goalRate/rowScale||inf); exact 0/0 is zero. */
-    normwiseBackwardError: number;
-  }
 }
 
 /**

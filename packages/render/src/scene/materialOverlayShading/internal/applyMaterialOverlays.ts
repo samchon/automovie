@@ -4,7 +4,7 @@ import type { IMaterialShaderSource } from "../../IMaterialShaderSource.js";
 import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial.js";
 import type { IMaterialOverlayShading } from "../IMaterialOverlayShading.js";
 import type { IMaterialOverlayShape } from "../IMaterialOverlayShape.js";
-import { getOverlayFlatNormal } from "../getOverlayFlatNormal.js";
+import { getOverlayFlatNormal } from "./getOverlayFlatNormal.js";
 import { materialOverlayFragment } from "./materialOverlayFragment.js";
 import { materialOverlayVertex } from "./materialOverlayVertex.js";
 

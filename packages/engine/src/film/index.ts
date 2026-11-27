@@ -20,7 +20,6 @@ export { AutoMovieEngineFrameClock } from "./AutoMovieEngineFrameClock";
 
 
 
-export * from "./compileDefinedShot";
 
 
 
@@ -109,7 +108,6 @@ export * from "./flame";
 
 
 
-export * from "./resolvePerformShotTarget";
 
 
 

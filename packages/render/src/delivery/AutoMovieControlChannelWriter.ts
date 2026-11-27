@@ -9,7 +9,7 @@ import type {
 import { guidePassFrameName } from "../guidePassFrameName.js";
 import { guidePassFramePattern } from "../internal/guidePassFramePattern.js";
 import { AutoMovieRenderPicture } from "../picture/AutoMovieRenderPicture.js";
-import { autoMovieControlConvention } from "./autoMovieControlConvention.js";
+import { autoMovieControlConvention } from "./internal/autoMovieControlConvention.js";
 
 /**
  * Writes a render's control channels frame by frame and collects what

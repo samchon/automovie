@@ -9,7 +9,7 @@ import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 import { describeInvalidValue } from "../../validation/describeInvalidValue";
 import { gatePerformShotStageAction } from "./gatePerformShotStageAction";
 import { performShotActors } from "./performShotActors";
-import { resolvePerformShotTarget } from "../resolvePerformShotTarget";
+import { resolvePerformShotTarget } from "./resolvePerformShotTarget";
 import { validatePerformShotFraming } from "./validatePerformShotFraming";
 
 /**

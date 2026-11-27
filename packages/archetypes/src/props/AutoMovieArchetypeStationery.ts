@@ -4,7 +4,7 @@ import { StationeryDraw } from "./StationeryDraw";
 import { AutoMovieArchetypeBook } from "./AutoMovieArchetypeBook";
 import { createPaper } from "./createPaper";
 import { AutoMovieArchetypePen } from "./AutoMovieArchetypePen";
-import { createClipboard } from "./createClipboard";
+import { AutoMovieArchetypeClipboard } from "./AutoMovieArchetypeClipboard";
 
 /** Public operations for Auto Movie Archetype Stationery. */
 export namespace AutoMovieArchetypeStationery {
@@ -58,7 +58,7 @@ export namespace AutoMovieArchetypeStationery {
     book: AutoMovieArchetypeBook.create,
     paper: createPaper,
     pen: AutoMovieArchetypePen.create,
-    clipboard: createClipboard,
+    clipboard: AutoMovieArchetypeClipboard.create,
     map: createPaper,
   } as const satisfies Readonly<Record<Kind, unknown>>;
 

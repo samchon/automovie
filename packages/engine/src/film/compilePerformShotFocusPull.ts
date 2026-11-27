@@ -17,7 +17,7 @@ import { transformFormationPoint } from "../populationRuntime/formation/internal
 import { channelKey } from "../resolve/channelKey";
 import { sampleClipSequence } from "../resolve/internal/sampleClipSequence";
 import { animatedBaseAt } from "./internal/animatedBaseAt";
-import { resolvePerformShotTarget } from "./resolvePerformShotTarget";
+import { resolvePerformShotTarget } from "./internal/resolvePerformShotTarget";
 
 /**
  * Admit and resolve one frame action's two focus marks in world metres. The

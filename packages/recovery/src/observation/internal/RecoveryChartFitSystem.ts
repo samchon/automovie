@@ -3,7 +3,7 @@ import type {
   IAutoMovieRecoveryChartFitSystem,
 } from "@automovie/interface";
 
-import { RecoveryChartFitRows as O } from "../../internal/RecoveryChartFitRows";
+import { RecoveryChartFitRows as O } from "./RecoveryChartFitRows";
 
 /** Assemble the same sparse weighted system and its bounded rank diagnostics. */
 export function RecoveryChartFitSystem(

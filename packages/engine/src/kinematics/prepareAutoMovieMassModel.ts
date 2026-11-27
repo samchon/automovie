@@ -10,7 +10,7 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import { physicalInertiaTensor } from "../physics/physicalInertiaTensor";
-import type { resolveAutoMovieBoneRates } from "./internal/resolveAutoMovieBoneRates";
+import type { AutoMovieEngineKinematicsTypes } from "./AutoMovieEngineKinematicsTypes";
 import { resolveAutoMovieCenterOfMass } from "./resolveAutoMovieCenterOfMass";
 import { resolveAutoMovieMomentum } from "./resolveAutoMovieMomentum";
 import { resolveAutoMovieMomentumRates } from "./internal/resolveAutoMovieMomentumRates";
@@ -284,7 +284,7 @@ export namespace prepareAutoMovieMassModel {
     prepared: IPrepared,
     posed: resolveAutoMovieMomentum.IPosed,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    rates: ReadonlyMap<AutoMovieHumanoidBone, resolveAutoMovieBoneRates.IRate>,
+    rates: ReadonlyMap<AutoMovieHumanoidBone, AutoMovieEngineKinematicsTypes.ResolveAutoMovieBoneRates.IRate>,
   ): IAutoMovieBodyMomentum {
     return resolveAutoMovieMomentumRates(prepared.model, posed, bones, rates);
   }

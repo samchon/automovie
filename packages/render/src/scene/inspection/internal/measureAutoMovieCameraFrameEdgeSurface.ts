@@ -4,8 +4,8 @@ import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
 import { clipInspectionPolygon } from "./clipInspectionPolygon.js";
 import { inspectionPlaneRoundingSlack } from "./inspectionPlaneRoundingSlack.js";
 import { isAutoMovieFloat32Point } from "../isAutoMovieFloat32Point.js";
-import { readAutoMovieDisplayedBox } from "../readAutoMovieDisplayedBox.js";
-import { readAutoMovieDrawnRanges } from "../readAutoMovieDrawnRanges.js";
+import { readAutoMovieDisplayedBox } from "./readAutoMovieDisplayedBox.js";
+import { readAutoMovieDrawnRanges } from "./readAutoMovieDrawnRanges.js";
 
 /** A required subject's admitted meshes and the delivery frame's planes. */
 interface IProps {

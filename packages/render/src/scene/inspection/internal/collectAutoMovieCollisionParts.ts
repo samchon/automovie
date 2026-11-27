@@ -4,9 +4,9 @@ import * as THREE from "three";
 import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
 import { AutoMovieCollisionSource } from "../AutoMovieCollisionSource.js";
 import { autoMovieInspectionEntityPathOf } from "../autoMovieInspectionEntityPathOf.js";
-import { readAutoMovieCollisionCord } from "../readAutoMovieCollisionCord.js";
-import { readAutoMovieCollisionInstances } from "../readAutoMovieCollisionInstances.js";
-import { readAutoMovieCollisionMesh } from "../readAutoMovieCollisionMesh.js";
+import { readAutoMovieCollisionCord } from "./readAutoMovieCollisionCord.js";
+import { readAutoMovieCollisionInstances } from "./readAutoMovieCollisionInstances.js";
+import { readAutoMovieCollisionMesh } from "./readAutoMovieCollisionMesh.js";
 
 /**
  * Read every visible drawn object of one placed layer as collision parts.

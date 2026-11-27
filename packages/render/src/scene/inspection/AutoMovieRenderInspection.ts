@@ -1,6 +1,9 @@
-import { type IAutoMovieMark, type IAutoMovieInspectionTrail, type IAutoMovieInspectionDiagnostics, type IAutoMovieInspectionLegendEntry, type IAutoMovieInspectionLabelPlacement, type IAutoMoviePlanInspectionTrailTimesProps, type IAutoMovieVector3 } from "@automovie/interface";
+import { type IAutoMovieMark, type IAutoMovieInspectionTrail, type IAutoMovieInspectionDiagnostics, type IAutoMovieInspectionLegendEntry, type IAutoMovieInspectionLabelPlacement, type IAutoMoviePlanInspectionTrailTimesProps, type IAutoMovieVector3, type IAutoMovieInspectionFocus } from "@automovie/interface";
 
 import type * as THREE from "three";
+import type { IAutoMovieInspectionPath } from "./IAutoMovieInspectionPath.js";
+import type { IAutoMovieViewerSubjectBounds } from "../subjectViewpoint/IAutoMovieViewerSubjectBounds.js";
+import { focusAutoMovieInspection as focusAutoMovieInspectionImplementation } from "./internal/focusAutoMovieInspection.js";
 import { markAutoMovieInspectionTrails as markAutoMovieInspectionTrailsImplementation } from "./internal/markAutoMovieInspectionTrails.js";
 import { type IAutoMovieInspectionHandle } from "./IAutoMovieInspectionHandle.js";
 import { type IApplyAutoMovieInspectionProps } from "./IApplyAutoMovieInspectionProps.js";
@@ -15,6 +18,39 @@ import { placeAutoMovieInspectionLabels as placeAutoMovieInspectionLabelsImpleme
 
 /** Public operations for Auto Movie Render Inspection. */
 export namespace AutoMovieRenderInspection {
+  /** Named input contract for the focus operation. */
+  export namespace Focus {
+    /** A mark and the object whose frame it belongs to, when anchored. */
+    export interface IMark {
+      /** Inspection mark to frame or highlight. */
+      mark: IAutoMovieMark;
+      /** Scene-space point used to anchor the mark. */
+      anchor: THREE.Object3D | null;
+    }
+
+    /** What to frame and the drawn geometry from which its bounds are measured. */
+    export interface IProps {
+      /** What to frame. */
+      focus: IAutoMovieInspectionFocus;
+      /** The drawn, selected objects. */
+      objects: readonly IAutoMovieInspectionPath[];
+      /** The drawn marks with the objects their frames belong to. */
+      marks: readonly IMark[];
+    }
+  }
+
+  /**
+   * Measure the world-space box a view's focus frames: the drawn objects and
+   * marks a path pattern matches, or every drawn flagged mark, so a close-up on a
+   * part or on a defect's region is one request.
+   *
+   * The boxes are those `AutoMovieRenderInspectionGeometry.measurePaths` measures, joined into
+   * one. It throws when a pattern matches nothing drawn, and when the flagged
+   * focus finds no flagged mark, saying no mark is flagged.
+   */
+  export function focus(props: Focus.IProps): IAutoMovieViewerSubjectBounds {
+    return focusAutoMovieInspectionImplementation(props);
+  }
   /**
    * Draw sampled trails as marks for one drawn second: each moving object's path
    * as a line through its samples with a tick at every sample, and the sample of

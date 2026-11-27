@@ -21,14 +21,14 @@ import type { IAutoMovieInspectionMarkSet } from "../IAutoMovieInspectionMarkSet
 import type { IAutoMovieInspectionMeasured } from "../IAutoMovieInspectionMeasured.js";
 import type { IAutoMovieInspectionOverlay } from "../IAutoMovieInspectionOverlay.js";
 import type { IAutoMovieInspectionPath } from "../IAutoMovieInspectionPath.js";
-import { admitAutoMovieInspectionPatterns } from "../admitAutoMovieInspectionPatterns.js";
+import { admitAutoMovieInspectionPatterns } from "./admitAutoMovieInspectionPatterns.js";
 import { applyAutoMovieInspectionSection } from "../applyAutoMovieInspectionSection.js";
 import { applyAutoMovieInspectionShade } from "../applyAutoMovieInspectionShade.js";
 import { autoMovieInspectionPathOf } from "../autoMovieInspectionPathOf.js";
 import { buildAutoMovieInspectionMarks } from "./buildAutoMovieInspectionMarks.js";
 import { chooseAutoMovieInspectionMarks } from "../chooseAutoMovieInspectionMarks.js";
 import { colorAutoMovieInspectionObjects } from "../colorAutoMovieInspectionObjects.js";
-import { focusAutoMovieInspection } from "../focusAutoMovieInspection.js";
+import { AutoMovieRenderInspection } from "../AutoMovieRenderInspection.js";
 import { legendAutoMovieInspectionMarks } from "./legendAutoMovieInspectionMarks.js";
 import { listAutoMovieInspectionPaths } from "../listAutoMovieInspectionPaths.js";
 import { matchAutoMovieInspectionPath } from "./matchAutoMovieInspectionPath.js";
@@ -451,7 +451,7 @@ export function applyAutoMovieInspection(
       ): IAutoMovieViewerSubjectBounds | null =>
         focus === undefined || focus === null
           ? AutoMovieRenderInspectionGeometry.measureBounds(scene)
-          : focusAutoMovieInspection({
+          : AutoMovieRenderInspection.focus({
               focus,
               objects: shownObjects,
               marks: placed(),

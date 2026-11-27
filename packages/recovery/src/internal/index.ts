@@ -8,7 +8,7 @@
 export * from "./RecoveryBezierFit";
 
 
-export * from "./RecoveryChartBatch";
+
 
 
 
@@ -20,7 +20,7 @@ export * from "./RecoveryChartBatch";
 export * from "./RecoveryChartFit";
 
 
-export * from "./RecoveryChartFitRows";
+
 
 
 

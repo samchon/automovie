@@ -8,7 +8,7 @@ import type {
   IAutoMovieRecoveryChartFitSystem,
 } from "@automovie/interface";
 
-import { RecoveryChartFitRows as O } from "../../internal/RecoveryChartFitRows";
+import { RecoveryChartFitRows as O } from "./RecoveryChartFitRows";
 import { RecoveryChartReachableBox as W } from "./RecoveryChartReachableBox";
 
 /**

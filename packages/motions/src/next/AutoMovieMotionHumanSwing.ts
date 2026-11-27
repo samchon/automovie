@@ -2,7 +2,7 @@ import { HumanPrecisionSport as HumanPrecisionSportSource } from "../lexicon/Hum
 import { HumanSportSwing as HumanSportSwingSource } from "../lexicon/HumanSportSwing";
 import { PrecisionStrokeForms as PrecisionStrokeFormsSource } from "../lexicon/PrecisionStrokeForms";
 import { AutoMovieMotionHumanBaseball as baseballLaw } from "../sport/AutoMovieMotionHumanBaseball";
-import { racket as racketLaw } from "../sport/racket";
+import { AutoMovieMotionHumanRacket as racketLaw } from "../sport/AutoMovieMotionHumanRacket";
 import { HUMAN_SWING_BACKHAND_DRIVE } from "./presets/HUMAN_SWING_BACKHAND_DRIVE";
 import { HUMAN_SWING_BAT } from "./presets/HUMAN_SWING_BAT";
 import { HUMAN_SWING_BUNT } from "./presets/HUMAN_SWING_BUNT";

@@ -1,7 +1,7 @@
 import type { AutoMovieGuidePass } from "@automovie/interface";
 
 import { framePattern } from "../framePattern.js";
-import { passExtension } from "../guidePassesInternal/passExtension.js";
+import { passExtension } from "../guidePassesInternal/internal/passExtension.js";
 
 /**
  * The ffmpeg `-i` input pattern matching every `guidePassFrameName` of one

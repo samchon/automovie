@@ -1,8 +1,8 @@
 import type { IAutoMovieCompiledFormation, IAutoMovieFormationSlot } from "@automovie/interface";
 import type { IAutoMovieFormationViewerObject } from "../IAutoMovieFormationViewerObject.js";
 import type { IBuildInstancedFormationProps } from "../internal/IBuildInstancedFormationProps.js";
-import { buildInstancedFormation as buildInstancedFormationImplementation } from "../buildInstancedFormation.js";
-import { regenerateFormationSlot as regenerateFormationSlotImplementation } from "../regenerateFormationSlot.js";
+import { buildInstancedFormation as buildInstancedFormationImplementation } from "../internal/buildInstancedFormation.js";
+import { regenerateFormationSlot as regenerateFormationSlotImplementation } from "../internal/regenerateFormationSlot.js";
 
 /** Public operations for Auto Movie Render Formation. */
 export namespace AutoMovieRenderFormation {

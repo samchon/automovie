@@ -13,7 +13,7 @@ import { armChainFault } from "../../kinematics/internal/armChainFault";
 import { classifyLocomoteGroundDisplacement } from "../../motion/classifyLocomoteGroundDisplacement";
 import { POSITIONAL_TARGET_SHAPE } from "../../perform/constants/POSITIONAL_TARGET_SHAPE";
 import { describeInvalidValue } from "../../validation/describeInvalidValue";
-import { resolvePerformShotTarget } from "../resolvePerformShotTarget";
+import { resolvePerformShotTarget } from "./resolvePerformShotTarget";
 
 /**
  * Gate the verb-specific fields of one non-`frame` action, and record the

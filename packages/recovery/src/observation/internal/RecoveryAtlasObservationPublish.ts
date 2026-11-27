@@ -11,7 +11,7 @@ import type {
 } from "@automovie/interface";
 
 import { RecoveryChartAssembly } from "./RecoveryChartAssembly";
-import { RecoveryChartBatch as B } from "../../internal/RecoveryChartBatch";
+import { RecoveryChartBatch as B } from "./RecoveryChartBatch";
 
 type Prepared =
   Parameters<IAutoMovieRecoveryChartBatch.Operation>[0]["charts"][number];

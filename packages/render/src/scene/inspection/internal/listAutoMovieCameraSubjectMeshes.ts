@@ -2,7 +2,7 @@ import { Camera, Material, Mesh, Object3D } from "three";
 
 import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
 import { hasMaterialDisplacement } from "./hasMaterialDisplacement.js";
-import { readAutoMovieDisplayedBox } from "../readAutoMovieDisplayedBox.js";
+import { readAutoMovieDisplayedBox } from "./readAutoMovieDisplayedBox.js";
 
 /**
  * List the drawables of a required subject whose current geometry the CPU can
