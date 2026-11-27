@@ -31,6 +31,6 @@ export * from "./constants";
 
 
 
-export { AutoMovieEngineResolve } from "./AutoMovieEngineResolve";
+export * from "./AutoMovieEngineResolve";
 
-export { AutoMovieEngineSequence } from "./AutoMovieEngineSequence";
+export * from "./AutoMovieEngineSequence";

@@ -4,4 +4,4 @@
  */
 export * from "../IAutoMovieInstancedGeometry.js";
 export * from "../IAutoMovieInstancedModelRepresentation.js";
-export { AutoMovieRenderFormationGeometry } from "./AutoMovieRenderFormationGeometry.js";
+export * from "./AutoMovieRenderFormationGeometry.js";

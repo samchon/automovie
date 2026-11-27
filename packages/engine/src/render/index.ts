@@ -31,7 +31,7 @@ export * from "./exposure";
 export * from "./filmResponse";
 export * from "./filmShading";
 
-export { AutoMovieEngineRenderMaterial } from "./AutoMovieEngineRenderMaterial";
+export * from "./AutoMovieEngineRenderMaterial";
 
 
 
@@ -50,22 +50,22 @@ export { AutoMovieEngineRenderMaterial } from "./AutoMovieEngineRenderMaterial";
 
 
 
-export { AutoMovieEngineCaptureRecord } from "./AutoMovieEngineCaptureRecord";
-export { AutoMovieEngineRenderSemanticMask } from "./AutoMovieEngineRenderSemanticMask";
+export * from "./AutoMovieEngineCaptureRecord";
+export * from "./AutoMovieEngineRenderSemanticMask";
 
-export { AutoMovieEngineRenderTarget } from "./AutoMovieEngineRenderTarget";
+export * from "./AutoMovieEngineRenderTarget";
 
-export { AutoMovieEnginePicture } from "./AutoMovieEnginePicture";
+export * from "./AutoMovieEnginePicture";
 
-export { AutoMovieEngineRenderSubject } from "./AutoMovieEngineRenderSubject";
+export * from "./AutoMovieEngineRenderSubject";
 
-export { AutoMovieEngineRenderMeasure } from "./AutoMovieEngineRenderMeasure";
+export * from "./AutoMovieEngineRenderMeasure";
 export type { AutoMovieEngineRenderMeasureTypes } from "./AutoMovieEngineRenderMeasureTypes";
 
-export { AutoMovieEngineRenderTexture } from "./AutoMovieEngineRenderTexture";
+export * from "./AutoMovieEngineRenderTexture";
 
-export { AutoMovieEngineRenderShadow } from "./AutoMovieEngineRenderShadow";
+export * from "./AutoMovieEngineRenderShadow";
 
-export { AutoMovieEngineRenderNode } from "./AutoMovieEngineRenderNode";
+export * from "./AutoMovieEngineRenderNode";
 
-export { AutoMovieEngineScene } from "../scene/AutoMovieEngineScene";
+export * from "../scene/AutoMovieEngineScene";

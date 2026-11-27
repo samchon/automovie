@@ -9,4 +9,4 @@
 
 
 
-export { AutoMovieEngineStaging } from "./AutoMovieEngineStaging";
+export * from "./AutoMovieEngineStaging";

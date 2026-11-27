@@ -3,4 +3,4 @@
 
 
 
-export { AutoMovieRenderDualQuaternionSkinning } from "./AutoMovieRenderDualQuaternionSkinning.js";
+export * from "./AutoMovieRenderDualQuaternionSkinning.js";

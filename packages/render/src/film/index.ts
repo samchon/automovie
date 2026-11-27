@@ -2,4 +2,4 @@
 export * from "./productionVisualDeliveryOccurrence.js";
 
 
-export { AutoMovieRenderFilm } from "./AutoMovieRenderFilm.js";
+export * from "./AutoMovieRenderFilm.js";

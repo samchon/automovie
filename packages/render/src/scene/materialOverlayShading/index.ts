@@ -5,4 +5,4 @@ export type { IMaterialOverlayShape } from "./IMaterialOverlayShape.js";
 
 
 
-export { AutoMovieRenderMaterialOverlayShading } from "./AutoMovieRenderMaterialOverlayShading.js";
+export * from "./AutoMovieRenderMaterialOverlayShading.js";

@@ -118,16 +118,16 @@ export * from "./constants";
 
 
 
-export { AutoMovieEngineArchitecture } from "./AutoMovieEngineArchitecture";
+export * from "./AutoMovieEngineArchitecture";
 
-export { AutoMovieEngineArchitectureAssembly } from "./AutoMovieEngineArchitectureAssembly";
+export * from "./AutoMovieEngineArchitectureAssembly";
 
-export { AutoMovieEngineBuiltEnvironment } from "./AutoMovieEngineBuiltEnvironment";
+export * from "./AutoMovieEngineBuiltEnvironment";
 
-export { AutoMovieEngineBuiltEnvironmentWorkflow } from "./AutoMovieEngineBuiltEnvironmentWorkflow";
+export * from "./AutoMovieEngineBuiltEnvironmentWorkflow";
 
-export { AutoMovieEngineDesignLineage } from "./AutoMovieEngineDesignLineage";
+export * from "./AutoMovieEngineDesignLineage";
 
-export { AutoMovieEnginePlanarGeometry } from "./AutoMovieEnginePlanarGeometry";
+export * from "./AutoMovieEnginePlanarGeometry";
 
-export { AutoMovieEngineSurfaceMaterial } from "./AutoMovieEngineSurfaceMaterial";
+export * from "./AutoMovieEngineSurfaceMaterial";

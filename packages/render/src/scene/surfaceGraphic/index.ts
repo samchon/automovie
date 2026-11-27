@@ -4,4 +4,4 @@ export * from "./IPrepareAutoMovieSurfaceGraphicsProps.js";
 
 
 
-export { AutoMovieRenderSurfaceGraphic } from "./AutoMovieRenderSurfaceGraphic.js";
+export * from "./AutoMovieRenderSurfaceGraphic.js";

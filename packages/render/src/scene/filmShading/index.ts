@@ -4,4 +4,4 @@ export * from "./IAutoMovieFilmIndirectRenderer.js";
 
 export * from "./bakeAutoMovieFilmProbes.js";
 
-export { AutoMovieRenderFilmShading } from "./AutoMovieRenderFilmShading.js";
+export * from "./AutoMovieRenderFilmShading.js";

@@ -151,4 +151,4 @@ export * from "./AutoMovieConstructionPortField";
 export * from "./AutoMoviePeriodicCubic";
 
 
-export { AutoMovieEngineConstruction } from "./AutoMovieEngineConstruction";
+export * from "./AutoMovieEngineConstruction";

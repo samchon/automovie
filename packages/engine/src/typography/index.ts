@@ -1,1 +1,1 @@
-export { AutoMovieEngineTypography } from "./AutoMovieEngineTypography";
+export * from "./AutoMovieEngineTypography";

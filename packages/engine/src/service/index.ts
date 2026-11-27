@@ -25,4 +25,4 @@ export * from "./SERVICE_EPSILON";
 
 
 
-export { AutoMovieEngineService } from "./AutoMovieEngineService";
+export * from "./AutoMovieEngineService";

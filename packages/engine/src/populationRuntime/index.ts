@@ -14,4 +14,4 @@ export * from "./formation";
 
 
 
-export { AutoMovieEnginePopulationRuntime } from "./AutoMovieEnginePopulationRuntime";
+export * from "./AutoMovieEnginePopulationRuntime";

@@ -47,8 +47,8 @@ export * from "./selectProductionLiveWearableSoftBodies";
 
 
 
-export { AutoMovieEngineSoftBody } from "./AutoMovieEngineSoftBody";
+export * from "./AutoMovieEngineSoftBody";
 
-export { AutoMovieEnginePlanting } from "./AutoMovieEnginePlanting";
+export * from "./AutoMovieEnginePlanting";
 
-export { AutoMovieEngineSoftFurnishing } from "./AutoMovieEngineSoftFurnishing";
+export * from "./AutoMovieEngineSoftFurnishing";

@@ -1,1 +1,1 @@
-export { AutoMovieViewerTransport } from "./AutoMovieViewerTransport.js";
+export * from "./AutoMovieViewerTransport.js";

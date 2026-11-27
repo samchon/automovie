@@ -1,3 +1,3 @@
 
 
-export { AutoMovieEngineScene } from "./AutoMovieEngineScene";
+export * from "./AutoMovieEngineScene";

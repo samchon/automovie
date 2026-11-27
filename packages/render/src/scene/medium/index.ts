@@ -1,4 +1,4 @@
 
 
 
-export { AutoMovieRenderMedium } from "./AutoMovieRenderMedium.js";
+export * from "./AutoMovieRenderMedium.js";

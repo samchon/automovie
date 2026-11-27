@@ -1,2 +1,2 @@
-export { AutoMovieEngineEffect } from "./AutoMovieEngineEffect";
+export * from "./AutoMovieEngineEffect";
 export * from "./AutoMovieFilmEffectRuntimeError";

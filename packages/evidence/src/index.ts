@@ -1,4 +1,4 @@
-export { AutoMovieEvidenceConfig } from "./AutoMovieEvidenceConfig";
+export * from "./AutoMovieEvidenceConfig";
 export type { IAutoMovieEvidenceDevelopmentProps } from "./IAutoMovieEvidenceDevelopmentProps";
 export type { IAutoMovieEvidenceConfigProps } from "./IAutoMovieEvidenceConfigProps";
 export type { IAutoMovieEvidenceNarrativeProps } from "./IAutoMovieEvidenceNarrativeProps";

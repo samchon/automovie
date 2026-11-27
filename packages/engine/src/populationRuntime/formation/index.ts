@@ -10,4 +10,4 @@
 
 
 
-export { AutoMovieEnginePopulationFormation } from "./AutoMovieEnginePopulationFormation";
+export * from "./AutoMovieEnginePopulationFormation";
