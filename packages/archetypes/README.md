@@ -11,9 +11,9 @@ npm install @automovie/archetypes
 ```
 
 ```ts
-import { createSeat } from "@automovie/archetypes";
+import { AutoMovieArchetypeSeat } from "@automovie/archetypes";
 
-const chair = createSeat({ kind: "dining" }, "chair-1");
+const chair = AutoMovieArchetypeSeat.create({ kind: "dining" }, 31);
 console.log(chair.affordance("seat").frame);
 ```
 

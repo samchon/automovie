@@ -281,4 +281,3 @@ type IHumanQuadraticInteriorWarmed = {
   state: IAutoMovieMotionHumanQuadraticProgram.IState | undefined;
   converged: boolean;
 };
-

@@ -16,11 +16,11 @@ Use `AutoMovieRenderDraw.installAutoMovieDraw` in a browser page over the same `
 
 ## Capture
 
-`planCapture` turns the subject and request into cells. `runCapture` draws them with your host and writes stills, contact sheets and `record.json`. Use `renderDrawnVideo` to draw and encode an entire subject.
+`AutoMovieRenderCapture.plan` turns the subject and request into cells. `AutoMovieRenderCapture.run` draws them with your host and writes stills, contact sheets and `record.json`. Use `AutoMovieRenderVideo.renderDrawnVideo` to draw and encode an entire subject.
 
 ## Inspection
 
-`parseInspectionRequest` reads the shared URL and CLI request. `applyInspection` applies the selected view and marks to a scene.
+`AutoMovieRenderInspectionRequest.parseRequest` reads the shared URL and CLI request. `AutoMovieRenderInspection.apply` applies the selected view and marks to a scene.
 
 ## Request keys
 

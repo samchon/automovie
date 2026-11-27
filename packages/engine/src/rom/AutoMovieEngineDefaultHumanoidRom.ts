@@ -163,4 +163,3 @@ export const AutoMovieEngineDefaultHumanoidRom: Partial<
   rightLittleIntermediate: DefaultHumanoidRomData.MIDDLE_JOINT,
   rightLittleDistal: DefaultHumanoidRomData.END_JOINT,
 };
-

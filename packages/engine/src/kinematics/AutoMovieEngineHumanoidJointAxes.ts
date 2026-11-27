@@ -116,4 +116,3 @@ export const AutoMovieEngineHumanoidJointAxes: Partial<
     };
   return table;
 })();
-

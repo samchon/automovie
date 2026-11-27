@@ -14,7 +14,7 @@ Import Human input and vocabulary types from `@automovie/interface`. Pass `IAuto
 
 ## Polygon man
 
-Use `AutoMovieHumanCanonicalBody.display` to supply the rest or posed body to `buildHumanPolygon` from `@automovie/render`. Apply `AutoMovieHumanCanonicalBody.REFLECTION` to the returned figure's parent to place the drawing in canonical world coordinates.
+Use `AutoMovieHumanCanonicalBody.display` to supply the rest or posed body to `AutoMovieRenderHumanPolygon.build` from `@automovie/render`. Apply `AutoMovieHumanCanonicalBody.REFLECTION` to the returned figure's parent to place the drawing in canonical world coordinates.
 
 ## Inspection
 

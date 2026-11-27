@@ -88,4 +88,3 @@ export function selectHumanDigitGoals(
     return digits;
   }
 }
-

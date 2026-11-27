@@ -43,4 +43,3 @@ export function prepareHumanFootSole(
         AutoMovieEngineVector3.add(foot.ankle, AutoMovieEngineQuaternion.rotateVector(foot.rotation, point)),
     );
 }
-

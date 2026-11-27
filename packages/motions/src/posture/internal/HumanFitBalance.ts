@@ -439,4 +439,3 @@ type IReadingNormalsItem = { x: number; z: number };
  * The record of `IReadingAnchorsItem`'s site.
  */
 type IReadingAnchorsItem = { x: number; z: number };
-

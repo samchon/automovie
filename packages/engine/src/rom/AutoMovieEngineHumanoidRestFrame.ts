@@ -88,4 +88,3 @@ export const AutoMovieEngineHumanoidRestFrame: Partial<
   set("rightUpperArm", "abduction", { sign: -1, neutral: 90 });
   return table;
 })();
-

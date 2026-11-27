@@ -106,6 +106,8 @@ An `AutoMovieMotionHumanRefusal` names the performer, the action and its occurre
 ```ts
 import { AutoMovieMotionHumanPerformance, AutoMovieMotionHumanRefusal } from "@automovie/motions";
 
+declare const input: ConstructorParameters<typeof AutoMovieMotionHumanPerformance>[0];
+
 try {
   new AutoMovieMotionHumanPerformance(input);
 } catch (error) {
