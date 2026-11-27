@@ -281,7 +281,7 @@ export async function test_engine_geometry_conic_preparation(): Promise<void> {
         await moduleFunctionCoverage(
           session,
           await session.post("Profiler.takePreciseCoverage"),
-          /[/\\]AutoMovieConicArcField\.ts$/u,
+          /[/\\]AutoMovieEngineConicArcField\.ts$/u,
           "curvature",
         );
       TestValidator.equals(`endpoint formula ${ellipse}`, functions.length, 1);
