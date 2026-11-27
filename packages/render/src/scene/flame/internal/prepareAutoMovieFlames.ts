@@ -1,4 +1,4 @@
-import { autoMovieFlameNodeName, AutoMovieEngineFlame } from "@automovie/engine";
+import { AutoMovieEngineFlame, AutoMovieEngineRenderNode } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieClip,
@@ -72,7 +72,10 @@ export function prepareAutoMovieFlames(
 
   try {
     for (const cue of cues) {
-      const name: string = autoMovieFlameNodeName(cue.node, cue.id);
+      const name: string = AutoMovieEngineRenderNode.autoMovieFlameNodeName(
+        cue.node,
+        cue.id,
+      );
       const model: IAutoMovieModel | undefined = models.get(
         modelOfNode.get(cue.node) ?? "",
       );
@@ -205,7 +208,7 @@ function boundEmission(
   );
   if (light === undefined)
     throw new Error(
-      `Flame "${autoMovieFlameNodeName(cue.node, cue.id)}" names light binding "${cue.light}", which drives no staged light`,
+      `Flame "${AutoMovieEngineRenderNode.autoMovieFlameNodeName(cue.node, cue.id)}" names light binding "${cue.light}", which drives no staged light`,
     );
   const mean: number = AutoMovieEngineFlame.compileAutoMovieFlameFlicker(
     cue,

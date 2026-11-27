@@ -5,6 +5,14 @@ import { autoMovieSurfaceGraphicNodeName as autoMovieSurfaceGraphicNodeNameImple
 
 /** Public operations for Auto Movie Engine Render Node. */
 export namespace AutoMovieEngineRenderNode {
+  /**
+   * Name of the viewer mesh drawing one flame cue, which also serves as its
+   * semantic mask ID: `flame:<node>/<cue id>`.
+   */
+  export function autoMovieFlameNodeName(node: string, cue: string): string {
+    return `flame:${node}/${cue}`;
+  }
+
   /** Name of the viewer object drawing one fluid domain's free surface. */
   export function autoMovieFluidSurfaceNodeName(domain: string): string {
     return autoMovieFluidSurfaceNodeNameImplementation(domain);

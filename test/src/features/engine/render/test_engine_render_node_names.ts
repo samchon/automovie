@@ -1,4 +1,4 @@
-import { autoMovieFlameNodeName, AutoMovieEngineRenderNode } from "@automovie/engine";
+import { AutoMovieEngineRenderNode } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -13,7 +13,7 @@ export function test_engine_render_node_names(): void {
   TestValidator.equals(
     "two-part names",
     [
-      autoMovieFlameNodeName("torch", "cue1"),
+      AutoMovieEngineRenderNode.autoMovieFlameNodeName("torch", "cue1"),
       AutoMovieEngineRenderNode.autoMovieSurfaceGraphicNodeName("wall", "sign"),
     ],
     ["flame:torch/cue1", "surface-graphic:wall/sign"],

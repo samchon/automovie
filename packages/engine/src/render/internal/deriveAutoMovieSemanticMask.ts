@@ -13,8 +13,8 @@ import {
   IAutoMovieSpace,
 } from "@automovie/interface";
 
+import { AutoMovieEngineRenderNode } from "../AutoMovieEngineRenderNode";
 import { assertAutoMovieSemanticMaskCapacity } from "./assertAutoMovieSemanticMaskCapacity";
-import { autoMovieFlameNodeName } from "../autoMovieFlameNodeName";
 import { autoMovieFluidSurfaceNodeName } from "./autoMovieFluidSurfaceNodeName";
 import { autoMoviePlantingNodeName } from "./autoMoviePlantingNodeName";
 import { autoMovieRenderHash32 } from "./autoMovieRenderHash32";
@@ -257,7 +257,10 @@ const collectClaims: (subject: IAutoMovieRenderSubject) => IClaim[] = (
   }
   // A flame is its own drawable, owned by the prop it burns on.
   for (const cue of subject.flames ?? []) {
-    const name: string = autoMovieFlameNodeName(cue.node, cue.id);
+    const name: string = AutoMovieEngineRenderNode.autoMovieFlameNodeName(
+      cue.node,
+      cue.id,
+    );
     claims.push({
       id: name,
       kind: "flame",
