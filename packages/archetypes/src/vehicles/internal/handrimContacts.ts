@@ -1,6 +1,6 @@
 import type { IAutoMovieAffordance, IAutoMovieTransform } from "@automovie/interface";
 
-import { type AutoMovieArchetype, AutoMovieArchetypeRefusal } from "../../core";
+import { AutoMovieArchetypeRefusal } from "../../core";
 import type { AutoMovieArchetypeWheelchair } from "../AutoMovieArchetypeWheelchair";
 import { wheelchairHandrimFrame } from "./wheelchairHandrimFrame";
 /**

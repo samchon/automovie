@@ -23,10 +23,7 @@ export namespace ArchetypeTowing {
     turn: Id;
   }
 
-  /**
-   * Producer-declared support: a freely pitching single axle or grounded
-   * front/rear axles.
-   */
+  /** A support that pitches freely around one axle. */
   interface ISingleAxleSupport {
     kind: "singleAxle";
     axle: IAutoMovieVector3;
@@ -39,6 +36,7 @@ export namespace ArchetypeTowing {
     pitch?: Id;
   }
 
+  /** Producer-declared support with one pitching axle or two grounded axles. */
   export type Support<Id extends string> =
     | ISingleAxleSupport
     | IFixedGroundSupport<Id>;
