@@ -15,11 +15,11 @@ import type {
 import { AutoMovieHumanBodyAnatomy } from "./AutoMovieHumanBodyAnatomy";
 import { AutoMovieHumanLimbSources } from "./AutoMovieHumanLimbSources";
 import { AutoMovieHumanTrunkRows } from "./AutoMovieHumanTrunkRows";
-import { AutoMovieHumanFootInterim } from "./foot/AutoMovieHumanFootInterim";
-import { AutoMovieHumanMassInterim } from "./trunk/AutoMovieHumanMassInterim";
-import { AutoMovieHumanTrunkInterim } from "./trunk/AutoMovieHumanTrunkInterim";
-import { AutoMovieHumanTrunkLaws } from "./trunk/AutoMovieHumanTrunkLaws";
-import { AutoMovieHumanTrunkViews } from "./trunk/AutoMovieHumanTrunkViews";
+import { AutoMovieHumanFootInterim } from "./AutoMovieHumanFootInterim";
+import { AutoMovieHumanMassInterim } from "./AutoMovieHumanMassInterim";
+import { AutoMovieHumanTrunkInterim } from "./AutoMovieHumanTrunkInterim";
+import { AutoMovieHumanTrunkLaws } from "./AutoMovieHumanTrunkLaws";
+import { AutoMovieHumanTrunkViews } from "./AutoMovieHumanTrunkViews";
 
 /**
  * The body lane's input for a person while some of its laws are still owed

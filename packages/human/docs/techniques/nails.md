@@ -77,7 +77,7 @@ What a later rig needs: the plate's vertices bound to the distal segment alone, 
 
 ## The law
 
-One function, `AutoMovieHumanNail.create` (`packages/human/src/generation/nail/AutoMovieHumanNail.ts`), for every nail; `AutoMovieHumanF1Nails` holds one row a ray with its segment and its proportions. A row holds what anatomy gives per ray and nothing fitted.
+One function, `AutoMovieHumanNail.create` (`packages/human/src/generation/AutoMovieHumanNail.ts`), for every nail; `AutoMovieHumanF1Nails` holds one row a ray with its segment and its proportions. A row holds what anatomy gives per ray and nothing fitted.
 
 **One side.** Ten nails are made, on the stored side's hand and foot. The other ten are their mirror images in the median plane: the twin's plate is the reflection of the placed plate and the twin's bed the reflection the digit's own mirror makes. No row, reading or pass condition belongs to the other side; its frames check the mirror only.
 
@@ -544,7 +544,7 @@ So besides the three tip-end symptoms the sheets hold: square corners of the fol
 4. Law: the window is walked to the wall's end (the skin's side); a control past its own row's side, on the underside, holds zero.
 5. Law: the reading `clipped` gains its place (`clippedAt`, along and aside in the nail's frame), so the next table names where instead of inferring it.
 
-**The feature template, read in full** (`generation/frame/AutoMovieHumanFeatureTemplate.ts`, 245 lines, and `test_human_feature_template.ts`). Since my first reading of its header the record has gained two fields named for a nail's bed: `squareness`, a superellipse footprint `|x / a|^n + |y / b|^n = 1`, and `flat`, a plateau with a quintic ramp to the edge. What it holds and what a nail needs:
+**The feature template, read in full** (`generation/AutoMovieHumanFeatureTemplate.ts`, 245 lines, and `test_human_feature_template.ts`). Since my first reading of its header the record has gained two fields named for a nail's bed: `squareness`, a superellipse footprint `|x / a|^n + |y / b|^n = 1`, and `flat`, a plateau with a quintic ramp to the edge. What it holds and what a nail needs:
 
 | The nail needs | The template has | Fits? |
 | --- | --- | --- |

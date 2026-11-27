@@ -1,6 +1,6 @@
-import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
-import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
-import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
+import { AutoMovieHumanConicSection } from "../AutoMovieHumanConicSection";
+import { AutoMovieHumanF1Joints } from "../AutoMovieHumanF1Joints";
+import { AutoMovieHumanF1Placement } from "../AutoMovieHumanF1Placement";
 import type { IAutoMovieHumanConicLoft } from "@automovie/interface";
 
 /**

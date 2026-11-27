@@ -17,15 +17,15 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieHumanArmPrior } from "./AutoMovieHumanArmPrior";
-import { AutoMovieHumanArmBones } from "./arm/AutoMovieHumanArmBones";
-import { AutoMovieHumanArmLaw } from "./arm/AutoMovieHumanArmLaw";
-import { AutoMovieHumanArmLayers } from "./arm/AutoMovieHumanArmLayers";
-import { AutoMovieHumanArmScye } from "./arm/AutoMovieHumanArmScye";
-import { AutoMovieHumanArmShoulder } from "./arm/AutoMovieHumanArmShoulder";
-import { AutoMovieHumanHandConstruction } from "./hand/AutoMovieHumanHandConstruction";
-import { AutoMovieHumanHandEvents } from "./hand/AutoMovieHumanHandEvents";
-import { AutoMovieHumanHandForm } from "./hand/AutoMovieHumanHandForm";
-import { AutoMovieHumanHandSide } from "./hand/AutoMovieHumanHandSide";
+import { AutoMovieHumanArmBones } from "./AutoMovieHumanArmBones";
+import { AutoMovieHumanArmLaw } from "./AutoMovieHumanArmLaw";
+import { AutoMovieHumanArmLayers } from "./AutoMovieHumanArmLayers";
+import { AutoMovieHumanArmScye } from "./AutoMovieHumanArmScye";
+import { AutoMovieHumanArmShoulder } from "./AutoMovieHumanArmShoulder";
+import { AutoMovieHumanHandConstruction } from "./AutoMovieHumanHandConstruction";
+import { AutoMovieHumanHandEvents } from "./AutoMovieHumanHandEvents";
+import { AutoMovieHumanHandForm } from "./AutoMovieHumanHandForm";
+import { AutoMovieHumanHandSide } from "./AutoMovieHumanHandSide";
 
 const { events }: typeof AutoMovieHumanHandEvents = AutoMovieHumanHandEvents;
 const { sided }: typeof AutoMovieHumanHandSide = AutoMovieHumanHandSide;

@@ -26,10 +26,10 @@ import { AutoMovieHumanNeckSource } from "./AutoMovieHumanNeckSource";
 import { AutoMovieHumanShoulderDatum } from "./AutoMovieHumanShoulderDatum";
 import { AutoMovieHumanSkeletonLaw } from "./AutoMovieHumanSkeletonLaw";
 import { AutoMovieHumanTrunkSolver } from "./AutoMovieHumanTrunkSolver";
-import { AutoMovieHumanHeadLane } from "./head/AutoMovieHumanHeadLane";
-import { AutoMovieHumanHeadNeckScalars } from "./head/AutoMovieHumanHeadNeckScalars";
-import { AutoMovieHumanHeadPose } from "./head/AutoMovieHumanHeadPose";
-import { AutoMovieHumanHeadSourceAxis } from "./head/AutoMovieHumanHeadSourceAxis";
+import { AutoMovieHumanHeadLane } from "./AutoMovieHumanHeadLane";
+import { AutoMovieHumanHeadNeckScalars } from "./AutoMovieHumanHeadNeckScalars";
+import { AutoMovieHumanHeadPose } from "./AutoMovieHumanHeadPose";
+import { AutoMovieHumanHeadSourceAxis } from "./AutoMovieHumanHeadSourceAxis";
 
 /** Direct common anatomical definitions and explicit original-family requests, before tree assembly or raw geometry. */
 export namespace AutoMovieHumanBodySources {

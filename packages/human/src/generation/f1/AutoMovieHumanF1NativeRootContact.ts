@@ -1,6 +1,6 @@
 import {
   AutoMovieHumanNativeRadialContact as Radial,
-} from "../conic/AutoMovieHumanNativeRadialContact";
+} from "../AutoMovieHumanNativeRadialContact";
 import {
   AutoMovieLoftViewFullSource as Full,
   AutoMovieSolidVector as Vector,

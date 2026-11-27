@@ -22,8 +22,8 @@ import { AutoMovieHumanBodyAnatomy } from "./AutoMovieHumanBodyAnatomy";
 import { AutoMovieHumanBodyLaneInterim } from "./AutoMovieHumanBodyLaneInterim";
 import { AutoMovieHumanBodySources } from "./AutoMovieHumanBodySources";
 import { AutoMovieHumanSkeletonLaw } from "./AutoMovieHumanSkeletonLaw";
-import { AutoMovieHumanSiteViewPart } from "./limb/AutoMovieHumanSiteViewPart";
-import { AutoMovieHumanTrunkBuild } from "./trunk/AutoMovieHumanTrunkBuild";
+import { AutoMovieHumanSiteViewPart } from "./AutoMovieHumanSiteViewPart";
+import { AutoMovieHumanTrunkBuild } from "./AutoMovieHumanTrunkBuild";
 
 /**
  * Requested original factories and explicit production completion.

@@ -13,10 +13,10 @@ import type {
 import { AutoMovieHumanArmPrior } from "./AutoMovieHumanArmPrior";
 import { AutoMovieHumanBodyFrame } from "./AutoMovieHumanBodyFrame";
 import { AutoMovieHumanFootPrior } from "./AutoMovieHumanFootPrior";
-import { AutoMovieHumanArmBones } from "./arm/AutoMovieHumanArmBones";
-import { AutoMovieHumanFootBones } from "./foot/AutoMovieHumanFootBones";
-import { AutoMovieHumanHandBones } from "./hand/AutoMovieHumanHandBones";
-import { AutoMovieHumanLegBones } from "./leg/AutoMovieHumanLegBones";
+import { AutoMovieHumanArmBones } from "./AutoMovieHumanArmBones";
+import { AutoMovieHumanFootBones } from "./AutoMovieHumanFootBones";
+import { AutoMovieHumanHandBones } from "./AutoMovieHumanHandBones";
+import { AutoMovieHumanLegBones } from "./AutoMovieHumanLegBones";
 
 /** Pure sided rest definitions shared by source authors and the full skeleton. */
 export namespace AutoMovieHumanLimbRest {

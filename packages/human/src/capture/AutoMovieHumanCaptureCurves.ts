@@ -6,7 +6,7 @@ import type {
   IAutoMovieViewLoft,
 } from "@automovie/interface";
 
-import { AutoMovieHumanConicLoft } from "../generation/conic/AutoMovieHumanConicLoft";
+import { AutoMovieHumanConicLoft } from "../generation/AutoMovieHumanConicLoft";
 
 /**
  * Samples round a section ring; a multiple of four, so the guides' quarter

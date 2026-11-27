@@ -4,7 +4,7 @@
 } from "@automovie/interface";
 
 import { AutoMovieHumanShoulderJoint } from "./AutoMovieHumanShoulderJoint";
-import { AutoMovieHumanArmBones } from "./arm/AutoMovieHumanArmBones";
+import { AutoMovieHumanArmBones } from "./AutoMovieHumanArmBones";
 
 /**
  * The trunk's landmark heights and the rules that place them from the inputs.

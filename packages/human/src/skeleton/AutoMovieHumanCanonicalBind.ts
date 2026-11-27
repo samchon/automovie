@@ -23,7 +23,7 @@ import { AutoMovieHumanNeckSource } from "../generation/AutoMovieHumanNeckSource
 import { AutoMovieHumanShoulderDatum } from "../generation/AutoMovieHumanShoulderDatum";
 import { AutoMovieHumanSkeletonChain } from "../generation/AutoMovieHumanSkeletonChain";
 import { AutoMovieHumanSkeletonLaw } from "../generation/AutoMovieHumanSkeletonLaw";
-import { AutoMovieHumanHeadNeckScalars } from "../generation/head/AutoMovieHumanHeadNeckScalars";
+import { AutoMovieHumanHeadNeckScalars } from "../generation/AutoMovieHumanHeadNeckScalars";
 
 /**
  * The polygon man's bind joints, placed from the person's parameters by

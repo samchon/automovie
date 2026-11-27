@@ -1609,7 +1609,7 @@ export namespace FamilyConicBody {
     const only: string[] = process.argv.slice(2).filter((argument: string): boolean => !argument.startsWith("--"));
     if (process.argv.includes("--emit-joints")) {
       const emitted: { text: string; world: Record<string, R.V> } = joints(source);
-      await fs.writeFile(path.join(root, "packages/human/src/generation/f1/AutoMovieHumanF1Joints.ts"), emitted.text);
+      await fs.writeFile(path.join(root, "packages/human/src/generation/AutoMovieHumanF1Joints.ts"), emitted.text);
       await fs.writeFile(path.join(out, "joints.world.json"), JSON.stringify({ points: emitted.world }));
     }
     // A digit's course runs through its joints and on past the last one by the length of its distal segment.
@@ -4405,21 +4405,21 @@ export namespace FamilyConicBody {
     const name: string = moduleName(part.name);
     const names: string[] = labels(family.layout);
     const lines: string[] = [
-      'import type { AutoMovieHumanConicLoft } from "../conic/AutoMovieHumanConicLoft";',
+      'import type { AutoMovieHumanConicLoft } from "../AutoMovieHumanConicLoft";',
       ...(family.layout.anchors.some(
         (anchor: C.IAnchor): boolean => anchor.kind === "f",
       )
         ? []
         : [
-            'import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";',
+            'import { AutoMovieHumanConicSection } from "../AutoMovieHumanConicSection";',
           ]),
       // The joints are imported only when the course names them; a course written as numbers leaves the import unused.
       ...(part.course.includes("J.")
-        ? ['import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";']
+        ? ['import { AutoMovieHumanF1Joints } from "../AutoMovieHumanF1Joints";']
         : []),
       // The placing fields read the re-based table (`AutoMovieHumanF1Placing`), which `FamilyConicRebase.ts --tables` writes; their world
       // values go to it by name through `placing`.
-      'import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";',
+      'import { AutoMovieHumanF1Placement } from "../AutoMovieHumanF1Placement";',
       "",
       "/**",
       " * f1's " +

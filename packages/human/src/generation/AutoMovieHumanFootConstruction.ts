@@ -17,18 +17,18 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieHumanFootPrior } from "./AutoMovieHumanFootPrior";
-import { AutoMovieHumanFootBody } from "./foot/AutoMovieHumanFootBody";
-import { AutoMovieHumanFootBodyChain } from "./foot/AutoMovieHumanFootBodyChain";
-import { AutoMovieHumanFootBones } from "./foot/AutoMovieHumanFootBones";
-import { AutoMovieHumanFootCrestForefoot } from "./foot/AutoMovieHumanFootCrestForefoot";
-import { AutoMovieHumanFootGeometry as G } from "./foot/AutoMovieHumanFootGeometry";
-import { AutoMovieHumanFootKnots } from "./foot/AutoMovieHumanFootKnots";
-import { AutoMovieHumanFootMalleolus } from "./foot/AutoMovieHumanFootMalleolus";
-import { AutoMovieHumanFootReflection } from "./foot/AutoMovieHumanFootReflection";
-import { AutoMovieHumanFootToeChain } from "./foot/AutoMovieHumanFootToeChain";
-import { AutoMovieHumanFootToeSpan } from "./foot/AutoMovieHumanFootToeSpan";
-import { AutoMovieHumanFootWebLine } from "./foot/AutoMovieHumanFootWebLine";
-import { AutoMovieHumanFootWebRing } from "./foot/AutoMovieHumanFootWebRing";
+import { AutoMovieHumanFootBody } from "./AutoMovieHumanFootBody";
+import { AutoMovieHumanFootBodyChain } from "./AutoMovieHumanFootBodyChain";
+import { AutoMovieHumanFootBones } from "./AutoMovieHumanFootBones";
+import { AutoMovieHumanFootCrestForefoot } from "./AutoMovieHumanFootCrestForefoot";
+import { AutoMovieHumanFootGeometry as G } from "./AutoMovieHumanFootGeometry";
+import { AutoMovieHumanFootKnots } from "./AutoMovieHumanFootKnots";
+import { AutoMovieHumanFootMalleolus } from "./AutoMovieHumanFootMalleolus";
+import { AutoMovieHumanFootReflection } from "./AutoMovieHumanFootReflection";
+import { AutoMovieHumanFootToeChain } from "./AutoMovieHumanFootToeChain";
+import { AutoMovieHumanFootToeSpan } from "./AutoMovieHumanFootToeSpan";
+import { AutoMovieHumanFootWebLine } from "./AutoMovieHumanFootWebLine";
+import { AutoMovieHumanFootWebRing } from "./AutoMovieHumanFootWebRing";
 
 /**
  * Both feet generated from foot length, foot breadth and lateral malleolus

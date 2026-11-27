@@ -10,9 +10,9 @@ import type {
   IAutoMovieViewAxis,
 } from "@automovie/interface";
 
-import { AutoMovieHumanConicLoft } from "../generation/conic/AutoMovieHumanConicLoft";
-import { AutoMovieHumanConicSection } from "../generation/conic/AutoMovieHumanConicSection";
-import type { AutoMovieHumanEmptyProbes } from "../generation/conic/AutoMovieHumanEmptyProbes";
+import { AutoMovieHumanConicLoft } from "../generation/AutoMovieHumanConicLoft";
+import { AutoMovieHumanConicSection } from "../generation/AutoMovieHumanConicSection";
+import type { AutoMovieHumanEmptyProbes } from "../generation/AutoMovieHumanEmptyProbes";
 
 /** Builds empty-probe inspection marks for a Human capture figure. */
 export namespace AutoMovieHumanCaptureProbes {

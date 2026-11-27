@@ -8,9 +8,9 @@ import type {
   IAutoMovieViewChain,
 } from "@automovie/interface";
 
-import { AutoMovieHumanConicLoft } from "./AutoMovieHumanConicLoft";
-import { AutoMovieHumanConicSection } from "./AutoMovieHumanConicSection";
-import type { AutoMovieHumanEmptyProbes } from "./AutoMovieHumanEmptyProbes";
+import { AutoMovieHumanConicLoft } from "../AutoMovieHumanConicLoft";
+import { AutoMovieHumanConicSection } from "../AutoMovieHumanConicSection";
+import type { AutoMovieHumanEmptyProbes } from "../AutoMovieHumanEmptyProbes";
 
 /**
  * The wall geometry `AutoMovieHumanEmptyProbes` places its gap probes by: a

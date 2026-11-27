@@ -25,8 +25,8 @@ import { AutoMovieHumanBodyLane } from "./AutoMovieHumanBodyLane";
 import { AutoMovieHumanBodyPreparation } from "./AutoMovieHumanBodyPreparation";
 import { AutoMovieHumanFootConstruction } from "./AutoMovieHumanFootConstruction";
 import { AutoMovieHumanHeadInputs } from "./AutoMovieHumanHeadInputs";
-import { AutoMovieHumanHeadLane } from "./head/AutoMovieHumanHeadLane";
-import { AutoMovieHumanLegCrotchHeight } from "./leg/AutoMovieHumanLegCrotchHeight";
+import { AutoMovieHumanHeadLane } from "./AutoMovieHumanHeadLane";
+import { AutoMovieHumanLegCrotchHeight } from "./AutoMovieHumanLegCrotchHeight";
 
 /**
  * The law from the public parameters to the body the generator lofts.

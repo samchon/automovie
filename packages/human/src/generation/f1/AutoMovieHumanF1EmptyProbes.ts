@@ -1,5 +1,5 @@
-import type { AutoMovieHumanEmptyProbes } from "../conic/AutoMovieHumanEmptyProbes";
-import { AutoMovieHumanF1 } from "./AutoMovieHumanF1";
+import type { AutoMovieHumanEmptyProbes } from "../AutoMovieHumanEmptyProbes";
+import { AutoMovieHumanF1 } from "../AutoMovieHumanF1";
 
 /**
  * F1's stored empty-probe listing. The owner namespace and this module expose

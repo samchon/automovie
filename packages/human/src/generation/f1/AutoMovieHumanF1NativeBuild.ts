@@ -13,13 +13,13 @@ import type {
   IAutoMovieViewPart,
 } from "@automovie/interface";
 
-import { AutoMovieHumanConicLoft as H } from "../conic/AutoMovieHumanConicLoft";
-import { AutoMovieHumanNativeFamily as Native } from "../conic/AutoMovieHumanNativeFamily";
-import { AutoMovieHumanNativeFeatureLaw } from "../conic/AutoMovieHumanNativeFeatureLaw";
-import { AutoMovieHumanNativeSourceLaw } from "../conic/AutoMovieHumanNativeSourceLaw";
-import { AutoMovieHumanSegmentFrame as F } from "../frame/AutoMovieHumanSegmentFrame";
-import { AutoMovieHumanF1NativeCalibration as Calibration } from "./AutoMovieHumanF1NativeCalibration";
-import { AutoMovieHumanF1NativeCourse as LengthCourse } from "./AutoMovieHumanF1NativeCourse";
+import { AutoMovieHumanConicLoft as H } from "../AutoMovieHumanConicLoft";
+import { AutoMovieHumanNativeFamily as Native } from "../AutoMovieHumanNativeFamily";
+import { AutoMovieHumanNativeFeatureLaw } from "../AutoMovieHumanNativeFeatureLaw";
+import { AutoMovieHumanNativeSourceLaw } from "../AutoMovieHumanNativeSourceLaw";
+import { AutoMovieHumanSegmentFrame as F } from "../AutoMovieHumanSegmentFrame";
+import { AutoMovieHumanF1NativeCalibration as Calibration } from "../AutoMovieHumanF1NativeCalibration";
+import { AutoMovieHumanF1NativeCourse as LengthCourse } from "../AutoMovieHumanF1NativeCourse";
 import { AutoMovieHumanF1NativeRoots } from "./AutoMovieHumanF1NativeRoots";
 
 /**

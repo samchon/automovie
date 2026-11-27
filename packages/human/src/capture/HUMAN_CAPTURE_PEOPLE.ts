@@ -1,7 +1,7 @@
 import type { IAutoMovieHumanF1 } from "@automovie/interface";
 
-import { AutoMovieHumanEmptyProbes } from "../generation/conic/AutoMovieHumanEmptyProbes";
-import { AutoMovieHumanF1 } from "../generation/f1/AutoMovieHumanF1";
+import { AutoMovieHumanEmptyProbes } from "../generation/AutoMovieHumanEmptyProbes";
+import { AutoMovieHumanF1 } from "../generation/AutoMovieHumanF1";
 
 /**
  * Every person the package defines, as the capture subjects offer them: the

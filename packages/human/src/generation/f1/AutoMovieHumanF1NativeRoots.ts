@@ -13,20 +13,20 @@ import type {
   IAutoMovieViewPart,
 } from "@automovie/interface";
 
-import { AutoMovieHumanConicLoft as H } from "../conic/AutoMovieHumanConicLoft";
-import { AutoMovieHumanNativeControlLaw as N } from "../conic/AutoMovieHumanNativeControlLaw";
-import { AutoMovieHumanNativeFamily as Native } from "../conic/AutoMovieHumanNativeFamily";
-import { AutoMovieHumanNativeFeatureLaw } from "../conic/AutoMovieHumanNativeFeatureLaw";
-import { AutoMovieHumanNativeScaleProfile as Profile } from "../conic/AutoMovieHumanNativeScaleProfile";
-import { AutoMovieHumanPeriodicRailRange } from "../conic/AutoMovieHumanPeriodicRailRange";
-import { AutoMovieHumanSegmentFrame as F } from "../frame/AutoMovieHumanSegmentFrame";
+import { AutoMovieHumanConicLoft as H } from "../AutoMovieHumanConicLoft";
+import { AutoMovieHumanNativeControlLaw as N } from "../AutoMovieHumanNativeControlLaw";
+import { AutoMovieHumanNativeFamily as Native } from "../AutoMovieHumanNativeFamily";
+import { AutoMovieHumanNativeFeatureLaw } from "../AutoMovieHumanNativeFeatureLaw";
+import { AutoMovieHumanNativeScaleProfile as Profile } from "../AutoMovieHumanNativeScaleProfile";
+import { AutoMovieHumanPeriodicRailRange } from "../AutoMovieHumanPeriodicRailRange";
+import { AutoMovieHumanSegmentFrame as F } from "../AutoMovieHumanSegmentFrame";
 import { AutoMovieHumanF1ArmEnd } from "./AutoMovieHumanF1ArmEnd";
 import type { AutoMovieHumanF1NativeBuild as Build } from "./AutoMovieHumanF1NativeBuild";
-import { AutoMovieHumanF1NativeCalibration as Calibration } from "./AutoMovieHumanF1NativeCalibration";
-import { AutoMovieHumanF1NativeCourse as LengthCourse } from "./AutoMovieHumanF1NativeCourse";
+import { AutoMovieHumanF1NativeCalibration as Calibration } from "../AutoMovieHumanF1NativeCalibration";
+import { AutoMovieHumanF1NativeCourse as LengthCourse } from "../AutoMovieHumanF1NativeCourse";
 import { AutoMovieHumanF1NativeRootContact as Contact } from "./AutoMovieHumanF1NativeRootContact";
-import { AutoMovieHumanF1NativeRootLaw as Root } from "./AutoMovieHumanF1NativeRootLaw";
-import { AutoMovieHumanF1RootRails } from "./AutoMovieHumanF1RootRails";
+import { AutoMovieHumanF1NativeRootLaw as Root } from "../AutoMovieHumanF1NativeRootLaw";
+import { AutoMovieHumanF1RootRails } from "../AutoMovieHumanF1RootRails";
 
 type IFields = IAutoMovieHumanF1NativeLaw.IFields;
 type ISize = IAutoMovieHumanF1NativeLaw.ISize;

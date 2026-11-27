@@ -15,7 +15,7 @@ import type {
 
 import { AutoMovieHumanBodyPublication } from "./AutoMovieHumanBodyPublication";
 import { AutoMovieHumanBodyTree } from "./AutoMovieHumanBodyTree";
-import { AutoMovieHumanTrunkBuild } from "./trunk/AutoMovieHumanTrunkBuild";
+import { AutoMovieHumanTrunkBuild } from "./AutoMovieHumanTrunkBuild";
 
 /**
  * The body lane's subtree (#3047 to #3051) as one construction tree realized by

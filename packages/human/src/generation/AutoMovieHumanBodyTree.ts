@@ -15,8 +15,8 @@ import type {
   IAutoMovieViewPart,
 } from "@automovie/interface";
 
-import { AutoMovieHumanConstructionView } from "./limb/AutoMovieHumanConstructionView";
-import { AutoMovieHumanMassSource } from "./limb/AutoMovieHumanMassSource";
+import { AutoMovieHumanConstructionView } from "./AutoMovieHumanConstructionView";
+import { AutoMovieHumanMassSource } from "./AutoMovieHumanMassSource";
 
 /**
  * The body's construction tree (#3044, construction step 2; #3047 to #3051)

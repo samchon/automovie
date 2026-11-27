@@ -577,8 +577,8 @@ What exists in new files, and the edits to shared files this note asks for in th
 
 | New file | Holds | Read by |
 | --- | --- | --- |
-| `src/generation/f1/AutoMovieHumanF1FacePriors.ts` | Nine published measures, each with its source and read status | `AutoMovieHumanF1FaceCentres` |
-| `src/generation/f1/AutoMovieHumanF1FaceCentres.ts` | The eye's frame, the mouth's line, the ring's plane, the orbit's cylinder, the lips' wedge and the nose's two planes as functions of landmarks | `test_human_f1_face_centres`; `FamilyConicFace.ts --divides` |
+| `src/generation/AutoMovieHumanF1FacePriors.ts` | Nine published measures, each with its source and read status | `AutoMovieHumanF1FaceCentres` |
+| `src/generation/AutoMovieHumanF1FaceCentres.ts` | The eye's frame, the mouth's line, the ring's plane, the orbit's cylinder, the lips' wedge and the nose's two planes as functions of landmarks | `test_human_f1_face_centres`; `FamilyConicFace.ts --divides` |
 | `test/src/features/human/frames/test_human_f1_face_centres.ts` | The six definitions on made points | - |
 | `test/src/features/geometry/construction/operator/test_construction_operator_pointed_cut.ts` | The opening on a declared loop | - |
 
@@ -622,7 +622,7 @@ What exists:
 | Instrument | `test/src/reference-conics/FamilyConicFace.ts`: `--components`, `--profile`, `--cast`, `--radial`, `--wedge`, `--stills`, `--landmarks`, `--divides`, `--margins`, `--contours`, with `--outer` and `--mesh=trunk` | Compiles; every mode was run except the last patch's two additions (the level-frame margins and the corrected groove rule), which were run once |
 | Part declarations | `test/src/reference-conics/FamilyConicHeadParts.ts` | Head, nose, eye, lips: course centres, domains, layout kinds, clips and an exact membership rule |
 | Readings | `packages/human/.shots/face-one-shot-20261117/`: `o-*.txt` on the reference's outer skin, `g-*.txt` on the stored trunk family's loft, the stills | `o-contours.txt`, `o-divides-ruled.txt`, `o-margins.txt` are the latest |
-| Human modules | `src/generation/f1/AutoMovieHumanF1FacePriors.ts`, `...FaceCentres.ts`, `...EyeLaw.ts`, `...LipsLaw.ts`, `...NoseLaw.ts`; `src/generation/conic/AutoMovieHumanSkinCutLoop.ts` | Compile; nothing in the figure reads them |
+| Human modules | `src/generation/AutoMovieHumanF1FacePriors.ts`, `...FaceCentres.ts`, `...EyeLaw.ts`, `...LipsLaw.ts`, `...NoseLaw.ts`; `src/generation/AutoMovieHumanSkinCutLoop.ts` | Compile; nothing in the figure reads them |
 | Tests | `test_construction_operator_pointed_cut`, `test_human_f1_face_centres`, `test_human_skin_cut_loop`, `test_human_head_parts_complement`: run green. `test_human_f1_eye_law` as rewritten and `test_human_f1_lips_nose_law`: compile, never run | - |
 
 Unfinished:

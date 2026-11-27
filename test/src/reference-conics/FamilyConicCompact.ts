@@ -51,7 +51,8 @@ namespace FamilyConicCompact {
             .join("");
     return path.join(
       root,
-      "packages/human/src/generation/f1/AutoMovieHumanF1" + name + ".ts",
+      "packages/human/src/generation/f1",
+      "AutoMovieHumanF1" + name + ".ts",
     );
   }
 

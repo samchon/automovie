@@ -5,9 +5,9 @@ import type {
   IAutoMovieHumanLimbSources,
 } from "@automovie/interface";
 
-import { AutoMovieHumanArmSources } from "./arm/AutoMovieHumanArmSources";
-import { AutoMovieHumanFootInterim } from "./foot/AutoMovieHumanFootInterim";
-import { AutoMovieHumanLegSources } from "./leg/AutoMovieHumanLegSources";
+import { AutoMovieHumanArmSources } from "./AutoMovieHumanArmSources";
+import { AutoMovieHumanFootInterim } from "./AutoMovieHumanFootInterim";
+import { AutoMovieHumanLegSources } from "./AutoMovieHumanLegSources";
 
 /** Invocation-owned independent limb factories, shared by selected originals and later tree assembly. */
 export namespace AutoMovieHumanLimbSources {

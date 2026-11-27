@@ -1525,7 +1525,7 @@ namespace FamilyConicLimbLaw {
       for (let j: IAutoMovieHumanSegmentJoint | undefined = joint(frame); j !== undefined; j = joint(j.parent ?? "")) chain.unshift(j.name);
       return chain;
     };
-    const source: string = await fs.readFile(path.join(root, "packages/human/src/generation/f1/AutoMovieHumanF1.ts"), "utf8");
+    const source: string = await fs.readFile(path.join(root, "packages/human/src/generation/AutoMovieHumanF1.ts"), "utf8");
     const constant = (name: string): string => source.match(new RegExp(`const ${name}: [^=]+= ([^;]+);`))?.[1] ?? "not found";
     const notes: Map<string, string[]> = new Map();
     for (const note of NOTES) notes.set(note, (await fs.readFile(path.join(root, "packages/human/docs/sources", note), "utf8")).split(/\r?\n/));
@@ -2030,7 +2030,7 @@ namespace FamilyConicLimbLaw {
     const out: string = path.join(root, "test/.shots/family-conic-limb-law", argument("dir") ?? "extremity-premises-" + new Date().toISOString().replaceAll(":", "-"));
     await fs.mkdir(out, { recursive: true });
     const lines: string[] = ["The hand, the foot and the digits by law: the round trip and every connection's premises on every case (issue #3151, step 2's last part); nothing realized beyond each connection alone", ""];
-    const source: string = await fs.readFile(path.join(root, "packages/human/src/generation/f1/AutoMovieHumanF1.ts"), "utf8");
+    const source: string = await fs.readFile(path.join(root, "packages/human/src/generation/AutoMovieHumanF1.ts"), "utf8");
     const constant = (name: string): number => Number(source.match(new RegExp(`const ${name}: number = ([0-9.]+);`))?.[1] ?? NaN);
     const [armToMm, rootMm] = [constant("ARM_TO_MM"), constant("ROOT_MM")];
     const wrist: { rail: number; count: number } = { rail: Number(source.match(/const WRIST[^=]+= \{ rail: ([0-9.]+), count: ([0-9]+)/)?.[1]), count: Number(source.match(/const WRIST[^=]+= \{ rail: ([0-9.]+), count: ([0-9]+)/)?.[2]) };
@@ -2415,7 +2415,7 @@ namespace FamilyConicLimbLaw {
       process.stdout.write(`${((Date.now() - started) / 1000).toFixed(0)} s: ${what}\n`);
     };
     const lines: string[] = ["The hand, the foot and the digits by law: the form detector on every wall and the realized connections (issue #3151, step 2's last part)", ""];
-    const source: string = await fs.readFile(path.join(root, "packages/human/src/generation/f1/AutoMovieHumanF1.ts"), "utf8");
+    const source: string = await fs.readFile(path.join(root, "packages/human/src/generation/AutoMovieHumanF1.ts"), "utf8");
     const number = (pattern: RegExp): number => Number(source.match(pattern)?.[1] ?? NaN);
     const [armToMm, rootMm, fingerTurn] = [number(/const ARM_TO_MM: number = ([0-9.]+);/), number(/const ROOT_MM: number = ([0-9.]+);/), number(/const FINGER_TURN: number = ([0-9.]+);/)];
     const phaseTurn: { arm: number; leg: number } = { arm: number(/const PHASE_TURN[^=]+= \{ arm: ([0-9.]+)/), leg: number(/const PHASE_TURN[^=]+= \{ arm: [0-9.]+, leg: ([0-9.]+)/) };

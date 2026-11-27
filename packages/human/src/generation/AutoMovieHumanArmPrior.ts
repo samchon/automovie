@@ -1,6 +1,6 @@
 import type { IAutoMovieHumanArmPrior } from "@automovie/interface";
 
-import { AutoMovieHumanHandPosture } from "./hand/AutoMovieHumanHandPosture";
+import { AutoMovieHumanHandPosture } from "./AutoMovieHumanHandPosture";
 
 /**
  * Named constants of the arm construction: the population's arm and hand, and

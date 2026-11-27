@@ -146,7 +146,8 @@ namespace FamilyConicCoarse {
   function moduleOf(root: string, family: string): string {
     return path.join(
       root,
-      "packages/human/src/generation/f1/AutoMovieHumanF1" +
+      "packages/human/src/generation/f1",
+      "AutoMovieHumanF1" +
         family
           .split(".")
           .map((word: string): string => word[0]!.toUpperCase() + word.slice(1))

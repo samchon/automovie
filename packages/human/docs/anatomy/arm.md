@@ -67,7 +67,7 @@ The upper arm's girth only falls from the axillary root: the biceps belly is a s
 
 ### Sections
 
-A four-guide polar sector section (guides forward, lateral, back and medial, each with its radius and two angle derivatives; four sectors each with one fullness, `lofting/AutoMovieHumanPolarSector`) reproduces every reference section at the landmark stations to 0.1 to 0.9 % of its radius RMS. The rows (in units of girth / 2 pi) are in `generation/arm/AutoMovieHumanUpperArmCompartments.ts` and `AutoMovieHumanForearmSectors.ts`. In the bind's thumb-forward forearm the forward guide runs on the radial border, the lateral on the extensors, the back on the ulnar border and the medial on the flexors; the radial side is fuller (1.08 to 1.14) and the ulnar border flatter.
+A four-guide polar sector section (guides forward, lateral, back and medial, each with its radius and two angle derivatives; four sectors each with one fullness, `lofting/AutoMovieHumanPolarSector`) reproduces every reference section at the landmark stations to 0.1 to 0.9 % of its radius RMS. The measured guide and sector values (in units of girth / 2 pi) are tabulated in `generation/AutoMovieHumanArmRows.ts`; `AutoMovieHumanUpperArmCompartments.ts` and `AutoMovieHumanForearmBelly.ts` place the span rows at their landmarks. In the bind's thumb-forward forearm the forward guide runs on the radial border, the lateral on the extensors, the back on the ulnar border and the medial on the flexors; the radial side is fuller (1.08 to 1.14) and the ulnar border flatter.
 
 ### The elbow
 
@@ -75,7 +75,7 @@ Read in the plane bisecting the corner through the two centroid lines' meeting p
 
 ## Pieces
 
-The arm is divided into spans between named loci, proximal to distal, each in its own file under `packages/human/src/generation/arm/` and built from fixed inputs alone (`IAutoMovieHumanArmPiece.IInputs`: the bones, the walk and the four tapes). A span owns its girth knots and its section rows; where two meet, the proximal span owns the shared row and knot and the distal span copies them.
+The arm is divided into spans between named loci, proximal to distal, each in its own file under `packages/human/src/generation/` and built from fixed inputs alone (`IAutoMovieHumanArmPiece.IInputs`: the bones, the walk and the four tapes). A span owns its girth knots and its section rows; where two meet, the proximal span owns the shared row and knot and the distal span copies them.
 
 | Span | From, to | File |
 | --- | --- | --- |
