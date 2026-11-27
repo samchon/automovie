@@ -18,7 +18,7 @@ import type {
 } from "@automovie/interface";
 
 import { prepareJumpPosture } from "../../actions/internal/prepareJumpPosture";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { poseBones } from "../../posture/internal/poseBones";
 import { HumanSkill } from "../../skill/internal/HumanSkill";
 import { HumanForce } from "./HumanForce";
@@ -73,7 +73,7 @@ export namespace HumanPerformancePlace {
     const law: IAutoMovieMotionHumanActionLaw<never> | undefined =
       self.laws.get(name);
     if (law === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "act",
         value: intent.capability,
@@ -97,7 +97,7 @@ export namespace HumanPerformancePlace {
     // other action follows the person's last one.
     const over: boolean = intent.parameters?.over === true;
     if (over && law.overlay !== true)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "channel",
         axis: "over",
         value: name,
@@ -129,7 +129,7 @@ export namespace HumanPerformancePlace {
           )
       : person.segments.at(-1);
     if (over && previous === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "base",
         axis: "over",
         value: name,
@@ -145,7 +145,7 @@ export namespace HumanPerformancePlace {
     if (!over && previous !== undefined && before !== undefined)
       previous.end = self.clipped.get(before.index) ?? before.end;
     if (start < -1e-9 || (!over && start < (previous?.entryTime ?? 0) - 1e-9))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "cut",
         axis: "sync",
         value: start,

@@ -22,7 +22,7 @@ import type {
 
 import type { walkPoleFrame } from "../../actions/internal/walkPoleFrame";
 import { WorkoutSupport } from "../../exercise/workout/WorkoutSupport";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanPropFrame } from "../../perform/internal/HumanPropFrame";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { HumanMaterialContact } from "../../posture/internal/HumanMaterialContact";
@@ -160,7 +160,7 @@ export function poleVaultFinish(
             exterior(flying(time), pad.at(context.start + release + time)),
         );
   if (pad !== undefined && material === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "on",
       value: p.on,
@@ -180,7 +180,7 @@ export function poleVaultFinish(
         readLowest(flying(t), floorResolution, floorProjection);
       const releaseLowest: number = lowest(0);
       if (!(releaseLowest > surface))
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "reach",
           axis: "on",
           value: surface,
@@ -216,7 +216,7 @@ export function poleVaultFinish(
               HumanMaterialContact.NORMAL,
             );
             if (bearing === undefined || up <= 0)
-              throw new HumanRefusal({
+              throw new AutoMovieMotionHumanRefusal({
                 kind: "reach",
                 axis: "on",
                 value: p.on,
@@ -224,7 +224,7 @@ export function poleVaultFinish(
                 fix: "use a landing mat that covers the settling path",
               });
             if (up < 1 - 1e-12)
-              throw new HumanRefusal({
+              throw new AutoMovieMotionHumanRefusal({
                 kind: "affordance",
                 axis: "on",
                 value: p.on,

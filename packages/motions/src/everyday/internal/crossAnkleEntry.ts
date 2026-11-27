@@ -4,7 +4,7 @@ import type {
   IAutoMovieMotionHumanEntryState,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanMount } from "../../lexicon/internal/HumanMount";
 
 /*
@@ -42,7 +42,7 @@ export function crossAnkleEntry(
     !HumanMount.grounded(body, entry.feet[side === "left" ? "right" : "left"]) ||
     entry.posture.limbs[`${side}Leg`]?.planted !== true
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "base",
       axis: "base",
       value: entry.base.kind,

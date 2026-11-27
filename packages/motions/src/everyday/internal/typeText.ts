@@ -23,7 +23,7 @@ import { HumanSupportFrame } from "../../carrier/internal/HumanSupportFrame";
 import { AutoMovieMotionHumanArmChain } from "../../compose/internal/AutoMovieMotionHumanArmChain";
 import { AutoMovieMotionHumanArmTarget } from "../../compose/internal/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanBoneGroups } from "../../posture/internal/HumanBoneGroups";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanHand } from "../../posture/internal/HumanHand";
@@ -104,7 +104,7 @@ export namespace typeText {
         (a: IAutoMovieAffordance): boolean => a.id === id,
       );
       if (found === undefined)
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "affordance",
           axis: "keyboard",
           value: subject,
@@ -120,7 +120,7 @@ export namespace typeText {
     const found: IAutoMovieAffordance = declared("homeRow");
     const keys: IAutoMovieAffordance = declared("keys");
     if (!((keys.width ?? 0) >= WIDTH))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "affordance",
         axis: "keyboard",
         value: keys.width ?? null,
@@ -239,7 +239,7 @@ export namespace typeText {
         side: x > 0 ? "left" : "right",
       };
     }
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "text",
       value: key,
@@ -266,7 +266,7 @@ export namespace typeText {
       context.params.keyboard,
     );
     if (text.length === 0)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "text",
         value: text,
@@ -294,7 +294,7 @@ export namespace typeText {
     const elbow: number =
       (shoulders.left.y + shoulders.right.y) / 2 - m.upperArm;
     if (Math.abs(keyboard.at.y - elbow) > HEIGHT)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "keyboard",
         value: keyboard.at.y,
@@ -320,7 +320,7 @@ export namespace typeText {
           REACH * (m.upperArm + m.forearm + m.hand),
       )
     )
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "keyboard",
         value: null,

@@ -22,7 +22,7 @@ import type {
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
 import { ExerciseKey } from "../../exercise/internal/ExerciseKey";
 import { lieDown } from "../../floor/internal/lieDown";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
@@ -227,7 +227,7 @@ export namespace AutoMovieMotionHumanHighJump {
           height + (RISE * RISE) / (2 * AutoMovieGravity.STANDARD);
         if (reserve > 0 && ceiling >= bar)
           HumanBound.within("apexReserve", reserve, 0, ceiling - bar, "m");
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "parameter",
           axis: "bar",
           value: bar,
@@ -332,7 +332,7 @@ export namespace AutoMovieMotionHumanHighJump {
     // more horizontal speed than the approach brings.
     const across: number = Math.hypot(v.x, v.z);
     if (approach !== undefined && across > approach.speed)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "to",
         value: across,

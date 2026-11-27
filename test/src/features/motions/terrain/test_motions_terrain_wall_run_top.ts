@@ -4,7 +4,7 @@ import type {
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 import {
-  HumanRefusal,
+  AutoMovieMotionHumanRefusal,
   planWallRun,
   planWallRunFlight,
   stand,
@@ -122,11 +122,11 @@ export async function test_motions_terrain_wall_run_top(): Promise<void> {
   };
   planWallRun.admitTop(2.55, 0, measure, "lip");
   planWallRun.admitTop(4.55, 2, measure, "lip");
-  let refusal: HumanRefusal | undefined;
+  let refusal: AutoMovieMotionHumanRefusal | undefined;
   try {
     planWallRun.admitTop(4.6, 2, measure, "lip");
   } catch (error: unknown) {
-    if (!(error instanceof HumanRefusal)) throw error;
+    if (!(error instanceof AutoMovieMotionHumanRefusal)) throw error;
     refusal = error;
   }
   const range = refusal?.feasible;

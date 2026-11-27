@@ -8,16 +8,16 @@ import type { ISceneChainNames } from "./structures/ISceneChainNames";
 
 /**
  * A composition as the TypeScript an agent writes against `@automovie/motions`:
- * the archetypes it places, one `HumanChain` per performer, each vocabulary
+ * the archetypes it places, one `AutoMovieMotionHumanChain` per performer, each vocabulary
  * action appended with `act` and each lexicon row with `registered`, cut with
  * `until`, timed with `sync` and with the actions performed over it in `over`;
  * the people's chains joined with `with`, each mutual action after them with
  * `next`; the laws the performance registers; each placed archetype as a prop
- * through `HumanObject.prop`, with the person and bone it starts worn on, and a
+ * through `AutoMovieMotionHumanObject.prop`, with the person and bone it starts worn on, and a
  * blade that starts in its carrier staged by `HumanSheath.of`; and the authored
- * impulses. It shows the input `HumanPerformance` is built from, as
+ * impulses. It shows the input `AutoMovieMotionHumanPerformance` is built from, as
  * `PlaygroundPerformance` builds it, ending in the one line `const performance
- * = new HumanPerformance(input);`. A seat is written as `HumanObject.seat` of
+ * = new AutoMovieMotionHumanPerformance(input);`. A seat is written as `AutoMovieMotionHumanObject.seat` of
  * the archetype that carries it, and an opening as `HumanObstacle.apertures`.
  * Each person's body is read from `bodies`, declared as the
  * `IAutoMovieMotionHumanBody` of each of the site's body ids, since a body is

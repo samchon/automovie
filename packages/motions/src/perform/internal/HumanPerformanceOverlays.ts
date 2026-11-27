@@ -11,7 +11,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanChannel as HumanChannels } from "../../compose/internal/AutoMovieMotionHumanChannel";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanPerformanceContacts } from "./HumanPerformanceContacts";
 
 /*
@@ -147,7 +147,7 @@ export namespace HumanPerformanceOverlays {
         throw locate(
           person,
           overlay,
-          new HumanRefusal({
+          new AutoMovieMotionHumanRefusal({
             kind: "channel",
             axis: "over",
             value: shared,
@@ -195,7 +195,7 @@ export namespace HumanPerformanceOverlays {
         try {
           requireYielded(carrier, overlay.name, overlay.channels);
         } catch (error) {
-          if (!(error instanceof HumanRefusal)) throw error;
+          if (!(error instanceof AutoMovieMotionHumanRefusal)) throw error;
           throw locate(person, overlay, error);
         }
       }
@@ -208,9 +208,9 @@ export namespace HumanPerformanceOverlays {
   function locate(
     person: IAutoMovieMotionHumanSegment.IPerson,
     overlay: IAutoMovieMotionHumanSegment.IOverlay,
-    error: HumanRefusal,
+    error: AutoMovieMotionHumanRefusal,
     act: AutoMovieMotionHumanActionKey = overlay.name,
-  ): ReturnType<HumanRefusal["locate"]> {
+  ): ReturnType<AutoMovieMotionHumanRefusal["locate"]> {
     return error.locate({
       performer: person.performer.subject,
       act,
@@ -241,7 +241,7 @@ export namespace HumanPerformanceOverlays {
         !HumanChannels.claims(yielded, c),
     );
     if (kept.length !== 0)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "channel",
         axis: "over",
         value: kept,

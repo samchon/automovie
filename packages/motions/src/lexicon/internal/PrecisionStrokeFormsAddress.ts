@@ -11,7 +11,7 @@ import type {
 import { stand } from "../../actions/internal/stand";
 import { AutoMovieMotionHumanTrunk } from "../../compose/internal/AutoMovieMotionHumanTrunk";
 import type { fitClearArmPose } from "../../compose/internal/fitClearArmPose";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { StrikingHeld } from "../../striking/internal/StrikingHeld";
@@ -40,7 +40,7 @@ export function PrecisionStrokeFormsAddress(
   const form: PrecisionStrokeForms.IForm | undefined =
     PRECISION_STROKE_FORMS[props.row];
   if (form === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "row",
       value: props.row,
@@ -204,7 +204,7 @@ export function PrecisionStrokeFormsAddress(
       }
       return Vector3.add(at, Vector3.scale(back, clear));
     }
-  throw new HumanRefusal({
+  throw new AutoMovieMotionHumanRefusal({
     kind: "reach",
     axis: "ball",
     value: props.ball,

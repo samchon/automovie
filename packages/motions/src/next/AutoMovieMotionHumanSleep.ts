@@ -36,7 +36,7 @@ export namespace AutoMovieMotionHumanSleep {
    * @param chain The lying performer's chain.
    * @param params The sleep's length, changes, seed and support.
    * @returns The chain with the turns appended.
-   * @throws {HumanRefusal} When the changes are not a whole count of one or
+   * @throws {AutoMovieMotionHumanRefusal} When the changes are not a whole count of one or
    *   more, or the sleep is too short to hold between them.
    */
   export const sleep: typeof sleepLaw = sleepLaw;

@@ -7,7 +7,7 @@ import type { AutoMovieMotionHumanActionKey } from "./AutoMovieMotionHumanAction
  * It names the roles and says which action each role performs for the shared
  * parameters and the cast. The roles' actions are ordinary laws that read one
  * meeting record, so the contact is planned once from where every role stands
- * and no role chases another. `HumanChain.mutual` joins the cast's chains
+ * and no role chases another. `AutoMovieMotionHumanChain.mutual` joins the cast's chains
  * through it.
  */
 export interface IAutoMovieMotionHumanMutual<
@@ -41,8 +41,8 @@ export interface IAutoMovieMotionHumanMutual<
 }
 
 /**
- * Contracts used by HumanChain.mutual, HumanMutual.handshake,
- * HumanMutual.highFive, HumanMutual.handOver.
+ * Contracts used by AutoMovieMotionHumanChain.mutual, AutoMovieMotionHumanMutual.handshake,
+ * AutoMovieMotionHumanMutual.highFive, AutoMovieMotionHumanMutual.handOver.
  */
 export namespace IAutoMovieMotionHumanMutual {
   /** One role's action. */

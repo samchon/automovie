@@ -19,7 +19,7 @@ import { walk } from "../../gait/internal/walk";
 import { walkClear } from "../../actions/internal/walkClear";
 import { walkDelayed } from "../../actions/internal/walkDelayed";
 import { walkStation } from "../../gait/internal/walkStation";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanEffort } from "./HumanEffort";
 import { HumanProxemics } from "./HumanProxemics";
@@ -121,7 +121,7 @@ export namespace approach {
     if (context.params.track === undefined || context.params.track === false)
       return to(context, aimed);
     if (target.kind !== "person")
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "track",
         value: true,
@@ -344,7 +344,7 @@ export namespace approach {
     if (p.from === undefined) {
       const now: number = Math.hypot(point.x - feet.x, point.z - feet.z) - lead;
       if (now < gap - 1e-9)
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "parameter",
           axis: "at",
           value: gap,
@@ -355,7 +355,7 @@ export namespace approach {
       stop = HumanProxemics.stop(feet, point, gap, lead);
     } else {
       if (target.kind !== "person")
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "parameter",
           axis: "from",
           value: context.params.from,

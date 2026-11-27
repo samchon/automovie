@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanRefusal } from "@automovie/interface";
 
-import { HumanRefusal } from "../HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../AutoMovieMotionHumanRefusal";
 
 /*
  * The numeric bounds of an action's parameters, each a check that refuses with
@@ -130,8 +130,8 @@ export namespace HumanBound {
     value: number,
     feasible: IAutoMovieMotionHumanRefusal.IRange,
   ): IAutoMovieMotionHumanRefusal {
-    const accepted: string = HumanRefusal.describe(feasible);
-    return new HumanRefusal({
+    const accepted: string = AutoMovieMotionHumanRefusal.describe(feasible);
+    return new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis,
       value,

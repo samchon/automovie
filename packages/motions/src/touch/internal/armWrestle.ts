@@ -26,7 +26,7 @@ import { AutoMovieMotionHumanLean } from "../../compose/internal/AutoMovieMotion
 import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { HumanForceTrunk } from "../../grappling/internal/HumanForceTrunk";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanMaterialContact } from "../../posture/internal/HumanMaterialContact";
 import { HumanTrunkTurn } from "../../posture/internal/HumanTrunkTurn";
@@ -258,7 +258,7 @@ export namespace armWrestle {
     const below: number = short(low);
     const above: number = short(high);
     if (!(below * above <= 0))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "table",
         value: `${(above * 1000).toFixed(0)} mm`,
@@ -349,7 +349,7 @@ export namespace armWrestle {
       for (let degrees: number = 5; degrees < asked; degrees += 5)
         if (off(degrees) <= upright + HELD) most = degrees;
         else break;
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "pin",
         value: asked,
@@ -570,8 +570,8 @@ type PlanSpanFrom = "UpperArm" | "LowerArm";
 /*
  * A proposed pad cannot bear the displayed elbow through the contest.
  */
-function padRefusal(point: string | undefined): HumanRefusal {
-  return new HumanRefusal({
+function padRefusal(point: string | undefined): AutoMovieMotionHumanRefusal {
+  return new AutoMovieMotionHumanRefusal({
     kind: "reach",
     axis: "pad",
     value: point,

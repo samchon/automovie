@@ -5,8 +5,8 @@
   "main": "src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./internal": "./src/internal.ts",
-    "./executable/internal": "./src/executable/internal.ts",
+    "./internal": "./src/internal/index.ts",
+    "./executable/internal": "./src/executable/internal/index.ts",
     "./testing/spacecraftGlideClock": "./src/testing/internal/spacecraftGlideClock.ts",
     "./package.json": "./package.json"
   },
@@ -31,8 +31,8 @@
         "default": "./lib/index.js"
       },
       "./internal": {
-        "types": "./lib/internal.d.ts",
-        "default": "./lib/internal.js"
+        "types": "./lib/internal/index.d.ts",
+        "default": "./lib/internal/index.js"
       },
       "./package.json": "./package.json"
     }

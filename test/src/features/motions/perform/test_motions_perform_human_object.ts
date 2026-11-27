@@ -6,8 +6,8 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanObject } from "@automovie/motions";
-import { HumanRefusal } from "@automovie/motions/internal";
+import { AutoMovieMotionHumanObject } from "@automovie/motions";
+import { AutoMovieMotionHumanRefusal } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { testAffordance } from "../../internal/fixtures/testAffordance";
@@ -33,7 +33,7 @@ const ROLL: IAutoMovieQuaternion = {
 };
 
 /**
- * `HumanObject` places an object in a performance: `frame` reads a placement,
+ * `AutoMovieMotionHumanObject` places an object in a performance: `frame` reads a placement,
  * `prop` makes the prop whose named points are its affordances, and `seat`
  * places a seat in the world with its heading, declared fields and footrests.
  *
@@ -62,14 +62,14 @@ export function test_motions_perform_human_object(): void {
     position: P(1, 2, 3),
     rotation: ROLL,
   };
-  const turned: IAutoMovieRigidTransform = HumanObject.frame({
+  const turned: IAutoMovieRigidTransform = AutoMovieMotionHumanObject.frame({
     at: P(1, 0, 2),
     yaw: 90,
   });
   TestValidator.predicate(
     "placements as frames",
-    HumanObject.frame(rigid).position === rigid.position &&
-      HumanObject.frame(rigid).rotation === ROLL &&
+    AutoMovieMotionHumanObject.frame(rigid).position === rigid.position &&
+      AutoMovieMotionHumanObject.frame(rigid).rotation === ROLL &&
       near(turned.position, P(1, 0, 2)) &&
       near(turn(turned.rotation, P(0, 0, 1)), P(1, 0, 0)),
   );
@@ -78,11 +78,11 @@ export function test_motions_perform_human_object(): void {
   const model: IAutoMovieMotionHumanObject.IModel = {
     affordances: [testAffordance("pull", "handle", P(0.1, 0.9, 0), ROLL)],
   };
-  const prop: IAutoMovieMotionHumanProp = HumanObject.prop("door", model, {
+  const prop: IAutoMovieMotionHumanProp = AutoMovieMotionHumanObject.prop("door", model, {
     ...rigid,
     fixed: true,
   });
-  const moving: IAutoMovieMotionHumanProp = HumanObject.prop(
+  const moving: IAutoMovieMotionHumanProp = AutoMovieMotionHumanObject.prop(
     "cart",
     model,
     rigid,
@@ -116,7 +116,7 @@ export function test_motions_perform_human_object(): void {
       }),
     ],
   };
-  const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(
+  const seat: IAutoMovieMotionHumanSeated.ISeat = AutoMovieMotionHumanObject.seat(
     chair,
     { at: P(1, 0, 2), yaw: 90 },
     undefined,
@@ -133,7 +133,7 @@ export function test_motions_perform_human_object(): void {
       seat.carrier === "chair" &&
       seat.point === "seat" &&
       seat.footrests === undefined &&
-      HumanObject.seat(chair, { at: P(0, 0, 0), yaw: 0 }).carrier ===
+      AutoMovieMotionHumanObject.seat(chair, { at: P(0, 0, 0), yaw: 0 }).carrier ===
         undefined,
   );
 
@@ -154,13 +154,13 @@ export function test_motions_perform_human_object(): void {
       testAffordance("rung", "bar", P(0, 0.2, 0.3), IDENTITY, { length: 0.4 }),
     ],
   };
-  const carriedBike: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(
+  const carriedBike: IAutoMovieMotionHumanSeated.ISeat = AutoMovieMotionHumanObject.seat(
     bike,
     origin,
     undefined,
     "bike",
   );
-  const carriedStool: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(
+  const carriedStool: IAutoMovieMotionHumanSeated.ISeat = AutoMovieMotionHumanObject.seat(
     stool,
     origin,
     undefined,
@@ -181,7 +181,7 @@ export function test_motions_perform_human_object(): void {
       carriedBike.footrestPoints.right === "right" &&
       carriedStool.footrestPoints?.left === "rung" &&
       carriedStool.footrestPoints.right === "rung" &&
-      HumanObject.seat(bike, origin).footrestPoints === undefined,
+      AutoMovieMotionHumanObject.seat(bike, origin).footrestPoints === undefined,
   );
 
   // 5. A tilted seat.
@@ -193,7 +193,7 @@ export function test_motions_perform_human_object(): void {
   };
   TestValidator.predicate(
     "a tilted seat states its pitch",
-    HumanObject.seat(
+    AutoMovieMotionHumanObject.seat(
       { affordances: [testAffordance("seat", "seat", P(0, 0.45, 0), tilt)] },
       origin,
     ).pitch !== undefined,
@@ -208,10 +208,10 @@ export function test_motions_perform_human_object(): void {
   };
   TestValidator.predicate(
     "seats refused",
-    refused(() => HumanObject.seat(two, origin), ["a", "b"]) &&
-      refused(() => HumanObject.seat(two, origin, "c"), ["a", "b"]) &&
-      refused(() => HumanObject.seat({ affordances: [] }, origin), []) &&
-      HumanObject.seat(two, origin, "b").at.x === 0.5,
+    refused(() => AutoMovieMotionHumanObject.seat(two, origin), ["a", "b"]) &&
+      refused(() => AutoMovieMotionHumanObject.seat(two, origin, "c"), ["a", "b"]) &&
+      refused(() => AutoMovieMotionHumanObject.seat({ affordances: [] }, origin), []) &&
+      AutoMovieMotionHumanObject.seat(two, origin, "b").at.x === 0.5,
   );
 }
 
@@ -243,7 +243,7 @@ function refused(task: () => unknown, seats: string[]): boolean {
     return false;
   } catch (error) {
     return (
-      error instanceof HumanRefusal &&
+      error instanceof AutoMovieMotionHumanRefusal &&
       error.axis === "seat" &&
       error.feasible?.kind === "alternatives" &&
       error.feasible.values.join() === seats.join()

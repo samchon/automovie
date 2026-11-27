@@ -34,7 +34,7 @@ import { HumanHeld } from "../../handling/internal/HumanHeld";
 import { HumanHeldUse } from "../../handling/internal/HumanHeldUse";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanPhysics } from "../../law/internal/HumanPhysics";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { poseBones } from "../../posture/internal/poseBones";
 import { touchBalance } from "./touchBalance";
 import { touchClock } from "./touchClock";
@@ -410,7 +410,7 @@ export namespace touch {
       context.instant,
     );
     if (window !== null && !grounded)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "base",
         axis: "balance",
         value: window.by,

@@ -1,6 +1,6 @@
 import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSegment, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-import { AutoMovieMotionHumanCarryPerson, HumanChain, HumanPerformance, HumanRefusal } from "@automovie/motions";
+import { AutoMovieMotionHumanCarryPerson, AutoMovieMotionHumanChain, AutoMovieMotionHumanPerformance, AutoMovieMotionHumanRefusal } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -65,8 +65,8 @@ export async function test_motions_lexicon_cradle_lift_support(): Promise<void> 
     shift: IAutoMovieVector3,
     phases: typeof props,
     setup?: IAutoMovieMotionHumanActionLaw,
-  ): HumanPerformance =>
-    new HumanPerformance({
+  ): AutoMovieMotionHumanPerformance =>
+    new AutoMovieMotionHumanPerformance({
       seed: "cradle transfer",
       performers: [
         {
@@ -85,19 +85,19 @@ export async function test_motions_lexicon_cradle_lift_support(): Promise<void> 
         },
       ],
       laws: [laws.bearing, laws.borne, ...(setup === undefined ? [] : [setup])],
-      composition: HumanChain.mutual(
+      composition: AutoMovieMotionHumanChain.mutual(
         carry,
         {
-          bearer: HumanChain.subject("carrier").stand({ hold: 0.7, sway: 0 }),
+          bearer: AutoMovieMotionHumanChain.subject("carrier").stand({ hold: 0.7, sway: 0 }),
           borne:
             setup === undefined
-              ? HumanChain.subject("passenger")
-              : HumanChain.subject("passenger").registered(setup.name, {}),
+              ? AutoMovieMotionHumanChain.subject("passenger")
+              : AutoMovieMotionHumanChain.subject("passenger").registered(setup.name, {}),
         },
         phases,
       ).node,
     });
-  const reference: HumanPerformance = make(0, origin, {
+  const reference: AutoMovieMotionHumanPerformance = make(0, origin, {
     ...props,
     lift: 0,
     setDown: 0,
@@ -107,7 +107,7 @@ export async function test_motions_lexicon_cradle_lift_support(): Promise<void> 
     1.7,
   );
   const positions = (
-    performance: HumanPerformance,
+    performance: AutoMovieMotionHumanPerformance,
     at: number,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
     performance.bones("passenger", at);
@@ -134,7 +134,7 @@ export async function test_motions_lexicon_cradle_lift_support(): Promise<void> 
     yaw: number = 0,
     translation: IAutoMovieVector3 = origin,
     offset: number = 0,
-  ): HumanPerformance => {
+  ): AutoMovieMotionHumanPerformance => {
     const turn = rotation(yaw);
     const placed = (point: IAutoMovieVector3): IAutoMovieVector3 =>
       Vector3.add(
@@ -179,7 +179,7 @@ export async function test_motions_lexicon_cradle_lift_support(): Promise<void> 
       }),
     });
   };
-  const take: HumanPerformance = staged(0.045);
+  const take: AutoMovieMotionHumanPerformance = staged(0.045);
   const segment: IAutoMovieMotionHumanSegment = take
     .segments("passenger")
     .at(-1)!;
@@ -248,7 +248,7 @@ export async function test_motions_lexicon_cradle_lift_support(): Promise<void> 
   );
 
   const receipts = (
-    performance: HumanPerformance,
+    performance: AutoMovieMotionHumanPerformance,
   ): IAutoMovieMotionHumanContactWindow.IMaterial[] =>
     performance
       .segments("passenger")
@@ -257,7 +257,7 @@ export async function test_motions_lexicon_cradle_lift_support(): Promise<void> 
         (window): IAutoMovieMotionHumanContactWindow.IMaterial[] =>
           window.material === undefined ? [] : [window.material],
       );
-  const nearby: HumanPerformance = staged(0.047);
+  const nearby: AutoMovieMotionHumanPerformance = staged(0.047);
   TestValidator.equals(
     "both contacts admit a nearby footing",
     receipts(nearby).length,
@@ -265,7 +265,7 @@ export async function test_motions_lexicon_cradle_lift_support(): Promise<void> 
   );
   const turn: number = 37;
   const shift: IAutoMovieVector3 = { x: 0.8, y: 0, z: -0.4 };
-  const moved: HumanPerformance = staged(0.045, turn, shift);
+  const moved: AutoMovieMotionHumanPerformance = staged(0.045, turn, shift);
   TestValidator.predicate(
     "common rigid motion keeps both material-local points",
     receipts(take).length === 2 &&
@@ -295,6 +295,6 @@ export async function test_motions_lexicon_cradle_lift_support(): Promise<void> 
   }
   TestValidator.predicate(
     "an unreached partner cannot lift unsupported",
-    refused instanceof HumanRefusal && refused.kind === "reach",
+    refused instanceof AutoMovieMotionHumanRefusal && refused.kind === "reach",
   );
 }

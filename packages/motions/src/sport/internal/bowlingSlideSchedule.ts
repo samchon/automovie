@@ -5,7 +5,7 @@ import type {
   IAutoMovieMotionHumanContactWindow,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * The final slide's sides, cues and foot windows. The sliding (lead) foot is
@@ -31,7 +31,7 @@ export function bowlingSlideSchedule(
 ): bowlingSlideSchedule.ISchedule {
   const { distance, duration: seconds, from, to } = params;
   if (!(from > 0 && to > from && seconds > to))
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "to",
       value: to,
@@ -41,7 +41,7 @@ export function bowlingSlideSchedule(
       fix: "give finite action-local times with 0 < from < to < seconds",
     });
   if (!(distance > 0 && distance <= 0.4 * leg))
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "distance",
       value: distance,

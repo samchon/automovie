@@ -9,7 +9,7 @@ import type {
   IAutoMovieScheduleEntry,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanSegment } from "./HumanSegment";
 
 /*
@@ -43,7 +43,7 @@ export namespace HumanPerformanceLayers {
       self.cues[at.of] ??
       (waiting === undefined || waiting.length === 0 ? undefined : waiting);
     if (placed === undefined && track === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "participant",
         axis: "of",
         value: at.of,
@@ -103,7 +103,7 @@ export namespace HumanPerformanceLayers {
       (e: IAutoMovieScheduleCue): boolean => e.name === at.event,
     )[at.index ?? 0];
     if (found === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "event",
         value:
@@ -169,7 +169,7 @@ export namespace HumanPerformanceLayers {
     const located = (
       refusal: IAutoMovieMotionHumanRefusal.IProps,
     ): IAutoMovieMotionHumanRefusal =>
-      new HumanRefusal({ performer: person.performer.subject, ...refusal });
+      new AutoMovieMotionHumanRefusal({ performer: person.performer.subject, ...refusal });
     if (!(to > from))
       throw located({
         kind: "parameter",

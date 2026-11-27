@@ -7,7 +7,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * The ring a placed prop is.
@@ -25,7 +25,7 @@ export function KickboxingRing(
   const refuse: (reason: string) => IAutoMovieMotionHumanRefusal = (
     reason: string,
   ): IAutoMovieMotionHumanRefusal =>
-    new HumanRefusal({
+    new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "ring",
       value: prop.subject,

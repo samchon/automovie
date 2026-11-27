@@ -103,7 +103,7 @@ import { handshakeStance } from "./handshakeStance";
  * Both partners must stand, or sit leaning, within reach when the handshake
  * starts; the mutual goal refuses a gap neither arm can close. The partner's
  * shoulder is read at the start, so the partner's earlier actions must be
- * placed first, which `HumanChain.pair` arranges.
+ * placed first, which `AutoMovieMotionHumanChain.pair` arranges.
  */
 export namespace handshake {
   /*

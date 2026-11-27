@@ -15,7 +15,7 @@ import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionCloc
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
 import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * Hand the staged arrow or bolt to a scene-authored animation carrier on the
@@ -178,8 +178,8 @@ function worldPoint(
 /*
  * Report a missing or inconsistent subject in the staged transfer.
  */
-function refusal(value: string, reason: string): HumanRefusal {
-  return new HumanRefusal({
+function refusal(value: string, reason: string): AutoMovieMotionHumanRefusal {
+  return new AutoMovieMotionHumanRefusal({
     kind: "affordance",
     axis: "continuation",
     value,

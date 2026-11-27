@@ -9,7 +9,7 @@ import type {
 
 import { AutoMovieMotionHumanVariationDraw } from "../../compose/internal/AutoMovieMotionHumanVariationDraw";
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * Fix a site for one plan.
@@ -117,7 +117,7 @@ export namespace touchSite {
       read.prop.affordances ?? []
     ).find((affordance: IAutoMovieAffordance): boolean => affordance.id === id);
     if (found === undefined || found.length === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "affordance",
         axis: "site",
         value: `${subject}.${id}`,

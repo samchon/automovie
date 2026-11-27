@@ -241,7 +241,7 @@ export namespace AutoMovieMotionHumanSeat {
    * @param seconds Time seated after settling, in seconds. Defaults to one
    *   second.
    * @returns A chain with the sit and rise appended.
-   * @throws {HumanRefusal} If the chosen edge has no seat affordance. The sit
+   * @throws {AutoMovieMotionHumanRefusal} If the chosen edge has no seat affordance. The sit
    *   and rise can also refuse unreachable supports at planning time.
    */
   export const bedsidePerch: typeof bedsidePerchLaw = bedsidePerchLaw;

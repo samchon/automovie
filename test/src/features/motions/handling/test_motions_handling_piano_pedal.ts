@@ -1,5 +1,5 @@
 import type { IAutoMovieMotionHumanPianoPedal } from "@automovie/interface";
-import { HumanRefusal, pianoPedalStroke } from "@automovie/motions/internal";
+import { AutoMovieMotionHumanRefusal, pianoPedalStroke } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -32,12 +32,12 @@ export function test_motions_handling_piano_pedal(): void {
   const refused = (
     strokes: IAutoMovieMotionHumanPianoPedal.IPress[],
     duration: number,
-  ): HumanRefusal["axis"] | undefined => {
+  ): AutoMovieMotionHumanRefusal["axis"] | undefined => {
     try {
       pianoPedalStroke.admit(strokes, duration);
       return undefined;
     } catch (error: unknown) {
-      return error instanceof HumanRefusal ? error.axis : undefined;
+      return error instanceof AutoMovieMotionHumanRefusal ? error.axis : undefined;
     }
   };
   TestValidator.equals(

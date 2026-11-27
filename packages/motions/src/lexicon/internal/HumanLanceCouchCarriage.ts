@@ -5,7 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * The least rotation taking one unit direction onto another.
@@ -95,7 +95,7 @@ export function HumanLanceCouchCarriage(
     const C: number = (Vector3.dot(w, w) + s * s - upper * upper) / (2 * s);
     const R: number = Math.hypot(A, B);
     if (R < 1e-9 || Math.abs(C) > R)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "target",
         value: Vector3.distance(grip, shoulder),

@@ -221,7 +221,7 @@ export namespace AutoMovieMotionHumanEnsemble {
    * @param density Authored pedestrian density in people per square metre,
    *   finite and nonnegative.
    * @returns Formation blocks in member order for station keeping.
-   * @throws {HumanRefusal} When the member count, half breadths or density are
+   * @throws {AutoMovieMotionHumanRefusal} When the member count, half breadths or density are
    *   invalid.
    */
   export const humanCrowdGroupFormation: typeof humanCrowdGroupFormationLaw =
@@ -320,7 +320,7 @@ export namespace AutoMovieMotionHumanEnsemble {
    * @param ensemble Fully performed queue members in head-to-tail order.
    * @param request The release cue, head's exit and optional follower wait.
    * @returns A parallel composition whose walk dependencies run head first.
-   * @throws {HumanRefusal} If the exit or wait is invalid, a rank lacks a fully
+   * @throws {AutoMovieMotionHumanRefusal} If the exit or wait is invalid, a rank lacks a fully
    *   performed body, or the marks fail line, order or shoulder-disc clearance
    *   checks.
    */
@@ -356,7 +356,7 @@ export namespace AutoMovieMotionHumanEnsemble {
    * @param ends Each one's slot in `to`.
    * @param speeds Each one's travel speed, m/s.
    * @returns Each member's way and station; no stations when nothing turns.
-   * @throws {HumanRefusal} When `to` is not `from` turned about the pivot,
+   * @throws {AutoMovieMotionHumanRefusal} When `to` is not `from` turned about the pivot,
    *   naming the member whose slot lies elsewhere and how far.
    */
   export const manoeuvreWheel: typeof manoeuvreWheelLaw = manoeuvreWheelLaw;

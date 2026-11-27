@@ -4,7 +4,7 @@ import type {
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionPropDrive,
 } from "@automovie/interface";
-import { HumanObject } from "@automovie/motions";
+import { AutoMovieMotionHumanObject } from "@automovie/motions";
 
 import { actingPerformanceState } from "./actingPerformanceState";
 import { testAffordance } from "./testAffordance";
@@ -27,14 +27,14 @@ export async function drivenDoorState(
 ): Promise<drivenDoorState.IResult> {
   const model: IAutoMovieMotionHumanObject.IModel = door(0);
   const prop: IAutoMovieMotionHumanProp = {
-    ...HumanObject.prop("door", model, { at: { x: 0, y: 0, z: 0 }, yaw: 0 }),
+    ...AutoMovieMotionHumanObject.prop("door", model, { at: { x: 0, y: 0, z: 0 }, yaw: 0 }),
     articulate: (state: Readonly<Record<string, number>>) => {
       const hinge: number = state.hinge ?? -(state.mirror ?? 0);
       if (hinge > 100) throw new Error(`hinge ${hinge} past 100`);
       return { affordances: door(hinge).affordances ?? [] };
     },
   };
-  const box: IAutoMovieMotionHumanProp = HumanObject.prop(
+  const box: IAutoMovieMotionHumanProp = AutoMovieMotionHumanObject.prop(
     "box",
     { affordances: [testAffordance("lid", "handle", { x: 0, y: 0.5, z: 0 })] },
     { at: { x: 2, y: 0, z: 0 }, yaw: 0 },

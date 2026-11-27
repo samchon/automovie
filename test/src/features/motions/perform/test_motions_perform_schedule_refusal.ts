@@ -1,6 +1,6 @@
 import { AutoMovieScheduleError } from "@automovie/engine";
 import type { IAutoMovieScheduleError } from "@automovie/interface";
-import { HumanRefusal, HumanScheduleRefusal } from "@automovie/motions/internal";
+import { AutoMovieMotionHumanRefusal, HumanScheduleRefusal } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -45,7 +45,7 @@ export function test_motions_perform_schedule_refusal(): void {
   );
   TestValidator.predicate(
     "a missing anchor",
-    anchor instanceof HumanRefusal &&
+    anchor instanceof AutoMovieMotionHumanRefusal &&
       anchor.kind === "participant" &&
       anchor.axis === "of" &&
       anchor.value === "door" &&
@@ -64,7 +64,7 @@ export function test_motions_perform_schedule_refusal(): void {
   );
   TestValidator.predicate(
     "no subject, no location",
-    unlocated instanceof HumanRefusal &&
+    unlocated instanceof AutoMovieMotionHumanRefusal &&
       unlocated.performer !== "a" &&
       asked.length === 1,
   );
@@ -84,16 +84,16 @@ export function test_motions_perform_schedule_refusal(): void {
   );
   TestValidator.predicate(
     "hit and cue events",
-    empty instanceof HumanRefusal &&
+    empty instanceof AutoMovieMotionHumanRefusal &&
       empty.axis === "hit" &&
       empty.kind === "participant" &&
       empty.value === "hit:b" &&
       empty.feasible === null &&
-      tracked instanceof HumanRefusal &&
+      tracked instanceof AutoMovieMotionHumanRefusal &&
       tracked.axis === "event" &&
       tracked.kind === "parameter" &&
       tracked.feasible?.kind === "alternatives" &&
-      cue instanceof HumanRefusal &&
+      cue instanceof AutoMovieMotionHumanRefusal &&
       cue.axis === "event" &&
       cue.feasible?.kind === "alternatives" &&
       cue.feasible.values.join() === "beat",
@@ -111,7 +111,7 @@ export function test_motions_perform_schedule_refusal(): void {
   );
   TestValidator.predicate(
     "an occurrence past the name's instants",
-    index instanceof HumanRefusal &&
+    index instanceof AutoMovieMotionHumanRefusal &&
       index.axis === "index" &&
       index.value === 5 &&
       index.feasible?.kind === "range" &&
@@ -131,11 +131,11 @@ export function test_motions_perform_schedule_refusal(): void {
   );
   TestValidator.predicate(
     "a taken anchor and a share outside the action",
-    duplicate instanceof HumanRefusal &&
+    duplicate instanceof AutoMovieMotionHumanRefusal &&
       duplicate.kind === "parameter" &&
       duplicate.axis === "anchor" &&
       duplicate.value === "door" &&
-      share instanceof HumanRefusal &&
+      share instanceof AutoMovieMotionHumanRefusal &&
       share.kind === "cut" &&
       share.axis === "until" &&
       share.value === 1.25 &&

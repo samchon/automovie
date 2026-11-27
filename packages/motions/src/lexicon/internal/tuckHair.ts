@@ -9,7 +9,7 @@ import { HUMAN_HAND_TO_BODY_TUCK_HAIR } from "../../next/presets/HUMAN_HAND_TO_B
 
 /*
  * The relaxed index fingertip sweeps from in front of the same-side ear to
- * behind it and retracts. Register the row with `HumanPerformance` and author
+ * behind it and retracts. Register the row with `AutoMovieMotionHumanPerformance` and author
  * it by name, optionally selecting `side` or `manner`.
  *
  * The grooming action is described in

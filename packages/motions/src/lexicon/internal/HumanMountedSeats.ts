@@ -13,7 +13,7 @@ import type {
 
 import { kneelKeys } from "../../everyday/internal/kneelKeys";
 import { seated } from "../../everyday/internal/seated";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { hipJoints } from "../../posture/internal/hipJoints";
@@ -233,7 +233,7 @@ export namespace HumanMountedSeats {
     };
     const along: number = Vector3.distance(over, hips.right);
     if (!(along >= 0.5 * m.thigh && along <= m.thigh))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "supports.rightThigh",
         value: along,
@@ -267,7 +267,7 @@ export namespace HumanMountedSeats {
     const [near, far]: readonly [number, number] = HumanMount.span(body);
     const reach: number = Vector3.distance(placed.ankle, hips.left);
     if (!(reach >= near && reach <= far))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "supports.leftFoot",
         value: reach,
@@ -290,7 +290,7 @@ export namespace HumanMountedSeats {
     for (let k: number = 0; k <= 15 && high === undefined; ++k)
       if (clears((OUT * k) / 15)) high = (OUT * k) / 15;
     if (high === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "supports.rightThigh",
         value: OUT,
@@ -404,7 +404,7 @@ export namespace HumanMountedSeats {
           Math.abs(centre.y - pad.y) < 1e-9
         )
       )
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "affordance",
           axis: `supports.${side}Knee`,
           value: id,
@@ -462,7 +462,7 @@ export namespace HumanMountedSeats {
     for (const side of ["left", "right"] as const) {
       const gap: number = Vector3.distance(shoulder, handles[side]);
       if (gap > arm)
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "reach",
           axis: `supports.${side}Hand`,
           value: gap,

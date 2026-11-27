@@ -9,8 +9,8 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanBody,
-  HumanChain,
-  HumanPerformance,
+  AutoMovieMotionHumanChain,
+  AutoMovieMotionHumanPerformance,
 } from "@automovie/motions";
 
 import { createModel } from "../internal/createModel";
@@ -100,7 +100,7 @@ export function pondTrail(): compileEnvironmentExample.IInput {
   const destination: IAutoMovieVector3 = { x: 17, y: 0, z: 5 };
   const model: ReturnType<typeof environmentExampleBody> =
     environmentExampleBody();
-  const walk: HumanPerformance = new HumanPerformance({
+  const walk: AutoMovieMotionHumanPerformance = new AutoMovieMotionHumanPerformance({
     seed: "pond-walk",
     laws: [],
     performers: [
@@ -112,7 +112,7 @@ export function pondTrail(): compileEnvironmentExample.IInput {
         proficiency: { level: "trained" },
       },
     ],
-    composition: HumanChain.subject(walker.node).walk({
+    composition: AutoMovieMotionHumanChain.subject(walker.node).walk({
       to: destination,
       pace: "normal",
     }).node,

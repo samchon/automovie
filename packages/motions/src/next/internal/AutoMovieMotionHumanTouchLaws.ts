@@ -287,7 +287,7 @@ export namespace AutoMovieMotionHumanTouchLaws {
    * offset. Each right arm reaches around the partner's shoulder to the upper
    * back and each left arm around the waist to the lower back. Each performer's
    * hands share a hold and return to their entry poses. Use with
-   * `HumanChain.mutual` and the `one` and `other` chains. The touch law fits
+   * `AutoMovieMotionHumanChain.mutual` and the `one` and `other` chains. The touch law fits
    * the arms to the staged bodies and may refuse an unreachable or obstructed
    * reach.
    *
@@ -300,7 +300,7 @@ export namespace AutoMovieMotionHumanTouchLaws {
 
   /*
    * Two facing partners within arm's reach each rest their right palm on the
-   * other's left shoulder, then return their hands. Pass to `HumanChain.mutual`
+   * other's left shoulder, then return their hands. Pass to `AutoMovieMotionHumanChain.mutual`
    * with the `one` and `other` chains. The reaches start together and each palm
    * stays through the touch law's contact phase and the nominal `hold` dwell in
    * seconds. The touch law can stretch the dwell with the rest of the action.

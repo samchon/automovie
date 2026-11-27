@@ -15,7 +15,7 @@ import type {
 
 import { standingLegs } from "../../actions/internal/standingLegs";
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { carryHumanPosture } from "../../posture/internal/carryHumanPosture";
 import { prepareGlideSlope } from "./prepareGlideSlope";
@@ -210,7 +210,7 @@ export namespace HumanSurfaceGlide {
     // body below the level ground it stands on.
     const slope: string | undefined = params.slope;
     if (grade !== 0 && slope === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "slope",
         value: grade,
@@ -235,7 +235,7 @@ export namespace HumanSurfaceGlide {
           ),
       )
     )
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "base",
         axis: "base",
         value: entry.base.kind,
@@ -300,7 +300,7 @@ export namespace HumanSurfaceGlide {
           1 - curvature * local[side].x <= 0,
       )
     )
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "turn",
         value: turn,

@@ -13,7 +13,7 @@ import type {
 
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { seated } from "../../everyday/internal/seated";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
 import { poseBones } from "../../posture/internal/poseBones";
 import { pickUpPosture } from "./pickUpPosture";
@@ -208,7 +208,7 @@ export function pickUpPostureLeaned(
       Math.sin(off) ** 2 * pickUpPosture.SEATED_REACH[1]);
   const away: number = Vector3.length(Vector3.subtract(grip, from));
   if (away > extent)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "prop",
       value: away,
@@ -218,7 +218,7 @@ export function pickUpPostureLeaned(
     });
   const farthestLean: number = far(pickUpPosture.SEATED_LEAN);
   if (farthestLean > limit)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "prop",
       value: farthestLean,

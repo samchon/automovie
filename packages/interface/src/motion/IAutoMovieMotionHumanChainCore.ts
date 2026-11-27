@@ -11,7 +11,7 @@ import type { IAutoMovieMotionHumanResponse } from "./IAutoMovieMotionHumanRespo
  * action is appended by name with that action's own parameter type, and how the
  * last action is cut.
  *
- * `HumanChain` is this class with one vocabulary method per action, added by
+ * `AutoMovieMotionHumanChain` is this class with one vocabulary method per action, added by
  * the family classes between them. Each of those methods is `act` under the
  * action's name, so `chain.touch(params)` and `chain.act("touch", params)`
  * append the same intent and are checked against the same parameter type.
@@ -40,7 +40,7 @@ export interface IAutoMovieMotionHumanChainCore extends IAutoMovieChain {
    * Append an action a production registered with the performance
    * (`IAutoMovieMotionHumanPerformance.IInput.laws`), by the name its law
    * carries. The parameters are the registered law's own and are not checked
-   * here; `HumanChain.extend` gives the same action a typed method, which is
+   * here; `AutoMovieMotionHumanChain.extend` gives the same action a typed method, which is
    * the way to call it from code that knows the law.
    *
    * @param name The registered law's name.
@@ -121,7 +121,7 @@ export interface IAutoMovieMotionHumanChainCore extends IAutoMovieChain {
  * action is appended by name with that action's own parameter type, and how the
  * last action is cut.
  *
- * `HumanChain` is this class with one vocabulary method per action, added by
+ * `AutoMovieMotionHumanChain` is this class with one vocabulary method per action, added by
  * the family classes between them. Each of those methods is `act` under the
  * action's name, so `chain.touch(params)` and `chain.act("touch", params)`
  * append the same intent and are checked against the same parameter type.
@@ -200,7 +200,7 @@ export namespace IAutoMovieMotionHumanChainCore {
     /**
      * A delay drawn per performer and added after `offset`: `reaction` for a
      * person answering the cue (a command, a shot), shortened by the
-     * preparatory word when the track names one (`HumanCue.orders`), or a
+     * preparatory word when the track names one (`AutoMovieMotionHumanCue.orders`), or a
      * stated normal for a deliberate pause (`HumanResponse.latency`). Keyed by
      * the performer, the synced action's id and `latency`, so it is the
      * performer's own and no other draw moves. None when absent.

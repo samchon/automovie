@@ -1,7 +1,7 @@
 import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieMotionCoupling, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanCarriedCouplingLoad, IAutoMovieMotionHumanLoad, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanLoad } from "../../perform/internal/HumanLoad";
 import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
 
@@ -202,7 +202,7 @@ export namespace HumanCarriedCouplingLoad {
     const share: number = props.load / coupling.mass;
     const feasible: number =
       (props.mass * props.height) / Math.abs(props.ahead) / share;
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "participant",
       axis: "mass",
       value: coupling.mass,

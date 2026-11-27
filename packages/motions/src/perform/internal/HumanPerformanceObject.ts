@@ -7,7 +7,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
 
 /*
@@ -220,7 +220,7 @@ export namespace HumanPerformanceObject {
           const a: IWriter = driven[i]!;
           const b: IWriter = driven[j]!;
           if (a.leader !== b.leader || b.from >= a.to) continue;
-          throw new HumanRefusal({
+          throw new AutoMovieMotionHumanRefusal({
             kind: "cut",
             performer: b.source!.subject,
             act: b.source!.name,
@@ -242,7 +242,7 @@ export namespace HumanPerformanceObject {
           try {
             prop.articulate(state(self, prop, at));
           } catch (error) {
-            throw new HumanRefusal({
+            throw new AutoMovieMotionHumanRefusal({
               kind: "parameter",
               performer: w.source!.subject,
               act: w.source!.name,

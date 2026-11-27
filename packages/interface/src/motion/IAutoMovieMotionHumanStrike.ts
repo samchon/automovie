@@ -24,7 +24,7 @@ import type { IAutoMovieMotionHumanStep } from "./IAutoMovieMotionHumanStep";
  * kicks and knees (`IPunchPreset`, `IFootStrikePreset`, `ICloseStrikePreset`,
  * `IKickPreset` and `IKneePreset`); a preset adds no method.
  *
- * A method here is a method of `HumanChain` when its name is in
+ * A method here is a method of `AutoMovieMotionHumanChain` when its name is in
  * `AutoMovieMotionHumanActionName`. Any other member is a registered law or
  * row: pass it in `laws: [...]` to the performance, taking it from
  * `AutoMovieMotionHumanStrike` or from the row namespace of the family, and

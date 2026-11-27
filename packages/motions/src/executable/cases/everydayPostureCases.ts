@@ -1,7 +1,7 @@
 import { AutoMovieEngineKinematics, Vector3 } from "@automovie/engine";
 import type { IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSeated, IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanChain } from "../../chain/HumanChain";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
 import { seated } from "../../everyday/internal/seated";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanHand } from "../../posture/internal/HumanHand";
@@ -41,7 +41,7 @@ export function everydayPostureCases(
       depth: 0.45,
     };
     const performance: IAutoMovieMotionHumanPerformance = one(
-      HumanChain.subject("a")
+      AutoMovieMotionHumanChain.subject("a")
         .sit({ seat, hold: 0.5 })
         .shift({ by: 0.12 })
         .rise(),
@@ -149,7 +149,7 @@ export function everydayPostureCases(
       },
       squat: { x: -0.15, y: 0, z: 0.3 },
     };
-    let chain: IAutoMovieMotionHumanChain = HumanChain.subject("a");
+    let chain: IAutoMovieMotionHumanChain = AutoMovieMotionHumanChain.subject("a");
     for (const strategy of strategies)
       chain = chain.bend({
         target: { kind: "point", at: points[strategy], frame: "world" },
@@ -213,7 +213,7 @@ export function everydayPostureCases(
   if (wants("step")) {
     const box = { at: { x: 0, y: 0, z: 0.35 }, height: 0.3, depth: 0.25 };
     const performance: IAutoMovieMotionHumanPerformance = one(
-      HumanChain.subject("a").stepOver({ obstacle: "box" }),
+      AutoMovieMotionHumanChain.subject("a").stepOver({ obstacle: "box" }),
       [everydayPostureCaseObstacle(box)],
     );
     const crossing = performance.segments("a")[0]!;

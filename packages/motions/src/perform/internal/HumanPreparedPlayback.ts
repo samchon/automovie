@@ -5,7 +5,7 @@ import type {
   IAutoMovieMotionHumanRefusal,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { PreparedHumanIntervals } from "./PreparedHumanIntervals";
 
 /*
@@ -193,7 +193,7 @@ export namespace HumanPreparedPlayback {
         : prepared(local);
     if (phase === undefined) return undefined;
     return placed && binding.where !== undefined
-      ? HumanRefusal.located(binding.where, (): ISample | undefined =>
+      ? AutoMovieMotionHumanRefusal.located(binding.where, (): ISample | undefined =>
           phase.sample(...args),
         )
       : phase.sample(...args);

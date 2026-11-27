@@ -8,7 +8,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { knockdown } from "../../reaction/internal/knockdown";
 import { GymnasticsWheel } from "../../sport/internal/GymnasticsWheel";
 import { StrikingBody } from "../../striking/internal/StrikingBody";
@@ -183,7 +183,7 @@ export namespace WorkoutEquipment {
       shank -
       body.measure.ankleHeight;
     if (over(-RISEN) < 0 || over(SUNK) > 0)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "on",
         value: edge,
@@ -291,7 +291,7 @@ export namespace WorkoutEquipment {
         // A box top under the floor is no step up, and one above the lifted
         // foot's reach is too high: both are refused, the range stated.
         if (!(height >= 0 && height <= reach))
-          throw new HumanRefusal({
+          throw new AutoMovieMotionHumanRefusal({
             kind: "reach",
             axis: "on",
             value: height,

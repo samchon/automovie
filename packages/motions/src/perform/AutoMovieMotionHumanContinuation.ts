@@ -10,17 +10,17 @@ import type {
   IAutoMovieScheduleEntry,
 } from "@automovie/interface";
 
-import { HumanPerformance } from "./HumanPerformance";
+import { AutoMovieMotionHumanPerformance } from "./AutoMovieMotionHumanPerformance";
 
 /** Compile replacement motion while preserving the prepared source prefix. */
 export namespace AutoMovieMotionHumanContinuation {
   /** Prepared performers on both sides of the continuation boundary. */
   export interface IResult {
     /** Reader that owns the source take before the join. */
-    source: HumanPerformance;
+    source: AutoMovieMotionHumanPerformance;
 
     /** Reader for the replacement from the join onward. */
-    branch: HumanPerformance;
+    branch: AutoMovieMotionHumanPerformance;
 
     /** Second of the join on the source take's clock. */
     branchStart: number;
@@ -77,7 +77,7 @@ export namespace AutoMovieMotionHumanContinuation {
     if (retained === 0 || count(suffix, true) === 0)
       refuse("the retained groups and replacement must both place actions");
 
-    const source: HumanPerformance = new HumanPerformance(input);
+    const source: AutoMovieMotionHumanPerformance = new AutoMovieMotionHumanPerformance(input);
     checkPhysicalFlights(source);
     const prefix: readonly IAutoMovieScheduleEntry[] =
       source.schedule.entries.filter(
@@ -94,7 +94,7 @@ export namespace AutoMovieMotionHumanContinuation {
       );
     checkTail(source, retained, branchStart);
 
-    const branch: HumanPerformance = new HumanPerformance({
+    const branch: AutoMovieMotionHumanPerformance = new AutoMovieMotionHumanPerformance({
       ...input,
       composition: { type: "sequence", parts: [...parts, suffix] },
     });
@@ -164,7 +164,7 @@ export namespace AutoMovieMotionHumanContinuation {
  * action at the join.
  */
 function joinEntry(
-  performance: HumanPerformance,
+  performance: AutoMovieMotionHumanPerformance,
   subject: string,
   retained: number,
   join: number,
@@ -207,7 +207,7 @@ function entryState(
 /*
  * Supplied momentum selects physical airborne rotation even in staged mode.
  */
-function checkPhysicalFlights(performance: HumanPerformance): void {
+function checkPhysicalFlights(performance: AutoMovieMotionHumanPerformance): void {
   for (const person of performance.performers)
     for (const segment of performance.segments(person.subject))
       if (
@@ -263,7 +263,7 @@ function timing(entry: IAutoMovieScheduleEntry): unknown {
  * Require both takes' tails to start at the actual group boundary.
  */
 function checkTail(
-  performance: HumanPerformance,
+  performance: AutoMovieMotionHumanPerformance,
   retained: number,
   join: number,
 ): void {
@@ -282,12 +282,12 @@ function checkTail(
  * route.
  */
 function checkFlights(
-  source: HumanPerformance,
-  branch: HumanPerformance,
+  source: AutoMovieMotionHumanPerformance,
+  branch: AutoMovieMotionHumanPerformance,
   prop: IAutoMovieMotionHumanProp,
   join: number,
 ): void {
-  const prefix = (performance: HumanPerformance): unknown[] =>
+  const prefix = (performance: AutoMovieMotionHumanPerformance): unknown[] =>
     performance
       .flights(prop.subject)
       .filter(

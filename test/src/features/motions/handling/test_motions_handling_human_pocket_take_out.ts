@@ -2,7 +2,7 @@ import type {
   IAutoMovieComposition,
   IAutoMovieIntent,
 } from "@automovie/interface";
-import { HumanChain } from "@automovie/motions";
+import { AutoMovieMotionHumanChain } from "@automovie/motions";
 import { HumanPocket } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
@@ -21,7 +21,7 @@ export function test_motions_handling_human_pocket_take_out(): void {
     throw new Error("An anchored node carries no intent of its own");
   };
   const intent: IAutoMovieIntent = last(
-    HumanPocket.takeOut(HumanChain.subject("a"), "phone", "grip", "right").node,
+    HumanPocket.takeOut(AutoMovieMotionHumanChain.subject("a"), "phone", "grip", "right").node,
   );
   TestValidator.equals(
     "the pickup",

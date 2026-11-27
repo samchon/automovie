@@ -27,7 +27,7 @@ import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionMan
 import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanPhysics } from "../../law/internal/HumanPhysics";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanMountOn } from "../../lexicon/internal/HumanMountOn";
 import { HumanArmSwing } from "../../posture/internal/HumanArmSwing";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
@@ -192,7 +192,7 @@ export namespace sit {
     const back: NonNullable<IAutoMovieMotionHumanSit.IParams["back"]> =
       context.params.back ?? "upright";
     if (back === "lean" && seat.back === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "affordance",
         axis: "back",
         value: "lean",
@@ -202,7 +202,7 @@ export namespace sit {
       });
     const turn: number = sitPlace.turn(seat.yaw - context.entry.posture.yaw);
     if (Math.abs(turn) > FACING)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "base",
         axis: "seat",
         value: turn,
@@ -662,7 +662,7 @@ export namespace sit {
       composed = compose(false);
     } catch (error: unknown) {
       if (
-        !(error instanceof HumanRefusal) ||
+        !(error instanceof AutoMovieMotionHumanRefusal) ||
         error.kind !== "reach" ||
         error.axis !== "region" ||
         (!unbraced("left") && !unbraced("right"))

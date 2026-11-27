@@ -9,9 +9,9 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanMount,
-  HumanChain,
-  HumanObject,
-  HumanPerformance,
+  AutoMovieMotionHumanChain,
+  AutoMovieMotionHumanObject,
+  AutoMovieMotionHumanPerformance,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -60,7 +60,7 @@ export function test_motions_cavalry_holders(): void {
     const frame: IAutoMovieTransform = horse.affordance("lead").frame;
     return Vector3.add(frame.translation, { x, y: 0, z: 0 });
   };
-  const film: HumanPerformance = new HumanPerformance({
+  const film: AutoMovieMotionHumanPerformance = new AutoMovieMotionHumanPerformance({
     seed: "holders",
     performers: [
       {
@@ -73,11 +73,11 @@ export function test_motions_cavalry_holders(): void {
     ],
     laws: [AutoMovieMotionHumanMount.leadHorse],
     props: [
-      HumanObject.prop("left", horse, parked(PAIR / 2)),
-      HumanObject.prop("right", horse, parked(-PAIR / 2)),
+      AutoMovieMotionHumanObject.prop("left", horse, parked(PAIR / 2)),
+      AutoMovieMotionHumanObject.prop("right", horse, parked(-PAIR / 2)),
     ],
     composition: AutoMovieComposition.parallel(
-      HumanChain.subject("holder")
+      AutoMovieMotionHumanChain.subject("holder")
         .stand({ hold: HOLD })
         .over((holder) =>
           holder

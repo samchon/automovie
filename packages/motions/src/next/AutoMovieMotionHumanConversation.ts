@@ -34,7 +34,7 @@ export namespace AutoMovieMotionHumanConversation {
    * @param params The participant, the partner's subject id, the turns in time
    *   order, the participant's stream and the eye height in metres.
    * @returns Gaze layer requests in time order.
-   * @throws {HumanRefusal} For a turn that does not start at a finite film
+   * @throws {AutoMovieMotionHumanRefusal} For a turn that does not start at a finite film
    *   second, at least 0, or does not end at a finite second after its start.
    */
   export const gaze: typeof conversationGazeLaw = conversationGazeLaw;

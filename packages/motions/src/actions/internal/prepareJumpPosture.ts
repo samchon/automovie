@@ -9,7 +9,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import type { HumanPreparedPlayback } from "../../perform/internal/HumanPreparedPlayback";
 import { HumanPosturePreparation } from "../../posture/internal/HumanPosturePreparation";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
@@ -256,7 +256,7 @@ export namespace prepareJumpPosture {
       projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
       evaluation?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[4],
     ): IAutoMovieMotionHumanPosture =>
-      HumanRefusal.located(
+      AutoMovieMotionHumanRefusal.located(
         where,
         (): IAutoMovieMotionHumanPosture =>
           source(seconds, channels, resolution, projection, evaluation),

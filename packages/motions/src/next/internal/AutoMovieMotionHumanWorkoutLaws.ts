@@ -117,7 +117,7 @@ export namespace AutoMovieMotionHumanWorkoutLaws {
 
   /*
    * One low two-foot hop in place, designed to accompany a single rope turn.
-   * Register with `HumanChain.extend({ ropeSkip })` and the performance's
+   * Register with `AutoMovieMotionHumanChain.extend({ ropeSkip })` and the performance's
    * laws.
    *
    * The default cadence is 1.7 Hz, a frequency tested by Silva and Pellegrini

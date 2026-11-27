@@ -7,7 +7,7 @@ import type {
 
 import { HUMAN_ATTRIBUTE_EFFECTS } from "../../ensemble/internal/HUMAN_ATTRIBUTE_EFFECTS";
 import { HumanAttribute } from "../../ensemble/internal/HumanAttribute";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanSkill } from "../../skill/internal/HumanSkill";
 import { walkTempo } from "../../actions/internal/walkTempo";
 
@@ -83,7 +83,7 @@ export namespace walkCadence {
       (strikes[strikes.length - 1]!.seconds - strikes[0]!.seconds) /
       (strikes.length - 1);
     if (Math.abs(C / own - 1) > walkTempo.HOLD)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "cadence",
         value: 60 / C,
@@ -143,7 +143,7 @@ export namespace walkCadence {
       // carry forward (none, or twice its plan) is a beat the steps cannot reach.
       const step: number = out[k]! - out[k - 1]!;
       if (!(step > 0 && step < 2 * planned))
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "parameter",
           axis: "cadence.index",
           value: cadence.index ?? b0 + anchor,

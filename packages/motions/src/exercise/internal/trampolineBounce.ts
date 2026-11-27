@@ -27,7 +27,7 @@ import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieM
 import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionHumanLeg";
 import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
@@ -157,7 +157,7 @@ export namespace trampolineBounce {
     HumanBound.above("apex", apex, 0, "m");
     const sustained: number = PUSH / (1 - KEEP);
     if (apex > sustained)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "apex",
         value: apex,
@@ -432,7 +432,7 @@ export namespace trampolineBounce {
       read.prop.affordances ?? []
     ).find((a: IAutoMovieAffordance): boolean => a.id === "bed");
     if (found === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "affordance",
         axis: "on",
         value: subject,
@@ -446,7 +446,7 @@ export namespace trampolineBounce {
     const ankle: number = context.body.rest.get("leftFoot")!.y;
     const off: number = Math.abs(context.entry.feet.left.ankle.y - ankle - top);
     if (off > 0.06)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "base",
         axis: "on",
         value: subject,

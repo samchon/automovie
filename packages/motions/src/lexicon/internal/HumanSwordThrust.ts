@@ -11,7 +11,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { StrikingBlade } from "../../striking/internal/StrikingBlade";
@@ -112,9 +112,9 @@ export namespace HumanSwordThrust {
             const room: number =
               Vector3.length(Vector3.subtract(a.target, a.reach)) -
               s.tool.length;
-            if (!(error instanceof HumanRefusal) || room >= NEAR * s.arm)
+            if (!(error instanceof AutoMovieMotionHumanRefusal) || room >= NEAR * s.arm)
               throw error;
-            throw new HumanRefusal({
+            throw new AutoMovieMotionHumanRefusal({
               kind: "reach",
               axis: "target",
               value: room,

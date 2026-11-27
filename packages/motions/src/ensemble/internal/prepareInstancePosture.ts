@@ -7,7 +7,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * Limbs whose world goals follow a rigid instance.
@@ -32,7 +32,7 @@ export function prepareInstancePosture<Body extends object>(
   const read: prepareInstancePosture.Reader | undefined =
     template.posture?.bind(template);
   if (read === undefined || template.body !== props.body)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "participant",
       axis: "of",
       value: name,
@@ -52,7 +52,7 @@ export function prepareInstancePosture<Body extends object>(
       ((((yaw - first.yaw + 180) % 360) + 360) % 360) - 180,
     );
     if (turned > turnLimit)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "participant",
         axis: "of",
         value: name,
@@ -95,7 +95,7 @@ export function prepareInstancePosture<Body extends object>(
       const goal: IAutoMovieHumanLimbGoal | undefined = source.limbs[limb];
       if (goal === undefined) continue;
       if (goal.clear !== undefined || goal.rests !== undefined)
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "participant",
           axis: "of",
           value: name,

@@ -9,7 +9,7 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanObject } from "@automovie/motions";
+import { AutoMovieMotionHumanObject } from "@automovie/motions";
 import { HumanPropFrame, prepareMountTread } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
@@ -153,7 +153,7 @@ export async function test_motions_mounted_tread(): Promise<void> {
     { withersHeight: 1.65, stirrupDrop: 0.66, tempo: 0 },
     1028,
   );
-  const tack: IAutoMovieMotionHumanProp = HumanObject.prop("horse", horse, origin);
+  const tack: IAutoMovieMotionHumanProp = AutoMovieMotionHumanObject.prop("horse", horse, origin);
   const site: IAutoMovieAffordance = horse.affordance("leftStirrup");
   const local: IAutoMovieRigidTransform = HumanPropFrame.relative(
     { position: site.frame.translation, rotation: site.frame.rotation },

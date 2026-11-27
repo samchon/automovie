@@ -20,7 +20,7 @@ import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { rise } from "../../everyday/internal/rise";
 import { seated } from "../../everyday/internal/seated";
 import { sitPlace } from "../../everyday/internal/sitPlace";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { HumanMount } from "./HumanMount";
@@ -80,7 +80,7 @@ export namespace HumanTravelCarExit {
             liftShare < 0.5
           )
         )
-          throw new HumanRefusal({
+          throw new AutoMovieMotionHumanRefusal({
             kind: "parameter",
             axis: "getOut",
             value: params,
@@ -105,7 +105,7 @@ export namespace HumanTravelCarExit {
           local.z < -bench.depth ||
           local.z > 0
         )
-          throw new HumanRefusal({
+          throw new AutoMovieMotionHumanRefusal({
             kind: "base",
             axis: "seat",
             value: entry.base.kind,
@@ -129,7 +129,7 @@ export namespace HumanTravelCarExit {
         const yaw: number = entry.posture.yaw + turn;
         const clearance: number = body.measure.chestBreadth + 2 * gap;
         if (through.width < clearance || width <= 2 * inset)
-          throw new HumanRefusal({
+          throw new AutoMovieMotionHumanRefusal({
             kind: "reach",
             axis: "aperture",
             value: through.width,
@@ -156,7 +156,7 @@ export namespace HumanTravelCarExit {
         });
         const needed: number = clearance + 2 * Math.abs(along(edge));
         if (needed > through.width)
-          throw new HumanRefusal({
+          throw new AutoMovieMotionHumanRefusal({
             kind: "reach",
             axis: "aperture",
             value: through.width,
@@ -382,7 +382,7 @@ export namespace HumanTravelCarExit {
         ).point;
         const excess: number = crown.y - (through.at.y + through.height);
         if (Math.abs(outward(crown)) <= body.measure.thighRadius && excess > 0)
-          throw new HumanRefusal({
+          throw new AutoMovieMotionHumanRefusal({
             kind: "reach",
             axis: "aperture",
             value: through.height,
@@ -402,7 +402,7 @@ export namespace HumanTravelCarExit {
           outward(end.limbs.rightLeg!.point),
         );
         if (exterior <= 0)
-          throw new HumanRefusal({
+          throw new AutoMovieMotionHumanRefusal({
             kind: "base",
             axis: "aperture",
             value: exterior,

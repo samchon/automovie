@@ -12,7 +12,7 @@ import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotion
 import { AutoMovieMotionHumanTouchStance } from "../../compose/internal/AutoMovieMotionHumanTouchStance";
 import { pickUpAdjust } from "../../handling/internal/pickUpAdjust";
 import type { pickUpPosture } from "../../handling/internal/pickUpPosture";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * A touch's stance, chosen between two candidates in this order as Vahrenkamp
@@ -154,7 +154,7 @@ function stepped(
       AutoMovieMotionHumanTouchStance.reaches(candidate, posture),
   );
   if (stride === null || stride.step === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "target",
       value: share * length,

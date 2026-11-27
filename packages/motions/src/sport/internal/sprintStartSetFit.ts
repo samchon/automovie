@@ -13,7 +13,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanBodyFit } from "../../posture/internal/HumanBodyFit";
 import { HumanFitVariables } from "../../posture/internal/HumanFitVariables";
 import { HumanHand } from "../../posture/internal/HumanHand";
@@ -123,7 +123,7 @@ export function sprintStartSetFit(
   // is a separate optimisation question (Wright and Tenny 2004, SIAM J.
   // Optim. 14(4), sec. 1, https://pages.cs.wisc.edu/~swright/papers/WriT04a.pdf).
   if (!solved.feasible)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "set",
       value: Math.max(

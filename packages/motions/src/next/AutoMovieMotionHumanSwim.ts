@@ -16,8 +16,8 @@ import { swimImmersed as swimImmersedLaw } from "../sport/internal/swimImmersed"
  * - `swim`: Swimming on a declared water plane: treading water and the front
  *   crawl.
  * - `aquatic`: Sequences in a pool or on a small craft.
- * - `swimImmersed`: Register this immersed action with `HumanChain.extend` and
- *   `HumanPerformance`'s `laws`.
+ * - `swimImmersed`: Register this immersed action with `AutoMovieMotionHumanChain.extend` and
+ *   `AutoMovieMotionHumanPerformance`'s `laws`.
  *
  * Lexicon rows and tables, the shipped data the laws and the chain read:
  *
@@ -89,8 +89,8 @@ export namespace AutoMovieMotionHumanSwim {
   export import aquatic = aquaticLaw;
 
   /**
-   * Register this immersed action with `HumanChain.extend` and
-   * `HumanPerformance`'s `laws`. The passive case holds the existing supine
+   * Register this immersed action with `AutoMovieMotionHumanChain.extend` and
+   * `AutoMovieMotionHumanPerformance`'s `laws`. The passive case holds the existing supine
    * key. The opt-in breaststroke uses the existing prone keys and starts at
    * rest. Both start in the water at their first shape's buoyant trim.
    *

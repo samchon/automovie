@@ -5,7 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanChain } from "../../chain/HumanChain";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
@@ -43,7 +43,7 @@ export function ballStrikeCases(
     const performance: IAutoMovieMotionHumanPerformance = FamilyCaseKit.perform(
       "ball",
       [{ subject: "a", body: who.body }],
-      HumanChain.subject("a").act("kickBall", params).node,
+      AutoMovieMotionHumanChain.subject("a").act("kickBall", params).node,
       [ballStrikeCaseBall(centre, radius)],
     );
     const contact: number = FamilyCaseKit.event(performance, "stroke");

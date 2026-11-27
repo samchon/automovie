@@ -1,6 +1,6 @@
 import { AutoMovieGravity } from "@automovie/engine";
 import type { IAutoMovieMotionHumanSkydive } from "@automovie/interface";
-import { HumanRefusal, skydivePath } from "@automovie/motions/internal";
+import { AutoMovieMotionHumanRefusal, skydivePath } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -68,7 +68,7 @@ export function test_motions_airborne_skydive_path(): void {
     try {
       skydivePath.prepare(asked, { x: 0, y: 3000, z: 0 }, 0, 0);
     } catch (error: unknown) {
-      if (error instanceof HumanRefusal) return error.axis;
+      if (error instanceof AutoMovieMotionHumanRefusal) return error.axis;
     }
     return "admitted";
   };

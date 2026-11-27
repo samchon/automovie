@@ -7,7 +7,7 @@ import type {
   IAutoMoviePhysicalShape,
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
-import { HumanObject } from "@automovie/motions";
+import { AutoMovieMotionHumanObject } from "@automovie/motions";
 import {
   HumanColliders,
   HumanFoot,
@@ -33,8 +33,8 @@ export async function test_motions_mounted_seated_key(): Promise<void> {
     position: { x: 0, y: 0, z: 0 },
     rotation: Quaternion.identity(),
   };
-  const seat = HumanObject.seat(horse, frame, "seat", "horse");
-  const prop = HumanObject.prop("horse", horse, frame);
+  const seat = AutoMovieMotionHumanObject.seat(horse, frame, "seat", "horse");
+  const prop = AutoMovieMotionHumanObject.prop("horse", horse, frame);
   const reader: IAutoMovieMotionHumanPropReader = {
     prop,
     frame: () => frame,

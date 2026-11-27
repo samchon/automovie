@@ -11,7 +11,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 
@@ -45,7 +45,7 @@ export namespace HumanGlove {
       worn.subject !== context.subject ||
       worn.bone !== `${side}Hand`
     )
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "affordance",
         axis: "glove",
         value: subject,
@@ -59,7 +59,7 @@ export namespace HumanGlove {
       read.prop.affordances ?? []
     ).find((a: IAutoMovieAffordance): boolean => a.id === "pocket");
     if (pocket === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "affordance",
         axis: "glove",
         value: subject,

@@ -16,7 +16,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanLimbAt } from "../../posture/internal/HumanLimbAt";
 import { HumanSequentialConvex } from "../../posture/internal/HumanSequentialConvex";
 import { HumanSequentialConvexFunctions } from "../../posture/internal/HumanSequentialConvexFunctions";
@@ -141,7 +141,7 @@ export namespace AutoMovieMotionHumanArmReach {
   export function attitude(request: IRequest): IResult {
     const found: IResolved = resolve(request);
     if (found.past === null) return found.result;
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: request.name,
       value: found.past.degrees,

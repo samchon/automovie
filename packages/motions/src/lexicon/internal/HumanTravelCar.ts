@@ -15,7 +15,7 @@ import type {
 
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { sit } from "../../everyday/internal/sit";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanPreparedPlayback } from "../../perform/internal/HumanPreparedPlayback";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { carryHumanPosture } from "../../posture/internal/carryHumanPosture";
@@ -108,7 +108,7 @@ export namespace HumanTravelCar {
           context.params;
         const body: IAutoMovieMotionHumanBody = context.body;
         if (through.width < body.measure.chestBreadth)
-          throw new HumanRefusal({
+          throw new AutoMovieMotionHumanRefusal({
             kind: "reach",
             axis: "aperture",
             value: through.width,
@@ -257,7 +257,7 @@ export namespace HumanTravelCar {
           };
           const excess: number = overAt(DUCK);
           if (excess > 0)
-            throw new HumanRefusal({
+            throw new AutoMovieMotionHumanRefusal({
               kind: "reach",
               axis: "aperture",
               value: through.height,

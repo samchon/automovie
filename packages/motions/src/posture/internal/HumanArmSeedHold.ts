@@ -4,7 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanArmContactConfigurations } from "./HumanArmContactConfigurations";
 import { HumanArmDifferential } from "./HumanArmDifferential";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
@@ -111,7 +111,7 @@ export function HumanArmSeedHold(
       const beyond: number =
         1000 * (Math.max(required - reach, radial) - site.disc);
       if (beyond > M.TOLERANCE)
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "reach",
           axis: "region",
           value: beyond,
@@ -290,7 +290,7 @@ export function HumanArmSeedHold(
     const admitted: number[][] | undefined = attempt(q);
     if (admitted !== undefined) return admitted;
   }
-  throw new HumanRefusal({
+  throw new AutoMovieMotionHumanRefusal({
     kind: "reach",
     axis: closest!.evaluation.worst.axis,
     value: closest!.evaluation.worst.value,

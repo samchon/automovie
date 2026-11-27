@@ -22,7 +22,7 @@ import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionH
 import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
 import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionHumanLeg";
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanHand } from "../../posture/internal/HumanHand";
@@ -173,7 +173,7 @@ export namespace longTool {
     );
     const far: number = Vector3.distance(stroke.contact, bowed);
     if (far > REACH_LIMIT * arm)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "at",
         value: far,

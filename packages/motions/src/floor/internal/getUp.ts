@@ -24,7 +24,7 @@ import type {
 import { stand } from "../../actions/internal/stand";
 import { support } from "../../actions/internal/support";
 import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanBoneGroups } from "../../posture/internal/HumanBoneGroups";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
@@ -190,7 +190,7 @@ export namespace getUp {
       kind === "hanging" ||
       kind === "leaning"
     )
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "base",
         axis: "base",
         value: kind,

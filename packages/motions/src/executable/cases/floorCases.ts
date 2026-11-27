@@ -2,7 +2,7 @@
 import { AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, IAutoMovieMotionHumanCrawl, IAutoMovieMotionHumanLieDown, IAutoMovieMotionHumanPerformance, IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanChain } from "../../chain/HumanChain";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
 import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./internal/everydayVerdicts";
@@ -41,7 +41,7 @@ export function floorCases(
         FamilyCaseKit.perform(
           "floor",
           [{ subject: "a", body: who.body }],
-          HumanChain.subject("a").act("lieDown", params).node,
+          AutoMovieMotionHumanChain.subject("a").act("lieDown", params).node,
         );
       const settled: number = FamilyCaseKit.event(performance, "settled");
       let deepest: number = Infinity;
@@ -84,7 +84,7 @@ export function floorCases(
         FamilyCaseKit.perform(
           "floor",
           [{ subject: "a", body: who.body }],
-          HumanChain.subject("a").act("crawl", params).node,
+          AutoMovieMotionHumanChain.subject("a").act("crawl", params).node,
         );
       const segment = performance.segments("a")[0]!;
       const at = (share: number): number =>

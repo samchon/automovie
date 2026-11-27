@@ -10,7 +10,7 @@ import type {
 
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { ExerciseKey } from "../../exercise/internal/ExerciseKey";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanWater } from "../../perform/internal/HumanWater";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
@@ -215,7 +215,7 @@ export namespace AquaticFin {
     const reachable: number =
       Math.max(0, budget - PIKE - LIFT - TURN) / (1 / DESCENT + 1 / ASCENT);
     if (!(depth > 0) || depth > reachable)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "depth",
         value: depth,
@@ -332,7 +332,7 @@ export namespace AquaticFin {
             (a: IAutoMovieAffordance): boolean => a.id === "blade",
           );
     if (face?.width === undefined || face.depth === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "affordance",
         axis: "prop",
         value: id ?? null,

@@ -1,5 +1,5 @@
 import * as motions from "@automovie/motions";
-import { HUMAN_ACTIONS } from "@automovie/motions";
+import { AutoMovieMotionHumanActions } from "@automovie/motions";
 import * as internal from "@automovie/motions/internal";
 
 import { PLAYGROUND_BODIES } from "../../playground/data/PLAYGROUND_BODIES";
@@ -97,7 +97,7 @@ export namespace SceneChainNames {
       Object.fromEntries(
         Object.entries(all).filter(
           ([name]: [string, string]): boolean =>
-            used.has(name) && !(name in HUMAN_ACTIONS),
+            used.has(name) && !(name in AutoMovieMotionHumanActions),
         ),
       );
     const bodySex: ISceneChainNames["bodySex"] = Object.fromEntries(

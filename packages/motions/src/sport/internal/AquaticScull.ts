@@ -20,7 +20,7 @@ import { courseArmGoal } from "../../compose/internal/courseArmGoal";
 import { seated } from "../../everyday/internal/seated";
 import { sitPlace } from "../../everyday/internal/sitPlace";
 import { ExerciseKey } from "../../exercise/internal/ExerciseKey";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { precisionStrokePeak } from "../../lexicon/internal/precisionStrokePeak";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
@@ -54,7 +54,7 @@ export namespace AquaticScull {
   ): IAutoMovieMotionHumanActionPlan {
     const { body, entry, params, start } = context;
     if (params.support === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "support",
         value: null,
@@ -64,7 +64,7 @@ export namespace AquaticScull {
       });
     const prop: IAutoMovieMotionHumanPropReader = context.prop(params.support);
     if (prop.prop.articulate === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "affordance",
         axis: "support",
         value: prop.prop.subject,
@@ -101,7 +101,7 @@ export namespace AquaticScull {
       );
       const immersion: number = (lock.frame.translation.y + 0.01) / arm;
       if (!(immersion > 0 && immersion < 1))
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "affordance",
           axis: "station",
           value: station,
@@ -344,7 +344,7 @@ function admitRail(
     const squared: number = Vector3.dot(from, from);
     const [near, far] = sitPlace.band(body, side);
     if (squared < near ** 2 || squared >= far ** 2)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "station",
         value: station,

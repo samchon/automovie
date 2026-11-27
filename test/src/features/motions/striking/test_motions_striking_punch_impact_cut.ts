@@ -7,8 +7,8 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanBody,
-  HumanChain,
-  HumanPerformance,
+  AutoMovieMotionHumanChain,
+  AutoMovieMotionHumanPerformance,
 } from "@automovie/motions";
 import { HUMAN_LEXICON } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
@@ -41,7 +41,7 @@ export async function test_motions_striking_punch_impact_cut(): Promise<void> {
     frame: "world",
     at: { x: 0, y: 1.56, z: 0.62 },
   };
-  const performance: HumanPerformance = new HumanPerformance({
+  const performance: AutoMovieMotionHumanPerformance = new AutoMovieMotionHumanPerformance({
     seed: "straight cut",
     laws: HUMAN_LEXICON.strike!.filter(
       (law) => law.name === "jab" || law.name === "cross",
@@ -55,7 +55,7 @@ export async function test_motions_striking_punch_impact_cut(): Promise<void> {
         proficiency: { level: "trained" },
       },
     ],
-    composition: HumanChain.subject("a")
+    composition: AutoMovieMotionHumanChain.subject("a")
       .guard({ style: "boxing", duration: 0.5 })
       .registered("jab", { at: target }, "lead")
       .until({ type: "event", event: "impact" })

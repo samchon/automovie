@@ -1,4 +1,4 @@
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * Prepare an immersed coast's distance over time: under a constant quadratic
@@ -19,7 +19,7 @@ export function swimImmersedCoast(
   duration: number,
 ): (seconds: number) => number {
   if (k !== 0 && !(k * speed * Math.max(0, duration) > -1))
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "speed",
       value: speed,

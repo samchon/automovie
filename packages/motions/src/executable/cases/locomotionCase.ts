@@ -12,8 +12,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanChain } from "../../chain/HumanChain";
-import { HumanPerformance } from "../../perform/HumanPerformance";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
+import { AutoMovieMotionHumanPerformance } from "../../perform/AutoMovieMotionHumanPerformance";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import type { humanPolygonMan } from "../internal/humanPolygonMan";
@@ -38,19 +38,19 @@ export function locomotionCase(
   names.forEach((_, i: number): void => {
     const one: IAutoMovieMotionHumanChain =
       gait.law === "walk"
-        ? HumanChain.subject(`w${i}`).walk({
+        ? AutoMovieMotionHumanChain.subject(`w${i}`).walk({
             to: goals[i]!,
             pace: gait.pace,
             ...extra,
           })
-        : HumanChain.subject(`w${i}`).run({
+        : AutoMovieMotionHumanChain.subject(`w${i}`).run({
             to: goals[i]!,
             pace: gait.pace,
             ...extra,
           });
     chain = chain === undefined ? one : chain.with(one);
   });
-  const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
+  const performance: IAutoMovieMotionHumanPerformance = new AutoMovieMotionHumanPerformance({
     seed: "walk",
     performers: bodies.map((body: IAutoMovieMotionHumanBody, i: number) => ({
       subject: `w${i}`,

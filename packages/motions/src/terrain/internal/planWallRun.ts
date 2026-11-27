@@ -18,7 +18,7 @@ import type {
 import { support } from "../../actions/internal/support";
 import { coverWall } from "../../cover/internal/coverWall";
 import { getUp } from "../../floor/internal/getUp";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
@@ -394,7 +394,7 @@ export namespace planWallRun {
       measure.upperArm +
       measure.forearm;
     if (worldHeight > floor + reach)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "top",
         value: id,

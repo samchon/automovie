@@ -7,7 +7,7 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionClock,
-  HumanRefusal,
+  AutoMovieMotionHumanRefusal,
   kiss,
   kissClock,
   kissPitch,
@@ -58,7 +58,7 @@ export function test_motions_touch_kiss(): void {
   assert.throws(
     () => kiss.admitReach("cheekRight", { ...at, miss: 0.006 }),
     (error: unknown): boolean =>
-      error instanceof HumanRefusal && error.kind === "reach" && error.axis === "region",
+      error instanceof AutoMovieMotionHumanRefusal && error.kind === "reach" && error.axis === "region",
   );
   assert.equal(kiss.handFor("handBackRight", "kisser"), "right");
   assert.equal(kiss.handFor("handBackLeft", "presenter"), "left");
@@ -66,7 +66,7 @@ export function test_motions_touch_kiss(): void {
   assert.throws(
     () => kiss.handFor("cheekRight", "kisser"),
     (error: unknown): boolean =>
-      error instanceof HumanRefusal && error.kind === "parameter" && error.axis === "region",
+      error instanceof AutoMovieMotionHumanRefusal && error.kind === "parameter" && error.axis === "region",
   );
 
   // 2. Clock.

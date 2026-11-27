@@ -10,8 +10,8 @@ import type {
   IAutoMovieRandom,
 } from "@automovie/interface";
 
-import { HumanChain } from "../../chain/HumanChain";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HUMAN_ATTRIBUTE_EFFECTS } from "./HUMAN_ATTRIBUTE_EFFECTS";
 import { HumanAttribute } from "./HumanAttribute";
 import { HumanEnsembleMembers } from "./HumanEnsembleMembers";
@@ -48,7 +48,7 @@ export function HumanEnsemble(
  */
 export namespace HumanEnsemble {
   /*
-   * The performers to spread into `HumanPerformance.IInput.performers`: every
+   * The performers to spread into `AutoMovieMotionHumanPerformance.IInput.performers`: every
    * member that is performed, with its body, place, proficiency and attributes;
    * population members are left out.
    * Parameter ensemble: The ensemble.
@@ -124,7 +124,7 @@ export namespace HumanEnsemble {
     return AutoMovieComposition.parallel(
       ...full.map(
         (m: IAutoMovieMotionHumanEnsemble.IMember): IAutoMovieComposition =>
-          build(m, HumanChain.subject(m.subject)).node,
+          build(m, AutoMovieMotionHumanChain.subject(m.subject)).node,
       ),
       ...instanced.map(
         (m: IAutoMovieMotionHumanEnsemble.IMember): IAutoMovieComposition => {
@@ -135,7 +135,7 @@ export namespace HumanEnsemble {
                 (f.slot?.block ?? 0) === (m.slot?.block ?? 0),
             );
           if (template === undefined || seconds === undefined)
-            throw new HumanRefusal({
+            throw new AutoMovieMotionHumanRefusal({
               kind: "participant",
               performer: m.subject,
               axis: `${ensemble.input.id}.detail`,
@@ -155,7 +155,7 @@ export namespace HumanEnsemble {
             ).float(0) *
               (Math.round(LAG * instance.RATE) + 1),
           );
-          return HumanChain.subject(m.subject).registered(instance.name, {
+          return AutoMovieMotionHumanChain.subject(m.subject).registered(instance.name, {
             of: template.subject,
             duration: seconds,
             shift,
@@ -251,7 +251,7 @@ export namespace HumanEnsemble {
           among?.(m) ?? true,
       );
     if (!(count >= 0 && count <= admitted.length))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: `${ensemble.input.id}.pick.${name}`,
         value: count,
@@ -334,7 +334,7 @@ export namespace HumanEnsemble {
       spec.sizes.length === 0 ||
       spec.sizes.some((s: number): boolean => !(s >= 2))
     )
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: `${ensemble.input.id}.groups`,
         value: spec,

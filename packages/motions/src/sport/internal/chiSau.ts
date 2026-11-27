@@ -20,7 +20,7 @@ import type {
 import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { StrikingBody } from "../../striking/internal/StrikingBody";
@@ -109,7 +109,7 @@ export namespace chiSau {
   ): IAutoMovieMotionHumanActionPlan {
     const p: IAutoMovieMotionHumanChiSau.IParams = context.params;
     if (p.partner === context.subject)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "participant",
         axis: "partner",
         value: p.partner,

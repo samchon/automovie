@@ -7,7 +7,7 @@ import type {
 import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
 import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * Mean contact time in seconds for a single-finger swipe (Jeong, Table 2.6).
@@ -64,7 +64,7 @@ export function swipeTouchscreenStroke(
       touchOut / clock.duration < 1 - CONTACT_SHARE_TOLERANCE
     )
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "duration",
       value: seconds,

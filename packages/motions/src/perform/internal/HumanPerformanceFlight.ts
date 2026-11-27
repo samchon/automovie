@@ -2,7 +2,7 @@ import { Quaternion, AutoMovieEngineMotionAirborneRotation, AutoMovieEngineMotio
 import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFlight, IAutoMovieMotionHumanFlightTurns, IAutoMovieMotionHumanPerformanceState, IAutoMovieMotionHumanSegment, IAutoMoviePose, IAutoMovieResolveCenterOfMass } from "@automovie/interface";
 
 import { jumpAirborne } from "../../actions/internal/jumpAirborne";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { poseBones } from "../../posture/internal/poseBones";
 import { HumanPerformanceFlightRotation } from "./HumanPerformanceFlightRotation";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
@@ -114,7 +114,7 @@ export namespace HumanPerformanceFlight {
               );
             }
           } catch (error) {
-            if (!(error instanceof HumanRefusal)) throw error;
+            if (!(error instanceof AutoMovieMotionHumanRefusal)) throw error;
             throw error.locate({
               performer: person.performer.subject,
               act: segment.name,

@@ -10,7 +10,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanGrasp } from "./HumanGrasp";
 
 /*
@@ -30,7 +30,7 @@ export function pickUpIntercept(
    * Report what the authored closure could not intercept.
    */
   const refuse = (reason: string): never => {
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "closeAt",
       value: closeAt,

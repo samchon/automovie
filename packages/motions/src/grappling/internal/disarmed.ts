@@ -11,7 +11,7 @@ import type {
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 
 /*
@@ -89,7 +89,7 @@ export namespace disarmed {
       taken === undefined ||
       gripped === undefined
     )
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "participant",
         axis: "of",
         value: context.params.of,
@@ -105,7 +105,7 @@ export namespace disarmed {
           ? "right"
           : undefined;
     if (side === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "prop",
         value: prop,

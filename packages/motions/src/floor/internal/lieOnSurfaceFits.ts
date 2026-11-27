@@ -6,7 +6,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * Refuse a surface shorter than the body or narrower than its shoulders, with
@@ -33,7 +33,7 @@ export function lieOnSurfaceFits(
     2 * body.measure.upperArmRadius +
     2 * margin;
   if (length < tall)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "length",
       value: length,
@@ -42,7 +42,7 @@ export function lieOnSurfaceFits(
       fix: "use a longer bed or sofa",
     });
   if (width < broad)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "width",
       value: width,

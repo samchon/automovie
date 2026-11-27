@@ -17,7 +17,7 @@ import type {
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanAuditModel } from "../../posture/internal/HumanAuditModel";
 import { HumanColliders } from "../../posture/internal/HumanColliders";
 import { mixHumanPosture } from "../../posture/internal/mixHumanPosture";
@@ -329,7 +329,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     (t: number) => held(context.start + t)!,
   );
   if (grasped === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "hand",
       value: context.start,

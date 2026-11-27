@@ -17,7 +17,7 @@ import type {
 
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
@@ -51,7 +51,7 @@ function planHumanHoldHandles(
     transition,
   } = context.params;
   if (!(transition > 0 && 2 * transition < seconds))
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "transition",
       value: transition,
@@ -60,7 +60,7 @@ function planHumanHoldHandles(
       fix: "Give a transition shorter than half the total seconds.",
     });
   if (context.carrier === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "base",
       axis: "carrier",
       value: context.entry.base.kind,
@@ -76,7 +76,7 @@ function planHumanHoldHandles(
         (contact: IAutoMovieAffordance): boolean => contact.id === ids[side],
       );
     if (handle === undefined || !(handle.aperture! > 0))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "affordance",
         axis: side,
         value: ids[side],
@@ -225,7 +225,7 @@ function planHumanHoldHandles(
                   Vector3.addScaled(grip.point, grip.normal, grip.radius ?? 0),
                 );
           if (!(distance <= REACH))
-            throw new HumanRefusal({
+            throw new AutoMovieMotionHumanRefusal({
               kind: "affordance",
               axis: "handleReach",
               value: distance,

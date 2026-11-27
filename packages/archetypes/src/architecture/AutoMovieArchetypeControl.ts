@@ -13,11 +13,6 @@ import {
 } from "../core";
 import { ADA_RANGES } from "./constants/ADA_RANGES";
 
-/*
- * A DIN 6337 lever's arm off the plane square to its bore, degrees: the
- * drawing's 20.
- */
-const RISE: number = 20;
 /** Creates a deterministic control fixture and exposes its construction parameters. */
 export namespace AutoMovieArchetypeControl {
   /**
@@ -273,6 +268,12 @@ export namespace AutoMovieArchetypeControl {
     ),
   };
 }
+
+/*
+ * A DIN 6337 lever's arm off the plane square to its bore, degrees: the
+ * drawing's 20.
+ */
+const RISE: number = 20;
 
 /*
  * One DIN 6337 row in metres and kilograms, from the sheet's millimetres and

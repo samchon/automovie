@@ -8,7 +8,7 @@ import type {
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanArmTrajectory } from "../../posture/internal/HumanArmTrajectory";
 import { certifyHumanArmTracks } from "../../posture/internal/certifyHumanArmTracks";
 import type { AutoMovieMotionHumanArmCourse } from "./AutoMovieMotionHumanArmCourse";
@@ -201,7 +201,7 @@ export function AutoMovieMotionHumanArmPlannedSolve(
         );
       return certifyHumanArmTracks(course.read.context, tracks);
     } catch (error: unknown) {
-      if (error === outside || error instanceof HumanRefusal) return undefined;
+      if (error === outside || error instanceof AutoMovieMotionHumanRefusal) return undefined;
       throw error;
     }
   }

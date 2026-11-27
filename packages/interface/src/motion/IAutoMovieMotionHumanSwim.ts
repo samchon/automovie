@@ -7,7 +7,7 @@ import type { IAutoMovieMotionHumanSwimStroke } from "./IAutoMovieMotionHumanSwi
  * the breaststroke glides at 0.9 m/s, the backstroke at 1 m/s and floating at 0
  * (`SwimStroke.strokes`); skill does not change the glide.
  *
- * A method here is a method of `HumanChain` when its name is in
+ * A method here is a method of `AutoMovieMotionHumanChain` when its name is in
  * `AutoMovieMotionHumanActionName`. Any other member is a registered law or
  * row: pass it in `laws: [...]` to the performance, taking it from
  * `AutoMovieMotionHumanSwim` or from the row namespace of the family, and

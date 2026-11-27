@@ -1,7 +1,7 @@
 import { AutoMovieGravity } from "@automovie/engine";
 
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * A line walk's footprints along its line (`lineWalk`): heel to toe, and the
@@ -65,7 +65,7 @@ export namespace lineWalkFootprints {
     if (tension > LOAD) {
       const least: number =
         (mass * AutoMovieGravity.STANDARD * 2 * half) / (4 * LOAD);
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "sag",
         value: sag,

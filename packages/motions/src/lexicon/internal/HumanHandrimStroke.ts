@@ -3,8 +3,8 @@ import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieAffordance, I
 
 import { AutoMovieMotionInterval } from "../../compose/internal/AutoMovieMotionInterval";
 import { seated } from "../../everyday/internal/seated";
-import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanObject } from "../../perform/HumanObject";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
+import { AutoMovieMotionHumanObject } from "../../perform/AutoMovieMotionHumanObject";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { HandrimMaterialTransfer } from "./HandrimMaterialTransfer";
@@ -111,7 +111,7 @@ function planHumanHandrimStroke(
 
   const chair: IAutoMovieMotionHumanPropReader = context.prop(on);
   if (chair.prop.motion === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "on",
       value: on,
@@ -140,7 +140,7 @@ function planHumanHandrimStroke(
     return { side, rim, geometry };
   });
 
-  const chairSeat: ReturnType<typeof HumanObject.seat> = HumanObject.seat(
+  const chairSeat: ReturnType<typeof AutoMovieMotionHumanObject.seat> = AutoMovieMotionHumanObject.seat(
     { affordances: chair.prop.affordances ?? [] },
     chair.frame(context.start),
   );
@@ -172,7 +172,7 @@ function planHumanHandrimStroke(
       HumanHandrimStrokeForm.SEAT_HEADING_GAP
     )
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "base",
       axis: "seat",
       value: support?.kind === "prop" ? support.subject : seatGap,
@@ -372,7 +372,7 @@ function planHumanHandrimStroke(
       const goal: IAutoMovieVector3 = posed.limbs[`${side}Arm`]!.point;
       const gap: number = Vector3.length(Vector3.subtract(wrist, goal));
       if (!(gap <= HumanHandrimStrokeForm.CONTACT_GAP))
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "reach",
           axis: `rims.${side}`,
           value: gap,

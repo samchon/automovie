@@ -1,6 +1,6 @@
 import { Quaternion } from "@automovie/engine";
 import type { IAutoMovieAffordance, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-import { HumanRefusal, guitarNoteEntry, resolveGuitarStringContact } from "@automovie/motions/internal";
+import { AutoMovieMotionHumanRefusal, guitarNoteEntry, resolveGuitarStringContact } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 import { strict as assert } from "node:assert";
 
@@ -102,7 +102,7 @@ export function test_motions_handling_guitar_note(): void {
         affordances,
       );
     } catch (error: unknown) {
-      if (error instanceof HumanRefusal) return error.axis;
+      if (error instanceof AutoMovieMotionHumanRefusal) return error.axis;
     }
     return "admitted";
   };
@@ -122,7 +122,7 @@ export function test_motions_handling_guitar_note(): void {
 }
 
 /** Match the note input that failed admission. */
-function refused(kind: HumanRefusal["kind"], axis: string): (error: unknown) => boolean {
+function refused(kind: AutoMovieMotionHumanRefusal["kind"], axis: string): (error: unknown) => boolean {
   return (error: unknown): boolean =>
-    error instanceof HumanRefusal && error.kind === kind && error.axis === axis;
+    error instanceof AutoMovieMotionHumanRefusal && error.kind === kind && error.axis === axis;
 }

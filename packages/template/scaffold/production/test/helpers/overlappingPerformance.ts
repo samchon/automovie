@@ -7,8 +7,8 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanBody,
-  HumanChain,
-  HumanPerformance,
+  AutoMovieMotionHumanChain,
+  AutoMovieMotionHumanPerformance,
 } from "@automovie/motions";
 
 /**
@@ -35,7 +35,7 @@ export function overlappingPerformance(
     prepared.profile,
   );
   const [a, b]: readonly [string, string] = subjects;
-  return new HumanPerformance({
+  return new AutoMovieMotionHumanPerformance({
     seed: "overlap",
     performers: [a, b].map((subject: string) => ({
       subject,
@@ -44,9 +44,9 @@ export function overlappingPerformance(
       yaw: 0,
       proficiency: { level: "trained" as const },
     })),
-    composition: HumanChain.subject(a)
+    composition: AutoMovieMotionHumanChain.subject(a)
       .stand({ hold: 1 })
-      .with(HumanChain.subject(b).stand({ hold: 1 })).node,
+      .with(AutoMovieMotionHumanChain.subject(b).stand({ hold: 1 })).node,
   });
 }
 

@@ -9,7 +9,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
-import { HumanPerformance } from "../../perform/HumanPerformance";
+import { AutoMovieMotionHumanPerformance } from "../../perform/AutoMovieMotionHumanPerformance";
 import { DefenceOutcome } from "../../striking/internal/DefenceOutcome";
 import { StrikingRecord } from "../../striking/internal/StrikingRecord";
 import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
@@ -195,7 +195,7 @@ function build(
   const perform = (
     a: IAutoMovieMotionHumanChain,
   ): IAutoMovieMotionHumanPerformance =>
-    new HumanPerformance({
+    new AutoMovieMotionHumanPerformance({
       seed: s.coverAfterContact?.seed ?? scenario,
       performers: [
         {

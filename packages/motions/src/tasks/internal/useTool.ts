@@ -30,7 +30,7 @@ import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMoti
 import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
 import { HumanGrip } from "../../handling/internal/HumanGrip";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanHand } from "../../posture/internal/HumanHand";
@@ -252,7 +252,7 @@ export namespace useTool {
     // thickness, bounded by the wrist's radius, lies inside the fist and
     // gives the tool no line to lay on the work.
     if (!(length > m.forearmRadius))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "affordance",
         axis: "prop",
         value: subject,

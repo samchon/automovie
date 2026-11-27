@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionTarget,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import type { HumanStagePiste } from "./HumanStagePiste";
 
 /*
@@ -31,7 +31,7 @@ export function HumanPisteTarget(
             ? TRUNK.has(target.region)
             : !BELOW_WAIST.has(target.region)));
   if (!admitted)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "rule",
       axis,
       value: target,

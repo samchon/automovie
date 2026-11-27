@@ -14,7 +14,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanSupportFrame } from "../../carrier/internal/HumanSupportFrame";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanFormation } from "./HumanFormation";
 
@@ -59,7 +59,7 @@ export namespace HumanPopulation {
         m.detail === "population",
     ).length;
     if (formation === undefined || population === 0)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: `${ensemble.input.id}.detail`,
         value: population,
@@ -158,7 +158,7 @@ export namespace HumanPopulation {
       next === undefined ||
       !(samples > 0)
     )
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "participant",
         performer: template,
         axis: "cycle",
@@ -243,7 +243,7 @@ export namespace HumanPopulation {
     samples: number,
   ): IAutoMovieMotionHumanPopulation.ICycle {
     if (!(samples > 0 && samples < 2 ** 32))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         performer: template,
         axis: "samples",
@@ -279,7 +279,7 @@ export namespace HumanPopulation {
           contact.support.kind !== "ground",
       )
     )
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "participant",
         performer: template,
         axis: "standing",

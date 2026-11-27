@@ -6,7 +6,7 @@ import type {
   IAutoMovieMotionHumanProp,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanPerformance } from "@automovie/motions";
+import { AutoMovieMotionHumanPerformance } from "@automovie/motions";
 import { HUMAN_LEXICON } from "@automovie/motions/internal";
 
 import { diningTable } from "./diningTable";
@@ -165,7 +165,7 @@ export namespace diningScene {
     body: IAutoMovieMotionHumanBody,
     props: readonly IAutoMovieMotionHumanProp[],
     chain: IAutoMovieMotionHumanChain,
-  ): HumanPerformance {
+  ): AutoMovieMotionHumanPerformance {
     return everydayTake.perform(
       `dining-${seed}`,
       body,

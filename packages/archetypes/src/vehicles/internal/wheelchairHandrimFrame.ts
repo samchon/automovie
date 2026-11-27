@@ -14,7 +14,7 @@ import type { AutoMovieArchetypeWheelchair } from "../AutoMovieArchetypeWheelcha
  * positive toward the front. At each sample, carry the same point on the
  * rotating wheel. Other affordances pass through.
  *
- * Pass the returned reader as the contact callback of `HumanObject.prop`,
+ * Pass the returned reader as the contact callback of `AutoMovieMotionHumanObject.prop`,
  * translating film seconds into ride seconds if the course starts later. For a
  * repeated stroke, build a reader for each catch and dispatch during that
  * stroke's time interval.

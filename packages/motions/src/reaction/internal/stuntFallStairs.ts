@@ -19,7 +19,7 @@ import type {
 } from "@automovie/interface";
 
 import { lieDown } from "../../floor/internal/lieDown";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { PreparedHumanIntervals } from "../../perform/internal/PreparedHumanIntervals";
 import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanShapeBlend } from "../../posture/internal/prepareHumanShapeBlend";
@@ -323,8 +323,8 @@ interface ITread {
 /*
  * The stair fall's refusal.
  */
-function refusal(value: string, reason: string): HumanRefusal {
-  return new HumanRefusal({
+function refusal(value: string, reason: string): AutoMovieMotionHumanRefusal {
+  return new AutoMovieMotionHumanRefusal({
     kind: "affordance",
     axis: "stairs",
     value,

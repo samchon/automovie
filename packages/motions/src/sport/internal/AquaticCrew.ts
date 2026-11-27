@@ -10,7 +10,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionHumanLeg";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { AquaticPosture } from "./AquaticPosture";
 
@@ -78,7 +78,7 @@ export namespace AquaticCrew {
     const { params, entry, start } = context;
     const id: string | undefined = params.support;
     if (id === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "support",
         value: null,
@@ -122,7 +122,7 @@ export namespace AquaticCrew {
           ) === true
         )
       )
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "affordance",
           axis: `${side}Grip`,
           value: name,

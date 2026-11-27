@@ -12,7 +12,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 
@@ -42,7 +42,7 @@ export function sprintStartBlocks(
   const read: IAutoMovieMotionHumanPropReader = context.prop(subject);
   const placed: IAutoMovieRigidTransform = read.frame(context.start);
   const refuse = (reason: string): never => {
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "on",
       value: subject,
@@ -123,7 +123,7 @@ export function sprintStartBlocks(
     );
   const front: AutoMovieHumanSide = lateral > 0 ? "left" : "right";
   if (preferred !== undefined && preferred !== front)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "front",
       value: preferred,

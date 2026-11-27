@@ -7,7 +7,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { throwObjectLaunch } from "../../throwing/internal/throwObjectLaunch";
 
 /*
@@ -30,7 +30,7 @@ export function throwInRelease(
   const { prop, at }: IAutoMovieMotionHumanBallSport.IParams = params;
   if (prop === undefined) return undefined;
   if (at === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "at",
       value: null,
@@ -44,7 +44,7 @@ export function throwInRelease(
     degrees,
   );
   if (velocity === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "at",
       value: at,

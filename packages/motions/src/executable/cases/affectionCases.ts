@@ -8,11 +8,11 @@ import type {
   IAutoMovieMotionHumanTouchForm,
 } from "@automovie/interface";
 
-import { HumanChain } from "../../chain/HumanChain";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
 import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
 import { AutoMovieMotionHumanTouchEffector } from "../../compose/internal/AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanTouchForm } from "../../compose/internal/AutoMovieMotionHumanTouchForm";
-import { HumanPerformance } from "../../perform/HumanPerformance";
+import { AutoMovieMotionHumanPerformance } from "../../perform/AutoMovieMotionHumanPerformance";
 import { touch } from "../../touch/internal/touch";
 import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { MotionBodies } from "../internal/MotionBodies";
@@ -103,8 +103,8 @@ export function affectionCases(
         pair(
           body,
           facing,
-          HumanChain.subject("a").act("touch", params),
-          HumanChain.subject("b").stand({ hold: 8 }),
+          AutoMovieMotionHumanChain.subject("a").act("touch", params),
+          AutoMovieMotionHumanChain.subject("b").stand({ hold: 8 }),
         );
       const performance: IAutoMovieMotionHumanPerformance | null =
         FamilyCaseKit.attempt(out, name, run);
@@ -239,8 +239,8 @@ export function affectionCases(
             pair(
               body,
               true,
-              HumanChain.subject("a").act("kiss", { partner: "b", region }),
-              HumanChain.subject("b").stand({ hold: 6 }),
+              AutoMovieMotionHumanChain.subject("a").act("kiss", { partner: "b", region }),
+              AutoMovieMotionHumanChain.subject("b").stand({ hold: 6 }),
               0.45,
             ),
         );
@@ -288,15 +288,15 @@ export function affectionCases(
           out,
           name,
           (): IAutoMovieMotionHumanPerformance =>
-            new HumanPerformance({
+            new AutoMovieMotionHumanPerformance({
               seed: "affection",
               performers: affectionCasePerformers(body, true, 0.7),
               composition: new AutoMovieChain({
                 type: "parallel",
                 parts: [
-                  HumanChain.subject("a").act("highFive", { partner: "b" })
+                  AutoMovieMotionHumanChain.subject("a").act("highFive", { partner: "b" })
                     .node,
-                  HumanChain.subject("b").act("highFive", { partner: "a" })
+                  AutoMovieMotionHumanChain.subject("b").act("highFive", { partner: "a" })
                     .node,
                 ],
               }).node,
@@ -359,7 +359,7 @@ function pair(
   b: IAutoMovieMotionHumanChain,
   gap: number = facing ? 0.55 : 0.45,
 ): IAutoMovieMotionHumanPerformance {
-  return new HumanPerformance({
+  return new AutoMovieMotionHumanPerformance({
     seed: "affection",
     performers: affectionCasePerformers(body, facing, gap),
     composition: new AutoMovieChain({

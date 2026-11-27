@@ -14,7 +14,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanHandTarget } from "../../posture/internal/HumanHandTarget";
@@ -139,7 +139,7 @@ export namespace AutoMovieMotionHumanTarget {
         const bone: AutoMovieHumanoidBone =
           context.body.surfaces.regions[target.region].bone;
         if (!TRUNK.has(bone))
-          throw new HumanRefusal({
+          throw new AutoMovieMotionHumanRefusal({
             kind: "parameter",
             axis: "target",
             value: target.region,

@@ -15,7 +15,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { step } from "../../striking/internal/step";
@@ -115,7 +115,7 @@ export namespace lungeGrab {
     const length: number = Math.max(0, apart - arm);
     const longest: number = LONGEST * context.body.measure.hipHeight;
     if (length > longest)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "partner",
         value: params.partner,

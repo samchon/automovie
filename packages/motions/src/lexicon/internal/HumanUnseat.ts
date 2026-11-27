@@ -19,7 +19,7 @@ import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionH
 import { AutoMovieMotionHumanArmReach } from "../../compose/internal/AutoMovieMotionHumanArmReach";
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
@@ -81,7 +81,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   const params: IAutoMovieMotionHumanUnseat = context.params;
   const entered: IAutoMovieMotionHumanBase = context.entry.base;
   if (entered.kind !== "seated")
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "base",
       axis: "base",
       value: entered.kind,
@@ -95,7 +95,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     HumanBound.above("push", params.push, 0, "m/s");
   if (params.free !== undefined) HumanBound.above("free", params.free, 0, "s");
   if (params.fall === "drag" && params.stirrup === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "stirrup",
       value: undefined,
@@ -126,7 +126,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       .filter((t: number): boolean => t >= 0)
       .sort((a: number, b: number): number => a - b)[0];
     if (hit === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "cue",
         value: params.cue,
@@ -284,7 +284,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
         (t: number) => HumanUnseatPose.beside(flown(t), side, context.body),
       );
   if (reached === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "fall",
       value: context.start + land,

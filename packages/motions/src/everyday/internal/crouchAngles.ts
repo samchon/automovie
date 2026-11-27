@@ -1,7 +1,7 @@
 import type { IAutoMovieMotionHumanCrouch } from "@automovie/interface";
 
 import { AutoMovieMotionHumanRange } from "../../compose/internal/AutoMovieMotionHumanRange";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * A crouch's leg angles at its lowest pose: the shank tilts forward by the
@@ -34,7 +34,7 @@ export function crouchAngles(
   const shankTilt: number = dorsiflexion + heel;
   const thighTilt: number = knee - shankTilt;
   if (thighTilt >= hipRange)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "depth",
       value: depth,

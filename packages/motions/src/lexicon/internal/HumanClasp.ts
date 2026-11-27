@@ -14,7 +14,7 @@ import type {
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanMountedFrame } from "./HumanMountedFrame";
 import { HumanUnseatPose } from "./HumanUnseatPose";
 
@@ -57,7 +57,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     (side: AutoMovieHumanSide): boolean => params[side] !== undefined,
   );
   if (sides.length === 0)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "left",
       value: undefined,
@@ -68,7 +68,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   for (const side of sides) {
     const hold: IAutoMovieMotionHumanClasp.IHold = params[side]!;
     if ((hold.bone === undefined) === (hold.contact === undefined))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: side,
         value: hold,
@@ -78,7 +78,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       });
   }
   if (params.on !== undefined && params.frame === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "frame",
       value: undefined,

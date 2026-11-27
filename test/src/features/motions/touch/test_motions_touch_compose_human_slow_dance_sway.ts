@@ -2,9 +2,9 @@ import type {
   IAutoMovieComposition,
   IAutoMovieIntent,
 } from "@automovie/interface";
-import { HumanChain } from "@automovie/motions";
+import { AutoMovieMotionHumanChain } from "@automovie/motions";
 import {
-  HumanRefusal,
+  AutoMovieMotionHumanRefusal,
   composeHumanSlowDanceSway,
 } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
@@ -31,7 +31,7 @@ export function test_motions_touch_compose_human_slow_dance_sway(): void {
   TestValidator.equals(
     "two sways",
     intents(
-      composeHumanSlowDanceSway(HumanChain.subject("a"), {
+      composeHumanSlowDanceSway(AutoMovieMotionHumanChain.subject("a"), {
         by: 0.04,
         beat: 1,
         count: 2,
@@ -45,13 +45,13 @@ export function test_motions_touch_compose_human_slow_dance_sway(): void {
   );
   let refused: boolean = false;
   try {
-    composeHumanSlowDanceSway(HumanChain.subject("a"), {
+    composeHumanSlowDanceSway(AutoMovieMotionHumanChain.subject("a"), {
       by: 0.04,
       beat: 1,
       count: 0,
     });
   } catch (error: unknown) {
-    refused = error instanceof HumanRefusal && error.axis === "count";
+    refused = error instanceof AutoMovieMotionHumanRefusal && error.axis === "count";
   }
   TestValidator.predicate("no sway", refused);
 }

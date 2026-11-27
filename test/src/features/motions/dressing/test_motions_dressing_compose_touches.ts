@@ -2,7 +2,7 @@ import type {
   IAutoMovieComposition,
   IAutoMovieIntent,
 } from "@automovie/interface";
-import { HumanChain } from "@automovie/motions";
+import { AutoMovieMotionHumanChain } from "@automovie/motions";
 import {
   composeHumanAdjustCuff,
   composeHumanStraightenPartnerTie,
@@ -32,7 +32,7 @@ export function test_motions_dressing_compose_touches(): void {
     throw new Error(`An anchored node carries no intent of its own`);
   };
   const cuff: IAutoMovieIntent = intent(
-    composeHumanAdjustCuff(HumanChain.subject("a"), { cuff: "left" }).node,
+    composeHumanAdjustCuff(AutoMovieMotionHumanChain.subject("a"), { cuff: "left" }).node,
   );
   TestValidator.equals(
     "the cuff",
@@ -50,7 +50,7 @@ export function test_motions_dressing_compose_touches(): void {
     ],
   );
   const own: IAutoMovieIntent = intent(
-    composeHumanStraightenTie(HumanChain.subject("a"), "right").node,
+    composeHumanStraightenTie(AutoMovieMotionHumanChain.subject("a"), "right").node,
   );
   TestValidator.equals(
     "the own tie",
@@ -69,7 +69,7 @@ export function test_motions_dressing_compose_touches(): void {
     ],
   );
   const partner: IAutoMovieIntent = intent(
-    composeHumanStraightenPartnerTie(HumanChain.subject("a"), {
+    composeHumanStraightenPartnerTie(AutoMovieMotionHumanChain.subject("a"), {
       partner: "b",
       side: "left",
     }).node,

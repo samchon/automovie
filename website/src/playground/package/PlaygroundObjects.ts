@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanProp,
   IAutoMovieTransform,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanGait, HumanObject } from "@automovie/motions";
+import { AutoMovieMotionHumanGait, AutoMovieMotionHumanObject } from "@automovie/motions";
 import * as motions from "@automovie/motions";
 import * as internal from "@automovie/motions/internal";
 
@@ -14,17 +14,17 @@ import { playgroundVehicleCourse } from "./playgroundVehicleCourse";
 
 /**
  * The archetypes a composition places, as the props and seats its actions
- * read, through `HumanObject` of `@automovie/motions`.
+ * read, through `AutoMovieMotionHumanObject` of `@automovie/motions`.
  *
  * A composition is plain data, so an action names a seat or an opening by
  * the object that carries it: a parameter value `{ "$seat": "<object
  * subject>" }` or `{ "$aperture": "<object subject>" }`, with an optional
  * `"id"` for the affordance, is replaced by that object's seat or opening
- * before the chain is built. A release without `HumanObject` cannot
+ * before the chain is built. A release without `AutoMovieMotionHumanObject` cannot
  * place objects, and a composition that does is refused with that reason.
  */
 export namespace PlaygroundObjects {
-  /** `HumanObject` as this module calls it, present only where the installed package has it. */
+  /** `AutoMovieMotionHumanObject` as this module calls it, present only where the installed package has it. */
   interface IHumanObject {
     /** The prop of a model placed in the world. */
     prop(
@@ -59,7 +59,7 @@ export namespace PlaygroundObjects {
     ): IStaging;
   }
 
-  /** A placement as `HumanObject.Placement` takes it: a heading on a floor point, or a world frame, either as a fixture or not. */
+  /** A placement as `AutoMovieMotionHumanObject.Placement` takes it: a heading on a floor point, or a world frame, either as a fixture or not. */
   type IPlacement = (
     | { at: { x: number; y: number; z: number }; yaw: number }
     | {
@@ -77,7 +77,7 @@ export namespace PlaygroundObjects {
   /**
    * Whether the installed packages can place objects.
    *
-   * @returns Whether `HumanObject` is exported.
+   * @returns Whether `AutoMovieMotionHumanObject` is exported.
    */
   export function available(): boolean {
     return typeof MOTIONS["HumanObject"] === "object";
@@ -125,7 +125,7 @@ export namespace PlaygroundObjects {
           aid === undefined
             ? travel?.placement
             : AutoMovieMotionHumanGait.aidWalk.track(
-                HumanObject.frame(placed),
+                AutoMovieMotionHumanObject.frame(placed),
                 aid,
               ),
           travel?.contact,

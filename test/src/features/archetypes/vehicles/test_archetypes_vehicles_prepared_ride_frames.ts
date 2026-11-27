@@ -4,7 +4,7 @@ import type {
   IAutoMovieAffordance,
   IAutoMovieTransform,
 } from "@automovie/interface";
-import { HumanObject } from "@automovie/motions";
+import { AutoMovieMotionHumanObject } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { qclose } from "../../internal/qclose";
@@ -79,7 +79,7 @@ export function test_archetypes_vehicles_prepared_ride_frames(): void {
     fault instanceof AutoMovieArchetypeRefusal,
   );
 
-  const prop: ReturnType<typeof HumanObject.prop> = HumanObject.prop(
+  const prop: ReturnType<typeof AutoMovieMotionHumanObject.prop> = AutoMovieMotionHumanObject.prop(
     "car",
     car,
     {
@@ -92,7 +92,7 @@ export function test_archetypes_vehicles_prepared_ride_frames(): void {
     Object.hasOwn(prop, "articulateSite"),
     false,
   );
-  const site: IAutoMovieAffordance | undefined = HumanObject.articulateSite({
+  const site: IAutoMovieAffordance | undefined = AutoMovieMotionHumanObject.articulateSite({
     ...prop,
   })?.("wheel", { wheel: 45 });
   TestValidator.predicate(
@@ -107,12 +107,12 @@ export function test_archetypes_vehicles_prepared_ride_frames(): void {
   const external: NonNullable<typeof prop.articulateSite> = () => undefined;
   TestValidator.equals(
     "an explicit callback supersedes the model projection",
-    HumanObject.articulateSite({ ...prop, articulateSite: external }),
+    AutoMovieMotionHumanObject.articulateSite({ ...prop, articulateSite: external }),
     external,
   );
   TestValidator.equals(
     "replacing the full provider drops the old projection",
-    HumanObject.articulateSite({
+    AutoMovieMotionHumanObject.articulateSite({
       ...prop,
       articulate: (state) => prop.articulate!(state),
     }),

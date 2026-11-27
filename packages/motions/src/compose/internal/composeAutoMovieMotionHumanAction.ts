@@ -11,7 +11,7 @@ import type {
   IAutoMovieMotionWeaponPath,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { AutoMovieMotionHumanChannel as HumanChannels } from "./AutoMovieMotionHumanChannel";
 
@@ -48,7 +48,7 @@ import { AutoMovieMotionHumanChannel as HumanChannels } from "./AutoMovieMotionH
  * When the base and the clock differ in duration, a primitive
  * claims no channel, a primitive's window is reversed or leaves the clock, or
  * two primitives claim one channel over overlapping windows; and whatever a
- * primitive's plan refuses with (a planned arm's `HumanRefusal`).
+ * primitive's plan refuses with (a planned arm's `AutoMovieMotionHumanRefusal`).
  */
 export function composeAutoMovieMotionHumanAction(
   props: IAutoMovieMotionHumanComposeAutoMovieMotionHumanAction.IProps,
@@ -101,7 +101,7 @@ export function composeAutoMovieMotionHumanAction(
         shared !== undefined &&
         Math.min(a.to, b.to) - Math.max(a.from, b.from) > 1e-9
       )
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "channel",
           axis: "channel",
           value: shared,

@@ -63,7 +63,7 @@ export namespace motionHumanLawSweep {
    * A row's actual people, composition and props.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs a row performs.
-   * @evidence contracts/development/design.md#principled-representation A scene contains the same public composition and prop inputs passed to HumanPerformance.
+   * @evidence contracts/development/design.md#principled-representation A scene contains the same public composition and prop inputs passed to AutoMovieMotionHumanPerformance.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Groups the three values every staged cell supplies.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Carries no expected pose or scene-specific exception.
    */

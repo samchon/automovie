@@ -15,7 +15,7 @@ import type {
 } from "@automovie/interface";
 
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { mixHumanPosture } from "../../posture/internal/mixHumanPosture";
 import { HumanMountedFrame } from "./HumanMountedFrame";
 import { HumanUnseatPose } from "./HumanUnseatPose";
@@ -136,7 +136,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     const reach: number =
       m.upperArm + m.forearm + m.hand + (m.shoulderHeight - m.hipHeight);
     if (gap > reach)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: `figures.${i}.object`,
         value: gap,
@@ -245,7 +245,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   );
   if (pickups.length === 0) return goals;
   if (pickups.length > 1)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "figures",
       value: pickups,

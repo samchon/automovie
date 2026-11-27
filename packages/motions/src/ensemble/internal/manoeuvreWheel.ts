@@ -6,7 +6,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFormation } from "./HumanFormation";
 
 /*
@@ -68,7 +68,7 @@ export function manoeuvreWheel(
       turned.z - ends[i]!.at.z,
     );
     if (off > manoeuvreWheel.FIT)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "participant",
         performer: members[i]!.subject,
         axis: `${ensemble.input.id}.manoeuvre`,

@@ -1,12 +1,12 @@
 import type { IAutoMovieIntent, IAutoMovieVector3 } from "@automovie/interface";
-import { HumanChain } from "@automovie/motions";
+import { AutoMovieMotionHumanChain } from "@automovie/motions";
 import { HumanTabletop } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { compositionIntents } from "../../internal/compositionIntents";
 
 /** Each intent's capability and its parameters, in order. */
-const steps = (chain: ReturnType<typeof HumanChain.subject>): unknown[] =>
+const steps = (chain: ReturnType<typeof AutoMovieMotionHumanChain.subject>): unknown[] =>
   compositionIntents(chain.node).map((i: IAutoMovieIntent): unknown => [
     i.capability,
     i.parameters?.params,
@@ -53,7 +53,7 @@ export function test_motions_lexicon_tabletop(): void {
   TestValidator.equals(
     "a quiet move",
     steps(
-      HumanTabletop.chessMove(HumanChain.subject("a"), {
+      HumanTabletop.chessMove(AutoMovieMotionHumanChain.subject("a"), {
         board: "board",
         piece: "knight",
         to: "h3",
@@ -66,7 +66,7 @@ export function test_motions_lexicon_tabletop(): void {
   TestValidator.equals(
     "a capture",
     steps(
-      HumanTabletop.chessMove(HumanChain.subject("a"), {
+      HumanTabletop.chessMove(AutoMovieMotionHumanChain.subject("a"), {
         board: "board",
         piece: "knight",
         to: "f3",
@@ -83,7 +83,7 @@ export function test_motions_lexicon_tabletop(): void {
     ],
   );
   TestValidator.error("onto a piece not captured", () =>
-    HumanTabletop.chessMove(HumanChain.subject("a"), {
+    HumanTabletop.chessMove(AutoMovieMotionHumanChain.subject("a"), {
       board: "board",
       piece: "knight",
       to: "f3",
@@ -91,7 +91,7 @@ export function test_motions_lexicon_tabletop(): void {
     }),
   );
   TestValidator.error("a capture with nowhere aside", () =>
-    HumanTabletop.chessMove(HumanChain.subject("a"), {
+    HumanTabletop.chessMove(AutoMovieMotionHumanChain.subject("a"), {
       board: "board",
       piece: "knight",
       to: "f3",
@@ -100,7 +100,7 @@ export function test_motions_lexicon_tabletop(): void {
     }),
   );
   TestValidator.error("a piece on no square", () =>
-    HumanTabletop.chessMove(HumanChain.subject("a"), {
+    HumanTabletop.chessMove(AutoMovieMotionHumanChain.subject("a"), {
       board: "board",
       piece: "queen",
       to: "h3",
@@ -111,7 +111,7 @@ export function test_motions_lexicon_tabletop(): void {
   TestValidator.equals(
     "round the seats",
     steps(
-      HumanTabletop.deal(HumanChain.subject("a"), {
+      HumanTabletop.deal(AutoMovieMotionHumanChain.subject("a"), {
         cards: ["c1", "c2", "c3"],
         seats: SEATS,
       }),
@@ -122,10 +122,10 @@ export function test_motions_lexicon_tabletop(): void {
     ]),
   );
   TestValidator.error("no seat", () =>
-    HumanTabletop.deal(HumanChain.subject("a"), { cards: ["c1"], seats: [] }),
+    HumanTabletop.deal(AutoMovieMotionHumanChain.subject("a"), { cards: ["c1"], seats: [] }),
   );
   TestValidator.error("two cards on one place", () =>
-    HumanTabletop.lay(HumanChain.subject("a"), {
+    HumanTabletop.lay(AutoMovieMotionHumanChain.subject("a"), {
       cards: ["c1", "c2"],
       places: [{ at: SEATS[0]!, rotation: { x: 0, y: 0, z: 0, w: 1 } }],
     }),

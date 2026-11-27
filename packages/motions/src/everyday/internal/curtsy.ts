@@ -21,7 +21,7 @@ import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotion
 import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionHumanRoot } from "../../compose/internal/AutoMovieMotionHumanRoot";
 import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
@@ -55,7 +55,7 @@ const FIT: number = 0.006;
  * the plant, clearance or reach checks at the key poses and the intervening
  * witnesses. The arms, hands and head are available for layers.
  *
- * Register with HumanChain.extend({ curtsy }) and HumanPerformance's laws.
+ * Register with AutoMovieMotionHumanChain.extend({ curtsy }) and AutoMovieMotionHumanPerformance's laws.
  * Enter from standing and cut into another action only after recovery.
  */
 export const curtsy: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCurtsy> =
@@ -137,7 +137,7 @@ function plan(
         socket.point.y - floor > FIT,
     )
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "base",
       axis: "base",
       value: entry.base.kind,
@@ -230,7 +230,7 @@ function plan(
       return a < middle && middle < b && 0 < progress && progress < 1;
     })
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "duration",
       value: duration,
@@ -372,7 +372,7 @@ function plan(
       )
     )
       continue;
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "depth",
       value: depth,

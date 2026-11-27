@@ -15,7 +15,7 @@ import type {
 import { support } from "../../actions/internal/support";
 import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { grappleArms } from "./grappleArms";
 import { grappleFront } from "./grappleFront";
@@ -122,7 +122,7 @@ export namespace grapple {
   ): IAutoMovieMotionHumanActionPlan {
     const p: IAutoMovieMotionHumanGrapple.IParams = context.params;
     if (p.partner === context.subject)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "participant",
         axis: "partner",
         value: p.partner,

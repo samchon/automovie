@@ -13,7 +13,7 @@ import type {
 
 import { ExerciseKey } from "../../exercise/internal/ExerciseKey";
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { HumanMaterialContact } from "../../posture/internal/HumanMaterialContact";
@@ -383,8 +383,8 @@ export namespace AquaticPool {
         (item: IAutoMovieAffordance): boolean =>
           item.id === "edge" && item.kind === "ledge",
       );
-    const refuse = (): HumanRefusal =>
-      new HumanRefusal({
+    const refuse = (): AutoMovieMotionHumanRefusal =>
+      new AutoMovieMotionHumanRefusal({
         kind: "affordance",
         axis: "support",
         value: support,

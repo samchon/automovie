@@ -6,7 +6,7 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanRefusal } from "@automovie/motions";
+import { AutoMovieMotionHumanRefusal } from "@automovie/motions";
 import {
   swipeTouchscreenScreen,
   swipeTouchscreenStroke,
@@ -91,7 +91,7 @@ export function test_motions_everyday_swipe_touchscreen_playback(): void {
     assert.throws(
       () => swipeTouchscreenScreen(reader, { ...params, to: 0.6 }, start),
       (error: unknown): boolean =>
-        error instanceof HumanRefusal && error.axis === "to" && error.fix.length > 0,
+        error instanceof AutoMovieMotionHumanRefusal && error.axis === "to" && error.fix.length > 0,
     );
   }
 }

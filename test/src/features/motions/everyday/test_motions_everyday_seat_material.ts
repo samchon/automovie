@@ -7,7 +7,7 @@ import type {
   IAutoMovieMotionHumanSeated,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanChain, HumanPerformance } from "@automovie/motions";
+import { AutoMovieMotionHumanChain, AutoMovieMotionHumanPerformance } from "@automovie/motions";
 import { HumanMaterialContact, seated } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
@@ -25,7 +25,7 @@ import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
 export async function test_motions_everyday_seat_material(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
   const front: IAutoMovieVector3 = { x: 0, y: seated.popliteal(body), z: 0 };
-  const upright = (width: number, offset: number = 0): HumanPerformance => {
+  const upright = (width: number, offset: number = 0): AutoMovieMotionHumanPerformance => {
     const face: IAutoMovieAffordance = {
       id: "seat",
       kind: "seat",
@@ -64,7 +64,7 @@ export async function test_motions_everyday_seat_material(): Promise<void> {
         right: { x: -0.25, y: front.y + 0.2, z: -0.15 },
       },
     };
-    return new HumanPerformance({
+    return new AutoMovieMotionHumanPerformance({
       seed: "seat material",
       performers: [
         {
@@ -76,11 +76,11 @@ export async function test_motions_everyday_seat_material(): Promise<void> {
         },
       ],
       props: [prop],
-      composition: HumanChain.subject("actor").sit({ seat, hold: 0.4 }).rise()
+      composition: AutoMovieMotionHumanChain.subject("actor").sit({ seat, hold: 0.4 }).rise()
         .node,
     });
   };
-  const wide: HumanPerformance = upright(0.65);
+  const wide: AutoMovieMotionHumanPerformance = upright(0.65);
   const windows: IAutoMovieMotionHumanContactWindow[][] = wide
     .segments("actor")
     .map((segment): IAutoMovieMotionHumanContactWindow[] =>

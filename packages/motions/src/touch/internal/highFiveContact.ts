@@ -21,7 +21,7 @@ import { AutoMovieMotionHumanTargetGrid } from "../../compose/internal/AutoMovie
 import { AutoMovieMotionHumanTouchLaid } from "../../compose/internal/AutoMovieMotionHumanTouchLaid";
 import { handshake } from "../../handling/internal/handshake";
 import { HumanPerception } from "../../law/internal/HumanPerception";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanColliders } from "../../posture/internal/HumanColliders";
 import { HumanSeatedReach } from "./HumanSeatedReach";
 
@@ -119,7 +119,7 @@ export namespace highFiveContact {
         arms[1]!.shoulder,
         arms[0]!.shoulder,
       );
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "partner",
         value: Math.hypot(span.x, span.z),

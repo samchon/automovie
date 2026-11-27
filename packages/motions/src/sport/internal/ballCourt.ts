@@ -22,7 +22,7 @@ import { AutoMovieMotionHumanTrunk } from "../../compose/internal/AutoMovieMotio
 import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
 import { lookPrimitive } from "../../compose/internal/lookPrimitive";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { throwObjectLaunch } from "../../throwing/internal/throwObjectLaunch";
 import { ballCourtClock } from "./ballCourtClock";
@@ -76,7 +76,7 @@ export function ballCourt(
   const target: IAutoMovieVector3 | undefined = params.at;
   const prop: string | undefined = params.prop;
   if (!guard && prop === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "prop",
       value: prop,
@@ -84,7 +84,7 @@ export function ballCourt(
       fix: "name the ball the performer is holding",
     });
   if (!guard && !dribble && target === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "at",
       value: target,

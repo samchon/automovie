@@ -15,7 +15,7 @@ import type {
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanObject } from "@automovie/motions";
+import { AutoMovieMotionHumanObject } from "@automovie/motions";
 import {
   AquaticCrew,
   AquaticEdge,
@@ -269,7 +269,7 @@ async function wallTurn(): Promise<void> {
         at: { x: -5, y: 0.3, z: 0 },
         yaw: 90,
         props: [
-          HumanObject.prop("wall", AutoMovieArchetypePoolEdge.create({ kind: "deckEdge" }), {
+          AutoMovieMotionHumanObject.prop("wall", AutoMovieArchetypePoolEdge.create({ kind: "deckEdge" }), {
             at: { x: 0, y: 0, z: 0 },
             yaw: -90,
             fixed: true,

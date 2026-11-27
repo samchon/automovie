@@ -20,7 +20,7 @@ import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionH
 import { AutoMovieMotionHumanArmJointCourse } from "../../compose/internal/AutoMovieMotionHumanArmJointCourse";
 import { AutoMovieMotionHumanArmTarget } from "../../compose/internal/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { HumanHandTarget } from "../../posture/internal/HumanHandTarget";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -46,7 +46,7 @@ export function climbStairsRail(
 ): IAutoMovieMotionHumanActionPlan {
   const subject: string | undefined = context.params.on;
   const refuse = (reason: string): never => {
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "rail.point",
       value: rail.point,
@@ -187,7 +187,7 @@ export function climbStairsRail(
     );
   }
   if (miss > MISS)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "rail.point",
       value: rail.point,

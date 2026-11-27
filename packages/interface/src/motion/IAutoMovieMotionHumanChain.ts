@@ -13,18 +13,18 @@ import type { IAutoMovieMotionHumanMutual } from "./IAutoMovieMotionHumanMutual"
  * action of the vocabulary, `act` for the same action by its name, `registered`
  * for a production's own law by its name, `until` to cut the last one, `sync`
  * to time it to another action or a cue, `over` to perform other actions on it
- * at once (`HumanChainCore`), and `next` and `with` (from `AutoMovieChain`) to
+ * at once (`AutoMovieMotionHumanChainCore`), and `next` and `with` (from `AutoMovieChain`) to
  * sequence and parallel whole chains, people with people. Its statics start a
  * chain (`subject`), give registered laws typed methods (`extend`) and join
  * people in a mutual action (`mutual`, and `pair` for a handshake and a
  * handover).
  *
  * ```ts
- * const a = HumanChain.subject("a")
+ * const a = AutoMovieMotionHumanChain.subject("a")
  *   .stand({ hold: 1 })
  *   .until({ share: 0.5 })
  *   .stand();
- * new HumanPerformance({ seed: "film", performers, composition: a.node });
+ * new AutoMovieMotionHumanPerformance({ seed: "film", performers, composition: a.node });
  * ```
  *
  * A chain is immutable; every method returns a new chain. The chain only names
@@ -44,18 +44,18 @@ export interface IAutoMovieMotionHumanChain extends IAutoMovieMotionHumanChainSp
  * action of the vocabulary, `act` for the same action by its name, `registered`
  * for a production's own law by its name, `until` to cut the last one, `sync`
  * to time it to another action or a cue, `over` to perform other actions on it
- * at once (`HumanChainCore`), and `next` and `with` (from `AutoMovieChain`) to
+ * at once (`AutoMovieMotionHumanChainCore`), and `next` and `with` (from `AutoMovieChain`) to
  * sequence and parallel whole chains, people with people. Its statics start a
  * chain (`subject`), give registered laws typed methods (`extend`) and join
  * people in a mutual action (`mutual`, and `pair` for a handshake and a
  * handover).
  *
  * ```ts
- * const a = HumanChain.subject("a")
+ * const a = AutoMovieMotionHumanChain.subject("a")
  *   .stand({ hold: 1 })
  *   .until({ share: 0.5 })
  *   .stand();
- * new HumanPerformance({ seed: "film", performers, composition: a.node });
+ * new AutoMovieMotionHumanPerformance({ seed: "film", performers, composition: a.node });
  * ```
  *
  * A chain is immutable; every method returns a new chain. The chain only names
@@ -84,9 +84,9 @@ export namespace IAutoMovieMotionHumanChain {
      * production's own actions are appended exactly like the vocabulary's.
      *
      * ```ts
-     * const Chain = HumanChain.extend({ salute });
+     * const Chain = AutoMovieMotionHumanChain.extend({ salute });
      * Chain.subject("a").walk({ to }).salute({ hold: 1.5 }).stand();
-     * new HumanPerformance({
+     * new AutoMovieMotionHumanPerformance({
      *   seed,
      *   performers,
      *   laws: [salute],
@@ -113,13 +113,13 @@ export namespace IAutoMovieMotionHumanChain {
      *
      * Every chain of the cast plays first, side by side, and then every role
      * performs its part of the mutual action at once, so each person's earlier
-     * actions are placed before any role plans the meeting. `HumanMutual` holds
+     * actions are placed before any role plans the meeting. `AutoMovieMotionHumanMutual` holds
      * the vocabulary's mutual actions; a production states its own as an
      * `IAutoMovieMotionHumanMutual` over its registered laws.
      *
      * ```ts
-     * HumanChain.mutual(
-     *   HumanMutual.handOver,
+     * AutoMovieMotionHumanChain.mutual(
+     *   AutoMovieMotionHumanMutual.handOver,
      *   { giver: a, receiver: b },
      *   { prop: "cup", handle: "body" },
      * );

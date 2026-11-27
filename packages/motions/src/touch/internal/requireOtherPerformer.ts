@@ -1,4 +1,4 @@
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * Admit a distinct performer for a partner-only action.
@@ -13,7 +13,7 @@ export function requireOtherPerformer(
   reason: string,
 ): void {
   if (partner === subject)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "partner",
       value: partner,

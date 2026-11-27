@@ -13,7 +13,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanShapeBlend } from "../../posture/internal/prepareHumanShapeBlend";
@@ -60,7 +60,7 @@ function plan(
     craft.prop.worn !== undefined ||
     craft.prop.mounted !== undefined
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "base",
       axis: "spacecraft",
       value: p.spacecraft,
@@ -103,7 +103,7 @@ function plan(
     Vector3.dot(inward, arrivalInward) < 1 - ALIGNMENT ||
     Math.abs(Vector3.dot(arrivalAlong, along)) < 1 - ALIGNMENT
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "arrival",
       value: p.arrival,
@@ -120,7 +120,7 @@ function plan(
     Vector3.length(context.entry.velocity.linear) > ALIGNMENT ||
     Vector3.length(context.entry.velocity.angular) > ALIGNMENT
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "base",
       axis: "entry",
       value: context.entry.base.kind,
@@ -162,7 +162,7 @@ function plan(
   const armLength: number =
     context.body.measure.upperArm + context.body.measure.forearm;
   if (reach > armLength + ALIGNMENT)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "entry",
       value: reach,
@@ -188,7 +188,7 @@ function plan(
   );
   const clearance: number = p.handClearance;
   if (!(clearance > 0 && clearance <= clearanceLimit))
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "handClearance",
       value: clearance,
@@ -308,7 +308,7 @@ function rail(
     (found.kind !== "bar" && found.kind !== "handle") ||
     found.rides !== undefined
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: field,
       value: id,

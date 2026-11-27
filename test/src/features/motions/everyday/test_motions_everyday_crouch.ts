@@ -1,6 +1,6 @@
 import { DEFAULT_HUMANOID_ROM } from "@automovie/engine";
 import {
-  HumanRefusal,
+  AutoMovieMotionHumanRefusal,
   crouch,
   crouchAngles,
 } from "@automovie/motions/internal";
@@ -57,11 +57,11 @@ export async function test_motions_everyday_crouch(): Promise<void> {
     [raised.shankTilt, raised.thighTilt],
     [ankle + crouch.HEEL, crouch.KNEE.full - ankle - crouch.HEEL],
   );
-  let refusal: HumanRefusal | undefined;
+  let refusal: AutoMovieMotionHumanRefusal | undefined;
   try {
     crouchAngles(crouch.KNEE.full, crouch.ANKLE, 0, "full", "flat");
   } catch (error: unknown) {
-    if (error instanceof HumanRefusal) refusal = error;
+    if (error instanceof AutoMovieMotionHumanRefusal) refusal = error;
   }
   TestValidator.predicate(
     `flat heels at full depth refused (${refusal?.axis})`,

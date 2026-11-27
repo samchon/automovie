@@ -16,7 +16,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 
 /*
@@ -26,7 +26,7 @@ import { HumanPerformanceRead } from "./HumanPerformanceRead";
  * table or against a wall rests on it instead of passing through.
  *
  * A prop moves as the performance places it at each step
- * (`HumanPerformance.prop`); a prop a simulated performer grips or wears during
+ * (`AutoMovieMotionHumanPerformance.prop`); a prop a simulated performer grips or wears during
  * the window rides that performer's hand or bone and is left out, since a
  * kinematic body cannot follow a solved hand. An obstacle is the prism over its
  * footprint from its bottom to its top, placed by its motion when it moves
@@ -104,7 +104,7 @@ export function placeHumanSimulationColliders(
     ];
     if (!within(frames, prism, reach)) continue;
     if (obstacle.apertures !== undefined && obstacle.apertures.length > 0)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "window",
         value: obstacle.subject,

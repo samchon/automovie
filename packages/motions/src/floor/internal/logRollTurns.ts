@@ -5,7 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * A log roll's advance: each half turn carries the pelvis half the chest's
@@ -38,7 +38,7 @@ export namespace logRollTurns {
   ): number {
     if (p.halfTurns !== undefined) {
       if (!(p.halfTurns >= 1))
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "parameter",
           axis: "halfTurns",
           value: p.halfTurns,
@@ -49,7 +49,7 @@ export namespace logRollTurns {
     }
     const along: number = Vector3.dot(Vector3.subtract(p.to!, hips), travel);
     if (!(along > step / 2))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "to",
         value: p.to!,

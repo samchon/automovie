@@ -4,7 +4,7 @@ import type {
   IAutoMovieMotionHumanPropReader,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * The relative motion the writing target can support.
@@ -20,7 +20,7 @@ export namespace writeAdmission {
     stationary: () => boolean,
   ): void {
     if (on === tool || prop.fixed === true || prop.motion !== undefined || !stationary())
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "affordance",
         axis: "on",
         value: on,
@@ -41,7 +41,7 @@ export namespace writeAdmission {
       (prop.articulate !== undefined &&
         (site.rides !== undefined || AffordanceArticulation.KINDS.has(site.kind)))
     )
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "affordance",
         axis: "tip",
         value: site.id,

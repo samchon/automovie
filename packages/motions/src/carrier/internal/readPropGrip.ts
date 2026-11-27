@@ -9,7 +9,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * The axis a handle is wrapped about: its affordance frame's local +X.
@@ -38,7 +38,7 @@ export function readPropGrip(
 ): IAutoMovieMotionHumanMountRider.IHoldGrip {
   const support: readPropGrip.IReader = context.prop(on);
   if (!Object.hasOwn(support.prop.points, id))
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis,
       value: id,

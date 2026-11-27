@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionEvent } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * Stop, drop and roll's timetable: the body stands stopped `STOP`, drops over
@@ -17,7 +17,7 @@ export function stopDropRollTimeline(
 ): stopDropRollTimeline.ITimeline {
   const count: number = Math.round(rolls ?? 4);
   if (!(count > 0))
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "rolls",
       value: count,

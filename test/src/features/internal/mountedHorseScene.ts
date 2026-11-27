@@ -14,9 +14,9 @@ import type {
 import {
   AutoMovieMotionHumanMount,
   AutoMovieMotionHumanSignature,
-  HumanChain,
-  HumanObject,
-  HumanPerformance,
+  AutoMovieMotionHumanChain,
+  AutoMovieMotionHumanObject,
+  AutoMovieMotionHumanPerformance,
 } from "@automovie/motions";
 import { HumanFrame, HumanHand } from "@automovie/motions/internal";
 
@@ -34,10 +34,10 @@ export namespace mountedHorseScene {
   export type Ride = ReturnType<typeof AutoMovieArchetypeHorseRide.ride>;
 
   /** The rider's chain once seated. */
-  export type Seated = ReturnType<ReturnType<typeof HumanChain.subject>["sit"]>;
+  export type Seated = ReturnType<ReturnType<typeof AutoMovieMotionHumanChain.subject>["sit"]>;
 
   /** A rider's chain before sitting on. */
-  export type Chain = ReturnType<typeof HumanChain.subject>;
+  export type Chain = ReturnType<typeof AutoMovieMotionHumanChain.subject>;
 
   /** Acts on the ground before sitting on. */
   export type Before = (chain: Chain) => Chain;
@@ -51,7 +51,7 @@ export namespace mountedHorseScene {
     ride: Ride;
 
     /** The film. */
-    film: HumanPerformance;
+    film: AutoMovieMotionHumanPerformance;
 
     /** The rider's body. */
     body: IAutoMovieMotionHumanBody;
@@ -87,8 +87,8 @@ export namespace mountedHorseScene {
     from: IAutoMovieVector3;
 
     /** Its acts. */
-    acts: (chain: ReturnType<typeof HumanChain.subject>) => {
-      node: ReturnType<typeof HumanChain.subject>["node"];
+    acts: (chain: ReturnType<typeof AutoMovieMotionHumanChain.subject>) => {
+      node: ReturnType<typeof AutoMovieMotionHumanChain.subject>["node"];
     };
   }
 
@@ -116,7 +116,7 @@ export namespace mountedHorseScene {
     course?: Ride;
 
     /** The performance's cue tracks; none when absent. */
-    cues?: ConstructorParameters<typeof HumanPerformance>[0]["cues"];
+    cues?: ConstructorParameters<typeof AutoMovieMotionHumanPerformance>[0]["cues"];
 
     /** The acts after sitting. */
     acts: (seated: Seated) => Seated;
@@ -138,10 +138,10 @@ export namespace mountedHorseScene {
     partners?: IPartner[];
 
     /** Further laws the acts use, beside the ride and the mounted law. */
-    laws?: ConstructorParameters<typeof HumanPerformance>[0]["laws"];
+    laws?: ConstructorParameters<typeof AutoMovieMotionHumanPerformance>[0]["laws"];
 
     /** Further props, beside the horse. */
-    props?: ConstructorParameters<typeof HumanPerformance>[0]["props"];
+    props?: ConstructorParameters<typeof AutoMovieMotionHumanPerformance>[0]["props"];
 
     /**
      * The grade the horse stands and goes on, degrees, nose up; level when
@@ -180,7 +180,7 @@ export namespace mountedHorseScene {
     const part = (id: string, at: number): IAutoMovieTransform =>
       graded(ride.frame(id as Parameters<Ride["frame"]>[0], local(at)));
     // The saddle is the horse's: a sit on it is carried with the horse.
-    const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(
+    const seat: IAutoMovieMotionHumanSeated.ISeat = AutoMovieMotionHumanObject.seat(
       ride.at(0).archetype,
       place(0),
       "seat",
@@ -189,14 +189,14 @@ export namespace mountedHorseScene {
     // The rider's chain to the acts: the acts before, then the sit unless the rider boards the seat itself.
     const mounted = (): Chain => {
       const ground: Chain = (props.before ?? ((c: Chain): Chain => c))(
-        HumanChain.subject("rider"),
+        AutoMovieMotionHumanChain.subject("rider"),
       );
       return props.seated === false ? ground : ground.sit({ seat, hold: 0.5 });
     };
-    const film: HumanPerformance = new HumanPerformance({
+    const film: AutoMovieMotionHumanPerformance = new AutoMovieMotionHumanPerformance({
       seed: "equine-mounted-supports",
       props: [
-        HumanObject.prop("horse", horse, place(0), place, part),
+        AutoMovieMotionHumanObject.prop("horse", horse, place(0), place, part),
         ...(props.props ?? []),
       ],
       laws: [
@@ -236,7 +236,7 @@ export namespace mountedHorseScene {
                 props.acts(mounted()).node,
                 ...props.partners.map(
                   (partner: IPartner) =>
-                    partner.acts(HumanChain.subject(partner.subject)).node,
+                    partner.acts(AutoMovieMotionHumanChain.subject(partner.subject)).node,
                 ),
               ],
             },

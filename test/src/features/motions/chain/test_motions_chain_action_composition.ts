@@ -3,7 +3,7 @@ import type {
   IAutoMovieIntent,
   IAutoMovieMotionHumanChain,
 } from "@automovie/interface";
-import { HumanChain } from "@automovie/motions";
+import { AutoMovieMotionHumanChain } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";
@@ -19,7 +19,7 @@ import { throwsError } from "../../internal/throwsError";
  *    syncing, refuses before action planning.
  */
 export function test_motions_chain_action_composition(): void {
-  const original: IAutoMovieMotionHumanChain = HumanChain.subject("lead").stand(
+  const original: IAutoMovieMotionHumanChain = AutoMovieMotionHumanChain.subject("lead").stand(
     { hold: 2 },
     "base",
   );

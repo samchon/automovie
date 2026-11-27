@@ -10,7 +10,7 @@ import type { IAutoMovieMotionHumanHandover } from "./IAutoMovieMotionHumanHando
  * of the two bodies.
  */
 export namespace IAutoMovieMotionHumanHandoverAction {
-  /** Parameters passed by HumanChain.handOver to the giver's handOver law. */
+  /** Parameters passed by AutoMovieMotionHumanChain.handOver to the giver's handOver law. */
   export interface IParams {
     /** Subject identifier of the prop already held by the giver on entry. */
     prop: string;

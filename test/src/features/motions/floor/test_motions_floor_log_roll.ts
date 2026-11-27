@@ -8,7 +8,7 @@ import type {
 import { AutoMovieMotionHumanBody } from "@automovie/motions";
 import {
   HumanColliders,
-  HumanRefusal,
+  AutoMovieMotionHumanRefusal,
   lieDown,
   logRoll,
   logRollTurns,
@@ -58,7 +58,7 @@ export async function test_motions_floor_log_roll(): Promise<void> {
     try {
       run();
     } catch (error: unknown) {
-      return error instanceof HumanRefusal && error.axis === axis;
+      return error instanceof AutoMovieMotionHumanRefusal && error.axis === axis;
     }
     return false;
   };

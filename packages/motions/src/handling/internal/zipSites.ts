@@ -4,7 +4,7 @@ import type {
   IAutoMovieMotionHumanZip,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * Read the independent slider and its opposing working and supporting sites
@@ -85,8 +85,8 @@ export namespace zipSites {
   /*
    * Explain why the pouch cannot perform its requested closure.
    */
-  export function refusal(subject: string, reason: string): HumanRefusal {
-    return new HumanRefusal({
+  export function refusal(subject: string, reason: string): AutoMovieMotionHumanRefusal {
+    return new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "pouch",
       value: subject,

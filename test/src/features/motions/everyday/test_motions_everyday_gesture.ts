@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 import {
-  HumanRefusal,
+  AutoMovieMotionHumanRefusal,
   gesture,
   gestureAdmit,
   gestureJoints,
@@ -71,7 +71,7 @@ namespace part_gesture_admit {
       try {
         admit(p);
       } catch (error: unknown) {
-        if (error instanceof HumanRefusal) return error.axis;
+        if (error instanceof AutoMovieMotionHumanRefusal) return error.axis;
       }
       return "admitted";
     };

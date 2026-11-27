@@ -3,7 +3,7 @@ import type { AutoMovieHumanoidBone, IAutoMovieIntegrateAirborneRotation, IAutoM
 
 import { jump } from "../../actions/internal/jump";
 import { jumpAirborne } from "../../actions/internal/jumpAirborne";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { poseBones } from "../../posture/internal/poseBones";
 import { HumanPerformanceFlight } from "./HumanPerformanceFlight";
 import { HumanPerformanceFlightFailure } from "./HumanPerformanceFlightFailure";
@@ -263,7 +263,7 @@ export function flyPerformanceFlight(
             errorScope,
           });
         if (!solved.met)
-          throw new HumanRefusal({
+          throw new AutoMovieMotionHumanRefusal({
             kind: "parameter",
             axis: "turns",
             value: { somersault: turns.somersault, twist: turns.twist },

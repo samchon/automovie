@@ -2,7 +2,7 @@ import type {
   IAutoMovieMotionHumanManoeuvre,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanRefusal, manoeuvreCrossings } from "@automovie/motions/internal";
+import { AutoMovieMotionHumanRefusal, manoeuvreCrossings } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -55,7 +55,7 @@ export function test_motions_ensemble_manoeuvre_crossings(): void {
     try {
       manoeuvreCrossings(ensemble, parts, [1, 1], 0);
     } catch (error: unknown) {
-      if (error instanceof HumanRefusal)
+      if (error instanceof AutoMovieMotionHumanRefusal)
         return `${error.axis}:${error.performer}:${String(error.value)}`;
     }
     return "admitted";

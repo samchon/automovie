@@ -4,7 +4,7 @@ import type {
   IAutoMovieMotionHumanPerformance,
 } from "@automovie/interface";
 
-import { HumanChain } from "../../chain/HumanChain";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
 import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./internal/everydayVerdicts";
@@ -45,7 +45,7 @@ export function crouchCases(
         FamilyCaseKit.perform(
           "crouch",
           [{ subject: "a", body: who.body }],
-          HumanChain.subject("a").act("crouch", params).node,
+          AutoMovieMotionHumanChain.subject("a").act("crouch", params).node,
         );
       const lowest: number = FamilyCaseKit.event(performance, "lowest");
       const knee: number = Math.max(
@@ -92,7 +92,7 @@ export function crouchCases(
         FamilyCaseKit.perform(
           "kneel",
           [{ subject: "a", body: who.body }],
-          HumanChain.subject("a").act("kneel", params).node,
+          AutoMovieMotionHumanChain.subject("a").act("kneel", params).node,
         );
       const contact: number = FamilyCaseKit.event(performance, "kneeContact");
       const settled: number = FamilyCaseKit.event(performance, "settled");

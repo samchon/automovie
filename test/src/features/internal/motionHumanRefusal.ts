@@ -1,5 +1,5 @@
 import type { IAutoMovieMotionHumanRefusal } from "@automovie/interface";
-import { HumanRefusal } from "@automovie/motions";
+import { AutoMovieMotionHumanRefusal } from "@automovie/motions";
 
 /**
  * Observe a public performance's structured refusal without accepting a
@@ -9,7 +9,7 @@ import { HumanRefusal } from "@automovie/motions";
  * @param expected The invalid input's named kind, parameter and action.
  * @returns Whether that located refusal names its reason and repair.
  * @evidence contracts/development/common.md#meaningful-documentation States what is observed and why generic exceptions are insufficient.
- * @evidence contracts/development/implementation.md#principled-implementation The public HumanRefusal fields are the grammar's repair contract; expected kind, axis and act come from the case's invalid request.
+ * @evidence contracts/development/implementation.md#principled-implementation The public AutoMovieMotionHumanRefusal fields are the grammar's repair contract; expected kind, axis and act come from the case's invalid request.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure A normal return is false; only the caught structured refusal is inspected.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not manufacture an exception, catch an assertion failure, or accept an unlocated JavaScript error.
  * @evidence contracts/development/implementation.md#efficient-algorithms One construction and constant-sized field checks.
@@ -29,7 +29,7 @@ export function motionHumanRefusal(
     return false;
   } catch (error) {
     return (
-      error instanceof HumanRefusal &&
+      error instanceof AutoMovieMotionHumanRefusal &&
       error.kind === expected.kind &&
       error.axis === expected.axis &&
       error.act === expected.act &&

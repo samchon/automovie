@@ -9,7 +9,7 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanPerformanceCustody } from "./HumanPerformanceCustody";
 import { HumanPerformanceHoldKit } from "./HumanPerformanceHoldKit";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
@@ -156,7 +156,7 @@ export namespace HumanPerformanceHold {
     path?: HumanPerformanceHoldKit.IMountPath,
   ): IAutoMovieRigidTransform {
     if (path?.get(subject)?.has(seconds))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: `props.${subject}.mounted`,
         value: subject,

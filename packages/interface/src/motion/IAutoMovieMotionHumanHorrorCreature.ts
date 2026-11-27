@@ -4,7 +4,7 @@ import type { IAutoMovieMotionHumanGait } from "./IAutoMovieMotionHumanGait";
  * The gaits of a horror creature, stage readings of a walk with its own Froude
  * number, step and unevenness (provisional; no study was read).
  *
- * A method here is a method of `HumanChain` when its name is in
+ * A method here is a method of `AutoMovieMotionHumanChain` when its name is in
  * `AutoMovieMotionHumanActionName`. Any other member is a registered law or
  * row: pass it in `laws: [...]` to the performance, taking it from
  * `AutoMovieMotionHumanHorrorCreature` or from the row namespace of the family,

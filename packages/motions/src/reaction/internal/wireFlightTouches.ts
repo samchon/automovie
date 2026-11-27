@@ -14,7 +14,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { mixHumanPosture } from "../../posture/internal/mixHumanPosture";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -73,7 +73,7 @@ export namespace wireFlightTouches {
     const admitted: readonly IAdmitted[] = touches.map(
       (touch: IAutoMovieMotionHumanWireFlight.ITouch, k: number): IAdmitted => {
         if (!(touch.at >= 0 && touch.at <= 1))
-          throw new HumanRefusal({
+          throw new AutoMovieMotionHumanRefusal({
             kind: "parameter",
             axis: `touches.${k}.at`,
             value: touch.at,
@@ -101,7 +101,7 @@ export namespace wireFlightTouches {
           : context.body.measure.upperArm + context.body.measure.forearm;
         const gap: number = Vector3.distance(base, aim.point);
         if (gap > reach)
-          throw new HumanRefusal({
+          throw new AutoMovieMotionHumanRefusal({
             kind: "reach",
             axis: `touches.${k}.target`,
             value: gap,

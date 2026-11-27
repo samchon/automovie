@@ -11,7 +11,7 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { poseBones } from "../../posture/internal/poseBones";
 import { HumanPerformanceGrips } from "./HumanPerformanceGrips";
 import { HumanPerformanceHold } from "./HumanPerformanceHold";
@@ -409,7 +409,7 @@ export namespace HumanPerformanceRead {
       self.horizon?.(subject) ?? -Infinity,
     );
     if (!held && self.resolving && left > 0 && at > known + 1e-9)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "participant",
         axis: axis(),
         value: subject,

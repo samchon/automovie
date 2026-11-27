@@ -1,7 +1,7 @@
 import type { IAutoMovieMotionHumanLasso } from "@automovie/interface";
 
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * Admit a lasso's parameters: a whole number of swings from one, a flight of
@@ -16,7 +16,7 @@ export function humanLassoAdmit(
   params: Pick<IAutoMovieMotionHumanLasso, "swings" | "flight" | "dally">,
 ): number {
   if (!(params.swings >= 1))
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "swings",
       value: params.swings,
@@ -27,7 +27,7 @@ export function humanLassoAdmit(
   const flight: number = params.flight ?? 0.8;
   HumanBound.above("flight", flight, 0, "s");
   if (params.dally !== undefined && !(params.dally.turns >= 1))
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "dally.turns",
       value: params.dally.turns,

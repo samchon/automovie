@@ -6,7 +6,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFormationPath } from "./HumanFormationPath";
 import { formationCourseFrame } from "./formationCourseFrame";
 
@@ -22,7 +22,7 @@ export function HumanFormation(
   formation: IAutoMovieMotionHumanFormation,
 ): IAutoMovieMotionHumanFormation {
   if (formation.blocks.length === 0)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "blocks",
       value: 0,
@@ -38,7 +38,7 @@ export function HumanFormation(
           block.count <= capacity
         )
       )
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "parameter",
           axis: `blocks[${b}].count`,
           value: block.count,
@@ -327,7 +327,7 @@ export namespace HumanFormation {
       if (f.kind === "path") return laid!.at(seconds);
       if (f.kind === "course") return formationCourseFrame(f, seconds);
       if (read === undefined)
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "participant",
           axis: "frame",
           value: f.subject,
@@ -396,7 +396,7 @@ export namespace HumanFormation {
     ): number[] => {
       const slots: number = count(formation);
       if (members.length > slots)
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "parameter",
           axis: "members",
           value: members.length,

@@ -9,7 +9,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * A swipe's screen in the world at the action's start (`swipeTouchscreen`): the
@@ -52,7 +52,7 @@ export function swipeTouchscreenScreen(
     read.prop.worn !== undefined ||
     read.prop.mounted !== undefined
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "screen",
       value: `${params.prop}.${params.screen}`,

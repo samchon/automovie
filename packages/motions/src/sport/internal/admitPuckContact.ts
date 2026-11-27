@@ -11,7 +11,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanPropFrame } from "../../perform/internal/HumanPropFrame";
 import { HumanPropHold } from "../../perform/internal/HumanPropHold";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -94,7 +94,7 @@ export function admitPuckContact(
     Math.max(0, Math.abs(local.z) - (blade.depth ?? 0) / 2),
   );
   if (miss > PUCK_CONTACT_ALLOWANCE)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "stick",
       value: miss,
@@ -112,7 +112,7 @@ export function admitPuckContact(
     direction,
   );
   if (facing <= 0)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "stick",
       value: facing,

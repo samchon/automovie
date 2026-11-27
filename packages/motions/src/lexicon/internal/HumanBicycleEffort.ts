@@ -3,7 +3,7 @@ import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieHumanoidSocket
 
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { seated } from "../../everyday/internal/seated";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { hipJoints } from "../../posture/internal/hipJoints";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -128,7 +128,7 @@ function planHumanBicycleEffort(
         support.support.subject !== on,
     )
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "on",
       value: on,
@@ -145,7 +145,7 @@ function planHumanBicycleEffort(
         affordance.id === seat && affordance.kind === "seat",
     );
     if (affordances !== undefined && seatGeometry === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "affordance",
         axis: "seat",
         value: seat,
@@ -191,7 +191,7 @@ function planHumanBicycleEffort(
         AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePoint(socket, bones.get(socket.bone)!);
       const gap: number = Vector3.distance(displayed, expected);
       if (gap <= FIT) return;
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "base",
         axis,
         value: gap,
@@ -292,7 +292,7 @@ function planHumanBicycleEffort(
               FIT
           )
             continue;
-          throw new HumanRefusal({
+          throw new AutoMovieMotionHumanRefusal({
             kind: "reach",
             axis: limb,
             value: at,

@@ -29,7 +29,7 @@ import { HumanRegrasp as HumanRegraspSource } from "../lexicon/internal/HumanReg
  *   from a carry grip to a texting grip), or rolled across the fingers (a
  *   coin).
  * - `carryHang`: Loads carried at the sides with the arms hanging, performed over
- *   a walk (`HumanChain.over`): a farmer's walk.
+ *   a walk (`AutoMovieMotionHumanChain.over`): a farmer's walk.
  * - `pickUpMoving`: Intercept a mounted prop on a translating support at an
  *   authored time.
  * - `putDownAperture`: Register and stage an aligned solid-object insertion and
@@ -124,7 +124,7 @@ export namespace AutoMovieMotionHumanPrehension {
    *    `lift` (`pickUpLift.judged`).
    *
    * The hand grips the prop from `gripClosed` to the end, which attaches the
-   * prop to the hand (`HumanPerformance.prop`), so the prop rides the lift, and
+   * prop to the hand (`AutoMovieMotionHumanPerformance.prop`), so the prop rides the lift, and
    * the plan declares a hold from `gripClosed`, so the hand keeps the prop with
    * its closed fingers through later actions (carried with the trunk while a
    * walk or a turn drives the body) until a put down or a hand over takes it. A
@@ -216,7 +216,7 @@ export namespace AutoMovieMotionHumanPrehension {
 
   /**
    * Loads carried at the sides with the arms hanging, performed over a walk
-   * (`HumanChain.over`): a farmer's walk. Each hand that holds a prop is let
+   * (`AutoMovieMotionHumanChain.over`): a farmer's walk. Each hand that holds a prop is let
    * down until its arm hangs nearly straight from the shoulder, a little out
    * from the thigh, the hand turned as it held the prop (carried round with the
    * body when the walk turns), and holds it there.
@@ -242,8 +242,8 @@ export namespace AutoMovieMotionHumanPrehension {
   /**
    * Register and stage an aligned solid-object insertion and seated handoff.
    *
-   * Use with HumanChain.extend({ putDownAperture }) and supply the law to
-   * HumanPerformance. The receptacle must hold its opening and seat fixed until
+   * Use with AutoMovieMotionHumanChain.extend({ putDownAperture }) and supply the law to
+   * AutoMovieMotionHumanPerformance. The receptacle must hold its opening and seat fixed until
    * the empty hand has withdrawn through the opening. The authored corridor
    * must clear the prop and hand.
    *
@@ -434,7 +434,7 @@ export namespace AutoMovieMotionHumanPrehension {
   /**
    * A held object moved within or with the hand, without being put down: each a
    * row of `regrasp`. Register the ones a film uses
-   * (`HumanPerformance.IInput.laws`, `HumanChain.extend`).
+   * (`AutoMovieMotionHumanPerformance.IInput.laws`, `AutoMovieMotionHumanChain.extend`).
    */
   export import HumanRegrasp = HumanRegraspSource;
 }

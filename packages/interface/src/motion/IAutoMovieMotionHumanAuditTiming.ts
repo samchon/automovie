@@ -16,7 +16,7 @@ import type { IAutoMovieMotionHumanContactWindow } from "./IAutoMovieMotionHuman
  */
 export namespace IAutoMovieMotionHumanAuditTiming {
   /**
-   * A placed action as this audit reads it. `HumanPerformance.segments` yields
+   * A placed action as this audit reads it. `AutoMovieMotionHumanPerformance.segments` yields
    * such spans.
    */
   export interface ISpan {

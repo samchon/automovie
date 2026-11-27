@@ -13,7 +13,7 @@ import type {
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { bendLower } from "../../everyday/internal/bendLower";
 import { bendLowerSolve } from "../../everyday/internal/bendLowerSolve";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanArmTrajectoryTerms } from "../../posture/internal/HumanArmTrajectoryTerms";
 import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
@@ -148,7 +148,7 @@ export namespace pickUpLift {
           share: 1,
         };
       } catch (error) {
-        if (!(error instanceof HumanRefusal)) throw error;
+        if (!(error instanceof AutoMovieMotionHumanRefusal)) throw error;
       }
 
       // The stance, straightened the least share that reaches: scanned up
@@ -277,7 +277,7 @@ export namespace pickUpLift {
       ).get(`${side}Hand`)!.worldPosition.y;
     const short: number = 1000 * (lift - (wrist(lifted) - wrist(closed)));
     if (short > HumanArmTrajectoryTerms.TOLERANCE)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "lift",
         value: short,

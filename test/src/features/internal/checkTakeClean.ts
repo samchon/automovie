@@ -1,4 +1,4 @@
-import type { HumanPerformance } from "@automovie/motions";
+import type { AutoMovieMotionHumanPerformance } from "@automovie/motions";
 
 import { assertTakeClean } from "./assertTakeClean";
 import type { motionComplaints } from "./motionComplaints";
@@ -22,7 +22,7 @@ import type { motionComplaints } from "./motionComplaints";
 export function checkTakeClean(
   checks: motionComplaints.IGatherer,
   label: string,
-  take: HumanPerformance,
+  take: AutoMovieMotionHumanPerformance,
 ): void {
   try {
     assertTakeClean(label, take);

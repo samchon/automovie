@@ -1,7 +1,7 @@
 import { AutoMovieEngineRandom, Quaternion } from "@automovie/engine";
 
 import type { IAutoMovieAffordance, IAutoMovieMotionHumanGrasp, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPrehension, IAutoMovieVector3 } from "@automovie/interface";
-import { HumanGraspRoll, HumanGrip, HumanPrehension, HumanRefusal, pickUpAlong, pickUpStepReach } from "@automovie/motions/internal";
+import { HumanGraspRoll, HumanGrip, HumanPrehension, AutoMovieMotionHumanRefusal, pickUpAlong, pickUpStepReach } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -184,7 +184,7 @@ export function test_motions_handling_pick_up(): void {
   try {
     pickUpAlong(context(1.5), target);
   } catch (error: unknown) {
-    outside = error instanceof HumanRefusal && error.axis === "along";
+    outside = error instanceof AutoMovieMotionHumanRefusal && error.axis === "along";
   }
   TestValidator.predicate(
     "along the band",

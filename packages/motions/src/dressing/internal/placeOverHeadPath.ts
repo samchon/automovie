@@ -10,7 +10,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanAuditSkin } from "../../audit/internal/AutoMovieMotionHumanAuditSkin";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { StrikingBody } from "../../striking/internal/StrikingBody";
 
@@ -315,7 +315,7 @@ export namespace placeOverHeadPath {
     // nearer the chest than they can: a loop whose front is already within
     // that clearance when level cannot be lowered onto the chest by hand.
     if (gap(0) <= 0)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "prop",
         value: gap(0) + REST + props.clearance,
@@ -379,7 +379,7 @@ export namespace placeOverHeadPath {
             ? carriedFall(neckKey, fall, atFall, sweeps.carried)
             : undefined;
         if (carrierFall === undefined)
-          throw new HumanRefusal({
+          throw new AutoMovieMotionHumanRefusal({
             kind: "reach",
             axis: "prop",
             value: handGap.shoulders(atFall(0)),

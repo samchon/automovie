@@ -12,7 +12,7 @@ import type {
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
 import { ExerciseKey } from "../../exercise/internal/ExerciseKey";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanShapeBlend } from "../../posture/internal/prepareHumanShapeBlend";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
@@ -314,7 +314,7 @@ export namespace AquaticPaddle {
       const discriminant: number =
         reachSquared - Vector3.dot(leg, leg) + projected ** 2;
       if (Vector3.dot(leg, leg) > reachSquared)
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "reach",
           axis: "footRest",
           value: hull.feet[side],

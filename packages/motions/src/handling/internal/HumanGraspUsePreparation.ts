@@ -1,7 +1,7 @@
 import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieAffordance, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanGraspUse, IAutoMovieMotionHumanPropReader, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { HumanGraspUse } from "./HumanGraspUse";
@@ -31,7 +31,7 @@ export function HumanGraspUsePreparation(
   const handle: IAutoMovieAffordance | undefined = contact(props.handle);
   const tip: IAutoMovieAffordance | undefined = contact(props.use.tip);
   if (handle === undefined || tip === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "use",
       value: `${props.prop}.${props.use.tip}`,
@@ -104,7 +104,7 @@ export function HumanGraspUsePreparation(
     (props.use.line === "along" || props.use.line === "worn") &&
     placed === undefined
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "use",
       value: props.use.line,

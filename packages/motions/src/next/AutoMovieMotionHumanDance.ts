@@ -177,7 +177,7 @@ export namespace AutoMovieMotionHumanDance {
    * @param chain The swaying performer's chain.
    * @param params How far the pelvis goes, the beat and how many sways.
    * @returns The same kind of chain with the shifts appended.
-   * @throws {HumanRefusal} When the count is not a whole number of one or more.
+   * @throws {AutoMovieMotionHumanRefusal} When the count is not a whole number of one or more.
    */
   export const slowDanceSway: typeof composeHumanSlowDanceSwayLaw =
     composeHumanSlowDanceSwayLaw;

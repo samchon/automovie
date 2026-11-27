@@ -19,7 +19,7 @@ import type { IAutoMovieMotionHumanTether } from "./IAutoMovieMotionHumanTether"
  * initial mount until a hand grips it; while gripped it rides the hand, unless
  * it is a fixture, worn it rides its bone, and it stays where the last grip
  * released it, or flies from a launch and rests where it struck (see
- * `HumanPerformance.prop`). A point's normal points out of the prop's surface.
+ * `AutoMovieMotionHumanPerformance.prop`). A point's normal points out of the prop's surface.
  */
 export interface IAutoMovieMotionHumanProp {
   /** Subject id, unique in the performance. */
@@ -93,7 +93,7 @@ export interface IAutoMovieMotionHumanProp {
    * The frame follows the posed socket through the first hand closure, which
    * takes over placement. The target affordance must be declared on the other
    * prop. Mount chains must end at a prop with no initial mount.
-   * `HumanPerformance` refuses a mounted prop that also declares `worn`,
+   * `AutoMovieMotionHumanPerformance` refuses a mounted prop that also declares `worn`,
    * `motion`, `fixed: true`, or `soft`.
    */
   mounted?: IAutoMovieMotionHumanProp.IMounted;
@@ -147,7 +147,7 @@ export interface IAutoMovieMotionHumanProp {
    * parts an act moves (a door's leaf, a trigger, a bowstring): its contacts
    * and colliders in its own frame with the parts moved. The performance reads
    * it at the travels the drives and tracks give at a second
-   * (`HumanPerformance.state`), so a hand reaching a handle after the door was
+   * (`AutoMovieMotionHumanPerformance.state`), so a hand reaching a handle after the door was
    * opened goes to where the handle is. A rigid object's model adapter can also
    * expose this reader.
    *
@@ -162,7 +162,7 @@ export interface IAutoMovieMotionHumanProp {
 
   /**
    * An explicit single-contact reader at absolute articulation travels in prop
-   * space. `HumanObject.articulateSite` also resolves projections prepared by
+   * space. `AutoMovieMotionHumanObject.articulateSite` also resolves projections prepared by
    * its articulation adapter. Undefined leaves the contact to the full
    * articulation callback.
    */

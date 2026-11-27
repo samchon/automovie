@@ -11,7 +11,7 @@ import type {
 import { stand } from "../../actions/internal/stand";
 import { walkRoot } from "../../actions/internal/walkRoot";
 import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFootRotation } from "../../posture/internal/HumanFootRotation";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
@@ -105,7 +105,7 @@ export function stepOverPath(
     ).z,
   );
   if (near < toes || near > leg)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "obstacle",
       value: near,
@@ -119,7 +119,7 @@ export function stepOverPath(
       fix: "stand before the obstacle within that distance of its near side",
     });
   if (obstacle.height > HIGH * m.hipHeight)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "obstacle",
       value: obstacle.height,
@@ -143,7 +143,7 @@ export function stepOverPath(
         Math.max(0, leg * leg - (LOW * m.hipHeight - m.ankleHeight) ** 2),
       );
   if (nearest > farthest)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "obstacle",
       value: obstacle.depth,

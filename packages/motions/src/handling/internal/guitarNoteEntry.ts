@@ -4,7 +4,7 @@ import type {
   IAutoMovieMotionHumanPropReader,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * Admission rules for the coordinated contacts of a staged guitar note.
@@ -18,7 +18,7 @@ export namespace guitarNoteEntry {
   ): void {
     const { stopAt, pluckAt, releaseAt, duration } = p;
     if (!(0 < stopAt && stopAt < pluckAt && pluckAt < releaseAt && releaseAt < duration))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "stopAt",
         value: [stopAt, pluckAt, releaseAt, duration],
@@ -32,7 +32,7 @@ export namespace guitarNoteEntry {
    */
   export function hands(holds: IAutoMovieMotionHumanEntryState["holds"]): void {
     if (holds.left !== undefined || holds.right !== undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "channel",
         axis: "hands",
         value: holds,
@@ -49,7 +49,7 @@ export namespace guitarNoteEntry {
     prop: Pick<IAutoMovieMotionHumanPropReader["prop"], "fixed" | "motion" | "worn" | "mounted">,
   ): void {
     if (prop.fixed !== true || prop.motion !== undefined || prop.worn !== undefined || prop.mounted !== undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "affordance",
         axis: "prop",
         value: subject,

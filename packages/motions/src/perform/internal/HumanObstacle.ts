@@ -15,7 +15,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanObject } from "../HumanObject";
+import { AutoMovieMotionHumanObject } from "../AutoMovieMotionHumanObject";
 
 /*
  * What stands in a person's way: a wall, a piece of furniture, a door frame,
@@ -101,7 +101,7 @@ export namespace HumanObstacle {
     model: IAutoMovieMotionHumanObject.IModel,
     placement: IAutoMovieMotionHumanObject.Placement,
   ): IAutoMovieMotionObstacleAperture[] {
-    const placed: IAutoMovieRigidTransform = HumanObject.frame(placement);
+    const placed: IAutoMovieRigidTransform = AutoMovieMotionHumanObject.frame(placement);
     const out: IAutoMovieMotionObstacleAperture[] = [];
     for (const affordance of model.affordances ?? []) {
       if (
@@ -180,7 +180,7 @@ export namespace HumanObstacle {
       throw new Error(
         `The object ${subject} has no colliders, so nothing says where its solid stands: give it shapes, or state it as a wall`,
       );
-    const placed: IAutoMovieRigidTransform = HumanObject.frame(placement);
+    const placed: IAutoMovieRigidTransform = AutoMovieMotionHumanObject.frame(placement);
     const corners: IAutoMovieVector3[] = [];
     let bottom: number = Infinity;
     let top: number = -Infinity;

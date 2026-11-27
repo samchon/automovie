@@ -11,7 +11,7 @@ import type {
 
 import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionHumanLeg";
 import { ExerciseKey } from "../../exercise/internal/ExerciseKey";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { AquaticPosture } from "./AquaticPosture";
 
 /*
@@ -59,7 +59,7 @@ export namespace AquaticExit {
   ): IAutoMovieMotionHumanActionPlan {
     const { body, entry } = context;
     if (!(water > 0 && water <= DEPTH * body.measure.stature))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "water",
         value: water,

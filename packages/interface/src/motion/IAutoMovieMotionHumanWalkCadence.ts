@@ -20,7 +20,7 @@
 export namespace IAutoMovieMotionHumanWalkCadence {
   /** A walk's cadence: the beat track it keeps step to. */
   export interface ICadence {
-    /** The cue track's name (`HumanCue.beats`), each `beat` a step. */
+    /** The cue track's name (`AutoMovieMotionHumanCue.beats`), each `beat` a step. */
     cue: string;
 
     /**

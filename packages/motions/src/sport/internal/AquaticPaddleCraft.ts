@@ -4,7 +4,7 @@ import type { AutoMovieHumanSide, IAutoMovieMotionHumanContactWindow, IAutoMovie
 import { HumanSupportCarry } from "../../carrier/internal/HumanSupportCarry";
 import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionHumanLeg";
 import { seated } from "../../everyday/internal/seated";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -134,7 +134,7 @@ function kneel(
         ) > 0.025,
     );
   if (misses)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "support",
       value: hull.prop.subject,

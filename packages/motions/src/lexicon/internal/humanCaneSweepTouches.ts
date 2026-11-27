@@ -1,7 +1,7 @@
 import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type { AutoMovieHumanSide } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * A long cane's touches over a walk: the walk's legs are read at `RATE` while
@@ -36,7 +36,7 @@ export function humanCaneSweepTouches(
     before = now;
   }
   if (touches.length === 0)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "base",
       axis: "duration",
       value: duration,

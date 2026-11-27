@@ -7,7 +7,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanMaterialContact } from "../../posture/internal/HumanMaterialContact";
 
 /*
@@ -35,7 +35,7 @@ export function prepareGlideSlope(
   expected: IAutoMovieQuaternion,
 ): prepareGlideSlope.ISlope {
   const refuse = (reason: string): never => {
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "slope",
       value: subject,

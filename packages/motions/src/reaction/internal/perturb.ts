@@ -8,7 +8,7 @@ import { AutoMovieMotionHumanLean } from "../../compose/internal/AutoMovieMotion
 import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
 import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
 import { HumanForceResponse } from "../../grappling/internal/HumanForceResponse";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanColliders } from "../../posture/internal/HumanColliders";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
@@ -251,7 +251,7 @@ export namespace perturb {
     const asked: PlanAsked = requested;
     const chosen: PlanChosen = asked === "auto" ? outcome.outcome : asked;
     if (asked !== "auto" && asked !== outcome.outcome)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "outcome",
         value: asked,
@@ -277,7 +277,7 @@ export namespace perturb {
 
     if (chosen === "step") {
       if (outcome.steps.length > 1)
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "parameter",
           axis: "outcome",
           value: "step",

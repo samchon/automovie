@@ -10,7 +10,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { hipJoints } from "../../posture/internal/hipJoints";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
@@ -122,7 +122,7 @@ export namespace AutoMovieMotionHumanReach {
     if (check.shortfall <= 0) return;
     const mm: (metres: number) => string = (metres: number): string =>
       (1000 * metres).toFixed(0);
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "target",
       value: check.shortfall,

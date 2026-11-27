@@ -5,7 +5,7 @@
   "main": "src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./internal": "./src/internal.ts",
+    "./internal": "./src/internal/index.ts",
     "./package.json": "./package.json"
   },
   "scripts": {
@@ -37,8 +37,8 @@
         "default": "./lib/index.js"
       },
       "./internal": {
-        "types": "./lib/internal.d.ts",
-        "default": "./lib/internal.js"
+        "types": "./lib/internal/index.d.ts",
+        "default": "./lib/internal/index.js"
       },
       "./package.json": "./package.json"
     }

@@ -11,8 +11,8 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanGesture,
-  HumanChain,
-  HumanPerformance,
+  AutoMovieMotionHumanChain,
+  AutoMovieMotionHumanPerformance,
 } from "@automovie/motions";
 
 import { motionHandleShapes } from "./motionHandleShapes";
@@ -28,7 +28,7 @@ const { HumanUpperRows } = AutoMovieMotionHumanGesture;
  * @evidence contracts/development/common.md#meaningful-documentation States what each member gives and the stick's points.
  * @evidence contracts/development/design.md#principled-representation The rows, two tables keyed by row name and one performance builder through the public chain.
  * @evidence contracts/development/design.md#minimal-and-owned-surface What the phrase specs share and nothing else.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The performance goes through `HumanPerformance` and `HumanChain`; nothing is posed by hand.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The performance goes through `AutoMovieMotionHumanPerformance` and `AutoMovieMotionHumanChain`; nothing is posed by hand.
  */
 export namespace motionUpperPhrase {
   /** The rows of `HumanUpperRows`, the phrase law among them. */
@@ -122,7 +122,7 @@ export namespace motionUpperPhrase {
       affordances,
       shapes: motionHandleShapes(affordances),
     };
-    return new HumanPerformance({
+    return new AutoMovieMotionHumanPerformance({
       seed: "upper",
       laws: ROWS,
       performers: [
@@ -136,12 +136,12 @@ export namespace motionUpperPhrase {
       ],
       props: [stick],
       composition: (pick
-        ? HumanChain.subject("a").pickUp({
+        ? AutoMovieMotionHumanChain.subject("a").pickUp({
             prop: "stick",
             handle: "handle",
             hand,
           })
-        : HumanChain.subject("a").stand({ hold: 0.3 })
+        : AutoMovieMotionHumanChain.subject("a").stand({ hold: 0.3 })
       ).registered(law, params).node,
     });
   }

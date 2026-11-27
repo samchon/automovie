@@ -11,7 +11,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 
 /*
@@ -38,7 +38,7 @@ export function AthleticsRunUp(
   const side: AutoMovieHumanSide | undefined =
     foot ?? (planted.length === 1 ? planted[0] : undefined);
   if (side === undefined || !planted.includes(side))
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis,
       value: foot ?? planted.join(" and "),
@@ -56,7 +56,7 @@ export function AthleticsRunUp(
   };
   const speed: number = Vector3.length(flat);
   if (!(speed >= minimum) || speed < 1e-9)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "approach",
       value: speed,

@@ -14,7 +14,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { touch } from "../../touch/internal/touch";
 import { PairWalk } from "./PairWalk";
 
@@ -61,7 +61,7 @@ export namespace hostageHold {
         !(value >= 0) ||
         (axis === "duration" && value === 0)
       )
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "parameter",
           axis,
           value,
@@ -69,7 +69,7 @@ export namespace hostageHold {
           fix: `give ${axis} in ${axis === "duration" ? "seconds" : "metres"}`,
         });
     if ((params.prop === undefined) !== (params.point === undefined))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "point",
         value: params.point ?? "none",

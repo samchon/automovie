@@ -30,7 +30,7 @@ import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieM
 import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionHumanToesOnFloor } from "../../compose/internal/AutoMovieMotionHumanToesOnFloor";
 import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { ExerciseKey } from "./ExerciseKey";
@@ -142,7 +142,7 @@ export namespace lineWalk {
       read.prop.affordances ?? []
     ).find((a: IAutoMovieAffordance): boolean => a.id === id);
     if (found === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "affordance",
         axis: "on",
         value: p.on.prop,
@@ -184,7 +184,7 @@ export namespace lineWalk {
         off > ON ||
         across > ON + Math.abs(body.rest.get(`${side}UpperLeg`)!.x)
       )
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "base",
           axis: "on",
           value: p.on.prop,
@@ -197,7 +197,7 @@ export namespace lineWalk {
     const start: number = onLine(entry.root);
     const stop: number = onLine(p.to);
     if (!(Math.abs(stop) <= half))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "to",
         value: stop,

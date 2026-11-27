@@ -71,7 +71,7 @@ export namespace AutoMovieMotionHumanOperateLaws {
   /*
    * A registered, stationary-base pour. Bring the held source above a fixed
    * recipient, tip about its rim lip, transfer, right it and retreat. Register
-   * `pour` in `HumanPerformance` and call `registered(pour.name, params)`.
+   * `pour` in `AutoMovieMotionHumanPerformance` and call `registered(pour.name, params)`.
    * `flowStart` and `flowEnd` delimit the authored transfer cue.
    * EPIC-KITCHENS-100 provides observational action context (Damen et al.,
    * 2021, https://arxiv.org/abs/2006.13256). Angles and phase lengths here are

@@ -9,7 +9,7 @@ import type {
   IAutoMovieMotionHumanWalkSteps,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanChain, HumanPerformance } from "@automovie/motions";
+import { AutoMovieMotionHumanChain, AutoMovieMotionHumanPerformance } from "@automovie/motions";
 import {
   resolveHumanPosture,
   run,
@@ -176,11 +176,11 @@ async function flightCutPlayback(): Promise<void> {
       },
     ],
   };
-  const sprint = HumanChain.subject("runner").run({
+  const sprint = AutoMovieMotionHumanChain.subject("runner").run({
     to: { x: 0, y: 0, z: 7 },
     pace: "sprint",
   });
-  const uninterrupted: HumanPerformance = new HumanPerformance({
+  const uninterrupted: AutoMovieMotionHumanPerformance = new AutoMovieMotionHumanPerformance({
     ...input,
     composition: sprint.node,
   });
@@ -205,7 +205,7 @@ async function flightCutPlayback(): Promise<void> {
     next !== undefined,
   );
   const share: number = (before + next!.from) / 2;
-  const performance: HumanPerformance = new HumanPerformance({
+  const performance: AutoMovieMotionHumanPerformance = new AutoMovieMotionHumanPerformance({
     ...input,
     composition: sprint
       .until({ type: "share", share })

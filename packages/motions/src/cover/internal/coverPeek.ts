@@ -9,7 +9,7 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../../actions/internal/stand";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -83,7 +83,7 @@ export function coverPeek(
   const angle: number =
     (Math.asin(Math.min(1, shift / height)) * 180) / Math.PI;
   if (shift >= height || angle > MAX_LEAN)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "exposure",
       value: exposure,

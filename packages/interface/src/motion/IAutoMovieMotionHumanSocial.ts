@@ -4,7 +4,7 @@ import type { IAutoMovieMotionHumanArmWrestle } from "./IAutoMovieMotionHumanArm
 
 /**
  * Things two people do together or to each other in company, as rows of shipped
- * actions and as mutual records over them (`HumanChain.mutual`). Register the
+ * actions and as mutual records over them (`AutoMovieMotionHumanChain.mutual`). Register the
  * rows a film uses.
  */
 export namespace IAutoMovieMotionHumanSocial {

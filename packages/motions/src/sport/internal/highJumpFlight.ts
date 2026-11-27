@@ -7,7 +7,7 @@ import type {
 } from "@automovie/interface";
 
 import { ExerciseKey } from "../../exercise/internal/ExerciseKey";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
 import { GymnasticsFlight } from "./GymnasticsFlight";
@@ -100,7 +100,7 @@ export function highJumpFlight(input: IHighJumpFlight): IHighJumpAirborne {
     };
     const apexLowest: number = lowest(rising);
     if (!(apexLowest > surface))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "bar",
         value: bar,

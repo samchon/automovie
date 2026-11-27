@@ -8,7 +8,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { mixHumanPosture } from "../../posture/internal/mixHumanPosture";
 import { HumanMountedFrame } from "./HumanMountedFrame";
 import { humanRomanStance } from "./humanRomanStance";
@@ -61,7 +61,7 @@ function planHumanRoman(context: Context): IAutoMovieMotionHumanActionPlan {
       right(film).position,
     );
     if (span > widest || span < narrowest)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "right",
         value: span,

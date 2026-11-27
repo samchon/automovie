@@ -5,7 +5,7 @@ import type {
   IAutoMovieMotionHumanPropOutcome,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanRefusal } from "@automovie/motions";
+import { AutoMovieMotionHumanRefusal } from "@automovie/motions";
 import { HumanPropOutcome } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
@@ -137,7 +137,7 @@ function scenario_test_motions_perform_prop_outcome_continuation(): void {
       HumanPropOutcome.legs(input);
       return false;
     } catch (error) {
-      return error instanceof HumanRefusal && error.axis === axis;
+      return error instanceof AutoMovieMotionHumanRefusal && error.axis === axis;
     }
   };
   const wall = HumanPropOutcome.legs({
@@ -250,7 +250,7 @@ function scenario_test_motions_perform_prop_outcome_material(): void {
       decision({ ...material, restitution });
     } catch (error) {
       refused =
-        error instanceof HumanRefusal &&
+        error instanceof AutoMovieMotionHumanRefusal &&
         error.axis === "restitution" &&
         error.reason.includes("sphere");
     }

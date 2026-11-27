@@ -25,7 +25,7 @@ import { walkPoleFrame } from "../../actions/internal/walkPoleFrame";
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { GymnasticsFlight } from "../internal/GymnasticsFlight";
@@ -184,7 +184,7 @@ export namespace AutoMovieMotionHumanPoleVault {
         (a: IAutoMovieAffordance): boolean => a.kind === "hinge",
       )
     )
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "pole",
         value: p.pole,
@@ -208,7 +208,7 @@ export namespace AutoMovieMotionHumanPoleVault {
     };
     const speed: number = Vector3.length(run);
     if (speed < RUN)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "base",
         axis: "run",
         value: speed,
@@ -249,7 +249,7 @@ export namespace AutoMovieMotionHumanPoleVault {
       LEAN,
     );
     if (stance === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "pole",
         value: length,

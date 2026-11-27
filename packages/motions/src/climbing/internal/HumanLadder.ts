@@ -10,7 +10,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 
 /*
@@ -27,7 +27,7 @@ export function HumanLadder(
 ): IAutoMovieMotionHumanLadder.ILadder {
   const read: IAutoMovieMotionHumanPropReader = context.prop(subject);
   if (read.prop.fixed !== true)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "ladder",
       value: subject,
@@ -43,7 +43,7 @@ export function HumanLadder(
         Number(a.id.slice(4)) - Number(b.id.slice(4)),
     );
   if (rungs.length < 2)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "ladder",
       value: subject,
@@ -111,7 +111,7 @@ export function HumanLadder(
         !(radius > 0) ||
         !(width > 0)
       )
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "affordance",
           axis: "ladder",
           value: rung.id,

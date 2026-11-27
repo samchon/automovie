@@ -7,7 +7,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanRefusal,
+  AutoMovieMotionHumanRefusal,
   HumanSupportAim,
   HumanSupportCarry,
 } from "@automovie/motions/internal";
@@ -136,7 +136,7 @@ export function test_motions_carrier_human_support_aim(): void {
       1,
     );
   } catch (error: unknown) {
-    if (error instanceof HumanRefusal) axis = error.axis;
+    if (error instanceof AutoMovieMotionHumanRefusal) axis = error.axis;
   }
   TestValidator.equals("past the arms' bound", axis, "target");
   HumanSupportAim.check(

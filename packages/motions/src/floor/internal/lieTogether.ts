@@ -26,7 +26,7 @@ import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionH
 import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanColliders } from "../../posture/internal/HumanColliders";
 import { carryHumanPosture } from "../../posture/internal/carryHumanPosture";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -138,7 +138,7 @@ function planLieTogether(
   const body: IAutoMovieMotionHumanBody = context.body;
   HumanBound.above("hold", p.hold, 0, "s");
   if (p.partner === context.subject)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "partner",
       value: p.partner,
@@ -151,7 +151,7 @@ function planLieTogether(
     HumanTrunk.region(body, entry, "sternum").point.y,
   );
   if (lowest > body.measure.hipHeight / 2)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "base",
       axis: "base",
       value: context.entry.base.kind,
@@ -225,7 +225,7 @@ function planLieTogether(
       ((partner.root(context.start).yaw - entry.yaw + 540) % 360) - 180,
     );
     if (heading > ALIGNED)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "way",
         value: p.way,
@@ -327,7 +327,7 @@ function planLieTogether(
     const under: IAutoMovieMotionHumanColliders.IHit | undefined =
       lieTogetherReach.beneath(partner.body, bones, Vector3.add(cheek, slide));
     if (under === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "partner",
         value: p.partner,
@@ -353,7 +353,7 @@ function planLieTogether(
   const apart: number =
     body.measure.upperArm + body.measure.forearm + body.measure.hand;
   if (Vector3.length(slide) > apart)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "partner",
       value: p.partner,

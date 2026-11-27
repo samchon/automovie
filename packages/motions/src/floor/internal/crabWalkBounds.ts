@@ -6,7 +6,7 @@ import type {
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * What the crab walk's body can hold: the pelvis heights its bent arms and legs
@@ -64,7 +64,7 @@ export namespace crabWalkBounds {
         metres <= HIGHEST * measure.hipHeight
       )
     )
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "height",
         value: share,
@@ -108,7 +108,7 @@ export namespace crabWalkBounds {
       0,
     );
     if (degrees > room)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "backbend",
         value: true,

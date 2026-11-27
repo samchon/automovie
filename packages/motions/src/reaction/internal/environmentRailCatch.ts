@@ -20,7 +20,7 @@ import { stand } from "../../actions/internal/stand";
 import { support } from "../../actions/internal/support";
 import { HumanSupportFrame } from "../../carrier/internal/HumanSupportFrame";
 import { getUp } from "../../floor/internal/getUp";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { poseBones } from "../../posture/internal/poseBones";
 
@@ -203,8 +203,8 @@ const REACH: number = 0.03;
 /*
  * The rail catch's affordance refusal.
  */
-function refuse(value: string, reason: string): HumanRefusal {
-  return new HumanRefusal({
+function refuse(value: string, reason: string): AutoMovieMotionHumanRefusal {
+  return new AutoMovieMotionHumanRefusal({
     kind: "parameter",
     axis: "rail.point",
     value,

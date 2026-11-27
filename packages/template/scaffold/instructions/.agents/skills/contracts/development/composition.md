@@ -27,9 +27,9 @@ If staging a passage requires inventing an exchange, response or pause, return t
 Trace each cited beat element to at least one [commented value](../../development/modules.md#documenting-source). Include the beat anchor and, for skilled practice, the study section.
 
 ```ts
-import { HumanChain } from "@automovie/motions";
+import { AutoMovieMotionHumanChain } from "@automovie/motions";
 
-const composition = HumanChain.subject("mara")
+const composition = AutoMovieMotionHumanChain.subject("mara")
   .stand(
     // #s02-b03 action, "Mara holds her place for two seconds."
     { hold: 2 },

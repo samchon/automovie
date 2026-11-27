@@ -266,7 +266,7 @@ export namespace AutoMovieMotionHumanStanceLaws {
    * fail the plant, clearance or reach checks at the key poses and the
    * intervening witnesses. The arms, hands and head are available for layers.
    *
-   * Register with HumanChain.extend({ curtsy }) and HumanPerformance's laws.
+   * Register with AutoMovieMotionHumanChain.extend({ curtsy }) and AutoMovieMotionHumanPerformance's laws.
    * Enter from standing and cut into another action only after recovery.
    */
   export const curtsy: typeof curtsyLaw = curtsyLaw;

@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { shiftStandingWeight } from "../../everyday/internal/shiftStandingWeight";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * Stage a slow dance's sway on planted feet: the weight goes over one foot and
@@ -23,7 +23,7 @@ export function composeHumanSlowDanceSway<
   Chain extends IAutoMovieMotionHumanChainCore,
 >(chain: Chain, params: IAutoMovieMotionHumanDance.ISlowDanceSway): Chain {
   if (!(params.count >= 1))
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "count",
       value: params.count,

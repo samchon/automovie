@@ -7,10 +7,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanChain } from "../../chain/HumanChain";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
 import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
 import { AutoMovieMotionHumanRange } from "../../compose/internal/AutoMovieMotionHumanRange";
-import { HumanPerformance } from "../../perform/HumanPerformance";
+import { AutoMovieMotionHumanPerformance } from "../../perform/AutoMovieMotionHumanPerformance";
 import { HumanColliders } from "../../posture/internal/HumanColliders";
 import { flinch } from "../../reaction/internal/flinch";
 import { StrikingBody } from "../../striking/internal/StrikingBody";
@@ -72,7 +72,7 @@ export function reactionCases(
       };
       const performance: IAutoMovieMotionHumanPerformance = perform(
         body,
-        HumanChain.subject("a").flinch({ target: from }),
+        AutoMovieMotionHumanChain.subject("a").flinch({ target: from }),
       );
       const peak: number = FamilyCaseKit.event(performance, "stroke");
       const gap = (seconds: number): number =>
@@ -139,7 +139,7 @@ export function reactionCases(
     for (const [label, at] of threats) {
       const performance: IAutoMovieMotionHumanPerformance = perform(
         body,
-        HumanChain.subject("a").stagger({
+        AutoMovieMotionHumanChain.subject("a").stagger({
           target: { kind: "point", at, frame: "world" },
           speed: 1,
         }),
@@ -175,7 +175,7 @@ export function reactionCases(
       const at: IAutoMovieVector3 = threats[0]![1];
       const performance: IAutoMovieMotionHumanPerformance = perform(
         body,
-        HumanChain.subject("a").knockdown({
+        AutoMovieMotionHumanChain.subject("a").knockdown({
           target: { kind: "point", at, frame: "world" },
         }),
       );
@@ -269,7 +269,7 @@ function perform(
   body: IAutoMovieMotionHumanBody,
   chain: IAutoMovieMotionHumanChain,
 ): IAutoMovieMotionHumanPerformance {
-  return new HumanPerformance({
+  return new AutoMovieMotionHumanPerformance({
     seed: "reaction",
     performers: [
       {

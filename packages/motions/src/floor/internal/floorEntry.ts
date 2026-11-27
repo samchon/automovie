@@ -10,7 +10,7 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../../actions/internal/stand";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanArmTrajectoryTerms } from "../../posture/internal/HumanArmTrajectoryTerms";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
@@ -48,7 +48,7 @@ export namespace floorEntry {
     fix: string,
   ): void {
     if (left && right) return;
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "base",
       axis: "base",
       value: "not on both feet",
@@ -84,7 +84,7 @@ export namespace floorEntry {
     const kind: IAutoMovieMotionHumanBase.Kind = context.entry.base.kind;
     if (kind === "standing") return true;
     if (BASES.includes(kind)) return false;
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "base",
       axis: "base",
       value: kind,

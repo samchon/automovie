@@ -149,7 +149,7 @@ import { AutoMovieMotionHumanTouchRows } from "./internal/AutoMovieMotionHumanTo
  *   by the contact.
  * - `HumanSocial`: Things two people do together or to each other in company, as
  *   rows of shipped actions and as mutual records over them
- *   (`HumanChain.mutual`).
+ *   (`AutoMovieMotionHumanChain.mutual`).
  * - `HumanPartner`: Things two people do as partners in sport and dance, each a
  *   row of a law whose roles share a stated instant or a meeting.
  * - `HumanTouchRows`: The contact strokes as rows: each kind of `touch` under a
@@ -328,7 +328,7 @@ export namespace AutoMovieMotionHumanTouch {
 
   /**
    * Things two people do together or to each other in company, as rows of
-   * shipped actions and as mutual records over them (`HumanChain.mutual`). See
+   * shipped actions and as mutual records over them (`AutoMovieMotionHumanChain.mutual`). See
    * `AutoMovieMotionHumanTouchRows.HumanSocial`.
    */
   export import HumanSocial = AutoMovieMotionHumanTouchRows.HumanSocial;

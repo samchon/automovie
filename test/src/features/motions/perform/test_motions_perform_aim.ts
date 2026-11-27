@@ -1,8 +1,8 @@
 
 import { AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanPerformanceAim, IAutoMovieMotionHumanPerformanceState, IAutoMovieMotionHumanSegment, IAutoMovieVector3 } from "@automovie/interface";
-import { HumanObject } from "@automovie/motions";
-import { HumanPerception, HumanPerformanceAim, HumanPerformanceRead, HumanRefusal } from "@automovie/motions/internal";
+import { AutoMovieMotionHumanObject } from "@automovie/motions";
+import { HumanPerception, HumanPerformanceAim, HumanPerformanceRead, AutoMovieMotionHumanRefusal } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { standingPerformanceState } from "../../internal/fixtures/standingPerformanceState";
@@ -38,7 +38,7 @@ const AIM: number = 1e-12;
  * 7. Refused: an unknown prop, point or region, and an unknown person.
  */
 export async function test_motions_perform_aim(): Promise<void> {
-  const cup = HumanObject.prop(
+  const cup = AutoMovieMotionHumanObject.prop(
     "cup",
     { affordances: [testAffordance("rim", "socket", { x: 0, y: 0.1, z: 0 })] },
     { at: { x: 1, y: 0, z: 0 }, yaw: 0 },
@@ -203,6 +203,6 @@ function refused(task: () => unknown, axis: string): boolean {
     task();
     return false;
   } catch (error) {
-    return error instanceof HumanRefusal && error.axis === axis;
+    return error instanceof AutoMovieMotionHumanRefusal && error.axis === axis;
   }
 }

@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanSpacecraftGlide } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /** Admit the three transfer phases and prepare the pure distance course. */
 export function spacecraftGlideClock(
@@ -13,7 +13,7 @@ export function spacecraftGlideClock(
     !(ramp > 0 && catchAt > ramp && duration > catchAt) ||
     !Number.isFinite(duration)
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "clock",
       value: { ramp, coast },

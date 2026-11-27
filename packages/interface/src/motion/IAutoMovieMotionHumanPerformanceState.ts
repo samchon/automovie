@@ -28,11 +28,11 @@ import type { IAutoMovieMotionHumanTether } from "./IAutoMovieMotionHumanTether"
  * their placed actions, the props, the laws, the cue tracks and the schedule,
  * built once by the constructor.
  *
- * `HumanPerformance` is the public surface over it. The state's members are
- * public so the `HumanPerformance*` namespaces, which hold the performance's
+ * `AutoMovieMotionHumanPerformance` is the public surface over it. The state's members are
+ * public so the `AutoMovieMotionHumanPerformance*` namespaces, which hold the performance's
  * work by responsibility (placing, contacts, layers, the schedule, aiming and
  * reading), can share them; the public helper signatures expose this shared
- * state contract transitively, while HumanPerformance remains the normal
+ * state contract transitively, while AutoMovieMotionHumanPerformance remains the normal
  * author-facing entry point.
  */
 export interface IAutoMovieMotionHumanPerformanceState {

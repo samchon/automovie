@@ -4,7 +4,7 @@ import type {
   IAutoMovieQuaternion,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanPerformanceFlightRotation } from "./HumanPerformanceFlightRotation";
 
 /*
@@ -47,7 +47,7 @@ export function HumanPerformanceStagedFlightRotation(
     !(to > from) ||
     !(Math.hypot(frame.x, frame.y, frame.z, frame.w) > 0)
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "turns",
       value: { somersault: somersaultTurns, twist: twistTurns },
@@ -62,7 +62,7 @@ export function HumanPerformanceStagedFlightRotation(
     Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, twist),
   );
   if (!props.turnedLanding && Math.abs(closing.w) < 1 - CLOSED)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "turns",
       value: { somersault: somersaultTurns, twist: twistTurns },

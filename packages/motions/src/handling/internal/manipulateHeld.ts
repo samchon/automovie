@@ -23,7 +23,7 @@ import type {
 
 import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
 import { AutoMovieMotionInterval } from "../../compose/internal/AutoMovieMotionInterval";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanSegment } from "../../perform/internal/HumanSegment";
 import { HumanDigitFit } from "../../posture/internal/HumanDigitFit";
 import { HumanHand } from "../../posture/internal/HumanHand";
@@ -70,7 +70,7 @@ export function manipulateHeld(
         window.inHand !== undefined,
     ) === true
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "prop",
       value: held.prop,
@@ -80,7 +80,7 @@ export function manipulateHeld(
   const contacts: readonly IAutoMovieMotionHumanManipulate.IContact[] =
     context.params.contacts ?? [];
   if (contacts.length === 0 || context.params.text !== undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "contacts",
       value: contacts.length,
@@ -94,7 +94,7 @@ export function manipulateHeld(
         (contact.at !== undefined) !== timed,
     )
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "contacts.at",
       value: timed,
@@ -115,7 +115,7 @@ export function manipulateHeld(
       side === "left" ? "thumbTipLeft" : "thumbTipRight"
     ];
   if (chain.length !== bones.length + 1 || tip === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "participant",
       axis: "thumb",
       value: side,
@@ -157,7 +157,7 @@ export function manipulateHeld(
       !(time >= HumanSegment.FADE) ||
       (previous !== undefined && time <= previous)
     )
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "contacts.at",
         value: time,
@@ -169,7 +169,7 @@ export function manipulateHeld(
       (contact.hand !== undefined && contact.hand !== side) ||
       (contact.digit !== undefined && contact.digit !== "thumb")
     )
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "channel",
         axis: "contacts",
         value: contact.site,
@@ -188,7 +188,7 @@ export function manipulateHeld(
         (affordance.rides !== undefined ||
           AffordanceArticulation.KINDS.has(affordance.kind)))
     )
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "affordance",
         axis: "contacts.site",
         value: contact.site,
@@ -197,7 +197,7 @@ export function manipulateHeld(
       });
     const depth: number = contact.depth ?? affordance.travel ?? 0;
     if (!(depth >= 0))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "contacts.depth",
         value: depth,
@@ -220,7 +220,7 @@ export function manipulateHeld(
       restFrames: HUMANOID_REST_FRAME,
     });
     if (!(fit.residual <= CONTACT_BOUND))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "contacts.site",
         value: contact.site,

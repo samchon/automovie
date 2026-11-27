@@ -27,7 +27,7 @@ import { HumanGrasp } from "../../handling/internal/HumanGrasp";
 import { HumanGraspRoll } from "../../handling/internal/HumanGraspRoll";
 import { heldDigits } from "../../handling/internal/heldDigits";
 import { writeWith } from "../../handling/internal/writeWith";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanArmTrajectoryTerms } from "../../posture/internal/HumanArmTrajectoryTerms";
 import { HumanBoneGroups } from "../../posture/internal/HumanBoneGroups";
 import { HumanHand } from "../../posture/internal/HumanHand";
@@ -61,7 +61,7 @@ export function hoseBackup(
     (a: IAutoMovieAffordance): boolean => a.id === p.grip,
   );
   if (grip === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "grip",
       value: p.grip,

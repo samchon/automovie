@@ -28,7 +28,7 @@ import type {
 import { AutoMovieMotionClock } from "../../../compose/internal/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../../../compose/internal/AutoMovieMotionHumanArm";
 import { composeAutoMovieMotionHumanAction } from "../../../compose/internal/composeAutoMovieMotionHumanAction";
-import { HumanRefusal } from "../../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../../law/AutoMovieMotionHumanRefusal";
 import { HumanBound } from "../../../law/internal/HumanBound";
 import { HumanMountRider } from "../../../lexicon/internal/HumanMountRider";
 import { HumanSurfaceGlide } from "../../internal/HumanSurfaceGlide";
@@ -153,7 +153,7 @@ export function planSnowGlide(
     const moving: IAutoMovieMotionHumanProp.IPlacedPoint | undefined =
       pole.prop.point?.(stroke.grip, film);
     if (moving === undefined && !Object.hasOwn(pole.prop.points, stroke.grip))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "affordance",
         axis: "nordic.grip",
         value: stroke.grip,

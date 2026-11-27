@@ -6,7 +6,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import type { HumanMount } from "./HumanMount";
 
 /*
@@ -31,7 +31,7 @@ export function admitCarExitSill(
     return Vector3.lerp(ankle, landed, inside / (inside + outward(landed)));
   };
   if (outward(starts.left.ankle) >= 0 || outward(starts.right.ankle) >= 0)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "base",
       axis: "aperture",
       value: through.id,
@@ -42,7 +42,7 @@ export function admitCarExitSill(
     outward(landing.limbs.leftLeg!.point) <= 0 ||
     outward(landing.limbs.rightLeg!.point) <= 0
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "base",
       axis: "aperture",
       value: through.id,
@@ -57,7 +57,7 @@ export function admitCarExitSill(
     2 *
     (gap + Math.max(Math.abs(along(sill.left)), Math.abs(along(sill.right))));
   if (footRoom > through.width)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "aperture",
       value: through.width,

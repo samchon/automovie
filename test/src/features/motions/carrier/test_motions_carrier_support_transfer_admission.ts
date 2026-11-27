@@ -1,4 +1,4 @@
-import { HumanRefusal, supportTransfer } from "@automovie/motions/internal";
+import { AutoMovieMotionHumanRefusal, supportTransfer } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -28,7 +28,7 @@ export function test_motions_carrier_support_transfer_admission(): void {
     try {
       supportTransfer.admit({ from, to: destination, seconds });
     } catch (error: unknown) {
-      if (!(error instanceof HumanRefusal)) throw error;
+      if (!(error instanceof AutoMovieMotionHumanRefusal)) throw error;
       return error.axis;
     }
     return undefined;

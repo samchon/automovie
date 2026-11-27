@@ -7,7 +7,7 @@ import type {
   IAutoMovieProficiency,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanSkill } from "../../skill/internal/HumanSkill";
 import { HUMAN_ATTRIBUTE_EFFECTS } from "./HUMAN_ATTRIBUTE_EFFECTS";
 import { HUMAN_ENSEMBLE_PRESETS } from "./HUMAN_ENSEMBLE_PRESETS";
@@ -43,7 +43,7 @@ export namespace HumanEnsembleMembers {
       fix: string,
       feasible?: IAutoMovieMotionHumanRefusal.Feasible,
     ): never => {
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: `${input.id}.${axis}`,
         value,

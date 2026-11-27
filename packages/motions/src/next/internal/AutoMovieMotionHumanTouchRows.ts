@@ -180,7 +180,7 @@ export namespace AutoMovieMotionHumanTouchRows {
 
   /*
    * Things two people do together or to each other in company, as rows of
-   * shipped actions and as mutual records over them (`HumanChain.mutual`).
+   * shipped actions and as mutual records over them (`AutoMovieMotionHumanChain.mutual`).
    * Register the rows a film uses.
    */
   export import HumanSocial = HumanSocialSource;

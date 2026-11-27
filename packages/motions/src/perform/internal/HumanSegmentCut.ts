@@ -6,7 +6,7 @@ import type {
   IAutoMovieScheduleEntry,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanSegment } from "./HumanSegment";
 
 /*
@@ -77,7 +77,7 @@ export namespace HumanSegmentCut {
             )
             .join(", ");
     const next: string[] = Object.keys(previous.law.interrupts);
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "cut",
       performer: subject,
       axis: "cut",

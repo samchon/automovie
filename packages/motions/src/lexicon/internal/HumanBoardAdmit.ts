@@ -7,7 +7,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import type { HumanMountedFrame } from "./HumanMountedFrame";
 
 /*
@@ -68,7 +68,7 @@ export function HumanBoardAdmit(
       ),
     );
   } catch (error: unknown) {
-    if (!(error instanceof HumanRefusal && error.kind === "participant"))
+    if (!(error instanceof AutoMovieMotionHumanRefusal && error.kind === "participant"))
       throw error;
   }
   HumanBoardAdmit.way(slip, from, key);
@@ -78,7 +78,7 @@ export function HumanBoardAdmit(
     const total: number =
       context.params.load.carried + context.body.measure.mass;
     if (total > context.params.load.capacity)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "load",
         value: total,
@@ -121,7 +121,7 @@ export namespace HumanBoardAdmit {
     ];
     for (const [axis, value, most] of checks)
       if (value > most)
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "reach",
           axis,
           value,

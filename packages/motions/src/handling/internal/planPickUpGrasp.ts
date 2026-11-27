@@ -21,7 +21,7 @@ import type {
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionInterval } from "../../compose/internal/AutoMovieMotionInterval";
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { StrikingRoll } from "../../striking/internal/StrikingRoll";
@@ -61,7 +61,7 @@ export function planPickUpGrasp(
   const lift: number = context.params.lift ?? (steadied ? 0 : 0.1);
   if (!(lift >= 0)) throw new Error("A pick up lifts a non-negative height");
   if (steadied && lift > 0)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "lift",
       value: lift,
@@ -154,7 +154,7 @@ export function planPickUpGrasp(
   // action's demands after it are judged by that action's own plan.
   const unmet: number = chosen.judged[lift > 0 ? 2 : 1] ?? Number.NaN;
   if (context.params.use !== undefined && !(unmet <= StrikingRoll.MISS))
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "use",
       value: unmet,
@@ -436,7 +436,7 @@ export function planPickUpGrasp(
       joints: { ...laid.joints, ...digits },
     };
   };
-  const cannotGrip = (): HumanRefusal => new HumanRefusal({
+  const cannotGrip = (): AutoMovieMotionHumanRefusal => new AutoMovieMotionHumanRefusal({
     kind: "reach",
     axis: "grip",
     value: context.params.handle,

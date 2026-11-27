@@ -23,7 +23,7 @@ import { climbStairs as climbStairsLaw } from "../terrain/internal/climbStairs";
  *   a swing to a named landing (`planRope`).
  * - `treeClimb`: Climbing a tree by its lower branches, sitting astride one and
  *   climbing down or dropping from the lowest (`planTreeClimb`).
- * - `wallClimbSupport`: Build the stances for `HumanChain.support` from a route
+ * - `wallClimbSupport`: Build the stances for `AutoMovieMotionHumanChain.support` from a route
  *   on fixed wall holds.
  *
  * Use the matching input from `@automovie/interface`:
@@ -137,7 +137,7 @@ export namespace AutoMovieMotionHumanClimb {
   export import treeClimb = HumanTreeClimbLaw;
 
   /**
-   * Build the stances for `HumanChain.support` from a route on fixed wall
+   * Build the stances for `AutoMovieMotionHumanChain.support` from a route on fixed wall
    * holds. Each stance owns at least three distinct holds. Releasing one foot
    * before the other takes its hold stages a swap without sharing a contact
    * point. Hand targets locate the grip socket and foot targets locate the
@@ -149,7 +149,7 @@ export namespace AutoMovieMotionHumanClimb {
    *
    * @param route The starting holds and the ordered one-limb changes.
    * @returns The support parameters for the route.
-   * @throws {HumanRefusal} If two limbs claim one hold or an explicit release
+   * @throws {AutoMovieMotionHumanRefusal} If two limbs claim one hold or an explicit release
    *   would leave fewer than three assignments.
    */
   export const wallClimbSupport: typeof wallClimbSupportLaw =

@@ -8,12 +8,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanChain } from "../../chain/HumanChain";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
 import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
 import { AutoMovieMotionHumanTouchEffector } from "../../compose/internal/AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanTouchForm } from "../../compose/internal/AutoMovieMotionHumanTouchForm";
 import { handToFace } from "../../daily/internal/handToFace";
-import { HumanPerformance } from "../../perform/HumanPerformance";
+import { AutoMovieMotionHumanPerformance } from "../../perform/AutoMovieMotionHumanPerformance";
 import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { MotionBodies } from "../internal/MotionBodies";
 import type { humanPolygonMan } from "../internal/humanPolygonMan";
@@ -65,7 +65,7 @@ export function handToFaceCases(
       try {
         performance = perform(
           body,
-          HumanChain.subject("a").act("handToFace", { kind: task }),
+          AutoMovieMotionHumanChain.subject("a").act("handToFace", { kind: task }),
         );
       } catch (error) {
         out.push(FamilyCaseKit.refused(`hand-face-${task}${suffix}`, error));
@@ -232,7 +232,7 @@ function perform(
   body: IAutoMovieMotionHumanBody,
   chain: IAutoMovieMotionHumanChain,
 ): IAutoMovieMotionHumanPerformance {
-  return new HumanPerformance({
+  return new AutoMovieMotionHumanPerformance({
     seed: "hand-face",
     performers: [
       {

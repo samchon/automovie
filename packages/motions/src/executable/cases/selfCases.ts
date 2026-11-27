@@ -12,11 +12,11 @@ import type {
   IAutoMovieMotionTarget,
 } from "@automovie/interface";
 
-import { HumanChain } from "../../chain/HumanChain";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
 import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
 import { AutoMovieMotionHumanTouchEffector } from "../../compose/internal/AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanTouchForm } from "../../compose/internal/AutoMovieMotionHumanTouchForm";
-import { HumanPerformance } from "../../perform/HumanPerformance";
+import { AutoMovieMotionHumanPerformance } from "../../perform/AutoMovieMotionHumanPerformance";
 import { touch } from "../../touch/internal/touch";
 import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { MotionBodies } from "../internal/MotionBodies";
@@ -109,7 +109,7 @@ export function selfCases(
       const name: string = `self-${label}${suffix}`;
       const performance: IAutoMovieMotionHumanPerformance | null =
         FamilyCaseKit.attempt(out, name, () =>
-          perform(body, HumanChain.subject("a").act("touch", params)),
+          perform(body, AutoMovieMotionHumanChain.subject("a").act("touch", params)),
         );
       if (performance === null) continue;
       const kind: IAutoMovieMotionHumanTouchForm.Kind = params.kind ?? "pat";
@@ -248,7 +248,7 @@ export function selfCases(
       const name: string = `self-${kind}${suffix}`;
       const performance: IAutoMovieMotionHumanPerformance | null =
         FamilyCaseKit.attempt(out, name, () =>
-          perform(body, HumanChain.subject("a").act("selfAction", { kind })),
+          perform(body, AutoMovieMotionHumanChain.subject("a").act("selfAction", { kind })),
         );
       if (performance === null) continue;
       const stroke: number = TouchVerdicts.event(performance, "a", "stroke");
@@ -309,7 +309,7 @@ function perform(
   body: IAutoMovieMotionHumanBody,
   chain: IAutoMovieMotionHumanChain,
 ): IAutoMovieMotionHumanPerformance {
-  return new HumanPerformance({
+  return new AutoMovieMotionHumanPerformance({
     seed: "self",
     performers: [
       {

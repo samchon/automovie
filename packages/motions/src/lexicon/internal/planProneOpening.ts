@@ -13,7 +13,7 @@ import type {
 } from "@automovie/interface";
 
 import { floorEntry } from "../../floor/internal/floorEntry";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -45,7 +45,7 @@ export function planProneOpening(
     rootFrame === null ||
     Quaternion.rotateVector(rootFrame.rotation, { x: 0, y: 0, z: 1 }).y > -PRONE
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "base",
       axis: "base",
       value: context.entry.base.kind,
@@ -62,7 +62,7 @@ export function planProneOpening(
   };
   const distance: number = finish.z - from.z;
   if (from.z >= near)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "aperture",
       value: from.z,

@@ -6,7 +6,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * Admit the distance from the displayed hand contact to the lead's skin.
@@ -37,7 +37,7 @@ export function admitLeadReach(
   );
   const distance: number = Vector3.distance(effector, skin);
   if (!(distance <= LIMIT))
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "leadReach",
       value: distance,

@@ -2,7 +2,7 @@ import { AutoMovieGravity, Quaternion, Vector3, AutoMovieEngineMotionAirborneRot
 import type { AutoMovieHumanForceSite, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieIntegrateAirborneRotation, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanForceExchange, IAutoMovieMotionHumanForceResponse, IAutoMovieMotionHumanForceThrow, IAutoMovieMotionHumanPerformerReader, IAutoMovieMotionHumanPosture, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { HumanForceExchange } from "./HumanForceExchange";
 
@@ -50,7 +50,7 @@ export namespace HumanForceThrow {
       thrower === undefined ||
       placed === undefined
     )
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "participant",
         axis: "fulcrum",
         value: fulcrum ?? null,
@@ -112,7 +112,7 @@ export namespace HumanForceThrow {
         until: props.remaining,
       });
     if (swing === null)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "outcome",
         value: "thrown",

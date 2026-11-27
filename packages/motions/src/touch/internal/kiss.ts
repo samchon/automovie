@@ -31,7 +31,7 @@ import { AutoMovieMotionMeeting } from "../../compose/internal/AutoMovieMotionMe
 import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { kissBody } from "./kissBody";
 import { kissCanLower } from "./kissCanLower";
@@ -126,7 +126,7 @@ export namespace kiss {
     const hand: AutoMovieHumanSide | undefined =
       region === "handBackLeft" ? "left" : region === "handBackRight" ? "right" : undefined;
     if (role !== undefined && hand === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "region",
         value: region,
@@ -145,7 +145,7 @@ export namespace kiss {
     solved: IAutoMovieMotionHumanKiss.ISolved,
   ): void {
     if (solved.miss > NEAR)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "region",
         value: region,

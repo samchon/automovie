@@ -4,7 +4,7 @@ import type {
   IAutoMovieMotionTarget,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanRefusal, readPropGrip } from "@automovie/motions/internal";
+import { AutoMovieMotionHumanRefusal, readPropGrip } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../../internal/vclose";
@@ -97,7 +97,7 @@ export function test_motions_carrier_read_prop_grip(): void {
   try {
     readPropGrip(context, "bar", "knob", 0, "bar");
   } catch (error: unknown) {
-    if (error instanceof HumanRefusal) axis = error.axis;
+    if (error instanceof AutoMovieMotionHumanRefusal) axis = error.axis;
   }
   TestValidator.equals("an undeclared point", axis, "bar");
 }

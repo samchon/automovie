@@ -7,7 +7,7 @@ import type {
 import {
   HumanPerformanceHold,
   HumanPerformanceRead,
-  HumanRefusal,
+  AutoMovieMotionHumanRefusal,
   HumanSegment,
   readPlacedHumanPosture,
 } from "@automovie/motions/internal";
@@ -79,7 +79,7 @@ export async function test_motions_perform_read(): Promise<void> {
     "an unknown person",
     refused(
       () => HumanPerformanceRead.person(state, "ghost"),
-      (error: HumanRefusal): boolean =>
+      (error: AutoMovieMotionHumanRefusal): boolean =>
         error.kind === "participant" &&
         error.feasible?.kind === "alternatives" &&
         error.feasible.values.join() === "actor",
@@ -127,11 +127,11 @@ export async function test_motions_perform_read(): Promise<void> {
     "a prop without a line",
     refused(
       () => HumanPerformanceRead.prop(state, "cup", 0.5),
-      (error: HumanRefusal): boolean => error.kind === "affordance",
+      (error: AutoMovieMotionHumanRefusal): boolean => error.kind === "affordance",
     ) &&
       refused(
         () => HumanPerformanceHold.prop(state, "cup", 0.5),
-        (error: HumanRefusal): boolean => error.kind === "affordance",
+        (error: AutoMovieMotionHumanRefusal): boolean => error.kind === "affordance",
       ),
   );
 
@@ -147,7 +147,7 @@ export async function test_motions_perform_read(): Promise<void> {
     "a future not placed yet",
     refused(
       () => HumanPerformanceRead.when(resolving(), "actor", 4, axis),
-      (error: HumanRefusal): boolean =>
+      (error: AutoMovieMotionHumanRefusal): boolean =>
         error.axis === "partner" &&
         error.kind === "participant" &&
         error.feasible?.kind === "range" &&
@@ -196,7 +196,7 @@ export async function test_motions_perform_read(): Promise<void> {
     refused(
       () =>
         HumanPerformanceRead.when(resolving({ demand: cycle }), "actor", 4, axis),
-      (error: HumanRefusal): boolean =>
+      (error: AutoMovieMotionHumanRefusal): boolean =>
         error.axis === "partner" && error.feasible === null,
     ) &&
       HumanPerformanceRead.when(
@@ -212,12 +212,12 @@ export async function test_motions_perform_read(): Promise<void> {
 /** Whether a task throws a refusal the check accepts. */
 function refused(
   task: () => unknown,
-  check: (error: HumanRefusal) => boolean,
+  check: (error: AutoMovieMotionHumanRefusal) => boolean,
 ): boolean {
   try {
     task();
     return false;
   } catch (error) {
-    return error instanceof HumanRefusal && check(error);
+    return error instanceof AutoMovieMotionHumanRefusal && check(error);
   }
 }

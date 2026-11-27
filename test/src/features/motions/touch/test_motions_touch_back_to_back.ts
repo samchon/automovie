@@ -1,4 +1,4 @@
-import { HumanRefusal, backToBackTogether } from "@automovie/motions/internal";
+import { AutoMovieMotionHumanRefusal, backToBackTogether } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -19,12 +19,12 @@ export function test_motions_touch_back_to_back(): void {
   const mine: backToBackTogether.IWindow = { ready: 1, relax: 3 };
   const refused = (
     partner: backToBackTogether.IWindow,
-  ): HumanRefusal["axis"] | undefined => {
+  ): AutoMovieMotionHumanRefusal["axis"] | undefined => {
     try {
       backToBackTogether(mine, partner, "partner-lean", 1);
       return undefined;
     } catch (error: unknown) {
-      return error instanceof HumanRefusal ? error.axis : undefined;
+      return error instanceof AutoMovieMotionHumanRefusal ? error.axis : undefined;
     }
   };
   TestValidator.equals(

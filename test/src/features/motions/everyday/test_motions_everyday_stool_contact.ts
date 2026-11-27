@@ -5,7 +5,7 @@ import type {
   IAutoMovieMotionHumanSeated,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanRefusal } from "@automovie/motions";
+import { AutoMovieMotionHumanRefusal } from "@automovie/motions";
 import { seated } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 import { strict as assert } from "node:assert";
@@ -97,7 +97,7 @@ export async function test_motions_everyday_stool_contact(): Promise<void> {
     (): void =>
       seated.check(rig, { at: { x: 0, y: below, z: 0 }, yaw: 0 }, floor),
     (error: unknown): boolean =>
-      error instanceof HumanRefusal &&
+      error instanceof AutoMovieMotionHumanRefusal &&
       error.kind === "reach" &&
       error.axis === "seat" &&
       typeof error.value === "number" &&

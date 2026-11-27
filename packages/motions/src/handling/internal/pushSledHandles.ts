@@ -9,7 +9,7 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * Read a push's two handles.
@@ -34,7 +34,7 @@ export function pushSledHandles(
       read.prop.affordances ?? []
     ).find((a: IAutoMovieAffordance): boolean => a.id === id);
     if (found === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "affordance",
         axis: "handle",
         value: `${sled}.${id}`,

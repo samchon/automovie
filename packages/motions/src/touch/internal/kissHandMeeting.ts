@@ -30,7 +30,7 @@ import { AutoMovieMotionMeeting } from "../../compose/internal/AutoMovieMotionMe
 import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
 import { touchPrimitive } from "../../compose/internal/touchPrimitive";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { kissBody } from "./kissBody";
 import { kissPitch } from "./kissPitch";
@@ -255,7 +255,7 @@ export namespace kissHandMeeting {
       );
     const near: IAutoMovieVector3 = wrist(placed(closest));
     if (Vector3.distance(shoulder, near) > arm)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "region",
         value: `handBack${side === "left" ? "Left" : "Right"}`,

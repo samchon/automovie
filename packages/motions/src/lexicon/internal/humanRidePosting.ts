@@ -1,5 +1,5 @@
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * A rising trot's posting: the seat lifts off the saddle along the mount's own
@@ -22,7 +22,7 @@ export function humanRidePosting(
   if (rising?.kind === "period")
     HumanBound.above("rising", rising.seconds, 0, "s");
   if (rising?.kind === "strides" && rising.strides.length < 2)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "rising",
       value: rising.cue,

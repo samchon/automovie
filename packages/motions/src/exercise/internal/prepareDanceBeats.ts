@@ -6,7 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * The beat clock every dance law shares: beat `k` at `lead + (k - 1) period`.
@@ -50,7 +50,7 @@ export function prepareDanceBeats(
     locked !== null &&
     locked.length < Math.min(2, beats)
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "lock",
       value: lock,

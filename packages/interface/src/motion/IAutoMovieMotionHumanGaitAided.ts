@@ -9,7 +9,7 @@ import type { IAutoMovieMotionHumanFrailWalk } from "./IAutoMovieMotionHumanFrai
  * over a walk. The speed model and what a method's return and anchor are, are
  * on `IAutoMovieMotionHumanGait`.
  *
- * A method here is a method of `HumanChain` when its name is in
+ * A method here is a method of `AutoMovieMotionHumanChain` when its name is in
  * `AutoMovieMotionHumanActionName`. Any other member is a registered law or
  * row: pass it in `laws: [...]` to the performance, taking it from
  * `AutoMovieMotionHumanGaitAided` or from the row namespace of the family, and

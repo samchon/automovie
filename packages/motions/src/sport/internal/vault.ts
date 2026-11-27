@@ -12,7 +12,7 @@ import type {
 } from "@automovie/interface";
 
 import { WorkoutSupport } from "../../exercise/workout/WorkoutSupport";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { handspring } from "./handspring";
 
 /*
@@ -92,7 +92,7 @@ export namespace vault {
         const width: number = declared.width ?? Infinity;
         const depth: number = declared.depth ?? Infinity;
         if (Math.abs(local.x) > width / 2 || Math.abs(local.z) > depth / 2)
-          throw new HumanRefusal({
+          throw new AutoMovieMotionHumanRefusal({
             kind: "reach",
             axis,
             value: prop,

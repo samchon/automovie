@@ -32,7 +32,7 @@ import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotion
 import { AutoMovieMotionHumanTrunk } from "../../compose/internal/AutoMovieMotionHumanTrunk";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanBoneGroups } from "../../posture/internal/HumanBoneGroups";
 import { HumanFreedomChoice } from "../../posture/internal/HumanFreedomChoice";
 import { HumanHand } from "../../posture/internal/HumanHand";
@@ -350,7 +350,7 @@ export function pushSledPlan(
   for (const side of ["left", "right"] as const) {
     const off: number = taken[side].off;
     if (!(off <= most))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "sled",
         value: off,

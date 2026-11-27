@@ -4,7 +4,7 @@ import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieHumanoidRegion
 import { stand } from "../../actions/internal/stand";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { bendLower } from "../../everyday/internal/bendLower";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { HumanHandTarget } from "../../posture/internal/HumanHandTarget";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
@@ -252,7 +252,7 @@ export namespace HumanCarriedCouplingPose {
       body.surfaces.regions[name];
     const bone: IAutoMovieResolvedBone | undefined = bones.get(frame.bone);
     if (bone === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "carry",
         value: name,
@@ -276,7 +276,7 @@ export namespace HumanCarriedCouplingPose {
         | IAutoMovieMotionHumanCarriedCouplingPose.IBearer
         | undefined = bearers[role];
       if (found === undefined)
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "participant",
           axis: "partner",
           value: role,
@@ -289,7 +289,7 @@ export namespace HumanCarriedCouplingPose {
       coupling.bearer,
     ).bones.get(coupling.anchor);
     if (anchored === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "participant",
         axis: "partner",
         value: coupling.anchor,

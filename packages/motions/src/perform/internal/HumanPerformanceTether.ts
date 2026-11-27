@@ -8,7 +8,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanPerformanceGrips } from "./HumanPerformanceGrips";
 import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { humanTetherCatenary } from "./humanTetherCatenary";
@@ -293,8 +293,8 @@ function refuse(
   axis: string,
   value: RefuseValue,
   reason: string,
-): HumanRefusal {
-  return new HumanRefusal({
+): AutoMovieMotionHumanRefusal {
+  return new AutoMovieMotionHumanRefusal({
     kind: "parameter",
     axis,
     value,

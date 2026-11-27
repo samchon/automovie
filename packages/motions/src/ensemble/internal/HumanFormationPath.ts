@@ -5,7 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * A path frame laid out on the film clock: where its origin is and which way it
@@ -66,7 +66,7 @@ export namespace HumanFormationPath {
       reason: string,
       fix: string,
     ): never => {
-      throw new HumanRefusal({ kind: "parameter", axis, value, reason, fix });
+      throw new AutoMovieMotionHumanRefusal({ kind: "parameter", axis, value, reason, fix });
     };
 
     // The stretches: each corner, its arc distance and the heading of the stretch it starts.

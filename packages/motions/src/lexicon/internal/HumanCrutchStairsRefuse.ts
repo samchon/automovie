@@ -1,4 +1,4 @@
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * Refuse a crutch setting with its reason.
@@ -8,7 +8,7 @@ export function HumanCrutchStairsRefuse(
   value: unknown,
   reason: string,
 ): never {
-  throw new HumanRefusal({
+  throw new AutoMovieMotionHumanRefusal({
     kind: "affordance",
     axis,
     value,

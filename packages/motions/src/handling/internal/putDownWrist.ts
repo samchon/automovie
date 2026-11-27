@@ -16,7 +16,7 @@ import type {
 
 import { AutoMovieMotionHumanArmReach } from "../../compose/internal/AutoMovieMotionHumanArmReach";
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { poseBones } from "../../posture/internal/poseBones";
 import { HumanGrasp } from "./HumanGrasp";
 import { pickUp } from "./pickUp";
@@ -117,7 +117,7 @@ export function putDownWrist(
     (): IAutoMoviePose => context.entry.pose,
   );
   if (wearing === undefined && context.params.to === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "to",
       value: "absent",

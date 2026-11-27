@@ -2,7 +2,7 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanEnsemble,
 } from "@automovie/interface";
-import { HumanEnsemble, HumanRefusal } from "@automovie/motions/internal";
+import { HumanEnsemble, AutoMovieMotionHumanRefusal } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -74,7 +74,7 @@ export async function test_motions_ensemble_human_ensemble(): Promise<void> {
   try {
     build("cast", 0, 0);
   } catch (error: unknown) {
-    if (error instanceof HumanRefusal) axis = error.axis;
+    if (error instanceof AutoMovieMotionHumanRefusal) axis = error.axis;
   }
   TestValidator.equals("no members", axis, "cast.count");
 }

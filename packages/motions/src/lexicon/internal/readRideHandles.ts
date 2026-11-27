@@ -5,7 +5,7 @@ import type {
   IAutoMovieMotionHumanPropReader,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import type { HumanRideHands } from "./HumanRideHands";
 
@@ -33,7 +33,7 @@ export function readRideHandles(
     const id: string | undefined = hands?.[side];
     if (id === undefined) continue;
     if (support.prop.points[id] === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "affordance",
         axis: "hands",
         value: id,

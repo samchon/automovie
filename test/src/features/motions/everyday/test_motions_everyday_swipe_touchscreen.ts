@@ -5,7 +5,7 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 import {
-  HumanRefusal,
+  AutoMovieMotionHumanRefusal,
   swipeTouchscreenScreen,
 } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
@@ -93,7 +93,7 @@ export async function test_motions_everyday_swipe_touchscreen(): Promise<void> {
         0,
       );
     } catch (error: unknown) {
-      if (error instanceof HumanRefusal) return error.axis;
+      if (error instanceof AutoMovieMotionHumanRefusal) return error.axis;
     }
     return "admitted";
   };

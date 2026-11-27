@@ -8,7 +8,7 @@ import type {
  * offset. Each right arm reaches around the partner's shoulder to the upper
  * back and each left arm around the waist to the lower back. Each performer's
  * hands share a hold and return to their entry poses. Use with
- * `HumanChain.mutual` and the `one` and `other` chains. The touch law fits the
+ * `AutoMovieMotionHumanChain.mutual` and the `one` and `other` chains. The touch law fits the
  * arms to the staged bodies and may refuse an unreachable or obstructed reach.
  *
  * Dueren et al. (2021, Fig. 2) studied the criss-cross arm placement and used

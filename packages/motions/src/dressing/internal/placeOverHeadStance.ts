@@ -16,7 +16,7 @@ import { AutoMovieMotionHumanTouchStance } from "../../compose/internal/AutoMovi
 import { HumanTrunkLean } from "../../handling/internal/HumanTrunkLean";
 import { pickUpAdjust } from "../../handling/internal/pickUpAdjust";
 import type { pickUpPosture } from "../../handling/internal/pickUpPosture";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import type { placeOverHeadPath } from "./placeOverHeadPath";
@@ -99,7 +99,7 @@ export function placeOverHeadStance(
           },
         )
       )
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "reach",
           axis: "partner",
           value: p.partner,
@@ -162,7 +162,7 @@ export function placeOverHeadStance(
           AutoMovieMotionHumanTouchStance.reaches(crowned, posture),
       );
       if (stride === null || stride.step === undefined)
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "reach",
           axis: "partner",
           value: p.partner,

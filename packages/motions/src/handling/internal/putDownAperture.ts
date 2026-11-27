@@ -14,7 +14,7 @@ import type {
 } from "@automovie/interface";
 
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { putDown } from "./putDown";
 import { putDownTarget } from "./putDownTarget";
 import type { putDownTravel } from "./putDownTravel";
@@ -22,8 +22,8 @@ import type { putDownTravel } from "./putDownTravel";
 /*
  * Register and stage an aligned solid-object insertion and seated handoff.
  *
- * Use with HumanChain.extend({ putDownAperture }) and supply the law to
- * HumanPerformance. The receptacle must hold its opening and seat fixed until
+ * Use with AutoMovieMotionHumanChain.extend({ putDownAperture }) and supply the law to
+ * AutoMovieMotionHumanPerformance. The receptacle must hold its opening and seat fixed until
  * the empty hand has withdrawn through the opening. The authored corridor must
  * clear the prop and hand.
  *
@@ -59,7 +59,7 @@ function plan(
   const { hand, onto, prop } = context.params;
   const side: AutoMovieHumanSide = hand ?? "right";
   if (context.entry.holds[side] !== prop || !prop)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "prop",
       value: prop,
@@ -77,7 +77,7 @@ function plan(
     !onto.point ||
     onto.prop === prop
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "onto",
       value: onto?.prop ?? "absent",
@@ -109,7 +109,7 @@ function plan(
     !(Vector3.length(offset) > Number.EPSILON) ||
     !(Quaternion.angle(mouth.rotation, seat.rotation) <= 1e-6)
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "onto.aperture",
       value: onto.aperture,
@@ -152,7 +152,7 @@ function plan(
         (previous !== undefined &&
           !(Vector3.distance(previous, next) > Number.EPSILON))
       )
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "affordance",
           axis: "onto",
           value: `${onto.prop}.${id}`,

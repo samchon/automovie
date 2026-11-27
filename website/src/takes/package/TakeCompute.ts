@@ -7,7 +7,7 @@ import type {
   IAutoMovieMotionHumanVerdicts,
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
-import { HumanRefusal, AutoMovieMotionHumanVerdicts } from "@automovie/motions";
+import { AutoMovieMotionHumanRefusal, AutoMovieMotionHumanVerdicts } from "@automovie/motions";
 import { AutoMovieFrameGrid } from "@automovie/render";
 
 import { PlaygroundPerformance } from "../../playground/package/PlaygroundPerformance";
@@ -294,7 +294,7 @@ export namespace TakeCompute {
    *
    * @param composition The composition, built again unless it was built last.
    * @returns The report.
-   * @throws {HumanRefusal} When the packages refuse the composition.
+   * @throws {AutoMovieMotionHumanRefusal} When the packages refuse the composition.
    */
   export function verdicts(
     composition: IPlaygroundComposition,
@@ -340,11 +340,11 @@ export namespace TakeCompute {
   }
 
   /**
-   * A thrown value as the playground's refusal: a `HumanRefusal` field for
+   * A thrown value as the playground's refusal: a `AutoMovieMotionHumanRefusal` field for
    * field, anything else as an error with its message.
    */
   function refusal(error: unknown): IPlaygroundRefusal {
-    if (error instanceof HumanRefusal)
+    if (error instanceof AutoMovieMotionHumanRefusal)
       return {
         kind: error.kind,
         message: error.message,
@@ -356,7 +356,7 @@ export namespace TakeCompute {
         feasible:
           error.feasible === null
             ? null
-            : HumanRefusal.describe(error.feasible),
+            : AutoMovieMotionHumanRefusal.describe(error.feasible),
         alternatives:
           error.feasible !== null && error.feasible.kind === "alternatives"
             ? [...error.feasible.values]

@@ -21,7 +21,7 @@ import { AutoMovieMotionHumanJoints } from "../../compose/internal/AutoMovieMoti
 import { AutoMovieMotionHumanLean } from "../../compose/internal/AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanRoot } from "../../compose/internal/AutoMovieMotionHumanRoot";
 import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { ReactionFeet } from "./ReactionFeet";
 import { wireFlightTouches } from "./wireFlightTouches";
@@ -101,7 +101,7 @@ export namespace wireFlight {
     to: IAutoMovieVector3,
   ): IPath {
     if (!(seconds > 0))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "duration",
         value: seconds,
@@ -122,7 +122,7 @@ export namespace wireFlight {
       );
     const total: number = lengths[lengths.length - 1]!;
     if (!(total > 1e-6))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "to",
         value: "the start",

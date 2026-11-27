@@ -10,7 +10,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanRefusal,
+  AutoMovieMotionHumanRefusal,
   touchEffectors,
   touchFaces,
   touchLayouts,
@@ -183,7 +183,7 @@ export async function test_motions_touch_touch(): Promise<void> {
   try {
     touchSite(context, { rule: "reach", within: -1 });
   } catch (error: unknown) {
-    refused = error instanceof HumanRefusal && error.axis === "site.within";
+    refused = error instanceof AutoMovieMotionHumanRefusal && error.axis === "site.within";
   }
   TestValidator.predicate("a negative within", refused);
 

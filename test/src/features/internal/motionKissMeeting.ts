@@ -10,9 +10,9 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanStance,
-  HumanChain,
-  HumanMutual,
-  HumanRefusal,
+  AutoMovieMotionHumanChain,
+  AutoMovieMotionHumanMutual,
+  AutoMovieMotionHumanRefusal,
 } from "@automovie/motions";
 import {
   AutoMovieMotionHumanAuditPartner,
@@ -72,7 +72,7 @@ export function motionKissMeeting(region: KissRegion): string[] {
     }
     all.check(
       `a forehead outside the rigid chain by ${separation} m is refused on region: ${String(refused)}`,
-      refused instanceof HumanRefusal &&
+      refused instanceof AutoMovieMotionHumanRefusal &&
         refused.kind === "reach" &&
         refused.axis === "region",
     );
@@ -102,11 +102,11 @@ export function motionKissMeeting(region: KissRegion): string[] {
   }
   try {
     const composition: motionHumanLawSweep.IScene["composition"] = shared
-      ? HumanChain.mutual(
-          HumanMutual.kiss,
+      ? AutoMovieMotionHumanChain.mutual(
+          AutoMovieMotionHumanMutual.kiss,
           {
-            kisser: HumanChain.subject("a"),
-            kissed: HumanChain.subject("b"),
+            kisser: AutoMovieMotionHumanChain.subject("a"),
+            kissed: AutoMovieMotionHumanChain.subject("b"),
           },
           { region },
         ).node

@@ -19,7 +19,7 @@ import type { IAutoMovieMotionHumanChainStriking } from "./IAutoMovieMotionHuman
  */
 export interface IAutoMovieMotionHumanChainMutual extends IAutoMovieMotionHumanChainStriking {
   /**
-   * Shake hands with a partner standing within reach; `HumanChain.pair` appends
+   * Shake hands with a partner standing within reach; `AutoMovieMotionHumanChain.pair` appends
    * both partners' handshakes together.
    *
    * @param params The partner, the hand and the pump count.
@@ -73,7 +73,7 @@ export interface IAutoMovieMotionHumanChainMutual extends IAutoMovieMotionHumanC
 
   /**
    * Hand a held prop to a receiver, letting go only after the receiver's grip
-   * closes; `HumanChain.pair` appends both roles together.
+   * closes; `AutoMovieMotionHumanChain.pair` appends both roles together.
    *
    * @param params The prop, the receiver, the grip and the hands.
    * @param anchor An optional anchor id.
@@ -85,7 +85,7 @@ export interface IAutoMovieMotionHumanChainMutual extends IAutoMovieMotionHumanC
   ): this;
 
   /**
-   * Take a prop a giver holds out; `HumanChain.pair` appends both roles
+   * Take a prop a giver holds out; `AutoMovieMotionHumanChain.pair` appends both roles
    * together.
    *
    * @param params The prop, the giver, the grip and the hands.

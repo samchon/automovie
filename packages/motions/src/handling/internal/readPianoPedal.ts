@@ -9,7 +9,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * Read a released upright damper pedal and its hinge in world coordinates.
@@ -135,7 +135,7 @@ interface IPedal {
  * Report the prop placement the author can correct.
  */
 function refuse(value: string, fix: string): never {
-  throw new HumanRefusal({
+  throw new AutoMovieMotionHumanRefusal({
     kind: "reach",
     axis: "prop",
     value,

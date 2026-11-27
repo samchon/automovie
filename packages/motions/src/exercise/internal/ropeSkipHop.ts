@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * A rope hop's timetable and lift: the flight (0.26 s by default, the rope's
@@ -73,7 +73,7 @@ export function ropeSkipHop(
     !ordered(film) ||
     !ordered(film.map((time: number): number => time - start))
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "periodSeconds",
       value: { periodSeconds: duration, flightSeconds: flight, start },

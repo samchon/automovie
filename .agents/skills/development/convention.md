@@ -12,6 +12,7 @@ Use camelCase for methods and utility functions, and PascalCase for React compon
 
 - Put public declarations in `packages/*/src/<topic>/<name>.ts`.
 - Put private code and types in `packages/*/src/<topic>/<folder>/<name>.ts`.
+- Route re-exports between folders through their `index.ts` files.
 
 Group public SDK operations in classes or namespaces. Use one namespace block per owner. Put related methods and types directly on their owner or in a separate named owner.
 

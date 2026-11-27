@@ -27,7 +27,7 @@ import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotion
 import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
 import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
 import { HumanGrasp } from "../../handling/internal/HumanGrasp";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -75,7 +75,7 @@ export function operateLongInsert(
   const mechanism: IAutoMovieMotionHumanOperateInsert.IMechanism =
     props.mechanism;
   if (mechanism.withdraw !== true)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "mechanism.withdraw",
       value: false,

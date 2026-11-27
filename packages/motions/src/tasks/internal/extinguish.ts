@@ -29,7 +29,7 @@ import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotion
 import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
 import { heldDigits } from "../../handling/internal/heldDigits";
 import { writeWith } from "../../handling/internal/writeWith";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { extinguishSweep } from "./extinguishSweep";
@@ -97,7 +97,7 @@ function plan(
       (a: IAutoMovieAffordance): boolean => a.id === id,
     );
     if (found === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "affordance",
         axis: "prop",
         value: p.prop,
@@ -113,7 +113,7 @@ function plan(
   const pulled: number =
     context.prop(p.prop).state?.(context.start)?.["pin"] ?? 0;
   if (pulled < (pin.travel ?? 0) - 1e-6)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "prop",
       value: pulled,

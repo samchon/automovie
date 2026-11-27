@@ -11,7 +11,7 @@ import { composeAutoMovieMotionHumanAction } from "../../compose/internal/compos
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanPerception } from "../../law/internal/HumanPerception";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanMaterialContact } from "../../posture/internal/HumanMaterialContact";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
@@ -101,7 +101,7 @@ function planHeadRest(
       Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, -entry.yaw),
       Vector3.subtract(at, HumanTrunk.region(body, entry, own).point),
     );
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "region",
       value: p.region,
@@ -270,7 +270,7 @@ function planHeadRest(
         fit((ready + relax) / 2) === undefined ||
         fit(relax) === undefined
       )
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "reach",
           axis: "region",
           value: p.region,

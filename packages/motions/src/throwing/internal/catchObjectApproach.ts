@@ -9,7 +9,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanBall } from "../../ballStrike/internal/HumanBall";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import type { catchObject } from "./catchObject";
 import { readThrowObjectLaunch } from "./readThrowObjectLaunch";
@@ -36,7 +36,7 @@ export function catchObjectApproach(
   const launch: IAutoMovieMotionHumanThrowObjectLaunch.ILaunch | undefined =
     readThrowObjectLaunch(placed.plan);
   if (launch === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "participant",
       axis: "partner",
       value: context.params.partner,
@@ -135,7 +135,7 @@ export namespace catchObjectApproach {
   ): number {
     const g: number = AutoMovieGravity.STANDARD;
     if (!(vy * vy + 2 * g * fall >= 0) || !(vy > 0))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "partner",
         value: partner,
@@ -160,7 +160,7 @@ export namespace catchObjectApproach {
     closing: number,
   ): number {
     if (ahead <= 0 || !(closing > 0))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "partner",
         value: partner,

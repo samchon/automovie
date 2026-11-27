@@ -9,7 +9,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * A rope as a taut line: a fixed prop's `bar` affordance between its two ends
@@ -138,8 +138,8 @@ export namespace ropeLine {
     axis: string,
     value: unknown,
     reason: string,
-  ): HumanRefusal {
-    return new HumanRefusal({
+  ): AutoMovieMotionHumanRefusal {
+    return new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis,
       value,

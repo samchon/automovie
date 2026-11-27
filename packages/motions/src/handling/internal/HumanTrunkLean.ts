@@ -13,7 +13,7 @@ import type {
 
 import { AutoMovieMotionHumanLean } from "../../compose/internal/AutoMovieMotionHumanLean";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -195,7 +195,7 @@ export namespace HumanTrunkLean {
               2 * Vector3.dot(d, along),
           ),
         );
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "reach",
           axis: "prop",
           value: gap,

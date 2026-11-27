@@ -6,7 +6,7 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * Admit initial rigid prop mounts before the performance needs any prop frames.
@@ -26,7 +26,7 @@ export function validateInitialPropMounts(
       const mount: IAutoMovieMotionHumanProp.IMounted = prop.mounted;
       const axis: string = `props.${prop.subject}.mounted`;
       if (path.has(prop.subject))
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "parameter",
           axis,
           value: [...path, prop.subject],
@@ -41,7 +41,7 @@ export function validateInitialPropMounts(
         prop.fixed === true ||
         prop.soft !== undefined
       )
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "parameter",
           axis,
           value: mount,
@@ -53,7 +53,7 @@ export function validateInitialPropMounts(
         mount.prop,
       );
       if (parent === undefined)
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "participant",
           axis: `${axis}.prop`,
           value: mount.prop,
@@ -65,7 +65,7 @@ export function validateInitialPropMounts(
           (point: IAutoMovieAffordance): boolean => point.id === mount.point,
         )
       )
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "affordance",
           axis: `${axis}.point`,
           value: mount.point,
@@ -81,7 +81,7 @@ export function validateInitialPropMounts(
         "rotation",
       );
       if (admission.items.length !== 0)
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "parameter",
           axis: `${axis}.offset`,
           value: frame,

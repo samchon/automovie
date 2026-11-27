@@ -1,1 +1,1 @@
-export * from "./HUMAN_GRAMMAR";
+export * from "./AutoMovieMotionHumanGrammar";

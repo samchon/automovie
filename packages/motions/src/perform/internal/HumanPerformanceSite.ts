@@ -8,7 +8,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 
@@ -37,7 +37,7 @@ export function HumanPerformanceSite(
 ): IAutoMovieRigidTransform {
   const prop: IAutoMovieMotionHumanProp | undefined = self.props.get(subject);
   if (prop === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "support",
       value: subject,
@@ -70,7 +70,7 @@ export function HumanPerformanceSite(
     site?.frame.translation ??
     (external === undefined ? prop.points[id]?.point : undefined);
   if (translation === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "point",
       value: id,

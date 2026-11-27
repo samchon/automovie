@@ -6,7 +6,7 @@
  * and the contacts, and every method here reads them at the film second it
  * acts.
  *
- * A method here is a method of `HumanChain` when its name is in
+ * A method here is a method of `AutoMovieMotionHumanChain` when its name is in
  * `AutoMovieMotionHumanActionName`. Any other member is a registered law or
  * row: pass it in `laws: [...]` to the performance, taking it from
  * `AutoMovieMotionHumanRide` or from the row namespace of the family, and
@@ -21,10 +21,10 @@
 /**
  * Riding: a seated person carried by a support that moves by itself, such as a
  * car, a bicycle or a horse given to the performance as a moving prop
- * (`HumanObject.prop` with a motion).
+ * (`AutoMovieMotionHumanObject.prop` with a motion).
  *
  * The rider sits down on the support first (`sit` on its seat where it stands
- * at that second; `HumanObject.seat` reads a saddle with its pedals or
+ * at that second; `AutoMovieMotionHumanObject.seat` reads a saddle with its pedals or
  * stirrups) and then rides it: the seated posture is carried rigidly with the
  * support, turning, leaning and pitching as it does, the seat and each foot
  * that rested on it bearing on it, so nothing slides in the support's frame.

@@ -13,9 +13,9 @@ import type {
 import {
   AutoMovieMotionHumanMount,
   AutoMovieMotionHumanSwim,
-  HumanChain,
-  HumanObject,
-  HumanPerformance,
+  AutoMovieMotionHumanChain,
+  AutoMovieMotionHumanObject,
+  AutoMovieMotionHumanPerformance,
 } from "@automovie/motions";
 import { HumanFrame } from "@automovie/motions/internal";
 
@@ -95,7 +95,7 @@ export namespace equineFordRider {
     horse: Horse;
 
     /** The horse prop. */
-    prop: ReturnType<typeof HumanObject.prop>;
+    prop: ReturnType<typeof AutoMovieMotionHumanObject.prop>;
 
     /** The horse's placement at a film second. */
     place: (at: number) => IAutoMovieRigidTransform;
@@ -177,11 +177,11 @@ export namespace equineFordRider {
     };
     return {
       horse,
-      prop: HumanObject.prop("horse", at(0).archetype, place(0), place, part),
+      prop: AutoMovieMotionHumanObject.prop("horse", at(0).archetype, place(0), place, part),
       place,
       part,
       // The saddle is the horse's, so a sit that is still settling as the horse sets off is carried with it.
-      seat: HumanObject.seat(at(0).archetype, place(0), undefined, "horse"),
+      seat: AutoMovieMotionHumanObject.seat(at(0).archetype, place(0), undefined, "horse"),
       floor,
       halt: WAIT + duration,
     };
@@ -291,7 +291,7 @@ export namespace equineFordRider {
 
   /** The sit and the settling ride before the mounted figures. */
   const settle = (staged: IMount): IAutoMovieMotionHumanChain =>
-    HumanChain.subject("rider")
+    AutoMovieMotionHumanChain.subject("rider")
       .sit({ seat: staged.seat, hold: SAT })
       .registered("ride", {
         on: "horse",
@@ -357,8 +357,8 @@ export namespace equineFordRider {
     staged: IMount,
     body: IAutoMovieMotionHumanBody,
     chain: IAutoMovieMotionHumanChain,
-  ): HumanPerformance {
-    return new HumanPerformance({
+  ): AutoMovieMotionHumanPerformance {
+    return new AutoMovieMotionHumanPerformance({
       seed: "equine-ford-rider",
       props: [staged.prop],
       laws: [

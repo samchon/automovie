@@ -16,7 +16,7 @@ import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionCloc
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
@@ -87,7 +87,7 @@ function planLogRoll(
   const p: IAutoMovieMotionHumanLogRoll = context.params;
   const body: IAutoMovieMotionHumanBody = context.body;
   if (context.entry.base.kind !== "lying")
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "base",
       axis: "toward",
       value: p.toward,
@@ -95,7 +95,7 @@ function planLogRoll(
       fix: "lie down first",
     });
   if ((p.halfTurns === undefined) === (p.to === undefined))
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "halfTurns",
       value: p.halfTurns ?? "none",

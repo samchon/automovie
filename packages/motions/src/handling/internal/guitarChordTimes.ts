@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanGuitarChord } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * The instants a strummed chord is built on: the hand prepares halfway to the
@@ -32,7 +32,7 @@ export function guitarChordTimes(
       releaseAt < duration
     )
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "stopAt",
       value: [stopAt, sweepStartAt, sweepEndAt, releaseAt, duration],
@@ -54,7 +54,7 @@ export function guitarChordTimes(
       secondAt / duration < sweepEndAt / duration
     )
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "sweepStartAt",
       value: [stopAt, sweepStartAt, sweepEndAt, duration],
@@ -63,7 +63,7 @@ export function guitarChordTimes(
       fix: "give the hand preparation and sweep wider time intervals",
     });
   if (direction !== "down" && direction !== "up")
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "direction",
       value: direction,

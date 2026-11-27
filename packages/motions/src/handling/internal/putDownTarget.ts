@@ -13,7 +13,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanPropFrame } from "../../perform/internal/HumanPropFrame";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
@@ -36,7 +36,7 @@ function socketFrame(
     (a: IAutoMovieAffordance): boolean => a.id === id,
   );
   if (found === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "onto",
       value: `${prop}.${id}`,
@@ -90,7 +90,7 @@ function requireRigid(
   seconds: number,
 ): void {
   if (!rigid(frame))
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "onto",
       value: name,
@@ -217,7 +217,7 @@ export namespace putDownTarget {
       Vector3.subtract(source.position, target.position),
     );
     if (!(missed <= StrikingRoll.MISS))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "onto",
         value: missed,
@@ -236,7 +236,7 @@ export namespace putDownTarget {
     const angle: number =
       (Quaternion.angle(source.rotation, target.rotation) * 180) / Math.PI;
     if (!(angle <= 15))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "onto",
         value: angle,
@@ -302,7 +302,7 @@ export namespace putDownTarget {
           Quaternion.angle(entry.rotation, frame.rotation) <= 1e-6
         )
       )
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "parameter",
           axis: "onto",
           value: onto.prop,
@@ -336,7 +336,7 @@ export namespace putDownTarget {
       receiver.prop.soft !== undefined ||
       (receiver.prop.hasArticulations ?? receiver.prop.articulate !== undefined)
     )
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "onto",
         value: onto.prop,

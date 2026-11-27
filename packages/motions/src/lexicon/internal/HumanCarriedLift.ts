@@ -19,7 +19,7 @@ import type {
 
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanMaterialContact } from "../../posture/internal/HumanMaterialContact";
@@ -601,8 +601,8 @@ function confirm(
 /*
  * Refuse a cradle transfer whose named limbs cannot bear the displayed body.
  */
-function cradleRefusal(subject: string, detail?: string): HumanRefusal {
-  return new HumanRefusal({
+function cradleRefusal(subject: string, detail?: string): AutoMovieMotionHumanRefusal {
+  return new AutoMovieMotionHumanRefusal({
     kind: "reach",
     axis: "partner",
     value: subject,

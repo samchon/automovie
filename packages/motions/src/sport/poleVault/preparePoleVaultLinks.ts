@@ -6,8 +6,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanObject } from "../../perform/HumanObject";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
+import { AutoMovieMotionHumanObject } from "../../perform/AutoMovieMotionHumanObject";
 import { HumanPropFrame } from "../../perform/internal/HumanPropFrame";
 
 /*
@@ -53,7 +53,7 @@ export function preparePoleVaultLinks(
     ),
   ];
   const site: IAutoMovieMotionHumanProp["articulateSite"] =
-    HumanObject.articulateSite(prop);
+    AutoMovieMotionHumanObject.articulateSite(prop);
   return (
     state: Readonly<Record<string, number>>,
   ): IAutoMovieRigidTransform[] => {
@@ -71,7 +71,7 @@ export function preparePoleVaultLinks(
           (site: IAutoMovieAffordance): boolean => site.id === id,
         );
       if (found === undefined)
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "affordance",
           axis: "pole",
           value: id,

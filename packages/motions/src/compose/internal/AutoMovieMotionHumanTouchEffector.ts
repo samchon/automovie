@@ -11,7 +11,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanColliders } from "../../posture/internal/HumanColliders";
 import { HumanHand } from "../../posture/internal/HumanHand";
 
@@ -87,7 +87,7 @@ export namespace AutoMovieMotionHumanTouchEffector {
         Vector3.scale(axis(side, name), direction[name] ?? 0),
       );
     if (!(Vector3.length(sum) > 1e-9))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "direction",
         value: direction,
@@ -268,7 +268,7 @@ export namespace AutoMovieMotionHumanTouchEffector {
     const admitted: readonly IAutoMovieMotionHumanHand.Shape[] =
       ADMITS[effector.surface];
     if (admitted.includes(effector.shape)) return;
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "shape",
       value: effector.shape,

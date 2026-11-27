@@ -11,7 +11,7 @@ import type {
 
 import { readHumanBone } from "../../body/internal/readHumanBone";
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { humanEquestrianRhythm } from "./humanEquestrianRhythm";
 
@@ -45,7 +45,7 @@ export function prepareHumanEquestrianRide(
     context.params.equestrian;
   if (options === undefined) return undefined;
   if (saddle === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "seat",
       value: context.params.seat,
@@ -89,7 +89,7 @@ export function prepareHumanEquestrianRide(
       !context.entry.feet.right.planted ||
       context.params.rising !== undefined
     )
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "affordance",
         axis: "equestrian.jump",
         value: options.jump,
@@ -455,7 +455,7 @@ function refuse(
   reason: string,
   fix: string,
 ): never {
-  throw new HumanRefusal({
+  throw new AutoMovieMotionHumanRefusal({
     kind: "parameter",
     axis,
     value,

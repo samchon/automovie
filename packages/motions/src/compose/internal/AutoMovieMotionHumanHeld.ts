@@ -18,7 +18,7 @@ import type {
 
 import { readHumanBone } from "../../body/internal/readHumanBone";
 import { HumanGrip } from "../../handling/internal/HumanGrip";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 
@@ -39,7 +39,7 @@ export function AutoMovieMotionHumanHeld(
 ): IAutoMovieMotionHumanHeld.IHeld {
   const held: string | undefined = context.entry.holds[side];
   if (held !== prop)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "prop",
       value: prop,
@@ -52,7 +52,7 @@ export function AutoMovieMotionHumanHeld(
     });
   // A body without that hand's bone has no frame to hold anything in.
   const handless = (): IAutoMovieMotionHumanRefusal =>
-    new HumanRefusal({
+    new AutoMovieMotionHumanRefusal({
       kind: "participant",
       axis: "side",
       value: side,
@@ -178,7 +178,7 @@ export namespace AutoMovieMotionHumanHeld {
       (affordance: IAutoMovieAffordance): boolean => affordance.id === id,
     );
     if (found === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "affordance",
         axis: "point",
         value: `${held.prop}.${id}`,

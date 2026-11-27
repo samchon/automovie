@@ -4,7 +4,7 @@ import type {
   IAutoMovieComposition,
 } from "@automovie/interface";
 import * as motions from "@automovie/motions";
-import { HUMAN_ACTIONS, HumanChain } from "@automovie/motions";
+import { AutoMovieMotionHumanActions, AutoMovieMotionHumanChain } from "@automovie/motions";
 import * as internal from "@automovie/motions/internal";
 
 import { PLAYGROUND_BODIES } from "../data/PLAYGROUND_BODIES";
@@ -14,7 +14,7 @@ import { PlaygroundObjects } from "./PlaygroundObjects";
 
 /**
  * Turns the playground's composition data into the composition
- * `HumanPerformance` takes, through `HumanChain`.
+ * `AutoMovieMotionHumanPerformance` takes, through `AutoMovieMotionHumanChain`.
  *
  * The data names actions by text, so the chain is driven through the
  * untyped shape below rather than its typed methods. What the installed
@@ -80,7 +80,7 @@ export namespace PlaygroundChain {
 
   /** A chain's prototype, which shows the operators the installed package has. */
   const PROTOTYPE: Record<string, unknown> =
-    HumanChain.prototype as unknown as Record<string, unknown>;
+    AutoMovieMotionHumanChain.prototype as unknown as Record<string, unknown>;
 
   /** What a built composition needs beside its node. */
   export interface IBuilt {
@@ -135,7 +135,7 @@ export namespace PlaygroundChain {
    * The laws available by the name a composition supplies. A lexicon row
    * takes precedence if the released package also exposes that name directly.
    *
-   * @returns Laws that can be appended by HumanChain.registered.
+   * @returns Laws that can be appended by AutoMovieMotionHumanChain.registered.
    */
   export function registeredLaws(): ReadonlyMap<string, ILaw> {
     const laws: Map<string, ILaw> = exported();
@@ -173,7 +173,7 @@ export namespace PlaygroundChain {
    * @returns The action and its public expression for each name.
    */
   export function mutualExports(): Record<string, IMutualExport> {
-    const join: unknown = (HumanChain as unknown as Record<string, unknown>)[
+    const join: unknown = (AutoMovieMotionHumanChain as unknown as Record<string, unknown>)[
       "mutual"
     ];
     if (typeof join !== "function") return {};
@@ -235,7 +235,7 @@ export namespace PlaygroundChain {
       // A released row or standalone law is registered with the performance
       // and appended by name. Other names go to act for normal SDK admission.
       const row: ILaw | undefined =
-        action.name in HUMAN_ACTIONS ? undefined : rows.get(action.name);
+        action.name in AutoMovieMotionHumanActions ? undefined : rows.get(action.name);
       let next: ILoose;
       if (row !== undefined && chain.registered !== undefined) {
         laws.set(row.name, row);
@@ -272,7 +272,7 @@ export namespace PlaygroundChain {
     };
 
     const empty = (subject: string): ILoose =>
-      HumanChain.subject(subject) as unknown as ILoose;
+      AutoMovieMotionHumanChain.subject(subject) as unknown as ILoose;
     const chains: ILoose[] = data.performers
       .filter(
         (performer: IPlaygroundComposition.IPerformer): boolean =>
@@ -292,7 +292,7 @@ export namespace PlaygroundChain {
 
     // Every person's chain runs at once; each mutual action follows them all.
     const known: Record<string, IMutual> = mutuals();
-    const join = (HumanChain as unknown as Record<string, unknown>)[
+    const join = (AutoMovieMotionHumanChain as unknown as Record<string, unknown>)[
       "mutual"
     ] as
       | ((
@@ -328,7 +328,7 @@ export namespace PlaygroundChain {
         // performance, as the mutual's own documentation asks.
         for (const role of record.roles) {
           const name: string = record.act(role, params, mutual.cast).name;
-          if (name in HUMAN_ACTIONS) continue;
+          if (name in AutoMovieMotionHumanActions) continue;
           const law: ILaw | undefined = rows.get(name);
           if (law !== undefined) laws.set(law.name, law);
         }

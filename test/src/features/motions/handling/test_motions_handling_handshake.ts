@@ -8,7 +8,7 @@ import {
   HumanClasp,
   HumanClaspClearance,
   HumanGrip,
-  HumanRefusal,
+  AutoMovieMotionHumanRefusal,
   handshakeOffer,
   poseBones,
   resolveHumanPosture,
@@ -133,7 +133,7 @@ export async function test_motions_handling_handshake(): Promise<void> {
       0,
     );
   } catch (error: unknown) {
-    refused = error instanceof HumanRefusal && error.axis === "partner";
+    refused = error instanceof AutoMovieMotionHumanRefusal && error.axis === "partner";
   }
   TestValidator.predicate("too far apart", refused);
 

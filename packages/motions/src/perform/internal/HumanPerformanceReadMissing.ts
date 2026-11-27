@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanRefusal } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * The missing-performer or missing-prop refusal, listing the performance's own
@@ -17,7 +17,7 @@ export function HumanPerformanceReadMissing(
   known: readonly string[],
   axis: string = what,
 ): IAutoMovieMotionHumanRefusal {
-  return new HumanRefusal({
+  return new AutoMovieMotionHumanRefusal({
     kind: what === "prop" ? "affordance" : "participant",
     axis,
     value: subject,

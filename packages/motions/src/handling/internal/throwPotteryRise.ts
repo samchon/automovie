@@ -1,4 +1,4 @@
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * How far a pull raises the clay wall, metres of the wheel's `raise` slider:
@@ -14,7 +14,7 @@ export function throwPotteryRise(
 ): number {
   const raised: number = rise ?? travel - start;
   if (!(raised > 0 && start + raised <= travel + 1e-9))
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "rise",
       value: raised,

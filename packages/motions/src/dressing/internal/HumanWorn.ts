@@ -11,7 +11,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
@@ -131,7 +131,7 @@ function socketOf(prop: IAutoMovieMotionHumanProp): IAutoMovieAffordance {
     (a: IAutoMovieAffordance): boolean => a.id === "wear",
   );
   if (wear === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "prop",
       value: prop.subject,

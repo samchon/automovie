@@ -240,13 +240,13 @@ export namespace IPlaygroundComposition {
     anchor?: string;
 
     /**
-     * Where the action is cut, as `HumanChain.until` takes it; uncut when
+     * Where the action is cut, as `AutoMovieMotionHumanChain.until` takes it; uncut when
      * absent. Saved legacy shapes are normalized when the address is read.
      */
     until?: IAutoMovieIntent.IUntil;
 
     /**
-     * The instant the action is timed to, as `HumanChain.sync` takes it;
+     * The instant the action is timed to, as `AutoMovieMotionHumanChain.sync` takes it;
      * untimed when absent.
      */
     sync?: Record<string, unknown>;

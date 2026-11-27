@@ -13,7 +13,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { ExerciseKey } from "./ExerciseKey";
 
@@ -69,7 +69,7 @@ export namespace groupDanceCircle {
     const body: IAutoMovieMotionHumanBody = context.body;
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     if (p.centre === undefined || p.members === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "centre",
         value: p.centre ?? null,
@@ -114,7 +114,7 @@ export namespace groupDanceCircle {
     const chord: number = radius * Math.sin(gap / 2);
     const shoulder: number = body.measure.shoulderHalfWidth;
     if (chord - shoulder > reach)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "centre",
         value: radius,

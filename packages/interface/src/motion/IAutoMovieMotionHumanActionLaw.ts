@@ -82,7 +82,7 @@ export interface IAutoMovieMotionHumanActionLaw<P = object> {
   yields?: readonly AutoMovieMotionHumanChannelClaim[];
 
   /**
-   * Whether the action can be performed over a carrier (`HumanChain.over`): it
+   * Whether the action can be performed over a carrier (`AutoMovieMotionHumanChain.over`): it
    * plans on the carrier's posture and claims only the channels its plan names.
    * An action that moves the whole body cannot.
    */

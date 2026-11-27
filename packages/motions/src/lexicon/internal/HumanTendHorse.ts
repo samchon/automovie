@@ -19,7 +19,7 @@ import type {
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
 import { HumanGrip } from "../../handling/internal/HumanGrip";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
@@ -83,7 +83,7 @@ function planHumanTendHorse(
     !(transition > 0 && 2 * transition < seconds && stroke >= 0) ||
     (stroke > 0 && task !== "brush")
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "transition",
       value: transition,
@@ -94,7 +94,7 @@ function planHumanTendHorse(
     });
   const support: IAutoMovieMotionHumanPropReader = context.prop(on);
   if (support.prop.points[point] === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "point",
       value: point,
@@ -106,7 +106,7 @@ function planHumanTendHorse(
       fix: "Name one of the horse's contacts.",
     });
   if (context.carrier === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "base",
       axis: "carrier",
       value: context.entry.base.kind,
@@ -332,7 +332,7 @@ function planHumanTendHorse(
                 ),
               );
         if (!(distance <= CONTACT))
-          throw new HumanRefusal({
+          throw new AutoMovieMotionHumanRefusal({
             kind: "affordance",
             axis: "careReach",
             value: distance,
@@ -382,7 +382,7 @@ function heldTool(
     (contact: IAutoMovieAffordance): boolean => contact.id === tool.face,
   );
   if (face === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "tool",
       value: tool.face,

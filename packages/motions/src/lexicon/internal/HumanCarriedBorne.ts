@@ -18,7 +18,7 @@ import type {
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanCarried } from "./HumanCarried";
 import { HumanCarriedCoupling } from "./HumanCarriedCoupling";
@@ -43,7 +43,7 @@ export namespace HumanCarriedBorne {
     const by: string | undefined = context.params.partner;
     const seconds: number = lasting(context.params.hold ?? 2);
     if (by === context.subject)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "participant",
         axis: "partner",
         value: by,
@@ -63,7 +63,7 @@ export namespace HumanCarriedBorne {
       second !== undefined &&
       (by === undefined || HumanCarriedCoupling.PAIRED[carry] === undefined)
     )
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "with",
         value: second,

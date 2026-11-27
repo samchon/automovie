@@ -7,7 +7,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { prepareInstancePosture } from "./prepareInstancePosture";
 
 /*
@@ -79,7 +79,7 @@ export namespace instance {
     const p: IAutoMovieMotionHumanInstance.IParams = context.params;
     const shift: number = Math.round(p.shift ?? 0);
     if (!(p.duration > 0) || !(shift >= 0))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: p.duration > 0 ? "shift" : "duration",
         value: p.duration > 0 ? shift : p.duration,

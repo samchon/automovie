@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanVerdicts,
 } from "@automovie/interface";
-import { HumanPerformance, AutoMovieMotionHumanVerdicts } from "@automovie/motions";
+import { AutoMovieMotionHumanPerformance, AutoMovieMotionHumanVerdicts } from "@automovie/motions";
 
 import type { motionComplaints } from "./motionComplaints";
 
@@ -74,7 +74,7 @@ export namespace motionActionUnit {
    * @throws An `Error` naming the action when the chain has no such occurrence.
    */
   export function segment(
-    take: HumanPerformance,
+    take: AutoMovieMotionHumanPerformance,
     subject: string,
     name: string,
     occurrence: number = 1,
@@ -132,7 +132,7 @@ export namespace motionActionUnit {
    * @returns The findings, in the report's order.
    */
   export function findings(
-    take: HumanPerformance,
+    take: AutoMovieMotionHumanPerformance,
     subject: string,
     act: IAutoMovieMotionHumanSegment,
     span: ISpan = { from: act.entryTime, to: act.end },
@@ -188,7 +188,7 @@ export namespace motionActionUnit {
   export function bounds(
     checks: motionComplaints.IGatherer,
     label: string,
-    take: HumanPerformance,
+    take: AutoMovieMotionHumanPerformance,
     subject: string,
     act: IAutoMovieMotionHumanSegment,
     span: ISpan = { from: act.entryTime, to: act.end },

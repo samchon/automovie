@@ -12,7 +12,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPropCatchHands } from "./HumanPropCatchHands";
 import { HumanPropFlightFrame } from "./HumanPropFlightFrame";
@@ -279,7 +279,7 @@ export namespace HumanPropFlight {
           (h: IAutoMovieMotionHumanSegment.IHeld): boolean =>
             h.prop === subject && h.from === grip.from && h.capture === capture,
         )!;
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         performer: grip.subject,
         act: held.source.name,

@@ -11,7 +11,7 @@ import type {
 } from "@automovie/interface";
 
 import { jump } from "../../actions/internal/jump";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { GymnasticsFlight } from "./GymnasticsFlight";
 import { prepareGymnasticsLaunch } from "./prepareGymnasticsLaunch";
 
@@ -54,7 +54,7 @@ export function GymnasticsTakeoff(
     velocity: IAutoMovieVector3,
   ): number => {
     if (!(velocity.y > 0))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "launch",
         value: velocity.y,

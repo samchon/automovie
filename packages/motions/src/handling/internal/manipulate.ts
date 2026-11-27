@@ -16,7 +16,7 @@ import type {
 } from "@automovie/interface";
 
 import { typeText } from "../../everyday/internal/typeText";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanSkill } from "../../skill/internal/HumanSkill";
 import { manipulateFacing } from "./manipulateFacing";
 import { manipulateFingering } from "./manipulateFingering";
@@ -155,7 +155,7 @@ export namespace manipulate {
             },
           );
     if (given.length === 0)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "contacts",
         value: 0,
@@ -167,7 +167,7 @@ export namespace manipulate {
         c.at !== undefined,
     ).length;
     if (timed !== 0 && timed !== given.length)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "contacts.at",
         value: timed,
@@ -327,7 +327,7 @@ const site: (
     (a: IAutoMovieAffordance): boolean => a.id === id,
   );
   if (found === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "contacts.site",
       value: id,

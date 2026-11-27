@@ -13,7 +13,7 @@ import { composeAutoMovieMotionHumanAction } from "../../compose/internal/compos
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { requireOtherPerformer } from "./requireOtherPerformer";
 import { HumanArmTrajectoryPace } from "../../posture/internal/HumanArmTrajectoryPace";
 import { HumanAuditModel } from "../../posture/internal/HumanAuditModel";
@@ -226,7 +226,7 @@ function planEmbraceFromBehind(
       room - embraceFromBehindSolve.NEAR,
     );
     if (forward === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "region",
         value: room,

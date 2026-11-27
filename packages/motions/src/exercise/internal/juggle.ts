@@ -24,7 +24,7 @@ import { AutoMovieMotionHumanElbowPlace } from "../../compose/internal/AutoMovie
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
 import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { juggleTiming } from "./juggleTiming";
@@ -143,7 +143,7 @@ export namespace juggle {
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const n: number = p.balls.length;
     if (p.pattern === "cascade" ? n % 2 === 0 || n < 3 : n !== 2)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "balls",
         value: n,
@@ -175,7 +175,7 @@ export namespace juggle {
     const vacancy: number = timing.vacancy;
     if (vacancy < VACANCY) {
       const least: number = timing.least;
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "height",
         value: height,

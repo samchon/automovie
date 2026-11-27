@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanGait,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HUMAN_DRILL_CADENCES } from "./HUMAN_DRILL_CADENCES";
 import { HumanGait } from "./HumanGait";
 
@@ -22,7 +22,7 @@ export function HumanGaitRegulated(
   const time: string = params.time ?? names[0] ?? "";
   const cadence: number | undefined = row.times[time];
   if (cadence === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "time",
       value: time,

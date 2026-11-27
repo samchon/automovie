@@ -16,7 +16,7 @@ import { HumanProxemics } from "../../everyday/internal/HumanProxemics";
 import { approach } from "../../everyday/internal/approach";
 import { AutoMovieMotionHumanActionRow } from "../../law/AutoMovieMotionHumanActionRow";
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HUMAN_GAIT_CONFRONT } from "../../next/presets/HUMAN_GAIT_CONFRONT";
 import { HUMAN_GAIT_ESCORT } from "../../next/presets/HUMAN_GAIT_ESCORT";
 import { HUMAN_GAIT_FOLLOW } from "../../next/presets/HUMAN_GAIT_FOLLOW";
@@ -129,7 +129,7 @@ export namespace HumanPursuit {
           meets = next;
           planned = runTo(meets);
         }
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "reach",
           axis: "pace",
           value: context.params.pace ?? "run",
@@ -309,7 +309,7 @@ export namespace HumanPursuit {
         const here: IAutoMovieVector3 = context.entry.posture.root;
         const away: number = Math.hypot(here.x - threat.x, here.z - threat.z);
         if (away < 1e-6)
-          throw new HumanRefusal({
+          throw new AutoMovieMotionHumanRefusal({
             kind: "parameter",
             axis: "from",
             value: context.params.from,

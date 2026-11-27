@@ -1,4 +1,4 @@
-import { HumanIceGlide, HumanRefusal } from "@automovie/motions/internal";
+import { HumanIceGlide, AutoMovieMotionHumanRefusal } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 /** A leg of 0.45 m thigh and 0.42 m shank. */
@@ -31,7 +31,7 @@ export function test_motions_carrier_human_ice_glide(): void {
     try {
       HumanIceGlide.admit(params, LEG);
     } catch (error: unknown) {
-      return error instanceof HumanRefusal ? error.axis : "error";
+      return error instanceof AutoMovieMotionHumanRefusal ? error.axis : "error";
     }
     return undefined;
   };

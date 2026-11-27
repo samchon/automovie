@@ -189,7 +189,7 @@ export namespace HumanMusketDrill {
 
   /*
    * Make ready: the cock drawn to full cock, over `recover`
-   * (`HumanChain.over`).
+   * (`AutoMovieMotionHumanChain.over`).
    */
   export const makeReady: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["musketDrill"]["makeReady"]

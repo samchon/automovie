@@ -6,7 +6,7 @@ import type {
   IAutoMovieMotionHumanTouchContacts,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * A touch's contact windows from `ready` to `relax`: the hand's grip on what it
@@ -43,7 +43,7 @@ export namespace AutoMovieMotionHumanTouchContacts {
           rest.hand === "other",
       )
     )
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "rests",
         value: rests,

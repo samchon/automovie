@@ -8,7 +8,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * The obstacle a prop is, at a second.
@@ -31,7 +31,7 @@ export function HumanObstacle(
   const find = (id: string): IAutoMovieAffordance | undefined =>
     affordances.find((a: IAutoMovieAffordance): boolean => a.id === id);
   const refuse = (reason: string): IAutoMovieMotionHumanRefusal =>
-    new HumanRefusal({
+    new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "obstacle",
       value: subject,

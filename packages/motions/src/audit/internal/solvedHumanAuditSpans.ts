@@ -14,7 +14,7 @@ import { subtractHumanAuditInterval } from "./subtractHumanAuditInterval";
 
 /*
  * A person's placed actions as the audit reads them where windows of the
- * performance were solved (`HumanPerformance.simulate`): inside a window, the
+ * performance were solved (`AutoMovieMotionHumanPerformance.simulate`): inside a window, the
  * parts the solver owns are judged by the solver's contacts, not by the plants
  * their action declared.
  *

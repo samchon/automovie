@@ -9,9 +9,9 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanMount,
-  HumanChain,
-  HumanObject,
-  HumanPerformance,
+  AutoMovieMotionHumanChain,
+  AutoMovieMotionHumanObject,
+  AutoMovieMotionHumanPerformance,
 } from "@automovie/motions";
 
 import { locationTrackedRideFixture } from "./locationTrackedRideFixture";
@@ -21,7 +21,7 @@ import { motionHumanBody } from "./motionHumanBody";
 export function locationTrackedRidePassenger(
   fixture: ReturnType<typeof locationTrackedRideFixture>,
 ): {
-  film: HumanPerformance;
+  film: AutoMovieMotionHumanPerformance;
   actor: Pick<IAutoMovieStageActor, "node" | "position" | "facingDeg">;
   body: ReturnType<typeof motionHumanBody>;
 } {
@@ -37,7 +37,7 @@ export function locationTrackedRidePassenger(
     )!;
     return { position: frame.translation, rotation: frame.rotation };
   };
-  const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(
+  const seat: IAutoMovieMotionHumanSeated.ISeat = AutoMovieMotionHumanObject.seat(
     car,
     placed(0),
     "seat",
@@ -48,10 +48,10 @@ export function locationTrackedRidePassenger(
     position: { ...seat.at, y: 0.38, z: seat.at.z + 0.2 },
     facingDeg: seat.yaw,
   };
-  const film: HumanPerformance = new HumanPerformance({
+  const film: AutoMovieMotionHumanPerformance = new AutoMovieMotionHumanPerformance({
     seed: "tracked-ride",
     laws: [AutoMovieMotionHumanMount.rideHorse.ride],
-    props: [HumanObject.prop(carrier, car, placed(0), placed)],
+    props: [AutoMovieMotionHumanObject.prop(carrier, car, placed(0), placed)],
     performers: [
       {
         subject: actor.node,
@@ -61,7 +61,7 @@ export function locationTrackedRidePassenger(
         proficiency: { level: "trained" },
       },
     ],
-    composition: HumanChain.subject(actor.node)
+    composition: AutoMovieMotionHumanChain.subject(actor.node)
       .sit({ seat })
       .registered("ride", { on: carrier, duration: 12 }).node,
   });

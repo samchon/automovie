@@ -2,7 +2,7 @@ import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engin
 import type { IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformanceAim, IAutoMovieMotionHumanPerformanceState, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieMotionTarget, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanPerception } from "../../law/internal/HumanPerception";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 
@@ -61,7 +61,7 @@ export namespace HumanPerformanceAim {
         const region: IAutoMovieHumanoidSurfaces.IFrame | undefined =
           other.performer.body.surfaces.regions[target.region];
         if (region === undefined)
-          throw new HumanRefusal({
+          throw new AutoMovieMotionHumanRefusal({
             kind: "parameter",
             axis: "target.region",
             value: target.region,
@@ -94,7 +94,7 @@ export namespace HumanPerformanceAim {
         const region: IAutoMovieHumanoidSurfaces.IFrame | undefined =
           frame.body.surfaces.regions[target.region];
         if (region === undefined)
-          throw new HumanRefusal({
+          throw new AutoMovieMotionHumanRefusal({
             kind: "parameter",
             axis: "target.region",
             value: target.region,
@@ -127,7 +127,7 @@ export namespace HumanPerformanceAim {
             ...self.props.keys(),
           ]);
         if (local === undefined)
-          throw new HumanRefusal({
+          throw new AutoMovieMotionHumanRefusal({
             kind: "affordance",
             axis: "target",
             value: `${target.subject}.${target.point}`,

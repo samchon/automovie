@@ -8,7 +8,7 @@ import type { IAutoMovieMotionHumanFirefight } from "./IAutoMovieMotionHumanFire
  * beat flames; a victim whose clothes burn stops, drops and rolls. The
  * durations are provisional.
  *
- * A method here is a method of `HumanChain` when its name is in
+ * A method here is a method of `AutoMovieMotionHumanChain` when its name is in
  * `AutoMovieMotionHumanActionName`. Any other member is a registered law or
  * row: pass it in `laws: [...]` to the performance, taking it from
  * `AutoMovieMotionHumanFirefighting` or from the row namespace of the family,

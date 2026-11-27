@@ -13,7 +13,7 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { weldHumanSimulationProfile } from "./weldHumanSimulationProfile";
 
 /*
@@ -80,7 +80,7 @@ export function bindHumanSimulationGrips(
               (s: IAutoMoviePhysicalSegment): boolean => s.bone === bone,
             )
           )
-            throw new HumanRefusal({
+            throw new AutoMovieMotionHumanRefusal({
               kind: "parameter",
               axis: "window.subjects",
               value: subject,

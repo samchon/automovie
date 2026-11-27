@@ -14,7 +14,7 @@ import { HumanPhysicsActionSecond } from "./HumanPhysicsActionSecond";
 import { HumanPhysicsAdmitWindow } from "./HumanPhysicsAdmitWindow";
 import { HumanPhysicsInvalid } from "./HumanPhysicsInvalid";
 import { HumanPhysicsMissing } from "./HumanPhysicsMissing";
-import { HumanRefusal } from "../HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../AutoMovieMotionHumanRefusal";
 
 /*
  * The one reader of the balance option (`IAutoMovieMotionHumanBalance`): the
@@ -27,7 +27,7 @@ import { HumanRefusal } from "../HumanRefusal";
  * (`IAutoMovieMotionHumanActionLaw.balance`), and a field neither gives is
  * refused, naming it, except for the explicit weight and ramp defaults. Its
  * bounds are events, resolved as the scheduled instants are
- * (`HumanPerformance.instant`). The law only asks for a correction where the
+ * (`AutoMovieMotionHumanPerformance.instant`). The law only asks for a correction where the
  * prepared window has positive weight.
  */
 export namespace HumanPhysics {
@@ -111,7 +111,7 @@ export namespace HumanPhysics {
 
   /*
    * The resolver of a scheduled instant, film seconds
-   * (`HumanPerformance.instant`).
+   * (`AutoMovieMotionHumanPerformance.instant`).
    */
   export type Instant = IAutoMovieMotionHumanActionContext.Instant;
 
@@ -149,7 +149,7 @@ export namespace HumanPhysics {
     part: IAutoMovieMotionHumanBalance.Part,
     reason: string,
   ): never {
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "balance.by",
       value: part,
@@ -405,7 +405,7 @@ export namespace HumanPhysics {
    * Parameter resolved: The action's shift (`shift`).
    * Parameter seconds: Film seconds.
    * Parameter own: This action's id, for bounds that name no action.
-   * Parameter resolve: The scheduled-instant resolver (`HumanPerformance.instant`).
+   * Parameter resolve: The scheduled-instant resolver (`AutoMovieMotionHumanPerformance.instant`).
    * Returns: The weight applied there, 0 to 1.
    */
   export function weight(

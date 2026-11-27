@@ -4,7 +4,7 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanGesture,
 } from "@automovie/interface";
-import { HumanChain, HumanPerformance } from "@automovie/motions";
+import { AutoMovieMotionHumanChain, AutoMovieMotionHumanPerformance } from "@automovie/motions";
 import { FamilyCaseKit } from "@automovie/motions/executable/internal";
 import { HumanHand, gesture } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
@@ -15,7 +15,7 @@ const ACTOR = "a";
 export function test_motions_everyday_gesture_geometry(): void {
   const { body }: FamilyCaseKit.IBody = FamilyCaseKit.body("m-average");
   for (const side of ["right", "left"] as const) {
-    const wave: HumanPerformance = perform(body, {
+    const wave: AutoMovieMotionHumanPerformance = perform(body, {
       kind: "wave",
       hand: side,
       ...(side === "right"
@@ -54,7 +54,7 @@ function stopPalm(
   body: IAutoMovieMotionHumanBody,
   side: AutoMovieHumanSide,
 ): void {
-  const take: HumanPerformance = perform(body, {
+  const take: AutoMovieMotionHumanPerformance = perform(body, {
     kind: "stopPalm",
     hand: side,
   });
@@ -72,8 +72,8 @@ function stopPalm(
 function perform(
   body: IAutoMovieMotionHumanBody,
   params: IAutoMovieMotionHumanGesture.IParams,
-): HumanPerformance {
-  return new HumanPerformance({
+): AutoMovieMotionHumanPerformance {
+  return new AutoMovieMotionHumanPerformance({
     seed: "everyday",
     performers: [
       {
@@ -84,6 +84,6 @@ function perform(
         proficiency: { level: "trained" },
       },
     ],
-    composition: HumanChain.subject(ACTOR).gesture(params).node,
+    composition: AutoMovieMotionHumanChain.subject(ACTOR).gesture(params).node,
   });
 }

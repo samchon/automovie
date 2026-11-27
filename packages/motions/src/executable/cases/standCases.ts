@@ -1,9 +1,9 @@
 import { AutoMovieEngineKinematics, Quaternion } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMoviePose, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanChain } from "../../chain/HumanChain";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
 import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
-import { HumanPerformance } from "../../perform/HumanPerformance";
+import { AutoMovieMotionHumanPerformance } from "../../perform/AutoMovieMotionHumanPerformance";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { MotionBodies } from "../internal/MotionBodies";
@@ -35,12 +35,12 @@ export function standCases(
   );
   let chain: IAutoMovieMotionHumanChain | undefined;
   names.forEach((_, i: number): void => {
-    const one: IAutoMovieMotionHumanChain = HumanChain.subject(`s${i}`).stand({
+    const one: IAutoMovieMotionHumanChain = AutoMovieMotionHumanChain.subject(`s${i}`).stand({
       hold: 2,
     });
     chain = chain === undefined ? one : chain.with(one);
   });
-  const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
+  const performance: IAutoMovieMotionHumanPerformance = new AutoMovieMotionHumanPerformance({
     seed: "stand",
     performers: bodies.map((body: IAutoMovieMotionHumanBody, i: number) => ({
       subject: `s${i}`,

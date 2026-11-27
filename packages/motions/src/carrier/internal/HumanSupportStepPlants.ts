@@ -14,7 +14,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 
 /*
@@ -369,7 +369,7 @@ export namespace HumanSupportStepPlants {
           if (own !== undefined) {
             const correction: IAutoMovieVector3 | null = fit(own, footprint);
             if (correction === null)
-              throw new HumanRefusal({
+              throw new AutoMovieMotionHumanRefusal({
                 kind: "reach",
                 axis: "support",
                 value: bearing,

@@ -23,9 +23,9 @@ import type {
 import {
   AutoMovieMotionHumanBody,
   AutoMovieMotionHumanRide,
-  HumanChain,
-  HumanObject,
-  HumanPerformance,
+  AutoMovieMotionHumanChain,
+  AutoMovieMotionHumanObject,
+  AutoMovieMotionHumanPerformance,
 } from "@automovie/motions";
 
 import { bakeEnvironmentPerformance } from "./bakeEnvironmentPerformance";
@@ -177,7 +177,7 @@ export function hillsideStop(): compileEnvironmentExample.IInput {
     );
   if (chair === undefined || placement === undefined)
     throw new Error("The caf챕's named chair was not staged");
-  const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(
+  const seat: IAutoMovieMotionHumanSeated.ISeat = AutoMovieMotionHumanObject.seat(
     chair.model,
     {
       position: placement.position,
@@ -240,10 +240,10 @@ export function hillsideStop(): compileEnvironmentExample.IInput {
     facingDeg: (Math.atan2(forward.x, forward.z) * 180) / Math.PI,
   };
   const opening: IAutoMovieMotion = bakeEnvironmentPerformance(
-    new HumanPerformance({
+    new AutoMovieMotionHumanPerformance({
       seed: "hillside-door",
       laws: [AutoMovieMotionHumanRide.travelLeaf.openDoor],
-      props: [HumanObject.prop(doorId, door, doorAt(0), doorAt)],
+      props: [AutoMovieMotionHumanObject.prop(doorId, door, doorAt(0), doorAt)],
       performers: [
         {
           subject: opener.node,
@@ -253,7 +253,7 @@ export function hillsideStop(): compileEnvironmentExample.IInput {
           proficiency: { level: "trained" },
         },
       ],
-      composition: HumanChain.subject(opener.node).registered("openDoor", {
+      composition: AutoMovieMotionHumanChain.subject(opener.node).registered("openDoor", {
         door: doorId,
         handle: "pull",
         duration: swing.to + 0.2,
@@ -263,7 +263,7 @@ export function hillsideStop(): compileEnvironmentExample.IInput {
     seconds,
   );
   const sitting: IAutoMovieMotion = bakeEnvironmentPerformance(
-    new HumanPerformance({
+    new AutoMovieMotionHumanPerformance({
       seed: "hillside-sit",
       laws: [],
       performers: [
@@ -275,7 +275,7 @@ export function hillsideStop(): compileEnvironmentExample.IInput {
           proficiency: { level: "trained" },
         },
       ],
-      composition: HumanChain.subject(patron.node).sit({ seat }).node,
+      composition: AutoMovieMotionHumanChain.subject(patron.node).sit({ seat }).node,
     }),
     patron,
     seconds,

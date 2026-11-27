@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import { walkPoleFrame } from "../../actions/internal/walkPoleFrame";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { poleVaultLean } from "./poleVaultLean";
 import { poleVaultSwing } from "./poleVaultSwing";
 import { poleVaultTakeoffAngle } from "./poleVaultTakeoffAngle";
@@ -88,7 +88,7 @@ export function poleVaultGrip(
   );
   let high: number = length;
   if (!swings(low))
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "base",
       axis: "run",
       value: speed,

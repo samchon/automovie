@@ -11,7 +11,7 @@ import type {
   IAutoMovieQuaternion,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanArmSwing } from "../../posture/internal/HumanArmSwing";
 import { HumanHandAttitude } from "../../posture/internal/HumanHandAttitude";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -142,7 +142,7 @@ export namespace AutoMovieMotionHumanArmCarry {
         try {
           group.solved = solve(before);
         } catch (error: unknown) {
-          if (error instanceof HumanRefusal) group.refused = error;
+          if (error instanceof AutoMovieMotionHumanRefusal) group.refused = error;
           throw error;
         } finally {
           group.solving = false;

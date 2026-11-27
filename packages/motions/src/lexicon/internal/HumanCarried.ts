@@ -10,7 +10,7 @@ import type {
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { carryHumanPosture } from "../../posture/internal/carryHumanPosture";
 import { HumanCarriedBearing } from "./HumanCarriedBearing";
 import { HumanCarriedBorne } from "./HumanCarriedBorne";
@@ -61,7 +61,7 @@ export namespace HumanCarried {
         const bone: AutoMovieHumanoidBone = context.params.on ?? "upperChest";
         HumanCarriedBorne.lasting(seconds);
         if (by === context.subject)
-          throw new HumanRefusal({
+          throw new AutoMovieMotionHumanRefusal({
             kind: "participant",
             axis: "partner",
             value: by,
@@ -78,7 +78,7 @@ export namespace HumanCarried {
             .bones(context.start + at)
             .get(bone);
           if (resolved === undefined)
-            throw new HumanRefusal({
+            throw new AutoMovieMotionHumanRefusal({
               kind: "parameter",
               axis: "on",
               value: bone,

@@ -8,7 +8,7 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanObject } from "@automovie/motions";
+import { AutoMovieMotionHumanObject } from "@automovie/motions";
 import {
   HumanPerformanceRead,
   HumanPropCatchHands,
@@ -53,7 +53,7 @@ type IGrip = IAutoMovieMotionHumanPerformanceState.IGrip;
 export async function test_motions_perform_sweep_hands(): Promise<void> {
   const origin = { at: { x: 0, y: 0, z: 0 }, yaw: 0 };
   const plain = (subject: string, at = origin): IAutoMovieMotionHumanProp =>
-    HumanObject.prop(subject, { affordances: [] }, at);
+    AutoMovieMotionHumanObject.prop(subject, { affordances: [] }, at);
   const launch: IAutoMovieMotionPropLaunch = {
     prop: "ball",
     seconds: 1,
@@ -62,7 +62,7 @@ export async function test_motions_perform_sweep_hands(): Promise<void> {
     sphere: { radius: 0.1, centre: { x: 0, y: 0, z: 0 } },
   };
   const hook: IAutoMovieMotionHumanProp = {
-    ...HumanObject.prop(
+    ...AutoMovieMotionHumanObject.prop(
       "hook",
       { affordances: [testAffordance("tip", "hook", { x: 0, y: 2, z: 0 })] },
       origin,
@@ -83,7 +83,7 @@ export async function test_motions_perform_sweep_hands(): Promise<void> {
         plain("cup", { at: { x: 1, y: 0, z: 0 }, yaw: 0 }),
         plain("racket"),
         hook,
-        HumanObject.prop(
+        AutoMovieMotionHumanObject.prop(
           "bell",
           { affordances: [testAffordance("loop", "hook", { x: 0, y: 0, z: 0 })] },
           origin,

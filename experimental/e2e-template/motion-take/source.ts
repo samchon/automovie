@@ -25,8 +25,8 @@ import {
   AutoMovieMotionHumanBody,
   AutoMovieMotionHumanStance,
   AutoMovieMotionHumanThrowCatch,
-  HumanChain,
-  HumanObject,
+  AutoMovieMotionHumanChain,
+  AutoMovieMotionHumanObject,
 } from "@automovie/motions";
 
 import type { IMotionTakeSource } from "../../src/executable/motionTake/IMotionTakeSource";
@@ -165,7 +165,7 @@ function hingeTravel(seconds: number): number {
 /** Compare the prepared reader with full model posing across the source cut. */
 function verifyDoorSite(door: IAutoMovieMotionHumanProp): void {
   const site: IAutoMovieMotionHumanProp["articulateSite"] =
-    HumanObject.articulateSite(door);
+    AutoMovieMotionHumanObject.articulateSite(door);
   const articulate: IAutoMovieMotionHumanProp["articulate"] = door.articulate;
   if (site === undefined || articulate === undefined)
     throw new Error(
@@ -221,7 +221,7 @@ export function createMotionTakeSource(): IMotionTakeSource {
     180,
   ).root;
   const arm: number = body.measure.upperArm + body.measure.forearm;
-  const door: IAutoMovieMotionHumanProp = HumanObject.prop(
+  const door: IAutoMovieMotionHumanProp = AutoMovieMotionHumanObject.prop(
     "door",
     AutoMovieArchetypeDoor.create(
       { hinge: "right", hardware: "lever" },
@@ -313,18 +313,18 @@ export function createMotionTakeSource(): IMotionTakeSource {
         ],
         composition: AutoMovieComposition.sequence(
           AutoMovieComposition.parallel(
-            HumanChain.subject("emitter").registered(
+            AutoMovieMotionHumanChain.subject("emitter").registered(
               "releaseFoamBall",
               { hold: 2 },
               "foam-release",
             ).node,
-            HumanChain.subject("catcher").registered("stageCatch", {
+            AutoMovieMotionHumanChain.subject("catcher").registered("stageCatch", {
               partner: "foam-release",
               ball: launch.prop,
               hands: "one",
             }).node,
           ),
-          HumanChain.subject("catcher").registered(
+          AutoMovieMotionHumanChain.subject("catcher").registered(
             "stand",
             { hold: 1, sway: 0 },
             "old-tail",

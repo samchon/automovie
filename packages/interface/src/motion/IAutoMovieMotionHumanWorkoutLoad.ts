@@ -88,7 +88,7 @@ export namespace IAutoMovieMotionHumanWorkoutLoad {
      * load owner supplies the check only for a two-handed prop.
      *
      * @param posture The loaded posture before transition offsets.
-     * @throws {HumanRefusal} When either arm cannot keep the support grip in
+     * @throws {AutoMovieMotionHumanRefusal} When either arm cannot keep the support grip in
      *   its measured frame.
      */
     admit?(posture: IAutoMovieMotionHumanPosture): void;

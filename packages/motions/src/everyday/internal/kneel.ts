@@ -23,7 +23,7 @@ import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieM
 import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
 import { prepareDryKneeSupport } from "../../floor/internal/prepareDryKneeSupport";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanPhysics } from "../../law/internal/HumanPhysics";
 import { kneelContacts } from "./kneelContacts";
@@ -230,7 +230,7 @@ export namespace kneel {
       context.instant,
     );
     if (window !== null && window.by !== "hips")
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "balance.by",
         value: window.by,

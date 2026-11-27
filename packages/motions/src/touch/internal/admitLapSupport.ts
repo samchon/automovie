@@ -1,4 +1,4 @@
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * Admit a partner's thighs as a lap at no more than 30 degrees from level.
@@ -13,7 +13,7 @@ export function admitLapSupport(
   thigh: number,
 ): void {
   if (drop > 0.5 * thigh)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "base",
       axis: "partner",
       value: partner,

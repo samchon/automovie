@@ -12,7 +12,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
-import { HumanPerformance } from "../../perform/HumanPerformance";
+import { AutoMovieMotionHumanPerformance } from "../../perform/AutoMovieMotionHumanPerformance";
 import { HumanColliders } from "../../posture/internal/HumanColliders";
 import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { MotionBodies } from "../internal/MotionBodies";
@@ -79,7 +79,7 @@ export namespace FamilyCaseKit {
     composition: IAutoMovieComposition,
     props: readonly IAutoMovieMotionHumanProp[] = [],
   ): IAutoMovieMotionHumanPerformance {
-    return new HumanPerformance({
+    return new AutoMovieMotionHumanPerformance({
       seed,
       performers: performers.map((p) => ({
         subject: p.subject,

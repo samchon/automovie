@@ -9,7 +9,7 @@ import type {
   IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanRide, HumanRefusal } from "@automovie/motions";
+import { AutoMovieMotionHumanRide, AutoMovieMotionHumanRefusal } from "@automovie/motions";
 import { prepareGlideSlope } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
@@ -73,7 +73,7 @@ export async function test_motions_carrier_human_snow_glide(): Promise<void> {
         params: { ...context.params, edgeTransfer, nordic: stroke },
       });
     } catch (error: unknown) {
-      if (error instanceof HumanRefusal) return error.axis;
+      if (error instanceof AutoMovieMotionHumanRefusal) return error.axis;
       throw error;
     }
     return undefined;

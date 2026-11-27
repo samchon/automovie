@@ -85,7 +85,7 @@ export namespace MotionIndex {
 
     /**
      * Its entry in the API reference, a path under the site such as
-     * `/api/classes/_automovie_motions.HumanChain.html#walk`.
+     * `/api/classes/_automovie_motions.AutoMovieMotionHumanChain.html#walk`.
      */
     api: string;
 

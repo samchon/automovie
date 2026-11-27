@@ -241,7 +241,7 @@ export interface IAutoMovieMotionHumanActionPlan {
    * Articulations of props this action moves: a door's hinge the hand swings, a
    * trigger it presses, a slider it draws. Each writes the travel of one
    * articulation over a window of the action; the performance poses the prop by
-   * them (`HumanPerformance.state`), and after a drive ends its last travel
+   * them (`AutoMovieMotionHumanPerformance.state`), and after a drive ends its last travel
    * holds. A drive writes travel only, never the prop's frame.
    */
   drives?: readonly IAutoMovieMotionPropDrive[];
@@ -250,7 +250,7 @@ export interface IAutoMovieMotionHumanActionPlan {
    * Props this action sets flying: a thrown bottle at the hand's opening, an
    * arrow at the loose, a ball at the trigger's break. From its second the prop
    * leaves every grip and flies from the launch's point and velocity until its
-   * flight ends (`HumanPerformance.flights`).
+   * flight ends (`AutoMovieMotionHumanPerformance.flights`).
    */
   launches?: readonly IAutoMovieMotionPropLaunch[];
 

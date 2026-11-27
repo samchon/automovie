@@ -5,10 +5,10 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanObject } from "@automovie/motions";
+import { AutoMovieMotionHumanObject } from "@automovie/motions";
 import {
   HumanPerformanceTether,
-  HumanRefusal,
+  AutoMovieMotionHumanRefusal,
   humanTetherCatenary,
 } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
@@ -68,7 +68,7 @@ export async function test_motions_perform_tether(): Promise<void> {
     },
   };
   const reel: IAutoMovieMotionHumanProp = {
-    ...HumanObject.prop(
+    ...AutoMovieMotionHumanObject.prop(
       "reel",
       {
         affordances: [
@@ -83,7 +83,7 @@ export async function test_motions_perform_tether(): Promise<void> {
     tethers: [line, wind],
   };
   const lure = (at: IAutoMovieVector3): IAutoMovieMotionHumanProp =>
-    HumanObject.prop(
+    AutoMovieMotionHumanObject.prop(
       "lure",
       { affordances: [testAffordance("eye", "handle", P(0, 0, 0))] },
       { at, yaw: 0 },
@@ -257,7 +257,7 @@ function refused(task: () => unknown, value: string | number): boolean {
     return false;
   } catch (error) {
     return (
-      error instanceof HumanRefusal &&
+      error instanceof AutoMovieMotionHumanRefusal &&
       error.axis === "tether" &&
       error.value === value
     );

@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanPlacedAction,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * An action's reader of the anchored actions placed before it
@@ -25,7 +25,7 @@ export function HumanPerformancePlaceAction(
     if (placed === undefined && self.demandAnchor?.(anchor) === "placed")
       placed = self.anchors.get(anchor);
     if (placed === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "participant",
         axis: named(anchor, "anchor"),
         value: anchor,

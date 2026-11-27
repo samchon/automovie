@@ -6,7 +6,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanMaterialContact } from "../../posture/internal/HumanMaterialContact";
 import { AquaticPosture } from "./AquaticPosture";
 
@@ -19,7 +19,7 @@ export function AquaticEdge(
 ): AquaticEdge.IEdge {
   const id: string | undefined = context.params.support;
   if (id === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "support",
       value: null,
@@ -32,7 +32,7 @@ export function AquaticEdge(
     edge.prop.affordances ?? []
   ).find((a: IAutoMovieAffordance): boolean => a.id === "edge");
   if (contact === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "support",
       value: id,
@@ -86,7 +86,7 @@ export namespace AquaticEdge {
           HumanMaterialContact.point(face, point) === undefined,
       )
     )
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "support",
         value: edge.id,

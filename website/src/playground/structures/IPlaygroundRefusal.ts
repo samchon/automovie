@@ -1,6 +1,6 @@
 /**
  * Why a composition was not performed, with the facts of the package's
- * `HumanRefusal` copied field for field.
+ * `AutoMovieMotionHumanRefusal` copied field for field.
  *
  * `message` is the package's own text and is shown unedited. A failure that
  * is not a refusal (an error the package throws for another reason, or an

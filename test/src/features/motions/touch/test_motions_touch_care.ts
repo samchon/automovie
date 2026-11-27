@@ -3,7 +3,7 @@ import type {
   IAutoMovieIntent,
   IAutoMovieMotionTarget,
 } from "@automovie/interface";
-import { HumanChain } from "@automovie/motions";
+import { AutoMovieMotionHumanChain } from "@automovie/motions";
 import {
   PULSE_HOLD,
   compressions,
@@ -51,9 +51,9 @@ export function test_motions_touch_care(): void {
   TestValidator.equals(
     "the pulses",
     [
-      of(pulse(HumanChain.subject("a"), { partner: "b", site: "carotid" })),
+      of(pulse(AutoMovieMotionHumanChain.subject("a"), { partner: "b", site: "carotid" })),
       of(
-        pulse(HumanChain.subject("a"), {
+        pulse(AutoMovieMotionHumanChain.subject("a"), {
           partner: "b",
           site: "radial",
           side: "left",
@@ -85,7 +85,7 @@ export function test_motions_touch_care(): void {
   );
   TestValidator.equals(
     "the compressions",
-    of(compressions(HumanChain.subject("a"), { partner: "b" })),
+    of(compressions(AutoMovieMotionHumanChain.subject("a"), { partner: "b" })),
     [
       "touch",
       {
@@ -102,7 +102,7 @@ export function test_motions_touch_care(): void {
   TestValidator.equals(
     "the pressure",
     of(
-      pressWound(HumanChain.subject("a"), {
+      pressWound(AutoMovieMotionHumanChain.subject("a"), {
         partner: "b",
         region: "thighFrontLeft",
         hold: 5,
@@ -127,7 +127,7 @@ export function test_motions_touch_care(): void {
   };
   TestValidator.equals(
     "the kneel",
-    of(kneelBeside(HumanChain.subject("a"), { at })),
+    of(kneelBeside(AutoMovieMotionHumanChain.subject("a"), { at })),
     ["kneel", { kind: "both", hold: 0, rise: false, at }],
   );
 }

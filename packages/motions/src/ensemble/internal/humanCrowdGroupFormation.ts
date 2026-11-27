@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanFormation } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFormation } from "./HumanFormation";
 
 /*
@@ -35,7 +35,7 @@ export function humanCrowdGroupFormation(
   const pairs: readonly Observation[] | undefined =
     OBSERVATIONS[halfBreadths.length - 2];
   if (pairs === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "group.size",
       value: halfBreadths.length,
@@ -43,7 +43,7 @@ export function humanCrowdGroupFormation(
       fix: "give a group of two through four members",
     });
   if (!(density >= 0))
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "group.density",
       value: density,
@@ -52,7 +52,7 @@ export function humanCrowdGroupFormation(
     });
   for (const halfBreadth of halfBreadths)
     if (!(halfBreadth > 0))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "group.halfBreadths",
         value: halfBreadth,

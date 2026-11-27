@@ -9,7 +9,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * Where a tool works.
@@ -28,7 +28,7 @@ export function HumanToolWork(
   if (work.kind !== "stir")
     return { on: context.aim(work.on, context.start).point, radius: 0 };
   if (work.on.kind !== "prop" || work.on.point !== "inside")
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "on",
       value: work.on.kind,
@@ -45,7 +45,7 @@ export function HumanToolWork(
       (a: IAutoMovieAffordance): boolean => a.id === id,
     );
     if (found === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "affordance",
         axis: "on",
         value: subject,
@@ -152,7 +152,7 @@ export namespace HumanToolWork {
   export function stir(stir: IStir): IWork {
     const { subject, inside, rim, frame } = stir;
     if (!((inside.width ?? 0) > 0))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "affordance",
         axis: "on",
         value: subject,
@@ -168,7 +168,7 @@ export namespace HumanToolWork {
     const top: number = world(rim).y;
     const depth: number = (top - floor.y) / 2;
     if (!(stir.length > depth))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "prop",
         value: stir.length,

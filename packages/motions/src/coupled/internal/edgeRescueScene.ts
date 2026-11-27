@@ -12,7 +12,7 @@ import type {
 } from "@automovie/interface";
 
 import { lieDown } from "../../floor/internal/lieDown";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { stuntFallPose } from "../../reaction/internal/stuntFallPose";
@@ -355,8 +355,8 @@ export namespace edgeRescueScene {
   /*
    * The rescue's refusal.
    */
-  function refusal(axis: string, value: unknown, reason: string): HumanRefusal {
-    return new HumanRefusal({
+  function refusal(axis: string, value: unknown, reason: string): AutoMovieMotionHumanRefusal {
+    return new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis,
       value,

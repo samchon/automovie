@@ -4,7 +4,7 @@ import type { IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMo
 import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArmCourse } from "../../compose/internal/AutoMovieMotionHumanArmCourse";
 import { HumanPhysics } from "../../law/internal/HumanPhysics";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
 import { prepareHumanSampledCourse } from "../../posture/internal/prepareHumanSampledCourse";
@@ -69,7 +69,7 @@ export function prepareSitBalance(props: ISeatDescent): ISeatCourse {
     context.instant,
   );
   if (window !== null && window.by !== "hips")
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "balance.by",
       value: window.by,

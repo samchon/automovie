@@ -25,6 +25,6 @@ Find the object and the contact your scene needs.
 
 - Choose a producer in the [object catalogue](https://samchon.github.io/automovie/archetypes/).
 - Use `affordance` or `site` to read a named contact and `articulate` to apply joint travel.
-- Use `HumanObject` from [`@automovie/motions`](https://github.com/samchon/automovie/tree/master/packages/motions) to place a contact in a performance.
+- Use `AutoMovieMotionHumanObject` from [`@automovie/motions`](https://github.com/samchon/automovie/tree/master/packages/motions) to place a contact in a performance.
 
 Producer types and JSDoc describe the dimensions, frames and available sites. [API reference](https://samchon.github.io/automovie/api/).

@@ -18,7 +18,7 @@ import { HumanFrame } from "../../posture/internal/HumanFrame";
  * provisional: no measurement of mounting was read.
  *
  * `sit` gets onto such a seat and `rise` gets off it. The seat comes from
- * `HumanObject.seat`, which reads the object's foot rests with it, and
+ * `AutoMovieMotionHumanObject.seat`, which reads the object's foot rests with it, and
  * `HumanRide.ride` then carries the seated body with a support that moves.
  */
 export namespace HumanMount {

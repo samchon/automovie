@@ -31,7 +31,7 @@ import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotion
 import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionInterval } from "../../compose/internal/AutoMovieMotionInterval";
 import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { heldDigits } from "./heldDigits";
 import { writeAdmission } from "./writeAdmission";
@@ -90,7 +90,7 @@ function planWrite(
 ): IAutoMovieMotionHumanActionPlan {
   const p: IAutoMovieMotionHumanWrite = context.params;
   if (p.stroke.length < 2)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "stroke",
       value: p.stroke,
@@ -98,7 +98,7 @@ function planWrite(
       fix: "give [X, Z] vertices in metres on the surface",
     });
   if (!(p.duration > 0))
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "duration",
       value: p.duration,
@@ -123,7 +123,7 @@ function planWrite(
         affordance.id === p.surface && affordance.kind === "surface",
     );
   if (surface === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "surface",
       value: p.surface,
@@ -153,7 +153,7 @@ function planWrite(
       (surface.width !== undefined && Math.abs(x) > surface.width / 2) ||
       (surface.depth !== undefined && Math.abs(z) > surface.depth / 2)
     )
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "stroke",
         value: [x, z],
@@ -172,7 +172,7 @@ function planWrite(
         : previous.length +
           Vector3.length(Vector3.subtract(point, previous.point));
     if (previous !== undefined && !(length > previous.length))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "stroke",
         value: [x, z],

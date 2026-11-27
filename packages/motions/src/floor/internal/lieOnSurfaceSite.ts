@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanProp,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * A named affordance of a kind on the prop, or a refusal.
@@ -17,7 +17,7 @@ export function lieOnSurfaceSite(
     (a: IAutoMovieAffordance): boolean => a.id === id && a.kind === kind,
   );
   if (found === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: kind === "seat" ? "edge" : "surface",
       value: id,

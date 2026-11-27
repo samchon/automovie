@@ -17,7 +17,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { poseBones } from "../../posture/internal/poseBones";
 import { HumanGrasp } from "./HumanGrasp";
 import { HumanGrip } from "./HumanGrip";
@@ -64,7 +64,7 @@ export namespace pickUpOver {
       context.entry.holds[other] === context.params.prop;
     const lift: number = context.params.lift ?? (steadied ? 0 : 0.1);
     if (!(lift >= 0) || (steadied && lift > 0))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "lift",
         value: lift,

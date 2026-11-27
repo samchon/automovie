@@ -8,7 +8,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import type { AthleticsRunUp } from "./AthleticsRunUp";
 
 /*
@@ -28,7 +28,7 @@ export function highJumpBar(
     read.prop.affordances ?? []
   ).find((a: IAutoMovieAffordance): boolean => a.id === "bar");
   if (found === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "bar",
       value: subject,
@@ -105,7 +105,7 @@ export namespace highJumpBar {
     const side: number = Vector3.dot(normal, left) * Math.sign(toward);
     const away: AutoMovieHumanSide = side > 0 ? "right" : "left";
     if (approach.foot !== away)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "takeoffFoot",
         value: approach.foot,

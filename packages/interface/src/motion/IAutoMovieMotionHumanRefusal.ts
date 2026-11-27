@@ -10,9 +10,9 @@
  *
  * ```ts
  * try {
- *   new HumanPerformance(input);
+ *   new AutoMovieMotionHumanPerformance(input);
  * } catch (error) {
- *   if (error instanceof HumanRefusal)
+ *   if (error instanceof AutoMovieMotionHumanRefusal)
  *     console.log(error.axis, error.feasible, error.fix);
  * }
  * ```
@@ -24,7 +24,7 @@
  *
  * A law that refuses knows the axis but not always its place in the film, so it
  * may raise a refusal with no performer; the performance locates it
- * ({@link HumanRefusal.locate}) before it reaches the author.
+ * ({@link AutoMovieMotionHumanRefusal.locate}) before it reaches the author.
  */
 export interface IAutoMovieMotionHumanRefusal extends Error {
   /** The class of refusal. */
@@ -75,7 +75,7 @@ export interface IAutoMovieMotionHumanRefusal extends Error {
   ): IAutoMovieMotionHumanRefusal;
 }
 
-/** Companion types of {@link HumanRefusal}. */
+/** Companion types of {@link AutoMovieMotionHumanRefusal}. */
 export namespace IAutoMovieMotionHumanRefusal {
   /** A numeric range; an open end is null. */
   export interface IRange {

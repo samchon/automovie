@@ -2,7 +2,7 @@ import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type { AutoMovieHumanSide } from "@automovie/interface";
 
 import { walkReach } from "../../actions/internal/walkReach";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * A handler's feet turning on the spot to follow a moving bearing: pivot steps,
@@ -110,7 +110,7 @@ export namespace HumanLungePivot {
       const now: number = bearing(t);
       const lag: number = now - feet;
       if (Math.abs(lag) > walkReach.TWIST)
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "parameter",
           axis: "on",
           value: lag,
@@ -140,7 +140,7 @@ export namespace HumanLungePivot {
               foot(schedule, "right", u).heading) /
               2;
           if (Math.abs(during) > walkReach.TWIST)
-            throw new HumanRefusal({
+            throw new AutoMovieMotionHumanRefusal({
               kind: "parameter",
               axis: "on",
               value: during,

@@ -1,4 +1,4 @@
-import { HumanChain } from "@automovie/motions";
+import { AutoMovieMotionHumanChain } from "@automovie/motions";
 
 import type { IMotionTakeSource } from "../../src/executable/motionTake/IMotionTakeSource";
 import { fixture, takeMetadata } from "./source";
@@ -23,7 +23,7 @@ export function createAlternative(
       artifact: fixture.artifact,
       source: fixture.source,
       retainedParts: 1,
-      suffix: HumanChain.subject("catcher").registered(
+      suffix: AutoMovieMotionHumanChain.subject("catcher").registered(
         "stand",
         { hold: 1, sway },
         tail,

@@ -26,7 +26,7 @@ import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotion
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
 import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { HumanTrunkLean } from "./HumanTrunkLean";
@@ -89,7 +89,7 @@ function plan(
 ): IAutoMovieMotionHumanActionPlan {
   const p: IAutoMovieMotionHumanThrowPottery.IParams = context.params;
   if (!(p.duration > 0))
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "duration",
       value: p.duration,
@@ -111,7 +111,7 @@ function plan(
         (a: IAutoMovieAffordance): boolean => a.id === id,
       );
     if (found === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "affordance",
         axis: "wheel",
         value: p.wheel,

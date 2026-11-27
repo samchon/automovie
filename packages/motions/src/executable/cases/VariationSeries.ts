@@ -6,7 +6,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanPerformance } from "../../perform/HumanPerformance";
+import { AutoMovieMotionHumanPerformance } from "../../perform/AutoMovieMotionHumanPerformance";
 
 /*
  * What the variation capture's series of repeats share: the repeat count, the
@@ -33,7 +33,7 @@ export namespace VariationSeries {
     chain: IAutoMovieMotionHumanChain,
     partner?: IPerformPartner,
   ): IAutoMovieMotionHumanPerformance {
-    return new HumanPerformance({
+    return new AutoMovieMotionHumanPerformance({
       seed: "variation",
       performers: [
         {

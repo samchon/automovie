@@ -22,7 +22,7 @@ import type {
 
 import { HumanSupportCarry } from "../../carrier/internal/HumanSupportCarry";
 import { HumanSupportFrame } from "../../carrier/internal/HumanSupportFrame";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
@@ -53,7 +53,7 @@ export namespace seatedHeelBounce {
    */
   export function beatDuration(beats: number, cadence: number): number {
     if (!(beats >= 1))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "count",
         value: beats,
@@ -62,7 +62,7 @@ export namespace seatedHeelBounce {
       });
     const duration: number = beats / cadence;
     if (!(cadence > 0 && duration > 0))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "cadence",
         value: cadence,
@@ -81,7 +81,7 @@ export namespace seatedHeelBounce {
     planted: boolean,
   ): asserts seat is IAutoMovieMotionHumanEntryState.ISupport {
     if (kind !== "seated" || seat === undefined || !planted)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "base",
         axis: "base",
         value: kind,
@@ -286,7 +286,7 @@ export namespace seatedHeelBounce {
       );
     };
     if (!(amplitude > 0 && amplitude <= limit))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "amplitude",
         value: amplitude,
@@ -297,7 +297,7 @@ export namespace seatedHeelBounce {
     // Every beat uses the same rocker. Its midpoint and peak are the two
     // fitted witnesses for travel and maximum joint excursion.
     if (!fits(amplitude / 2) || !fits(amplitude))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "amplitude",
         value: amplitude,

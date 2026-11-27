@@ -12,7 +12,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { poseBones } from "../../posture/internal/poseBones";
 
 /*
@@ -30,7 +30,7 @@ export function drawFromCarrierPulling(
   const other: AutoMovieHumanSide = side === "left" ? "right" : "left";
   const carrier: string = context.params.from.prop;
   if (context.entry.holds[other] !== carrier)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "pull.handle",
       value: pull.handle,
@@ -44,7 +44,7 @@ export function drawFromCarrierPulling(
   const worn: IAutoMovieMotionHumanProp["worn"] =
     context.prop(carrier).prop.worn;
   if (worn === undefined || worn.subject !== context.subject)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "pull",
       value: carrier,

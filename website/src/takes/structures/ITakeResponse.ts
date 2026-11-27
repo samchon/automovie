@@ -21,7 +21,7 @@ export type ITakeResponse =
       /** The request's id. */
       id: number;
 
-      /** Why, a `HumanRefusal` field for field, or any other failure as `kind: "error"`. */
+      /** Why, a `AutoMovieMotionHumanRefusal` field for field, or any other failure as `kind: "error"`. */
       refusal: IPlaygroundRefusal;
     }
   | {

@@ -14,7 +14,7 @@ import { HumanSkill } from "./HumanSkill";
 /*
  * How long a person takes to answer a cue it was waiting for: a spoken command,
  * a drum's signal, a gunshot. The latency a synced action is moved by
- * (`HumanChainCore.ISync.latency`), drawn per performer.
+ * (`AutoMovieMotionHumanChainCore.ISync.latency`), drawn per performer.
  *
  * `reaction` is a simple reaction to an acoustic signal, the orienting law's
  * ex-Gaussian (`look.reactionLaw`, `signal`, provisional constants) drawn by

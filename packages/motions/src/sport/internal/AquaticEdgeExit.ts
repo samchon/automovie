@@ -13,7 +13,7 @@ import type {
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
 import { ExerciseKey } from "../../exercise/internal/ExerciseKey";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { HumanMaterialContact } from "../../posture/internal/HumanMaterialContact";
@@ -88,7 +88,7 @@ export namespace AquaticEdgeExit {
       deck?.support ?? { kind: "prop", subject: id };
     const freeboard: number = lip.y - water;
     if (freeboard > FREEBOARD)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "support",
         value: freeboard,

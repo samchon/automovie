@@ -24,8 +24,8 @@ import type {
   IAutoMovieScheduleCue,
 } from "@automovie/interface";
 
-import { HUMAN_ACTIONS } from "../../actions/HUMAN_ACTIONS";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanActions } from "../../actions/AutoMovieMotionHumanActions";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanPerformanceBonds } from "./HumanPerformanceBonds";
 import { HumanPerformanceContacts } from "./HumanPerformanceContacts";
 import { HumanPerformanceFlight } from "./HumanPerformanceFlight";
@@ -47,8 +47,8 @@ import { validateInitialPropMounts } from "./validateInitialPropMounts";
  * their placed actions, the props, the laws, the cue tracks and the schedule,
  * built once by the constructor.
  *
- * `HumanPerformance` is the public surface over it. The state's members are
- * public so the `HumanPerformance*` namespaces, which hold the performance's
+ * `AutoMovieMotionHumanPerformance` is the public surface over it. The state's members are
+ * public so the `AutoMovieMotionHumanPerformance*` namespaces, which hold the performance's
  * work by responsibility (placing, contacts, layers, the schedule, aiming and
  * reading), can share them; nothing outside the performance reads it, and the
  * package does not export it.
@@ -133,7 +133,7 @@ export class HumanPerformanceState {
   public readonly obstacles: readonly IAutoMovieMotionHumanObstacle[];
 
   /*
-   * The forces on the performers (`HumanPerformance.IInput.forces`).
+   * The forces on the performers (`AutoMovieMotionHumanPerformance.IInput.forces`).
    */
   public readonly forces: readonly IAutoMovieMotionHumanForce[];
 
@@ -173,7 +173,7 @@ export class HumanPerformanceState {
   public readonly intended: Map<string, IAutoMovieIntent[]> = new Map();
 
   /*
-   * The scene's blasts (`HumanPerformance.IInput.blasts`).
+   * The scene's blasts (`AutoMovieMotionHumanPerformance.IInput.blasts`).
    */
   public readonly blasts: readonly IAutoMovieMotionHumanBlast.IBlast[];
 
@@ -308,17 +308,17 @@ export class HumanPerformanceState {
     this.obstacles = input.obstacles ?? [];
     this.forces = input.forces ?? [];
     this.blasts = input.blasts ?? [];
-    this.laws = new Map(Object.entries(HUMAN_ACTIONS));
+    this.laws = new Map(Object.entries(AutoMovieMotionHumanActions));
     for (const law of input.laws ?? []) {
       // A registered name never changes what a vocabulary name means, and
       // two registered laws never share one.
       if (this.laws.has(law.name))
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "parameter",
           axis: "laws",
           value: law.name,
           reason:
-            law.name in HUMAN_ACTIONS
+            law.name in AutoMovieMotionHumanActions
               ? `a registered law is named ${law.name}, which the vocabulary already performs`
               : `two registered laws are named ${law.name}`,
           fix: "register the law under a name of its own",
@@ -329,7 +329,7 @@ export class HumanPerformanceState {
     this.anchors = new Map();
     for (const performer of input.performers) {
       if (this.people.has(performer.subject))
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "participant",
           performer: performer.subject,
           axis: "performers",
@@ -372,7 +372,7 @@ export class HumanPerformanceState {
         ? []
         : AutoMovieEngineSchedule.checkLegality(this.schedule, input.rules);
     if (violations.length !== 0)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "rule",
         axis: "rules",
         value: violations.map(

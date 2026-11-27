@@ -182,7 +182,7 @@ export interface IAutoMovieMotionHumanPerformance {
    * @param subject The soft prop.
    * @param seconds Film seconds.
    * @returns World metres, row-major `[x, y, z, ...]`.
-   * @throws {HumanRefusal} When the prop is not soft or the performance
+   * @throws {AutoMovieMotionHumanRefusal} When the prop is not soft or the performance
    *   outlasts its domain's step budget.
    */
   soft(subject: string, seconds: number): number[];
@@ -212,7 +212,7 @@ export interface IAutoMovieMotionHumanPerformance {
    *
    * @param at The instant.
    * @returns The film second.
-   * @throws {HumanRefusal} When nothing is anchored or tracked under the name,
+   * @throws {AutoMovieMotionHumanRefusal} When nothing is anchored or tracked under the name,
    *   or it has no such event.
    */
   instant(at: AutoMovieMotionHumanScheduledInstant): number;
@@ -257,7 +257,7 @@ export interface IAutoMovieMotionHumanPerformance {
 
   /**
    * The windows baked through the engine's solver, in bake order
-   * (`HumanPerformance.simulate`); inside each, the solver's contacts take over
+   * (`AutoMovieMotionHumanPerformance.simulate`); inside each, the solver's contacts take over
    * the declared plants of the parts it owns, which the verdicts read
    * (`HumanVerdicts`). Absent or empty for a performance with none.
    *
@@ -354,7 +354,7 @@ export namespace IAutoMovieMotionHumanPerformance {
      * some of its parameters fixed. A name the vocabulary already has, or one
      * given twice, refuses the performance. A registered law draws from streams
      * keyed by its own name, so registering it changes no other action's draws.
-     * `HumanChain.extend` gives its typed method.
+     * `AutoMovieMotionHumanChain.extend` gives its typed method.
      */
     laws?: readonly IAutoMovieMotionHumanActionLaw<never>[];
 
@@ -375,8 +375,8 @@ export namespace IAutoMovieMotionHumanPerformance {
 
     /**
      * Tracks of named instants that belong to no action, by track name: a
-     * dialogue's line starts and accents, a score's beats (`HumanCue` builds
-     * both). An action is synced to one (`HumanChain.sync`) and cut on one
+     * dialogue's line starts and accents, a score's beats (`AutoMovieMotionHumanCue` builds
+     * both). An action is synced to one (`AutoMovieMotionHumanChain.sync`) and cut on one
      * (`until`) as on another action's events; a track's name is used like an
      * anchor, so no action may be anchored under it.
      */

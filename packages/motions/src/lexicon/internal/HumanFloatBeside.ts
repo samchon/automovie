@@ -26,7 +26,7 @@ import type {
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { ExerciseKey } from "../../exercise/internal/ExerciseKey";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanWater } from "../../perform/internal/HumanWater";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanHand } from "../../posture/internal/HumanHand";
@@ -88,7 +88,7 @@ function planHumanFloatBeside(
     (contact: IAutoMovieAffordance): boolean => contact.id === hold,
   );
   if (part === undefined || !(part.aperture! > 0))
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "hold",
       value: hold,
@@ -169,7 +169,7 @@ function planHumanFloatBeside(
   const rise: number =
     gripsAt(context.start, first)[near]!.point.y - (height + shoulder.y);
   if (!(Math.abs(rise) < reach))
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "hold",
       value: rise,
@@ -392,7 +392,7 @@ function planHumanFloatBeside(
           part.aperture! / 2,
       );
       if (!(miss <= HumanFloatBesideForm.REACH))
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "affordance",
           axis: "holdReach",
           value: miss,

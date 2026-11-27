@@ -29,7 +29,7 @@ import { courseArmGoal } from "../../compose/internal/courseArmGoal";
 import { prepareHumanElbowPath } from "../../compose/internal/prepareHumanElbowPath";
 import { HumanGrip } from "../../handling/internal/HumanGrip";
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { placeHumanHandSurface } from "../../posture/internal/placeHumanHandSurface";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -54,7 +54,7 @@ const CLEARANCE: number = 0.035;
 
 /*
  * One staged open-string violin stroke with a held bow. Register this law with
- * HumanChain.extend and HumanPerformance.laws. The bow moves to a raised ready
+ * AutoMovieMotionHumanChain.extend and AutoMovieMotionHumanPerformance.laws. The bow moves to a raised ready
  * pose, lowers to contact, slides frog-to-tip or tip-to-frog during the stroke
  * and leaves the string after lift, still in the hand.
  *
@@ -110,7 +110,7 @@ function planStroke(
     violin.prop.motion !== undefined ||
     violin.prop.worn !== undefined
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "violin",
       value: params.violin,
@@ -122,7 +122,7 @@ function planStroke(
     bar?.length === undefined ||
     !(bar.length > 0)
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "string",
       value: params.string,
@@ -162,7 +162,7 @@ function planStroke(
     Math.abs(Vector3.dot(Vector3.scale(hair, 1 / length), frog.direction)) >
       1e-6
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "bow",
       value: params.bow,

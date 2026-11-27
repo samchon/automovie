@@ -1,4 +1,4 @@
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * The refusal of a strike, a defence or a stopped limb's ride that is read back
@@ -17,8 +17,8 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 export function strikingReadBack(
   action: string,
   subject?: string,
-): HumanRefusal {
-  return new HumanRefusal({
+): AutoMovieMotionHumanRefusal {
+  return new AutoMovieMotionHumanRefusal({
     kind: "participant",
     ...(subject === undefined ? {} : { performer: subject, act: action }),
     axis: "sync",

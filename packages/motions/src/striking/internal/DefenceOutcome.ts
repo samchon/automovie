@@ -3,7 +3,7 @@ import type {
   IAutoMovieRandom,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { StrikingSkill } from "./StrikingSkill";
 
 /*
@@ -168,7 +168,7 @@ export namespace DefenceOutcome {
           return Math.max(b0, reach[0]) <= Math.min(b1, reach[1]);
         },
       );
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "outcome",
         value: forced,

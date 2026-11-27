@@ -1,4 +1,4 @@
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import type { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmMirror } from "./HumanArmMirror";
 import type { HumanArmTrajectory } from "./HumanArmTrajectory";
@@ -32,13 +32,13 @@ export namespace HumanArmTrajectoryMirror {
    * Returns: The same refusal with every side its reason and its fix name taken
    * to the other.
    */
-  export function refusal(refusal: HumanRefusal): HumanRefusal {
+  export function refusal(refusal: AutoMovieMotionHumanRefusal): AutoMovieMotionHumanRefusal {
     const swap = (text: string): string =>
       text.replace(
         /left|right|Left|Right/g,
         (side: string): string => SWAP[side]!,
       );
-    return new HumanRefusal({
+    return new AutoMovieMotionHumanRefusal({
       kind: refusal.kind,
       ...(refusal.performer === "" ? {} : { performer: refusal.performer }),
       ...(refusal.act === "" ? {} : { act: refusal.act }),

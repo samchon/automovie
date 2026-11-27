@@ -27,7 +27,7 @@ import type {
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanLimbFit } from "../../posture/internal/HumanLimbFit";
 import { poseBones } from "../../posture/internal/poseBones";
 import { StrikingBlade } from "../../striking/internal/StrikingBlade";
@@ -43,7 +43,7 @@ import { putDownTarget } from "./putDownTarget";
 /*
  * Draw a gripped object out of its carrier along a straight line, the inverse
  * of aperture placement (`putDownAperture`): a sword drawn from its scabbard.
- * Register it with `HumanChain.extend({ drawFromCarrier })` or by name, and
+ * Register it with `AutoMovieMotionHumanChain.extend({ drawFromCarrier })` or by name, and
  * with the performance.
  *
  * The hand has gripped the seated object (a pickup with no lift). The object
@@ -118,7 +118,7 @@ function plan(
   const { prop, from } = context.params;
   const side: AutoMovieHumanSide = context.params.hand ?? "right";
   if (!prop || context.entry.holds[side] !== prop)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "prop",
       value: prop,
@@ -137,7 +137,7 @@ function plan(
     !from.point ||
     from.prop === prop
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "from",
       value: from?.prop ?? "absent",
@@ -162,7 +162,7 @@ function plan(
     !(Vector3.length(line) > Number.EPSILON) ||
     !(Quaternion.angle(opening.rotation, seat.rotation) <= 1e-6)
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "from.aperture",
       value: from.aperture,
@@ -180,7 +180,7 @@ function plan(
     .prop(prop)
     .frame(context.start);
   if (Vector3.distance(shown.position, seat.position) > SEATED)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "from.point",
       value: from.point,

@@ -12,7 +12,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanFormation } from "../../ensemble/internal/HumanFormation";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { WalkPath } from "../../actions/internal/WalkPath";
 import { walkPaced } from "../../actions/internal/walkPaced";
@@ -168,7 +168,7 @@ export function walkStation(
 
   // A clock that ran out of entries before the plan's end would jump to it.
   if (planned < plan.duration - 1e-9)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "station.until",
       value: rests,
@@ -334,7 +334,7 @@ export namespace walkStation {
     if (until === null && station.formation.frame.kind === "fixed")
       return context.start;
     if (until === null)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "station.until",
         value: undefined,
@@ -343,7 +343,7 @@ export namespace walkStation {
         fix: "give the station the film second it ends (until)",
       });
     if (until < context.start)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "station.until",
         value: until,

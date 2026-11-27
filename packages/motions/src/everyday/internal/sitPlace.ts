@@ -9,7 +9,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanRange } from "../../compose/internal/AutoMovieMotionHumanRange";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { hipJoints } from "../../posture/internal/hipJoints";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
@@ -103,7 +103,7 @@ export namespace sitPlace {
         );
         const far: number = Math.sqrt(Math.max(0, longest * longest - dy * dy));
         const edge: number = Math.hypot(hip.x - seat.at.x, hip.z - seat.at.z);
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "reach",
           axis: "seat",
           value: d,

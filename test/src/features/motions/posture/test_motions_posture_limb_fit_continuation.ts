@@ -6,7 +6,7 @@ import type {
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanChain, HumanPerformance } from "@automovie/motions";
+import { AutoMovieMotionHumanChain, AutoMovieMotionHumanPerformance } from "@automovie/motions";
 import { HumanLimbFit, poseBones } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
@@ -130,7 +130,7 @@ function arm(body: IAutoMovieMotionHumanBody, pose: IAutoMoviePose): void {
 /** Continued limb fits follow the constraints their own chain uses. */
 export async function test_motions_posture_limb_fit_continuation(): Promise<void> {
   const body = await humanFixtureBody("m-average");
-  const performance = new HumanPerformance({
+  const performance = new AutoMovieMotionHumanPerformance({
     seed: "leg-witness",
     performers: [
       {
@@ -141,7 +141,7 @@ export async function test_motions_posture_limb_fit_continuation(): Promise<void
         proficiency: { level: "trained" },
       },
     ],
-    composition: HumanChain.subject("a").act("stand", { hold: 1 }).node,
+    composition: AutoMovieMotionHumanChain.subject("a").act("stand", { hold: 1 }).node,
   });
   const pose = performance.pose("a", 0);
   arm(body, pose);

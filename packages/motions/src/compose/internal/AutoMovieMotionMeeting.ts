@@ -11,7 +11,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
 
@@ -48,7 +48,7 @@ export function AutoMovieMotionMeeting(
   window?: IAutoMovieMotionMeeting.IWindow,
 ): IAutoMovieMotionMeeting {
   if (roles.length === 0 || roles.length > kind.roles.length)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "participant",
       axis: "roles",
       value: roles.length,
@@ -64,7 +64,7 @@ export function AutoMovieMotionMeeting(
     });
   for (const role of roles)
     if (!kind.roles.includes(role.name))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "participant",
         axis: "role",
         value: role.name,
@@ -161,7 +161,7 @@ export function AutoMovieMotionMeeting(
       : Math.max(0, window.from - latest("stroke"));
   const stroke: number = latest("stroke") + shift;
   if (window?.to !== undefined && !(window.to >= stroke - 1e-9))
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "window",
       value: window.to,
@@ -238,7 +238,7 @@ export namespace AutoMovieMotionMeeting {
   ): IAutoMovieMotionHumanTarget.IPlace {
     const local: IAutoMovieVector3 | undefined = meeting.contacts[contact];
     if (local === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "contact",
         value: contact,

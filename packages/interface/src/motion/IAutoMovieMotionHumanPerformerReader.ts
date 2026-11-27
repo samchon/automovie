@@ -46,7 +46,7 @@ export interface IAutoMovieMotionHumanPerformerReader {
    *
    * @param seconds Film seconds.
    * @returns Their root.
-   * @throws {HumanRefusal} A `participant` refusal when the second lies after
+   * @throws {AutoMovieMotionHumanRefusal} A `participant` refusal when the second lies after
    *   their last placed action while later actions of theirs are still to be
    *   placed.
    */
@@ -60,7 +60,7 @@ export interface IAutoMovieMotionHumanPerformerReader {
    *
    * @param seconds Film seconds.
    * @returns Their posture.
-   * @throws {HumanRefusal} As `root` does.
+   * @throws {AutoMovieMotionHumanRefusal} As `root` does.
    */
   posture?(seconds: number): IAutoMovieMotionHumanPosture;
 }

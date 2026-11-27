@@ -1,5 +1,5 @@
 import { AutoMovieGravity } from "@automovie/engine";
-import { HumanRefusal, HumanSwingLeap } from "@automovie/motions/internal";
+import { AutoMovieMotionHumanRefusal, HumanSwingLeap } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -32,11 +32,11 @@ export function test_motions_carrier_swing_leap_flight(): void {
       ) &&
       HumanSwingLeap.flight(1, -1, 1, "swing") === 0,
   );
-  let refusal: HumanRefusal | undefined;
+  let refusal: AutoMovieMotionHumanRefusal | undefined;
   try {
     HumanSwingLeap.flight(1, 0, 2, "swing");
   } catch (error: unknown) {
-    if (!(error instanceof HumanRefusal)) throw error;
+    if (!(error instanceof AutoMovieMotionHumanRefusal)) throw error;
     refusal = error;
   }
   TestValidator.predicate(

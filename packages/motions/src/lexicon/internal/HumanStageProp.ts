@@ -15,7 +15,7 @@ import type {
 
 import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
 import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { StrikingBlade } from "../../striking/internal/StrikingBlade";
 import { StrikingHeld } from "../../striking/internal/StrikingHeld";
@@ -48,7 +48,7 @@ function plan(
   const other: AutoMovieHumanSide = hand === "left" ? "right" : "left";
   const seconds: number = params.duration ?? beat.seconds;
   if (!(seconds > 0))
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "duration",
       value: seconds,
@@ -222,7 +222,7 @@ function supportGrip(
   const site: string | undefined = context.params.support;
   if (context.entry.holds[other] !== held.prop) {
     if (site === undefined) return null;
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "support",
       value: site,
@@ -231,7 +231,7 @@ function supportGrip(
     });
   }
   if (site === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "support",
       value: other,

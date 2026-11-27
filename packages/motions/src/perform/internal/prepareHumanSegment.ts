@@ -4,7 +4,7 @@ import type {
   IAutoMovieMotionHumanSegment,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanSegment } from "./HumanSegment";
 import { HumanSegmentLegs } from "./HumanSegmentLegs";
 import { HumanSegmentPose } from "./HumanSegmentPose";
@@ -90,7 +90,7 @@ export function prepareHumanSegment(
       preparePlaced(person, segment);
     const placed = playback.where === undefined
       ? prepare()
-      : HumanRefusal.located(playback.where, prepare);
+      : AutoMovieMotionHumanRefusal.located(playback.where, prepare);
     if (placed !== undefined) playback.placed = placed;
   }
   return record;

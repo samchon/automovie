@@ -1,6 +1,6 @@
 import type { AutoMovieHumanSide } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * Refuse a wheel selection without a usable circumferential material point.
@@ -10,7 +10,7 @@ export function HumanHandrimStrokeRefuseRim(
   rim: string,
   side: AutoMovieHumanSide,
 ): never {
-  throw new HumanRefusal({
+  throw new AutoMovieMotionHumanRefusal({
     kind: "affordance",
     axis: `rims.${side}`,
     value: rim,

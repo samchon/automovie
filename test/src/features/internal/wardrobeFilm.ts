@@ -15,7 +15,7 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanDress,
-  HumanPerformance,
+  AutoMovieMotionHumanPerformance,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -34,7 +34,7 @@ export namespace wardrobeFilm {
    * Compile the installed wardrobe law on one authored actor.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the performer and the registered law.
-   * @evidence contracts/development/implementation.md#principled-implementation Builds the SDK's HumanPerformance with one trained performer at the origin facing +Z.
+   * @evidence contracts/development/implementation.md#principled-implementation Builds the SDK's AutoMovieMotionHumanPerformance with one trained performer at the origin facing +Z.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Construction only; the callers read and assert.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The wardrobe law is widened to the registry's law type only where the performance input requires it; refusals propagate.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Delegates all planning to the performance.
@@ -45,8 +45,8 @@ export namespace wardrobeFilm {
     body: IAutoMovieMotionHumanBody,
     props: IAutoMovieMotionHumanProp[],
     composition: IAutoMovieMotionHumanChain["node"],
-  ): HumanPerformance {
-    return new HumanPerformance({
+  ): AutoMovieMotionHumanPerformance {
+    return new AutoMovieMotionHumanPerformance({
       seed: "native-wardrobe",
       laws: [
         AutoMovieMotionHumanDress.wardrobe as IAutoMovieMotionHumanActionLaw,
@@ -127,7 +127,7 @@ export namespace wardrobeFilm {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function relative(
-    film: HumanPerformance,
+    film: AutoMovieMotionHumanPerformance,
     prop: string,
     bone: AutoMovieHumanoidBone,
     time: number,
@@ -205,7 +205,7 @@ export namespace wardrobeFilm {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function setDown(
-    film: HumanPerformance,
+    film: AutoMovieMotionHumanPerformance,
     prop: string,
     destination: IAutoMovieVector3,
   ): void {

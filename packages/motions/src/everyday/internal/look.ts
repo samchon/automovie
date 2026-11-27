@@ -16,7 +16,7 @@ import type {
 import { stand } from "../../actions/internal/stand";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanArmSwing } from "../../posture/internal/HumanArmSwing";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
@@ -58,7 +58,7 @@ export namespace look {
     cue: IAutoMovieMotionHumanLook.IParams["cue"],
   ): void {
     if (cue === undefined && Math.abs(yaw) > FIELD)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "cue",
         value: null,

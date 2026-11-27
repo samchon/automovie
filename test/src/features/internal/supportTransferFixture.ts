@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanPropReader,
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanSupport, HumanRefusal } from "@automovie/motions";
+import { AutoMovieMotionHumanSupport, AutoMovieMotionHumanRefusal } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -49,7 +49,7 @@ export namespace supportTransferFixture {
       } catch (error) {
         TestValidator.predicate(
           "The transfer refuses " + scenario + " on " + axis,
-          error instanceof HumanRefusal && error.axis === axis,
+          error instanceof AutoMovieMotionHumanRefusal && error.axis === axis,
         );
         return;
       }

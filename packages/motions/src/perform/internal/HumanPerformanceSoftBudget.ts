@@ -1,6 +1,6 @@
 import type { IAutoMovieSoftBodyDomain } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * Admit and return the number of native soft steps for a film duration.
@@ -13,7 +13,7 @@ export function HumanPerformanceSoftBudget(
   const dt: number = domain.solver.fixedStepSeconds;
   const count: number = Math.ceil(duration / dt - 1e-9);
   if (count > domain.solver.maxSteps)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: `${subject}.soft.solver.maxSteps`,
       value: count,

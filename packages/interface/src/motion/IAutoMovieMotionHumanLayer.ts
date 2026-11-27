@@ -264,7 +264,7 @@ export namespace IAutoMovieMotionHumanLayer {
      * action's events: `onset` (it starts coming in), `full` (it is fully in),
      * `offset` (it starts going out) and `end` (it is gone). A later layer's
      * window names them (`{ of: anchor, event: "full" }`), and
-     * `HumanPerformance.instant` reads them. An action is synced to them or cut
+     * `AutoMovieMotionHumanPerformance.instant` reads them. An action is synced to them or cut
      * on them only when the window does not itself wait for an action: its
      * `from` and `to` are then film seconds or instants of cue tracks, known
      * before any action is placed. The name is unique among anchors, cue tracks

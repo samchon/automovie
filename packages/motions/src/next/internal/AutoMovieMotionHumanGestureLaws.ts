@@ -206,8 +206,8 @@ export namespace AutoMovieMotionHumanGestureLaws {
 
   /*
    * Emblems: gestures with a fixed meaning, each a row of a shipped action.
-   * Register the ones a film uses (`HumanPerformance.IInput.laws`,
-   * `HumanChain.extend`).
+   * Register the ones a film uses (`AutoMovieMotionHumanPerformance.IInput.laws`,
+   * `AutoMovieMotionHumanChain.extend`).
    */
   export import HumanEmblem = HumanEmblemSource;
 

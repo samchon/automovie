@@ -1,4 +1,4 @@
-import { HUMAN_ACTIONS } from "@automovie/motions";
+import { AutoMovieMotionHumanActions } from "@automovie/motions";
 
 import { ArchetypeRegistry } from "../../archetypes/ArchetypeRegistry";
 import { PlaygroundChain } from "../../playground/package/PlaygroundChain";
@@ -83,7 +83,7 @@ export namespace SceneStatus {
     const visit: (action: IPlaygroundComposition.IAction) => void = (
       action: IPlaygroundComposition.IAction,
     ): void => {
-      if (!(action.name in HUMAN_ACTIONS)) {
+      if (!(action.name in AutoMovieMotionHumanActions)) {
         if (!rows.has(action.name)) missing.add(`the action ${action.name}`);
         else if (!PlaygroundChain.has("registered"))
           missing.add("HumanChain.registered");

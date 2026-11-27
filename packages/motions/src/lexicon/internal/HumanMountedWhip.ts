@@ -10,7 +10,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { hipJoints } from "../../posture/internal/hipJoints";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import type { HumanMountedTimeline } from "./HumanMountedTimeline";
@@ -232,7 +232,7 @@ export namespace HumanMountedWhip {
    * Refuse a stroke that cannot be staged.
    */
   function refuse(axis: string, value: unknown, reason: string): never {
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis,
       value,

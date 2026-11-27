@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanFloatBeside,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * Admit a float beside a swimming horse and cue it: the rider slides off over a
@@ -23,7 +23,7 @@ export function humanFloatBesideAdmit(
 ): IAutoMovieMotionEvent[] {
   const { duration: seconds, transition, side, blocked = [] } = params;
   if (!(transition > 0 && transition < seconds))
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "transition",
       value: transition,
@@ -32,7 +32,7 @@ export function humanFloatBesideAdmit(
       fix: "Give a transition shorter than the total seconds.",
     });
   if (blocked.includes(side))
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "side",
       value: side,

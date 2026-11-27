@@ -16,7 +16,7 @@ import type {
 
 import { stand } from "../../actions/internal/stand";
 import { lieDown } from "../../floor/internal/lieDown";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanMaterialContact } from "../../posture/internal/HumanMaterialContact";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -273,8 +273,8 @@ const SETTLE: number = 0.4;
 /*
  * The high fall's refusal.
  */
-function refusal(axis: string, value: unknown, reason: string): HumanRefusal {
-  return new HumanRefusal({
+function refusal(axis: string, value: unknown, reason: string): AutoMovieMotionHumanRefusal {
+  return new AutoMovieMotionHumanRefusal({
     kind: "reach",
     axis,
     value,

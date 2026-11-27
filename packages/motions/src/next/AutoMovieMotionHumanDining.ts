@@ -31,7 +31,7 @@ export namespace AutoMovieMotionHumanDining {
    * @param scene The prop subject, shelf number from bottom to top, additional
    *   opening in degrees and optional operating hand (right by default).
    * @returns The chain with the handle operation followed by the shelf look.
-   * @throws {HumanRefusal} If the requested additional opening is nonpositive
+   * @throws {AutoMovieMotionHumanRefusal} If the requested additional opening is nonpositive
    *   or nonfinite.
    */
   export const inspectRefrigerator: typeof inspectRefrigeratorLaw =

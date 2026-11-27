@@ -20,7 +20,7 @@ import type {
 import { stand } from "../../actions/internal/stand";
 import { HumanSupportFrame } from "../../carrier/internal/HumanSupportFrame";
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanPreparedPlayback } from "../../perform/internal/HumanPreparedPlayback";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
@@ -62,7 +62,7 @@ export namespace shift {
   export function travel(thigh: number, by: number): number {
     const limit: number = 0.35 * thigh;
     if (!(Math.abs(by) <= limit))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "by",
         value: by,
@@ -125,7 +125,7 @@ export namespace shift {
 
     // The shift pushes off the feet planted on the floor, which a high seat takes off it.
     if (seated.perched(body, context.entry, start, under))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "base",
         axis: "base",
         value: "a high seat",

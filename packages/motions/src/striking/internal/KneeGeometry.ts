@@ -10,7 +10,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanArmTrajectoryTerms } from "../../posture/internal/HumanArmTrajectoryTerms";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
@@ -57,7 +57,7 @@ export namespace KneeGeometry {
     start: IAutoMovieVector3,
     reach: (hip: IAutoMovieVector3) => KneeReach.ISolution,
     carry: (solved: KneeReach.ISolution) => IAutoMovieVector3,
-    refuse: (change: number) => HumanRefusal,
+    refuse: (change: number) => AutoMovieMotionHumanRefusal,
   ): ISettled {
     let hip: IAutoMovieVector3 = start;
     let solved: KneeReach.ISolution = reach(hip);
@@ -213,8 +213,8 @@ export namespace KneeGeometry {
           ),
           at.thrust,
         ),
-      (change: number): HumanRefusal =>
-        new HumanRefusal({
+      (change: number): AutoMovieMotionHumanRefusal =>
+        new AutoMovieMotionHumanRefusal({
           kind: "reach",
           axis: "target",
           value: `${(Vector3.distance(start, target) * 1000).toFixed(0)} mm`,

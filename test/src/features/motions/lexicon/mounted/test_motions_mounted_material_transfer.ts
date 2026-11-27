@@ -5,7 +5,7 @@ import type {
   IAutoMovieMotionHumanPropReader,
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
-import { HumanObject } from "@automovie/motions";
+import { AutoMovieMotionHumanObject } from "@automovie/motions";
 import { HumanFrame, HumanPropFrame, sit } from "@automovie/motions/internal";
 
 import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
@@ -22,8 +22,8 @@ export async function test_motions_mounted_material_transfer(): Promise<void> {
     position: { x: 0, y: 0, z: 0 },
     rotation: Quaternion.identity(),
   };
-  const seat = HumanObject.seat(horse, frame, "seat", "horse");
-  const prop = HumanObject.prop("horse", horse, frame);
+  const seat = AutoMovieMotionHumanObject.seat(horse, frame, "seat", "horse");
+  const prop = AutoMovieMotionHumanObject.prop("horse", horse, frame);
   const reader: IAutoMovieMotionHumanPropReader = {
     prop,
     frame: () => frame,

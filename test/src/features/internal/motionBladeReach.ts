@@ -4,7 +4,7 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanBlade, HumanObject } from "@automovie/motions";
+import { AutoMovieMotionHumanBlade, AutoMovieMotionHumanObject } from "@automovie/motions";
 
 /**
  * Where a pell stands for a sword's lunge at it to need a given share of a
@@ -82,7 +82,7 @@ export namespace motionBladeReach {
           Vector3.add(
             where.at,
             Quaternion.rotateVector(
-              HumanObject.frame(where).rotation,
+              AutoMovieMotionHumanObject.frame(where).rotation,
               pell.affordance("target").frame.translation,
             ),
           ),

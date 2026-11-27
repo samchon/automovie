@@ -19,7 +19,7 @@ import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotion
 import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionHumanLeg";
 import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
 import { HumanObstacle } from "../../everyday/internal/HumanObstacle";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { crossingClearance } from "../../terrain/internal/crossingClearance";
@@ -180,7 +180,7 @@ export namespace hurdleClear {
       undefined,
     );
     if (approach === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "approach",
         value: context.entry.from?.family ?? "none",
@@ -201,7 +201,7 @@ export namespace hurdleClear {
     ): number => Vector3.dot(p, ahead);
     const before: number = along(Vector3.subtract(bar.at, approach.ankle));
     if (!(before >= TAKEOFF[0] && before <= TAKEOFF[1]))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "approach",
         value: before,
@@ -331,7 +331,7 @@ export namespace hurdleClear {
       ) /
         approach.speed;
     if (!(crossing > off && crossing < down))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "hurdle",
         value: crossing,
@@ -376,7 +376,7 @@ export namespace hurdleClear {
       hipsRest.y -
       body.rest.get(`${take}Foot`)!.y;
     if (!(tucked < down))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "hurdle",
         value: tucked,

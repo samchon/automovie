@@ -14,7 +14,7 @@ import type {
 
 import { stand } from "../../actions/internal/stand";
 import { lieDown } from "../../floor/internal/lieDown";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { PreparedHumanIntervals } from "../../perform/internal/PreparedHumanIntervals";
 import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanShapeBlend } from "../../posture/internal/prepareHumanShapeBlend";
@@ -46,7 +46,7 @@ export function planSkydive(
         item.id === p.edge && item.kind === "ledge",
     );
   if (edge === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "edge",
       value: p.edge,

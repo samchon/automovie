@@ -24,7 +24,7 @@ import type { IAutoMovieMotionHumanWipe } from "./IAutoMovieMotionHumanWipe";
  * Working an object or a device by hand: a control, a pour, a tool, writing or
  * typing, and pushing or pulling a load.
  *
- * A method here is a method of `HumanChain` when its name is in
+ * A method here is a method of `AutoMovieMotionHumanChain` when its name is in
  * `AutoMovieMotionHumanActionName`. Any other member is a registered law or
  * row: pass it in `laws: [...]` to the performance, taking it from
  * `AutoMovieMotionHumanOperate` or from the row namespace of the family, and

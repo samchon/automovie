@@ -15,7 +15,7 @@ import { relayPass as relayPassLaw } from "../handling/internal/relayPass";
  * - `receive`: Taking a prop a giver holds out: the receiver's half of a
  *   handover.
  * - `relayPass`: A relay baton pass, one role of it, performed over a run
- *   (`HumanChain.over`): the outgoing runner's hand goes back, open, palm back,
+ *   (`AutoMovieMotionHumanChain.over`): the outgoing runner's hand goes back, open, palm back,
  *   and the incoming runner pushes the baton's end into it at a film second
  *   both roles state alike (`at`), from where the baton passes to the outgoing
  *   hand.
@@ -139,7 +139,7 @@ export namespace AutoMovieMotionHumanHandover {
 
   /**
    * A relay baton pass, one role of it, performed over a run
-   * (`HumanChain.over`): the outgoing runner's hand goes back, open, palm back,
+   * (`AutoMovieMotionHumanChain.over`): the outgoing runner's hand goes back, open, palm back,
    * and the incoming runner pushes the baton's end into it at a film second
    * both roles state alike (`at`), from where the baton passes to the outgoing
    * hand.
@@ -229,7 +229,7 @@ export namespace AutoMovieMotionHumanHandover {
    * Both partners must stand, or sit leaning, within reach when the handshake
    * starts; the mutual goal refuses a gap neither arm can close. The partner's
    * shoulder is read at the start, so the partner's earlier actions must be
-   * placed first, which `HumanChain.pair` arranges.
+   * placed first, which `AutoMovieMotionHumanChain.pair` arranges.
    */
   export import handshake = handshakeLaw;
 }

@@ -1,6 +1,6 @@
 import type { AutoMovieHumanSide } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanArmOptimiser } from "./HumanArmOptimiser";
 import { HumanArmRefine } from "./HumanArmRefine";
 import { HumanArmSeed } from "./HumanArmSeed";
@@ -318,7 +318,7 @@ export namespace HumanArmTrajectoryStretch {
     grid: IGrid,
     last: ISolved,
     told: HumanArmTrajectory.IMirrorTold,
-  ): HumanRefusal {
+  ): AutoMovieMotionHumanRefusal {
     const at: readonly number[] = last.context.times;
     const n: number = last.context.n;
     const span: number = at[n - 1]! - at[0]!;
@@ -329,7 +329,7 @@ export namespace HumanArmTrajectoryStretch {
       .map((a: HumanArmTrajectory.IArm): string => a.side)
       .join(" and ");
     if (worst.axis !== "duration")
-      return new HumanRefusal({
+      return new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: worst.axis,
         value: worst.value,
@@ -338,7 +338,7 @@ export namespace HumanArmTrajectoryStretch {
         fix: "put the hand on a site its arm reaches with the body clear",
       });
     told.state = { times: [...at], x: last.x, penalty: last.penalty };
-    return new HumanRefusal({
+    return new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "duration",
       value: span,
@@ -448,7 +448,7 @@ export namespace HumanArmTrajectoryStretch {
     );
     const solved: ISolved = optimise(grid, from, seed);
     if (met(solved)) return played(solved);
-    const refusal: HumanRefusal = refused(grid, solved, { flip });
+    const refusal: AutoMovieMotionHumanRefusal = refused(grid, solved, { flip });
     throw flip ? Mirror.refusal(refusal) : refusal;
   }
 }

@@ -34,7 +34,7 @@ import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMoti
 import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
 import { courseArmAtPace } from "../../compose/internal/courseArmAtPace";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
@@ -245,7 +245,7 @@ export namespace catchObject {
       Vector3.length(Vector3.subtract(meet, shoulders)) >
       arm + m.hand + m.shoulderHalfWidth
     )
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "partner",
         value: context.params.partner,
@@ -260,7 +260,7 @@ export namespace catchObject {
     );
     const reach: number = Math.max(0, contact - travel);
     if (contact - 0.1 < 0)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "base",
         axis: "partner",
         value: context.params.partner,

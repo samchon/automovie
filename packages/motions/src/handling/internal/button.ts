@@ -28,7 +28,7 @@ import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotion
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
 import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { blendHumanJoint } from "../../posture/internal/blendHumanJoint";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -421,8 +421,8 @@ function garmentRefusal(
   value: string,
   reason: string,
   fix: string,
-): HumanRefusal {
-  return new HumanRefusal({
+): AutoMovieMotionHumanRefusal {
+  return new AutoMovieMotionHumanRefusal({
     kind: "affordance",
     axis: "garment",
     value,

@@ -34,7 +34,7 @@ import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotion
 import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
 import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionHumanLeg";
 import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanHand } from "../../posture/internal/HumanHand";
@@ -185,7 +185,7 @@ export namespace fieldThrow {
           ? "left"
           : undefined;
     if (side === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "implement",
         value: p.implement,
@@ -207,7 +207,7 @@ export namespace fieldThrow {
       read.prop.affordances ?? []
     ).find((a: IAutoMovieAffordance): boolean => a.id === id);
     if (contact === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "affordance",
         axis: "area",
         value: p.area,
@@ -232,7 +232,7 @@ export namespace fieldThrow {
         ? AthleticsRunUp(context, 0, "approach", other)
         : undefined;
     if (p.event === "javelin" && approach === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "approach",
         value: context.entry.from?.family ?? "none",
@@ -298,7 +298,7 @@ export namespace fieldThrow {
                 Vector3.dot(Vector3.subtract(at, middleOfArc), ahead) > 0
               : out > 0;
           if (beyond)
-            throw new HumanRefusal({
+            throw new AutoMovieMotionHumanRefusal({
               kind: "parameter",
               axis: "area",
               value: out,
@@ -444,7 +444,7 @@ export namespace fieldThrow {
       (g * d * d) / (2 * Math.cos(a) ** 2 * Math.max(1e-9, lift)),
     );
     if (!(lift > 0) || speed > spec.speed)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "distance",
         value: p.distance,

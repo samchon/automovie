@@ -12,7 +12,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanSupportStepPlants } from "../../carrier/internal/HumanSupportStepPlants";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
@@ -319,8 +319,8 @@ function refusal(
   support: string | undefined,
   part: AutoMovieHumanoidBone,
   miss?: number,
-): HumanRefusal {
-  return new HumanRefusal({
+): AutoMovieMotionHumanRefusal {
+  return new AutoMovieMotionHumanRefusal({
     kind: "reach",
     axis: "support",
     value: support,

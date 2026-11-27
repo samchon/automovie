@@ -11,7 +11,7 @@ import type { IAutoMovieMotionHumanTabletop } from "./IAutoMovieMotionHumanTable
  * takes the pickup and the placement laws' own (provisional: no study of
  * tabletop speeds).
  *
- * A method here is a method of `HumanChain` when its name is in
+ * A method here is a method of `AutoMovieMotionHumanChain` when its name is in
  * `AutoMovieMotionHumanActionName`. Any other member is a registered law or
  * row: pass it in `laws: [...]` to the performance, taking it from
  * `AutoMovieMotionHumanBoardGame` or from the row namespace of the family, and
@@ -35,7 +35,7 @@ export interface IAutoMovieMotionHumanBoardGame<Chain> {
    *   and `hand` of `IAutoMovieMotionHumanTabletop.IChessMove`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the actions appended.
-   * @throws {HumanRefusal} When the piece is not on the board, the target is
+   * @throws {AutoMovieMotionHumanRefusal} When the piece is not on the board, the target is
    *   occupied without its capture, the capture is not on the target, or a
    *   capture has no place aside.
    */
@@ -54,7 +54,7 @@ export interface IAutoMovieMotionHumanBoardGame<Chain> {
    *   `IAutoMovieMotionHumanTabletop.IDeal`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the actions appended.
-   * @throws {HumanRefusal} When no seat is named; the placement refuses a seat
+   * @throws {AutoMovieMotionHumanRefusal} When no seat is named; the placement refuses a seat
    *   beyond the arm with its distance.
    */
   deal(params: IAutoMovieMotionHumanTabletop.IDeal, anchor?: string): Chain;
@@ -70,7 +70,7 @@ export interface IAutoMovieMotionHumanBoardGame<Chain> {
    *   `IAutoMovieMotionHumanTabletop.ILay`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the actions appended.
-   * @throws {HumanRefusal} When cards and places differ in number.
+   * @throws {AutoMovieMotionHumanRefusal} When cards and places differ in number.
    */
   lay(params: IAutoMovieMotionHumanTabletop.ILay, anchor?: string): Chain;
 
@@ -85,7 +85,7 @@ export interface IAutoMovieMotionHumanBoardGame<Chain> {
    *   `IAutoMovieMotionHumanTabletop.IShuffle`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the actions appended.
-   * @throws {HumanRefusal} When the deck place is beyond the arm.
+   * @throws {AutoMovieMotionHumanRefusal} When the deck place is beyond the arm.
    */
   shuffle(
     params: IAutoMovieMotionHumanTabletop.IShuffle,
@@ -102,7 +102,7 @@ export interface IAutoMovieMotionHumanBoardGame<Chain> {
    *   `IAutoMovieMotionHumanTabletop.IPush`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the actions appended.
-   * @throws {HumanRefusal} When the destination is beyond the arm.
+   * @throws {AutoMovieMotionHumanRefusal} When the destination is beyond the arm.
    */
   push(params: IAutoMovieMotionHumanTabletop.IPush, anchor?: string): Chain;
 
@@ -116,7 +116,7 @@ export interface IAutoMovieMotionHumanBoardGame<Chain> {
    *   `IAutoMovieMotionHumanTabletop.IRoll`.
    * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the actions appended.
-   * @throws {HumanRefusal} When the place is beyond the arm.
+   * @throws {AutoMovieMotionHumanRefusal} When the place is beyond the arm.
    */
   roll(params: IAutoMovieMotionHumanTabletop.IRoll, anchor?: string): Chain;
 }

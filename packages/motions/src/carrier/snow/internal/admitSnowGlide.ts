@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanBound } from "../../../law/internal/HumanBound";
-import { HumanRefusal } from "../../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * Admit an optional ski edge transfer or Nordic stroke before planning the
@@ -25,7 +25,7 @@ export function admitSnowGlide(
   stroke: IAutoMovieMotionHumanSurface.INordicStroke | undefined,
 ): void {
   if (transfer !== undefined && stroke !== undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "nordic",
       value: stroke,
@@ -73,7 +73,7 @@ export function admitSnowGlide(
       }
     }
     if (transfer.first.degrees * transfer.next.degrees >= 0)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "edgeTransfer.next.degrees",
         value: transfer.next.degrees,

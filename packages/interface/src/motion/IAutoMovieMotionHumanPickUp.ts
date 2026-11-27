@@ -53,7 +53,7 @@ import type { IAutoMovieMotionHumanGraspUse } from "./IAutoMovieMotionHumanGrasp
  *    (`pickUpLift.judged`).
  *
  * The hand grips the prop from `gripClosed` to the end, which attaches the prop
- * to the hand (`HumanPerformance.prop`), so the prop rides the lift, and the
+ * to the hand (`AutoMovieMotionHumanPerformance.prop`), so the prop rides the lift, and the
  * plan declares a hold from `gripClosed`, so the hand keeps the prop with its
  * closed fingers through later actions (carried with the trunk while a walk or
  * a turn drives the body) until a put down or a hand over takes it. A second

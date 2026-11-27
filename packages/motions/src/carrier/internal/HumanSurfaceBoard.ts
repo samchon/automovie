@@ -27,7 +27,7 @@ import type {
 import { stand } from "../../actions/internal/stand";
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanMountRider } from "../../lexicon/internal/HumanMountRider";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
@@ -95,7 +95,7 @@ export function HumanSurfaceBoard(
           support.support.subject === params.on,
       )
     )
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "affordance",
         axis: "on",
         value: params.on,
@@ -109,7 +109,7 @@ export function HumanSurfaceBoard(
       const id: string | undefined = params.hands?.[side];
       if (id === undefined) return [];
       if (!Object.hasOwn(support.prop.points, id))
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "affordance",
           axis: `hands.${side}`,
           value: id,
@@ -412,7 +412,7 @@ export namespace HumanSurfaceBoard {
    * Format one named refusal from the indicated support affordance.
    */
   export function refuseBoard(value: string, reason: string): never {
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "on",
       value,

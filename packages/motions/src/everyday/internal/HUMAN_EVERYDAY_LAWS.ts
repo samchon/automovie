@@ -10,9 +10,9 @@ import { swipeTouchscreen } from "./swipeTouchscreen";
  * authoring chain, and register the same laws when planning its performance.
  *
  * ```ts
- * const Chain = HumanChain.extend(HUMAN_EVERYDAY_LAWS);
+ * const Chain = AutoMovieMotionHumanChain.extend(HUMAN_EVERYDAY_LAWS);
  * const composition = Chain.subject("guest").stand().curtsy().node;
- * new HumanPerformance({
+ * new AutoMovieMotionHumanPerformance({
  *   seed,
  *   performers,
  *   composition,

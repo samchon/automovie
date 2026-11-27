@@ -11,7 +11,7 @@ import type {
 } from "@automovie/interface";
 
 import { seated } from "../../everyday/internal/seated";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { hipJoints } from "../../posture/internal/hipJoints";
@@ -268,7 +268,7 @@ export namespace HumanMountedStirrups {
     for (const side of ["left", "right"] as const) {
       const length: number = Vector3.distance(hips[side], feet[side].ankle);
       if (!(length >= near + slack && length <= far - slack + 1e-9))
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "reach",
           axis: `supports.${side}Foot`,
           value: length,
@@ -289,7 +289,7 @@ export namespace HumanMountedStirrups {
     };
     const socket: number = seated.socket(body, posture).y;
     if (!(socket >= CLEAR + slack))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: `figures.${seat}`,
         value: socket,

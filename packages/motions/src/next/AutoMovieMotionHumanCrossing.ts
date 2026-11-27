@@ -21,7 +21,7 @@ import { stepVaultSupport as stepVaultSupportLaw } from "../terrain/internal/ste
  *   box's top, the body tucked over them, a push-off into a flight over the box
  *   and a landing on both feet beyond its far edge.
  * - `stepVaultSupport`: Compose the supports for a grounded step vault through
- *   `HumanChain.support`.
+ *   `AutoMovieMotionHumanChain.support`.
  *
  * Lexicon rows and tables, the shipped data the laws and the chain read:
  *
@@ -170,7 +170,7 @@ export namespace AutoMovieMotionHumanCrossing {
 
   /**
    * Compose the supports for a grounded step vault through
-   * `HumanChain.support`. The palm plants first. The opposite foot joins it on
+   * `AutoMovieMotionHumanChain.support`. The palm plants first. The opposite foot joins it on
    * the obstacle, the other foot passes between them, and the supporting foot
    * follows to settle on the exit before the hand lets go. London Parkour
    * teaches the same crossing as a ground step vault before introducing a

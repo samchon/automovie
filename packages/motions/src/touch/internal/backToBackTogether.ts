@@ -1,4 +1,4 @@
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * Admit two backs leaning on each other together: each window is when that back
@@ -20,7 +20,7 @@ export function backToBackTogether(
     partner.relax < mine.relax - backToBackTogether.FRAME ||
     partner.ready > mine.ready + backToBackTogether.FRAME
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "with",
       value: action,
@@ -28,7 +28,7 @@ export function backToBackTogether(
       fix: "lean and sit up together with the partner",
     });
   if (mine.relax < partner.relax - backToBackTogether.FRAME)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "hold",
       value: hold,

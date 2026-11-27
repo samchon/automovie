@@ -22,7 +22,7 @@ import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionH
 import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionPrepared } from "../../compose/internal/AutoMovieMotionPrepared";
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanBoneGroups } from "../../posture/internal/HumanBoneGroups";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -111,7 +111,7 @@ function planHumanBikeGuide(
   const { body, entry, params, start }: typeof context = context;
   const duration: number = params.duration;
   if (!(duration > REACH))
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "duration",
       value: duration,
@@ -125,7 +125,7 @@ function planHumanBikeGuide(
       fix: `give more than ${REACH} seconds`,
     });
   if (entry.base.kind !== "standing")
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "base",
       axis: "base",
       value: entry.base.kind,

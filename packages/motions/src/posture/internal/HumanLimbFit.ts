@@ -15,7 +15,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanArmClearance } from "./HumanArmClearance";
 import { HumanArmObstacleBones } from "./HumanArmObstacleBones";
 import { HumanArmOvershoot } from "./HumanArmOvershoot";
@@ -429,7 +429,7 @@ export namespace HumanLimbFit {
    * The refusal of a goal whose continued arm lost every swivel connected to
    * its seed that takes the hand's asked turn.
    */
-  function vanishedRefusal(limb: "leftArm" | "rightArm"): HumanRefusal {
+  function vanishedRefusal(limb: "leftArm" | "rightArm"): AutoMovieMotionHumanRefusal {
     return new HumanLimbVanishedRefusal({
       kind: "reach",
       axis: "rotation",

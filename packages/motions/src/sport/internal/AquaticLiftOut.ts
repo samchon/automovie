@@ -17,7 +17,7 @@ import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionH
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { ExerciseKey } from "../../exercise/internal/ExerciseKey";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanHand } from "../../posture/internal/HumanHand";
@@ -289,7 +289,7 @@ export namespace AquaticLiftOut {
       ),
     );
     if (far > reach)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "partner",
         value: partner,
@@ -450,7 +450,7 @@ export namespace AquaticLiftOut {
     const edge: AquaticEdge.IEdge = AquaticEdge(context);
     const freeboard: number = edge.lip.y - water;
     if (freeboard > FREEBOARD)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "support",
         value: freeboard,
@@ -467,7 +467,7 @@ export namespace AquaticLiftOut {
   function partnerOf(context: AquaticPosture.Context): string {
     const partner: string | undefined = context.params.partner;
     if (partner === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "participant",
         axis: "partner",
         value: null,

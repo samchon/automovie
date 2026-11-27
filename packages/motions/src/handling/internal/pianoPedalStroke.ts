@@ -1,7 +1,7 @@
 import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type { IAutoMovieMotionHumanPianoPedal } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * The damper pedal's stroke clock: which strokes a pedalling admits, and how
@@ -76,7 +76,7 @@ export namespace pianoPedalStroke {
  * Report a stroke clock the author can correct.
  */
 function refuse(axis: string, value: number, fix: string): never {
-  throw new HumanRefusal({
+  throw new AutoMovieMotionHumanRefusal({
     kind: "parameter",
     axis,
     value,

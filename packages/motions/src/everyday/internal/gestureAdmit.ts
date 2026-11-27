@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { gesture } from "./gesture";
 import { gestureStrokeTables } from "./gestureStrokeTables";
 
@@ -38,7 +38,7 @@ export function gestureAdmit(
       "minimum",
     );
   if (p.kind === "point" && p.target === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "target",
       value: undefined,
@@ -46,7 +46,7 @@ export function gestureAdmit(
       fix: "give the point gesture a target",
     });
   if (p.aim !== undefined && p.shape === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "aim",
       value: p.aim,

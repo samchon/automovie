@@ -12,7 +12,7 @@ import type {
 
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFreedomChoice } from "../../posture/internal/HumanFreedomChoice";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -185,7 +185,7 @@ export namespace StrikingRoll {
         );
         return measure(posed, actual);
       } catch (error) {
-        if (error instanceof HumanRefusal) return Infinity;
+        if (error instanceof AutoMovieMotionHumanRefusal) return Infinity;
         throw error;
       }
     };
@@ -282,7 +282,7 @@ export namespace StrikingRoll {
               typeof posture === "function" ? posture(posed) : posture;
             return [miss(context, tool, posed, back, current, resolution)];
           } catch (error) {
-            if (error instanceof HumanRefusal) return [Infinity];
+            if (error instanceof AutoMovieMotionHumanRefusal) return [Infinity];
             throw error;
           }
         },
@@ -373,7 +373,7 @@ export namespace StrikingRoll {
     const limit: number =
       context.body.measure.upperArm + context.body.measure.forearm;
     if (distance > limit)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "target",
         value: distance,
@@ -390,7 +390,7 @@ export namespace StrikingRoll {
       resolution,
     );
     if (missed > MISS)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "grasp",
         value: missed,

@@ -32,7 +32,7 @@ import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotion
 import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
 import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
 import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { poseBones } from "../../posture/internal/poseBones";
 import { HumanGrasp } from "./HumanGrasp";
@@ -122,7 +122,7 @@ function plan(
     held,
   );
   if (p.push !== undefined && p.at !== undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "push",
       value: p.push,
@@ -345,7 +345,7 @@ function taking(
       (a: IAutoMovieAffordance): boolean => a.id === take.point,
     );
   if (socket === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "point",
       value: take.point,

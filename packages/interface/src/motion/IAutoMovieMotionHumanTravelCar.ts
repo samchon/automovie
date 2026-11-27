@@ -30,7 +30,7 @@ import type { IAutoMovieMotionObstacleAperture } from "./IAutoMovieMotionObstacl
 export namespace IAutoMovieMotionHumanTravelCar {
   /** Parameters of getting in. */
   export interface IParams {
-    /** The seat sat on, as `HumanObject.seat` reads it from the car. */
+    /** The seat sat on, as `AutoMovieMotionHumanObject.seat` reads it from the car. */
     seat: IAutoMovieMotionHumanSeated.ISeat;
 
     /** The door's opening, as `HumanObstacle.apertures` reads it from the car. */

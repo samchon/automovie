@@ -14,8 +14,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanObject } from "../../perform/HumanObject";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
+import { AutoMovieMotionHumanObject } from "../../perform/AutoMovieMotionHumanObject";
 
 /*
  * The part an operation moves on a prop that articulates, and the drive the
@@ -148,7 +148,7 @@ export namespace operateDrive {
       articulation,
     );
     if (base === null)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "kind",
         value: articulation,
@@ -168,7 +168,7 @@ export namespace operateDrive {
         AffordanceArticulation.leader(byId, id),
       ]),
     );
-    const narrow: typeof held.prop.articulateSite = HumanObject.articulateSite(
+    const narrow: typeof held.prop.articulateSite = AutoMovieMotionHumanObject.articulateSite(
       held.prop,
     );
     const unrelated: Readonly<Record<string, number>> = Object.fromEntries(
@@ -187,7 +187,7 @@ export namespace operateDrive {
           (a: IAutoMovieAffordance): boolean => a.id === id,
         );
       if (posed === undefined)
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "affordance",
           axis: "at",
           value: id,
@@ -274,7 +274,7 @@ export namespace operateDrive {
     if (mechanism.hinge !== undefined)
       return { point: context.aim(mechanism.hinge, context.start).point };
     if (part?.line !== undefined) return part.line;
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "kind",
       value: "hinge",

@@ -1,4 +1,4 @@
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import type { HumanArmTrajectory } from "./HumanArmTrajectory";
 import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPace as Pace } from "./HumanArmTrajectoryPace";
@@ -24,7 +24,7 @@ export function HumanArmTrajectoryPaced(
   grid: Stretch.IGrid,
   refused: Stretch.ISolved,
   told: HumanArmTrajectory.IMirrorTold,
-): HumanRefusal | undefined {
+): AutoMovieMotionHumanRefusal | undefined {
   const free: (c: M.IContext) => M.IContext = (c: M.IContext): M.IContext => ({
     ...c,
     speed: (): number => Infinity,
@@ -49,7 +49,7 @@ export function HumanArmTrajectoryPaced(
   const least: number =
     timing.status === "ok" ? timing.timed.times.at(-1)! : Infinity;
   told.state = { times: [...at], x: loose.x, penalty: loose.penalty };
-  return new HumanRefusal({
+  return new AutoMovieMotionHumanRefusal({
     kind: "reach",
     axis: "duration",
     value: span,

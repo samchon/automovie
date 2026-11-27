@@ -16,7 +16,7 @@ import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionH
 import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanPropFrame } from "../../perform/internal/HumanPropFrame";
 import { HumanSkill } from "../../skill/internal/HumanSkill";
 import { StrikingBlade } from "../../striking/internal/StrikingBlade";
@@ -33,7 +33,7 @@ import { HumanWeaponTrack } from "./HumanWeaponTrack";
  * press and recoil: a pistol, a long gun, a crossbow, a bow, a couched lance
  * (generalised `present`).
  *
- * The weapon is a prop the hand holds (`HumanObject.prop`, taken by its
+ * The weapon is a prop the hand holds (`AutoMovieMotionHumanObject.prop`, taken by its
  * `grip`); the law reads its working point `tip` and its sighting `edge` (a
  * firearm's `muzzle` and `sight` when absent) as the hand holds them, so the
  * weapon's line is what is aimed. The line runs from the `anchor` to the
@@ -352,7 +352,7 @@ export namespace HumanWeaponPresent {
             },
           ];
         } catch (error) {
-          if (error instanceof HumanRefusal) {
+          if (error instanceof AutoMovieMotionHumanRefusal) {
             if (
               error.axis === "target" &&
               error.feasible?.kind === "range" &&

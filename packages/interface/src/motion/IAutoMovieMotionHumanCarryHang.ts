@@ -1,6 +1,6 @@
 /**
  * Loads carried at the sides with the arms hanging, performed over a walk
- * (`HumanChain.over`): a farmer's walk. Each hand that holds a prop is let down
+ * (`AutoMovieMotionHumanChain.over`): a farmer's walk. Each hand that holds a prop is let down
  * until its arm hangs nearly straight from the shoulder, a little out from the
  * thigh, the hand turned as it held the prop, and holds it there.
  *

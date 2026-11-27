@@ -7,7 +7,7 @@ import type {
   IAutoMoviePose,
 } from "@automovie/interface";
 import { AutoMovieMotionHumanEnsemble } from "@automovie/motions";
-import { HumanRefusal } from "@automovie/motions/internal";
+import { AutoMovieMotionHumanRefusal } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -157,7 +157,7 @@ export async function test_motions_ensemble_human_population(): Promise<void> {
     try {
       HumanPopulation[take](of, "t", from, samples);
     } catch (error: unknown) {
-      if (error instanceof HumanRefusal) return error.axis;
+      if (error instanceof AutoMovieMotionHumanRefusal) return error.axis;
     }
     return undefined;
   };

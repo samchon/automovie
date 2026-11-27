@@ -7,7 +7,7 @@ import type {
 } from "@automovie/interface";
 import {
   HumanEnsemble,
-  HumanRefusal,
+  AutoMovieMotionHumanRefusal,
   humanQueueAdvance,
   humanQueueMarks,
 } from "@automovie/motions/internal";
@@ -95,14 +95,14 @@ namespace part_human_queue_advance {
       ["queue.1", "queue.0.queueAdvance", "end", 0.25],
       ["queue.2", "queue.1.queueAdvance", "end", 0.25],
     ]);
-    let refusal: HumanRefusal | undefined;
+    let refusal: AutoMovieMotionHumanRefusal | undefined;
     try {
       humanQueueAdvance(ensemble, {
         on: { of: "counter", event: "release" },
         exit: { x: 0, y: 0, z: 0.01 },
       });
     } catch (error: unknown) {
-      if (error instanceof HumanRefusal) refusal = error;
+      if (error instanceof AutoMovieMotionHumanRefusal) refusal = error;
     }
     TestValidator.predicate(
       "a crowding exit",
@@ -174,7 +174,7 @@ namespace part_human_queue_marks {
           wait === undefined ? { exit: to } : { exit: to, wait },
         );
       } catch (error: unknown) {
-        if (error instanceof HumanRefusal)
+        if (error instanceof AutoMovieMotionHumanRefusal)
           return `${error.axis}:${error.performer}`;
       }
       return "admitted";

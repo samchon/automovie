@@ -4,7 +4,7 @@ import type { IAutoMovieMotionHumanSimulationWindow } from "./IAutoMovieMotionHu
 
 /**
  * One window of a performance baked through the engine's solver
- * (`HumanPerformance.simulate`): the window and mode it was asked for and the
+ * (`AutoMovieMotionHumanPerformance.simulate`): the window and mode it was asked for and the
  * engine's completed simulation of it.
  *
  * The simulation's clock is local: its second zero is the window's `from`, and

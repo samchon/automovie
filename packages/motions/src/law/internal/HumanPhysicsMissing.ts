@@ -1,11 +1,11 @@
-import { HumanRefusal } from "../HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../AutoMovieMotionHumanRefusal";
 
 /*
  * The refusal of a balance missing a field neither the caller nor the law
  * gives.
  */
-export function HumanPhysicsMissing(field: string): HumanRefusal {
-  return new HumanRefusal({
+export function HumanPhysicsMissing(field: string): AutoMovieMotionHumanRefusal {
+  return new AutoMovieMotionHumanRefusal({
     kind: "parameter",
     axis: `balance.${field}`,
     value: undefined,

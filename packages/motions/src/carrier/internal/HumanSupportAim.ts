@@ -11,7 +11,7 @@ import type {
 
 import { AutoMovieMotionHumanTrunk } from "../../compose/internal/AutoMovieMotionHumanTrunk";
 import { instance } from "../../ensemble/internal/instance";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * An aim kept on a world target from a moving support, every second.
@@ -173,7 +173,7 @@ export namespace HumanSupportAim {
       const yaw: number = correction(carry(seconds), aim).yaw;
       const arms: number = planned + yaw - taken(made(seconds).joints, yaw);
       if (Math.abs(arms) > aim.arms)
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "reach",
           axis: "target",
           value: arms,

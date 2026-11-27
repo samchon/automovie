@@ -5,12 +5,12 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
-import type { HumanPerformance } from "../HumanPerformance";
+import type { AutoMovieMotionHumanPerformance } from "../AutoMovieMotionHumanPerformance";
 import { HumanPropFracture } from "./HumanPropFracture";
 
 /*
  * Stage a model's replacement at a recorded hit on a placed prop
- * (`HumanPerformance.fracture`): the hit is the performance's recorded event of
+ * (`AutoMovieMotionHumanPerformance.fracture`): the hit is the performance's recorded event of
  * that id on the prop, and the prop's frame is read from the performance.
  * Parameter performance: The performance's hit and prop readers.
  * Parameter placed: Whether the performance places the request's prop.
@@ -22,7 +22,7 @@ import { HumanPropFracture } from "./HumanPropFracture";
 export function fractureHumanPerformanceProp<
   Piece extends IAutoMovieMotionHumanObject.IModel,
 >(
-  performance: Pick<HumanPerformance, "hits" | "prop">,
+  performance: Pick<AutoMovieMotionHumanPerformance, "hits" | "prop">,
   placed: boolean,
   request: IAutoMovieMotionHumanPropFracture.IRequest<Piece>,
 ): IAutoMovieMotionHumanPropFracture.IPlan<Piece> | null {

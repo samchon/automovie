@@ -5,7 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanLanceCouchCarriage } from "./HumanLanceCouchCarriage";
 import { HumanLanceCouchClear } from "./HumanLanceCouchClear";
 import { HumanLanceCouchPick } from "./HumanLanceCouchPick";
@@ -94,7 +94,7 @@ export function HumanLanceCouchHanging(
         turn: Quaternion.angle(laid.hand.rotation, entered),
       });
     } catch (error: unknown) {
-      if (!(error instanceof HumanRefusal)) throw error;
+      if (!(error instanceof AutoMovieMotionHumanRefusal)) throw error;
     }
   }
   const picked: HumanLanceCouchPick.IPick = HumanLanceCouchPick(
@@ -102,7 +102,7 @@ export function HumanLanceCouchHanging(
     reaches,
   );
   if (picked.laid === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "target",
       value: (alpha * 180) / Math.PI,

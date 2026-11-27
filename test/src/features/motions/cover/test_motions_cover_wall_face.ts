@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanPropReader,
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
-import { HumanRefusal, coverWall } from "@automovie/motions/internal";
+import { AutoMovieMotionHumanRefusal, coverWall } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -70,7 +70,7 @@ export function test_motions_cover_wall_face(): void {
     try {
       coverWall.read(use, "flat", id);
     } catch (error: unknown) {
-      if (!(error instanceof HumanRefusal)) throw error;
+      if (!(error instanceof AutoMovieMotionHumanRefusal)) throw error;
       return error.axis === "face" && error.value === id;
     }
     return false;

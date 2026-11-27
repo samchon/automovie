@@ -8,7 +8,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanTouchEffector } from "../../compose/internal/AutoMovieMotionHumanTouchEffector";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 
 /*
@@ -96,7 +96,7 @@ type Chosen<T> = readonly [IAutoMovieMotionHumanTouchEffector.IEffector, T];
  */
 function reachFailure(error: unknown): boolean {
   return (
-    error instanceof HumanRefusal &&
+    error instanceof AutoMovieMotionHumanRefusal &&
     error.kind === "reach" &&
     error.axis === "target"
   );

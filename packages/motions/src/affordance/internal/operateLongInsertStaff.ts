@@ -5,7 +5,7 @@ import type {
   IAutoMovieMotionHumanProp,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import type { operateLongInsertCourse } from "./operateLongInsertCourse";
 
 /*
@@ -45,7 +45,7 @@ export function operateLongInsertStaff(
         (b.length ?? 0) - (a.length ?? 0),
     )[0];
   if (tip === undefined || bar === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "mechanism.prop",
       value: mechanism.prop,

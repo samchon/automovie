@@ -18,7 +18,7 @@ import type {
 import { support } from "../../actions/internal/support";
 import { supportContact } from "../../actions/internal/supportContact";
 import { getUp } from "../../floor/internal/getUp";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanMountRider } from "./HumanMountRider";
 import { humanAidWalkGrip } from "./humanAidWalkGrip";
 
@@ -41,7 +41,7 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
  * Name the aid or route setting that prevents motion.
  */
 function refuse(axis: string, value: unknown, reason: string): never {
-  throw new HumanRefusal({
+  throw new AutoMovieMotionHumanRefusal({
     kind: "affordance",
     axis,
     value,

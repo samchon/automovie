@@ -1,9 +1,9 @@
 import { AutoMovieGravity, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanPerformance, IAutoMoviePose, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanChain } from "../../chain/HumanChain";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
 import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
-import { HumanPerformance } from "../../perform/HumanPerformance";
+import { AutoMovieMotionHumanPerformance } from "../../perform/AutoMovieMotionHumanPerformance";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { MotionBodies } from "../internal/MotionBodies";
@@ -48,7 +48,7 @@ export function jumpCases(who: string): IMotionCaptureCase[] {
   const perform = (
     chain: IAutoMovieMotionHumanChain,
   ): IAutoMovieMotionHumanPerformance =>
-    new HumanPerformance({
+    new AutoMovieMotionHumanPerformance({
       seed: "jump",
       performers: [
         {
@@ -62,7 +62,7 @@ export function jumpCases(who: string): IMotionCaptureCase[] {
       composition: chain.node,
     });
   const walking: IAutoMovieMotionHumanPerformance = perform(
-    HumanChain.subject("a").walk({ to: goal }),
+    AutoMovieMotionHumanChain.subject("a").walk({ to: goal }),
   );
   const walk = walking.segments("a")[0]!;
   const share = (name: string): number =>
@@ -104,7 +104,7 @@ export function jumpCases(who: string): IMotionCaptureCase[] {
     // Process boundary: a jump the law refuses at this k is recorded as illegal with its message, and the scan goes on to the next k.
     try {
       performance = perform(
-        HumanChain.subject("a")
+        AutoMovieMotionHumanChain.subject("a")
           .walk({ to: goal })
           .until({ type: "share", share: cut })
           .jump({ to: { x: hips.x, y: 0, z: hips.z + 0.9 } }),

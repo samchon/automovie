@@ -13,8 +13,8 @@ import type {
 
 import { seated } from "../../everyday/internal/seated";
 import { sit } from "../../everyday/internal/sit";
-import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanObject } from "../../perform/HumanObject";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
+import { AutoMovieMotionHumanObject } from "../../perform/AutoMovieMotionHumanObject";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
@@ -81,7 +81,7 @@ function planHumanBikeTransfer(
       ? entry.base.kind !== "standing"
       : entry.base.kind !== "seated" || !seatedOnBicycle
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "base",
       axis: "base",
       value: entry.base.kind,
@@ -99,7 +99,7 @@ function planHumanBikeTransfer(
 
   const bicycle: ReturnType<typeof context.prop> = context.prop(on);
   const stopped: IAutoMovieRigidTransform = bicycle.frame(start);
-  const seat: ReturnType<typeof HumanObject.seat> = HumanObject.seat(
+  const seat: ReturnType<typeof AutoMovieMotionHumanObject.seat> = AutoMovieMotionHumanObject.seat(
     { affordances: bicycle.prop.affordances ?? [] },
     stopped,
     "saddle",
@@ -113,7 +113,7 @@ function planHumanBikeTransfer(
     if (point !== undefined) pedals[side] = point;
   }
   if (pedals.left === undefined || pedals.right === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "on",
       value: on,
@@ -153,7 +153,7 @@ function planHumanBikeTransfer(
       )
     )
       continue;
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "on",
       value: film,
@@ -215,7 +215,7 @@ function planHumanBikeTransfer(
   }
   const plant: number = Math.min(...plants);
   if (plant === Infinity)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "rule",
       axis: "line",
       value: line,

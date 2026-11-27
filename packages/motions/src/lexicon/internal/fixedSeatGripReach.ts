@@ -12,7 +12,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * Exclude two wrist goals only when the same grounded pelvis and thorax cannot
@@ -199,7 +199,7 @@ export function fixedSeatGripReach(
       minimum = projected(actual, midpoint, halfSplit);
     }
     if (minimum > arm)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "affordance",
         axis: "hands",
         value: minimum,

@@ -13,9 +13,9 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanMount,
-  HumanChain,
-  HumanObject,
-  HumanPerformance,
+  AutoMovieMotionHumanChain,
+  AutoMovieMotionHumanObject,
+  AutoMovieMotionHumanPerformance,
 } from "@automovie/motions";
 
 import { equineLeadOut } from "./equineLeadOut";
@@ -91,7 +91,7 @@ export namespace equestrianHandlerTake {
    */
   export interface ITake {
     /** The handler's performance. */
-    film: HumanPerformance;
+    film: AutoMovieMotionHumanPerformance;
 
     /** The horse as displayed, on the take's clock. */
     horse: (
@@ -249,7 +249,7 @@ export namespace equestrianHandlerTake {
       yaw: scene === "lead" ? 0 : -90,
       proficiency: { level: "trained" },
     };
-    const handler: IAutoMovieMotionHumanChain = HumanChain.subject("handler");
+    const handler: IAutoMovieMotionHumanChain = AutoMovieMotionHumanChain.subject("handler");
     const chain = (leading: number | null): IAutoMovieMotionHumanChain => {
       if (scene === "lead") {
         const walked: IAutoMovieMotionHumanChain = handler.walk({
@@ -337,9 +337,9 @@ export namespace equestrianHandlerTake {
       shown: Ride,
       offset: number,
       leading: number | null,
-    ): HumanPerformance => {
+    ): AutoMovieMotionHumanPerformance => {
       const { model, place, part } = prop(shown, offset);
-      return new HumanPerformance({
+      return new AutoMovieMotionHumanPerformance({
         seed: "equine-handler",
         performers: [performer],
         laws: [
@@ -347,10 +347,10 @@ export namespace equestrianHandlerTake {
           AutoMovieMotionHumanMount.leadHorse,
         ],
         props: [
-          HumanObject.prop("horse", model, place(0), place, part),
-          HumanObject.prop("brush", BRUSH, { at: shelf, yaw: 0, fixed: false }),
-          HumanObject.prop("halter", halter, { at: hook, yaw: 0 }),
-          HumanObject.prop("saddle", saddle, { at: rack, yaw: 0 }),
+          AutoMovieMotionHumanObject.prop("horse", model, place(0), place, part),
+          AutoMovieMotionHumanObject.prop("brush", BRUSH, { at: shelf, yaw: 0, fixed: false }),
+          AutoMovieMotionHumanObject.prop("halter", halter, { at: hook, yaw: 0 }),
+          AutoMovieMotionHumanObject.prop("saddle", saddle, { at: rack, yaw: 0 }),
         ],
         composition: chain(leading).node,
       });
@@ -358,7 +358,7 @@ export namespace equestrianHandlerTake {
     const finish = (
       shown: Ride,
       offset: number,
-      film: HumanPerformance,
+      film: AutoMovieMotionHumanPerformance,
     ): ITake => ({
       film,
       horse: (
@@ -376,7 +376,7 @@ export namespace equestrianHandlerTake {
 
     // The lead-in: a rehearsal of the handler's walk fixes the clock the horse's approach is matched to.
     if (scene === "lead") {
-      const rehearsal: HumanPerformance = stage(ride, 0, null);
+      const rehearsal: AutoMovieMotionHumanPerformance = stage(ride, 0, null);
       const walking: IAutoMovieMotionHumanSegment =
         rehearsal.segments("handler")[0]!;
       const span: number = walking.end - walking.start;
@@ -408,7 +408,7 @@ export namespace equestrianHandlerTake {
     }
 
     // The hoof: a rehearsal fixes when the handler holds the hoof, and the horse shifts its weight, lifts it, puts it down and startles on that clock.
-    const rehearsal: HumanPerformance = stage(ride, offset, null);
+    const rehearsal: AutoMovieMotionHumanPerformance = stage(ride, offset, null);
     const hold: IAutoMovieMotionHumanSegment =
       rehearsal.overlays("handler")[0]!;
     const stance: Ride = AutoMovieArchetypeEquineStance.after(horse, ride, [

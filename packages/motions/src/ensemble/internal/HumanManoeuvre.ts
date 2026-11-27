@@ -10,7 +10,7 @@ import type {
 
 import { run } from "../../gait/internal/run";
 import { walk } from "../../gait/internal/walk";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanGait } from "../../lexicon/internal/HumanGait";
 import { HUMAN_MANOEUVRES } from "./HUMAN_MANOEUVRES";
 import { HumanFormation } from "./HumanFormation";
@@ -82,7 +82,7 @@ export namespace HumanManoeuvre {
       (rule.path === "oblique" || rule.path === "flank") &&
       manoeuvre.from.blocks.length > manoeuvre.to.blocks.length
     )
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: `${ensemble.input.id}.manoeuvre`,
         value: manoeuvre.from.blocks.length,

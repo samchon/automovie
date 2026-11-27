@@ -6,7 +6,7 @@ import type {
   IAutoMovieMotionHumanProp,
   IAutoMovieQuaternion,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanSeat, HumanObject } from "@automovie/motions";
+import { AutoMovieMotionHumanSeat, AutoMovieMotionHumanObject } from "@automovie/motions";
 
 import { motionHumanLawSweep } from "./motionHumanLawSweep";
 
@@ -21,7 +21,7 @@ const keyboard = (a: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanProp => {
     { x: 0, y: 1, z: 0 },
     180,
   );
-  return HumanObject.prop("keyboard", board, {
+  return AutoMovieMotionHumanObject.prop("keyboard", board, {
     position: Vector3.subtract(
       {
         x: 0,

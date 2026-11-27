@@ -32,7 +32,7 @@ import { AutoMovieMotionHumanReach } from "../../compose/internal/AutoMovieMotio
 import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanPhysics } from "../../law/internal/HumanPhysics";
 import { HumanPreparedPlayback } from "../../perform/internal/HumanPreparedPlayback";
 import { HumanHand } from "../../posture/internal/HumanHand";
@@ -334,7 +334,7 @@ export namespace operate {
     for (let k: number = 0; !grounded && k <= 8; k++) {
       const needed: number = lean.pitch(standing, k / 8);
       if (needed > 1e-6)
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "reach",
           axis: "at",
           value: needed,

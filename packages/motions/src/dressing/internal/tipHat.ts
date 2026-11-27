@@ -34,7 +34,7 @@ import { courseArmGoal } from "../../compose/internal/courseArmGoal";
 import { HumanGrasp } from "../../handling/internal/HumanGrasp";
 import { HumanGrip } from "../../handling/internal/HumanGrip";
 import { HumanPrehension } from "../../handling/internal/HumanPrehension";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { requireHatHand } from "./requireHatHand";
@@ -293,7 +293,7 @@ function plan(
     crown.normal,
   );
   if (!(miss <= CONTACT && clearance >= rise / 2))
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "hand",
       value: side,
@@ -413,7 +413,7 @@ function wornFrame(
       return { frame: shown, socket };
   }
 
-  throw new HumanRefusal({
+  throw new AutoMovieMotionHumanRefusal({
     kind: "affordance",
     axis: "prop",
     value: prop.subject,

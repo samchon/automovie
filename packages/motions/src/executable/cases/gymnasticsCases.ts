@@ -1,10 +1,10 @@
 import { AutoMovieEngineKinematics, Vector3, AutoMovieEngineMath } from "@automovie/engine";
 import type { AutoMovieHumanSide, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanChain } from "../../chain/HumanChain";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
 import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
 import { AutoMovieMotionHumanTouchEffector } from "../../compose/internal/AutoMovieMotionHumanTouchEffector";
-import { HumanPerformance } from "../../perform/HumanPerformance";
+import { AutoMovieMotionHumanPerformance } from "../../perform/AutoMovieMotionHumanPerformance";
 import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { MotionBodies } from "../internal/MotionBodies";
 import type { humanPolygonMan } from "../internal/humanPolygonMan";
@@ -40,7 +40,7 @@ export function gymnasticsCases(
 
     // Process boundary: a case that throws is reported as that case's refusal, and the remaining cases still run.
     try {
-      performance = new HumanPerformance({
+      performance = new AutoMovieMotionHumanPerformance({
         seed: "gymnastics",
         performers: [
           {
@@ -51,7 +51,7 @@ export function gymnasticsCases(
             proficiency: { level: "trained" as const },
           },
         ],
-        composition: HumanChain.subject("a").act("gymnastics", {}).node,
+        composition: AutoMovieMotionHumanChain.subject("a").act("gymnastics", {}).node,
       });
     } catch (error) {
       out.push(FamilyCaseKit.refused(name, error));

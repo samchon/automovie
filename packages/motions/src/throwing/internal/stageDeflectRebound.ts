@@ -1,7 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * A deflected ball's rebound off a palm facing it: the incoming velocity at the
@@ -28,7 +28,7 @@ export function stageDeflectRebound(
     1 / span,
   );
   if (!(Vector3.length(incoming) > 0))
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "intercept",
       value: intercept,

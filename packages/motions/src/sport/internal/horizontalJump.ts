@@ -13,7 +13,7 @@ import type {
 } from "@automovie/interface";
 
 import { jump } from "../../actions/internal/jump";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { AthleticsRunUp } from "./AthleticsRunUp";
@@ -102,7 +102,7 @@ export namespace horizontalJump {
       undefined,
     );
     if (approach === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "approach",
         value: context.entry.from?.family ?? "none",
@@ -122,7 +122,7 @@ export namespace horizontalJump {
         read.prop.affordances ?? []
       ).find((a: IAutoMovieAffordance): boolean => a.id === id);
       if (found === undefined)
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "affordance",
           axis: "pit",
           value: p.pit,
@@ -159,7 +159,7 @@ export namespace horizontalJump {
     );
     const over: number = Vector3.dot(Vector3.subtract(toe, line), along);
     if (over > 0)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "approach",
         value: over,
@@ -191,7 +191,7 @@ export namespace horizontalJump {
     const travel: number = reach + heel;
     const needed: number = Math.sqrt((g * travel) / (2 * tan));
     if (needed > approach.speed)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "distance",
         value: p.distance,

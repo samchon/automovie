@@ -7,7 +7,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanTrunk } from "../../compose/internal/AutoMovieMotionHumanTrunk";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanWeaponPresent } from "./HumanWeaponPresent";
 
 /*
@@ -117,7 +117,7 @@ export namespace HumanMountedPresentation {
       held + taken < reach.right ||
       Math.abs(off - taken) > arms
     )
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis,
         value: off,

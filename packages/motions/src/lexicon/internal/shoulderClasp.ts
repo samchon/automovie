@@ -5,7 +5,7 @@ import type {
 
 /*
  * Two facing partners within arm's reach each rest their right palm on the
- * other's left shoulder, then return their hands. Pass to `HumanChain.mutual`
+ * other's left shoulder, then return their hands. Pass to `AutoMovieMotionHumanChain.mutual`
  * with the `one` and `other` chains. The reaches start together and each palm
  * stays through the touch law's contact phase and the nominal `hold` dwell in
  * seconds. The touch law can stretch the dwell with the rest of the action. The

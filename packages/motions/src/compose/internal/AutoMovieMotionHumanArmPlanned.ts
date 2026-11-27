@@ -7,7 +7,7 @@ import type {
   IAutoMovieMotionHumanBody,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanArmGeometry } from "../../posture/internal/HumanArmGeometry";
 import { HumanArmSeed } from "../../posture/internal/HumanArmSeed";
 import type { HumanArmTrajectory } from "../../posture/internal/HumanArmTrajectory";
@@ -217,7 +217,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
       );
       return true;
     } catch (error: unknown) {
-      if (error instanceof HumanRefusal) return false;
+      if (error instanceof AutoMovieMotionHumanRefusal) return false;
       throw error;
     }
   }

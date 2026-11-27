@@ -9,7 +9,7 @@ import type { IAutoMovieMotionHumanTurnOver } from "./IAutoMovieMotionHumanTurnO
  * lies together with a partner. De Koninck et al. 1992 count such shifts
  * through the night; a film sleep compresses them into its seconds.
  *
- * A method here is a method of `HumanChain` when its name is in
+ * A method here is a method of `AutoMovieMotionHumanChain` when its name is in
  * `AutoMovieMotionHumanActionName`. Any other member is a registered law or
  * row: pass it in `laws: [...]` to the performance, taking it from
  * `AutoMovieMotionHumanSleep` or from the row namespace of the family, and

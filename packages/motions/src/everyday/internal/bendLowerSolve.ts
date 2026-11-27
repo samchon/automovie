@@ -8,7 +8,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanPhysics } from "../../law/internal/HumanPhysics";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanBalance } from "./HumanBalance";
 import { bendLower } from "./bendLower";
@@ -60,7 +60,7 @@ export function bendLowerSolve(
   const weight: number = HumanPhysics.weightAt(window, instant?.seconds ?? 0);
   if (window === null || weight === 0) return { strategy, lean, pitch: deg };
   if (window.by !== "hips")
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "balance.by",
       value: window.by,

@@ -1,6 +1,6 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import {
-  HumanRefusal,
+  AutoMovieMotionHumanRefusal,
   KneeGeometry,
   type KneeReach,
 } from "@automovie/motions/internal";
@@ -30,8 +30,8 @@ const reach = (hip: IAutoMovieVector3): KneeReach.ISolution => ({
  * 2. One doubling it never settles and is refused.
  */
 export function test_motions_striking_knee_geometry(): void {
-  const refuse = (change: number): HumanRefusal =>
-    new HumanRefusal({
+  const refuse = (change: number): AutoMovieMotionHumanRefusal =>
+    new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "target",
       value: change,

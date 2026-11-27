@@ -1,10 +1,10 @@
 import { DEFAULT_HUMANOID_ROM, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanChain } from "../../chain/HumanChain";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
 import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
 import { handshake } from "../../handling/internal/handshake";
-import { HumanPerformance } from "../../perform/HumanPerformance";
+import { AutoMovieMotionHumanPerformance } from "../../perform/AutoMovieMotionHumanPerformance";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { MotionBodies } from "../internal/MotionBodies";
@@ -55,7 +55,7 @@ export function handshakeCases(): IMotionCaptureCase[] {
       handshake.gap(a, b) +
       handshake.stance(a).sternum +
       handshake.stance(b).sternum;
-    const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
+    const performance: IAutoMovieMotionHumanPerformance = new AutoMovieMotionHumanPerformance({
       seed: `handling-handshake-${first}-${second}`,
       performers: [
         {
@@ -73,9 +73,9 @@ export function handshakeCases(): IMotionCaptureCase[] {
           proficiency: { level: "trained" },
         },
       ],
-      composition: HumanChain.pair(
-        HumanChain.subject("a").stand({ hold: 0.4 }),
-        HumanChain.subject("b").stand({ hold: 0.4 }),
+      composition: AutoMovieMotionHumanChain.pair(
+        AutoMovieMotionHumanChain.subject("a").stand({ hold: 0.4 }),
+        AutoMovieMotionHumanChain.subject("b").stand({ hold: 0.4 }),
       ).handshake().node,
     });
     const segment = performance

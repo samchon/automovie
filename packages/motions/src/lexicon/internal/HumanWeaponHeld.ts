@@ -15,7 +15,7 @@ import type {
 
 import { HumanSupportCarry } from "../../carrier/internal/HumanSupportCarry";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { StrikingHeld } from "../../striking/internal/StrikingHeld";
 
@@ -96,7 +96,7 @@ export namespace HumanWeaponHeld {
     // Exercise's Position of a Soldier under Arms); presented, it needs two.
     const shouldered: boolean = p.carriage === "shoulder";
     if (long && hands === 1 && !shouldered)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "hands",
         value: 1,
@@ -225,7 +225,7 @@ export namespace HumanWeaponHeld {
     );
     if (back !== undefined && back <= s.slide)
       return { ...s.support, offset: { ...offset, x: offset.x - back } };
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "gun",
       value: far(s.slide),

@@ -6,7 +6,7 @@ import type {
   IAutoMoviePhysicalShape,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * Resolve the one spherical ball a court release moves: a portable prop with
@@ -35,7 +35,7 @@ export function ballCourtSphere(
         context.entry.holds[side] === subject,
     )
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "prop",
       value: subject,
@@ -50,7 +50,7 @@ export function ballCourtSphere(
     reader.prop.worn !== undefined ||
     reader.prop.motion !== undefined
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "prop",
       value: subject,

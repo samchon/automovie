@@ -14,7 +14,7 @@ import { AutoMovieMotionHumanTouchStance } from "../../compose/internal/AutoMovi
 import { bend } from "../../everyday/internal/bend";
 import { bendLower } from "../../everyday/internal/bendLower";
 import { bendLowerFold } from "../../everyday/internal/bendLowerFold";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { pickUpPostureLeaned } from "./pickUpPostureLeaned";
 import { pickUpPostureShoulder } from "./pickUpPostureShoulder";
@@ -124,7 +124,7 @@ export namespace pickUpPosture {
     if (context.entry.base.kind === "seated")
       return pickUpPostureLeaned(context, side, grip, reach);
     if (context.entry.base.kind !== "standing")
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "prop",
         value: context.entry.base.kind,
@@ -170,7 +170,7 @@ export namespace pickUpPosture {
         candidate,
       );
       if (folded > AutoMovieMotionHumanAuditSkin.BUILT)
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "reach",
           axis: "prop",
           value: folded,
@@ -192,8 +192,8 @@ export namespace pickUpPosture {
         IAutoMovieMotionHumanBendLower.ISolved
       >({ candidates: ["auto", "squat"], reach: lowering });
     } catch (error: unknown) {
-      if (!(error instanceof HumanRefusal)) throw error;
-      throw new HumanRefusal({
+      if (!(error instanceof AutoMovieMotionHumanRefusal)) throw error;
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "prop",
         value: grip.y,
@@ -274,7 +274,7 @@ export namespace pickUpPosture {
     const limit: number =
       context.body.measure.upperArm + context.body.measure.forearm;
     if (distance > limit + 1e-6)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "prop",
         value: distance,

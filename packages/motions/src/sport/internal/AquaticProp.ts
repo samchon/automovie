@@ -13,7 +13,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 
@@ -94,7 +94,7 @@ export namespace AquaticProp {
           (candidate: IAutoMovieAffordance): boolean => candidate.id === id,
         );
         if (affordance?.kind !== kind)
-          throw new HumanRefusal({
+          throw new AutoMovieMotionHumanRefusal({
             kind: "affordance",
             axis: "support",
             value: `${carrier.prop.subject}.${id}`,

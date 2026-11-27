@@ -20,7 +20,7 @@ import type {
 import { stand } from "../../actions/internal/stand";
 import { support } from "../../actions/internal/support";
 import { getUp } from "../../floor/internal/getUp";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanPreparedPlayback } from "../../perform/internal/HumanPreparedPlayback";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
@@ -60,7 +60,7 @@ export function planLadderAccess(
     exit.point,
   );
   const refuse = (reason: string): never => {
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "landing.point",
       value: exit.point,

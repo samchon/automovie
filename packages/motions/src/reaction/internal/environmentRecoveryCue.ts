@@ -1,7 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 
 /*
@@ -143,8 +143,8 @@ export namespace environmentRecoveryCue {
     axis: string,
     value: unknown,
     reason: string,
-  ): HumanRefusal {
-    return new HumanRefusal({
+  ): AutoMovieMotionHumanRefusal {
+    return new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis,
       value,

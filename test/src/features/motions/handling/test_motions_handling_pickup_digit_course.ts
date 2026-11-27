@@ -11,7 +11,7 @@ import type {
   IAutoMoviePhysicalShape,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanChain, HumanPerformance } from "@automovie/motions";
+import { AutoMovieMotionHumanChain, AutoMovieMotionHumanPerformance } from "@automovie/motions";
 import { HumanGrip } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
@@ -28,7 +28,7 @@ const CONTACT = 0.002;
 export function test_motions_handling_pickup_digit_course(): void {
   for (const population of ["f-small", "m-average", "m-tall"]) {
     const { body } = FamilyCaseKit.body(population);
-    const actor = HumanChain.subject(SUBJECT);
+    const actor = AutoMovieMotionHumanChain.subject(SUBJECT);
     const performer = {
       subject: SUBJECT,
       body,
@@ -36,7 +36,7 @@ export function test_motions_handling_pickup_digit_course(): void {
       yaw: 0,
       proficiency: { level: "trained" as const },
     };
-    const rehearsal = new HumanPerformance({
+    const rehearsal = new AutoMovieMotionHumanPerformance({
       seed: "qa-static-body",
       performers: [performer],
       composition: actor.stand({ hold: 0.4 }).node,
@@ -51,7 +51,7 @@ export function test_motions_handling_pickup_digit_course(): void {
         props: [bottle],
         composition: actor.pickUp({ prop: "bottle", handle: "handle", hand: "right" }).node,
       };
-      const take = new HumanPerformance(input);
+      const take = new AutoMovieMotionHumanPerformance(input);
       const name = `${population} ${seed}`;
       const close = FamilyCaseKit.event(take, "gripClosed", SUBJECT);
       const lift = FamilyCaseKit.event(take, "liftOff", SUBJECT);
@@ -94,7 +94,7 @@ export function test_motions_handling_pickup_digit_course(): void {
         const time = lift + ((end - lift) * k) / 24;
         TestValidator.predicate(`${name} held bottle`, Vector3.distance(held, offset(time)) <= ERROR);
       }
-      const fresh = new HumanPerformance(input);
+      const fresh = new AutoMovieMotionHumanPerformance(input);
       for (const time of [end, close * 0.94, lift, close * 0.64, close * 0.86, 0])
         TestValidator.equals(`${name} repeat at ${time}`, take.pose(SUBJECT, time), fresh.pose(SUBJECT, time));
     }
@@ -152,7 +152,7 @@ function setup(body: IAutoMovieMotionHumanBody, shoulder: IAutoMovieVector3): {
 
 function fingerGaps(
   body: IAutoMovieMotionHumanBody,
-  take: HumanPerformance,
+  take: AutoMovieMotionHumanPerformance,
   collider: Capsule,
   time: number,
 ): number[] {

@@ -10,7 +10,7 @@ import type {
 } from "@automovie/interface";
 import {
   HumanAffect,
-  HumanRefusal,
+  AutoMovieMotionHumanRefusal,
   HumanTrunk,
   affectHeldHands,
 } from "@automovie/motions/internal";
@@ -73,7 +73,7 @@ namespace part_human_affect_angles {
     try {
       HumanAffect.angles("laugh", 0.5, 0);
     } catch (error: unknown) {
-      refused = error instanceof HumanRefusal && error.axis === "seconds";
+      refused = error instanceof AutoMovieMotionHumanRefusal && error.axis === "seconds";
     }
     TestValidator.predicate("no length", refused);
   }
@@ -210,7 +210,7 @@ namespace part_human_affect_crying {
     try {
       HumanAffect.layer([{ kind: "sneeze", at: 0, duration: 0.2 }]);
     } catch (error: unknown) {
-      if (error instanceof HumanRefusal) axis = error.axis;
+      if (error instanceof AutoMovieMotionHumanRefusal) axis = error.axis;
     }
     TestValidator.equals("a short sneeze", axis, "seconds");
   }

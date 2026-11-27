@@ -9,7 +9,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { StrikingHeld } from "./StrikingHeld";
 import { StrikingRoll } from "./StrikingRoll";
 import { StrikingStrain } from "./StrikingStrain";
@@ -92,7 +92,7 @@ export function StrikingRollHand(
             shoulder(typeof posture === "function" ? posture(posed) : posture),
         );
       } catch (error) {
-        if (error instanceof HumanRefusal) return Infinity;
+        if (error instanceof AutoMovieMotionHumanRefusal) return Infinity;
         throw error;
       }
     };

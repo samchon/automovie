@@ -28,7 +28,7 @@ import { AutoMovieMotionHumanJoints } from "../../compose/internal/AutoMovieMoti
 import { AutoMovieMotionHumanLegPhrase } from "../../compose/internal/AutoMovieMotionHumanLegPhrase";
 import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
@@ -212,7 +212,7 @@ export namespace kickBall {
     )[side];
     const leg: number = m.thigh + m.shank;
     if (Vector3.length(Vector3.subtract(hit.ankle, hip)) > leg)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "ball",
         value: Vector3.length(Vector3.subtract(hit.ankle, hip)),

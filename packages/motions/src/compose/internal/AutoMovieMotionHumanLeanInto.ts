@@ -8,7 +8,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanBalance } from "../../everyday/internal/HumanBalance";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { AutoMovieMotionHumanLean } from "./AutoMovieMotionHumanLean";
@@ -158,7 +158,7 @@ export namespace AutoMovieMotionHumanLeanInto {
         low = degrees;
       }
       if (high === undefined)
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "reach",
           axis: "target",
           value: nearest.beyond,

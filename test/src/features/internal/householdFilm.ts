@@ -12,8 +12,8 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanPrehension,
-  HumanObject,
-  HumanPerformance,
+  AutoMovieMotionHumanObject,
+  AutoMovieMotionHumanPerformance,
 } from "@automovie/motions";
 
 import { motionHumanLaw } from "./motionHumanLaw";
@@ -54,7 +54,7 @@ export namespace householdFilm {
    * @returns The film with remembered displayed frames.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the performer, the registered law, the inputs and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation Builds the SDK's HumanPerformance with one trained performer at the origin facing +Z and wraps it in the shared film reader.
+   * @evidence contracts/development/implementation.md#principled-implementation Builds the SDK's AutoMovieMotionHumanPerformance with one trained performer at the origin facing +Z and wraps it in the shared film reader.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Construction only; reading and assertions belong to the callers.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No pose, limit or prop is replaced; refusals propagate to the caller.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Delegates all planning to the performance.
@@ -67,7 +67,7 @@ export namespace householdFilm {
     props: IAutoMovieMotionHumanProp[],
   ): motionHumanLaw.IFilm {
     return motionHumanLaw.film(
-      new HumanPerformance({
+      new AutoMovieMotionHumanPerformance({
         seed: "household",
         performers: [
           {
@@ -95,7 +95,7 @@ export namespace householdFilm {
    * @returns The fixed prop.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the units of the placement and that the prop is fixed.
-   * @evidence contracts/development/implementation.md#principled-implementation Delegates to the public HumanObject.prop placement with `fixed: true`.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates to the public AutoMovieMotionHumanObject.prop placement with `fixed: true`.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One call to the placement owner.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The model's own affordances are kept unchanged.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One placement.
@@ -108,7 +108,7 @@ export namespace householdFilm {
     at: IAutoMovieVector3,
     yaw: number = 0,
   ): IAutoMovieMotionHumanProp {
-    return HumanObject.prop(id, model, { at, yaw, fixed: true });
+    return AutoMovieMotionHumanObject.prop(id, model, { at, yaw, fixed: true });
   }
 
   /**

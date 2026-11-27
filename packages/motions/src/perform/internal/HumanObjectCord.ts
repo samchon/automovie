@@ -9,7 +9,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * Build a one-wide, world-space soft body from a model's declared span.
@@ -30,7 +30,7 @@ export function HumanObjectCord(
     declaration.length === null ||
     !(declaration.length > 0)
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "span",
       value: id,
@@ -41,7 +41,7 @@ export function HumanObjectCord(
     props.links < 2 ||
     props.links >= SOFT_MAX_PARTICLES
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "links",
       value: props.links,
@@ -56,7 +56,7 @@ export function HumanObjectCord(
       fix: "choose a link count within the engine's particle budget",
     });
   if (props.subject === props.owner.subject)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "subject",
       value: props.subject,
@@ -131,7 +131,7 @@ export function HumanObjectCord(
   };
   const validation: IAutoMovieValidation = AutoMovieEngineSoftBody.validateSoftBodyDomain({ domain });
   if (!validation.success)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "cord",
       value: props.subject,
@@ -184,7 +184,7 @@ export namespace HumanObjectCord {
       !(distance > 0) ||
       distance - length > precision
     )
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "span",
         value: id,

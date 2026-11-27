@@ -22,7 +22,7 @@ import type {
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanArmTrajectoryTerms } from "../../posture/internal/HumanArmTrajectoryTerms";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { pickUp } from "./pickUp";
@@ -419,7 +419,7 @@ export namespace writeWith {
           );
         const travel: number | undefined = site?.travel;
         if (site === undefined || travel === undefined)
-          throw new HumanRefusal({
+          throw new AutoMovieMotionHumanRefusal({
             kind: "affordance",
             axis: "drive",
             value: d.articulation,
@@ -428,7 +428,7 @@ export namespace writeWith {
             fix: "name an articulation the held prop declares with its travel",
           });
         if (!(d.to >= 0 && d.to <= travel))
-          throw new HumanRefusal({
+          throw new AutoMovieMotionHumanRefusal({
             kind: "parameter",
             axis: "drive",
             value: d.to,
@@ -477,7 +477,7 @@ export namespace writeWith {
     const sites: readonly IAutoMovieAffordance[] =
       context.prop(onto).prop.affordances ?? [];
     if (!sites.some((a: IAutoMovieAffordance): boolean => a.id === mount.point))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "affordance",
         axis: "point",
         value: mount.point,

@@ -7,7 +7,7 @@ import type {
 } from "@automovie/interface";
 import {
   HumanHand,
-  HumanRefusal,
+  AutoMovieMotionHumanRefusal,
   HumanWornItem,
   dress,
   dressTurn,
@@ -139,7 +139,7 @@ export async function test_motions_dressing_dress(): Promise<void> {
           },
         }),
       (error: unknown): boolean =>
-        error instanceof HumanRefusal &&
+        error instanceof AutoMovieMotionHumanRefusal &&
         error.kind === "affordance" &&
         error.axis === "prop" &&
         error.value === "hat" &&

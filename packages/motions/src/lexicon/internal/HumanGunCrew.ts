@@ -7,7 +7,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanChain } from "../../chain/HumanChain";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
 import { HumanGunDrill } from "./HumanGunDrill";
 
 /*
@@ -76,7 +76,7 @@ export namespace HumanGunCrew {
     return AutoMovieComposition.parallel(
       ...stations.map(
         (station: IStageStation): IAutoMovieComposition =>
-          HumanChain.subject(station.subject)
+          AutoMovieMotionHumanChain.subject(station.subject)
             .walk({ to: station.mark })
             .sync({ ...cue, align: "end", offset: station.offset ?? 0 })
             .look(station.gaze).node,
@@ -101,12 +101,12 @@ export namespace HumanGunCrew {
     } as const;
     const vent = { kind: "prop", subject: scene.gun, point: "vent" } as const;
     return AutoMovieComposition.parallel(
-      HumanChain.subject(roles.n3).registered(
+      AutoMovieMotionHumanChain.subject(roles.n3).registered(
         HumanGunDrill.coverVent.name,
         { target: vent },
         "coverVent",
       ).node,
-      HumanChain.subject(roles.n1)
+      AutoMovieMotionHumanChain.subject(roles.n1)
         .registered(
           HumanGunDrill.spongeBore.name,
           {
@@ -122,7 +122,7 @@ export namespace HumanGunCrew {
           "spongeBore",
         )
         .sync({ of: "coverVent", event: "start" }).node,
-      HumanChain.subject(roles.n5)
+      AutoMovieMotionHumanChain.subject(roles.n5)
         .registered(
           HumanGunDrill.passCharge.name,
           { prop: scene.charge, to: roles.n2, handle: "body" },
@@ -130,9 +130,9 @@ export namespace HumanGunCrew {
         )
         .sync({ of: "spongeBore", event: "end" }).node,
       // No. 2 takes the charge No. 5 holds out (the handover's receiving
-      // half, `HumanMutual.handOver`), then places it once the receiving
+      // half, `AutoMovieMotionHumanMutual.handOver`), then places it once the receiving
       // grip has settled, after the giver's hand has let go.
-      HumanChain.subject(roles.n2)
+      AutoMovieMotionHumanChain.subject(roles.n2)
         .registered(
           "receive",
           { prop: scene.charge, partner: roles.n5, handle: "body" },
@@ -144,7 +144,7 @@ export namespace HumanGunCrew {
           { prop: scene.charge, onto: { prop: scene.gun, point: "muzzle" } },
           "loadCharge",
         ).node,
-      HumanChain.subject(roles.n1)
+      AutoMovieMotionHumanChain.subject(roles.n1)
         .registered(
           HumanGunDrill.ramCharge.name,
           {
@@ -160,7 +160,7 @@ export namespace HumanGunCrew {
           "ramCharge",
         )
         .sync({ of: "loadCharge", event: "end" }).node,
-      HumanChain.subject(roles.n3)
+      AutoMovieMotionHumanChain.subject(roles.n3)
         .registered(
           HumanGunDrill.prickVent.name,
           {
@@ -175,7 +175,7 @@ export namespace HumanGunCrew {
           "prickVent",
         )
         .sync({ of: "ramCharge", event: "end" }).node,
-      HumanChain.subject(roles.gunner)
+      AutoMovieMotionHumanChain.subject(roles.gunner)
         .registered(
           HumanGunDrill.layGun.name,
           {
@@ -188,7 +188,7 @@ export namespace HumanGunCrew {
           "layGun",
         )
         .sync({ of: "prickVent", event: "end" }).node,
-      HumanChain.subject(roles.n4)
+      AutoMovieMotionHumanChain.subject(roles.n4)
         .registered(
           HumanGunDrill.hookPrimer.name,
           { prop: scene.primer, onto: { prop: scene.gun, point: "vent" } },
@@ -197,13 +197,13 @@ export namespace HumanGunCrew {
         .sync({ of: "layGun", event: "end" }).node,
       ...(["n1", "n2", "n3"] as const).map(
         (role) =>
-          HumanChain.subject(roles[role])
+          AutoMovieMotionHumanChain.subject(roles[role])
             .registered(HumanGunDrill.standClear.name, {
               to: scene.clear[role],
             })
             .sync({ of: "hookPrimer", event: "end" }).node,
       ),
-      HumanChain.subject(roles.n4)
+      AutoMovieMotionHumanChain.subject(roles.n4)
         .registered(HumanGunDrill.pullLanyard.name, {
           kind: {
             kind: "slider",

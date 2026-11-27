@@ -16,7 +16,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionPrepared } from "../../compose/internal/AutoMovieMotionPrepared";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { DefenceOutcome } from "./DefenceOutcome";
 import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
@@ -147,7 +147,7 @@ export namespace defend {
       attack.plan.feigned ??
       (shown === undefined ? undefined : shown * attack.plan.duration);
     if (decisive === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "participant",
         axis: "against",
         value: p.against,
@@ -161,7 +161,7 @@ export namespace defend {
       at.subject !== context.subject ||
       at.region === undefined
     )
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "participant",
         axis: "against",
         value: p.against,

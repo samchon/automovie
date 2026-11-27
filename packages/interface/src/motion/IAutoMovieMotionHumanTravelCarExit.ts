@@ -13,7 +13,7 @@ export namespace IAutoMovieMotionHumanTravelCarExit {
    */
   export interface IParams {
     /**
-     * Rear bench in world metres, as read by HumanObject.seat, with its actual
+     * Rear bench in world metres, as read by AutoMovieMotionHumanObject.seat, with its actual
      * depth.
      */
     bench: IAutoMovieMotionHumanSeated.ISeat & { depth: number };

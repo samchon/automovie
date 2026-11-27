@@ -1,5 +1,5 @@
 import * as motions from "@automovie/motions";
-import { HUMAN_ACTIONS } from "@automovie/motions";
+import { AutoMovieMotionHumanActions } from "@automovie/motions";
 import * as internal from "@automovie/motions/internal";
 
 import type { IMotionReference } from "../structures/IMotionReference";
@@ -7,8 +7,8 @@ import type { IMotionReference } from "../structures/IMotionReference";
 /**
  * The motion vocabulary as the reference pages list it, read from the
  * installed `@automovie/motions` while the site is exported: the actions of
- * `HUMAN_ACTIONS`, the lexicon's families and rows from `HUMAN_LEXICON`,
- * and the grammar from `HUMAN_GRAMMAR`. A table the
+ * `AutoMovieMotionHumanActions`, the lexicon's families and rows from `HUMAN_LEXICON`,
+ * and the grammar from `AutoMovieMotionHumanGrammar`. A table the
  * installed release lacks is left empty, so a release that adds one fills
  * the pages with no change here.
  */
@@ -49,7 +49,7 @@ export namespace MotionReference {
       namespace: law === undefined ? null : (namespaces.get(law) ?? null),
     });
     return {
-      actions: Object.keys(HUMAN_ACTIONS).map(
+      actions: Object.keys(AutoMovieMotionHumanActions).map(
         (name: string): IMotionReference.IRow => row(name),
       ),
       families: Object.entries(families).map(

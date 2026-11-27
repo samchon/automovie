@@ -1,4 +1,4 @@
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * The refusal of a goal whose continued arm lost every swivel connected to its
@@ -7,4 +7,4 @@ import { HumanRefusal } from "../../law/HumanRefusal";
  * arc continuation (`HumanLimbFit.continues`) reads it as no fit and throws
  * every other.
  */
-export class HumanLimbVanishedRefusal extends HumanRefusal {}
+export class HumanLimbVanishedRefusal extends AutoMovieMotionHumanRefusal {}

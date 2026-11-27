@@ -122,7 +122,7 @@ export namespace AutoMovieMotionHumanDress {
   /**
    * Draw a gripped object out of its carrier along a straight line, the inverse
    * of aperture placement (`putDownAperture`): a sword drawn from its scabbard.
-   * Register it with `HumanChain.extend({ drawFromCarrier })` or by name, and
+   * Register it with `AutoMovieMotionHumanChain.extend({ drawFromCarrier })` or by name, and
    * with the performance.
    *
    * The hand has gripped the seated object (a pickup with no lift). The object

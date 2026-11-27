@@ -6,7 +6,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import type { HumanRideHands } from "./HumanRideHands";
 
 /*
@@ -121,7 +121,7 @@ export namespace HumanLungeChange {
       change !== undefined &&
       (!whip || !(change >= transition && change + 4 * transition <= seconds))
     )
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "change",
         value: change,

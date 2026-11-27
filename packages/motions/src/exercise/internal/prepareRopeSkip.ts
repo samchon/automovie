@@ -1,7 +1,7 @@
 import { AutoMovieGravity, Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanRopeSkipPresentation, IAutoMovieMotionHumanSegment, IAutoMovieResolvedBone, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanHand } from "../../posture/internal/HumanHand";
@@ -43,7 +43,7 @@ export function prepareRopeSkip(
       (metres: number): boolean => metres > 0,
     )
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "rope",
       value: { subject, length, radius, handleLength, handleDiameter },
@@ -73,7 +73,7 @@ export function prepareRopeSkip(
     segment === undefined ||
     !(0 <= lift && lift < pass && pass < land && land <= 1)
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "action",
       value: action,
@@ -405,7 +405,7 @@ function handle(
  * Report an infeasible emitted cable or a missed underpass on the film clock.
  */
 function refuse(subject: string, seconds: number, reason: string): never {
-  throw new HumanRefusal({
+  throw new AutoMovieMotionHumanRefusal({
     kind: "reach",
     axis: "rope",
     value: { subject, seconds },

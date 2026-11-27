@@ -10,7 +10,7 @@ import type {
   IAutoMovieMotionTarget,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { operateInsert } from "./operateInsert";
 import { operateLongInsert } from "./operateLongInsert";
 
@@ -49,7 +49,7 @@ export function operateInsertRoute(
       : undefined;
   const depth: number | undefined = mechanism.depth ?? declared;
   if (depth === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "mechanism.depth",
       value: "absent",

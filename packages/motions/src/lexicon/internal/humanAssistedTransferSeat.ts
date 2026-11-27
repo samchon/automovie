@@ -14,8 +14,8 @@ import type {
 } from "@automovie/interface";
 
 import { supportContact } from "../../actions/internal/supportContact";
-import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanObject } from "../../perform/HumanObject";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
+import { AutoMovieMotionHumanObject } from "../../perform/AutoMovieMotionHumanObject";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 
 /*
@@ -79,7 +79,7 @@ export namespace humanAssistedTransferSeat {
    * Reject a model reference at the source or destination that exposed it.
    */
   export function refuse(axis: string, value: unknown, reason: string): never {
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis,
       value,
@@ -118,7 +118,7 @@ export namespace humanAssistedTransferSeat {
         "the staged affordance has no bounded seat",
       );
     const frame: IAutoMovieRigidTransform = placed.frame(context.start);
-    const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(
+    const seat: IAutoMovieMotionHumanSeated.ISeat = AutoMovieMotionHumanObject.seat(
       model,
       { position: frame.position, rotation: frame.rotation },
       ref.point,

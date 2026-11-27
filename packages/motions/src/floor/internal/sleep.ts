@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanTurnOver,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanArmConnect } from "../../posture/internal/HumanArmConnect";
 import { turnOver } from "./turnOver";
 
@@ -39,7 +39,7 @@ export function sleep<Chain extends sleep.IChain<Chain>>(
   params: IAutoMovieMotionHumanSleep.ISleep,
 ): Chain {
   if (!(params.changes >= 1))
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "changes",
       value: params.changes,
@@ -49,7 +49,7 @@ export function sleep<Chain extends sleep.IChain<Chain>>(
   // Each turn takes up to two quarter turns of a second each.
   const free: number = params.duration - 2 * params.changes;
   if (!(free > 0))
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "duration",
       value: params.duration,

@@ -120,7 +120,7 @@ export namespace AutoMovieMotionHumanSupport {
    * @param context A standing entry and the declared prop readers on the film
    *   clock.
    * @returns One posture plan with four foot contact windows.
-   * @throws {HumanRefusal} When the entry, surfaces, docking or short-step
+   * @throws {AutoMovieMotionHumanRefusal} When the entry, surfaces, docking or short-step
    *   bounds do not admit a transfer.
    */
   export const supportTransfer: typeof supportTransferLaw = supportTransferLaw;

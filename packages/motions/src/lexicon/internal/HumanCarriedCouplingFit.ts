@@ -14,7 +14,7 @@ import type {
 
 import { readHumanBone } from "../../body/internal/readHumanBone";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanQuadraticProgram as QP } from "../../posture/internal/HumanQuadraticProgram";
 import { HumanSequentialConvex as SCO } from "../../posture/internal/HumanSequentialConvex";
 import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
@@ -383,7 +383,7 @@ export namespace HumanCarriedCouplingFit {
         ) &&
         HumanCarriedStraddle.clear(bearer, met.read));
     if (!clear)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "carry",
         value: solved.evaluation.greatest,

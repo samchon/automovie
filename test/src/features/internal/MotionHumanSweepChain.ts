@@ -2,7 +2,7 @@ import type {
   AutoMovieMotionHumanActionName,
   IAutoMovieComposition,
 } from "@automovie/interface";
-import { HumanChain } from "@automovie/motions";
+import { AutoMovieMotionHumanChain } from "@automovie/motions";
 
 /**
  * A chain whose named append takes parameters read at run time.
@@ -20,7 +20,7 @@ import { HumanChain } from "@automovie/motions";
  * @evidence contracts/development/design.md#minimal-and-owned-surface One constructor and one widened method.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Appends through the chain's own intent path, so the composition is what a typed call builds.
  */
-export class MotionHumanSweepChain extends HumanChain {
+export class MotionHumanSweepChain extends AutoMovieMotionHumanChain {
   /**
    * An empty sweep chain of a person.
    *

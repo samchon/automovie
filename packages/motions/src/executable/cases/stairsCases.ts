@@ -6,7 +6,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanChain } from "../../chain/HumanChain";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { climbStairs } from "../../terrain/internal/climbStairs";
@@ -49,7 +49,7 @@ export function stairsCases(
         FamilyCaseKit.perform(
           "stairs",
           [{ subject: "a", body: who.body }],
-          HumanChain.subject("a").act("climbStairs", params).node,
+          AutoMovieMotionHumanChain.subject("a").act("climbStairs", params).node,
         );
       const segment = performance.segments("a")[0]!;
       const flight: IAutoMovieMotionHumanClimbStairsFlight.IFlight =

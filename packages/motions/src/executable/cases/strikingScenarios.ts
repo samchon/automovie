@@ -6,8 +6,8 @@ import type {
   IAutoMovieMotionTarget,
 } from "@automovie/interface";
 
-import { HumanChain } from "../../chain/HumanChain";
-import { HumanPerformance } from "../../perform/HumanPerformance";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
+import { AutoMovieMotionHumanPerformance } from "../../perform/AutoMovieMotionHumanPerformance";
 import { HumanColliders } from "../../posture/internal/HumanColliders";
 import { StrikingLimb } from "./StrikingLimb";
 import type { StrikingVerdicts } from "./StrikingVerdicts";
@@ -58,9 +58,9 @@ export function strikingScenarios(
     region: "face",
   };
   const guardA = (): IAutoMovieMotionHumanChain =>
-    HumanChain.subject("a").act("guard", { duration: 0.8, facing: faceB });
+    AutoMovieMotionHumanChain.subject("a").act("guard", { duration: 0.8, facing: faceB });
   const guardB = (seconds: number = 0.8): IAutoMovieMotionHumanChain =>
-    HumanChain.subject("b").act("guard", { duration: seconds, facing: faceA });
+    AutoMovieMotionHumanChain.subject("b").act("guard", { duration: seconds, facing: faceA });
   const jab = (): IAutoMovieMotionHumanChain =>
     guardA().act("punch", { technique: "straight", at: faceB }, "jab");
   const arm = (body: IAutoMovieMotionHumanBody): number =>
@@ -134,7 +134,7 @@ export function strikingScenarios(
         },
         "kickA",
       ),
-      b: HumanChain.subject("b")
+      b: AutoMovieMotionHumanChain.subject("b")
         .act("guard", { duration: 0.8, stance: "southpaw", facing: faceA })
         .act(
           "kick",
@@ -189,7 +189,7 @@ export function strikingScenarios(
       meets: { knee: ["trunk", "guard"] },
     }),
     "striking-air": (): strikingScenarios.IScenario => ({
-      a: HumanChain.subject("a")
+      a: AutoMovieMotionHumanChain.subject("a")
         .act("guard", { duration: 0.8 })
         .act("punch", {
           technique: "straight",
@@ -311,7 +311,7 @@ function touching(
   b: IAutoMovieMotionHumanChain,
 ): number {
   const apart: number = 2;
-  const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
+  const performance: IAutoMovieMotionHumanPerformance = new AutoMovieMotionHumanPerformance({
     seed: "touching",
     performers: [
       {

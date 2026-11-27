@@ -4,7 +4,7 @@ import type {
   IAutoMovieMotionHumanProp,
   IAutoMoviePhysicalShape,
 } from "@automovie/interface";
-import { HumanObject } from "@automovie/motions";
+import { AutoMovieMotionHumanObject } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeExtent } from "../../internal/archetypeExtent";
@@ -63,7 +63,7 @@ export function test_archetype_scenic_parade_banner(): void {
       close(panelZ.size, 0.012),
   );
 
-  const prop: IAutoMovieMotionHumanProp = HumanObject.prop(
+  const prop: IAutoMovieMotionHumanProp = AutoMovieMotionHumanObject.prop(
     "parade-banner",
     model,
     {

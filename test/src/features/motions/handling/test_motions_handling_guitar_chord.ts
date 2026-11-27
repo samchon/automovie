@@ -1,5 +1,5 @@
 import type { IAutoMovieMotionHumanGuitarChord } from "@automovie/interface";
-import { HumanRefusal, guitarChordTimes } from "@automovie/motions/internal";
+import { AutoMovieMotionHumanRefusal, guitarChordTimes } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -38,12 +38,12 @@ export function test_motions_handling_guitar_chord(): void {
   });
   const refused = (
     changed: Partial<typeof params>,
-  ): HumanRefusal["axis"] | undefined => {
+  ): AutoMovieMotionHumanRefusal["axis"] | undefined => {
     try {
       guitarChordTimes({ ...params, ...changed });
       return undefined;
     } catch (error: unknown) {
-      return error instanceof HumanRefusal ? error.axis : undefined;
+      return error instanceof AutoMovieMotionHumanRefusal ? error.axis : undefined;
     }
   };
   TestValidator.equals(

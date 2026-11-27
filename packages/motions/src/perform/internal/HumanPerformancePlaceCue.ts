@@ -3,7 +3,7 @@ import type {
   IAutoMovieScheduleCue,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * An action's reader of the performance's cue tracks
@@ -20,7 +20,7 @@ export function HumanPerformancePlaceCue(
   return (track: string): readonly IAutoMovieScheduleCue[] => {
     const cues: readonly IAutoMovieScheduleCue[] | undefined = self.cues[track];
     if (cues === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "participant",
         axis: named(track, "cue"),
         value: track,

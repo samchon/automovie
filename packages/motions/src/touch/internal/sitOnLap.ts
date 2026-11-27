@@ -17,7 +17,7 @@ import type {
 } from "@automovie/interface";
 
 import { sit } from "../../everyday/internal/sit";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanMaterialContact } from "../../posture/internal/HumanMaterialContact";
 import { carryHumanPosture } from "../../posture/internal/carryHumanPosture";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -246,7 +246,7 @@ function planSitOnLap(
             ),
         )
       )
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "reach",
           axis: "partner",
           value: p.partner,

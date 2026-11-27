@@ -13,7 +13,7 @@ import type {
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanRange } from "../../compose/internal/AutoMovieMotionHumanRange";
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { DanceFootwork } from "./DanceFootwork";
 import { balletJete } from "./balletJete";
 import { balletPirouette } from "./balletPirouette";
@@ -96,7 +96,7 @@ export namespace balletStep {
   ): IAdmitted {
     const turnout: number = p.turnout ?? TURNOUT;
     if (!(turnout >= 0 && turnout <= outward))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "turnout",
         value: turnout,
@@ -111,7 +111,7 @@ export namespace balletStep {
       });
     const position: number = Math.round(p.position ?? 1);
     if (!(position >= 1 && position <= 5))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "position",
         value: position,
@@ -121,7 +121,7 @@ export namespace balletStep {
       });
     const turns: number = p.turns ?? 1;
     if (!(turns === 1 || turns === 2))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "turns",
         value: turns,
@@ -166,7 +166,7 @@ export namespace balletStep {
         );
       const split: number = p.split ?? 150;
       if (!(split > 0 && split <= reach))
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "parameter",
           axis: "split",
           value: split,

@@ -20,7 +20,7 @@ import { HumanUnseat as HumanUnseatLaw } from "../lexicon/internal/HumanUnseat";
  *
  * - `rideHorse`: Riding: a seated person carried by a support that moves by
  *   itself, such as a car, a bicycle or a horse given to the performance as a
- *   moving prop (`HumanObject.prop` with a motion).
+ *   moving prop (`AutoMovieMotionHumanObject.prop` with a motion).
  * - `leadHorse`: Keep one handler's hand on the horse's actual moving lead frame.
  * - `tendHorse`: A handler's hand on a horse's actual moving contact while the
  *   handler stands: brushing, headgear, lead, saddle and a held hoof.
@@ -77,10 +77,10 @@ export namespace AutoMovieMotionHumanMount {
   /**
    * Riding: a seated person carried by a support that moves by itself, such as
    * a car, a bicycle or a horse given to the performance as a moving prop
-   * (`HumanObject.prop` with a motion).
+   * (`AutoMovieMotionHumanObject.prop` with a motion).
    *
    * The rider sits down on the support first (`sit` on its seat where it stands
-   * at that second; `HumanObject.seat` reads a saddle with its pedals or
+   * at that second; `AutoMovieMotionHumanObject.seat` reads a saddle with its pedals or
    * stirrups) and then rides it: the seated posture is carried rigidly with the
    * support, turning, leaning and pitching as it does, the seat and each foot
    * that rested on it bearing on it, so nothing slides in the support's frame.

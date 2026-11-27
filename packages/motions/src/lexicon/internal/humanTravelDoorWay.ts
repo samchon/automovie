@@ -5,7 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * The way through a door: the named obstacle's named opening (its only one when
@@ -38,7 +38,7 @@ export function humanTravelDoorWay(
             a.id === params.aperture,
         );
   if (obstacle === undefined || opening === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: obstacle === undefined ? "through" : "aperture",
       value:

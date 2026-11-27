@@ -16,7 +16,7 @@ import type {
 
 import { walk } from "../../gait/internal/walk";
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanWater } from "../../perform/internal/HumanWater";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -144,7 +144,7 @@ export function HumanMediumWalk(
   const limit: number =
     (weight * body.measure.footLength) / 2 / body.measure.hipHeight;
   if (force > limit)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "base",
       axis: "wind",
       value: force,
@@ -395,7 +395,7 @@ export namespace HumanMediumWalk {
       return;
     }
     if (!(depth > 0 && depth <= measure.chestHeight))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "medium.depth",
         value: depth,

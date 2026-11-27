@@ -25,7 +25,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { HumanGrasp } from "./HumanGrasp";
@@ -90,7 +90,7 @@ export namespace regrasp {
     const body: IAutoMovieMotionHumanBody = context.body;
     const { prop: subject, hand: side, kind } = context.params;
     if (context.entry.holds[side] !== subject)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "base",
         axis: "hand",
         value: side,
@@ -134,7 +134,7 @@ export namespace regrasp {
     // A twist's time is in proportion to its angle, so a twist of none has
     // no time to turn in.
     if (!(Math.abs(angle) > 0))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "angle",
         value: angle,
@@ -333,7 +333,7 @@ const need: <T>(value: T | undefined, axis: string) => T = <T>(
   axis: string,
 ): T => {
   if (value === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis,
       value: null,
@@ -357,7 +357,7 @@ const site: (
     (a: IAutoMovieAffordance): boolean => a.id === id,
   );
   if (found === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "axis",
       value: id,

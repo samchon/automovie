@@ -47,7 +47,7 @@ export namespace AutoMovieMotionHumanExpression {
    *
    * @param params The displays.
    * @returns The layer that adds the displays.
-   * @throws {HumanRefusal} For a display whose length is not above the
+   * @throws {AutoMovieMotionHumanRefusal} For a display whose length is not above the
    *   display's floor (0 s, more for a sneeze or a gasp).
    */
   export const affect: typeof expressionAffectLaw = expressionAffectLaw;

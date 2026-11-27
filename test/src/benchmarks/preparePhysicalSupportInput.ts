@@ -11,7 +11,7 @@ import type {
   IAutoMovieValidation,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanChain } from "@automovie/motions";
+import { AutoMovieMotionHumanChain } from "@automovie/motions";
 
 import { PhysicalSupportFixtures } from "../features/internal/PhysicalSupportFixtures";
 import { createPhysicalBalanceInput } from "../features/internal/createPhysicalBalanceInput";
@@ -180,7 +180,7 @@ export namespace preparePhysicalSupportInput {
     const film: motionHumanLaw.IFilm = motionHumanLaw.perform(
       "physical-support-geometry",
       [{ subject: profile.id, body: human }],
-      HumanChain.subject(profile.id).stand({ hold: 1, sway: 0 }),
+      AutoMovieMotionHumanChain.subject(profile.id).stand({ hold: 1, sway: 0 }),
     );
     const settled: number = motionHumanLaw.event(film, "settled", profile.id);
     const seconds: number = settled + (film.duration - settled) / 2;

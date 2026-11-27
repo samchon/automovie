@@ -10,7 +10,7 @@ import type {
   IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
-import { HumanChain, HumanPerformance } from "@automovie/motions";
+import { AutoMovieMotionHumanChain, AutoMovieMotionHumanPerformance } from "@automovie/motions";
 import { HUMAN_LEXICON, HumanPropFrame } from "@automovie/motions/internal";
 
 import { everydayTake } from "./everydayTake";
@@ -45,7 +45,7 @@ export namespace carriageScene {
     props: readonly IAutoMovieMotionHumanProp[],
     chain: IAutoMovieMotionHumanChain,
     others: readonly everydayTake.IOther[] = [],
-  ): HumanPerformance {
+  ): AutoMovieMotionHumanPerformance {
     return everydayTake.perform(
       `carriage-${label}`,
       body,
@@ -66,7 +66,7 @@ export namespace carriageScene {
    * @returns The frame.
    */
   export function relative(
-    take: HumanPerformance,
+    take: AutoMovieMotionHumanPerformance,
     bone: AutoMovieHumanoidBone,
     subject: string,
     t: number,
@@ -86,11 +86,11 @@ export namespace carriageScene {
     bone: AutoMovieHumanoidBone,
     world: (b: IAutoMovieResolvedBone) => IAutoMovieRigidTransform,
   ): IAutoMovieRigidTransform {
-    const still: HumanPerformance = everydayTake.perform(
+    const still: AutoMovieMotionHumanPerformance = everydayTake.perform(
       "carriage-rest",
       body,
       [],
-      HumanChain.subject("actor").stand({ hold: 0.2, sway: 0 }),
+      AutoMovieMotionHumanChain.subject("actor").stand({ hold: 0.2, sway: 0 }),
     );
     const b: IAutoMovieResolvedBone = still.bones("actor", 0.1).get(bone)!;
     return HumanPropFrame.relative(HumanPropFrame.bone(b), world(b));

@@ -15,7 +15,7 @@ import { HumanWeaponPresent } from "./HumanWeaponPresent";
  * or a ready position, the shot's recoil, and the draw and the return to a
  * holster.
  *
- * The firearm is a prop the hand holds (`HumanObject.prop` of a handgun or a
+ * The firearm is a prop the hand holds (`AutoMovieMotionHumanObject.prop` of a handgun or a
  * long gun, taken by its `grip`); presenting and firing are the generalised
  * launcher laws of `HumanWeaponPresent` under the firearm's names, reading the
  * gun's `muzzle` and `sight` and aiming from the eye (a handgun) or the cheek

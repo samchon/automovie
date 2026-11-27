@@ -1,5 +1,5 @@
 import type { IAutoMovieAffordance } from "@automovie/interface";
-import { HumanRefusal, writeAdmission } from "@automovie/motions/internal";
+import { AutoMovieMotionHumanRefusal, writeAdmission } from "@automovie/motions/internal";
 import { strict as assert } from "node:assert";
 
 /** A carried tool keeps its working point against a separate stable surface. */
@@ -33,5 +33,5 @@ export function test_motions_handling_write(): void {
 /** Match the item that would move away from the writing target. */
 function refused(axis: string): (error: unknown) => boolean {
   return (error: unknown): boolean =>
-    error instanceof HumanRefusal && error.kind === "affordance" && error.axis === axis;
+    error instanceof AutoMovieMotionHumanRefusal && error.kind === "affordance" && error.axis === axis;
 }

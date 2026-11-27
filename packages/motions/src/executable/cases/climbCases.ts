@@ -2,7 +2,7 @@
 import { AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, IAutoMovieMotionHumanClimbLadder, IAutoMovieMotionHumanLadder, IAutoMovieMotionHumanPerformance, IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanChain } from "../../chain/HumanChain";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
 import { climbLadder } from "../../climbing/internal/climbLadder";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
@@ -41,7 +41,7 @@ export function climbCases(
     const performance: IAutoMovieMotionHumanPerformance = FamilyCaseKit.perform(
       "climb",
       [{ subject: "a", body: who.body }],
-      HumanChain.subject("a").act("climbLadder", params).node,
+      AutoMovieMotionHumanChain.subject("a").act("climbLadder", params).node,
       [climbCaseLadder()],
     );
     const segment = performance.segments("a")[0]!;

@@ -22,7 +22,7 @@ import type {
 
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanBoneGroups } from "../../posture/internal/HumanBoneGroups";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
@@ -91,7 +91,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   const params: IAutoMovieMotionHumanLasso = context.params;
   const entered: IAutoMovieMotionHumanBase = context.entry.base;
   if (entered.kind !== "seated")
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "base",
       axis: "base",
       value: entered.kind,
@@ -185,7 +185,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       .filter((t: number): boolean => t >= 0)
       .sort((a: number, b: number): number => a - b);
     if (instants.length < 2)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "stride",
         value: params.stride,
@@ -244,7 +244,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   );
   const distance: number = Vector3.distance(out, at);
   if (distance > REACH)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "target",
       value: distance,

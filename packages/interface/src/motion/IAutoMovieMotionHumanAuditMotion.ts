@@ -8,7 +8,7 @@ import type { IAutoMovieMotionHumanContactWindow } from "./IAutoMovieMotionHuman
  * A motion as the audit reads it: displayed bones at any film second and the
  * placed actions with their declared contact windows.
  *
- * `HumanPerformance` is one such motion, and the audit reads nothing else of
+ * `AutoMovieMotionHumanPerformance` is one such motion, and the audit reads nothing else of
  * it, so the same checks run on a performance, on a recorded clip replayed
  * through forward kinematics, or on a motion a test builds by hand to prove a
  * check catches a defect.

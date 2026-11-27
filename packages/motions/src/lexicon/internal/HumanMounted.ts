@@ -15,7 +15,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { mixHumanPosture } from "../../posture/internal/mixHumanPosture";
 import { HumanMountRider } from "./HumanMountRider";
 import { HumanMountedAids } from "./HumanMountedAids";
@@ -76,7 +76,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   const { on, frame, figures }: IAutoMovieMotionHumanMounted = context.params;
   const entered: IAutoMovieMotionHumanBase = context.entry.base;
   if (entered.kind !== "seated")
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "base",
       axis: "base",
       value: entered.kind,
@@ -88,7 +88,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     figures.length === 0 ||
     !HumanMountedSeats.sits(figures[figures.length - 1]!.seat)
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "figures",
       value: figures.map(

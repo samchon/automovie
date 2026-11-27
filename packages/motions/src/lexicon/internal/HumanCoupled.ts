@@ -25,7 +25,7 @@ import { getUp } from "../../floor/internal/getUp";
  *   (`clinch` with `under`, tsukuri), and the thrown person answers the pull
  *   through it (`perturb`) with the author's outcome, turning over the throw's
  *   fulcrum on the thrower when thrown. The pull itself is the performance's
- *   force input (`HumanPerformance.IInput.forces`, sized by
+ *   force input (`AutoMovieMotionHumanPerformance.IInput.forces`, sized by
  *   `HumanForceExchange.breaking` or `pull`), since a force starts no action.
  *
  * The fulcrum of each throw is the thrower's region the thrown body turns over

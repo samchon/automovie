@@ -25,7 +25,7 @@ import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieM
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
 import { bendLower } from "../../everyday/internal/bendLower";
 import { pickUpPosture } from "../../handling/internal/pickUpPosture";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
@@ -45,7 +45,7 @@ import { HumanTravelLeafWrite } from "./HumanTravelLeafWrite";
  * Register `HumanTravelLeaf.openDoor` to use it.
  *
  * The leaf's swing is the scene's: the door is a prop whose handle moves within
- * it (`IHumanProp.point`, as `HumanObject.prop` gives an archetype's
+ * it (`IHumanProp.point`, as `AutoMovieMotionHumanObject.prop` gives an archetype's
  * articulated contact), and the hand follows the handle at every instant. The
  * hand turns to the handle's frame and closes on the door's own colliders
  * (`HumanMountRider.hold`, `HumanMountRider.closed`), reaching it over `TAKE`
@@ -110,7 +110,7 @@ export namespace HumanTravelLeaf {
         const side: AutoMovieHumanSide = context.params.hand ?? "right";
         const seconds: number = context.params.duration;
         if (!(seconds > TAKE))
-          throw new HumanRefusal({
+          throw new AutoMovieMotionHumanRefusal({
             kind: "parameter",
             axis: "duration",
             value: seconds,
@@ -130,7 +130,7 @@ export namespace HumanTravelLeaf {
         const id: string = context.params.handle;
         const rest: IOpenDoorRest | undefined = door.prop.points[id];
         if (rest === undefined)
-          throw new HumanRefusal({
+          throw new AutoMovieMotionHumanRefusal({
             kind: "affordance",
             axis: "handle",
             value: id,
@@ -376,7 +376,7 @@ export namespace HumanTravelLeaf {
               );
         if (lost !== undefined) {
           const followed: number = swing(Math.max(TAKE, lost - 1 / 24));
-          throw new HumanRefusal({
+          throw new AutoMovieMotionHumanRefusal({
             kind: "reach",
             axis: "handle",
             value: swing(lost),

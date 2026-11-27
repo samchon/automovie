@@ -25,7 +25,7 @@ import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotion
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
 import { HumanWornItem } from "../../dressing/internal/HumanWornItem";
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { humanCaneSweepTouches } from "./humanCaneSweepTouches";
@@ -84,7 +84,7 @@ function planHumanCaneSweep(
   const carrier: IAutoMovieMotionHumanActionContext["carrier"] =
     context.carrier;
   if (carrier === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "base",
       axis: "carrier",
       value: null,
@@ -103,7 +103,7 @@ function planHumanCaneSweep(
       (a: IAutoMovieAffordance): boolean => a.id === id,
     );
     if (found === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "affordance",
         axis: "prop",
         value: p.prop,
@@ -181,7 +181,7 @@ function planHumanCaneSweep(
     const drop: number = hand.y - height;
     const ahead2: number = length * length - drop * drop - lateral * lateral;
     if (ahead2 <= 0)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "affordance",
         axis: "prop",
         value: p.prop,

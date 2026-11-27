@@ -19,7 +19,7 @@ import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionCloc
 import { AutoMovieMotionInterval } from "../../compose/internal/AutoMovieMotionInterval";
 import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFreedomChoice } from "../../posture/internal/HumanFreedomChoice";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { StrikingBlade } from "../../striking/internal/StrikingBlade";
@@ -150,7 +150,7 @@ export namespace HumanSwordParry {
     const attack: IAutoMovieMotionHumanPlacedAction = context.action(p.against);
     const theirs: string | undefined = attack.plan.wields?.prop;
     if (theirs === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "participant",
         axis: "against",
         value: p.against,
@@ -172,7 +172,7 @@ export namespace HumanSwordParry {
     const tip: IAutoMovieMotionHumanProp["points"][string] | undefined =
       held.prop.points.point;
     if (tip === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "affordance",
         axis: "against",
         value: `${theirs}.point`,

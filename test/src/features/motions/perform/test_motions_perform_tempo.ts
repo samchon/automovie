@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 import {
   HumanPerformanceTempo,
-  HumanRefusal,
+  AutoMovieMotionHumanRefusal,
 } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
@@ -94,7 +94,7 @@ export async function test_motions_perform_tempo(): Promise<void> {
     stuck.tempos.length === 3 &&
       Math.abs(stuck.tempos[1]! - 4) <= SCALE &&
       Math.abs(stuck.tempos[2]! - 8) <= SCALE &&
-      stuck.error instanceof HumanRefusal &&
+      stuck.error instanceof AutoMovieMotionHumanRefusal &&
       stuck.error.axis === "duration" &&
       stuck.error.kind === "reach" &&
       stuck.error.feasible === null &&
@@ -102,7 +102,7 @@ export async function test_motions_perform_tempo(): Promise<void> {
   );
 
   // 4. Another refusal.
-  const other: HumanRefusal = new HumanRefusal({
+  const other: AutoMovieMotionHumanRefusal = new AutoMovieMotionHumanRefusal({
     kind: "parameter",
     axis: "hold",
     value: -1,
@@ -140,7 +140,7 @@ export async function test_motions_perform_tempo(): Promise<void> {
       HumanPerformanceTempo.slower(other) === undefined &&
       HumanPerformanceTempo.slower(new Error("x")) === undefined &&
       HumanPerformanceTempo.slower(
-        new HumanRefusal({
+        new AutoMovieMotionHumanRefusal({
           kind: "reach",
           axis: "reach",
           value: 0.5,
@@ -153,8 +153,8 @@ export async function test_motions_perform_tempo(): Promise<void> {
 }
 
 /** A speed refusal that had `had` seconds and needs `needs`. */
-function refusal(had: number, needs: number, unit: string = "s"): HumanRefusal {
-  return new HumanRefusal({
+function refusal(had: number, needs: number, unit: string = "s"): AutoMovieMotionHumanRefusal {
+  return new AutoMovieMotionHumanRefusal({
     kind: "reach",
     axis: "duration",
     value: had,

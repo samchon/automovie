@@ -18,7 +18,7 @@ import type { IAutoMovieMotionHumanAuditMeasure } from "./IAutoMovieMotionHumanA
 export namespace IAutoMovieMotionHumanAuditRange {
   /**
    * A motion as this audit reads it: a person's displayed pose at any film
-   * second. `HumanPerformance` is one.
+   * second. `AutoMovieMotionHumanPerformance` is one.
    */
   export interface IPosed {
     /** The motion's length, film seconds. */

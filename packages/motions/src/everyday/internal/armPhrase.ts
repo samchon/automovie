@@ -31,7 +31,7 @@ import { AutoMovieMotionHumanTouchEffector } from "../../compose/internal/AutoMo
 import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
 import { handToFaceMirrored } from "../../daily/internal/handToFaceMirrored";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { HumanHandDirection } from "../../posture/internal/HumanHandDirection";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -93,7 +93,7 @@ export namespace armPhrase {
       p.held !== undefined &&
       (sides.length !== 1 || holds[sides[0]!] !== p.held)
     )
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "base",
         axis: "held",
         value: p.held,
@@ -104,7 +104,7 @@ export namespace armPhrase {
         fix: "take the prop up in that hand first",
       });
     if (p.point !== undefined && p.held === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "base",
         axis: "point",
         value: p.point,

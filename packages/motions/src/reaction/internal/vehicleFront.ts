@@ -9,7 +9,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * A moving car's front as a struck or diving pedestrian meets it, read in the
@@ -284,8 +284,8 @@ export namespace vehicleFront {
    * Parameter reason: Why.
    * Returns: The refusal.
    */
-  export function refusal(vehicle: string, reason: string): HumanRefusal {
-    return new HumanRefusal({
+  export function refusal(vehicle: string, reason: string): AutoMovieMotionHumanRefusal {
+    return new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "vehicle",
       value: vehicle,

@@ -6,7 +6,7 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanTiming,
-  HumanRefusal,
+  AutoMovieMotionHumanRefusal,
   wardrobeHands,
 } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
@@ -52,12 +52,12 @@ export function test_motions_dressing_wardrobe(): void {
   assert.throws(
     () => wardrobeHands.sleeveMount("coat", 0.121),
     (error: unknown): boolean =>
-      error instanceof HumanRefusal && error.axis === "prop" && error.value === "coat",
+      error instanceof AutoMovieMotionHumanRefusal && error.axis === "prop" && error.value === "coat",
   );
   assert.throws(
     () => wardrobeHands.closureHand("right", "coat"),
     (error: unknown): boolean =>
-      error instanceof HumanRefusal && error.axis === "side" && error.value === "right",
+      error instanceof AutoMovieMotionHumanRefusal && error.axis === "side" && error.value === "right",
   );
 
   // 2. Sites.
@@ -88,7 +88,7 @@ export function test_motions_dressing_wardrobe(): void {
       wardrobeHands.site(jacket, id, kind);
       return false;
     } catch (error: unknown) {
-      return error instanceof HumanRefusal && error.axis === "opening";
+      return error instanceof AutoMovieMotionHumanRefusal && error.axis === "opening";
     }
   };
   TestValidator.predicate(
@@ -136,7 +136,7 @@ export function test_motions_dressing_wardrobe(): void {
   try {
     wardrobeHands.middle(opening({ x: 0, y: 0, z: 0, w: 1 }));
   } catch (error: unknown) {
-    narrow = error instanceof HumanRefusal && error.axis === "opening";
+    narrow = error instanceof AutoMovieMotionHumanRefusal && error.axis === "opening";
   }
   TestValidator.predicate(
     "the middles",
@@ -229,7 +229,7 @@ export function test_motions_dressing_wardrobe(): void {
   TestValidator.equals(
     "the refusals",
     ["opening", "reach", "base", "side"].map((axis: string) => {
-      const r: HumanRefusal = wardrobeHands.refusal(axis, 0.3, `no ${axis}`);
+      const r: AutoMovieMotionHumanRefusal = wardrobeHands.refusal(axis, 0.3, `no ${axis}`);
       return [r.kind, r.axis, r.value, r.reason];
     }),
     [

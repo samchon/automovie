@@ -4,7 +4,7 @@ import type {
   IAutoMovieMotionHumanProp,
   IAutoMoviePhysicalShape,
 } from "@automovie/interface";
-import { HumanObject } from "@automovie/motions";
+import { AutoMovieMotionHumanObject } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeExtent } from "../../internal/archetypeExtent";
@@ -86,7 +86,7 @@ export function test_archetype_scenic_standard(): void {
         close(grip.frame.translation.y - grip.length! / 2, shaft.low) &&
         close(grip.frame.translation.y + grip.length! / 2, panel.low),
     );
-    const prop: IAutoMovieMotionHumanProp = HumanObject.prop(
+    const prop: IAutoMovieMotionHumanProp = AutoMovieMotionHumanObject.prop(
       "standard",
       model,
       {

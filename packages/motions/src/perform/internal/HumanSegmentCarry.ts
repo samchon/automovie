@@ -11,7 +11,7 @@ import type {
 } from "@automovie/interface";
 
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanArmTrajectoryTerms } from "../../posture/internal/HumanArmTrajectoryTerms";
 import { HumanLimbFit } from "../../posture/internal/HumanLimbFit";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -183,7 +183,7 @@ export namespace HumanSegmentCarry {
     const miss: number =
       Vector3.distance(map.get(hand)!.worldPosition, centre) * 1000;
     if (miss > HumanArmTrajectoryTerms.TOLERANCE)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "carry",
         value: miss,

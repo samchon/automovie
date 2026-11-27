@@ -27,7 +27,7 @@ import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMoti
 import { prepareHumanPostureCorrection } from "../../compose/internal/prepareHumanPostureCorrection";
 import { HumanBalance } from "../../everyday/internal/HumanBalance";
 import { prepareGroundedBalance } from "../../everyday/internal/prepareGroundedBalance";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanPhysics } from "../../law/internal/HumanPhysics";
 import { HumanArmTrajectoryTerms } from "../../posture/internal/HumanArmTrajectoryTerms";
@@ -240,7 +240,7 @@ export namespace legTouch {
         if (residual <= TOLERANCE || !(residual < before)) break;
       }
       if (!(Vector3.distance(shift, over) <= SHIFT) || !(residual <= TOLERANCE))
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "reach",
           axis: "target",
           value: `${(Vector3.distance(knee, initial) * 1000).toFixed(0)} mm`,

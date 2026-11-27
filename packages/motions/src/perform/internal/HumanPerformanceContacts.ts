@@ -9,7 +9,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanColliders } from "../../posture/internal/HumanColliders";
 import { StrikingWeapon } from "../../striking/internal/StrikingWeapon";
 import { HumanPerformanceContactBodies } from "./HumanPerformanceContactBodies";
@@ -66,7 +66,7 @@ export namespace HumanPerformanceContacts {
         held.takenBy = segment.entry;
         if (riding) held.riding = true;
       } else if (HumanSegment.drives(plan, held.side))
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "affordance",
           axis: "hand",
           value: held.side,

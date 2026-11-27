@@ -25,7 +25,7 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { bindHumanSimulationGrips } from "./bindHumanSimulationGrips";
 import { coupleHumanSimulationGrips } from "./coupleHumanSimulationGrips";
 import { placeHumanSimulationColliders } from "./placeHumanSimulationColliders";
@@ -425,8 +425,8 @@ export namespace HumanPerformanceSimulation {
   /*
    * A refusal of a window's term.
    */
-  function refusal(axis: string, value: unknown, reason: string): HumanRefusal {
-    return new HumanRefusal({
+  function refusal(axis: string, value: unknown, reason: string): AutoMovieMotionHumanRefusal {
+    return new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis,
       value,

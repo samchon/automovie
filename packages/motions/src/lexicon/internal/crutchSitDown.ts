@@ -24,7 +24,7 @@ import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotion
 import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
 import { seated } from "../../everyday/internal/seated";
 import { sit } from "../../everyday/internal/sit";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanArmGeometry } from "../../posture/internal/HumanArmGeometry";
 import { HumanArmWristShell } from "../../posture/internal/HumanArmWristShell";
 import { HumanHand } from "../../posture/internal/HumanHand";
@@ -69,7 +69,7 @@ export function crutchSitDown(
   const seat: IAutoMovieMotionHumanSeated.ISeat | undefined =
     context.params.seat;
   if (seat === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "seat",
       value: null,

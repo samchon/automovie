@@ -21,7 +21,7 @@ import type {
 
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { DanceFootwork } from "./DanceFootwork";
 import { ExerciseKey } from "./ExerciseKey";
 
@@ -280,7 +280,7 @@ export namespace stiltWalk {
         read.prop.affordances ?? []
       ).find((a: IAutoMovieAffordance): boolean => a.id === id);
       if (found === undefined)
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "affordance",
           axis: "stilts",
           value: subject,
@@ -298,7 +298,7 @@ export namespace stiltWalk {
     const off: number = Math.hypot(at.x - foot.x, at.z - foot.z);
     const high: number = Math.abs(at.y - ankle - foot.y);
     if (off > ON + 0.1 || high > ON)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "base",
         axis: "stilts",
         value: subject,

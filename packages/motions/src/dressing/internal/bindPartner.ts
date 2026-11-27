@@ -13,7 +13,7 @@ import type {
 } from "@automovie/interface";
 
 import { armPhrase } from "../../everyday/internal/armPhrase";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * Bind another performer with a held restraint. The binder's hand carries the
@@ -47,7 +47,7 @@ function planBindPartner(
 ): IAutoMovieMotionHumanActionPlan {
   const link: IAutoMovieMotionHumanBindPartner.ILink = context.params.link;
   if ((link.region === undefined) === (link.target === undefined))
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "link",
       value: link.region ?? "none",
@@ -55,7 +55,7 @@ function planBindPartner(
       fix: "name either the partner's other region or a scene target",
     });
   if (!(link.slack >= 0))
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "link.slack",
       value: link.slack,
@@ -68,7 +68,7 @@ function planBindPartner(
   const other: AutoMovieHumanoidBone | undefined =
     link.region === undefined ? undefined : regions[link.region].bone;
   if (other === worn)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "link.region",
       value: link.region!,

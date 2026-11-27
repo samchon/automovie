@@ -10,7 +10,7 @@ import type {
   IAutoMoviePose,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { courseArmGoal } from "./courseArmGoal";
@@ -125,7 +125,7 @@ export function fitClearArmPose(
       posture: coursed.posture(relax),
     };
   } catch (error) {
-    if (error instanceof HumanRefusal) return { clear: false, refusal: error };
+    if (error instanceof AutoMovieMotionHumanRefusal) return { clear: false, refusal: error };
     throw error;
   }
 }
@@ -227,7 +227,7 @@ export namespace fitClearArmPose {
     /*
      * The planner's refusal.
      */
-    refusal: HumanRefusal;
+    refusal: AutoMovieMotionHumanRefusal;
   }
 
   /*

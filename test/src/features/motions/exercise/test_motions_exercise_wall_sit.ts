@@ -6,7 +6,7 @@ import type {
   IAutoMovieMotionHumanProp,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanChain, HumanPerformance } from "@automovie/motions";
+import { AutoMovieMotionHumanChain, AutoMovieMotionHumanPerformance } from "@automovie/motions";
 import {
   HumanColliders,
   workout,
@@ -42,9 +42,9 @@ export async function test_motions_exercise_wall_sit(): Promise<void> {
   );
 
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
-  const chain = HumanChain.extend({ workout });
-  const build = (prop?: IAutoMovieMotionHumanProp): HumanPerformance =>
-    new HumanPerformance({
+  const chain = AutoMovieMotionHumanChain.extend({ workout });
+  const build = (prop?: IAutoMovieMotionHumanProp): AutoMovieMotionHumanPerformance =>
+    new AutoMovieMotionHumanPerformance({
       seed: "wall sit",
       performers: [
         {
@@ -66,7 +66,7 @@ export async function test_motions_exercise_wall_sit(): Promise<void> {
           : { on: { prop: "wall", affordance: "face" } }),
       }).node,
     });
-  const unloaded: HumanPerformance = build();
+  const unloaded: AutoMovieMotionHumanPerformance = build();
   const sample: number = 1.6;
   const rear: IAutoMovieVector3 = { x: 0, y: 0, z: -1 };
   const torso: ReadonlySet<AutoMovieHumanoidBone> = new Set([
@@ -74,7 +74,7 @@ export async function test_motions_exercise_wall_sit(): Promise<void> {
     "spine",
     "chest",
   ]);
-  const outside = (film: HumanPerformance): number =>
+  const outside = (film: AutoMovieMotionHumanPerformance): number =>
     Math.min(
       ...HumanColliders.placed(body, film.bones("actor", sample))
         .filter(({ bone }): boolean => torso.has(bone))
@@ -113,7 +113,7 @@ export async function test_motions_exercise_wall_sit(): Promise<void> {
       ],
     };
   };
-  const loaded: HumanPerformance = build(panel(90));
+  const loaded: AutoMovieMotionHumanPerformance = build(panel(90));
   const contact: IAutoMovieMotionHumanContactWindow | undefined = loaded
     .segments("actor")[0]!
     .plan.contacts.find((item): boolean => item.part === "back");

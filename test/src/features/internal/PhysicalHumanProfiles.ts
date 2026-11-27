@@ -17,7 +17,7 @@ import { repositoryRoot } from "./repositoryRoot";
  * - `m-tall`: `AutoMovieHumanCanonicalBody.prepare` for the tall man's parameters
  *   (`motionHumanBody("m-tall")`), a second body size with no recording.
  * - `m-average.stand.json`: the average man's fitted public Stand, world poses by
- *   bone: `HumanChain.subject(id).stand({ hold: 1, sway: 0 })` read halfway
+ *   bone: `AutoMovieMotionHumanChain.subject(id).stand({ hold: 1, sway: 0 })` read halfway
  *   from its settling to its end and fitted by `AutoMovieHumanPhysicalStandingPose.fit`
  *   (floor 0, 32 iterations, tolerance 0.000025), as
  *   `test_physical_authored_locomotion` fitted it.

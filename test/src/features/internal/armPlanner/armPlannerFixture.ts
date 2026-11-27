@@ -15,7 +15,7 @@ import {
   HumanArmTrajectoryContext,
   HumanArmTrajectoryModel,
   HumanArmTrajectoryPairs,
-  HumanRefusal,
+  AutoMovieMotionHumanRefusal,
 } from "@automovie/motions/internal";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -217,7 +217,7 @@ export namespace armPlannerFixture {
       solve(loaded);
     } catch (error: unknown) {
       if (
-        error instanceof HumanRefusal &&
+        error instanceof AutoMovieMotionHumanRefusal &&
         error.kind === "reach" &&
         error.axis === "duration" &&
         error.value === span &&

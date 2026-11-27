@@ -10,7 +10,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanBody } from "../../../body/AutoMovieMotionHumanBody";
-import { HumanPerformance } from "../../../perform/HumanPerformance";
+import { AutoMovieMotionHumanPerformance } from "../../../perform/AutoMovieMotionHumanPerformance";
 import { poseBones } from "../../../posture/internal/poseBones";
 import type { IMotionCaptureCase } from "../../internal/IMotionCaptureCase";
 import type { humanPolygonMan } from "../../internal/humanPolygonMan";
@@ -70,7 +70,7 @@ export namespace everydayCaseKit {
     chain: IAutoMovieMotionHumanChain,
     props: readonly IAutoMovieMotionHumanProp[] = [],
   ): IAutoMovieMotionHumanPerformance {
-    return new HumanPerformance({
+    return new AutoMovieMotionHumanPerformance({
       seed: "everyday",
       props: [...props],
       performers: people.map(([man, at, yaw], i: number) => ({

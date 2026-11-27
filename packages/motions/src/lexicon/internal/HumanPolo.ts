@@ -19,7 +19,7 @@ import type {
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanTrunk } from "../../compose/internal/AutoMovieMotionHumanTrunk";
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanBoneGroups } from "../../posture/internal/HumanBoneGroups";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
@@ -70,7 +70,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   const params: IAutoMovieMotionHumanPolo.IPolo = context.params;
   const entered: IAutoMovieMotionHumanBase = context.entry.base;
   if (entered.kind !== "seated")
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "base",
       axis: "base",
       value: entered.kind,
@@ -223,7 +223,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
 
   const deviated: number = HumanPoloHand.deviation(hand, d, radius);
   if (!(deviated >= radialEnd && deviated <= ulnarEnd))
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "ball",
       value: radius,
@@ -304,7 +304,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     const t: number = top + ((finish - top) * k) / 16;
     const p: IAutoMovieVector3 = station(t).head;
     if (Math.abs(p.x) < flank && p.y < 0)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "side",
         value: params.side,

@@ -10,7 +10,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanMaterialContact } from "../../posture/internal/HumanMaterialContact";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -166,8 +166,8 @@ export namespace prepareSeatedMaterial {
     axis: "seat" | "back",
     value: string | undefined,
     detail?: string,
-  ): HumanRefusal {
-    return new HumanRefusal({
+  ): AutoMovieMotionHumanRefusal {
+    return new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis,
       value,

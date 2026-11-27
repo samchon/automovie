@@ -1,6 +1,6 @@
 import { AutoMovieArchetypeBoat } from "@automovie/archetypes";
 import { RigidCarrierSample } from "@automovie/engine";
-import { HumanObject } from "@automovie/motions";
+import { AutoMovieMotionHumanObject } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -29,7 +29,7 @@ export function test_motions_perform_object_rowboat_binding(): void {
   for (const sea of [undefined, { height: 1, seed: 7 }] as const) {
     const ride: ReturnType<typeof AutoMovieArchetypeBoat.row> = AutoMovieArchetypeBoat.row(boat, course, { sea });
     const binding: ReturnType<typeof AutoMovieArchetypeBoat.bind> = AutoMovieArchetypeBoat.bind(ride, start);
-    const actual: ReturnType<typeof HumanObject.prop> = HumanObject.prop(
+    const actual: ReturnType<typeof AutoMovieMotionHumanObject.prop> = AutoMovieMotionHumanObject.prop(
       "boat",
       boat,
       binding.motion(0),
@@ -59,7 +59,7 @@ export function test_motions_perform_object_rowboat_binding(): void {
         (sea === undefined),
     );
 
-    const wrapped: ReturnType<typeof HumanObject.prop> = HumanObject.prop(
+    const wrapped: ReturnType<typeof AutoMovieMotionHumanObject.prop> = AutoMovieMotionHumanObject.prop(
       "other",
       boat,
       binding.motion(0),

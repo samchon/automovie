@@ -10,7 +10,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import type { HumanGrasp } from "./HumanGrasp";
 
 /*
@@ -33,7 +33,7 @@ export function HumanGraspTarget(
     (value: IAutoMovieAffordance): boolean => value.id === id,
   );
   if (affordance === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "handle",
       value: id,
@@ -48,7 +48,7 @@ export function HumanGraspTarget(
     });
   const shapes: readonly IAutoMoviePhysicalShape[] = prop.shapes ?? [];
   if (shapes.length === 0)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "prop",
       value: subject,

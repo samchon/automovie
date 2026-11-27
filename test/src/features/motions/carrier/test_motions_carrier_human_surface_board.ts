@@ -8,7 +8,7 @@ import type {
 } from "@automovie/interface";
 import {
   HumanFoot,
-  HumanRefusal,
+  AutoMovieMotionHumanRefusal,
   HumanSurfaceBoard,
 } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
@@ -107,7 +107,7 @@ export async function test_motions_carrier_human_surface_board(): Promise<void> 
     try {
       run();
     } catch (error: unknown) {
-      if (error instanceof HumanRefusal) return error.axis;
+      if (error instanceof AutoMovieMotionHumanRefusal) return error.axis;
     }
     return undefined;
   };

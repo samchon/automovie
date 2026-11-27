@@ -8,7 +8,7 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanObject } from "@automovie/motions";
+import { AutoMovieMotionHumanObject } from "@automovie/motions";
 import {
   HumanPerformancePropSnapshot,
   HumanPerformanceSite,
@@ -38,7 +38,7 @@ export function test_motions_perform_prop_snapshot(): void {
       travel: Readonly<Record<string, number>>,
     ): IAutoMovieMotionHumanObject.IModel => model(travel.slide ?? 1 / 8),
   };
-  const moving: IAutoMovieMotionHumanProp = HumanObject.prop(
+  const moving: IAutoMovieMotionHumanProp = AutoMovieMotionHumanObject.prop(
     "moving",
     stateful,
     atRest,
@@ -55,12 +55,12 @@ export function test_motions_perform_prop_snapshot(): void {
         : model(seconds / 8, seconds < 3);
     },
   );
-  const articulated: IAutoMovieMotionHumanProp = HumanObject.prop(
+  const articulated: IAutoMovieMotionHumanProp = AutoMovieMotionHumanObject.prop(
     "articulated",
     stateful,
     atRest,
   );
-  const rigid: IAutoMovieMotionHumanProp = HumanObject.prop(
+  const rigid: IAutoMovieMotionHumanProp = AutoMovieMotionHumanObject.prop(
     "rigid",
     model(1 / 8),
     atRest,

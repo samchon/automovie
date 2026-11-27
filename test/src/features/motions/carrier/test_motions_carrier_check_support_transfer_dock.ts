@@ -5,7 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanRefusal,
+  AutoMovieMotionHumanRefusal,
   checkSupportTransferDock,
 } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
@@ -76,7 +76,7 @@ export function test_motions_carrier_check_support_transfer_dock(): void {
     try {
       checkSupportTransferDock(from, to, 0, 1, coMoving);
     } catch (error: unknown) {
-      if (error instanceof HumanRefusal) return error.axis;
+      if (error instanceof AutoMovieMotionHumanRefusal) return error.axis;
     }
     return "admitted";
   };

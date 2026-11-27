@@ -13,9 +13,9 @@ import type {
 import {
   AutoMovieMotionHumanStance,
   AutoMovieMotionHumanSupport,
-  HumanChain,
-  HumanObject,
-  HumanPerformance,
+  AutoMovieMotionHumanChain,
+  AutoMovieMotionHumanObject,
+  AutoMovieMotionHumanPerformance,
 } from "@automovie/motions";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -24,7 +24,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function railShuttlePassenger(
   environment: IAutoMovieEnvironment,
   exitFrom: number,
-): { film: HumanPerformance; actor: IAutoMovieStageActor } {
+): { film: AutoMovieMotionHumanPerformance; actor: IAutoMovieStageActor } {
   const carrier: string = "rail/shuttle/carrier";
   const car: IAutoMovieModel = environment.runtime.props.find(
     (prop) => prop.node === carrier,
@@ -79,12 +79,12 @@ export function railShuttlePassenger(
       }),
   };
   const threshold = { prop: carrier, surface: "threshold" };
-  const film: HumanPerformance = new HumanPerformance({
+  const film: AutoMovieMotionHumanPerformance = new AutoMovieMotionHumanPerformance({
     seed: "rail-passenger",
     props: [
       origin.prop,
       destination.prop,
-      HumanObject.prop(carrier, car, placement(0), placement),
+      AutoMovieMotionHumanObject.prop(carrier, car, placement(0), placement),
     ],
     laws: [crossing, wait],
     performers: [
@@ -96,7 +96,7 @@ export function railShuttlePassenger(
         proficiency: { level: "trained" },
       },
     ],
-    composition: HumanChain.subject(actor.node)
+    composition: AutoMovieMotionHumanChain.subject(actor.node)
       .stand({ hold: 0.8, sway: 0, on: { prop: origin.prop.subject } })
       .registered(crossing.name, {
         from: { prop: origin.prop.subject, surface: "floor" },
@@ -161,7 +161,7 @@ function platform(
     y: patch.height.value,
     z: (minZ + maxZ) / 2,
   };
-  const prop: IAutoMovieMotionHumanProp = HumanObject.prop(
+  const prop: IAutoMovieMotionHumanProp = AutoMovieMotionHumanObject.prop(
     id,
     {
       affordances: [

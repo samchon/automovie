@@ -12,7 +12,7 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanChain, HumanPerformance } from "@automovie/motions";
+import { AutoMovieMotionHumanChain, AutoMovieMotionHumanPerformance } from "@automovie/motions";
 
 import { PhysicalSupportFixtures } from "./PhysicalSupportFixtures";
 
@@ -168,7 +168,7 @@ export namespace PhysicalDisturbance {
   /** The canonical Human in its public Stand, handed over to physics. */
   export function standing(human: IAutoMovieMotionHumanBody): ISubject {
     const profile: IAutoMoviePhysicalProfile = human.profile;
-    const performance: HumanPerformance = new HumanPerformance({
+    const performance: AutoMovieMotionHumanPerformance = new AutoMovieMotionHumanPerformance({
       seed: "disturbance",
       performers: [
         {
@@ -179,7 +179,7 @@ export namespace PhysicalDisturbance {
           proficiency: { level: "trained" },
         },
       ],
-      composition: HumanChain.subject("a").stand({ hold: 1, sway: 0 }).node,
+      composition: AutoMovieMotionHumanChain.subject("a").stand({ hold: 1, sway: 0 }).node,
     });
     // The pose's bones by name, which the profile's segments are keyed by.
     const pose = performance.bones("a", 0.9);

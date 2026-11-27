@@ -14,8 +14,8 @@ import type {
 import {
   AutoMovieMotionHumanStance,
   AutoMovieMotionHumanSupport,
-  HumanChain,
-  HumanPerformance,
+  AutoMovieMotionHumanChain,
+  AutoMovieMotionHumanPerformance,
 } from "@automovie/motions";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -36,7 +36,7 @@ export function environmentLiftActor(input: {
   lift: AutoMovieEnvironment.ILiftDefinition;
   schedule: readonly AutoMovieEnvironment.ILiftKey[];
   node?: string;
-}): { film: HumanPerformance; actor: IAutoMovieStageActor } {
+}): { film: AutoMovieMotionHumanPerformance; actor: IAutoMovieStageActor } {
   const { environment, id, lift } = input;
   const item: string = id.slice(id.lastIndexOf("/") + 1);
   const ground: IAutoMovieTransform = environment.anchors[`${item}/ground`]!;
@@ -165,7 +165,7 @@ export function environmentLiftActor(input: {
     lead: "right",
     landing: { x: passageX, z: 0.14 - landingDepth / 2 },
   };
-  const film: HumanPerformance = new HumanPerformance({
+  const film: AutoMovieMotionHumanPerformance = new AutoMovieMotionHumanPerformance({
     seed: "environment-lift",
     props,
     laws: [walkAcross, wait],
@@ -178,7 +178,7 @@ export function environmentLiftActor(input: {
         proficiency: { level: "trained" },
       },
     ],
-    composition: HumanChain.subject(node)
+    composition: AutoMovieMotionHumanChain.subject(node)
       .stand({ hold: 1.1, sway: 0, on: { prop: lowerPad } })
       .over((onPad) =>
         onPad.touch({

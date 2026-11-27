@@ -15,7 +15,7 @@ import type {
 
 import { operate } from "../../affordance/internal/operate";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { drawFromCarrierPulling } from "./drawFromCarrierPulling";
 
 /*
@@ -71,7 +71,7 @@ export function drawFromCarrierPivot(
       (a: IAutoMovieAffordance): boolean => a.id === from.slide,
     );
     if (slide === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "affordance",
         axis: "from.slide",
         value: from.slide,

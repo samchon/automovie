@@ -1,10 +1,10 @@
 import { DEFAULT_HUMANOID_ROM, Quaternion, Transform, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { IAutoMovieAffordance, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanChain } from "../../chain/HumanChain";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
 import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
 import { handshake } from "../../handling/internal/handshake";
-import { HumanPerformance } from "../../perform/HumanPerformance";
+import { AutoMovieMotionHumanPerformance } from "../../perform/AutoMovieMotionHumanPerformance";
 import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { MotionBodies } from "../internal/MotionBodies";
 import type { humanPolygonMan } from "../internal/humanPolygonMan";
@@ -88,7 +88,7 @@ export function handoverCases(): IMotionCaptureCase[] {
       handshake.gap(a, b) +
       handshake.stance(a).sternum +
       handshake.stance(b).sternum;
-    const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
+    const performance: IAutoMovieMotionHumanPerformance = new AutoMovieMotionHumanPerformance({
       seed: `handling-handover-${first}-${second}`,
       performers: [
         {
@@ -107,11 +107,11 @@ export function handoverCases(): IMotionCaptureCase[] {
         },
       ],
       props: [bottle],
-      composition: HumanChain.pair(
-        HumanChain.subject("a")
+      composition: AutoMovieMotionHumanChain.pair(
+        AutoMovieMotionHumanChain.subject("a")
           .stand({ hold: 0.3 })
           .pickUp({ prop: "bottle", handle: "low", hand: "right" }),
-        HumanChain.subject("b").stand({ hold: 0.3 }),
+        AutoMovieMotionHumanChain.subject("b").stand({ hold: 0.3 }),
       ).handOver({
         prop: "bottle",
         handle: "high",

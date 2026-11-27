@@ -11,7 +11,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * Construct the flight state from the displayed prop origin at release. An
@@ -39,7 +39,7 @@ export function launchPropProjectile(
         !(sphere.tangentialFriction >= 0)) ||
       (launch.attitude !== undefined && launch.attitude.kind !== "fixed"))
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "sphere",
       value: sphere,
@@ -49,7 +49,7 @@ export function launchPropProjectile(
     });
   const aim: IAutoMovieMotionPropLaunch["aim"] = launch.aim;
   if (aim !== undefined && (drag !== undefined || !(aim.seconds > 0)))
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "aim",
       value: aim,

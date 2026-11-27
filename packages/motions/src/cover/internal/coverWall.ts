@@ -7,7 +7,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * A staged wall's face as cover reads it: the face's plane through the prop's
@@ -104,8 +104,8 @@ export namespace coverWall {
     axis: string,
     value: unknown,
     reason: string,
-  ): HumanRefusal {
-    return new HumanRefusal({
+  ): AutoMovieMotionHumanRefusal {
+    return new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis,
       value,

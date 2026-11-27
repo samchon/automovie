@@ -9,7 +9,7 @@ import type {
 import { AutoMovieMotionHumanTarget } from "../../compose/internal/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { StrikingTarget } from "../../striking/internal/StrikingTarget";
 import { ReactionSource } from "./ReactionSource";
 import { staggerBounds } from "./staggerBounds";
@@ -117,7 +117,7 @@ export namespace staggerRecovery {
   export function refusal(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStagger.IParams>,
     admitted: IAdmitted,
-  ): HumanRefusal {
+  ): AutoMovieMotionHumanRefusal {
     const { STEPS, VERIFIED, RESOLUTION }: typeof staggerBounds = staggerBounds;
     const speed: number = context.params.speed;
     const caught: number = staggerLimit(
@@ -127,7 +127,7 @@ export namespace staggerRecovery {
       speed,
       admitted.fixed,
     );
-    return new HumanRefusal({
+    return new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "speed",
       value: speed,

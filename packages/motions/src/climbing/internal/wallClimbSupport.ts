@@ -4,10 +4,10 @@ import type {
   IAutoMovieMotionHumanWallClimb,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
- * Build the stances for `HumanChain.support` from a route on fixed wall holds.
+ * Build the stances for `AutoMovieMotionHumanChain.support` from a route on fixed wall holds.
  * Each stance owns at least three distinct holds. Releasing one foot before the
  * other takes its hold stages a swap without sharing a contact point. Hand
  * targets locate the grip socket and foot targets locate the toes. Quaine and
@@ -44,7 +44,7 @@ export function wallClimbSupport(
       const other: IAutoMovieMotionHumanClimbLadder.Limb | undefined =
         occupied.get(id);
       if (other !== undefined)
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "parameter",
           axis: move === undefined ? "start" : "moves",
           value: target,
@@ -74,7 +74,7 @@ export function wallClimbSupport(
             holds[limb] === undefined,
         )
       )
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "parameter",
           axis: "moves",
           value: move.limb,

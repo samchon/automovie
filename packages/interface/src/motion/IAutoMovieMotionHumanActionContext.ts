@@ -158,7 +158,7 @@ export interface IAutoMovieMotionHumanActionContext<P = object> {
    * whichever role is planned first, and the same whichever that is. With no
    * partner it is this role's own meeting on its default places, which is not
    * solid. It may be read at plan time, so the partners' earlier actions must
-   * be placed first, as `HumanChain.mutual` places them.
+   * be placed first, as `AutoMovieMotionHumanChain.mutual` places them.
    *
    * @param kind The kind of mutual action.
    * @param role This performer's role in it.
@@ -169,7 +169,7 @@ export interface IAutoMovieMotionHumanActionContext<P = object> {
    *   when absent.
    * @returns The meeting.
    * @throws {Error} When no such performer exists, or the kind lacks a role.
-   * @throws {HumanRefusal} When the window closes before the contact can be
+   * @throws {AutoMovieMotionHumanRefusal} When the window closes before the contact can be
    *   made.
    */
   meeting(
@@ -191,7 +191,7 @@ export interface IAutoMovieMotionHumanActionContext<P = object> {
    *
    * @param track The track's name.
    * @returns The track's instants, each with its event name and film second.
-   * @throws {HumanRefusal} A `participant` refusal when the performance has no
+   * @throws {AutoMovieMotionHumanRefusal} A `participant` refusal when the performance has no
    *   such track.
    */
   cue(track: string): readonly IAutoMovieScheduleCue[];

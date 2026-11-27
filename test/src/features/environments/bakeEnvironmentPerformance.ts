@@ -6,7 +6,7 @@ import type {
   IAutoMovieQuaternion,
   IAutoMovieStageActor,
 } from "@automovie/interface";
-import type { HumanPerformance } from "@automovie/motions";
+import type { AutoMovieMotionHumanPerformance } from "@automovie/motions";
 
 /**
  * Sample a composed Human performance on the capture clock and express its
@@ -14,7 +14,7 @@ import type { HumanPerformance } from "@automovie/motions";
  * motion baked for the ordinary enact verb.
  */
 export function bakeEnvironmentPerformance(
-  film: HumanPerformance,
+  film: AutoMovieMotionHumanPerformance,
   actor: IAutoMovieStageActor,
   seconds: number,
 ): IAutoMovieMotion {

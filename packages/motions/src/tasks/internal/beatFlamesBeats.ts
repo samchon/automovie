@@ -1,7 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * The beats that smother flames on a region: the cloth's face comes down to
@@ -21,7 +21,7 @@ export function beatFlamesBeats(
 ): beatFlamesBeats.IBeats {
   const beats: number = Math.round(count ?? beatFlamesBeats.COUNT);
   if (!(beats > 0))
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "count",
       value: beats,

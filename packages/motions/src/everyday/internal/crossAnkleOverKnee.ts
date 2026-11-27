@@ -11,7 +11,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { crossAnkleEntry } from "./crossAnkleEntry";
 import { fitSeatedAnkleCross } from "./fitSeatedAnkleCross";
@@ -123,7 +123,7 @@ function planCrossAnkleOverKnee(
   const release: number = travel + hold;
   const duration: number = release + travel;
   if (!(travel > 0 && release < duration))
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "hold",
       value: hold,
@@ -138,7 +138,7 @@ function planCrossAnkleOverKnee(
   );
   const path = fitSeatedAnkleCross(body, entry, side, outward, FIT_GAP);
   if (path === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "side",
       value: side,

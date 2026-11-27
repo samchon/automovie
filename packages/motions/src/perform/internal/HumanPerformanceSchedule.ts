@@ -1,7 +1,7 @@
 import { AutoMovieEngineKinematics, AutoMovieEngineScheduleCut, AutoMovieScheduleError, Vector3, AutoMovieEngineMath, AutoMovieEngineSchedule } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieIntent, IAutoMovieIntentTiming, IAutoMovieMotionEvent, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanPerformanceState, IAutoMovieMotionHumanRefusal, IAutoMovieMotionHumanResponse, IAutoMovieMotionHumanSegment, IAutoMovieMotionMeeting, IAutoMovieSchedule, IAutoMovieScheduleAlignment, IAutoMovieScheduleContext, IAutoMovieScheduleCue, IAutoMovieScheduleEntry, IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanResponse } from "../../skill/internal/HumanResponse";
 import { HumanSkill } from "../../skill/internal/HumanSkill";
 import { HumanHitTrack } from "./HumanHitTrack";
@@ -51,7 +51,7 @@ export namespace HumanPerformanceSchedule {
           self.demandAnchor = context.demandAnchor;
           self.meeting = context.meeting;
           try {
-            return HumanRefusal.located(
+            return AutoMovieMotionHumanRefusal.located(
               where,
               (): IAutoMovieIntentTiming =>
                 HumanPerformancePlace.place(
@@ -103,7 +103,7 @@ export namespace HumanPerformanceSchedule {
         ): number => {
           const where: IAutoMovieMotionHumanRefusal.IWhere =
             HumanPerformanceRead.where(self, intent);
-          return HumanRefusal.located(where, (): number =>
+          return AutoMovieMotionHumanRefusal.located(where, (): number =>
             HumanPerformanceSchedule.align(
               self,
               intent,
@@ -189,7 +189,7 @@ export namespace HumanPerformanceSchedule {
         )?.share ??
         (instant === "start" ? 0 : instant === "end" ? 1 : undefined);
       if (share === undefined)
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "parameter",
           axis: "sync",
           value: instant,
@@ -217,7 +217,7 @@ export namespace HumanPerformanceSchedule {
       if (moved === 0) break;
     }
     if (!(moved <= CUT))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "cut",
         axis: "sync",
         value: target,
@@ -240,7 +240,7 @@ export namespace HumanPerformanceSchedule {
         (cue: IAutoMovieScheduleCue): boolean =>
           cue.seconds + anchor.offset >= floor + lead - 1e-9,
       );
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "cut",
         axis: "sync",
         value: target,

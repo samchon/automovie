@@ -5,7 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanCrowd } from "./HumanCrowd";
 import { HumanFormation } from "./HumanFormation";
 
@@ -105,7 +105,7 @@ export function manoeuvreCrossings(
           points[i]!.z - points[j]!.z,
         );
         if (d < floor[i]![j]! - 1e-3)
-          throw new HumanRefusal({
+          throw new AutoMovieMotionHumanRefusal({
             kind: "participant",
             performer: members[i]!.subject,
             axis: `${ensemble.input.id}.manoeuvre`,

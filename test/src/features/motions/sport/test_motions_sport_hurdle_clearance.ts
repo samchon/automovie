@@ -10,7 +10,7 @@ import type {
 } from "@automovie/interface";
 import {
   HumanColliders,
-  HumanRefusal,
+  AutoMovieMotionHumanRefusal,
   crossingClearance,
   poseBones,
   resolveHumanPosture,
@@ -103,7 +103,7 @@ export async function test_motions_sport_hurdle_clearance(): Promise<void> {
         );
         return true;
       } catch (error: unknown) {
-        if (!(error instanceof HumanRefusal) || !error.reason.includes(bone))
+        if (!(error instanceof AutoMovieMotionHumanRefusal) || !error.reason.includes(bone))
           throw error;
         return false;
       }

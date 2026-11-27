@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanHeldWork } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * Admit a held work before any hand moves: it must drive an articulation, move
@@ -20,7 +20,7 @@ export function admitHeldWork(
     params.at === undefined &&
     params.take === undefined
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "drive",
       value: "absent",
@@ -30,7 +30,7 @@ export function admitHeldWork(
       fix: "give `drive`, `at` or `take`",
     });
   if (!(params.duration > 0))
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "duration",
       value: params.duration,

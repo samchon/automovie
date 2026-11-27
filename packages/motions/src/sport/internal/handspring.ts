@@ -22,7 +22,7 @@ import { jump } from "../../actions/internal/jump";
 import { stand } from "../../actions/internal/stand";
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
 import { ExerciseKey } from "../../exercise/internal/ExerciseKey";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanPreparedPlayback } from "../../perform/internal/HumanPreparedPlayback";
 import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
@@ -254,7 +254,7 @@ export namespace handspring {
           row.bears === hands,
       );
     if (down === undefined || wheel.rows.at(-1)!.bears !== hands)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "hands",
         value: surface.height,
@@ -342,7 +342,7 @@ export namespace handspring {
     if (boundMiss < 0) {
       const reached: number = boundMiss + turn;
       const prop: boolean = surface.support.kind === "prop";
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: prop ? "reach" : "base",
         axis: prop ? "on" : "base",
         value: prop ? surface.height : reached,

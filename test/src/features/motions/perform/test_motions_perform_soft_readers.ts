@@ -4,8 +4,8 @@ import type {
   IAutoMovieMotionHumanProp,
   IAutoMovieSoftAnchor,
 } from "@automovie/interface";
-import { HumanObject } from "@automovie/motions";
-import { HumanForce, HumanPerformanceSoft, HumanRefusal } from "@automovie/motions/internal";
+import { AutoMovieMotionHumanObject } from "@automovie/motions";
+import { HumanForce, HumanPerformanceSoft, AutoMovieMotionHumanRefusal } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { standingPerformanceState } from "../../internal/fixtures/standingPerformanceState";
@@ -85,7 +85,7 @@ export async function test_motions_perform_soft_readers(): Promise<void> {
     },
   });
   const cloth: IAutoMovieMotionHumanProp = {
-    ...HumanObject.prop("cloth", { affordances: [] }, {
+    ...AutoMovieMotionHumanObject.prop("cloth", { affordances: [] }, {
       at: { x: 0, y: 0, z: 0 },
       yaw: 0,
     }),
@@ -182,7 +182,7 @@ export async function test_motions_perform_soft_readers(): Promise<void> {
   try {
     HumanPerformanceSoft.at(self, "missing", 0.25);
   } catch (error: unknown) {
-    missing = error instanceof HumanRefusal && error.axis === "prop" &&
+    missing = error instanceof AutoMovieMotionHumanRefusal && error.axis === "prop" &&
       error.feasible?.kind === "alternatives" && error.feasible.values.join() === "cloth";
   }
   TestValidator.predicate("unknown prop reports the available domains", missing);

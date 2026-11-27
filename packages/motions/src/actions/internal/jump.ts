@@ -14,7 +14,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { jumpAirborne } from "./jumpAirborne";
@@ -223,7 +223,7 @@ export namespace jump {
       (s: AutoMovieHumanSide): boolean => entry.feet[s].planted,
     );
     if (planted.length === 0)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "base",
         axis: "base",
         value: null,
@@ -231,7 +231,7 @@ export namespace jump {
         fix: "enter the jump from an action that leaves a foot planted, such as stand or walk",
       });
     if (supportFoot !== undefined && !entry.feet[supportFoot].planted)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "base",
         axis: "takeoffFoot",
         value: supportFoot,

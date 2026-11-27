@@ -1,7 +1,7 @@
 import { Vector3, AutoMovieEnginePhysics, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSkill, IAutoMovieMotionHumanStrikingRecord, IAutoMovieMotionTarget, IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanChain } from "../../chain/HumanChain";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
 import { AutoMovieMotionHumanVariation } from "../../compose/internal/AutoMovieMotionHumanVariation";
 import { HumanColliders } from "../../posture/internal/HumanColliders";
 import { HumanSkill } from "../../skill/internal/HumanSkill";
@@ -145,7 +145,7 @@ const ABDOMEN: IAutoMovieMotionTarget = {
  * The partner's standing guard.
  */
 function waits(seconds: number): IAutoMovieMotionHumanChain {
-  return HumanChain.subject("b").guard({
+  return AutoMovieMotionHumanChain.subject("b").guard({
     duration: seconds,
     facing: { kind: "person", subject: "a", region: "face" },
   });
@@ -155,7 +155,7 @@ function waits(seconds: number): IAutoMovieMotionHumanChain {
  * The striker's guard before a punch.
  */
 function ready(seconds: number = 0.8): IAutoMovieMotionHumanChain {
-  return HumanChain.subject("a").guard({
+  return AutoMovieMotionHumanChain.subject("a").guard({
     duration: seconds,
     facing: { kind: "person", subject: "b", region: "face" },
   });

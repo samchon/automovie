@@ -1,7 +1,7 @@
 import { AutoMovieEngineKinematics, Vector3 } from "@automovie/engine";
 import type { IAutoMovieMotionHumanChain, IAutoMovieMotionHumanGestureStroke, IAutoMovieMotionHumanPerformance, IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanChain } from "../../chain/HumanChain";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
 import { gestureStrokeTables } from "../../everyday/internal/gestureStrokeTables";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
@@ -50,7 +50,7 @@ export function everydayGestureCases(
   ];
   for (const kind of kinds) {
     const performance: IAutoMovieMotionHumanPerformance = one(
-      HumanChain.subject("a").gesture({
+      AutoMovieMotionHumanChain.subject("a").gesture({
         kind,
         ...(kind === "point"
           ? { target: { kind: "point", at: goal, frame: "world" } }

@@ -1,7 +1,7 @@
 import { AutoMovieEngineKinematics } from "@automovie/engine";
 import { Vector3 } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaces, IAutoMovieMotionEvent, IAutoMovieMotionHumanAuditMeasure, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-import { HumanRefusal } from "@automovie/motions";
+import { AutoMovieMotionHumanRefusal } from "@automovie/motions";
 import { AutoMovieMotionHumanAuditPartner, HumanHand } from "@automovie/motions/internal";
 import { strict as assert } from "node:assert";
 
@@ -84,7 +84,7 @@ export function checkFarewellScene(): void {
   assert.throws(
     () => PlaygroundPerformance.build(distant),
     (error: unknown): boolean =>
-      error instanceof HumanRefusal &&
+      error instanceof AutoMovieMotionHumanRefusal &&
       error.performer === "tia" &&
       error.act === "cheekKiss" &&
       error.axis === "region",

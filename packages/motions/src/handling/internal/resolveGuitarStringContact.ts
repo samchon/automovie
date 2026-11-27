@@ -4,7 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * Resolve the crossing of one pitched string with a fret and the place to sound
@@ -61,7 +61,7 @@ export function resolveGuitarStringContact(
       alongBody !== alongFret
     )
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "fret",
       value: [params.fret, params.string],
@@ -107,7 +107,7 @@ export function resolveGuitarStringContact(
     spacing = Math.min(spacing, Math.abs(lateral));
   }
   if (!(spacing > COINCIDENCE && spacing < Infinity))
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "string",
       value: params.string,
@@ -172,7 +172,7 @@ function site(
     found.rides !== undefined ||
     (kind === "bar" && !(found.length! > 0))
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "prop",
       value: id,

@@ -15,7 +15,7 @@ import type {
 
 import { AutoMovieMotionHumanAuditSkin } from "../../audit/internal/AutoMovieMotionHumanAuditSkin";
 import { getUp } from "../../floor/internal/getUp";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { prepareSupportFloor } from "./prepareSupportFloor";
 import { prepareSupportPreference } from "./prepareSupportPreference";
@@ -144,7 +144,7 @@ export namespace support {
             ],
       );
     if (stances.length === 0)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "stances",
         value: 0,
@@ -202,7 +202,7 @@ export namespace support {
         ).point;
       const on: IAutoMovieMotionTarget | undefined = context.params.on;
       if (on === undefined)
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "parameter",
           axis: "on",
           value: c.part,

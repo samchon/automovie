@@ -8,7 +8,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { pushPullLean } from "./pushPullLean";
 import { pushSled } from "./pushSled";
 import { pushSledHandles } from "./pushSledHandles";
@@ -74,7 +74,7 @@ export namespace pushPull {
     const p: IAutoMovieMotionHumanPushPull.IParams = context.params;
     const moves: boolean = p.moves ?? true;
     if (moves && p.to === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "to",
         value: null,
@@ -83,7 +83,7 @@ export namespace pushPull {
         fix: "give `to`, or set `moves: false` with `seconds` for a load that does not move",
       });
     if (!moves && p.duration === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "duration",
         value: null,

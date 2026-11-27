@@ -9,8 +9,8 @@ import type {
 import {
   AutoMovieMotionHumanHandover,
   AutoMovieMotionHumanThrowCatch,
-  HumanChain,
-  HumanObject,
+  AutoMovieMotionHumanChain,
+  AutoMovieMotionHumanObject,
 } from "@automovie/motions";
 import { HumanFoot } from "@automovie/motions/internal";
 
@@ -112,7 +112,7 @@ const handing = (
     a,
     b,
     meeting(a, b),
-    HumanChain.pair(
+    AutoMovieMotionHumanChain.pair(
       S.chain()
         .act("stand", { hold: 0.3, sway: 0 })
         .act("pickUp", { prop: "bottle", handle: "low", hand }),
@@ -167,7 +167,7 @@ const throwing = (
       }),
     ],
     [
-      HumanObject.prop("ball", ball, {
+      AutoMovieMotionHumanObject.prop("ball", ball, {
         at: { x: 0, y: 0, z: 0.3 },
         yaw: 0,
       }),
@@ -266,7 +266,7 @@ export const MOTION_HUMAN_LAW_STAGES_HANDLING: Readonly<
       a,
       b,
       meeting(a, b),
-      HumanChain.pair(
+      AutoMovieMotionHumanChain.pair(
         S.chain().act("stand", { hold: 0.4, sway: 0 }),
         S.chain("b").act("stand", { hold: 0.4, sway: 0 }),
       ).handshake(S.set(pick, "hand") as object).node,
@@ -327,7 +327,7 @@ export const MOTION_HUMAN_LAW_STAGES_HANDLING: Readonly<
         ...S.set(pick, "foot"),
       }),
       [
-        HumanObject.prop("ball", football, {
+        AutoMovieMotionHumanObject.prop("ball", football, {
           at: {
             x: ankle.x,
             y: 0,
@@ -346,7 +346,7 @@ export const MOTION_HUMAN_LAW_STAGES_HANDLING: Readonly<
     const tool: string = pick("tool") ?? "hammer";
     const bench: number = a.measure.shoulderHeight - a.measure.upperArm - 0.15;
     const props: IAutoMovieMotionHumanProp[] = [
-      HumanObject.prop(
+      AutoMovieMotionHumanObject.prop(
         "tool",
         AutoMovieArchetypeTool.create({
           kind: tool === "stir" ? "spoon" : (tool as AutoMovieArchetypeTool.Kind),
@@ -364,7 +364,7 @@ export const MOTION_HUMAN_LAW_STAGES_HANDLING: Readonly<
     ];
     if (tool === "stir")
       props.push(
-        HumanObject.prop("pot", AutoMovieArchetypeVessel.create({ kind: "saucepan" }), {
+        AutoMovieMotionHumanObject.prop("pot", AutoMovieArchetypeVessel.create({ kind: "saucepan" }), {
           at: { x: 0, y: bench, z: 0.4 },
           yaw: 0,
         }),
@@ -438,7 +438,7 @@ export const MOTION_HUMAN_LAW_STAGES_HANDLING: Readonly<
         })
         .act("dress", { item, prop: "item", hand: "right" }),
       [
-        HumanObject.prop(
+        AutoMovieMotionHumanObject.prop(
           "item",
           AutoMovieArchetypeWearable.create({ kind: item === "hat" ? "hat" : "spectacles" }),
           {

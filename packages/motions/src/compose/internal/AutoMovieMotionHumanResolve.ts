@@ -11,7 +11,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanRange } from "./AutoMovieMotionHumanRange";
 import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
@@ -294,7 +294,7 @@ export namespace AutoMovieMotionHumanResolve {
       } catch (error) {
         // The solver refuses a wrist it cannot reach; anything else is a
         // defect and propagates.
-        if (error instanceof HumanRefusal) return "out of reach";
+        if (error instanceof AutoMovieMotionHumanRefusal) return "out of reach";
         throw error;
       }
       const axis: IAutoMovieVector3 = Vector3.normalize(

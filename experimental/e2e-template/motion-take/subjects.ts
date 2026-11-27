@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionTake,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanPerformance } from "@automovie/motions";
+import { AutoMovieMotionHumanPerformance } from "@automovie/motions";
 import type {
   AutoMovieDrawSubjects,
   IAutoMovieDrawScene,
@@ -30,9 +30,9 @@ export const subjects: AutoMovieDrawSubjects = (
         createMotionTakeSource();
       const take: IAutoMovieMotionTake | null =
         props === undefined || props === null ? null : AutoMovieEngineFilm.admitMotionTake(props);
-      const performance: HumanPerformance =
+      const performance: AutoMovieMotionHumanPerformance =
         take === null
-          ? new HumanPerformance(source.human["staged-catch"]!)
+          ? new AutoMovieMotionHumanPerformance(source.human["staged-catch"]!)
           : replayMotionTake(source, take.anchor).source;
       const scene: Scene = new Scene();
       const camera: PerspectiveCamera = new PerspectiveCamera(

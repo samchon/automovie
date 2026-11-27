@@ -4,7 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { PreparedHumanIntervals } from "../../perform/internal/PreparedHumanIntervals";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 
@@ -404,8 +404,8 @@ export namespace skydivePath {
   /*
    * The jump's refusal.
    */
-  function refusal(axis: string, value: unknown, reason: string): HumanRefusal {
-    return new HumanRefusal({
+  function refusal(axis: string, value: unknown, reason: string): AutoMovieMotionHumanRefusal {
+    return new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis,
       value,

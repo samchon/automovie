@@ -5,7 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * Check dock alignment on the film clock through trailing touchdown. Co-moving
@@ -73,7 +73,7 @@ export function checkSupportTransferDock(
       ] as const) {
         checkFrame(admission, endpoint, frame, time);
         if (!aligned(endpoint.propFrame, frame))
-          throw new HumanRefusal({
+          throw new AutoMovieMotionHumanRefusal({
             kind: "base",
             axis: endpoint.axis,
             value: time,
@@ -138,7 +138,7 @@ export function checkSupportTransferDock(
           ),
       )
     )
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "base",
         axis: "to",
         value: time,
@@ -199,7 +199,7 @@ function checkFrame(
 ): void {
   admission.unitQuaternion("rotation", frame.rotation, "Support rotation");
   if (admission.items.length !== 0)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "base",
       axis: endpoint.axis,
       value: time,
@@ -218,7 +218,7 @@ function checkLevel(
   time: number,
 ): void {
   if (!(Quaternion.rotateVector(rotation, { x: 0, y: 1, z: 0 }).y >= 0.999999))
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "base",
       axis: endpoint.axis,
       value: time,

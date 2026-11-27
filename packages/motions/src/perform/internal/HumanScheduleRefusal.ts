@@ -1,7 +1,7 @@
 import type { AutoMovieScheduleError } from "@automovie/engine";
 import type { IAutoMovieMotionHumanRefusal } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanHitTrack } from "./HumanHitTrack";
 
 /*
@@ -31,7 +31,7 @@ export function HumanScheduleRefusal(
   };
   switch (error.code) {
     case "anchor":
-      return new HumanRefusal({
+      return new AutoMovieMotionHumanRefusal({
         ...where,
         kind: "participant",
         axis: "of",
@@ -47,7 +47,7 @@ export function HumanScheduleRefusal(
         error.of?.startsWith(HumanHitTrack.PREFIX) === true &&
         error.alternatives.length === 0
       )
-        return new HumanRefusal({
+        return new AutoMovieMotionHumanRefusal({
           ...where,
           kind: "participant",
           axis: "hit",
@@ -56,7 +56,7 @@ export function HumanScheduleRefusal(
           reason: `no strike placed before this action reaches ${error.of.slice(HumanHitTrack.PREFIX.length)}, so ${error.of} has no instant yet`,
           fix: "compose the strikers' chains first and this reaction in a chain of its own after them, or aim a strike that reaches the struck body",
         });
-      return new HumanRefusal({
+      return new AutoMovieMotionHumanRefusal({
         ...where,
         kind: "parameter",
         axis: "event",
@@ -69,7 +69,7 @@ export function HumanScheduleRefusal(
         fix: "name one of the instants listed",
       });
     case "index":
-      return new HumanRefusal({
+      return new AutoMovieMotionHumanRefusal({
         ...where,
         kind: "parameter",
         axis: "index",
@@ -85,7 +85,7 @@ export function HumanScheduleRefusal(
         fix: "name an occurrence the anchor or track has",
       });
     case "duplicate":
-      return new HumanRefusal({
+      return new AutoMovieMotionHumanRefusal({
         ...where,
         kind: "parameter",
         axis: "anchor",
@@ -94,7 +94,7 @@ export function HumanScheduleRefusal(
         fix: "give every anchored action an id of its own, different from every cue track's name",
       });
     case "share":
-      return new HumanRefusal({
+      return new AutoMovieMotionHumanRefusal({
         ...where,
         kind: "cut",
         axis: "until",

@@ -22,7 +22,7 @@ import type {
 
 import { walk } from "../../gait/internal/walk";
 import { AutoMovieMotionHumanSignature } from "../../audit/AutoMovieMotionHumanSignature";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanSegmentPlant } from "../../perform/internal/HumanSegmentPlant";
 import { HumanColliders } from "../../posture/internal/HumanColliders";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
@@ -59,7 +59,7 @@ export function planReducedOpening(
   const mode: IAutoMovieMotionHumanTravelDoor.IParams["mode"] =
     context.params.mode;
   if (obstacle.motion !== undefined || opening.at.y !== 0)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "aperture",
       value: opening.id,
@@ -131,7 +131,7 @@ export function planReducedOpening(
   const width: boolean = neededWidth > opening.width;
   const height: boolean = neededHeight > opening.height;
   if (width || height)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "aperture",
       value: opening.id,

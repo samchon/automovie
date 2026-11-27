@@ -5,7 +5,7 @@ import type {
   IAutoMovieMotionHumanUseTool,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { struckSurface } from "./struckSurface";
 import { useTool } from "./useTool";
 
@@ -14,7 +14,7 @@ import { useTool } from "./useTool";
  * row uses the held working-point arc of `useTool`. The up position after the
  * hit follows the rebound stroke taught in Vic Firth Drumset Lessons 1–2
  * (https://ae.vicfirth.com/wp-content/uploads/FA-Drumset-Lessons-1-2.pdf).
- * Register the row with `HumanPerformance` and align `contact1` to a cue using
+ * Register the row with `AutoMovieMotionHumanPerformance` and align `contact1` to a cue using
  * the chain's `sync`. The stroke uses the existing provisional tool cycle and
  * keeps the stick held.
  */
@@ -40,7 +40,7 @@ function plan(
   const { hand, stick, drum }: IAutoMovieMotionHumanSideDrumStrike =
     context.params;
   if (stick.length === 0)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "stick",
       value: stick,
@@ -48,7 +48,7 @@ function plan(
       fix: "name the held drumstick",
     });
   if (drum.length === 0)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "drum",
       value: drum,
@@ -56,7 +56,7 @@ function plan(
       fix: "name the fixed side drum",
     });
   if (struckSurface(context.prop(drum), context.start, "head") === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "drum",
       value: drum,

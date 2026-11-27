@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 
 /*
- * Compose the supports for a grounded step vault through `HumanChain.support`.
+ * Compose the supports for a grounded step vault through `AutoMovieMotionHumanChain.support`.
  * The palm plants first. The opposite foot joins it on the obstacle, the other
  * foot passes between them, and the supporting foot follows to settle on the
  * exit before the hand lets go. London Parkour teaches the same crossing as a

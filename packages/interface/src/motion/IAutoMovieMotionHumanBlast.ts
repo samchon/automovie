@@ -6,7 +6,7 @@ import type { AutoMovieMotionHumanScheduledInstant } from "./AutoMovieMotionHuma
  * whose colliders lie within a radius, falling with distance. A grenade's
  * burst, a shell's, a charge's.
  *
- * Each person reached receives one hit (`HumanPerformance.hits`), source
+ * Each person reached receives one hit (`AutoMovieMotionHumanPerformance.hits`), source
  * `impactOutput`, whose impulse points from the blast's point to the nearest
  * point of their colliders. The impulse's magnitude is `impulse` at the
  * reference distance of one metre and falls as the inverse square of the

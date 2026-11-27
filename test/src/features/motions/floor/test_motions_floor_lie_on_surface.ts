@@ -4,7 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanRefusal,
+  AutoMovieMotionHumanRefusal,
   lieOnSurfaceFits,
   lieOnSurfaceSite,
 } from "@automovie/motions/internal";
@@ -35,7 +35,7 @@ namespace part_lie_on_surface_fits {
       try {
         lieOnSurfaceFits(body, { depth, width }, 0.05);
       } catch (error: unknown) {
-        return error instanceof HumanRefusal ? error.axis : "other";
+        return error instanceof AutoMovieMotionHumanRefusal ? error.axis : "other";
       }
       return undefined;
     };
@@ -89,7 +89,7 @@ namespace part_lie_on_surface_site {
       try {
         lieOnSurfaceSite(reader, id, kind);
       } catch (error: unknown) {
-        return error instanceof HumanRefusal ? error.axis : "other";
+        return error instanceof AutoMovieMotionHumanRefusal ? error.axis : "other";
       }
       return undefined;
     };

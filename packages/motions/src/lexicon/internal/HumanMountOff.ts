@@ -27,7 +27,7 @@ import { courseHumanLegs } from "../../compose/internal/courseHumanLegs";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { prepareSeatedPalms } from "../../everyday/internal/prepareSeatedPalms";
 import { seated } from "../../everyday/internal/seated";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanArmSwing } from "../../posture/internal/HumanArmSwing";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
@@ -106,7 +106,7 @@ export namespace HumanMountOff {
 
     // A seat got onto from one side only is got off on that side.
     if (sat?.astride === true && side !== undefined && to !== side)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "to",
         value: to,

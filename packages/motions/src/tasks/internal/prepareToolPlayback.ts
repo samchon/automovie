@@ -19,7 +19,7 @@ import { AutoMovieMotionHumanArmAngles } from "../../compose/internal/AutoMovieM
 import { AutoMovieMotionHumanArmBase } from "../../compose/internal/AutoMovieMotionHumanArmBase";
 import { AutoMovieMotionHumanArmCourse } from "../../compose/internal/AutoMovieMotionHumanArmCourse";
 import { AutoMovieMotionHumanArmObservation } from "../../compose/internal/AutoMovieMotionHumanArmObservation";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanPreparedPlayback } from "../../perform/internal/HumanPreparedPlayback";
 import { HumanSegment } from "../../perform/internal/HumanSegment";
 import { HumanSegmentPose } from "../../perform/internal/HumanSegmentPose";
@@ -193,7 +193,7 @@ function course(
       prepared.clamp,
     ).limbs[limb];
     if (goal === undefined || goal.on !== undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "on",
         value: seconds,
@@ -259,7 +259,7 @@ function course(
     ]);
     if (!laid.admitted) {
       const worst = laid.read.evaluation!.worst;
-      const refusal = new HumanRefusal({
+      const refusal = new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: worst.axis,
         value: worst.value,
@@ -303,7 +303,7 @@ function course(
   if (checked.unsupported === true) return undefined;
   const unresolved = checked.uncertain;
   if (unresolved !== undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "on",
       value: unresolved.time,

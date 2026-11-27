@@ -12,7 +12,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanDigitFit } from "../../posture/internal/HumanDigitFit";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -77,7 +77,7 @@ export function fitPianoScoreContact(
       ).point;
       const miss: number = Vector3.length(Vector3.subtract(tip, goal.point));
       if (!(miss <= PIANO_CONTACT_TOLERANCE))
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "reach",
           axis: "notes.key",
           value: score.key,

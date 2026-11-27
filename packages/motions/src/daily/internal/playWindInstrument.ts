@@ -9,7 +9,7 @@ import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMoti
 import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { StrikingHeld } from "../../striking/internal/StrikingHeld";
 import { StrikingRoll } from "../../striking/internal/StrikingRoll";
 
@@ -46,7 +46,7 @@ export namespace playWindInstrument {
       (a: IAutoMovieAffordance): boolean => a.id === "mouthpiece" && a.kind === "socket",
     );
     if (socket === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "affordance",
         axis: "point",
         value: "mouthpiece",
@@ -152,7 +152,7 @@ export namespace playWindInstrument {
     );
     const missed = StrikingRoll.miss(context, tool, frame, 0, posture);
     if (missed > StrikingRoll.MISS)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "grasp",
         value: missed,

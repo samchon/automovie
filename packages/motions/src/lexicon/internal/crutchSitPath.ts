@@ -12,7 +12,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 
@@ -73,7 +73,7 @@ export namespace crutchSitPath {
     const grip: IAutoMovieAffordance | undefined = find("grip");
     const tip: IAutoMovieAffordance | undefined = find("tip");
     if (grip === undefined || tip === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "affordance",
         axis: "crutch",
         value: subject,

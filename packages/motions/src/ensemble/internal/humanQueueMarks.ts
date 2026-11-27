@@ -4,7 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanCrowd } from "./HumanCrowd";
 
 /*
@@ -34,7 +34,7 @@ export function humanQueueMarks(
 ): number[] {
   const head: humanQueueMarks.IMember | undefined = members[0];
   if (head === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "participant",
       axis: "queue",
       value: 0,
@@ -44,7 +44,7 @@ export function humanQueueMarks(
 
   const wait: number = request.wait ?? 0;
   if (!(wait >= 0))
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "wait",
       value: wait,
@@ -60,7 +60,7 @@ export function humanQueueMarks(
     !(distance > LINE_TOLERANCE) ||
     !(Math.abs(request.exit.y - origin.y) <= LINE_TOLERANCE)
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       performer: head.subject,
       axis: "exit",
@@ -83,7 +83,7 @@ export function humanQueueMarks(
         !(Math.abs(at.y - origin.y) <= LINE_TOLERANCE) ||
         !(Math.abs(offsetX * z - offsetZ * x) <= LINE_TOLERANCE)
       )
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "participant",
           performer: member.subject,
           axis: "queue",
@@ -105,7 +105,7 @@ export function humanQueueMarks(
       (rank === 1 ? distance : marks[rank - 2]!) - marks[rank - 1]!;
     const minimum: number = HumanCrowd.half(ahead) + HumanCrowd.half(member);
     if (Math.min(before, after) < minimum)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "participant",
         performer: member.subject,
         axis: "queue",

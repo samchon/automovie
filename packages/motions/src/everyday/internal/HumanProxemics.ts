@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * Interpersonal distance: the gaps people keep, by relationship and purpose, as
@@ -123,7 +123,7 @@ export namespace HumanProxemics {
       4;
     const meeting: number = reach(self, height) + reach(other, height);
     if (!(meeting > 0))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "at",
         value: request,
@@ -153,7 +153,7 @@ export namespace HumanProxemics {
     const dz: number = target.z - from.z;
     const d: number = Math.hypot(dx, dz);
     if (d < 1e-9)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "target",
         value: null,

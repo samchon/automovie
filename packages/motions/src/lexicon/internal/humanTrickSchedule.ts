@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * A trick ride's schedule: each figure's transfer then its hold, one after
@@ -21,7 +21,7 @@ export function humanTrickSchedule(
   figures: readonly IAutoMovieMotionHumanTrick.IFigure[],
 ): humanTrickSchedule.ISchedule {
   if (figures.length === 0 || figures[figures.length - 1]!.kind !== "seat")
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "figures",
       value: figures.map(
@@ -37,7 +37,7 @@ export function humanTrickSchedule(
       HumanBound.above(`figures.${i}.transfer`, figure.transfer, 0, "s");
       HumanBound.least(`figures.${i}.seconds`, figure.hold, 0, "s");
       if (figure.kind === "pickup" && figure.object === undefined)
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "parameter",
           axis: `figures.${i}.object`,
           value: undefined,

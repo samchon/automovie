@@ -12,7 +12,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPerformanceSoftBoundary } from "./HumanPerformanceSoftBoundary";
 import { HumanPerformanceSoftBudget } from "./HumanPerformanceSoftBudget";
@@ -44,7 +44,7 @@ function domainOf(
 ): IAutoMovieSoftBodyDomain {
   const domain: IAutoMovieSoftBodyDomain | undefined = state.props.get(subject)?.soft;
   if (domain === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "prop",
       value: subject,

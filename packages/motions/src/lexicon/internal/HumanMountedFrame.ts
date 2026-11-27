@@ -17,7 +17,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { carryHumanPosture } from "../../posture/internal/carryHumanPosture";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 
@@ -57,7 +57,7 @@ export function HumanMountedFrame(
       (a: IAutoMovieAffordance): boolean => a.id === id,
     );
   if (contact === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "frame",
       value: id,

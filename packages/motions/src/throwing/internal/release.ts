@@ -29,7 +29,7 @@ import { AutoMovieMotionHumanBendTrack } from "../../compose/internal/AutoMovieM
 import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
 import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanPropFrame } from "../../perform/internal/HumanPropFrame";
 import { HumanBoneGroups } from "../../posture/internal/HumanBoneGroups";
 import { HumanHand } from "../../posture/internal/HumanHand";
@@ -107,7 +107,7 @@ export namespace release {
     const held: string | undefined =
       context.params.prop ?? context.entry.holds[side];
     if (held === undefined && context.params.launch === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "affordance",
         axis: "hand",
         value: side,
@@ -270,7 +270,7 @@ export namespace release {
         const local: IAutoMovieMotionHumanProp["points"][string] | undefined =
           prop.prop.points[id];
         if (local === undefined)
-          throw new HumanRefusal({
+          throw new AutoMovieMotionHumanRefusal({
             kind: "affordance",
             axis: "launch",
             value: `${launch.prop}.${id}`,

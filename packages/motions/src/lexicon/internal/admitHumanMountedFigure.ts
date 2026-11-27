@@ -6,7 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanMountedSeats } from "./HumanMountedSeats";
 
 /*
@@ -55,7 +55,7 @@ export function admitHumanMountedFigure(
     const axis: string = `figures.${index}.supports.${part}`;
     if (id === undefined) {
       if (required.includes(part))
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "parameter",
           axis,
           value: undefined,
@@ -66,7 +66,7 @@ export function admitHumanMountedFigure(
       continue;
     }
     if (!required.includes(part) && !optional.includes(part))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis,
         value: id,
@@ -75,7 +75,7 @@ export function admitHumanMountedFigure(
         fix: "leave that support out of the figure",
       });
     if (!contacts.some((a: IAutoMovieAffordance): boolean => a.id === id))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "affordance",
         axis,
         value: id,
@@ -90,7 +90,7 @@ export function admitHumanMountedFigure(
       const side: AutoMovieHumanSide = part === "leftHand" ? "left" : "right";
       const held: string | undefined = hands[side];
       if (held !== undefined && held !== id)
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "parameter",
           axis,
           value: id,
@@ -116,7 +116,7 @@ export function admitHumanMountedFigure(
         before.supports?.[part] === figure.supports[part],
     );
   if (!seat && !kept)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: `figures.${index}.supports`,
       value: figure.seat,
@@ -131,7 +131,7 @@ export function admitHumanMountedFigure(
       figure.supports?.[`${side}Foot`] !== undefined &&
       !planted[side]
     )
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "affordance",
         axis: `figures.${index}.supports.${side}Foot`,
         value: figure.supports[`${side}Foot`],
@@ -145,7 +145,7 @@ export function admitHumanMountedFigure(
       figure.supports?.leftHand === undefined ||
       figure.supports.rightHand === undefined)
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: `figures.${index}.handRide`,
       value: true,

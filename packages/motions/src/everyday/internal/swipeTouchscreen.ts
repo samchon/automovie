@@ -18,7 +18,7 @@ import { AutoMovieMotionHumanTarget } from "../../compose/internal/AutoMovieMoti
 import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
 import { HumanGrip } from "../../handling/internal/HumanGrip";
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { swipeTouchscreenScreen } from "./swipeTouchscreenScreen";
@@ -64,7 +64,7 @@ function planSwipeTouchscreen(
     held !== undefined ||
     entry.supports.some((support): boolean => support.part === `${side}Hand`)
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "hand",
       value: side,
@@ -98,7 +98,7 @@ function planSwipeTouchscreen(
     Vector3.dot(Vector3.subtract(tip, center), normal) <= 0 ||
     Vector3.dot(Vector3.subtract(entryWrist, center), normal) <= 0
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "screen",
       value: `${params.prop}.${params.screen}`,
@@ -182,7 +182,7 @@ function planSwipeTouchscreen(
   );
   const { upperArm, forearm } = body.measure;
   if (farthest > upperArm + forearm || closest < Math.abs(upperArm - forearm))
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "screen",
       value: `${params.prop}.${params.screen}`,

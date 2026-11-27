@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanPerformanceState,
 } from "@automovie/interface";
-import { HumanObject } from "@automovie/motions";
+import { AutoMovieMotionHumanObject } from "@automovie/motions";
 import { HumanPerformanceAhead } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
@@ -30,7 +30,7 @@ import { testAffordance } from "../../internal/fixtures/testAffordance";
  *    cued by another anchor or by a proximity, or no cut, is none.
  */
 export async function test_motions_perform_ahead(): Promise<void> {
-  const sword = HumanObject.prop(
+  const sword = AutoMovieMotionHumanObject.prop(
     "sword",
     { affordances: [testAffordance("tip", "handle", { x: 0, y: 1, z: 0 })] },
     { at: { x: 0, y: 0, z: 0 }, yaw: 0 },

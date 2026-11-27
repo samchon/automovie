@@ -27,7 +27,7 @@ import type {
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
 import { typeText } from "../../everyday/internal/typeText";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { fitPianoScoreContact } from "./fitPianoScoreContact";
@@ -443,7 +443,7 @@ function goal(
  * Report the score field and its corrected authoring direction.
  */
 function refuse(axis: string, value: RefuseValue, fix: string): never {
-  throw new HumanRefusal({
+  throw new AutoMovieMotionHumanRefusal({
     kind: "parameter",
     axis,
     value,

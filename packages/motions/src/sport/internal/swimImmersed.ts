@@ -14,7 +14,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanWater } from "../../perform/internal/HumanWater";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -23,8 +23,8 @@ import { SwimStroke } from "./SwimStroke";
 import { swimImmersedCoast } from "./swimImmersedCoast";
 
 /*
- * Register this immersed action with `HumanChain.extend` and
- * `HumanPerformance`'s `laws`. The passive case holds the existing supine key.
+ * Register this immersed action with `AutoMovieMotionHumanChain.extend` and
+ * `AutoMovieMotionHumanPerformance`'s `laws`. The passive case holds the existing supine key.
  * The opt-in breaststroke uses the existing prone keys and starts at rest. Both
  * start in the water at their first shape's buoyant trim.
  *
@@ -47,8 +47,8 @@ export const swimImmersed: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanS
   };
 
 /*
- * Register this immersed action with `HumanChain.extend` and
- * `HumanPerformance`'s `laws`. The passive case holds the existing supine key.
+ * Register this immersed action with `AutoMovieMotionHumanChain.extend` and
+ * `AutoMovieMotionHumanPerformance`'s `laws`. The passive case holds the existing supine key.
  * The opt-in breaststroke uses the existing prone keys and starts at rest. Both
  * start in the water at their first shape's buoyant trim.
  *
@@ -85,7 +85,7 @@ function planSwimImmersed(
 
   const stroke: "breaststroke" | undefined = params.stroke;
   if (stroke !== undefined && speed !== 0)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "speed",
       value: speed,
@@ -107,7 +107,7 @@ function planSwimImmersed(
     poseBones(body, resolveHumanPosture(body, shape));
   const lift: number | null = HumanWater.float(body, bones, water);
   if (lift === null)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "base",
       axis: "water.density",
       value: density,

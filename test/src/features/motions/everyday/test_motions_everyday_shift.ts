@@ -1,4 +1,4 @@
-import { HumanRefusal, shift } from "@automovie/motions/internal";
+import { AutoMovieMotionHumanRefusal, shift } from "@automovie/motions/internal";
 import { strict as assert } from "node:assert";
 
 /** A seated slide keeps its sign and stays within 35% of the planted thigh. */
@@ -9,7 +9,7 @@ export function test_motions_everyday_shift(): void {
     assert.throws(
       () => shift.travel(0.4, travel),
       (error: unknown): boolean =>
-        error instanceof HumanRefusal &&
+        error instanceof AutoMovieMotionHumanRefusal &&
         error.axis === "by" &&
         error.value === travel,
     );

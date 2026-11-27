@@ -21,7 +21,7 @@ import type {
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { StrikingHeld } from "../../striking/internal/StrikingHeld";
@@ -86,7 +86,7 @@ function planHumanLanceCouch(
   const params: IAutoMovieMotionHumanLanceCouch = context.params;
   const entered: IAutoMovieMotionHumanBase = context.entry.base;
   if (entered.kind !== "seated")
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "base",
       axis: "base",
       value: entered.kind,
@@ -218,7 +218,7 @@ function planHumanLanceCouch(
     break;
   }
   if (strike === undefined || lowering === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "target",
       value: nearest + tool.length + armReach,
@@ -232,7 +232,7 @@ function planHumanLanceCouch(
       fix: "ride the horse's line past the target within the lance's reach, or lengthen the act",
     });
   if (strike < params.lower)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "lower",
       value: params.lower,
@@ -425,7 +425,7 @@ function striking(
           turn: Quaternion.angle(laid.hand.rotation, from),
         });
       } catch (error: unknown) {
-        if (!(error instanceof HumanRefusal)) throw error;
+        if (!(error instanceof AutoMovieMotionHumanRefusal)) throw error;
       }
     }
   return HumanLanceCouchPick(options, reaches).laid;

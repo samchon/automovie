@@ -23,7 +23,7 @@ import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotion
 import { pickUp } from "../../handling/internal/pickUp";
 import { putDown } from "../../handling/internal/putDown";
 import { AutoMovieMotionHumanActionRow } from "../../law/AutoMovieMotionHumanActionRow";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HUMAN_ARCHERY_PRESENT_BOW } from "../../next/presets/HUMAN_ARCHERY_PRESENT_BOW";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { release } from "../../throwing/internal/release";
@@ -49,7 +49,7 @@ import { HumanWeaponPresent } from "./HumanWeaponPresent";
  *   surface normal, the bow arm extended to its own reach along the line
  *   (`extended`), as the shot cycle's set-up raises it toward the target.
  * - `drawBow`: an operation of the bow's `string` slider by the drawing hand,
- *   performed over `presentBow` (`HumanChain.over`) from the set-up, so the
+ *   performed over `presentBow` (`AutoMovieMotionHumanChain.over`) from the set-up, so the
  *   string is drawn while the bow rises and the bow arm extends (the shot
  *   cycle's set-up and pre-draw, KSL Shot Cycle); the hand takes the string
  *   where the bow arm carries the bow (`onBowArm`: the grip the bow arm's own
@@ -163,7 +163,7 @@ export namespace HumanArchery {
       const { continuation, prop, launch } = context.params;
       if (continuation === undefined) return release.plan(context);
       if (prop !== undefined || launch !== undefined)
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "parameter",
           axis: "continuation",
           value: continuation.prop,
@@ -236,7 +236,7 @@ export namespace HumanArchery {
         shot !== undefined ||
         (gun !== undefined && gun !== continuation.source)
       )
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "parameter",
           axis: "continuation",
           value: continuation.prop,

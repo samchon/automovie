@@ -79,7 +79,7 @@ import { solvedHumanAuditSpans } from "./internal/solvedHumanAuditSpans";
  * reading is in its bound's own unit: metres, except metres per second for
  * `speed`, `skate` and `loose`, degrees for `range`, `unloaded` and `turn`, and
  * none for `timing`. Inside a window solved through the engine
- * (`HumanPerformance.simulate`), the parts the solver owns are judged by the
+ * (`AutoMovieMotionHumanPerformance.simulate`), the parts the solver owns are judged by the
  * solver's contacts instead of their declared plants, its owned feet take no
  * unloaded bound and a body whose root it owns takes no balance judgement
  * (`solvedHumanAuditSpans`); every check of the displayed bones still reads
@@ -103,7 +103,7 @@ export namespace AutoMovieMotionHumanVerdicts {
    * @param span The film seconds the bounds are read over; the whole film when
    *   absent.
    * @returns The report.
-   * @throws {HumanRefusal} When the span does not lie within the film or ends
+   * @throws {AutoMovieMotionHumanRefusal} When the span does not lie within the film or ends
    *   before it starts.
    */
   export function read(

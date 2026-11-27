@@ -2,7 +2,7 @@ import type {
   IAutoMovieMotionHumanSupport,
   IAutoMovieMotionHumanWallClimb,
 } from "@automovie/interface";
-import { HumanRefusal, wallClimbSupport } from "@automovie/motions/internal";
+import { AutoMovieMotionHumanRefusal, wallClimbSupport } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -84,7 +84,7 @@ export function test_motions_climbing_wall_climb_support(): void {
     try {
       wallClimbSupport(route);
     } catch (error: unknown) {
-      return error instanceof HumanRefusal ? error.axis : "other";
+      return error instanceof AutoMovieMotionHumanRefusal ? error.axis : "other";
     }
     return undefined;
   };

@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanButton } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * Admit a signed slider displacement and positive dimensions in metres and
@@ -15,7 +15,7 @@ export function admitButtonMotion(
       (value: number): boolean => value > 0,
     )
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "travel",
       value: p.travel,

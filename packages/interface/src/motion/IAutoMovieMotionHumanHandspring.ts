@@ -65,7 +65,7 @@ export namespace IAutoMovieMotionHumanHandspring {
      * Refuse a place for the hands' middle off the surface.
      *
      * @param point The hands' middle as they come down, world metres.
-     * @throws {HumanRefusal} When the point is off the surface.
+     * @throws {AutoMovieMotionHumanRefusal} When the point is off the surface.
      */
     within(point: IAutoMovieVector3): void;
   }

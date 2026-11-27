@@ -10,7 +10,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanRide } from "../../lexicon/internal/HumanRide";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
@@ -78,7 +78,7 @@ export function HumanSwingPump(
   const breadth: number =
     2 * (context.body.measure.hipHalfWidth + context.body.measure.thighRadius);
   if (width !== undefined && breadth > width)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "seat",
       value: seat,
@@ -181,7 +181,7 @@ export function HumanSwingPump(
         Vector3.distance(bones.get(`${side}UpperArm`)!.worldPosition, wrist) -
         (context.body.measure.upperArm + context.body.measure.forearm);
       if (slip > SLIP)
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "reach",
           axis: "lean",
           value: lean,

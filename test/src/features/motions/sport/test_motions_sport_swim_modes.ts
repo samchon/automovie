@@ -4,7 +4,7 @@ import type {
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanSwim,
 } from "@automovie/interface";
-import { HumanChain, HumanPerformance } from "@automovie/motions";
+import { AutoMovieMotionHumanChain, AutoMovieMotionHumanPerformance } from "@automovie/motions";
 import { FamilyCaseKit } from "@automovie/motions/executable/internal";
 import { swim } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
@@ -24,7 +24,7 @@ export function test_motions_sport_swim_modes(): void {
     ["breaststroke", 1.35],
     ["float", 2],
   ] as const) {
-    const take: HumanPerformance = film(body, [stroke]);
+    const take: AutoMovieMotionHumanPerformance = film(body, [stroke]);
     TestValidator.predicate(
       `${stroke} keeps its single cycle clock`,
       () => Math.abs(take.duration - seconds) < 1e-9,
@@ -39,7 +39,7 @@ export function test_motions_sport_swim_modes(): void {
     ["frontCrawl", "backstroke"],
     ["backstroke", "frontCrawl"],
   ] as const) {
-    const take: HumanPerformance = film(body, strokes);
+    const take: AutoMovieMotionHumanPerformance = film(body, strokes);
     const segments = take.segments(ACTOR);
     for (let i: number = 1; i < strokes.length; ++i) {
       const before: Stroke = strokes[i - 1]!;
@@ -83,8 +83,8 @@ export function test_motions_sport_swim_modes(): void {
     }
   }
 
-  const repeat: HumanPerformance = film(body, ["frontCrawl", "frontCrawl"]);
-  const longer: HumanPerformance = film(body, ["frontCrawl"], 2);
+  const repeat: AutoMovieMotionHumanPerformance = film(body, ["frontCrawl", "frontCrawl"]);
+  const longer: AutoMovieMotionHumanPerformance = film(body, ["frontCrawl"], 2);
   const next = repeat.segments(ACTOR)[1]!;
   continuous(repeat, next.start, "consecutive crawl cycles");
   breath(repeat, body, next);
@@ -107,10 +107,10 @@ function film(
   body: IAutoMovieMotionHumanBody,
   strokes: readonly Stroke[],
   count: number = 1,
-): HumanPerformance {
-  let chain = HumanChain.subject(ACTOR);
+): AutoMovieMotionHumanPerformance {
+  let chain = AutoMovieMotionHumanChain.subject(ACTOR);
   for (const kind of strokes) chain = chain.swim({ kind, water: WATER, count });
-  return new HumanPerformance({
+  return new AutoMovieMotionHumanPerformance({
     seed: "swim-mode-entry",
     performers: [
       {
@@ -125,7 +125,7 @@ function film(
   });
 }
 
-function continuous(take: HumanPerformance, cut: number, label: string): void {
+function continuous(take: AutoMovieMotionHumanPerformance, cut: number, label: string): void {
   const at = take.bones(ACTOR, cut);
   for (const t of [cut - SAMPLE, cut + SAMPLE]) {
     const edge = take.bones(ACTOR, t);
@@ -142,7 +142,7 @@ function continuous(take: HumanPerformance, cut: number, label: string): void {
 }
 
 function mouth(
-  take: HumanPerformance,
+  take: AutoMovieMotionHumanPerformance,
   body: IAutoMovieMotionHumanBody,
   t: number,
 ): number {
@@ -155,7 +155,7 @@ function mouth(
 }
 
 function breath(
-  take: HumanPerformance,
+  take: AutoMovieMotionHumanPerformance,
   body: IAutoMovieMotionHumanBody,
   segment: IAutoMovieMotionHumanSegment,
 ): void {

@@ -6,7 +6,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanObstacle } from "../../perform/internal/HumanObstacle";
 
 /*
@@ -46,7 +46,7 @@ export function walkClear(
     if (block === null) continue;
     const where: string = `${block.subject} at (${block.at.x.toFixed(2)}, ${block.at.z.toFixed(2)}), ${block.distance.toFixed(2)} m along the way`;
     if (block.cause === "solid")
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "path",
         value: block.subject,
@@ -62,7 +62,7 @@ export function walkClear(
         reason: `the way goes through ${where}, which has no opening there`,
         fix: "pass by one of its openings, or by places that go round it",
       });
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "path",
       value: block.short?.has ?? null,
@@ -106,7 +106,7 @@ export namespace walkClear {
         height: context.body.measure.stature,
       });
     if (block !== null)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "path",
         value: block.subject,

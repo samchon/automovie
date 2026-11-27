@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanHandrimStroke,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * A handrim stroke's phases: the hand approaches the rim, pushes it to the
@@ -25,7 +25,7 @@ export function humanHandrimStrokePhases(
   const duration: number = release + recovery;
   for (const [axis, value] of Object.entries({ approach, push, recovery }))
     if (!(value > 0))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis,
         value,
@@ -40,7 +40,7 @@ export function humanHandrimStrokePhases(
         fix: "give a positive duration in seconds for this phase",
       });
   if (!(approach < release && release < duration))
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "duration",
       value: duration,

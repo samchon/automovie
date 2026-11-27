@@ -10,7 +10,7 @@ import type {
 
 import { stand } from "../../actions/internal/stand";
 import { readHumanBone } from "../../body/internal/readHumanBone";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
@@ -119,7 +119,7 @@ export function HumanMountPlace(
       const flexion: number = hipFlexion(body, hip, ankle, bend, yaw, pitch);
       const most: number = hipRange(body, side);
       if (flexion > most)
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "reach",
           axis: "footrests",
           value: flexion,

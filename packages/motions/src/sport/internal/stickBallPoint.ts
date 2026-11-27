@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanPropReader,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * Get a working point from the authored model, or report the missing point.
@@ -16,7 +16,7 @@ export function stickBallPoint(
     (value) => value.id === id,
   );
   if (match === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "stick",
       value: reader.prop.subject,

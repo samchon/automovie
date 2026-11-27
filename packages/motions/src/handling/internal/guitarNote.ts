@@ -17,7 +17,7 @@ import type {
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
 import { AutoMovieMotionInterval } from "../../compose/internal/AutoMovieMotionInterval";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { blendHumanJoint } from "../../posture/internal/blendHumanJoint";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -208,7 +208,7 @@ function handPath(
   const upper: number = context.body.measure.upperArm;
   const lower: number = context.body.measure.forearm;
   if (!(Math.abs(upper - lower) <= reach && reach <= upper + lower))
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: side === "left" ? "fret" : "string",
       value: reach,

@@ -19,8 +19,8 @@
     "./music": "./src/music/index.ts",
     "./nature": "./src/nature/index.ts",
     "./environments": "./src/environments/index.ts",
-    "./executable/internal": "./src/executable/internal.ts",
-    "./internal": "./src/internal.ts",
+    "./executable/internal": "./src/executable/internal/index.ts",
+    "./internal": "./src/internal/index.ts",
     "./package.json": "./package.json"
   },
   "scripts": {
@@ -99,8 +99,8 @@
         "default": "./lib/environments/index.js"
       },
       "./internal": {
-        "types": "./lib/internal.d.ts",
-        "default": "./lib/internal.js"
+        "types": "./lib/internal/index.d.ts",
+        "default": "./lib/internal/index.js"
       },
       "./package.json": "./package.json"
     }

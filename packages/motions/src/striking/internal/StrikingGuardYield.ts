@@ -2,7 +2,7 @@ import { AutoMovieEngineKinematics, Quaternion, Vector3, AutoMovieEngineMath } f
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanGuard, IAutoMovieMotionHumanPerformerReader, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanStrikingStance, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanPerception } from "../../law/internal/HumanPerception";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanColliders } from "../../posture/internal/HumanColliders";
 import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -268,7 +268,7 @@ export namespace StrikingGuardYield {
     try {
       return other.posture(seconds).joints;
     } catch (error) {
-      if (error instanceof HumanRefusal && error.kind === "participant")
+      if (error instanceof AutoMovieMotionHumanRefusal && error.kind === "participant")
         return {};
       throw error;
     }

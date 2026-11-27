@@ -29,7 +29,7 @@ import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotion
 import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
 import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { requireOtherPerformer } from "../../touch/internal/requireOtherPerformer";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -167,7 +167,7 @@ function planSlipRing(
   const knuckle: IAutoMovieResolvedBone | undefined = bones.get(base);
   const joint: IAutoMovieResolvedBone | undefined = bones.get(middle);
   if (knuckle === undefined || joint === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "participant",
       axis: "finger",
       value: finger,
@@ -194,7 +194,7 @@ function planSlipRing(
     (a: IAutoMovieAffordance): boolean => a.id === "wear",
   );
   if (wear === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "prop",
       value: p.prop,

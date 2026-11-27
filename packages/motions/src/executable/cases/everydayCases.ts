@@ -8,7 +8,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanChain } from "../../chain/HumanChain";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
 import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
 import { HumanBalance } from "../../everyday/internal/HumanBalance";
 import { HumanProxemics } from "../../everyday/internal/HumanProxemics";
@@ -98,12 +98,12 @@ export function everydayCases(
           [man, { x: 0, y: 0, z: 0 }, 0],
           [partner, { x: 0.4, y: 0, z: 3.2 }, 180],
         ],
-        HumanChain.subject("a")
+        AutoMovieMotionHumanChain.subject("a")
           .approach({
             target: { kind: "person", subject: "b", region: "sternum" },
             at: "personal",
           })
-          .with(HumanChain.subject("b").stand({ hold: 8 })),
+          .with(AutoMovieMotionHumanChain.subject("b").stand({ hold: 8 })),
       );
       const walking = performance.segments("a")[0]!;
       const sternum = (subject: string, t: number): IAutoMovieVector3 =>
@@ -169,7 +169,7 @@ export function everydayCases(
         }),
       );
       const performance: IAutoMovieMotionHumanPerformance = one(
-        HumanChain.subject("a")
+        AutoMovieMotionHumanChain.subject("a")
           .look({ target: targets[0]!, duration: 1.2 })
           .look({ target: targets[1]!, duration: 1.2 }),
       );
@@ -230,7 +230,7 @@ export function everydayCases(
         ["behindHead", "behindHead"],
         ["side", "chinRest"],
       ];
-      let chain: IAutoMovieMotionHumanChain = HumanChain.subject("a");
+      let chain: IAutoMovieMotionHumanChain = AutoMovieMotionHumanChain.subject("a");
       for (const [left, right] of places)
         chain = chain.rest({ left, right, hold: 1.5 });
       const performance: IAutoMovieMotionHumanPerformance = one(chain);
@@ -281,7 +281,7 @@ export function everydayCases(
 
     if (wants("brace")) {
       const performance: IAutoMovieMotionHumanPerformance = one(
-        HumanChain.subject("a").brace({
+        AutoMovieMotionHumanChain.subject("a").brace({
           target: { kind: "point", at: { x: 0, y: 1.2, z: 2 }, frame: "world" },
           kind: "push",
         }),

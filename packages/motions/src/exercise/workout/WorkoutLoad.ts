@@ -17,7 +17,7 @@ import type {
 import { AutoMovieMotionHumanArmTarget } from "../../compose/internal/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanHand } from "../../posture/internal/HumanHand";
@@ -101,7 +101,7 @@ export function WorkoutLoad(
         );
   const width: number = Vector3.length(axis);
   if (width <= 1e-9)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "load",
       value: load.other,
@@ -184,7 +184,7 @@ export function WorkoutLoad(
       });
       const miss: number = Vector3.distance(support, goal);
       if (miss > StrikingRoll.MISS)
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "reach",
           axis: "load",
           value: miss,
@@ -289,7 +289,7 @@ export function WorkoutLoad(
         }
         const span: number = Vector3.length(tool.tip);
         if (span > maximum)
-          throw new HumanRefusal({
+          throw new AutoMovieMotionHumanRefusal({
             kind: "reach",
             axis: "load",
             value: span,

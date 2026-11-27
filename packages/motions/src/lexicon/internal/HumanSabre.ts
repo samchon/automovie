@@ -20,7 +20,7 @@ import type {
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanBoneGroups } from "../../posture/internal/HumanBoneGroups";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanHand } from "../../posture/internal/HumanHand";
@@ -100,7 +100,7 @@ function planHumanSabre(context: Context): IAutoMovieMotionHumanActionPlan {
   const params: IAutoMovieMotionHumanSabre = context.params;
   const entered: IAutoMovieMotionHumanBase = context.entry.base;
   if (entered.kind !== "seated")
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "base",
       axis: "base",
       value: entered.kind,
@@ -162,7 +162,7 @@ function planHumanSabre(context: Context): IAutoMovieMotionHumanActionPlan {
       .filter((t: number): boolean => t >= 0 && t <= params.duration)
       .sort((a: number, b: number): number => a - b)[0];
     if (charge === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "cue",
         value: params.cue,
@@ -179,7 +179,7 @@ function planHumanSabre(context: Context): IAutoMovieMotionHumanActionPlan {
       .sort((x, y) => x.seconds - y.seconds);
     const gait: string | undefined = changes.at(-1)?.name.split("-").at(-1);
     if (gait !== "gallop")
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "cue",
         value: film,

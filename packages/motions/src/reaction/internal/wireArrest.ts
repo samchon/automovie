@@ -8,7 +8,7 @@ import type {
   IAutoMovieMotionHumanWireFlight,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * An arrested fall on a wire (`IAutoMovieMotionHumanWireFlight.IArrest`). From
@@ -83,7 +83,7 @@ export namespace wireArrest {
     ];
     for (const [axis, value, ok] of checks)
       if (!ok)
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "parameter",
           axis,
           value,
@@ -92,7 +92,7 @@ export namespace wireArrest {
         });
     const room: number = top - params.drop - params.stop;
     if (!(room > 0))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "stop",
         value: params.stop,
@@ -108,7 +108,7 @@ export namespace wireArrest {
     const speed: number = Math.sqrt(2 * g * params.drop);
     const needed: number = (speed * speed) / (2 * room);
     if (needed > bound)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "deceleration",
         value: needed,

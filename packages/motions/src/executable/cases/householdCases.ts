@@ -2,7 +2,7 @@
 import { AutoMovieEngineKinematics } from "@automovie/engine";
 import type { IAutoMovieMotionHumanChain, IAutoMovieMotionHumanOperate, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanWipe, IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanChain } from "../../chain/HumanChain";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
 import { AutoMovieMotionInterval } from "../../compose/internal/AutoMovieMotionInterval";
 import { wipe } from "../../tasks/internal/wipe";
 import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
@@ -53,10 +53,10 @@ export function householdCases(
       },
     };
     const chains: [string, IAutoMovieMotionHumanChain][] = [
-      ["wipe", HumanChain.subject("a").act("wipe", wiping)],
+      ["wipe", AutoMovieMotionHumanChain.subject("a").act("wipe", wiping)],
       [
         "drawer-wipe",
-        HumanChain.subject("a").act("operate", drawer).act("wipe", wiping),
+        AutoMovieMotionHumanChain.subject("a").act("operate", drawer).act("wipe", wiping),
       ],
     ];
     for (const [label, chain] of chains) {

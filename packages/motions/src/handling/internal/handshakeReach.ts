@@ -5,7 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import type { handshakeOffer } from "./handshakeOffer";
 
 /*
@@ -112,7 +112,7 @@ export namespace handshakeReach {
             : miss.bound === "far"
               ? `the shoulders stand ${miss.gap.toFixed(3)} m apart, and with the upper arms as far forward as they come the elbows stand ${miss.elbows.toFixed(3)} m apart, beyond the two forearms' ${miss.forearms.toFixed(3)} m`
               : `the shoulders stand ${miss.gap.toFixed(3)} m apart, and at the bottom of the pump the ${miss.partner === 0 ? "first" : "second"} partner's palm would lie ${miss.distance.toFixed(3)} m from its shoulder, beyond the ${miss.reach.toFixed(3)} m its arm reaches with the elbow flexed ${miss.flexed} degrees`;
-    return new HumanRefusal({
+    return new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "partner",
       value: miss.gap,

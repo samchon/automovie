@@ -29,7 +29,7 @@ import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMoti
 import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
 import { HumanGrip } from "../../handling/internal/HumanGrip";
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -89,7 +89,7 @@ export namespace stickBall {
   ): IAutoMovieMotionHumanActionPlan {
     const { params, body } = context;
     if (params.stick === params.ball)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "ball",
         value: params.ball,
@@ -180,7 +180,7 @@ export namespace stickBall {
         NonNullable<IAutoMovieMotionHumanPropReader["mountAt"]>
       > = ball.mountAt?.(context.start);
       if (mount?.prop !== params.stick || mount.point !== "pocket")
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "affordance",
           axis: "ball",
           value: params.ball,
@@ -195,7 +195,7 @@ export namespace stickBall {
         ),
       );
       if (separation > ballShape.radius / 2)
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "reach",
           axis: "ball",
           value: separation,
@@ -378,7 +378,7 @@ export namespace stickBall {
         HumanHand.offset(body, hand, "grip", "fist").point,
       );
       if (reach > arm + handOffset)
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "reach",
           axis: "stick",
           value: reach,

@@ -1,7 +1,7 @@
 import type { IAutoMovieSoftBodyDomain } from "@automovie/interface";
 import {
   HumanPerformanceSoftBudget,
-  HumanRefusal,
+  AutoMovieMotionHumanRefusal,
 } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
@@ -56,7 +56,7 @@ export function test_motions_perform_soft_budget(): void {
   } catch (error) {
     TestValidator.predicate(
       "one step past the budget is refused",
-      error instanceof HumanRefusal &&
+      error instanceof AutoMovieMotionHumanRefusal &&
         error.kind === "parameter" &&
         error.axis === "cloth.soft.solver.maxSteps" &&
         error.value === 1001 &&

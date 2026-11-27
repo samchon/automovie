@@ -10,10 +10,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanChain } from "../../chain/HumanChain";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
 import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
 import { HumanGrip } from "../../handling/internal/HumanGrip";
-import { HumanPerformance } from "../../perform/HumanPerformance";
+import { AutoMovieMotionHumanPerformance } from "../../perform/AutoMovieMotionHumanPerformance";
 import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { MotionBodies } from "../internal/MotionBodies";
 import type { humanPolygonMan } from "../internal/humanPolygonMan";
@@ -71,7 +71,7 @@ export function handlingCases(
       );
       // The shoulders the pick up and the put down start from: the same stand
       // and walk performed without the bottle, read at each action's entry.
-      const rehearsal: IAutoMovieMotionHumanPerformance = new HumanPerformance({
+      const rehearsal: IAutoMovieMotionHumanPerformance = new AutoMovieMotionHumanPerformance({
         seed: `handling-grasp-${name}`,
         performers: [
           {
@@ -83,7 +83,7 @@ export function handlingCases(
           },
         ],
         props: [],
-        composition: HumanChain.subject("a")
+        composition: AutoMovieMotionHumanChain.subject("a")
           .stand({ hold: 0.4 })
           .walk({ to: { x: 0, y: 0, z: 0.6 } }).node,
       });
@@ -153,7 +153,7 @@ export function handlingCases(
         ],
       };
       const performance: IAutoMovieMotionHumanPerformance =
-        new HumanPerformance({
+        new AutoMovieMotionHumanPerformance({
           seed: `handling-grasp-${name}`,
           performers: [
             {
@@ -165,7 +165,7 @@ export function handlingCases(
             },
           ],
           props: [bottle],
-          composition: HumanChain.subject("a")
+          composition: AutoMovieMotionHumanChain.subject("a")
             .stand({ hold: 0.4 })
             .pickUp({ prop: "bottle", handle: "handle", hand: "right" })
             .walk({ to: { x: 0, y: 0, z: 0.6 } })

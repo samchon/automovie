@@ -4,7 +4,7 @@ import type {
   IAutoMovieMotionHumanArmTrajectory,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmRefine } from "./HumanArmRefine";
 import { HumanArmSeed } from "./HumanArmSeed";
@@ -88,7 +88,7 @@ export function planHumanArmTrajectory(
   // The span's first instant is fixed: the arm the course leaves from, as
   // the action is entered, which no solve moves. A rest inside a body is
   // refused at once, naming the instant: no path leaves it clear.
-  const inside: HumanRefusal | undefined = restInside(fine, problem);
+  const inside: AutoMovieMotionHumanRefusal | undefined = restInside(fine, problem);
   if (inside !== undefined) throw inside;
 
   // A laid course whose worst term is its speed is retimed along its own path
@@ -128,7 +128,7 @@ export function planHumanArmTrajectory(
         };
       }
     } else if (stretches)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "duration",
         value: span,
@@ -290,7 +290,7 @@ export function planHumanArmTrajectory(
     const paceOnly: boolean =
       solved.played.evaluation.placement.value <= M.TOLERANCE &&
       solved.played.evaluation.worst.axis === "duration";
-    const paced: HumanRefusal | undefined =
+    const paced: AutoMovieMotionHumanRefusal | undefined =
       stretches && paceOnly
         ? HumanArmTrajectoryPaced(whole, solved, told)
         : undefined;
@@ -310,14 +310,14 @@ export function planHumanArmTrajectory(
 function restInside(
   c: M.IContext,
   problem: HumanArmTrajectory.IProblem,
-): HumanRefusal | undefined {
+): AutoMovieMotionHumanRefusal | undefined {
   const at: string = c.times[0]!.toFixed(3);
   const placed: IAutoMovieMotionHumanArmGeometry.IPlaced[] = c.rest.map(
     (rest: number[], a: number): IAutoMovieMotionHumanArmGeometry.IPlaced =>
       G.placed(c.setups[a]!, c.frames[a]![0]!, rest, true),
   );
-  const refuse = (a: number, short: number, what: string): HumanRefusal =>
-    new HumanRefusal({
+  const refuse = (a: number, short: number, what: string): AutoMovieMotionHumanRefusal =>
+    new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "region",
       value: short,

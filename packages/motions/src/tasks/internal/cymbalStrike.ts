@@ -5,7 +5,7 @@ import type {
   IAutoMovieMotionHumanUseTool,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { struckSurface } from "./struckSurface";
 import { useTool } from "./useTool";
 
@@ -15,7 +15,7 @@ import { useTool } from "./useTool";
  * struck cymbals and damping as distinct playing conditions
  * (https://zenodo.org/records/21360429). This scenic action uses the existing
  * single-cycle held-tool arc and its provisional timing. Register it with
- * `HumanPerformance` and align `contact1` with the chain's `sync`. Stage the
+ * `AutoMovieMotionHumanPerformance` and align `contact1` with the chain's `sync`. Stage the
  * named edge within reach in front of the performer.
  */
 export const cymbalStrike: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCymbalStrike> =
@@ -39,7 +39,7 @@ function plan(
   const { hand, stick, cymbal }: IAutoMovieMotionHumanCymbalStrike =
     context.params;
   if (stick.length === 0)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "stick",
       value: stick,
@@ -47,7 +47,7 @@ function plan(
       fix: "name the held drumstick",
     });
   if (cymbal.length === 0)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "cymbal",
       value: cymbal,
@@ -56,7 +56,7 @@ function plan(
     });
 
   if (struckSurface(context.prop(cymbal), context.start, "edge") === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "cymbal",
       value: cymbal,

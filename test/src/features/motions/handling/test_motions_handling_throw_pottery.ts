@@ -1,4 +1,4 @@
-import { HumanRefusal, throwPotteryRise } from "@automovie/motions/internal";
+import { AutoMovieMotionHumanRefusal, throwPotteryRise } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 /** The wheel's `raise` travel, metres (dyadic, so every difference is exact). */
@@ -30,12 +30,12 @@ export function test_motions_handling_throw_pottery(): void {
   const refused = (
     rise: number | undefined,
     start: number,
-  ): HumanRefusal["axis"] | undefined => {
+  ): AutoMovieMotionHumanRefusal["axis"] | undefined => {
     try {
       throwPotteryRise(rise, TRAVEL, start);
       return undefined;
     } catch (error: unknown) {
-      return error instanceof HumanRefusal ? error.axis : undefined;
+      return error instanceof AutoMovieMotionHumanRefusal ? error.axis : undefined;
     }
   };
   TestValidator.equals(

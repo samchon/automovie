@@ -5,7 +5,7 @@ import type { IAutoMovieMotionHumanBallPlay } from "@automovie/interface";
  * for each possession and `launch:<subject>` for each launch, in film order.
  * Contacts are left out so a sport test compares who played the ball.
  *
- * @param play The ball's play from HumanPerformance.play.
+ * @param play The ball's play from AutoMovieMotionHumanPerformance.play.
  * @returns The labels.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the label grammar, the order and what is omitted.

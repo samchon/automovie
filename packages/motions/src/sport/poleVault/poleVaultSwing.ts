@@ -1,4 +1,4 @@
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * A vaulter's swing on a flexible pole: Linthorne's flexible-pole model
@@ -32,7 +32,7 @@ export function poleVaultSwing(
 ): poleVaultSwing.ISwing {
   const outcome: poleVaultSwing.IOutcome = poleVaultSwing.integrate(props);
   if (outcome.failure !== null)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "base",
       axis: "run",
       value: props.run,

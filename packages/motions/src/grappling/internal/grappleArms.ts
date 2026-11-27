@@ -26,7 +26,7 @@ import { AutoMovieMotionPrepared } from "../../compose/internal/AutoMovieMotionP
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { HumanPerception } from "../../law/internal/HumanPerception";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { touchHold } from "../../touch/internal/touchHold";
 import { clinch } from "./clinch";
@@ -191,7 +191,7 @@ export function grappleArms(
       const offset: IAutoMovieVector3 = Vector3.subtract(laid.point, at);
       const distance: number = Vector3.length(offset);
       if (distance > reachable)
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "reach",
           axis: "partner",
           value: p.partner,
@@ -339,9 +339,9 @@ export namespace grappleArms {
     release: number,
     rest: number,
   ): number | undefined {
-    if (!(error instanceof HumanRefusal) || error.axis !== "duration")
+    if (!(error instanceof AutoMovieMotionHumanRefusal) || error.axis !== "duration")
       return undefined;
-    const feasible: HumanRefusal["feasible"] = error.feasible;
+    const feasible: AutoMovieMotionHumanRefusal["feasible"] = error.feasible;
     if (
       feasible === null ||
       feasible.kind !== "range" ||

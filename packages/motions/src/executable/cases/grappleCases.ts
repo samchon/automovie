@@ -1,7 +1,7 @@
 import { AutoMovieEngineKinematics, Vector3 } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidSocket, IAutoMovieComposition, IAutoMovieMotionHumanPerformance } from "@automovie/interface";
 
-import { HumanChain } from "../../chain/HumanChain";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
 import { clinch } from "../../grappling/internal/clinch";
 import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
@@ -31,8 +31,8 @@ export function grappleCases(
       const composition: IAutoMovieComposition = {
         type: "parallel",
         parts: [
-          HumanChain.subject("a").act("clinch", { partner: "b", grip }).node,
-          HumanChain.subject("b").act("stand", { hold: 4 }).node,
+          AutoMovieMotionHumanChain.subject("a").act("clinch", { partner: "b", grip }).node,
+          AutoMovieMotionHumanChain.subject("b").act("stand", { hold: 4 }).node,
         ],
       };
       const performance: IAutoMovieMotionHumanPerformance =

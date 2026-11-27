@@ -1,6 +1,6 @@
 import type { AutoMovieHumanSide } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * Admit an unoccupied hand for a hat gesture.
@@ -13,7 +13,7 @@ export function requireHatHand(
   held: string | undefined,
 ): void {
   if (held !== undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "hand",
       value: side,

@@ -1,6 +1,6 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import {
-  HumanRefusal,
+  AutoMovieMotionHumanRefusal,
   kneelPhaseTable,
   kneelPlace,
   prepareKneelClock,
@@ -123,7 +123,7 @@ namespace part_kneel_place {
     try {
       kneelPlace({ ...input, at: { x: 0.3, y: 0, z: -1.5 } });
     } catch (error: unknown) {
-      refused = error instanceof HumanRefusal && error.axis === "at";
+      refused = error instanceof AutoMovieMotionHumanRefusal && error.axis === "at";
     }
     TestValidator.predicate("beyond a leg", refused);
   }

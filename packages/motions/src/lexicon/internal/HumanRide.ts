@@ -20,7 +20,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { carryHumanPosture } from "../../posture/internal/carryHumanPosture";
 import { hipJoints } from "../../posture/internal/hipJoints";
@@ -38,10 +38,10 @@ import { prepareHumanEquestrianRide } from "./prepareHumanEquestrianRide";
 /*
  * Riding: a seated person carried by a support that moves by itself, such as a
  * car, a bicycle or a horse given to the performance as a moving prop
- * (`HumanObject.prop` with a motion).
+ * (`AutoMovieMotionHumanObject.prop` with a motion).
  *
  * The rider sits down on the support first (`sit` on its seat where it stands
- * at that second; `HumanObject.seat` reads a saddle with its pedals or
+ * at that second; `AutoMovieMotionHumanObject.seat` reads a saddle with its pedals or
  * stirrups) and then rides it: the seated posture is carried rigidly with the
  * support, turning, leaning and pitching as it does, the seat and each foot
  * that rested on it bearing on it, so nothing slides in the support's frame.
@@ -98,7 +98,7 @@ export namespace HumanRide {
       // Any seated entry rides: straight from sitting down, from another ride, or from an act taken seated, which keeps the seated base.
       const entered: IAutoMovieMotionHumanBase = context.entry.base;
       if (entered.kind !== "seated")
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "base",
           axis: "base",
           value: entered.kind,
@@ -134,7 +134,7 @@ export namespace HumanRide {
           !context.entry.feet.left.planted ||
           !context.entry.feet.right.planted
         )
-          throw new HumanRefusal({
+          throw new AutoMovieMotionHumanRefusal({
             kind: "affordance",
             axis: "rising",
             value: rising,
@@ -185,7 +185,7 @@ export namespace HumanRide {
       );
       const saddle: string | undefined = context.params.seat;
       if (saddle !== undefined && support.prop.points[saddle] === undefined)
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "affordance",
           axis: "seat",
           value: saddle,

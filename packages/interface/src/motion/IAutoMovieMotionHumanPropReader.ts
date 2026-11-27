@@ -82,7 +82,7 @@ export interface IAutoMovieMotionHumanPropReader {
 
   /**
    * The travel of each of its articulations an act or its own track has moved
-   * by a film second (`HumanPerformance.state`); an articulation absent from
+   * by a film second (`AutoMovieMotionHumanPerformance.state`); an articulation absent from
    * the record is at rest. Read at plan time like `frame`, so an act that
    * operates a part starts from where the part is. Absent from a context that
    * tracks no state, where every articulation is at rest.

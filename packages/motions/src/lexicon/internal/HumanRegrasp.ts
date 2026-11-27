@@ -9,7 +9,7 @@ import { AutoMovieMotionHumanActionRow } from "../../law/AutoMovieMotionHumanAct
 /*
  * A held object moved within or with the hand, without being put down: each a
  * row of `regrasp`. Register the ones a film uses
- * (`HumanPerformance.IInput.laws`, `HumanChain.extend`).
+ * (`AutoMovieMotionHumanPerformance.IInput.laws`, `AutoMovieMotionHumanChain.extend`).
  */
 export namespace HumanRegrasp {
   /*

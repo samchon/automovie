@@ -23,7 +23,7 @@ import { prepareSeatedPalms } from "../../everyday/internal/prepareSeatedPalms";
 import { seated } from "../../everyday/internal/seated";
 import { sitCarried } from "../../everyday/internal/sitCarried";
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanPropFrame } from "../../perform/internal/HumanPropFrame";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { hipJoints } from "../../posture/internal/hipJoints";
@@ -81,7 +81,7 @@ export function HumanMountOnPlan(
   const away: number = Math.hypot(goal.x - start.x, goal.z - start.z);
   const reach: number = m.thigh + m.shank;
   if (away > reach)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "seat",
       value: away,
@@ -137,7 +137,7 @@ export function HumanMountOnPlan(
       : prepareCoupledMount(body, material, { ...end, limbs: {} });
   const seatedKey = seating?.key;
   if (seating?.reason !== undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "footrests",
       value: seat.point ?? "seat",
@@ -226,7 +226,7 @@ export function HumanMountOnPlan(
     seat.mount !== "either" &&
     seat.mount !== lead
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "base",
       axis: "seat",
       value: lead,
@@ -297,7 +297,7 @@ export function HumanMountOnPlan(
       HumanMount.SWING_REACH * longest,
     );
     if (root === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "footrests",
         value: seat.point ?? "seat",

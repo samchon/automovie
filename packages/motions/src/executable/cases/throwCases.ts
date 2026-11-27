@@ -9,7 +9,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanChain } from "../../chain/HumanChain";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
 import { catchObject } from "../../throwing/internal/catchObject";
 import { readThrowObjectLaunch } from "../../throwing/internal/readThrowObjectLaunch";
 import { throwObject } from "../../throwing/internal/throwObject";
@@ -81,12 +81,12 @@ export function throwCases(
       const composition: IAutoMovieComposition = {
         type: "parallel",
         parts: [
-          HumanChain.subject("a").act(
+          AutoMovieMotionHumanChain.subject("a").act(
             "throwObject",
             { target: { kind: "point", at: target, frame: "world" }, style },
             "t1",
           ).node,
-          HumanChain.subject("b").act("catchObject", {
+          AutoMovieMotionHumanChain.subject("b").act("catchObject", {
             partner: "t1",
             ball: "ball",
           }).node,

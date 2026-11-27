@@ -7,7 +7,7 @@ import type {
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanStance, HumanRefusal } from "@automovie/motions";
+import { AutoMovieMotionHumanStance, AutoMovieMotionHumanRefusal } from "@automovie/motions";
 import {
   AutoMovieMotionHumanTrunk,
   HumanBalance,
@@ -80,7 +80,7 @@ export namespace motionComposeTrunkCounterbalance {
    * 4. The phrase is gone at both ends.
    * 5. At each heading at least one pitch puts the centre ahead of the soles, so
    *    the counterbalance is exercised; and the standing body is not moved.
-   * 6. The pitch of 60 degrees is refused with a `HumanRefusal` of kind `base` on
+   * 6. The pitch of 60 degrees is refused with a `AutoMovieMotionHumanRefusal` of kind `base` on
    *    the axis `balance` exactly when the scan finds no balanceable place, and
    *    otherwise planned and balanced as scenario 2 reads it.
    *
@@ -238,7 +238,7 @@ export namespace motionComposeTrunkCounterbalance {
         } else
           all.equals(
             `${cell} is refused on its balance, since no place of the hips within the legs' reach balances it${refusal instanceof Error ? ` (${refusal.message})` : ""}`,
-            refusal instanceof HumanRefusal
+            refusal instanceof AutoMovieMotionHumanRefusal
               ? [refusal.kind, refusal.axis]
               : "no refusal",
             ["base", "balance"],

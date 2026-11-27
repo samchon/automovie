@@ -1,6 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { HumanChain, HumanPerformance } from "@automovie/motions";
+import { AutoMovieMotionHumanChain, AutoMovieMotionHumanPerformance } from "@automovie/motions";
 import { FamilyCaseKit } from "@automovie/motions/executable/internal";
 import { HumanFrame } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
@@ -27,7 +27,7 @@ export function test_motions_sport_swim_supine_clearance(): void {
       ["backstroke", 1.4, 1],
       ["float", 2, 0],
     ] as const) {
-      const take: HumanPerformance = new HumanPerformance({
+      const take: AutoMovieMotionHumanPerformance = new AutoMovieMotionHumanPerformance({
         seed: "supine clearance",
         performers: [
           {
@@ -38,7 +38,7 @@ export function test_motions_sport_swim_supine_clearance(): void {
             proficiency: { level: "trained" },
           },
         ],
-        composition: HumanChain.subject(ACTOR).swim({ kind, water, count: 2 })
+        composition: AutoMovieMotionHumanChain.subject(ACTOR).swim({ kind, water, count: 2 })
           .node,
       });
       const segment = take.segments(ACTOR)[0]!;

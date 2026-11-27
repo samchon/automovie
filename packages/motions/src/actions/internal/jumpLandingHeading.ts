@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanJump } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * Choose the heading of a jump's two-foot landing, in degrees about world +Y.
@@ -24,7 +24,7 @@ export function jumpLandingHeading(
   // The somersault turns the body's up axis about its lateral axis; a
   // two-foot landing needs it upright again, its cosine to world up one.
   if (Math.cos(2 * Math.PI * somersault) < 1 - UPRIGHT)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "turns",
       value: params.rotation,
@@ -34,7 +34,7 @@ export function jumpLandingHeading(
   const remainder: number = twist % 1;
   if (remainder === 0) return heading;
   if (params.on !== undefined || params.to.y !== 0)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: params.on === undefined ? "to" : "on",
       value: params.on ?? params.to.y,

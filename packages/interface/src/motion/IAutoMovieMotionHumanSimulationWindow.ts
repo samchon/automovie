@@ -1,6 +1,6 @@
 /**
  * A span of a performance whose bodies the physics engine solves instead of the
- * kinematic laws (`HumanPerformance.simulate`): local in time, and in the
+ * kinematic laws (`AutoMovieMotionHumanPerformance.simulate`): local in time, and in the
  * bodies and parts it names.
  *
  * The window starts at `from` and ends at the 120 Hz grid instant nearest `to`.

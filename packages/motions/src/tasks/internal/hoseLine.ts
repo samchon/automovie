@@ -26,7 +26,7 @@ import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotion
 import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
 import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
 import { workHeldPush } from "../../handling/internal/workHeldPush";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { poseBones } from "../../posture/internal/poseBones";
 import { hoseBackup } from "./hoseBackup";
 import { hoseLineReaction } from "./hoseLineReaction";
@@ -126,7 +126,7 @@ function nozzle(
   sweeps: number,
 ): IAutoMovieMotionHumanActionPlan {
   if (p.target === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "target",
       value: "absent",
@@ -148,7 +148,7 @@ function nozzle(
     (a: IAutoMovieAffordance): boolean => a.id === "bail",
   );
   if (tip === undefined || bail === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "prop",
       value: p.prop,

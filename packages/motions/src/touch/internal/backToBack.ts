@@ -28,7 +28,7 @@ import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionMan
 import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanMaterialContact } from "../../posture/internal/HumanMaterialContact";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { StrikingBody } from "../../striking/internal/StrikingBody";
@@ -73,7 +73,7 @@ function planBackToBack(
   const body: IAutoMovieMotionHumanBody = context.body;
   HumanBound.above("hold", p.hold, 0, "s");
   if (p.partner === context.subject)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "partner",
       value: p.partner,
@@ -86,7 +86,7 @@ function planBackToBack(
         s.kind === "seat",
     )
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "base",
       axis: "base",
       value: context.entry.base.kind,
@@ -154,7 +154,7 @@ function planBackToBack(
 
   // The least backward lean that reaches the halfway point.
   if (gap(-BACK) > NEAR)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "partner",
       value: p.partner,

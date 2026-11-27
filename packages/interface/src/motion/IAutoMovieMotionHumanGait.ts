@@ -38,7 +38,7 @@ import type { IAutoMovieMotionHumanGaitStyled } from "./IAutoMovieMotionHumanGai
  * `anchor` is the action's id, unique in the composition, which another action
  * syncs to (`sync({ of })`) or is cut on (`until({ of, event })`).
  *
- * A method here is a method of `HumanChain` when its name is in
+ * A method here is a method of `AutoMovieMotionHumanChain` when its name is in
  * `AutoMovieMotionHumanActionName`. Any other member is a registered law or
  * row: pass it in `laws: [...]` to the performance, taking it from
  * `AutoMovieMotionHumanGait` or from the row namespace of the family, and

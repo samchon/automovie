@@ -5,7 +5,7 @@ import type {
   IAutoMovieMotionHumanVerdicts,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanPerformance } from "@automovie/motions";
+import { AutoMovieMotionHumanPerformance } from "@automovie/motions";
 
 import { motionActionUnit } from "./motionActionUnit";
 import type { motionComplaints } from "./motionComplaints";
@@ -68,7 +68,7 @@ export namespace armCourseContract {
   export function course(
     checks: motionComplaints.IGatherer,
     label: string,
-    take: HumanPerformance,
+    take: AutoMovieMotionHumanPerformance,
     subject: string,
     act: IAutoMovieMotionHumanSegment,
     sides: readonly AutoMovieHumanSide[],

@@ -18,8 +18,8 @@ import {
 import {
   AutoMovieMotionHumanBody,
   AutoMovieMotionHumanGait,
-  HumanChain,
-  HumanPerformance,
+  AutoMovieMotionHumanChain,
+  AutoMovieMotionHumanPerformance,
 } from "@automovie/motions";
 
 import { environmentExampleBody } from "./environmentExampleBody";
@@ -45,7 +45,7 @@ export function compileEnvironmentExample(
     )
   ) {
     const subject: string = "neutral-stance";
-    const stand: HumanPerformance = new HumanPerformance({
+    const stand: AutoMovieMotionHumanPerformance = new AutoMovieMotionHumanPerformance({
       seed: "environment-stance",
       laws: [],
       performers: [
@@ -57,7 +57,7 @@ export function compileEnvironmentExample(
           proficiency: { level: "trained" },
         },
       ],
-      composition: HumanChain.subject(subject).stand({ hold: 1, sway: 0 }).node,
+      composition: AutoMovieMotionHumanChain.subject(subject).stand({ hold: 1, sway: 0 }).node,
     });
     restPose = { ...stand.pose(subject, 0), root: null };
     // The schematic gait supplies arm swing. Carry the standing pose's

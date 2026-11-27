@@ -1,6 +1,6 @@
 /**
  * Discoverable axes and composition operators of the Human action grammar.
- * HUMAN_GRAMMAR supplies these entries to reference pages and authoring tools.
+ * AutoMovieMotionHumanGrammar supplies these entries to reference pages and authoring tools.
  * Entries describe capabilities; reading this catalogue plans no motion and
  * validates no composition. The named runtime operations perform those checks.
  */
@@ -15,7 +15,7 @@ export interface IAutoMovieMotionHumanGrammar {
   readonly operators: readonly IAutoMovieMotionHumanGrammar.IEntry<IAutoMovieMotionHumanGrammar.Operator>[];
 }
 
-/** Contracts used by HUMAN_GRAMMAR. */
+/** Contracts used by AutoMovieMotionHumanGrammar. */
 export namespace IAutoMovieMotionHumanGrammar {
   /**
    * A decision about one action: support, travel, performed act, participating

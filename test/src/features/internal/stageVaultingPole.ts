@@ -5,9 +5,9 @@ import {
   AutoMovieMotionHumanAcrobatics,
   AutoMovieMotionHumanGait,
   AutoMovieMotionHumanJump,
-  HumanChain,
-  HumanObject,
-  HumanPerformance,
+  AutoMovieMotionHumanChain,
+  AutoMovieMotionHumanObject,
+  AutoMovieMotionHumanPerformance,
 } from "@automovie/motions";
 
 import type { IStagedVault } from "./IStagedVault";
@@ -70,7 +70,7 @@ export function stageVaultingPole(
     upward ? fromTip / length : 1 - fromTip / length;
   // Across the rack, its top to the right (the pole's +Y turned onto -X),
   // the top hand's place 0.2 m right of the middle.
-  const film: HumanPerformance = new HumanPerformance({
+  const film: AutoMovieMotionHumanPerformance = new AutoMovieMotionHumanPerformance({
     seed,
     laws: [AutoMovieMotionHumanAcrobatics.HumanGymnastics.vaultOnPole],
     performers: [
@@ -83,16 +83,16 @@ export function stageVaultingPole(
       },
     ],
     props: [
-      HumanObject.prop("pole", pole, {
+      AutoMovieMotionHumanObject.prop("pole", pole, {
         position: { x: top - 0.2, y: 1, z: 0.3 },
         rotation: { x: 0, y: 0, z: Math.SQRT1_2, w: Math.SQRT1_2 },
       }),
-      HumanObject.prop("mat", AutoMovieArchetypeLandingMat.create({ kind: "poleVault" }), {
+      AutoMovieMotionHumanObject.prop("mat", AutoMovieArchetypeLandingMat.create({ kind: "poleVault" }), {
         at: { x: 0, y: 0, z: 20 },
         yaw: 0,
       }),
     ],
-    composition: HumanChain.subject("a")
+    composition: AutoMovieMotionHumanChain.subject("a")
       .stand({ hold: 0.3 })
       .pickUp({
         prop: "pole",

@@ -30,7 +30,7 @@ import { AutoMovieMotionHumanArmJointCourse } from "../../compose/internal/AutoM
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { handGoals } from "../../everyday/internal/handGoals";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanHand } from "../../posture/internal/HumanHand";
@@ -38,7 +38,7 @@ import { prepareHumanSampledCourse } from "../../posture/internal/prepareHumanSa
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
 /*
- * A relay baton pass, one role of it, performed over a run (`HumanChain.over`):
+ * A relay baton pass, one role of it, performed over a run (`AutoMovieMotionHumanChain.over`):
  * the outgoing runner's hand goes back, open, palm back, and the incoming
  * runner pushes the baton's end into it at a film second both roles state alike
  * (`at`), from where the baton passes to the outgoing hand.
@@ -131,7 +131,7 @@ export namespace relayPass {
           (root.z - p.zone.from.z) * line.z) /
         length;
       if (!(along >= 0 && along <= length))
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "parameter",
           axis: "zone",
           value: along,
@@ -153,7 +153,7 @@ export namespace relayPass {
       const point: IAutoMovieMotionHumanProp["points"][string] | undefined =
         p.end === undefined ? undefined : read.prop.points[p.end];
       if (point === undefined)
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "affordance",
           axis: "end",
           value: p.end ?? "absent",

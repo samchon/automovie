@@ -4,7 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * Tabletop handling composed from `pickUp` and `putDown`: a chess move with its
@@ -43,7 +43,7 @@ export namespace HumanTabletop {
         (square: string): boolean => params.occupancy[square] === params.piece,
       )
     )
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "piece",
         value: params.piece,
@@ -58,7 +58,7 @@ export namespace HumanTabletop {
       });
     const occupant: string | undefined = params.occupancy[params.to];
     if (occupant !== undefined && occupant !== params.capture)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "to",
         value: params.to,
@@ -67,7 +67,7 @@ export namespace HumanTabletop {
         fix: `capture ${occupant} or move to an empty square`,
       });
     if (params.capture !== undefined && occupant !== params.capture)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "capture",
         value: params.capture,
@@ -84,7 +84,7 @@ export namespace HumanTabletop {
     if (params.capture !== undefined) {
       const aside: IAutoMovieVector3 | undefined = params.aside;
       if (aside === undefined)
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "parameter",
           axis: "aside",
           value: "absent",
@@ -119,7 +119,7 @@ export namespace HumanTabletop {
     params: IAutoMovieMotionHumanTabletop.IDeal,
   ): IAutoMovieMotionHumanChain {
     if (params.seats.length === 0)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "seats",
         value: 0,
@@ -156,7 +156,7 @@ export namespace HumanTabletop {
     params: IAutoMovieMotionHumanTabletop.ILay,
   ): IAutoMovieMotionHumanChain {
     if (params.cards.length !== params.places.length)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "places",
         value: params.places.length,

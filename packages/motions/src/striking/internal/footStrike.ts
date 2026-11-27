@@ -21,7 +21,7 @@ import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotion
 import { AutoMovieMotionPrepared } from "../../compose/internal/AutoMovieMotionPrepared";
 import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { CloseStrikeLegs } from "./CloseStrikeLegs";
@@ -308,7 +308,7 @@ export namespace footStrike {
         p.at.kind === "person" &&
         Vector3.distance(ankle, hip) > reach
       )
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "reach",
           axis: "at",
           value: Vector3.distance(ankle, hip),

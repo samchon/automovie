@@ -9,8 +9,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanChain } from "../../chain/HumanChain";
-import { HumanPerformance } from "../../perform/HumanPerformance";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
+import { AutoMovieMotionHumanPerformance } from "../../perform/AutoMovieMotionHumanPerformance";
 import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { TouchVerdicts } from "./TouchVerdicts";
@@ -26,17 +26,17 @@ export function* motionDiversityCases(
   const actor: string = "a";
   const seed: string = "diversity";
   const trained: IAutoMovieProficiency = { level: "trained" };
-  const gesture: IAutoMovieComposition = HumanChain.subject(actor)
+  const gesture: IAutoMovieComposition = AutoMovieMotionHumanChain.subject(actor)
     .gesture({ kind: "wave", manner: { variation: 1, consistency: 0 } })
     .gesture({ kind: "wave", manner: { variation: 1, consistency: 0 } }).node;
   const dance = (intensity: number): IAutoMovieComposition =>
-    HumanChain.subject(actor).act("dance", {
+    AutoMovieMotionHumanChain.subject(actor).act("dance", {
       kind: "sway",
       bpm: 120,
       count: 4,
       manner: { intensity },
     }).node;
-  const danceVariation: IAutoMovieComposition = HumanChain.subject(actor).act(
+  const danceVariation: IAutoMovieComposition = AutoMovieMotionHumanChain.subject(actor).act(
     "dance",
     {
       kind: "sway",
@@ -45,28 +45,28 @@ export function* motionDiversityCases(
       manner: { variation: 1 },
     },
   ).node;
-  const swim: IAutoMovieComposition = HumanChain.subject(actor).act("swim", {
+  const swim: IAutoMovieComposition = AutoMovieMotionHumanChain.subject(actor).act("swim", {
     kind: "frontCrawl",
     count: 2,
     water: 1.2,
   }).node;
   const squat = (pace: number): IAutoMovieComposition =>
-    HumanChain.subject(actor).act("exercise", {
+    AutoMovieMotionHumanChain.subject(actor).act("exercise", {
       kind: "squat",
       count: 2,
       manner: { pace },
     }).node;
-  const wave: IAutoMovieComposition = HumanChain.subject(actor).gesture({
+  const wave: IAutoMovieComposition = AutoMovieMotionHumanChain.subject(actor).gesture({
     kind: "wave",
     manner: { variation: 1 },
   }).node;
-  const stand: IAutoMovieComposition = HumanChain.subject(actor).stand({
+  const stand: IAutoMovieComposition = AutoMovieMotionHumanChain.subject(actor).stand({
     hold: 2,
   }).node;
-  const walk: IAutoMovieComposition = HumanChain.subject(actor).walk({
+  const walk: IAutoMovieComposition = AutoMovieMotionHumanChain.subject(actor).walk({
     to: { x: 0, y: 0, z: 2.4 },
   }).node;
-  const look: IAutoMovieComposition = HumanChain.subject(actor)
+  const look: IAutoMovieComposition = AutoMovieMotionHumanChain.subject(actor)
     .look({
       target: {
         kind: "point",
@@ -103,7 +103,7 @@ export function* motionDiversityCases(
     label: depth,
     seed,
     proficiency: trained,
-    composition: HumanChain.subject(actor).act("exercise", {
+    composition: AutoMovieMotionHumanChain.subject(actor).act("exercise", {
       kind: "squat",
       depth,
       count: 1,
@@ -119,7 +119,7 @@ export function* motionDiversityCases(
     name: "diversity-walk-flow",
     variants: flowVariants(
       (flow): IAutoMovieComposition =>
-        HumanChain.subject(actor).walk({
+        AutoMovieMotionHumanChain.subject(actor).walk({
           to: { x: 0, y: 0, z: 2.4 },
           manner: { effort: { flow } },
         }).node,
@@ -240,7 +240,7 @@ export function* motionDiversityCases(
       name: "diversity-wave-flow",
       variants: flowVariants(
         (flow): IAutoMovieComposition =>
-          HumanChain.subject(actor).gesture({
+          AutoMovieMotionHumanChain.subject(actor).gesture({
             kind: "wave",
             effort: { flow },
           }).node,
@@ -369,8 +369,8 @@ const WAVE_PHASES: readonly string[] = ["strokeStart", "strokeEnd"];
 function compare(figure: FamilyCaseKit.IBody, pair: IPair): IMotionCaptureCase {
   const body: IAutoMovieMotionHumanBody = figure.body;
   const origin: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-  const make = (variant: IVariant): HumanPerformance =>
-    new HumanPerformance({
+  const make = (variant: IVariant): AutoMovieMotionHumanPerformance =>
+    new AutoMovieMotionHumanPerformance({
       seed: variant.seed,
       performers: [
         {
@@ -383,8 +383,8 @@ function compare(figure: FamilyCaseKit.IBody, pair: IPair): IMotionCaptureCase {
       ],
       composition: variant.composition,
     });
-  const a: HumanPerformance = make(pair.variants[0]);
-  const b: HumanPerformance = make(pair.variants[1]);
+  const a: AutoMovieMotionHumanPerformance = make(pair.variants[0]);
+  const b: AutoMovieMotionHumanPerformance = make(pair.variants[1]);
   const marks: readonly IPhaseMark[] = phaseMarks(a, b, pair.phaseEvents ?? []);
   const end: number =
     pair.alignPhase === true ? a.duration : Math.max(a.duration, b.duration);
@@ -410,7 +410,7 @@ function compare(figure: FamilyCaseKit.IBody, pair: IPair): IMotionCaptureCase {
     "bottom1",
   ]);
   const around: number[] = [a, b].flatMap(
-    (take: HumanPerformance, index: number): number[] =>
+    (take: AutoMovieMotionHumanPerformance, index: number): number[] =>
       take.segments("a").flatMap(({ start, plan }): number[] =>
         plan.events.flatMap(({ name, share }): number[] => {
           if (!critical.has(name)) return [];
@@ -440,9 +440,9 @@ function compare(figure: FamilyCaseKit.IBody, pair: IPair): IMotionCaptureCase {
         label: `${seconds.toFixed(3)} s`,
       }),
     );
-  const actual = (take: HumanPerformance, seconds: number): IAutoMoviePose =>
+  const actual = (take: AutoMovieMotionHumanPerformance, seconds: number): IAutoMoviePose =>
     take.pose("a", Math.min(seconds, take.duration));
-  const read = (take: HumanPerformance, seconds: number): IAutoMovieVector3 => {
+  const read = (take: AutoMovieMotionHumanPerformance, seconds: number): IAutoMovieVector3 => {
     const bones = take.bones("a", Math.min(seconds, take.duration));
     const feature = bones.get(pair.feature)!.worldPosition;
     return pair.relativeToHips === true
@@ -464,14 +464,14 @@ function compare(figure: FamilyCaseKit.IBody, pair: IPair): IMotionCaptureCase {
     }),
   );
   const deterministic: boolean = [a, b].every(
-    (take: HumanPerformance, index: number): boolean => {
+    (take: AutoMovieMotionHumanPerformance, index: number): boolean => {
       const probes: number[] = [0, 0.172, 0.414, 0.827, 1].map(
         (share): number => share * take.duration,
       );
       const snapshot: string[] = probes.map((seconds): string =>
         JSON.stringify(actual(take, seconds)),
       );
-      const fresh: HumanPerformance = make(pair.variants[index]!);
+      const fresh: AutoMovieMotionHumanPerformance = make(pair.variants[index]!);
       return [...probes]
         .reverse()
         .every((seconds: number, reverse: number): boolean => {
@@ -536,7 +536,7 @@ function compare(figure: FamilyCaseKit.IBody, pair: IPair): IMotionCaptureCase {
     times,
     performers: [a, b].map(
       (
-        take: HumanPerformance,
+        take: AutoMovieMotionHumanPerformance,
         index: number,
       ): IMotionCaptureCase.IPerformer => {
         const offset: IAutoMovieVector3 = {
@@ -601,7 +601,7 @@ function compare(figure: FamilyCaseKit.IBody, pair: IPair): IMotionCaptureCase {
           composition,
         }),
       ),
-      instants: [a, b].map((take: HumanPerformance): object =>
+      instants: [a, b].map((take: AutoMovieMotionHumanPerformance): object =>
         take.segments("a").map(({ start, plan }) =>
           plan.events.map(({ name, share }) => ({
             name,
@@ -618,12 +618,12 @@ function compare(figure: FamilyCaseKit.IBody, pair: IPair): IMotionCaptureCase {
  * Keep only homologous events that are strictly ordered in both takes.
  */
 function phaseMarks(
-  a: HumanPerformance,
-  b: HumanPerformance,
+  a: AutoMovieMotionHumanPerformance,
+  b: AutoMovieMotionHumanPerformance,
   names: readonly string[],
 ): readonly IPhaseMark[] {
   const selected: ReadonlySet<string> = new Set(names);
-  const events = (take: HumanPerformance): [string, number][] =>
+  const events = (take: AutoMovieMotionHumanPerformance): [string, number][] =>
     take
       .segments("a")
       .flatMap(({ start, plan }, index): [string, number][] =>
@@ -678,14 +678,14 @@ function phaseSecond(
  */
 function outcome(
   pair: IPair,
-  a: HumanPerformance,
-  b: HumanPerformance,
-  read: (take: HumanPerformance, seconds: number) => IAutoMovieVector3,
+  a: AutoMovieMotionHumanPerformance,
+  b: AutoMovieMotionHumanPerformance,
+  read: (take: AutoMovieMotionHumanPerformance, seconds: number) => IAutoMovieVector3,
 ): IMotionCaptureCase.IVerdict | undefined {
   const equal: (x: number, y: number) => boolean = (x, y) =>
     Math.abs(x - y) <= 1e-9;
   if (pair.name === "diversity-wave-seed") {
-    const strokes = (take: HumanPerformance): number[] =>
+    const strokes = (take: AutoMovieMotionHumanPerformance): number[] =>
       take
         .segments("a")
         .map(
@@ -712,7 +712,7 @@ function outcome(
     const expected: number[] = [0.5, 1, 1.5, 2];
     return {
       name: "both sway phrases keep the four authored beats",
-      passed: [a, b].every((take: HumanPerformance): boolean =>
+      passed: [a, b].every((take: AutoMovieMotionHumanPerformance): boolean =>
         expected.every((seconds: number, index: number): boolean =>
           equal(TouchVerdicts.event(take, "a", `beat${index + 1}`), seconds),
         ),

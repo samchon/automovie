@@ -11,7 +11,7 @@ import type {
 
 import { AutoMovieMotionHumanAuditSkin } from "../../audit/internal/AutoMovieMotionHumanAuditSkin";
 import { AutoMovieMotionHumanArmTarget } from "../../compose/internal/AutoMovieMotionHumanArmTarget";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanColliders } from "../../posture/internal/HumanColliders";
 import { HumanHand } from "../../posture/internal/HumanHand";
 
@@ -71,7 +71,7 @@ export function slipRingSteady(
     const minimum: number = heel + skin;
     const maximum: number = forearm - fingers - skin;
     if (minimum > maximum)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "partner",
         value: forearm,
@@ -110,7 +110,7 @@ export function slipRingSteady(
       2 * forearm,
     );
   if (hit === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "partner",
       value: subject,

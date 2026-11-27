@@ -9,7 +9,7 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanMountRider } from "./HumanMountRider";
 import type { HumanRideHands } from "./HumanRideHands";
 
@@ -52,7 +52,7 @@ export function closeRideHandGrips(
     const grip: HumanRideHands.IMaterialGrip | undefined = grips[side];
     if (id === undefined || grip === undefined) continue;
     if ((support.prop.shapes ?? []).length === 0)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "affordance",
         axis: "hands",
         value: id,

@@ -12,7 +12,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * How a prop's flight goes on after a contact, from its model body's flight
@@ -116,7 +116,7 @@ export namespace HumanPropOutcome {
       if (restitution === undefined) {
         if (struck.kind === "ground" && contact?.rolling !== undefined)
           return { kind: "roll", resistance: contact.rolling };
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "parameter",
           axis: "restitution",
           value: restitution,
@@ -126,7 +126,7 @@ export namespace HumanPropOutcome {
         });
       }
       if (!(restitution >= 0 && restitution <= 1))
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "parameter",
           axis: "restitution",
           value: restitution,
@@ -165,7 +165,7 @@ export namespace HumanPropOutcome {
     props: IAutoMovieMotionHumanPropOutcome.ILegsProps,
   ): IAutoMovieMotionHumanPropOutcome.ILeg[] {
     if (!(props.horizon >= 0))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "horizon",
         value: props.horizon,
@@ -174,7 +174,7 @@ export namespace HumanPropOutcome {
         fix: "give the finite seconds remaining after the launch",
       });
     if (!(props.meeting.hit.time >= 0))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "contact.time",
         value: props.meeting.hit.time,
@@ -314,7 +314,7 @@ export namespace HumanPropOutcome {
         met !== null &&
         (!(met.hit.time >= 0) || !(end > next.from + CONTACT_SECOND))
       )
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "parameter",
           axis: "contact.time",
           value: end,

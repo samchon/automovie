@@ -1,5 +1,5 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { HumanRefusal, jumpLandingHeading, jumpPath } from "@automovie/motions/internal";
+import { AutoMovieMotionHumanRefusal, jumpLandingHeading, jumpPath } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../../internal/vclose";
@@ -42,7 +42,7 @@ namespace part_jump_landing_heading {
       try {
         jumpLandingHeading(params, 37);
       } catch (error: unknown) {
-        return error instanceof HumanRefusal && error.axis === axis;
+        return error instanceof AutoMovieMotionHumanRefusal && error.axis === axis;
       }
       return false;
     };

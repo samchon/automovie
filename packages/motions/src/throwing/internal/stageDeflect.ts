@@ -11,7 +11,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { stageCatch } from "./stageCatch";
 import { stageDeflectRebound } from "./stageDeflectRebound";
 
@@ -61,7 +61,7 @@ function planStageDeflect(
   const reader: IAutoMovieMotionHumanPropReader = context.prop(ball);
   const restitution: number | undefined = reader.prop.body?.restitution;
   if (restitution === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "ball",
       value: ball,

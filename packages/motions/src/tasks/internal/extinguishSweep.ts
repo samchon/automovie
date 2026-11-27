@@ -1,7 +1,7 @@
 import type { IAutoMovieMotionClock } from "@automovie/interface";
 
 import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * An extinguisher's sweep, the last S of OSHA's PASS: the nozzle is brought
@@ -25,7 +25,7 @@ export function extinguishSweep(
   const count: number = Math.round(sweeps ?? extinguishSweep.SWEEPS);
   const angle: number = span ?? extinguishSweep.SPAN;
   if (!(count > 0 && angle > 0 && angle < 180))
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "sweeps",
       value: { sweeps: count, span: angle },

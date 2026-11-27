@@ -44,7 +44,7 @@ import { HumanHeldEffector } from "../../handling/internal/HumanHeldEffector";
 import { HumanHeldUse } from "../../handling/internal/HumanHeldUse";
 import { planHumanHeldSupport } from "../../handling/internal/planHumanHeldSupport";
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { poseBones } from "../../posture/internal/poseBones";
 import { handToFaceArm } from "./handToFaceArm";
 import { handToFaceDrinkable } from "./handToFaceDrinkable";
@@ -279,7 +279,7 @@ export namespace handToFace {
           handToFaceMirrored(row.region, first),
         )
       )
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "reach",
           axis: "facing",
           value: first,

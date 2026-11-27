@@ -10,7 +10,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * Tolerance on the mouth's unit up axis for a level scoring plane, unitless
@@ -163,8 +163,8 @@ export namespace scoreWaterPoloGoal {
 /*
  * A fixed aperture and a level frame give the rule its scoring plane.
  */
-function invalidGoal(goal: IAutoMovieMotionHumanProp): HumanRefusal {
-  return new HumanRefusal({
+function invalidGoal(goal: IAutoMovieMotionHumanProp): AutoMovieMotionHumanRefusal {
+  return new AutoMovieMotionHumanRefusal({
     kind: "affordance",
     axis: "goal",
     value: goal.subject,

@@ -8,7 +8,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanChain } from "../../chain/HumanChain";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
 import { seated } from "../../everyday/internal/seated";
 import { typeText } from "../../everyday/internal/typeText";
 import { HumanHand } from "../../posture/internal/HumanHand";
@@ -47,14 +47,14 @@ export function everydayTypeCases(
     depth: 0.45,
   };
   const sitting: IAutoMovieMotionHumanPerformance = one(
-    HumanChain.subject("a").sit({ seat, hold: 0.2 }),
+    AutoMovieMotionHumanChain.subject("a").sit({ seat, hold: 0.2 }),
   );
   const held = sitting.posture("a", sitting.duration);
   const reach: number = body.measure.forearm + 0.5 * body.measure.hand;
   const setups: [string, IAutoMovieMotionHumanChain, IAutoMovieVector3][] = [
     [
       "seated",
-      HumanChain.subject("a").sit({ seat, hold: 0.2 }),
+      AutoMovieMotionHumanChain.subject("a").sit({ seat, hold: 0.2 }),
       {
         x: 0,
         y: held.root.y + body.measure.shoulderHeight - body.measure.upperArm,
@@ -63,7 +63,7 @@ export function everydayTypeCases(
     ],
     [
       "standing",
-      HumanChain.subject("a"),
+      AutoMovieMotionHumanChain.subject("a"),
       {
         x: 0,
         y: body.measure.shoulderHeight - body.measure.upperArm - 0.005,

@@ -29,7 +29,7 @@ import { spacecraftGlide as spacecraftGlideLaw } from "../spacecraft/internal/sp
  *   handle.
  * - `rideVehicle`: Riding: a seated person carried by a support that moves by
  *   itself, such as a car, a bicycle or a horse given to the performance as a
- *   moving prop (`HumanObject.prop` with a motion).
+ *   moving prop (`AutoMovieMotionHumanObject.prop` with a motion).
  * - `board`: Board a moving carrier's seat (`IAutoMovieMotionHumanBoard`): in the
  *   seat contact's moving frame the root travels from where it takes off to its
  *   seated place on the seat by a minimum-jerk share, so it leaves and lands
@@ -110,7 +110,7 @@ export namespace AutoMovieMotionHumanRide {
    * Register `HumanTravelLeaf.openDoor` to use it.
    *
    * The leaf's swing is the scene's: the door is a prop whose handle moves
-   * within it (`IHumanProp.point`, as `HumanObject.prop` gives an archetype's
+   * within it (`IHumanProp.point`, as `AutoMovieMotionHumanObject.prop` gives an archetype's
    * articulated contact), and the hand follows the handle at every instant. The
    * hand turns to the handle's frame and closes on the door's own colliders
    * (`HumanMountRider.hold`, `HumanMountRider.closed`), reaching it over `TAKE`
@@ -132,10 +132,10 @@ export namespace AutoMovieMotionHumanRide {
   /**
    * Riding: a seated person carried by a support that moves by itself, such as
    * a car, a bicycle or a horse given to the performance as a moving prop
-   * (`HumanObject.prop` with a motion).
+   * (`AutoMovieMotionHumanObject.prop` with a motion).
    *
    * The rider sits down on the support first (`sit` on its seat where it stands
-   * at that second; `HumanObject.seat` reads a saddle with its pedals or
+   * at that second; `AutoMovieMotionHumanObject.seat` reads a saddle with its pedals or
    * stirrups) and then rides it: the seated posture is carried rigidly with the
    * support, turning, leaning and pitching as it does, the seat and each foot
    * that rested on it bearing on it, so nothing slides in the support's frame.

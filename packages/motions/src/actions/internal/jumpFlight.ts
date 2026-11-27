@@ -2,7 +2,7 @@ import { AutoMovieGravity } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * The default apex's part independent of the jump's length, hip heights
@@ -81,7 +81,7 @@ export namespace jumpFlight {
       asked ?? APEX_BASE * l + APEX_PER_LENGTH * length + climb;
     HumanBound.above("apex", apex, 0, "m");
     if (apex <= climb)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "apex",
         value: apex,

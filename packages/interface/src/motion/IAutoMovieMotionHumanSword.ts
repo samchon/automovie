@@ -12,7 +12,7 @@ import type { IAutoMovieMotionHumanStrikingHeld } from "./IAutoMovieMotionHumanS
  * what every blade action shares. `HumanSwordThrust` holds the thrust,
  * `HumanSwordGuard` the guards and `HumanSwordParry` the parry.
  *
- * The blade is a prop the hand already holds (`HumanObject.prop` of a sword,
+ * The blade is a prop the hand already holds (`AutoMovieMotionHumanObject.prop` of a sword,
  * then `pickUp` by its grip); the law reads its point and edge from the prop's
  * `point` and `edge` affordances as the hand holds them and aims those. With no
  * blade named the hand itself is aimed, and with no target a place at the

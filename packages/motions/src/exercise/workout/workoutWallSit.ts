@@ -1,7 +1,7 @@
 import { AutoMovieEngineKinematics, Quaternion, Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineMath } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPropReader, IAutoMovieMotionHumanWorkout, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanMaterialContact } from "../../posture/internal/HumanMaterialContact";
@@ -221,8 +221,8 @@ function pressureRange(
 /*
  * Report a fixed-face fit or support failure at the named wall.
  */
-function refusal(face: string, reason: string): HumanRefusal {
-  return new HumanRefusal({
+function refusal(face: string, reason: string): AutoMovieMotionHumanRefusal {
+  return new AutoMovieMotionHumanRefusal({
     kind: "affordance",
     axis: "on",
     value: face,

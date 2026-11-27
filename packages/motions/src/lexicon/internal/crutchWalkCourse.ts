@@ -7,7 +7,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * World vertical.
@@ -99,7 +99,7 @@ export namespace crutchWalkCourse {
    * Always, an affordance refusal with the staging fix.
    */
   export function refuse(axis: string, value: unknown, reason: string): never {
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis,
       value,

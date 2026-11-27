@@ -18,7 +18,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanPropFrame } from "../../perform/internal/HumanPropFrame";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
@@ -271,7 +271,7 @@ export namespace placeRideFeet {
       if (id === undefined) continue;
       const goal: IAutoMovieHumanLimbGoal | undefined = limbs[`${side}Leg`];
       if (support.prop.points[id] === undefined || goal === undefined)
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "affordance",
           axis: "feet",
           value: id,
@@ -406,7 +406,7 @@ export namespace placeRideFeet {
           foot.at(context.start + local).point,
         );
         if (gap > HumanFoot.BEARING)
-          throw new HumanRefusal({
+          throw new AutoMovieMotionHumanRefusal({
             kind: "reach",
             axis: "feet",
             value: foot.id,
@@ -455,7 +455,7 @@ export namespace placeRideFeet {
       surface === undefined ||
       !["pedal", "bar", "stirrup", "surface"].includes(surface.kind)
     )
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "affordance",
         axis: "feet",
         value: id,

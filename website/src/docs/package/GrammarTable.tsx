@@ -1,7 +1,7 @@
-import { HUMAN_GRAMMAR } from "@automovie/motions";
+import { AutoMovieMotionHumanGrammar } from "@automovie/motions";
 import type { ReactElement } from "react";
 
-/** One axis or operator as `HUMAN_GRAMMAR` lists it. */
+/** One axis or operator as `AutoMovieMotionHumanGrammar` lists it. */
 interface IEntry {
   /** Its name. */
   name: string;
@@ -32,7 +32,7 @@ export function GrammarTable(): ReactElement {
   const {
     axes,
     operators,
-  }: { axes: readonly IEntry[]; operators: readonly IEntry[] } = HUMAN_GRAMMAR;
+  }: { axes: readonly IEntry[]; operators: readonly IEntry[] } = AutoMovieMotionHumanGrammar;
   // The classes are those Nextra gives a Markdown table, so these tables are
   // drawn like the page's others and scroll inside themselves on a phone.
   const table: (caption: string, rows: readonly IEntry[]) => ReactElement = (

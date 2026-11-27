@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanSabreForm } from "./HumanSabreForm";
 
 /*
@@ -21,7 +21,7 @@ export function humanSabreCharge(
   HumanBound.above("duration", params.duration, 0, "s");
   HumanBound.above("transition", params.transition, 0, "s");
   if (params.transition > HumanSabreForm.STRIDE)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "transition",
       value: params.transition,

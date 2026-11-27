@@ -26,7 +26,7 @@ import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionH
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
 import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
@@ -48,7 +48,7 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 /*
  * A registered, stationary-base pour. Bring the held source above a fixed
  * recipient, tip about its rim lip, transfer, right it and retreat. Register
- * `pour` in `HumanPerformance` and call `registered(pour.name, params)`.
+ * `pour` in `AutoMovieMotionHumanPerformance` and call `registered(pour.name, params)`.
  * `flowStart` and `flowEnd` delimit the authored transfer cue.
  * EPIC-KITCHENS-100 provides observational action context (Damen et al., 2021,
  * https://arxiv.org/abs/2006.13256). Angles and phase lengths here are staged
@@ -89,7 +89,7 @@ export namespace pour {
           support.part === "rightFoot" && support.support.kind === "ground",
       )
     )
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "base",
         axis: "base",
         value: context.entry.base.kind,
@@ -283,7 +283,7 @@ export namespace pour {
           Vector3.dot(up, expected) >= TIP_ALIGNMENT
         )
       )
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "reach",
           axis: "target",
           value: params.target,
@@ -331,7 +331,7 @@ export namespace pour {
         end <= plan.duration
       )
     )
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "time",
         value: seconds,
@@ -367,7 +367,7 @@ function validateVolumes(params: IAutoMovieMotionHumanPour.IParams): void {
       params.targetMl <= params.capacityMl
     )
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "transferMl",
       value: params.transferMl,
@@ -457,8 +457,8 @@ function vesselRefusal(
   axis: VesselRefusalAxis,
   value: string,
   reason: string,
-): HumanRefusal {
-  return new HumanRefusal({
+): AutoMovieMotionHumanRefusal {
+  return new AutoMovieMotionHumanRefusal({
     kind: "affordance",
     axis,
     value,

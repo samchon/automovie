@@ -5,7 +5,7 @@
  * Register `HumanTravelLeaf.openDoor` to use it.
  *
  * The leaf's swing is the scene's: the door is a prop whose handle moves within
- * it (`IAutoMovieMotionHumanProp.point`, as `HumanObject.prop` gives an
+ * it (`IAutoMovieMotionHumanProp.point`, as `AutoMovieMotionHumanObject.prop` gives an
  * archetype's articulated contact), and the hand follows the handle at every
  * instant. The hand turns to the handle's frame and closes on the door's own
  * colliders (`HumanMountRider.hold`, `HumanMountRider.closed`), reaching it

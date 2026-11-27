@@ -21,7 +21,7 @@ import { HumanBall } from "../../ballStrike/internal/HumanBall";
 import { AutoMovieMotionHumanArmTarget } from "../../compose/internal/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
@@ -71,7 +71,7 @@ export function createPrecisionSportStroke<P extends Stroke>(
       );
       const horizontal: IAutoMovieVector3 = { ...toward, y: 0 };
       if (!(Vector3.length(horizontal) > 0))
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "parameter",
           axis: "target",
           value: params.target,
@@ -329,7 +329,7 @@ export function createPrecisionSportStroke<P extends Stroke>(
       const error: number = Vector3.length(Vector3.subtract(actual, contact));
       const tolerance: number = Math.min(0.012, 0.2 * ball.radius);
       if (error > tolerance)
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "reach",
           axis: "ball",
           value: error,
@@ -347,7 +347,7 @@ export function createPrecisionSportStroke<P extends Stroke>(
         direction,
       );
       if (facing < 0.95)
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "reach",
           axis: "tool",
           value: facing,
@@ -365,7 +365,7 @@ export function createPrecisionSportStroke<P extends Stroke>(
           ),
         );
         if (miss > 0.015)
-          throw new HumanRefusal({
+          throw new AutoMovieMotionHumanRefusal({
             kind: "reach",
             axis: "bridge",
             value: miss,
@@ -441,7 +441,7 @@ type Stroke = IAutoMovieMotionHumanLexiconPrecisionSportParams.IHand &
  */
 function implement(params: Stroke): string {
   if (params.tool !== undefined) return params.tool;
-  throw new HumanRefusal({
+  throw new AutoMovieMotionHumanRefusal({
     kind: "parameter",
     axis: "tool",
     value: params.tool,
@@ -462,7 +462,7 @@ const BRIDGE_INCLINE: number = 27;
  */
 function positive(axis: string, value: number): number {
   if (value > 0) return value;
-  throw new HumanRefusal({
+  throw new AutoMovieMotionHumanRefusal({
     kind: "parameter",
     axis,
     value,

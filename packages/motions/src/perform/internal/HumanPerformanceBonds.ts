@@ -15,7 +15,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanLimbFit } from "../../posture/internal/HumanLimbFit";
 import { HumanPerformanceGrips } from "./HumanPerformanceGrips";
 import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
@@ -102,7 +102,7 @@ function admit(
     reason: string,
     fix: string,
   ): never => {
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       performer: wearer,
       axis: `wears.link.${axis}`,

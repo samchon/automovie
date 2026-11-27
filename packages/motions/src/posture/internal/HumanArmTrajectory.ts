@@ -5,7 +5,7 @@ import type {
   IAutoMovieMotionHumanBody,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmTrajectoryLaid } from "./HumanArmTrajectoryLaid";
 import { HumanArmTrajectoryMirror as Mirror } from "./HumanArmTrajectoryMirror";
@@ -215,7 +215,7 @@ export namespace HumanArmTrajectory {
     try {
       return planHumanArmTrajectory(read, times, course, warm, stretches, told);
     } catch (error) {
-      if (told.flip && error instanceof HumanRefusal)
+      if (told.flip && error instanceof AutoMovieMotionHumanRefusal)
         throw Mirror.refusal(error);
       throw error;
     }

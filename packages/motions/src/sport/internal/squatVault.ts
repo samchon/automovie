@@ -27,7 +27,7 @@ import { supportKey } from "../../actions/internal/supportKey";
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
 import { WorkoutSupport } from "../../exercise/workout/WorkoutSupport";
 import { getUp } from "../../floor/internal/getUp";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 
@@ -247,7 +247,7 @@ export namespace squatVault {
     const d: number = Vector3.length(run);
     const h: number = landing.root.y - tucked.root.y;
     if (!(d > 0))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "on",
         value: context.params.on,

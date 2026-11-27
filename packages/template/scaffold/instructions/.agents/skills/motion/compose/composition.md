@@ -17,7 +17,7 @@ For example, a startled retreat needs the abrupt reactions and steps observed fo
 
 Keep fitted phases around a custom interval and join at admitted events or cuts. Overlay when the carrier yields the required channels and retains root motion and held contacts.
 
-Create a row with `AutoMovieMotionHumanActionRow.of(name, law, fixed)`. Pass rows and custom laws in the `laws` input to `HumanPerformance`. Use `HumanChain.extend` for typed calls under their own names.
+Create a row with `AutoMovieMotionHumanActionRow.of(name, law, fixed)`. Pass rows and custom laws in the `laws` input to `AutoMovieMotionHumanPerformance`. Use `AutoMovieMotionHumanChain.extend` for typed calls under their own names.
 
 ## Actions
 

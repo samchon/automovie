@@ -4,7 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * Where the kneeling hip joint comes to rest over the knee: behind the front
@@ -44,7 +44,7 @@ export function kneelPlace(input: kneelPlace.IInput): IAutoMovieVector3 {
   const leg: number = body.measure.thigh + body.measure.shank;
   const along: number = Vector3.dot(Vector3.subtract(front, placed), forward);
   if (along < behind)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "at",
       value: along,
@@ -54,7 +54,7 @@ export function kneelPlace(input: kneelPlace.IInput): IAutoMovieVector3 {
     });
   const reach: number = Vector3.distance(Vector3.add(placed, across), front);
   if (reach > leg)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "at",
       value: reach,

@@ -15,7 +15,7 @@ import type {
 import { AutoMovieMotionHumanAuditSkin } from "../../audit/internal/AutoMovieMotionHumanAuditSkin";
 import { AutoMovieMotionHumanHead } from "../../compose/internal/AutoMovieMotionHumanHead";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanAuditModel } from "../../posture/internal/HumanAuditModel";
 import { HumanSequentialConvex } from "../../posture/internal/HumanSequentialConvex";
 import { HumanSequentialConvexFunctions } from "../../posture/internal/HumanSequentialConvexFunctions";
@@ -461,8 +461,8 @@ export namespace embraceFromBehindSolve {
     partner: string,
     reason: string,
     fix: string,
-  ): HumanRefusal {
-    return new HumanRefusal({
+  ): AutoMovieMotionHumanRefusal {
+    return new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "partner",
       value: partner,

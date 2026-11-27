@@ -18,7 +18,7 @@ import type {
 } from "@automovie/interface";
 
 import { readHumanBone } from "../../body/internal/readHumanBone";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanLimbFit } from "../../posture/internal/HumanLimbFit";
 import { isHumanArmAlone } from "../../posture/internal/isHumanArmAlone";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -433,7 +433,7 @@ export namespace AutoMovieMotionHumanDrinkingArm {
     sought: string,
     closest: IAutoMovieMotionHumanDrinkingArm.INearest | undefined,
   ): IAutoMovieMotionHumanRefusal {
-    return new HumanRefusal({
+    return new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "facing",
       value: side,

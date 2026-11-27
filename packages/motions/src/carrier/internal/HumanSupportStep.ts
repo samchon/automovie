@@ -17,7 +17,7 @@ import type {
 } from "@automovie/interface";
 
 import { walk } from "../../gait/internal/walk";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanMountPush } from "../../lexicon/internal/HumanMountPush";
 import { hipJoints } from "../../posture/internal/hipJoints";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
@@ -512,7 +512,7 @@ export namespace HumanSupportStep {
    */
   export function admitRise(rise: number, onto: string | undefined): void {
     if (Math.abs(rise) > HumanSupportStepPlants.BEARING)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "base",
         axis: "to",
         value: rise,

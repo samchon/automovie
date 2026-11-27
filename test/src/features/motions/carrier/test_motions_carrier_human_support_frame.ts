@@ -4,7 +4,7 @@ import type {
   IAutoMovieMotionHumanEntryState,
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
-import { HumanRefusal, HumanSupportFrame } from "@automovie/motions/internal";
+import { AutoMovieMotionHumanRefusal, HumanSupportFrame } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -68,11 +68,11 @@ namespace part_human_support_frame_board {
       "fast",
       GAIT,
     );
-    let refusal: HumanRefusal | undefined;
+    let refusal: AutoMovieMotionHumanRefusal | undefined;
     try {
       HumanSupportFrame.board(context([]), "fast", GAIT);
     } catch (error: unknown) {
-      if (error instanceof HumanRefusal) refusal = error;
+      if (error instanceof AutoMovieMotionHumanRefusal) refusal = error;
     }
     TestValidator.predicate(
       "a prop faster than the gait",

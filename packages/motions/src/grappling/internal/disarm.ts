@@ -20,7 +20,7 @@ import type {
 
 import { AutoMovieMotionHumanHand } from "../../compose/internal/AutoMovieMotionHumanHand";
 import { handOver } from "../../handling/internal/handOver";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { touch } from "../../touch/internal/touch";
 
@@ -76,7 +76,7 @@ export namespace disarm {
   export function leverTime(asked: number | undefined): number {
     const lever: number = asked ?? LEVER;
     if (!(lever > 0))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "lever",
         value: lever,
@@ -226,7 +226,7 @@ function holding(
     const held: IAutoMovieMotionHumanPropReader.IHolder | undefined =
       reader.holderAt(context.start);
     if (held === undefined || held.subject !== partner)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "prop",
         value: prop,

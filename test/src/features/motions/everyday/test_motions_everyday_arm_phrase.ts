@@ -1,4 +1,4 @@
-import { HumanRefusal, armPhrase } from "@automovie/motions/internal";
+import { AutoMovieMotionHumanRefusal, armPhrase } from "@automovie/motions/internal";
 import { strict as assert } from "node:assert";
 
 /** A free phrase can use either or both hands. A named point needs its prop. */
@@ -34,5 +34,5 @@ export function test_motions_everyday_arm_phrase(): void {
 /** Match the refused input at the primitive's boundary. */
 function refuses(axis: string): (error: unknown) => boolean {
   return (error: unknown): boolean =>
-    error instanceof HumanRefusal && error.axis === axis;
+    error instanceof AutoMovieMotionHumanRefusal && error.axis === axis;
 }

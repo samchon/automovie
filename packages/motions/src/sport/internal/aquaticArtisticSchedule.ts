@@ -4,7 +4,7 @@ import type {
   IAutoMovieMotionHumanContactWindow,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * An artistic figure's schedule over its 4 s: the flat scull, the support scull
@@ -32,7 +32,7 @@ export function aquaticArtisticSchedule(
     lifted &&
     (bases === undefined || bases[0] === bases[1] || bases.includes(subject))
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "participant",
       axis: "bases",
       value: bases ?? null,

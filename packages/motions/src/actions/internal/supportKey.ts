@@ -9,7 +9,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanBodyFit } from "../../posture/internal/HumanBodyFit";
 import { HumanBodyFitMerit } from "../../posture/internal/HumanBodyFitMerit";
 import { HumanColliders } from "../../posture/internal/HumanColliders";
@@ -222,7 +222,7 @@ export namespace supportKey {
     }
     result.residuals.forEach((r: Residual, k: number): void => {
       if (k < contacts.length && points[k] !== null && r.point > miss)
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "reach",
           axis: "stances",
           value: r.point,

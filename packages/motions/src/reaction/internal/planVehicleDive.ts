@@ -16,7 +16,7 @@ import type {
 } from "@automovie/interface";
 
 import { dive } from "../../floor/internal/dive";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanColliders } from "../../posture/internal/HumanColliders";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -119,7 +119,7 @@ export function planVehicleDive(
     clearing = t;
   }
   if (clearing === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "side",
       value: side,

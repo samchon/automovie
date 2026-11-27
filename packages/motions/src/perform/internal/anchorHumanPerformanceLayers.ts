@@ -4,7 +4,7 @@ import type {
   IAutoMovieMotionHumanPerformanceState,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
 
 /*
@@ -29,7 +29,7 @@ export function anchorHumanPerformanceLayers(
         self.layered.has(scheduled.anchor) ||
         self.cues[scheduled.anchor] !== undefined
       )
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "parameter",
           performer: subject,
           axis: "layers",

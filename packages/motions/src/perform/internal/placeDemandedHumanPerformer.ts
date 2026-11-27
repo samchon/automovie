@@ -4,7 +4,7 @@ import type {
   IAutoMovieScheduleContext,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * Place a person a waiting part of an open parallel group holds before a read
@@ -67,7 +67,7 @@ export function placeDemandedHumanPerformer(
     // is read as placed: the caller holds them at their last placed pose.
     if (found === "cycle" && meeting) return false;
     if (found === "cycle")
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "participant",
         axis: axis(),
         value: subject,

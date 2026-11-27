@@ -25,7 +25,7 @@ import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotion
 import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanPropFrame } from "../../perform/internal/HumanPropFrame";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanMaterialContact } from "../../posture/internal/HumanMaterialContact";
@@ -105,7 +105,7 @@ function planLieOnSurface(
     (s: IAutoMovieMotionHumanEntryState.ISupport): boolean => s.kind === "seat",
   );
   if (!rise && !seatedEntry)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "base",
       axis: "edge",
       value: p.edge,
@@ -122,7 +122,7 @@ function planLieOnSurface(
   const material: HumanMaterialContact.ISite | undefined =
     HumanMaterialContact.prepare(reader, surface.id, context.start);
   if (material === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "surface",
       value: surface.id,
@@ -287,7 +287,7 @@ function planLieOnSurface(
     HumanMaterialContact.NORMAL,
   );
   if (vertical < 1 - 1e-12)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "surface",
       value: surface.id,
@@ -330,7 +330,7 @@ function planLieOnSurface(
     const low: IAutoMovieMotionHumanContactWindow.IMaterial | undefined =
       exterior(posture, face);
     if (held === undefined || low === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "surface",
         value: surface.id,

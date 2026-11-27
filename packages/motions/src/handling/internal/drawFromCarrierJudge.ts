@@ -9,7 +9,7 @@ import type {
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import type { drawFromCarrierPulling } from "./drawFromCarrierPulling";
@@ -67,7 +67,7 @@ export function drawFromCarrierJudge(
           ),
     );
     if (off > drawFromCarrierJudge.GRIP)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "affordance",
         axis: "from.aperture",
         value: aperture,

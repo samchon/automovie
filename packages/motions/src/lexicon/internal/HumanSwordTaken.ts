@@ -14,7 +14,7 @@ import type {
 
 import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
 import { AutoMovieMotionPrepared } from "../../compose/internal/AutoMovieMotionPrepared";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { StrikingBlade } from "../../striking/internal/StrikingBlade";
 import { StrikingHeld } from "../../striking/internal/StrikingHeld";
 import { HumanSword } from "./HumanSword";
@@ -56,7 +56,7 @@ export namespace HumanSwordTaken {
         );
         const theirs: string | undefined = parry.plan.wields?.prop;
         if (theirs === undefined)
-          throw new HumanRefusal({
+          throw new AutoMovieMotionHumanRefusal({
             kind: "participant",
             axis: "against",
             value: p.against,
@@ -68,7 +68,7 @@ export namespace HumanSwordTaken {
         const duration: number =
           until.start + until.plan.duration - context.start;
         if (!(duration > 0))
-          throw new HumanRefusal({
+          throw new AutoMovieMotionHumanRefusal({
             kind: "participant",
             axis: "until",
             value: p.until ?? p.against,

@@ -7,7 +7,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * The support a prop gives a workout: a bench's top under a body that lies or
@@ -64,7 +64,7 @@ export namespace WorkoutSupport {
         (a: IAutoMovieAffordance): boolean => a.id === id,
       );
       if (found === undefined)
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "parameter",
           axis: "on",
           value: id,

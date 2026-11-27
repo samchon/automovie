@@ -12,7 +12,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanCarrierCustody } from "../../lexicon/internal/HumanCarrierCustody";
 import { drawFromCarrier } from "./drawFromCarrier";
 import { putDownAperture } from "./putDownAperture";
@@ -39,7 +39,7 @@ export function HumanSheath(
   const tip: IAutoMovieAffordance = find(blade, params.tip, "tip");
   find(blade, params.handle, "handle");
   if (!(params.clearance > 0))
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "clearance",
       value: params.clearance,
@@ -58,7 +58,7 @@ export function HumanSheath(
     blade.motion !== undefined ||
     blade.fixed === true
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "blade",
       value: blade.subject,
@@ -74,7 +74,7 @@ export function HumanSheath(
     1 / reach,
   );
   if (!(reach > 0) || Math.acos(Math.min(1, along.y)) > HumanSheath.AXIS)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "tip",
       value: params.tip,
@@ -403,7 +403,7 @@ function find(
     (affordance: IAutoMovieAffordance): boolean => affordance.id === id,
   );
   if (found === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis,
       value: id,

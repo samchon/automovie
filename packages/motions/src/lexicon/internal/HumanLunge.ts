@@ -18,7 +18,7 @@ import type {
 
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanLungeChange } from "./HumanLungeChange";
 import { HumanLungeHands } from "./HumanLungeHands";
 import { HumanLungePivot } from "./HumanLungePivot";
@@ -76,7 +76,7 @@ function planHumanLunge(context: Context): IAutoMovieMotionHumanActionPlan {
   if (
     !(transition > 0 && 2 * transition < seconds)
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "transition",
       value: transition,
@@ -93,7 +93,7 @@ function planHumanLunge(context: Context): IAutoMovieMotionHumanActionPlan {
     rope.symmetry !== "round" ||
     !(rope.aperture! > 0)
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "point",
       value: point,

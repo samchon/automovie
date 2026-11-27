@@ -10,7 +10,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import type { HumanRideHands } from "./HumanRideHands";
 
 /*
@@ -125,7 +125,7 @@ export namespace HumanMountedAids {
         const at: number = c.seconds - start;
         if (at < 0 || at > duration) continue;
         if (at - aid.latency < 0)
-          throw new HumanRefusal({
+          throw new AutoMovieMotionHumanRefusal({
             kind: "parameter",
             axis: `aids.${i}.latency`,
             value: aid.latency,
@@ -146,7 +146,7 @@ export namespace HumanMountedAids {
         const at: number = c.seconds - start;
         if (at < 0 || at > duration) continue;
         if (!out.some((g: IGiven): boolean => Math.abs(g.at - at) < 1e-6))
-          throw new HumanRefusal({
+          throw new AutoMovieMotionHumanRefusal({
             kind: "parameter",
             axis: "aided",
             value: c.seconds,

@@ -13,7 +13,7 @@ import type {
 } from "@automovie/interface";
 
 import { walk } from "../../gait/internal/walk";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { coverWall } from "./coverWall";
 
 /*
@@ -122,7 +122,7 @@ export namespace coverTravel {
       body.measure.headHeight - (sillHeight - BELOW),
     );
     if (drop > CROUCH * body.measure.hipHeight)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "window",
         value: p.window,

@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * The pour's stage clock: the five authored stages in order, each 0.2 to 3
@@ -33,7 +33,7 @@ export function pourClock(
     duration +=
       phase.seconds >= 0.2 && phase.seconds <= 3 ? phase.seconds : NaN;
   if (!(duration <= 10 && tempo > 0 && duration * tempo <= 10))
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "timing",
       value: duration,
@@ -42,7 +42,7 @@ export function pourClock(
       fix: "shorten or lengthen the affected stage lengths",
     });
   if (!(tilt >= 35 && tilt <= 90 && gap >= 0.04 && gap <= 0.18))
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "tilt/gap",
       value: params.tilt,

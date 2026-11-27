@@ -3,7 +3,7 @@ import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieHumanoidRegion
 
 import { AutoMovieMotionHumanTouchStance } from "../../compose/internal/AutoMovieMotionHumanTouchStance";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { StrikingBody } from "./StrikingBody";
 import { StrikingStance } from "./StrikingStance";
 
@@ -271,7 +271,7 @@ function refuse(
   minimum: number,
   maximum: number,
 ): never {
-  throw new HumanRefusal({
+  throw new AutoMovieMotionHumanRefusal({
     kind: "reach",
     axis: axis === "height" ? "at.height" : "at",
     value,

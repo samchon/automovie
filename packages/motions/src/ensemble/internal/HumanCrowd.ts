@@ -14,7 +14,7 @@ import type {
 
 import { run } from "../../gait/internal/run";
 import { walk } from "../../gait/internal/walk";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanResponse } from "../../skill/internal/HumanResponse";
 import { HumanSkill } from "../../skill/internal/HumanSkill";
 import { HUMAN_ATTRIBUTE_EFFECTS } from "./HUMAN_ATTRIBUTE_EFFECTS";
@@ -247,7 +247,7 @@ export namespace HumanCrowd {
         contact.other.kind === "agent"
           ? leaders[contact.other.index]!.subject
           : request.obstacles![contact.other.index]!.subject;
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "participant",
         performer: leaders[contact.agent]!.subject,
         axis: "crowd",

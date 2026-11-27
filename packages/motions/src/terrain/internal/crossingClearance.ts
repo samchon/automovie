@@ -17,7 +17,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanSignature } from "../../audit/AutoMovieMotionHumanSignature";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanSegmentPlant } from "../../perform/internal/HumanSegmentPlant";
 import { HumanColliderPlacement } from "../../posture/internal/HumanColliderPlacement";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -69,7 +69,7 @@ export function crossingClearance(
         fixture.prop.hasArticulations === true ||
         !fixture.prop.shapes?.length
       )
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "affordance",
           axis: "obstacle",
           value: subject,
@@ -159,7 +159,7 @@ export function crossingClearance(
     }
   }
   if (collision !== undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "obstacle",
       value: collision.subject,

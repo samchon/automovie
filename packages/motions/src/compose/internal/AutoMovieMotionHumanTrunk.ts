@@ -16,7 +16,7 @@ import type {
 import { HumanBalance } from "../../everyday/internal/HumanBalance";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { HumanPhysics } from "../../law/internal/HumanPhysics";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanBoneGroups } from "../../posture/internal/HumanBoneGroups";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
@@ -416,7 +416,7 @@ export namespace AutoMovieMotionHumanTrunk {
     const margin: number = HumanBalance.margin(body, shifted(back));
     if (back !== 0 && !(margin > 0)) {
       const ahead: number = HumanBalance.offset(body, shifted(back));
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "base",
         axis: "balance",
         value: Number(ahead.toFixed(4)),

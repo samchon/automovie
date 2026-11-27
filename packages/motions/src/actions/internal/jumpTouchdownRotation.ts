@@ -8,7 +8,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanAudit } from "../../audit/internal/AutoMovieMotionHumanAudit";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import type { jumpLanding } from "./jumpLanding";
@@ -65,7 +65,7 @@ export function jumpTouchdownRotation(
       const displacement: number =
         pivotDrift + 2 * radius * Math.sin(angle / 2);
       if (!(displacement <= limit))
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "reach",
           axis: "turns",
           value: displacement,

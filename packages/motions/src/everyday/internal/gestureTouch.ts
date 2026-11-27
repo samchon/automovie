@@ -9,7 +9,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanTouchEffector } from "../../compose/internal/AutoMovieMotionHumanTouchEffector";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { HumanTrunk } from "./HumanTrunk";
@@ -127,7 +127,7 @@ export namespace gestureTouch {
   ): IAutoMovieMotionHumanGestureStroke.IHand {
     const body: IAutoMovieMotionHumanBody = input.body;
     if (input.target === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "target",
         value: undefined,

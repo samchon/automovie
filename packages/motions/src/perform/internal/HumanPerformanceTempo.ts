@@ -6,7 +6,7 @@ import type {
 
 import { AutoMovieMotionHumanArmPlanned } from "../../compose/internal/AutoMovieMotionHumanArmPlanned";
 import { HumanPhysics } from "../../law/internal/HumanPhysics";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * An action planned at the time its motion needs: a plan whose planned motion
@@ -108,7 +108,7 @@ export namespace HumanPerformanceTempo {
           // The time the action needs over the time it was first planned
           // at: what the author is told to give it.
           const total: number = (tempo / first) * factor;
-          throw new HumanRefusal({
+          throw new AutoMovieMotionHumanRefusal({
             kind: "reach",
             axis: "duration",
             value: total,
@@ -170,7 +170,7 @@ function standalone<P>(
  */
 function span(error: unknown): ISpan | undefined {
   if (
-    !(error instanceof HumanRefusal) ||
+    !(error instanceof AutoMovieMotionHumanRefusal) ||
     error.kind !== "reach" ||
     error.axis !== "duration" ||
     error.feasible === null ||

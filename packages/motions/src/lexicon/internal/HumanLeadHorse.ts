@@ -13,7 +13,7 @@ import type {
 
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
@@ -50,7 +50,7 @@ function planHumanLeadHorse(
     transition,
   } = context.params;
   if (!(transition > 0 && 2 * transition < seconds))
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "transition",
       value: transition,
@@ -59,7 +59,7 @@ function planHumanLeadHorse(
       fix: "Give a transition shorter than half the total seconds.",
     });
   if (context.carrier === undefined)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "base",
       axis: "carrier",
       value: context.entry.base.kind,
@@ -76,7 +76,7 @@ function planHumanLeadHorse(
     rope.symmetry !== "round" ||
     !(rope.aperture! > 0)
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "point",
       value: point,

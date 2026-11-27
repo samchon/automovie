@@ -17,7 +17,7 @@ import type {
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
 import { AutoMovieMotionInterval } from "../../compose/internal/AutoMovieMotionInterval";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { blendHumanJoint } from "../../posture/internal/blendHumanJoint";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -109,7 +109,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     context.entry.holds.left !== undefined ||
     context.entry.holds.right !== undefined
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "channel",
       axis: "hands",
       value: context.entry.holds,
@@ -125,7 +125,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     reader.prop.worn !== undefined ||
     reader.prop.mounted !== undefined
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "prop",
       value: context.params.prop,
@@ -175,7 +175,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
         Math.min(Vector3.length(index.sweep), Vector3.length(middle.sweep))
     )
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "strings",
       value: ["string3", "string2"],
@@ -196,7 +196,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     poseBones(context.body, context.entry.pose);
   const voicing: IAutoMovieVector3 = Vector3.subtract(middleStop, indexStop);
   if (!(Vector3.length(Vector3.cross(normal, voicing)) > 1e-9))
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "affordance",
       axis: "frettingSpan",
       value: voicing,
@@ -206,7 +206,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   const span: number = Vector3.length(voicing);
   const maximumSpan: number = guitarFrettingSpan(context.body, bones);
   if (!(span <= maximumSpan + 1e-6))
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "frettingSpan",
       value: span,
@@ -387,7 +387,7 @@ function arm(
     const near: number = Vector3.length(Vector3.lerp(previous, next, closest));
     const far: number = Vector3.length(next);
     if (!(minimum - 1e-6 <= near && far <= maximum + 1e-6))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: `${side}Arm`,
         value: near < minimum - 1e-6 ? near : far,

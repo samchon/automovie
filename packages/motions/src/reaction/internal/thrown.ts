@@ -22,7 +22,7 @@ import { AutoMovieMotionHumanLean } from "../../compose/internal/AutoMovieMotion
 import { AutoMovieMotionHumanRoot } from "../../compose/internal/AutoMovieMotionHumanRoot";
 import { AutoMovieMotionHumanTarget } from "../../compose/internal/AutoMovieMotionHumanTarget";
 import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { StrikingTarget } from "../../striking/internal/StrikingTarget";
 import { KnockdownFloor } from "./KnockdownFloor";
@@ -79,7 +79,7 @@ export namespace thrown {
     ];
     for (const [axis, value] of sizes)
       if (!(value > 0))
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "parameter",
           axis,
           value,
@@ -93,7 +93,7 @@ export namespace thrown {
           fix: `give a positive ${axis} in metres`,
         });
     if (!(lie >= 0))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "hold",
         value: lie,

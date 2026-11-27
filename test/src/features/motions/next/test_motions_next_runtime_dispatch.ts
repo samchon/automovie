@@ -3,7 +3,7 @@ import {
   AutoMovieMotionHumanJump,
   AutoMovieMotionHumanSeat,
   AutoMovieMotionHumanStance,
-  HUMAN_ACTIONS,
+  AutoMovieMotionHumanActions,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -22,20 +22,20 @@ export async function test_motions_next_runtime_dispatch(): Promise<void> {
   const order = (a: string, b: string): number => a.localeCompare(b);
   TestValidator.equals(
     "the registered vocabulary equals the authored base vocabulary",
-    Object.keys(HUMAN_ACTIONS).sort(order),
+    Object.keys(AutoMovieMotionHumanActions).sort(order),
     ledger.laws
       .map((law: motionHumanLedger.ILaw): string => law.law)
       .sort(order),
   );
   TestValidator.predicate(
     "each dispatch key binds its own declared law name",
-    Object.entries(HUMAN_ACTIONS).every(([name, law]) => name === law.name),
+    Object.entries(AutoMovieMotionHumanActions).every(([name, law]) => name === law.name),
   );
   TestValidator.predicate(
     "the registered stance, travel, seat and flight are the public implementations",
-    HUMAN_ACTIONS.stand === AutoMovieMotionHumanStance.stand &&
-      HUMAN_ACTIONS.walk === AutoMovieMotionHumanGait.walk &&
-      HUMAN_ACTIONS.sit === AutoMovieMotionHumanSeat.sit &&
-      HUMAN_ACTIONS.jump === AutoMovieMotionHumanJump.jump,
+    AutoMovieMotionHumanActions.stand === AutoMovieMotionHumanStance.stand &&
+      AutoMovieMotionHumanActions.walk === AutoMovieMotionHumanGait.walk &&
+      AutoMovieMotionHumanActions.sit === AutoMovieMotionHumanSeat.sit &&
+      AutoMovieMotionHumanActions.jump === AutoMovieMotionHumanJump.jump,
   );
 }

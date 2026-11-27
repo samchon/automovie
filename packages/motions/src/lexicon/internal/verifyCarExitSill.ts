@@ -8,7 +8,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanSignature } from "../../audit/AutoMovieMotionHumanSignature";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanMaterialContact } from "../../posture/internal/HumanMaterialContact";
 import { crossingClearance } from "../../terrain/internal/crossingClearance";
 
@@ -30,7 +30,7 @@ export function verifyCarExitSill(
   const name: string =
     sill === undefined ? through.id : `${sill.subject}/${sill.point}`;
   const refuse = (reason: string): never => {
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "sill",
       value: name,

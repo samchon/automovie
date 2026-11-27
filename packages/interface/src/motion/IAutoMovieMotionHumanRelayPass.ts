@@ -2,7 +2,7 @@ import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { AutoMovieHumanSide } from "../human/AutoMovieHumanSide";
 
 /**
- * A relay baton pass, one role of it, performed over a run (`HumanChain.over`):
+ * A relay baton pass, one role of it, performed over a run (`AutoMovieMotionHumanChain.over`):
  * the outgoing runner's hand goes back, open, palm back, and the incoming
  * runner pushes the baton's end into it at a film second both roles state alike
  * (`at`), from where the baton passes to the outgoing hand.

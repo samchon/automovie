@@ -14,7 +14,7 @@ import type {
 
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { ExerciseKey } from "../../exercise/internal/ExerciseKey";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanPropHold } from "../../perform/internal/HumanPropHold";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
@@ -212,7 +212,7 @@ export namespace AquaticPolo {
           ? undefined
           : throwObjectLaunch.aimed(point, target, 24);
       if (target === undefined || velocity === undefined)
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "parameter",
           axis: "at",
           value: target ?? null,

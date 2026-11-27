@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanThrowCatch,
-  HumanPerformance,
+  AutoMovieMotionHumanPerformance,
 } from "@automovie/motions";
 
 import type { IBallStation } from "./IBallStation";
@@ -33,7 +33,7 @@ import type { IBallStation } from "./IBallStation";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh record.
  */
 export function ballStation(
-  film: HumanPerformance,
+  film: AutoMovieMotionHumanPerformance,
   ball: string,
   launch: IAutoMovieMotionHumanBallPlay.ILaunch,
   through: IAutoMovieVector3,

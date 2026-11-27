@@ -7,7 +7,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * The ball a prop is, at a second.
@@ -69,7 +69,7 @@ export namespace HumanBall {
       (a: IAutoMovieAffordance): boolean => a.id === "grip",
     );
     if (grip === undefined || !((grip.aperture ?? 0) > 0))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "affordance",
         axis,
         value: subject,

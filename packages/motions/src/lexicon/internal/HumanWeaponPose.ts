@@ -3,7 +3,7 @@ import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieMotionHu
 
 import { AutoMovieMotionHumanVerdicts } from "../../audit/AutoMovieMotionHumanVerdicts";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -180,7 +180,7 @@ export function HumanWeaponPose(
   // brought the target to the arms' bound, so only an unturned
   // presentation is judged against it here.
   if (mounted === 0 && off > HumanWeaponPresent.TURN)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: "target",
       value: off,
@@ -272,7 +272,7 @@ export function HumanWeaponPose(
             r,
           );
           if (step === undefined)
-            throw new HumanRefusal({
+            throw new AutoMovieMotionHumanRefusal({
               kind: "reach",
               axis: "target",
               value: Vector3.length(Vector3.subtract(from, shoulder)),
@@ -383,7 +383,7 @@ export function HumanWeaponPose(
           s.arm - AutoMovieMotionHumanVerdicts.SKIN,
         );
         if (lift === undefined)
-          throw new HumanRefusal({
+          throw new AutoMovieMotionHumanRefusal({
             kind: "reach",
             axis: "gun",
             value: Vector3.length(Vector3.subtract(wrist, shoulder)),

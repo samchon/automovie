@@ -7,7 +7,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { AutoMovieMotionHumanLeanInto } from "./AutoMovieMotionHumanLeanInto";
@@ -241,7 +241,7 @@ export namespace AutoMovieMotionHumanTouchStance {
   export function choose<Candidate, Stance>(
     props: IChoice<Candidate, Stance>,
   ): Stance {
-    const refused: HumanRefusal[] = [];
+    const refused: AutoMovieMotionHumanRefusal[] = [];
     for (const candidate of props.candidates) {
       const stance: Stance | undefined = reached(
         props.reach,
@@ -250,9 +250,9 @@ export namespace AutoMovieMotionHumanTouchStance {
       );
       if (stance !== undefined) return stance;
     }
-    const first: HumanRefusal | undefined = refused[0];
+    const first: AutoMovieMotionHumanRefusal | undefined = refused[0];
     if (first === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "candidates",
         value: 0,
@@ -315,12 +315,12 @@ export namespace AutoMovieMotionHumanTouchStance {
   function reached<Candidate, Stance>(
     reach: (candidate: Candidate) => Stance,
     candidate: Candidate,
-    refused: HumanRefusal[],
+    refused: AutoMovieMotionHumanRefusal[],
   ): Stance | undefined {
     try {
       return reach(candidate);
     } catch (error: unknown) {
-      if (!(error instanceof HumanRefusal) || error.kind !== "reach")
+      if (!(error instanceof AutoMovieMotionHumanRefusal) || error.kind !== "reach")
         throw error;
       refused.push(error);
       return undefined;
@@ -331,8 +331,8 @@ export namespace AutoMovieMotionHumanTouchStance {
    * The refusal of a choice none of whose candidates reaches: the first
    * candidate's facts, its reason followed by the others'.
    */
-  function refuse(first: HumanRefusal, all: readonly HumanRefusal[]): never {
-    throw new HumanRefusal({
+  function refuse(first: AutoMovieMotionHumanRefusal, all: readonly AutoMovieMotionHumanRefusal[]): never {
+    throw new AutoMovieMotionHumanRefusal({
       kind: first.kind,
       axis: first.axis,
       value: first.value,
@@ -342,7 +342,7 @@ export namespace AutoMovieMotionHumanTouchStance {
           ? first.reason
           : `${first.reason}; no other candidate reaches: ${all
               .slice(1)
-              .map((other: HumanRefusal): string => other.reason)
+              .map((other: AutoMovieMotionHumanRefusal): string => other.reason)
               .join("; ")}`,
       fix: first.fix,
     });

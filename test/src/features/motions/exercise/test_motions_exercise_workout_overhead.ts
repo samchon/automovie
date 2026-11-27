@@ -4,7 +4,7 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanChain, HumanPerformance } from "@automovie/motions";
+import { AutoMovieMotionHumanChain, AutoMovieMotionHumanPerformance } from "@automovie/motions";
 import { FamilyCaseKit } from "@automovie/motions/executable/internal";
 import {
   HumanColliders,
@@ -32,7 +32,7 @@ export function test_motions_exercise_workout_overhead(): void {
   ] as const) {
     const { body }: FamilyCaseKit.IBody = FamilyCaseKit.body(id);
     for (const kind of ["snatch", "cleanAndJerk"] as const) {
-      const take = new HumanPerformance({
+      const take = new AutoMovieMotionHumanPerformance({
         seed: "unloaded-overhead",
         performers: [
           {
@@ -43,7 +43,7 @@ export function test_motions_exercise_workout_overhead(): void {
             proficiency: { level: "trained" },
           },
         ],
-        composition: HumanChain.subject(ACTOR).registered("workout", {
+        composition: AutoMovieMotionHumanChain.subject(ACTOR).registered("workout", {
           kind,
           count: 1,
         }).node,
@@ -55,7 +55,7 @@ export function test_motions_exercise_workout_overhead(): void {
 }
 
 function verify(
-  take: HumanPerformance,
+  take: AutoMovieMotionHumanPerformance,
   id: string,
   body: IAutoMovieMotionHumanBody,
   yaw: number,

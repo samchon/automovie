@@ -7,9 +7,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanChain } from "../../chain/HumanChain";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
 import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
-import { HumanPerformance } from "../../perform/HumanPerformance";
+import { AutoMovieMotionHumanPerformance } from "../../perform/AutoMovieMotionHumanPerformance";
 import { HumanColliders } from "../../posture/internal/HumanColliders";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
@@ -61,7 +61,7 @@ export function racketCases(
 
       // Process boundary: a case that throws is reported as that case's refusal, and the remaining cases still run.
       try {
-        performance = new HumanPerformance({
+        performance = new AutoMovieMotionHumanPerformance({
           seed: "racket",
           performers: [
             {
@@ -72,7 +72,7 @@ export function racketCases(
               proficiency: { level: "trained" as const },
             },
           ],
-          composition: HumanChain.subject("a").act("racket", { kind }).node,
+          composition: AutoMovieMotionHumanChain.subject("a").act("racket", { kind }).node,
         });
       } catch (error) {
         out.push(FamilyCaseKit.refused(name, error));

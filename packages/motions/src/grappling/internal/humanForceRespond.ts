@@ -3,7 +3,7 @@ import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanActionContext, IAutoMo
 
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanLean } from "../../compose/internal/AutoMovieMotionHumanLean";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanForce } from "../../perform/internal/HumanForce";
 import { HumanArmTrajectoryTerms } from "../../posture/internal/HumanArmTrajectoryTerms";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
@@ -56,7 +56,7 @@ export function humanForceRespond(
   );
   const force: number = Math.hypot(sum.x, sum.z);
   if (open.length === 0 || !(force > 0))
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "outcome",
       value: chosen,
@@ -209,7 +209,7 @@ export function humanForceRespond(
     // An impulse at the start that already fells the body leaves nothing
     // to resist the pull with.
     if (outcome.outcome === "fall")
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "outcome",
         value: chosen,
@@ -232,7 +232,7 @@ export function humanForceRespond(
       edge: behind,
     });
     if (shift === null)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "outcome",
         value: chosen,
@@ -269,7 +269,7 @@ export function humanForceRespond(
     force,
   });
   if (!(broken <= span))
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "parameter",
       axis: "outcome",
       value: chosen,

@@ -280,7 +280,7 @@ export namespace AutoMovieMotionHumanOperateHelpers {
   /*
    * Keyed contact sequences: the digits pressing the sites of a prop one after
    * another, each a row of `manipulate`. Register the ones a film uses
-   * (`HumanPerformance.IInput.laws`, `HumanChain.extend`); `manipulate` itself
+   * (`AutoMovieMotionHumanPerformance.IInput.laws`, `AutoMovieMotionHumanChain.extend`); `manipulate` itself
    * is registered with them.
    *
    * Register the separate write law to trace an authored planar stroke with a

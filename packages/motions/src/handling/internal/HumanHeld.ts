@@ -14,7 +14,7 @@ import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotion
 import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
 import { AutoMovieMotionHumanTouchLaid } from "../../compose/internal/AutoMovieMotionHumanTouchLaid";
 import { AutoMovieMotionHumanTouchUpright } from "../../compose/internal/AutoMovieMotionHumanTouchUpright";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanHeldEffector } from "./HumanHeldEffector";
 
 /*
@@ -217,7 +217,7 @@ export namespace HumanHeld {
     // elbow low (Murphy, Willen and Sunnerhagen 2011), and a drink over a
     // walk was refused at 13.5 degrees by the level a toast keeps.
     if (!leans && least > LEVEL)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "prop",
         value: least,

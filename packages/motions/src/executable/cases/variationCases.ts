@@ -11,7 +11,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanChain } from "../../chain/HumanChain";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
 import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
 import { AutoMovieMotionHumanTarget } from "../../compose/internal/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
@@ -304,7 +304,7 @@ function gestures(
   kind: GesturesKind,
   manner: IGesturesManner | undefined,
 ): IGesturesResult {
-  let chain: IAutoMovieMotionHumanChain = HumanChain.subject("a");
+  let chain: IAutoMovieMotionHumanChain = AutoMovieMotionHumanChain.subject("a");
   for (let i: number = 0; i < VariationSeries.REPEATS; i++)
     chain = chain.gesture({
       kind,

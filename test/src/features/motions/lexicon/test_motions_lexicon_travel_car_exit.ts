@@ -11,7 +11,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanRefusal,
+  AutoMovieMotionHumanRefusal,
   admitCarExitSill,
   stand,
   verifyCarExitSill,
@@ -127,7 +127,7 @@ async function materialContact(): Promise<void> {
       );
       return undefined;
     } catch (error: unknown) {
-      if (!(error instanceof HumanRefusal)) throw error;
+      if (!(error instanceof AutoMovieMotionHumanRefusal)) throw error;
       return error.reason;
     }
   };

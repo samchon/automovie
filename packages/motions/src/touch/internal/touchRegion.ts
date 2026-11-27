@@ -14,7 +14,7 @@ import type {
 
 import { AutoMovieMotionHumanTarget } from "../../compose/internal/AutoMovieMotionHumanTarget";
 import { touchRegionFrame } from "../../compose/internal/touchRegionFrame";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
@@ -66,7 +66,7 @@ export namespace touchRegion {
     let along: ((seconds: number) => IAutoMovieVector3) | undefined;
     if (site !== undefined && "along" in site) {
       if (target.kind !== "prop")
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "affordance",
           axis: "site",
           value: target.kind,

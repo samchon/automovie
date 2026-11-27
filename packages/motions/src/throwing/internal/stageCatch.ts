@@ -12,7 +12,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanBall } from "../../ballStrike/internal/HumanBall";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { catchObject } from "./catchObject";
 
 /*
@@ -45,7 +45,7 @@ export const stageCatch: IAutoMovieMotionHumanCatchObject.IStageLaw = {
       ) ?? [];
     const launch: IAutoMovieMotionPropLaunch | undefined = launches[0];
     if (launches.length !== 1 || launch === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "participant",
         axis: "partner",
         value: from,
@@ -60,7 +60,7 @@ export const stageCatch: IAutoMovieMotionHumanCatchObject.IStageLaw = {
       reader.prop.worn !== undefined ||
       reader.prop.body?.drag !== undefined
     )
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "affordance",
         axis: "ball",
         value: ball,
@@ -80,7 +80,7 @@ export const stageCatch: IAutoMovieMotionHumanCatchObject.IStageLaw = {
     if (specified !== undefined) {
       const at: number = released + specified;
       if (!(specified > 0) || !(at > context.start))
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "reach",
           axis: "intercept",
           value: specified,
@@ -91,7 +91,7 @@ export const stageCatch: IAutoMovieMotionHumanCatchObject.IStageLaw = {
       const previous: number = at - Math.min((at - released) / 2, 1e-4);
       approach = reader.flightApproach?.(at, previous);
       if (approach?.launch !== launch)
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "reach",
           axis: "partner",
           value: from,
@@ -104,7 +104,7 @@ export const stageCatch: IAutoMovieMotionHumanCatchObject.IStageLaw = {
         centre(approach.before),
       );
       if (!(Vector3.length(movement) > 0))
-        throw new HumanRefusal({
+        throw new AutoMovieMotionHumanRefusal({
           kind: "reach",
           axis: "intercept",
           value: specified,
@@ -130,7 +130,7 @@ export const stageCatch: IAutoMovieMotionHumanCatchObject.IStageLaw = {
       released < source.entryTime ||
       !(context.start + contact > released)
     )
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "partner",
         value: from,
@@ -148,7 +148,7 @@ export const stageCatch: IAutoMovieMotionHumanCatchObject.IStageLaw = {
         ? reader.launchAt?.(placedAt)
         : approached.launch) !== launch
     )
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "partner",
         value: from,
@@ -176,7 +176,7 @@ export const stageCatch: IAutoMovieMotionHumanCatchObject.IStageLaw = {
         flightParity,
     };
     if (!capture.matches(approached?.frame ?? reader.frame(placedAt)))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "ball",
         value: ball,

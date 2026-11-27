@@ -18,7 +18,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionInterval } from "../../compose/internal/AutoMovieMotionInterval";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
@@ -530,7 +530,7 @@ function refuse(
   reason: string,
   fix: string,
 ): never {
-  throw new HumanRefusal({
+  throw new AutoMovieMotionHumanRefusal({
     kind: "base",
     axis,
     value,

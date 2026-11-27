@@ -12,7 +12,7 @@ import type {
 import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionHumanLeg";
 import { ExerciseKey } from "../../exercise/internal/ExerciseKey";
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { AquaticPosture } from "./AquaticPosture";
 
@@ -142,7 +142,7 @@ export namespace AquaticDive {
       !entry.feet.right.planted ||
       original.root.y <= water
     )
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "base",
         axis: "base",
         value: entry.base.kind,

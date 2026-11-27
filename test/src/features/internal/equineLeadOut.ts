@@ -5,7 +5,7 @@ import type {
   IAutoMovieMotionHumanSegment,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import type { HumanPerformance } from "@automovie/motions";
+import type { AutoMovieMotionHumanPerformance } from "@automovie/motions";
 
 import { equineFordRider } from "./equineFordRider";
 
@@ -274,7 +274,7 @@ export namespace equineLeadOut {
    */
   export function led(
     staged: equineFordRider.IMount,
-    rehearsal: HumanPerformance,
+    rehearsal: AutoMovieMotionHumanPerformance,
     walking: IAutoMovieMotionHumanSegment,
   ): ILed {
     const step: number = (walking.end - walking.start) / SAMPLES;

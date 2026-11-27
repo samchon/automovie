@@ -9,7 +9,7 @@ import { HumanBlade } from "./HumanBlade";
 
 /*
  * Compose a blocked opening and an optional reply for a staged blade exchange.
- * Register the cut and parry rows of HumanBlade with HumanPerformance, and
+ * Register the cut and parry rows of HumanBlade with AutoMovieMotionHumanPerformance, and
  * bind, riposte, taken and enGarde when the exchange has a reply. Each chain
  * prepares its performer and prop. The block starts at the authored lead before
  * the opening's decisive cue, and a reply starts when the block ends. The

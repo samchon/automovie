@@ -8,7 +8,7 @@ import type {
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanChain, HumanPerformance } from "@automovie/motions";
+import { AutoMovieMotionHumanChain, AutoMovieMotionHumanPerformance } from "@automovie/motions";
 import {
   WalkTurn,
   walkHeading,
@@ -355,7 +355,7 @@ namespace part_walk_heading_footfalls {
 async function arrivalTurn(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
   const to: IAutoMovieVector3 = { x: 1.5, y: 0, z: 4 };
-  const performance: HumanPerformance = new HumanPerformance({
+  const performance: AutoMovieMotionHumanPerformance = new AutoMovieMotionHumanPerformance({
     seed: "walk",
     performers: [
       {
@@ -366,7 +366,7 @@ async function arrivalTurn(): Promise<void> {
         proficiency: { level: "trained" },
       },
     ],
-    composition: HumanChain.subject("w0").walk({
+    composition: AutoMovieMotionHumanChain.subject("w0").walk({
       to,
       via: [{ x: 1.5, y: 0, z: 1.5 }],
       face: 90,

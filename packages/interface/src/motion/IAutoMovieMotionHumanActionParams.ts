@@ -73,7 +73,7 @@ import type { IAutoMovieMotionHumanSelfAction } from "./IAutoMovieMotionHumanSel
  * action and the type checker supplies and checks its parameters.
  *
  * Each member is the law's own `IParams`; nothing is restated here. Its keys
- * are exactly `AutoMovieMotionHumanActionName`: `HumanChain.act` indexes it by
+ * are exactly `AutoMovieMotionHumanActionName`: `AutoMovieMotionHumanChain.act` indexes it by
  * the name, so a name without a member, or a member without a name, fails to
  * compile.
  *

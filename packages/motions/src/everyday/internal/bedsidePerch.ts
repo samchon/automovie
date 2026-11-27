@@ -5,7 +5,7 @@ import type {
   IAutoMovieMotionHumanSeated,
 } from "@automovie/interface";
 
-import { HumanObject } from "../../perform/HumanObject";
+import { AutoMovieMotionHumanObject } from "../../perform/AutoMovieMotionHumanObject";
 
 /*
  * Sit on a fixed bed's long edge, pause, then stand. Enter facing away from the
@@ -33,7 +33,7 @@ export function bedsidePerch(
   side: AutoMovieHumanSide,
   seconds: number = 1,
 ): IAutoMovieMotionHumanChain {
-  const edge: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(
+  const edge: IAutoMovieMotionHumanSeated.ISeat = AutoMovieMotionHumanObject.seat(
     bed,
     placement,
     side === "left" ? "leftSide" : "rightSide",

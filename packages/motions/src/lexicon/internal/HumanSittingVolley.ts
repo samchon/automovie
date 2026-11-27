@@ -19,7 +19,7 @@ import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotion
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { seated } from "../../everyday/internal/seated";
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { HumanHandTarget } from "../../posture/internal/HumanHandTarget";
@@ -129,7 +129,7 @@ function planHumanSittingVolley(
         support.support.kind === "ground",
     )
   )
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "base",
       axis: "base",
       value: entry.base.kind,
@@ -402,7 +402,7 @@ function planHumanSittingVolley(
     }
   }
   if (misses.length > 0)
-    throw new HumanRefusal({
+    throw new AutoMovieMotionHumanRefusal({
       kind: "reach",
       axis: misses.some((miss): boolean => miss.phase !== "forearm receive")
         ? "lateral"

@@ -13,7 +13,7 @@ import type {
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanPerformance } from "@automovie/motions";
+import { AutoMovieMotionHumanPerformance } from "@automovie/motions";
 import {
   AutoMovieMotionHumanAudit,
   AutoMovieMotionHumanAuditMotion,
@@ -69,11 +69,11 @@ export namespace motionHumanLaw {
    * @throws {Error} When the public performance refuses its input or its film
    *   duration is invalid.
    * @evidence contracts/development/common.md#meaningful-documentation States the seed, cast defaults, trained proficiency, accepted composition forms and returned film.
-   * @evidence contracts/development/implementation.md#principled-implementation Supplies the declared bodies and placements to HumanPerformance with trained proficiency, preserving the composition and props.
+   * @evidence contracts/development/implementation.md#principled-implementation Supplies the declared bodies and placements to AutoMovieMotionHumanPerformance with trained proficiency, preserving the composition and props.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Map the cast, copy the props, unwrap a chain when given and pass the public performance to film.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses each supplied body and seed without a synthetic motion or a caught refusal; only absent placement and heading receive the documented defaults.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Copies P performer records and Q prop references in O(P + Q); schedule and motion-planning costs belong to HumanPerformance and frames are read lazily.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses HumanPerformance's resolution and film's shared frame reader instead of another planner or per-metric performance.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Copies P performer records and Q prop references in O(P + Q); schedule and motion-planning costs belong to AutoMovieMotionHumanPerformance and frames are read lazily.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses AutoMovieMotionHumanPerformance's resolution and film's shared frame reader instead of another planner or per-metric performance.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned film owns the performance reference and its frame memory; temporary cast and prop arrays are handed to the public constructor, with no helper-global cache.
    */
   export function perform(
@@ -88,7 +88,7 @@ export namespace motionHumanLaw {
     props: readonly IAutoMovieMotionHumanProp[] = [],
   ): IFilm {
     return film(
-      new HumanPerformance({
+      new AutoMovieMotionHumanPerformance({
         seed,
         performers: performers.map(
           (p: (typeof performers)[number]): IAutoMovieMotionHumanPerformer => ({

@@ -9,7 +9,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
 /*
  * The working points and axes read from a held prop's rigid frame. A two-point
@@ -54,7 +54,7 @@ export namespace StrikingHeldFrame {
             AutoMovieMotionHumanHeld.point(held, points.from).point,
           );
     if (runFrom !== undefined && Vector3.length(runFrom) === 0)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "from",
         value: points.from,

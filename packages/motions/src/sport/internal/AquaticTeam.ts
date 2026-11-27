@@ -3,7 +3,7 @@ import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieHumanLimbGoal
 
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
 import { ExerciseKey } from "../../exercise/internal/ExerciseKey";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { AquaticPosture } from "./AquaticPosture";
 import { AquaticTeamBase } from "./AquaticTeamBase";
@@ -258,7 +258,7 @@ export namespace AquaticTeam {
             t <= gripEnd &&
             (palm.normal.y < UPWARD || palm.point.y >= water)
           )
-            throw new HumanRefusal({
+            throw new AutoMovieMotionHumanRefusal({
               kind: "participant",
               axis: "bases",
               value: bases?.[index],

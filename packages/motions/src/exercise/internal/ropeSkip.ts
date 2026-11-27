@@ -12,7 +12,7 @@ import type {
 
 import { stand } from "../../actions/internal/stand";
 import { HumanSupportFrame } from "../../carrier/internal/HumanSupportFrame";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { ropeSkipHop } from "./ropeSkipHop";
 
@@ -23,7 +23,7 @@ const SIDES = ["left", "right"] as const;
 
 /*
  * One low two-foot hop in place, designed to accompany a single rope turn.
- * Register with `HumanChain.extend({ ropeSkip })` and the performance's laws.
+ * Register with `AutoMovieMotionHumanChain.extend({ ropeSkip })` and the performance's laws.
  *
  * The default cadence is 1.7 Hz, a frequency tested by Silva and Pellegrini
  * (2009). They measured 0.13 s from takeoff to the simultaneous-foot rope
@@ -57,7 +57,7 @@ export const ropeSkip = {
           HumanSupportFrame.contact(context, `${side}Foot`).kind !== "ground",
       )
     )
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "base",
         axis: "base",
         value: context.entry.base.kind,
@@ -71,7 +71,7 @@ export const ropeSkip = {
           context.entry.holds[side] !== undefined,
       )
     )
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "channel",
         axis: "hands",
         value: context.entry.holds,

@@ -5,7 +5,7 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
-import type { HumanPerformance } from "@automovie/motions";
+import type { AutoMovieMotionHumanPerformance } from "@automovie/motions";
 
 /**
  * A performer's own aiming frame read off a take at a film second: their
@@ -20,7 +20,7 @@ import type { HumanPerformance } from "@automovie/motions";
  * @returns The frame.
  */
 export function performanceAimFrame(
-  take: HumanPerformance,
+  take: AutoMovieMotionHumanPerformance,
   subject: string,
   body: IAutoMovieMotionHumanBody,
   seconds: number,

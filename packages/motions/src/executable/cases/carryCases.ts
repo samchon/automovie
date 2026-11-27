@@ -1,7 +1,7 @@
 import { AutoMovieEngineKinematics, Vector3 } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidSocket, IAutoMovieMotionHumanCarry, IAutoMovieMotionHumanPerformance, IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanChain } from "../../chain/HumanChain";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
 import { carry } from "../../carrying/internal/carry";
 import { carryPlace } from "../../carrying/internal/carryPlace";
 import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
@@ -47,7 +47,7 @@ export function carryCases(
         FamilyCaseKit.perform(
           "carry",
           [{ subject: "a", body: who.body }],
-          HumanChain.subject("a").act("carry", params).node,
+          AutoMovieMotionHumanChain.subject("a").act("carry", params).node,
         );
       const segment = performance.segments("a")[0]!;
       const verdicts: IMotionCaptureCase.IVerdict[] = [

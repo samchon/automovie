@@ -13,9 +13,9 @@ import type {
   IAutoMovieScheduleEntry,
 } from "@automovie/interface";
 
-import { HumanChain } from "../../chain/HumanChain";
+import { AutoMovieMotionHumanChain } from "../../chain/AutoMovieMotionHumanChain";
 import { HumanBound } from "../../law/internal/HumanBound";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanBlade } from "./HumanBlade";
 import { HumanPisteTarget } from "./HumanPisteTarget";
 import { stageBladeFootwork } from "./stageBladeFootwork";
@@ -261,7 +261,7 @@ export namespace HumanStagePiste {
     if (take.anchor.trim().length === 0)
       throw new Error("Give the staged bout a nonblank anchor");
     if (!KINDS.includes(take.kind))
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "stageKind",
         value: take.kind,
@@ -269,7 +269,7 @@ export namespace HumanStagePiste {
         fix: "choose foil, epee, sabre or kendo",
       });
     if (take.result === "both" && take.kind !== "epee")
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "rule",
         axis: "result",
         value: take.result,
@@ -303,13 +303,13 @@ export namespace HumanStagePiste {
     const approach: IAutoMovieChain[] = [];
     for (let index: number = 0; index < count; ++index)
       approach.push(
-        HumanChain.mutual(
+        AutoMovieMotionHumanChain.mutual(
           SHIFT,
           index === 0
             ? { first: take.first.chain, second: take.second.chain }
             : {
-                first: HumanChain.subject(take.first.chain.subject),
-                second: HumanChain.subject(take.second.chain.subject),
+                first: AutoMovieMotionHumanChain.subject(take.first.chain.subject),
+                second: AutoMovieMotionHumanChain.subject(take.second.chain.subject),
               },
           { take, index, count },
           index === 0 ? take.anchor : `${take.anchor}.${index}`,
@@ -366,10 +366,10 @@ export namespace HumanStagePiste {
       outcome,
       ...(carry === undefined ? {} : { advance: carry }),
     });
-    const attacker: IAutoMovieMotionHumanChainCore = HumanChain.subject(
+    const attacker: IAutoMovieMotionHumanChainCore = AutoMovieMotionHumanChain.subject(
       first.chain.subject,
     );
-    const answerer: IAutoMovieMotionHumanChainCore = HumanChain.subject(
+    const answerer: IAutoMovieMotionHumanChainCore = AutoMovieMotionHumanChain.subject(
       second.chain.subject,
     );
     const attack: string = `${anchor}.attack`;

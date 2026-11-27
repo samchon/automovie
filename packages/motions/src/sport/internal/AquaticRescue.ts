@@ -4,7 +4,7 @@ import type { AutoMovieHumanoidBone, IAutoMovieHumanLimbGoal, IAutoMovieHumanoid
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { ExerciseKey } from "../../exercise/internal/ExerciseKey";
-import { HumanRefusal } from "../../law/HumanRefusal";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanColliders } from "../../posture/internal/HumanColliders";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { AquaticPosture } from "./AquaticPosture";
@@ -58,7 +58,7 @@ export namespace AquaticRescue {
     const approach: number = Math.max(0, gap - AquaticRescueBounds.STANDOFF);
     const limit: number = params.duration ?? Infinity;
     if (approach / AquaticRescueBounds.SWIM > limit)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "reach",
         axis: "partner",
         value: params.partner ?? null,
@@ -425,7 +425,7 @@ export namespace AquaticRescue {
   ): IAutoMovieMotionHumanPerformerReader {
     const partner: string | undefined = context.params.partner;
     if (partner === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "participant",
         axis: "partner",
         value: null,
@@ -441,7 +441,7 @@ export namespace AquaticRescue {
   function edgeOf(context: AquaticPosture.Context): IAutoMovieVector3 {
     const at: IAutoMovieVector3 | undefined = context.params.at;
     if (at === undefined)
-      throw new HumanRefusal({
+      throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "at",
         value: null,
