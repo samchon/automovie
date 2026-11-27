@@ -13,6 +13,7 @@ import {
 } from "@automovie/human";
 import type {
   IAutoMovieConstructionNode,
+  IAutoMovieConstructionSplit,
   IAutoMovieHumanConicLoft,
   IAutoMovieHumanConicSection,
   IAutoMovieHumanF1,
@@ -2295,8 +2296,11 @@ namespace FamilyConicLimbLaw {
     const seams = Object.fromEntries((["arm", "leg"] as const).map((which) => {
       const [own, here] = [measure(f1x, which), measure(x, which)];
       const node = fanNodes[which] as Extract<IAutoMovieConstructionNode, { type: "split" }>;
-      const stored: [number, number][][] = [node.profile?.knots ?? [], ...(node.outer ?? []).map((o): [number, number][] => o.profile?.knots ?? [])];
-      return [which, { ...here, f1Chords: own.chords, knots: stored.map((knots: [number, number][], j: number): [number, number][] => knots.map(([along, depth]: [number, number]): [number, number] => [(along * here.chords[j]!) / own.chords[j]!, (depth * here.chords[j]!) / own.chords[j]!])) }];
+      const stored: IAutoMovieConstructionSplit.IProfileKnot[][] = [
+        node.profile?.knots ?? [],
+        ...(node.outer ?? []).map((o): IAutoMovieConstructionSplit.IProfileKnot[] => o.profile?.knots ?? []),
+      ];
+      return [which, { ...here, f1Chords: own.chords, knots: stored.map((knots: IAutoMovieConstructionSplit.IProfileKnot[], j: number): [number, number][] => knots.map(({ alongM, depthM }: IAutoMovieConstructionSplit.IProfileKnot): [number, number] => [(alongM * here.chords[j]!) / own.chords[j]!, (depthM * here.chords[j]!) / own.chords[j]!])) }];
     })) as Record<"arm" | "leg", ReturnType<typeof measure> & { f1Chords: number[]; knots: [number, number][][] }>;
     const merge = (): IAutoMovieConstructionNode => {
       const node = findNode(declared.root, "web.finger.thumb") as Extract<IAutoMovieConstructionNode, { type: "join" }>;
@@ -2305,13 +2309,16 @@ namespace FamilyConicLimbLaw {
     const fan = (which: "arm" | "leg", alone: boolean): IAutoMovieConstructionNode => {
       const node = fanNodes[which] as Extract<IAutoMovieConstructionNode, { type: "split" }>;
       const s = seams[which];
+      const seam = ([startPhaseRad, endPhaseRad]: [number, number]): IAutoMovieConstructionSplit.ISeamPhases => ({ startPhaseRad, endPhaseRad });
+      const knots = (rows: [number, number][]): IAutoMovieConstructionSplit.IProfileKnot[] =>
+        rows.map(([alongM, depthM]): IAutoMovieConstructionSplit.IProfileKnot => ({ alongM, depthM }));
       const host: IAutoMovieConstructionNode = alone ? { type: "source", name: node.hostFace, source: node.hostFace } : which === "arm" ? merge() : node.host;
       return {
         ...node,
         host,
-        seam: s.seams[0]!,
-        ...(node.profile === undefined ? {} : { profile: { ...node.profile, heading: s.headings[0]!, knots: s.knots[0]! } }),
-        outer: (node.outer ?? []).map((o, i: number) => ({ ...o, seam: s.seams[i + 1]!, ...(o.profile === undefined ? {} : { profile: { ...o.profile, heading: s.headings[i + 1]!, knots: s.knots[i + 1]! } }) })),
+        seam: seam(s.seams[0]!),
+        ...(node.profile === undefined ? {} : { profile: { ...node.profile, heading: s.headings[0]!, knots: knots(s.knots[0]!) } }),
+        outer: (node.outer ?? []).map((o, i: number) => ({ ...o, seam: seam(s.seams[i + 1]!), ...(o.profile === undefined ? {} : { profile: { ...o.profile, heading: s.headings[i + 1]!, knots: knots(s.knots[i + 1]!) } }) })),
       };
     };
     const wrist = (alone: boolean): IAutoMovieConstructionNode => {

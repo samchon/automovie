@@ -61,8 +61,8 @@ export namespace AutoMovieHumanFootMalleolus {
       which === "lateral" ? frame.lateral : G.scale(frame.lateral, -1);
     return {
       name: `foot.${side}.malleolus.${which}`,
-      stations: place.stations,
-      phases: place.phases,
+      stations: { start: place.stations[0], end: place.stations[1] },
+      phases: { start: place.phases[0], end: place.phases[1] },
       axis: G.sided(outward, sign),
       rows: bump.rows,
       columns: bump.columns,

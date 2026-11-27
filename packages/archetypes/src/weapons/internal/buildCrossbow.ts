@@ -104,7 +104,13 @@ export function buildCrossbow(
     extent: null,
     rides: "string",
   });
-  const table: IAutoMovieAffordanceCoupling.IPoint[] = AutoMovieArchetypeBow.limbs(half, d.brace!, c.travel);
+  const table: IAutoMovieAffordanceCoupling.IPoint[] =
+    AutoMovieArchetypeBow.limbs(half, d.brace!, c.travel).map(
+      ([leader, follower]: [number, number]): IAutoMovieAffordanceCoupling.IPoint => ({
+        leader,
+        follower,
+      }),
+    );
   for (const [id, sign] of [
     ["upperLimb", 1],
     ["lowerLimb", -1],

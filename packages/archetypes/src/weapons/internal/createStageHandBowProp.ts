@@ -84,11 +84,13 @@ export function createStageHandBowProp(
     });
 
     // Each limb turns about the grip's sideways axis, the upper's positive turn and the lower's bringing its tip back toward the string, by the table that keeps the tip the string's half length from the nocking point.
-    const table: IAutoMovieAffordanceCoupling.IPoint[] = AutoMovieArchetypeBow.limbs(
-      length / 2,
-      string,
-      travel,
-    );
+    const table: IAutoMovieAffordanceCoupling.IPoint[] =
+      AutoMovieArchetypeBow.limbs(length / 2, string, travel).map(
+        ([leader, follower]: [number, number]): IAutoMovieAffordanceCoupling.IPoint => ({
+          leader,
+          follower,
+        }),
+      );
     for (const [id, sign] of [
       ["upperLimb", 1],
       ["lowerLimb", -1],

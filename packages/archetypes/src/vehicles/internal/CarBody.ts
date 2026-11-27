@@ -1,5 +1,8 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieAffordanceCoupling,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import {
   type AutoMovieArchetypeBuilder,
@@ -416,14 +419,14 @@ export namespace CarBody {
             id: "wheel",
             table: Array.from(
               { length: 2 * rows + 1 },
-              (_: unknown, k: number): [number, number] => {
+              (_: unknown, k: number): IAutoMovieAffordanceCoupling.IPoint => {
                 const steering: number =
                   k === 0
                     ? -lock
                     : k === 2 * rows
                       ? lock
                       : (lock * (k - rows)) / rows;
-                return [steering, angle(steering)];
+                return { leader: steering, follower: angle(steering) };
               },
             ),
           },

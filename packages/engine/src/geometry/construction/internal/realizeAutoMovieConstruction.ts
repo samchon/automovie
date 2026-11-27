@@ -1,5 +1,6 @@
 import type {
   IAutoMovieConstruction,
+  IAutoMovieConstructionChartPoint,
   IAutoMovieConstructionContinuation,
   IAutoMovieConstructionJoin,
   IAutoMovieConstructionNode,
@@ -404,9 +405,12 @@ export function realizeAutoMovieConstruction(
       surface,
       node.landmarks.map(AutoMovieConstructionViews.point),
       node.guesses.map(
-        (g: IAutoMovieConstructionTrim.IPoint): IAutoMovieConstructionTrim.IPoint => ({
-          station: g.station * S,
-          phase: g.phase,
+        ({
+          station,
+          phase,
+        }: IAutoMovieConstructionChartPoint): AutoMovieSolidTrim.IGuess => ({
+          station: station * S,
+          phase,
         }),
       ),
       chord / 1000,

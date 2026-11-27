@@ -158,7 +158,7 @@ export function AutoMovieConstructionSplitRealize(
           // A composed end's seam is its children's valley (`IAutoMovieConstructionSplitCompose.IDerived.valleys`), already in mm.
           knots:
             derived !== undefined
-              ? derived.valleys[0]!
+              ? derived.valleys[0]!.map(profileKnotFromValley)
               : (node.profile?.knots ?? []).map(
                   ({ alongM, depthM }: IAutoMovieConstructionSplit.IProfileKnot): IAutoMovieConstructionSplitSeam.IProfileKnotMm => ({
                     alongMm: alongM * S,
@@ -461,6 +461,12 @@ export function AutoMovieConstructionSplitRealize(
  */
 type Vec3 = AutoMovieVector3Tuple;
 
+function profileKnotFromValley(
+  [alongMm, depthMm]: readonly [number, number],
+): IAutoMovieConstructionSplitSeam.IProfileKnotMm {
+  return { alongMm, depthMm };
+}
+
 /*
  * Realize a split into more than two (`IAutoMovieConstructionSplit.outer`): the
  * host's open end divided by its nested seams into the children's loops, each
@@ -592,7 +598,7 @@ function fan(
               into: hostInto,
               seam: s.seam,
               normal,
-              knots: derived.valleys[j]!,
+              knots: derived.valleys[j]!.map(profileKnotFromValley),
               ...(heading === undefined ? {} : { heading }),
             })
           : s.profile === undefined

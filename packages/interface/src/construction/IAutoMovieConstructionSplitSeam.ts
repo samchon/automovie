@@ -52,6 +52,15 @@ export namespace IAutoMovieConstructionSplitSeam {
     at(t: number): IAutoMovieConstructionSplitSeam.IPoint;
   }
 
+  /** An interior control point in the seam plane. */
+  export interface IProfileKnotMm {
+    /** Distance from the first fork along the chord, in millimetres. */
+    readonly alongMm: number;
+
+    /** Distance outward from the host end, in millimetres. */
+    readonly depthMm: number;
+  }
+
   /**
    * Borrowed geometry and authored plane knots for one curved split seam. The
    * builder reads endpoint jets synchronously, copies their positions and
@@ -93,7 +102,7 @@ export namespace IAutoMovieConstructionSplitSeam {
      * neighbors including the implicit endpoints must differ. Traversal order
      * is retained even when along decreases.
      */
-    knots: readonly IAutoMovieConstructionSplitSeam.IProfileKnotMm[];
+    knots: readonly IProfileKnotMm[];
 
     /**
      * Optional world direction replacing normal for the seam plane; projected

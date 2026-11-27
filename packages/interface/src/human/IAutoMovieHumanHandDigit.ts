@@ -1,18 +1,8 @@
 import type { IAutoMovieNaturalCubicSpline } from "../construction/IAutoMovieNaturalCubicSpline";
 import type { AutoMovieVector3Tuple } from "../geometry/AutoMovieVector3Tuple";
 import type { IAutoMovieHumanHandClear } from "./IAutoMovieHumanHandClear";
-
-/** A half-width control at a length along the digit, mm. */
-export interface IAutoMovieHumanHandDigitWidthKnot {
-  length: number;
-  halfWidth: number;
-}
-
-/** A half-depth control at a length along the digit, mm. */
-export interface IAutoMovieHumanHandDigitDepthKnot {
-  length: number;
-  halfDepth: number;
-}
+import type { IAutoMovieHumanHandDigitDepthKnot } from "./IAutoMovieHumanHandDigitDepthKnot";
+import type { IAutoMovieHumanHandDigitWidthKnot } from "./IAutoMovieHumanHandDigitWidthKnot";
 
 /**
  * A digit's law in the hand form's axes: its centre line, the half width and

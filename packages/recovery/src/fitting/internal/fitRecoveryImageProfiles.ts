@@ -36,7 +36,10 @@ export function fitRecoveryImageProfiles(
             "unsupported-profile: fitted radius Bernstein controls must remain positive",
           );
         return {
-          interval: span.interval,
+          interval: {
+            lowerY: span.interval[0],
+            upperY: span.interval[1],
+          },
           radiusX: span.profiles[0],
           radiusZ: span.profiles[1],
           centreX: span.profiles[2],
