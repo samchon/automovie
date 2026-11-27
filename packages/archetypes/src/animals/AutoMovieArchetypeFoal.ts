@@ -4,7 +4,7 @@ import {
   AutoMovieArchetypeRefusal,
 } from "../core/index";
 import { AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
-import { HORSE_BANDS } from "./HORSE_BANDS";
+import { HORSE_BANDS } from "./equine/HORSE_BANDS";
 import { AutoMovieArchetypeHorse } from "./AutoMovieArchetypeHorse";
 
 /**

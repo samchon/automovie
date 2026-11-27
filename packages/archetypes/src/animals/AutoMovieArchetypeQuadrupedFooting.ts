@@ -17,9 +17,9 @@ import {
   AutoMovieArchetypeFrame,
   AutoMovieArchetypeRefusal,
 } from "../core";
-import { QuadrupedFootingClip } from "./QuadrupedFootingClip";
-import { QuadrupedObstacleShape } from "./QuadrupedObstacleShape";
-import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
+import { QuadrupedFootingClip } from "./quadruped/QuadrupedFootingClip";
+import { QuadrupedObstacleShape } from "./quadruped/QuadrupedObstacleShape";
+import { QuadrupedRestFloor } from "./quadruped/QuadrupedRestFloor";
 
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 const SIDES: readonly IAutoMovieQuaternion[] = [

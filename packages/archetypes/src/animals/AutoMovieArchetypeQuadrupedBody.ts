@@ -7,9 +7,9 @@ import {
   AutoMovieArchetypeUnits,
 } from "../core";
 import { AutoMovieArchetypeQuadrupedHead } from "./AutoMovieArchetypeQuadrupedHead";
-import { QuadrupedAttachments } from "./QuadrupedAttachments";
-import type { QuadrupedProportions } from "./QuadrupedProportions";
-import { QuadrupedScapula } from "./QuadrupedScapula";
+import { QuadrupedAttachments } from "./quadruped/QuadrupedAttachments";
+import type { QuadrupedProportions } from "./quadruped/QuadrupedProportions";
+import { QuadrupedScapula } from "./quadruped/QuadrupedScapula";
 
 /**
  * A four-legged animal's body as one bar per bone, built from its species'

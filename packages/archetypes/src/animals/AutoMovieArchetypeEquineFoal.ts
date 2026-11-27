@@ -19,7 +19,7 @@ import type { AutoMovieArchetypeEquineLibertyCue } from "./AutoMovieArchetypeEqu
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { AutoMovieArchetypeQuadrupedRest } from "./AutoMovieArchetypeQuadrupedRest";
 import type { AutoMovieArchetypeQuadrupedRestPlan } from "./AutoMovieArchetypeQuadrupedRestPlan";
-import { EquineRecumbency } from "./EquineRecumbency";
+import { EquineRecumbency } from "./equine/EquineRecumbency";
 import { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
 /**

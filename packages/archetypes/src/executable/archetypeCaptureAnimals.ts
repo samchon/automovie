@@ -1,8 +1,8 @@
 import type { IAutoMovieJointPose } from "@automovie/interface";
 
 import { AutoMovieArchetypeQuadrupedBody, AutoMovieArchetypeQuadrupedSkeleton, AutoMovieArchetypeHorse } from "../animals";
-import { EquineHarness } from "../animals/EquineHarness";
-import { EquineSaddle } from "../animals/EquineSaddle";
+import { EquineHarness } from "../animals/equine/EquineHarness";
+import { EquineSaddle } from "../animals/equine/EquineSaddle";
 import type { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
 import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
 

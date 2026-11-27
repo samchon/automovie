@@ -11,7 +11,7 @@ import { AutoMovieArchetypeDog } from "../AutoMovieArchetypeDog";
 import { AutoMovieArchetypeQuadrupedBody } from "../AutoMovieArchetypeQuadrupedBody";
 import { AutoMovieArchetypeQuadrupedHeadAttachment } from "../AutoMovieArchetypeQuadrupedHeadAttachment";
 import "../AutoMovieArchetypeQuadrupedLead";
-import { QuadrupedAnimal } from "../QuadrupedAnimal";
+import { QuadrupedAnimal } from "../quadruped/QuadrupedAnimal";
 import { buildDogBody } from "./buildDogBody";
 import { DOG_BODY_MEASURES } from "./constants/DOG_BODY_MEASURES";
 import "./dogModelDimensions";

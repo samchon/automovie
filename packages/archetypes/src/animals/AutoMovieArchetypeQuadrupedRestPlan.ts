@@ -5,7 +5,7 @@ import type {
 
 import type { AutoMovieArchetype } from "../core";
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
-import type { QuadrupedPosePlan } from "./QuadrupedPosePlan";
+import type { QuadrupedPosePlan } from "./quadruped/QuadrupedPosePlan";
 
 /**
  * Authored inputs and independently evaluated results of a sternal rest cycle.

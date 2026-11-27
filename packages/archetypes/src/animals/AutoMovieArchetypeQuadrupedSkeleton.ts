@@ -8,9 +8,9 @@ import type {
 } from "@automovie/interface";
 
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
-import { ApplyQuadrupedCarrierPose } from "./ApplyQuadrupedCarrierPose";
+import { ApplyQuadrupedCarrierPose } from "./quadruped/ApplyQuadrupedCarrierPose";
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
-import { QuadrupedScapula } from "./QuadrupedScapula";
+import { QuadrupedScapula } from "./quadruped/QuadrupedScapula";
 
 /** Local degree rotations without borrowing a humanoid bone slot. */
 type Rotation = Pick<IAutoMovieJointPose, "flexion" | "abduction" | "twist">;

@@ -1,6 +1,6 @@
 import { AutoMovieArchetypeRefusal } from "../core";
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
-import type { QuadrupedChange } from "./QuadrupedChange";
+import type { QuadrupedChange } from "./quadruped/QuadrupedChange";
 import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
 /**

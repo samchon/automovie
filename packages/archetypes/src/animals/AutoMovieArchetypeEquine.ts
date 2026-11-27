@@ -11,8 +11,8 @@ import {
 } from "../core";
 import type { AutoMovieArchetypeEquineGaitedProfile } from "./AutoMovieArchetypeEquineGaitedProfile";
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
-import { EquinePack } from "./EquinePack";
-import { EquineTack } from "./EquineTack";
+import { EquinePack } from "./equine/EquinePack";
+import { EquineTack } from "./equine/EquineTack";
 import { AutoMovieArchetypeHorse } from "./AutoMovieArchetypeHorse";
 import { selectEquineTack } from "./fittings/selectEquineTack";
 

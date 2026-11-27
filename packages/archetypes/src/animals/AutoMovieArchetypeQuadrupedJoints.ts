@@ -6,7 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
-import { QuadrupedAttachments } from "./QuadrupedAttachments";
+import { QuadrupedAttachments } from "./quadruped/QuadrupedAttachments";
 
 /** One admitted rigid bar, with independently owned geometric observations. */
 interface Bar {

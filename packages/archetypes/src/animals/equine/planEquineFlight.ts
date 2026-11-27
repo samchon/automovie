@@ -1,7 +1,7 @@
 import type { AutoMovieArchetypeCourse } from "../../core/index";
-import { EquineJump } from "../EquineJump";
-import { EquineObstacle } from "../EquineObstacle";
-import type { QuadrupedStridePlan } from "../QuadrupedStridePlan";
+import { EquineJump } from "./EquineJump";
+import { EquineObstacle } from "./EquineObstacle";
+import type { QuadrupedStridePlan } from "../quadruped/QuadrupedStridePlan";
 
 /**
  * Plan a jump's flight and confirm it on the flown body: the closed-form plan

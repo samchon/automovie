@@ -115,8 +115,17 @@ function planFile(source, reader) {
     const clause = statement.exportClause;
     const line = source.getLineAndCharacterOfPosition(clause.getStart(source)).line + 1;
     const target = reader.resolve(source.fileName, match.route);
+    const targetTree = target && reader.read(target)?.tree;
+    const targetStem = targetTree && path.basename(
+      targetTree.fileName,
+      path.extname(targetTree.fileName),
+    );
+    if (targetTree && targetStem !== match.name) {
+      blocked.push({ line, reason: "The resolved filename does not match the owner" });
+      continue;
+    }
     const owner = target && graph.readModule(target);
-    const isRuntimeOwner = target && reader.read(target)?.tree.statements.some(
+    const isRuntimeOwner = targetTree?.statements.some(
       (node) => localNames(node).has(match.name) && emitsRuntime(node),
     );
     if (!owner?.complete || owner.names.size !== 1 || !owner.names.has(match.name) || !isRuntimeOwner) {

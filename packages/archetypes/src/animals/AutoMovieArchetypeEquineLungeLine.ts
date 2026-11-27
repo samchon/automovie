@@ -6,7 +6,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { AutoMovieArchetypeRide } from "../core";
 import type { AutoMovieArchetypeEquineLunge } from "./AutoMovieArchetypeEquineLunge";
-import { EquineLine } from "./EquineLine";
+import { EquineLine } from "./equine/EquineLine";
 
 /**
  * The lunge line of a lunged equid (`AutoMovieArchetypeEquineLunge`): its own

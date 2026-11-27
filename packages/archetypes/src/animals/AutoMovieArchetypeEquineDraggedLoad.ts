@@ -22,7 +22,7 @@ import type { AutoMovieArchetypeDragged } from "../vehicles/AutoMovieArchetypeDr
 import { type AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
 import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 import { AutoMovieArchetypeQuadrupedFooting } from "./AutoMovieArchetypeQuadrupedFooting";
-import { EquineHarness } from "./EquineHarness";
+import { EquineHarness } from "./equine/EquineHarness";
 
 /** World up. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };

@@ -15,7 +15,7 @@ import {
   AutoMovieArchetypeRefusal,
 } from "../core";
 import type { AutoMovieArchetypeQuadrupedFooting } from "./AutoMovieArchetypeQuadrupedFooting";
-import type { QuadrupedRidePose } from "./QuadrupedRidePose";
+import type { QuadrupedRidePose } from "./quadruped/QuadrupedRidePose";
 import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
 /**

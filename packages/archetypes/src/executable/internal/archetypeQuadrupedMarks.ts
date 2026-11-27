@@ -9,7 +9,7 @@ import type {
 
 import { AutoMovieArchetypeQuadrupedBody } from "../../animals/AutoMovieArchetypeQuadrupedBody";
 import { AutoMovieArchetypeQuadrupedSkeleton } from "../../animals/AutoMovieArchetypeQuadrupedSkeleton";
-import { QuadrupedRestFloor } from "../../animals/QuadrupedRestFloor";
+import { QuadrupedRestFloor } from "../../animals/quadruped/QuadrupedRestFloor";
 import type { AutoMovieArchetype } from "../../core/index";
 
 /** A primitive's two axis endpoints and joint frame, in model metres. */

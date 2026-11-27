@@ -1,6 +1,6 @@
 import type { AutoMovieArchetypeEquineExpressionCue } from "./AutoMovieArchetypeEquineExpressionCue";
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
-import type { EquineStanceExtras } from "./EquineStanceExtras";
+import type { EquineStanceExtras } from "./equine/EquineStanceExtras";
 
 /**
  * The authored whole-body responses of a halted equid: a weight shift, a

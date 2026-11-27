@@ -13,7 +13,7 @@ import { AutoMovieArchetypeQuadrupedLateralRest } from "./AutoMovieArchetypeQuad
 import type { AutoMovieArchetypeQuadrupedLateralRestPlan } from "./AutoMovieArchetypeQuadrupedLateralRestPlan";
 import { AutoMovieArchetypeQuadrupedRest } from "./AutoMovieArchetypeQuadrupedRest";
 import type { AutoMovieArchetypeQuadrupedRestPlan } from "./AutoMovieArchetypeQuadrupedRestPlan";
-import { QuadrupedCarriage } from "./QuadrupedCarriage";
+import { QuadrupedCarriage } from "./quadruped/QuadrupedCarriage";
 import { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
 /** A rest clip, sternal or lateral. */

@@ -7,8 +7,8 @@ import type {
 import { AutoMovieArchetypeRefusal } from "../core";
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
-import { EquinePitch } from "./EquinePitch";
-import type { QuadrupedStridePlan } from "./QuadrupedStridePlan";
+import { EquinePitch } from "./equine/EquinePitch";
+import type { QuadrupedStridePlan } from "./quadruped/QuadrupedStridePlan";
 import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
 /**

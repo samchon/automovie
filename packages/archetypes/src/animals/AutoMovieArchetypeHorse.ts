@@ -1,10 +1,10 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
 import { createHorse as createHorseImplementation } from "./horse/createHorse";
-import { type QuadrupedProportions } from "./QuadrupedProportions";
+import { type QuadrupedProportions } from "./quadruped/QuadrupedProportions";
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { AutoMovieArchetypeEquineEarProfiles } from "./AutoMovieArchetypeEquineEarProfiles";
-import { HORSE_BANDS } from "./HORSE_BANDS";
+import { HORSE_BANDS } from "./equine/HORSE_BANDS";
 
 /** Public operations for Auto Movie Archetype Horse. */
 export namespace AutoMovieArchetypeHorse {

@@ -2,8 +2,8 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import type { AutoMovieArchetypeQuadrupedLimb } from "./AutoMovieArchetypeQuadrupedLimb";
-import { QuadrupedPelvis } from "./QuadrupedPelvis";
-import { QuadrupedScapula } from "./QuadrupedScapula";
+import { QuadrupedPelvis } from "./quadruped/QuadrupedPelvis";
+import { QuadrupedScapula } from "./quadruped/QuadrupedScapula";
 
 /**
  * A common vertical body-root interval satisfying four fixed limb attachments.

@@ -1,8 +1,8 @@
 import type { AutoMovieArchetypeCourse } from "../../core/index";
 import type { AutoMovieArchetypeQuadrupedGait } from "../AutoMovieArchetypeQuadrupedGait";
-import { EquineJump } from "../EquineJump";
-import type { EquineObstacle } from "../EquineObstacle";
-import type { QuadrupedStridePlan } from "../QuadrupedStridePlan";
+import { EquineJump } from "./EquineJump";
+import type { EquineObstacle } from "./EquineObstacle";
+import type { QuadrupedStridePlan } from "../quadruped/QuadrupedStridePlan";
 import { leastEquineFlight } from "./leastEquineFlight";
 
 /**

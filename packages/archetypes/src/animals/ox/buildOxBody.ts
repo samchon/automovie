@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeQuadrupedBody } from "../AutoMovieArchetypeQuadrupedBody";
-import { QuadrupedBodyProfile } from "../QuadrupedBodyProfile";
+import { QuadrupedBodyProfile } from "../quadruped/QuadrupedBodyProfile";
 import { OX_BODY_MEASURES } from "./constants/OX_BODY_MEASURES";
 
 /**

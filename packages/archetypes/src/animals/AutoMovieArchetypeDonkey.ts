@@ -6,8 +6,8 @@ import {
 } from "../core/index";
 import { AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
 import { AutoMovieArchetypeEquineEarProfiles } from "./AutoMovieArchetypeEquineEarProfiles";
-import { EquineSegments } from "./EquineSegments";
-import { HORSE_BANDS } from "./HORSE_BANDS";
+import { EquineSegments } from "./equine/EquineSegments";
+import { HORSE_BANDS } from "./equine/HORSE_BANDS";
 import { AutoMovieArchetypeHorse } from "./AutoMovieArchetypeHorse";
 
 /** The weighed Veracruz donkeys. */

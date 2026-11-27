@@ -1,10 +1,10 @@
 import { AutoMovieArchetypeRefusal } from "../core";
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
-import { CamelGait } from "./CamelGait";
-import { DeerGait } from "./DeerGait";
-import type { QuadrupedChange } from "./QuadrupedChange";
-import { QuadrupedGaitAdmission } from "./QuadrupedGaitAdmission";
+import { CamelGait } from "./camel/CamelGait";
+import { DeerGait } from "./deer/DeerGait";
+import type { QuadrupedChange } from "./quadruped/QuadrupedChange";
+import { QuadrupedGaitAdmission } from "./quadruped/QuadrupedGaitAdmission";
 
 /**
  * Explicit authored clocks for locomotion absent from the measured walk tables.

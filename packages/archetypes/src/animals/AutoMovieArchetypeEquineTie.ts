@@ -13,7 +13,7 @@ import {
   AutoMovieArchetypeRefusal,
   type AutoMovieArchetypeRide,
 } from "../core";
-import { EquineLine } from "./EquineLine";
+import { EquineLine } from "./equine/EquineLine";
 
 /**
  * An equid tied by its lead to a ring or rail and untied again: the lead's held

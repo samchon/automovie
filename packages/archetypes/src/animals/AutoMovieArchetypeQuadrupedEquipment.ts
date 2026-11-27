@@ -3,8 +3,8 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { AutoMovieArchetypeBuilder } from "../core";
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
-import { QuadrupedEquipmentBearing } from "./QuadrupedEquipmentBearing";
-import { QuadrupedEquipmentPlan } from "./QuadrupedEquipmentPlan";
+import { QuadrupedEquipmentBearing } from "./quadruped/QuadrupedEquipmentBearing";
+import { QuadrupedEquipmentPlan } from "./quadruped/QuadrupedEquipmentPlan";
 
 /**
  * A yoke and a pack frame laid on a quadruped's rest landmarks, every dimension

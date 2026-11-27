@@ -2,7 +2,7 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieArchetypeEquine } from "../animals/AutoMovieArchetypeEquine";
-import { EquineHarness } from "../animals/EquineHarness";
+import { EquineHarness } from "../animals/equine/EquineHarness";
 import {
   type AutoMovieArchetypeBuilder,
   AutoMovieArchetypeFrame,

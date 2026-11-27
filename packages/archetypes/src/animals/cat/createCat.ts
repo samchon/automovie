@@ -1,7 +1,7 @@
 import type { AutoMovieArchetypeCat } from "../AutoMovieArchetypeCat";
 import type { AutoMovieArchetype } from "../../core/index";
 import type { AutoMovieArchetypeQuadrupedBody } from "../AutoMovieArchetypeQuadrupedBody";
-import { CatBody } from "../CatBody";
+import { CatBody } from "./CatBody";
 import { createCohortQuadruped } from "../quadruped/createCohortQuadruped";
 
 /**

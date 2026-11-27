@@ -9,13 +9,13 @@ import { type AutoMovieArchetype, AutoMovieArchetypeFrame, AutoMovieArchetypeRef
 import type { AutoMovieArchetypeEquineExpressionCue } from "./AutoMovieArchetypeEquineExpressionCue";
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { AutoMovieArchetypeQuadrupedSkeleton } from "./AutoMovieArchetypeQuadrupedSkeleton";
-import { EquineExpressionAdmission } from "./EquineExpressionAdmission";
-import { EquineExpressionPose } from "./EquineExpressionPose";
-import { EquineHeadClearance } from "./EquineHeadClearance";
-import { EquineHeadCourse } from "./EquineHeadCourse";
-import { EquineHeadReach } from "./EquineHeadReach";
+import { EquineExpressionAdmission } from "./equine/EquineExpressionAdmission";
+import { EquineExpressionPose } from "./equine/EquineExpressionPose";
+import { EquineHeadClearance } from "./equine/EquineHeadClearance";
+import { EquineHeadCourse } from "./equine/EquineHeadCourse";
+import { EquineHeadReach } from "./equine/EquineHeadReach";
 import { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
-import { EquineExpressionConstants } from "./EquineExpressionConstants";
+import { EquineExpressionConstants } from "./equine/EquineExpressionConstants";
 
 const { CHEW_HZ, CHEW_DEGREES, OPEN_DEGREES, YAWN_DEGREES, SLACK_DEGREES, CURL_DEGREES, SHAKE, CARRIAGES, SWISH, EARS, TAILS } = EquineExpressionConstants;
 type Held = EquineExpressionConstants.Held;

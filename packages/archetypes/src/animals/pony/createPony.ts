@@ -1,8 +1,8 @@
 import { AutoMovieArchetypePony } from "../AutoMovieArchetypePony";
 import { type AutoMovieArchetype, AutoMovieArchetypeDrawSession } from "../../core";
 import { AutoMovieArchetypeEquine } from "../AutoMovieArchetypeEquine";
-import "../EquineSegments";
-import "../HORSE_BANDS";
+import "../equine/EquineSegments";
+import "../equine/HORSE_BANDS";
 import "../horse/createHorse";
 
 /**

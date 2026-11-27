@@ -2,7 +2,7 @@ import { AutoMovieArchetypeMule } from "../AutoMovieArchetypeMule";
 import { type AutoMovieArchetype, AutoMovieArchetypeDrawSession } from "../../core";
 import { AutoMovieArchetypeEquine } from "../AutoMovieArchetypeEquine";
 import "../AutoMovieArchetypeEquineEarProfiles";
-import "../HORSE_BANDS";
+import "../equine/HORSE_BANDS";
 import "../horse/createHorse";
 
 /**

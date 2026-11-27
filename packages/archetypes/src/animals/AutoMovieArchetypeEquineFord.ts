@@ -5,14 +5,14 @@ import { AutoMovieArchetypeEquineFordPlan } from "./AutoMovieArchetypeEquineFord
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { AutoMovieArchetypeQuadrupedDatumRide } from "./AutoMovieArchetypeQuadrupedDatumRide";
 import { AutoMovieArchetypeQuadrupedFooting } from "./AutoMovieArchetypeQuadrupedFooting";
-import { EquineSwimPose } from "./EquineSwimPose";
-import { QuadrupedCarriage } from "./QuadrupedCarriage";
-import { QuadrupedFootingClearance } from "./QuadrupedFootingClearance";
-import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
-import { QuadrupedWorldPose } from "./QuadrupedWorldPose";
+import { EquineSwimPose } from "./equine/EquineSwimPose";
+import { QuadrupedCarriage } from "./quadruped/QuadrupedCarriage";
+import { QuadrupedFootingClearance } from "./quadruped/QuadrupedFootingClearance";
+import { QuadrupedRestFloor } from "./quadruped/QuadrupedRestFloor";
+import { QuadrupedWorldPose } from "./quadruped/QuadrupedWorldPose";
 import { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
-import { EquineFordConstants } from "./EquineFordConstants";
-import { EquineFordBarReads } from "./EquineFordBarReads";
+import { EquineFordConstants } from "./equine/EquineFordConstants";
+import { EquineFordBarReads } from "./equine/EquineFordBarReads";
 
 const { STEP, SWEEP } = EquineFordConstants;
 const { part, top, shape } = EquineFordBarReads;

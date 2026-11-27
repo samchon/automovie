@@ -10,10 +10,10 @@ import {
   AutoMovieArchetypeFrame,
 } from "../../core/index";
 import { AutoMovieArchetypeQuadrupedBody } from "../AutoMovieArchetypeQuadrupedBody";
-import type { EquineJump } from "../EquineJump";
-import type { EquineObstacle } from "../EquineObstacle";
-import { EquinePitch } from "../EquinePitch";
-import { QuadrupedRestFloor } from "../QuadrupedRestFloor";
+import type { EquineJump } from "./EquineJump";
+import type { EquineObstacle } from "./EquineObstacle";
+import { EquinePitch } from "./EquinePitch";
+import { QuadrupedRestFloor } from "../quadruped/QuadrupedRestFloor";
 
 /**
  * Rotations whose lowest Y reads a part's least X, greatest X, least Z and

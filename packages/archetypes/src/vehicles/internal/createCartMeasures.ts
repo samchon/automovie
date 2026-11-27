@@ -1,4 +1,4 @@
-import { EquineHarness } from "../../animals/EquineHarness";
+import { EquineHarness } from "../../animals/equine/EquineHarness";
 import { AutoMovieArchetypeUnits } from "../../core/index";
 
 /** The measurements of cart grips, couplings and rider supports. */

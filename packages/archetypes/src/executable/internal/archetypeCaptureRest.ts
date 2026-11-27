@@ -7,7 +7,7 @@ import { AutoMovieArchetypeEquine } from "../../animals/AutoMovieArchetypeEquine
 import { AutoMovieArchetypeQuadrupedBody } from "../../animals/AutoMovieArchetypeQuadrupedBody";
 import { AutoMovieArchetypeQuadrupedRest } from "../../animals/AutoMovieArchetypeQuadrupedRest";
 import type { AutoMovieArchetypeQuadrupedRestPlan } from "../../animals/AutoMovieArchetypeQuadrupedRestPlan";
-import { QuadrupedCarriage } from "../../animals/QuadrupedCarriage";
+import { QuadrupedCarriage } from "../../animals/quadruped/QuadrupedCarriage";
 import { AutoMovieArchetypeDog } from "../../animals/AutoMovieArchetypeDog";
 import { AutoMovieArchetypeHorse } from "../../animals/AutoMovieArchetypeHorse";
 import { AutoMovieArchetypeQuadruped } from "../../animals/AutoMovieArchetypeQuadruped";

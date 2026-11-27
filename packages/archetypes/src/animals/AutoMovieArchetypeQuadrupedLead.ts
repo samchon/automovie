@@ -1,6 +1,6 @@
 import type { AutoMovieArchetypeBuilder } from "../core";
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
-import { QuadrupedLeadPlan } from "./QuadrupedLeadPlan";
+import { QuadrupedLeadPlan } from "./quadruped/QuadrupedLeadPlan";
 
 /** Authored shared collar/lead dimensions, without species or maker defaults. */
 export namespace AutoMovieArchetypeQuadrupedLead {

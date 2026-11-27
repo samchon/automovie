@@ -11,8 +11,8 @@ import {
 import { AutoMovieArchetypeQuadrupedBody } from "../AutoMovieArchetypeQuadrupedBody";
 import type { AutoMovieArchetypeQuadrupedEquipment } from "../AutoMovieArchetypeQuadrupedEquipment";
 import type { AutoMovieArchetypeQuadrupedLead } from "../AutoMovieArchetypeQuadrupedLead";
-import { QuadrupedAnimal } from "../QuadrupedAnimal";
-import { QuadrupedLeadPlan } from "../QuadrupedLeadPlan";
+import { QuadrupedAnimal } from "./QuadrupedAnimal";
+import { QuadrupedLeadPlan } from "./QuadrupedLeadPlan";
 
 /**
  * Coordinate of the table's declared spread; no unreported animal SD is

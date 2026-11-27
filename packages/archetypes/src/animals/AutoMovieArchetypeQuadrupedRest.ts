@@ -14,10 +14,10 @@ import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { AutoMovieArchetypeQuadrupedJoints } from "./AutoMovieArchetypeQuadrupedJoints";
 import type { AutoMovieArchetypeQuadrupedRestPlan } from "./AutoMovieArchetypeQuadrupedRestPlan";
-import { QuadrupedPose } from "./QuadrupedPose";
-import type { QuadrupedPosePlan } from "./QuadrupedPosePlan";
-import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
-import { QuadrupedRestLimb } from "./QuadrupedRestLimb";
+import { QuadrupedPose } from "./quadruped/QuadrupedPose";
+import type { QuadrupedPosePlan } from "./quadruped/QuadrupedPosePlan";
+import { QuadrupedRestFloor } from "./quadruped/QuadrupedRestFloor";
+import { QuadrupedRestLimb } from "./quadruped/QuadrupedRestLimb";
 
 /** Deterministic sternal-rest planning for a quadruped. */
 export namespace AutoMovieArchetypeQuadrupedRest {

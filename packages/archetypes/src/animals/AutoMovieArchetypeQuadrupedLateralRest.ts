@@ -17,7 +17,7 @@ import type { AutoMovieArchetypeQuadrupedLateralRestPlan } from "./AutoMovieArch
 import { AutoMovieArchetypeQuadrupedRest } from "./AutoMovieArchetypeQuadrupedRest";
 import type { AutoMovieArchetypeQuadrupedRestPlan } from "./AutoMovieArchetypeQuadrupedRestPlan";
 import { AutoMovieArchetypeQuadrupedSkeleton } from "./AutoMovieArchetypeQuadrupedSkeleton";
-import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
+import { QuadrupedRestFloor } from "./quadruped/QuadrupedRestFloor";
 
 /** Deterministic lateral-rest planning for a quadruped. */
 export namespace AutoMovieArchetypeQuadrupedLateralRest {

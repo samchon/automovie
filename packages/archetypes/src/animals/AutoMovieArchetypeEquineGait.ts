@@ -1,6 +1,6 @@
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
-import type { QuadrupedChange } from "./QuadrupedChange";
+import type { QuadrupedChange } from "./quadruped/QuadrupedChange";
 
 /**
  * The horse's gaits as measured: the stride and stance times by speed, the

@@ -18,8 +18,8 @@ import type { AutoMovieArchetypeEquineTeamPlan } from "./AutoMovieArchetypeEquin
 import { AutoMovieArchetypeHorseRide } from "./AutoMovieArchetypeHorseRide";
 import { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 import { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
-import { EquineHarness } from "./EquineHarness";
-import { EquineTeamCourse } from "./EquineTeamCourse";
+import { EquineHarness } from "./equine/EquineHarness";
+import { EquineTeamCourse } from "./equine/EquineTeamCourse";
 
 /** Points a slack trace is laid through, ends included. */
 const SAG_POINTS: number = 9;

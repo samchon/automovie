@@ -1,4 +1,4 @@
-import { HORSE_BANDS } from "../animals/HORSE_BANDS";
+import { HORSE_BANDS } from "../animals/equine/HORSE_BANDS";
 import {
   AutoMovieArchetypeBand,
   AutoMovieArchetypeUnits,

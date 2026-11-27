@@ -14,7 +14,7 @@ import { AutoMovieArchetypeCart } from "../vehicles/AutoMovieArchetypeCart";
 import { type AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
 import type { AutoMovieArchetypeEquineDraftPlan } from "./AutoMovieArchetypeEquineDraftPlan";
 import { AutoMovieArchetypeQuadrupedFooting } from "./AutoMovieArchetypeQuadrupedFooting";
-import { EquineHarness } from "./EquineHarness";
+import { EquineHarness } from "./equine/EquineHarness";
 import { AutoMovieArchetypeHorseRide } from "./AutoMovieArchetypeHorseRide";
 import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 

@@ -5,10 +5,10 @@ import { ArchetypeMassArithmetic } from "../core/ArchetypeMassArithmetic";
 import { ArchetypeMassPrimitive } from "../core/ArchetypeMassPrimitive";
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { AutoMovieArchetypeQuadrupedEars } from "./AutoMovieArchetypeQuadrupedEars";
-import { QuadrupedJaw } from "./QuadrupedJaw";
-import { QuadrupedLip } from "./QuadrupedLip";
-import { QuadrupedNostrils } from "./QuadrupedNostrils";
-import type { QuadrupedProportions } from "./QuadrupedProportions";
+import { QuadrupedJaw } from "./quadruped/QuadrupedJaw";
+import { QuadrupedLip } from "./quadruped/QuadrupedLip";
+import { QuadrupedNostrils } from "./quadruped/QuadrupedNostrils";
+import type { QuadrupedProportions } from "./quadruped/QuadrupedProportions";
 
 /** Head geometry operations shared by quadruped archetypes. */
 export namespace AutoMovieArchetypeQuadrupedHead {

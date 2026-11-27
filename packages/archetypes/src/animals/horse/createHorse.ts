@@ -4,8 +4,8 @@ import { AutoMovieArchetypeEquine } from "../AutoMovieArchetypeEquine";
 import "../AutoMovieArchetypeEquineEarProfiles";
 import { AutoMovieArchetypeEquineGaitedProfile } from "../AutoMovieArchetypeEquineGaitedProfile";
 import "../AutoMovieArchetypeQuadrupedBody";
-import { EquineIcelandicProfile } from "../EquineIcelandicProfile";
-import "../HORSE_BANDS";
+import { EquineIcelandicProfile } from "../equine/EquineIcelandicProfile";
+import "../equine/HORSE_BANDS";
 
 
 /**

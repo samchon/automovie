@@ -18,8 +18,8 @@ import {
 } from "../core";
 import type { AutoMovieArchetypeEquineStanceCue } from "./AutoMovieArchetypeEquineStanceCue";
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
-import { EquineBodyPose } from "./EquineBodyPose";
-import { EquineStanceRows } from "./EquineStanceRows";
+import { EquineBodyPose } from "./equine/EquineBodyPose";
+import { EquineStanceRows } from "./equine/EquineStanceRows";
 
 /** A named instant of a ride. */
 type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];

@@ -18,7 +18,7 @@ import {
   type AutoMovieArchetypeRide,
 } from "../core";
 import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
-import { QuadrupedCarriage } from "./QuadrupedCarriage";
+import { QuadrupedCarriage } from "./quadruped/QuadrupedCarriage";
 import { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
 /**

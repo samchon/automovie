@@ -1,6 +1,7 @@
 "use strict";
 
 const { execFileSync } = require("node:child_process");
+const crypto = require("node:crypto");
 const fs = require("node:fs");
 const path = require("node:path");
 const ts = require("typescript-compiler");
@@ -35,12 +36,44 @@ function options(args) {
   return { checkpoint, paths: paths.length ? paths : ["packages"] };
 }
 
-function verifyCheckpoint(checkpoint) {
+function pathspecBatches(paths) {
+  const unique = new Set(paths);
+  if (unique.has(".")) return [[":(literal)."]];
+
+  const batches = [];
+  let batch = [];
+  let size = 0;
+  for (const relative of unique) {
+    let parent = path.posix.dirname(relative);
+    while (parent !== "." && !unique.has(parent)) parent = path.posix.dirname(parent);
+    if (parent !== ".") continue;
+
+    const argument = ":(literal)" + relative;
+    // Leave room for the executable, flags and worst-case Windows quoting.
+    const cost = 2 * argument.length + 3;
+    if (cost > 24000) throw new Error("Git path argument too long: " + relative);
+    if (size + cost > 24000) {
+      batches.push(batch);
+      batch = [];
+      size = 0;
+    }
+    batch.push(argument);
+    size += cost;
+  }
+  if (batch.length) batches.push(batch);
+  return batches;
+}
+
+function verifyCheckpoint(checkpoint, targetPaths) {
   if (git("rev-parse", "HEAD").trim() !== checkpoint) {
     throw new Error("HEAD is not the requested checkpoint.");
   }
-  if (git("status", "--porcelain", "--untracked-files=normal").trim()) {
-    throw new Error("Commit and push the worktree before applying this change.");
+  const dirty = pathspecBatches(targetPaths)
+    .map((batch) => git("status", "--porcelain=v1", "--untracked-files=all", "--", ...batch).trim())
+    .filter(Boolean)
+    .join("\n");
+  if (dirty) {
+    throw new Error("Selected targets are not clean:\n" + dirty);
   }
   const branch = git("symbolic-ref", "--short", "HEAD").trim();
   const remote = git("config", "--get", "branch." + branch + ".remote").trim();
@@ -67,20 +100,29 @@ function applyEdits(text, edits, offset = 0) {
   return result;
 }
 
-function workspace() {
+function repoPathKey(relative) {
+  const normalized = relative.replaceAll(path.sep, "/");
+  return process.platform === "win32" ? normalized.toLowerCase() : normalized;
+}
+
+function workspace(trackedFiles) {
   const files = new Map();
   function read(file) {
     if (files.has(file)) return files.get(file);
     if (!fs.existsSync(file)) return undefined;
+    const lexical = fs.lstatSync(file);
+    if (lexical.isSymbolicLink() || !lexical.isFile()) return undefined;
     const real = fs.realpathSync(file);
     const relative = path.relative(root, real);
     if (relative === ".." || relative.startsWith(".." + path.sep) || path.isAbsolute(relative)) return undefined;
     if (!fs.statSync(real).isFile()) return undefined;
+    const sourceRelative = relative.replaceAll(path.sep, "/");
+    if (!trackedFiles.has(repoPathKey(sourceRelative))) return undefined;
     const bytes = fs.readFileSync(real);
     const text = bytes.toString("utf8");
     if (!bytes.equals(Buffer.from(text, "utf8"))) throw new Error("Invalid UTF-8: " + relative);
     const tree = ts.createSourceFile(real, text, ts.ScriptTarget.Latest, true);
-    const result = { text, tree };
+    const result = { text, bytes, tree, file: path.resolve(file), real };
     files.set(file, result);
     return result;
   }
@@ -101,7 +143,88 @@ function workspace() {
     return candidates.find((candidate) => read(candidate));
   }
 
-  return { read, resolve };
+  function snapshots() {
+    const unique = new Map();
+    for (const item of files.values()) unique.set(item.file, item);
+    return [...unique.values()].map((item) => ({
+      file: item.file,
+      real: item.real,
+      relative: path.relative(root, item.file).replaceAll(path.sep, "/"),
+      realRelative: path.relative(root, item.real).replaceAll(path.sep, "/"),
+      bytes: item.bytes,
+    }));
+  }
+
+  return { read, resolve, snapshots };
+}
+
+function samePath(left, right) {
+  const a = path.resolve(left);
+  const b = path.resolve(right);
+  return process.platform === "win32"
+    ? a.toLowerCase() === b.toLowerCase()
+    : a === b;
+}
+
+function assertBeforeImage(file, expected, relative, phase, expectedReal) {
+  let current;
+  try {
+    const lexical = fs.lstatSync(file);
+    if (lexical.isSymbolicLink() || !lexical.isFile()) {
+      throw new Error("Target is no longer a regular file.");
+    }
+    const real = fs.realpathSync(file);
+    const within = path.relative(root, real);
+    if (within === ".." || within.startsWith(".." + path.sep) || path.isAbsolute(within)) {
+      throw new Error("Target resolves outside the repository.");
+    }
+    if (!samePath(real, expectedReal)) {
+      throw new Error("Target path changed after planning.");
+    }
+    current = fs.readFileSync(real);
+  } catch (error) {
+    throw new Error("Cannot verify " + relative + " during " + phase + ": " + error.message);
+  }
+  if (!current.equals(expected)) {
+    throw new Error("Source changed during " + phase + ": " + relative);
+  }
+}
+
+function atomicReplace(file, expected, replacement, relative, phase, expectedReal) {
+  assertBeforeImage(file, expected, relative, phase, expectedReal);
+  const directory = path.dirname(file);
+  const temporary = path.join(
+    directory,
+    "." + path.basename(file) + ".export-refactor-" + process.pid + "-" + crypto.randomBytes(12).toString("hex") + ".tmp",
+  );
+  let descriptor;
+  let temporaryExists = false;
+  try {
+    const mode = fs.statSync(file).mode & 0o7777;
+    descriptor = fs.openSync(temporary, "wx", mode);
+    temporaryExists = true;
+    let offset = 0;
+    while (offset < replacement.length) {
+      const bytesWritten = fs.writeSync(descriptor, replacement, offset, replacement.length - offset);
+      if (bytesWritten <= 0) throw new Error("Short write while preparing " + relative);
+      offset += bytesWritten;
+    }
+    fs.fsyncSync(descriptor);
+    if (process.platform !== "win32") fs.fchmodSync(descriptor, mode);
+    fs.closeSync(descriptor);
+    descriptor = undefined;
+    assertBeforeImage(file, expected, relative, phase, expectedReal);
+    fs.renameSync(temporary, file);
+    temporaryExists = false;
+  } catch (error) {
+    if (descriptor !== undefined) {
+      try { fs.closeSync(descriptor); } catch {}
+    }
+    if (temporaryExists) {
+      try { fs.unlinkSync(temporary); } catch {}
+    }
+    throw error;
+  }
 }
 
 function run(name, plan, include = () => true) {
@@ -110,11 +233,22 @@ function run(name, plan, include = () => true) {
     return;
   }
   const { checkpoint, paths } = options(process.argv.slice(2));
-  if (checkpoint) verifyCheckpoint(checkpoint);
-  const reader = workspace();
+  const initialPaths = name === "strip-internal-jsdoc"
+    ? [...new Set([...paths, "packages"])]
+    : paths;
+  if (checkpoint) verifyCheckpoint(checkpoint, initialPaths);
+  const indexedFiles = new Set(
+    git("ls-files", "-z", "--cached")
+      .split("\0")
+      .filter(Boolean)
+      .map(repoPathKey),
+  );
+  const reader = workspace(indexedFiles);
   const changes = [];
   const blocked = [];
-  const tracked = new Set(git("ls-files", "-z", "--cached", "--", ...paths).split("\0").filter(Boolean));
+  const tracked = new Set(pathspecBatches(paths).flatMap((batch) =>
+    git("ls-files", "-z", "--cached", "--", ...batch).split("\0").filter(Boolean),
+  ));
   for (const relative of tracked) {
     if (!/\.[cm]?tsx?$/u.test(relative) || /\.d\.[cm]?ts$/u.test(relative) ||
         /(?:^|\/)(?:node_modules|dist|generated)\//u.test(relative) || !include(relative)) continue;
@@ -130,36 +264,87 @@ function run(name, plan, include = () => true) {
     const after = applyEdits(item.text, result.edits);
     const reparsed = ts.createSourceFile(file, after, ts.ScriptTarget.Latest, true);
     if (reparsed.parseDiagnostics.length) throw new Error("Planned edits do not parse: " + relative);
-    changes.push({ relative, file, before: item.text, after, count: result.count });
+    changes.push({
+      relative,
+      file,
+      before: item.text,
+      beforeBytes: item.bytes,
+      real: item.real,
+      after,
+      afterBytes: Buffer.from(after, "utf8"),
+      count: result.count,
+      preview: result.preview,
+    });
   }
+
+  const inputSnapshots = reader.snapshots();
+  const guardPaths = [...new Set([
+    ...paths,
+    ...inputSnapshots.flatMap((snapshot) => [snapshot.relative, snapshot.realRelative]),
+    ...(name === "strip-internal-jsdoc" ? ["packages"] : []),
+  ])];
 
   let written = 0;
   if (checkpoint) {
-    verifyCheckpoint(checkpoint);
-    for (const change of changes) {
-      if (fs.readFileSync(change.file, "utf8") !== change.before) {
-        throw new Error("Worktree changed while planning: " + change.relative);
-      }
+    verifyCheckpoint(checkpoint, guardPaths);
+    for (const snapshot of inputSnapshots) {
+      assertBeforeImage(
+        snapshot.file,
+        snapshot.bytes,
+        snapshot.relative,
+        "pre-apply input",
+        snapshot.real,
+      );
     }
+    for (const change of changes) {
+      assertBeforeImage(change.file, change.beforeBytes, change.relative, "pre-apply", change.real);
+    }
+    const applied = [];
     try {
       for (const change of changes) {
-        if (fs.readFileSync(change.file, "utf8") !== change.before) {
-          throw new Error("Worktree changed during apply: " + change.relative);
-        }
-        fs.writeFileSync(change.file, change.after, "utf8");
+        atomicReplace(
+          change.file,
+          change.beforeBytes,
+          change.afterBytes,
+          change.relative,
+          "apply",
+          change.real,
+        );
+        applied.push(change);
         written++;
       }
     } catch (error) {
-      throw new Error("Stopped after writing " + written + " files. Checkpoint: " + checkpoint + ". " + error.message);
+      const rollbackFailures = [];
+      for (const change of applied.reverse()) {
+        try {
+          atomicReplace(
+            change.file,
+            change.afterBytes,
+            change.beforeBytes,
+            change.relative,
+            "rollback",
+            change.real,
+          );
+        } catch (rollbackError) {
+          rollbackFailures.push(change.relative + ": " + rollbackError.message);
+        }
+      }
+      const rollback = rollbackFailures.length
+        ? "Rollback incomplete: " + rollbackFailures.join("; ")
+        : "All completed writes were rolled back.";
+      throw new Error(
+        "Stopped after writing " + written + " files. " + rollback +
+          " Checkpoint: " + checkpoint + ". " + error.message,
+      );
     }
   }
   console.log(JSON.stringify({
     mode: checkpoint ? "apply" : "check",
     checkpoint,
     written,
-    changes: changes.map(({ relative, count }) => ({ file: relative, count })),
+    changes: changes.map(({ relative, count, preview }) => ({ file: relative, count, ...(preview ?? {}) })),
     blocked,
   }, null, 2));
 }
 
-module.exports = { applyEdits, run };
+module.exports = { applyEdits, pathspecBatches, run };

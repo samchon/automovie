@@ -2,7 +2,7 @@ import { type AutoMovieArchetype } from "../core/index";
 import { AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
 import { createMule as createMuleImplementation } from "./mule/createMule";
 import { AutoMovieArchetypeUnits, type IAutoMovieArchetypeBand } from "../core";
-import { HORSE_BANDS } from "./HORSE_BANDS";
+import { HORSE_BANDS } from "./equine/HORSE_BANDS";
 import { AutoMovieArchetypeHorse } from "./AutoMovieArchetypeHorse";
 import { AutoMovieArchetypeEquineEarProfiles } from "./AutoMovieArchetypeEquineEarProfiles";
 
