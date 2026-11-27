@@ -39,7 +39,6 @@ export * from "./RecoveryChartSurface";
 
 export * from "./RecoveryFeasibleCapacityError";
 
-export * from "./RecoveryFeatureChartCutsFans";
 
 
 
