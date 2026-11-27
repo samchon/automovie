@@ -34,7 +34,9 @@ Verify a render, viewer or capture change under [visual debugging](../visual-deb
 
 Check the files, substitutions and shared skills a new project receives. The installer includes untracked scaffold files.
 
-For installation changes, verify the installed entry point and run `lint`, `evidence` and `test` in a generated project when the task permits. Preserve local choices, contracts and repairs when updating an existing production.
+For installation changes, verify the installed entry point and run `lint`, `evidence` and `test` in a generated project when the task permits.
+
+Preserve local choices, contracts and repairs when updating an existing production.
 
 ## Formatting
 

@@ -29,6 +29,8 @@ Use prose when the reader needs the reasoning behind a conclusion or the relatio
 
 Lead each paragraph with its point. Start a new paragraph whenever the topic changes. Saving a line break has no value.
 
+Keep each paragraph in a Markdown file on one source line.
+
 ## Lists and tables
 
 Keep each list item and table row on one source line of at most 80 characters. Count link text without its destination.

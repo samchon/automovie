@@ -61,8 +61,13 @@ export const transcludeMarkdownSection = {
       .slice(start.line, next?.line ?? sourceLines.length)
       .join("");
     const lines: string[] = splitLines(markdown);
-    for (const marker of markerLines(markdown).reverse())
-      lines.splice(marker, 1, section);
+    const sectionEndsWithLineBreak: boolean = /[\r\n]$/u.test(section);
+    for (const marker of markerLines(markdown)) {
+      const line: string = lines[marker]!;
+      lines[marker] = sectionEndsWithLineBreak
+        ? section
+        : section + line.slice(lineContent(line).length);
+    }
     return lines.join("");
   },
 };

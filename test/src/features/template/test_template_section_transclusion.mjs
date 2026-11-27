@@ -65,6 +65,14 @@ assert.equal(
   ),
   expected,
 );
+assert.equal(
+  transclusion.transcludeMarkdownSection.expand(
+    `${marker}\r\n## Next\r\n`,
+    ".agents/skills/example/SKILL.md",
+    "## Continuing\nbody",
+  ),
+  "## Continuing\nbody\r\n## Next\r\n",
+);
 assert.throws(
   () =>
     transclusion.transcludeMarkdownSection.expand(
