@@ -1,5 +1,16 @@
 import type { IAutoMovieDeliveryContentAudit } from "@automovie/interface";
 
+interface IResolvedReviewCut {
+  state: "resolved";
+  entry: number;
+  shot: string;
+}
+
+interface IUnassignedReviewCut {
+  state: "ambiguous" | "unavailable";
+  reason: string;
+}
+
 /**
  * A review mark bound to the published file and the inspection its reviewer
  * explicitly reports.
@@ -52,8 +63,8 @@ export interface IAutoMovieCliReviewObservation {
   unavailable: string | null;
   /** The single source occurrence or why it could not be assigned. */
   cut:
-    | { state: "resolved"; entry: number; shot: string }
-    | { state: "ambiguous" | "unavailable"; reason: string };
+    | IResolvedReviewCut
+    | IUnassignedReviewCut;
   /** Production-relative receipt of the earlier mark when explicitly rebound. */
   previous: string | null;
 }

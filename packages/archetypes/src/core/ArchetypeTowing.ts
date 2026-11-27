@@ -27,14 +27,21 @@ export namespace ArchetypeTowing {
    * Producer-declared support: a freely pitching single axle or grounded
    * front/rear axles.
    */
+  interface ISingleAxleSupport {
+    kind: "singleAxle";
+    axle: IAutoMovieVector3;
+  }
+
+  interface IFixedGroundSupport<Id extends string> {
+    kind: "fixedGround";
+    axle: IAutoMovieVector3;
+    front: IFront<Id>;
+    pitch?: Id;
+  }
+
   export type Support<Id extends string> =
-    | { kind: "singleAxle"; axle: IAutoMovieVector3 }
-    | {
-        kind: "fixedGround";
-        axle: IAutoMovieVector3;
-        front: IFront<Id>;
-        pitch?: Id;
-      };
+    | ISingleAxleSupport
+    | IFixedGroundSupport<Id>;
 
   /**
    * One authored ground plane under a horizontal world point: a point on it and
